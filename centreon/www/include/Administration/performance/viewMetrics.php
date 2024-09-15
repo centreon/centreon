@@ -115,10 +115,10 @@ $stmt->execute();
 $tmp = $stmt->fetch(\PDO::FETCH_ASSOC);
 $rows = $tmp["COUNT(*)"];
 
-$tab_class = array("0" => "list_one", "1" => "list_two");
-$storage_type = array(0 => "RRDTool", 2 => "RRDTool & MySQL");
-$yesOrNo = array(null => "No", 0 => "No", 1 => "Yes", 2 => "Rebuilding");
-$rrd_dst = array(0 => "GAUGE", 1 => "COUNTER", 2 => "DERIVE", 3 => "ABSOLUTE");
+$tab_class = ["0" => "list_one", "1" => "list_two"];
+$storage_type = [0 => "RRDTool", 2 => "RRDTool & MySQL"];
+$yesOrNo = [null => "No", 0 => "No", 1 => "Yes", 2 => "Rebuilding"];
+$rrd_dst = [0 => "GAUGE", 1 => "COUNTER", 2 => "DERIVE", 3 => "ABSOLUTE"];
 
 $query = "SELECT * FROM metrics WHERE to_delete = 0 AND index_id = :indexId ORDER BY metric_name";
 $stmt2 = $pearDBO->prepare($query);
@@ -126,7 +126,7 @@ $stmt2->bindParam(':indexId', $indexId, PDO::PARAM_INT);
 $stmt2->execute();
 unset($data);
 for ($im = 0; $metrics = $stmt2->fetch(\PDO::FETCH_ASSOC); $im++) {
-    $metric = array();
+    $metric = [];
     $metric["metric_id"] = $metrics["metric_id"];
     $metric["class"] = $tab_class[$im % 2];
     $metric["metric_name"] = str_replace("#S#", "/", $metrics["metric_name"]);
@@ -195,23 +195,12 @@ $form = new HTML_QuickFormCustom('form', 'POST', "?p=" . $p);
         }
     </script>
 <?php
-$actions = array(
-    null => _("More actions..."),
-    "ed" => _("Delete graphs"),
-    "dst_a" => _("Set RRD Data Source Type to ABSOLUTE"),
-    "dst_c" => _("Set RRD Data Source Type to COUNTER"),
-    "dst_d" => _("Set RRD Data Source Type to DERIVE"),
-    "dst_g" => _("Set RRD Data Source Type to GAUGE"),
-    "hg" => _("Hide graphs of selected Services"),
-    "nhg" => _("Stop hiding graphs of selected Services"),
-    "lk" => _("Lock Services"),
-    "nlk" => _("Unlock Services")
-);
-$form->addElement('select', 'o1', null, $actions, array('onchange' => "javascript:on_action_change('o1')"));
-$form->setDefaults(array('o1' => null));
+$actions = [null => _("More actions..."), "ed" => _("Delete graphs"), "dst_a" => _("Set RRD Data Source Type to ABSOLUTE"), "dst_c" => _("Set RRD Data Source Type to COUNTER"), "dst_d" => _("Set RRD Data Source Type to DERIVE"), "dst_g" => _("Set RRD Data Source Type to GAUGE"), "hg" => _("Hide graphs of selected Services"), "nhg" => _("Stop hiding graphs of selected Services"), "lk" => _("Lock Services"), "nlk" => _("Unlock Services")];
+$form->addElement('select', 'o1', null, $actions, ['onchange' => "javascript:on_action_change('o1')"]);
+$form->setDefaults(['o1' => null]);
 
-$form->addElement('select', 'o2', null, $actions, array('onchange' => "javascript:on_action_change('o2')"));
-$form->setDefaults(array('o2' => null));
+$form->addElement('select', 'o2', null, $actions, ['onchange' => "javascript:on_action_change('o2')"]);
+$form->setDefaults(['o2' => null]);
 
 $o1 = $form->getElement('o1');
 $o1->setValue(null);

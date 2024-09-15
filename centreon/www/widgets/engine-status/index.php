@@ -87,10 +87,10 @@ $path = $centreon_path . 'www/widgets/engine-status/src/';
 $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, './', $centreon_path);
 
-$dataLat = array();
-$dataEx = array();
-$dataSth = array();
-$dataSts = array();
+$dataLat = [];
+$dataEx = [];
+$dataSth = [];
+$dataSts = [];
 $db = new CentreonDB("centstorage");
 
 $instances = [];

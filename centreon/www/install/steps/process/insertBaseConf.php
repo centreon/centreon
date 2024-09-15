@@ -40,11 +40,7 @@ require_once '../functions.php';
 
 use CentreonModule\ServiceProvider;
 
-$return = array(
-    'id' => 'baseconf',
-    'result' => 1,
-    'msg' => ''
-);
+$return = ['id' => 'baseconf', 'result' => 1, 'msg' => ''];
 
 $factory = new \CentreonLegacy\Core\Utils\Factory($dependencyInjector);
 $utils = $factory->newUtils();

@@ -46,11 +46,7 @@ function extractErrorMessage(BufferedOutput $output): ?string
     return null;
 }
 
-$return = array(
-    'id' => 'generationCache',
-    'result' => 0,
-    'msg' => 'OK'
-);
+$return = ['id' => 'generationCache', 'result' => 0, 'msg' => 'OK'];
 
 try {
     if (!class_exists(Application::class)) {

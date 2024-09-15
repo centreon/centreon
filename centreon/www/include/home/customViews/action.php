@@ -293,7 +293,7 @@ try {
             break;
         case 'setRotate':
             if ($postInputs['timer'] >= 0) {
-                $centreon->user->setContactParameters($db, array('widget_view_rotation' => $postInputs['timer']));
+                $centreon->user->setContactParameters($db, ['widget_view_rotation' => $postInputs['timer']]);
             }
             break;
         case 'defaultEditMode':

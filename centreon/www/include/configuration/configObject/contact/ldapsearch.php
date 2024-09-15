@@ -54,7 +54,7 @@ if (!isset($_POST['confList']) || !strlen($_POST['confList'])) {
 }
 $confList = $_POST['confList'];
 
-$ldap_search_filters = array();
+$ldap_search_filters = [];
 if (isset($_POST['ldap_search_filter'])) {
     $ldap_search_filters = $_POST['ldap_search_filter'];
 }
@@ -84,7 +84,7 @@ $queryGetLdap = 'SELECT contact_alias
 		 FROM contact
                  WHERE contact_register = 1';
 
-$listLdapUsers = array();
+$listLdapUsers = [];
 try {
     $res = $pearDB->query($queryGetLdap);
     while ($row = $res->fetchRow()) {

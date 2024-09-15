@@ -152,7 +152,7 @@ function myEncode($data)
 
 function getStatusColor($pearDB)
 {
-    $colors = array();
+    $colors = [];
     $DBRESULT = $pearDB->query("SELECT * FROM `options` WHERE `key` LIKE 'color%'");
     while ($c = $DBRESULT->fetchRow()) {
         $colors[$c["key"]] = myDecode($c["value"]);
@@ -369,14 +369,14 @@ function getMyServiceCategories($service_id = null)
     if (!$service_id) {
         return;
     }
-    $tab = array();
+    $tab = [];
     while (1) {
         $statement = $pearDB->prepare("SELECT sc.sc_id FROM service_categories_relation scr, service_categories sc " .
             "WHERE scr.service_service_id = :service_id AND sc.sc_id = scr.sc_id AND sc.sc_activate = '1'");
         $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
         $statement->execute();
         if ($statement->rowCount()) {
-            $tabSC = array();
+            $tabSC = [];
             while ($row = $statement->fetchRow()) {
                 $tabSC[$row["sc_id"]] = $row["sc_id"];
             }
@@ -394,7 +394,7 @@ function getMyServiceCategories($service_id = null)
                 $service_id = $row["service_template_model_stm_id"];
                 $tab[$service_id] = 1;
             } else {
-                return array();
+                return [];
             }
         }
     }
@@ -543,7 +543,7 @@ function getMyHostMultipleTemplateModels($host_id = null)
     }
 
     global $pearDB;
-    $tplArr = array();
+    $tplArr = [];
     $query = "SELECT host_tpl_id FROM `host_template_relation` WHERE host_host_id = :host_id ORDER BY `order`";
     $statement0 = $pearDB->prepare($query);
     $statement0->bindValue(':host_id', (int)$host_id, \PDO::PARAM_INT);
@@ -602,7 +602,7 @@ function getMyHostGroupHosts($hg_id = null, $searchHost = null, $level = 1)
     if (isset($searchHost) && $searchHost != "") {
         $searchSTR = " AND h.host_name LIKE '%" . CentreonDB::escape($searchHost) . "%' ";
     }
-    $hosts = array();
+    $hosts = [];
     $statement = $pearDB->prepare("SELECT hgr.host_host_id " .
         "FROM hostgroup_relation hgr, host h " .
         "WHERE hgr.hostgroup_hg_id = :hostgroup_hg_id " .
@@ -635,11 +635,11 @@ function getMyHostGroupHosts($hg_id = null, $searchHost = null, $level = 1)
 
 function setHgHgCache($pearDB)
 {
-    $hgHgCache = array();
+    $hgHgCache = [];
     $DBRESULT = $pearDB->query("SELECT /* SQL_CACHE */ hg_parent_id, hg_child_id FROM hostgroup_hg_relation");
     while ($data = $DBRESULT->fetchRow()) {
         if (!isset($hgHgCache[$data["hg_parent_id"]])) {
-            $hgHgCache[$data["hg_parent_id"]] = array();
+            $hgHgCache[$data["hg_parent_id"]] = [];
         }
         $hgHgCache[$data["hg_parent_id"]][$data["hg_child_id"]] = 1;
     }
@@ -656,7 +656,7 @@ function getMyHostGroupHostGroups($hg_id = null)
         return;
     }
 
-    $hosts = array();
+    $hosts = [];
 
     $statement = $pearDB->prepare("SELECT hg_child_id " .
         "FROM hostgroup_hg_relation, hostgroup " .
@@ -686,7 +686,7 @@ function getMyServiceGroupServices($sg_id = null)
     /*
      * ServiceGroups by host
      */
-    $svs = array();
+    $svs = [];
     $statement = $pearDB->prepare("SELECT service_description, service_id, host_host_id, host_name " .
         "FROM servicegroup_relation, service, host " .
         "WHERE servicegroup_sg_id = :sg_id " .
@@ -734,7 +734,7 @@ function getMyServiceField($service_id, $field)
         return;
     }
     global $pearDB;
-    $tab = array();
+    $tab = [];
 
     while (1) {
         $statement = $pearDB->prepare("SELECT `" . $field . "` , service_template_model_stm_id " .
@@ -763,7 +763,7 @@ function getMyServiceExtendedInfoField($service_id, $field)
     }
     global $pearDB;
 
-    $tab = array();
+    $tab = [];
     while (1) {
         $statement = $pearDB->prepare("SELECT `extended_service_information`.`" . $field . "` ," .
             " `service`.`service_template_model_stm_id` " .
@@ -798,7 +798,7 @@ function getMyServiceName($service_id = null)
         return;
     }
     global $pearDB;
-    $tab = array();
+    $tab = [];
 
     while (1) {
         $statement = $pearDB->prepare("SELECT service_description, service_template_model_stm_id FROM service " .
@@ -827,7 +827,7 @@ function getMyServiceAlias($service_id = null)
     }
     global $pearDB;
 
-    $tab = array();
+    $tab = [];
 
     while (1) {
         $statement = $pearDB->prepare("SELECT service_alias, service_template_model_stm_id FROM service " .
@@ -856,7 +856,7 @@ function getMyServiceGraphID($service_id = null)
     }
     global $pearDB;
 
-    $tab = array();
+    $tab = [];
     while (1) {
         $statement = $pearDB->prepare("SELECT esi.graph_id, service_template_model_stm_id" .
             " FROM service, extended_service_information esi " .
@@ -958,7 +958,7 @@ function getMyHostServices($host_id = null, $search = 0)
         return;
     }
 
-    $hSvs = array();
+    $hSvs = [];
 
     /*
      * Get Services attached to hosts
@@ -1007,7 +1007,7 @@ function getMyHostServicesByName($host_id = null)
         return;
     }
     global $pearDB;
-    $hSvs = array();
+    $hSvs = [];
     $statement = $pearDB->prepare("SELECT service_id, service_description FROM service, host_service_relation hsr " .
         "WHERE hsr.host_host_id =  :host_host_id " .
         "AND hsr.service_service_id = service_id");
@@ -1038,7 +1038,7 @@ function getMyServiceHosts($service_id = null)
         return;
     }
     global $pearDB;
-    $hosts = array();
+    $hosts = [];
     $statement = $pearDB->prepare("SELECT DISTINCT host_host_id FROM host_service_relation hsr " .
         "WHERE hsr.service_service_id = :service_service_id ");
     $statement->bindValue(':service_service_id', (int)$service_id, \PDO::PARAM_INT);
@@ -1059,7 +1059,7 @@ function getMyServiceHostGroups($service_id = null)
         return;
     }
     global $pearDB;
-    $hgs = array();
+    $hgs = [];
     $statement = $pearDB->prepare("SELECT DISTINCT hostgroup_hg_id FROM host_service_relation hsr " .
         "WHERE hsr.service_service_id =  :service_service_id ");
     $statement->bindValue(':service_service_id', (int)$service_id, \PDO::PARAM_INT);
@@ -1097,7 +1097,7 @@ function getMyServiceTemplateModels($service_id = null)
         return;
     }
     global $pearDB;
-    $tplArr = array();
+    $tplArr = [];
     while (1) {
         $statement = $pearDB->prepare("SELECT service_description, service_template_model_stm_id FROM service " .
             "WHERE service_id = :service_id LIMIT 1");
@@ -1134,7 +1134,7 @@ function getMyCheckCmdName($service_id = null)
     }
     global $pearDB;
 
-    $tab = array();
+    $tab = [];
 
     $query = "SELECT command_name FROM command WHERE command_id = :command_id LIMIT 1";
     $statement = $pearDB->prepare($query);
@@ -1168,7 +1168,7 @@ function getMyCheckCmdArg($service_id = null)
         return;
     }
     global $pearDB;
-    $tab = array();
+    $tab = [];
 
     while (1) {
         $query = "SELECT command_command_id_arg, service_template_model_stm_id FROM service " .
@@ -1231,18 +1231,14 @@ function return_image_list($mode = 0, $rep = null, $full = true, $origin_path = 
 {
     global $pearDB;
 
-    $images = array();
+    $images = [];
 
     if ($full) {
-        $images = array(null => null);
+        $images = [null => null];
     }
 
-    $is_not_an_image = array(".", "..", "README", "readme", "LICENCE", "licence");
-    $is_a_valid_image = array(
-        0 => array('png' => 'png'),
-        1 => array('gif' => 'gif', 'png' => 'png', 'jpg' => 'jpg'),
-        2 => array('gif' => 'gif', 'png' => 'png', 'jpg' => 'jpg', 'gd2' => 'gd2')
-    );
+    $is_not_an_image = [".", "..", "README", "readme", "LICENCE", "licence"];
+    $is_a_valid_image = [0 => ['png' => 'png'], 1 => ['gif' => 'gif', 'png' => 'png', 'jpg' => 'jpg'], 2 => ['gif' => 'gif', 'png' => 'png', 'jpg' => 'jpg', 'gd2' => 'gd2']];
 
     $query = "SELECT img_id, img_name, img_path, dir_name FROM view_img_dir, view_img, view_img_dir_relation vidr " .
         "WHERE img_id = vidr.img_img_id AND dir_id = vidr.dir_dir_parent_id ORDER BY dir_name, img_name";
@@ -1270,7 +1266,7 @@ function return_image_list($mode = 0, $rep = null, $full = true, $origin_path = 
 
 function getLangs()
 {
-    $langs = array('browser' => _("Detection by browser"));
+    $langs = ['browser' => _("Detection by browser")];
     $chemintotal = "./locale/";
 
     if (is_dir($chemintotal)) {
@@ -1435,9 +1431,9 @@ function str2db($string)
  * @param int $svcId The service ID
  * @return array
  */
-function getListTemplates($pearDB, $svcId, $alreadyProcessed = array())
+function getListTemplates($pearDB, $svcId, $alreadyProcessed = [])
 {
-    $svcTmpl = array();
+    $svcTmpl = [];
     if (in_array($svcId, $alreadyProcessed)) {
         return $svcTmpl;
     } else {

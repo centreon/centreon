@@ -44,7 +44,7 @@ require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 /*
  * Retrieve information
  */
-$group = array();
+$group = [];
 if (($o == "c" || $o == "w") && $acl_group_id) {
     $DBRESULT = $pearDB->prepare("SELECT * FROM acl_groups WHERE acl_group_id = :aclGroupId LIMIT 1");
     $DBRESULT->bindValue('aclGroupId', $acl_group_id, PDO::PARAM_INT);
@@ -135,7 +135,7 @@ if (($o == "c" || $o == "w") && $acl_group_id) {
  * Database retrieve information for differents elements list we need on the page
  */
 # Contacts comes from DB -> Store in $contacts Array
-$contacts = array();
+$contacts = [];
 $query = "SELECT contact_id, contact_name "
     . "FROM contact WHERE contact_admin = '0' "
     . "AND contact_register = 1 "
@@ -154,7 +154,7 @@ $cg = new CentreonContactgroup($pearDB);
 $contactGroups = $cg->getListContactgroup(true);
 
 # topology comes from DB -> Store in $contacts Array
-$menus = array();
+$menus = [];
 $DBRESULT = $pearDB->query("SELECT acl_topo_id, acl_topo_name FROM acl_topology ORDER BY acl_topo_name");
 while ($topo = $DBRESULT->fetchRow()) {
     $menus[$topo["acl_topo_id"]] = CentreonUtils::escapeAll(
@@ -166,7 +166,7 @@ unset($topo);
 $DBRESULT->closeCursor();
 
 # Action comes from DB -> Store in $contacts Array
-$action = array();
+$action = [];
 $DBRESULT = $pearDB->query("SELECT acl_action_id, acl_action_name FROM acl_actions ORDER BY acl_action_name");
 while ($data = $DBRESULT->fetchRow()) {
     $action[$data["acl_action_id"]] = CentreonUtils::escapeAll(
@@ -178,7 +178,7 @@ unset($data);
 $DBRESULT->closeCursor();
 
 # Resources comes from DB -> Store in $contacts Array
-$resources = array();
+$resources = [];
 $query = 'SELECT acl_res_id, acl_res_name '
     . 'FROM acl_resources '
     . 'WHERE locked = 0 '
@@ -196,9 +196,9 @@ $DBRESULT->closeCursor();
 ##########################################################
 # Var information to format the element
 #
-$attrsText = array("size" => "30");
-$attrsAdvSelect = array("style" => "width: 300px; height: 130px;");
-$attrsTextarea = array("rows" => "6", "cols" => "150");
+$attrsText = ["size" => "30"];
+$attrsAdvSelect = ["style" => "width: 300px; height: 130px;"];
+$attrsTextarea = ["rows" => "6", "cols" => "150"];
 $eTemplate = '<table><tr>'
     . '<td><div class="ams">{label_2}</div>{unselected}</td>'
     . '<td align="center">{add}<br /><br /><br />{remove}</td>'
@@ -232,85 +232,65 @@ $form->addElement('header', 'actions', _("Action access list link"));
 $ams1 = $form->addElement(
     'advmultiselect',
     'cg_contacts',
-    array(
-        _("Linked Contacts"),
-        _("Available"),
-        _("Selected")
-    ),
+    [_("Linked Contacts"), _("Available"), _("Selected")],
     $contacts,
     $attrsAdvSelect,
     SORT_ASC
 );
-$ams1->setButtonAttributes('add', array('value' => _("Add"), "class" => "btc bt_success"));
-$ams1->setButtonAttributes('remove', array('value' => _("Remove"), "class" => "btc bt_danger"));
+$ams1->setButtonAttributes('add', ['value' => _("Add"), "class" => "btc bt_success"]);
+$ams1->setButtonAttributes('remove', ['value' => _("Remove"), "class" => "btc bt_danger"]);
 $ams1->setElementTemplate($eTemplate);
 echo $ams1->getElementJs(false);
 
 $ams1 = $form->addElement(
     'advmultiselect',
     'cg_contactGroups',
-    array(
-        _("Linked Contact Groups"),
-        _("Available"),
-        _("Selected")
-    ),
+    [_("Linked Contact Groups"), _("Available"), _("Selected")],
     $contactGroups,
     $attrsAdvSelect,
     SORT_ASC
 );
-$ams1->setButtonAttributes('add', array('value' => _("Add"), "class" => "btc bt_success"));
-$ams1->setButtonAttributes('remove', array('value' => _("Remove"), "class" => "btc bt_danger"));
+$ams1->setButtonAttributes('add', ['value' => _("Add"), "class" => "btc bt_success"]);
+$ams1->setButtonAttributes('remove', ['value' => _("Remove"), "class" => "btc bt_danger"]);
 $ams1->setElementTemplate($eTemplate);
 echo $ams1->getElementJs(false);
 
 $ams1 = $form->addElement(
     'advmultiselect',
     'menuAccess',
-    array(
-        _("Menu access"),
-        _("Available"),
-        _("Selected")
-    ),
+    [_("Menu access"), _("Available"), _("Selected")],
     $menus,
     $attrsAdvSelect,
     SORT_ASC
 );
-$ams1->setButtonAttributes('add', array('value' => _("Add"), "class" => "btc bt_success"));
-$ams1->setButtonAttributes('remove', array('value' => _("Remove"), "class" => "btc bt_danger"));
+$ams1->setButtonAttributes('add', ['value' => _("Add"), "class" => "btc bt_success"]);
+$ams1->setButtonAttributes('remove', ['value' => _("Remove"), "class" => "btc bt_danger"]);
 $ams1->setElementTemplate($eTemplate);
 echo $ams1->getElementJs(false);
 
 $ams1 = $form->addElement(
     'advmultiselect',
     'actionAccess',
-    array(
-        _("Actions access"),
-        _("Available"),
-        _("Selected")
-    ),
+    [_("Actions access"), _("Available"), _("Selected")],
     $action,
     $attrsAdvSelect,
     SORT_ASC
 );
-$ams1->setButtonAttributes('add', array('value' => _("Add"), "class" => "btc bt_success"));
-$ams1->setButtonAttributes('remove', array('value' => _("Remove"), "class" => "btc bt_danger"));
+$ams1->setButtonAttributes('add', ['value' => _("Add"), "class" => "btc bt_success"]);
+$ams1->setButtonAttributes('remove', ['value' => _("Remove"), "class" => "btc bt_danger"]);
 $ams1->setElementTemplate($eTemplate);
 echo $ams1->getElementJs(false);
 
 $ams1 = $form->addElement(
     'advmultiselect',
     'resourceAccess',
-    array(
-        _("Resources access"),
-        _("Available"),
-        _("Selected")
-    ),
+    [_("Resources access"), _("Available"), _("Selected")],
     $resources,
     $attrsAdvSelect,
     SORT_ASC
 );
-$ams1->setButtonAttributes('add', array('value' => _("Add"), "class" => "btc bt_success"));
-$ams1->setButtonAttributes('remove', array('value' => _("Remove"), "class" => "btc bt_danger"));
+$ams1->setButtonAttributes('add', ['value' => _("Add"), "class" => "btc bt_success"]);
+$ams1->setButtonAttributes('remove', ['value' => _("Remove"), "class" => "btc bt_danger"]);
 $ams1->setElementTemplate($eTemplate);
 echo $ams1->getElementJs(false);
 
@@ -321,13 +301,13 @@ $form->addElement('header', 'furtherInfos', _("Additional Information"));
 $groupActivation[] = $form->createElement('radio', 'acl_group_activate', null, _("Enabled"), '1');
 $groupActivation[] = $form->createElement('radio', 'acl_group_activate', null, _("Disabled"), '0');
 $form->addGroup($groupActivation, 'acl_group_activate', _("Status"), '&nbsp;');
-$form->setDefaults(array('acl_group_activate' => '1'));
+$form->setDefaults(['acl_group_activate' => '1']);
 
-$tab = array();
+$tab = [];
 $tab[] = $form->createElement('radio', 'action', null, _("List"), '1');
 $tab[] = $form->createElement('radio', 'action', null, _("Form"), '0');
 $form->addGroup($tab, 'action', _("Post Validation"), '&nbsp;');
-$form->setDefaults(array('action' => '1'));
+$form->setDefaults(['action' => '1']);
 
 $form->addElement('hidden', 'acl_group_id');
 $redirect = $form->addElement('hidden', 'o');
@@ -389,9 +369,7 @@ if ($o == "w") {
         "button",
         "change",
         _("Modify"),
-        array(
-            "onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&cg_id=" . $group_id . "'"
-        )
+        ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&cg_id=" . $group_id . "'"]
     );
     $form->setDefaults($group);
     $form->freeze();
@@ -399,15 +377,15 @@ if ($o == "w") {
     /*
     * Modify a Contact Group information
     */
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $form->setDefaults($group);
 } elseif ($o == "a") {
     /*
     * Add a Contact Group information
     */
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 }
 $valid = false;
 if ($form->validate()) {

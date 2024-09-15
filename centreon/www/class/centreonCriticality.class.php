@@ -83,7 +83,7 @@ class CentreonCriticality
      */
     public function getDataForHosts($critId)
     {
-        static $data = array();
+        static $data = [];
         
         if (!isset($data[$critId])) {
             $sql = "SELECT hc_id, hc_name, level, icon_id, hc_comment
@@ -114,7 +114,7 @@ class CentreonCriticality
      */
     public function getDataForServices($critId)
     {
-        static $data = array();
+        static $data = [];
         
         if (!isset($data[$critId])) {
             $sql = "SELECT sc_id, sc_name, level, icon_id, sc_description
@@ -188,7 +188,7 @@ class CentreonCriticality
                 WHERE cvs.name='CRITICALITY_ID'
                 AND cvs.service_id IS NULL";
             $res = $db->query($sql);
-            $ids = array();
+            $ids = [];
             while ($row = $res->fetchRow()) {
                 $ids[$row['host_id']] = $row['criticality'];
             }
@@ -214,7 +214,7 @@ class CentreonCriticality
                 WHERE cvs.name='CRITICALITY_ID'
                 AND cvs.service_id IS NOT NULL";
             $res = $db->query($sql);
-            $ids = array();
+            $ids = [];
             while ($row = $res->fetchRow()) {
                 $ids[$row['service_id']] = $row['criticality'];
             }
@@ -257,9 +257,9 @@ class CentreonCriticality
             $sql .= " LIMIT $offset,$limit";
         }
         $res = $this->db->query($sql);
-        $elements = array();
+        $elements = [];
         while ($row = $res->fetchRow()) {
-            $elements[$row['hc_id']] = array();
+            $elements[$row['hc_id']] = [];
             $elements[$row['hc_id']]['hc_name'] = $row['hc_name'];
             $elements[$row['hc_id']]['level'] = $row['level'];
             $elements[$row['hc_id']]['icon_id'] = $row['icon_id'];
@@ -300,9 +300,9 @@ class CentreonCriticality
             $sql .= " LIMIT $offset,$limit";
         }
         $res = $this->db->query($sql);
-        $elements = array();
+        $elements = [];
         while ($row = $res->fetchRow()) {
-            $elements[$row['sc_id']] = array();
+            $elements[$row['sc_id']] = [];
             $elements[$row['sc_id']]['sc_name'] = $row['sc_name'];
             $elements[$row['sc_id']]['level'] = $row['level'];
             $elements[$row['sc_id']]['icon_id'] = $row['icon_id'];

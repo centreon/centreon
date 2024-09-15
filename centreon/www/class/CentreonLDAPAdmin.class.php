@@ -68,7 +68,7 @@ class CentreonLdapAdmin
      */
     public function getLdapParameters()
     {
-        $tab = array(
+        $tab = [
             'ldap_store_password',
             'ldap_auto_import',
             'ldap_connection_timeout',
@@ -97,9 +97,10 @@ class CentreonLdapAdmin
             'group_filter',
             'group_name',
             'group_member',
-            'ldap_auto_sync', // is auto synchronization enabled
-            'ldap_sync_interval' // unsigned integer interval between two LDAP synchronization
-        );
+            'ldap_auto_sync',
+            // is auto synchronization enabled
+            'ldap_sync_interval',
+        ];
         return $tab;
     }
 
@@ -241,16 +242,7 @@ class CentreonLdapAdmin
             if (
                 in_array(
                     $key,
-                    array(
-                        "alias",
-                        "user_name",
-                        "user_email",
-                        "user_pager",
-                        "user_firstname",
-                        "user_lastname",
-                        "group_name",
-                        "group_member"
-                    )
+                    ["alias", "user_name", "user_email", "user_pager", "user_firstname", "user_lastname", "group_name", "group_member"]
                 )
             ) {
                 $value = strtolower($value);
@@ -342,7 +334,7 @@ class CentreonLdapAdmin
      * @return void
      * @throws PDOException
      */
-    public function modifyServer($arId, $params = array()): void
+    public function modifyServer($arId, $params = []): void
     {
         if (!isset($params['order']) || !isset($params['id'])) {
             return;
@@ -468,7 +460,7 @@ class CentreonLdapAdmin
                  WHERE ar_type = 'ldap_tmpl'"
             );
             if ($res->rowCount() == 0) {
-                return array();
+                return [];
             }
             $row = $res->fetch();
             $id = $row['ar_id'];
@@ -494,9 +486,9 @@ class CentreonLdapAdmin
      */
     public function getTemplateAd()
     {
-        $infos = array();
+        $infos = [];
         $infos['user_filter'] = "(&(samAccountName=%s)(objectClass=user)(samAccountType=805306368))";
-        $attr = array();
+        $attr = [];
         $attr['alias'] = 'samaccountname';
         $attr['email'] = 'mail';
         $attr['name'] = 'name';
@@ -506,7 +498,7 @@ class CentreonLdapAdmin
         $attr['lastname'] = 'sn';
         $infos['user_attr'] = $attr;
         $infos['group_filter'] = "(&(samAccountName=%s)(objectClass=group)(samAccountType=268435456))";
-        $attr = array();
+        $attr = [];
         $attr['group_name'] = 'samaccountname';
         $attr['member'] = 'member';
         $infos['group_attr'] = $attr;
@@ -520,9 +512,9 @@ class CentreonLdapAdmin
      */
     public function getTemplateLdap()
     {
-        $infos = array();
+        $infos = [];
         $infos['user_filter'] = "(&(uid=%s)(objectClass=inetOrgPerson))";
-        $attr = array();
+        $attr = [];
         $attr['alias'] = 'uid';
         $attr['email'] = 'mail';
         $attr['name'] = 'cn';
@@ -532,7 +524,7 @@ class CentreonLdapAdmin
         $attr['lastname'] = 'sn';
         $infos['user_attr'] = $attr;
         $infos['group_filter'] = "(&(cn=%s)(objectClass=groupOfNames))";
-        $attr = array();
+        $attr = [];
         $attr['group_name'] = 'cn';
         $attr['member'] = 'member';
         $infos['group_attr'] = $attr;
@@ -611,7 +603,7 @@ class CentreonLdapAdmin
      * @return void
      * @throws PDOException
      */
-    public function setStatus($status, $configList = array()): void
+    public function setStatus($status, $configList = []): void
     {
         if (count($configList)) {
             $configIds = [];

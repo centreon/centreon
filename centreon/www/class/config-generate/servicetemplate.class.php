@@ -60,7 +60,7 @@ class ServiceTemplate extends AbstractService
     /** @var null */
     public $current_service_id = null;
     /** @var array */
-    protected $loop_tpl = array();
+    protected $loop_tpl = [];
     /** @var string */
     protected $attributes_select = '
         service_id,
@@ -109,38 +109,7 @@ class ServiceTemplate extends AbstractService
         service_acknowledgement_timeout as acknowledgement_timeout
     ';
     /** @var string[] */
-    protected $attributes_write = array(
-        'service_description',
-        'name',
-        'display_name',
-        'contacts',
-        'contact_groups',
-        'check_command',
-        'check_period',
-        'notification_period',
-        'event_handler',
-        'max_check_attempts',
-        'check_interval',
-        'retry_interval',
-        'initial_state',
-        'freshness_threshold',
-        'low_flap_threshold',
-        'high_flap_threshold',
-        'flap_detection_options',
-        'notification_interval',
-        'notification_options',
-        'first_notification_delay',
-        'recovery_notification_delay',
-        'stalking_options',
-        'register',
-        'notes',
-        'notes_url',
-        'action_url',
-        'icon_image',
-        'icon_id',
-        'icon_image_alt',
-        'acknowledgement_timeout'
-    );
+    protected $attributes_write = ['service_description', 'name', 'display_name', 'contacts', 'contact_groups', 'check_command', 'check_period', 'notification_period', 'event_handler', 'max_check_attempts', 'check_interval', 'retry_interval', 'initial_state', 'freshness_threshold', 'low_flap_threshold', 'high_flap_threshold', 'flap_detection_options', 'notification_interval', 'notification_options', 'first_notification_delay', 'recovery_notification_delay', 'stalking_options', 'register', 'notes', 'notes_url', 'action_url', 'icon_image', 'icon_id', 'icon_image_alt', 'acknowledgement_timeout'];
 
     /**
      * @param $serviceId
@@ -280,7 +249,7 @@ class ServiceTemplate extends AbstractService
      */
     public function resetLoop(): void
     {
-        $this->loop_tpl = array();
+        $this->loop_tpl = [];
     }
 
     /**
@@ -293,7 +262,7 @@ class ServiceTemplate extends AbstractService
         $this->current_host_name = null;
         $this->current_service_description = null;
         $this->current_service_id = null;
-        $this->loop_stpl = array();
+        $this->loop_stpl = [];
         $this->service_cache = [];
         parent::reset();
     }

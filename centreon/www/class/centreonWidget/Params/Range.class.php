@@ -78,7 +78,7 @@ class CentreonWidgetParamsRange extends CentreonWidgetParams
             $min = $row['min_range'];
             $max = $row['max_range'];
             $step = $row['step'];
-            $tab = array();
+            $tab = [];
             for ($i = $min; $i <= $max; $i += $step) {
                 $tab[$i] = $i;
             }

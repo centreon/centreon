@@ -48,7 +48,7 @@ class Hostgroup extends AbstractObject
     private const TAG_OBJECT_NAME = 'tag';
 
     /** @var array */
-    private $hg = array();
+    private $hg = [];
     /** @var string */
     protected $generate_filename = self::HOSTGROUP_FILENAME;
     /** @var string */
@@ -187,7 +187,7 @@ class Hostgroup extends AbstractObject
      */
     public function getHostgroups()
     {
-        $result = array();
+        $result = [];
         foreach ($this->hg as $id => &$value) {
             if (is_null($value) || count($value['members']) == 0) {
                 continue;
@@ -206,7 +206,7 @@ class Hostgroup extends AbstractObject
         parent::reset();
         foreach ($this->hg as &$value) {
             if (!is_null($value)) {
-                $value['members'] = array();
+                $value['members'] = [];
             }
         }
     }

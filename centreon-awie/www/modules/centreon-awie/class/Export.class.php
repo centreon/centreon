@@ -85,7 +85,7 @@ class Export
      */
     private function generateInstance($value)
     {
-        $cmdScript = array();
+        $cmdScript = [];
 
         if (isset($value['INSTANCE'])) {
             //export instance

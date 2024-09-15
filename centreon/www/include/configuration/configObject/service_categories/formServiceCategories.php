@@ -51,7 +51,7 @@ if (!$oreon->user->admin) {
 /*
  * Database retrieve information for Contact
  */
-$cct = array();
+$cct = [];
 if (($o == "c" || $o == "w") && $sc_id) {
     $DBRESULT = $pearDB->prepare('SELECT * FROM `service_categories` WHERE `sc_id` = :sc_id LIMIT 1');
     $DBRESULT->bindValue(':sc_id', $sc_id, PDO::PARAM_INT);
@@ -64,27 +64,22 @@ if (($o == "c" || $o == "w") && $sc_id) {
     $sc['sc_severity_level'] = $sc['level'];
     $sc['sc_severity_icon'] = $sc['icon_id'];
 
-    $sc["sc_svc"] = array();
+    $sc["sc_svc"] = [];
 }
 
 /*
  * Define Template
  */
-$attrsText = array("size" => "30");
-$attrsText2 = array("size" => "60");
-$attrsAdvSelect = array("style" => "width: 300px; height: 150px;");
-$attrsTextarea = array("rows" => "5", "cols" => "40");
+$attrsText = ["size" => "30"];
+$attrsText2 = ["size" => "60"];
+$attrsAdvSelect = ["style" => "width: 300px; height: 150px;"];
+$attrsTextarea = ["rows" => "5", "cols" => "40"];
 $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />'
     . '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
 $servTplAvRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_servicetemplate'
     . '&action=list';
-$attrServicetemplates = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $servTplAvRoute,
-    'multiple' => true,
-    'linkedObject' => 'centreonServicetemplates'
-);
+$attrServicetemplates = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $servTplAvRoute, 'multiple' => true, 'linkedObject' => 'centreonServicetemplates'];
 
 /*
  * Form begin
@@ -113,31 +108,27 @@ $form->addElement('text', 'sc_description', _("Description"), $attrsText);
 /*
  * Severity
  */
-$sctype = $form->addElement('checkbox', 'sc_type', _('Severity type'), null, array('id' => 'sc_type'));
+$sctype = $form->addElement('checkbox', 'sc_type', _('Severity type'), null, ['id' => 'sc_type']);
 if (isset($sc_id) && isset($sc['level']) && $sc['level'] != "") {
     $sctype->setValue('1');
 }
-$form->addElement('text', 'sc_severity_level', _("Level"), array("size" => "10"));
+$form->addElement('text', 'sc_severity_level', _("Level"), ["size" => "10"]);
 $iconImgs = return_image_list(1);
-$form->addElement('select', 'sc_severity_icon', _("Icon"), $iconImgs, array(
-    "id" => "icon_id",
-    "onChange" => "showLogo('icon_id_ctn', this.value)",
-    "onkeyup" => "this.blur(); this.focus();"
-));
+$form->addElement('select', 'sc_severity_icon', _("Icon"), $iconImgs, ["id" => "icon_id", "onChange" => "showLogo('icon_id_ctn', this.value)", "onkeyup" => "this.blur(); this.focus();"]);
 
 $servTplDeRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_servicetemplate'
     . '&action=defaultValues&target=servicecategories&field=sc_svcTpl&id=' . $sc_id;
 $attrServicetemplate1 = array_merge(
     $attrServicetemplates,
-    array('defaultDatasetRoute' => $servTplDeRoute)
+    ['defaultDatasetRoute' => $servTplDeRoute]
 );
 
-$form->addElement('select2', 'sc_svcTpl', _("Linked Templates"), array(), $attrServicetemplate1);
+$form->addElement('select2', 'sc_svcTpl', _("Linked Templates"), [], $attrServicetemplate1);
 
 $sc_activate[] = $form->createElement('radio', 'sc_activate', null, _("Enabled"), '1');
 $sc_activate[] = $form->createElement('radio', 'sc_activate', null, _("Disabled"), '0');
 $form->addGroup($sc_activate, 'sc_activate', _("Status"), '&nbsp;');
-$form->setDefaults(array('sc_activate' => '1'));
+$form->setDefaults(['sc_activate' => '1']);
 
 $form->addElement('hidden', 'sc_id');
 $redirect = $form->addElement('hidden', 'o');
@@ -213,7 +204,7 @@ if ($o == "w") {
             "button",
             "change",
             _("Modify"),
-            array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&sc_id=" . $sc_id . "'")
+            ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&sc_id=" . $sc_id . "'"]
         );
     }
     $form->setDefaults($sc);
@@ -222,15 +213,15 @@ if ($o == "w") {
     /*
      * Modify a service_categories information
      */
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $form->setDefaults($sc);
 } elseif ($o == "a") {
     /*
      * Add a service_categories information
      */
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 }
 
 $valid = false;

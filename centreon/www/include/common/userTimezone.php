@@ -56,7 +56,7 @@ if (isset($_SESSION['centreon'])) {
     $currentTime = $centreon->CentreonGMT->getCurrentTime(time(), $centreon->user->getMyGMT());
 
     $stmt = $pearDB->prepare("SELECT user_id FROM session WHERE session_id = ?");
-    $stmt->execute(array($sid));
+    $stmt->execute([$sid]);
 
     if ($stmt->rowCount()) {
         $buffer->writeElement("state", "ok");

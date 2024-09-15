@@ -142,9 +142,7 @@ class Centreon_OpenTickets_Rule
 
     public function getMacroNames($rule_id, $widget_id)
     {
-        $result = array(
-            'ticket_id' => null
-        );
+        $result = ['ticket_id' => null];
 
         if (!$rule_id) {
             return $result;
@@ -169,7 +167,7 @@ class Centreon_OpenTickets_Rule
         }
 
         $selected_values = explode(',', $selection);
-        $selected = array('host_selected' => array(), 'service_selected' => array());
+        $selected = ['host_selected' => [], 'service_selected' => []];
 
         if ($cmd == 3) {
             $selected_str = '';
@@ -209,7 +207,7 @@ class Centreon_OpenTickets_Rule
                 AND index_data.id = metrics.index_id 
                 GROUP BY host_id, service_id"
             );
-            $datas_graph = array();
+            $datas_graph = [];
             while (($row = $dbResult_graph->fetch())) {
                 $datas_graph[$row['host_id'] . '.' . $row['service_id']] = $row['num_metrics'];
             }
@@ -345,7 +343,7 @@ class Centreon_OpenTickets_Rule
      */
     public function getRuleList()
     {
-        $result = array();
+        $result = [];
         $dbResult = $this->_db->query(
             "SELECT r.rule_id, r.activate, r.alias FROM mod_open_tickets_rule r ORDER BY r.alias"
         );
@@ -358,7 +356,7 @@ class Centreon_OpenTickets_Rule
 
     public function get($rule_id)
     {
-        $result = array();
+        $result = [];
         if (is_null($rule_id)) {
             return $result;
         }
@@ -372,7 +370,7 @@ class Centreon_OpenTickets_Rule
         $result['provider_id'] = $row['provider_id'];
         $result['rule_alias'] = $row['alias'];
 
-        $result['clones'] = array();
+        $result['clones'] = [];
         $dbResult = $this->_db->query(
             "SELECT * FROM mod_open_tickets_form_clone
             WHERE rule_id = '" . $this->_db->escape($rule_id) . "'
@@ -380,10 +378,10 @@ class Centreon_OpenTickets_Rule
         );
         while (($row = $dbResult->fetch())) {
             if (!isset($result['clones'][$row['uniq_id']])) {
-                $result['clones'][$row['uniq_id']] = array();
+                $result['clones'][$row['uniq_id']] = [];
             }
             if (!isset($result['clones'][$row['uniq_id']][$row['order']])) {
-                $result['clones'][$row['uniq_id']][$row['order']] = array();
+                $result['clones'][$row['uniq_id']][$row['order']] = [];
             }
             $result['clones'][$row['uniq_id']][$row['order']][$row['label']] = $row['value'];
         }
@@ -427,7 +425,7 @@ class Centreon_OpenTickets_Rule
      * @param array $duplicateNb
      * @return void
      */
-    public function duplicate($select = array(), $duplicateNb = array()): void
+    public function duplicate($select = [], $duplicateNb = []): void
     {
         $this->_db->beginTransaction();
         foreach ($select as $ruleId => $val) {
@@ -526,7 +524,7 @@ class Centreon_OpenTickets_Rule
 
     public function getHostgroup($filter)
     {
-        $result = array();
+        $result = [];
         $where = '';
         if (!is_null($filter) && $filter != '') {
             $where = " hg_name LIKE '" . $this->_db->escape($filter) . "' AND ";
@@ -543,7 +541,7 @@ class Centreon_OpenTickets_Rule
 
     public function getContactgroup($filter)
     {
-        $result = array();
+        $result = [];
         $where = '';
         if (!is_null($filter) && $filter != '') {
             $where = " cg_name LIKE '" . $this->_db->escape($filter) . "' AND ";
@@ -560,7 +558,7 @@ class Centreon_OpenTickets_Rule
 
     public function getServicegroup($filter)
     {
-        $result = array();
+        $result = [];
         $where = '';
         if (!is_null($filter) && $filter != '') {
             $where = " sg_name LIKE '" . $this->_db->escape($filter) . "' AND ";
@@ -577,7 +575,7 @@ class Centreon_OpenTickets_Rule
 
     public function getHostcategory($filter)
     {
-        $result = array();
+        $result = [];
         $where = '';
         if (!is_null($filter) && $filter != '') {
             $where = " hc_name LIKE '" . $this->_db->escape($filter) . "' AND ";
@@ -597,7 +595,7 @@ class Centreon_OpenTickets_Rule
 
     public function getHostseverity($filter)
     {
-        $result = array();
+        $result = [];
         $where = '';
         if (!is_null($filter) && $filter != '') {
             $where = " hc_name LIKE '" . $this->_db->escape($filter) . "' AND ";
@@ -618,7 +616,7 @@ class Centreon_OpenTickets_Rule
 
     public function getServicecategory($filter)
     {
-        $result = array();
+        $result = [];
         $where = '';
         if (!is_null($filter) && $filter != '') {
             $where = " sc_name LIKE '" . $this->_db->escape($filter) . "' AND ";
@@ -638,7 +636,7 @@ class Centreon_OpenTickets_Rule
 
     public function getServiceseverity($filter)
     {
-        $result = array();
+        $result = [];
         $where = '';
         if (!is_null($filter) && $filter != '') {
             $where = " sc_name LIKE '" . $this->_db->escape($filter) . "' AND ";

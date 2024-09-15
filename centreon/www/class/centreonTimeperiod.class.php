@@ -60,11 +60,11 @@ class CentreonTimeperiod
      * @return array
      * @throws PDOException
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
-        $items = array();
+        $items = [];
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if (!empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':tp' . $v . ',';
@@ -88,10 +88,7 @@ class CentreonTimeperiod
         $stmt->execute();
 
         while ($row = $stmt->fetch()) {
-            $items[] = array(
-                'id' => $row['tp_id'],
-                'text' => $row['tp_name']
-            );
+            $items[] = ['id' => $row['tp_id'], 'text' => $row['tp_name']];
         }
 
         return $items;
@@ -307,7 +304,7 @@ class CentreonTimeperiod
             $registerClause = 'AND h.host_register = "' . $register . '" ';
         }
 
-        $linkedHosts = array();
+        $linkedHosts = [];
         $query = 'SELECT DISTINCT h.host_name '
             . 'FROM host h, timeperiod t '
             . 'WHERE (h.timeperiod_tp_id = t.tp_id OR h.timeperiod_tp_id2 = t.tp_id) '
@@ -343,7 +340,7 @@ class CentreonTimeperiod
             $registerClause = 'AND s.service_register = "' . $register . '" ';
         }
 
-        $linkedServices = array();
+        $linkedServices = [];
         $query = 'SELECT DISTINCT s.service_description '
             . 'FROM service s, timeperiod t '
             . 'WHERE (s.timeperiod_tp_id = t.tp_id OR s.timeperiod_tp_id2 = t.tp_id) '
@@ -372,7 +369,7 @@ class CentreonTimeperiod
      */
     public function getLinkedContactsByName($timeperiodName)
     {
-        $linkedContacts = array();
+        $linkedContacts = [];
         $query = 'SELECT DISTINCT c.contact_name '
             . 'FROM contact c, timeperiod t '
             . 'WHERE (c.timeperiod_tp_id = t.tp_id OR c.timeperiod_tp_id2 = t.tp_id) '
@@ -400,7 +397,7 @@ class CentreonTimeperiod
      */
     public function getLinkedTimeperiodsByName($timeperiodName)
     {
-        $linkedTimeperiods = array();
+        $linkedTimeperiods = [];
 
         $query = 'SELECT DISTINCT t1.tp_name '
             . 'FROM timeperiod t1, timeperiod_include_relations tir1, timeperiod t2 '

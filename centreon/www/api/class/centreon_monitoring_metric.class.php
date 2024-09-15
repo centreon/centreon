@@ -197,12 +197,12 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
         }
 
         if (false === isset($this->arguments['ids'])) {
-            self::sendResult(array());
+            self::sendResult([]);
         }
 
         /* Get the list of service ID */
         $ids = explode(',', $this->arguments['ids']);
-        $result = array();
+        $result = [];
 
         foreach ($ids as $id) {
             list($hostId, $serviceId) = explode('_', $id);
@@ -250,7 +250,7 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
                 if (isset($serviceData[$i]['data'])) {
                     $times = array_keys($serviceData[$i]['data']);
                     $values = array_map(
-                        array($this, "convertNaN"),
+                        [$this, "convertNaN"],
                         array_values($serviceData[$i]['data'])
                     );
                 }
@@ -260,12 +260,7 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
                 $serviceData[$i]['type'] = $serviceData[$i]['graph_type'];
                 unset($serviceData[$i]['graph_type']);
             }
-            $result[] = array(
-                'service_id' => $id,
-                'data' => $serviceData,
-                'times' => $times,
-                'size' => $rows
-            );
+            $result[] = ['service_id' => $id, 'data' => $serviceData, 'times' => $times, 'size' => $rows];
         }
         return $result;
     }

@@ -56,23 +56,23 @@ class Escalation extends AbstractObject
     /** @var int */
     private $has_escalation = 1; # by default, we have.
     /** @var array */
-    private $escalation_cache = array();
+    private $escalation_cache = [];
     /** @var array */
-    private $escalation_linked_cg_cache = array();
+    private $escalation_linked_cg_cache = [];
     /** @var array */
-    private $escalation_linked_host_cache = array();
+    private $escalation_linked_host_cache = [];
     /** @var array */
-    private $escalation_linked_hg_cache = array();
+    private $escalation_linked_hg_cache = [];
     /** @var array */
-    private $escalation_linked_service_cache = array();
+    private $escalation_linked_service_cache = [];
     /** @var array */
-    private $escalation_linked_sg_cache = array();
+    private $escalation_linked_sg_cache = [];
     /** @var array */
-    private $escalation_linked_meta_cache = array();
+    private $escalation_linked_meta_cache = [];
     /** @var array */
-    private $hosts_build = array();
+    private $hosts_build = [];
     /** @var array */
-    private $services_build = array();
+    private $services_build = [];
     /** @var string */
     protected $generate_filename = 'escalations.cfg';
     /** @var string */
@@ -91,22 +91,9 @@ class Escalation extends AbstractObject
         hostgroup_inheritance_to_services
     ";
     /** @var string[] */
-    protected $attributes_write = array(
-        ';escalation_name',
-        'first_notification',
-        'last_notification',
-        'notification_interval',
-        'escalation_period',
-        'escalation_options',
-    );
+    protected $attributes_write = [';escalation_name', 'first_notification', 'last_notification', 'notification_interval', 'escalation_period', 'escalation_options'];
     /** @var string[] */
-    protected $attributes_array = array(
-        'hostgroup_name',
-        'host_name',
-        'servicegroup_name',
-        'service_description',
-        'contact_groups',
-    );
+    protected $attributes_array = ['hostgroup_name', 'host_name', 'servicegroup_name', 'service_description', 'contact_groups'];
     /** @var Host|null */
     protected $host_instance = null;
     /** @var Service|null */
@@ -249,7 +236,7 @@ class Escalation extends AbstractObject
         $cg = Contactgroup::getInstance($this->dependencyInjector);
 
         $escalation['escalation_period'] = $period->generateFromTimeperiodId($escalation['escalation_period_id']);
-        $escalation['contact_groups'] = array();
+        $escalation['contact_groups'] = [];
         foreach ($this->escalation_linked_cg_cache[$esc_id] as $cg_id) {
             $escalation['contact_groups'][] = $cg->generateFromCgId($cg_id);
         }
@@ -325,7 +312,7 @@ class Escalation extends AbstractObject
 
         foreach ($this->escalation_linked_host_cache[$host_id] as $escalation_id) {
             if (!isset($this->hosts_build[$escalation_id])) {
-                $this->hosts_build[$escalation_id] = array();
+                $this->hosts_build[$escalation_id] = [];
             }
             $this->hosts_build[$escalation_id][] = $this->host_instance->getString($host_id, 'host_name');
 
@@ -339,7 +326,7 @@ class Escalation extends AbstractObject
                 }
                 foreach ($services[$host_id] as $service_id) {
                     if (!isset($this->services_build[$escalation_id])) {
-                        $this->services_build[$escalation_id] = array($host_id => array());
+                        $this->services_build[$escalation_id] = [$host_id => []];
                     }
                     $this->services_build[$escalation_id][$host_id][$service_id] = 1;
                 }
@@ -387,7 +374,7 @@ class Escalation extends AbstractObject
                     }
                     foreach ($services[$host_id] as $service_id) {
                         if (!isset($this->services_build[$escalation_id])) {
-                            $this->services_build[$escalation_id] = array($host_id => array());
+                            $this->services_build[$escalation_id] = [$host_id => []];
                         }
                         $this->services_build[$escalation_id][$host_id][$service_id] = 1;
                     }
@@ -396,7 +383,7 @@ class Escalation extends AbstractObject
 
 
             if (!isset($this->hg_build[$escalation_id])) {
-                $this->hg_build[$escalation_id] = array();
+                $this->hg_build[$escalation_id] = [];
             }
             $hostgroup_name = $this->hg_instance->getString($hg_id, 'hostgroup_name');
             if (!is_null($hostgroup_name)) {
@@ -435,7 +422,7 @@ class Escalation extends AbstractObject
 
         foreach ($this->escalation_linked_service_cache[$host_id . '_' . $service_id] as $escalation_id) {
             if (!isset($this->services_build[$escalation_id])) {
-                $this->services_build[$escalation_id] = array($host_id => array());
+                $this->services_build[$escalation_id] = [$host_id => []];
             }
             $this->services_build[$escalation_id][$host_id][$service_id] = 1;
         }
@@ -468,7 +455,7 @@ class Escalation extends AbstractObject
 
         foreach ($this->escalation_linked_sg_cache[$sg_id] as $escalation_id) {
             if (!isset($this->sg_build[$escalation_id])) {
-                $this->sg_build[$escalation_id] = array();
+                $this->sg_build[$escalation_id] = [];
             }
             $servicegroup_name = $this->sg_instance->getString($sg_id, 'servicegroup_name');
             if (!is_null($servicegroup_name)) {
@@ -499,7 +486,7 @@ class Escalation extends AbstractObject
             $this->escalation_linked_meta_cache[$meta_id] = $this->stmt_service->fetchAll(PDO::FETCH_COLUMN);
         }
         if (!isset($this->escalation_linked_meta_cache[$meta_id])) {
-            return array();
+            return [];
         }
 
         return $this->escalation_linked_meta_cache[$meta_id];
@@ -539,10 +526,8 @@ class Escalation extends AbstractObject
             foreach ($hosts as $host_id => $services) {
                 foreach ($services as $service_id => $service) {
                     $object = $this->getEscalationFromId($escalation_id);
-                    $object['host_name'] = array($this->host_instance->getString($host_id, 'host_name'));
-                    $object['service_description'] = array(
-                        $this->service_instance->getString($service_id, 'service_description')
-                    );
+                    $object['host_name'] = [$this->host_instance->getString($host_id, 'host_name')];
+                    $object['service_description'] = [$this->service_instance->getString($service_id, 'service_description')];
                     $object['escalation_options'] = $object['escalation_options_service'];
                     # Dont care of the id (we set 0)
                     $this->generateSubObjects($object, $escalation_id);
@@ -672,8 +657,8 @@ class Escalation extends AbstractObject
             $escalation = $this->getEscalationFromMetaId($meta_id);
             foreach ($escalation as $escalation_id) {
                 $object = $this->getEscalationFromId($escalation_id);
-                $object['host_name'] = array('_Module_Meta');
-                $object['service_description'] = array('meta_' . $meta_id);
+                $object['host_name'] = ['_Module_Meta'];
+                $object['service_description'] = ['meta_' . $meta_id];
                 $object['escalation_options'] = $object['escalation_options_service'];
                 # Dont care of the id (we set 0)
                 $this->generateSubObjects($object, $escalation_id);
@@ -706,10 +691,10 @@ class Escalation extends AbstractObject
      */
     public function reset(): void
     {
-        $this->hosts_build = array();
-        $this->services_build = array();
-        $this->hg_build = array();
-        $this->sg_build = array();
+        $this->hosts_build = [];
+        $this->services_build = [];
+        $this->hg_build = [];
+        $this->sg_build = [];
         parent::reset();
     }
 }

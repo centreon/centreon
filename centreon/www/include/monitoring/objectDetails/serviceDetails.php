@@ -68,7 +68,7 @@ $metaObj = new CentreonMeta($pearDB);
 /*
  * ACL Actions
  */
-$GroupListofUser = array();
+$GroupListofUser = [];
 $GroupListofUser = $centreon->user->access->getAccessGroups();
 
 $allActions = false;
@@ -188,7 +188,7 @@ if (!is_null($host_id)) {
             }
         }
 
-        $tab_status = array();
+        $tab_status = [];
 
         /*
          * Get all service information
@@ -242,14 +242,8 @@ if (!is_null($host_id)) {
         $shiStatement->bindValue(":hostId", (int) $host_id, \PDO::PARAM_INT);
         $shiStatement->bindValue(":serviceId", (int) $service_id, \PDO::PARAM_INT);
         $shiStatement->execute();
-        $tab_status_service = array(0 => "OK", 1 => "WARNING", 2 => "CRITICAL", 3 => "UNKNOWN", 4 => "PENDING");
-        $tab_class_service = array(
-            "ok" => 'service_ok',
-            "warning" => 'service_warning',
-            "critical" => 'service_critical',
-            "unknown" => 'service_unknown',
-            'pending' => 'pending'
-        );
+        $tab_status_service = [0 => "OK", 1 => "WARNING", 2 => "CRITICAL", 3 => "UNKNOWN", 4 => "PENDING"];
+        $tab_class_service = ["ok" => 'service_ok', "warning" => 'service_warning', "critical" => 'service_critical', "unknown" => 'service_unknown', 'pending' => 'pending'];
 
         $service_status = [
             "service_id" => "",
@@ -342,7 +336,7 @@ if (!is_null($host_id)) {
 
 
         if ($isMetaservice == 'true') {
-            $metaParameters = $metaObj->getParameters($meta_id, array('max_check_attempts'));
+            $metaParameters = $metaObj->getParameters($meta_id, ['max_check_attempts']);
             $total_current_attempts = $metaParameters['max_check_attempts'];
         } else {
             $total_current_attempts = getMyServiceField($service_id, "service_max_check_attempts");
@@ -356,12 +350,12 @@ if (!is_null($host_id)) {
         $tpl = new Smarty();
         $tpl = initSmartyTpl($path, $tpl, "./template/");
 
-        $en = array("0" => _("No"), "1" => _("Yes"));
+        $en = ["0" => _("No"), "1" => _("Yes")];
 
         /*
          * Get comments for service
          */
-        $tabCommentServices = array();
+        $tabCommentServices = [];
         if (isset($host_id) && isset($service_id)) {
             $rq2 = " SELECT DISTINCT cmt.entry_time as entry_time, cmt.comment_id, " .
                 "cmt.author AS author_name, cmt.data AS comment_data, cmt.persistent AS is_persistent, " .
@@ -383,7 +377,7 @@ if (!is_null($host_id)) {
                 $tabCommentServices[$i]['comment_data'] =
                     CentreonUtils::escapeAllExceptSelectedTags(
                         $data['comment_data'],
-                        array('a', 'hr', 'br')
+                        ['a', 'hr', 'br']
                     );
                 $tabCommentServices[$i]["is_persistent"] = $en[$tabCommentServices[$i]["is_persistent"]];
             }
@@ -391,17 +385,14 @@ if (!is_null($host_id)) {
             unset($data);
         }
 
-        $en_acknowledge_text = array(
-            "1" => _("Delete Problem Acknowledgement"),
-            "0" => _("Acknowledge Service Problem")
-        );
-        $en_acknowledge = array("1" => "0", "0" => "1");
-        $en_disable = array("1" => _("Enabled"), "0" => _("Disabled"));
-        $en_inv = array("1" => "1", "0" => "0");
-        $en_inv_text = array("1" => _("Disable"), "0" => _("Enable"));
-        $color_onoff = array("1" => "#88b917", "0" => "#e00b3d");
-        $color_onoff_inv = array("0" => "#F7FAFF", "1" => "#E7C9FF");
-        $img_en = array("0" => "'./img/icons/enabled.png'", "1" => "'./img/icons/disabled.png'");
+        $en_acknowledge_text = ["1" => _("Delete Problem Acknowledgement"), "0" => _("Acknowledge Service Problem")];
+        $en_acknowledge = ["1" => "0", "0" => "1"];
+        $en_disable = ["1" => _("Enabled"), "0" => _("Disabled")];
+        $en_inv = ["1" => "1", "0" => "0"];
+        $en_inv_text = ["1" => _("Disable"), "0" => _("Enable")];
+        $color_onoff = ["1" => "#88b917", "0" => "#e00b3d"];
+        $color_onoff_inv = ["0" => "#F7FAFF", "1" => "#E7C9FF"];
+        $img_en = ["0" => "'./img/icons/enabled.png'", "1" => "'./img/icons/disabled.png'"];
 
         /*
          * Ajust data for beeing displayed in template
@@ -726,8 +717,8 @@ if (!is_null($host_id)) {
         $tpl->assign("total_current_attempt", $total_current_attempts);
         $tpl->assign("en_acknowledge_text", $en_acknowledge_text);
         $tpl->assign("en_acknowledge", $en_acknowledge);
-        $tpl->assign("actpass", array("0" => _("Active"), "1" => _("Passive")));
-        $tpl->assign("harsof", array("0" => _("SOFT"), "1" => _("HARD")));
+        $tpl->assign("actpass", ["0" => _("Active"), "1" => _("Passive")]);
+        $tpl->assign("harsof", ["0" => _("SOFT"), "1" => _("HARD")]);
         $tpl->assign("status", $status);
         $tpl->assign("h", CentreonUtils::escapeSecure($host));
         $tpl->assign("admin", $is_admin);

@@ -72,10 +72,7 @@ abstract class CentreonSeverityAbstract extends CentreonObject
             if (is_null($iconId)) {
                 throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[2]);
             }
-            $updateParams = array(
-                'level' => $level,
-                'icon_id' => $iconId
-            );
+            $updateParams = ['level' => $level, 'icon_id' => $iconId];
 
             $this->object->update($objectId, $updateParams);
             $this->addAuditLog(
@@ -105,10 +102,7 @@ abstract class CentreonSeverityAbstract extends CentreonObject
 
         $objectId = $this->getObjectId($uniqueLabel);
         if ($objectId != 0) {
-            $updateParams = array(
-                'level' => null,
-                'icon_id' => null
-            );
+            $updateParams = ['level' => null, 'icon_id' => null];
 
             $this->object->update($objectId, $updateParams);
             $this->addAuditLog(

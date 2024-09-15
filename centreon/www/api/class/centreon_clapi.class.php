@@ -39,11 +39,7 @@ require_once __DIR__ . "/webService.class.php";
 define('_CLAPI_LIB_', _CENTREON_PATH_ . '/lib');
 define('_CLAPI_CLASS_', _CENTREON_PATH_ . '/www/class/centreon-clapi');
 
-set_include_path(implode(PATH_SEPARATOR, array(
-    _CENTREON_PATH_ . '/lib',
-    _CENTREON_PATH_ . '/www/class/centreon-clapi',
-    get_include_path()
-)));
+set_include_path(implode(PATH_SEPARATOR, [_CENTREON_PATH_ . '/lib', _CENTREON_PATH_ . '/www/class/centreon-clapi', get_include_path()]));
 
 require_once _CENTREON_PATH_ . '/www/class/centreon-clapi/centreonAPI.class.php';
 
@@ -107,7 +103,7 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
         /* Prepare options table */
         $action = $this->arguments['action'];
 
-        $options = array();
+        $options = [];
         if (isset($this->arguments['object'])) {
             $options['o'] = $this->arguments['object'];
         }
@@ -196,7 +192,7 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
             csvToAssociativeArray($result);
 
         } else {
-            $result = array();
+            $result = [];
             foreach (explode("\n", $contents) as &$line) {
                 if (trim($line) !== '' && strpos($line, 'Return code end :') !== 0) {
                     $result[] = $line;
@@ -204,7 +200,7 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
             }
         }
 
-        $return = array();
+        $return = [];
         $return['result'] = $result;
 
         return $return;
@@ -236,6 +232,6 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
      */
     private function clearCarriageReturns(&$item): void
     {
-        $item = (is_string($item)) ? str_replace(array("\n", "\t", "\r", "<br/>"), '', $item) : $item;
+        $item = (is_string($item)) ? str_replace(["\n", "\t", "\r", "<br/>"], '', $item) : $item;
     }
 }

@@ -87,7 +87,7 @@ if (isset($_GET['cmdId']) && isset($_GET['svcId']) && isset($_GET['svcTplId']) &
     $svcTplId = CentreonDB::escape($_GET['svcTplId']);
     $o = CentreonDB::escape($_GET['o']);
 
-    $tab = array();
+    $tab = [];
     if (!$cmdId && $svcTplId) {
         while (1) {
             $query4 = "SELECT service_template_model_stm_id, command_command_id, command_command_id_arg 
@@ -110,7 +110,7 @@ if (isset($_GET['cmdId']) && isset($_GET['svcId']) && isset($_GET['svcTplId']) &
         }
     }
 
-    $argTab = array();
+    $argTab = [];
     $exampleTab = [];
 
     $query2 = "SELECT command_line, command_example FROM command WHERE command_id = :cmd_id LIMIT 1";
@@ -148,7 +148,7 @@ if (isset($_GET['cmdId']) && isset($_GET['svcId']) && isset($_GET['svcTplId']) &
                 unset($valueTab[$key]);
             }
         } else {
-            $exampleTab = array();
+            $exampleTab = [];
         }
     }
 

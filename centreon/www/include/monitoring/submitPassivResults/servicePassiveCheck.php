@@ -67,7 +67,7 @@ if ($is_meta == 'true') {
     }
     $hostDisplayName = 'Meta';
     $serviceId = $metaObj->getRealServiceId($metaId);
-    $serviceParameters = $serviceObj->getParameters($serviceId, array('display_name'));
+    $serviceParameters = $serviceObj->getParameters($serviceId, ['display_name']);
     $serviceDisplayName = $serviceParameters['display_name'];
 }
 
@@ -92,11 +92,11 @@ if (($is_admin || $flag_acl) && $host_id) {
     $form = new HTML_QuickFormCustom('select_form', 'GET', "?p=".$p);
     $form->addElement('header', 'title', _("Command Options"));
 
-    $return_code = array("0" => "OK","1" => "WARNING", "3" => "UNKNOWN", "2" => "CRITICAL");
+    $return_code = ["0" => "OK", "1" => "WARNING", "3" => "UNKNOWN", "2" => "CRITICAL"];
 
     $form->addElement('select', 'return_code', _("Check result"), $return_code);
-    $form->addElement('text', 'output', _("Check output"), array("size"=>"100"));
-    $form->addElement('text', 'dataPerform', _("Performance data"), array("size"=>"100"));
+    $form->addElement('text', 'output', _("Check output"), ["size"=>"100"]);
+    $form->addElement('text', 'dataPerform', _("Performance data"), ["size"=>"100"]);
 
     $form->addElement('hidden', 'host_name', $host_name);
     $form->addElement('hidden', 'service_description', $service_description);
@@ -104,8 +104,8 @@ if (($is_admin || $flag_acl) && $host_id) {
     $form->addElement('hidden', 'cmd', $cmd);
     $form->addElement('hidden', 'p', $p);
 
-    $form->addElement('submit', 'submit', _("Save"), array("class" => "btc bt_success"));
-    $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $form->addElement('submit', 'submit', _("Save"), ["class" => "btc bt_success"]);
+    $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 
     # Smarty template Init
     $tpl = new Smarty();

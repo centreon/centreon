@@ -46,7 +46,7 @@ class CentreonMedia
     /** @var CentreonDB */
     protected $db;
     /** @var array */
-    protected $filenames = array();
+    protected $filenames = [];
     /** @var string */
     protected $mediadirectoryname = '';
 
@@ -288,22 +288,8 @@ class CentreonMedia
             throw new Exception('Missing extension');
         }
         $extension = substr($fileName, ($position + 1));
-        $files = array();
-        $allowedExt = array(
-            'zip',
-            'tar',
-            'gz',
-            'tgzip',
-            'tgz',
-            'bz',
-            'tbzip',
-            'tbz',
-            'bzip',
-            'bz2',
-            'tbzip2',
-            'tbz2',
-            'bzip2'
-        );
+        $files = [];
+        $allowedExt = ['zip', 'tar', 'gz', 'tgzip', 'tgz', 'bz', 'tbzip', 'tbz', 'bzip', 'bz2', 'tbzip2', 'tbz2', 'bzip2'];
         if (!in_array(strtolower($extension), $allowedExt)) {
             throw new Exception('Unknown extension');
         }

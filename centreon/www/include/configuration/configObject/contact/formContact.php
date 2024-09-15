@@ -42,12 +42,7 @@ if (!isset($centreon)) {
 }
 
 if (!$centreon->user->admin && $contactId) {
-    $aclOptions = array(
-        'fields' => array('contact_id', 'contact_name'),
-        'keys' => array('contact_id'),
-        'get_row' => 'contact_name',
-        'conditions' => array('contact_id' => $contactId)
-    );
+    $aclOptions = ['fields' => ['contact_id', 'contact_name'], 'keys' => ['contact_id'], 'get_row' => 'contact_name', 'conditions' => ['contact_id' => $contactId]];
     $contacts = $acl->getContactAclConf($aclOptions);
     if (!count($contacts)) {
         $msg = new CentreonMsg();
@@ -59,18 +54,13 @@ if (!$centreon->user->admin && $contactId) {
 }
 
 $cgs = $acl->getContactGroupAclConf(
-    array(
-        'fields' => array('cg_id', 'cg_name'),
-        'keys' => array('cg_id'),
-        'get_row' => 'cg_name',
-        'order' => array('cg_name')
-    )
+    ['fields' => ['cg_id', 'cg_name'], 'keys' => ['cg_id'], 'get_row' => 'cg_name', 'order' => ['cg_name']]
 );
 
 require_once _CENTREON_PATH_ . 'www/class/centreonLDAP.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 
-$initialValues = array();
+$initialValues = [];
 
 /*
  * Check if this server is a Remote Server to hide some part of form
@@ -95,14 +85,14 @@ try {
     return false;
 }
 
-$cct = array();
+$cct = [];
 if (($o == MODIFY_CONTACT || $o == WATCH_CONTACT) && $contactId) {
     /**
      * Init Tables informations
      */
-    $cct["contact_hostNotifCmds"] = array();
-    $cct["contact_svNotifCmds"] = array();
-    $cct["contact_cgNotif"] = array();
+    $cct["contact_hostNotifCmds"] = [];
+    $cct["contact_svNotifCmds"] = [];
+    $cct["contact_cgNotif"] = [];
 
     $dbResult = $pearDB->prepare("SELECT * FROM contact WHERE contact_id = :contactId LIMIT 1");
     $dbResult->bindValue(':contactId', $contactId, \PDO::PARAM_INT);
@@ -156,7 +146,7 @@ if (($o == MODIFY_CONTACT || $o == WATCH_CONTACT) && $contactId) {
 /**
  * Get Langs
  */
-$langs = array();
+$langs = [];
 $langs = getLangs();
 if ($o == MASSIVE_CHANGE) {
     array_unshift($langs, null);
@@ -165,7 +155,7 @@ if ($o == MASSIVE_CHANGE) {
 /**
  * Contact Groups come from DB -> Store in $notifCcts Array
  */
-$notifCgs = array();
+$notifCgs = [];
 
 $cg = new CentreonContactgroup($pearDB);
 $notifCgs = $cg->getListContactgroup(false);
@@ -188,7 +178,7 @@ if (
  */
 $strRestrinction = isset($contactId) ? " AND contact_id != '" . intval($contactId) . "'" : "";
 
-$contactTpl = array(null => "           ");
+$contactTpl = [null => "           "];
 $DBRESULT = $pearDB->query("SELECT contact_id, contact_name
                             FROM contact
                             WHERE contact_register = '0' $strRestrinction
@@ -202,39 +192,20 @@ $DBRESULT->closeCursor();
  * Template / Style for Quickform input
  */
 $attrsText = ["size" => "30"];
-$attrsText2 = array("size" => "60");
-$attrsTextDescr = array("size" => "80");
-$attrsTextMail = array("size" => "90");
-$attrsAdvSelect = array("style" => "width: 300px; height: 100px;");
-$attrsTextarea = array("rows" => "15", "cols" => "100");
+$attrsText2 = ["size" => "60"];
+$attrsTextDescr = ["size" => "80"];
+$attrsTextMail = ["size" => "90"];
+$attrsAdvSelect = ["style" => "width: 300px; height: 100px;"];
+$attrsTextarea = ["rows" => "15", "cols" => "100"];
 $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />'
     . '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 $timeRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_timeperiod&action=list';
-$attrTimeperiods = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $timeRoute,
-    'multiple' => false,
-    'linkedObject' => 'centreonTimeperiod'
-);
-$attrCommands = array(
-    'datasourceOrigin' => 'ajax',
-    'multiple' => true,
-    'linkedObject' => 'centreonCommand'
-);
+$attrTimeperiods = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $timeRoute, 'multiple' => false, 'linkedObject' => 'centreonTimeperiod'];
+$attrCommands = ['datasourceOrigin' => 'ajax', 'multiple' => true, 'linkedObject' => 'centreonCommand'];
 $contactRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_contactgroup&action=list&type=local';
-$attrContactgroups = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $contactRoute,
-    'multiple' => true,
-    'linkedObject' => 'centreonContactgroup'
-);
+$attrContactgroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $contactRoute, 'multiple' => true, 'linkedObject' => 'centreonContactgroup'];
 $aclRoute = './include/common/webServices/rest/internal.php?object=centreon_administration_aclgroup&action=list';
-$attrAclgroups = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $aclRoute,
-    'multiple' => true,
-    'linkedObject' => 'centreonAclGroup'
-);
+$attrAclgroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $aclRoute, 'multiple' => true, 'linkedObject' => 'centreonAclGroup'];
 
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
 /**
@@ -387,11 +358,11 @@ for ($i=0; $i < 6; $i++) {
  */
 $form->addElement('header', 'groupLinks', _("Group Relations"));
 if ($o == MASSIVE_CHANGE) {
-    $mc_mod_cg = array();
+    $mc_mod_cg = [];
     $mc_mod_cg[] = $form->createElement('radio', 'mc_mod_cg', null, _("Incremental"), '0');
     $mc_mod_cg[] = $form->createElement('radio', 'mc_mod_cg', null, _("Replacement"), '1');
     $form->addGroup($mc_mod_cg, 'mc_mod_cg', _("Update mode"), '&nbsp;');
-    $form->setDefaults(array('mc_mod_cg' => '0'));
+    $form->setDefaults(['mc_mod_cg' => '0']);
 }
 
 $defaultDatasetRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_contactgroup'
@@ -399,7 +370,7 @@ $defaultDatasetRoute = './include/common/webServices/rest/internal.php?object=ce
 
 $attrContactgroup1 = array_merge(
     $attrContactgroups,
-    array('defaultDatasetRoute' => $defaultDatasetRoute)
+    ['defaultDatasetRoute' => $defaultDatasetRoute]
 );
 $form->addElement(
     'select2',
@@ -629,11 +600,11 @@ $form->addElement(
     'select',
     'contact_type_msg',
     _("Mail Type"),
-    array(null => null, "txt" => "txt", "html" => "html", "pdf" => "pdf")
+    [null => null, "txt" => "txt", "html" => "html", "pdf" => "pdf"]
 );
 
 if ($centreon->user->admin) {
-    $tab = array();
+    $tab = [];
     $tab[] = $form->createElement(
         'radio',
         'contact_admin',
@@ -652,7 +623,7 @@ if ($centreon->user->admin) {
     );
     $form->addGroup($tab, 'contact_admin', _("Admin"), '&nbsp;');
 
-    $tab = array();
+    $tab = [];
     $tab[] = $form->createElement(
             'radio',
             'reach_api',
@@ -671,7 +642,7 @@ if ($centreon->user->admin) {
     );
     $form->addGroup($tab, 'reach_api', _("Reach API Configuration"), '&nbsp;');
 
-    $tab = array();
+    $tab = [];
     $tab[] = $form->createElement(
             'radio',
             'reach_api_rt',
@@ -695,18 +666,18 @@ if ($centreon->user->admin) {
  * ACL configurations
  */
 if ($o == MASSIVE_CHANGE) {
-    $mc_mod_cg = array();
+    $mc_mod_cg = [];
     $mc_mod_cg[] = $form->createElement('radio', 'mc_mod_acl', null, _("Incremental"), '0');
     $mc_mod_cg[] = $form->createElement('radio', 'mc_mod_acl', null, _("Replacement"), '1');
     $form->addGroup($mc_mod_cg, 'mc_mod_acl', _("Update mode"), '&nbsp;');
-    $form->setDefaults(array('mc_mod_acl' => '0'));
+    $form->setDefaults(['mc_mod_acl' => '0']);
 }
 
 $defaultDatasetRoute = './include/common/webServices/rest/internal.php?object=centreon_administration_aclgroup'
     . '&action=defaultValues&target=contact&field=contact_acl_groups&id=' . $contactId;
 $attrAclgroup1 = array_merge(
     $attrAclgroups,
-    array('defaultDatasetRoute' => $defaultDatasetRoute)
+    ['defaultDatasetRoute' => $defaultDatasetRoute]
 );
 $form->addElement(
     'select2',
@@ -727,13 +698,7 @@ $availableDatasetRoute = './include/common/webServices/rest/internal.php'
     . '?object=centreon_configuration_timezone&action=list';
 $defaultDatasetRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_timezone'
     . '&action=defaultValues&target=contact&field=contact_location&id=' . $contactId;
-$attrTimezones = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $availableDatasetRoute,
-    'defaultDatasetRoute' => $defaultDatasetRoute,
-    'multiple' => false,
-    'linkedObject' => 'centreonGMT'
-);
+$attrTimezones = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $availableDatasetRoute, 'defaultDatasetRoute' => $defaultDatasetRoute, 'multiple' => false, 'linkedObject' => 'centreonGMT'];
 $form->addElement(
     'select2',
     'contact_location',
@@ -742,7 +707,7 @@ $form->addElement(
     $attrTimezones
 );
 
-$auth_type = $o != MASSIVE_CHANGE ? array() : array(null => null);
+$auth_type = $o != MASSIVE_CHANGE ? [] : [null => null];
 
 $auth_type["local"] = "Centreon";
 if ($centreon->optGen['ldap_auth_enable'] == 1) {
@@ -811,7 +776,7 @@ $tab[] = $form->createElement(
 );
 $form->addGroup($tab, 'contact_enable_notifications', _("Enable Notifications"), '&nbsp;');
 if ($o != MASSIVE_CHANGE) {
-    $form->setDefaults(array('contact_enable_notifications' => '2'));
+    $form->setDefaults(['contact_enable_notifications' => '2']);
 }
 
 /** * *****************************
@@ -823,42 +788,42 @@ $hostNotifOpt[] = $form->createElement(
     'd',
     '&nbsp;',
     _("Down"),
-    array('id' => 'hDown', 'onClick' => 'uncheckAllH(this);', "data-testid" => "hDown")
+    ['id' => 'hDown', 'onClick' => 'uncheckAllH(this);', "data-testid" => "hDown"]
 );
 $hostNotifOpt[] = $form->createElement(
     'checkbox',
     'u',
     '&nbsp;',
     _("Unreachable"),
-    array('id' => 'hUnreachable', 'onClick' => 'uncheckAllH(this);', "data-testid" => "hUnreachable")
+    ['id' => 'hUnreachable', 'onClick' => 'uncheckAllH(this);', "data-testid" => "hUnreachable"]
 );
 $hostNotifOpt[] = $form->createElement(
     'checkbox',
     'r',
     '&nbsp;',
     _("Recovery"),
-    array('id' => 'hRecovery', 'onClick' => 'uncheckAllH(this);', "data-testid" => "hRecovery")
+    ['id' => 'hRecovery', 'onClick' => 'uncheckAllH(this);', "data-testid" => "hRecovery"]
 );
 $hostNotifOpt[] = $form->createElement(
     'checkbox',
     'f',
     '&nbsp;',
     _("Flapping"),
-    array('id' => 'hFlapping', 'onClick' => 'uncheckAllH(this);', "data-testid" => "hFlapping")
+    ['id' => 'hFlapping', 'onClick' => 'uncheckAllH(this);', "data-testid" => "hFlapping"]
 );
 $hostNotifOpt[] = $form->createElement(
     'checkbox',
     's',
     '&nbsp;',
     _("Downtime Scheduled"),
-    array('id' => 'hScheduled', 'onClick' => 'uncheckAllH(this);', "data-testid" => "hScheduled")
+    ['id' => 'hScheduled', 'onClick' => 'uncheckAllH(this);', "data-testid" => "hScheduled"]
 );
 $hostNotifOpt[] = $form->createElement(
     'checkbox',
     'n',
     '&nbsp;',
     _("None"),
-    array('id' => 'hNone', 'onClick' => 'javascript:uncheckAllH(this);', "data-testid" => "hNone")
+    ['id' => 'hNone', 'onClick' => 'javascript:uncheckAllH(this);', "data-testid" => "hNone"]
 );
 $form->addGroup($hostNotifOpt, 'contact_hostNotifOpts', _("Host Notification Options"), '&nbsp;&nbsp;');
 
@@ -866,7 +831,7 @@ $defaultDatasetRoute = './include/common/webServices/rest/internal.php?object=ce
     . '&action=defaultValues&target=contact&field=timeperiod_tp_id&id=' . $contactId;
 $attrTimeperiod1 = array_merge(
     $attrTimeperiods,
-    array('defaultDatasetRoute' => $defaultDatasetRoute)
+    ['defaultDatasetRoute' => $defaultDatasetRoute]
 );
 $form->addElement(
     'select2',
@@ -880,11 +845,11 @@ $form->addElement(
 unset($hostNotifOpt);
 
 if ($o == MASSIVE_CHANGE) {
-    $mc_mod_hcmds = array();
+    $mc_mod_hcmds = [];
     $mc_mod_hcmds[] = $form->createElement('radio', 'mc_mod_hcmds', null, _("Incremental"), '0');
     $mc_mod_hcmds[] = $form->createElement('radio', 'mc_mod_hcmds', null, _("Replacement"), '1');
     $form->addGroup($mc_mod_hcmds, 'mc_mod_hcmds', _("Update mode"), '&nbsp;');
-    $form->setDefaults(array('mc_mod_hcmds' => '0'));
+    $form->setDefaults(['mc_mod_hcmds' => '0']);
 }
 
 $defaultDatasetRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_command'
@@ -893,10 +858,7 @@ $availableDatasetRoute = './include/common/webServices/rest/internal.php'
     . '?object=centreon_configuration_command&action=list&t=1';
 $attrCommand1 = array_merge(
     $attrCommands,
-    array(
-        'defaultDatasetRoute' => $defaultDatasetRoute,
-        'availableDatasetRoute' => $availableDatasetRoute
-    )
+    ['defaultDatasetRoute' => $defaultDatasetRoute, 'availableDatasetRoute' => $availableDatasetRoute]
 );
 $form->addElement(
     'select2',
@@ -915,49 +877,49 @@ $svNotifOpt[] = $form->createElement(
     'w',
     '&nbsp;',
     _("Warning"),
-    array('id' => 'sWarning', 'onClick' => 'uncheckAllS(this);', "data-testid" => "sWarning")
+    ['id' => 'sWarning', 'onClick' => 'uncheckAllS(this);', "data-testid" => "sWarning"]
 );
 $svNotifOpt[] = $form->createElement(
     'checkbox',
     'u',
     '&nbsp;',
     _("Unknown"),
-    array('id' => 'sUnknown', 'onClick' => 'uncheckAllS(this);', "data-testid" => "sUnknown")
+    ['id' => 'sUnknown', 'onClick' => 'uncheckAllS(this);', "data-testid" => "sUnknown"]
 );
 $svNotifOpt[] = $form->createElement(
     'checkbox',
     'c',
     '&nbsp;',
     _("Critical"),
-    array('id' => 'sCritical', 'onClick' => 'uncheckAllS(this);', "data-testid" => "sCritical")
+    ['id' => 'sCritical', 'onClick' => 'uncheckAllS(this);', "data-testid" => "sCritical"]
 );
 $svNotifOpt[] = $form->createElement(
     'checkbox',
     'r',
     '&nbsp;',
     _("Recovery"),
-    array('id' => 'sRecovery', 'onClick' => 'uncheckAllS(this);', "data-testid" => "sRecovery")
+    ['id' => 'sRecovery', 'onClick' => 'uncheckAllS(this);', "data-testid" => "sRecovery"]
 );
 $svNotifOpt[] = $form->createElement(
     'checkbox',
     'f',
     '&nbsp;',
     _("Flapping"),
-    array('id' => 'sFlapping', 'onClick' => 'uncheckAllS(this);', "data-testid" => "sFlapping")
+    ['id' => 'sFlapping', 'onClick' => 'uncheckAllS(this);', "data-testid" => "sFlapping"]
 );
 $svNotifOpt[] = $form->createElement(
     'checkbox',
     's',
     '&nbsp;',
     _("Downtime Scheduled"),
-    array('id' => 'sScheduled', 'onClick' => 'uncheckAllS(this);', "data-testid" => "sScheduled")
+    ['id' => 'sScheduled', 'onClick' => 'uncheckAllS(this);', "data-testid" => "sScheduled"]
 );
 $svNotifOpt[] = $form->createElement(
     'checkbox',
     'n',
     '&nbsp;',
     _("None"),
-    array('id' => 'sNone', 'onClick' => 'uncheckAllS(this);', "data-testid" => "sNone")
+    ['id' => 'sNone', 'onClick' => 'uncheckAllS(this);', "data-testid" => "sNone"]
 );
 $form->addGroup($svNotifOpt, 'contact_svNotifOpts', _("Service Notification Options"), '&nbsp;&nbsp;');
 
@@ -967,7 +929,7 @@ $defaultAttrTimeperiod2Route = './include/common/webServices/rest/internal.php?'
 
 $attrTimeperiod2 = array_merge(
     $attrTimeperiods,
-    array('defaultDatasetRoute' => $defaultAttrTimeperiod2Route)
+    ['defaultDatasetRoute' => $defaultAttrTimeperiod2Route]
 );
 $form->addElement(
     'select2',
@@ -978,11 +940,11 @@ $form->addElement(
 );
 
 if ($o == MASSIVE_CHANGE) {
-    $mc_mod_svcmds = array();
+    $mc_mod_svcmds = [];
     $mc_mod_svcmds[] = $form->createElement('radio', 'mc_mod_svcmds', null, _("Incremental"), '0');
     $mc_mod_svcmds[] = $form->createElement('radio', 'mc_mod_svcmds', null, _("Replacement"), '1');
     $form->addGroup($mc_mod_svcmds, 'mc_mod_svcmds', _("Update mode"), '&nbsp;');
-    $form->setDefaults(array('mc_mod_svcmds' => '0'));
+    $form->setDefaults(['mc_mod_svcmds' => '0']);
 }
 
 $defaultattrCommand2Route = './include/common/webServices/rest/internal.php?object=centreon_configuration_command'
@@ -992,10 +954,7 @@ $availableCommand2Route = './include/common/webServices/rest/internal.php?'
 
 $attrCommand2 = array_merge(
     $attrCommands,
-    array(
-        'defaultDatasetRoute' => $defaultattrCommand2Route,
-        'availableDatasetRoute' => $availableCommand2Route
-    )
+    ['defaultDatasetRoute' => $defaultattrCommand2Route, 'availableDatasetRoute' => $availableCommand2Route]
 );
 $form->addElement(
     'select2',
@@ -1026,13 +985,13 @@ $cctActivation[] = $form->createElement(
     ["id" => "contact_activate_disable", "data-testid" => "contact_activate_disable"]
 );
 $form->addGroup($cctActivation, 'contact_activate', _("Status"), '&nbsp;');
-$form->setDefaults(array('contact_activate' => '1'));
+$form->setDefaults(['contact_activate' => '1']);
 if ($o == MODIFY_CONTACT && $centreon->user->get_id() == $cct["contact_id"]) {
     $form->freeze('contact_activate');
 }
 
 $form->addElement('hidden', 'contact_register');
-$form->setDefaults(array('contact_register' => '1'));
+$form->setDefaults(['contact_register' => '1']);
 /**
  * Comments attributes
  */
@@ -1098,7 +1057,7 @@ if ($o != MASSIVE_CHANGE) {
         }
     }
 
-    $form->addRule(array('contact_passwd', 'contact_passwd2'), _("Passwords do not match"), 'compare');
+    $form->addRule(['contact_passwd', 'contact_passwd2'], _("Passwords do not match"), 'compare');
     if ($o === ADD_CONTACT || $o === MODIFY_CONTACT) {
         $form->addFormRule('validatePasswordCreation');
         $form->addFormRule('validateAutologin');
@@ -1146,24 +1105,24 @@ if ($o == WATCH_CONTACT) {
             "button",
             "change",
             _("Modify"),
-            array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&contact_id=" . $contactId . "'")
+            ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&contact_id=" . $contactId . "'"]
         );
     }
     $form->setDefaults($cct);
     $form->freeze();
 } elseif ($o == MODIFY_CONTACT) {
     # Modify a contact information
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $form->setDefaults($cct);
 } elseif ($o == ADD_CONTACT) {
     # Add a contact information
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 } elseif ($o == MASSIVE_CHANGE) {
     # Massive Change
-    $subMC = $form->addElement('submit', 'submitMC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subMC = $form->addElement('submit', 'submitMC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 }
 
 if (

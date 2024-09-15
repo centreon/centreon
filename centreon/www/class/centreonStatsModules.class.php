@@ -70,7 +70,7 @@ class CentreonStatsModules
      */
     private function getInstalledModules()
     {
-        $installedModules = array();
+        $installedModules = [];
         $stmt = $this->db->prepare("SELECT name FROM modules_informations");
         $stmt->execute();
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
@@ -91,7 +91,7 @@ class CentreonStatsModules
      */
     private function getModuleObjects(array $installedModules)
     {
-        $moduleObjects = array();
+        $moduleObjects = [];
 
         foreach ($installedModules as $module) {
             if ($files = glob(_CENTREON_PATH_ . 'www/modules/' . $module . '/statistics/*.class.php')) {

@@ -205,7 +205,7 @@ function getNotEmptyPartitions($db, $isMigrationRecovery = false)
         "SELECT PARTITION_NAME FROM INFORMATION_SCHEMA.PARTITIONS "
         . "WHERE TABLE_NAME='{$tableName}'"
     );
-    $partitions = array();
+    $partitions = [];
     while (($row = $result->fetch(\PDO::FETCH_ASSOC))) {
         $partitions[] = $row['PARTITION_NAME'];
     }

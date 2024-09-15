@@ -82,7 +82,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
      */
     public function getSchedDowntime()
     {
-        $list = array('hosts' => array(), 'services' => array());
+        $list = ['hosts' => [], 'services' => []];
         $query = "SELECT d.internal_id as internal_downtime_id,
 						 h.name as name1,
 						 s.description as name2
@@ -96,9 +96,9 @@ class CentreonDowntimeBroker extends CentreonDowntime
         }
         while ($row = $res->fetch()) {
             if (isset($row['name2']) && $row['name2'] != "") {
-                $list['services'] = array('host_name' => $row['name1'], 'service_name' => $row['name2']);
+                $list['services'] = ['host_name' => $row['name1'], 'service_name' => $row['name2']];
             } elseif (isset($row['name1']) && $row['name1'] != "") {
-                $list['hosts'] = array('host_name' => $row['name1']);
+                $list['hosts'] = ['host_name' => $row['name1']];
             }
         }
         return $list;
@@ -210,16 +210,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
             $dayOfWeek = 0;
         }
 
-        $daysOfWeekAssociation = array(
-            0 => 'sunday',
-            1 => 'monday',
-            2 => 'tuesday',
-            3 => 'wednesday',
-            4 => 'thursday',
-            5 => 'friday',
-            6 => 'saturday',
-            7 => 'sunday'
-        );
+        $daysOfWeekAssociation = [0 => 'sunday', 1 => 'monday', 2 => 'tuesday', 3 => 'wednesday', 4 => 'thursday', 5 => 'friday', 6 => 'saturday', 7 => 'sunday'];
         $dayOfWeek = $daysOfWeekAssociation[$dayOfWeek];
 
         if ($tomorrow) {
@@ -349,7 +340,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
      */
     public function getApproachingDowntimes($delay)
     {
-        $approachingDowntimes = array();
+        $approachingDowntimes = [];
 
         $downtimes = $this->getForEnabledResources();
 
@@ -427,21 +418,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
             }
 
             if ($approaching) {
-                $approachingDowntimes[] = array(
-                    'dt_id' => $downtime['dt_id'],
-                    'dt_activate' => $downtime['dt_activate'],
-                    'start_hour' => $downtime['dtp_start_time'],
-                    'end_hour' => $downtime['dtp_end_time'],
-                    'start_timestamp' => $startTimestamp,
-                    'end_timestamp' => $endTimestamp,
-                    'host_id' => $downtime['host_id'],
-                    'host_name' => $downtime['host_name'],
-                    'service_id' => $downtime['service_id'],
-                    'service_description' => $downtime['service_description'],
-                    'fixed' => $downtime['dtp_fixed'],
-                    'duration' => $downtime['dtp_duration'],
-                    'tomorrow' => $tomorrow
-                );
+                $approachingDowntimes[] = ['dt_id' => $downtime['dt_id'], 'dt_activate' => $downtime['dt_activate'], 'start_hour' => $downtime['dtp_start_time'], 'end_hour' => $downtime['dtp_end_time'], 'start_timestamp' => $startTimestamp, 'end_timestamp' => $endTimestamp, 'host_id' => $downtime['host_id'], 'host_name' => $downtime['host_name'], 'service_id' => $downtime['service_id'], 'service_description' => $downtime['service_description'], 'fixed' => $downtime['dtp_fixed'], 'duration' => $downtime['dtp_duration'], 'tomorrow' => $tomorrow];
             }
         }
 

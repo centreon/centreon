@@ -67,12 +67,7 @@ if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['
 }
 
 $acl = $centreon->user->access;
-$allowedContacts = $acl->getContactAclConf(array(
-    'fields' => array('contact_id', 'contact_name'),
-    'keys' => array('contact_id'),
-    'get_row' => 'contact_name',
-    'order' => 'contact_name'
-));
+$allowedContacts = $acl->getContactAclConf(['fields' => ['contact_id', 'contact_name'], 'keys' => ['contact_id'], 'get_row' => 'contact_name', 'order' => 'contact_name']);
 $allowedAclGroups = $acl->getAccessGroups();
 $contactstring = "";
 if (count($allowedContacts)) {
@@ -141,7 +136,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            multipleContactGroupInDB(isset($select) ? $select : array(), $dupNbr);
+            multipleContactGroupInDB(isset($select) ? $select : [], $dupNbr);
         } else {
             unvalidFormMessage();
         }
@@ -154,7 +149,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteContactGroupInDB(isset($select) ? $select : array());
+            deleteContactGroupInDB(isset($select) ? $select : []);
         } else {
             unvalidFormMessage();
         }

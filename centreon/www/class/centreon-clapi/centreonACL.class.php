@@ -46,7 +46,7 @@ class CentreonACL
 {
     protected $db;
     // hack to get rid of warning messages
-    public $topology = array();
+    public $topology = [];
     public $topologyStr = "";
 
     /**

@@ -52,7 +52,7 @@ class Macro extends AbstractObject
     /** @var int */
     private $done_cache = 0;
     /** @var array */
-    private $macro_service_cache = array();
+    private $macro_service_cache = [];
     /** @var null */
     protected $generate_filename = null;
     /** @var string */
@@ -94,7 +94,7 @@ class Macro extends AbstractObject
         $stmt->execute();
         while (($macro = $stmt->fetch(PDO::FETCH_ASSOC))) {
             if (!isset($this->macro_service_cache[$macro['svc_svc_id']])) {
-                $this->macro_service_cache[$macro['svc_svc_id']] = array();
+                $this->macro_service_cache[$macro['svc_svc_id']] = [];
             }
 
             $serviceMacroName = preg_replace(
@@ -132,7 +132,7 @@ class Macro extends AbstractObject
 
         $this->stmt_service->bindParam(':service_id', $service_id, PDO::PARAM_INT);
         $this->stmt_host->execute();
-        $this->macro_service_cache[$service_id] = array();
+        $this->macro_service_cache[$service_id] = [];
         while (($macro = $stmt->fetch(PDO::FETCH_ASSOC))) {
             $serviceMacroName = preg_replace(
                 '/\$_SERVICE(.*)\$/',

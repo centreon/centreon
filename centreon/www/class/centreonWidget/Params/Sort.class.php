@@ -70,12 +70,8 @@ class CentreonWidgetParamsSort extends CentreonWidgetParams
     {
         parent::init($params);
         if (isset($this->quickform)) {
-            $elems = array();
-            $operands = array(
-                null => null,
-                "ASC" => "ASC",
-                "DESC" => "DESC"
-            );
+            $elems = [];
+            $operands = [null => null, "ASC" => "ASC", "DESC" => "DESC"];
             $columnList = $this->getListValues($params['parameter_id']);
             $elems[] = $this->quickform->addElement('select', 'column_' . $params['parameter_id'], '', $columnList);
             $elems[] = $this->quickform->addElement('select', 'order_' . $params['parameter_id'], '', $operands);
@@ -109,10 +105,7 @@ class CentreonWidgetParamsSort extends CentreonWidgetParams
                 $order = trim($matches[2]);
             }
             if (isset($order) && isset($column)) {
-                $this->quickform->setDefaults(array(
-                    'order_' . $params['parameter_id'] => $order,
-                    'column_' . $params['parameter_id'] => $column
-                ));
+                $this->quickform->setDefaults(['order_' . $params['parameter_id'] => $order, 'column_' . $params['parameter_id'] => $column]);
             }
         }
     }

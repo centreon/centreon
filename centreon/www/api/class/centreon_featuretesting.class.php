@@ -65,8 +65,8 @@ class CentreonFeaturetesting extends CentreonWebService
             throw new \RestUnauthorizedException('Session does not exists.');
         }
         $userId = $_SESSION['centreon']->user->user_id;
-        $features = array();
-        $features[$this->arguments['name']] = array();
+        $features = [];
+        $features[$this->arguments['name']] = [];
         $features[$this->arguments['name']][$this->arguments['version']] = $this->arguments['enabled'] ? 1 : 0;
 
         $this->obj->saveUserFeaturesValue(

@@ -69,7 +69,7 @@ class CentreonServicegroups// FIXME CentreonServiceGroups exists too
             return;
         }
 
-        $services = array();
+        $services = [];
         $query = "SELECT host_host_id, service_service_id "
             . "FROM servicegroup_relation "
             . "WHERE servicegroup_sg_id = " . $sgId . " "
@@ -84,7 +84,7 @@ class CentreonServicegroups// FIXME CentreonServiceGroups exists too
 
         $res = $this->DB->query($query);
         while ($row = $res->fetchRow()) {
-            $services[] = array($row['host_host_id'], $row['service_service_id']);
+            $services[] = [$row['host_host_id'], $row['service_service_id']];
         }
         $res->closeCursor();
 
@@ -160,7 +160,7 @@ class CentreonServicegroups// FIXME CentreonServiceGroups exists too
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'servicegroup';
         $parameters['currentObject']['id'] = 'sg_id';
         $parameters['currentObject']['name'] = 'sg_name';
@@ -178,7 +178,7 @@ class CentreonServicegroups// FIXME CentreonServiceGroups exists too
             case 'sg_tServices':
                 $parameters['type'] = 'relation';
                 $parameters['externalObject']['object'] = 'centreonServicetemplates';
-                $parameters['externalObject']['objectOptions'] = array('withHosttemplate' => true);
+                $parameters['externalObject']['objectOptions'] = ['withHosttemplate' => true];
                 $parameters['relationObject']['table'] = 'servicegroup_relation';
                 $parameters['relationObject']['field'] = 'host_host_id';
                 $parameters['relationObject']['additionalField'] = 'service_service_id';
@@ -187,7 +187,7 @@ class CentreonServicegroups// FIXME CentreonServiceGroups exists too
             case 'sg_hgServices':
                 $parameters['type'] = 'relation';
                 $parameters['externalObject']['object'] = 'centreonService';
-                $parameters['externalObject']['objectOptions'] = array('hostgroup' => true);
+                $parameters['externalObject']['objectOptions'] = ['hostgroup' => true];
                 $parameters['relationObject']['table'] = 'servicegroup_relation';
                 $parameters['relationObject']['field'] = 'hostgroup_hg_id';
                 $parameters['relationObject']['additionalField'] = 'service_service_id';
@@ -233,18 +233,7 @@ class CentreonServicegroups// FIXME CentreonServiceGroups exists too
             $sgAcl = $centreon->user->access->getServiceGroupAclConf(
                 null,
                 'broker',
-                array(
-                    'distinct' => true,
-                    'fields' => array('servicegroup.sg_id'),
-                    'get_row' => 'sg_id',
-                    'keys' => array('sg_id'),
-                    'conditions' => array(
-                        'servicegroup.sg_id' => array(
-                            'IN',
-                            $values
-                        )
-                    )
-                ),
+                ['distinct' => true, 'fields' => ['servicegroup.sg_id'], 'get_row' => 'sg_id', 'keys' => ['sg_id'], 'conditions' => ['servicegroup.sg_id' => ['IN', $values]]],
                 true
             );
         }
@@ -383,7 +372,7 @@ class CentreonServicegroups// FIXME CentreonServiceGroups exists too
      */
     public function getServicesGroupId($sgName)
     {
-        static $ids = array();
+        static $ids = [];
 
         if (!isset($ids[$sgName])) {
             $query = "SELECT sg_id FROM servicegroup WHERE sg_name = '" . $this->DB->escape($sgName) . "'";

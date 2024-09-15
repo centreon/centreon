@@ -72,7 +72,7 @@ $inputPost = [
     'limit' => \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['limit'] ?? '')
 ];
 
-$inputs = array();
+$inputs = [];
 foreach ($inputGet as $argumentName => $argumentValue) {
     if (!empty($inputGet[$argumentName]) && trim($inputGet[$argumentName]) != '') {
         $inputs[$argumentName] = $inputGet[$argumentName];

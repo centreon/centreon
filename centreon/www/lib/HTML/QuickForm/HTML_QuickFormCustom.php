@@ -89,8 +89,8 @@ class HTML_QuickFormCustom extends HTML_QuickForm
             $token = bin2hex(openssl_random_pseudo_bytes(16));
 
             if (!isset($_SESSION['x-centreon-token']) || !is_array($_SESSION['x-centreon-token'])) {
-                $_SESSION['x-centreon-token'] = array();
-                $_SESSION['x-centreon-token-generated-at'] = array();
+                $_SESSION['x-centreon-token'] = [];
+                $_SESSION['x-centreon-token-generated-at'] = [];
             }
 
             $_SESSION['x-centreon-token'][] = $token;
@@ -129,7 +129,7 @@ class HTML_QuickFormCustom extends HTML_QuickForm
         if ($success) {
             $error = true;
         } else {
-            $error = array('centreon_token' => 'The Token is invalid');
+            $error = ['centreon_token' => 'The Token is invalid'];
             echo "<div class='msg' align='center'>" .
                 _("The form has not been submitted since 15 minutes. Please retry to resubmit") .
                 "<a href='' OnLoad = windows.location(); alt='reload'> " . _("here") . "</a></div>";
@@ -202,19 +202,12 @@ class HTML_QuickFormCustom extends HTML_QuickForm
             $this->_required[] = $element;
         }
         if (!isset($this->_rules[$element])) {
-            $this->_rules[$element] = array();
+            $this->_rules[$element] = [];
         }
         if ($validation == 'client') {
-            $this->updateAttributes(array('onsubmit' => 'try { var myValidator = validate_' . $this->_attributes['id'] . '; } catch(e) { return true; } return myValidator(this);'));
+            $this->updateAttributes(['onsubmit' => 'try { var myValidator = validate_' . $this->_attributes['id'] . '; } catch(e) { return true; } return myValidator(this);']);
         }
-        $this->_rules[$element][] = array(
-            'type'        => $type,
-            'format'      => $format,
-            'message'     => $message,
-            'validation'  => $validation,
-            'reset'       => $reset,
-            'dependent'   => $dependent
-        );
+        $this->_rules[$element][] = ['type'        => $type, 'format'      => $format, 'message'     => $message, 'validation'  => $validation, 'reset'       => $reset, 'dependent'   => $dependent];
     }
 
 
@@ -234,7 +227,7 @@ class HTML_QuickFormCustom extends HTML_QuickForm
             $this->_submitValues = $this->_recursiveFilter($filter, $this->_submitValues);
         } else {
             if (!is_array($element)) {
-                $element = array($element);
+                $element = [$element];
             }
             foreach ($element as $elName) {
                 $value = $this->getSubmitValue($elName);
@@ -243,8 +236,8 @@ class HTML_QuickFormCustom extends HTML_QuickForm
                         $this->_submitValues[$elName] = $this->_recursiveFilter($filter, $value);
                     } else {
                         $idx  = "['" . str_replace(
-                            array('\\', '\'', ']', '['),
-                            array('\\\\', '\\\'', '', "']['"),
+                            ['\\', '\'', ']', '['],
+                            ['\\\\', '\\\'', '', "']['"],
                             $elName
                         ) . "']";
                         eval("\$this->_submitValues{$idx} = \$this->_recursiveFilter(\$filter, \$value);");

@@ -73,7 +73,7 @@ try {
     $viewId = $viewObj->getCurrentView();
     $permission = $viewObj->checkPermission($viewId) ? 1 : 0;
     $ownership = $viewObj->checkOwnership($viewId) ? 1 : 0;
-    $widgets = array();
+    $widgets = [];
     $columnClass = "column_0";
     $widgetNumber = 0;
     if ($viewId) {

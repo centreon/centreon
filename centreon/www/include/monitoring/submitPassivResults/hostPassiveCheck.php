@@ -61,30 +61,30 @@ if (!$is_admin) {
         }
     }
 }
-$hostTab = array();
+$hostTab = [];
 
 if ($is_admin || ($flag_acl && !$is_admin)) {
     $form = new HTML_QuickFormCustom('select_form', 'GET', "?p=".$p);
     $form->addElement('header', 'title', _("Command Options"));
 
-    $hosts = array($host_name=>$host_name);
+    $hosts = [$host_name=>$host_name];
 
-    $form->addElement('select', 'host_name', _("Host Name"), $hosts, array("onChange" =>"this.form.submit();"));
+    $form->addElement('select', 'host_name', _("Host Name"), $hosts, ["onChange" =>"this.form.submit();"]);
 
     $form->addRule('host_name', _("Required Field"), 'required');
 
-    $return_code = array("0" => "UP", "1" => "DOWN", "2" => "UNREACHABLE");
+    $return_code = ["0" => "UP", "1" => "DOWN", "2" => "UNREACHABLE"];
 
     $form->addElement('select', 'return_code', _("Check result"), $return_code);
-    $form->addElement('text', 'output', _("Check output"), array("size"=>"100"));
-    $form->addElement('text', 'dataPerform', _("Performance data"), array("size"=>"100"));
+    $form->addElement('text', 'output', _("Check output"), ["size"=>"100"]);
+    $form->addElement('text', 'dataPerform', _("Performance data"), ["size"=>"100"]);
 
     $form->addElement('hidden', 'author', $centreon->user->get_alias());
     $form->addElement('hidden', 'cmd', $cmd);
     $form->addElement('hidden', 'p', $p);
 
-    $form->addElement('submit', 'submit', _("Save"), array("class" => "btc bt_success"));
-    $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $form->addElement('submit', 'submit', _("Save"), ["class" => "btc bt_success"]);
+    $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 
     # Smarty template Init
     $tpl = new Smarty();

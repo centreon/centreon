@@ -70,8 +70,8 @@ function testServiceGroupDependencyCycle($childs = null)
 {
     global $pearDB;
     global $form;
-    $parents = array();
-    $childs = array();
+    $parents = [];
+    $childs = [];
     if (isset($form)) {
         $parents = $form->getSubmitValue('dep_sgParents');
         $childs = $form->getSubmitValue('dep_sgChilds');
@@ -85,7 +85,7 @@ function testServiceGroupDependencyCycle($childs = null)
     return true;
 }
 
-function deleteServiceGroupDependencyInDB($dependencies = array())
+function deleteServiceGroupDependencyInDB($dependencies = [])
 {
     global $pearDB, $oreon;
     foreach ($dependencies as $key => $value) {
@@ -97,7 +97,7 @@ function deleteServiceGroupDependencyInDB($dependencies = array())
     }
 }
 
-function multipleServiceGroupDependencyInDB($dependencies = array(), $nbrDup = array())
+function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
 {
     foreach ($dependencies as $key => $value) {
         global $pearDB, $oreon;
@@ -181,7 +181,7 @@ function updateServiceGroupDependencyInDB($dep_id = null)
     updateServiceGroupDependencyServiceGroupChilds($dep_id);
 }
 
-function insertServiceGroupDependencyInDB($ret = array())
+function insertServiceGroupDependencyInDB($ret = [])
 {
     $dep_id = insertServiceGroupDependency($ret);
     updateServiceGroupDependencyServiceGroupParents($dep_id, $ret);
@@ -195,7 +195,7 @@ function insertServiceGroupDependencyInDB($ret = array())
  * @param array<string, mixed> $ret
  * @return int
  */
-function insertServiceGroupDependency($ret = array()): int
+function insertServiceGroupDependency($ret = []): int
 {
     global $form, $pearDB, $centreon;
     if (!count($ret)) {
@@ -317,7 +317,7 @@ function sanitizeResourceParameters(array $resources): array
     return $sanitizedParameters;
 }
 
-function updateServiceGroupDependencyServiceGroupParents($dep_id = null, $ret = array())
+function updateServiceGroupDependencyServiceGroupParents($dep_id = null, $ret = [])
 {
     if (!$dep_id) {
         exit();
@@ -345,7 +345,7 @@ function updateServiceGroupDependencyServiceGroupParents($dep_id = null, $ret = 
     }
 }
 
-function updateServiceGroupDependencyServiceGroupChilds($dep_id = null, $ret = array())
+function updateServiceGroupDependencyServiceGroupChilds($dep_id = null, $ret = [])
 {
     if (!$dep_id) {
         exit();

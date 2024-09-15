@@ -58,7 +58,7 @@ if (preg_match('/([0-9]+)_([0-9]+)/', $chartId, $matches)) {
     throw new \InvalidArgumentException('chartId must be a combination of integers');
 }
 
-$metrics = array();
+$metrics = [];
 
 /* Get list metrics */
 $query = 'SELECT m.metric_id, m.metric_name, i.host_name, i.service_description
@@ -73,10 +73,7 @@ $stmt->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
 $stmt->execute();
 
 while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-    $metrics[] = array(
-        'id' => $chartId . '_' . $row['metric_id'],
-        'title' => $row['host_name'] . ' - ' . $row['service_description'] . ' : ' . $row['metric_name']
-    );
+    $metrics[] = ['id' => $chartId . '_' . $row['metric_id'], 'title' => $row['host_name'] . ' - ' . $row['service_description'] . ' : ' . $row['metric_name']];
 }
 
 $period_start = isset($_GET['start']) ? filter_var($_GET['start'], FILTER_VALIDATE_INT) : 'undefined';

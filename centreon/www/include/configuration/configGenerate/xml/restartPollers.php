@@ -126,7 +126,7 @@ if (!isset($_POST['poller']) || !isset($_POST['mode'])) {
  * List of error from php
  */
 global $generatePhpErrors;
-$generatePhpErrors = array();
+$generatePhpErrors = [];
 
 /**
  * The error handler for get error from PHP
@@ -143,12 +143,12 @@ $log_error = function ($errno, $errstr, $errfile, $errline) {
         case E_ERROR:
         case E_USER_ERROR:
         case E_CORE_ERROR:
-            $generatePhpErrors[] = array('error', $errstr);
+            $generatePhpErrors[] = ['error', $errstr];
             break;
         case E_WARNING:
         case E_USER_WARNING:
         case E_CORE_WARNING:
-            $generatePhpErrors[] = array('warning', $errstr);
+            $generatePhpErrors[] = ['warning', $errstr];
             break;
     }
     return true;
@@ -157,7 +157,7 @@ $log_error = function ($errno, $errstr, $errfile, $errline) {
 try {
     $pollers = explode(',', $_POST['poller']);
 
-    $ret = array();
+    $ret = [];
     $ret['host'] = $pollers;
     $ret['restart_mode'] = $_POST['mode'];
 
@@ -177,7 +177,7 @@ try {
 
     $stdout = "";
     if (!isset($msg_restart)) {
-        $msg_restart = array();
+        $msg_restart = [];
     }
 
     $tabs = $centreon->user->access->getPollerAclConf([
@@ -188,19 +188,13 @@ try {
             'engine_reload_command',
             'broker_reload_command'
         ],
-        'order' => array('name'),
-        'conditions' => array('ns_activate' => '1'),
-        'keys' => array('id')
+        'order' => ['name'],
+        'conditions' => ['ns_activate' => '1'],
+        'keys' => ['id']
     ]);
     foreach ($tabs as $tab) {
         if (isset($ret["host"]) && ($ret["host"] == 0 || in_array($tab['id'], $ret["host"]))) {
-            $poller[$tab["id"]] = array(
-                "id" => $tab["id"],
-                "name" => $tab["name"],
-                'engine_restart_command' => $tab['engine_restart_command'],
-                'engine_reload_command' => $tab['engine_reload_command'],
-                'broker_reload_command' => $tab['broker_reload_command']
-            );
+            $poller[$tab["id"]] = ["id" => $tab["id"], "name" => $tab["name"], 'engine_restart_command' => $tab['engine_restart_command'], 'engine_reload_command' => $tab['engine_reload_command'], 'broker_reload_command' => $tab['broker_reload_command']];
         }
     }
 

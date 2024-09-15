@@ -272,13 +272,7 @@ if ($numRows > 0) {
     }
     $dbResult->execute();
 
-    $states = array(
-        0 => 'sk',
-        1 => 'sw',
-        2 => 'sc',
-        3 => 'su',
-        4 => 'sp'
-    );
+    $states = [0 => 'sk', 1 => 'sw', 2 => 'sc', 3 => 'su', 4 => 'sp'];
 
     $sg_list = [];
     while ($tab = $dbResult->fetch()) {

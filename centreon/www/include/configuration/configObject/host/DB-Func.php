@@ -244,7 +244,7 @@ function hasHostTemplateNeverUsed($name = null)
 function hasNoInfiniteLoop($hostId, $templateId)
 {
     global $pearDB;
-    static $antiTplLoop = array();
+    static $antiTplLoop = [];
 
     if ($hostId === $templateId) {
         return false;
@@ -255,7 +255,7 @@ function hasNoInfiniteLoop($hostId, $templateId)
         $res = $pearDB->query($query);
         while ($row = $res->fetch()) {
             if (!isset($antiTplLoop[$row['host_tpl_id']])) {
-                $antiTplLoop[$row['host_tpl_id']] = array();
+                $antiTplLoop[$row['host_tpl_id']] = [];
             }
             $antiTplLoop[$row['host_tpl_id']][$row['host_host_id']] = $row['host_host_id'];
         }
@@ -274,7 +274,7 @@ function hasNoInfiniteLoop($hostId, $templateId)
     return true;
 }
 
-function enableHostInDB($host_id = null, $host_arr = array())
+function enableHostInDB($host_id = null, $host_arr = [])
 {
     global $pearDB, $centreon;
 
@@ -300,7 +300,7 @@ function enableHostInDB($host_id = null, $host_arr = array())
     }
 }
 
-function disableHostInDB($host_id = null, $host_arr = array())
+function disableHostInDB($host_id = null, $host_arr = [])
 {
     global $pearDB, $centreon;
     if (!$host_id && !count($host_arr)) {
@@ -368,7 +368,7 @@ function removeRelationLastHostDependency(int $hostId): void
     };
 }
 
-function deleteHostInDB($hosts = array())
+function deleteHostInDB($hosts = [])
 {
     global $pearDB, $centreon;
 
@@ -418,7 +418,7 @@ function deleteHostInDB($hosts = array())
                 );
             }
         }
-        $centreon->user->access->updateACL(array("type" => 'HOST', 'id' => $hostId, "action" => "DELETE"));
+        $centreon->user->access->updateACL(["type" => 'HOST', 'id' => $hostId, "action" => "DELETE"]);
         $dbResult = $pearDB->query("DELETE FROM host WHERE host_id = '" . (int) $hostId . "'");
         $dbResult = $pearDB->query("DELETE FROM host_template_relation WHERE host_host_id = '" . (int) $hostId . "'");
         $dbResult = $pearDB->query("DELETE FROM on_demand_macro_host WHERE host_host_id = '" . (int) $hostId . "'");
@@ -433,7 +433,7 @@ function deleteHostInDB($hosts = array())
  *  This function is called for duplicating a host
  */
 
-function multipleHostInDB($hosts = array(), $nbrDup = array())
+function multipleHostInDB($hosts = [], $nbrDup = [])
 {
     global $pearDB, $path, $centreon, $is_admin;
 
@@ -515,8 +515,8 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                         require_once($path . "../configObject/service/DB-Func.php");
                     }
                     $hostInf = $maxId["MAX(host_id)"];
-                    $serviceArr = array();
-                    $serviceNbr = array();
+                    $serviceArr = [];
+                    $serviceNbr = [];
                     // Get all Services link to the Host
                     $dbResult = $pearDB->query("SELECT DISTINCT service_service_id
                                               FROM host_service_relation
@@ -1396,7 +1396,7 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
      */
     if (isset($_REQUEST['tpSelect'])) {
         /* Cleanup host service link to host template to be removed */
-        $newTp = array();
+        $newTp = [];
         foreach ($_POST['tpSelect'] as $tmpl) {
             $newTp[$tmpl] = $tmpl;
         }
@@ -1413,7 +1413,7 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
         /* Set template */
         $hostObj->setTemplates($hostId, $_REQUEST['tpSelect']);
     } elseif (isset($ret["use"]) && $ret["use"]) {
-        $already_stored = array();
+        $already_stored = [];
         $tplTab = preg_split("/\,/", $ret["use"]);
         $j = 0;
         $DBRES = $pearDB->query("DELETE FROM `host_template_relation` WHERE `host_host_id` = '" . $hostId . "'");
@@ -1429,7 +1429,7 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
         }
     } else {
         /* Cleanup host service link to host template to be removed */
-        $newTp = array();
+        $newTp = [];
 
         $dbResult = $pearDB->query("SELECT `host_tpl_id`
                                     FROM `host_template_relation`
@@ -1441,7 +1441,7 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
         }
 
         /* Set template */
-        $hostObj->setTemplates($hostId, array());
+        $hostObj->setTemplates($hostId, []);
     }
 
     /*
@@ -1451,7 +1451,7 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
         isset($_REQUEST['macroInput']) &&
         isset($_REQUEST['macroValue'])
     ) {
-        $macroDescription = array();
+        $macroDescription = [];
         foreach ($_REQUEST as $nam => $ele) {
             if (preg_match_all("/^macroDescription_(\w+)$/", $nam, $matches, PREG_SET_ORDER)) {
                 foreach ($matches as $match) {
@@ -1505,7 +1505,7 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog("host", $hostId, CentreonDB::escape($ret["host_name"]), "c", $fields);
-    $centreon->user->access->updateACL(array("type" => 'HOST', 'id' => $hostId, "action" => "UPDATE"));
+    $centreon->user->access->updateACL(["type" => 'HOST', 'id' => $hostId, "action" => "UPDATE"]);
 }
 
 function updateHost_MC($hostId = null)
@@ -1592,7 +1592,7 @@ function updateHost_MC($hostId = null)
      *  update multiple templates
      */
     if (isset($_REQUEST['tpSelect'])) {
-        $oldTp = array();
+        $oldTp = [];
         if (isset($_POST['mc_mod_tplp']['mc_mod_tplp']) && $_POST['mc_mod_tplp']['mc_mod_tplp'] == 0) {
             $dbResult = $pearDB->query("SELECT `host_tpl_id`
                                         FROM `host_template_relation`
@@ -1607,7 +1607,7 @@ function updateHost_MC($hostId = null)
     /*
      *  Update on demand macros
      */
-    $macroDescription = array();
+    $macroDescription = [];
     foreach ($_REQUEST as $nam => $ele) {
         if (preg_match_all("/^macroDescription_(\w+)$/", $nam, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $match) {
@@ -1667,7 +1667,7 @@ function updateHost_MC($hostId = null)
     $centreon->CentreonLogAction->insertLog("host", $hostId, $row["host_name"], "mc", $fields);
 }
 
-function updateHostHostParent($host_id = null, $ret = array())
+function updateHostHostParent($host_id = null, $ret = [])
 {
     global $form, $pearDB;
 
@@ -1701,7 +1701,7 @@ function updateHostHostParent($host_id = null, $ret = array())
  * For massive change. We just add the new list if the elem doesn't exist yet
  */
 
-function updateHostHostParent_MC($host_id = null, $ret = array())
+function updateHostHostParent_MC($host_id = null, $ret = [])
 {
     global $form, $pearDB;
 
@@ -1712,7 +1712,7 @@ function updateHostHostParent_MC($host_id = null, $ret = array())
     $rq = "SELECT * FROM host_hostparent_relation ";
     $rq .= "WHERE host_host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
-    $hpars = array();
+    $hpars = [];
     while ($arr = $dbResult->fetch()) {
         $hpars[$arr["host_parent_hp_id"]] = $arr["host_parent_hp_id"];
     }
@@ -1746,7 +1746,7 @@ function updateHostHostChild($host_id = null)
     $rq .= "WHERE host_parent_hp_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
 
-    $ret = array();
+    $ret = [];
     $ret = CentreonUtils::mergeWithInitialValues($form, 'host_childs');
     $counter = count($ret);
     for ($i = 0; $i < $counter; $i++) {
@@ -1774,7 +1774,7 @@ function updateHostHostChild_MC($host_id = null)
     $rq = "SELECT * FROM host_hostparent_relation ";
     $rq .= "WHERE host_parent_hp_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
-    $hchs = array();
+    $hchs = [];
     while ($arr = $dbResult->fetch()) {
         $hchs[$arr["host_host_id"]] = $arr["host_host_id"];
     }
@@ -1799,7 +1799,7 @@ function updateHostHostChild_MC($host_id = null)
 /**
  *
  */
-function updateHostExtInfos($host_id = null, $ret = array())
+function updateHostExtInfos($host_id = null, $ret = [])
 {
     global $form, $pearDB;
 
@@ -1908,7 +1908,7 @@ function updateHostExtInfos_MC($host_id = null)
 /**
  *
  */
-function updateHostContactGroup($host_id, $ret = array())
+function updateHostContactGroup($host_id, $ret = [])
 {
     global $form, $pearDB;
 
@@ -1946,7 +1946,7 @@ function updateHostContactGroup($host_id, $ret = array())
  *  Only for Nagios 3
  */
 
-function updateHostContact($host_id, $ret = array())
+function updateHostContact($host_id, $ret = [])
 {
     global $form, $pearDB;
 
@@ -1971,7 +1971,7 @@ function updateHostContact($host_id, $ret = array())
 /**
  * For massive change. We just add the new list if the elem doesn't exist yet
  */
-function updateHostContactGroup_MC($host_id, $ret = array())
+function updateHostContactGroup_MC($host_id, $ret = [])
 {
     global $form, $pearDB;
 
@@ -1982,7 +1982,7 @@ function updateHostContactGroup_MC($host_id, $ret = array())
     $rq = "SELECT * FROM contactgroup_host_relation ";
     $rq .= "WHERE host_host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
-    $cgs = array();
+    $cgs = [];
     while ($arr = $dbResult->fetch()) {
         $cgs[$arr["contactgroup_cg_id"]] = $arr["contactgroup_cg_id"];
     }
@@ -2015,7 +2015,7 @@ function updateHostContactGroup_MC($host_id, $ret = array())
 /**
  * For massive change. We just add the new list if the elem doesn't exist yet
  */
-function updateHostContact_MC($host_id, $ret = array())
+function updateHostContact_MC($host_id, $ret = [])
 {
     global $form, $pearDB;
 
@@ -2026,7 +2026,7 @@ function updateHostContact_MC($host_id, $ret = array())
     $rq = "SELECT * FROM contact_host_relation ";
     $rq .= "WHERE host_host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
-    $cs = array();
+    $cs = [];
     while ($arr = $dbResult->fetch()) {
         $cs[$arr["contact_id"]] = $arr["contact_id"];
     }
@@ -2048,7 +2048,7 @@ function updateHostContact_MC($host_id, $ret = array())
 /**
  *
  */
-function updateHostNotifs($host_id = null, $ret = array())
+function updateHostNotifs($host_id = null, $ret = [])
 {
     global $form, $pearDB;
 
@@ -2097,7 +2097,7 @@ function updateHostNotifs_MC($host_id = null)
     $pearDB->query($rq);
 }
 
-function updateHostNotifOptionInterval($host_id = null, $ret = array())
+function updateHostNotifOptionInterval($host_id = null, $ret = [])
 {
     if (!$host_id) {
         return;
@@ -2141,7 +2141,7 @@ function updateHostNotifOptionInterval_MC($host_id = null)
     }
 }
 
-function updateHostNotifOptionTimeperiod($host_id = null, $ret = array())
+function updateHostNotifOptionTimeperiod($host_id = null, $ret = [])
 {
     if (!$host_id) {
         return;
@@ -2181,7 +2181,7 @@ function updateHostNotifOptionTimeperiod_MC($host_id = null)
     }
 }
 
-function updateHostNotifOptionFirstNotificationDelay($host_id = null, $ret = array())
+function updateHostNotifOptionFirstNotificationDelay($host_id = null, $ret = [])
 {
     if (!$host_id) {
         return;
@@ -2228,7 +2228,7 @@ function updateHostNotifOptionFirstNotificationDelay_MC($host_id = null)
 }
 
 
-function updateHostNotifOptionRecoveryNotificationDelay($host_id = null, $ret = array())
+function updateHostNotifOptionRecoveryNotificationDelay($host_id = null, $ret = [])
 {
     if (!$host_id) {
         return;
@@ -2257,7 +2257,7 @@ function updateHostNotifOptionRecoveryNotificationDelay($host_id = null, $ret = 
 
 
 
-function updateHostHostGroup($host_id, $ret = array())
+function updateHostHostGroup($host_id, $ret = [])
 {
     global $form, $pearDB;
 
@@ -2272,13 +2272,13 @@ function updateHostHostGroup($host_id, $ret = array())
     $rq = "SELECT hostgroup_hg_id FROM hostgroup_relation ";
     $rq .= "WHERE host_host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
-    $hgsOLD = array();
+    $hgsOLD = [];
     while ($hg = $dbResult->fetch()) {
         $hgsOLD[$hg["hostgroup_hg_id"]] = $hg["hostgroup_hg_id"];
     }
 
     // Get service lists linked to hostgroup
-    $hgSVS = array();
+    $hgSVS = [];
     foreach ($hgsOLD as $hg) {
         $rq = "SELECT service_service_id FROM host_service_relation ";
         $rq .= "WHERE hostgroup_hg_id = '" . $hg . "' AND host_host_id IS NULL";
@@ -2292,7 +2292,7 @@ function updateHostHostGroup($host_id, $ret = array())
     $rq .= "WHERE host_host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
     $ret = isset($ret["host_hgs"]) ? $ret["host_hgs"] : $form->getSubmitValue("host_hgs");
-    $hgsNEW = array();
+    $hgsNEW = [];
 
     if ($ret) {
         $counter = count($ret);
@@ -2335,7 +2335,7 @@ function updateHostHostGroup($host_id, $ret = array())
 /**
  * For massive change. We just add the new list if the elem doesn't exist yet
  */
-function updateHostHostGroup_MC($host_id, $ret = array())
+function updateHostHostGroup_MC($host_id, $ret = [])
 {
     global $form, $pearDB;
 
@@ -2346,7 +2346,7 @@ function updateHostHostGroup_MC($host_id, $ret = array())
     $rq = "SELECT * FROM hostgroup_relation ";
     $rq .= "WHERE host_host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
-    $hgs = array();
+    $hgs = [];
     while ($arr = $dbResult->fetch()) {
         $hgs[$arr["hostgroup_hg_id"]] = $arr["hostgroup_hg_id"];
     }
@@ -2366,7 +2366,7 @@ function updateHostHostGroup_MC($host_id, $ret = array())
     }
 }
 
-function updateHostHostCategory($host_id, $ret = array())
+function updateHostHostCategory($host_id, $ret = [])
 {
     global $form, $pearDB;
 
@@ -2384,7 +2384,7 @@ function updateHostHostCategory($host_id, $ret = array())
     $pearDB->query($rq);
 
     $ret = isset($ret["host_hcs"]) ? $ret["host_hcs"] : $ret = $form->getSubmitValue("host_hcs");
-    $hcsNEW = array();
+    $hcsNEW = [];
 
     if (!$ret) {
         return;
@@ -2404,7 +2404,7 @@ function updateHostHostCategory($host_id, $ret = array())
 /**
  * For massive change. We just add the new list if the elem doesn't exist yet
  */
-function updateHostHostCategory_MC($host_id, $ret = array())
+function updateHostHostCategory_MC($host_id, $ret = [])
 {
     global $form, $pearDB;
 
@@ -2415,7 +2415,7 @@ function updateHostHostCategory_MC($host_id, $ret = array())
     $rq = "SELECT * FROM hostcategories_relation ";
     $rq .= "WHERE host_host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
-    $hcs = array();
+    $hcs = [];
     while ($arr = $dbResult->fetch()) {
         $hcs[$arr["hostcategories_hc_id"]] = $arr["hostcategories_hc_id"];
     }
@@ -2464,7 +2464,7 @@ function generateHostServiceMultiTemplate($hID, $hID2 = null, $antiLoop = null)
         while (($hTpl2 = $hostServiceStatement->fetch()) !== false) {
             $alias = getMyServiceAlias($hTpl2["service_service_id"]);
 
-            $service_sgs = array();
+            $service_sgs = [];
             $statement->bindValue(':service_service_id', (int) $hTpl2["service_service_id"], \PDO::PARAM_INT);
             $statement->execute();
             for ($i = 0; $sg = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
@@ -2472,16 +2472,9 @@ function generateHostServiceMultiTemplate($hID, $hID2 = null, $antiLoop = null)
             }
             $statement->closeCursor();
 
-            if (testServiceExistence($alias, array(0 => $hID))) {
-                $service = array(
-                    "service_template_model_stm_id" => $hTpl2["service_service_id"],
-                    "service_description" => $alias,
-                    "service_register" => ($hTpl2["service_register"] + 1),
-                    "service_activate" => array("service_activate" => 1),
-                    "service_hPars" => array("0" => $hID),
-                    "service_sgs" => $service_sgs
-                );
-                insertServiceInDB($service, array());
+            if (testServiceExistence($alias, [0 => $hID])) {
+                $service = ["service_template_model_stm_id" => $hTpl2["service_service_id"], "service_description" => $alias, "service_register" => ($hTpl2["service_register"] + 1), "service_activate" => ["service_activate" => 1], "service_hPars" => ["0" => $hID], "service_sgs" => $service_sgs];
+                insertServiceInDB($service, []);
             }
         }
         $antiLoop[$hID2] = 1;
@@ -2558,7 +2551,7 @@ function updateHostTemplateService_MC($host_id = null)
         $dbResult2 = $pearDB->query("SELECT *
                                       FROM host_service_relation
                                       WHERE host_host_id = '" . (int)$host_id . "'");
-        $svtpls = array();
+        $svtpls = [];
         while ($arr = $dbResult2->fetch()) {
             $svtpls [$arr["service_service_id"]] = $arr["service_service_id"];
         }
@@ -2583,7 +2576,7 @@ function updateHostTemplateService_MC($host_id = null)
     }
 }
 
-function updateHostTemplateUsed($useTpls = array())
+function updateHostTemplateUsed($useTpls = [])
 {
     global $pearDB;
 

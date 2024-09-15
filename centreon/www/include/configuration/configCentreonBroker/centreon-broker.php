@@ -87,7 +87,7 @@ if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['
 
 $acl = $centreon->user->access;
 $serverString = trim($acl->getPollerString());
-$allowedBrokerConf = array();
+$allowedBrokerConf = [];
 
 if ($serverString != "''" && !empty($serverString)) {
     $sql = "SELECT config_id FROM cfg_centreonbroker WHERE ns_nagios_server IN (" . $serverString . ")";
@@ -128,7 +128,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            multipleCentreonBrokerInDB(isset($select) ? $select : array(), $dupNbr);
+            multipleCentreonBrokerInDB(isset($select) ? $select : [], $dupNbr);
         } else {
             unvalidFormMessage();
         }
@@ -139,7 +139,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteCentreonBrokerInDB(isset($select) ? $select : array());
+            deleteCentreonBrokerInDB(isset($select) ? $select : []);
         } else {
             unvalidFormMessage();
         }

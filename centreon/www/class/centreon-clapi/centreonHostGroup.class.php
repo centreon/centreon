@@ -74,9 +74,7 @@ class CentreonHostGroup extends CentreonObject
     public const INVALID_GEO_COORDS = "Invalid geo coords";
 
     /** @var string[] */
-    public static $aDepends = array(
-        'HOST'
-    );
+    public static $aDepends = ['HOST'];
 
     /**
      * CentreonHostGroup constructor
@@ -89,9 +87,9 @@ class CentreonHostGroup extends CentreonObject
     {
         parent::__construct($dependencyInjector);
         $this->object = new Centreon_Object_Host_Group($dependencyInjector);
-        $this->params = array('hg_activate' => '1');
-        $this->insertParams = array('hg_name', 'hg_alias');
-        $this->exportExcludedParams = array_merge($this->insertParams, array($this->object->getPrimaryKey()));
+        $this->params = ['hg_activate' => '1'];
+        $this->insertParams = ['hg_name', 'hg_alias'];
+        $this->exportExcludedParams = array_merge($this->insertParams, [$this->object->getPrimaryKey()]);
         $this->action = "HG";
         $this->nbOfCompulsoryParams = count($this->insertParams);
         $this->activateField = "hg_activate";
@@ -103,13 +101,13 @@ class CentreonHostGroup extends CentreonObject
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array()): void
+    public function show($parameters = null, $filters = []): void
     {
-        $filters = array();
+        $filters = [];
         if (isset($parameters)) {
-            $filters = array($this->object->getUniqueLabelField() => "%" . $parameters . "%");
+            $filters = [$this->object->getUniqueLabelField() => "%" . $parameters . "%"];
         }
-        $params = array('hg_id', 'hg_name', 'hg_alias');
+        $params = ['hg_id', 'hg_name', 'hg_alias'];
         $paramString = str_replace("hg_", "", implode($this->delim, $params));
         echo $paramString . "\n";
         $elements = $this->object->getList(
@@ -138,7 +136,7 @@ class CentreonHostGroup extends CentreonObject
         if (count($params) < $this->nbOfCompulsoryParams) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $addParams = array();
+        $addParams = [];
         $addParams[$this->object->getUniqueLabelField()] = $this->checkIllegalChar($params[self::ORDER_UNIQUENAME]);
         $addParams['hg_alias'] = $params[self::ORDER_ALIAS];
         $this->params = array_merge($this->params, $addParams);
@@ -269,19 +267,8 @@ class CentreonHostGroup extends CentreonObject
         if (count($params) < 2) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $authorizeParam = array(
-            'alias',
-            'comment',
-            'name',
-            'activate',
-            'notes',
-            'notes_url',
-            'action_url',
-            'icon_image',
-            'map_icon_image',
-            'geo_coords'
-        );
-        $unknownParam = array();
+        $authorizeParam = ['alias', 'comment', 'name', 'activate', 'notes', 'notes_url', 'action_url', 'icon_image', 'map_icon_image', 'geo_coords'];
+        $unknownParam = [];
 
         if (($objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME])) != 0) {
             $listParam = explode('|', $params[1]);
@@ -352,7 +339,7 @@ class CentreonHostGroup extends CentreonObject
                 }
             }
 
-            $updateParams = array($params[1] => $params[2]);
+            $updateParams = [$params[1] => $params[2]];
             $updateParams['objectId'] = $objectId;
             return $updateParams;
         } else {
@@ -409,7 +396,7 @@ class CentreonHostGroup extends CentreonObject
                 throw new CentreonClapiException(self::MISSINGPARAMETER);
             }
             $args = explode($this->delim, $arg[0]);
-            $hgIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($args[0]));
+            $hgIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$args[0]]);
             if (!count($hgIds)) {
                 throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $args[0]);
             }
@@ -426,7 +413,7 @@ class CentreonHostGroup extends CentreonObject
                 $tab = $relobj->getTargetIdFromSourceId($relobj->getSecondKey(), $relobj->getFirstKey(), $hgIds);
                 echo "id" . $this->delim . "name" . "\n";
                 foreach ($tab as $value) {
-                    $tmp = $obj->getParameters($value, array($obj->getUniqueLabelField()));
+                    $tmp = $obj->getParameters($value, [$obj->getUniqueLabelField()]);
                     echo $value . $this->delim . $tmp[$obj->getUniqueLabelField()] . "\n";
                 }
             } else {
@@ -440,9 +427,9 @@ class CentreonHostGroup extends CentreonObject
 
                 $relation = $args[1];
                 $relations = explode("|", $relation);
-                $relationTable = array();
+                $relationTable = [];
                 foreach ($relations as $rel) {
-                    $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), array($rel));
+                    $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), [$rel]);
                     if (isset($tab[0]) && $tab[0] != '') {
                         $relationTable[] = $tab[0];
                     } elseif ($rel != '') {
@@ -455,7 +442,7 @@ class CentreonHostGroup extends CentreonObject
                 $existingRelationIds = $relobj->getTargetIdFromSourceId(
                     $relobj->getSecondKey(),
                     $relobj->getFirstKey(),
-                    array($groupId)
+                    [$groupId]
                 );
                 foreach ($relationTable as $relationId) {
                     if ($matches[1] == "del") {
@@ -496,7 +483,7 @@ class CentreonHostGroup extends CentreonObject
         }
 
         $labelField = $this->object->getUniqueLabelField();
-        $filters = array();
+        $filters = [];
         if (!is_null($filterName)) {
             $filters[$labelField] = $filterName;
         }
@@ -504,8 +491,8 @@ class CentreonHostGroup extends CentreonObject
         $hostObj = new Centreon_Object_Host($this->dependencyInjector);
         $hFieldName = $hostObj->getUniqueLabelField();
         $elements = $relObj->getMergedParameters(
-            array($labelField),
-            array($hFieldName, 'host_id'),
+            [$labelField],
+            [$hFieldName, 'host_id'],
             -1,
             0,
             $labelField,

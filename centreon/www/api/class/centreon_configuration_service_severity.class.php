@@ -55,7 +55,7 @@ class CentreonConfigurationServiceSeverity extends CentreonConfigurationObjects
      */
     public function getList()
     {
-        $queryValues = array();
+        $queryValues = [];
 
         // Check for select2 'q' argument
         $queryValues['name'] = false !== isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
@@ -85,16 +85,10 @@ class CentreonConfigurationServiceSeverity extends CentreonConfigurationObjects
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $serviceList = array();
+        $serviceList = [];
         while ($data = $stmt->fetch()) {
-            $serviceList[] = array(
-                'id' => $data['sc_id'], 
-                'text' => $data['sc_name']
-            );
+            $serviceList[] = ['id' => $data['sc_id'], 'text' => $data['sc_name']];
         }
-        return array(
-            'items' => $serviceList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $serviceList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

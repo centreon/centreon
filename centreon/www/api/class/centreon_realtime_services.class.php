@@ -123,7 +123,7 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
     {
         $tab = explode(',', $this->arguments['fields']);
 
-        $fieldList = array();
+        $fieldList = [];
         foreach ($tab as $key) {
             $fieldList[$key] = 1;
         }
@@ -145,7 +145,7 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
 
         /* Filters */
         if (isset($this->arguments['status'])) {
-            $statusList = array('ok', 'warning', 'critical', 'unknown', 'pending', 'all');
+            $statusList = ['ok', 'warning', 'critical', 'unknown', 'pending', 'all'];
             if (in_array(strtolower($this->arguments['status']), $statusList)) {
                 $this->status = $this->arguments['status'];
             } else {
@@ -174,7 +174,7 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
      */
     protected function setServiceFieldList()
     {
-        $fields = array();
+        $fields = [];
 
         if (!isset($this->arguments['fields'])) {
             $fields["h.host_id"] = 'host_id';
@@ -195,7 +195,7 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
         } else {
             $tab = explode(',', $this->arguments['fields']);
 
-            $fieldList = array();
+            $fieldList = [];
             foreach ($tab as $key) {
                 $fieldList[trim($key)] = 1;
             }
@@ -352,7 +352,7 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
      */
     public function getServiceState()
     {
-        $queryValues = array();
+        $queryValues = [];
 
         /** * *************************************************
          * Get Service status
@@ -418,7 +418,7 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
         if (isset($this->order) && strtoupper($this->order) === 'DESC') {
             $q = 'DESC';
         }
-        $tabOrder = array();
+        $tabOrder = [];
         $tabOrder["criticality_id"] = " ORDER BY criticality $q, h.name, s.description ";
         $tabOrder["service_id"] = " ORDER BY s.service_id $q ";
         $tabOrder["host_name"] = " ORDER BY h.name $q, s.description ";
@@ -560,7 +560,7 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
 
         $stmt->execute();
 
-        $dataList = array();
+        $dataList = [];
         while ($data = $stmt->fetch()) {
             if (isset($data['criticality']) && isset($this->criticalityList[$data['criticality']])) {
                 $data["criticality"] = $this->criticalityList[$data['criticality']];
@@ -576,7 +576,7 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
      */
     protected function getCriticality()
     {
-        $this->criticalityList = array();
+        $this->criticalityList = [];
 
         $sql = "SELECT `sc_id`, `sc_name`, `level`, `icon_id`, `sc_description` FROM `service_categories` " .
             "WHERE `level` IS NOT NULL ORDER BY `level` DESC";

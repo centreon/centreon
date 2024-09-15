@@ -60,7 +60,7 @@ class CentreonGraphCurve
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'giv_components_template';
         $parameters['currentObject']['id'] = 'compo_id';
         $parameters['currentObject']['name'] = 'name';
@@ -90,10 +90,10 @@ class CentreonGraphCurve
      * @return array
      * @throws PDOException
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if (!empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':compo' . $v . ',';
@@ -118,10 +118,7 @@ class CentreonGraphCurve
         $stmt->execute();
 
         while ($data = $stmt->fetch()) {
-            $graphCurveList[] = array(
-                'id' => $data['id'],
-                'text' => $data['name']
-            );
+            $graphCurveList[] = ['id' => $data['id'], 'text' => $data['name']];
         }
 
         return $graphCurveList;

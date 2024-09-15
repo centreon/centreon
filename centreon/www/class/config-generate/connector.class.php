@@ -44,10 +44,7 @@ class Connector extends AbstractObject
         name as connector_name,
         command_line as connector_line
     ';
-    protected $attributes_write = array(
-        'connector_name',
-        'connector_line',
-    );
+    protected $attributes_write = ['connector_name', 'connector_line'];
 
     private function getConnectors(): void
     {

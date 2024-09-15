@@ -59,9 +59,9 @@ if ($centreon->user->access->checkAction("host_comment")) {
         $host_name = "";
     }
 
-    $data = array();
+    $data = [];
     if (isset($host_id)) {
-        $data = array("host_id" => $host_id);
+        $data = ["host_id" => $host_id];
     }
 
     if (isset($_GET["host_name"])) {
@@ -75,7 +75,7 @@ if ($centreon->user->access->checkAction("host_comment")) {
     /*
 	 * Database retrieve information for differents elements list we need on the page
 	 */
-    $hosts = array("" => "");
+    $hosts = ["" => ""];
     $query = "SELECT host_id, host_name " .
         "FROM `host` " .
         "WHERE host_register = '1' " .
@@ -89,9 +89,9 @@ if ($centreon->user->access->checkAction("host_comment")) {
     $DBRESULT->closeCursor();
 
     $debug = 0;
-    $attrsTextI = array("size" => "3");
-    $attrsText = array("size" => "30");
-    $attrsTextarea = array("rows" => "7", "cols" => "100");
+    $attrsTextI = ["size" => "3"];
+    $attrsText = ["size" => "30"];
+    $attrsTextarea = ["rows" => "7", "cols" => "100"];
 
     /*
 	 * Form begin
@@ -119,14 +119,14 @@ if ($centreon->user->access->checkAction("host_comment")) {
     $form->addElement('textarea', 'comment', _("Comments"), $attrsTextarea);
     $form->addRule('comment', _("Required Field"), 'required');
 
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 
     $form->setDefaults($data);
 
     $valid = false;
     if ((isset($_POST["submitA"]) && $_POST["submitA"]) && $form->validate()) {
-        if (!isset($_POST["persistant"]) || !in_array($_POST["persistant"], array('0', '1'))) {
+        if (!isset($_POST["persistant"]) || !in_array($_POST["persistant"], ['0', '1'])) {
             $_POST["persistant"] = '0';
         }
         if (!isset($_POST["comment"])) {

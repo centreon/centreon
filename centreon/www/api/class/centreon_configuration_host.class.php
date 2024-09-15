@@ -71,7 +71,7 @@ class CentreonConfigurationHost extends CentreonConfigurationObjects
         $additionalTables = '';
         $additionalCondition = '';
         $explodedValues = '';
-        $queryValues = array();
+        $queryValues = [];
         $query = '';
 
         // Check for select2 'q' argument
@@ -156,19 +156,12 @@ class CentreonConfigurationHost extends CentreonConfigurationObjects
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $hostList = array();
+        $hostList = [];
         while ($data = $stmt->fetch()) {
-            $hostList[] = array(
-                'id' => htmlentities($data['host_id']),
-                'text' => $data['host_name'],
-                'status' => (bool) $data['host_activate'],
-            );
+            $hostList[] = ['id' => htmlentities($data['host_id']), 'text' => $data['host_name'], 'status' => (bool) $data['host_activate']];
         }
 
-        return array(
-            'items' => $hostList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $hostList, 'total' => (int) $this->pearDB->numberRows()];
     }
 
     /**
@@ -190,7 +183,7 @@ class CentreonConfigurationHost extends CentreonConfigurationObjects
         }
 
         $hostObj = new CentreonHost($this->pearDB);
-        $serviceList = array();
+        $serviceList = [];
         $serviceListRaw = $hostObj->getServices($id, false, $allServices);
 
         foreach ($serviceListRaw as $service_id => $service_description) {

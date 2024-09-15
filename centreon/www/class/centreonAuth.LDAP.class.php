@@ -222,9 +222,9 @@ class CentreonAuthLDAP
                 $userDisplay = $userDisplay[0];
             }
             // Replace space by underscore
-            $userDisplay = str_replace(array(' ', ','), '_', $userDisplay);
+            $userDisplay = str_replace([' ', ','], '_', $userDisplay);
             // Delete parenthesis
-            $userDisplay = str_replace(array('(', ')'), '', $userDisplay);
+            $userDisplay = str_replace(['(', ')'], '', $userDisplay);
 
             //getting user's email
             $userEmail = $this->contactInfos['contact_email'];

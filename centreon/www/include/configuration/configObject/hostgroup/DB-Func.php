@@ -78,7 +78,7 @@ function testHostGroupExistence($name = null)
     }
 }
 
-function enableHostGroupInDB($hg_id = null, $hg_arr = array())
+function enableHostGroupInDB($hg_id = null, $hg_arr = [])
 {
     global $pearDB, $centreon;
 
@@ -105,7 +105,7 @@ function enableHostGroupInDB($hg_id = null, $hg_arr = array())
     }
 }
 
-function disableHostGroupInDB($hg_id = null, $hg_arr = array())
+function disableHostGroupInDB($hg_id = null, $hg_arr = [])
 {
     global $pearDB, $centreon;
 
@@ -113,7 +113,7 @@ function disableHostGroupInDB($hg_id = null, $hg_arr = array())
         return;
     }
     if ($hg_id) {
-        $hg_arr = array($hg_id => "1");
+        $hg_arr = [$hg_id => "1"];
     }
 
     $updateStatement = $pearDB->prepare("UPDATE hostgroup SET hg_activate = '0' WHERE hg_id = :hostgroupId");
@@ -262,11 +262,11 @@ function deleteHostGroupInDB(bool $isCloudPlatform, array $hostGroups = [])
     $centreon->user->access->updateACL();
 }
 
-function multipleHostGroupInDB($hostGroups = array(), $nbrDup = array())
+function multipleHostGroupInDB($hostGroups = [], $nbrDup = [])
 {
     global $pearDB, $centreon, $is_admin;
 
-    $hgAcl = array();
+    $hgAcl = [];
     foreach ($hostGroups as $key => $value) {
         $dbResult = $pearDB->query("SELECT * FROM hostgroup WHERE hg_id = '" . $key . "' LIMIT 1");
         $row = $dbResult->fetch();
@@ -1034,7 +1034,7 @@ function updateHostGroup($hostGroupId = null, array $submittedValues = [], bool 
         : updateHostGroupInDBForOnPrem($hostGroupId, $submittedValues);
 }
 
-function updateHostGroupHosts($hg_id, $ret = array(), $increment = false)
+function updateHostGroupHosts($hg_id, $ret = [], $increment = false)
 {
     global $form, $pearDB;
 
@@ -1048,7 +1048,7 @@ function updateHostGroupHosts($hg_id, $ret = array(), $increment = false)
 	 *
 	 * Get initial Host list to make a diff after deletion
 	 */
-    $hostsOLD = array();
+    $hostsOLD = [];
     $statement = $pearDB->prepare("SELECT host_host_id FROM hostgroup_relation
         WHERE hostgroup_hg_id = :hostgroup_hg_id");
     $statement->bindValue(':hostgroup_hg_id', (int) $hg_id, \PDO::PARAM_INT);
@@ -1064,7 +1064,7 @@ function updateHostGroupHosts($hg_id, $ret = array(), $increment = false)
     $rq = "SELECT service_service_id FROM host_service_relation ";
     $rq .= "WHERE hostgroup_hg_id = '" . $hg_id . "' AND host_host_id IS NULL";
     $dbResult = $pearDB->query($rq);
-    $hgSVS = array();
+    $hgSVS = [];
     while ($sv = $dbResult->fetch()) {
         $hgSVS[$sv["service_service_id"]] = $sv["service_service_id"];
     }
@@ -1080,7 +1080,7 @@ function updateHostGroupHosts($hg_id, $ret = array(), $increment = false)
 
     $ret = isset($ret["hg_hosts"]) ? $ret["hg_hosts"] : CentreonUtils::mergeWithInitialValues($form, 'hg_hosts');
 
-    $hgNEW = array();
+    $hgNEW = [];
 
     $rq = "INSERT INTO hostgroup_relation (hostgroup_hg_id, host_host_id) VALUES ";
     $query = "SELECT hostgroup_hg_id FROM hostgroup_relation WHERE hostgroup_hg_id = :hostgroup_hg_id
@@ -1113,7 +1113,7 @@ function updateHostGroupHosts($hg_id, $ret = array(), $increment = false)
         $statement->execute();
     }
     $ret = isset($ret["hg_hg"]) ? $ret["hg_hg"] : $form->getSubmitValue("hg_hg");
-    $hgNEW = array();
+    $hgNEW = [];
 
     $rq = "INSERT INTO hostgroup_hg_relation (hg_parent_id, hg_child_id) VALUES ";
     $loopCount = (is_array($ret) || $ret instanceof Countable) ? count($ret) : 0;

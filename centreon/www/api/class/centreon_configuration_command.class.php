@@ -55,7 +55,7 @@ class CentreonConfigurationCommand extends CentreonConfigurationObjects
      */
     public function getList()
     {
-        $queryValues = array();
+        $queryValues = [];
         // Check for select2 'q' argument
         if (false === isset($this->arguments['q'])) {
             $queryValues['commandName'] = '%%';
@@ -104,14 +104,11 @@ class CentreonConfigurationCommand extends CentreonConfigurationObjects
         }
         $stmt->execute();
 
-        $commandList = array();
+        $commandList = [];
         while ($data = $stmt->fetch()) {
-            $commandList[] = array('id' => $data['command_id'], 'text' => $data['command_name']);
+            $commandList[] = ['id' => $data['command_id'], 'text' => $data['command_name']];
         }
 
-        return array(
-            'items' => $commandList,
-            'total' => (int)$this->pearDB->numberRows()
-        );
+        return ['items' => $commandList, 'total' => (int)$this->pearDB->numberRows()];
     }
 }

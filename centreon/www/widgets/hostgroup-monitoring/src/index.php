@@ -89,30 +89,13 @@ $hgMonObj = new HostgroupMonitoring($dbb);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 
-$aColorHost = array(0 => 'host_up', 1 => 'host_down', 2 => 'host_unreachable', 4 => 'host_pending');
-$aColorService = array(
-    0 => 'service_ok',
-    1 => 'service_warning',
-    2 => 'service_critical',
-    3 => 'service_unknown',
-    4 => 'pending'
-);
+$aColorHost = [0 => 'host_up', 1 => 'host_down', 2 => 'host_unreachable', 4 => 'host_pending'];
+$aColorService = [0 => 'service_ok', 1 => 'service_warning', 2 => 'service_critical', 3 => 'service_unknown', 4 => 'pending'];
 
 
-$hostStateLabels = array(
-    0 => "Up",
-    1 => "Down",
-    2 => "Unreachable",
-    4 => "Pending"
-);
+$hostStateLabels = [0 => "Up", 1 => "Down", 2 => "Unreachable", 4 => "Pending"];
 
-$serviceStateLabels = array(
-    0 => "Ok",
-    1 => "Warning",
-    2 => "Critical",
-    3 => "Unknown",
-    4 => "Pending"
-);
+$serviceStateLabels = [0 => "Ok", 1 => "Warning", 2 => "Critical", 3 => "Unknown", 4 => "Pending"];
 
 $query = <<<'SQL'
     SELECT SQL_CALC_FOUND_ROWS DISTINCT
@@ -147,7 +130,7 @@ $query .= "ORDER BY $orderby";
 $query .= " LIMIT " . ($page * $preferences['entries']) . "," . $preferences['entries'];
 $res = $dbb->query($query);
 $nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
-$data = array();
+$data = [];
 $detailMode = false;
 if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
     $detailMode = true;

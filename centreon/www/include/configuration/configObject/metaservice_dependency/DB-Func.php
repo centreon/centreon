@@ -67,8 +67,8 @@ function testCycle($childs = null)
 {
     global $pearDB;
     global $form;
-    $parents = array();
-    $childs = array();
+    $parents = [];
+    $childs = [];
     if (isset($form)) {
         $parents = $form->getSubmitValue('dep_msParents');
         $childs = $form->getSubmitValue('dep_msChilds');
@@ -82,7 +82,7 @@ function testCycle($childs = null)
     return true;
 }
 
-function deleteMetaServiceDependencyInDB($dependencies = array())
+function deleteMetaServiceDependencyInDB($dependencies = [])
 {
     global $pearDB;
     foreach ($dependencies as $key => $value) {
@@ -90,7 +90,7 @@ function deleteMetaServiceDependencyInDB($dependencies = array())
     }
 }
 
-function multipleMetaServiceDependencyInDB($dependencies = array(), $nbrDup = array())
+function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
 {
     foreach ($dependencies as $key => $value) {
         global $pearDB;
@@ -295,7 +295,7 @@ function updateMetaServiceDependencyMetaServiceParents($dep_id = null)
     $rq = "DELETE FROM dependency_metaserviceParent_relation ";
     $rq .= "WHERE dependency_dep_id = '" . $dep_id . "'";
     $pearDB->query($rq);
-    $ret = array();
+    $ret = [];
     $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_msParents');
     $counter = count($ret);
     for ($i = 0; $i < $counter; $i++) {
@@ -317,7 +317,7 @@ function updateMetaServiceDependencyMetaServiceChilds($dep_id = null)
     $rq = "DELETE FROM dependency_metaserviceChild_relation ";
     $rq .= "WHERE dependency_dep_id = '" . $dep_id . "'";
     $pearDB->query($rq);
-    $ret = array();
+    $ret = [];
     $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_msChilds');
     $counter = count($ret);
     for ($i = 0; $i < $counter; $i++) {

@@ -51,7 +51,7 @@ class Centreon_Object_RtDowntime extends Centreon_ObjectRt
      * @param array $hostList
      * @return array
      */
-    public function getHostDowntimes($hostList = array())
+    public function getHostDowntimes($hostList = [])
     {
         $hostFilter = '';
 
@@ -76,13 +76,13 @@ class Centreon_Object_RtDowntime extends Centreon_ObjectRt
      * @param array $svcList
      * @return array
      */
-    public function getSvcDowntimes($svcList = array())
+    public function getSvcDowntimes($svcList = [])
     {
         $serviceFilter = '';
 
         if (!empty($svcList)) {
             $serviceFilter = 'AND (';
-            $filterTab = array();
+            $filterTab = [];
             $counter = count($svcList);
             for ($i = 0; $i < $counter; $i += 2) {
                 $hostname = $svcList[$i];
@@ -115,6 +115,6 @@ class Centreon_Object_RtDowntime extends Centreon_ObjectRt
     {
         $query = "SELECT * FROM downtimes WHERE ISNULL(actual_end_time) " .
             " AND end_time > " . time() . " AND downtime_id = " . $id;
-        return $this->getResult($query, array(), 'fetch');
+        return $this->getResult($query, [], 'fetch');
     }
 }

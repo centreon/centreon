@@ -59,5 +59,5 @@ try {
 
 $macros = (new CentreonService($db))->ajaxMacroControl($_POST);
 header('Content-Type: application/json');
-echo json_encode(array('macros' => $macros, 'count' => count($macros)));
+echo json_encode(['macros' => $macros, 'count' => count($macros)]);
 die;

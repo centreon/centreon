@@ -43,7 +43,7 @@ require "./include/common/autoNumLimit.php";
 /*
  * create TP cache
  */
-$tpCache = array();
+$tpCache = [];
 $dbResult = $pearDB->query("SELECT tp_name, tp_id FROM timeperiod");
 while ($data = $dbResult->fetch()) {
     $tpCache[$data["tp_id"]] = $data["tp_name"];
@@ -125,7 +125,7 @@ $style = "one";
 /*
  * Fill a tab with a mutlidimensionnal Array we put in $tpl
  */
-$elemArr = array();
+$elemArr = [];
 for ($i = 0; $contact = $dbResult->fetch(); $i++) {
     $selectedElements = $form->addElement('checkbox', "select[" . $contact['pool_id'] . "]");
     if ($contact["pool_activate"]) {
@@ -142,17 +142,7 @@ for ($i = 0; $contact = $dbResult->fetch(); $i++) {
         "event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;\" " .
         "maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" .
         $contact['pool_id'] . "]' />";
-    $elemArr[$i] = array(
-        "MenuClass" => "list_" . $style,
-        "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_name" => html_entity_decode($contact["pool_name"]),
-        "RowMenu_link" => "?p=" . $p . "&o=c&pool_id=" . $contact['pool_id'],
-        "RowMenu_desc" => html_entity_decode($contact["pool_description"]),
-        "RowMenu_number" => html_entity_decode($contact["pool_number"], ENT_QUOTES),
-        "RowMenu_prefix" => html_entity_decode($contact["pool_prefix"], ENT_QUOTES),
-        "RowMenu_status" => $contact["pool_activate"] ? _("Enabled") : _("Disabled"),
-        "RowMenu_options" => $moptions
-    );
+    $elemArr[$i] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => html_entity_decode($contact["pool_name"]), "RowMenu_link" => "?p=" . $p . "&o=c&pool_id=" . $contact['pool_id'], "RowMenu_desc" => html_entity_decode($contact["pool_description"]), "RowMenu_number" => html_entity_decode($contact["pool_number"], ENT_QUOTES), "RowMenu_prefix" => html_entity_decode($contact["pool_prefix"], ENT_QUOTES), "RowMenu_status" => $contact["pool_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_options" => $moptions];
     $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
@@ -162,10 +152,7 @@ $tpl->assign("elemArr", $elemArr);
  */
 $tpl->assign(
     'msg',
-    array(
-        "addL" => "?p=" . $p . "&o=a",
-        "addT" => _("Add")
-    )
+    ["addL" => "?p=" . $p . "&o=a", "addT" => _("Add")]
 );
 
 /*
@@ -178,49 +165,45 @@ $tpl->assign(
     }
 </SCRIPT>
 <?php
-$attrs1 = array(
-    'onchange' => "javascript: " .
-        "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" .
-        _("Do you confirm the duplication ?") . "')) {" .
-        "    setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('" .
-        _("Do you confirm the deletion ?") . "')) {" .
-        "    setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 3 || this.form.elements['o1'].selectedIndex == 4 || " .
-        "this.form.elements['o1'].selectedIndex == 5){" .
-        "    setO(this.form.elements['o1'].value); submit();} " .
-        "this.form.elements['o1'].selectedIndex = 0"
-);
+$attrs1 = ['onchange' => "javascript: " .
+    "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" .
+    _("Do you confirm the duplication ?") . "')) {" .
+    "    setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('" .
+    _("Do you confirm the deletion ?") . "')) {" .
+    "    setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 3 || this.form.elements['o1'].selectedIndex == 4 || " .
+    "this.form.elements['o1'].selectedIndex == 5){" .
+    "    setO(this.form.elements['o1'].value); submit();} " .
+    "this.form.elements['o1'].selectedIndex = 0"];
 $form->addElement(
     'select',
     'o1',
     null,
-    array(null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")),
+    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
     $attrs1
 );
-$form->setDefaults(array('o1' => null));
+$form->setDefaults(['o1' => null]);
 
-$attrs2 = array(
-    'onchange' => "javascript: " .
-        "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" .
-        _("Do you confirm the duplication ?") . "')) {" .
-        "    setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('" .
-        _("Do you confirm the deletion ?") . "')) {" .
-        "    setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 3 || this.form.elements['o2'].selectedIndex == 4 || " .
-        "this.form.elements['o2'].selectedIndex == 5){" .
-        "    setO(this.form.elements['o2'].value); submit();} " .
-        "this.form.elements['o1'].selectedIndex = 0"
-);
+$attrs2 = ['onchange' => "javascript: " .
+    "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" .
+    _("Do you confirm the duplication ?") . "')) {" .
+    "    setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('" .
+    _("Do you confirm the deletion ?") . "')) {" .
+    "    setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 3 || this.form.elements['o2'].selectedIndex == 4 || " .
+    "this.form.elements['o2'].selectedIndex == 5){" .
+    "    setO(this.form.elements['o2'].value); submit();} " .
+    "this.form.elements['o1'].selectedIndex = 0"];
 $form->addElement(
     'select',
     'o2',
     null,
-    array(null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")),
+    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
     $attrs2
 );
-$form->setDefaults(array('o2' => null));
+$form->setDefaults(['o2' => null]);
 
 $o1 = $form->getElement('o1');
 $o1->setValue(null);

@@ -104,42 +104,7 @@ class HostTemplate extends AbstractHost
         host_acknowledgement_timeout as acknowledgement_timeout
     ';
     /** @var string[] */
-    protected $attributes_write = array(
-        'name',
-        'alias',
-        'display_name',
-        'timezone',
-        'contacts',
-        'contact_groups',
-        'check_command',
-        'check_period',
-        'notification_period',
-        'event_handler',
-        'max_check_attempts',
-        'check_interval',
-        'retry_interval',
-        'initial_state',
-        'freshness_threshold',
-        'low_flap_threshold',
-        'high_flap_threshold',
-        'flap_detection_options',
-        'notification_interval',
-        'notification_options',
-        'first_notification_delay',
-        'recovery_notification_delay',
-        'stalking_options',
-        'register',
-        'notes',
-        'notes_url',
-        'action_url',
-        'icon_image',
-        'icon_id',
-        'icon_image_alt',
-        'statusmap_image',
-        '2d_coords',
-        '3d_coords',
-        'acknowledgement_timeout'
-    );
+    protected $attributes_write = ['name', 'alias', 'display_name', 'timezone', 'contacts', 'contact_groups', 'check_command', 'check_period', 'notification_period', 'event_handler', 'max_check_attempts', 'check_interval', 'retry_interval', 'initial_state', 'freshness_threshold', 'low_flap_threshold', 'high_flap_threshold', 'flap_detection_options', 'notification_interval', 'notification_options', 'first_notification_delay', 'recovery_notification_delay', 'stalking_options', 'register', 'notes', 'notes_url', 'action_url', 'icon_image', 'icon_id', 'icon_image_alt', 'statusmap_image', '2d_coords', '3d_coords', 'acknowledgement_timeout'];
     /** @var string[] */
     protected $attributes_array = [
         'use',
@@ -268,7 +233,7 @@ class HostTemplate extends AbstractHost
      */
     public function reset(): void
     {
-        $this->loop_htpl = array();
+        $this->loop_htpl = [];
         parent::reset();
     }
 }

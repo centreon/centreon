@@ -60,7 +60,7 @@ class CentreonServicecategories
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'service_categories';
         $parameters['currentObject']['id'] = 'sc_id';
         $parameters['currentObject']['name'] = 'sc_name';
@@ -86,10 +86,10 @@ class CentreonServicecategories
      * @return array
      * @throws PDOException
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
         global $centreon;
-        $items = array();
+        $items = [];
 
         # get list of authorized service categories
         if (!$centreon->user->access->admin) {
@@ -127,11 +127,7 @@ class CentreonServicecategories
                 $hide = true;
             }
 
-            $items[] = array(
-                'id' => $row['sc_id'],
-                'text' => $row['sc_name'],
-                'hide' => $hide
-            );
+            $items[] = ['id' => $row['sc_id'], 'text' => $row['sc_name'], 'hide' => $hide];
         }
 
         return $items;

@@ -43,7 +43,7 @@ use Pimple\Container;
 class CentreonImageManager extends centreonFileManager
 {
     /** @var string[] */
-    protected $legalExtensions = array("jpg", "jpeg", "png", "gif", "svg");
+    protected $legalExtensions = ["jpg", "jpeg", "png", "gif", "svg"];
     /** @var int */
     protected $legalSize = 2000000;
     /** @var mixed */

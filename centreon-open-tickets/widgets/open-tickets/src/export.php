@@ -165,7 +165,7 @@ if (isset($preferences['service_description_search']) && $preferences['service_d
         );
     }
 }
-$stateTab = array();
+$stateTab = [];
 if (isset($preferences['svc_ok']) && $preferences['svc_ok']) {
     $stateTab[] = 0;
 }
@@ -344,7 +344,7 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
 $query .= "ORDER BY $orderby";
 $res = $dbb->query($query);
 $nbRows = $dbb->numberRows();
-$data = array();
+$data = [];
 $outputLength = $preferences['output_length'] ?: 50;
 $commentLength = $preferences['comment_length'] ?: 50;
 

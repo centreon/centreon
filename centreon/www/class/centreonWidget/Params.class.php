@@ -62,7 +62,7 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
     /** @var */
     protected $params;
     /** @var array */
-    protected $userGroups = array();
+    protected $userGroups = [];
     /** @var false */
     protected $trigger = false;
     /** @var CentreonACL */
@@ -70,9 +70,7 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
     /** @var CentreonDB */
     protected $monitoringDb;
     /** @var string[] */
-    protected $multiType = array(
-        'serviceMulti'
-    );
+    protected $multiType = ['serviceMulti'];
 
     /**
      * Constructor
@@ -178,9 +176,9 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
             }
         }
         if (isset($userPref)) {
-            $this->quickform->setDefaults(array('param_' . $params['parameter_id'] => $userPref));
+            $this->quickform->setDefaults(['param_' . $params['parameter_id'] => $userPref]);
         } elseif (isset($params['default_value']) && $params['default_value'] != "") {
-            $this->quickform->setDefaults(array('param_' . $params['parameter_id'] => $params['default_value']));
+            $this->quickform->setDefaults(['param_' . $params['parameter_id'] => $params['default_value']]);
         }
     }
 
@@ -208,7 +206,7 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
                           FROM widget_parameters_multiple_options
                           WHERE parameter_id = " . $this->db->escape($paramId);
         $res = $this->db->query($query);
-        $tab = array(null => null);
+        $tab = [null => null];
         while ($row = $res->fetchRow()) {
             $tab[$row['option_value']] = $row['option_name'];
         }

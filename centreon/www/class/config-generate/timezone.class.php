@@ -76,7 +76,7 @@ class Timezone extends AbstractObject
             return $this->aTimezone;
         }
 
-        $this->aTimezone = array();
+        $this->aTimezone = [];
         $stmt = $this->backend_instance->db->prepare("SELECT 
                 timezone_id,
                 timezone_name

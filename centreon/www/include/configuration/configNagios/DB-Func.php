@@ -142,7 +142,7 @@ function disableNagiosInDB($nagiosId = null)
     }
 }
 
-function deleteNagiosInDB($nagios = array())
+function deleteNagiosInDB($nagios = [])
 {
     global $pearDB;
 
@@ -174,7 +174,7 @@ function deleteNagiosInDB($nagios = array())
 /*
  * Duplicate Engine Configuration file in DB
  */
-function multipleNagiosInDB($nagios = array(), $nbrDup = array())
+function multipleNagiosInDB($nagios = [], $nbrDup = [])
 {
     foreach ($nagios as $originalNagiosId => $value) {
         global $pearDB;
@@ -187,7 +187,7 @@ function multipleNagiosInDB($nagios = array(), $nbrDup = array())
         $row["nagios_activate"] = '0';
         $stmt->closeCursor();
 
-        $rowBks = array();
+        $rowBks = [];
         $stmt = $pearDB->prepare("SELECT * FROM cfg_nagios_broker_module WHERE cfg_nagios_id = :nagiosId");
         $stmt->bindValue('nagiosId', (int) $originalNagiosId, \PDO::PARAM_INT);
         $stmt->execute();
@@ -535,7 +535,7 @@ function encodeFieldNagios(string $value, string $columnName): string
         : htmlentities($value, ENT_QUOTES, "UTF-8");
 }
 
-function insertNagios($data = array(), $brokerTab = array())
+function insertNagios($data = [], $brokerTab = [])
 {
     global $form, $pearDB, $centreon;
 

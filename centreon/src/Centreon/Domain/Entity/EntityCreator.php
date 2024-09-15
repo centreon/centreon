@@ -168,7 +168,7 @@ class EntityCreator
                         }
                     }
 
-                    call_user_func_array(array($objectToSet, $setterMethod), [$value]);
+                    call_user_func_array([$objectToSet, $setterMethod], [$value]);
                 } else {
                     throw new \Exception(
                         sprintf(

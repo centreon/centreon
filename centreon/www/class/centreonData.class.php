@@ -58,7 +58,7 @@ class CentreonData
      *
      * @var array
      */
-    private $jsData = array();
+    private $jsData = [];
 
     /**
      * Pass data to javascript

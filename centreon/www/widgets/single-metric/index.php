@@ -96,7 +96,7 @@ $template->assign(
         : $variablesThemeCSS
 );
 
-$data = array();
+$data = [];
 
 if (! isset($preferences['service']) || $preferences['service'] === "") {
     $template->display('metric.ihtml');

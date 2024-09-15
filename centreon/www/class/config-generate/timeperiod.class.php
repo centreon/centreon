@@ -61,29 +61,13 @@ class Timeperiod extends AbstractObject
         tp_saturday as saturday
     ';
     /** @var string[] */
-    protected $attributes_write = array(
-        'name',
-        'timeperiod_name',
-        'alias',
-        'sunday',
-        'monday',
-        'tuesday',
-        'wednesday',
-        'thursday',
-        'friday',
-        'saturday',
-    );
+    protected $attributes_write = ['name', 'timeperiod_name', 'alias', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     /** @var string[] */
-    protected $attributes_array = array(
-        'use',
-        'exclude'
-    );
+    protected $attributes_array = ['use', 'exclude'];
     /** @var string[] */
-    protected $attributes_hash = array(
-        'exceptions'
-    );
+    protected $attributes_hash = ['exceptions'];
     /** @var null[] */
-    protected $stmt_extend = array('include' => null, 'exclude' => null);
+    protected $stmt_extend = ['include' => null, 'exclude' => null];
 
     /**
      * @return void
@@ -115,7 +99,7 @@ class Timeperiod extends AbstractObject
         $stmt->execute();
         $exceptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $this->timeperiods[$timeperiod_id]['exceptions'] = array();
+        $this->timeperiods[$timeperiod_id]['exceptions'] = [];
         foreach ($exceptions as $exception) {
             $this->timeperiods[$timeperiod_id]['exceptions'][$exception['days']] = $exception['timerange'];
         }
@@ -143,7 +127,7 @@ class Timeperiod extends AbstractObject
                 $this->stmt_extend[$db_label]->fetchAll(PDO::FETCH_COLUMN);
         }
 
-        $this->timeperiods[$timeperiod_id][$label] = array();
+        $this->timeperiods[$timeperiod_id][$label] = [];
         foreach ($this->timeperiods[$timeperiod_id][$label . '_cache'] as $period_id) {
             $this->timeperiods[$timeperiod_id][$label][] = $this->generateFromTimeperiodId($period_id);
         }

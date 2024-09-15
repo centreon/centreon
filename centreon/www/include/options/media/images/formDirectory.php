@@ -38,9 +38,9 @@
 #
 ## Database retrieve information for Directory
 #
-$dir = array();
-$list = array();
-$selected = array();
+$dir = [];
+$list = [];
+$selected = [];
 /*
  * Change Directory
  */
@@ -59,7 +59,7 @@ if ($o == IMAGE_MODIFY_DIRECTORY && $directoryId) {
     }
     $DBRESULT->closeCursor();
 } elseif ($o == IMAGE_MOVE) {
-    $selected = array();
+    $selected = [];
     if (isset($selectIds) && $selectIds) {
         $list = $selectIds;
     } elseif (isset($dir_imgs) && $dir_imgs) {
@@ -79,7 +79,7 @@ if ($o == IMAGE_MODIFY_DIRECTORY && $directoryId) {
 ## Database retrieve information for differents elements list we need on the page
 #
 # Images comes from DB -> Store in $imgs Array
-$imgs = array();
+$imgs = [];
 $rq = "SELECT `img_id`,`dir_alias`,`img_name` FROM view_img "
     . "JOIN view_img_dir_relation ON img_img_id = img_id "
     . "JOIN view_img_dir ON dir_id = dir_dir_parent_id ";
@@ -97,7 +97,7 @@ while ($img = $DBRESULT->fetchRow()) {
 }
 $DBRESULT->closeCursor();
 
-$directories = array();
+$directories = [];
 $DBRESULT = $pearDB->query(
     "SELECT dir_id, dir_name, dir_comment FROM view_img_dir ORDER BY dir_name"
 );
@@ -113,10 +113,10 @@ while ($row = $DBRESULT->fetchRow()) {
 ##########################################################
 # Var information to format the element
 #
-$attrsText = array("size" => "30");
-$attrsSelect = array("size" => "5", "multiple" => "1", "cols" => "40", "required" => "true");
-$attrsAdvSelect = array("style" => "width: 250px; height: 250px;");
-$attrsTextarea = array("rows" => "5", "cols" => "40");
+$attrsText = ["size" => "30"];
+$attrsSelect = ["size" => "5", "multiple" => "1", "cols" => "40", "required" => "true"];
+$attrsAdvSelect = ["style" => "width: 250px; height: 250px;"];
+$attrsTextarea = ["rows" => "5", "cols" => "40"];
 
 #
 ## Form begin
@@ -133,11 +133,11 @@ if ($o == IMAGE_MODIFY_DIRECTORY) {
     $form->addElement('select', 'dir_imgs', _("Images"), $imgs, $attrsSelect);
 }
 
-$tab = array();
+$tab = [];
 $tab[] = $form->createElement('radio', 'action', null, _("List"), '1');
 $tab[] = $form->createElement('radio', 'action', null, _("Form"), '0');
 $form->addGroup($tab, 'action', _("Action"), '&nbsp;');
-$form->setDefaults(array('action' => '1'));
+$form->setDefaults(['action' => '1']);
 
 $form->addElement('hidden', 'dir_id');
 $form->addElement('hidden', 'select');
@@ -171,7 +171,7 @@ if ($o == IMAGE_MOVE) {
         "button",
         "cancel",
         _("Cancel"),
-        array("onClick" => "javascript:window.location.href='?p=$p'")
+        ["onClick" => "javascript:window.location.href='?p=$p'"]
     );
 } elseif ($o == IMAGE_MODIFY_DIRECTORY) {
     $confirm = isset($dir['dir_imgs']) ? implode(',', $dir['dir_imgs']) : "";

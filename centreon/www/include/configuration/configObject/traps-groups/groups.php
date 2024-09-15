@@ -76,7 +76,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            multipleTrapGroupInDB(isset($select) ? $select : array(), $dupNbr);
+            multipleTrapGroupInDB(isset($select) ? $select : [], $dupNbr);
         } else {
             unvalidFormMessage();
         }
@@ -86,7 +86,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteTrapGroupInDB(isset($select) ? $select : array());
+            deleteTrapGroupInDB(isset($select) ? $select : []);
         } else {
             unvalidFormMessage();
         }

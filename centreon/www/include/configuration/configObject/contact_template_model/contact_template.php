@@ -150,7 +150,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            enableContactInDB(null, isset($select) ? $select : array());
+            enableContactInDB(null, isset($select) ? $select : []);
         } else {
             unvalidFormMessage();
         }
@@ -170,7 +170,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            disableContactInDB(null, isset($select) ? $select : array());
+            disableContactInDB(null, isset($select) ? $select : []);
         } else {
             unvalidFormMessage();
         }

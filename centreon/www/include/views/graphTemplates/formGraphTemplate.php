@@ -48,7 +48,7 @@ if (($o == "c" || $o == "w") && $graph_id !== false && $graph_id > 0) {
 /*
  * Retrieve information from database for differents elements list we need on the page
  */
-$compos = array();
+$compos = [];
 $stmt = $pearDB->query('SELECT compo_id, name FROM giv_components_template ORDER BY name');
 while ($compo = $stmt->fetch(\PDO::FETCH_ASSOC)) {
     $compos[$compo["compo_id"]] = $compo["name"];
@@ -61,10 +61,10 @@ while ($compo = $stmt->fetch(\PDO::FETCH_ASSOC)) {
 # Var information to format the element
 #
 
-$attrsText = array("size" => "30");
-$attrsText2 = array("size" => "6");
-$attrsAdvSelect = array("style" => "width: 200px; height: 100px;");
-$attrsTextarea = array("rows" => "3", "cols" => "30");
+$attrsText = ["size" => "30"];
+$attrsText2 = ["size" => "6"];
+$attrsAdvSelect = ["style" => "width: 200px; height: 100px;"];
+$attrsTextarea = ["rows" => "3", "cols" => "30"];
 
 #
 ## Form begin
@@ -85,50 +85,20 @@ $form->addElement('header', 'information', _("General Information"));
 $form->addElement('header', 'color', _("Legend"));
 $form->addElement('text', 'name', _("Template Name"), $attrsText);
 
-$form->addElement('select', 'img_format', _("Image Type"), array("PNG" => "PNG", "GIF" => "GIF"));
+$form->addElement('select', 'img_format', _("Image Type"), ["PNG" => "PNG", "GIF" => "GIF"]);
 $form->addElement('text', 'vertical_label', _("Vertical Label"), $attrsText);
 $form->addElement('text', 'width', _("Width"), $attrsText2);
 $form->addElement('text', 'height', _("Height"), $attrsText2);
 $form->addElement('text', 'lower_limit', _("Lower Limit"), $attrsText2);
-$form->addElement('text', 'upper_limit', _("Upper Limit"), array(
-    'id' => 'upperLimitTxt',
-    'size' => '6'
-));
-$form->addElement('checkbox', 'size_to_max', _("Size to max"), '', array(
-    'id' => 'sizeToMax',
-    'onClick' => 'sizeToMaxx();'
-));
+$form->addElement('text', 'upper_limit', _("Upper Limit"), ['id' => 'upperLimitTxt', 'size' => '6']);
+$form->addElement('checkbox', 'size_to_max', _("Size to max"), '', ['id' => 'sizeToMax', 'onClick' => 'sizeToMaxx();']);
 $form->addElement('text', 'ds_name', _("Data Source Name"), $attrsText);
-$form->addElement('select', 'base', _("Base"), array("1000" => "1000", "1024" => "1024"));
+$form->addElement('select', 'base', _("Base"), ["1000" => "1000", "1024" => "1024"]);
 
-$periods = array(
-    "10800" => _("Last 3 Hours"),
-    "21600" => _("Last 6 Hours"),
-    "43200" => _("Last 12 Hours"),
-    "86400" => _("Last 24 Hours"),
-    "172800" => _("Last 2 Days"),
-    "302400" => _("Last 4 Days"),
-    "604800" => _("Last 7 Days"),
-    "1209600" => _("Last 14 Days"),
-    "2419200" => _("Last 28 Days"),
-    "2592000" => _("Last 30 Days"),
-    "2678400" => _("Last 31 Days"),
-    "5184000" => _("Last 2 Months"),
-    "10368000" => _("Last 4 Months"),
-    "15552000" => _("Last 6 Months"),
-    "31104000" => _("Last Year")
-);
+$periods = ["10800" => _("Last 3 Hours"), "21600" => _("Last 6 Hours"), "43200" => _("Last 12 Hours"), "86400" => _("Last 24 Hours"), "172800" => _("Last 2 Days"), "302400" => _("Last 4 Days"), "604800" => _("Last 7 Days"), "1209600" => _("Last 14 Days"), "2419200" => _("Last 28 Days"), "2592000" => _("Last 30 Days"), "2678400" => _("Last 31 Days"), "5184000" => _("Last 2 Months"), "10368000" => _("Last 4 Months"), "15552000" => _("Last 6 Months"), "31104000" => _("Last Year")];
 
 $sel = $form->addElement('select', 'period', _("Graph Period"), $periods);
-$steps = array(
-    "0" => _("No Step"),
-    "2" => "2",
-    "6" => "6",
-    "10" => "10",
-    "20" => "20",
-    "50" => "50",
-    "100" => "100"
-);
+$steps = ["0" => _("No Step"), "2" => "2", "6" => "6", "10" => "10", "20" => "20", "50" => "50", "100" => "100"];
 
 $sel = $form->addElement('select', 'step', _("Recovery Step"), $steps);
 
@@ -174,19 +144,19 @@ if ($o == "w") {
         "button",
         "change",
         _("Modify"),
-        array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&graph_id=" . $graph_id . "'")
+        ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&graph_id=" . $graph_id . "'"]
     );
     $form->setDefaults($graph);
     $form->freeze();
 } elseif ($o == "c") {
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Delete"), array("class" => "btc bt_danger"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Delete"), ["class" => "btc bt_danger"]);
     $form->setDefaults($graph);
 } elseif ($o == "a") {
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Delete"), array("class" => "btc bt_danger"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Delete"), ["class" => "btc bt_danger"]);
 }
-$tpl->assign('msg', array("changeL" => "main.php?p=" . $p . "&o=c&graph_id=" . $graph_id, "changeT" => _("Modify")));
+$tpl->assign('msg', ["changeL" => "main.php?p=" . $p . "&o=c&graph_id=" . $graph_id, "changeT" => _("Modify")]);
 
 $tpl->assign("sort1", _("Properties"));
 $tpl->assign("sort2", _("Data Sources"));
@@ -239,7 +209,7 @@ if ($form->validate()) {
         "button",
         "change",
         _("Modify"),
-        array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&graph_id=" . $graphObj->getValue() . "'")
+        ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&graph_id=" . $graphObj->getValue() . "'"]
     );
     $form->freeze();
     $valid = true;

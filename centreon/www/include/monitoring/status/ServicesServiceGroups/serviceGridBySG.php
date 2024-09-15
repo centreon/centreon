@@ -61,19 +61,11 @@ if (isset($_SESSION['monitoring_service_groups'])) {
     $sg_search = $_SESSION['monitoring_service_groups'];
 }
 
-$aTypeAffichageLevel1 = array(
-    "svcOVSG" => _("Details"),
-    "svcSumSG" => _("Summary")
-);
+$aTypeAffichageLevel1 = ["svcOVSG" => _("Details"), "svcSumSG" => _("Summary")];
 
-$aTypeAffichageLevel2 = array(
-    "" => _("All"),
-    "pb" => _("Problems"),
-    "ack_1" => _("Acknowledge"),
-    "ack_0" => _("Not Acknowledged"),
-);
+$aTypeAffichageLevel2 = ["" => _("All"), "pb" => _("Problems"), "ack_1" => _("Acknowledge"), "ack_0" => _("Not Acknowledged")];
 
-$tab_class = array("0" => "list_one", "1" => "list_two");
+$tab_class = ["0" => "list_one", "1" => "list_two"];
 $rows = 10;
 
 include_once($sg_path . "/serviceGridBySGJS.php");
@@ -102,7 +94,7 @@ $tpl->assign("mon_status_information", _("Status information"));
 
 # Get servicegroups list
 $sgSearchSelect = '<select id="sg_search" name="sg_search"><option value=""></option>';
-$servicegroups = array();
+$servicegroups = [];
 if (!$oreon->user->access->admin) {
     $servicegroups = $oreon->user->access->getServiceGroups();
 } else {
@@ -126,7 +118,7 @@ $tpl->assign("sgSearchSelect", $sgSearchSelect);
 
 $form = new HTML_QuickFormCustom('select_form', 'GET', "?p=" . $p);
 $tpl->assign("order", strtolower($order));
-$tab_order = array("sort_asc" => "sort_desc", "sort_desc" => "sort_asc");
+$tab_order = ["sort_asc" => "sort_desc", "sort_desc" => "sort_asc"];
 $tpl->assign("tab_order", $tab_order);
 
 ##Toolbar select $lang["lgd_more_actions"]
@@ -173,17 +165,17 @@ $form->addElement(
     'typeDisplay',
     _('Display'),
     $aTypeAffichageLevel1,
-    array('id' => 'typeDisplay', 'onChange' => "displayingLevel1(this.value);")
+    ['id' => 'typeDisplay', 'onChange' => "displayingLevel1(this.value);"]
 );
 $form->addElement(
     'select',
     'typeDisplay2',
     _('Display '),
     $aTypeAffichageLevel2,
-    array('id' => 'typeDisplay2', 'onChange' => "displayingLevel2(this.value);")
+    ['id' => 'typeDisplay2', 'onChange' => "displayingLevel2(this.value);"]
 );
 
-$form->setDefaults(array('typeDisplay2' => 'pb'));
+$form->setDefaults(['typeDisplay2' => 'pb']);
 
 $tpl->assign('limit', $limit);
 

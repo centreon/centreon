@@ -117,7 +117,7 @@ class CentreonUUID
         );
 
         $query = "INSERT INTO informations VALUES ('uuid', ?) ";
-        $queryValues = array($uuid);
+        $queryValues = [$uuid];
         $stmt = $this->db->prepare($query);
         $this->db->execute($stmt, $queryValues);
 

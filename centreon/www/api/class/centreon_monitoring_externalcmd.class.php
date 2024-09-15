@@ -80,14 +80,14 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
                 'WHERE ns_activate = "1"';
 
             $dbResult = $this->pearDB->query($query);
-            $pollers = array();
+            $pollers = [];
 
             while ($row = $dbResult->fetch(PDO::FETCH_ASSOC)) {
                 $pollers[$row['id']] = 1;
             }
 
             $externalCommand = new CentreonExternalCommand();
-            $availableCommands = array();
+            $availableCommands = [];
 
             /**
              * We need to make the concordance between the data saved in the database
@@ -174,7 +174,7 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
                     }
                 }
                 fclose($fh);
-                return (array('success' => true));
+                return (['success' => true]);
             } else {
                 throw new RestException('Cannot open Centcore file');
             }

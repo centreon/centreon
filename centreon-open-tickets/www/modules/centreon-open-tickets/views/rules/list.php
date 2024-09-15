@@ -40,7 +40,7 @@ $resCount = $db->query($queryCount);
 $rows = $resCount->rowCount();
 
 $res = $db->query($query);
-$elemArr = array();
+$elemArr = [];
 $tdStyle = "list_one";
 $ruleStr = "";
 while ($row = $res->fetch()) {
@@ -54,7 +54,7 @@ while ($row = $res->fetch()) {
         'text',
         'duplicateNb['.$row['rule_id'].']',
         null,
-        array("id" => "duplicateNb[".$row['rule_id']."]", "size" => "3", "value" => "1")
+        ["id" => "duplicateNb[".$row['rule_id']."]", "size" => "3", "value" => "1"]
     );
     $moptions = "";
     if ($row['activate']) {
@@ -77,12 +77,7 @@ while ($row = $res->fetch()) {
 
 $tpl->assign(
     'msg',
-    array(
-        "addL" => "?p=" . $p . "&o=a",
-        "add" => _("Add"),
-        "delConfirm" => _("Do you confirm the deletion ?"),
-        "img" => "./modules/centreon-autodiscovery-server/images/add2.png"
-    )
+    ["addL" => "?p=" . $p . "&o=a", "add" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?"), "img" => "./modules/centreon-autodiscovery-server/images/add2.png"]
 );
 ?>
 <script type="text/javascript">
@@ -92,55 +87,39 @@ $tpl->assign(
     }
 </script>
 <?php
-$attrs1 = array(
-    'onchange'=>"javascript: " .
-        "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" . _("Do you confirm the deletion ?")."')) {" .
-        "     setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 2) {" .
-        "     setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 3) {" .
-        "     setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 4) {" .
-        "     setO(this.form.elements['o1'].value); submit();} " .
-        "this.form.elements['o1'].selectedIndex = 0"
-);
+$attrs1 = ['onchange'=>"javascript: " .
+    "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" . _("Do you confirm the deletion ?")."')) {" .
+    "     setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 2) {" .
+    "     setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 3) {" .
+    "     setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 4) {" .
+    "     setO(this.form.elements['o1'].value); submit();} " .
+    "this.form.elements['o1'].selectedIndex = 0"];
 $form->addElement(
     'select',
     'o1',
     null,
-    array(
-        null => _("More actions..."),
-        "d" => _("Delete"),
-        "e" => _("Enable"),
-        "ds" => _("Disable"),
-        "dp" => _("Duplicate")
-    ),
+    [null => _("More actions..."), "d" => _("Delete"), "e" => _("Enable"), "ds" => _("Disable"), "dp" => _("Duplicate")],
     $attrs1
 );
 
-$attrs2 = array(
-    'onchange'=>"javascript: " .
-        "if (this.form.elements['o2'].selectedIndex == 1 && confirm('"._("Do you confirm the deletion ?")."')) {" .
-        "     setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 2) {" .
-        "     setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 3) {" .
-        "     setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 4) {" .
-        "     setO(this.form.elements['o2'].value); submit();} " .
-        "this.form.elements['o1'].selectedIndex = 0"
-);
+$attrs2 = ['onchange'=>"javascript: " .
+    "if (this.form.elements['o2'].selectedIndex == 1 && confirm('"._("Do you confirm the deletion ?")."')) {" .
+    "     setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 2) {" .
+    "     setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 3) {" .
+    "     setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 4) {" .
+    "     setO(this.form.elements['o2'].value); submit();} " .
+    "this.form.elements['o1'].selectedIndex = 0"];
 $form->addElement(
     'select',
     'o2',
     null,
-    array(
-        null => _("More actions..."),
-        "d" => _("Delete"),
-        "e" => _("Enable"),
-        "ds" => _("Disable"),
-        "dp" => _("Duplicate")
-    ),
+    [null => _("More actions..."), "d" => _("Delete"), "e" => _("Enable"), "ds" => _("Disable"), "dp" => _("Duplicate")],
     $attrs2
 );
 

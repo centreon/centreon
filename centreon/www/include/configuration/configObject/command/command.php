@@ -114,8 +114,8 @@ if ($min) {
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
                 multipleCommandInDB(
-                    is_array($select) ? $select : array(),
-                    is_array($dupNbr) ? $dupNbr : array()
+                    is_array($select) ? $select : [],
+                    is_array($dupNbr) ? $dupNbr : []
                 );
             } else {
                 unvalidFormMessage();
@@ -126,7 +126,7 @@ if ($min) {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                deleteCommandInDB(is_array($select) ? $select : array());
+                deleteCommandInDB(is_array($select) ? $select : []);
             } else {
                 unvalidFormMessage();
             }
@@ -136,7 +136,7 @@ if ($min) {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                changeCommandStatus(null, is_array($select) ? $select : array(), 1);
+                changeCommandStatus(null, is_array($select) ? $select : [], 1);
             } else {
                 unvalidFormMessage();
             }
@@ -146,7 +146,7 @@ if ($min) {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                changeCommandStatus(null, is_array($select) ? $select : array(), 0);
+                changeCommandStatus(null, is_array($select) ? $select : [], 0);
             } else {
                 unvalidFormMessage();
             }

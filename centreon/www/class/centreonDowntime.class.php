@@ -100,7 +100,7 @@ class CentreonDowntime
             return;
         }
 
-        $this->periods = array();
+        $this->periods = [];
 
         $statement = $this->db->query(<<<'SQL'
             SELECT dt_id, dtp_start_time, dtp_end_time, dtp_day_of_week, dtp_month_cycle,
@@ -236,7 +236,7 @@ class CentreonDowntime
         } catch (Throwable) {
             return [];
         }
-        $list = array();
+        $list = [];
         $statement->setFetchMode(PDO::FETCH_ASSOC);
         foreach ($statement as $row) {
             $list[] = $row;
@@ -256,7 +256,7 @@ class CentreonDowntime
     {
         $this->initPeriods();
 
-        $periods = array();
+        $periods = [];
         if (!isset($this->periods[$id])) {
             return $periods;
         }
@@ -271,15 +271,7 @@ class CentreonDowntime
             $start_time = substr($period['dtp_start_time'], 0, strrpos($period['dtp_start_time'], ':'));
             $end_time = substr($period['dtp_end_time'], 0, strrpos($period['dtp_end_time'], ':'));
 
-            $periods[] = array(
-                'start_time' => $start_time,
-                'end_time' => $end_time,
-                'day_of_week' => $days,
-                'month_cycle' => $period['dtp_month_cycle'],
-                'day_of_month' => preg_split('/\,/', $period['dtp_day_of_month']),
-                'fixed' => $period['dtp_fixed'],
-                'duration' => $period['dtp_duration']
-            );
+            $periods[] = ['start_time' => $start_time, 'end_time' => $end_time, 'day_of_week' => $days, 'month_cycle' => $period['dtp_month_cycle'], 'day_of_month' => preg_split('/\,/', $period['dtp_day_of_month']), 'fixed' => $period['dtp_fixed'], 'duration' => $period['dtp_duration']];
         }
 
         return $periods;
@@ -310,11 +302,7 @@ class CentreonDowntime
             ];
         }
         $row = $res->fetch();
-        return array(
-            'name' => $row['dt_name'],
-            'description' => $row['dt_description'],
-            'activate' => $row['dt_activate'],
-        );
+        return ['name' => $row['dt_name'], 'description' => $row['dt_description'], 'activate' => $row['dt_activate']];
     }
 
     /**
@@ -756,7 +744,7 @@ class CentreonDowntime
      */
     public function duplicate($ids, $nb): void
     {
-        $ids = false === is_array($ids) ? array($ids) : array_keys($ids);
+        $ids = false === is_array($ids) ? [$ids] : array_keys($ids);
         foreach ($ids as $id) {
             if (isset($nb[$id])) {
                 $query = "SELECT dt_id, dt_name, dt_description, dt_activate FROM downtime WHERE dt_id = :id";

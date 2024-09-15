@@ -218,7 +218,7 @@ class EasyVistaRestProvider extends AbstractProvider
         $tpl = $this->initSmartyTemplate('providers/EasyVistaRest/templates');
         $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('img_brick', './modules/centreon-open-tickets/images/brick.png');
-        $tpl->assign('header', array('EasyVistaRest' => _("Easyvista Rest Api")));
+        $tpl->assign('header', ['EasyVistaRest' => _("Easyvista Rest Api")]);
         $tpl->assign('webServiceUrl', './api/internal.php');
 
         /*
@@ -240,40 +240,17 @@ class EasyVistaRestProvider extends AbstractProvider
             $this->getFormValue('use_token') . '" :>';
 
         // this array is here to link a label with the html code that we've wrote above
-        $array_form = array(
-            'address' => array(
-                'label' => _('Address') . $this->required_field,
-                'html' => $address_html
-            ),
-            'api_path' => array(
-                'label' => _('API path') . $this->required_field,
-                'html' => $api_path_html
-            ),
-            'protocol' => array(
-                'label' => _('Protocol') . $this->required_field,
-                'html' => $protocol_html
-            ),
-            'account' => array(
-                'label' => _('Account') . $this->required_field,
-                'html' => $account_html
-            ),
-            'token' => array(
-                'label' => _('Bearer token or account password') . $this->required_field,
-                'html' => $token_html
-            ),
-            'timeout' => array(
-                'label' => _('Timeout'),
-                'html' => $timeout_html
-            ),
-            'use_token' => array(
-                'label' => _('Use token'),
-                'html' => $use_token_html
-            ),
+        $array_form = [
+            'address' => ['label' => _('Address') . $this->required_field, 'html' => $address_html],
+            'api_path' => ['label' => _('API path') . $this->required_field, 'html' => $api_path_html],
+            'protocol' => ['label' => _('Protocol') . $this->required_field, 'html' => $protocol_html],
+            'account' => ['label' => _('Account') . $this->required_field, 'html' => $account_html],
+            'token' => ['label' => _('Bearer token or account password') . $this->required_field, 'html' => $token_html],
+            'timeout' => ['label' => _('Timeout'), 'html' => $timeout_html],
+            'use_token' => ['label' => _('Use token'), 'html' => $use_token_html],
             //we add a key to our array
-            'mappingTicketLabel' => array(
-                'label' => _('Mapping ticket arguments')
-            )
-        );
+            'mappingTicketLabel' => ['label' => _('Mapping ticket arguments')],
+        ];
 
         // html
         $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" ' .
@@ -300,16 +277,7 @@ class EasyVistaRestProvider extends AbstractProvider
             '</select>';
 
         // we asociate the label with the html code but for the arguments that we've been working on lately
-        $array_form['mappingTicket'] = array(
-            array(
-                'label' => _('Argument'),
-                'html' => $mappingTicketArg_html
-            ),
-            array(
-                'label' => _('Value'),
-                'html' => $mappingTicketValue_html
-            )
-        );
+        $array_form['mappingTicket'] = [['label' => _('Argument'), 'html' => $mappingTicketArg_html], ['label' => _('Value'), 'html' => $mappingTicketValue_html]];
 
         $tpl->assign('form', $array_form);
         $this->config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
@@ -359,11 +327,8 @@ class EasyVistaRestProvider extends AbstractProvider
     protected function assignEzvAssets($entry, &$groups_order, &$groups)
     {
         // add a label to our entry and activate sorting or not.
-        $groups[$entry['Id']] = array(
-            'label' => _($entry['Label']) .
-            (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ),
-            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        $groups[$entry['Id']] = ['label' => _($entry['Label']) .
+        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         // adds our entry in the group order array
         $groups_order[] = $entry['Id'];
 
@@ -378,7 +343,7 @@ class EasyVistaRestProvider extends AbstractProvider
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $e->getMessage();
         }
-        $result = array();
+        $result = [];
 
         foreach ($listAssets['records'] ?? [] as $asset) {
             // HREF structure is the following: https://{your_server}/api/v1/{your_account}/assets/9478 we only keep id
@@ -417,7 +382,7 @@ class EasyVistaRestProvider extends AbstractProvider
     * @return {array} telling us if there is a missing parameter
     */
     public function validateFormatPopup() {
-        $result = array('code' => 0, 'message' => 'ok');
+        $result = ['code' => 0, 'message' => 'ok'];
         $this->validateFormatPopupLists($result);
 
         return $result;
@@ -438,12 +403,7 @@ class EasyVistaRestProvider extends AbstractProvider
     protected function doSubmit($db_storage, $contact, $host_problems, $service_problems, $extraTicketArguments = [])
     {
         // initiate a result array
-        $result = array(
-            'ticket_id' => null,
-            'ticket_error_message' => null,
-            'ticket_is_ok' => 0,
-            'ticket_time' => time()
-        );
+        $result = ['ticket_id' => null, 'ticket_error_message' => null, 'ticket_is_ok' => 0, 'ticket_time' => time()];
 
         // initiate smarty variables
         $tpl = new Smarty();
@@ -489,15 +449,7 @@ class EasyVistaRestProvider extends AbstractProvider
         }
 
         // we save ticket data in our database
-        $this->saveHistory($db_storage, $result, array(
-            'contact' => $contact,
-            'host_problems' => $host_problems,
-            'service_problems' => $service_problems,
-            'ticket_value' => $ticketId,
-            'subject' => $ticketArguments[$this->internal_arg_name[self::ARG_TITLE]],
-            'data_type' => self::DATA_TYPE_JSON,
-            'data' => json_encode($ticketArguments)
-        ));
+        $this->saveHistory($db_storage, $result, ['contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems, 'ticket_value' => $ticketId, 'subject' => $ticketArguments[$this->internal_arg_name[self::ARG_TITLE]], 'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode($ticketArguments)]);
         return $result;
     }
 

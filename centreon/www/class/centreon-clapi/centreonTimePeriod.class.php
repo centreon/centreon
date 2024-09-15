@@ -82,17 +82,9 @@ class CentreonTimePeriod extends CentreonObject
         parent::__construct($dependencyInjector);
         $this->dependencyInjector = $dependencyInjector;
         $this->object = new Centreon_Object_Timeperiod($dependencyInjector);
-        $this->params = array(
-            'tp_sunday' => '',
-            'tp_monday' => '',
-            'tp_tuesday' => '',
-            'tp_wednesday' => '',
-            'tp_thursday' => '',
-            'tp_friday' => '',
-            'tp_saturday' => ''
-        );
-        $this->insertParams = array("tp_name", "tp_alias");
-        $this->exportExcludedParams = array_merge($this->insertParams, array($this->object->getPrimaryKey()));
+        $this->params = ['tp_sunday' => '', 'tp_monday' => '', 'tp_tuesday' => '', 'tp_wednesday' => '', 'tp_thursday' => '', 'tp_friday' => '', 'tp_saturday' => ''];
+        $this->insertParams = ["tp_name", "tp_alias"];
+        $this->exportExcludedParams = array_merge($this->insertParams, [$this->object->getPrimaryKey()]);
         $this->action = "TP";
         $this->nbOfCompulsoryParams = count($this->insertParams);
     }
@@ -103,24 +95,13 @@ class CentreonTimePeriod extends CentreonObject
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array()): void
+    public function show($parameters = null, $filters = []): void
     {
-        $filters = array();
+        $filters = [];
         if (isset($parameters)) {
-            $filters = array($this->object->getUniqueLabelField() => "%" . $parameters . "%");
+            $filters = [$this->object->getUniqueLabelField() => "%" . $parameters . "%"];
         }
-        $params = array(
-            'tp_id',
-            'tp_name',
-            'tp_alias',
-            'tp_sunday',
-            'tp_monday',
-            'tp_tuesday',
-            'tp_wednesday',
-            'tp_thursday',
-            'tp_friday',
-            'tp_saturday'
-        );
+        $params = ['tp_id', 'tp_name', 'tp_alias', 'tp_sunday', 'tp_monday', 'tp_tuesday', 'tp_wednesday', 'tp_thursday', 'tp_friday', 'tp_saturday'];
         $paramString = str_replace("tp_", "", implode($this->delim, $params));
         echo $paramString . "\n";
         $elements = $this->object->getList(
@@ -151,7 +132,7 @@ class CentreonTimePeriod extends CentreonObject
         if (count($params) < $this->nbOfCompulsoryParams) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $addParams = array();
+        $addParams = [];
         $addParams[$this->object->getUniqueLabelField()] = $this->checkIllegalChar($params[self::ORDER_UNIQUENAME]);
         $addParams['tp_alias'] = $params[self::ORDER_ALIAS];
         $this->params = array_merge($this->params, $addParams);
@@ -178,7 +159,7 @@ class CentreonTimePeriod extends CentreonObject
                 $params[1] = "tp_" . $params[1];
             }
             if ($params[1] != self::TP_INCLUDE && $params[1] != self::TP_EXCLUDE) {
-                $updateParams = array($params[1] => $params[2]);
+                $updateParams = [$params[1] => $params[2]];
                 $updateParams['objectId'] = $objectId;
                 return $updateParams;
             }
@@ -210,20 +191,13 @@ class CentreonTimePeriod extends CentreonObject
             0,
             null,
             null,
-            array(
-                "timeperiod_id" => $tpId,
-                "days" => $params[1]
-            ),
+            ["timeperiod_id" => $tpId, "days" => $params[1]],
             "AND"
         );
         if (count($escList)) {
-            $excObj->update($escList[0][$excObj->getPrimaryKey()], array('timerange' => $params[2]));
+            $excObj->update($escList[0][$excObj->getPrimaryKey()], ['timerange' => $params[2]]);
         } else {
-            $excObj->insert(array(
-                'timeperiod_id' => $tpId,
-                'days' => $params[1],
-                'timerange' => $params[2]
-            ));
+            $excObj->insert(['timeperiod_id' => $tpId, 'days' => $params[1], 'timerange' => $params[2]]);
         }
     }
 
@@ -250,10 +224,7 @@ class CentreonTimePeriod extends CentreonObject
             0,
             null,
             null,
-            array(
-                "timeperiod_id" => $tpId,
-                "days" => $params[1]
-            ),
+            ["timeperiod_id" => $tpId, "days" => $params[1]],
             "AND"
         );
         if (count($escList)) {
@@ -274,7 +245,7 @@ class CentreonTimePeriod extends CentreonObject
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $parameters);
         }
         $excObj = new Centreon_Object_Timeperiod_Exception($this->dependencyInjector);
-        $escList = $excObj->getList(array("days", "timerange"), -1, 0, null, null, array("timeperiod_id" => $tpId));
+        $escList = $excObj->getList(["days", "timerange"], -1, 0, null, null, ["timeperiod_id" => $tpId]);
         echo "days;timerange\n";
         foreach ($escList as $exc) {
             echo $exc['days'] . $this->delim . $exc['timerange'] . "\n";
@@ -290,7 +261,7 @@ class CentreonTimePeriod extends CentreonObject
      */
     public function getTimeperiodId($name)
     {
-        $tpIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($name));
+        $tpIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$name]);
         if (!count($tpIds)) {
             throw new CentreonClapiException("Unknown timeperiod: " . $name);
         }
@@ -305,7 +276,7 @@ class CentreonTimePeriod extends CentreonObject
      */
     public function getTimeperiodName($timeperiodId)
     {
-        $tpName = $this->object->getParameters($timeperiodId, array($this->object->getUniqueLabelField()));
+        $tpName = $this->object->getParameters($timeperiodId, [$this->object->getUniqueLabelField()]);
         return $tpName[$this->object->getUniqueLabelField()];
     }
 
@@ -321,7 +292,7 @@ class CentreonTimePeriod extends CentreonObject
      */
     protected function setRelations($relationType, $sourceId, $relationName)
     {
-        $relationIds = array();
+        $relationIds = [];
         $relationNames = explode("|", $relationName);
         foreach ($relationNames as $name) {
             $name = trim($name);

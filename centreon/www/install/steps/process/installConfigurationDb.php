@@ -37,11 +37,7 @@ session_start();
 require_once __DIR__ . '/../../../../bootstrap.php';
 require_once '../functions.php';
 
-$return = array(
-    'id' => 'dbconf',
-    'result' => 1,
-    'msg' => ''
-);
+$return = ['id' => 'dbconf', 'result' => 1, 'msg' => ''];
 
 $step = new \CentreonLegacy\Core\Install\Step\Step6($dependencyInjector);
 $parameters = $step->getDatabaseConfiguration();

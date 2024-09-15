@@ -51,7 +51,7 @@ $search = \HtmlAnalyzer::sanitizeAndRemoveTags(
 
 if (isset($_POST['searchP']) || isset($_GET['searchP'])) {
     //saving filters values
-    $centreon->historySearch[$url] = array();
+    $centreon->historySearch[$url] = [];
     $centreon->historySearch[$url]['search'] = $search;
 } else {
     //restoring saved values
@@ -71,7 +71,7 @@ $can_delete = $centreon->user->access->checkAction('delete_poller_cfg');
 /*
  * nagios servers comes from DB
  */
-$nagiosServers = array();
+$nagiosServers = [];
 $nagiosRestart = [];
 foreach ($serverResult as $nagiosServer) {
     $nagiosServers[$nagiosServer["id"]] = $nagiosServer["name"];
@@ -83,7 +83,7 @@ $pollerstring = implode(',', array_keys($nagiosServers));
 /*
  * Get information info RTM
  */
-$nagiosInfo = array();
+$nagiosInfo = [];
 $dbResult = $pearDBO->query(
     "SELECT start_time AS program_start_time, running AS is_currently_running, pid AS process_id, instance_id, " .
     "name AS instance_name , last_alive FROM instances WHERE deleted = 0"
@@ -169,7 +169,7 @@ foreach ($servers as $config) {
         "select[" . $config['id'] . "]",
         null,
         '',
-        array('id' => 'poller_' . $config['id'], 'onClick' => 'hasPollersSelected();')
+        ['id' => 'poller_' . $config['id'], 'onClick' => 'hasPollersSelected();']
     );
     if (!$isRemote) {
         if ($config["ns_activate"]) {
@@ -302,65 +302,37 @@ $tpl->assign(
 if (!$isRemote) {
     $tpl->assign(
         'wizardAddBtn',
-        array(
-            "link" => "./poller-wizard/1",
-            "text" => _("Add"),
-            "class" => "btc bt-poller-action bt_success",
-            "icon" => returnSvg("www/img/icons/add.svg", "var(--button-icons-fill-color)", 16, 16)
-        )
+        ["link" => "./poller-wizard/1", "text" => _("Add"), "class" => "btc bt-poller-action bt_success", "icon" => returnSvg("www/img/icons/add.svg", "var(--button-icons-fill-color)", 16, 16)]
     );
 
     $tpl->assign(
         'addBtn',
-        array(
-            "link" => "main.php?p=" . $p . "&o=a",
-            "text" => _("Add (advanced)"),
-            "class" => "btc bt-poller-action bt_success",
-            "icon" => returnSvg("www/img/icons/add.svg", "var(--button-icons-fill-color)", 16, 16)
-        )
+        ["link" => "main.php?p=" . $p . "&o=a", "text" => _("Add (advanced)"), "class" => "btc bt-poller-action bt_success", "icon" => returnSvg("www/img/icons/add.svg", "var(--button-icons-fill-color)", 16, 16)]
     );
 
 
     $tpl->assign(
         'duplicateBtn',
-        array(
-            "text" => _("Duplicate"),
-            "class" => "btc bt-poller-action bt_success",
-            "name" => "duplicate_action",
-            "icon" => returnSvg("www/img/icons/duplicate.svg", "var(--button-icons-fill-color)", 16, 14),
-            "onClickAction" => "javascript: " .
-                " var bChecked = isChecked(); " .
-                " if (!bChecked) { alert('" . _("Please select one or more items") . "'); return false;} " .
-                " if (confirm('" . _("Do you confirm the duplication ?") . "')) { setO('m'); submit();} "
-        )
+        ["text" => _("Duplicate"), "class" => "btc bt-poller-action bt_success", "name" => "duplicate_action", "icon" => returnSvg("www/img/icons/duplicate.svg", "var(--button-icons-fill-color)", 16, 14), "onClickAction" => "javascript: " .
+            " var bChecked = isChecked(); " .
+            " if (!bChecked) { alert('" . _("Please select one or more items") . "'); return false;} " .
+            " if (confirm('" . _("Do you confirm the duplication ?") . "')) { setO('m'); submit();} "]
     );
 
     $tpl->assign(
         'deleteBtn',
-        array(
-            "text" => _("Delete"),
-            "class" => "btc bt-poller-action bt_danger",
-            "name" => "delete_action",
-            "icon" => returnSvg("www/img/icons/trash.svg", "var(--button-icons-fill-color)", 16, 16),
-            "onClickAction" => "javascript: " .
-                " var bChecked = isChecked(); " .
-                " if (!bChecked) { alert('" . _("Please select one or more items") . "'); return false;} " .
-                " if (confirm('" .
-                _("You are about to delete one or more pollers.\\nThis action is IRREVERSIBLE.\\n" .
-                "Do you confirm the deletion ?") .
-                "')) { setO('d'); submit();} "
-        )
+        ["text" => _("Delete"), "class" => "btc bt-poller-action bt_danger", "name" => "delete_action", "icon" => returnSvg("www/img/icons/trash.svg", "var(--button-icons-fill-color)", 16, 16), "onClickAction" => "javascript: " .
+            " var bChecked = isChecked(); " .
+            " if (!bChecked) { alert('" . _("Please select one or more items") . "'); return false;} " .
+            " if (confirm('" .
+            _("You are about to delete one or more pollers.\\nThis action is IRREVERSIBLE.\\n" .
+            "Do you confirm the deletion ?") .
+            "')) { setO('d'); submit();} "]
     );
 
     $tpl->assign(
         'exportBtn',
-        array(
-            "text" => _("Export configuration"),
-            "class" => "btc bt-poller-action bt_info",
-            "name" => "apply_configuration",
-            "icon" => returnSvg("www/img/icons/export.svg", "var(--button-icons-fill-color)", 14, 14),
-            "onClickAction" => "applyConfiguration();"
-        )
+        ["text" => _("Export configuration"), "class" => "btc bt-poller-action bt_info", "name" => "apply_configuration", "icon" => returnSvg("www/img/icons/export.svg", "var(--button-icons-fill-color)", 14, 14), "onClickAction" => "applyConfiguration();"]
     );
 }
 

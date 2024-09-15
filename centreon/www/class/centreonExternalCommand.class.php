@@ -56,13 +56,13 @@ class CentreonExternalCommand
     /** @var CentreonDB */
     protected $DBC;
     /** @var array */
-    protected $cmdTab = array();
+    protected $cmdTab = [];
     /** @var array */
     protected $pollerTab;
     /** @var array */
-    public $localhostTab = array();
+    public $localhostTab = [];
     /** @var array */
-    protected $actions = array();
+    protected $actions = [];
     /** @var CentreonGMT */
     protected $GMT;
     /** @var int */
@@ -149,8 +149,8 @@ class CentreonExternalCommand
             $return_remote = ($result !== false) ? 0 : 1;
         }
 
-        $this->cmdTab = array();
-        $this->pollerTab = array();
+        $this->cmdTab = [];
+        $this->pollerTab = [];
 
         return $return_remote;
     }
@@ -453,7 +453,7 @@ class CentreonExternalCommand
      *
      * @throws PDOException
      */
-    public function deleteAcknowledgement($type, $hosts = array()): void
+    public function deleteAcknowledgement($type, $hosts = []): void
     {
         foreach (array_keys($hosts) as $name) {
             $res = preg_split("/\;/", $name);
@@ -526,7 +526,7 @@ class CentreonExternalCommand
      *
      * @throws PDOException
      */
-    public function deleteDowntime($type, $hosts = array()): void
+    public function deleteDowntime($type, $hosts = []): void
     {
         foreach ($hosts as $key => $value) {
             $res = preg_split("/\;/", $key);
@@ -568,7 +568,7 @@ class CentreonExternalCommand
             $centreon = $oreon;
         }
 
-        if (!isset($persistant) || !in_array($persistant, array('0', '1'))) {
+        if (!isset($persistant) || !in_array($persistant, ['0', '1'])) {
             $persistant = '0';
         }
 
@@ -649,7 +649,7 @@ class CentreonExternalCommand
         }
 
 
-        if (!isset($persistant) || !in_array($persistant, array('0', '1'))) {
+        if (!isset($persistant) || !in_array($persistant, ['0', '1'])) {
             $persistant = '0';
         }
 

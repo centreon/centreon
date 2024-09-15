@@ -232,7 +232,7 @@ try {
             if (method_exists($externalCmd, 'setProcessCommand')) {
                 $externalCommandMethod = 'setProcessCommand';
             }
-            $hostArray = array();
+            $hostArray = [];
             foreach ($selections as $selection) {
                 $tmp = explode(";", $selection);
                 if (count($tmp) != 2) {

@@ -55,7 +55,7 @@ $centreon->historyLastUrl = $url;
 
 $num = addslashes($num);
 
-$tab_order = array("sort_asc" => "sort_desc", "sort_desc" => "sort_asc");
+$tab_order = ["sort_asc" => "sort_desc", "sort_desc" => "sort_asc"];
 
 if (isset($_GET["search_type_service"])) {
     $search_type_service = $_GET["search_type_service"];
@@ -168,7 +168,7 @@ if ($num >= $page_max && $rows) {
     $num = $page_max - 1;
 }
 
-$pageArr = array();
+$pageArr = [];
 $iStart = 0;
 for ($i = 5, $iStart = $num; $iStart && $i > 0; $i--) {
     $iStart--;
@@ -180,11 +180,7 @@ for ($i2 = 0, $iEnd = $num; ($iEnd < ($rows / $limit - 1)) && ($i2 < (5 + $i)); 
 if ($rows != 0) {
     for ($i = $iStart; $i <= $iEnd; $i++) {
         $urlPage = "main.php?p=" . $p . "&num=" . $i . $type;
-        $pageArr[$i] = array(
-            "url_page" => $urlPage,
-            "label_page" => "<b>" . ($i + 1) . "</b>",
-            "num" => $i
-        );
+        $pageArr[$i] = ["url_page" => $urlPage, "label_page" => "<b>" . ($i + 1) . "</b>", "num" => $i];
     }
 
     if ($i > 1) {
@@ -269,7 +265,7 @@ $selLim = $form->addElement(
     'l',
     _("Rows"),
     $select,
-    array("onChange" => "setL(this.value);  this.form.submit()")
+    ["onChange" => "setL(this.value);  this.form.submit()"]
 );
 $selLim->setSelected($limit);
 
@@ -280,7 +276,7 @@ $form->addElement('hidden', 'num');
 $form->addElement('hidden', 'order');
 $form->addElement('hidden', 'type');
 $form->addElement('hidden', 'sort_types');
-$form->setDefaults(array("p" => $p, "search" => $search, "num" => $num));
+$form->setDefaults(["p" => $p, "search" => $search, "num" => $num]);
 
 // Init QuickForm
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);

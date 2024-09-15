@@ -37,7 +37,7 @@ if (!isset($centreon)) {
     exit();
 }
 
-function includeExcludeTimeperiods($tpId, $includeTab = array(), $excludeTab = array())
+function includeExcludeTimeperiods($tpId, $includeTab = [], $excludeTab = [])
 {
     global $pearDB;
 
@@ -104,7 +104,7 @@ function testTPExistence($name = null)
     }
 }
 
-function deleteTimeperiodInDB($timeperiods = array())
+function deleteTimeperiodInDB($timeperiods = [])
 {
     global $pearDB, $centreon;
     foreach ($timeperiods as $key => $value) {
@@ -115,14 +115,14 @@ function deleteTimeperiodInDB($timeperiods = array())
     }
 }
 
-function multipleTimeperiodInDB($timeperiods = array(), $nbrDup = array())
+function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
 {
     global $centreon;
 
     foreach ($timeperiods as $key => $value) {
         global $pearDB;
 
-        $fields = array();
+        $fields = [];
         $dbResult = $pearDB->query("SELECT * FROM timeperiod WHERE tp_id = '" . $key . "' LIMIT 1");
 
         $query = "SELECT days, timerange FROM timeperiod_exceptions WHERE timeperiod_id = '" . $key . "'";
@@ -172,14 +172,14 @@ function updateTimeperiodInDB($tp_id = null)
     updateTimeperiod($tp_id);
 }
 
-function updateTimeperiod($tp_id, $params = array())
+function updateTimeperiod($tp_id, $params = [])
 {
     global $form, $pearDB, $centreon;
 
     if (!$tp_id) {
         return;
     }
-    $ret = array();
+    $ret = [];
     $ret = count($params) ? $params : $form->getSubmitValues();
 
     $ret["tp_name"] = $centreon->checkIllegalChar($ret["tp_name"]);
@@ -201,17 +201,17 @@ function updateTimeperiod($tp_id, $params = array())
     $pearDB->query("DELETE FROM timeperiod_exclude_relations WHERE timeperiod_id = '" . $tp_id . "'");
 
     if (!isset($ret['tp_include'])) {
-        $ret['tp_include'] = array();
+        $ret['tp_include'] = [];
     }
     if (!isset($ret['tp_exclude'])) {
-        $ret['tp_exclude'] = array();
+        $ret['tp_exclude'] = [];
     }
 
     includeExcludeTimeperiods($tp_id, $ret['tp_include'], $ret['tp_exclude']);
 
     if (isset($_POST['nbOfExceptions'])) {
         $my_tab = $_POST;
-        $already_stored = array();
+        $already_stored = [];
         $pearDB->query("DELETE FROM `timeperiod_exceptions` WHERE `timeperiod_id`='" . $tp_id . "'");
         for ($i = 0; $i <= $my_tab['nbOfExceptions']; $i++) {
             $exInput = "exceptionInput_" . $i;
@@ -241,13 +241,13 @@ function updateTimeperiod($tp_id, $params = array())
     );
 }
 
-function insertTimeperiodInDB($ret = array())
+function insertTimeperiodInDB($ret = [])
 {
     $tp_id = insertTimeperiod($ret);
     return ($tp_id);
 }
 
-function insertTimeperiod($ret = array(), $exceptions = null)
+function insertTimeperiod($ret = [], $exceptions = null)
 {
     global $form, $pearDB, $centreon;
 
@@ -293,10 +293,10 @@ function insertTimeperiod($ret = array(), $exceptions = null)
     $tp_id = $dbResult->fetch();
 
     if (!isset($ret['tp_include'])) {
-        $ret['tp_include'] = array();
+        $ret['tp_include'] = [];
     }
     if (!isset($ret['tp_exclude'])) {
-        $ret['tp_exclude'] = array();
+        $ret['tp_exclude'] = [];
     }
 
     includeExcludeTimeperiods($tp_id['MAX(tp_id)'], $ret['tp_include'], $ret['tp_exclude']);
@@ -310,7 +310,7 @@ function insertTimeperiod($ret = array(), $exceptions = null)
         $my_tab = $_POST;
     }
     if (isset($my_tab['nbOfExceptions'])) {
-        $already_stored = array();
+        $already_stored = [];
         $query = "INSERT INTO timeperiod_exceptions (`timeperiod_id`, `days`, `timerange`) " .
                  "VALUES (:timeperiod_id, :days, :timerange)";
         $statement = $pearDB->prepare($query);

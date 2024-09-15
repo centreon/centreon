@@ -59,7 +59,7 @@ class CentreonConfigurationHosttemplate extends CentreonConfigurationObjects
      */
     public function getList()
     {
-        $queryValues = array();
+        $queryValues = [];
 
         // Check for select2 'q' argument
         $queryValues['hostName'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
@@ -90,17 +90,11 @@ class CentreonConfigurationHosttemplate extends CentreonConfigurationObjects
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $hostList = array();
+        $hostList = [];
         while ($data = $stmt->fetch()) {
-            $hostList[] = array(
-                'id' => htmlentities($data['host_id']),
-                'text' => $data['host_name']
-            );
+            $hostList[] = ['id' => htmlentities($data['host_id']), 'text' => $data['host_name']];
         }
 
-        return array(
-            'items' => $hostList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $hostList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

@@ -33,7 +33,7 @@
  *
  */
 
-$calcType = array("AVE" => _("Average"), "SOM" => _("Sum"), "MIN" => _("Min"), "MAX" => _("Max"));
+$calcType = ["AVE" => _("Average"), "SOM" => _("Sum"), "MIN" => _("Min"), "MAX" => _("Max")];
 
 if (!isset($oreon)) {
     exit();
@@ -61,11 +61,7 @@ $DBRESULT->bindValue(':meta_id', $meta_id, PDO::PARAM_INT);
 $DBRESULT->execute();
 
 $meta = $DBRESULT->fetchRow();
-$tpl->assign("meta", array(
-    "meta" => _("Meta Service"),
-    "name" => $meta["meta_name"],
-    "calc_type" => $calcType[$meta["calcul_type"]]
-));
+$tpl->assign("meta", ["meta" => _("Meta Service"), "name" => $meta["meta_name"], "calc_type" => $calcType[$meta["calcul_type"]]]);
 $DBRESULT->closeCursor();
 
 /*
@@ -95,7 +91,7 @@ $statement = $pearDB->prepare(
 $statement->bindValue(':meta_id', $meta_id, PDO::PARAM_INT);
 $statement->execute();
 
-$ar_relations = array();
+$ar_relations = [];
 
 $form = new HTML_QuickFormCustom('Form', 'POST', "?p=" . $p);
 
@@ -103,10 +99,10 @@ $form = new HTML_QuickFormCustom('Form', 'POST', "?p=" . $p);
 * Construct request
 */
 
-$metrics = array();
+$metrics = [];
 
 while ($row = $statement->fetchRow()) {
-    $ar_relations[$row['metric_id']][] = array("activate" => $row['activate'], "msr_id" => $row['msr_id']);
+    $ar_relations[$row['metric_id']][] = ["activate" => $row['activate'], "msr_id" => $row['msr_id']];
     $metrics[] = $row['metric_id'];
 }
 $in_statement = implode(",", $metrics);
@@ -123,7 +119,7 @@ if ($in_statement != "") {
     /*
      * Fill a tab with a mutlidimensionnal Array we put in $tpl
      */
-    $elemArr1 = array();
+    $elemArr1 = [];
     $i = 0;
     $centreonToken = createCSRFToken();
 
@@ -146,18 +142,8 @@ if ($in_statement != "") {
             }
             $metric["service_description"] = str_replace("#S#", "/", $metric["service_description"]);
             $metric["service_description"] = str_replace("#BS#", "\\", $metric["service_description"]);
-            $elemArr1[$i] = array(
-                "MenuClass" => "list_" . $style,
-                "RowMenu_select" => $selectedElements->toHtml(),
-                "RowMenu_host" => htmlentities($metric["host_name"], ENT_QUOTES, "UTF-8"),
-                "RowMenu_link" => "main.php?p=" . $p . "&o=cs&msr_id=" . $relation['msr_id'],
-                "RowMenu_service" => htmlentities($metric["service_description"], ENT_QUOTES, "UTF-8"),
-                "RowMenu_metric" =>
-                    CentreonUtils::escapeSecure($metric["metric_name"] . " (" . $metric["unit_name"] . ")"),
-                "RowMenu_status" => $relation["activate"] ? _("Enabled") : _("Disabled"),
-                "RowMenu_badge" => $relation["activate"] ? "service_ok" : "service_critical",
-                "RowMenu_options" => $moptions
-            );
+            $elemArr1[$i] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_host" => htmlentities($metric["host_name"], ENT_QUOTES, "UTF-8"), "RowMenu_link" => "main.php?p=" . $p . "&o=cs&msr_id=" . $relation['msr_id'], "RowMenu_service" => htmlentities($metric["service_description"], ENT_QUOTES, "UTF-8"), "RowMenu_metric" =>
+                CentreonUtils::escapeSecure($metric["metric_name"] . " (" . $metric["unit_name"] . ")"), "RowMenu_status" => $relation["activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $relation["activate"] ? "service_ok" : "service_critical", "RowMenu_options" => $moptions];
             $style = $style != "two" ? "two" : "one";
             $i++;
         }
@@ -166,24 +152,20 @@ if ($in_statement != "") {
 if (isset($elemArr1)) {
     $tpl->assign("elemArr1", $elemArr1);
 } else {
-    $tpl->assign("elemArr1", array());
+    $tpl->assign("elemArr1", []);
 }
 
 /*
  * Different messages we put in the template
  */
-$tpl->assign('msg', array(
-    "addL1" => "main.php?p=" . $p . "&o=as&meta_id=" . $meta_id,
-    "addT" => _("Add"),
-    "delConfirm" => _("Do you confirm the deletion ?")
-));
+$tpl->assign('msg', ["addL1" => "main.php?p=" . $p . "&o=as&meta_id=" . $meta_id, "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]);
 
 /*
  * Element we need when we reload the page
  */
 $form->addElement('hidden', 'p');
 $form->addElement('hidden', 'meta_id');
-$tab = array("p" => $p, "meta_id" => $meta_id);
+$tab = ["p" => $p, "meta_id" => $meta_id];
 $form->setDefaults($tab);
 
 /*
@@ -196,22 +178,18 @@ $form->setDefaults($tab);
         }
     </SCRIPT>
 <?php
-$attrs1 = array(
-    'onchange' => "javascript: " .
-        "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" . _("Do you confirm the deletion ?") . "')) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} "
-);
-$form->addElement('select', 'o1', null, array(null => _("More actions..."), "ds" => _("Delete")), $attrs1);
-$form->setDefaults(array('o1' => null));
+$attrs1 = ['onchange' => "javascript: " .
+    "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" . _("Do you confirm the deletion ?") . "')) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} "];
+$form->addElement('select', 'o1', null, [null => _("More actions..."), "ds" => _("Delete")], $attrs1);
+$form->setDefaults(['o1' => null]);
 
 
-$attrs2 = array(
-    'onchange' => "javascript: " .
-        "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" . _("Do you confirm the deletion ?") . "')) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} "
-);
-$form->addElement('select', 'o2', null, array(null => _("More actions..."), "ds" => _("Delete")), $attrs2);
-$form->setDefaults(array('o2' => null));
+$attrs2 = ['onchange' => "javascript: " .
+    "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" . _("Do you confirm the deletion ?") . "')) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} "];
+$form->addElement('select', 'o2', null, [null => _("More actions..."), "ds" => _("Delete")], $attrs2);
+$form->setDefaults(['o2' => null]);
 
 $o1 = $form->getElement('o1');
 $o1->setValue(null);

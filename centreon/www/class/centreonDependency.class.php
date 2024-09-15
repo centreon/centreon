@@ -68,9 +68,9 @@ class CentreonDependency
         try {
             $res = $this->db->query($query);
         } catch (\PDOException $e) {
-            return array();
+            return [];
         }
-        $listServices = array();
+        $listServices = [];
         while ($row = $res->fetchRow()) {
             $listServices[$row['parent_host_id'] . ";" . $row['parent_service_id'] . ";" . $row['child_host_id'] . ";" . $row['child_service_id']] = $row;
         }
@@ -89,12 +89,7 @@ class CentreonDependency
                 $sgcs = $sgObj->getServiceGroupServices($row['child_sg']);
                 foreach ($sgps as $sgp) {
                     foreach ($sgcs as $sgc) {
-                        $listServices[$sgp[0] . ";" . $sgp[1] . ";" . $sgc[0] . ";" . $sgc[1]] = array(
-                            'parent_host_id' => $sgp[0],
-                            'parent_service_id' => $sgp[1],
-                            'child_host_id' => $sgc[0],
-                            'child_service_id' => $sgc[1]
-                        );
+                        $listServices[$sgp[0] . ";" . $sgp[1] . ";" . $sgc[0] . ";" . $sgc[1]] = ['parent_host_id' => $sgp[0], 'parent_service_id' => $sgp[1], 'child_host_id' => $sgc[0], 'child_service_id' => $sgc[1]];
                     }
                 }
             }
@@ -116,9 +111,9 @@ class CentreonDependency
         try {
             $res = $this->db->query($query);
         } catch (\PDOException $e) {
-            return array();
+            return [];
         }
-        $listHosts = array();
+        $listHosts = [];
         while ($row = $res->fetchRow()) {
             $listHosts[$row['parent_host_id'] . ';' . $row['child_host_id']] = $row;
         }
@@ -137,8 +132,7 @@ class CentreonDependency
                 $hgcs = $hgObj->getHostGroupHosts($row['child_hg']);
                 foreach ($hgps as $hgp) {
                     foreach ($hgcs as $hgc) {
-                        $listHosts[$hgp . ";" . $hgc] = array('parent_host_id' => $hgp,
-                                             'child_host_id' => $hgc);
+                        $listHosts[$hgp . ";" . $hgc] = ['parent_host_id' => $hgp, 'child_host_id' => $hgc];
                     }
                 }
             }
@@ -161,9 +155,9 @@ class CentreonDependency
         try {
             $res = $this->db->query($query);
         } catch (\PDOException $e) {
-            return array();
+            return [];
         }
-        $listHostService = array();
+        $listHostService = [];
         while ($row = $res->fetchRow()) {
             $listHostService[] = $row;
         }
@@ -185,9 +179,9 @@ class CentreonDependency
         try {
             $res = $this->db->query($query);
         } catch (\PDOException $e) {
-            return array();
+            return [];
         }
-        $listServiceHost = array();
+        $listServiceHost = [];
         while ($row = $res->fetchRow()) {
             $listServiceHost[] = $row;
         }
@@ -236,7 +230,7 @@ class CentreonDependency
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'host';
         $parameters['currentObject']['id'] = 'host_id';
         $parameters['currentObject']['name'] = 'host_name';

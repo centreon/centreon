@@ -191,7 +191,7 @@ $inputPost = [
 // Saving bound values
 $queryValues = [];
 
-$inputs = array();
+$inputs = [];
 foreach ($inputGet as $argumentName => $argumentValue) {
     if (!empty($inputGet[$argumentName])) {
         $inputs[$argumentName] = $inputGet[$argumentName];
@@ -233,11 +233,7 @@ $contact_id = check_session($sid, $pearDB);
 $is_admin = isUserAdmin($sid);
 if (isset($sid) && $sid) {
     $access = new CentreonAcl($contact_id, $is_admin);
-    $lca = array(
-        "LcaHost" => $access->getHostsServices($pearDBO, 1),
-        "LcaHostGroup" => $access->getHostGroups(),
-        "LcaSG" => $access->getServiceGroups()
-    );
+    $lca = ["LcaHost" => $access->getHostsServices($pearDBO, 1), "LcaHostGroup" => $access->getHostGroups(), "LcaSG" => $access->getServiceGroups()];
 }
 
 // binding limit value
@@ -316,40 +312,13 @@ if ($auto_period > 0 || $start === 0) {
 
 $general_opt = getStatusColor($pearDB);
 
-$tab_color_service = array(
-    STATUS_OK => 'service_ok',
-    STATUS_WARNING => 'service_warning',
-    STATUS_CRITICAL => 'service_critical',
-    STATUS_UNKNOWN => 'service_unknown',
-    STATUS_ACKNOWLEDGEMENT => 'service_acknowledgement',
-    STATUS_PENDING => 'pending'
-);
-$tab_color_host = array(
-    STATUS_UP => 'host_up',
-    STATUS_DOWN => 'host_down',
-    STATUS_UNREACHABLE => 'host_unreachable'
-);
+$tab_color_service = [STATUS_OK => 'service_ok', STATUS_WARNING => 'service_warning', STATUS_CRITICAL => 'service_critical', STATUS_UNKNOWN => 'service_unknown', STATUS_ACKNOWLEDGEMENT => 'service_acknowledgement', STATUS_PENDING => 'pending'];
+$tab_color_host = [STATUS_UP => 'host_up', STATUS_DOWN => 'host_down', STATUS_UNREACHABLE => 'host_unreachable'];
 
-$tab_type = array(
-    "1" => "HARD",
-    "0" => "SOFT"
-);
-$tab_class = array(
-    "0" => "list_one",
-    "1" => "list_two"
-);
-$tab_status_host = array(
-    "0" => "UP",
-    "1" => "DOWN",
-    "2" => "UNREACHABLE"
-);
-$tab_status_service = array(
-    "0" => "OK",
-    "1" => "WARNING",
-    "2" => "CRITICAL",
-    "3" => "UNKNOWN",
-    "5" => "ACKNOWLEDGEMENT"
-);
+$tab_type = ["1" => "HARD", "0" => "SOFT"];
+$tab_class = ["0" => "list_one", "1" => "list_two"];
+$tab_status_host = ["0" => "UP", "1" => "DOWN", "2" => "UNREACHABLE"];
+$tab_status_service = ["0" => "OK", "1" => "WARNING", "2" => "CRITICAL", "3" => "UNKNOWN", "5" => "ACKNOWLEDGEMENT"];
 $acknowlegementMessageType = [
     'badgeColor' => 'ack',
     'badgeText' => 'ACK'
@@ -359,7 +328,7 @@ $acknowlegementMessageType = [
  * Create IP Cache
  */
 if ($export) {
-    $HostCache = array();
+    $HostCache = [];
     $dbResult = $pearDB->query("SELECT host_name, host_address FROM host WHERE host_register = '1'");
     while ($h = $dbResult->fetch()) {
         $HostCache[$h["host_name"]] = $h["host_address"];
@@ -367,7 +336,7 @@ if ($export) {
     $dbResult->closeCursor();
 }
 
-$logs = array();
+$logs = [];
 
 /*
  * Print infos..
@@ -392,7 +361,7 @@ $buffer->writeElement("search_H", $search_H);
 $buffer->writeElement("search_S", $search_S);
 $buffer->endElement();
 
-$msg_type_set = array();
+$msg_type_set = [];
 if ($alert == 'true') {
     array_push($msg_type_set, "'0'");
 }
@@ -412,7 +381,7 @@ if ($error == 'true') {
 $msg_req = '';
 $suffix_order = " ORDER BY ctime DESC ";
 
-$host_msg_status_set = array();
+$host_msg_status_set = [];
 if ($up == 'true') {
     array_push($host_msg_status_set, "'" . STATUS_UP . "'");
 }
@@ -423,7 +392,7 @@ if ($unreachable == 'true') {
     array_push($host_msg_status_set, "'" . STATUS_UNREACHABLE . "'");
 }
 
-$svc_msg_status_set = array();
+$svc_msg_status_set = [];
 if ($ok == 'true') {
     array_push($svc_msg_status_set, "'" . STATUS_OK . "'");
 }
@@ -542,8 +511,8 @@ if ($flag_begin) {
 }
 
 $tab_id = preg_split("/\,/", $openid);
-$tab_host_ids = array();
-$tab_svc = array();
+$tab_host_ids = [];
+$tab_svc = [];
 $filters = false;
 foreach ($tab_id as $openid) {
     $tab_tmp = preg_split("/\_/", $openid);

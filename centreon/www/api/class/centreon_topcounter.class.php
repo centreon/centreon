@@ -144,11 +144,7 @@ class CentreonTopCounter extends CentreonWebService
             ? null
             : $this->centreon->user->lang;
 
-        return array(
-            'time' => time(),
-            'locale' => $locale,
-            'timezone' => $this->centreon->CentreonGMT->getActiveTimezone($this->centreon->user->gmt)
-        );
+        return ['time' => time(), 'locale' => $locale, 'timezone' => $this->centreon->CentreonGMT->getActiveTimezone($this->centreon->user->gmt)];
     }
 
     /**
@@ -161,15 +157,13 @@ class CentreonTopCounter extends CentreonWebService
         $logout = true;
         if (isset($_SESSION['centreon'])) {
             $query = $this->pearDB->prepare('SELECT user_id FROM session WHERE session_id = ?');
-            $res = $this->pearDB->execute($query, array(session_id()));
+            $res = $this->pearDB->execute($query, [session_id()]);
             if ($res->rowCount()) {
                 $logout = false;
             }
         }
 
-        return array(
-            'autologout' => $logout
-        );
+        return ['autologout' => $logout];
     }
 
     /**
@@ -318,22 +312,7 @@ class CentreonTopCounter extends CentreonWebService
         }
 
         $pollers = $this->pollersStatusList();
-        $result = array(
-            'latency' => array(
-                'warning' => 0,
-                'critical' => 0
-            ),
-            'stability' => array(
-                'warning' => 0,
-                'critical' => 0
-            ),
-            'database' => array(
-                'warning' => 0,
-                'critical' => 0
-            ),
-            'total' => count($pollers),
-            'refreshTime' => $this->refreshTime
-        );
+        $result = ['latency' => ['warning' => 0, 'critical' => 0], 'stability' => ['warning' => 0, 'critical' => 0], 'database' => ['warning' => 0, 'critical' => 0], 'total' => count($pollers), 'refreshTime' => $this->refreshTime];
 
         foreach ($pollers as $poller) {
             if ($poller['stability'] === 1) {
@@ -385,12 +364,7 @@ class CentreonTopCounter extends CentreonWebService
             $changeStateServers = getChangeState($changeStateServers);
             foreach ($pollers as $poller) {
                 if ($poller['updated']) {
-                    $result['pollers'][] = array(
-                        'id' => $poller['id'],
-                        'name' => $poller['name'],
-                        'status' => 1,
-                        'information' => ''
-                    );
+                    $result['pollers'][] = ['id' => $poller['id'], 'name' => $poller['name'], 'status' => 1, 'information' => ''];
                 }
             }
         } else {
@@ -406,12 +380,7 @@ class CentreonTopCounter extends CentreonWebService
                     $info = $poller[$type]['time'];
                 }
                 if ($state > 0) {
-                    $result['pollers'][] = array(
-                        'id' => $poller['id'],
-                        'name' => $poller['name'],
-                        'status' => $state,
-                        'information' => $info
-                    );
+                    $result['pollers'][] = ['id' => $poller['id'], 'name' => $poller['name'], 'status' => $state, 'information' => $info];
                 }
             }
         }
@@ -432,45 +401,7 @@ class CentreonTopCounter extends CentreonWebService
         }
 
         $pollers = $this->pollersStatusList();
-        $result = array(
-            'issues' => array(
-                'latency' => array(
-                    'warning' => array(
-                        'poller' => array(),
-                        'total' => 0
-                    ),
-                    'critical' => array(
-                        'poller' => array(),
-                        'total' => 0
-                    ),
-                    'total' => 0
-                ),
-                'stability' => array(
-                    'warning' => array(
-                        'poller' => array(),
-                        'total' => 0
-                    ),
-                    'critical' => array(
-                        'poller' => array(),
-                        'total' => 0
-                    ),
-                    'total' => 0
-                ),
-                'database' => array(
-                    'warning' => array(
-                        'poller' => array(),
-                        'total' => 0
-                    ),
-                    'critical' => array(
-                        'poller' => array(),
-                        'total' => 0
-                    ),
-                    'total' => 0
-                )
-            ),
-            'total' => count($pollers),
-            'refreshTime' => $this->refreshTime
-        );
+        $result = ['issues' => ['latency' => ['warning' => ['poller' => [], 'total' => 0], 'critical' => ['poller' => [], 'total' => 0], 'total' => 0], 'stability' => ['warning' => ['poller' => [], 'total' => 0], 'critical' => ['poller' => [], 'total' => 0], 'total' => 0], 'database' => ['warning' => ['poller' => [], 'total' => 0], 'critical' => ['poller' => [], 'total' => 0], 'total' => 0]], 'total' => count($pollers), 'refreshTime' => $this->refreshTime];
         $staWar = 0;
         $staCri = 0;
         $datWar = 0;
@@ -481,52 +412,28 @@ class CentreonTopCounter extends CentreonWebService
         foreach ($pollers as $poller) {
             //stability
             if ($poller['stability'] === 1) {
-                $result['issues']['stability']['warning']['poller'][] = array(
-                    'id' => $poller['id'],
-                    'name' => $poller['name'],
-                    'since' => ''
-                );
+                $result['issues']['stability']['warning']['poller'][] = ['id' => $poller['id'], 'name' => $poller['name'], 'since' => ''];
                 $staWar++;
             } elseif ($poller['stability'] === 2) {
-                $result['issues']['stability']['critical']['poller'][] = array(
-                    'id' => $poller['id'],
-                    'name' => $poller['name'],
-                    'since' => ''
-                );
+                $result['issues']['stability']['critical']['poller'][] = ['id' => $poller['id'], 'name' => $poller['name'], 'since' => ''];
                 $staCri++;
             }
 
             //database
             if ($poller['database']['state'] === 1) {
-                $result['issues']['database']['warning']['poller'][] = array(
-                    'id' => $poller['id'],
-                    'name' => $poller['name'],
-                    'since' => $poller['database']['time']
-                );
+                $result['issues']['database']['warning']['poller'][] = ['id' => $poller['id'], 'name' => $poller['name'], 'since' => $poller['database']['time']];
                 $datWar++;
             } elseif ($poller['database']['state'] === 2) {
-                $result['issues']['database']['critical']['poller'][] = array(
-                    'id' => $poller['id'],
-                    'name' => $poller['name'],
-                    'since' => $poller['database']['time']
-                );
+                $result['issues']['database']['critical']['poller'][] = ['id' => $poller['id'], 'name' => $poller['name'], 'since' => $poller['database']['time']];
                 $datCri++;
             }
 
             //latency
             if ($poller['latency']['state'] === 1) {
-                $result['issues']['latency']['warning']['poller'][] = array(
-                    'id' => $poller['id'],
-                    'name' => $poller['name'],
-                    'since' => $poller['latency']['time']
-                );
+                $result['issues']['latency']['warning']['poller'][] = ['id' => $poller['id'], 'name' => $poller['name'], 'since' => $poller['latency']['time']];
                 $latWar++;
             } elseif ($poller['latency']['state'] === 2) {
-                $result['issues']['latency']['critical']['poller'][] = array(
-                    'id' => $poller['id'],
-                    'name' => $poller['name'],
-                    'since' => $poller['latency']['time']
-                );
+                $result['issues']['latency']['critical']['poller'][] = ['id' => $poller['id'], 'name' => $poller['name'], 'since' => $poller['latency']['time']];
                 $latCri++;
             }
         }
@@ -634,21 +541,7 @@ class CentreonTopCounter extends CentreonWebService
 
         $row = $res->fetch();
 
-        $result = array(
-            'down' => array(
-                'total' => $row['down_total'],
-                'unhandled' => $row['down_unhandled']
-            ),
-            'unreachable' => array(
-                'total' => $row['unreachable_total'],
-                'unhandled' => $row['unreachable_unhandled']
-            ),
-            'ok' => $row['up_total'],
-            'pending' => $row['pending_total'],
-            'total' => $row['up_total'] + $row['pending_total'] + $row['down_total'] + $row['unreachable_total'],
-            'refreshTime' => $this->refreshTime,
-            'time' => time()
-        );
+        $result = ['down' => ['total' => $row['down_total'], 'unhandled' => $row['down_unhandled']], 'unreachable' => ['total' => $row['unreachable_total'], 'unhandled' => $row['unreachable_unhandled']], 'ok' => $row['up_total'], 'pending' => $row['pending_total'], 'total' => $row['up_total'] + $row['pending_total'] + $row['down_total'] + $row['unreachable_total'], 'refreshTime' => $this->refreshTime, 'time' => time()];
 
         CentreonSession::writeSessionClose('topCounterHostStatus', $result);
         return $result;
@@ -711,26 +604,8 @@ class CentreonTopCounter extends CentreonWebService
 
         $row = $res->fetch();
 
-        $result = array(
-            'critical' => array(
-                'total' => $row['critical_total'],
-                'unhandled' => $row['critical_unhandled']
-            ),
-            'warning' => array(
-                'total' => $row['warning_total'],
-                'unhandled' => $row['warning_unhandled']
-            ),
-            'unknown' => array(
-                'total' => $row['unknown_total'],
-                'unhandled' => $row['unknown_unhandled']
-            ),
-            'ok' => $row['ok_total'],
-            'pending' => $row['pending_total'],
-            'total' => $row['ok_total'] + $row['pending_total'] + $row['critical_total'] + $row['unknown_total'] +
-                $row['warning_total'],
-            'refreshTime' => $this->refreshTime,
-            'time' => time()
-        );
+        $result = ['critical' => ['total' => $row['critical_total'], 'unhandled' => $row['critical_unhandled']], 'warning' => ['total' => $row['warning_total'], 'unhandled' => $row['warning_unhandled']], 'unknown' => ['total' => $row['unknown_total'], 'unhandled' => $row['unknown_unhandled']], 'ok' => $row['ok_total'], 'pending' => $row['pending_total'], 'total' => $row['ok_total'] + $row['pending_total'] + $row['critical_total'] + $row['unknown_total'] +
+            $row['warning_total'], 'refreshTime' => $this->refreshTime, 'time' => time()];
 
         CentreonSession::writeSessionClose('topCounterServiceStatus', $result);
         return $result;
@@ -764,14 +639,14 @@ class CentreonTopCounter extends CentreonWebService
     protected function pollersList()
     {
         /* Get the list of configured pollers */
-        $listPoller = array();
+        $listPoller = [];
         $query = 'SELECT id, name, last_restart, updated FROM nagios_server WHERE ns_activate = "1"';
 
         /* Add ACL */
         $aclPoller = $this->centreon->user->access->getPollerString('id');
         if (!$this->centreon->user->admin) {
             if ($aclPoller === '') {
-                return array();
+                return [];
             }
             $query .= ' AND id IN (' . $aclPoller . ')';
         }
@@ -783,15 +658,10 @@ class CentreonTopCounter extends CentreonWebService
         }
 
         if ($res->rowCount() === 0) {
-            return array();
+            return [];
         }
         while ($row = $res->fetch()) {
-            $listPoller[$row['id']] = array(
-                'id' => $row['id'],
-                'name' => $row['name'],
-                'lastRestart' => $row['last_restart'],
-                'updated' => $row['updated']
-            );
+            $listPoller[$row['id']] = ['id' => $row['id'], 'name' => $row['name'], 'lastRestart' => $row['last_restart'], 'updated' => $row['updated']];
         }
         return $listPoller;
     }
@@ -801,22 +671,10 @@ class CentreonTopCounter extends CentreonWebService
      */
     protected function pollersStatusList()
     {
-        $listPoller = array();
+        $listPoller = [];
         $listConfPoller = $this->pollersList();
         foreach ($listConfPoller as $poller) {
-            $listPoller[$poller['id']] = array(
-                'id' => $poller['id'],
-                'name' => $poller['name'],
-                'stability' => 0,
-                'database' => array(
-                    'state' => 0,
-                    'time' => null
-                ),
-                'latency' => array(
-                    'state' => 0,
-                    'time' => null
-                )
-            );
+            $listPoller[$poller['id']] = ['id' => $poller['id'], 'name' => $poller['name'], 'stability' => 0, 'database' => ['state' => 0, 'time' => null], 'latency' => ['state' => 0, 'time' => null]];
         }
 
         /* Get status of pollers */

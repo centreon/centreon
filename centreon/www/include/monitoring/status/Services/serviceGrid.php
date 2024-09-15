@@ -54,27 +54,16 @@ if (isset($_GET["host_search"])) {
     $centreon->historySearch[$url] = $_GET["host_search"];
 }
 
-$tab_class = array(
-    "0" => "list_one",
-    "1" => "list_two"
-);
+$tab_class = ["0" => "list_one", "1" => "list_two"];
 $rows = 10;
 
 include_once("./include/monitoring/status/Common/default_poller.php");
 include_once("./include/monitoring/status/Common/default_hostgroups.php");
 
 include_once($svc_path . "/serviceGridJS.php");
-$aTypeAffichageLevel1 = array(
-    "svcOV" => _("Details"),
-    "svcSum" => _("Summary")
-);
+$aTypeAffichageLevel1 = ["svcOV" => _("Details"), "svcSum" => _("Summary")];
 
-$aTypeAffichageLevel2 = array(
-    "" => _("All"),
-    "pb" => _("Problems"),
-    "ack_1" => _("Acknowledge"),
-    "ack_0" => _("Not Acknowledged"),
-);
+$aTypeAffichageLevel2 = ["" => _("All"), "pb" => _("Problems"), "ack_1" => _("Acknowledge"), "ack_0" => _("Not Acknowledged")];
 
 /*
  * Smarty template Init
@@ -99,7 +88,7 @@ $tpl->assign("mon_status_information", _("Status information"));
 $form = new HTML_QuickFormCustom('select_form', 'GET', "?p=" . $p);
 
 $tpl->assign("order", strtolower($order));
-$tab_order = array("sort_asc" => "sort_desc", "sort_desc" => "sort_asc");
+$tab_order = ["sort_asc" => "sort_desc", "sort_desc" => "sort_asc"];
 $tpl->assign("tab_order", $tab_order);
 ?>
     <script type="text/javascript">
@@ -144,38 +133,22 @@ $form->addElement(
     'typeDisplay',
     _('Display'),
     $aTypeAffichageLevel1,
-    array('id' => 'typeDisplay', 'onChange' => "displayingLevel1(this.value);")
+    ['id' => 'typeDisplay', 'onChange' => "displayingLevel1(this.value);"]
 );
 $form->addElement(
     'select',
     'typeDisplay2',
     _('Display '),
     $aTypeAffichageLevel2,
-    array('id' => 'typeDisplay2', 'onChange' => "displayingLevel2(this.value);")
+    ['id' => 'typeDisplay2', 'onChange' => "displayingLevel2(this.value);"]
 );
-$form->setDefaults(array('typeDisplay2' => 'pb'));
+$form->setDefaults(['typeDisplay2' => 'pb']);
 
-foreach (array('o1', 'o2') as $option) {
-    $attrs = array('onchange' => "javascript: setO(this.form.elements['$option'].value); submit();");
-    $form->addElement('select', $option, null, array(
-        null => _("More actions..."),
-        "3" => _("Verification Check"),
-        "4" => _("Verification Check (Forced)"),
-        "70" => _("Services : Acknowledge"),
-        "71" => _("Services : Disacknowledge"),
-        "80" => _("Services : Enable Notification"),
-        "81" => _("Services : Disable Notification"),
-        "90" => _("Services : Enable Check"),
-        "91" => _("Services : Disable Check"),
-        "72" => _("Hosts : Acknowledge"),
-        "73" => _("Hosts : Disacknowledge"),
-        "82" => _("Hosts : Enable Notification"),
-        "83" => _("Hosts : Disable Notification"),
-        "92" => _("Hosts : Enable Check"),
-        "93" => _("Hosts : Disable Check")
-    ), $attrs);
+foreach (['o1', 'o2'] as $option) {
+    $attrs = ['onchange' => "javascript: setO(this.form.elements['$option'].value); submit();"];
+    $form->addElement('select', $option, null, [null => _("More actions..."), "3" => _("Verification Check"), "4" => _("Verification Check (Forced)"), "70" => _("Services : Acknowledge"), "71" => _("Services : Disacknowledge"), "80" => _("Services : Enable Notification"), "81" => _("Services : Disable Notification"), "90" => _("Services : Enable Check"), "91" => _("Services : Disable Check"), "72" => _("Hosts : Acknowledge"), "73" => _("Hosts : Disacknowledge"), "82" => _("Hosts : Enable Notification"), "83" => _("Hosts : Disable Notification"), "92" => _("Hosts : Enable Check"), "93" => _("Hosts : Disable Check")], $attrs);
 
-    $form->setDefaults(array($option => null));
+    $form->setDefaults([$option => null]);
     $o1 = $form->getElement($option);
     $o1->setValue(null);
     $o1->setSelected(null);

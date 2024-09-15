@@ -53,7 +53,7 @@ class CentreonWebService
     /**
      * @var array
      */
-    protected $arguments = array();
+    protected $arguments = [];
 
     /**
      * @var null
@@ -158,7 +158,7 @@ class CentreonWebService
      */
     protected static function webservicePath($object = "")
     {
-        $webServiceClass = array();
+        $webServiceClass = [];
         foreach (self::$webServicePaths as $webServicePath) {
             if (false !== strpos($webServicePath, $object . '.class.php')) {
                 require_once $webServicePath;
@@ -168,10 +168,7 @@ class CentreonWebService
                     $className .= ucfirst(strtolower($partClassName));
                 }
                 if (class_exists($className)) {
-                    $webServiceClass = array(
-                        'path' => $webServicePath,
-                        'class' => $className
-                    );
+                    $webServiceClass = ['path' => $webServicePath, 'class' => $className];
                 }
             }
         }

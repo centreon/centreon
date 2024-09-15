@@ -70,8 +70,8 @@ function testCycleH($childs = null)
 {
     global $pearDB;
     global $form;
-    $parents = array();
-    $childs = array();
+    $parents = [];
+    $childs = [];
     if (isset($form)) {
         $parents = $form->getSubmitValue('dep_hSvPar');
         $childs = $form->getSubmitValue('dep_hSvChi');
@@ -85,7 +85,7 @@ function testCycleH($childs = null)
     return true;
 }
 
-function deleteServiceDependencyInDB($dependencies = array())
+function deleteServiceDependencyInDB($dependencies = [])
 {
     global $pearDB, $oreon;
     foreach ($dependencies as $key => $value) {
@@ -97,7 +97,7 @@ function deleteServiceDependencyInDB($dependencies = array())
     }
 }
 
-function multipleServiceDependencyInDB($dependencies = array(), $nbrDup = array())
+function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
 {
     foreach ($dependencies as $key => $value) {
         global $pearDB, $oreon;
@@ -201,7 +201,7 @@ function updateServiceDependencyInDB($dep_id = null)
     updateServiceDependencyHostChildren($dep_id);
 }
 
-function insertServiceDependencyInDB($ret = array())
+function insertServiceDependencyInDB($ret = [])
 {
     $dep_id = insertServiceDependency($ret);
     updateServiceDependencyServiceParents($dep_id, $ret);
@@ -216,7 +216,7 @@ function insertServiceDependencyInDB($ret = array())
  * @param array<string, mixed> $ret
  * @return int
  */
-function insertServiceDependency($ret = array()): int
+function insertServiceDependency($ret = []): int
 {
     global $form, $pearDB, $centreon;
     if (!count($ret)) {
@@ -357,7 +357,7 @@ function sanitizeResourceParameters(array $resources): array
     return $sanitizedParameters;
 }
 
-function updateServiceDependencyServiceParents($dep_id = null, $ret = array())
+function updateServiceDependencyServiceParents($dep_id = null, $ret = [])
 {
     if (!$dep_id) {
         exit();
@@ -384,7 +384,7 @@ function updateServiceDependencyServiceParents($dep_id = null, $ret = array())
     }
 }
 
-function updateServiceDependencyServiceChilds($dep_id = null, $ret = array())
+function updateServiceDependencyServiceChilds($dep_id = null, $ret = [])
 {
     if (!$dep_id) {
         exit();
@@ -414,7 +414,7 @@ function updateServiceDependencyServiceChilds($dep_id = null, $ret = array())
 /**
  * Update Service Dependency Host Children
  */
-function updateServiceDependencyHostChildren($dep_id = null, $ret = array())
+function updateServiceDependencyHostChildren($dep_id = null, $ret = [])
 {
     if (!$dep_id) {
         exit();

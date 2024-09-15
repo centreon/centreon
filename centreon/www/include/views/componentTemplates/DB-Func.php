@@ -42,7 +42,7 @@ if (!isset($centreon)) {
 function DsHsrTestExistence($name = null)
 {
     global $pearDB, $form;
-    $formValues = array();
+    $formValues = [];
     if (isset($form)) {
         $formValues = $form->getSubmitValues();
     }

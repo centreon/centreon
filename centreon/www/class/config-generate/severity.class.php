@@ -49,16 +49,16 @@ class Severity extends AbstractObject
     private $done_cache = 0;
 
     /** @var array */
-    private $service_severity_cache = array();
+    private $service_severity_cache = [];
     /** @var array */
-    private $service_severity_by_name_cache = array();
+    private $service_severity_by_name_cache = [];
     /** @var array */
-    private $service_linked_cache = array();
+    private $service_linked_cache = [];
 
     /** @var array */
-    private $host_severity_cache = array();
+    private $host_severity_cache = [];
     /** @var array */
-    private $host_linked_cache = array();
+    private $host_linked_cache = [];
     /** @var array */
     private $host_severities = [];
     /** @var array */

@@ -55,7 +55,7 @@ function sanitizeShellString($string)
 function massiveHostAck($key)
 {
     global $pearDB, $is_admin, $centreon;
-    static $processedHosts = array();
+    static $processedHosts = [];
 
     $actions = $centreon->user->access->checkAction("host_acknowledgement");
 
@@ -213,7 +213,7 @@ function massiveServiceAck($key)
 function massiveHostDowntime($key)
 {
     global $is_admin, $centreon;
-    static $processedHosts = array();
+    static $processedHosts = [];
 
     $actions = $centreon->user->access->checkAction("host_schedule_downtime");
 

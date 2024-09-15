@@ -52,8 +52,8 @@ class CentreonHomeCustomview extends CentreonWebService
     public function getListSharedViews()
     {
         global $centreon;
-        $views = array();
-        $q = array();
+        $views = [];
+        $q = [];
         if (isset($this->arguments['q']) && $this->arguments['q'] != '') {
             $q[] = '%' . $this->arguments['q'] . '%';
         }
@@ -82,15 +82,9 @@ class CentreonHomeCustomview extends CentreonWebService
         $stmt->execute($q);
 
         while ($row = $stmt->fetch()) {
-            $views[] = array(
-                'id' => $row['custom_view_id'],
-                'text' => $row['name']
-            );
+            $views[] = ['id' => $row['custom_view_id'], 'text' => $row['name']];
         }
-        return array(
-            'items' => $views,
-            'total' => count($views)
-        );
+        return ['items' => $views, 'total' => count($views)];
     }
 
     /**
@@ -147,21 +141,12 @@ class CentreonHomeCustomview extends CentreonWebService
         global $centreon;
         $viewObj = new CentreonCustomView($centreon, $this->pearDB);
 
-        $tabs = array();
+        $tabs = [];
         $tabsDb = $viewObj->getCustomViews();
         foreach ($tabsDb as $key => $tab) {
-            $tabs[] = array(
-                'default' => false,
-                'name' => $tab['name'],
-                'custom_view_id' => $tab['custom_view_id'],
-                'public' => $tab['public'],
-                'nbCols' => $tab['layout']
-            );
+            $tabs[] = ['default' => false, 'name' => $tab['name'], 'custom_view_id' => $tab['custom_view_id'], 'public' => $tab['public'], 'nbCols' => $tab['layout']];
         }
-        return array(
-            'current' => $viewObj->getCurrentView(),
-            'tabs' => $tabs
-        );
+        return ['current' => $viewObj->getCurrentView(), 'tabs' => $tabs];
     }
 
     /**
@@ -198,7 +183,7 @@ class CentreonHomeCustomview extends CentreonWebService
         $viewObj = new CentreonCustomView($centreon, $this->pearDB);
         $widgetObj = new CentreonWidget($centreon, $this->pearDB);
         $title = "";
-        $defaultTab = array();
+        $defaultTab = [];
 
         $widgetTitle = $widgetObj->getWidgetTitle($widgetId);
         $title = $widgetTitle != '' ? sprintf(_("Widget Preferences for %s"), $widgetTitle) : _("Widget Preferences");
@@ -230,7 +215,7 @@ class CentreonHomeCustomview extends CentreonWebService
         $form->addElement('header', 'information', _("General Information"));
 
         /* Prepare list of installed modules and have widget connectors */
-        $loadConnectorPaths = array();
+        $loadConnectorPaths = [];
         /* Add core path */
         $loadConnectorPaths[] = _CENTREON_PATH_ . "www/class/centreonWidget/Params/Connector";
         $query = 'SELECT name FROM modules_informations ORDER BY name';
@@ -265,7 +250,7 @@ class CentreonHomeCustomview extends CentreonWebService
                 }
                 if (class_exists($className)) {
                     $currentParam = call_user_func(
-                        array($className, 'factory'),
+                        [$className, 'factory'],
                         $this->pearDB,
                         $form,
                         $className,
@@ -294,9 +279,9 @@ class CentreonHomeCustomview extends CentreonWebService
             'button',
             'submit',
             _("Apply"),
-            array("class" => "btc bt_success", "onClick" => "submitData();")
+            ["class" => "btc bt_success", "onClick" => "submitData();"]
         );
-        $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+        $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
         $form->addElement('hidden', 'custom_view_id');
         $form->addElement('hidden', 'widget_id');
         $form->addElement('hidden', 'action');

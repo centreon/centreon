@@ -46,7 +46,7 @@ if (!isset($centreon)) {
 /*
  * Database retrieve information
  */
-$img = array("img_path" => null);
+$img = ["img_path" => null];
 if ($o == IMAGE_MODIFY || $o == IMAGE_WATCH) {
     $result = $pearDB->query("SELECT * FROM view_img WHERE img_id = $imageId LIMIT 1");
 
@@ -77,9 +77,9 @@ asort($dir_list_sel);
 /*
  * Styles
  */
-$attrsText = array("size" => "35");
-$attrsAdvSelect = array("style" => "width: 200px; height: 100px;");
-$attrsTextarea = array("rows" => "5", "cols" => "80");
+$attrsText = ["size" => "35"];
+$attrsAdvSelect = ["style" => "width: 200px; height: 100px;"];
+$attrsTextarea = ["rows" => "5", "cols" => "80"];
 
 /*
  * Form begin
@@ -92,25 +92,21 @@ if ($o == IMAGE_ADD) {
         'directories',
         _("Existing or new directory"),
         $dir_ids,
-        array('id' => 'directories')
+        ['id' => 'directories']
     );
     $form->addElement(
         'select',
         'list_dir',
         "",
         $dir_list_sel,
-        array(
-            'onchange' => 'document.getElementById("directories").value = this.options[this.selectedIndex].text;'
-        )
+        ['onchange' => 'document.getElementById("directories").value = this.options[this.selectedIndex].text;']
     );
     $form->addElement('file', 'filename', _("Image or archive"));
     $subA = $form->addElement(
         'submit',
         'submitA',
         _("Save"),
-        array(
-            "class" => "btc bt_success"
-        )
+        ["class" => "btc bt_success"]
     );
     $form->registerRule('isCorrectMIMEType', 'callback', 'isCorrectMIMEType');
     $form->addRule('filename', _('Invalid Image Format.'), 'isCorrectMIMEType');
@@ -122,16 +118,14 @@ if ($o == IMAGE_ADD) {
         'directories',
         _("Existing or new directory"),
         $dir_ids,
-        array('id' => 'directories')
+        ['id' => 'directories']
     );
     $list_dir = $form->addElement(
         'select',
         'list_dir',
         "",
         $dir_list_sel,
-        array(
-            'onchange' => 'document.getElementById("directories").value = this.options[this.selectedIndex].text;'
-        )
+        ['onchange' => 'document.getElementById("directories").value = this.options[this.selectedIndex].text;']
     );
     $list_dir->setSelected($dir['dir_id']);
     $form->addElement('file', 'filename', _("Image"));
@@ -139,9 +133,7 @@ if ($o == IMAGE_ADD) {
         'submit',
         'submitC',
         _("Save"),
-        array(
-            "class" => "btc bt_success"
-        )
+        ["class" => "btc bt_success"]
     );
     $form->setDefaults($img);
     $form->addRule('img_name', _("Compulsory image name"), 'required');
@@ -154,17 +146,15 @@ if ($o == IMAGE_ADD) {
         'directories',
         _("Directory"),
         $dir_ids,
-        array('id', 'directories')
+        ['id', 'directories']
     );
     $form->addElement('file', 'filename', _("Image"));
     $form->addElement(
         "button",
         "change",
         _("Modify"),
-        array(
-            "onClick" => "javascript:window.location.href='?p=$p&o=ci&img_id=$imageId'"
-        ),
-        array("class" => "btc bt_success")
+        ["onClick" => "javascript:window.location.href='?p=$p&o=ci&img_id=$imageId'"],
+        ["class" => "btc bt_success"]
     );
     $form->setDefaults($img);
 }
@@ -180,11 +170,11 @@ $form->addElement(
 
 $form->addElement('textarea', 'img_comment', _("Comments"), $attrsTextarea);
 
-$tab = array();
+$tab = [];
 $tab[] = $form->createElement('radio', 'action', null, _("Return to list"), '1');
 $tab[] = $form->createElement('radio', 'action', null, _("Review form after save"), '0');
 $form->addGroup($tab, 'action', _("Action"), '&nbsp;');
-$form->setDefaults(array('action' => '1'));
+$form->setDefaults(['action' => '1']);
 
 $form->addElement('hidden', 'img_id');
 $redirect = $form->addElement('hidden', 'o');

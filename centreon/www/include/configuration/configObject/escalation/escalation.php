@@ -88,7 +88,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            multipleEscalationInDB(isset($select) ? $select : array(), $dupNbr);
+            multipleEscalationInDB(isset($select) ? $select : [], $dupNbr);
         } else {
             unvalidFormMessage();
         }
@@ -98,7 +98,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteEscalationInDB(isset($select) ? $select : array());
+            deleteEscalationInDB(isset($select) ? $select : []);
         } else {
             unvalidFormMessage();
         }

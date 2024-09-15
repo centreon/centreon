@@ -46,26 +46,9 @@ class MetaHost extends AbstractObject
     /** @var string */
     protected string $object_name = 'host';
     /** @var string[] */
-    protected $attributes_write = array(
-        'host_name',
-        'alias',
-        'address',
-        'check_command',
-        'max_check_attempts',
-        'check_interval',
-        'active_checks_enabled',
-        'passive_checks_enabled',
-        'check_period',
-        'notification_interval',
-        'notification_period',
-        'notification_options',
-        'notifications_enabled',
-        'register',
-    );
+    protected $attributes_write = ['host_name', 'alias', 'address', 'check_command', 'max_check_attempts', 'check_interval', 'active_checks_enabled', 'passive_checks_enabled', 'check_period', 'notification_interval', 'notification_period', 'notification_options', 'notifications_enabled', 'register'];
     /** @var string[] */
-    protected $attributes_hash = array(
-        'macros'
-    );
+    protected $attributes_hash = ['macros'];
 
     /**
      * @param $host_name
@@ -98,7 +81,7 @@ class MetaHost extends AbstractObject
             return 0;
         }
 
-        $object = array();
+        $object = [];
         $object['host_name'] = '_Module_Meta';
         $object['alias'] = 'Meta Service Calculate Module For Centreon';
         $object['address'] = '127.0.0.1';
@@ -114,7 +97,7 @@ class MetaHost extends AbstractObject
         $object['notification_options'] = 'd';
         $object['notifications_enabled'] = 0;
         $object['register'] = 1;
-        $object['macros'] = array('_HOST_ID' => $host_id);
+        $object['macros'] = ['_HOST_ID' => $host_id];
 
         $this->generateObjectInFile($object, $host_id);
     }

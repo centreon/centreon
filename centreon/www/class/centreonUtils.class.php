@@ -76,9 +76,9 @@ class CentreonUtils
      *
      * @return array|string
      */
-    public function objectIntoArray($arrObjData, $arrSkipIndices = array())
+    public function objectIntoArray($arrObjData, $arrSkipIndices = [])
     {
-        $arrData = array();
+        $arrData = [];
 
         if (is_object($arrObjData)) {
             $arrObjData = get_object_vars($arrObjData);
@@ -220,7 +220,7 @@ class CentreonUtils
      */
     public static function mergeWithInitialValues($form, $key)
     {
-        $init = array();
+        $init = [];
         try {
             $initForm = $form->getElement('initialValues');
             $initForm = HtmlAnalyzer::sanitizeAndRemoveTags($initForm->getValue());
@@ -250,7 +250,7 @@ class CentreonUtils
      *                             otherwise values will be used
      * @return string
      */
-    public static function toStringWithQuotes($arr = array(), $transformKey = true)
+    public static function toStringWithQuotes($arr = [], $transformKey = true)
     {
         $string = "";
         $first = true;
@@ -328,7 +328,7 @@ class CentreonUtils
         switch ($escapeMethod) {
             case self::ESCAPE_LEGACY_METHOD:
                 // Remove script and input tags by default
-                return preg_replace(array("/<script.*?\/script>/si", "/<input[^>]+\>/si"), "", $stringToEscape ?? '');
+                return preg_replace(["/<script.*?\/script>/si", "/<input[^>]+\>/si"], "", $stringToEscape ?? '');
             case self::ESCAPE_ALL_EXCEPT_LINK:
                 return self::escapeAllExceptLink($stringToEscape);
             case self::ESCAPE_ALL:
@@ -406,7 +406,7 @@ class CentreonUtils
             if (!in_array($currentTag, self::$selfclosingHtmlTagsAllowed)) {
                 // The current tag is not self-closing tag allowed
                 $index = 0;
-                $tagsFound = array();
+                $tagsFound = [];
 
                 // Specific process for not self-closing HTML tags
                 while ($occurence = self::getHtmlTags($currentTag, $stringToEscape)) {
@@ -479,18 +479,14 @@ class CentreonUtils
             ($end = stripos($html, "</$tag>", strlen("</$tag>")))
         ) {
             if (!is_array($occurrences[$tag])) {
-                $occurrences[$tag] = array();
+                $occurrences[$tag] = [];
             }
             $occurrences =
-                array(
-                    'tag' => substr(
-                        $html,
-                        $start,
-                        $end + strlen("</$tag>") - $start
-                    ),
-                    'start' => $start,
-                    'length' => $end + strlen("</$tag>") - $start
-                );
+                ['tag' => substr(
+                    $html,
+                    $start,
+                    $end + strlen("</$tag>") - $start
+                ), 'start' => $start, 'length' => $end + strlen("</$tag>") - $start];
         }
         return $occurrences;
     }

@@ -47,7 +47,7 @@ $pearDBO = new CentreonDB("centstorage");
 /**
  * Get user list
  */
-$contact = array("" => null);
+$contact = ["" => null];
 $DBRESULT = $pearDB->query("SELECT contact_id, contact_alias FROM contact ORDER BY contact_alias");
 while ($ct = $DBRESULT->fetchRow()) {
     $contact[$ct["contact_id"]] = $ct["contact_alias"];
@@ -83,30 +83,26 @@ $style = "one";
 $groups = "''";
 $contactId = isset($_POST["contact"]) ? (int)htmlentities($_POST["contact"], ENT_QUOTES, "UTF-8") : 0;
 
-$formData = array('contact' => $contactId);
+$formData = ['contact' => $contactId];
 
 /*
  * Create select form
  */
 $form = new HTML_QuickFormCustom('select_form', 'GET', "?p=" . $p);
 
-$form->addElement('select', 'contact', _("Contact"), $contact, array('id' => 'contact', 'onChange' => 'submit();'));
+$form->addElement('select', 'contact', _("Contact"), $contact, ['id' => 'contact', 'onChange' => 'submit();']);
 $form->setDefaults($formData);
 
 /*
  * Host escalations
  */
-$elemArrHostEsc = array();
+$elemArrHostEsc = [];
 if ($contactId) {
     $hostEscResources = $oNotification->getNotifications(2, $contactId);
 }
 if (isset($hostEscResources)) {
     foreach ($hostEscResources as $hostId => $hostName) {
-        $elemArrHostEsc[] = array(
-            "MenuClass" => "list_" . $style,
-            "RowMenu_hico" => "./img/icons/host.png",
-            "RowMenu_host" => myDecode($hostName)
-        );
+        $elemArrHostEsc[] = ["MenuClass" => "list_" . $style, "RowMenu_hico" => "./img/icons/host.png", "RowMenu_host" => myDecode($hostName)];
         $style = $style != "two" ? "two" : "one";
     }
 }
@@ -116,19 +112,14 @@ $tpl->assign("elemArrHostEsc", $elemArrHostEsc);
 /*
  * Service escalations
  */
-$elemArrSvcEsc = array();
+$elemArrSvcEsc = [];
 if ($contactId) {
     $svcEscResources = $oNotification->getNotifications(3, $contactId);
 }
 if (isset($svcEscResources)) {
     foreach ($svcEscResources as $hostId => $hostTab) {
         foreach ($hostTab as $serviceId => $tab) {
-            $elemArrSvcEsc[] = array(
-                "MenuClass" => "list_" . $style,
-                "RowMenu_hico" => "./img/icons/host.png",
-                "RowMenu_host" => myDecode($tab['host_name']),
-                "RowMenu_service" => myDecode($tab['service_description'])
-            );
+            $elemArrSvcEsc[] = ["MenuClass" => "list_" . $style, "RowMenu_hico" => "./img/icons/host.png", "RowMenu_host" => myDecode($tab['host_name']), "RowMenu_service" => myDecode($tab['service_description'])];
             $style = $style != "two" ? "two" : "one";
         }
     }
@@ -138,17 +129,13 @@ $tpl->assign("elemArrSvcEsc", $elemArrSvcEsc);
 /*
  * Hosts
  */
-$elemArrHost = array();
+$elemArrHost = [];
 if ($contactId) {
     $hostResources = $oNotification->getNotifications(0, $contactId);
 }
 if (isset($hostResources)) {
     foreach ($hostResources as $hostId => $hostName) {
-        $elemArrHost[] = array(
-            "MenuClass" => "list_" . $style,
-            "RowMenu_hico" => "./img/icons/host.png",
-            "RowMenu_host" => myDecode($hostName)
-        );
+        $elemArrHost[] = ["MenuClass" => "list_" . $style, "RowMenu_hico" => "./img/icons/host.png", "RowMenu_host" => myDecode($hostName)];
         $style = $style != "two" ? "two" : "one";
     }
 }
@@ -157,31 +144,21 @@ $tpl->assign("elemArrHost", $elemArrHost);
 /*
  * Services
  */
-$elemArrSvc = array();
+$elemArrSvc = [];
 if ($contactId) {
     $svcResources = $oNotification->getNotifications(1, $contactId);
 }
 if (isset($svcResources)) {
     foreach ($svcResources as $hostId => $hostTab) {
         foreach ($hostTab as $serviceId => $tab) {
-            $elemArrSvc[] = array(
-                "MenuClass" => "list_" . $style,
-                "RowMenu_hico" => "./img/icons/host.png",
-                "RowMenu_host" => myDecode($tab['host_name']),
-                "RowMenu_service" => myDecode($tab['service_description'])
-            );
+            $elemArrSvc[] = ["MenuClass" => "list_" . $style, "RowMenu_hico" => "./img/icons/host.png", "RowMenu_host" => myDecode($tab['host_name']), "RowMenu_service" => myDecode($tab['service_description'])];
             $style = $style != "two" ? "two" : "one";
         }
     }
 }
 $tpl->assign("elemArrSvc", $elemArrSvc);
 
-$labels = array(
-    'host_escalation' => _('Host escalations'),
-    'service_escalation' => _('Service escalations'),
-    'host_notifications' => _('Host notifications'),
-    'service_notifications' => _('Service notifications')
-);
+$labels = ['host_escalation' => _('Host escalations'), 'service_escalation' => _('Service escalations'), 'host_notifications' => _('Host notifications'), 'service_notifications' => _('Service notifications')];
 
 /*
  * Apply a template definition

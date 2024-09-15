@@ -54,7 +54,7 @@ $search = \HtmlAnalyzer::sanitizeAndRemoveTags(
 
 if (isset($_POST['searchHGD']) || isset($_GET['searchHGD'])) {
     //saving filters values
-    $centreon->historySearch[$url] = array();
+    $centreon->historySearch[$url] = [];
     $centreon->historySearch[$url]['search'] = $search;
 } else {
     //restoring saved values
@@ -103,14 +103,11 @@ $form = new HTML_QuickFormCustom('select_form', 'POST', "?p=" . $p);
 //Different style between each lines
 $style = "one";
 
-$attrBtnSuccess = array(
-    "class" => "btc bt_success",
-    "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"
-);
+$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
 
 //Fill a tab with a multidimensional Array we put in $tpl
-$elemArr = array();
+$elemArr = [];
 for ($i = 0; $dep = $dbResult->fetch(); $i++) {
     $moptions = "";
     $selectedElements = $form->addElement('checkbox', "select[" . $dep['dep_id'] . "]");
@@ -118,14 +115,7 @@ for ($i = 0; $dep = $dbResult->fetch(); $i++) {
         "event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;" .
         "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" .
         $dep['dep_id'] . "]' />";
-    $elemArr[$i] = array(
-        "MenuClass" => "list_" . $style,
-        "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_name" => CentreonUtils::escapeSecure($dep["dep_name"]),
-        "RowMenu_link" => "main.php?p=" . $p . "&o=c&dep_id=" . $dep['dep_id'],
-        "RowMenu_description" => CentreonUtils::escapeSecure($dep["dep_description"]),
-        "RowMenu_options" => $moptions
-    );
+    $elemArr[$i] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => CentreonUtils::escapeSecure($dep["dep_name"]), "RowMenu_link" => "main.php?p=" . $p . "&o=c&dep_id=" . $dep['dep_id'], "RowMenu_description" => CentreonUtils::escapeSecure($dep["dep_description"]), "RowMenu_options" => $moptions];
     $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
@@ -133,11 +123,7 @@ $tpl->assign("elemArr", $elemArr);
 // Different messages we put in the template
 $tpl->assign(
     'msg',
-    array(
-        "addL" => "main.php?p=" . $p . "&o=a",
-        "addT" => _("Add"),
-        "delConfirm" => _("Do you confirm the deletion ?")
-    )
+    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
 );
 
 // Toolbar
@@ -148,53 +134,49 @@ $tpl->assign(
     }
 </script>
 <?php
-$attrs1 = array(
-    'onchange' => "javascript: " .
-        " var bChecked = isChecked(); " .
-        " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {" .
-        " alert('" . _("Please select one or more items") . "'); return false;} " .
-        "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" .
-        _("Do you confirm the duplication ?") . "')) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('" .
-        _("Do you confirm the deletion ?") . "')) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 3) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        ""
-);
+$attrs1 = ['onchange' => "javascript: " .
+    " var bChecked = isChecked(); " .
+    " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {" .
+    " alert('" . _("Please select one or more items") . "'); return false;} " .
+    "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" .
+    _("Do you confirm the duplication ?") . "')) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('" .
+    _("Do you confirm the deletion ?") . "')) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 3) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    ""];
 $form->addElement(
     'select',
     'o1',
     null,
-    array(null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")),
+    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
     $attrs1
 );
-$form->setDefaults(array('o1' => null));
+$form->setDefaults(['o1' => null]);
 
-$attrs2 = array(
-    'onchange' => "javascript: " .
-        " var bChecked = isChecked(); " .
-        " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {" .
-        " alert('" . _("Please select one or more items") . "'); return false;} " .
-        "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" .
-        _("Do you confirm the duplication ?") . "')) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('" .
-        _("Do you confirm the deletion ?") . "')) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 3) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        ""
-);
+$attrs2 = ['onchange' => "javascript: " .
+    " var bChecked = isChecked(); " .
+    " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {" .
+    " alert('" . _("Please select one or more items") . "'); return false;} " .
+    "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" .
+    _("Do you confirm the duplication ?") . "')) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('" .
+    _("Do you confirm the deletion ?") . "')) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 3) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    ""];
 $form->addElement(
     'select',
     'o2',
     null,
-    array(null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")),
+    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
     $attrs2
 );
-$form->setDefaults(array('o2' => null));
+$form->setDefaults(['o2' => null]);
 
 $o1 = $form->getElement('o1');
 $o1->setValue(null);

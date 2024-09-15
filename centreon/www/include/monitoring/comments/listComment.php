@@ -57,7 +57,7 @@ $searchOutput = \HtmlAnalyzer::sanitizeAndRemoveTags(
 
 if (isset($_POST['search']) || isset($_GET['search'])) {
     //saving chosen filters values
-    $centreon->historySearch[$url] = array();
+    $centreon->historySearch[$url] = [];
     $centreon->historySearch[$url]["searchService"] = $searchService;
     $centreon->historySearch[$url]["searchHost"] = $searchHost;
     $centreon->historySearch[$url]["searchOutput"] = $searchOutput;
@@ -95,15 +95,12 @@ include_once("./class/centreonDB.class.php");
 
 $form = new HTML_QuickFormCustom('select_form', 'GET', "?p=" . $p);
 
-$attrBtnSuccess = array(
-    "class" => "btc bt_success",
-    "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"
-);
+$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
 
-$tab_comments_svc = array();
+$tab_comments_svc = [];
 
-$en = array("0" => _("No"), "1" => _("Yes"));
+$en = ["0" => _("No"), "1" => _("Yes")];
 
 /*
  * Service Comments
@@ -189,15 +186,11 @@ include("./include/common/checkPagination.php");
  * Element we need when we reload the page
  */
 $form->addElement('hidden', 'p');
-$tab = array("p" => $p);
+$tab = ["p" => $p];
 $form->setDefaults($tab);
 
 if ($oreon->user->access->checkAction("service_comment")) {
-    $tpl->assign('msgs', array(
-        "addL" => "main.php?p=" . $p . "&o=a",
-        "addT" => _("Add a comment"),
-        "delConfirm" => _("Do you confirm the deletion ?")
-    ));
+    $tpl->assign('msgs', ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add a comment"), "delConfirm" => _("Do you confirm the deletion ?")]);
 }
 
 $tpl->assign("p", $p);

@@ -76,7 +76,7 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
     public function insert($fkey, $skey = null)
     {
         $sql = "INSERT INTO $this->relationTable ($this->secondKey, $this->firstKey) VALUES (?, ?)";
-        $this->db->query($sql, array($fkey, $skey));
+        $this->db->query($sql, [$fkey, $skey]);
     }
 
     /**
@@ -93,7 +93,7 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
      * @return array
      * @throws Exception
      */
-    public function getMergedParameters($firstTableParams = array(), $secondTableParams = array(), $count = -1, $offset = 0, $order = null, $sort = "ASC", $filters = array(), $filterType = "OR")
+    public function getMergedParameters($firstTableParams = [], $secondTableParams = [], $count = -1, $offset = 0, $order = null, $sort = "ASC", $filters = [], $filterType = "OR")
     {
         if (!isset($this->firstObject) || !isset($this->secondObject)) {
             throw new Exception('Unsupported method on this object');
@@ -116,7 +116,7 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
         		FROM ".$this->firstObject->getTableName()." h,".$this->relationTable."
         		JOIN ".$this->secondObject->getTableName(). " h2 ON ".$this->relationTable.".".$this->firstKey." = h2.".$this->secondObject->getPrimaryKey() ."
         		WHERE h.".$this->firstObject->getPrimaryKey()." = ".$this->relationTable.".".$this->secondKey;
-        $filterTab = array();
+        $filterTab = [];
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
                 $sql .= " $filterType $key LIKE ? ";
@@ -148,13 +148,13 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
     {
         if (isset($fkey) && isset($skey)) {
             $sql = "DELETE FROM $this->relationTable WHERE $this->firstKey = ? AND $this->secondKey = ?";
-            $args = array($skey, $fkey);
+            $args = [$skey, $fkey];
         } elseif (isset($skey)) {
             $sql = "DELETE FROM $this->relationTable WHERE $this->firstKey = ?";
-            $args = array($skey);
+            $args = [$skey];
         } else {
             $sql = "DELETE FROM $this->relationTable WHERE $this->secondKey = ?";
-            $args = array($fkey);
+            $args = [$fkey];
         }
         $this->db->query($sql, $args);
     }

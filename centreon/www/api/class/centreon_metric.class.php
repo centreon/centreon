@@ -45,12 +45,7 @@ class CentreonMetric extends CentreonWebService
 {
     protected $pearDBMonitoring;
 
-    protected $statusColors = array(
-        'ok' => '#88b917',
-        'warning' => '#ff9a13',
-        'critical' => '#e00b3d',
-        'unknown' => 'gray'
-    );
+    protected $statusColors = ['ok' => '#88b917', 'warning' => '#ff9a13', 'critical' => '#e00b3d', 'unknown' => 'gray'];
 
     /**
      * Constructor
@@ -76,7 +71,7 @@ class CentreonMetric extends CentreonWebService
     {
         global $centreon;
 
-        $queryValues = array();
+        $queryValues = [];
         $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
 
         $query = 'SELECT DISTINCT(`metric_name`)
@@ -100,12 +95,9 @@ class CentreonMetric extends CentreonWebService
             throw new \Exception("An error occured");
         }
 
-        $metrics = array();
+        $metrics = [];
         while ($row = $stmt->fetch()) {
-            $metrics[] = array(
-                'id' => $row['metric_name'],
-                'text' => $row['metric_name']
-            );
+            $metrics[] = ['id' => $row['metric_name'], 'text' => $row['metric_name']];
         }
 
         return $metrics;
@@ -120,7 +112,7 @@ class CentreonMetric extends CentreonWebService
     {
         global $centreon;
 
-        $queryValues = array();
+        $queryValues = [];
         $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
 
         $query = 'SELECT SQL_CALC_FOUND_ROWS m.metric_id,
@@ -160,17 +152,11 @@ class CentreonMetric extends CentreonWebService
             $stmt->bindParam(':limit', $queryValues["limit"], \PDO::PARAM_INT);
         }
         $stmt->execute();
-        $metrics = array();
+        $metrics = [];
         while ($row = $stmt->fetch()) {
-            $metrics[] = array(
-                'id' => $row['metric_id'],
-                'text' => $row['fullname']
-            );
+            $metrics[] = ['id' => $row['metric_id'], 'text' => $row['fullname']];
         }
-        return array(
-            'items' => $metrics,
-            'total' => (int) $this->pearDBMonitoring->numberRows()
-        );
+        return ['items' => $metrics, 'total' => (int) $this->pearDBMonitoring->numberRows()];
     }
 
     /**
@@ -180,7 +166,7 @@ class CentreonMetric extends CentreonWebService
      */
     protected function getListOfMetricsByService()
     {
-        $queryValues = array();
+        $queryValues = [];
         if (isset($this->arguments['id'])) {
             $tmp = explode('-', $this->arguments['id']);
             $queryValues['host_id'] = (int)$tmp[0];
@@ -225,17 +211,11 @@ class CentreonMetric extends CentreonWebService
             $stmt->bindParam(':limit', $queryValues["limit"], \PDO::PARAM_INT);
         }
         $stmt->execute();
-        $metrics = array();
+        $metrics = [];
         while ($row = $stmt->fetch()) {
-            $metrics[] = array(
-                'id' => $row['metric_id'],
-                'text' => $row['name']
-            );
+            $metrics[] = ['id' => $row['metric_id'], 'text' => $row['name']];
         }
-        return array(
-            'items' => $metrics,
-            'total' => (int) $this->pearDBMonitoring->numberRows()
-        );
+        return ['items' => $metrics, 'total' => (int) $this->pearDBMonitoring->numberRows()];
     }
 
     /**
@@ -309,12 +289,12 @@ class CentreonMetric extends CentreonWebService
     public function getMetricsDataByMetric()
     {
         if (!isset($this->arguments['ids'])) {
-            self::sendResult(array());
+            self::sendResult([]);
         }
 
         /* Get the list of service ID */
         $ids = explode(',', $this->arguments['ids']);
-        $result = array();
+        $result = [];
 
         if (isset($this->arguments['type']) && $this->arguments['type'] === 'ng') {
             foreach ($ids as $id) {
@@ -607,8 +587,8 @@ class CentreonMetric extends CentreonWebService
 
         if (!$multipleServices && count($selectedMetrics) > 0) {
             /* Get extra information (downtime/acknowledgment) */
-            $result['acknowledge'] = array();
-            $result['downtime'] = array();
+            $result['acknowledge'] = [];
+            $result['downtime'] = [];
             list($hostId, $serviceId) = explode('_', array_key_first($selectedMetrics));
             $result['acknowledge'] = $this->getAcknowledgements(
                 (int)$hostId,
@@ -673,12 +653,12 @@ class CentreonMetric extends CentreonWebService
         }
 
         if (!isset($this->arguments['ids'])) {
-            self::sendResult(array());
+            self::sendResult([]);
         }
 
         /* Get the list of service ID */
         $ids = explode(',', $this->arguments['ids']);
-        $result = array();
+        $result = [];
 
         foreach ($ids as $id) {
             list($hostId, $serviceId) = explode('_', $id);
@@ -722,7 +702,7 @@ class CentreonMetric extends CentreonWebService
             $statusData = $graph->getData($rows);
 
             /* Get comments for this services */
-            $comments = array();
+            $comments = [];
             $query = 'SELECT `value` FROM `options` WHERE `key` = "display_comment_chart"';
             $res = $this->pearDB->query($query);
             $row = $res->fetch();
@@ -747,21 +727,10 @@ class CentreonMetric extends CentreonWebService
                 }
 
                 while ($row = $stmt->fetch()) {
-                    $comments[] = array(
-                        'author' => $row['author'],
-                        'comment' => $row['data'],
-                        'time' => $row['entry_time']
-                    );
+                    $comments[] = ['author' => $row['author'], 'comment' => $row['data'], 'time' => $row['entry_time']];
                 }
             }
-            $result[] = array(
-                'service_id' => $id,
-                'data' => array(
-                    'status' => $statusData,
-                    'comments' => $comments
-                ),
-                'size' => $rows
-            );
+            $result[] = ['service_id' => $id, 'data' => ['status' => $statusData, 'comments' => $comments], 'size' => $rows];
         }
         return $result;
     }
@@ -845,8 +814,8 @@ class CentreonMetric extends CentreonWebService
         $result = $graph->getGraph($this->arguments['start'], $this->arguments['end']);
 
         /* Get extra information (downtime/acknowledgment) */
-        $result['acknowledge'] = array();
-        $result['downtime'] = array();
+        $result['acknowledge'] = [];
+        $result['downtime'] = [];
         $query = 'SELECT `value` FROM `options` WHERE `key` = "display_downtime_chart"';
 
         $res = $this->pearDB->query($query);
@@ -962,7 +931,7 @@ class CentreonMetric extends CentreonWebService
             if (isset($serviceData[$i]['data'])) {
                 $times = array_keys($serviceData[$i]['data']);
                 $values = array_map(
-                    array($this, "convertNaN"),
+                    [$this, "convertNaN"],
                     array_values($serviceData[$i]['data'])
                 );
             }
@@ -974,8 +943,8 @@ class CentreonMetric extends CentreonWebService
         }
 
         /* Get extra information (downtime/acknowledgment) */
-        $acks = array();
-        $downtimes = array();
+        $acks = [];
+        $downtimes = [];
         $query = 'SELECT `value` FROM `options` WHERE `key` = "display_downtime_chart"';
         $res = $this->pearDB->query($query);
         $row = $res->fetch();
@@ -990,17 +959,7 @@ class CentreonMetric extends CentreonWebService
         /* Prepare legends */
         $legends = $graph->getLegends();
 
-        $result = array(
-            'service_id' => $id,
-            'data' => $serviceData,
-            'times' => $times,
-            'size' => $rows,
-            'acknowledge' => $acks,
-            'downtime' => $downtimes,
-            'limits' => $limits,
-            'legends' => $legends,
-            'base' => $graph->getBase()
-        );
+        $result = ['service_id' => $id, 'data' => $serviceData, 'times' => $times, 'size' => $rows, 'acknowledge' => $acks, 'downtime' => $downtimes, 'limits' => $limits, 'legends' => $legends, 'base' => $graph->getBase()];
 
         return $result;
     }
@@ -1071,7 +1030,7 @@ class CentreonMetric extends CentreonWebService
 
         $result = $graphPollerObject->getGraph($start, $end);
 
-        return array($result);
+        return [$result];
     }
 
 
@@ -1123,7 +1082,7 @@ class CentreonMetric extends CentreonWebService
      */
     protected function getAcknowlegePeriods($hostId, $serviceId, $start, $end)
     {
-        $queryValues = array();
+        $queryValues = [];
 
         $query = 'SELECT entry_time as start, deletion_time as end ' .
             'FROM acknowledgements ' .
@@ -1177,7 +1136,7 @@ class CentreonMetric extends CentreonWebService
      */
     protected function executeQueryPeriods($query, $start, $end, $queryValues)
     {
-        $periods = array();
+        $periods = [];
         $stmt = $this->pearDBMonitoring->prepare($query);
         foreach ($queryValues as $key => $value) {
             $stmt->bindValue(':' . $key, $value, \PDO::PARAM_INT);
@@ -1188,10 +1147,7 @@ class CentreonMetric extends CentreonWebService
         }
 
         while ($row = $stmt->fetch()) {
-            $period = array(
-                'start' => $row['start'],
-                'end' => $row['end']
-            );
+            $period = ['start' => $row['start'], 'end' => $row['end']];
             if (
                 $start > $row['start']
                 || is_null($row['start'])

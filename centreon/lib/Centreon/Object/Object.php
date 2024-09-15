@@ -80,7 +80,7 @@ abstract class Centreon_Object
      * @param string $fetchMethod
      * @return array
      */
-    protected function getResult($sqlQuery, $sqlParams = array(), $fetchMethod = "fetchAll")
+    protected function getResult($sqlQuery, $sqlParams = [], $fetchMethod = "fetchAll")
     {
         $res = $this->db->query($sqlQuery, $sqlParams);
         $result = $res->{$fetchMethod}();
@@ -94,12 +94,12 @@ abstract class Centreon_Object
      * @param array $params
      * @return int
      */
-    public function insert($params = array())
+    public function insert($params = [])
     {
         $sql = "INSERT INTO $this->table ";
         $sqlFields = "";
         $sqlValues = "";
-        $sqlParams = array();
+        $sqlParams = [];
         foreach ($params as $key => $value) {
             if ($key == $this->primaryKey) {
                 continue;
@@ -130,7 +130,7 @@ abstract class Centreon_Object
     public function delete($objectId): void
     {
         $sql = "DELETE FROM  $this->table WHERE $this->primaryKey = ?";
-        $this->db->query($sql, array($objectId));
+        $this->db->query($sql, [$objectId]);
     }
 
     /**
@@ -140,16 +140,16 @@ abstract class Centreon_Object
      * @param array $params
      * @return void
      */
-    public function update($objectId, $params = array()): void
+    public function update($objectId, $params = []): void
     {
         $sql = "UPDATE $this->table SET ";
         $sqlUpdate = "";
-        $sqlParams = array();
-        $not_null_attributes = array();
+        $sqlParams = [];
+        $not_null_attributes = [];
 
         if (array_search("", $params)) {
             $sql_attr = "SHOW FIELDS FROM $this->table";
-            $res = $this->getResult($sql_attr, array(), "fetchAll");
+            $res = $this->getResult($sql_attr, [], "fetchAll");
             foreach ($res as $tab) {
                 if ($tab['Null'] == 'NO') {
                     $not_null_attributes[$tab['Field']] = true;
@@ -202,7 +202,7 @@ abstract class Centreon_Object
             if (isset($sourceParams[$this->uniqueLabelField]) && isset($originalName)) {
                 $sourceParams[$this->uniqueLabelField] = $originalName . "_" . $i;
             }
-            $ids = $this->getIdByParameter($this->uniqueLabelField, array($sourceParams[$this->uniqueLabelField]));
+            $ids = $this->getIdByParameter($this->uniqueLabelField, [$sourceParams[$this->uniqueLabelField]]);
             if (!count($ids)) {
                 $this->insert($sourceParams);
             }
@@ -220,7 +220,7 @@ abstract class Centreon_Object
     {
         $params = is_array($parameterNames) ? implode(",", $parameterNames) : $parameterNames;
         $sql = "SELECT $params FROM $this->table WHERE $this->primaryKey = ?";
-        return $this->getResult($sql, array($objectId), "fetch");
+        return $this->getResult($sql, [$objectId], "fetch");
     }
 
     /**
@@ -244,7 +244,7 @@ abstract class Centreon_Object
         $offset = 0,
         $order = null,
         $sort = "ASC",
-        $filters = array(),
+        $filters = [],
         $filterType = "OR"
     ) {
         if ($filterType != "OR" && $filterType != "AND") {
@@ -252,7 +252,7 @@ abstract class Centreon_Object
         }
         $params = is_array($parameterNames) ? implode(",", $parameterNames) : $parameterNames;
         $sql = "SELECT $params FROM $this->table ";
-        $filterTab = array();
+        $filterTab = [];
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
                 if ($filterTab === []) {
@@ -290,12 +290,12 @@ abstract class Centreon_Object
      * @param array $paramValues
      * @return array
      */
-    public function getIdByParameter($paramName, $paramValues = array())
+    public function getIdByParameter($paramName, $paramValues = [])
     {
         $sql = "SELECT $this->primaryKey FROM $this->table WHERE ";
         $condition = "";
         if (!is_array($paramValues)) {
-            $paramValues = array($paramValues);
+            $paramValues = [$paramValues];
         }
         foreach ($paramValues as $val) {
             if ($condition != "") {
@@ -306,13 +306,13 @@ abstract class Centreon_Object
         if ($condition) {
             $sql .= $condition;
             $rows = $this->getResult($sql, $paramValues, "fetchAll");
-            $tab = array();
+            $tab = [];
             foreach ($rows as $val) {
                 $tab[] = $val[$this->primaryKey];
             }
             return $tab;
         }
-        return array();
+        return [];
     }
 
     /**

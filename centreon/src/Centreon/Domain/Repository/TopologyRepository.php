@@ -101,8 +101,8 @@ class TopologyRepository extends ServiceEntityRepository
                 . $user->access->getAccessGroupsString() . ") ";
             $DBRESULT = $this->db->query($query);
             if ($DBRESULT->rowCount()) {
-                $topology = array();
-                $tmp_topo_page = array();
+                $topology = [];
+                $tmp_topo_page = [];
                 $statement = $this->db->prepare("SELECT topology_topology_id, acl_topology_relations.access_right "
                     . "FROM acl_topology_relations, acl_topology "
                     . "WHERE acl_topology.acl_topo_activate = '1' "

@@ -129,7 +129,7 @@ class CentreonHost
         if (!$dbResult) {
             throw new Exception("An error occured");
         }
-        $listHost = array();
+        $listHost = [];
         while ($row = $stmt->fetch()) {
             $listHost[$row['host_id']] = $row['host_name'];
         }
@@ -196,19 +196,8 @@ class CentreonHost
      */
     public function getLimitedList(): array
     {
-        $freePp = array(
-            'applications-databases-mysql',
-            'applications-monitoring-centreon-central',
-            'applications-monitoring-centreon-database',
-            'applications-monitoring-centreon-poller',
-            'base-generic',
-            'hardware-printers-standard-rfc3805-snmp',
-            'hardware-ups-standard-rfc1628-snmp',
-            'network-cisco-standard-snmp',
-            'operatingsystems-linux-snmp',
-            'operatingsystems-windows-snmp'
-        );
-        $ppList = array();
+        $freePp = ['applications-databases-mysql', 'applications-monitoring-centreon-central', 'applications-monitoring-centreon-database', 'applications-monitoring-centreon-poller', 'base-generic', 'hardware-printers-standard-rfc3805-snmp', 'hardware-ups-standard-rfc1628-snmp', 'network-cisco-standard-snmp', 'operatingsystems-linux-snmp', 'operatingsystems-windows-snmp'];
+        $ppList = [];
         $dbResult = $this->db->query('SELECT `name` FROM modules_informations WHERE `name` = "centreon-pp-manager"');
         if (empty($dbResult->fetch()) || true === $this->isAllowed()) {
             return $ppList;
@@ -237,7 +226,7 @@ class CentreonHost
     public function getHostChild($hostId, $withHg = false)
     {
         if (!is_numeric($hostId)) {
-            return array();
+            return [];
         }
         $queryGetChildren = 'SELECT h.host_id, h.host_name ' .
             'FROM host h, host_hostparent_relation hp ' .
@@ -251,7 +240,7 @@ class CentreonHost
         if (!$dbResult) {
             throw new Exception("An error occured");
         }
-        $listHostChildren = array();
+        $listHostChildren = [];
         while ($row = $stmt->fetch()) {
             $listHostChildren[$row['host_id']] = $row['host_alias'];
         }
@@ -274,10 +263,10 @@ class CentreonHost
         if (!$dbResult) {
             throw new Exception("An error occured");
         }
-        $listHostRelactionTree = array();
+        $listHostRelactionTree = [];
         while ($row = $dbResult->fetch()) {
             if (!isset($listHostRelactionTree[$row['host_parent_hp_id']])) {
-                $listHostRelactionTree[$row['host_parent_hp_id']] = array();
+                $listHostRelactionTree[$row['host_parent_hp_id']] = [];
             }
             $listHostRelactionTree[$row['host_parent_hp_id']][$row['host_id']] = $row['host_alias'];
         }
@@ -312,7 +301,7 @@ class CentreonHost
         if (!$dbResult) {
             throw new Exception("An error occured");
         }
-        $listServices = array();
+        $listServices = [];
         while ($row = $stmt->fetch()) {
             $listServices[$row['service_id']] = $row['service_description'];
         }
@@ -384,10 +373,10 @@ class CentreonHost
         if (!$res) {
             throw new Exception("An error occured");
         }
-        $listServices = array();
+        $listServices = [];
         while ($row = $res->fetch()) {
             if (!isset($listServices[$row['host_host_id']])) {
-                $listServices[$row['host_host_id']] = array();
+                $listServices[$row['host_host_id']] = [];
             }
             $listServices[$row['host_host_id']][$row['service_id']] = $row['service_description'];
         }
@@ -427,7 +416,7 @@ class CentreonHost
         if (isset($hostId) && is_numeric($hostId)) {
             $query = 'SELECT host_id, host_name FROM host where host_id = ?';
             $stmt = $this->db->prepare($query);
-            $dbResult = $stmt->execute(array((int)$hostId));
+            $dbResult = $stmt->execute([(int)$hostId]);
             if (!$dbResult) {
                 throw new Exception("An error occured");
             }
@@ -508,7 +497,7 @@ class CentreonHost
      */
     public function getHostAlias($hostId)
     {
-        static $aliasTab = array();
+        static $aliasTab = [];
 
         if (!isset($hostId) || !$hostId) {
             return null;
@@ -539,7 +528,7 @@ class CentreonHost
      */
     public function getHostAddress($hostId)
     {
-        static $addrTab = array();
+        static $addrTab = [];
 
         if (!isset($hostId) || !$hostId) {
             return null;
@@ -569,10 +558,10 @@ class CentreonHost
      * @return array
      * @throws Exception
      */
-    public function getHostByAddress($address, $params = array())
+    public function getHostByAddress($address, $params = [])
     {
         $paramsList = '';
-        $hostList = array();
+        $hostList = [];
 
         if (count($params) > 0) {
             foreach ($params as $k => $v) {
@@ -602,7 +591,7 @@ class CentreonHost
      */
     public function getHostId($hostName)
     {
-        static $ids = array();
+        static $ids = [];
 
         if (!isset($hostName) || !$hostName) {
             return null;
@@ -773,7 +762,7 @@ class CentreonHost
         }
         unset($row);
 
-        $matches = array();
+        $matches = [];
         $pattern = '|(\$_HOST[0-9a-zA-Z\_\-]+\$)|';
         preg_match_all($pattern, $string, $matches);
         $i = 0;
@@ -825,10 +814,10 @@ class CentreonHost
      */
     public function insertMacro(
         $hostId,
-        $macroInput = array(),
-        $macroValue = array(),
-        $macroPassword = array(),
-        $macroDescription = array(),
+        $macroInput = [],
+        $macroValue = [],
+        $macroPassword = [],
+        $macroDescription = [],
         $isMassiveChange = false,
         $cmdId = false
     ): void {
@@ -843,7 +832,7 @@ class CentreonHost
             }
         } else {
             $macroList = "";
-            $queryValues = array();
+            $queryValues = [];
             $queryValues[] = $hostId;
             foreach ($macroInput as $v) {
                 $macroList .= ' ?,';
@@ -861,14 +850,14 @@ class CentreonHost
                 }
             }
         }
-        $stored = array();
+        $stored = [];
         $cnt = 0;
         $macros = $macroInput;
         $macrovalues = $macroValue;
         $this->hasMacroFromHostChanged($hostId, $macros, $macrovalues, $macroPassword, $cmdId);
         foreach ($macros as $key => $value) {
             if ($value != "" && !isset($stored[strtolower($value)])) {
-                $queryValues = array();
+                $queryValues = [];
                 $query = 'INSERT INTO on_demand_macro_host (`host_macro_name`, `host_macro_value`, `is_password`, ' .
                     '`description`, `host_host_id`, `macro_order`) ' .
                     'VALUES (?, ?, ';
@@ -916,7 +905,7 @@ class CentreonHost
      */
     public function getCustomMacroInDb($hostId = null, $template = null)
     {
-        $arr = array();
+        $arr = [];
         $i = 0;
 
         if ($hostId) {
@@ -956,7 +945,7 @@ class CentreonHost
      */
     public function getCustomMacro($hostId = null, $realKeys = false)
     {
-        $arr = array();
+        $arr = [];
         $i = 0;
 
         if (!isset($_REQUEST['macroInput']) && $hostId) {
@@ -1006,7 +995,7 @@ class CentreonHost
      */
     public function getTemplates($hostId = null)
     {
-        $arr = array();
+        $arr = [];
         $i = 0;
         if (!isset($_REQUEST['tpSelect']) && $hostId) {
             $query = 'SELECT host_tpl_id FROM host_template_relation WHERE host_host_id = :host ORDER BY `order`';
@@ -1035,14 +1024,14 @@ class CentreonHost
      * @param array $remaining
      * @throws Exception
      */
-    public function setTemplates($hostId, $templates = array(), $remaining = array()): void
+    public function setTemplates($hostId, $templates = [], $remaining = []): void
     {
-        $queryValues = array();
+        $queryValues = [];
         $explodedValues = '';
         $query = 'DELETE FROM host_template_relation WHERE host_host_id = ?';
         $queryValues[] = (int)$hostId;
 
-        $stored = array();
+        $stored = [];
         if (count($remaining)) {
             foreach ($remaining as $k => $v) {
                 $explodedValues .= '?,';
@@ -1060,7 +1049,7 @@ class CentreonHost
 
         $str = "";
         $i = 1;
-        $queryValues = array();
+        $queryValues = [];
         foreach ($templates as $templateId) {
             if (
                 ! isset($templateId)
@@ -1100,7 +1089,7 @@ class CentreonHost
      * @return bool
      * @throws PDOException
      */
-    public function hasNoInfiniteLoop($hostId, $templateId, $antiTplLoop = array())
+    public function hasNoInfiniteLoop($hostId, $templateId, $antiTplLoop = [])
     {
         if ($hostId === $templateId) {
             return false;
@@ -1111,7 +1100,7 @@ class CentreonHost
             $stmt = $this->db->query($query);
             while ($row = $stmt->fetch()) {
                 if (!isset($antiTplLoop[$row['host_tpl_id']])) {
-                    $antiTplLoop[$row['host_tpl_id']] = array();
+                    $antiTplLoop[$row['host_tpl_id']] = [];
                 }
                 $antiTplLoop[$row['host_tpl_id']][$row['host_host_id']] = $row['host_host_id'];
             }
@@ -1147,7 +1136,7 @@ class CentreonHost
         &$macroPassword,
         $cmdId = false
     ): void {
-        $aTemplates = $this->getTemplateChain($host_id, array(), -1, true, "host_name,host_id,command_command_id");
+        $aTemplates = $this->getTemplateChain($host_id, [], -1, true, "host_name,host_id,command_command_id");
 
         if (!isset($cmdId)) {
             $cmdId = "";
@@ -1190,11 +1179,11 @@ class CentreonHost
      */
     public function getMacroFromForm($form, $fromKey)
     {
-        $Macros = array();
+        $Macros = [];
         if (!empty($form['macroInput'])) {
             foreach ($form['macroInput'] as $key => $macroInput) {
                 if ($form['macroFrom'][$key] == $fromKey) {
-                    $macroTmp = array();
+                    $macroTmp = [];
                     $macroTmp['macroInput_#index#'] = $macroInput;
                     $macroTmp['macroValue_#index#'] = $form['macroValue'][$key];
                     $macroTmp['macroPassword_#index#'] = isset($form['is_password'][$key]) ? 1 : null;
@@ -1220,7 +1209,7 @@ class CentreonHost
      * @return array
      * @throws Exception
      */
-    public function getMacros($iHostId, $aListTemplate, $iIdCommande, $form = array())
+    public function getMacros($iHostId, $aListTemplate, $iIdCommande, $form = [])
     {
         $macroArray = $this->getMacroFromForm($form, "direct");
         $aMacroTemplate[] = $this->getMacroFromForm($form, "fromTpl");
@@ -1229,7 +1218,7 @@ class CentreonHost
         $macroArray = array_merge($macroArray, $this->getCustomMacroInDb($iHostId));
 
         //Get macro attached to the template
-        $serviceTemplates = array();
+        $serviceTemplates = [];
         foreach ($aListTemplate as $template) {
             if (!empty($template['host_id'])) {
                 $aMacroTemplate[] = $this->getCustomMacroInDb($template['host_id'], $template);
@@ -1277,7 +1266,7 @@ class CentreonHost
         }
 
         //filter a macro
-        $aTempMacro = array();
+        $aTempMacro = [];
 
         if ($macroArray !== []) {
             foreach ($macroArray as $directMacro) {
@@ -1321,7 +1310,7 @@ class CentreonHost
      */
     public function ajaxMacroControl($form)
     {
-        $macros = array();
+        $macros = [];
 
         /* Direct macros */
         $macroArray = $this->getCustomMacro(null, 'realKeys');
@@ -1335,24 +1324,18 @@ class CentreonHost
         }
 
         /* Template macros */
-        $aListTemplate = array();
-        $serviceTemplates = array();
+        $aListTemplate = [];
+        $serviceTemplates = [];
         if (isset($form['tpSelect']) && is_array($form['tpSelect'])) {
             foreach ($form['tpSelect'] as $template) {
                 $tmpTpl = array_merge(
-                    array(
-                        array(
-                            'host_id' => $template,
-                            'host_name' => $this->getOneHostName($template),
-                            'command_command_id' => $this->getHostCommandId($template)
-                        )
-                    ),
-                    $this->getTemplateChain($template, array(), -1, true, "host_name,host_id,command_command_id")
+                    [['host_id' => $template, 'host_name' => $this->getOneHostName($template), 'command_command_id' => $this->getHostCommandId($template)]],
+                    $this->getTemplateChain($template, [], -1, true, "host_name,host_id,command_command_id")
                 );
                 $aListTemplate = array_merge($aListTemplate, $tmpTpl);
             }
 
-            $aMacroTemplate = array();
+            $aMacroTemplate = [];
             foreach ($aListTemplate as $template) {
                 if (!empty($template['host_id'])) {
                     $aMacroTemplate = array_merge(
@@ -1388,7 +1371,7 @@ class CentreonHost
                 }
             }
 
-            $aMacroInCommande = array();
+            $aMacroInCommande = [];
             //Get macro attached to the command
             $oCommand = new CentreonCommand($this->db);
             if (!empty($iIdCommande) && is_numeric($iIdCommande)) {
@@ -1439,12 +1422,12 @@ class CentreonHost
      */
     public function getTemplateChain(
         $hostId,
-        $alreadyProcessed = array(),
+        $alreadyProcessed = [],
         $depth = -1,
         $allFields = false,
-        $fields = array()
+        $fields = []
     ) {
-        $templates = array();
+        $templates = [];
         if (($depth == -1) || ($depth > 0)) {
             if ($depth > 0) {
                 $depth--;
@@ -1474,11 +1457,7 @@ class CentreonHost
 
                 while ($row = $stmt->fetch()) {
                     if (!$allFields) {
-                        $templates[] = array(
-                            "id" => $row['host_id'],
-                            "host_id" => $row['host_id'],
-                            "host_name" => $row['host_name']
-                        );
+                        $templates[] = ["id" => $row['host_id'], "host_id" => $row['host_id'], "host_name" => $row['host_name']];
                     } else {
                         $templates[] = $row;
                     }
@@ -1527,7 +1506,7 @@ class CentreonHost
      */
     public function getHostTemplateIds($hostId)
     {
-        $hostTemplateIds = array();
+        $hostTemplateIds = [];
         $query = 'SELECT htr.host_tpl_id ' .
             'FROM host_template_relation htr, host ht ' .
             'WHERE htr.host_host_id = :hostId ' .
@@ -1557,10 +1536,10 @@ class CentreonHost
      */
     public function getInheritedValues(
         $hostId,
-        $alreadyProcessed = array(),
+        $alreadyProcessed = [],
         $depth = -1,
-        $fields = array(),
-        $values = array()
+        $fields = [],
+        $values = []
     ) {
         if ($depth != 0) {
             $depth--;
@@ -1659,7 +1638,7 @@ class CentreonHost
     {
         static $arr = null;
         if (is_null($arr)) {
-            $arr = array();
+            $arr = [];
             $stmt = $this->db->query("SELECT host_id FROM host WHERE host_locked = 1");
             while ($row = $stmt->fetch()) {
                 $arr[$row['host_id']] = true;
@@ -1684,16 +1663,12 @@ class CentreonHost
         if (!$dbResult) {
             throw new Exception("An error occured");
         }
-        $arrayTemplate = array();
+        $arrayTemplate = [];
         while ($row = $stmt->fetch()) {
             $aListTemplate = getListTemplates($this->db, $row['service_id']);
             $aListTemplate = array_reverse($aListTemplate);
             foreach ($aListTemplate as $tpl) {
-                $arrayTemplate[] = array(
-                    'service_id' => $tpl['service_id'],
-                    'command_command_id' => $tpl['command_command_id'],
-                    'service_description' => $tpl['service_description']
-                );
+                $arrayTemplate[] = ['service_id' => $tpl['service_id'], 'command_command_id' => $tpl['command_command_id'], 'service_description' => $tpl['service_description']];
             }
         }
         return $arrayTemplate;
@@ -1733,7 +1708,7 @@ class CentreonHost
                 }
             }
         } else {
-            $inputIndexArray = array();
+            $inputIndexArray = [];
             foreach ($macrosArrayToCompare as $tocompare) {
                 if (isset($tocompare['macroInput_#index#'])) {
                     $inputIndexArray[] = $tocompare['macroInput_#index#'];
@@ -1758,7 +1733,7 @@ class CentreonHost
      */
     private function comparaPriority($macroA, $macroB, $getFirst = true)
     {
-        $arrayPrio = array('direct' => 3, 'fromTpl' => 2, 'fromCommand' => 1);
+        $arrayPrio = ['direct' => 3, 'fromTpl' => 2, 'fromCommand' => 1];
         if ($getFirst) {
             if ($arrayPrio[$macroA['source']] > $arrayPrio[$macroB['source']]) {
                 return $macroA;
@@ -1778,15 +1753,15 @@ class CentreonHost
      */
     public function macroUnique($aTempMacro)
     {
-        $storedMacros = array();
+        $storedMacros = [];
         foreach ($aTempMacro as $TempMacro) {
             $sInput = $TempMacro['macroInput_#index#'];
             $storedMacros[$sInput][] = $TempMacro;
         }
 
-        $finalMacros = array();
+        $finalMacros = [];
         foreach ($storedMacros as $key => $macros) {
-            $choosedMacro = array();
+            $choosedMacro = [];
             foreach ($macros as $macro) {
                 $choosedMacro = empty($choosedMacro) ? $macro : $this->comparaPriority($macro, $choosedMacro);
             }
@@ -1837,7 +1812,7 @@ class CentreonHost
     {
         $description = "";
         if (empty($finalMacro['macroDescription'])) {
-            $choosedMacro = array();
+            $choosedMacro = [];
             foreach ($storedMacros as $storedMacro) {
                 if (!empty($storedMacro['macroDescription'])) {
                     $choosedMacro = empty($choosedMacro) ? $storedMacro : $this->comparaPriority($storedMacro, $choosedMacro);
@@ -1911,7 +1886,7 @@ class CentreonHost
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'host';
         $parameters['currentObject']['id'] = 'host_id';
         $parameters['currentObject']['name'] = 'host_name';
@@ -1984,7 +1959,7 @@ class CentreonHost
                 $parameters['externalObject']['id'] = 'hc_id';
                 $parameters['externalObject']['name'] = 'hc_name';
                 $parameters['externalObject']['comparator'] = 'hc_id';
-                $parameters['externalObject']['additionalComparator'] = array('level' => null);
+                $parameters['externalObject']['additionalComparator'] = ['level' => null];
                 $parameters['relationObject']['table'] = 'hostcategories_relation';
                 $parameters['relationObject']['field'] = 'hostcategories_hc_id';
                 $parameters['relationObject']['comparator'] = 'host_host_id';
@@ -2045,12 +2020,9 @@ class CentreonHost
         if (!$dbResult) {
             throw new Exception("An error occured");
         }
-        $listServices = array();
+        $listServices = [];
         while ($row = $stmt->fetch()) {
-            $listServices[$row['service_id']] = array(
-                "service_description" => $row['service_description'],
-                "service_alias" => $row['service_alias']
-            );
+            $listServices[$row['service_id']] = ["service_description" => $row['service_description'], "service_alias" => $row['service_alias']];
         }
         return $listServices;
     }
@@ -2094,13 +2066,7 @@ class CentreonHost
                     throw new Exception("An error occured");
                 }
                 if (!$stmt->rowCount()) {
-                    $serviceDesc = array(
-                        'service_description' => $service['service_alias'],
-                        'service_activate' => array('service_activate' => '1'),
-                        'service_register' => '1',
-                        'service_template_model_stm_id' => $serviceTemplateId,
-                        'service_hPars' => $hostId
-                    );
+                    $serviceDesc = ['service_description' => $service['service_alias'], 'service_activate' => ['service_activate' => '1'], 'service_register' => '1', 'service_template_model_stm_id' => $serviceTemplateId, 'service_hPars' => $hostId];
 
                     $svcId = $this->serviceObj->insert($serviceDesc);
                     $fields = CentreonLogAction::prepareChanges($serviceDesc);
@@ -2480,23 +2446,13 @@ class CentreonHost
      */
     public function updateExtendedInfos($hostId, $ret): void
     {
-        $fields = array(
-            'ehi_notes' => 'ehi_notes',
-            'ehi_notes_url' => 'ehi_notes_url',
-            'ehi_action_url' => 'ehi_action_url',
-            'ehi_icon_image_alt' => 'ehi_icon_image_alt',
-            'ehi_2d_coords' => 'ehi_2d_coords',
-            'ehi_3d_coords' => 'ehi_3d_coords'
-        );
+        $fields = ['ehi_notes' => 'ehi_notes', 'ehi_notes_url' => 'ehi_notes_url', 'ehi_action_url' => 'ehi_action_url', 'ehi_icon_image_alt' => 'ehi_icon_image_alt', 'ehi_2d_coords' => 'ehi_2d_coords', 'ehi_3d_coords' => 'ehi_3d_coords'];
 
-        $integerFields = array(
-            'ehi_icon_image' => 'ehi_icon_image',
-            'ehi_statusmap_image' => 'ehi_statusmap_image',
-        );
+        $integerFields = ['ehi_icon_image' => 'ehi_icon_image', 'ehi_statusmap_image' => 'ehi_statusmap_image'];
 
         $query = 'UPDATE extended_host_information SET ';
-        $updateFields = array();
-        $queryValues = array();
+        $updateFields = [];
+        $queryValues = [];
         foreach ($ret as $key => $value) {
             if (isset($fields[$key])) {
                 $updateFields[] = '`' . $fields[$key] . '` = ? ';

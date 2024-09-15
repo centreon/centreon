@@ -45,7 +45,7 @@ require_once realpath(__DIR__ . "/../../../../config/centreon.config.php");
 
 function createArrayStats($arrayFromJson)
 {
-    $io = array('class' => 'stats_lv1');
+    $io = ['class' => 'stats_lv1'];
 
     if (isset($arrayFromJson['state'])) {
         $io[_('State')]['value'] = $arrayFromJson['state'];
@@ -63,39 +63,27 @@ function createArrayStats($arrayFromJson)
     }
 
     if (isset($arrayFromJson['status']) && $arrayFromJson['status']) {
-        $io[_('Status')] = array('value' => $arrayFromJson['status'], 'isTimestamp' => false);
+        $io[_('Status')] = ['value' => $arrayFromJson['status'], 'isTimestamp' => false];
     }
 
     if (isset($arrayFromJson['last_event_at']) && $arrayFromJson['last_event_at'] != -1) {
-        $io[_('Last event at')] = array('value' => $arrayFromJson['last_event_at'], 'isTimestamp' => true);
+        $io[_('Last event at')] = ['value' => $arrayFromJson['last_event_at'], 'isTimestamp' => true];
     }
 
     if (isset($arrayFromJson['last_connection_attempt']) && $arrayFromJson['last_connection_attempt'] != -1) {
-        $io[_('Last connection attempt')] = array(
-            'value' => $arrayFromJson['last_connection_attempt'],
-            'isTimestamp' => true
-        );
+        $io[_('Last connection attempt')] = ['value' => $arrayFromJson['last_connection_attempt'], 'isTimestamp' => true];
     }
 
     if (isset($arrayFromJson['last_connection_success']) && $arrayFromJson['last_connection_success'] != -1) {
-        $io[_('Last connection success')] = array(
-            'value' => $arrayFromJson['last_connection_success'],
-            'isTimestamp' => true
-        );
+        $io[_('Last connection success')] = ['value' => $arrayFromJson['last_connection_success'], 'isTimestamp' => true];
     }
 
     if (isset($arrayFromJson['one_peer_retention_mode'])) {
-        $io[_('One peer retention mode')] = array(
-            'value' => $arrayFromJson['one_peer_retention_mode'],
-            'isTimestamp' => false
-        );
+        $io[_('One peer retention mode')] = ['value' => $arrayFromJson['one_peer_retention_mode'], 'isTimestamp' => false];
     }
 
     if (isset($arrayFromJson['event_processing_speed'])) {
-        $io[_('Event processing speed')] = array(
-            'value' => sprintf("%.2f events/s", $arrayFromJson['event_processing_speed']),
-            'isTimestamp' => false
-        );
+        $io[_('Event processing speed')] = ['value' => sprintf("%.2f events/s", $arrayFromJson['event_processing_speed']), 'isTimestamp' => false];
     }
 
     if (
@@ -103,49 +91,34 @@ function createArrayStats($arrayFromJson)
         && isset($arrayFromJson['queue file enabled'])
         && $arrayFromJson['queue file enabled'] != "no"
     ) {
-        $io[_('Queue file')] = array(
-            'value' => $arrayFromJson['queue file'],
-            'isTimestamp' => false
-        );
+        $io[_('Queue file')] = ['value' => $arrayFromJson['queue file'], 'isTimestamp' => false];
     }
 
     if (isset($arrayFromJson['queue file enabled'])) {
-        $io[_('Queued file enabled')] = array('value' => $arrayFromJson['queue file enabled'], 'isTimestamp' => false);
+        $io[_('Queued file enabled')] = ['value' => $arrayFromJson['queue file enabled'], 'isTimestamp' => false];
     }
 
     if (isset($arrayFromJson['queued_events'])) {
-        $io[_('Queued events')] = array('value' => $arrayFromJson['queued_events'], 'isTimestamp' => false);
+        $io[_('Queued events')] = ['value' => $arrayFromJson['queued_events'], 'isTimestamp' => false];
     }
 
     if (isset($arrayFromJson['memory file'])) {
-        $io[_('Memory file')] = array('value' => $arrayFromJson['memory file'], 'isTimestamp' => false);
+        $io[_('Memory file')] = ['value' => $arrayFromJson['memory file'], 'isTimestamp' => false];
     }
 
     if (isset($arrayFromJson['read_filters']) && $arrayFromJson['read_filters']) {
         if ($arrayFromJson['read_filters'] != 'all') {
-            $io[_('Input accepted events type')] = array(
-                'value' => substr($arrayFromJson['read_filters'], 22),
-                'isTimestamp' => false
-            );
+            $io[_('Input accepted events type')] = ['value' => substr($arrayFromJson['read_filters'], 22), 'isTimestamp' => false];
         } else {
-            $io[_('Input accepted events type')] = array(
-                'value' => $arrayFromJson['read_filters'],
-                'isTimestamp' => false
-            );
+            $io[_('Input accepted events type')] = ['value' => $arrayFromJson['read_filters'], 'isTimestamp' => false];
         }
     }
 
     if (isset($arrayFromJson['write_filters']) && $arrayFromJson['write_filters']) {
         if ($arrayFromJson['write_filters'] != 'all') {
-            $io[_('Output accepted events type')] = array(
-                'value' => substr($arrayFromJson['write_filters'], 2),
-                'isTimestamp' => false
-            );
+            $io[_('Output accepted events type')] = ['value' => substr($arrayFromJson['write_filters'], 2), 'isTimestamp' => false];
         } else {
-            $io[_('Output accepted events type')] = array(
-                'value' => $arrayFromJson['write_filters'],
-                'isTimestamp' => false
-            );
+            $io[_('Output accepted events type')] = ['value' => $arrayFromJson['write_filters'], 'isTimestamp' => false];
         }
     }
 
@@ -163,11 +136,7 @@ function parseStatsFile($statfile)
 
     $lastmodif = $json_stats['now'];
 
-    $result = array(
-        'lastmodif' => $lastmodif,
-        'modules' => array(),
-        'io' => array()
-    );
+    $result = ['lastmodif' => $lastmodif, 'modules' => [], 'io' => []];
 
     foreach ($json_stats as $key => $value) {
         if (preg_match('/endpoint \(?(.*[^()])\)?/', $key, $matches)) {
@@ -247,7 +216,7 @@ $form = new HTML_QuickFormCustom('form', 'post', "?p=" . $p);
 /*
  * Get Poller List
  */
-$pollerList = array();
+$pollerList = [];
 $DBRESULT = $pearDB->query("SELECT * FROM `nagios_server` WHERE `ns_activate` = 1 ORDER BY `name`");
 while ($data = $DBRESULT->fetchRow()) {
     if ($data['localhost']) {
@@ -269,8 +238,8 @@ if (!isset($selectedPoller)) {
     unset($tmpKeys);
 }
 
-$form->addElement('select', 'pollers', _("Poller"), $pollerList, array("onChange" => "this.form.submit();"));
-$form->setDefaults(array('pollers' => $selectedPoller));
+$form->addElement('select', 'pollers', _("Poller"), $pollerList, ["onChange" => "this.form.submit();"]);
+$form->setDefaults(['pollers' => $selectedPoller]);
 $pollerName = $pollerList[$selectedPoller];
 
 $path = "./include/Administration/brokerPerformance/";
@@ -288,7 +257,7 @@ $tpl->assign('form', $renderer->toArray());
 /*
  * Message
  */
-$lang = array();
+$lang = [];
 $lang['modules'] = _('Modules');
 $lang['updated'] = _('Last update');
 $lang['peers'] = _('Peers');
@@ -311,8 +280,8 @@ try {
     if (!$stmt->rowCount()) {
         $tpl->assign('msg_err', _('No statistics file defined for this poller'));
     }
-    $perf_info = array();
-    $perf_err = array();
+    $perf_info = [];
+    $perf_err = [];
     while ($row = $stmt->fetch()) {
         $statsfile = $row['cache_directory'] . '/' . basename($row['config_name']) . '-stats.json';
         if ($defaultPoller != $selectedPoller) {

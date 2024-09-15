@@ -125,9 +125,9 @@ if ($index !== false) {
         die('Start or end time is not consistent or not an integer');
     }
 
-    $listMetric = array();
-    $datas = array();
-    $listEmptyMetric = array();
+    $listMetric = [];
+    $datas = [];
+    $listEmptyMetric = [];
 
     $stmt = $pearDBO->prepare(
         'SELECT DISTINCT metric_id, metric_name ' .

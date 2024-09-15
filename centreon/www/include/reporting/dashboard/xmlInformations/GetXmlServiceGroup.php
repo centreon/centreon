@@ -53,8 +53,8 @@ if (empty($color) || count($_GET['color']) !== count($color)) {
 if (($id = filter_var($_GET['id'] ?? false, FILTER_VALIDATE_INT)) !== false) {
     $services = getServiceGroupActivateServices($id);
     if (count($services) > 0) {
-        $host_ids = array();
-        $service_ids = array();
+        $host_ids = [];
+        $service_ids = [];
         foreach ($services as $host_service_id => $host_service_name) {
             $res = explode("_", $host_service_id);
             $host_ids[$res[0]] = 1;

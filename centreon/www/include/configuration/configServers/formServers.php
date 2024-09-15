@@ -61,7 +61,7 @@ if (!$centreon->user->admin && $server_id && count($serverResult)) {
 /*
  * Database retrieve information for Nagios
  */
-$nagios = array();
+$nagios = [];
 $selectedAdditionnalRS = null;
 $serverType = "poller";
 $cfg_server = [];
@@ -107,10 +107,7 @@ if (($o == SERVER_MODIFY || $o == SERVER_WATCH) && $server_id) {
 
         if ($statement->numRows() > 0) {
             while ($row = $statement->fetch()) {
-                $selectedAdditionnalRS[] = array(
-                    'id' => $row['remote_server_id'],
-                    'text' => $row['name'],
-                );
+                $selectedAdditionnalRS[] = ['id' => $row['remote_server_id'], 'text' => $row['name']];
             }
         }
         $statement->closeCursor();
@@ -131,39 +128,29 @@ $cdata->addJsData('clone-count-pollercmd', count($cmdArray));
 /*
  * nagios servers comes from DB
  */
-$nagios_servers = array();
+$nagios_servers = [];
 $dbResult = $pearDB->query("SELECT * FROM `nagios_server` ORDER BY name");
 while ($nagios_server = $dbResult->fetch()) {
     $nagios_servers[$nagios_server["id"]] = $nagios_server["name"];
 }
 $dbResult->closeCursor();
 
-$attrsText = array("size" => "30");
-$attrsText2 = array("size" => "50");
-$attrsText3 = array("size" => "5");
-$attrsTextarea = array("rows" => "5", "cols" => "40");
+$attrsText = ["size" => "30"];
+$attrsText2 = ["size" => "50"];
+$attrsText3 = ["size" => "5"];
+$attrsTextarea = ["rows" => "5", "cols" => "40"];
 
 /*
  * Include Poller api
  */
-$attrPollers = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_poller&action=list&t=remote',
-    'multiple' => false,
-    'linkedObject' => 'centreonInstance'
-);
+$attrPollers = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_poller&action=list&t=remote', 'multiple' => false, 'linkedObject' => 'centreonInstance'];
 $attrPoller1 = $attrPollers;
 if (isset($cfg_server['remote_id'])) {
     $attrPoller1['defaultDatasetRoute'] =
         './api/internal.php?object=centreon_configuration_poller&action=defaultValues'
         . '&target=resources&field=instance_id&id=' . $cfg_server['remote_id'];
 }
-$attrPoller2 = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_poller&action=list&t=remote',
-    'multiple' => true,
-    'linkedObject' => 'centreonInstance'
-);
+$attrPoller2 = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_poller&action=list&t=remote', 'multiple' => true, 'linkedObject' => 'centreonInstance'];
 
 /*
  * Form begin
@@ -191,17 +178,14 @@ $form->addElement('header', 'Centreontrapd', _("Centreon Trap Collector"));
  */
 if (strcmp($serverType, 'remote') == 0) {
     $form->addElement('header', 'Remote_Configuration', _("Remote Server Configuration"));
-    $aMethod = array(
-        'http' => 'http',
-        'https' => 'https'
-    );
+    $aMethod = ['http' => 'http', 'https' => 'https'];
     $form->addElement('select', 'http_method', _("HTTP Method"), $aMethod);
     $form->addElement('text', 'http_port', _("HTTP Port"), $attrsText3);
-    $tab = array();
+    $tab = [];
     $tab[] = $form->createElement('radio', 'no_check_certificate', null, _("Yes"), '1');
     $tab[] = $form->createElement('radio', 'no_check_certificate', null, _("No"), '0');
     $form->addGroup($tab, 'no_check_certificate', _("Do not check SSL certificate validation"), '&nbsp;');
-    $tab = array();
+    $tab = [];
     $tab[] = $form->createElement('radio', 'no_proxy', null, _("Yes"), '1');
     $tab[] = $form->createElement('radio', 'no_proxy', null, _("No"), '0');
     $form->addGroup($tab, 'no_proxy', _("Do not use proxy defined in global configuration"), '&nbsp;');
@@ -222,10 +206,10 @@ if (strcmp($serverType, 'poller') == 0) {
         'select2',
         'remote_id',
         _('Attach to Master Remote Server'),
-        array(),
+        [],
         $attrPoller1
     );
-    $form->addElement('select2', 'remote_additional_id', _('Attach additional Remote Servers'), array(), $attrPoller2);
+    $form->addElement('select2', 'remote_additional_id', _('Attach additional Remote Servers'), [], $attrPoller2);
     $tab = [];
     $tab[] = $form->createElement('radio', 'remote_server_use_as_proxy', null, _("Enable"), '1');
     $tab[] = $form->createElement('radio', 'remote_server_use_as_proxy', null, _("Disable"), '0');
@@ -235,7 +219,7 @@ $form->addElement('text', 'nagios_bin', _("Monitoring Engine Binary"), $attrsTex
 $form->addElement('text', 'nagiostats_bin', _("Monitoring Engine Statistics Binary"), $attrsText2);
 $form->addElement('text', 'nagios_perfdata', _("Perfdata file"), $attrsText2);
 
-$tab = array();
+$tab = [];
 if ($serverType !== "central") {
     $form->addElement('text', 'ssh_port', _("SSH Legacy port"), $attrsText3);
 }
@@ -245,14 +229,14 @@ $tab[] = $form->createElement('radio', 'gorgone_communication_type', null, _("SS
 $form->addGroup($tab, 'gorgone_communication_type', _("Gorgone connection protocol"), '&nbsp;');
 $form->addElement('text', 'gorgone_port', _("Gorgone connection port"), $attrsText3);
 
-$tab = array();
+$tab = [];
 $tab[] = $form->createElement(
     'radio',
     'localhost',
     null,
     _("Yes"),
     '1',
-    array('onclick' => "displayGorgoneParam(false);")
+    ['onclick' => "displayGorgoneParam(false);"]
 );
 $tab[] = $form->createElement(
     'radio',
@@ -260,16 +244,16 @@ $tab[] = $form->createElement(
     null,
     _("No"),
     '0',
-    array('onclick' => "displayGorgoneParam(true);")
+    ['onclick' => "displayGorgoneParam(true);"]
 );
 $form->addGroup($tab, 'localhost', _("Localhost ?"), '&nbsp;');
 
-$tab = array();
+$tab = [];
 $tab[] = $form->createElement('radio', 'is_default', null, _("Yes"), '1');
 $tab[] = $form->createElement('radio', 'is_default', null, _("No"), '0');
 $form->addGroup($tab, 'is_default', _("Is default poller ?"), '&nbsp;');
 
-$tab = array();
+$tab = [];
 $tab[] = $form->createElement('radio', 'ns_activate', null, _("Enabled"), '1');
 $tab[] = $form->createElement('radio', 'ns_activate', null, _("Disabled"), '0');
 $form->addGroup($tab, 'ns_activate', _("Status"), '&nbsp;');
@@ -278,16 +262,13 @@ $form->addGroup($tab, 'ns_activate', _("Status"), '&nbsp;');
  * Extra commands
  */
 $cmdObj = new CentreonCommand($pearDB);
-$cloneSetCmd = array();
+$cloneSetCmd = [];
 $cloneSetCmd[] = $form->addElement(
     'select',
     'pollercmd[#index#]',
     _('Command'),
-    (array(null => null) + $cmdObj->getMiscCommands()),
-    array(
-        'id' => 'pollercmd_#index#',
-        'type' => 'select-one'
-    )
+    ([null => null] + $cmdObj->getMiscCommands()),
+    ['id' => 'pollercmd_#index#', 'type' => 'select-one']
 );
 
 /*
@@ -369,7 +350,7 @@ $form->addRule('name', _("The name of the poller is mandatory"), 'required');
 $form->addRule('ns_ip_address', _("Compulsory Name"), 'required');
 if ($serverType === 'poller') {
     $form->addRule(
-        array('remote_additional_id', 'remote_id'),
+        ['remote_additional_id', 'remote_id'],
         _('To use additional Remote Servers a Master Remote Server must be selected.'),
         'testAdditionalRemoteServer'
     );
@@ -393,7 +374,7 @@ if ($o == SERVER_WATCH) {
             "button",
             "change",
             _("Modify"),
-            array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&id=" . $server_id . "'")
+            ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&id=" . $server_id . "'"]
         );
     }
     $form->setDefaults($nagios);
@@ -402,8 +383,8 @@ if ($o == SERVER_WATCH) {
     /*
      * Modify a nagios information
      */
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $form->registerRule('ipCanBeUpdated', 'callback', 'ipCanBeUpdated');
     $form->addRule(
         ['ns_ip_address', 'id'],
@@ -415,8 +396,8 @@ if ($o == SERVER_WATCH) {
     /*
      * Add a nagios information
      */
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $form->registerRule('ipCanBeRegistered', 'callback', 'ipCanBeRegistered');
     $form->addRule('ns_ip_address', _("The IP address is already registered"), 'ipCanBeRegistered');
 }

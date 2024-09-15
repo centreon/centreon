@@ -132,7 +132,7 @@ function hasVirtualNameNeverUsed($vmetricName = null, $indexId = null)
  * @global CentreonDB $pearDB
  * @param int[] $vmetrics List of virtual metric id to delete
  */
-function deleteVirtualMetricInDB($vmetrics = array())
+function deleteVirtualMetricInDB($vmetrics = [])
 {
     global $pearDB;
     foreach (array_keys($vmetrics) as $vmetricId) {
@@ -155,7 +155,7 @@ function deleteVirtualMetricInDB($vmetrics = array())
  * @param int[] $vmetrics List of virtual metric id to duplicate
  * @param int[] $nbrDup Number of copy
  */
-function multipleVirtualMetricInDB($vmetrics = array(), $nbrDup = array())
+function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
 {
     global $pearDB;
     foreach (array_keys($vmetrics) as $vmetricId) {
@@ -480,10 +480,10 @@ function disableVirtualMetricInDB($vmetric_id = null, $force = 0)
 function &disableVirtualMetric($v_id = null, $force = 0)
 {
     global $pearDB;
-    $v_dis = array();
+    $v_dis = [];
 
-    $repA = array("*", "+", "-", "?", "^", "$");
-    $repB = array("\\\\*", "\\\\+", "\\\\-", "\\\\?", "\\\\^", "\\\\$");
+    $repA = ["*", "+", "-", "?", "^", "$"];
+    $repB = ["\\\\*", "\\\\+", "\\\\-", "\\\\?", "\\\\^", "\\\\$"];
     $l_where = ($force == 0) ? " AND `vmetric_activate` = '1'" : "";
     $statement = $pearDB->prepare(
         "SELECT index_id, vmetric_name FROM `virtual_metrics` WHERE `vmetric_id`=:vmetric_id$l_where"
@@ -549,7 +549,7 @@ function enableVirtualMetricInDB($vmetric_id = null)
 function enableVirtualMetric($v_id, $v_name = null, $index_id = null)
 {
     global $pearDB;
-    $v_ena = array();
+    $v_ena = [];
 
     $l_where = "vmetric_id = :vmetric_id";
     if (is_null($v_id)) {
@@ -632,7 +632,7 @@ function checkRRDGraphData($v_id = null, $force = 0)
         $statement->bindValue(':ck_state', $ckstate, \PDO::PARAM_STR);
         $statement->bindValue(':vmetric_id', (int) $v_id, \PDO::PARAM_INT);
         $statement->execute();
-        return array($rc, $lastline);
+        return [$rc, $lastline];
     }
     return null;
 }

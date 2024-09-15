@@ -59,11 +59,7 @@ class Command extends AbstractObject
         enable_shell
     ';
     /** @var string[] */
-    protected $attributes_write = array(
-        'command_name',
-        'command_line',
-        'connector',
-    );
+    protected $attributes_write = ['command_name', 'command_line', 'connector'];
 
     /**
      * Create the cache of commands.
@@ -147,7 +143,7 @@ class Command extends AbstractObject
         }
 
         $this->generateObjectInFile(
-            array_merge($this->commands[$command_id], array('command_line' => $command_line)),
+            array_merge($this->commands[$command_id], ['command_line' => $command_line]),
             $command_id
         );
         return $this->commands[$command_id]['command_name'];

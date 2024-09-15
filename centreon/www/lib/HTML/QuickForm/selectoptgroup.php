@@ -124,7 +124,7 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
      *
      * @var type
      */
-    public $_defaultDatasetOptions = array();
+    public $_defaultDatasetOptions = [];
 
     /**
      * @var int The number of element in the pagination
@@ -356,7 +356,7 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
         return $datas;
     }
 
-    public $_memOptions = array();
+    public $_memOptions = [];
 
     /**
      * obsolete
@@ -449,7 +449,7 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
 
             if (null !== $value) {
                 if (!is_array($value)) {
-                    $value = array($value);
+                    $value = [$value];
                 }
                 $this->_defaultDataset = $value;
                 $this->setDefaultFixedDatas();

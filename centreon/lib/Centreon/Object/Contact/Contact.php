@@ -99,7 +99,7 @@ class Centreon_Object_Contact extends \Centreon_Object
         $offset = 0,
         $order = null,
         $sort = "ASC",
-        $filters = array(),
+        $filters = [],
         $filterType = "OR"
     ) {
         if ($filterType != "OR" && $filterType != "AND") {
@@ -117,7 +117,7 @@ class Centreon_Object_Contact extends \Centreon_Object
             $params = $parameterNames;
         }
         $sql = "SELECT $params FROM $this->table";
-        $filterTab = array();
+        $filterTab = [];
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
                 if ($filterTab === []) {
@@ -162,12 +162,12 @@ class Centreon_Object_Contact extends \Centreon_Object
     /**
      * @inheritDoc
      */
-    public function update($contactId, $params = array()): void
+    public function update($contactId, $params = []): void
     {
         $sql = "UPDATE $this->table SET ";
         $sqlUpdate = "";
-        $sqlParams = array();
-        $not_null_attributes = array();
+        $sqlParams = [];
+        $not_null_attributes = [];
 
         // Store password value and remove it from the array to not inserting it in contact table.
         if (isset($params['contact_passwd'])) {
@@ -191,7 +191,7 @@ class Centreon_Object_Contact extends \Centreon_Object
 
         if (array_search("", $params)) {
             $sql_attr = "SHOW FIELDS FROM $this->table";
-            $res = $this->getResult($sql_attr, array(), "fetchAll");
+            $res = $this->getResult($sql_attr, [], "fetchAll");
             foreach ($res as $tab) {
                 if ($tab['Null'] == 'NO') {
                     $not_null_attributes[$tab['Field']] = true;

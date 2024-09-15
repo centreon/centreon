@@ -154,7 +154,7 @@ class CentreonMeta
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'meta_service';
         $parameters['currentObject']['id'] = 'meta_id';
         $parameters['currentObject']['name'] = 'meta_name';
@@ -201,11 +201,11 @@ class CentreonMeta
      * @return array
      * @throws PDOException
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
-        $items = array();
+        $items = [];
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if (!empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':meta' . $v . ',';
@@ -228,10 +228,7 @@ class CentreonMeta
         $stmt->execute();
 
         while ($row = $stmt->fetch()) {
-            $items[] = array(
-                'id' => $row['meta_id'],
-                'text' => $row['meta_name']
-            );
+            $items[] = ['id' => $row['meta_id'], 'text' => $row['meta_name']];
         }
         return $items;
     }
@@ -251,9 +248,9 @@ class CentreonMeta
         try {
             $res = $this->db->query($queryList);
         } catch (PDOException $e) {
-            return array();
+            return [];
         }
-        $listMeta = array();
+        $listMeta = [];
         while ($row = $res->fetchRow()) {
             $listMeta[$row['meta_id']] = $row['meta_name'];
         }
@@ -269,12 +266,12 @@ class CentreonMeta
      * @return array
      * @throws PDOException
      */
-    public function getParameters($id, $parameters = array())
+    public function getParameters($id, $parameters = [])
     {
         $sElement = "*";
-        $values = array();
+        $values = [];
         if (empty($id) || empty($parameters)) {
-            return array();
+            return [];
         }
 
         if (count($parameters) > 0) {

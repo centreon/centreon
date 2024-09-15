@@ -67,7 +67,7 @@ class CentreonContact
      * @return array
      * @throws PDOException
      */
-    public function getContactTemplates($fields = array(), $filters = array(), $order = array(), $limit = array())
+    public function getContactTemplates($fields = [], $filters = [], $order = [], $limit = [])
     {
         $fieldStr = "*";
         if (count($fields)) {
@@ -90,7 +90,7 @@ class CentreonContact
                                 {$filterStr}
                                 {$orderStr}
                                 {$limitStr}");
-        $arr = array();
+        $arr = [];
         while ($row = $res->fetchRow()) {
             $arr[] = $row;
         }
@@ -114,7 +114,7 @@ class CentreonContact
             AND r.contact_contact_id = " . $db->escape($contactId);
         $stmt = $db->query($sql);
 
-        $cgs = array();
+        $cgs = [];
         while ($row = $stmt->fetchRow()) {
             $cgs[$row['cg_id']] = $row['cg_name'];
         }
@@ -128,7 +128,7 @@ class CentreonContact
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'contact';
         $parameters['currentObject']['id'] = 'contact_id';
         $parameters['currentObject']['name'] = 'contact_name';
@@ -202,31 +202,21 @@ class CentreonContact
      * @return array
      * @throws PDOException
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
         global $centreon;
-        $items = array();
+        $items = [];
 
         # get list of authorized contacts
         if (!$centreon->user->access->admin) {
             $cAcl = $centreon->user->access->getContactAclConf(
-                array(
-                    'fields' => array('contact_id'),
-                    'get_row' => 'contact_id',
-                    'keys' => array('contact_id'),
-                    'conditions' => array(
-                        'contact_id' => array(
-                            'IN',
-                            $values
-                        )
-                    )
-                ),
+                ['fields' => ['contact_id'], 'get_row' => 'contact_id', 'keys' => ['contact_id'], 'conditions' => ['contact_id' => ['IN', $values]]],
                 false
             );
         }
 
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if (!empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':contact' . $v . ',';
@@ -257,11 +247,7 @@ class CentreonContact
                 $hide = true;
             }
 
-            $items[] = array(
-                'id' => $row['contact_id'],
-                'text' => $row['contact_name'],
-                'hide' => $hide
-            );
+            $items[] = ['id' => $row['contact_id'], 'text' => $row['contact_name'], 'hide' => $hide];
         }
         return $items;
     }

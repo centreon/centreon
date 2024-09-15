@@ -50,10 +50,10 @@ class CentreonPdo extends PDO
      *
      * @throws PDOException
      */
-    public function __construct($dsn, $username = null, $password = null, $options = array())
+    public function __construct($dsn, $username = null, $password = null, $options = [])
     {
         parent::__construct($dsn, $username, $password, $options);
-        $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, array('CentreonPdoStatement', array($this)));
+        $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, ['CentreonPdoStatement', [$this]]);
     }
 
     /**

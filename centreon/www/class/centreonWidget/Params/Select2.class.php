@@ -73,7 +73,7 @@ class CentreonWidgetParamsSelect2 extends CentreonWidgetParams
                 'select2',
                 'param_' . $params['parameter_id'],
                 $params['parameter_name'],
-                array(),
+                [],
                 $this->getParameters()
             );
         }

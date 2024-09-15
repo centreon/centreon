@@ -81,9 +81,9 @@ if (
      * Init
      */
     $debug = 0;
-    $attrsTextI = array("size" => "3");
-    $attrsText = array("size" => "30");
-    $attrsTextarea = array("rows" => "7", "cols" => "80");
+    $attrsTextI = ["size" => "3"];
+    $attrsText = ["size" => "30"];
+    $attrsTextarea = ["rows" => "7", "cols" => "80"];
 
     $form = new HTML_QuickFormCustom('Form', 'POST', "?p=" . $p);
 
@@ -98,7 +98,7 @@ if (
         $hostName = $hObj->getHostName($_GET['host_id']);
     } elseif (isset($_GET["host_id"]) && isset($_GET["service_id"])) {
         $disabled = "disabled";
-        $serviceParameters = $serviceObj->getParameters($_GET['service_id'], array('service_description'));
+        $serviceParameters = $serviceObj->getParameters($_GET['service_id'], ['service_description']);
         $serviceDisplayName = $serviceParameters['service_description'];
         $hostName = $hObj->getHostName($_GET['host_id']);
     } else {
@@ -112,7 +112,7 @@ if (
             null,
             _("Host"),
             '1',
-            array($disabled, 'id' => 'host', 'onclick' => "toggleParams('host');")
+            [$disabled, 'id' => 'host', 'onclick' => "toggleParams('host');"]
         );
         $dtType[] = $form->createElement(
             'radio',
@@ -120,7 +120,7 @@ if (
             null,
             _("Services"),
             '2',
-            array($disabled, 'id' => 'service', 'onclick' => "toggleParams('service');")
+            [$disabled, 'id' => 'service', 'onclick' => "toggleParams('service');"]
         );
         $dtType[] = $form->createElement(
             'radio',
@@ -128,7 +128,7 @@ if (
             null,
             _("Hostgroup"),
             '0',
-            array($disabled, 'id' => 'hostgroup', 'onclick' => "toggleParams('hostgroup');")
+            [$disabled, 'id' => 'hostgroup', 'onclick' => "toggleParams('hostgroup');"]
         );
         $dtType[] = $form->createElement(
             'radio',
@@ -136,7 +136,7 @@ if (
             null,
             _("Servicegroup"),
             '3',
-            array($disabled, 'id' => 'servicegroup', 'onclick' => "toggleParams('servicegroup');")
+            [$disabled, 'id' => 'servicegroup', 'onclick' => "toggleParams('servicegroup');"]
         );
         $dtType[] = $form->createElement(
             'radio',
@@ -144,71 +144,44 @@ if (
             null,
             _("Poller"),
             '4',
-            array($disabled, 'id' => 'poller', 'onclick' => "toggleParams('poller');")
+            [$disabled, 'id' => 'poller', 'onclick' => "toggleParams('poller');"]
         );
         $form->addGroup($dtType, 'downtimeType', _("Downtime type"), '&nbsp;');
 
         /* ----- Hosts ----- */
-        $attrHosts = array(
-            'datasourceOrigin' => 'ajax',
-            'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_host&action=list',
-            'multiple' => true,
-            'linkedObject' => 'centreonHost'
-        );
-        $form->addElement('select2', 'host_id', _("Hosts"), array(), $attrHosts);
+        $attrHosts = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_host&action=list', 'multiple' => true, 'linkedObject' => 'centreonHost'];
+        $form->addElement('select2', 'host_id', _("Hosts"), [], $attrHosts);
 
         if (!isset($_GET['service_id'])) {
             /* ----- Services ----- */
-            $attrServices = array(
-                'datasourceOrigin' => 'ajax',
-                'availableDatasetRoute' =>
-                    './api/internal.php?object=centreon_configuration_service&action=list&e=enable',
-                'multiple' => true,
-                'linkedObject' => 'centreonService'
-            );
-            $form->addElement('select2', 'service_id', _("Services"), array($disabled), $attrServices);
+            $attrServices = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' =>
+                './api/internal.php?object=centreon_configuration_service&action=list&e=enable', 'multiple' => true, 'linkedObject' => 'centreonService'];
+            $form->addElement('select2', 'service_id', _("Services"), [$disabled], $attrServices);
         }
 
         /* ----- HostGroups ----- */
-        $attrHostgroups = array(
-            'datasourceOrigin' => 'ajax',
-            'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_hostgroup&action=list',
-            'multiple' => true,
-            'linkedObject' => 'centreonHostgroups'
-        );
-        $form->addElement('select2', 'hostgroup_id', _("Hostgroups"), array(), $attrHostgroups);
+        $attrHostgroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_hostgroup&action=list', 'multiple' => true, 'linkedObject' => 'centreonHostgroups'];
+        $form->addElement('select2', 'hostgroup_id', _("Hostgroups"), [], $attrHostgroups);
 
         /* ----- Servicegroups ----- */
-        $attrServicegroups = array(
-            'datasourceOrigin' => 'ajax',
-            'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_servicegroup&action=list',
-            'multiple' => true,
-            'linkedObject' => 'centreonServicegroups'
-        );
-        $form->addElement('select2', 'servicegroup_id', _("Servicegroups"), array(), $attrServicegroups);
+        $attrServicegroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_servicegroup&action=list', 'multiple' => true, 'linkedObject' => 'centreonServicegroups'];
+        $form->addElement('select2', 'servicegroup_id', _("Servicegroups"), [], $attrServicegroups);
     }
 
     /* ----- Pollers ----- */
-    $attrPoller = array(
-        'datasourceOrigin' => 'ajax',
-        'allowClear' => false,
-        'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_poller&action=list',
-        'multiple' => true,
-        'linkedObject' => 'centreonInstance'
-    );
+    $attrPoller = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_poller&action=list', 'multiple' => true, 'linkedObject' => 'centreonInstance'];
 
     /* Host Parents */
     if (0 !== $resourceId) {
         $attrPoller1 = array_merge(
             $attrPoller,
-            array(
-                'defaultDatasetRoute' => './api/internal.php?object=centreon_configuration_poller' .
-                    '&action=defaultValues&target=resources&field=instance_id&id=' . $resourceId)
+            ['defaultDatasetRoute' => './api/internal.php?object=centreon_configuration_poller' .
+                '&action=defaultValues&target=resources&field=instance_id&id=' . $resourceId]
         );
 
-        $form->addElement('select2', 'poller_id', _("Pollers"), array(), $attrPoller1);
+        $form->addElement('select2', 'poller_id', _("Pollers"), [], $attrPoller1);
     } else {
-        $form->addElement('select2', 'poller_id', _("Pollers"), array(), $attrPoller);
+        $form->addElement('select2', 'poller_id', _("Pollers"), [], $attrPoller);
     }
 
     $chbx = $form->addElement(
@@ -216,7 +189,7 @@ if (
         'persistant',
         _("Fixed"),
         null,
-        array('id' => 'fixed', 'onClick' => 'javascript:setDurationField()')
+        ['id' => 'fixed', 'onClick' => 'javascript:setDurationField()']
     );
     if (isset($centreon->optGen['monitoring_dwt_fixed']) && $centreon->optGen['monitoring_dwt_fixed']) {
         $chbx->setChecked(true);
@@ -225,43 +198,31 @@ if (
         'text',
         'start',
         _("Start Time"),
-        array(
-            'size' => 10,
-            'class' => 'datepicker'
-        )
+        ['size' => 10, 'class' => 'datepicker']
     );
     $form->addElement(
         'text',
         'end',
         _("End Time"),
-        array(
-            'size' => 10,
-            'class' => 'datepicker'
-        )
+        ['size' => 10, 'class' => 'datepicker']
     );
     $form->addElement(
         'text',
         'start_time',
         '',
-        array('size' => 5,
-            'class' => 'timepicker'
-        )
+        ['size' => 5, 'class' => 'timepicker']
     );
     $form->addElement(
         'text',
         'end_time',
         '',
-        array('size' => 5,
-            'class' => 'timepicker'
-        )
+        ['size' => 5, 'class' => 'timepicker']
     );
     $form->addElement(
         'text',
         'duration',
         _("Duration"),
-        array('size' => '15',
-            'id' => 'duration'
-        )
+        ['size' => '15', 'id' => 'duration']
     );
     $form->addElement(
         'text',
@@ -274,19 +235,13 @@ if (
         'hidden',
         'alternativeDateStart',
         '',
-        array(
-            'size' => 10,
-            'class' => 'alternativeDate'
-        )
+        ['size' => 10, 'class' => 'alternativeDate']
     );
     $form->addElement(
         'hidden',
         'alternativeDateEnd',
         '',
-        array(
-            'size' => 10,
-            'class' => 'alternativeDate'
-        )
+        ['size' => 10, 'class' => 'alternativeDate']
     );
 
     $defaultDuration = 7200;
@@ -303,16 +258,16 @@ if (
             $defaultScale = $centreon->optGen['monitoring_dwt_duration_scale'];
         }
     }
-    $form->setDefaults(array('duration' => $defaultDuration));
+    $form->setDefaults(['duration' => $defaultDuration]);
 
     $form->addElement(
         'select',
         'duration_scale',
         _("Scale of time"),
-        array("s" => _("seconds"), "m" => _("minutes"), "h" => _("hours"), "d" => _("days")),
-        array('id' => 'duration_scale')
+        ["s" => _("seconds"), "m" => _("minutes"), "h" => _("hours"), "d" => _("days")],
+        ['id' => 'duration_scale']
     );
-    $form->setDefaults(array('duration_scale' => $defaultScale));
+    $form->setDefaults(['duration_scale' => $defaultScale]);
 
     $withServices[] = $form->createElement('radio', 'with_services', null, _("Yes"), '1');
     $withServices[] = $form->createElement('radio', 'with_services', null, _("No"), '0');
@@ -320,9 +275,7 @@ if (
 
     $form->addElement('textarea', 'comment', _("Comments"), $attrsTextarea);
     $form->setDefaults(
-        array(
-            "comment" => sprintf(_("Downtime set by %s"), $centreon->user->alias)
-        )
+        ["comment" => sprintf(_("Downtime set by %s"), $centreon->user->alias)]
     );
 
     $form->addFormRule('checkYearMax');
@@ -333,7 +286,7 @@ if (
     $form->addRule('start_time', _("Required Field"), 'required');
     $form->addRule('comment', _("Required Field"), 'required');
 
-    $data = array();
+    $data = [];
 
     $data["host_or_hg"] = 1;
     $data["with_services"] = $centreon->optGen['monitoring_dwt_svc'];
@@ -356,14 +309,14 @@ if (
     }
 
     $form->setDefaults($data);
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 
     /* Push the downtime */
     if ((isset($_POST["submitA"]) && $_POST["submitA"]) && $form->validate()) {
         $values = $form->getSubmitValues();
 
-        if (!isset($_POST["persistant"]) || !in_array($_POST["persistant"], array('0', '1'))) {
+        if (!isset($_POST["persistant"]) || !in_array($_POST["persistant"], ['0', '1'])) {
             $_POST["persistant"] = '0';
         }
         if (!isset($_POST["comment"])) {
@@ -476,7 +429,7 @@ if (
 
             //catch fix input service_id
             if (!is_array($_POST["service_id"])) {
-                $_POST["service_id"] = array($_POST["service_id"]);
+                $_POST["service_id"] = [$_POST["service_id"]];
             }
 
             foreach ($_POST["service_id"] as $value) {

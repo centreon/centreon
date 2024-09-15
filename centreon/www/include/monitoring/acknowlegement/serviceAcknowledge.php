@@ -110,14 +110,14 @@ if ($is_admin || (isset($lcaHostByName["LcaHost"][$host_name]))) {
 
     $form->applyFilter('__ALL__', 'myTrim');
 
-    $textarea = $form->addElement('textarea', 'comment', _("comment"), array("rows" => "8", "cols" => "80"));
+    $textarea = $form->addElement('textarea', 'comment', _("comment"), ["rows" => "8", "cols" => "80"]);
     $textarea->setValue(sprintf(_("Acknowledged by %s"), $centreon->user->get_alias()));
 
     $form->addRule('comment', _("Comment is required"), 'required', '', 'client');
     $form->setJsWarnings(_("Invalid information entered"), _("Please correct these fields"));
 
-    $form->addElement('submit', 'submit', ($en == 1) ? _("Add") : _("Delete"), ($en == 1) ? array("class" => "btc bt_success") : array("class" => "btc bt_danger"));
-    $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $form->addElement('submit', 'submit', ($en == 1) ? _("Add") : _("Delete"), ($en == 1) ? ["class" => "btc bt_success"] : ["class" => "btc bt_danger"]);
+    $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
     $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');

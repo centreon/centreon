@@ -210,7 +210,7 @@ if (isset($preferences['service_description_search']) && $preferences['service_d
         $query = CentreonUtils::conditionBuilder($query, $serviceDescriptionCondition);
     }
 }
-$stateTab = array();
+$stateTab = [];
 if (isset($preferences['svc_ok']) && $preferences['svc_ok']) {
     $stateTab[] = 0;
 }

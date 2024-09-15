@@ -50,7 +50,7 @@ class CentreonLogAction
     /** @var CentreonUser */
     protected $logUser;
     /** @var array */
-    protected $uselessKey = array();
+    protected $uselessKey = [];
 
     /**
      * CentreonLogAction constructor
@@ -176,7 +176,7 @@ class CentreonLogAction
     public function listAction($id, $object_type): array
     {
         global $pearDBO;
-        $list_actions = array();
+        $list_actions = [];
         $i = 0;
 
         $statement = $pearDBO->prepare(
@@ -234,7 +234,7 @@ class CentreonLogAction
         $statement->execute();
         $info = $statement->fetch(PDO::FETCH_ASSOC);
         if (isset($info['field_value']) && $info['field_value'] != '') {
-            return array('h' => $info['field_value']);
+            return ['h' => $info['field_value']];
         }
 
         /* Get hostgroups */
@@ -252,7 +252,7 @@ class CentreonLogAction
         $statement->execute();
         $info = $statement->fetch(PDO::FETCH_ASSOC);
         if (isset($info['field_value']) && $info['field_value'] != '') {
-            return array('hg' => $info['field_value']);
+            return ['hg' => $info['field_value']];
         }
         return -1;
     }
@@ -442,7 +442,7 @@ class CentreonLogAction
      */
     public function replaceActiontype($action): mixed
     {
-        $actionList = array();
+        $actionList = [];
         $actionList["d"] = "Delete";
         $actionList["c"] = "Change";
         $actionList["a"] = "Create";

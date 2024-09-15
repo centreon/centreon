@@ -51,9 +51,7 @@ class CentreonWiki extends CentreonWebService
     {
         $wikiApi = new WikiApi();
         $result = $wikiApi->deletePage($this->arguments['title']);
-        return array(
-            'result' => $result
-        );
+        return ['result' => $result];
     }
 
     /**

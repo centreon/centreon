@@ -113,7 +113,7 @@ class Backend
     private function deleteDir($path)
     {
         if (is_dir($path) === true) {
-            $files = array_diff(scandir($path), array('.', '..'));
+            $files = array_diff(scandir($path), ['.', '..']);
             foreach ($files as $file) {
                 $this->deleteDir(realpath($path) . '/' . $file);
             }
@@ -173,10 +173,10 @@ class Backend
     public function initPath($poller_id, $engine = 1): void
     {
         if ($engine == 1) {
-            $this->createDirectories(array($this->generate_path, $this->engine_sub));
+            $this->createDirectories([$this->generate_path, $this->engine_sub]);
             $this->full_path = $this->generate_path . '/' . $this->engine_sub;
         } else {
-            $this->createDirectories(array($this->generate_path, $this->broker_sub));
+            $this->createDirectories([$this->generate_path, $this->broker_sub]);
             $this->full_path = $this->generate_path . '/' . $this->broker_sub;
         }
         if (is_dir($this->full_path . '/' . $poller_id) && !is_writable($this->full_path . '/' . $poller_id)) {

@@ -57,7 +57,7 @@ function testTrapGroupExistence($name = null)
     }
 }
 
-function deleteTrapGroupInDB($trap_groups = array())
+function deleteTrapGroupInDB($trap_groups = [])
 {
     global $pearDB, $oreon;
 
@@ -72,7 +72,7 @@ function deleteTrapGroupInDB($trap_groups = array())
     }
 }
 
-function multipleTrapGroupInDB($trap_groups = array(), $nbrDup = array())
+function multipleTrapGroupInDB($trap_groups = [], $nbrDup = [])
 {
     global $pearDB, $oreon;
 
@@ -130,7 +130,7 @@ function updateTrapGroup($id = null)
         return;
     }
 
-    $ret = array();
+    $ret = [];
     $ret = $form->getSubmitValues();
 
     $rq = "UPDATE traps_group ";
@@ -152,13 +152,13 @@ function updateTrapGroup($id = null)
     $oreon->CentreonLogAction->insertLog("traps_group", $id, $fields["name"], "c", $fields);
 }
 
-function insertTrapGroupInDB($ret = array())
+function insertTrapGroupInDB($ret = [])
 {
     $id = insertTrapGroup($ret);
     return ($id);
 }
 
-function insertTrapGroup($ret = array())
+function insertTrapGroup($ret = [])
 {
     global $form, $pearDB, $oreon;
 
@@ -174,7 +174,7 @@ function insertTrapGroup($ret = array())
     $dbResult = $pearDB->query("SELECT MAX(traps_group_id) as max_id FROM traps_group");
     $trap_group_id = $dbResult->fetch();
 
-    $fields = array();
+    $fields = [];
     if (isset($ret['traps'])) {
         $query = "INSERT INTO traps_group_relation (traps_group_id, traps_id) VALUES (:traps_group_id, :traps_id)";
         $statement = $pearDB->prepare($query);

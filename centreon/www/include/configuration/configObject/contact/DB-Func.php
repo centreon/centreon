@@ -149,7 +149,7 @@ function keepOneContactAtLeast($ct_id = null)
  * @param $contact_id
  * @param $contact_arr
  */
-function enableContactInDB($contact_id = null, $contact_arr = array())
+function enableContactInDB($contact_id = null, $contact_arr = [])
 {
     global $pearDB, $centreon;
 
@@ -157,7 +157,7 @@ function enableContactInDB($contact_id = null, $contact_arr = array())
         return;
     }
     if ($contact_id) {
-        $contact_arr = array($contact_id => "1");
+        $contact_arr = [$contact_id => "1"];
     }
 
     foreach ($contact_arr as $key => $value) {
@@ -177,7 +177,7 @@ function enableContactInDB($contact_id = null, $contact_arr = array())
  * @param $contact_id
  * @param $contact_arr
  */
-function disableContactInDB($contact_id = null, $contact_arr = array())
+function disableContactInDB($contact_id = null, $contact_arr = [])
 {
     global $pearDB, $centreon;
 
@@ -185,7 +185,7 @@ function disableContactInDB($contact_id = null, $contact_arr = array())
         return;
     }
     if ($contact_id) {
-        $contact_arr = array($contact_id => "1");
+        $contact_arr = [$contact_id => "1"];
     }
 
     foreach ($contact_arr as $key => $value) {
@@ -248,7 +248,7 @@ function unblockContactInDB(int|array|null $contact = null): void
  * Delete Contacts
  * @param array $contacts
  */
-function deleteContactInDB($contacts = array())
+function deleteContactInDB($contacts = [])
 {
     global $pearDB, $centreon;
 
@@ -299,7 +299,7 @@ function deleteContactInDB($contacts = array())
  * Used for massive sync request
  * @param array $contacts
  */
-function synchronizeContactWithLdap(array $contacts = array()): void
+function synchronizeContactWithLdap(array $contacts = []): void
 {
     global $pearDB;
     $centreonLog = new CentreonLog();
@@ -387,7 +387,7 @@ function synchronizeContactWithLdap(array $contacts = array()): void
  * @param array $nbrDup Number of duplication per contact id
  * @return array List of the new contact ids
  */
-function multipleContactInDB($contacts = array(), $nbrDup = array())
+function multipleContactInDB($contacts = [], $nbrDup = [])
 {
     global $pearDB, $centreon;
     $newContactIds = [];
@@ -623,7 +623,7 @@ function updateContactInDB($contact_id = null, $from_MC = false)
  * @param array $ret
  * @return mixed
  */
-function insertContactInDB($ret = array())
+function insertContactInDB($ret = [])
 {
     $contact_id = insertContact($ret);
     updateContactHostCommands($contact_id, $ret);
@@ -637,7 +637,7 @@ function insertContactInDB($ret = array())
  * @param array $ret
  * @return mixed
  */
-function insertContact($ret = array())
+function insertContact($ret = [])
 {
     global $form, $pearDB, $centreon, $dependencyInjector;
 
@@ -1168,19 +1168,19 @@ function updateContactContactGroup_MC(int $contactId): bool
  * @param array $tmpContacts
  * @return bool
  */
-function insertLdapContactInDB($tmpContacts = array())
+function insertLdapContactInDB($tmpContacts = [])
 {
     global $nbr, $centreon, $pearDB;
-    $tmpConf = array();
-    $ldapInstances = array();
-    $contactTemplates = array();
+    $tmpConf = [];
+    $ldapInstances = [];
+    $contactTemplates = [];
     foreach ($tmpContacts["select"] as $select_key => $select_value) {
         if ($tmpContacts['contact_name'][$select_key] == '-') {
             $tmpContacts['contact_name'][$select_key] = $tmpContacts["contact_alias"][$select_key];
         }
         $tmpContacts["contact_name"][$select_key] = str_replace(
-            array(" ", ","),
-            array("_", "_"),
+            [" ", ","],
+            ["_", "_"],
             $tmpContacts["contact_name"][$select_key]
         );
         $arId = $tmpContacts["ar_id"][$select_key];
@@ -1239,7 +1239,7 @@ function insertLdapContactInDB($tmpContacts = array())
             }
             $pearDB->query(sprintf($sqlUpdate, $tmplSql));
         }
-        $listGroup = array();
+        $listGroup = [];
         if (false !== $ldap->connect()) {
             $listGroup = $ldap->listGroupsForUser($tmpContacts["dn"][$select_key]);
         }

@@ -65,8 +65,8 @@ function testHostDependencyCycle($childs = null)
 {
     global $pearDB;
     global $form;
-    $parents = array();
-    $childs = array();
+    $parents = [];
+    $childs = [];
     if (isset($form)) {
         $parents = $form->getSubmitValue('dep_hostParents');
         $childs = $form->getSubmitValue('dep_hostChilds');
@@ -80,7 +80,7 @@ function testHostDependencyCycle($childs = null)
     return true;
 }
 
-function deleteHostDependencyInDB($dependencies = array())
+function deleteHostDependencyInDB($dependencies = [])
 {
     global $pearDB, $centreon;
 
@@ -92,7 +92,7 @@ function deleteHostDependencyInDB($dependencies = array())
     }
 }
 
-function multipleHostDependencyInDB($dependencies = array(), $nbrDup = array())
+function multipleHostDependencyInDB($dependencies = [], $nbrDup = [])
 {
     foreach ($dependencies as $key => $value) {
         global $pearDB, $centreon;
@@ -191,7 +191,7 @@ function updateHostDependencyInDB($dep_id = null)
     updateHostDependencyServiceChildren($dep_id);
 }
 
-function insertHostDependencyInDB($ret = array())
+function insertHostDependencyInDB($ret = [])
 {
     $dep_id = insertHostDependency($ret);
     updateHostDependencyHostParents($dep_id, $ret);
@@ -206,7 +206,7 @@ function insertHostDependencyInDB($ret = array())
  * @param array<string, mixed> $ret
  * @return int
  */
-function insertHostDependency($ret = array()): int
+function insertHostDependency($ret = []): int
 {
     global $form, $pearDB, $centreon;
     if (!count($ret)) {
@@ -338,7 +338,7 @@ function sanitizeResourceParameters(array $resources): array
     return $sanitizedParameters;
 }
 
-function updateHostDependencyHostParents($dep_id = null, $ret = array())
+function updateHostDependencyHostParents($dep_id = null, $ret = [])
 {
     if (!$dep_id) {
         exit();
@@ -363,7 +363,7 @@ function updateHostDependencyHostParents($dep_id = null, $ret = array())
     }
 }
 
-function updateHostDependencyHostChilds($dep_id = null, $ret = array())
+function updateHostDependencyHostChilds($dep_id = null, $ret = [])
 {
     global $form, $pearDB;
 
@@ -392,7 +392,7 @@ function updateHostDependencyHostChilds($dep_id = null, $ret = array())
 /**
  * Update Host Dependency Service Children
  */
-function updateHostDependencyServiceChildren($dep_id = null, $ret = array())
+function updateHostDependencyServiceChildren($dep_id = null, $ret = [])
 {
     global $form, $pearDB;
 

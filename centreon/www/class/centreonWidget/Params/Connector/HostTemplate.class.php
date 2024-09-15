@@ -53,7 +53,7 @@ class CentreonWidgetParamsConnectorHostTemplate extends CentreonWidgetParamsList
                 "AND host_register = '0' " .
                 "ORDER BY host_name";
             $res = $this->db->query($query);
-            $tab = array(null => null);
+            $tab = [null => null];
             while ($row = $res->fetchRow()) {
                 $tab[$row['host_id']] = $row['host_name'];
             }

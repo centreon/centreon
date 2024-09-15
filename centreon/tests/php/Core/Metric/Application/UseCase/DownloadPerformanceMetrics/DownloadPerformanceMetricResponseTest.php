@@ -69,7 +69,7 @@ it(
         $this->assertTrue(property_exists($response, 'performanceMetrics'));
         $this->assertInstanceOf(\Generator::class, $response->performanceMetrics);
 
-        $actualResponseData = array(...$response->performanceMetrics);
+        $actualResponseData = [...$response->performanceMetrics];
         $this->assertSame($expectedResponseData, $actualResponseData);
     }
 )->with([

@@ -98,7 +98,7 @@ if ($is_admin || (isset($lcaHostByName[$host_name]))) {
     $form->addElement('hidden', 'p', $p);
     $form->addElement('hidden', 'en', $en);
 
-    $textarea = $form->addElement('textarea', 'comment', _("Comment"), array("rows"=>"8", "cols"=>"80"));
+    $textarea = $form->addElement('textarea', 'comment', _("Comment"), ["rows"=>"8", "cols"=>"80"]);
     $textarea->setValue(sprintf(_("Acknowledged by %s"), $centreon->user->get_alias()));
 
     $form->addRule('comment', _("Comment is required"), 'required', '', 'client');

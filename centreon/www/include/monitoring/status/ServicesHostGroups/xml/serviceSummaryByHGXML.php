@@ -184,7 +184,7 @@ while ($ndo = $dbResult->fetch()) {
         $tab_final[$ndo["hgname"]] = [];
     }
     if (!isset($tab_final[$ndo["hgname"]][$ndo["host_name"]])) {
-        $tab_final[$ndo["hgname"]][$ndo["host_name"]] = array("0" => 0, "1" => 0, "2" => 0, "3" => 0, "4" => 0);
+        $tab_final[$ndo["hgname"]][$ndo["host_name"]] = ["0" => 0, "1" => 0, "2" => 0, "3" => 0, "4" => 0];
     }
     if (strpos('svcSumHG_', $o) !== false) {
         $tab_final[$ndo["hgname"]][$ndo["host_name"]][0] =

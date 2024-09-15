@@ -61,7 +61,7 @@ class CentreonMonitoringPoller extends CentreonConfigurationObjects
     {
         global $centreon;
 
-        $queryValues = array();
+        $queryValues = [];
 
         // Check for select2 'q' argument
         $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
@@ -102,13 +102,10 @@ class CentreonMonitoringPoller extends CentreonConfigurationObjects
             throw new \Exception("An error occured");
         }
 
-        $pollerList = array();
+        $pollerList = [];
         while ($data = $stmt->fetch()) {
-            $pollerList[] = array('id' => $data['instance_id'], 'text' => $data['name']);
+            $pollerList[] = ['id' => $data['instance_id'], 'text' => $data['name']];
         }
-        return array(
-            'items' => $pollerList,
-            'total' => (int) $this->pearDBMonitoring->numberRows()
-        );
+        return ['items' => $pollerList, 'total' => (int) $this->pearDBMonitoring->numberRows()];
     }
 }

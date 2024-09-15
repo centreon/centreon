@@ -67,7 +67,7 @@ class Centreon_OpenTickets_Log
             $end = time();
         }
 
-        return array('start' => $start, 'end' => $end);
+        return ['start' => $start, 'end' => $end];
     }
 
     /*

@@ -73,7 +73,7 @@ class CentreonWidgetParamsText extends CentreonWidgetParams
                 'text',
                 'param_' . $params['parameter_id'],
                 $params['parameter_name'],
-                array("size" => 30)
+                ["size" => 30]
             );
         }
     }

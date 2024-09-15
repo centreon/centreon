@@ -40,7 +40,7 @@ if (!isset($centreon)) {
 include("./include/common/autoNumLimit.php");
 
 $SearchTool = null;
-$queryValues = array();
+$queryValues = [];
 $search = null;
 
 if (isset($_POST['searchGT'])) {
@@ -91,30 +91,18 @@ $form = new HTML_QuickFormCustom('select_form', 'POST', "?p=" . $p);
 //Different style between each lines
 $style = "one";
 
-$attrBtnSuccess = array(
-    "class" => "btc bt_success",
-    "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"
-);
+$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
 
 //Fill a tab with a mutlidimensionnal Array we put in $tpl
-$elemArr = array();
+$elemArr = [];
 for ($i = 0; $graph = $stmt->fetch(); $i++) {
     $selectedElements = $form->addElement('checkbox', "select[" . $graph['graph_id'] . "]");
     $moptions = "<input onKeypress=\"if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) " .
         "event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;" .
         "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" .
         $graph['graph_id'] . "]' />";
-    $elemArr[$i] = array(
-        "MenuClass" => "list_" . $style,
-        "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_name" => $graph["name"],
-        "RowMenu_link" => "main.php?p=" . $p . "&o=c&graph_id=" . $graph['graph_id'],
-        "RowMenu_desc" => $graph["vertical_label"],
-        "RowMenu_base" => $graph["base"],
-        "RowMenu_split_component" => $graph["split_component"] ? _("Yes") : _("No"),
-        "RowMenu_options" => $moptions
-    );
+    $elemArr[$i] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => $graph["name"], "RowMenu_link" => "main.php?p=" . $p . "&o=c&graph_id=" . $graph['graph_id'], "RowMenu_desc" => $graph["vertical_label"], "RowMenu_base" => $graph["base"], "RowMenu_split_component" => $graph["split_component"] ? _("Yes") : _("No"), "RowMenu_options" => $moptions];
     $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
@@ -124,7 +112,7 @@ $tpl->assign("elemArr", $elemArr);
  */
 $tpl->assign(
     'msg',
-    array("addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?"))
+    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
 );
 
 /*
@@ -137,49 +125,45 @@ $tpl->assign(
         }
     </SCRIPT>
 <?php
-$attrs1 = array(
-    'onchange' => "javascript: " .
-        "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" .
-        _("Do you confirm the duplication ?") . "')) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('" .
-        _("Do you confirm the deletion ?") . "')) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 3) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        ""
-);
+$attrs1 = ['onchange' => "javascript: " .
+    "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" .
+    _("Do you confirm the duplication ?") . "')) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('" .
+    _("Do you confirm the deletion ?") . "')) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 3) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    ""];
 $form->addElement(
     'select',
     'o1',
     null,
-    array(null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")),
+    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
     $attrs1
 );
-$form->setDefaults(array('o1' => null));
+$form->setDefaults(['o1' => null]);
 $o1 = $form->getElement('o1');
 $o1->setValue(null);
 
-$attrs = array(
-    'onchange' => "javascript: " .
-        "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" .
-        _("Do you confirm the duplication ?") . "')) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('" .
-        _("Do you confirm the deletion ?") . "')) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 3) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        ""
-);
+$attrs = ['onchange' => "javascript: " .
+    "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" .
+    _("Do you confirm the duplication ?") . "')) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('" .
+    _("Do you confirm the deletion ?") . "')) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 3) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    ""];
 $form->addElement(
     'select',
     'o2',
     null,
-    array(null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")),
+    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
     $attrs
 );
-$form->setDefaults(array('o2' => null));
+$form->setDefaults(['o2' => null]);
 
 $o2 = $form->getElement('o2');
 $o2->setValue(null);

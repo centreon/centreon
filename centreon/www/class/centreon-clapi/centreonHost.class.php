@@ -118,25 +118,12 @@ class CentreonHost extends CentreonObject
     protected $register = 1;
 
     /** @var string[] */
-    public static $aDepends = array(
-        'CMD',
-        'TP',
-        'TRAP',
-        'INSTANCE',
-        'HTPL'
-    );
+    public static $aDepends = ['CMD', 'TP', 'TRAP', 'INSTANCE', 'HTPL'];
     /**
      * @var array
      * Contains : list of authorized notifications_options for this object
      */
-    public static $aAuthorizedNotificationsOptions = array(
-        'd' => 'Down',
-        'u' => 'Unreachable',
-        'r' => 'Recovery',
-        'f' => 'Flapping',
-        's' => 'Downtime Scheduled',
-        'n' => 'None'
-    );
+    public static $aAuthorizedNotificationsOptions = ['d' => 'Down', 'u' => 'Unreachable', 'r' => 'Recovery', 'f' => 'Flapping', 's' => 'Downtime Scheduled', 'n' => 'None'];
 
     /** @var */
     protected $templateIds;
@@ -158,26 +145,12 @@ class CentreonHost extends CentreonObject
         parent::__construct($dependencyInjector);
         $this->object = new Centreon_Object_Host($dependencyInjector);
         $this->timezoneObject = new Centreon_Object_Timezone($dependencyInjector);
-        $this->params = array(
-            'host_active_checks_enabled' => '2',
-            'host_passive_checks_enabled' => '2',
-            'host_checks_enabled' => '2',
-            'host_obsess_over_host' => '2',
-            'host_check_freshness' => '2',
-            'host_event_handler_enabled' => '2',
-            'host_flap_detection_enabled' => '2',
-            'host_process_perf_data' => '2',
-            'host_retain_status_information' => '2',
-            'host_retain_nonstatus_information' => '2',
-            'host_notifications_enabled' => '2',
-            'host_register' => '1',
-            'host_activate' => '1'
-        );
-        $this->insertParams = array('host_name', 'host_alias', 'host_address', 'template', 'instance', 'hostgroup');
+        $this->params = ['host_active_checks_enabled' => '2', 'host_passive_checks_enabled' => '2', 'host_checks_enabled' => '2', 'host_obsess_over_host' => '2', 'host_check_freshness' => '2', 'host_event_handler_enabled' => '2', 'host_flap_detection_enabled' => '2', 'host_process_perf_data' => '2', 'host_retain_status_information' => '2', 'host_retain_nonstatus_information' => '2', 'host_notifications_enabled' => '2', 'host_register' => '1', 'host_activate' => '1'];
+        $this->insertParams = ['host_name', 'host_alias', 'host_address', 'template', 'instance', 'hostgroup'];
         $this->exportExcludedParams = array_merge(
             $this->insertParams,
-            array($this->object->getPrimaryKey()),
-            array('host_template_model_htm_id')
+            [$this->object->getPrimaryKey()],
+            ['host_template_model_htm_id']
         );
         $this->action = "HOST";
         $this->nbOfCompulsoryParams = count($this->insertParams);
@@ -195,15 +168,7 @@ class CentreonHost extends CentreonObject
         static $table;
 
         if (!isset($table)) {
-            $table = array(
-                "command_command_id" => "check_command",
-                "command_command_id2" => "event_handler",
-                "timeperiod_tp_id" => "check_period",
-                "timeperiod_tp_id2" => "notification_period",
-                "command_command_id_arg1" => "check_command_arguments",
-                "command_command_id_arg2" => "event_handler_arguments",
-                "host_location" => self::HOST_LOCATION
-            );
+            $table = ["command_command_id" => "check_command", "command_command_id2" => "event_handler", "timeperiod_tp_id" => "check_period", "timeperiod_tp_id2" => "notification_period", "command_command_id_arg1" => "check_command_arguments", "command_command_id_arg2" => "event_handler_arguments", "host_location" => self::HOST_LOCATION];
         }
         if (preg_match("/^ehi_/", $columnName)) {
             return substr($columnName, strlen("ehi_"));
@@ -242,15 +207,15 @@ class CentreonHost extends CentreonObject
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array()): void
+    public function show($parameters = null, $filters = []): void
     {
-        $filters = array('host_register' => $this->register);
+        $filters = ['host_register' => $this->register];
 
         $labelField = $this->object->getUniqueLabelField();
         if (isset($parameters)) {
             $filters[$labelField] = "%" . $parameters . "%";
         }
-        $params = array('host_id', 'host_name', 'host_alias', 'host_address', 'host_activate');
+        $params = ['host_id', 'host_name', 'host_alias', 'host_address', 'host_activate'];
         $paramString = str_replace("host_", "", implode($this->delim, $params));
         echo $paramString . "\n";
         $elements = $this->object->getList(
@@ -273,14 +238,14 @@ class CentreonHost extends CentreonObject
      *
      * @throws Exception
      */
-    public function showbyaddress($parameters = null, $filters = array()): void
+    public function showbyaddress($parameters = null, $filters = []): void
     {
-        $filters = array('host_register' => $this->register);
+        $filters = ['host_register' => $this->register];
 
         if (isset($parameters)) {
             $filters['host_address'] = "%" . $parameters . "%";
         }
-        $params = array('host_id', 'host_name', 'host_alias', 'host_address', 'host_activate');
+        $params = ['host_id', 'host_name', 'host_alias', 'host_address', 'host_activate'];
         $paramString = str_replace("host_", "", implode($this->delim, $params));
         echo $paramString . "\n";
         $elements = $this->object->getList(
@@ -310,12 +275,12 @@ class CentreonHost extends CentreonObject
         if (count($params) < $this->nbOfCompulsoryParams) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $addParams = array();
+        $addParams = [];
         $addParams[$this->object->getUniqueLabelField()] = $this->checkIllegalChar($params[self::ORDER_UNIQUENAME]);
         $addParams['host_alias'] = $params[self::ORDER_ALIAS];
         $addParams['host_address'] = $params[self::ORDER_ADDRESS];
         $templates = explode("|", $params[self::ORDER_TEMPLATE]);
-        $this->templateIds = array();
+        $this->templateIds = [];
         foreach ($templates as $template) {
             if ($template) {
                 $tmp = $this->object->getIdByParameter($this->object->getUniqueLabelField(), $template);
@@ -348,7 +313,7 @@ class CentreonHost extends CentreonObject
             }
         }
         $hostgroups = explode("|", $params[self::ORDER_HOSTGROUP]);
-        $this->hostgroupIds = array();
+        $this->hostgroupIds = [];
         $hostgroupObject = new Centreon_Object_Host_Group($this->dependencyInjector);
         foreach ($hostgroups as $hostgroup) {
             if ($hostgroup) {
@@ -386,7 +351,7 @@ class CentreonHost extends CentreonObject
             $instanceRelationObject->insert($this->instanceId, $hostId);
         }
         $extended = new Centreon_Object_Host_Extended($this->dependencyInjector);
-        $extended->insert(array($extended->getUniqueLabelField() => $hostId));
+        $extended->insert([$extended->getUniqueLabelField() => $hostId]);
     }
 
     /**
@@ -505,15 +470,15 @@ class CentreonHost extends CentreonObject
         }
         if (($hostId = $this->getObjectId($params[self::ORDER_UNIQUENAME])) != 0) {
             $relObj = new Centreon_Object_Relation_Instance_Host($this->dependencyInjector);
-            $fields = array('id', 'name');
+            $fields = ['id', 'name'];
             $elements = $relObj->getMergedParameters(
                 $fields,
-                array(),
+                [],
                 -1,
                 0,
                 "host_name",
                 "ASC",
-                array('host_id' => $hostId),
+                ['host_id' => $hostId],
                 'AND'
             );
 
@@ -564,60 +529,8 @@ class CentreonHost extends CentreonObject
         if (count($params) < 2) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $authorizeParam = array(
-            '2d_coords',
-            '3d_coords',
-            'action_url',
-            'activate',
-            'active_checks_enabled',
-            'acknowledgement_timeout',
-            'address',
-            'alias',
-            'check_command',
-            'check_command_arguments',
-            'check_interval',
-            'check_freshness',
-            'check_period',
-            'comment',
-            'contact_additive_inheritance',
-            'cg_additive_inheritance',
-            'event_handler',
-            'event_handler_arguments',
-            'event_handler_enabled',
-            'first_notification_delay',
-            'flap_detection_enabled',
-            'flap_detection_options',
-            'freshness_threshold',
-            'geo_coords',
-            'host_high_flap_threshold',
-            'host_low_flap_threshold',
-            'host_notification_options',
-            'high_flap_threshold',
-            'icon_image',
-            'icon_image_alt',
-            'low_flap_threshold',
-            'max_check_attempts',
-            'name',
-            'notes',
-            'notes_url',
-            'notifications_enabled',
-            'notification_interval',
-            'notification_options',
-            'notification_period',
-            'recovery_notification_delay',
-            'obsess_over_host',
-            'passive_checks_enabled',
-            'process_perf_data',
-            'retain_nonstatus_information',
-            'retain_status_information',
-            'retry_check_interval',
-            'snmp_community',
-            'snmp_version',
-            'stalking_options',
-            'statusmap_image',
-            'timezone'
-        );
-        $unknownParam = array();
+        $authorizeParam = ['2d_coords', '3d_coords', 'action_url', 'activate', 'active_checks_enabled', 'acknowledgement_timeout', 'address', 'alias', 'check_command', 'check_command_arguments', 'check_interval', 'check_freshness', 'check_period', 'comment', 'contact_additive_inheritance', 'cg_additive_inheritance', 'event_handler', 'event_handler_arguments', 'event_handler_enabled', 'first_notification_delay', 'flap_detection_enabled', 'flap_detection_options', 'freshness_threshold', 'geo_coords', 'host_high_flap_threshold', 'host_low_flap_threshold', 'host_notification_options', 'high_flap_threshold', 'icon_image', 'icon_image_alt', 'low_flap_threshold', 'max_check_attempts', 'name', 'notes', 'notes_url', 'notifications_enabled', 'notification_interval', 'notification_options', 'notification_period', 'recovery_notification_delay', 'obsess_over_host', 'passive_checks_enabled', 'process_perf_data', 'retain_nonstatus_information', 'retain_status_information', 'retry_check_interval', 'snmp_community', 'snmp_version', 'stalking_options', 'statusmap_image', 'timezone'];
+        $unknownParam = [];
 
         if (($objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME])) != 0) {
             $listParam = explode('|', $params[1]);
@@ -814,7 +727,7 @@ class CentreonHost extends CentreonObject
             }
 
             if ($extended == false) {
-                $updateParams = array($params[1] => $params[2]);
+                $updateParams = [$params[1] => $params[2]];
                 $updateParams['objectId'] = $objectId;
                 return $updateParams;
             } else {
@@ -831,8 +744,8 @@ class CentreonHost extends CentreonObject
                     }
                 }
                 $extended = new Centreon_Object_Host_Extended($this->dependencyInjector);
-                $extended->update($objectId, array($params[1] => $params[2]));
-                return array();
+                $extended->update($objectId, [$params[1] => $params[2]]);
+                return [];
             }
         } else {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
@@ -867,7 +780,7 @@ class CentreonHost extends CentreonObject
         $severityId = $severity[0];
         $severity = $severityObj->getParameters(
             $severityId,
-            array('level')
+            ['level']
         );
         if ($severity['level']) {
             // can't delete with generic method
@@ -948,7 +861,7 @@ class CentreonHost extends CentreonObject
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $hostName);
         }
 
-        $aTemplates = $this->getTemplateChain($hostId, array(), -1, true, "host_name,host_id,command_command_id");
+        $aTemplates = $this->getTemplateChain($hostId, [], -1, true, "host_name,host_id,command_command_id");
         if (!isset($cmdId)) {
             $cmdId = "";
         }
@@ -995,10 +908,7 @@ class CentreonHost extends CentreonObject
             0,
             null,
             null,
-            array(
-                "host_host_id" => $hostId,
-                "host_macro_name" => $this->wrapMacro($params[1])
-            ),
+            ["host_host_id" => $hostId, "host_macro_name" => $this->wrapMacro($params[1])],
             "AND"
         );
 
@@ -1008,7 +918,7 @@ class CentreonHost extends CentreonObject
             0,
             null,
             null,
-            array("host_host_id" => $hostId)
+            ["host_host_id" => $hostId]
         );
         $macroOrder = empty($maxOrder) ? 0 : $maxOrder[0]["max(macro_order)"] + 1;
 
@@ -1028,22 +938,11 @@ class CentreonHost extends CentreonObject
         if (count($macroList)) {
             $macroObj->update(
                 $macroList[0][$macroObj->getPrimaryKey()],
-                array(
-                    'host_macro_value' => $params[2],
-                    'is_password' => (strlen($params[3]) === 0) ? 0 : (int) $params[3],
-                    'description' => $description
-                )
+                ['host_macro_value' => $params[2], 'is_password' => (strlen($params[3]) === 0) ? 0 : (int) $params[3], 'description' => $description]
             );
         } else {
             $macroObj->insert(
-                array(
-                    'host_host_id' => $hostId,
-                    'host_macro_name' => $this->wrapMacro($params[1]),
-                    'host_macro_value' => $params[2],
-                    'is_password' => (strlen($params[3]) === 0) ? 0 : (int) $params[3],
-                    'description' => $description,
-                    'macro_order' => $macroOrder
-                )
+                ['host_host_id' => $hostId, 'host_macro_name' => $this->wrapMacro($params[1]), 'host_macro_value' => $params[2], 'is_password' => (strlen($params[3]) === 0) ? 0 : (int) $params[3], 'description' => $description, 'macro_order' => $macroOrder]
             );
         }
 
@@ -1051,7 +950,7 @@ class CentreonHost extends CentreonObject
             'c',
             $hostId,
             $params[self::ORDER_UNIQUENAME],
-            array($params[1] => $params[2])
+            [$params[1] => $params[2]]
         );
         //}
     }
@@ -1079,10 +978,7 @@ class CentreonHost extends CentreonObject
             0,
             null,
             null,
-            array(
-                "host_host_id" => $hostId,
-                "host_macro_name" => $this->wrapMacro($params[1])
-            ),
+            ["host_host_id" => $hostId, "host_macro_name" => $this->wrapMacro($params[1])],
             "AND"
         );
         if (count($macroList)) {
@@ -1092,7 +988,7 @@ class CentreonHost extends CentreonObject
             'c',
             $hostId,
             $params[self::ORDER_UNIQUENAME],
-            array($params[1] => '')
+            [$params[1] => '']
         );
     }
 
@@ -1126,7 +1022,7 @@ class CentreonHost extends CentreonObject
         foreach ($templates as $templateId) {
             $serviceTemplates = $hostSvcRel->getservice_service_idFromhost_host_id($templateId);
             foreach ($serviceTemplates as $serviceTemplateId) {
-                $params = $svcObj->getParameters($serviceTemplateId, array('service_alias'));
+                $params = $svcObj->getParameters($serviceTemplateId, ['service_alias']);
                 $sql = "SELECT service_id
                 		FROM service s, host_service_relation hsr
                 		WHERE s.service_id = hsr.service_service_id
@@ -1141,19 +1037,11 @@ class CentreonHost extends CentreonObject
                         (SELECT hostgroup_hg_id FROM hostgroup_relation WHERE host_host_id = :hostid)";
                 $res = $this->db->query(
                     $sql,
-                    array(
-                        ':servicedescription' => $params['service_alias'],
-                        ':hostid' => $hostId
-                    )
+                    [':servicedescription' => $params['service_alias'], ':hostid' => $hostId]
                 );
                 $result = $res->fetchAll();
                 if (!count($result)) {
-                    $serviceDesc = array(
-                        'service_description' => $params['service_alias'],
-                        'service_activate' => '1',
-                        'service_register' => '1',
-                        'service_template_model_stm_id' => $serviceTemplateId
-                    );
+                    $serviceDesc = ['service_description' => $params['service_alias'], 'service_activate' => '1', 'service_register' => '1', 'service_template_model_stm_id' => $serviceTemplateId];
                     $svcId = $svcObj->insert($serviceDesc);
                     $hostSvcRel->insert($hostId, $svcId);
                     $serviceDesc['service_hPars'] = $hostId;
@@ -1164,7 +1052,7 @@ class CentreonHost extends CentreonObject
                         $serviceDesc,
                         'SERVICE'
                     );
-                    $svcExtended->insert(array($svcExtended->getUniqueLabelField() => $svcId));
+                    $svcExtended->insert([$svcExtended->getUniqueLabelField() => $svcId]);
                 }
                 unset($res);
             }
@@ -1245,7 +1133,7 @@ class CentreonHost extends CentreonObject
                     throw new CentreonClapiException(self::MISSINGPARAMETER);
                 }
                 $args = explode($this->delim, $arg[0]);
-                $hostIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($args[0]));
+                $hostIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$args[0]]);
                 if (!count($hostIds)) {
                     throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $args[0]);
                 }
@@ -1257,7 +1145,7 @@ class CentreonHost extends CentreonObject
                     $tab = $relobj->getTargetIdFromSourceId($relobj->getFirstKey(), $relobj->getSecondKey(), $hostId);
                     echo "id" . $this->delim . "name" . "\n";
                     foreach ($tab as $value) {
-                        $tmp = $obj->getParameters($value, array($obj->getUniqueLabelField()));
+                        $tmp = $obj->getParameters($value, [$obj->getUniqueLabelField()]);
                         echo $value . $this->delim . $tmp[$obj->getUniqueLabelField()] . "\n";
                     }
                 } else {
@@ -1266,12 +1154,12 @@ class CentreonHost extends CentreonObject
                     }
                     $relation = $args[1];
                     $relations = explode("|", $relation);
-                    $relationTable = array();
+                    $relationTable = [];
                     foreach ($relations as $rel) {
                         if ($matches[2] == "contact") {
-                            $tab = $obj->getIdByParameter("contact_alias", array($rel));
+                            $tab = $obj->getIdByParameter("contact_alias", [$rel]);
                         } else {
-                            $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), array($rel));
+                            $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), [$rel]);
                         }
 
                         if (!count($tab)) {
@@ -1304,7 +1192,7 @@ class CentreonHost extends CentreonObject
                         'c',
                         $hostId,
                         $args[0],
-                        array($matches[2] => str_replace('|', ',', $args[1]))
+                        [$matches[2] => str_replace('|', ',', $args[1])]
                     );
                 }
             } else {
@@ -1324,18 +1212,18 @@ class CentreonHost extends CentreonObject
     protected function getHostListByParent(&$elements)
     {
         $hostParent = new Centreon_Object_Relation_Host_Parent_Host($this->dependencyInjector);
-        $parentShip = array();
+        $parentShip = [];
         $relations = $hostParent->getRelations();
         foreach ($relations as $relation) {
             $firstKey = $relation[$hostParent->getFirstKey()];
             $secondKey = $relation[$hostParent->getSecondKey()];
             $parentShip[$secondKey][] = $firstKey;
         }
-        $hosts = array();
+        $hosts = [];
         foreach ($elements as $element) {
             $hosts[] = $element['host_id'];
         }
-        $sortedHosts = array();
+        $sortedHosts = [];
         while ($hostId = array_pop($hosts)) {
             if (!in_array((int)$hostId, $parentShip)) {
                 $sortedHosts[] = $hostId;
@@ -1355,11 +1243,11 @@ class CentreonHost extends CentreonObject
                 }
             }
         }
-        $elementsIndexedById = array();
+        $elementsIndexedById = [];
         foreach ($elements as $element) {
             $elementsIndexedById[$element['host_id']] = $element;
         }
-        $elements = array();
+        $elements = [];
         foreach ($sortedHosts as $hostId) {
             $elements[$hostId] = $elementsIndexedById[$hostId];
         }
@@ -1381,7 +1269,7 @@ class CentreonHost extends CentreonObject
         }
 
         $labelField = $this->object->getUniqueLabelField();
-        $filters = array("host_register" => $this->register);
+        $filters = ["host_register" => $this->register];
         if (!is_null($filterName)) {
             $filters[$labelField] = $filterName;
         }
@@ -1400,8 +1288,8 @@ class CentreonHost extends CentreonObject
 
         if ($this->register) {
             $instElements = $instanceRel->getMergedParameters(
-                array("name"),
-                array("host_name"),
+                ["name"],
+                ["host_name"],
                 -1,
                 0,
                 null,
@@ -1412,7 +1300,7 @@ class CentreonHost extends CentreonObject
         }
 
         /* Init parentship */
-        $parentShip = array();
+        $parentShip = [];
         if ($this->register == 1) {
             $parentShip = $this->getHostListByParent($elements);
         }
@@ -1488,17 +1376,7 @@ class CentreonHost extends CentreonObject
 
             $params = $extendedObj->getParameters(
                 $element[$this->object->getPrimaryKey()],
-                array(
-                    "ehi_notes",
-                    "ehi_notes_url",
-                    "ehi_action_url",
-                    "ehi_icon_image",
-                    "ehi_icon_image_alt",
-                    "ehi_vrml_image",
-                    "ehi_statusmap_image",
-                    "ehi_2d_coords",
-                    "ehi_3d_coords"
-                )
+                ["ehi_notes", "ehi_notes_url", "ehi_action_url", "ehi_icon_image", "ehi_icon_image_alt", "ehi_vrml_image", "ehi_statusmap_image", "ehi_2d_coords", "ehi_3d_coords"]
             );
             if (isset($params) && is_array($params)) {
                 foreach ($params as $k => $v) {
@@ -1518,7 +1396,7 @@ class CentreonHost extends CentreonObject
                 0,
                 null,
                 null,
-                array('host_host_id' => $element[$this->object->getPrimaryKey()]),
+                ['host_host_id' => $element[$this->object->getPrimaryKey()]],
                 "AND"
             );
             foreach ($macros as $macro) {
@@ -1541,13 +1419,13 @@ class CentreonHost extends CentreonObject
             }
         }
         $cgRel = new Centreon_Object_Relation_Contact_Group_Host($this->dependencyInjector);
-        $filters_cgRel = array("host_register" => $this->register);
+        $filters_cgRel = ["host_register" => $this->register];
         if (!is_null($filterName)) {
             $filters_cgRel['host_name'] = $filterName;
         }
         $elements = $cgRel->getMergedParameters(
-            array("cg_name", "cg_id"),
-            array($this->object->getUniqueLabelField()),
+            ["cg_name", "cg_id"],
+            [$this->object->getUniqueLabelField()],
             -1,
             0,
             null,
@@ -1563,13 +1441,13 @@ class CentreonHost extends CentreonObject
                 . $element['cg_name'] . "\n";
         }
         $contactRel = new Centreon_Object_Relation_Contact_Host($this->dependencyInjector);
-        $filters_contactRel = array("host_register" => $this->register);
+        $filters_contactRel = ["host_register" => $this->register];
         if (!is_null($filterName)) {
             $filters_contactRel['host_name'] = $filterName;
         }
         $elements = $contactRel->getMergedParameters(
-            array("contact_alias", "contact_id"),
-            array($this->object->getUniqueLabelField()),
+            ["contact_alias", "contact_id"],
+            [$this->object->getUniqueLabelField()],
             -1,
             0,
             null,
@@ -1585,13 +1463,13 @@ class CentreonHost extends CentreonObject
                 . $element['contact_alias'] . "\n";
         }
         $htplRel = new Centreon_Object_Relation_Host_Template_Host($this->dependencyInjector);
-        $filters_htplRel = array("h.host_register" => $this->register);
+        $filters_htplRel = ["h.host_register" => $this->register];
         if (!is_null($filterName)) {
             $filters_htplRel['h.host_name'] = $filterName;
         }
         $elements = $htplRel->getMergedParameters(
-            array("host_name as host"),
-            array("host_name as template", "host_id as tpl_id"),
+            ["host_name as host"],
+            ["host_name as template", "host_id as tpl_id"],
             -1,
             0,
             "host,`order`",
@@ -1612,13 +1490,13 @@ class CentreonHost extends CentreonObject
             # service templates linked
             $hostRel = new Centreon_Object_Relation_Host_Service($this->dependencyInjector);
             $helements = $hostRel->getMergedParameters(
-                array("host_name"),
-                array('service_description', 'service_id'),
+                ["host_name"],
+                ['service_description', 'service_id'],
                 -1,
                 0,
                 null,
                 null,
-                array("service_register" => 0, "host_name" => $filterName),
+                ["service_register" => 0, "host_name" => $filterName],
                 "AND"
             );
             foreach ($helements as $helement) {
@@ -1628,13 +1506,13 @@ class CentreonHost extends CentreonObject
             # service linked
             $hostRel = new Centreon_Object_Relation_Host_Service($this->dependencyInjector);
             $helements = $hostRel->getMergedParameters(
-                array("host_name"),
-                array('service_description', 'service_id'),
+                ["host_name"],
+                ['service_description', 'service_id'],
                 -1,
                 0,
                 null,
                 null,
-                array("service_register" => 1, "host_name" => $filterName),
+                ["service_register" => 1, "host_name" => $filterName],
                 "AND"
             );
             foreach ($helements as $helement) {
@@ -1644,13 +1522,13 @@ class CentreonHost extends CentreonObject
             # service hg linked and hostgroups
             $hostRel = new Centreon_Object_Relation_Host_Group_Host($this->dependencyInjector);
             $helements = $hostRel->getMergedParameters(
-                array("hg_name", "hg_id"),
-                array('*'),
+                ["hg_name", "hg_id"],
+                ['*'],
                 -1,
                 0,
                 null,
                 null,
-                array("host_name" => $filterName),
+                ["host_name" => $filterName],
                 "AND"
             );
             foreach ($helements as $helement) {
@@ -1670,7 +1548,7 @@ class CentreonHost extends CentreonObject
      */
     public function hasMacroFromHostChanged($host_id, &$macroInput, &$macroValue, $cmdId = false)
     {
-        $aTemplates = $this->getTemplateChain($host_id, array(), -1, true, "host_name,host_id,command_command_id");
+        $aTemplates = $this->getTemplateChain($host_id, [], -1, true, "host_name,host_id,command_command_id");
         if (!isset($cmdId)) {
             $cmdId = "";
         }
@@ -1697,12 +1575,12 @@ class CentreonHost extends CentreonObject
      */
     public function getTemplateChain(
         $hostId,
-        $alreadyProcessed = array(),
+        $alreadyProcessed = [],
         $depth = -1,
         $allFields = false,
-        $fields = array()
+        $fields = []
     ) {
-        $templates = array();
+        $templates = [];
 
         if (($depth == -1) || ($depth > 0)) {
             if ($depth > 0) {
@@ -1729,11 +1607,7 @@ class CentreonHost extends CentreonObject
 
                 while ($row = $DBRESULT->fetch()) {
                     if (!$allFields) {
-                        $templates[] = array(
-                            "id" => $row['host_id'],
-                            "host_id" => $row['host_id'],
-                            "host_name" => $row['host_name']
-                        );
+                        $templates[] = ["id" => $row['host_id'], "host_id" => $row['host_id'], "host_name" => $row['host_name']];
                     } else {
                         $templates[] = $row;
                     }
@@ -1768,13 +1642,13 @@ class CentreonHost extends CentreonObject
      */
     public function getMacros($iHostId, $bIsTemplate, $aListTemplate, $iIdCommande)
     {
-        $aMacroInCommande = array();
+        $aMacroInCommande = [];
 
         //Get macro attached to the host
         $macroArray = $this->getCustomMacroInDb($iHostId);
 
         //Get macro attached to the template
-        $aMacroTemplate = array();
+        $aMacroTemplate = [];
         foreach ($aListTemplate as $template) {
             if (!empty($template['host_id'])) {
                 $aMacroTemplate[] = $this->getCustomMacroInDb($template['host_id'], $template);
@@ -1799,7 +1673,7 @@ class CentreonHost extends CentreonObject
         }
 
         //filter a macro
-        $aTempMacro = array();
+        $aTempMacro = [];
 
         if (count($macroArray) > 0) {
             foreach ($macroArray as $directMacro) {
@@ -1847,7 +1721,7 @@ class CentreonHost extends CentreonObject
      */
     public function getCustomMacroInDb($hostId = null, $template = null)
     {
-        $arr = array();
+        $arr = [];
         $i = 0;
 
         if ($hostId) {
@@ -1883,15 +1757,15 @@ class CentreonHost extends CentreonObject
      */
     public function macro_unique($aTempMacro)
     {
-        $storedMacros = array();
+        $storedMacros = [];
         foreach ($aTempMacro as $TempMacro) {
             $sInput = $TempMacro['host_macro_name'];
             $storedMacros[$sInput][] = $TempMacro;
         }
 
-        $finalMacros = array();
+        $finalMacros = [];
         foreach ($storedMacros as $key => $macros) {
-            $choosedMacro = array();
+            $choosedMacro = [];
             foreach ($macros as $macro) {
                 $choosedMacro = empty($choosedMacro) ? $macro : $this->comparaPriority($macro, $choosedMacro);
             }
@@ -1912,7 +1786,7 @@ class CentreonHost extends CentreonObject
      */
     private function comparaPriority($macroA, $macroB, $getFirst = true)
     {
-        $arrayPrio = array('direct' => 3, 'fromTpl' => 2, 'fromCommand' => 1);
+        $arrayPrio = ['direct' => 3, 'fromTpl' => 2, 'fromCommand' => 1];
         if ($getFirst) {
             if ($arrayPrio[$macroA['source']] > $arrayPrio[$macroB['source']]) {
                 return $macroA;
@@ -1964,7 +1838,7 @@ class CentreonHost extends CentreonObject
     {
         $description = "";
         if (empty($finalMacro['description'])) {
-            $choosedMacro = array();
+            $choosedMacro = [];
             foreach ($storedMacros as $storedMacro) {
                 if (!empty($storedMacro['description'])) {
                     $choosedMacro = empty($choosedMacro) ? $storedMacro : $this->comparaPriority($storedMacro, $choosedMacro);

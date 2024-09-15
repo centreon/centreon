@@ -217,7 +217,7 @@ function getDateSelectPredefined($period)
     if ($start_date > $end_date) {
         $start_date = $end_date;
     }
-    return (array($start_date, $end_date));
+    return ([$start_date, $end_date]);
 }
 
 function getDateSelectCustomized($start, $end)
@@ -252,7 +252,7 @@ function getDateSelectCustomized($start, $end)
         $start_time = $end_time - (60 * 60 * 24);
     }
 
-    return (array($start_time, $end_time));
+    return ([$start_time, $end_time]);
 }
 /*
  * Return time between two timestamp
@@ -296,7 +296,7 @@ function getTotalTimeFromInterval($start, $end, $reportTimePeriod)
         //$start = $day_real_end;
         $start += $one_day_real_duration;
     }
-    $tab = array("totalTime" => $totalTime, "reportTime" => $reportTime);
+    $tab = ["totalTime" => $totalTime, "reportTime" => $reportTime];
     return $tab;
 }
 
@@ -323,19 +323,7 @@ function getPeriodList()
 
 function createDateTimelineFormat($time_unix)
 {
-    $tab_month = array(
-    "01" => "Jan",
-    "02" => "Feb",
-    "03" => "Mar",
-    "04" => "Apr",
-    "05" => "May",
-    "06" => "Jun",
-    "07" => "Jul",
-    "08" => "Aug",
-    "09" => "Sep",
-    "10" => "Oct",
-    "11" => "Nov",
-    "12" => "Dec");
+    $tab_month = ["01" => "Jan", "02" => "Feb", "03" => "Mar", "04" => "Apr", "05" => "May", "06" => "Jun", "07" => "Jul", "08" => "Aug", "09" => "Sep", "10" => "Oct", "11" => "Nov", "12" => "Dec"];
     $date = $tab_month[date('m', $time_unix)] . date(" d Y G:i:s", $time_unix);
     return $date;
 }
@@ -367,7 +355,7 @@ function getTimeString($time, $reportTimePeriod)
 
 function formatData($state, $time, $timeTOTAL, $time_none, $nb_alert, $color)
 {
-    $tab = array();
+    $tab = [];
     $tab["state"] = _($state);
     $tab["time"] = CentreonDuration::toString($time);
     $tab["timestamp"] = $time;

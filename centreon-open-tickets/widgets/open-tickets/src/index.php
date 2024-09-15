@@ -111,7 +111,7 @@ $stateLabels = [
     4 => 'Pending'
 ];
 
-$aStateType = array("1" => "H", "0" => "S");
+$aStateType = ["1" => "H", "0" => "S"];
 $mainQueryParameters = [];
 
 // Build Query
@@ -482,7 +482,7 @@ unset($parameter, $mainQueryParameters);
 $res->execute();
 
 $nbRows = $dbb->query("SELECT FOUND_ROWS()")->fetchColumn();
-$data = array();
+$data = [];
 $outputLength = $preferences['output_length'] ?: 50;
 
 $hostObj = new CentreonHost($db);

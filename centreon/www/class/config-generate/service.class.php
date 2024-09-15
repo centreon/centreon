@@ -56,7 +56,7 @@ class Service extends AbstractService
     /** @var array|null */
     protected $service_cache = null;
     /** @var array */
-    protected $generated_services = array(); // for index_data build and escalation
+    protected $generated_services = []; // for index_data build and escalation
     /** @var string */
     protected $generate_filename = 'services.cfg';
     /** @var string */
@@ -134,7 +134,7 @@ class Service extends AbstractService
      * @param int $serviceId
      * @param array $attr
      */
-    public function addServiceCache(int $serviceId, $attr = array()): void
+    public function addServiceCache(int $serviceId, $attr = []): void
     {
         $this->service_cache[$serviceId] = $attr;
     }
@@ -186,7 +186,7 @@ class Service extends AbstractService
      */
     private function manageCumulativeInheritance(array &$service): array
     {
-        $results = array('cg' => $service['contact_groups_cache'], 'contact' => $service['contacts_cache']);
+        $results = ['cg' => $service['contact_groups_cache'], 'contact' => $service['contacts_cache']];
 
         $servicesTpl = ServiceTemplate::getInstance($this->dependencyInjector)->service_cache;
         $serviceId = isset($this->service_cache[$service['service_id']]['service_template_model_stm_id'])
@@ -195,9 +195,9 @@ class Service extends AbstractService
         $serviceIdTopLevel = $serviceId;
 
         if (!is_null($serviceIdTopLevel) && !isset($servicesTpl[$serviceIdTopLevel]['contacts_computed_cache'])) {
-            $contacts = array();
-            $cg = array();
-            $loop = array();
+            $contacts = [];
+            $cg = [];
+            $loop = [];
             while (!is_null($serviceId)) {
                 if (isset($loop[$serviceId]) || ! isset($servicesTpl[$serviceId])) {
                     break;
@@ -258,8 +258,8 @@ class Service extends AbstractService
         $serviceIdTopLevel = $serviceId;
 
         if (!is_null($serviceIdTopLevel) && !isset($servicesTpl[$serviceIdTopLevel][$attribute . '_computed_cache'])) {
-            $servicesTpl[$serviceIdTopLevel][$attribute . '_computed_cache'] = array();
-            $loop = array();
+            $servicesTpl[$serviceIdTopLevel][$attribute . '_computed_cache'] = [];
+            $loop = [];
             while (!is_null($serviceId)) {
                 if (isset($loop[$serviceId])) {
                     break;
@@ -283,7 +283,7 @@ class Service extends AbstractService
             }
             return $servicesTpl[$serviceIdTopLevel][$attribute . '_computed_cache'];
         }
-        return array();
+        return [];
     }
 
     /**
@@ -305,9 +305,9 @@ class Service extends AbstractService
             ? $this->service_cache[$service['service_id']]['service_template_model_stm_id']
             : null;
         $serviceIdTopLevel = $serviceId;
-        $computedCache = array();
+        $computedCache = [];
         if (!is_null($serviceIdTopLevel) && !isset($servicesTpl[$serviceIdTopLevel][$attribute . '_computed_cache'])) {
-            $loop = array();
+            $loop = [];
             while (!is_null($serviceId)) {
                 if (isset($loop[$serviceId])) {
                     break;
@@ -391,7 +391,7 @@ class Service extends AbstractService
      */
     protected function manageNotificationInheritance(array &$service, bool $generate = true): array
     {
-        $results = array('cg' => array(), 'contact' => array());
+        $results = ['cg' => [], 'contact' => []];
 
         if (!is_null($service['notifications_enabled']) && (int)$service['notifications_enabled'] === 0) {
             return $results;
@@ -448,7 +448,7 @@ class Service extends AbstractService
         }
 
         // Check from service templates
-        $loop = array();
+        $loop = [];
         $servicesTpl = &ServiceTemplate::getInstance($this->dependencyInjector)->service_cache;
         $servicesTopTpl = isset($this->service_cache[$serviceIdArg]['service_template_model_stm_id'])
             ? $this->service_cache[$serviceIdArg]['service_template_model_stm_id']
@@ -524,7 +524,7 @@ class Service extends AbstractService
     public function addGeneratedServices(int $hostId, int $serviceId): void
     {
         if (!isset($this->generated_services[$hostId])) {
-            $this->generated_services[$hostId] = array();
+            $this->generated_services[$hostId] = [];
         }
         $this->generated_services[$hostId][] = $serviceId;
     }
@@ -624,7 +624,7 @@ class Service extends AbstractService
         $this->getSeverity($hostId, $serviceId);
         $this->getServiceGroups($serviceId, $hostId, $hostName);
         $this->generateObjectInFile(
-            $this->service_cache[$serviceId] + array('host_name' => $hostName),
+            $this->service_cache[$serviceId] + ['host_name' => $hostName],
             $hostId . '.' . $serviceId
         );
         $this->addGeneratedServices($hostId, $serviceId);
@@ -656,7 +656,7 @@ class Service extends AbstractService
         $serviceTplId = isset($this->service_cache[$serviceId]['service_template_model_stm_id'])
             ? $this->service_cache[$serviceId]['service_template_model_stm_id']
             : null;
-        $loop = array();
+        $loop = [];
         while (!is_null($serviceTplId)) {
             if (isset($loop[$serviceTplId])) {
                 break;
@@ -685,10 +685,10 @@ class Service extends AbstractService
     {
         # We reset it by poller (dont need all. We save memory)
         if ($this->use_cache_poller == 1) {
-            $this->service_cache = array();
+            $this->service_cache = [];
             $this->done_cache = 0;
         }
-        $this->generated_services = array();
+        $this->generated_services = [];
         parent::reset();
     }
 

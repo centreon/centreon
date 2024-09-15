@@ -34,11 +34,11 @@
  *
  */
 
-$dataDO = array();
-$dataUN = array();
-$dataUP = array();
-$dataPEND = array();
-$dataList = array();
+$dataDO = [];
+$dataUN = [];
+$dataUP = [];
+$dataPEND = [];
+$dataList = [];
 $db = new CentreonDB("centstorage");
 
 /**

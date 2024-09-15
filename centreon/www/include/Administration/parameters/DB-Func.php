@@ -168,7 +168,7 @@ function updateNagiosConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = array();
+    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
@@ -358,7 +358,7 @@ function updateSNMPConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = array();
+    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
@@ -403,7 +403,7 @@ function updateDebugConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = array();
+    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
@@ -531,7 +531,7 @@ function updateGeneralConfigData()
 {
     global $form, $pearDB, $centreon;
 
-    $ret = array();
+    $ret = [];
     $ret = $form->getSubmitValues();
 
     if (!isset($ret['AjaxTimeReloadStatistic'])) {
@@ -707,7 +707,7 @@ function updateRRDToolConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = array();
+    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
@@ -758,7 +758,7 @@ function updateODSConfigData()
 {
     global $form, $pearDBO, $pearDB;
 
-    $ret = array();
+    $ret = [];
     $ret = $form->getSubmitValues();
     if (!isset($ret["audit_log_option"])) {
         $ret["audit_log_option"] = '0';
@@ -831,7 +831,7 @@ function updateCASConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = array();
+    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
@@ -860,11 +860,7 @@ function updateBackupConfigData($db, $form, $centreon)
 {
     $ret = $form->getSubmitValues();
 
-    $radiobutton = array(
-        'backup_enabled',
-        'backup_database_type',
-        'backup_export_scp_enabled'
-    );
+    $radiobutton = ['backup_enabled', 'backup_database_type', 'backup_export_scp_enabled'];
     foreach ($radiobutton as $value) {
         $ret[$value] = isset($ret[$value]) && isset($ret[$value][$value]) && $ret[$value][$value] ? 1 : 0;
     }
@@ -878,10 +874,7 @@ function updateBackupConfigData($db, $form, $centreon)
         $ret[$value] = isset($ret[$value]) && $ret[$value] ? 1 : 0;
     }
 
-    $checkboxGroup = array(
-        'backup_database_full',
-        'backup_database_partial'
-    );
+    $checkboxGroup = ['backup_database_full', 'backup_database_partial'];
     foreach ($checkboxGroup as $value) {
         if (isset($ret[$value]) && count($ret[$value])) {
             $valueKeys = array_keys($ret[$value]);

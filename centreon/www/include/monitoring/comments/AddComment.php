@@ -59,9 +59,9 @@ if (!$centreon->user->access->checkAction("service_comment")) {
      * Init
      */
     $debug = 0;
-    $attrsTextI = array("size" => "3");
-    $attrsText = array("size" => "30");
-    $attrsTextarea = array("rows" => "7", "cols" => "80");
+    $attrsTextI = ["size" => "3"];
+    $attrsText = ["size" => "30"];
+    $attrsTextarea = ["rows" => "7", "cols" => "80"];
 
     /*
      * Form begin
@@ -77,7 +77,7 @@ if (!$centreon->user->access->checkAction("service_comment")) {
     if (isset($_GET["host_id"]) && !isset($_GET["service_id"])) {
         $host_name = $hObj->getHostName($_GET['host_id']);
     } elseif (isset($_GET["host_id"]) && isset($_GET["service_id"])) {
-        $serviceParameters = $serviceObj->getParameters($_GET['service_id'], array('service_description'));
+        $serviceParameters = $serviceObj->getParameters($_GET['service_id'], ['service_description']);
         $serviceDisplayName = $serviceParameters['service_description'];
         $host_name = $hObj->getHostName($_GET['host_id']);
     }
@@ -88,7 +88,7 @@ if (!$centreon->user->access->checkAction("service_comment")) {
             null,
             _("Host"),
             '1',
-            array('id' => 'host', 'onclick' => "toggleParams('host');")
+            ['id' => 'host', 'onclick' => "toggleParams('host');"]
         );
         $dtType[] = $form->createElement(
             'radio',
@@ -96,29 +96,19 @@ if (!$centreon->user->access->checkAction("service_comment")) {
             null,
             _("Services"),
             '2',
-            array('id' => 'service', 'onclick' => "toggleParams('service');")
+            ['id' => 'service', 'onclick' => "toggleParams('service');"]
         );
         $form->addGroup($dtType, 'commentType', _("Comment type"), '&nbsp;');
 
         /* ----- Hosts ----- */
-        $attrHosts = array(
-            'datasourceOrigin' => 'ajax',
-            'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_host&action=list',
-            'multiple' => true,
-            'linkedObject' => 'centreonHost'
-        );
-        $form->addElement('select2', 'host_id', _("Hosts"), array(), $attrHosts);
+        $attrHosts = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_host&action=list', 'multiple' => true, 'linkedObject' => 'centreonHost'];
+        $form->addElement('select2', 'host_id', _("Hosts"), [], $attrHosts);
 
         if (!isset($_GET['service_id'])) {
             /* ----- Services ----- */
-            $attrServices = array(
-                'datasourceOrigin' => 'ajax',
-                'availableDatasetRoute' =>
-                    './api/internal.php?object=centreon_configuration_service&action=list&e=enable',
-                'multiple' => true,
-                'linkedObject' => 'centreonService'
-            );
-            $form->addElement('select2', 'service_id', _("Services"), array(), $attrServices);
+            $attrServices = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' =>
+                './api/internal.php?object=centreon_configuration_service&action=list&e=enable', 'multiple' => true, 'linkedObject' => 'centreonService'];
+            $form->addElement('select2', 'service_id', _("Services"), [], $attrServices);
         }
     }
 
@@ -128,7 +118,7 @@ if (!$centreon->user->access->checkAction("service_comment")) {
     $form->addElement('textarea', 'comment', _("Comments"), $attrsTextarea);
     $form->addRule('comment', _("Required Field"), 'required');
 
-    $data = array();
+    $data = [];
     if (isset($_GET["host_id"]) && !isset($_GET["service_id"])) {
         $data["host_id"] = $_GET["host_id"];
         $data["commentType"] = 1;
@@ -147,14 +137,14 @@ if (!$centreon->user->access->checkAction("service_comment")) {
     }
 
     $form->setDefaults($data);
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 
     /* Push the comment */
     if ((isset($_POST["submitA"]) && $_POST["submitA"]) && $form->validate()) {
         $values = $form->getSubmitValues();
 
-        if (!isset($_POST["persistant"]) || !in_array($_POST["persistant"], array('0', '1'))) {
+        if (!isset($_POST["persistant"]) || !in_array($_POST["persistant"], ['0', '1'])) {
             $_POST["persistant"] = '0';
         }
 
@@ -168,7 +158,7 @@ if (!$centreon->user->access->checkAction("service_comment")) {
             //catch fix input host_id
             if (isset($_POST["host_id"])) {
                 if (!is_array($_POST["host_id"])) {
-                    $_POST["host_id"] = array($_POST["host_id"]);
+                    $_POST["host_id"] = [$_POST["host_id"]];
                 }
 
                 foreach ($_POST["host_id"] as $host_id) {
@@ -184,7 +174,7 @@ if (!$centreon->user->access->checkAction("service_comment")) {
 
             //catch fix input service_id
             if (!is_array($_POST["service_id"])) {
-                $_POST["service_id"] = array($_POST["service_id"]);
+                $_POST["service_id"] = [$_POST["service_id"]];
             }
 
             //global services comment

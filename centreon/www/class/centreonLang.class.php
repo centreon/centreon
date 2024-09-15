@@ -79,7 +79,7 @@ class CentreonLang
      */
     private function parseHttpAcceptHeader()
     {
-        $langs = array();
+        $langs = [];
 
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             // break up string into pieces (languages and q factors)
@@ -142,12 +142,7 @@ class CentreonLang
     {
         $fullLocale = '';
 
-        $as = array(
-            'fr' => 'fr_FR',
-            'fr_FR' => 'fr_FR',
-            'en' => 'en_US',
-            'en_US' => 'en_US'
-        );
+        $as = ['fr' => 'fr_FR', 'fr_FR' => 'fr_FR', 'en' => 'en_US', 'en_US' => 'en_US'];
 
         if (isset($as[$shortLocale])) {
             $fullLocale .= $as[$shortLocale];
@@ -166,51 +161,7 @@ class CentreonLang
      */
     private function setCharsetList(): void
     {
-        $this->charsetList = array(
-            "ISO-8859-1",
-            "ISO-8859-2",
-            "ISO-8859-3",
-            "ISO-8859-4",
-            "ISO-8859-5",
-            "ISO-8859-6",
-            "ISO-8859-7",
-            "ISO-8859-8",
-            "ISO-8859-9",
-            "UTF-80",
-            "UTF-83",
-            "UTF-84",
-            "UTF-85",
-            "UTF-86",
-            "ISO-2022-JP",
-            "ISO-2022-KR",
-            "ISO-2022-CN",
-            "WINDOWS-1251",
-            "CP866",
-            "KOI8",
-            "KOI8-E",
-            "KOI8-R",
-            "KOI8-U",
-            "KOI8-RU",
-            "ISO-10646-UCS-2",
-            "ISO-10646-UCS-4",
-            "UTF-7",
-            "UTF-8",
-            "UTF-16",
-            "UTF-16BE",
-            "UTF-16LE",
-            "UTF-32",
-            "UTF-32BE",
-            "UTF-32LE",
-            "EUC-CN",
-            "EUC-GB",
-            "EUC-JP",
-            "EUC-KR",
-            "EUC-TW",
-            "GB2312",
-            "ISO-10646-UCS-2",
-            "ISO-10646-UCS-4",
-            "SHIFT_JIS"
-        );
+        $this->charsetList = ["ISO-8859-1", "ISO-8859-2", "ISO-8859-3", "ISO-8859-4", "ISO-8859-5", "ISO-8859-6", "ISO-8859-7", "ISO-8859-8", "ISO-8859-9", "UTF-80", "UTF-83", "UTF-84", "UTF-85", "UTF-86", "ISO-2022-JP", "ISO-2022-KR", "ISO-2022-CN", "WINDOWS-1251", "CP866", "KOI8", "KOI8-E", "KOI8-R", "KOI8-U", "KOI8-RU", "ISO-10646-UCS-2", "ISO-10646-UCS-4", "UTF-7", "UTF-8", "UTF-16", "UTF-16BE", "UTF-16LE", "UTF-32", "UTF-32BE", "UTF-32LE", "EUC-CN", "EUC-GB", "EUC-JP", "EUC-KR", "EUC-TW", "GB2312", "ISO-10646-UCS-2", "ISO-10646-UCS-4", "SHIFT_JIS"];
         sort($this->charsetList);
     }
 

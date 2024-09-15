@@ -21,10 +21,7 @@ class CentreonProxy extends CentreonWebService
             $message = _('Could not establish connection to Centreon IMP servers (') . $e->getMessage() . ')';
         }
 
-        return array(
-            'outcome' => $outcome,
-            'message' => $message
-        );
+        return ['outcome' => $outcome, 'message' => $message];
     }
 
     /**

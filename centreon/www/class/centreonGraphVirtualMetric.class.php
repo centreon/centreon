@@ -59,7 +59,7 @@ class CentreonGraphVirtualMetric
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'virtual_metrics';
         $parameters['currentObject']['id'] = 'vmetric_id';
         $parameters['currentObject']['name'] = 'vmetric_name';

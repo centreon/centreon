@@ -59,18 +59,18 @@ abstract class AbstractObject
     /** @var null */
     protected $generate_filename = null;
     /** @var array */
-    protected $exported = array();
+    protected $exported = [];
     /** @var null */
     protected $fp = null;
 
     /** @var array */
-    protected $attributes_write = array();
+    protected $attributes_write = [];
     /** @var array */
-    protected $attributes_array = array();
+    protected $attributes_array = [];
     /** @var array */
-    protected $attributes_hash = array();
+    protected $attributes_hash = [];
     /** @var array */
-    protected $attributes_default = array();
+    protected $attributes_default = [];
     /** @var null */
     protected $notificationOption = null;
 
@@ -115,7 +115,7 @@ abstract class AbstractObject
         /**
          * @var array<string, static>
          */
-        static $instances = array();
+        static $instances = [];
         /**
          * @var class-string<static>
          */
@@ -157,7 +157,7 @@ abstract class AbstractObject
     public function reset(): void
     {
         $this->close_file();
-        $this->exported = array();
+        $this->exported = [];
         $this->openFileForUpdate(
             $this->backend_instance->getPath() . DIRECTORY_SEPARATOR . $this->generate_filename
         );
@@ -388,7 +388,7 @@ abstract class AbstractObject
         if (isset($this->exported)) {
             return $this->exported;
         }
-        return array();
+        return [];
     }
 
     /**

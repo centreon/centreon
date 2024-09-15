@@ -48,27 +48,19 @@ $search = \HtmlAnalyzer::sanitizeAndRemoveTags(
 
 if (isset($_POST['searchCG']) || isset($_GET['searchCG'])) {
     //saving filters values
-    $centreon->historySearch[$url] = array();
+    $centreon->historySearch[$url] = [];
     $centreon->historySearch[$url]['search'] = $search;
 } else {
     //restoring saved values
     $search = $centreon->historySearch[$url]['search'] ?? null;
 }
 
-$clauses = array();
+$clauses = [];
 if ($search) {
-    $clauses = array(
-        'cg_name' => array('LIKE', '%' . $search . '%'),
-        'cg_alias' => array('OR', 'LIKE', '%' . $search . '%')
-    );
+    $clauses = ['cg_name' => ['LIKE', '%' . $search . '%'], 'cg_alias' => ['OR', 'LIKE', '%' . $search . '%']];
 }
 
-$aclOptions = array(
-    'fields' => array('cg_id', 'cg_name', 'cg_alias', 'cg_activate'),
-    'keys' => array('cg_id'),
-    'order' => array('cg_name'),
-    'conditions' => $clauses
-);
+$aclOptions = ['fields' => ['cg_id', 'cg_name', 'cg_alias', 'cg_activate'], 'keys' => ['cg_id'], 'order' => ['cg_name'], 'conditions' => $clauses];
 $cgs = $acl->getContactGroupAclConf($aclOptions);
 $rows = count($cgs);
 
@@ -101,14 +93,11 @@ $form = new HTML_QuickFormCustom('select_form', 'POST', "?p=" . $p);
 // Different style between each lines
 $style = "one";
 
-$attrBtnSuccess = array(
-    "class" => "btc bt_success",
-    "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"
-);
+$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
 
 // Fill a tab with a multidimensional Array we put in $tpl
-$elemArr = array();
+$elemArr = [];
 $centreonToken = createCSRFToken();
 
 foreach ($cgs as $cg) {
@@ -130,24 +119,14 @@ foreach ($cgs as $cg) {
         "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" . $cg['cg_id'] . "]' />";
 
     //Contacts
-    $ctNbr = array();
+    $ctNbr = [];
     $rq = "SELECT COUNT(DISTINCT contact_contact_id) AS `nbr`
            FROM `contactgroup_contact_relation` `cgr`
            WHERE `cgr`.`contactgroup_cg_id` = '" . $cg['cg_id'] . "' " .
         $acl->queryBuilder('AND', 'contact_contact_id', $contactstring);
     $dbResult2 = $pearDB->query($rq);
     $ctNbr = $dbResult2->fetch();
-    $elemArr[] = array(
-        "MenuClass" => "list_" . $style,
-        "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_name" => $cg["cg_name"],
-        "RowMenu_link" => "main.php?p=" . $p . "&o=c&cg_id=" . $cg['cg_id'],
-        "RowMenu_desc" => $cg["cg_alias"],
-        "RowMenu_contacts" => $ctNbr["nbr"],
-        "RowMenu_status" => $cg["cg_activate"] ? _("Enabled") : _("Disabled"),
-        "RowMenu_badge" => $cg["cg_activate"] ? "service_ok" : "service_critical",
-        "RowMenu_options" => $moptions
-    );
+    $elemArr[] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => $cg["cg_name"], "RowMenu_link" => "main.php?p=" . $p . "&o=c&cg_id=" . $cg['cg_id'], "RowMenu_desc" => $cg["cg_alias"], "RowMenu_contacts" => $ctNbr["nbr"], "RowMenu_status" => $cg["cg_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $cg["cg_activate"] ? "service_ok" : "service_critical", "RowMenu_options" => $moptions];
     $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
@@ -155,38 +134,31 @@ $tpl->assign("elemArr", $elemArr);
 // Different messages we put in the template
 $tpl->assign(
     'msg',
-    array(
-        "addL" => "main.php?p=" . $p . "&o=a",
-        "addT" => _("Add"),
-        "delConfirm" => _("Do you confirm the deletion ?"),
-        "view_notif" => _("View contact group notifications")
-    )
+    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?"), "view_notif" => _("View contact group notifications")]
 );
 
-foreach (array('o1', 'o2') as $option) {
-    $attrs1 = array(
-        'onchange' => "javascript: " .
-            " var bChecked = isChecked(); " .
-            " if (this.form.elements['" . $option . "'].selectedIndex != 0 && !bChecked) {" .
-            " alert('" . _("Please select one or more items") . "'); return false;} " .
-            "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('" .
-            _("Do you confirm the duplication ?") . "')) {" .
-            " 	setO(this.form.elements['" . $option . "'].value); submit();} " .
-            "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('" .
-            _("Do you confirm the deletion ?") . "')) {" .
-            " 	setO(this.form.elements['" . $option . "'].value); submit();} " .
-            "else if (this.form.elements['" . $option . "'].selectedIndex == 3) {" .
-            " 	setO(this.form.elements['" . $option . "'].value); submit();} " .
-            ""
-    );
+foreach (['o1', 'o2'] as $option) {
+    $attrs1 = ['onchange' => "javascript: " .
+        " var bChecked = isChecked(); " .
+        " if (this.form.elements['" . $option . "'].selectedIndex != 0 && !bChecked) {" .
+        " alert('" . _("Please select one or more items") . "'); return false;} " .
+        "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('" .
+        _("Do you confirm the duplication ?") . "')) {" .
+        " 	setO(this.form.elements['" . $option . "'].value); submit();} " .
+        "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('" .
+        _("Do you confirm the deletion ?") . "')) {" .
+        " 	setO(this.form.elements['" . $option . "'].value); submit();} " .
+        "else if (this.form.elements['" . $option . "'].selectedIndex == 3) {" .
+        " 	setO(this.form.elements['" . $option . "'].value); submit();} " .
+        ""];
     $form->addElement(
         'select',
         $option,
         null,
-        array(null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")),
+        [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
         $attrs1
     );
-    $form->setDefaults(array($option => null));
+    $form->setDefaults([$option => null]);
     $o1 = $form->getElement($option);
     $o1->setValue(null);
     $o1->setSelected(null);

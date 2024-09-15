@@ -86,7 +86,7 @@ class CentreonHostgroups
             $this->setHgHgCache();
         }
 
-        $hosts = array();
+        $hosts = [];
         $statement = $this->DB->prepare("SELECT hgr.host_host_id " .
             "FROM hostgroup_relation hgr, host h " .
             "WHERE hgr.hostgroup_hg_id = :hgId " .
@@ -104,7 +104,7 @@ class CentreonHostgroups
 
         if (isset($hostgroups) && count($hostgroups)) {
             foreach ($hostgroups as $hg_id2) {
-                $ref[$hg_id2] = array();
+                $ref[$hg_id2] = [];
                 $tmp = $this->getHostGroupHosts($hg_id2, "", 1);
                 foreach ($tmp as $id) {
                     print "     host: $id<br>";
@@ -125,7 +125,7 @@ class CentreonHostgroups
      */
     public function getHostgroupName($hg_id)
     {
-        static $names = array();
+        static $names = [];
 
         if (!isset($names[$hg_id])) {
             $query = "SELECT hg_name FROM hostgroup WHERE hg_id = " . $this->DB->escape($hg_id);
@@ -199,7 +199,7 @@ class CentreonHostgroups
      */
     public function getHostgroupId($hg_name)
     {
-        static $ids = array();
+        static $ids = [];
 
         if (!isset($ids[$hg_name])) {
             $query = "SELECT hg_id FROM hostgroup WHERE hg_name = '" . $this->DB->escape($hg_name) . "'";
@@ -227,7 +227,7 @@ class CentreonHostgroups
             return;
         }
 
-        $hosts = array();
+        $hosts = [];
         $DBRESULT = $this->DB->query(
             "SELECT hg_child_id " .
             "FROM hostgroup_hg_relation, hostgroup " .
@@ -249,11 +249,11 @@ class CentreonHostgroups
      */
     private function setHgHgCache(): void
     {
-        $this->relationCache = array();
+        $this->relationCache = [];
         $DBRESULT = $this->DB->query("SELECT /* SQL_CACHE */ hg_parent_id, hg_child_id FROM hostgroup_hg_relation");
         while ($data = $DBRESULT->fetchRow()) {
             if (!isset($this->relationCache[$data["hg_parent_id"]])) {
-                $this->relationCache[$data["hg_parent_id"]] = array();
+                $this->relationCache[$data["hg_parent_id"]] = [];
             }
             $this->relationCache[$data["hg_parent_id"]][$data["hg_child_id"]] = 1;
         }
@@ -269,7 +269,7 @@ class CentreonHostgroups
      */
     public function getAllHostgroupsInCache($DB)
     {
-        $hostgroups = array();
+        $hostgroups = [];
 
         $this->unsetCache();
 
@@ -288,7 +288,7 @@ class CentreonHostgroups
      */
     private function unsetCache(): void
     {
-        $this->dataTree = array();
+        $this->dataTree = [];
     }
 
     /**
@@ -297,7 +297,7 @@ class CentreonHostgroups
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'hostgroup';
         $parameters['currentObject']['id'] = 'hg_id';
         $parameters['currentObject']['name'] = 'hg_name';
@@ -327,10 +327,10 @@ class CentreonHostgroups
      * @return array
      * @throws PDOException
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
         global $centreon;
-        $items = array();
+        $items = [];
 
         if (empty($values)) {
             return $items;
@@ -349,25 +349,14 @@ class CentreonHostgroups
             $hgAcl = $centreon->user->access->getHostGroupAclConf(
                 null,
                 'broker',
-                array(
-                    'distinct' => true,
-                    'fields' => array('hostgroup.hg_id'),
-                    'get_row' => 'hg_id',
-                    'keys' => array('hg_id'),
-                    'conditions' => array(
-                        'hostgroup.hg_id' => array(
-                            'IN',
-                            $hostgroups
-                        )
-                    )
-                ),
+                ['distinct' => true, 'fields' => ['hostgroup.hg_id'], 'get_row' => 'hg_id', 'keys' => ['hg_id'], 'conditions' => ['hostgroup.hg_id' => ['IN', $hostgroups]]],
                 true
             );
         }
 
         // get list of selected hostgroups
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
 
         foreach ($hostgroups as $item) {
             // the below explode may not be useful
@@ -395,11 +384,7 @@ class CentreonHostgroups
                 $hide = true;
             }
 
-            $items[] = array(
-                'id' => $row['hg_id'],
-                'text' => $row['hg_name'],
-                'hide' => $hide
-            );
+            $items[] = ['id' => $row['hg_id'], 'text' => $row['hg_name'], 'hide' => $hide];
         }
         return $items;
     }
@@ -412,7 +397,7 @@ class CentreonHostgroups
      */
     public function getHostsByHostgroupName($hgName)
     {
-        $hostList = array();
+        $hostList = [];
         $query = "SELECT host_name, host_id  " .
             "FROM hostgroup_relation hgr, host h, hostgroup hg " .
             "WHERE hgr.host_host_id = h.host_id " .
@@ -421,11 +406,7 @@ class CentreonHostgroups
             "AND hg.hg_name = '" . $this->DB->escape($hgName) . "'";
         $result = $this->DB->query($query);
         while ($elem = $result->fetchrow()) {
-            $hostList[] = array(
-                'host' => $elem['host_name'],
-                'host_id' => $elem['host_id'],
-                'hg_name' => $hgName
-            );
+            $hostList[] = ['host' => $elem['host_name'], 'host_id' => $elem['host_id'], 'hg_name' => $hgName];
         }
         return $hostList;
     }

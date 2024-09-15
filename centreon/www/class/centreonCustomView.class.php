@@ -90,7 +90,7 @@ class CentreonCustomView
     {
         $this->userId = is_null($userId) ? $centreon->user->user_id : $userId;
         $this->db = $db;
-        $this->userGroups = array();
+        $this->userGroups = [];
         $query = 'SELECT contactgroup_cg_id FROM contactgroup_contact_relation WHERE contact_contact_id = :userId';
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);
@@ -363,7 +363,7 @@ class CentreonCustomView
     public function getCustomViews()
     {
 
-        $queryValue = array();
+        $queryValue = [];
         $cglist = '';
 
         if (!isset($this->customViews)) {
@@ -381,14 +381,14 @@ class CentreonCustomView
                 $query .= 'OR cvur.usergroup_id IN (' . rtrim($cglist, ', ') . ')';
             }
             $query .= ') AND is_consumed = 1 ORDER BY user_id, name';
-            $this->customViews = array();
+            $this->customViews = [];
             $stmt = $this->db->prepare($query);
             $dbResult = $stmt->execute($queryValue);
             if (!$dbResult) {
                 throw new \Exception("An error occured");
             }
 
-            $tmp = array();
+            $tmp = [];
             while ($row = $stmt->fetch()) {
                 $cvid = $row['custom_view_id'];
                 $tmp[$cvid]['name'] = $row['name'];
@@ -806,14 +806,14 @@ class CentreonCustomView
             throw new CentreonCustomViewException('You are not allowed to share the view');
         }
         global $centreon;
-        $queryValue = array();
+        $queryValue = [];
 
         if ($this->checkPermission($customViewId)) {
             //////////////////////
             // share with users //
             //////////////////////
-            $sharedUsers = array();
-            $alwaysSharedUsers = array();
+            $sharedUsers = [];
+            $alwaysSharedUsers = [];
 
             if ($lockedUsers !== []) {
                 foreach ($lockedUsers as $lockedUser) {
@@ -843,7 +843,7 @@ class CentreonCustomView
             if (!$dbResult) {
                 throw new \Exception("An error occured");
             }
-            $oldSharedUsers = array();
+            $oldSharedUsers = [];
             while ($row = $stmt->fetch()) {
                 $oldSharedUsers[$row['user_id']] = 1;
             }
@@ -921,7 +921,7 @@ class CentreonCustomView
             ////////////////////////////
             // share with user groups //
             ////////////////////////////
-            $sharedUsergroups = array();
+            $sharedUsergroups = [];
             if ($lockedUsergroups !== []) {
                 foreach ($lockedUsergroups as $lockedUsergroup) {
                     $sharedUsergroups[$lockedUsergroup] = 1;
@@ -943,7 +943,7 @@ class CentreonCustomView
                 throw new \Exception("An error occured");
             }
 
-            $oldSharedUsergroups = array();
+            $oldSharedUsergroups = [];
             while ($row = $stmt->fetch()) {
                 $oldSharedUsergroups[$row['usergroup_id']] = 1;
             }
@@ -979,8 +979,8 @@ class CentreonCustomView
                 $this->copyPreferences($customViewId, null, $sharedUsergroupId);
             }
 
-            $queryValue2 = array();
-            $queryCgId = array();
+            $queryValue2 = [];
+            $queryCgId = [];
             $queryValue2[] = (int)$customViewId;
             $userGroupIdKey = '';
             if ($oldSharedUsergroups !== []) {
@@ -1003,8 +1003,8 @@ class CentreonCustomView
                 throw new \Exception("An error occured");
             }
 
-            $queryValueWidgetPref = array();
-            $tmpValueWidgetPref = array();
+            $queryValueWidgetPref = [];
+            $tmpValueWidgetPref = [];
             $queryValueWidgetPref[] = (int)$customViewId;
             $oldSharedUserOfUsergroups = '';
             while ($row = $stmt->fetch()) {
@@ -1287,7 +1287,7 @@ class CentreonCustomView
         if (!count($contactgroups)) {
             return null;
         }
-        $queryValue = array();
+        $queryValue = [];
         $cgString = '';
         foreach ($contactgroups as $k => $v) {
             $cgString .= '?,';

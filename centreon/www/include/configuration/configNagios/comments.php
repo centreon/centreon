@@ -34,7 +34,7 @@
  *
  */
 
-$nagios_comment = array();
+$nagios_comment = [];
 
 $nagios_comment["log_file"] = "This is the main log file where service "
     . "and host events are logged for historical purposes.  "

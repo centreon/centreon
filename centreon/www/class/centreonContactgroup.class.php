@@ -68,7 +68,7 @@ class CentreonContactgroup
     public function getListContactgroup($withLdap = false, $dbOnly = false)
     {
         // Contactgroup from database
-        $contactgroups = array();
+        $contactgroups = [];
 
         $query = "SELECT a.cg_id, a.cg_name, a.cg_ldap_dn, b.ar_name FROM contactgroup a ";
         $query .= " LEFT JOIN auth_ressource b ON a.ar_id = b.ar_id";
@@ -113,7 +113,7 @@ class CentreonContactgroup
      */
     public function getLdapContactgroups($filter = '')
     {
-        $cgs = array();
+        $cgs = [];
 
         $query = "SELECT `value` FROM `options` WHERE `key` = 'ldap_auth_enable'";
         $res = $this->db->query($query);
@@ -291,8 +291,8 @@ class CentreonContactgroup
      */
     public function syncWithLdapConfigGen()
     {
-        $msg = array();
-        $ldapServerConnError = array();
+        $msg = [];
+        $ldapServerConnError = [];
 
         $cgRes = $this->db->query(
             "SELECT cg.cg_id, cg.cg_name, cg.cg_ldap_dn, cg.ar_id, ar.ar_name
@@ -389,7 +389,7 @@ class CentreonContactgroup
      */
     public function syncWithLdap()
     {
-        $msg = array();
+        $msg = [];
         $ldapRes = $this->db->query(
             "SELECT ar_id FROM auth_ressource WHERE ar_enable = '1'"
         );
@@ -589,7 +589,7 @@ class CentreonContactgroup
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'contactgroup';
         $parameters['currentObject']['id'] = 'cg_id';
         $parameters['currentObject']['name'] = 'cg_name';
@@ -628,30 +628,20 @@ class CentreonContactgroup
      * @return array
      * @throws PDOException
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
         global $centreon;
-        $items = array();
+        $items = [];
 
         # get list of authorized contactgroups
         if (!$centreon->user->access->admin) {
             $cgAcl = $centreon->user->access->getContactGroupAclConf(
-                array(
-                    'fields' => array('cg_id'),
-                    'get_row' => 'cg_id',
-                    'keys' => array('cg_id'),
-                    'conditions' => array(
-                        'cg_id' => array(
-                            'IN',
-                            $values
-                        )
-                    )
-                ),
+                ['fields' => ['cg_id'], 'get_row' => 'cg_id', 'keys' => ['cg_id'], 'conditions' => ['cg_id' => ['IN', $values]]],
                 false
             );
         }
 
-        $aElement = array();
+        $aElement = [];
         if (is_array($values)) {
             foreach ($values as $value) {
                 if (preg_match_all('/\[(\w+)\]/', $value, $matches, PREG_SET_ORDER)) {
@@ -667,7 +657,7 @@ class CentreonContactgroup
         }
 
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if ($aElement !== []) {
             foreach ($aElement as $k => $v) {
                 $listValues .= ':cg' . $v . ',';
@@ -703,11 +693,7 @@ class CentreonContactgroup
                 $hide = true;
             }
 
-            $items[] = array(
-                'id' => $cgId,
-                'text' => $cgName,
-                'hide' => $hide
-            );
+            $items[] = ['id' => $cgId, 'text' => $cgName, 'hide' => $hide];
         }
 
         return $items;

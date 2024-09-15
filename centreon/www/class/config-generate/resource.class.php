@@ -50,9 +50,7 @@ class Resource extends AbstractObject
     /** @var null */
     protected $stmt = null;
     /** @var string[] */
-    protected $attributes_hash = array(
-        'resources'
-    );
+    protected $attributes_hash = ['resources'];
 
     /**
      * @param $poller_id
@@ -75,7 +73,7 @@ class Resource extends AbstractObject
         $this->stmt->bindParam(':poller_id', $poller_id, PDO::PARAM_INT);
         $this->stmt->execute();
 
-        $object = array('resources' => array());
+        $object = ['resources' => []];
         foreach ($this->stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
             $object['resources'][$value['resource_name']] = $value['resource_line'];
         }

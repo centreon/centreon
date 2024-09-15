@@ -69,18 +69,18 @@ class CentreonWidgetParamsDate extends CentreonWidgetParams
     {
         parent::init($params);
         if (isset($this->quickform)) {
-            $elems = array();
+            $elems = [];
             $elems[] = $this->quickform->addElement(
                 'text',
                 'from_' . $params['parameter_id'],
                 _('From'),
-                array("size" => 10, "class" => "datepicker")
+                ["size" => 10, "class" => "datepicker"]
             );
             $elems[] = $this->quickform->addElement(
                 'text',
                 'to_' . $params['parameter_id'],
                 _('To'),
-                array("size" => 10, "class" => "datepicker")
+                ["size" => 10, "class" => "datepicker"]
             );
             $this->element = $this->quickform->addGroup(
                 $elems,
@@ -112,10 +112,7 @@ class CentreonWidgetParamsDate extends CentreonWidgetParams
             if (!isset($tab[0]) || !isset($tab[1])) {
                 throw new CentreonWidgetParamsException('Incorrect date format found in database');
             }
-            $this->quickform->setDefaults(array(
-                'from_' . $params['parameter_id'] => $tab[0],
-                'to_' . $params['parameter_id'] => $tab[1]
-            ));
+            $this->quickform->setDefaults(['from_' . $params['parameter_id'] => $tab[0], 'to_' . $params['parameter_id'] => $tab[1]]);
         }
     }
 }

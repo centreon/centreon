@@ -57,7 +57,7 @@ function fillBuffer($statesTab, $row, $color)
 {
     global $buffer;
 
-    $statTab = array();
+    $statTab = [];
     $totalTime = 0;
     $sumTime = 0;
     foreach ($statesTab as $key => $value) {

@@ -134,7 +134,7 @@ class HTML_QuickForm_select2 extends HTML_QuickForm_select
      *
      * @var type
      */
-    public $_defaultDatasetOptions = array();
+    public $_defaultDatasetOptions = [];
 
     /**
      * @var int The number of element in the pagination
@@ -377,7 +377,7 @@ class HTML_QuickForm_select2 extends HTML_QuickForm_select
         $datas = 'data: [';
 
         // Set default values
-        $strValues = is_array($this->_values) ? array_map('strval', $this->_values) : array();
+        $strValues = is_array($this->_values) ? array_map('strval', $this->_values) : [];
 
         foreach ($this->_options as $option) {
             if (empty($option["attr"]["value"])) {
@@ -400,7 +400,7 @@ class HTML_QuickForm_select2 extends HTML_QuickForm_select
         return $datas;
     }
 
-    public $_memOptions = array();
+    public $_memOptions = [];
 
     /**
      *
@@ -531,7 +531,7 @@ class HTML_QuickForm_select2 extends HTML_QuickForm_select
 
             if (null !== $value) {
                 if (!is_array($value)) {
-                    $value = array($value);
+                    $value = [$value];
                 }
                 $this->_defaultDataset = $value;
                 $this->setDefaultFixedDatas();

@@ -65,7 +65,7 @@ class CentreonPerformanceService
      * @throws PDOException
      * @throws RestBadRequestException
      */
-    public function getList($filters = array())
+    public function getList($filters = [])
     {
         $additionnalTables = '';
         $additionnalCondition = '';
@@ -116,11 +116,11 @@ class CentreonPerformanceService
 
 
         $DBRESULT = $this->dbMon->query($query);
-        $serviceList = array();
+        $serviceList = [];
         while ($data = $DBRESULT->fetchRow()) {
             $serviceCompleteName = $data['fullname'];
             $serviceCompleteId = $data['host_id'] . '-' . $data['service_id'];
-            $serviceList[] = array('id' => $serviceCompleteId, 'text' => $serviceCompleteName);
+            $serviceList[] = ['id' => $serviceCompleteId, 'text' => $serviceCompleteName];
         }
 
         return $serviceList;
@@ -137,7 +137,7 @@ class CentreonPerformanceService
         $metaServiceCondition = '';
         if (!$this->aclObj->admin) {
             $metaServices = $this->aclObj->getMetaServices();
-            $virtualServices = array();
+            $virtualServices = [];
             foreach ($metaServices as $metaServiceId => $metaServiceName) {
                 $virtualServices[] = "'meta_" . $metaServiceId . "'";
             }

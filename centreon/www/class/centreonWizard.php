@@ -46,7 +46,7 @@ class Centreon_Wizard
     /** @var string */
     private $_name = null;
     /** @var array */
-    private $_values = array();
+    private $_values = [];
     /** @var int */
     private $_lastUpdate = 0;
 
@@ -73,7 +73,7 @@ class Centreon_Wizard
     public function getValues($step)
     {
         if (false === isset($this->_values[$step])) {
-            return array();
+            return [];
         }
         return $this->_values[$step];
     }
@@ -106,7 +106,7 @@ class Centreon_Wizard
     public function addValues($step, $post): void
     {
         /* Reinit */
-        $this->_values[$step] = array();
+        $this->_values[$step] = [];
         foreach ($post as $key => $value) {
             if (strncmp($key, 'step' . $step . '_', 6) === 0) {
                 $this->_values[$step][str_replace('step' . $step . '_', '', $key)] = $value;
@@ -138,7 +138,7 @@ class Centreon_Wizard
     public function __sleep()
     {
         $this->_lastUpdate = time();
-        return array('_uuid', '_lastUpdate', '_name', '_values');
+        return ['_uuid', '_lastUpdate', '_name', '_values'];
     }
 
     /**

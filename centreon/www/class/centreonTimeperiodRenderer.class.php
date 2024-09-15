@@ -54,11 +54,11 @@ class CentreonTimeperiodRenderer
     /** @var array[] */
     protected $timeline;
     /** @var array */
-    protected $includedTp = array();
+    protected $includedTp = [];
     /** @var array */
-    protected $excludedTp = array();
+    protected $excludedTp = [];
     /** @var array */
-    protected $exceptionList = array();
+    protected $exceptionList = [];
 
     /**
      * CentreonTimeperiodRenderer constructor
@@ -71,15 +71,7 @@ class CentreonTimeperiodRenderer
      */
     public function __construct($db, $tpid, $inex)
     {
-        $dayTab = array(
-            "tp_sunday" => array(),
-            "tp_monday" => array(),
-            "tp_tuesday" => array(),
-            "tp_wednesday" => array(),
-            "tp_thursday" => array(),
-            "tp_friday" => array(),
-            "tp_saturday" => array()
-        );
+        $dayTab = ["tp_sunday" => [], "tp_monday" => [], "tp_tuesday" => [], "tp_wednesday" => [], "tp_thursday" => [], "tp_friday" => [], "tp_saturday" => []];
         $this->timerange = $dayTab;
         $this->timeline = $dayTab;
         $this->db = $db;
@@ -120,13 +112,7 @@ class CentreonTimeperiodRenderer
         $coef = 4;
         foreach ($this->timerange as $day => $ranges) {
             $timeindex=0;
-            $timeline[0]=array("start"    => 0,
-                               "style"    => "unset",
-                               "end"      => 0,
-                               "size"     => 0,
-                               "Text"     => "init",
-                               "From"     => "",
-                               "Textual"  => "");
+            $timeline[0]=["start"    => 0, "style"    => "unset", "end"      => 0, "size"     => 0, "Text"     => "init", "From"     => "", "Textual"  => ""];
             if (isset($ranges[0])) {
                 $last["in"] = "";
                 $last["nb"] = 0;
@@ -183,13 +169,7 @@ class CentreonTimeperiodRenderer
                                 break;
                         }
                         if ($i < 1440) {
-                            $timeline[++$timeindex] = array("start"    => $i,
-                                                            "style"    => "unset",
-                                                            "end"      => 0,
-                                                            "size"     => 0,
-                                                            "Text"     => "New in loop",
-                                                            "From"     => "",
-                                                            "Textual"  => "");
+                            $timeline[++$timeindex] = ["start"    => $i, "style"    => "unset", "end"      => 0, "size"     => 0, "Text"     => "New in loop", "From"     => "", "Textual"  => ""];
                         }
                     }
                     $last = $actual;
@@ -198,13 +178,7 @@ class CentreonTimeperiodRenderer
             $endtime = $timeline[$timeindex]["end"];
             if ($endtime < 1440) {
                 $textual = sprintf("%02d", intval($endtime/60)).":".sprintf("%02d", $endtime%60)."-24:00";
-                $timeline[$timeindex] = array("start"    => $endtime,
-                                              "style"    => "unset",
-                                              "end"      => 1440,
-                                              "size"     => (1440 - $endtime) / $coef,
-                                              "Text"     => "No Timeperiod covering ".$textual,
-                                              "From"     => "No Timeperiod covering ".$textual,
-                                              "Textual"  => $textual);
+                $timeline[$timeindex] = ["start"    => $endtime, "style"    => "unset", "end"      => 1440, "size"     => (1440 - $endtime) / $coef, "Text"     => "No Timeperiod covering ".$textual, "From"     => "No Timeperiod covering ".$textual, "Textual"  => $textual];
             }
             $this->timeline[$day] = $timeline;
             unset($timeline);
@@ -237,7 +211,7 @@ class CentreonTimeperiodRenderer
     protected function orderTimeRanges()
     {
         foreach ($this->timerange as $key => $val) {
-            usort($val, array("CentreonTimeperiodRenderer", "startCompare"));
+            usort($val, ["CentreonTimeperiodRenderer", "startCompare"]);
             $this->timerange[$key] = $val;
         }
     }
@@ -313,7 +287,7 @@ class CentreonTimeperiodRenderer
      */
     protected function getTimeRange($id, $name, $in, $range)
     {
-        $timeRange = array();
+        $timeRange = [];
         $timeRange['fromTpId'] = $id;
         $timeRange['fromTpName'] = $name;
         $timeRange['inex'] = $in;
@@ -392,7 +366,7 @@ class CentreonTimeperiodRenderer
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'timeperiod';
         $parameters['currentObject']['id'] = 'tp_id';
         $parameters['currentObject']['name'] = 'tp_name';

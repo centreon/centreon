@@ -89,26 +89,19 @@ $form = new HTML_QuickFormCustom('form', 'POST', "?p=" . $p);
 /*
  * Fill a tab with a mutlidimensionnal Array we put in $tpl
  */
-$elemArr = array();
+$elemArr = [];
 for ($i = 0; $elem = $res->fetchRow(); $i++) {
     if (isset($elem['dir_id']) && !isset($elemArr[$elem['dir_id']])) {
         $selectedDirElem = $form->addElement('checkbox', "select[" . $elem['dir_id'] . "]");
         $selectedDirElem->setAttribute("onclick", "setSubNodes(this, 'select[" . $elem['dir_id'] . "-')");
-        $rowOpt = array(
-            "RowMenu_select" => $selectedDirElem->toHtml(),
-            "RowMenu_DirLink" => "main.php?p=" . $p . "&o=cd&dir_id=" . $elem['dir_id'],
-            "RowMenu_dir" => CentreonUtils::escapeSecure(
-                $elem["dir_name"],
-                CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-            ),
-            "RowMenu_dir_cmnt" => CentreonUtils::escapeSecure(
-                $elem["dir_comment"],
-                CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-            ),
-            "RowMenu_empty" => _("Empty directory"),
-            "counter" => 0
-        );
-        $elemArr[$elem['dir_id']] = array("head" => $rowOpt, "elem" => array());
+        $rowOpt = ["RowMenu_select" => $selectedDirElem->toHtml(), "RowMenu_DirLink" => "main.php?p=" . $p . "&o=cd&dir_id=" . $elem['dir_id'], "RowMenu_dir" => CentreonUtils::escapeSecure(
+            $elem["dir_name"],
+            CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
+        ), "RowMenu_dir_cmnt" => CentreonUtils::escapeSecure(
+            $elem["dir_comment"],
+            CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
+        ), "RowMenu_empty" => _("Empty directory"), "counter" => 0];
+        $elemArr[$elem['dir_id']] = ["head" => $rowOpt, "elem" => []];
     }
 
     if ($elem['img_id']) {
@@ -117,27 +110,19 @@ for ($i = 0; $elem = $res->fetchRow(); $i++) {
             'checkbox',
             "select[" . $elem['dir_id'] . "-" . $elem['img_id'] . "]"
         );
-        $rowOpt = array(
-            "RowMenu_select" => $selectedImgElem->toHtml(),
-            "RowMenu_ImgLink" => "main.php?p=$p&o=ci&img_id={$elem['img_id']}",
-            "RowMenu_DirLink" => "main.php?p=$p&o=cd&dir_id={$elem['dir_id']}",
-            "RowMenu_dir" => CentreonUtils::escapeSecure(
-                $elem["dir_name"],
-                CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-            ),
-            "RowMenu_img" => CentreonUtils::escapeSecure(
-                html_entity_decode($elem["dir_alias"] . "/" . $elem["img_path"], ENT_QUOTES, "UTF-8"),
-                CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-            ),
-            "RowMenu_name" => CentreonUtils::escapeSecure(
-                html_entity_decode($elem["img_name"], ENT_QUOTES, "UTF-8"),
-                CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-            ),
-            "RowMenu_comment" => CentreonUtils::escapeSecure(
-                html_entity_decode($elem["img_comment"], ENT_QUOTES, "UTF-8"),
-                CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-            )
-        );
+        $rowOpt = ["RowMenu_select" => $selectedImgElem->toHtml(), "RowMenu_ImgLink" => "main.php?p=$p&o=ci&img_id={$elem['img_id']}", "RowMenu_DirLink" => "main.php?p=$p&o=cd&dir_id={$elem['dir_id']}", "RowMenu_dir" => CentreonUtils::escapeSecure(
+            $elem["dir_name"],
+            CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
+        ), "RowMenu_img" => CentreonUtils::escapeSecure(
+            html_entity_decode($elem["dir_alias"] . "/" . $elem["img_path"], ENT_QUOTES, "UTF-8"),
+            CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
+        ), "RowMenu_name" => CentreonUtils::escapeSecure(
+            html_entity_decode($elem["img_name"], ENT_QUOTES, "UTF-8"),
+            CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
+        ), "RowMenu_comment" => CentreonUtils::escapeSecure(
+            html_entity_decode($elem["img_comment"], ENT_QUOTES, "UTF-8"),
+            CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
+        )];
         $elemArr[$elem['dir_id']]["elem"][$i] = $rowOpt;
         $elemArr[$elem['dir_id']]["head"]["counter"]++;
     }
@@ -161,11 +146,7 @@ $tpl->assign("Available", _("Available"));
  */
 $tpl->assign(
     'msg',
-    array(
-        "addL" => "main.php?p=" . $p . "&o=a",
-        "addT" => _("Add"),
-        "delConfirm" => _("Do you confirm the deletion ?")
-    )
+    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
 );
 
 ?>
@@ -210,15 +191,11 @@ $tpl->assign(
 
     </SCRIPT>
 <?php
-$actions = array(
-    null => _("More actions"),
-    IMAGE_DELETE => _("Delete"),
-    IMAGE_MOVE => _("Move images")
-);
-$form->addElement('select', 'o1', null, $actions, array('onchange' => "javascript:submitO('o1');"));
-$form->addElement('select', 'o2', null, $actions, array('onchange' => "javascript:submitO('o2');"));
-$form->setDefaults(array('o1' => null));
-$form->setDefaults(array('o2' => null));
+$actions = [null => _("More actions"), IMAGE_DELETE => _("Delete"), IMAGE_MOVE => _("Move images")];
+$form->addElement('select', 'o1', null, $actions, ['onchange' => "javascript:submitO('o1');"]);
+$form->addElement('select', 'o2', null, $actions, ['onchange' => "javascript:submitO('o2');"]);
+$form->setDefaults(['o1' => null]);
+$form->setDefaults(['o2' => null]);
 
 
 $o1 = $form->getElement('o1');

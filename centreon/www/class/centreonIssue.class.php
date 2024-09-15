@@ -98,7 +98,7 @@ class CentreonIssue
 					AND iip2.parent_id = ".$this->dbb->escape($issueId)."
         		  ) tb ";
         $res = $this->dbb->query($query);
-        $childTab = array();
+        $childTab = [];
         while ($row = $res->fetchRow()) {
             foreach ($row as $key => $val) {
                 $childTab[$row['issue_id']][$key] = $val;

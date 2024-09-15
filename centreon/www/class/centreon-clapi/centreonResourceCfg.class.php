@@ -61,9 +61,7 @@ class CentreonResourceCfg extends CentreonObject
     public const MACRO_ALREADY_IN_USE = "Resource is already tied to instance";
 
     /** @var string[] */
-    public static $aDepends = array(
-        'INSTANCE'
-    );
+    public static $aDepends = ['INSTANCE'];
 
     /** @var CentreonInstance */
     protected $instanceObj;
@@ -85,18 +83,9 @@ class CentreonResourceCfg extends CentreonObject
         $this->instanceObj = new CentreonInstance($dependencyInjector);
         $this->relObj = new Centreon_Object_Relation_Instance_Resource($dependencyInjector);
         $this->object = new Centreon_Object_Resource($dependencyInjector);
-        $this->params = array(
-            'resource_line' => '',
-            'resource_comment' => '',
-            'resource_activate' => '1'
-        );
-        $this->insertParams = array(
-            $this->object->getUniqueLabelField(),
-            'resource_line',
-            'instance_id',
-            'resource_comment'
-        );
-        $this->exportExcludedParams = array_merge($this->insertParams, array($this->object->getPrimaryKey()));
+        $this->params = ['resource_line' => '', 'resource_comment' => '', 'resource_activate' => '1'];
+        $this->insertParams = [$this->object->getUniqueLabelField(), 'resource_line', 'instance_id', 'resource_comment'];
+        $this->exportExcludedParams = array_merge($this->insertParams, [$this->object->getPrimaryKey()]);
         $this->nbOfCompulsoryParams = 4;
         $this->activateField = "resource_activate";
         $this->action = 'RESOURCECFG';
@@ -115,7 +104,7 @@ class CentreonResourceCfg extends CentreonObject
     protected function isUnique($macro, $pollerId)
     {
         if (is_numeric($macro)) {
-            $stmt = $this->db->query("SELECT resource_name FROM cfg_resource WHERE resource_id = ?", array($macro));
+            $stmt = $this->db->query("SELECT resource_name FROM cfg_resource WHERE resource_id = ?", [$macro]);
             $res = $stmt->fetchAll();
             if (count($res)) {
                 $macroName = $res[0]['resource_name'];
@@ -131,7 +120,7 @@ class CentreonResourceCfg extends CentreonObject
                                   FROM cfg_resource r, cfg_resource_instance_relations rir
                                   WHERE r.resource_id = rir.resource_id
                                   AND rir.instance_id = ?
-                                  AND r.resource_name = ?", array($pollerId, $macroName));
+                                  AND r.resource_name = ?", [$pollerId, $macroName]);
         $res = $stmt->fetchAll();
         if (count($res)) {
             return false;
@@ -157,10 +146,10 @@ class CentreonResourceCfg extends CentreonObject
             $params[self::ORDER_UNIQUENAME] = '$' . $params[self::ORDER_UNIQUENAME] . '$';
         }
 
-        $addParams = array();
+        $addParams = [];
         $instanceNames = explode("|", $params[self::ORDER_INSTANCE]);
 
-        $this->instanceIds = array();
+        $this->instanceIds = [];
         foreach ($instanceNames as $instanceName) {
             $this->instanceIds[] = $this->instanceObj->getInstanceId($instanceName);
         }
@@ -199,7 +188,7 @@ class CentreonResourceCfg extends CentreonObject
         if (is_numeric($params[0])) {
             $objectId = $params[0];
         } else {
-            $object = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($params[0]));
+            $object = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$params[0]]);
             if (isset($object[0][$this->object->getPrimaryKey()])) {
                 $objectId = $object[0][$this->object->getPrimaryKey()];
             } else {
@@ -208,7 +197,7 @@ class CentreonResourceCfg extends CentreonObject
         }
         if ($params[1] == "instance") {
             $instanceNames = explode("|", $params[2]);
-            $instanceIds = array();
+            $instanceIds = [];
             foreach ($instanceNames as $instanceName) {
                 $instanceIds[] = $this->instanceObj->getInstanceId($instanceName);
             }
@@ -221,7 +210,7 @@ class CentreonResourceCfg extends CentreonObject
                 }
             }
             $params[1] = "resource_" . $params[1];
-            $updateParams = array($params[1] => $params[2]);
+            $updateParams = [$params[1] => $params[2]];
             $updateParams['objectId'] = $objectId;
             return $updateParams;
         }
@@ -243,7 +232,7 @@ class CentreonResourceCfg extends CentreonObject
         if (is_numeric($params[0])) {
             $objectId = $params[0];
         } else {
-            $object = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($params[0]));
+            $object = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$params[0]]);
             if (isset($object[0][$this->object->getPrimaryKey()])) {
                 $objectId = $object[0][$this->object->getPrimaryKey()];
             } else {
@@ -252,15 +241,15 @@ class CentreonResourceCfg extends CentreonObject
         }
         if ($params[1] == "instance") {
             $instanceNames = explode("|", $params[2]);
-            $instanceIds = array();
+            $instanceIds = [];
             foreach ($instanceNames as $instanceName) {
                 $instanceId = $this->instanceObj->getInstanceId($instanceName);
                 $stmt = $this->db->query("SELECT instance_id
                       FROM cfg_resource_instance_relations
                       WHERE instance_id = ?
-                      AND resource_id = ?", array($instanceId, $objectId));
+                      AND resource_id = ?", [$instanceId, $objectId]);
                 $results = $stmt->fetchAll();
-                $oldInstanceIds = array();
+                $oldInstanceIds = [];
                 foreach ($results as $result) {
                     $oldInstanceIds[] = $result['instance_id'];
                 }
@@ -284,7 +273,7 @@ class CentreonResourceCfg extends CentreonObject
             if (!preg_match('/^\$\S+\$$/', $objectName)) {
                 $objectName = '$' . $objectName . '$';
             }
-            $object = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($objectName));
+            $object = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$objectName]);
             if (isset($object[0][$this->object->getPrimaryKey()])) {
                 $objectId = $object[0][$this->object->getPrimaryKey()];
             } else {
@@ -300,13 +289,13 @@ class CentreonResourceCfg extends CentreonObject
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array()): void
+    public function show($parameters = null, $filters = []): void
     {
-        $filters = array();
+        $filters = [];
         if (isset($parameters)) {
-            $filters = array($this->object->getUniqueLabelField() => "%" . $parameters . "%");
+            $filters = [$this->object->getUniqueLabelField() => "%" . $parameters . "%"];
         }
-        $params = array("resource_id", "resource_name", "resource_line", "resource_comment", "resource_activate");
+        $params = ["resource_id", "resource_name", "resource_line", "resource_comment", "resource_activate"];
         $paramString = str_replace("_", " ", implode($this->delim, $params));
         $paramString = str_replace("resource ", "", $paramString);
         $paramString = str_replace("line", "value", $paramString);
@@ -385,7 +374,7 @@ class CentreonResourceCfg extends CentreonObject
             $addStr = $this->action . $this->delim . "ADD";
             foreach ($this->insertParams as $param) {
                 if ($param == 'instance_id') {
-                    $instances = array();
+                    $instances = [];
                     foreach ($instanceIds as $instanceId) {
                         $instances[] = $this->instanceObj->getInstanceName($instanceId);
                     }
@@ -443,7 +432,7 @@ class CentreonResourceCfg extends CentreonObject
                 }
                 $args = explode($this->delim, $arg[0]);
 
-                $object = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($args[0]));
+                $object = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$args[0]]);
                 if (isset($object[0][$this->object->getPrimaryKey()])) {
                     $objectId = $object[0][$this->object->getPrimaryKey()];
                 } else {
@@ -460,7 +449,7 @@ class CentreonResourceCfg extends CentreonObject
                     );
                     echo "id" . $this->delim . "name" . "\n";
                     foreach ($tab as $value) {
-                        $tmp = $obj->getParameters($value, array($obj->getUniqueLabelField()));
+                        $tmp = $obj->getParameters($value, [$obj->getUniqueLabelField()]);
                         echo $value . $this->delim . $tmp[$obj->getUniqueLabelField()] . "\n";
                     }
                 } else {
@@ -468,13 +457,13 @@ class CentreonResourceCfg extends CentreonObject
                         throw new CentreonClapiException(self::MISSINGPARAMETER);
                     }
                     $relations = explode("|", $args[1]);
-                    $relationTable = array();
+                    $relationTable = [];
                     foreach ($relations as $rel) {
                         $sRel = $rel;
                         if (is_string($rel)) {
                             $rel = htmlentities($rel, ENT_QUOTES, "UTF-8");
                         }
-                        $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), array($rel));
+                        $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), [$rel]);
                         if (!count($tab)) {
                             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $sRel);
                         }

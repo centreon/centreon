@@ -70,7 +70,7 @@ class CentreonInstance
         if (!empty($dbo)) {
             $this->dbo = $dbo;
         }
-        $this->instances = array();
+        $this->instances = [];
         $this->initParams();
     }
 
@@ -94,16 +94,16 @@ class CentreonInstance
      */
     protected function initParams()
     {
-        $this->params = array();
-        $this->paramsByName = array();
+        $this->params = [];
+        $this->paramsByName = [];
         $query = "SELECT id, name, localhost, last_restart, ns_ip_address FROM nagios_server";
         $res = $this->db->query($query);
         while ($row = $res->fetchRow()) {
             $instanceId = $row['id'];
             $instanceName = $row['name'];
             $this->instances[$instanceId] = $instanceName;
-            $this->params[$instanceId] = array();
-            $this->paramsByName[$instanceName] = array();
+            $this->params[$instanceId] = [];
+            $this->paramsByName[$instanceName] = [];
             foreach ($row as $key => $value) {
                 $this->params[$instanceId][$key] = $value;
                 $this->paramsByName[$instanceName][$key] = $value;
@@ -217,7 +217,7 @@ class CentreonInstance
             ORDER BY pcr.command_order";
         $res = $this->db->prepare($sql);
         $res->execute([$pollerId]);
-        $arr = array();
+        $arr = [];
         while ($row = $res->fetchRow()) {
             $arr[] = $row;
         }
@@ -234,7 +234,7 @@ class CentreonInstance
      */
     public function getCommandsFromPollerId($pollerId = null)
     {
-        $arr = array();
+        $arr = [];
         $i = 0;
         if (!isset($_REQUEST['pollercmd']) && $pollerId) {
             $sql = "SELECT command_id 
@@ -270,7 +270,7 @@ class CentreonInstance
         $this->db->query("DELETE FROM poller_command_relations
                 WHERE poller_id = " . $this->db->escape($pollerId));
 
-        $stored = array();
+        $stored = [];
         $i = 1;
         foreach ($commands as $value) {
             if ($value != "" &&
@@ -292,12 +292,12 @@ class CentreonInstance
      * @return array
      * @throws PDOException
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
         global $centreon;
 
         $selectedInstances = '';
-        $items = array();
+        $items = [];
 
         if (empty($values)) {
             return $items;
@@ -309,7 +309,7 @@ class CentreonInstance
         }
 
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         foreach ($values as $k => $v) {
             $multipleValues = explode(',', $v);
             foreach ($multipleValues as $item) {
@@ -341,11 +341,7 @@ class CentreonInstance
             ) {
                 $hide = true;
             }
-            $items[] = array(
-                'id' => $data['id'],
-                'text' => $data['name'],
-                'hide' => $hide
-            );
+            $items[] = ['id' => $data['id'], 'text' => $data['name'], 'hide' => $hide];
         }
 
         return $items;
@@ -359,7 +355,7 @@ class CentreonInstance
      */
     public function getHostsByInstance($instanceName)
     {
-        $instanceList = array();
+        $instanceList = [];
 
         $query = "SELECT host_name, name " .
             " FROM host h, nagios_server ns, ns_host_relation nshr " .
@@ -370,10 +366,7 @@ class CentreonInstance
         $result = $this->db->query($query);
 
         while ($elem = $result->fetchrow()) {
-            $instanceList[] = array(
-                'host' => $elem['host_name'],
-                'name' => $instanceName
-            );
+            $instanceList[] = ['host' => $elem['host_name'], 'name' => $instanceName];
         }
         return $instanceList;
     }

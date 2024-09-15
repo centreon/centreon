@@ -101,54 +101,9 @@ abstract class AbstractHost extends AbstractObject
         host_acknowledgement_timeout as acknowledgement_timeout
     ';
     /** @var string[] */
-    protected $attributes_write = array(
-        'host_name',
-        'alias',
-        'address',
-        'display_name',
-        'contacts',
-        'contact_groups',
-        'check_command',
-        'check_period',
-        'notification_period',
-        'event_handler',
-        'max_check_attempts',
-        'check_interval',
-        'retry_interval',
-        'initial_state',
-        'freshness_threshold',
-        'low_flap_threshold',
-        'high_flap_threshold',
-        'flap_detection_options',
-        'notification_interval',
-        'notification_options',
-        'first_notification_delay',
-        'recovery_notification_delay',
-        'stalking_options',
-        'register',
-        'notes',
-        'notes_url',
-        'action_url',
-        'icon_image',
-        'icon_id',
-        'icon_image_alt',
-        'statusmap_image',
-        'timezone',
-        'acknowledgement_timeout'
-    );
+    protected $attributes_write = ['host_name', 'alias', 'address', 'display_name', 'contacts', 'contact_groups', 'check_command', 'check_period', 'notification_period', 'event_handler', 'max_check_attempts', 'check_interval', 'retry_interval', 'initial_state', 'freshness_threshold', 'low_flap_threshold', 'high_flap_threshold', 'flap_detection_options', 'notification_interval', 'notification_options', 'first_notification_delay', 'recovery_notification_delay', 'stalking_options', 'register', 'notes', 'notes_url', 'action_url', 'icon_image', 'icon_id', 'icon_image_alt', 'statusmap_image', 'timezone', 'acknowledgement_timeout'];
     /** @var string[] */
-    protected $attributes_default = array(
-        'active_checks_enabled',
-        'passive_checks_enabled',
-        'event_handler_enabled',
-        'flap_detection_enabled',
-        'notifications_enabled',
-        'obsess_over_host',
-        'check_freshness',
-        'process_perf_data',
-        'retain_status_information',
-        'retain_nonstatus_information',
-    );
+    protected $attributes_default = ['active_checks_enabled', 'passive_checks_enabled', 'event_handler_enabled', 'flap_detection_enabled', 'notifications_enabled', 'obsess_over_host', 'check_freshness', 'process_perf_data', 'retain_status_information', 'retain_nonstatus_information'];
     /** @var string[] */
     protected $attributes_array = [
         'use',
@@ -157,11 +112,9 @@ abstract class AbstractHost extends AbstractObject
         'group_tags',
     ];
     /** @var string[] */
-    protected $attributes_hash = array(
-        'macros'
-    );
+    protected $attributes_hash = ['macros'];
     /** @var array */
-    protected $loop_htpl = array(); # To be reset
+    protected $loop_htpl = []; # To be reset
     /** @var null */
     protected $stmt_macro = null;
     /** @var null */
@@ -246,7 +199,7 @@ abstract class AbstractHost extends AbstractObject
         $this->stmt_macro->execute();
         $macros = $this->stmt_macro->fetchAll(PDO::FETCH_ASSOC);
 
-        $host['macros'] = array();
+        $host['macros'] = [];
         foreach ($macros as $macro) {
             $hostMacroName = preg_replace(
                 '/\$_HOST(.*)\$/',
@@ -291,7 +244,7 @@ abstract class AbstractHost extends AbstractObject
         }
 
         $hostTemplate = HostTemplate::getInstance($this->dependencyInjector);
-        $host['use'] = array();
+        $host['use'] = [];
         foreach ($host['htpl'] as $templateId) {
             $host['use'][] = $hostTemplate->generateFromHostId($templateId);
         }
@@ -351,8 +304,8 @@ abstract class AbstractHost extends AbstractObject
      */
     public function isHostTemplate($host_id, $host_tpl_id)
     {
-        $loop = array();
-        $stack = array();
+        $loop = [];
+        $stack = [];
 
         $hosts_tpl = HostTemplate::getInstance($this->dependencyInjector)->hosts;
         $stack = $this->hosts[$host_id]['htpl'];
@@ -378,8 +331,8 @@ abstract class AbstractHost extends AbstractObject
      */
     protected function findCommandName($host_id, $command_label)
     {
-        $loop = array();
-        $stack = array();
+        $loop = [];
+        $stack = [];
 
         $hosts_tpl = HostTemplate::getInstance($this->dependencyInjector)->hosts;
         $stack = $this->hosts[$host_id]['htpl'];

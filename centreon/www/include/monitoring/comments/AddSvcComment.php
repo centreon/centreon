@@ -67,7 +67,7 @@ if ($centreon->user->access->checkAction("service_comment")) {
         if ($host_name == '_Module_Meta' && preg_match('/^meta_(\d+)/', $svc_description, $matches)) {
             $host_name = 'Meta';
             $serviceObj = new CentreonService($pearDB);
-            $serviceParameters = $serviceObj->getParameters($service_id, array('display_name'));
+            $serviceParameters = $serviceObj->getParameters($service_id, ['display_name']);
             $svc_description = $serviceParameters['display_name'];
         }
     }
@@ -79,21 +79,21 @@ if ($centreon->user->access->checkAction("service_comment")) {
     $query = "SELECT host_id, host_name FROM `host` WHERE (host_register = '1'  OR host_register = '2' )" .
         $centreon->user->access->queryBuilder("AND", "host_id", $hostStr) . "ORDER BY host_name";
     $DBRESULT = $pearDB->query($query);
-    $hosts = array(null => null);
+    $hosts = [null => null];
     while ($row = $DBRESULT->fetchRow()) {
         $hosts[$row['host_id']] = $row['host_name'];
     }
     $DBRESULT->closeCursor();
 
-    $services = array();
+    $services = [];
     if (isset($host_id)) {
         $services = $centreon->user->access->getHostServices($pearDBO, $host_id);
     }
 
     $debug = 0;
-    $attrsTextI = array("size" => "3");
-    $attrsText = array("size" => "30");
-    $attrsTextarea = array("rows" => "7", "cols" => "100");
+    $attrsTextI = ["size" => "3"];
+    $attrsText = ["size" => "30"];
+    $attrsTextarea = ["rows" => "7", "cols" => "100"];
 
     /*
 	 * Form begin
@@ -112,13 +112,8 @@ if ($centreon->user->access->checkAction("service_comment")) {
         $form->addElement('hidden', 'service_id', $service_id);
     } else {
         $disabled = " ";
-        $attrServices = array(
-            'datasourceOrigin' => 'ajax',
-            'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_service&action=list&e=enable',
-            'multiple' => true,
-            'linkedObject' => 'centreonService'
-        );
-        $form->addElement('select2', 'service_id', _("Services"), array($disabled), $attrServices);
+        $attrServices = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_service&action=list&e=enable', 'multiple' => true, 'linkedObject' => 'centreonService'];
+        $form->addElement('select2', 'service_id', _("Services"), [$disabled], $attrServices);
     }
 
     $persistant = $form->addElement('checkbox', 'persistant', _("Persistent"));
@@ -127,12 +122,12 @@ if ($centreon->user->access->checkAction("service_comment")) {
     $form->addElement('textarea', 'comment', _("Comments"), $attrsTextarea);
     $form->addRule('comment', _("Required Field"), 'required');
 
-    $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 
     $valid = false;
     if ((isset($_POST["submitA"]) && $_POST["submitA"]) && $form->validate()) {
-        if (!isset($_POST["persistant"]) || !in_array($_POST["persistant"], array('0', '1'))) {
+        if (!isset($_POST["persistant"]) || !in_array($_POST["persistant"], ['0', '1'])) {
             $_POST["persistant"] = '0';
         }
         if (!isset($_POST["comment"])) {

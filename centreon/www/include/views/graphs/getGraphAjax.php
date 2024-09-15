@@ -60,7 +60,7 @@ $access = new CentreonACL($contactId, $isAdmin);
 $lca = $access->getHostsServices($pearDBO);
 
 /* Build list of services */
-$servicesReturn = array();
+$servicesReturn = [];
 
 /**
  * Get the list of graph by host
@@ -73,7 +73,7 @@ $servicesReturn = array();
  */
 function getServiceGraphByHost($host, $isAdmin, $lca)
 {
-    $listGraph = array();
+    $listGraph = [];
     if (
         $isAdmin
         || (!$isAdmin && isset($lca[$host]))
@@ -106,13 +106,7 @@ function getGraphByService($host, $svcId, $title, $isAdmin, $lca)
         service_has_graph($host, $svcId)
         && ($isAdmin || (!$isAdmin && isset($lca[$host][$svcId])))
     ) {
-        return array(
-            'type' => 'service',
-            'hostId' => $host,
-            'serviceId' => $svcId,
-            'id' => $host . '_' . $svcId,
-            'title' => $title
-        );
+        return ['type' => 'service', 'hostId' => $host, 'serviceId' => $svcId, 'id' => $host . '_' . $svcId, 'title' => $title];
     }
     return false;
 }

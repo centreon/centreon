@@ -46,17 +46,7 @@ class MetaTimeperiod extends AbstractObject
     /** @var string */
     protected string $object_name = 'timeperiod';
     /** @var string[] */
-    protected $attributes_write = array(
-        'timeperiod_name',
-        'alias',
-        'sunday',
-        'monday',
-        'tuesday',
-        'wednesday',
-        'thursday',
-        'friday',
-        'saturday',
-    );
+    protected $attributes_write = ['timeperiod_name', 'alias', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
     /**
      * @return int|void
@@ -68,7 +58,7 @@ class MetaTimeperiod extends AbstractObject
             return 0;
         }
 
-        $object = array();
+        $object = [];
         $object['timeperiod_name'] = 'meta_timeperiod';
         $object['alias'] = 'meta_timeperiod';
         $object['sunday'] = '00:00-24:00';

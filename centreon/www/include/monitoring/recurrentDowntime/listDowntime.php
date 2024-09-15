@@ -48,7 +48,7 @@ $search = \HtmlAnalyzer::sanitizeAndRemoveTags(
 
 if (isset($_POST["Search"])) {
     //saving chosen filters values
-    $centreon->historySearch[$url] = array();
+    $centreon->historySearch[$url] = [];
     $centreon->historySearch[$url]["search"] = $search;
 } else {
     //restoring saved values
@@ -90,16 +90,13 @@ $form = new HTML_QuickFormCustom('select_form', 'POST', "?p=" . $p);
  */
 $style = "one";
 
-$attrBtnSuccess = array(
-    "class" => "btc bt_success",
-    "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"
-);
+$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
 
 /*
  * Fill a tab with a mutlidimensionnal Array we put in $tpl
  */
-$elemArr = array();
+$elemArr = [];
 $centreonToken = createCSRFToken();
 
 foreach ($listDowntime as $dt) {
@@ -120,15 +117,7 @@ foreach ($listDowntime as $dt) {
         " event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57))" .
         " return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" " .
         "name='dupNbr[" . $dt['dt_id'] . "]'></input>";
-    $elemArr[] = array(
-        "MenuClass" => "list_" . $style,
-        "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_name" => CentreonUtils::escapeSecure($dt["dt_name"]),
-        "RowMenu_link" => "main.php?p=" . $p . "&o=c&dt_id=" . $dt['dt_id'],
-        "RowMenu_desc" => CentreonUtils::escapeSecure($dt["dt_description"]),
-        "RowMenu_status" => $dt["dt_activate"] ? _("Enabled") : _("Disabled"),
-        "RowMenu_options" => $moptions
-    );
+    $elemArr[] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => CentreonUtils::escapeSecure($dt["dt_name"]), "RowMenu_link" => "main.php?p=" . $p . "&o=c&dt_id=" . $dt['dt_id'], "RowMenu_desc" => CentreonUtils::escapeSecure($dt["dt_description"]), "RowMenu_status" => $dt["dt_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_options" => $moptions];
     $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
@@ -138,11 +127,7 @@ $tpl->assign("elemArr", $elemArr);
  */
 $tpl->assign(
     'msg',
-    array(
-        "addL" => "main.php?p=" . $p . "&o=a",
-        "addT" => _("Add"),
-        "delConfirm" => _("Do you confirm the deletion ?")
-    )
+    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
 );
 
 /*
@@ -155,37 +140,29 @@ $tpl->assign(
         }
     </SCRIPT>
 <?php
-foreach (array('o1', 'o2') as $option) {
-    $attrs1 = array(
-        'onchange' => "javascript: " .
-            " var bChecked = isChecked(); " .
-            " if (this.form.elements['" . $option . "'].selectedIndex != 0 && !bChecked) {" .
-            " alert('" . _("Please select one or more items") . "'); return false;} " .
-            "if (this.form.elements['" . $option .
-            "'].selectedIndex == 1 && confirm('" . _('Do you confirm the duplication ?') . "')) {" .
-            " 	setO(this.form.elements['" . $option . "'].value); submit();} " .
-            "else if (this.form.elements['" . $option .
-            "'].selectedIndex == 2 && confirm('" . _('Do you confirm the deletion ?') . "')) {" .
-            " 	setO(this.form.elements['" . $option . "'].value); submit();} " .
-            "else if (this.form.elements['" . $option .
-            "'].selectedIndex == 3 || this.form.elements['" . $option . "'].selectedIndex == 4) {" .
-            " 	setO(this.form.elements['" . $option . "'].value); submit();} " .
-            ""
-    );
+foreach (['o1', 'o2'] as $option) {
+    $attrs1 = ['onchange' => "javascript: " .
+        " var bChecked = isChecked(); " .
+        " if (this.form.elements['" . $option . "'].selectedIndex != 0 && !bChecked) {" .
+        " alert('" . _("Please select one or more items") . "'); return false;} " .
+        "if (this.form.elements['" . $option .
+        "'].selectedIndex == 1 && confirm('" . _('Do you confirm the duplication ?') . "')) {" .
+        " 	setO(this.form.elements['" . $option . "'].value); submit();} " .
+        "else if (this.form.elements['" . $option .
+        "'].selectedIndex == 2 && confirm('" . _('Do you confirm the deletion ?') . "')) {" .
+        " 	setO(this.form.elements['" . $option . "'].value); submit();} " .
+        "else if (this.form.elements['" . $option .
+        "'].selectedIndex == 3 || this.form.elements['" . $option . "'].selectedIndex == 4) {" .
+        " 	setO(this.form.elements['" . $option . "'].value); submit();} " .
+        ""];
     $form->addElement(
         'select',
         $option,
         null,
-        array(
-            null => _("More actions..."),
-            "m" => _("Duplicate"),
-            "d" => _("Delete"),
-            "ms" => _("Enable"),
-            "mu" => _("Disable")
-        ),
+        [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete"), "ms" => _("Enable"), "mu" => _("Disable")],
         $attrs1
     );
-    $form->setDefaults(array($option => null));
+    $form->setDefaults([$option => null]);
     $o1 = $form->getElement($option);
     $o1->setValue(null);
     $o1->setSelected(null);

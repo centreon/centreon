@@ -48,9 +48,9 @@ class Contactgroup extends AbstractObject
     /** @var int */
     private $done_cache = 0;
     /** @var array */
-    private $cg_service_linked_cache = array();
+    private $cg_service_linked_cache = [];
     /** @var array */
-    protected $cg_cache = array();
+    protected $cg_cache = [];
     /** @var null */
     protected $cg = null;
     /** @var string */
@@ -64,14 +64,9 @@ class Contactgroup extends AbstractObject
         cg_alias as alias
     ';
     /** @var string[] */
-    protected $attributes_write = array(
-        'contactgroup_name',
-        'alias',
-    );
+    protected $attributes_write = ['contactgroup_name', 'alias'];
     /** @var string[] */
-    protected $attributes_array = array(
-        'members'
-    );
+    protected $attributes_array = ['members'];
     /** @var null */
     protected $stmt_cg = null;
     /** @var null */
@@ -110,7 +105,7 @@ class Contactgroup extends AbstractObject
             if (isset($this->cg_service_linked_cache[$value['service_service_id']])) {
                 $this->cg_service_linked_cache[$value['service_service_id']][] = $value['contactgroup_cg_id'];
             } else {
-                $this->cg_service_linked_cache[$value['service_service_id']] = array($value['contactgroup_cg_id']);
+                $this->cg_service_linked_cache[$value['service_service_id']] = [$value['contactgroup_cg_id']];
             }
         }
     }
@@ -145,7 +140,7 @@ class Contactgroup extends AbstractObject
             return $this->cg_service_linked_cache[$serviceId];
         }
         if ($this->done_cache == 1) {
-            return array();
+            return [];
         }
 
         if (is_null($this->stmt_cg_service)) {
@@ -210,7 +205,7 @@ class Contactgroup extends AbstractObject
         }
 
         $contact = Contact::getInstance($this->dependencyInjector);
-        $this->cg[$cgId]['members'] = array();
+        $this->cg[$cgId]['members'] = [];
         foreach ($this->cg[$cgId]['members_cache'] as $contact_id) {
             $member = $contact->generateFromContactId($contact_id);
             // Can have contact template in a contact group ???!!

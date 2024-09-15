@@ -33,7 +33,7 @@
  *
  */
 
-$help = array();
+$help = [];
 $help["use_timezone"] = dgettext(
     "help",
     "Define the poller timezone. If not set, default Centreon timezone is used (parameters). " .

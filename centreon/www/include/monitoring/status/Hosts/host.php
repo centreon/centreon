@@ -65,7 +65,7 @@ if ($resetFilter) {
     $centreon->historySearch[$url] = '';
     $centreon->historySearchService[$url] = '';
     $centreon->historySearchOutput[$url] = '';
-    $_SESSION['filters'][$url] = array();
+    $_SESSION['filters'][$url] = [];
     $_SESSION['monitoring_default_hostgroups'] = '';
     $_SESSION['monitoring_default_poller'] = '';
     $_SESSION['monitoring_host_status'] = '';
@@ -92,13 +92,13 @@ if (empty($filters['host_search']) && isset($centreon->historySearch[$url])) {
 }
 
 //ACL Actions
-$GroupListofUser = array();
+$GroupListofUser = [];
 $GroupListofUser = $centreon->user->access->getAccessGroups();
 
 $allActions = false;
 //Get list of actions allowed for user
 if (count($GroupListofUser) > 0 && $is_admin == 0) {
-    $authorized_actions = array();
+    $authorized_actions = [];
     $authorized_actions = $centreon->user->access->getActions();
 } else {
     //if user is admin, or without ACL, he cans perform all actions
@@ -163,14 +163,10 @@ if ($o == "hpb" || $o == "h_unhandled" || empty($o)) {
     }
 }
 
-$tab_class = array("0" => "list_one", "1" => "list_two");
+$tab_class = ["0" => "list_one", "1" => "list_two"];
 $rows = 10;
 
-$aStatusHost = array(
-    "h_unhandled" => _("Unhandled Problems"),
-    "hpb" => _("Host Problems"),
-    "h" => _("All")
-);
+$aStatusHost = ["h_unhandled" => _("Unhandled Problems"), "hpb" => _("Host Problems"), "h" => _("All")];
 
 include_once("./include/monitoring/status/Common/default_poller.php");
 include_once("./include/monitoring/status/Common/default_hostgroups.php");
@@ -247,20 +243,20 @@ $form->addElement(
     'statusHost',
     _('Host Status'),
     $aStatusHost,
-    array('id' => 'statusHost', 'onChange' => "statusHosts(this.value);")
+    ['id' => 'statusHost', 'onChange' => "statusHosts(this.value);"]
 );
 
 // Get default host status by GET
 if (isset($_GET['o']) && in_array($_GET['o'], array_keys($aStatusHost))) {
-    $form->setDefaults(array('statusHost' => $_GET['o']));
+    $form->setDefaults(['statusHost' => $_GET['o']]);
     //Get default host status in SESSION
 } elseif ((!isset($_GET['o']) || empty($_GET['o'])) && isset($_SESSION['monitoring_host_status'])) {
-    $form->setDefaults(array('statusHost' => $_SESSION['monitoring_host_status']));
+    $form->setDefaults(['statusHost' => $_SESSION['monitoring_host_status']]);
     $sDefaultOrder = "1";
 }
 
 $tpl->assign("order", strtolower($order));
-$tab_order = array("sort_asc" => "sort_desc", "sort_desc" => "sort_asc");
+$tab_order = ["sort_asc" => "sort_desc", "sort_desc" => "sort_asc"];
 $tpl->assign("tab_order", $tab_order);
 ?>
 <script type="text/javascript">
@@ -271,7 +267,7 @@ $tpl->assign("tab_order", $tab_order);
     }
 </script>
 <?php
-$action_list = array();
+$action_list = [];
 $action_list[] = _("More actions...");
 
 $informationsService = $dependencyInjector['centreon_remote.informations_service'];
@@ -322,43 +318,33 @@ if (isset($authorized_actions) && $allActions == false) {
     $action_list[75] = _("Hosts : Set Downtime");
 }
 
-$attrs = array(
-    'onchange' => "javascript: " .
-        " var bChecked = isChecked(); " .
-        " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {" .
-        " alert('" . _("Please select one or more items") . "'); return false;} " .
-        " if (this.form.elements['o1'].selectedIndex == 0) {" .
-        " return false;} " .
-        "if (cmdCallback(this.value)) { setO(this.value); submit();} else { setO(this.value); }"
-);
+$attrs = ['onchange' => "javascript: " .
+    " var bChecked = isChecked(); " .
+    " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {" .
+    " alert('" . _("Please select one or more items") . "'); return false;} " .
+    " if (this.form.elements['o1'].selectedIndex == 0) {" .
+    " return false;} " .
+    "if (cmdCallback(this.value)) { setO(this.value); submit();} else { setO(this.value); }"];
 $form->addElement('select', 'o1', null, $action_list, $attrs);
-$form->setDefaults(array('o1' => null));
+$form->setDefaults(['o1' => null]);
 $o1 = $form->getElement('o1');
 $o1->setValue(null);
 
-$attrs = array(
-    'onchange' => "javascript: " .
-        " var bChecked = isChecked(); " .
-        " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {" .
-        " alert('" . _("Please select one or more items") . "'); return false;} " .
-        " if (this.form.elements['o2'].selectedIndex == 0) {" .
-        " return false;} " .
-        "if (cmdCallback(this.value)) { setO(this.value); submit();} else { setO(this.value); }"
-);
+$attrs = ['onchange' => "javascript: " .
+    " var bChecked = isChecked(); " .
+    " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {" .
+    " alert('" . _("Please select one or more items") . "'); return false;} " .
+    " if (this.form.elements['o2'].selectedIndex == 0) {" .
+    " return false;} " .
+    "if (cmdCallback(this.value)) { setO(this.value); submit();} else { setO(this.value); }"];
 $form->addElement('select', 'o2', null, $action_list, $attrs);
-$form->setDefaults(array('o2' => null));
+$form->setDefaults(['o2' => null]);
 $o2 = $form->getElement('o2');
 $o2->setValue(null);
 $o2->setSelected(null);
 
 $keyPrefix = "";
-$statusList = array(
-    "" => "",
-    "up" => _("Up"),
-    "down" => _("Down"),
-    "unreachable" => _("Unreachable"),
-    "pending" => _("Pending")
-);
+$statusList = ["" => "", "up" => _("Up"), "down" => _("Down"), "unreachable" => _("Unreachable"), "pending" => _("Pending")];
 if ($o == "h") {
     $keyPrefix = "h";
 } elseif ($o == "hpb") {
@@ -380,16 +366,16 @@ $form->addElement(
     'statusFilter',
     _('Status'),
     $statusList,
-    array('id' => 'statusFilter', 'onChange' => "filterStatus(this.value);")
+    ['id' => 'statusFilter', 'onChange' => "filterStatus(this.value);"]
 );
 if (!isset($_GET['o']) && isset($_SESSION['monitoring_host_status_filter'])) {
-    $form->setDefaults(array('statusFilter' => $_SESSION['monitoring_host_status_filter']));
+    $form->setDefaults(['statusFilter' => $_SESSION['monitoring_host_status_filter']]);
     $sDefaultOrder = "1";
 }
 
 $criticality = new CentreonCriticality($pearDB);
 $crits = $criticality->getList();
-$critArray = array(0 => "");
+$critArray = [0 => ""];
 foreach ($crits as $critId => $crit) {
     $critArray[$critId] = $crit['hc_name'] . " ({$crit['level']})";
 }
@@ -398,9 +384,9 @@ $form->addElement(
     'criticality',
     _('Severity'),
     $critArray,
-    array('id' => 'critFilter', 'onChange' => "filterCrit(this.value);")
+    ['id' => 'critFilter', 'onChange' => "filterCrit(this.value);"]
 );
-$form->setDefaults(array('criticality' => isset($_SESSION['criticality_id']) ? $_SESSION['criticality_id'] : "0"));
+$form->setDefaults(['criticality' => isset($_SESSION['criticality_id']) ? $_SESSION['criticality_id'] : "0"]);
 
 $tpl->assign('limit', $limit);
 $tpl->assign('hostStr', _('Host'));

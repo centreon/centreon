@@ -56,7 +56,7 @@ function testMnftrExistence($name = null)
     }
 }
 
-function deleteMnftrInDB($mnftr = array())
+function deleteMnftrInDB($mnftr = [])
 {
     global $pearDB, $oreon;
     foreach ($mnftr as $key => $value) {
@@ -68,7 +68,7 @@ function deleteMnftrInDB($mnftr = array())
     }
 }
 
-function multipleMnftrInDB($mnftr = array(), $nbrDup = array())
+function multipleMnftrInDB($mnftr = [], $nbrDup = [])
 {
     foreach ($mnftr as $key => $value) {
         global $pearDB, $oreon;
@@ -124,7 +124,7 @@ function updateMnftr($id = null)
         return;
     }
 
-    $ret = array();
+    $ret = [];
     $ret = $form->getSubmitValues();
     $rq = "UPDATE traps_vendor ";
     $rq .= "SET name = '" . htmlentities($ret["name"], ENT_QUOTES, "UTF-8") . "', ";
@@ -138,13 +138,13 @@ function updateMnftr($id = null)
     $oreon->CentreonLogAction->insertLog("manufacturer", $id, $fields["name"], "c", $fields);
 }
 
-function insertMnftrInDB($ret = array())
+function insertMnftrInDB($ret = [])
 {
     $id = insertMnftr($ret);
     return ($id);
 }
 
-function insertMnftr($ret = array())
+function insertMnftr($ret = [])
 {
     global $form, $pearDB, $oreon;
 

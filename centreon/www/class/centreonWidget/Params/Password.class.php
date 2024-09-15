@@ -73,7 +73,7 @@ class CentreonWidgetParamsPassword extends CentreonWidgetParams
                 'password',
                 'param_' . $params['parameter_id'],
                 $params['parameter_name'],
-                array("size" => 30)
+                ["size" => 30]
             );
         }
     }

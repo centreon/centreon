@@ -184,7 +184,7 @@ $tab_finalH = [];
 $numRows = $obj->DBC->query("SELECT FOUND_ROWS() AS REALTIME")->fetchColumn();
 while ($ndo = $dbResult->fetch()) {
     if (!isset($tab_finalH[$ndo["alias"]])) {
-        $tab_finalH[$ndo["alias"]] = array($ndo["host_name"] => []);
+        $tab_finalH[$ndo["alias"]] = [$ndo["host_name"] => []];
     }
     $tab_finalH[$ndo["alias"]][$ndo["host_name"]]["cs"] = $ndo["hs"];
     $tab_finalH[$ndo["alias"]][$ndo["host_name"]]["icon"] = $ndo['icon_image'];

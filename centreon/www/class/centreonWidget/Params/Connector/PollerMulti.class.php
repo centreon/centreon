@@ -49,12 +49,7 @@ class CentreonWidgetParamsConnectorPollerMulti extends CentreonWidgetParamsSelec
 
         if (!isset($tab)) {
             $path = './include/common/webServices/rest/internal.php?object=centreon_configuration_poller&action=list';
-            $attrPollers = array(
-                'datasourceOrigin' => 'ajax',
-                'availableDatasetRoute' => $path,
-                'multiple' => true,
-                'linkedObject' => 'centreonInstance'
-            );
+            $attrPollers = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $path, 'multiple' => true, 'linkedObject' => 'centreonInstance'];
             $tab = $attrPollers;
         }
         return $tab;

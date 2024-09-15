@@ -136,20 +136,12 @@ if ($isRemote === false) {
         }
 
         // Construct the object gathering datas
-        $data = array(
-            'timestamp' => "$timestamp",
-            'UUID' => $uuid,
-            'versions' => $versions,
-            'infos' => $infos,
-            'timezone' => $timezone,
-            'authentication' => $authentication,
-            'additional' => $additional
-        );
+        $data = ['timestamp' => "$timestamp", 'UUID' => $uuid, 'versions' => $versions, 'infos' => $infos, 'timezone' => $timezone, 'authentication' => $authentication, 'additional' => $additional];
 
         if ( isset($options["d"]) || isset($options["debug"]) ) {
             echo json_encode($data, JSON_PRETTY_PRINT) . "\n";
         } else {
-            $returnData = $http->call(CENTREON_STATS_URL, 'POST', $data, array(), true);
+            $returnData = $http->call(CENTREON_STATS_URL, 'POST', $data, [], true);
             logger(
                 sprintf(
                     'Response from [%s] : %s,body : %s',

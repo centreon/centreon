@@ -52,7 +52,7 @@ abstract class AbstractObjectJSON
         /**
          * @var array<string, static>
          */
-        static $instances = array();
+        static $instances = [];
 
         /**
          * @var class-string<static>

@@ -78,7 +78,7 @@ switch ($o) {
         include_once $path . "listSlot.php"; // Activate a slot
         break;
     case "ms":
-        enablePoolInDB(null, isset($select) ? $select : array());
+        enablePoolInDB(null, isset($select) ? $select : []);
         include_once $path . "listSlot.php";
         break;
     case "u":
@@ -86,15 +86,15 @@ switch ($o) {
         include_once $path . "listSlot.php"; // Desactivate a slot
         break;
     case "mu":
-        disablePoolInDB(null, isset($select) ? $select : array());
+        disablePoolInDB(null, isset($select) ? $select : []);
         include_once $path . "listSlot.php";
         break;
     case "m":
-        multiplePoolInDB(isset($select) ? $select : array(), $dupNbr);
+        multiplePoolInDB(isset($select) ? $select : [], $dupNbr);
         include_once $path . "listSlot.php"; // Duplicate n slots
         break;
     case "d":
-        deletePoolInDB(isset($select) ? $select : array());
+        deletePoolInDB(isset($select) ? $select : []);
         include_once $path . "listSlot.php"; // Delete n slots
         break;
     default:

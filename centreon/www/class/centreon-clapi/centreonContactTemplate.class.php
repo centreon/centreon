@@ -58,10 +58,7 @@ class CentreonContactTemplate extends CentreonContact
     public const ORDER_DEFAULT_PAGE = 7;
 
     /** @var string[] */
-    public static $aDepends = array(
-        'CMD',
-        'TP'
-    );
+    public static $aDepends = ['CMD', 'TP'];
 
     /**
      * CentreonContactTemplate constructor

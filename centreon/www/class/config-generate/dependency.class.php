@@ -53,27 +53,27 @@ class Dependency extends AbstractObject
     /** @var int */
     private $has_dependency = 1; # by default, we have.
     /** @var array */
-    private $generated_dependencies = array();
+    private $generated_dependencies = [];
     /** @var array */
-    private $dependency_linked_host_parent_cache = array();
+    private $dependency_linked_host_parent_cache = [];
     /** @var array */
-    private $dependency_linked_host_child_cache = array();
+    private $dependency_linked_host_child_cache = [];
     /** @var array */
-    private $dependency_linked_hg_parent_cache = array();
+    private $dependency_linked_hg_parent_cache = [];
     /** @var array */
-    private $dependency_linked_hg_child_cache = array();
+    private $dependency_linked_hg_child_cache = [];
     /** @var array */
-    private $dependency_linked_service_parent_cache = array();
+    private $dependency_linked_service_parent_cache = [];
     /** @var array */
-    private $dependency_linked_service_child_cache = array();
+    private $dependency_linked_service_child_cache = [];
     /** @var array */
-    private $dependency_linked_sg_parent_cache = array();
+    private $dependency_linked_sg_parent_cache = [];
     /** @var array */
-    private $dependency_linked_sg_child_cache = array();
+    private $dependency_linked_sg_child_cache = [];
     /** @var array */
-    private $dependency_linked_meta_parent_cache = array();
+    private $dependency_linked_meta_parent_cache = [];
     /** @var array */
-    private $dependency_linked_meta_child_cache = array();
+    private $dependency_linked_meta_child_cache = [];
     /** @var string */
     protected $generate_filename = 'dependencies.cfg';
     /** @var string */
@@ -87,23 +87,9 @@ class Dependency extends AbstractObject
         inherits_parent
     ";
     /** @var string[] */
-    protected $attributes_write = array(
-        ';dependency_name',
-        'execution_failure_criteria',
-        'notification_failure_criteria',
-        'inherits_parent',
-    );
+    protected $attributes_write = [';dependency_name', 'execution_failure_criteria', 'notification_failure_criteria', 'inherits_parent'];
     /** @var string[] */
-    protected $attributes_array = array(
-        'dependent_host_name',
-        'host_name',
-        'dependent_service_description',
-        'service_description',
-        'dependent_hostgroup_name',
-        'hostgroup_name',
-        'dependent_servicegroup_name',
-        'servicegroup_name',
-    );
+    protected $attributes_array = ['dependent_host_name', 'host_name', 'dependent_service_description', 'service_description', 'dependent_hostgroup_name', 'hostgroup_name', 'dependent_servicegroup_name', 'servicegroup_name'];
     /** @var Host|null */
     protected $host_instance = null;
     /** @var Service|null */
@@ -252,7 +238,7 @@ class Dependency extends AbstractObject
     {
         $this->object_name = 'hostdependency';
         foreach ($this->dependency_cache as $dp_id => $dependency) {
-            $dependency['host_name'] = array();
+            $dependency['host_name'] = [];
             if (isset($this->dependency_linked_host_parent_cache[$dp_id])) {
                 foreach ($this->dependency_linked_host_parent_cache[$dp_id] as $value) {
                     if ($this->host_instance->checkGenerate($value)) {
@@ -261,7 +247,7 @@ class Dependency extends AbstractObject
                 }
             }
 
-            $dependency['dependent_host_name'] = array();
+            $dependency['dependent_host_name'] = [];
             if (isset($this->dependency_linked_host_child_cache[$dp_id])) {
                 foreach ($this->dependency_linked_host_child_cache[$dp_id] as $value) {
                     if ($this->host_instance->checkGenerate($value)) {
@@ -296,23 +282,15 @@ class Dependency extends AbstractObject
                 if ($this->service_instance->checkGenerate(
                     $value['host_host_id'] . '.' . $value['service_service_id']
                 )) {
-                    $dependency['host_name'] = array(
-                        $this->host_instance->getString($value['host_host_id'], 'host_name')
-                    );
-                    $dependency['service_description'] = array(
-                        $this->service_instance->getString($value['service_service_id'], 'service_description')
-                    );
+                    $dependency['host_name'] = [$this->host_instance->getString($value['host_host_id'], 'host_name')];
+                    $dependency['service_description'] = [$this->service_instance->getString($value['service_service_id'], 'service_description')];
 
                     foreach ($this->dependency_linked_service_child_cache[$dp_id] as $value2) {
                         if ($this->service_instance->checkGenerate(
                             $value2['host_host_id'] . '.' . $value2['service_service_id']
                         )) {
-                            $dependency['dependent_host_name'] = array(
-                                $this->host_instance->getString($value2['host_host_id'], 'host_name')
-                            );
-                            $dependency['dependent_service_description'] = array(
-                                $this->service_instance->getString($value2['service_service_id'], 'service_description')
-                            );
+                            $dependency['dependent_host_name'] = [$this->host_instance->getString($value2['host_host_id'], 'host_name')];
+                            $dependency['dependent_service_description'] = [$this->service_instance->getString($value2['service_service_id'], 'service_description')];
 
                             $this->generateObjectInFile($dependency, 0);
                         }
@@ -343,13 +321,13 @@ class Dependency extends AbstractObject
                     continue;
                 }
                 if ($meta_instance->checkGenerate($meta_id)) {
-                    $dependency['host_name'] = array('_Module_Meta');
-                    $dependency['service_description'] = array('meta_' . $meta_id);
+                    $dependency['host_name'] = ['_Module_Meta'];
+                    $dependency['service_description'] = ['meta_' . $meta_id];
 
                     foreach ($this->dependency_linked_meta_child_cache[$dp_id] as $meta_id2) {
                         if ($meta_instance->checkGenerate($meta_id2)) {
-                            $dependency['dependent_host_name'] = array('_Module_Meta');
-                            $dependency['dependent_service_description'] = array('meta_' . $meta_id2);
+                            $dependency['dependent_host_name'] = ['_Module_Meta'];
+                            $dependency['dependent_service_description'] = ['meta_' . $meta_id2];
 
                             $this->generateObjectInFile($dependency, 0);
                         }
@@ -367,7 +345,7 @@ class Dependency extends AbstractObject
     {
         $this->object_name = 'hostdependency';
         foreach ($this->dependency_cache as $dp_id => $dependency) {
-            $dependency['hostgroup_name'] = array();
+            $dependency['hostgroup_name'] = [];
             if (isset($this->dependency_linked_hg_parent_cache[$dp_id])) {
                 foreach ($this->dependency_linked_hg_parent_cache[$dp_id] as $value) {
                     if ($this->hg_instance->checkGenerate($value)) {
@@ -376,7 +354,7 @@ class Dependency extends AbstractObject
                 }
             }
 
-            $dependency['dependent_hostgroup_name'] = array();
+            $dependency['dependent_hostgroup_name'] = [];
             if (isset($this->dependency_linked_hg_child_cache[$dp_id])) {
                 foreach ($this->dependency_linked_hg_child_cache[$dp_id] as $value) {
                     if ($this->hg_instance->checkGenerate($value)) {
@@ -404,7 +382,7 @@ class Dependency extends AbstractObject
     {
         $this->object_name = 'servicedependency';
         foreach ($this->dependency_cache as $dp_id => $dependency) {
-            $dependency['servicegroup_name'] = array();
+            $dependency['servicegroup_name'] = [];
             if (isset($this->dependency_linked_sg_parent_cache[$dp_id])) {
                 foreach ($this->dependency_linked_sg_parent_cache[$dp_id] as $value) {
                     if ($this->sg_instance->checkGenerate($value)) {
@@ -413,7 +391,7 @@ class Dependency extends AbstractObject
                 }
             }
 
-            $dependency['dependent_servicegroup_name'] = array();
+            $dependency['dependent_servicegroup_name'] = [];
             if (isset($this->dependency_linked_sg_child_cache[$dp_id])) {
                 foreach ($this->dependency_linked_sg_child_cache[$dp_id] as $value) {
                     if ($this->sg_instance->checkGenerate($value)) {
@@ -455,7 +433,7 @@ class Dependency extends AbstractObject
      */
     public function reset(): void
     {
-        $this->generated_dependencies = array();
+        $this->generated_dependencies = [];
         parent::reset();
     }
 

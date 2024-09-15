@@ -80,14 +80,14 @@ if ($selectedUserId) {
 $tpl = new Smarty();
 $tpl = initSmartyTpl($path, $tpl);
 
-$session_data = array();
+$session_data = [];
 $res = $pearDB->query(
     "SELECT session.*, contact_name, contact_admin, contact_auth_type, `contact_ldap_last_sync`
     FROM session, contact
     WHERE contact_id = user_id ORDER BY contact_name, contact_admin"
 );
 for ($cpt = 0; $r = $res->fetch(); $cpt++) {
-    $session_data[$cpt] = array();
+    $session_data[$cpt] = [];
     $session_data[$cpt]["class"] = $cpt % 2 ? "list_one" : "list_two";
     $session_data[$cpt]["user_id"] = $r["user_id"];
     $session_data[$cpt]["user_alias"] = $r["contact_name"];

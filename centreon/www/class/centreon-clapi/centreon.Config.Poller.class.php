@@ -56,7 +56,7 @@ class CentreonConfigPoller
     private $DB;
     private $DBC;
     private $dependencyInjector;
-    private $resultTest = array("warning" => 0, "errors" => 0);
+    private $resultTest = ["warning" => 0, "errors" => 0];
     private $brokerCachePath;
     private $engineCachePath;
     private $centreon_path;
@@ -700,7 +700,7 @@ class CentreonConfigPoller
 
     public function getPollerState()
     {
-        $pollerState = array();
+        $pollerState = [];
         $dbResult = $this->DBC->query("SELECT instance_id, running, name FROM instances");
 
         while ($row = $dbResult->fetchRow()) {

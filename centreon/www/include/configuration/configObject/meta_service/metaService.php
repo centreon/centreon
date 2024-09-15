@@ -126,7 +126,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteMetaServiceInDB(is_array($select) ? $select : array());
+            deleteMetaServiceInDB(is_array($select) ? $select : []);
         } else {
             unvalidFormMessage();
         }
@@ -137,8 +137,8 @@ switch ($o) {
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
             multipleMetaServiceInDB(
-                is_array($select) ? $select : array(),
-                is_array($dupNbr) ? $dupNbr : array()
+                is_array($select) ? $select : [],
+                is_array($dupNbr) ? $dupNbr : []
             );
         } else {
             unvalidFormMessage();
@@ -181,7 +181,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteMetricInDB(is_array($select) ? $select : array());
+            deleteMetricInDB(is_array($select) ? $select : []);
         } else {
             unvalidFormMessage();
         }

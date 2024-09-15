@@ -72,7 +72,7 @@ if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['
 
 $acl = $oreon->user->access;
 $serverString = $acl->getPollerString();
-$allowedMainConf = array();
+$allowedMainConf = [];
 if ($serverString != "''" && !empty($serverString)) {
     $sql = "SELECT nagios_id FROM cfg_nagios WHERE nagios_server_id IN (" . $serverString . ")";
     $res = $pearDB->query($sql);
@@ -115,7 +115,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            multipleNagiosInDB(isset($select) ? $select : array(), $dupNbr);
+            multipleNagiosInDB(isset($select) ? $select : [], $dupNbr);
         } else {
             unvalidFormMessage();
         }
@@ -125,7 +125,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteNagiosInDB(isset($select) ? $select : array());
+            deleteNagiosInDB(isset($select) ? $select : []);
         } else {
             unvalidFormMessage();
         }

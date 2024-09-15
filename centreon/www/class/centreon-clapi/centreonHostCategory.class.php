@@ -61,9 +61,7 @@ require_once "Centreon/Object/Relation/Host/Category/Host.php";
 class CentreonHostCategory extends CentreonSeverityAbstract
 {
     /** @var string[] */
-    public static $aDepends = array(
-        'HOST'
-    );
+    public static $aDepends = ['HOST'];
 
     /**
      * CentreonHostCategory constructor
@@ -76,11 +74,11 @@ class CentreonHostCategory extends CentreonSeverityAbstract
     {
         parent::__construct($dependencyInjector);
         $this->object = new Centreon_Object_Host_Category($dependencyInjector);
-        $this->params = array('hc_activate' => '1');
-        $this->insertParams = array('hc_name', 'hc_alias');
+        $this->params = ['hc_activate' => '1'];
+        $this->insertParams = ['hc_name', 'hc_alias'];
         $this->exportExcludedParams = array_merge(
             $this->insertParams,
-            array($this->object->getPrimaryKey(), 'level', 'icon_id')
+            [$this->object->getPrimaryKey(), 'level', 'icon_id']
         );
         $this->action = "HC";
         $this->nbOfCompulsoryParams = count($this->insertParams);
@@ -93,13 +91,13 @@ class CentreonHostCategory extends CentreonSeverityAbstract
      *
      * @throws Exception
      */
-    public function show($parameters = null, $filters = array()): void
+    public function show($parameters = null, $filters = []): void
     {
-        $filters = array();
+        $filters = [];
         if (isset($parameters)) {
-            $filters = array($this->object->getUniqueLabelField() => "%" . $parameters . "%");
+            $filters = [$this->object->getUniqueLabelField() => "%" . $parameters . "%"];
         }
-        $params = array('hc_id', 'hc_name', 'hc_alias', 'level');
+        $params = ['hc_id', 'hc_name', 'hc_alias', 'level'];
         $paramString = str_replace("hc_", "", implode($this->delim, $params));
         echo $paramString . "\n";
         $elements = $this->object->getList(
@@ -129,7 +127,7 @@ class CentreonHostCategory extends CentreonSeverityAbstract
         if (count($params) < $this->nbOfCompulsoryParams) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $addParams = array();
+        $addParams = [];
         $addParams[$this->object->getUniqueLabelField()] = $params[self::ORDER_UNIQUENAME];
         $addParams['hc_alias'] = $params[self::ORDER_ALIAS];
         $this->params = array_merge($this->params, $addParams);
@@ -153,7 +151,7 @@ class CentreonHostCategory extends CentreonSeverityAbstract
             if (!preg_match("/^hc_/", $params[1])) {
                 $params[1] = "hc_" . $params[1];
             }
-            $updateParams = array($params[1] => $params[2]);
+            $updateParams = [$params[1] => $params[2]];
             $updateParams['objectId'] = $objectId;
             return $updateParams;
         } else {
@@ -202,7 +200,7 @@ class CentreonHostCategory extends CentreonSeverityAbstract
                 throw new CentreonClapiException(self::MISSINGPARAMETER);
             }
             $args = explode($this->delim, $arg[0]);
-            $hcIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($args[0]));
+            $hcIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$args[0]]);
             if (!count($hcIds)) {
                 throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $args[0]);
             }
@@ -212,7 +210,7 @@ class CentreonHostCategory extends CentreonSeverityAbstract
                 $tab = $relobj->getTargetIdFromSourceId($relobj->getSecondKey(), $relobj->getFirstKey(), $hcIds);
                 echo "id" . $this->delim . "name" . "\n";
                 foreach ($tab as $value) {
-                    $tmp = $obj->getParameters($value, array($obj->getUniqueLabelField()));
+                    $tmp = $obj->getParameters($value, [$obj->getUniqueLabelField()]);
                     echo $value . $this->delim . $tmp[$obj->getUniqueLabelField()] . "\n";
                 }
             } else {
@@ -221,9 +219,9 @@ class CentreonHostCategory extends CentreonSeverityAbstract
                 }
                 $relation = $args[1];
                 $relations = explode("|", $relation);
-                $relationTable = array();
+                $relationTable = [];
                 foreach ($relations as $rel) {
-                    $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), array($rel));
+                    $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), [$rel]);
                     if (!count($tab)) {
                         throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $rel);
                     }
@@ -235,7 +233,7 @@ class CentreonHostCategory extends CentreonSeverityAbstract
                 $existingRelationIds = $relobj->getTargetIdFromSourceId(
                     $relobj->getSecondKey(),
                     $relobj->getFirstKey(),
-                    array($categoryId)
+                    [$categoryId]
                 );
                 foreach ($relationTable as $relationId) {
                     if ($matches[1] == "del") {

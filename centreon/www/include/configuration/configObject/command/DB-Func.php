@@ -94,7 +94,7 @@ function testCmdExistence($name = null)
     }
 }
 
-function deleteCommandInDB($commands = array())
+function deleteCommandInDB($commands = [])
 {
     global $pearDB, $centreon;
 
@@ -107,7 +107,7 @@ function deleteCommandInDB($commands = array())
     }
 }
 
-function multipleCommandInDB($commands = array(), $nbrDup = array())
+function multipleCommandInDB($commands = [], $nbrDup = [])
 {
     global $pearDB, $centreon;
 
@@ -170,7 +170,7 @@ function updateCommandInDB($cmd_id = null)
     updateCommand($cmd_id);
 }
 
-function updateCommand($cmd_id = null, $params = array())
+function updateCommand($cmd_id = null, $params = [])
 {
     global $form, $pearDB, $centreon;
 
@@ -178,7 +178,7 @@ function updateCommand($cmd_id = null, $params = array())
         return;
     }
 
-    $ret = array();
+    $ret = [];
     $ret = count($params) ? $params : $form->getSubmitValues();
 
     $ret["command_name"] = $centreon->checkIllegalChar($ret["command_name"]);
@@ -224,13 +224,13 @@ function updateCommand($cmd_id = null, $params = array())
     $centreon->CentreonLogAction->insertLog("command", $cmd_id, $pearDB->escape($ret["command_name"]), "c", $fields);
 }
 
-function insertCommandInDB($ret = array())
+function insertCommandInDB($ret = [])
 {
     $cmd_id = insertCommand($ret);
     return ($cmd_id);
 }
 
-function insertCommand($ret = array())
+function insertCommand($ret = [])
 {
     global $form, $pearDB, $centreon, $isCloudPlatform;
 
@@ -292,17 +292,8 @@ function return_plugin($rep)
 {
     global $centreon;
 
-    $plugins = array();
-    $is_not_a_plugin = array(
-        "." => 1,
-        ".." => 1,
-        "oreon.conf" => 1,
-        "oreon.pm" => 1,
-        "utils.pm" => 1,
-        "negate" => 1,
-        "centreon.conf" => 1,
-        "centreon.pm" => 1
-    );
+    $plugins = [];
+    $is_not_a_plugin = ["." => 1, ".." => 1, "oreon.conf" => 1, "oreon.pm" => 1, "utils.pm" => 1, "negate" => 1, "centreon.conf" => 1, "centreon.pm" => 1];
     $handle[$rep] = opendir($rep);
     while (false != ($filename = readdir($handle[$rep]))) {
         if ($filename != "." && $filename != "..") {
@@ -460,7 +451,7 @@ function insertMacrosDesc($cmd, $ret)
 {
     global $pearDB;
 
-    $arr = array("HOST" => "1", "SERVICE" => "2");
+    $arr = ["HOST" => "1", "SERVICE" => "2"];
     if (!count($ret)) {
         $ret = $form->getSubmitValues();
     }

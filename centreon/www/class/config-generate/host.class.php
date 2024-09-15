@@ -49,7 +49,7 @@ class Host extends AbstractHost
     public const CUMULATIVE_NOTIFICATION = 3;
 
     /** @var array */
-    protected $hosts_by_name = array();
+    protected $hosts_by_name = [];
     /** @var array|null */
     protected $hosts = null;
     /** @var string */
@@ -65,9 +65,9 @@ class Host extends AbstractHost
     /** @var null */
     protected $stmt_service_sg = null;
     /** @var array */
-    protected $generated_parentship = array();
+    protected $generated_parentship = [];
     /** @var array */
-    protected $generatedHosts = array();
+    protected $generatedHosts = [];
 
     /**
      * @param $host
@@ -118,7 +118,7 @@ class Host extends AbstractHost
         $this->stmt_parent->execute();
         $result = $this->stmt_parent->fetchAll(PDO::FETCH_COLUMN);
 
-        $host['parents'] = array();
+        $host['parents'] = [];
         foreach ($result as $parent_id) {
             if (isset($this->hosts[$parent_id])) {
                 $host['parents'][] = $this->hosts[$parent_id]['host_name'];
@@ -184,15 +184,15 @@ class Host extends AbstractHost
      */
     private function manageCumulativeInheritance(array &$host): array
     {
-        $results = array('cg' => array(), 'contact' => array());
+        $results = ['cg' => [], 'contact' => []];
 
         $hostsTpl = HostTemplate::getInstance($this->dependencyInjector)->hosts;
         foreach ($host['htpl'] as $hostIdTopLevel) {
-            $stack = array($hostIdTopLevel);
-            $loop = array();
+            $stack = [$hostIdTopLevel];
+            $loop = [];
             if (!isset($hostsTpl[$hostIdTopLevel]['contacts_computed_cache'])) {
-                $contacts = array();
-                $cg = array();
+                $contacts = [];
+                $cg = [];
                 while (($hostId = array_shift($stack))) {
                     if (isset($loop[$hostId]) || !isset($hostsTpl[$hostId])) {
                         continue;
@@ -248,10 +248,10 @@ class Host extends AbstractHost
 
         $hostsTpl = HostTemplate::getInstance($this->dependencyInjector)->hosts;
         foreach ($host['htpl'] as $hostIdTopLevel) {
-            $stack = array($hostIdTopLevel);
-            $loop = array();
+            $stack = [$hostIdTopLevel];
+            $loop = [];
             if (!isset($hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'])) {
-                $hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'] = array();
+                $hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'] = [];
 
                 while (($hostId = array_shift($stack))) {
                     if (isset($loop[$hostId])) {
@@ -280,7 +280,7 @@ class Host extends AbstractHost
                 return $hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'];
             }
         }
-        return array();
+        return [];
     }
 
     /**
@@ -302,10 +302,10 @@ class Host extends AbstractHost
         $hostsTpl = HostTemplate::getInstance($this->dependencyInjector)->hosts;
         $hostIdCache = null;
         foreach ($host['htpl'] as $hostIdTopLevel) {
-            $computedCache = array();
+            $computedCache = [];
             if (!isset($hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'])) {
-                $stack = array(array($hostIdTopLevel, 1));
-                $loop = array();
+                $stack = [[$hostIdTopLevel, 1]];
+                $loop = [];
                 $currentLevelCatch = null;
                 while ((list($hostId, $level) = array_shift($stack))) {
                     if (!is_null($currentLevelCatch) && $currentLevelCatch >= $level) {
@@ -335,7 +335,7 @@ class Host extends AbstractHost
                     }
 
                     foreach (array_reverse($hostsTpl[$hostId]['htpl']) as $htplId) {
-                        array_unshift($stack, array($htplId, $level + 1));
+                        array_unshift($stack, [$htplId, $level + 1]);
                     }
                 }
 
@@ -406,7 +406,7 @@ class Host extends AbstractHost
      */
     private function manageNotificationInheritance(array &$host, bool $generate = true): array
     {
-        $results = array('cg' => array(), 'contact' => array());
+        $results = ['cg' => [], 'contact' => []];
 
         if (!is_null($host['notifications_enabled']) && (int)$host['notifications_enabled'] === 0) {
             return $results;
@@ -451,7 +451,7 @@ class Host extends AbstractHost
     protected function getSeverity($host_id_arg)
     {
         $host_id = null;
-        $loop = array();
+        $loop = [];
 
         $severity_instance = Severity::getInstance($this->dependencyInjector);
         $severity_id = $severity_instance->getHostSeverityByHostId($host_id_arg);
@@ -514,7 +514,7 @@ class Host extends AbstractHost
      *
      * @return void
      */
-    public function addHost($host_id, $attr = array()): void
+    public function addHost($host_id, $attr = []): void
     {
         $this->hosts[$host_id] = $attr;
     }
@@ -688,7 +688,7 @@ class Host extends AbstractHost
         $hostTplInstance = HostTemplate::getInstance($this->dependencyInjector);
 
         $stack = $host['htpl'];
-        $loop = array();
+        $loop = [];
         while (($hostTplId = array_shift($stack))) {
             if (isset($loop[$hostTplId])) {
                 continue;
@@ -712,10 +712,10 @@ class Host extends AbstractHost
      */
     public function reset(): void
     {
-        $this->hosts_by_name = array();
+        $this->hosts_by_name = [];
         $this->hosts = null;
-        $this->generated_parentship = array();
-        $this->generatedHosts = array();
+        $this->generated_parentship = [];
+        $this->generatedHosts = [];
         parent::reset();
     }
 }

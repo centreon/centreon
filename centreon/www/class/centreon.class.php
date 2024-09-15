@@ -174,15 +174,11 @@ class Centreon
      */
     public function creatModuleList(): void
     {
-        $this->modules = array();
+        $this->modules = [];
         $query = "SELECT `name` FROM `modules_informations`";
         $dbResult = CentreonDBInstance::getDbCentreonInstance()->query($query);
         while ($result = $dbResult->fetch()) {
-            $this->modules[$result["name"]] = array(
-                "name" => $result["name"],
-                "gen" => false,
-                "license" => false
-            );
+            $this->modules[$result["name"]] = ["name" => $result["name"], "gen" => false, "license" => false];
 
             if (is_dir("./modules/" . $result["name"] . "/generate_files/")) {
                 $this->modules[$result["name"]]["gen"] = true;
@@ -196,7 +192,7 @@ class Centreon
      */
     public function initHooks(): void
     {
-        $this->hooks = array();
+        $this->hooks = [];
 
         foreach ($this->modules as $name => $parameters) {
             $hookPaths = glob(_CENTREON_PATH_ . '/www/modules/' . $name . '/hooks/*.class.php');
@@ -216,10 +212,7 @@ class Centreon
                         }
                         $hookMethods = get_class_methods($className);
                         foreach ($hookMethods as $hookMethod) {
-                            $this->hooks[$hookName][$hookMethod][] = array(
-                                'path' => $hookPath,
-                                'class' => $className
-                            );
+                            $this->hooks[$hookName][$hookMethod][] = ['path' => $hookPath, 'class' => $className];
                         }
                     }
                 }
@@ -232,12 +225,12 @@ class Centreon
      */
     public function createHistory(): void
     {
-        $this->historyPage = array();
+        $this->historyPage = [];
         $this->historyLastUrl = '';
-        $this->historySearch = array();
-        $this->historySearchService = array();
-        $this->historySearchOutput = array();
-        $this->historyLimit = array();
+        $this->historySearch = [];
+        $this->historySearchService = [];
+        $this->historySearchOutput = [];
+        $this->historyLimit = [];
         $this->search_type_service = 1;
         $this->search_type_host = 1;
     }
@@ -249,7 +242,7 @@ class Centreon
      */
     public function initNagiosCFG(): void
     {
-        $this->Nagioscfg = array();
+        $this->Nagioscfg = [];
         /*
          * We don't check activate because we can a server without a engine on localhost running
          * (but we order to get if we have one)
@@ -272,7 +265,7 @@ class Centreon
      */
     public function initOptGen(): void
     {
-        $this->optGen = array();
+        $this->optGen = [];
         $DBRESULT = CentreonDBInstance::getDbCentreonInstance()->query("SELECT * FROM `options`");
         while ($opt = $DBRESULT->fetch()) {
             $this->optGen[$opt["key"]] = $opt["value"];

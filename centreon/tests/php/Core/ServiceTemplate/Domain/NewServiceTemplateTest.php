@@ -51,7 +51,7 @@ foreach (
         "should throw an exception when service template {$field} is an empty string",
         function () use ($field): void {
             $template = createNewServiceTemplate();
-            call_user_func_array(array($template, 'set' . ucfirst($field)), ['']);
+            call_user_func_array([$template, 'set' . ucfirst($field)], ['']);
         }
     )->throws(
         AssertionException::class,
@@ -63,7 +63,7 @@ foreach (
         "should throw an exception when service template {$field} is too long",
         function () use ($field, $tooLongString): void {
             $template = createNewServiceTemplate();
-            call_user_func_array(array($template, 'set' . ucfirst($field)), [$tooLongString]);
+            call_user_func_array([$template, 'set' . ucfirst($field)], [$tooLongString]);
         }
     )->throws(
         AssertionException::class,
@@ -94,7 +94,7 @@ foreach (
         "should throw an exception when service template {$field} is less than 0",
         function () use ($field): void {
             $template = createNewServiceTemplate();
-            call_user_func_array(array($template, 'set' . ucfirst($field)), [-1]);
+            call_user_func_array([$template, 'set' . ucfirst($field)], [-1]);
         }
     )->throws(
         AssertionException::class,
@@ -122,7 +122,7 @@ foreach (
         "should throw an exception when service template {$field} is less than 1",
         function () use ($field): void {
             $template = createNewServiceTemplate();
-            call_user_func_array(array($template, 'set' . ucfirst($field)), [0]);
+            call_user_func_array([$template, 'set' . ucfirst($field)], [0]);
         }
     )->throws(
         AssertionException::class,
@@ -142,7 +142,7 @@ foreach (['commandArgument', 'eventHandlerArgument'] as $field) {
             $serviceTemplate = createNewServiceTemplate();
             $methodName = 'get' . ucfirst($field) . 's';
             foreach ($arguments as $argument) {
-                call_user_func_array(array($serviceTemplate, 'add' . ucfirst($field)), [$argument]);
+                call_user_func_array([$serviceTemplate, 'add' . ucfirst($field)], [$argument]);
             }
 
             expect($serviceTemplate->{$methodName}())->toBe(['1', '2', '3']);
@@ -160,7 +160,7 @@ it(
             NotificationType::Recovery
         ];
         foreach ($notificationTypes as $notificationType) {
-            call_user_func_array(array($serviceTemplate, 'addNotificationType'), [$notificationType]);
+            call_user_func_array([$serviceTemplate, 'addNotificationType'], [$notificationType]);
         }
         expect($serviceTemplate->getNotificationTypes())->toBe($notificationTypes);
     }

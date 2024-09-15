@@ -94,52 +94,9 @@ abstract class AbstractService extends AbstractObject
         service_acknowledgement_timeout as acknowledgement_timeout
     ';
     /** @var string[] */
-    protected $attributes_write = array(
-        'host_name',
-        'service_description',
-        'display_name',
-        'contacts',
-        'contact_groups',
-        'check_command',
-        'check_period',
-        'notification_period',
-        'event_handler',
-        'max_check_attempts',
-        'check_interval',
-        'retry_interval',
-        'initial_state',
-        'freshness_threshold',
-        'low_flap_threshold',
-        'high_flap_threshold',
-        'flap_detection_options',
-        'notification_interval',
-        'notification_options',
-        'first_notification_delay',
-        'recovery_notification_delay',
-        'stalking_options',
-        'register',
-        'notes',
-        'notes_url',
-        'action_url',
-        'icon_image',
-        'icon_id',
-        'icon_image_alt',
-        'acknowledgement_timeout'
-    );
+    protected $attributes_write = ['host_name', 'service_description', 'display_name', 'contacts', 'contact_groups', 'check_command', 'check_period', 'notification_period', 'event_handler', 'max_check_attempts', 'check_interval', 'retry_interval', 'initial_state', 'freshness_threshold', 'low_flap_threshold', 'high_flap_threshold', 'flap_detection_options', 'notification_interval', 'notification_options', 'first_notification_delay', 'recovery_notification_delay', 'stalking_options', 'register', 'notes', 'notes_url', 'action_url', 'icon_image', 'icon_id', 'icon_image_alt', 'acknowledgement_timeout'];
     /** @var string[] */
-    protected $attributes_default = array(
-        'is_volatile',
-        'active_checks_enabled',
-        'passive_checks_enabled',
-        'event_handler_enabled',
-        'flap_detection_enabled',
-        'notifications_enabled',
-        'obsess_over_service',
-        'check_freshness',
-        'process_perf_data',
-        'retain_status_information',
-        'retain_nonstatus_information',
-    );
+    protected $attributes_default = ['is_volatile', 'active_checks_enabled', 'passive_checks_enabled', 'event_handler_enabled', 'flap_detection_enabled', 'notifications_enabled', 'obsess_over_service', 'check_freshness', 'process_perf_data', 'retain_status_information', 'retain_nonstatus_information'];
     /** @var string[] */
     protected $attributes_array = [
         'use',
@@ -147,11 +104,9 @@ abstract class AbstractService extends AbstractObject
         'group_tags',
     ];
     /** @var string[] */
-    protected $attributes_hash = array(
-        'macros'
-    );
+    protected $attributes_hash = ['macros'];
     /** @var array */
-    protected $loop_stpl = array(); # To be reset
+    protected $loop_stpl = []; # To be reset
     /** @var null */
     protected $stmt_macro = null;
     /** @var null */
@@ -198,10 +153,8 @@ abstract class AbstractService extends AbstractObject
      */
     protected function getServiceTemplates(&$service)
     {
-        $service['use'] = array(
-            ServiceTemplate::getInstance($this->dependencyInjector)
-                ->generateFromServiceId($service['service_template_model_stm_id'])
-        );
+        $service['use'] = [ServiceTemplate::getInstance($this->dependencyInjector)
+            ->generateFromServiceId($service['service_template_model_stm_id'])];
     }
 
     /**
@@ -234,7 +187,7 @@ abstract class AbstractService extends AbstractObject
      */
     protected function findCommandName($service_id, $command_label)
     {
-        $loop = array();
+        $loop = [];
 
         $services_tpl = ServiceTemplate::getInstance($this->dependencyInjector)->service_cache;
         $service_id = isset($this->service_cache[$service_id]['service_template_model_stm_id'])

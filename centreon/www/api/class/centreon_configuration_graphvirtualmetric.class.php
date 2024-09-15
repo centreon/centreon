@@ -55,7 +55,7 @@ class CentreonConfigurationGraphvirtualmetric extends CentreonConfigurationObjec
      */
     protected function retrieveSimpleValues($currentObject, $id, $field)
     {
-        $tmpValues = array();
+        $tmpValues = [];
         # Getting Current Values
         $query = "SELECT id.host_id, id.service_id " .
             "FROM " . dbcstg . ".index_data id, virtual_metrics vm " .

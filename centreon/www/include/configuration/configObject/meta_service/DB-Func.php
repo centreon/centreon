@@ -103,7 +103,7 @@ function removeRelationLastMetaServiceDependency(int $serviceId): void
     }
 }
 
-function deleteMetaServiceInDB($metas = array())
+function deleteMetaServiceInDB($metas = [])
 {
     global $pearDB;
     foreach ($metas as $key => $value) {
@@ -133,7 +133,7 @@ function disableMetricInDB($msr_id = null)
     $pearDB->query("UPDATE meta_service_relation SET activate = '0' WHERE msr_id = '" . $msr_id . "'");
 }
 
-function deleteMetricInDB($metrics = array())
+function deleteMetricInDB($metrics = [])
 {
     global $pearDB;
     foreach ($metrics as $key => $value) {
@@ -141,7 +141,7 @@ function deleteMetricInDB($metrics = array())
     }
 }
 
-function multipleMetaServiceInDB($metas = array(), $nbrDup = array())
+function multipleMetaServiceInDB($metas = [], $nbrDup = [])
 {
     # Foreach Meta Service
     foreach ($metas as $key => $value) {
@@ -233,7 +233,7 @@ function insertMetaServiceInDB()
     return ($meta_id);
 }
 
-function multipleMetricInDB($metrics = array(), $nbrDup = array())
+function multipleMetricInDB($metrics = [], $nbrDup = [])
 {
     # Foreach Meta Service
     foreach ($metrics as $key => $value) {
@@ -279,7 +279,7 @@ function checkMetaHost()
     }
 }
 
-function insertMetaService($ret = array())
+function insertMetaService($ret = [])
 {
     global $form, $pearDB, $centreon;
 
@@ -384,7 +384,7 @@ function updateMetaService($meta_id = null)
 
     checkMetaHost();
 
-    $ret = array();
+    $ret = [];
     $ret = $form->getSubmitValues();
     $rq = "UPDATE meta_service SET ";
     $rq .= "meta_name = ";
@@ -476,7 +476,7 @@ function updateMetaServiceContact($meta_id)
     $statement->execute();
 
     /* Add relation between metaservice and contact */
-    $ret = array();
+    $ret = [];
     $ret = CentreonUtils::mergeWithInitialValues($form, 'ms_cs');
     if (count($ret)) {
         $queryAddRelation = "INSERT INTO meta_contact (meta_id, contact_id) VALUES ";
@@ -502,7 +502,7 @@ function updateMetaServiceContactGroup($meta_id = null)
     $rq .= "WHERE meta_id = '" . $meta_id . "'";
     $dbResult = $pearDB->query($rq);
 
-    $ret = array();
+    $ret = [];
     $ret = CentreonUtils::mergeWithInitialValues($form, 'ms_cgs');
     $cg = new CentreonContactgroup($pearDB);
     $counter = count($ret);
@@ -538,7 +538,7 @@ function insertMetricInDB()
     return ($msr_id);
 }
 
-function insertMetric($ret = array())
+function insertMetric($ret = [])
 {
     global $form;
     global $pearDB;

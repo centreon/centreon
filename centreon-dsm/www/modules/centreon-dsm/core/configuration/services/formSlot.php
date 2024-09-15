@@ -38,7 +38,7 @@ if (!isset($oreon)) {
     exit();
 }
 
-$pool = array();
+$pool = [];
 if (($o == "c" || $o == "w") && $slot_id) {
     $dbResult = $pearDB->query("SELECT * FROM mod_dsm_pool WHERE pool_id = '" . $slot_id . "' LIMIT 1");
     $pool = $dbResult->fetch();
@@ -47,7 +47,7 @@ if (($o == "c" || $o == "w") && $slot_id) {
 /*
  * Commands
  */
-$Cmds = array();
+$Cmds = [];
 $dbResult = $pearDB->query(
     "SELECT command_id, command_name FROM command WHERE command_type = '2' ORDER BY command_name"
 );
@@ -58,7 +58,7 @@ while ($Cmd = $dbResult->fetch()) {
 /*
  * pool hosts
  */
-$poolHost = array();
+$poolHost = [];
 $dbResult = $pearDB->query("SELECT host_id, host_name FROM host WHERE host_register = '1' ORDER BY host_name");
 while ($data = $dbResult->fetch()) {
     $poolHost[$data["host_id"]] = $data["host_name"];
@@ -67,7 +67,7 @@ while ($data = $dbResult->fetch()) {
 /*
  * pool service_template
  */
-$poolST = array(null => null);
+$poolST = [null => null];
 $dbResult = $pearDB->query(
     "SELECT service_id, service_description FROM service WHERE service_register = '0' ORDER BY service_description"
 );
@@ -80,11 +80,11 @@ while ($data = $dbResult->fetch()) {
 /*
  * Template / Style for Quickform input
  */
-$attrsText = array("size" => "30");
-$attrsTextSmall = array("size" => "10");
-$attrsText2 = array("size" => "60");
-$attrsAdvSelect = array("style" => "width: 300px; height: 100px;");
-$attrsTextarea = array("rows" => "5", "cols" => "40");
+$attrsText = ["size" => "30"];
+$attrsTextSmall = ["size" => "10"];
+$attrsText2 = ["size" => "60"];
+$attrsAdvSelect = ["style" => "width: 300px; height: 100px;"];
+$attrsTextarea = ["rows" => "5", "cols" => "40"];
 $template = "<table><tr><td>{unselected}</td><td align='center'>{add}<br /><br /><br />" .
     "{remove}</td><td>{selected}</td></tr></table>";
 
@@ -127,7 +127,7 @@ $form->addElement('header', 'furtherInfos', _("Additional Information"));
 $poolActivation[] = $form->createElement('radio', 'pool_activate', null, _("Enabled"), '1');
 $poolActivation[] = $form->createElement('radio', 'pool_activate', null, _("Disabled"), '0');
 $form->addGroup($poolActivation, 'pool_activate', _("Status"), '&nbsp;');
-$form->setDefaults(array('pool_activate' => '1'));
+$form->setDefaults(['pool_activate' => '1']);
 
 $form->addElement('hidden', 'pool_id');
 $redirect = $form->addElement('hidden', 'o');
@@ -176,22 +176,19 @@ if ($o == "w") {
         "button",
         "change",
         _("Modify"),
-        array(
-            "class" => "btc bt_default",
-            "onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&pool_id=" . $pool_id . "'"
-        )
+        ["class" => "btc bt_default", "onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&pool_id=" . $pool_id . "'"]
     );
     $form->setDefaults($pool);
     $form->freeze();
 } elseif ($o == "c") {
     // Modify a pool information
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $form->setDefaults($pool);
 } elseif ($o == "a") {
     // Add a pool information
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 }
 
 $valid = false;
@@ -220,10 +217,7 @@ if ($form->validate() && $from_list_menu == false) {
         "button",
         "change",
         _("Modify"),
-        array(
-            "class" => "btc bt_default",
-            "onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&pool_id=" . $poolObj->getValue() . "'"
-        )
+        ["class" => "btc bt_default", "onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&pool_id=" . $poolObj->getValue() . "'"]
     );
     $form->freeze();
 }

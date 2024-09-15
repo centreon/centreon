@@ -37,7 +37,7 @@ if (!isset($centreon)) {
     exit();
 }
 
-$tab = array("1" => "ENABLE", "0" => "DISABLE");
+$tab = ["1" => "ENABLE", "0" => "DISABLE"];
 
 function write_command($cmd, $poller)
 {
@@ -83,7 +83,7 @@ function schedule_host_svc_checks($arg, $forced)
     $actions = $centreon->user->access->checkAction("host_checks_for_services");
 
     if ($actions == true || $is_admin) {
-        $tab_forced = array("0" => "", "1" => "_FORCED");
+        $tab_forced = ["0" => "", "1" => "_FORCED"];
         $flg = send_cmd(
             " SCHEDULE" . $tab_forced[$forced] . "_HOST_SVC_CHECKS;" . $arg . ";" . time(),
             GetMyHostPoller($pearDB, $arg)
@@ -107,7 +107,7 @@ function schedule_svc_checks($arg, $forced)
     }
 
     if ($actions == true || $is_admin) {
-        $tab_forced = array("0" => "", "1" => "_FORCED");
+        $tab_forced = ["0" => "", "1" => "_FORCED"];
         $tab_data = preg_split("/\;/", $arg);
         $flg = send_cmd(
             " SCHEDULE" . $tab_forced[$forced] . "_SVC_CHECK;" . urldecode($tab_data[0]) .
@@ -132,7 +132,7 @@ function schedule_host_checks($arg, $forced)
     }
 
     if ($actions == true || $is_admin) {
-        $tab_forced = array("0" => "", "1" => "_FORCED");
+        $tab_forced = ["0" => "", "1" => "_FORCED"];
         $tab_data = preg_split("/\;/", $arg);
         $flg = send_cmd(
             " SCHEDULE" . $tab_forced[$forced] . "_HOST_CHECK;" . urldecode($tab_data[0]) . ";" . time(),

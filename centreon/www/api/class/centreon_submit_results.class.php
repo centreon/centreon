@@ -60,7 +60,7 @@ class CentreonSubmitResults extends CentreonWebService
     /**
      * @var array The cache for relation between hosts and pollers
      */
-    protected $pollerHosts = array();
+    protected $pollerHosts = [];
     /**
      * @var array The cache for relation between hosts and services
      */
@@ -68,42 +68,11 @@ class CentreonSubmitResults extends CentreonWebService
     /**
      * @var array The list of accepted status
      */
-    protected $acceptedStatus = array(
-        'host' => array(
-            0,
-            1,
-            2,
-            'up',
-            'down',
-            'unknown'
-        ),
-        'service' => array(
-            0,
-            1,
-            2,
-            3,
-            'ok',
-            'warning',
-            'critical',
-            'unknown'
-        )
-    );
+    protected $acceptedStatus = ['host' => [0, 1, 2, 'up', 'down', 'unknown'], 'service' => [0, 1, 2, 3, 'ok', 'warning', 'critical', 'unknown']];
     /**
      * @var array The match between status string and number
      */
-    protected $convertStatus = array(
-        'host' => array(
-            'up' => 0,
-            'down' => 1,
-            'unknown' => 2
-        ),
-        'service' => array(
-            'ok' => 0,
-            'warning' => 1,
-            'critical' => 2,
-            'unknown' => 3
-        )
-    );
+    protected $convertStatus = ['host' => ['up' => 0, 'down' => 1, 'unknown' => 2], 'service' => ['ok' => 0, 'warning' => 1, 'critical' => 2, 'unknown' => 3]];
     /**
      * @var string The rejex for validate perfdata
      */
@@ -136,7 +105,7 @@ class CentreonSubmitResults extends CentreonWebService
                 'AND h.host_activate = "1" ' .
                 'AND h.host_register = "1"';
             $dbResult = $this->pearDB->query($query);
-            $this->pollerHosts = array('name' => array(), 'id' => array());
+            $this->pollerHosts = ['name' => [], 'id' => []];
             while ($row = $dbResult->fetchRow()) {
                 $this->pollerHosts['id'][$row['host_id']] = $row['poller_id'];
                 $this->pollerHosts['name'][$row['host_name']] = $row['poller_id'];
@@ -157,10 +126,10 @@ class CentreonSubmitResults extends CentreonWebService
                     "AND h.enabled = 1 " .
                     "AND s.enabled = 1 ";
             $dbResult = $this->pearDBC->query($query);
-            $this->hostServices = array();
+            $this->hostServices = [];
             while ($row = $dbResult->fetchRow()) {
                 if (!isset($this->hostServices[$row['name']])) {
-                    $this->hostServices[$row['name']] = array();
+                    $this->hostServices[$row['name']] = [];
                 }
                 $this->hostServices[$row['name']][$row['description']] = 1;
             }
@@ -236,7 +205,7 @@ class CentreonSubmitResults extends CentreonWebService
     {
         $this->getHostServiceInfo();
 
-        $results = array();
+        $results = [];
         $hasError = false;
 
         if (isset($this->arguments['results']) && is_array($this->arguments['results'])) {
@@ -301,24 +270,18 @@ class CentreonSubmitResults extends CentreonWebService
                         if (!$this->sendResults($data)) {
                             throw new RestInternalServerErrorException('Error during send command to CentCore.');
                         }
-                        $results[] = array(
-                            'code' => 202,
-                            'message' => 'The status send to the engine'
-                        );
+                        $results[] = ['code' => 202, 'message' => 'The status send to the engine'];
                     } catch (\Exception $error) {
                         $hasError = true;
-                        $results[] = array(
-                            'code' => $error->getCode(),
-                            'message' => $error->getMessage()
-                        );
+                        $results[] = ['code' => $error->getCode(), 'message' => $error->getMessage()];
                     }
                 }
                 $this->closePipe();
             }
             if ($hasError) {
-                throw new RestPartialContent(json_encode(array('results' => $results)));
+                throw new RestPartialContent(json_encode(['results' => $results]));
             }
-            return array('results' => $results);
+            return ['results' => $results];
         } else {
             throw new RestBadRequestException('Bad arguments - Cannot find result list');
         }

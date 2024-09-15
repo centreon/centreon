@@ -63,7 +63,7 @@ class Wiki
             return $this->config;
         }
 
-        $options = array();
+        $options = [];
 
         $res = $this->db->query(
             "SELECT * FROM `options` WHERE options.key LIKE 'kb_%'"

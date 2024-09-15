@@ -50,7 +50,7 @@ class CentreonUserLog
     /** @var CentreonUserLog */
     private static $instance;
     /** @var array */
-    private $errorType = array();
+    private $errorType = [];
     /** @var int */
     private $uid;
     /** @var string */

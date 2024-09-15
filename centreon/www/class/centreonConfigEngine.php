@@ -62,7 +62,7 @@ class CentreonConfigEngine
      * @return void
      * @throws PDOException
      */
-    public function insertBrokerDirectives($serverId, $directives = array()): void
+    public function insertBrokerDirectives($serverId, $directives = []): void
     {
         $this->db->query("DELETE FROM cfg_nagios_broker_module
                 WHERE cfg_nagios_id = ".$this->db->escape($serverId));
@@ -85,7 +85,7 @@ class CentreonConfigEngine
      */
     public function getBrokerDirectives($serverId = null)
     {
-        $arr = array();
+        $arr = [];
         $i = 0;
         if (!isset($_REQUEST['in_broker']) && $serverId) {
             $res = $this->db->query("SELECT broker_module

@@ -44,7 +44,7 @@ $order = !isset($_GET["order"]) ? 'ASC' : $_GET["order"];
 $num = !isset($_GET["num"]) ? 0 : $_GET["num"];
 $sort_type = !isset($_GET["sort_type"]) ? "hostGroup_name" : $_GET["sort_type"];
 
-$tab_class = array("0" => "list_one", "1" => "list_two");
+$tab_class = ["0" => "list_one", "1" => "list_two"];
 $rows = 10;
 
 include_once("./include/monitoring/status/Common/default_poller.php");
@@ -72,7 +72,7 @@ $tpl->assign('poller_listing', $centreon->user->access->checkAction('poller_list
 $form = new HTML_QuickFormCustom('select_form', 'GET', "?p=".$p);
 
 $tpl->assign("order", strtolower($order));
-$tab_order = array("sort_asc" => "sort_desc", "sort_desc" => "sort_asc");
+$tab_order = ["sort_asc" => "sort_desc", "sort_desc" => "sort_asc"];
 $tpl->assign("tab_order", $tab_order);
 
 $tpl->assign('limit', $limit);

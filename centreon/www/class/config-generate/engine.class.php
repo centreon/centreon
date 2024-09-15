@@ -137,7 +137,7 @@ class Engine extends AbstractObject
         logger_version
     ';
     /** @var string[] */
-    protected $attributes_write = array(
+    protected $attributes_write = [
         'use_timezone',
         'resource_file',
         'log_file',
@@ -181,7 +181,8 @@ class Engine extends AbstractObject
         'debug_level',
         'debug_verbosity',
         'max_debug_file_size',
-        'log_pid', // centengine
+        'log_pid',
+        // centengine
         'global_host_event_handler',
         'global_service_event_handler',
         'macros_filter',
@@ -203,45 +204,11 @@ class Engine extends AbstractObject
         'log_level_macros',
         'log_level_process',
         'log_level_runtime',
-    );
+    ];
     /** @var string[] */
-    protected $attributes_default = array(
-        'instance_heartbeat_interval',
-        'enable_notifications',
-        'execute_service_checks',
-        'accept_passive_service_checks',
-        'execute_host_checks',
-        'accept_passive_host_checks',
-        'enable_event_handlers',
-        'check_external_commands',
-        'use_retained_program_state',
-        'use_retained_scheduling_info',
-        'use_syslog',
-        'log_notifications',
-        'log_service_retries',
-        'log_host_retries',
-        'log_event_handlers',
-        'log_external_commands',
-        'log_passive_checks',
-        'auto_reschedule_checks',
-        'soft_state_dependencies',
-        'check_for_orphaned_services',
-        'check_for_orphaned_hosts',
-        'check_service_freshness',
-        'check_host_freshness',
-        'enable_flap_detection',
-        'use_regexp_matching',
-        'use_true_regexp_matching',
-        'enable_predictive_host_dependency_checks',
-        'enable_predictive_service_dependency_checks',
-        'enable_environment_macros',
-    );
+    protected $attributes_default = ['instance_heartbeat_interval', 'enable_notifications', 'execute_service_checks', 'accept_passive_service_checks', 'execute_host_checks', 'accept_passive_host_checks', 'enable_event_handlers', 'check_external_commands', 'use_retained_program_state', 'use_retained_scheduling_info', 'use_syslog', 'log_notifications', 'log_service_retries', 'log_host_retries', 'log_event_handlers', 'log_external_commands', 'log_passive_checks', 'auto_reschedule_checks', 'soft_state_dependencies', 'check_for_orphaned_services', 'check_for_orphaned_hosts', 'check_service_freshness', 'check_host_freshness', 'enable_flap_detection', 'use_regexp_matching', 'use_true_regexp_matching', 'enable_predictive_host_dependency_checks', 'enable_predictive_service_dependency_checks', 'enable_environment_macros'];
     /** @var string[] */
-    protected $attributes_array = array(
-        'cfg_file',
-        'broker_module',
-        'interval_length',
-    );
+    protected $attributes_array = ['cfg_file', 'broker_module', 'interval_length'];
     /** @var null */
     protected $stmt_engine = null;
     /** @var null */
@@ -249,7 +216,7 @@ class Engine extends AbstractObject
     /** @var null */
     protected $stmt_interval_length = null;
     /** @var array */
-    protected $add_cfg_files = array();
+    protected $add_cfg_files = [];
 
     /**
      * @param $poller_id
@@ -259,18 +226,7 @@ class Engine extends AbstractObject
     private function buildCfgFile($poller_id): void
     {
         $this->engine['cfg_dir'] = preg_replace('/\/$/', '', $this->engine['cfg_dir']);
-        $this->cfg_file = array(
-            'target' => array(
-                'cfg_file' => array(),
-                'path' => $this->engine['cfg_dir'],
-                'resource_file' => $this->engine['cfg_dir'] . '/resource.cfg'
-            ),
-            'debug' => array(
-                'cfg_file' => array(),
-                'path' => $this->backend_instance->getEngineGeneratePath() . '/' . $poller_id,
-                'resource_file' => $this->backend_instance->getEngineGeneratePath() . '/' . $poller_id . '/resource.cfg'
-            )
-        );
+        $this->cfg_file = ['target' => ['cfg_file' => [], 'path' => $this->engine['cfg_dir'], 'resource_file' => $this->engine['cfg_dir'] . '/resource.cfg'], 'debug' => ['cfg_file' => [], 'path' => $this->backend_instance->getEngineGeneratePath() . '/' . $poller_id, 'resource_file' => $this->backend_instance->getEngineGeneratePath() . '/' . $poller_id . '/resource.cfg']];
 
         foreach ($this->cfg_file as &$value) {
             $value['cfg_file'][] = $value['path'] . '/hostTemplates.cfg';
@@ -477,6 +433,6 @@ class Engine extends AbstractObject
      */
     public function reset(): void
     {
-        $this->add_cfg_files = array();
+        $this->add_cfg_files = [];
     }
 }

@@ -43,15 +43,8 @@ if (!isset($centreon)) {
 
 function get_user_param($user_id, $pearDB)
 {
-    $list_param = array(
-        'ack_sticky',
-        'ack_notify',
-        'ack_persistent',
-        'ack_services',
-        'force_active',
-        'force_check'
-    );
-    $tab_row = array();
+    $list_param = ['ack_sticky', 'ack_notify', 'ack_persistent', 'ack_services', 'force_active', 'force_check'];
+    $tab_row = [];
     foreach ($list_param as $param) {
         if (isset($_SESSION[$param])) {
             $tab_row[$param] = $_SESSION[$param];
@@ -74,7 +67,7 @@ function set_user_param($user_id, $pearDB, $key, $value)
  */
 function getNotifiedInfosForHost(int $hostId, \Pimple\Container $dependencyInjector) : array
 {
-    $results = array('contacts' => array(), 'contactGroups' => array());
+    $results = ['contacts' => [], 'contactGroups' => []];
     $hostInstance = Host::getInstance($dependencyInjector);
     $notifications = $hostInstance->getCgAndContacts($hostId);
 
@@ -100,7 +93,7 @@ function getContactgroups(array $cg): array
 {
     global $pearDB;
 
-    $contactGroups = array();
+    $contactGroups = [];
     $dbResult = $pearDB->query(
         'SELECT cg_id, cg_name 
         FROM contactgroup
@@ -122,7 +115,7 @@ function getContacts(array $contacts) : array
 {
     global $pearDB;
 
-    $contactsResult = array();
+    $contactsResult = [];
     $dbResult = $pearDB->query(
         'SELECT contact_id, contact_name 
         FROM contact
@@ -145,7 +138,7 @@ function getContacts(array $contacts) : array
  */
 function getNotifiedInfosForService(int $serviceId, int $hostId, \Pimple\Container $dependencyInjector) : array
 {
-    $results = array('contacts' => array(), 'contactGroups' => array());
+    $results = ['contacts' => [], 'contactGroups' => []];
 
     $serviceInstance = Service::getInstance($dependencyInjector);
     $notifications = $serviceInstance->getCgAndContacts($serviceId);

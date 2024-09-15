@@ -67,50 +67,7 @@ class CentreonPurgeEngine
         $this->purgeDowntimesQuery = 'DELETE FROM downtimes WHERE (actual_end_time is not null and actual_end_time ' .
             '< __RETENTION__) OR (deletion_time is not null and deletion_time < __RETENTION__)';
 
-        $this->tablesToPurge = array(
-            'data_bin' => array(
-                'retention_field' => 'len_storage_mysql',
-                'retention' => 0,
-                'is_partitioned' => false,
-                'ctime_field' => 'ctime'
-            ),
-            'logs' => array(
-                'retention_field' => 'archive_retention',
-                'retention' => 0,
-                'is_partitioned' => false,
-                'ctime_field' => 'ctime'
-            ),
-            'log_archive_host' => array(
-                'retention_field' => 'reporting_retention',
-                'retention' => 0,
-                'is_partitioned' => false,
-                'ctime_field' => 'date_end'
-            ),
-            'log_archive_service' => array(
-                'retention_field' => 'reporting_retention',
-                'retention' => 0,
-                'is_partitioned' => false,
-                'ctime_field' => 'date_end'
-            ),
-            'comments' => array(
-                'retention_field' => 'len_storage_comments',
-                'retention' => 0,
-                'is_partitioned' => false,
-                'custom_query' => $this->purgeCommentsQuery
-            ),
-            'downtimes' => array(
-                'retention_field' => 'len_storage_downtimes',
-                'retention' => 0,
-                'is_partitioned' => false,
-                'custom_query' => $this->purgeDowntimesQuery
-            ),
-            'log_action' => array(
-                'retention_field' => 'audit_log_retention',
-                'retention' => 0,
-                'is_partitioned' => false,
-                'custom_query' => $this->purgeAuditLogQuery,
-            ),
-        );
+        $this->tablesToPurge = ['data_bin' => ['retention_field' => 'len_storage_mysql', 'retention' => 0, 'is_partitioned' => false, 'ctime_field' => 'ctime'], 'logs' => ['retention_field' => 'archive_retention', 'retention' => 0, 'is_partitioned' => false, 'ctime_field' => 'ctime'], 'log_archive_host' => ['retention_field' => 'reporting_retention', 'retention' => 0, 'is_partitioned' => false, 'ctime_field' => 'date_end'], 'log_archive_service' => ['retention_field' => 'reporting_retention', 'retention' => 0, 'is_partitioned' => false, 'ctime_field' => 'date_end'], 'comments' => ['retention_field' => 'len_storage_comments', 'retention' => 0, 'is_partitioned' => false, 'custom_query' => $this->purgeCommentsQuery], 'downtimes' => ['retention_field' => 'len_storage_downtimes', 'retention' => 0, 'is_partitioned' => false, 'custom_query' => $this->purgeDowntimesQuery], 'log_action' => ['retention_field' => 'audit_log_retention', 'retention' => 0, 'is_partitioned' => false, 'custom_query' => $this->purgeAuditLogQuery]];
 
         $this->dbCentstorage = new \CentreonDB('centstorage');
 

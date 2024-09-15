@@ -59,7 +59,7 @@ class CentreonHostcategories
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'hostcategories';
         $parameters['currentObject']['id'] = 'hc_id';
         $parameters['currentObject']['name'] = 'hc_name';
@@ -92,10 +92,10 @@ class CentreonHostcategories
      * @return array
      * @throws PDOException
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
         global $centreon;
-        $items = array();
+        $items = [];
 
         # get list of authorized host categories
         if (!$centreon->user->access->admin) {
@@ -103,7 +103,7 @@ class CentreonHostcategories
         }
 
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if (!empty($values)) {
             foreach ($values as $v) {
                 // As it happens that $v could be like "X,Y" when two hostgroups are selected, we added a second foreach
@@ -138,11 +138,7 @@ class CentreonHostcategories
                 $hide = true;
             }
 
-            $items[] = array(
-                'id' => $row['hc_id'],
-                'text' => $row['hc_name'],
-                'hide' => $hide
-            );
+            $items[] = ['id' => $row['hc_id'], 'text' => $row['hc_name'], 'hide' => $hide];
         }
 
         return $items;

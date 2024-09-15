@@ -890,7 +890,7 @@ class CentreonAPI
             $selected = $this->options['select'];
 
             if (!is_array($this->options['select'])) {
-                $selected = array($this->options['select']);
+                $selected = [$this->options['select']];
             }
 
             foreach ($selected as $select) {

@@ -54,7 +54,7 @@ class CentreonConfigurationManufacturer extends CentreonConfigurationObjects
      */
     public function getList()
     {
-        $queryValues = array();
+        $queryValues = [];
         // Check for select2 'q' argument
         $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
 
@@ -83,14 +83,11 @@ class CentreonConfigurationManufacturer extends CentreonConfigurationObjects
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $manufacturerList = array();
+        $manufacturerList = [];
         while ($data = $stmt->fetch()) {
-            $manufacturerList[] = array('id' => $data['id'], 'text' => $data['name']);
+            $manufacturerList[] = ['id' => $data['id'], 'text' => $data['name']];
         }
 
-        return array(
-            'items' => $manufacturerList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $manufacturerList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

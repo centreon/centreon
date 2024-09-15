@@ -230,7 +230,7 @@ class Task implements EntityInterface
 
         $filteredKeys = array_filter(array_keys($input), $callback);
         if ($filteredKeys === []) {
-            return array();
+            return [];
         }
 
         $input = array_intersect_key(array_flip($filteredKeys), $input);

@@ -57,12 +57,7 @@ require_once "centreonHost.class.php";
 class CentreonHostTemplate extends CentreonHost
 {
     /** @var string[] */
-    public static $aDepends = array(
-        'CMD',
-        'TP',
-        'TRAP',
-        'INSTANCE'
-    );
+    public static $aDepends = ['CMD', 'TP', 'TRAP', 'INSTANCE'];
 
     /**
      * CentreonHostTemplate constructor
@@ -104,7 +99,7 @@ class CentreonHostTemplate extends CentreonHost
         }
 
         $labelField = $this->object->getUniqueLabelField();
-        $filters = array("host_register" => $this->register);
+        $filters = ["host_register" => $this->register];
         if (!is_null($filterName)) {
             $filters[$labelField] = $filterName;
         }
@@ -169,17 +164,7 @@ class CentreonHostTemplate extends CentreonHost
 
             $params = $extendedObj->getParameters(
                 $element[$this->object->getPrimaryKey()],
-                array(
-                    "ehi_notes",
-                    "ehi_notes_url",
-                    "ehi_action_url",
-                    "ehi_icon_image",
-                    "ehi_icon_image_alt",
-                    "ehi_vrml_image",
-                    "ehi_statusmap_image",
-                    "ehi_2d_coords",
-                    "ehi_3d_coords"
-                )
+                ["ehi_notes", "ehi_notes_url", "ehi_action_url", "ehi_icon_image", "ehi_icon_image_alt", "ehi_vrml_image", "ehi_statusmap_image", "ehi_2d_coords", "ehi_3d_coords"]
             );
             if (isset($params) && is_array($params)) {
                 foreach ($params as $k => $v) {
@@ -201,7 +186,7 @@ class CentreonHostTemplate extends CentreonHost
                 0,
                 null,
                 null,
-                array('host_host_id' => $element[$this->object->getPrimaryKey()]),
+                ['host_host_id' => $element[$this->object->getPrimaryKey()]],
                 "AND"
             );
             foreach ($macros as $macro) {
@@ -226,13 +211,13 @@ class CentreonHostTemplate extends CentreonHost
 
         // contact groups linked
         $cgRel = new Centreon_Object_Relation_Contact_Group_Host($this->dependencyInjector);
-        $filters_cgRel = array("host_register" => $this->register);
+        $filters_cgRel = ["host_register" => $this->register];
         if (!is_null($filterName)) {
             $filters_cgRel['host_name'] = $filterName;
         }
         $cgElements = $cgRel->getMergedParameters(
-            array("cg_name", "cg_id"),
-            array($this->object->getUniqueLabelField()),
+            ["cg_name", "cg_id"],
+            [$this->object->getUniqueLabelField()],
             -1,
             0,
             null,
@@ -250,13 +235,13 @@ class CentreonHostTemplate extends CentreonHost
 
         // contacts linked
         $contactRel = new Centreon_Object_Relation_Contact_Host($this->dependencyInjector);
-        $filters_contactRel = array("host_register" => $this->register);
+        $filters_contactRel = ["host_register" => $this->register];
         if (!is_null($filterName)) {
             $filters_contactRel['host_name'] = $filterName;
         }
         $contactElements = $contactRel->getMergedParameters(
-            array("contact_alias", "contact_id"),
-            array($this->object->getUniqueLabelField()),
+            ["contact_alias", "contact_id"],
+            [$this->object->getUniqueLabelField()],
             -1,
             0,
             null,
@@ -274,13 +259,13 @@ class CentreonHostTemplate extends CentreonHost
 
         // host templates linked
         $htplRel = new Centreon_Object_Relation_Host_Template_Host($this->dependencyInjector);
-        $filters_htplRel = array("h.host_register" => $this->register);
+        $filters_htplRel = ["h.host_register" => $this->register];
         if (!is_null($filterName)) {
             $filters_htplRel['h.host_name'] = $filterName;
         }
         $tplElements = $htplRel->getMergedParameters(
-            array("host_name as host"),
-            array("host_name as template", "host_id as tpl_id"),
+            ["host_name as host"],
+            ["host_name as template", "host_id as tpl_id"],
             -1,
             0,
             "host,`order`",
@@ -301,13 +286,13 @@ class CentreonHostTemplate extends CentreonHost
             // service templates linked
             $hostRel = new Centreon_Object_Relation_Host_Service($this->dependencyInjector);
             $helements = $hostRel->getMergedParameters(
-                array("host_name"),
-                array('service_description', 'service_id'),
+                ["host_name"],
+                ['service_description', 'service_id'],
                 -1,
                 0,
                 null,
                 null,
-                array("service_register" => 0, "host_name" => $filterName),
+                ["service_register" => 0, "host_name" => $filterName],
                 "AND"
             );
             foreach ($helements as $helement) {
@@ -317,13 +302,13 @@ class CentreonHostTemplate extends CentreonHost
             // services linked
             $hostRel = new Centreon_Object_Relation_Host_Service($this->dependencyInjector);
             $helements = $hostRel->getMergedParameters(
-                array("host_name"),
-                array('service_description', 'service_id'),
+                ["host_name"],
+                ['service_description', 'service_id'],
                 -1,
                 0,
                 null,
                 null,
-                array("service_register" => 1, "host_name" => $filterName),
+                ["service_register" => 1, "host_name" => $filterName],
                 "AND"
             );
             foreach ($helements as $helement) {
@@ -333,13 +318,13 @@ class CentreonHostTemplate extends CentreonHost
             // service hg linked and hostgroups
             $hostRel = new Centreon_Object_Relation_Host_Group_Host($this->dependencyInjector);
             $helements = $hostRel->getMergedParameters(
-                array("hg_name", "hg_id"),
-                array('*'),
+                ["hg_name", "hg_id"],
+                ['*'],
                 -1,
                 0,
                 null,
                 null,
-                array("host_name" => $filterName),
+                ["host_name" => $filterName],
                 "AND"
             );
             foreach ($helements as $helement) {

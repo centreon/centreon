@@ -105,15 +105,10 @@ class CentreonGraphStatus
 
         $jsonData = $this->getJsonStream();
 
-        $metrics = array(
-            'critical' => array(),
-            'warning' => array(),
-            'ok' => array(),
-            'unknown' => array()
-        );
+        $metrics = ['critical' => [], 'warning' => [], 'ok' => [], 'unknown' => []];
 
         $lastStatus = null;
-        $interval = array();
+        $interval = [];
         foreach ($jsonData['data'] as $row) {
             $time = (string)$row[0];
             $value = $row[1];
@@ -129,19 +124,13 @@ class CentreonGraphStatus
                 $currentStatus = 'unknown';
             }
             if (is_null($lastStatus)) {
-                $interval = array(
-                    'start' => $time,
-                    'end' => null
-                );
+                $interval = ['start' => $time, 'end' => null];
                 $lastStatus = $currentStatus;
             } elseif ($lastStatus !== $currentStatus) {
                 $interval['end'] = $time;
                 $metrics[$lastStatus][] = $interval;
                 $lastStatus = $currentStatus;
-                $interval = array(
-                    'start' => $time,
-                    'end' => null
-                );
+                $interval = ['start' => $time, 'end' => null];
             }
         }
 
@@ -218,7 +207,7 @@ class CentreonGraphStatus
      */
     protected function getOptions()
     {
-        $result = array();
+        $result = [];
         $query = "SELECT `key`, `value` FROM options
             WHERE `key` IN ('rrdtool_path_bin', 'rrdcached_enabled', 'debug_rrdtool', 'debug_path')";
         try {
@@ -376,15 +365,11 @@ class CentreonGraphStatus
         $this->log($commandLine);
 
         if (is_writable($this->generalOpt['debug_path'])) {
-            $stderr = array('file', $this->generalOpt['debug_path'] . '/rrdtool.log', 'a');
+            $stderr = ['file', $this->generalOpt['debug_path'] . '/rrdtool.log', 'a'];
         } else {
-            $stderr = array('pipe', 'a');
+            $stderr = ['pipe', 'a'];
         }
-        $descriptorspec = array(
-                            0 => array("pipe", "r"),
-                            1 => array("pipe", "w"),
-                            2 => $stderr
-                        );
+        $descriptorspec = [0 => ["pipe", "r"], 1 => ["pipe", "w"], 2 => $stderr];
 
         $process = proc_open($this->generalOpt['rrdtool_path_bin']. " - ", $descriptorspec, $pipes, null, null);
 

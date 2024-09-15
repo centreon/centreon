@@ -51,7 +51,7 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
      * @param int[] $hostIds
      * @return array
      */
-    public function getLastHostAcknowledgement($hostIds = array())
+    public function getLastHostAcknowledgement($hostIds = [])
     {
         $hostFilter = '';
         if (!empty($hostIds)) {
@@ -88,13 +88,13 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
      * @param string[] $svcList
      * @return array
      */
-    public function getLastSvcAcknowledgement($svcList = array())
+    public function getLastSvcAcknowledgement($svcList = [])
     {
         $serviceFilter = '';
 
         if (!empty($svcList)) {
             $serviceFilter = 'AND (';
-            $filterTab = array();
+            $filterTab = [];
             $counter = count($svcList);
             for ($i = 0; $i < $counter; $i += 2) {
                 $hostname = $svcList[$i];
@@ -145,7 +145,7 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
     public function svcIsAcknowledged($serviceId)
     {
         $query = "SELECT acknowledged FROM services WHERE service_id = ? ";
-        if ($this->getResult($query, array($serviceId), 'fetch')['acknowledged'] == 1) {
+        if ($this->getResult($query, [$serviceId], 'fetch')['acknowledged'] == 1) {
             return true;
         } else {
             return false;
@@ -159,7 +159,7 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
     public function hostIsAcknowledged($hostId)
     {
         $query = "SELECT acknowledged FROM hosts WHERE host_id = ? ";
-        if ($this->getResult($query, array($hostId), 'fetch')['acknowledged'] == 1) {
+        if ($this->getResult($query, [$hostId], 'fetch')['acknowledged'] == 1) {
             return true;
         } else {
             return false;

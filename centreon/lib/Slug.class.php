@@ -32,85 +32,8 @@ class Slug implements ArrayAccess
 {
     protected $original = null;
     protected $slug = null;
-    protected $options = array(
-        'to_lower'        => true,
-        'max_length'      => null,
-        'prefix'          => null,
-        'postfix'         => null,
-        'seperator_char'  => '-'
-    );
-    protected $char_map = array(
-        'Š'=>'S',
-        'š'=>'s',
-        'Ð'=>'Dj',
-        'Ž'=>'Z',
-        'ž'=>'z',
-        'À'=>'A',
-        'Á'=>'A',
-        'Â'=>'A',
-        'Ã'=>'A',
-        'Ä'=>'Ae',
-        'Å'=>'A',
-        'Æ'=>'A',
-        'Ç'=>'C',
-        'È'=>'E',
-        'É'=>'E',
-        'Ê'=>'E',
-        'Ë'=>'E',
-        'Ì'=>'I',
-        'Í'=>'I',
-        'Î'=>'I',
-        'Ï'=>'I',
-        'Ñ'=>'N',
-        'Ò'=>'O',
-        'Ó'=>'O',
-        'Ô'=>'O',
-        'Õ'=>'O',
-        'Ö'=>'Oe',
-        'Ø'=>'O',
-        'Ü'=>'Ue',
-        'Ù'=>'U',
-        'Ú'=>'U',
-        'Û'=>'U',
-        'Ý'=>'Y',
-        'Þ'=>'B',
-        'ß'=>'ss',
-        'à'=>'a',
-        'á'=>'a',
-        'â'=>'a',
-        'ã'=>'a',
-        'ä'=>'ae',
-        'å'=>'a',
-        'æ'=>'a',
-        'ç'=>'c',
-        'è'=>'e',
-        'é'=>'e',
-        'ê'=>'e',
-        'ë'=>'e',
-        'ì'=>'i',
-        'í'=>'i',
-        'î'=>'i',
-        'ï'=>'i',
-        'ð'=>'o',
-        'ñ'=>'n',
-        'ò'=>'o',
-        'ó'=>'o',
-        'ô'=>'o',
-        'õ'=>'o',
-        'ö'=>'oe',
-        'ø'=>'o',
-        'ü'=>'ue',
-        'ù'=>'u',
-        'ú'=>'u',
-        'û'=>'u',
-        'ý'=>'y',
-        'ý'=>'y',
-        'þ'=>'b',
-        'ÿ'=>'y',
-        'ƒ'=>'f',
-        'Ŕ'=>'R',
-        'ŕ'=>'r'
-    );
+    protected $options = ['to_lower'        => true, 'max_length'      => null, 'prefix'          => null, 'postfix'         => null, 'seperator_char'  => '-'];
+    protected $char_map = ['Š'=>'S', 'š'=>'s', 'Ð'=>'Dj', 'Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'Ae', 'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E', 'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I', 'Ï'=>'I', 'Ñ'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'Oe', 'Ø'=>'O', 'Ü'=>'Ue', 'Ù'=>'U', 'Ú'=>'U', 'Û'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'ss', 'à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'ae', 'å'=>'a', 'æ'=>'a', 'ç'=>'c', 'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o', 'ö'=>'oe', 'ø'=>'o', 'ü'=>'ue', 'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ý'=>'y', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y', 'ƒ'=>'f', 'Ŕ'=>'R', 'ŕ'=>'r'];
 
     /**
      * Constructor.
@@ -127,7 +50,7 @@ class Slug implements ArrayAccess
      * @param array  $options  An array of options
      * @param array  $char_map a char-map-array that is used for the strtr() PHP-function in the slug generation process
      */
-    public function __construct($original, $options = array(), $char_map = null)
+    public function __construct($original, $options = [], $char_map = null)
     {
         $this->original = $original;
         $this->options = array_merge($this->options, $options);

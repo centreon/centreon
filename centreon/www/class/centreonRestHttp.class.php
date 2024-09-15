@@ -45,7 +45,7 @@ class CentreonRestHttp
         $this->getProxy();
         $this->contentType = $contentType;
         if (!is_null($logFile)) {
-            $this->logObj = new CentreonLog(array(4 => $logFile));
+            $this->logObj = new CentreonLog([4 => $logFile]);
         }
     }
 
@@ -87,7 +87,7 @@ class CentreonRestHttp
      * @throws RestNotFoundException
      * @throws RestUnauthorizedException
      */
-    public function call($url, $method = 'GET', $data = null, $headers = array(), $throwContent = false, $noCheckCertificate = false, $noProxy = false)
+    public function call($url, $method = 'GET', $data = null, $headers = [], $throwContent = false, $noCheckCertificate = false, $noProxy = false)
     {
         /* Add content type to headers */
         $headers[] = 'Content-type: ' . $this->contentType;

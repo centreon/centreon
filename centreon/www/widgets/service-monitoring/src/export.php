@@ -123,14 +123,8 @@ $dbb = $dependencyInjector['realtime_db'];
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 
-$aStateType = array("1" => "H", "0" => "S");
-$stateLabels = array(
-    0 => "Ok",
-    1 => "Warning",
-    2 => "Critical",
-    3 => "Unknown",
-    4 => "Pending"
-);
+$aStateType = ["1" => "H", "0" => "S"];
+$stateLabels = [0 => "Ok", 1 => "Warning", 2 => "Critical", 3 => "Unknown", 4 => "Pending"];
 
 // Build Query
 $query = "SELECT SQL_CALC_FOUND_ROWS
@@ -220,7 +214,7 @@ if (isset($preferences['service_description_search']) && $preferences['service_d
         $query = CentreonUtils::conditionBuilder($query, $serviceDescriptionCondition);
     }
 }
-$stateTab = array();
+$stateTab = [];
 if (isset($preferences['svc_ok']) && $preferences['svc_ok']) {
     $stateTab[] = 0;
 }
@@ -379,7 +373,7 @@ unset($parameter, $mainQueryParameters);
 $res->execute();
 
 $nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
-$data = array();
+$data = [];
 $outputLength = $preferences['output_length'] ?? 50;
 $commentLength = $preferences['comment_length'] ?? 50;
 

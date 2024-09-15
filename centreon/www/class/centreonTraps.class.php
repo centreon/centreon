@@ -995,7 +995,7 @@ class CentreonTraps
             $arr = [];
             $i = 0;
             while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
-                $arr[$i] = array("preexec_#index#" => $row['tpe_string']);
+                $arr[$i] = ["preexec_#index#" => $row['tpe_string']];
                 $i++;
             }
             return $arr;
@@ -1026,12 +1026,7 @@ class CentreonTraps
             $arr = [];
             $i = 0;
             while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
-                $arr[$i] = array(
-                    "rule_#index#" => $row['tmo_string'],
-                    "regexp_#index#" => $row['tmo_regexp'],
-                    "rulestatus_#index#" => $row['tmo_status'],
-                    "ruleseverity_#index#" => $row['severity_id']
-                );
+                $arr[$i] = ["rule_#index#" => $row['tmo_string'], "regexp_#index#" => $row['tmo_regexp'], "rulestatus_#index#" => $row['tmo_status'], "ruleseverity_#index#" => $row['severity_id']];
                 $i++;
             }
             return $arr;
@@ -1124,10 +1119,7 @@ class CentreonTraps
         $stmt->execute();
 
         while ($row = $stmt->fetch()) {
-            $items[] = array(
-                'id' => $row['traps_id'],
-                'text' => $row['traps_name']
-            );
+            $items[] = ['id' => $row['traps_id'], 'text' => $row['traps_name']];
         }
 
         return $items;

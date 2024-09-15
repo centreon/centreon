@@ -195,7 +195,7 @@ function disableServiceCategorieInDB(?int $sc_id = null, $sc_arr = [])
     }
     global $pearDB;
     if ($sc_id) {
-        $sc_arr = array($sc_id => "1");
+        $sc_arr = [$sc_id => "1"];
     }
     foreach (array_keys($sc_arr) as $key) {
         $query = "UPDATE service_categories SET sc_activate = '0' WHERE sc_id = :sc_id";

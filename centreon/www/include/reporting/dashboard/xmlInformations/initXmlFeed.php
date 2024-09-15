@@ -69,8 +69,8 @@ if (!$DBRESULT->rowCount()) {
 /*
  * Definition of status
  */
-$state = array();
-$statesTab = array();
+$state = [];
+$statesTab = [];
 if ($stateType == 'host') {
     $state["UP"] = _("UP");
     $state["DOWN"] = _("DOWN");

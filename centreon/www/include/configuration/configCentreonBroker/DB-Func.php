@@ -113,7 +113,7 @@ function disablCentreonBrokerInDB($id)
  *
  * @param array $id The Centreon Broker configuration in database
  */
-function deleteCentreonBrokerInDB($ids = array())
+function deleteCentreonBrokerInDB($ids = [])
 {
     global $pearDB;
 
@@ -277,7 +277,7 @@ function multipleCentreonBrokerInDB($ids, $nbrDup)
                     if (is_array($infos)) {
                         foreach ($infos as $key => $value) {
                             if (isset($fieldtype[$key]) && $fieldtype[$key] == 'radio') {
-                                $values[$group][$gid][$key] = array($key => $value);
+                                $values[$group][$gid][$key] = [$key => $value];
                             }
                         }
                     }

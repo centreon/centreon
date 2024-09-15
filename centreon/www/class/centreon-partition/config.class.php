@@ -52,7 +52,7 @@ class Config
     /** @var */
     private $defaultConfiguration;
     /** @var array */
-    public $tables = array();
+    public $tables = [];
     /** @var CentreonDB */
     public $centstorageDb;
     /** @var CentreonDB */

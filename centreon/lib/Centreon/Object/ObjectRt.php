@@ -76,7 +76,7 @@ abstract class Centreon_ObjectRt
      * @param string $fetchMethod
      * @return array
      */
-    protected function getResult($sqlQuery, $sqlParams = array(), $fetchMethod = "fetchAll")
+    protected function getResult($sqlQuery, $sqlParams = [], $fetchMethod = "fetchAll")
     {
         $res = $this->dbMon->query($sqlQuery, $sqlParams);
         $result = $res->{$fetchMethod}();
@@ -95,7 +95,7 @@ abstract class Centreon_ObjectRt
     {
         $params = is_array($parameterNames) ? implode(",", $parameterNames) : $parameterNames;
         $sql = "SELECT $params FROM $this->table WHERE $this->primaryKey = ?";
-        return $this->getResult($sql, array($objectId), "fetch");
+        return $this->getResult($sql, [$objectId], "fetch");
     }
 
     /**
@@ -119,7 +119,7 @@ abstract class Centreon_ObjectRt
         $offset = 0,
         $order = null,
         $sort = "ASC",
-        $filters = array(),
+        $filters = [],
         $filterType = "OR"
     ) {
         if ($filterType != "OR" && $filterType != "AND") {
@@ -127,7 +127,7 @@ abstract class Centreon_ObjectRt
         }
         $params = is_array($parameterNames) ? implode(",", $parameterNames) : $parameterNames;
         $sql = "SELECT $params FROM $this->table ";
-        $filterTab = array();
+        $filterTab = [];
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
                 if ($filterTab === []) {
@@ -159,12 +159,12 @@ abstract class Centreon_ObjectRt
      * @param array $paramValues
      * @return array
      */
-    public function getIdByParameter($paramName, $paramValues = array())
+    public function getIdByParameter($paramName, $paramValues = [])
     {
         $sql = "SELECT $this->primaryKey FROM $this->table WHERE ";
         $condition = "";
         if (!is_array($paramValues)) {
-            $paramValues = array($paramValues);
+            $paramValues = [$paramValues];
         }
         foreach ($paramValues as $val) {
             if ($condition != "") {
@@ -175,13 +175,13 @@ abstract class Centreon_ObjectRt
         if ($condition) {
             $sql .= $condition;
             $rows = $this->getResult($sql, $paramValues, "fetchAll");
-            $tab = array();
+            $tab = [];
             foreach ($rows as $val) {
                 $tab[] = $val[$this->primaryKey];
             }
             return $tab;
         }
-        return array();
+        return [];
     }
 
     /**

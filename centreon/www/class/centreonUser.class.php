@@ -415,7 +415,7 @@ class CentreonUser
         static $userList;
 
         if (!isset($userList)) {
-            $userList = array();
+            $userList = [];
             $res = $db->query(
                 "SELECT contact_id, contact_name
                 FROM contact
@@ -444,7 +444,7 @@ class CentreonUser
         static $userNames;
 
         if (!isset($userNames)) {
-            $userNames = array();
+            $userNames = [];
             $res = $db->query("SELECT contact_name, contact_id FROM contact");
             while ($row = $res->fetch()) {
                 $userNames[$row['contact_id']] = $row['contact_name'];
@@ -465,9 +465,9 @@ class CentreonUser
      * @return array
      * @throws PDOException
      */
-    public function getContactParameters($db, $parameters = array())
+    public function getContactParameters($db, $parameters = [])
     {
-        $values = array();
+        $values = [];
 
         $queryParameters = '';
         if (is_array($parameters) && count($parameters)) {
@@ -498,12 +498,12 @@ class CentreonUser
      * @return null
      * @throws PDOException
      */
-    public function setContactParameters($db, $parameters = array())
+    public function setContactParameters($db, $parameters = [])
     {
         if (!count($parameters)) {
             return null;
         }
-        $queryValues = array();
+        $queryValues = [];
         $keys = array_keys($parameters);
         $deleteQuery = 'DELETE FROM contact_param WHERE cp_contact_id = :cp_contact_id AND cp_key IN( ';
         $queryValues[':cp_contact_id'] = $this->user_id;

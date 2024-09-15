@@ -86,13 +86,7 @@ class CentreonRtDowntime extends CentreonObject
     public $externalCmdObj;
 
     /** @var string[] */
-    protected $downtimeType = array(
-        'HOST',
-        'SVC',
-        'HG',
-        'SG',
-        'INSTANCE',
-    );
+    protected $downtimeType = ['HOST', 'SVC', 'HG', 'SG', 'INSTANCE'];
     /** @var */
     protected $dHosts;
     /** @var */
@@ -187,16 +181,7 @@ class CentreonRtDowntime extends CentreonObject
         // Make safe the comment
         $comment = escapeshellarg($comment);
 
-        return array(
-            'type' => $type,
-            'resource' => $resource,
-            'start' => $start,
-            'end' => $end,
-            'fixed' => $fixed,
-            'duration' => $duration,
-            'withServices' => $withServices,
-            'comment' => $comment,
-        );
+        return ['type' => $type, 'resource' => $resource, 'start' => $start, 'end' => $end, 'fixed' => $fixed, 'duration' => $duration, 'withServices' => $withServices, 'comment' => $comment];
     }
 
     /**
@@ -217,10 +202,7 @@ class CentreonRtDowntime extends CentreonObject
         }
         $type = $parameters[0];
 
-        return array(
-            'type' => $type,
-            'resource' => $resource,
-        );
+        return ['type' => $type, 'resource' => $resource];
     }
 
     /**
@@ -228,7 +210,7 @@ class CentreonRtDowntime extends CentreonObject
      * @param array $filter
      * @throws CentreonClapiException
      */
-    public function show($parameters = null, $filter = array()): void
+    public function show($parameters = null, $filter = []): void
     {
         if ($parameters !== '') {
             $parsedParameters = $this->parseShowparameters($parameters);
@@ -268,19 +250,7 @@ class CentreonRtDowntime extends CentreonObject
     {
         $unknownHost = [];
 
-        $fields = array(
-            'id',
-            'host_name',
-            'author',
-            'actual_start_time',
-            'actual_end_time',
-            'start_time',
-            'end_time',
-            'comment_data',
-            'duration',
-            'fixed',
-            'url',
-        );
+        $fields = ['id', 'host_name', 'author', 'actual_start_time', 'actual_end_time', 'start_time', 'end_time', 'comment_data', 'duration', 'fixed', 'url'];
 
         if (!empty($hostList)) {
             $hostList = array_filter(explode('|', $hostList));
@@ -293,7 +263,7 @@ class CentreonRtDowntime extends CentreonObject
             );
 
             // check if host exist
-            $existingHost = array();
+            $existingHost = [];
             foreach ($hostList as $host) {
                 if ($this->hostObject->getHostID($host) == 0) {
                     $unknownHost[] = $host;
@@ -359,24 +329,11 @@ class CentreonRtDowntime extends CentreonObject
      */
     public function showSvc($svcList): void
     {
-        $serviceDowntimesList = array();
-        $unknownService = array();
-        $existingService = array();
+        $serviceDowntimesList = [];
+        $unknownService = [];
+        $existingService = [];
 
-        $fields = array(
-            'id',
-            'host_name',
-            'service_name',
-            'author',
-            'actual_start_time',
-            'actual_end_time',
-            'start_time',
-            'end_time',
-            'comment_data',
-            'duration',
-            'fixed',
-            'url',
-        );
+        $fields = ['id', 'host_name', 'service_name', 'author', 'actual_start_time', 'actual_end_time', 'start_time', 'end_time', 'comment_data', 'duration', 'fixed', 'url'];
 
         if (!empty($svcList)) {
             $svcList = array_filter(explode('|', $svcList));
@@ -517,7 +474,7 @@ class CentreonRtDowntime extends CentreonObject
         if ($resource === "") {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $unknownHost = array();
+        $unknownHost = [];
         $listHost = explode('|', $resource);
 
         foreach ($listHost as $host) {
@@ -561,7 +518,7 @@ class CentreonRtDowntime extends CentreonObject
         if ($resource === "") {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $unknownService = array();
+        $unknownService = [];
         $listService = explode('|', $resource);
         $existingService = [];
 
@@ -617,8 +574,8 @@ class CentreonRtDowntime extends CentreonObject
         if ($resource === "") {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $existingHg = array();
-        $unknownHg = array();
+        $existingHg = [];
+        $unknownHg = [];
         $listHg = explode('|', $resource);
 
         // check if service exist
@@ -735,8 +692,8 @@ class CentreonRtDowntime extends CentreonObject
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
 
-        $existingPoller = array();
-        $unknownPoller = array();
+        $existingPoller = [];
+        $unknownPoller = [];
         $listPoller = explode('|', $resource);
 
         foreach ($listPoller as $poller) {
@@ -780,7 +737,7 @@ class CentreonRtDowntime extends CentreonObject
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
         $listDowntime = explode('|', $parameters);
-        $unknownDowntime = array();
+        $unknownDowntime = [];
 
         foreach ($listDowntime as $downtime) {
             if (!is_numeric($downtime)) {
@@ -792,12 +749,12 @@ class CentreonRtDowntime extends CentreonObject
                     if ($infoDowntime['type'] == 2) {
                         $this->externalCmdObj->deleteDowntime(
                             'HOST',
-                            array($hostName . ';' . $infoDowntime['internal_id'] => 'on')
+                            [$hostName . ';' . $infoDowntime['internal_id'] => 'on']
                         );
                     } else {
                         $this->externalCmdObj->deleteDowntime(
                             'SVC',
-                            array($hostName . ';' . $infoDowntime['internal_id'] => 'on')
+                            [$hostName . ';' . $infoDowntime['internal_id'] => 'on']
                         );
                     }
                 } else {

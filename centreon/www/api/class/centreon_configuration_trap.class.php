@@ -60,7 +60,7 @@ class CentreonConfigurationTrap extends CentreonConfigurationObjects
      */
     public function getList()
     {
-        $queryValues = array();
+        $queryValues = [];
         // Check for select2 'q' argument
         $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
         $queryTraps = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT t.traps_name, t.traps_id, m.name ' .
@@ -88,16 +88,13 @@ class CentreonConfigurationTrap extends CentreonConfigurationObjects
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $trapList = array();
+        $trapList = [];
         while ($data = $stmt->fetch()) {
             $trapCompleteName = $data['name'] . ' - ' . $data['traps_name'];
             $trapCompleteId = $data['traps_id'];
-            $trapList[] = array('id' => htmlentities($trapCompleteId), 'text' => $trapCompleteName);
+            $trapList[] = ['id' => htmlentities($trapCompleteId), 'text' => $trapCompleteName];
         }
-        return array(
-            'items' => $trapList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $trapList, 'total' => (int) $this->pearDB->numberRows()];
     }
 
     public function getDefaultValues()

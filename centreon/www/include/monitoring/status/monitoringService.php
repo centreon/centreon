@@ -60,19 +60,19 @@ if (
 ) {
     if (
         !isset($param["sticky"])
-        || !in_array($param["sticky"], array('0', '1'))
+        || !in_array($param["sticky"], ['0', '1'])
     ) {
         $param["sticky"] = '0';
     }
     if (
         !isset($param["notify"])
-        || !in_array($param["notify"], array('0', '1'))
+        || !in_array($param["notify"], ['0', '1'])
     ) {
         $param["notify"] = '0';
     }
     if (
         !isset($param["persistent"])
-        || !in_array($param["persistent"], array('0', '1'))
+        || !in_array($param["persistent"], ['0', '1'])
     ) {
         $param["persistent"] = '0';
     }

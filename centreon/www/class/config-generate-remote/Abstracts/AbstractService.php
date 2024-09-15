@@ -75,31 +75,7 @@ abstract class AbstractService extends AbstractObject
         service_acknowledgement_timeout
     ';
     /** @var string[] */
-    protected $attributesWrite = array(
-        'service_id',
-        'service_template_model_stm_id',
-        'command_command_id',
-        'command_command_id_arg',
-        'timeperiod_tp_id',
-        'timeperiod_tp_id2',
-        'command_command_id2',
-        'command_command_id_arg2',
-        'service_description',
-        'service_alias',
-        'display_name',
-        'service_is_volatile',
-        'service_max_check_attempts',
-        'service_normal_check_interval',
-        'service_retry_check_interval',
-        'service_active_checks_enabled',
-        'service_passive_checks_enabled',
-        'service_event_handler_enabled',
-        'service_notification_interval',
-        'service_notification_options',
-        'service_notifications_enabled',
-        'service_register',
-        'service_acknowledgement_timeout',
-    );
+    protected $attributesWrite = ['service_id', 'service_template_model_stm_id', 'command_command_id', 'command_command_id_arg', 'timeperiod_tp_id', 'timeperiod_tp_id2', 'command_command_id2', 'command_command_id_arg2', 'service_description', 'service_alias', 'display_name', 'service_is_volatile', 'service_max_check_attempts', 'service_normal_check_interval', 'service_retry_check_interval', 'service_active_checks_enabled', 'service_passive_checks_enabled', 'service_event_handler_enabled', 'service_notification_interval', 'service_notification_options', 'service_notifications_enabled', 'service_register', 'service_acknowledgement_timeout'];
     /** @var array */
     protected $loopStpl = []; // To be reset
     /** @var null */

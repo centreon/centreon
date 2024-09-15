@@ -90,7 +90,7 @@ class Generate
     private const GENERATION_FOR_BROKER = 2;
 
     /** @var array */
-    private $poller_cache = array();
+    private $poller_cache = [];
     /** @var Backend|null */
     private $backend_instance = null;
     /** @var null */
@@ -414,7 +414,7 @@ class Generate
         if (!is_null($this->installed_modules)) {
             return $this->installed_modules;
         }
-        $this->installed_modules = array();
+        $this->installed_modules = [];
         $stmt = $this->backend_instance->db->prepare("SELECT name FROM modules_informations");
         $stmt->execute();
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
@@ -497,7 +497,7 @@ class Generate
      */
     public function reset(): void
     {
-        $this->poller_cache = array();
+        $this->poller_cache = [];
         $this->current_poller = null;
         $this->installed_modules = null;
         $this->module_objects = null;

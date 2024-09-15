@@ -71,19 +71,7 @@ const UNLOCK_SERVICE = "nlk";
 /*
  * Prepare search engine
  */
-$inputGet = array(
-    'Search' => \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['Search'] ?? ''),
-    'searchH' => \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['searchH'] ?? ''),
-    'num' => filter_input(INPUT_GET, 'num', FILTER_SANITIZE_NUMBER_INT),
-    'limit' => filter_input(INPUT_GET, 'limit', FILTER_SANITIZE_NUMBER_INT),
-    'searchS' => \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['searchS'] ?? ''),
-    'searchP' => \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['searchP'] ?? ''),
-    'o' => \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['o'] ?? ''),
-    'o1' => \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['o1'] ?? ''),
-    'o2' => \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['o2'] ?? ''),
-    'select' => \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['select'] ?? ''),
-    'id' => \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['id'] ?? ''),
-);
+$inputGet = ['Search' => \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['Search'] ?? ''), 'searchH' => \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['searchH'] ?? ''), 'num' => filter_input(INPUT_GET, 'num', FILTER_SANITIZE_NUMBER_INT), 'limit' => filter_input(INPUT_GET, 'limit', FILTER_SANITIZE_NUMBER_INT), 'searchS' => \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['searchS'] ?? ''), 'searchP' => \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['searchP'] ?? ''), 'o' => \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['o'] ?? ''), 'o1' => \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['o1'] ?? ''), 'o2' => \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['o2'] ?? ''), 'select' => \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['select'] ?? ''), 'id' => \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['id'] ?? '')];
 
 $sanitizedPostSelect = [];
 if (isset($_POST['select']) && is_array($_POST['select'])) {
@@ -92,21 +80,9 @@ if (isset($_POST['select']) && is_array($_POST['select'])) {
     }
 }
 
-$inputPost = array(
-    'Search' => \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['Search'] ?? ''),
-    'searchH' => \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchH'] ?? ''),
-    'num' => filter_input(INPUT_POST, 'num', FILTER_SANITIZE_NUMBER_INT),
-    'limit' => filter_input(INPUT_POST, 'limit', FILTER_SANITIZE_NUMBER_INT),
-    'searchS' => \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchS'] ?? ''),
-    'searchP' => \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchP'] ?? ''),
-    'o' => \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['o'] ?? ''),
-    'o1' => \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['o1'] ?? ''),
-    'o2' => \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['o2'] ?? ''),
-    'select' => $sanitizedPostSelect,
-    'id' => \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['id'] ?? ''),
-);
+$inputPost = ['Search' => \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['Search'] ?? ''), 'searchH' => \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchH'] ?? ''), 'num' => filter_input(INPUT_POST, 'num', FILTER_SANITIZE_NUMBER_INT), 'limit' => filter_input(INPUT_POST, 'limit', FILTER_SANITIZE_NUMBER_INT), 'searchS' => \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchS'] ?? ''), 'searchP' => \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchP'] ?? ''), 'o' => \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['o'] ?? ''), 'o1' => \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['o1'] ?? ''), 'o2' => \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['o2'] ?? ''), 'select' => $sanitizedPostSelect, 'id' => \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['id'] ?? '')];
 
-$inputs = array();
+$inputs = [];
 foreach ($inputGet as $argumentName => $argumentValue) {
     if (
         !empty($inputPost[$argumentName]) && (
@@ -125,7 +101,7 @@ $searchH = null;
 $searchP = null;
 
 if (isset($inputs['Search']) && $inputs['Search'] !== "" ) {
-    $centreon->historySearch[$url] = array();
+    $centreon->historySearch[$url] = [];
     $searchH = $inputs["searchH"];
     $centreon->historySearch[$url]["searchH"] = $searchH;
     $searchS = $inputs["searchS"];
@@ -169,7 +145,7 @@ if ((isset($inputs["o1"]) && $inputs["o1"]) || (isset($inputs["o2"]) && $inputs[
             $pearDBO->query($query);
         }
     } elseif ($inputs["o"] == DELETE_GRAPH && $selected !== []) {
-        $listMetricsToDelete = array();
+        $listMetricsToDelete = [];
         foreach (array_keys($selected) as $id) {
             $DBRESULT = $pearDBO->query("SELECT metric_id FROM metrics WHERE  `index_id` = " . $id);
             while ($metrics = $DBRESULT->fetchRow()) {
@@ -242,7 +218,7 @@ $tab_class = ["0" => "list_one", "1" => "list_two"];
 $storage_type = [0 => "RRDTool", 2 => "RRDTool & MySQL"];
 $yesOrNo = [0 => "No", 1 => "Yes", 2 => "Rebuilding"];
 
-$data = array ();
+$data = [];
 $query = <<<SQL
     SELECT SQL_CALC_FOUND_ROWS DISTINCT i.* , s.display_name
     FROM index_data i
@@ -304,13 +280,7 @@ for ($i = 0; $indexData = $stmt->fetch(\PDO::FETCH_ASSOC); $i++) {
 //select2 Poller
 $poller = $searchP ?? '';
 $pollerRoute = './api/internal.php?object=centreon_configuration_poller&action=list';
-$attrPoller = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $pollerRoute,
-    'multiple' => false,
-    'defaultDataset' => $poller,
-    'linkedObject' => 'centreonInstance'
-);
+$attrPoller = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $pollerRoute, 'multiple' => false, 'defaultDataset' => $poller, 'linkedObject' => 'centreonInstance'];
 
 include("./include/common/checkPagination.php");
 
@@ -322,12 +292,9 @@ $tpl = initSmartyTpl($path, $tpl);
 
 $form = new HTML_QuickFormCustom('form', 'POST', "?p=" . $p);
 
-$form->addElement('select2', 'searchP', "", array(), $attrPoller);
+$form->addElement('select2', 'searchP', "", [], $attrPoller);
 
-$attrBtnSuccess = array(
-    "class" => "btc bt_success",
-    "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"
-);
+$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
 
 
@@ -338,67 +305,45 @@ $form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
         }
     </script>
 <?php
-$attrs1 = array(
-    'onchange' => "javascript: " .
-        "if (this.form.elements['o1'].selectedIndex == 1) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 2) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 3 && confirm('" .
-        _('Do you confirm the deletion ?') . "')) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 4) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 5) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 6) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 7) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        ""
-);
-$form->addElement('select', 'o1', null, array(
-    null => _("More actions..."),
-    "rg" => _("Rebuild RRD Database"),
-    "nrg" => _("Stop rebuilding RRD Databases"),
-    "ed" => _("Delete graphs"),
-    "hg" => _("Hide graphs of selected Services"),
-    "nhg" => _("Stop hiding graphs of selected Services"),
-    "lk" => _("Lock Services"),
-    "nlk" => _("Unlock Services")
-), $attrs1);
-$form->setDefaults(array('o1' => null));
+$attrs1 = ['onchange' => "javascript: " .
+    "if (this.form.elements['o1'].selectedIndex == 1) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 2) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 3 && confirm('" .
+    _('Do you confirm the deletion ?') . "')) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 4) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 5) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 6) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 7) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    ""];
+$form->addElement('select', 'o1', null, [null => _("More actions..."), "rg" => _("Rebuild RRD Database"), "nrg" => _("Stop rebuilding RRD Databases"), "ed" => _("Delete graphs"), "hg" => _("Hide graphs of selected Services"), "nhg" => _("Stop hiding graphs of selected Services"), "lk" => _("Lock Services"), "nlk" => _("Unlock Services")], $attrs1);
+$form->setDefaults(['o1' => null]);
 
-$attrs2 = array(
-    'onchange' => "javascript: " .
-        "if (this.form.elements['o2'].selectedIndex == 1) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 2) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 3 && confirm('" .
-        _('Do you confirm the deletion ?') . "')) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 4) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 5) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 6) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 7) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        ""
-);
-$form->addElement('select', 'o2', null, array(
-    null => _("More actions..."),
-    "rg" => _("Rebuild RRD Database"),
-    "nrg" => _("Stop rebuilding RRD Databases"),
-    "ed" => _("Delete graphs"),
-    "hg" => _("Hide graphs of selected Services"),
-    "nhg" => _("Stop hiding graphs of selected Services"),
-    "lk" => _("Lock Services"),
-    "nlk" => _("Unlock Services")
-), $attrs2);
-$form->setDefaults(array('o2' => null));
+$attrs2 = ['onchange' => "javascript: " .
+    "if (this.form.elements['o2'].selectedIndex == 1) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 2) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 3 && confirm('" .
+    _('Do you confirm the deletion ?') . "')) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 4) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 5) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 6) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 7) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    ""];
+$form->addElement('select', 'o2', null, [null => _("More actions..."), "rg" => _("Rebuild RRD Database"), "nrg" => _("Stop rebuilding RRD Databases"), "ed" => _("Delete graphs"), "hg" => _("Hide graphs of selected Services"), "nhg" => _("Stop hiding graphs of selected Services"), "lk" => _("Lock Services"), "nlk" => _("Unlock Services")], $attrs2);
+$form->setDefaults(['o2' => null]);
 
 $o1 = $form->getElement('o1');
 $o1->setValue(null);

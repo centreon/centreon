@@ -213,11 +213,11 @@ class CentreonGraph
         $this->GMT = new CentreonGMT($this->DB);
         $this->GMT->getMyGTMFromUser($this->user_id, $this->DB);
 
-        $this->RRDoptions = array();
-        $this->arguments = array();
-        $this->options = array();
-        $this->colors = array();
-        $this->fonts = array();
+        $this->RRDoptions = [];
+        $this->arguments = [];
+        $this->options = [];
+        $this->colors = [];
+        $this->fonts = [];
         $this->argcount = 0;
         $this->flag = 0;
 
@@ -230,17 +230,17 @@ class CentreonGraph
         $this->getIndexData();
 
         $this->filename = $this->indexData["host_name"] . "-" . $this->indexData["service_description"];
-        $this->filename = str_replace(array("/", "\\"), array("-", "-"), $this->filename);
+        $this->filename = str_replace(["/", "\\"], ["-", "-"], $this->filename);
 
         $this->colorCache = null;
-        $this->templateInformations = array();
-        $this->metricsEnabled = array();
-        $this->rmetrics = array();
-        $this->vmetrics = array();
-        $this->mpointer = array(0, 0);
-        $this->mlist = array();
-        $this->vname = array();
-        $this->metrics = array();
+        $this->templateInformations = [];
+        $this->metricsEnabled = [];
+        $this->rmetrics = [];
+        $this->vmetrics = [];
+        $this->mpointer = [0, 0];
+        $this->mlist = [];
+        $this->vname = [];
+        $this->metrics = [];
         $this->onecurve = false;
         $this->checkcurve = false;
 
@@ -280,7 +280,7 @@ class CentreonGraph
             $DBRESULT->bindValue(':index_id', $this->index, PDO::PARAM_INT);
             $DBRESULT->bindValue(':user_id', $this->user_id, PDO::PARAM_INT);
             $DBRESULT->execute();
-            $metrics_cache = array();
+            $metrics_cache = [];
             if ($DBRESULT->rowCount()) {
                 while ($tmp_metrics = $DBRESULT->fetch()) {
                     $metrics_cache[$tmp_metrics['metric_id']] = 1;
@@ -296,7 +296,7 @@ class CentreonGraph
             $DBRESULT->bindValue(':index_id', $this->index, PDO::PARAM_INT);
             $DBRESULT->execute();
             $count = 0;
-            $odsm = array();
+            $odsm = [];
             while ($milist = $DBRESULT->fetch()) {
                 $odsm[$milist["metric_id"]] = 1;
                 $count++;
@@ -342,9 +342,9 @@ class CentreonGraph
     protected function cleanupDsName($dsname, $reverse = false)
     {
         if ($reverse === true) {
-            $newDsName = str_replace(array("slash_", "bslash_", "pct_", "\\#"), array("/", "\\", "%", "#"), $dsname);
+            $newDsName = str_replace(["slash_", "bslash_", "pct_", "\\#"], ["/", "\\", "%", "#"], $dsname);
         } else {
-            $newDsName = str_replace(array("/", "\\", "%", "#"), array("slash_", "bslash_", "pct_", "\\#"), $dsname);
+            $newDsName = str_replace(["/", "\\", "%", "#"], ["slash_", "bslash_", "pct_", "\\#"], $dsname);
         }
         $newDsName = preg_replace("/[^\w\-_]/", "-", $newDsName);
         return $newDsName;
@@ -360,8 +360,8 @@ class CentreonGraph
     protected function cleanupDsNameForLegend($dsname, $reverse = false)
     {
         $newDsName = str_replace(
-            array("slash_", "bslash_", "pct_", "'", "\\"),
-            array("/", "\\", "%", " ", "\\\\"),
+            ["slash_", "bslash_", "pct_", "'", "\\"],
+            ["/", "\\", "%", " ", "\\\\"],
             $dsname
         );
         $newDsName = mb_convert_encoding($newDsName, "UTF-8");
@@ -378,7 +378,7 @@ class CentreonGraph
         if (is_array($metrics) && count($metrics)) {
             $this->metricsEnabled = array_keys($metrics);
         } elseif ($metrics != "") {
-            $this->metricsEnabled = array($metrics);
+            $this->metricsEnabled = [$metrics];
         }
         if (is_array($this->metricsEnabled) && (count($this->metricsEnabled) == 1)) {
             $this->onecurve = true;
@@ -498,7 +498,7 @@ class CentreonGraph
                 $l_rselector =
                     implode(
                         ",",
-                        array_map(array("CentreonGraph", "quote"), $l_rmEnabled)
+                        array_map(["CentreonGraph", "quote"], $l_rmEnabled)
                     );
                 $this->log("initCurveList with selector [real]= " . $l_rselector);
             }
@@ -506,7 +506,7 @@ class CentreonGraph
                 $l_vselector =
                     implode(
                         ",",
-                        array_map(array("CentreonGraph", "vquote"), $l_vmEnabled)
+                        array_map(["CentreonGraph", "vquote"], $l_vmEnabled)
                     );
                 $this->log("initCurveList with selector [virtual]= " . $l_vselector);
             }
@@ -590,7 +590,7 @@ class CentreonGraph
         /* Merge all metrics */
         $mmetrics = array_merge($this->rmetrics, $this->vmetrics);
         $DBRESULT->closeCursor();
-        $this->listMetricsId = array();
+        $this->listMetricsId = [];
         $components_ds_cache = null;
 
         foreach ($mmetrics as $key => $metric) {
@@ -812,13 +812,13 @@ class CentreonGraph
         /*
          * Sort by ds_order,then legend
          */
-        uasort($this->metrics, array("CentreonGraph", "cmpmultiple"));
+        uasort($this->metrics, ["CentreonGraph", "cmpmultiple"]);
 
         /*
          * add data definitions for each metric
          */
         $cpt = 0;
-        $lcdef = array();
+        $lcdef = [];
         $this->longer = 0;
         if (isset($this->metrics)) {
             foreach ($this->metrics as $key => &$tm) {
@@ -885,8 +885,8 @@ class CentreonGraph
                 }
             }
         }
-        $deftype = array(0 => "CDEF", 1 => "VDEF");
-        uasort($lcdef, array("CentreonGraph", "cmpcdeforder"));
+        $deftype = [0 => "CDEF", 1 => "VDEF"];
+        uasort($lcdef, ["CentreonGraph", "cmpcdeforder"]);
         foreach ($lcdef as $key => &$tm) {
             $rpn = $this->subsRPN($tm["rpn_function"], $this->vname);
             $arg = $deftype[$tm["def_type"]] . ":" . $this->vname[$tm["metric"]] . "=" . $rpn;
@@ -931,25 +931,7 @@ class CentreonGraph
      */
     public function createLegend(): void
     {
-        $currentColors = array(
-            "Min" => "#19EE11",
-            "Max" => "#F91E05",
-            "Average" => "#2AD1D4",
-            "Last_Min" => "#2AD1D4",
-            "Last_5_Min" => "#13EB3A",
-            "Last_15_Min" => "#F8C706",
-            "Last_Hour" => "#F91D05",
-            "Up" => "#19EE11",
-            "Down" => "#F91E05",
-            "Unreach" => "#2AD1D4",
-            "Ok" => "#13EB3A",
-            "Warn" => "#F8C706",
-            "Crit" => "#F91D05",
-            "Unk" => "#2AD1D4",
-            "In_Use" => "#13EB3A",
-            "Max_Used" => "#F91D05",
-            "Total_Available" => "#2AD1D4"
-        );
+        $currentColors = ["Min" => "#19EE11", "Max" => "#F91E05", "Average" => "#2AD1D4", "Last_Min" => "#2AD1D4", "Last_5_Min" => "#13EB3A", "Last_15_Min" => "#F8C706", "Last_Hour" => "#F91D05", "Up" => "#19EE11", "Down" => "#F91E05", "Unreach" => "#2AD1D4", "Ok" => "#13EB3A", "Warn" => "#F8C706", "Crit" => "#F91D05", "Unk" => "#2AD1D4", "In_Use" => "#13EB3A", "Max_Used" => "#F91D05", "Total_Available" => "#2AD1D4"];
 
         $cpt = 0;
         $rpn_values = "";
@@ -1026,8 +1008,8 @@ class CentreonGraph
                 }
                 $this->addArgument($arg);
 
-                $vdefs = array();
-                $prints = array();
+                $vdefs = [];
+                $prints = [];
 
                 $cfNames = [
                     "last" => "LAST",
@@ -1108,40 +1090,7 @@ class CentreonGraph
         if ($l_unit == 'B' || $l_unit == 'o' || $l_unit == 'b/s') {
             $l_base = isset($this->RRDoptions["base"]) ? $this->RRDoptions["base"] : 1000;
 
-            $l_px = array(
-                "8" => array(
-                    "1000" => "Y",
-                    "1024" => "Yi"
-                ),
-                "7" => array(
-                    "1000" => "Z",
-                    "1024" => "Zi"
-                ),
-                "6" => array(
-                    "1000" => "E",
-                    "1024" => "Ei"
-                ),
-                "5" => array(
-                    "1000" => "P",
-                    "1024" => "Pi"
-                ),
-                "4" => array(
-                    "1000" => "T",
-                    "1024" => "Ti"
-                ),
-                "3" => array(
-                    "1000" => "G",
-                    "1024" => "Gi"
-                ),
-                "2" => array(
-                    "1000" => "M",
-                    "1024" => "Mi"
-                ),
-                "1" => array(
-                    "1000" => "K",
-                    "1024" => "Ki"
-                )
-            );
+            $l_px = ["8" => ["1000" => "Y", "1024" => "Yi"], "7" => ["1000" => "Z", "1024" => "Zi"], "6" => ["1000" => "E", "1024" => "Ei"], "5" => ["1000" => "P", "1024" => "Pi"], "4" => ["1000" => "T", "1024" => "Ti"], "3" => ["1000" => "G", "1024" => "Gi"], "2" => ["1000" => "M", "1024" => "Mi"], "1" => ["1000" => "K", "1024" => "Ki"]];
             $l_sign = "";
             if ($l_value < 0) {
                 $l_sign = "-";
@@ -1248,7 +1197,7 @@ class CentreonGraph
     {
         $service_id = $this->indexData["service_id"];
 
-        $tab = array();
+        $tab = [];
         $statement = $this->DB->prepare("SELECT esi.graph_id, service_template_model_stm_id
                     FROM service
                     LEFT JOIN extended_service_information esi ON esi.service_service_id = service_id
@@ -1531,15 +1480,17 @@ class CentreonGraph
          */
         if (!$this->checkcurve) {
             if (is_writable($this->generalOpt['debug_path'])) {
-                $stderr = array('file', $this->generalOpt['debug_path'] . '/rrdtool.log', 'a');
+                $stderr = ['file', $this->generalOpt['debug_path'] . '/rrdtool.log', 'a'];
             } else {
-                $stderr = array('pipe', 'a');
+                $stderr = ['pipe', 'a'];
             }
-            $descriptorspec = array(
-                0 => array("pipe", "r"),  // stdin est un pipe processus va lire
-                1 => array("pipe", "w"),  // stdout est un pipe processus va ecrire
-                2 => $stderr // stderr est un fichier
-            );
+            $descriptorspec = [
+                0 => ["pipe", "r"],
+                // stdin est un pipe processus va lire
+                1 => ["pipe", "w"],
+                // stdout est un pipe processus va ecrire
+                2 => $stderr,
+            ];
 
             $process = proc_open(
                 $gmt_export . $this->generalOpt["rrdtool_path_bin"] . " - ",
@@ -1595,7 +1546,7 @@ class CentreonGraph
             return $this->getRandomWebColor();
         }
         if (is_null($this->colorCache)) {
-            $this->colorCache = array();
+            $this->colorCache = [];
 
             $DBRESULT = $this->DB->prepare(
                 "SELECT metric_id, rnd_color FROM `ods_view_details` WHERE `index_id` = :index_id"
@@ -1625,42 +1576,7 @@ class CentreonGraph
      */
     public function getRandomWebColor()
     {
-        $webSafeColors = array('#000033', '#000066', '#000099', '#0000cc',
-            '#0000ff', '#003300', '#003333', '#003366', '#003399', '#0033cc',
-            '#0033ff', '#006600', '#006633', '#006666', '#006699', '#0066cc',
-            '#0066ff', '#009900', '#009933', '#009966', '#009999', '#0099cc',
-            '#0099ff', '#00cc00', '#00cc33', '#00cc66', '#00cc99', '#00cccc',
-            '#00ccff', '#00ff00', '#00ff33', '#00ff66', '#00ff99', '#00ffcc',
-            '#00ffff', '#330000', '#330033', '#330066', '#330099', '#3300cc',
-            '#3300ff', '#333300', '#333333', '#333366', '#333399', '#3333cc',
-            '#3333ff', '#336600', '#336633', '#336666', '#336699', '#3366cc',
-            '#3366ff', '#339900', '#339933', '#339966', '#339999', '#3399cc',
-            '#3399ff', '#33cc00', '#33cc33', '#33cc66', '#33cc99', '#33cccc',
-            '#33ccff', '#33ff00', '#33ff33', '#33ff66', '#33ff99', '#33ffcc',
-            '#33ffff', '#660000', '#660033', '#660066', '#660099', '#6600cc',
-            '#6600ff', '#663300', '#663333', '#663366', '#663399', '#6633cc',
-            '#6633ff', '#666600', '#666633', '#666666', '#666699', '#6666cc',
-            '#6666ff', '#669900', '#669933', '#669966', '#669999', '#6699cc',
-            '#6699ff', '#66cc00', '#66cc33', '#66cc66', '#66cc99', '#66cccc',
-            '#66ccff', '#66ff00', '#66ff33', '#66ff66', '#66ff99', '#66ffcc',
-            '#66ffff', '#990000', '#990033', '#990066', '#990099', '#9900cc',
-            '#9900ff', '#993300', '#993333', '#993366', '#993399', '#9933cc',
-            '#9933ff', '#996600', '#996633', '#996666', '#996699', '#9966cc',
-            '#9966ff', '#999900', '#999933', '#999966', '#999999', '#9999cc',
-            '#9999ff', '#99cc00', '#99cc33', '#99cc66', '#99cc99', '#99cccc',
-            '#99ccff', '#99ff00', '#99ff33', '#99ff66', '#99ff99', '#99ffcc',
-            '#99ffff', '#cc0000', '#cc0033', '#cc0066', '#cc0099', '#cc00cc',
-            '#cc00ff', '#cc3300', '#cc3333', '#cc3366', '#cc3399', '#cc33cc',
-            '#cc33ff', '#cc6600', '#cc6633', '#cc6666', '#cc6699', '#cc66cc',
-            '#cc66ff', '#cc9900', '#cc9933', '#cc9966', '#cc9999', '#cc99cc',
-            '#cc99ff', '#cccc00', '#cccc33', '#cccc66', '#cccc99', '#cccccc',
-            '#ccccff', '#ccff00', '#ccff33', '#ccff66', '#ccff99', '#ccffcc',
-            '#ccffff', '#ff0000', '#ff0033', '#ff0066', '#ff0099', '#ff00cc',
-            '#ff00ff', '#ff3300', '#ff3333', '#ff3366', '#ff3399', '#ff33cc',
-            '#ff33ff', '#ff6600', '#ff6633', '#ff6666', '#ff6699', '#ff66cc',
-            '#ff66ff', '#ff9900', '#ff9933', '#ff9966', '#ff9999', '#ff99cc',
-            '#ff99ff', '#ffcc00', '#ffcc33', '#ffcc66', '#ffcc99', '#ffcccc',
-            '#ffccff');
+        $webSafeColors = ['#000033', '#000066', '#000099', '#0000cc', '#0000ff', '#003300', '#003333', '#003366', '#003399', '#0033cc', '#0033ff', '#006600', '#006633', '#006666', '#006699', '#0066cc', '#0066ff', '#009900', '#009933', '#009966', '#009999', '#0099cc', '#0099ff', '#00cc00', '#00cc33', '#00cc66', '#00cc99', '#00cccc', '#00ccff', '#00ff00', '#00ff33', '#00ff66', '#00ff99', '#00ffcc', '#00ffff', '#330000', '#330033', '#330066', '#330099', '#3300cc', '#3300ff', '#333300', '#333333', '#333366', '#333399', '#3333cc', '#3333ff', '#336600', '#336633', '#336666', '#336699', '#3366cc', '#3366ff', '#339900', '#339933', '#339966', '#339999', '#3399cc', '#3399ff', '#33cc00', '#33cc33', '#33cc66', '#33cc99', '#33cccc', '#33ccff', '#33ff00', '#33ff33', '#33ff66', '#33ff99', '#33ffcc', '#33ffff', '#660000', '#660033', '#660066', '#660099', '#6600cc', '#6600ff', '#663300', '#663333', '#663366', '#663399', '#6633cc', '#6633ff', '#666600', '#666633', '#666666', '#666699', '#6666cc', '#6666ff', '#669900', '#669933', '#669966', '#669999', '#6699cc', '#6699ff', '#66cc00', '#66cc33', '#66cc66', '#66cc99', '#66cccc', '#66ccff', '#66ff00', '#66ff33', '#66ff66', '#66ff99', '#66ffcc', '#66ffff', '#990000', '#990033', '#990066', '#990099', '#9900cc', '#9900ff', '#993300', '#993333', '#993366', '#993399', '#9933cc', '#9933ff', '#996600', '#996633', '#996666', '#996699', '#9966cc', '#9966ff', '#999900', '#999933', '#999966', '#999999', '#9999cc', '#9999ff', '#99cc00', '#99cc33', '#99cc66', '#99cc99', '#99cccc', '#99ccff', '#99ff00', '#99ff33', '#99ff66', '#99ff99', '#99ffcc', '#99ffff', '#cc0000', '#cc0033', '#cc0066', '#cc0099', '#cc00cc', '#cc00ff', '#cc3300', '#cc3333', '#cc3366', '#cc3399', '#cc33cc', '#cc33ff', '#cc6600', '#cc6633', '#cc6666', '#cc6699', '#cc66cc', '#cc66ff', '#cc9900', '#cc9933', '#cc9966', '#cc9999', '#cc99cc', '#cc99ff', '#cccc00', '#cccc33', '#cccc66', '#cccc99', '#cccccc', '#ccccff', '#ccff00', '#ccff33', '#ccff66', '#ccff99', '#ccffcc', '#ccffff', '#ff0000', '#ff0033', '#ff0066', '#ff0099', '#ff00cc', '#ff00ff', '#ff3300', '#ff3333', '#ff3366', '#ff3399', '#ff33cc', '#ff33ff', '#ff6600', '#ff6633', '#ff6666', '#ff6699', '#ff66cc', '#ff66ff', '#ff9900', '#ff9933', '#ff9966', '#ff9999', '#ff99cc', '#ff99ff', '#ffcc00', '#ffcc33', '#ffcc66', '#ffcc99', '#ffcccc', '#ffccff'];
         return $webSafeColors[rand(0, sizeof($webSafeColors) - 1)];
     }
 

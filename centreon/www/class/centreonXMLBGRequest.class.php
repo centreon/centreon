@@ -224,36 +224,18 @@ class CentreonXMLBGRequest
         /*
          * Init Tables
          */
-        $this->en = array("0" => _("No"), "1" => _("Yes"));
-        $this->stateType = array("1" => "H", "0" => "S");
-        $this->stateTypeFull = array("1" => "HARD", "0" => "SOFT");
-        $this->statusHost = array("0" => "UP", "1" => "DOWN", "2" => "UNREACHABLE", "4" => "PENDING");
-        $this->statusService = array(
-            "0" => "OK",
-            "1" => "WARNING",
-            "2" => "CRITICAL",
-            "3" => "UNKNOWN",
-            "4" => "PENDING"
-        );
-        $this->colorHost = array(0 => 'host_up', 1 => 'host_down', 2 => 'host_unreachable', 4 => 'pending');
-        $this->colorService = array(
-            0 => 'service_ok',
-            1 => 'service_warning',
-            2 => 'service_critical',
-            3 => 'service_unknown',
-            4 => 'pending'
-        );
+        $this->en = ["0" => _("No"), "1" => _("Yes")];
+        $this->stateType = ["1" => "H", "0" => "S"];
+        $this->stateTypeFull = ["1" => "HARD", "0" => "SOFT"];
+        $this->statusHost = ["0" => "UP", "1" => "DOWN", "2" => "UNREACHABLE", "4" => "PENDING"];
+        $this->statusService = ["0" => "OK", "1" => "WARNING", "2" => "CRITICAL", "3" => "UNKNOWN", "4" => "PENDING"];
+        $this->colorHost = [0 => 'host_up', 1 => 'host_down', 2 => 'host_unreachable', 4 => 'pending'];
+        $this->colorService = [0 => 'service_ok', 1 => 'service_warning', 2 => 'service_critical', 3 => 'service_unknown', 4 => 'pending'];
 
-        $this->backgroundHost = array(0 => '#88b917', 1 => '#e00b3d', 2 => '#818185', 4 => '#2ad1d4');
-        $this->backgroundService = array(
-            0 => '#88b917',
-            1 => '#ff9a13',
-            2 => '#e00b3d',
-            3 => '#bcbdc0',
-            4 => '#2ad1d4'
-        );
+        $this->backgroundHost = [0 => '#88b917', 1 => '#e00b3d', 2 => '#818185', 4 => '#2ad1d4'];
+        $this->backgroundService = [0 => '#88b917', 1 => '#ff9a13', 2 => '#e00b3d', 3 => '#bcbdc0', 4 => '#2ad1d4'];
 
-        $this->colorHostInService = array(0 => "normal", 1 => "#FD8B46", 2 => "normal", 4 => "normal");
+        $this->colorHostInService = [0 => "normal", 1 => "#FD8B46", 2 => "normal", 4 => "normal"];
     }
 
     /**
@@ -308,7 +290,7 @@ class CentreonXMLBGRequest
      */
     protected function getStatusColor()
     {
-        $this->general_opt = array();
+        $this->general_opt = [];
         $DBRESULT = $this->DB->query("SELECT * FROM `options` WHERE `key` LIKE 'color%'");
         while ($c = $DBRESULT->fetchRow()) {
             $this->general_opt[$c["key"]] = $this->myDecode($c["value"]);

@@ -66,8 +66,8 @@ function testHostGroupDependencyCycle($childs = null)
 {
     global $pearDB;
     global $form;
-    $parents = array();
-    $childs = array();
+    $parents = [];
+    $childs = [];
     if (isset($form)) {
         $parents = $form->getSubmitValue('dep_hgParents');
         $childs = $form->getSubmitValue('dep_hgChilds');
@@ -81,7 +81,7 @@ function testHostGroupDependencyCycle($childs = null)
     return true;
 }
 
-function deleteHostGroupDependencyInDB($dependencies = array())
+function deleteHostGroupDependencyInDB($dependencies = [])
 {
     global $pearDB, $centreon;
     foreach ($dependencies as $key => $value) {
@@ -93,7 +93,7 @@ function deleteHostGroupDependencyInDB($dependencies = array())
     }
 }
 
-function multipleHostGroupDependencyInDB($dependencies = array(), $nbrDup = array())
+function multipleHostGroupDependencyInDB($dependencies = [], $nbrDup = [])
 {
     foreach ($dependencies as $key => $value) {
         global $pearDB, $centreon;
@@ -175,7 +175,7 @@ function updateHostGroupDependencyInDB($dep_id = null)
     updateHostGroupDependencyHostGroupChilds($dep_id);
 }
 
-function insertHostGroupDependencyInDB($ret = array())
+function insertHostGroupDependencyInDB($ret = [])
 {
     $dep_id = insertHostGroupDependency($ret);
     updateHostGroupDependencyHostGroupParents($dep_id, $ret);
@@ -189,7 +189,7 @@ function insertHostGroupDependencyInDB($ret = array())
  * @param array<string, mixed> $ret
  * @return int
  */
-function insertHostGroupDependency($ret = array()): int
+function insertHostGroupDependency($ret = []): int
 {
     global $form, $pearDB, $centreon;
     if (!count($ret)) {
@@ -336,7 +336,7 @@ function sanitizeResourceParameters(array $resources): array
     return $sanitizedParameters;
 }
 
-function updateHostGroupDependencyHostGroupParents($dep_id = null, $ret = array())
+function updateHostGroupDependencyHostGroupParents($dep_id = null, $ret = [])
 {
     if (!$dep_id) {
         exit();
@@ -361,7 +361,7 @@ function updateHostGroupDependencyHostGroupParents($dep_id = null, $ret = array(
     }
 }
 
-function updateHostGroupDependencyHostGroupChilds($dep_id = null, $ret = array())
+function updateHostGroupDependencyHostGroupChilds($dep_id = null, $ret = [])
 {
     if (!$dep_id) {
         exit();

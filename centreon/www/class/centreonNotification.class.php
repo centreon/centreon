@@ -48,17 +48,17 @@ class CentreonNotification
     /** @var CentreonDB $db */
     protected $db;
     /** @var array */
-    protected $svcTpl = array();
+    protected $svcTpl = [];
     /** @var array */
-    protected $svcNotifType = array();
+    protected $svcNotifType = [];
     /** @var array */
-    protected $svcBreak = array(1 => false, 2 => false);
+    protected $svcBreak = [1 => false, 2 => false];
     /** @var array */
-    protected $hostNotifType = array();
+    protected $hostNotifType = [];
     /** @var array */
-    protected $notifiedHosts = array();
+    protected $notifiedHosts = [];
     /** @var array */
-    protected $hostBreak = array(1 => false, 2 => false);
+    protected $hostBreak = [1 => false, 2 => false];
 
     /**
      * CentreonNotification constructor
@@ -80,7 +80,7 @@ class CentreonNotification
     {
         $sql = "SELECT contact_id, contact_alias FROM contact ORDER BY contact_name";
         $res = $this->db->query($sql);
-        $tab = array();
+        $tab = [];
         while ($row = $res->fetchRow()) {
             $tab[$row['contact_id']] = $row['contact_alias'];
         }
@@ -122,7 +122,7 @@ class CentreonNotification
         		FROM contactgroup cg
         		WHERE cg.cg_id = " . $this->db->escape($contactGroupId);
         $res = $this->db->query($sql);
-        $tab = array();
+        $tab = [];
         while ($row = $res->fetchRow()) {
             $tab[$row['cg_id']] = $row['cg_name'];
         }
@@ -144,7 +144,7 @@ class CentreonNotification
         		WHERE cg.cg_id = ccr.contactgroup_cg_id
         		AND ccr.contact_contact_id = " . $contactId;
         $res = $this->db->query($sql);
-        $tab = array();
+        $tab = [];
         while ($row = $res->fetchRow()) {
             $tab[$row['cg_id']] = $row['cg_name'];
         }
@@ -164,7 +164,7 @@ class CentreonNotification
     {
         $contactId = $this->db->escape($contactId);
         if (false === $this->isNotificationEnabled($contactId)) {
-            return array();
+            return [];
         }
         $contactgroups = $this->getContactGroups($contactId);
 
@@ -225,7 +225,7 @@ class CentreonNotification
         		AND hgr.host_host_id = h.host_id
         		AND ehr.escalation_esc_id IN (" . $escalations . ")";
         $res = $this->db->query($sql);
-        $tab = array();
+        $tab = [];
         while ($row = $res->fetchRow()) {
             $tab[$row['host_id']] = $row['host_name'];
         }
@@ -256,10 +256,10 @@ class CentreonNotification
         		AND sgr.service_service_id = s.service_id
         		AND esr.escalation_esc_id IN (" . $escalationsList . ")";
         $res = $this->db->query($sql);
-        $tab = array();
+        $tab = [];
         while ($row = $res->fetchRow()) {
             if (!isset($tab[$row['host_id']])) {
-                $tab[$row['host_id']] = array();
+                $tab[$row['host_id']] = [];
             }
             $tab[$row['host_id']][$row['service_id']]['host_name'] = $row['host_name'];
             $tab[$row['host_id']][$row['service_id']]['service_description'] = $row['service_description'];
@@ -279,19 +279,19 @@ class CentreonNotification
     protected function getEscalationNotifications($notifType, $contactgroups)
     {
         if (!count($contactgroups)) {
-            return array();
+            return [];
         }
         $sql = "SELECT ecr.escalation_esc_id, e.esc_name
         		FROM escalation_contactgroup_relation ecr, escalation e
         		WHERE e.esc_id = ecr.escalation_esc_id
         		AND ecr.contactgroup_cg_id IN (".implode(array_keys($contactgroups)).")";
         $res = $this->db->query($sql);
-        $escTab = array();
+        $escTab = [];
         while ($row = $res->fetchRow()) {
             $escTab[$row['escalation_esc_id']] = $row['esc_name'];
         }
         if ($escTab === []) {
-            return array();
+            return [];
         }
         if ($notifType == self::HOST_ESC) {
             return $this->getHostEscalations($escTab);
@@ -323,8 +323,8 @@ class CentreonNotification
         			  AND chr.host_host_id = h.host_id ";
         }
         $res = $this->db->query($sql);
-        $this->notifiedHosts = array();
-        $templates = array();
+        $this->notifiedHosts = [];
+        $templates = [];
         while ($row = $res->fetchRow()) {
             if ($row['host_register'] == 1) {
                 $this->notifiedHosts[$row['host_id']] = $row['host_name'];
@@ -344,7 +344,7 @@ class CentreonNotification
         }
         $res2 = $this->db->query(trim($sql2));
         while ($row = $res2->fetchRow()) {
-            $this->hostBreak = array(1 => false, 2 => false);
+            $this->hostBreak = [1 => false, 2 => false];
             if ($this->getHostTemplateNotifications($row['host_id'], $templates) === true) {
                 $this->notifiedHosts[$row['host_id']] = $row['host_name'];
             }
@@ -445,16 +445,16 @@ class CentreonNotification
                       AND s.service_use_only_contacts_from_host != '1'";
         }
         $res = $this->db->query($sql);
-        $svcTab = array();
-        $svcList = array();
-        $templates = array();
+        $svcTab = [];
+        $svcList = [];
+        $templates = [];
         while ($row = $res->fetchRow()) {
             $svcList[$row['service_id']]=$row['service_id'];
             if ($row['service_register'] == 1) {
                 if (!isset($svcTab[$row['host_id']])) {
-                    $svcTab[$row['host_id']] = array();
+                    $svcTab[$row['host_id']] = [];
                 }
-                $svcTab[$row['host_id']][$row['service_id']] = array();
+                $svcTab[$row['host_id']][$row['service_id']] = [];
                 $svcTab[$row['host_id']][$row['service_id']]['host_name'] = $row['host_name'];
                 $svcTab[$row['host_id']][$row['service_id']]['service_description'] = $row['service_description'];
             } else {
@@ -472,7 +472,7 @@ class CentreonNotification
                 . "AND h.host_id IN (" . implode(',', array_keys($this->notifiedHosts)) . ")";
             $res = $this->db->query($sql);
             while ($row = $res->fetchRow()) {
-                $svcTab[$row['host_id']][$row['service_id']] = array();
+                $svcTab[$row['host_id']][$row['service_id']] = [];
                 $svcTab[$row['host_id']][$row['service_id']]['host_name'] = $row['host_name'];
                 $svcTab[$row['host_id']][$row['service_id']]['service_description'] = $row['service_description'];
             }
@@ -480,7 +480,7 @@ class CentreonNotification
         }
 
         if ($svcTab !== []) {
-            $tab = array();
+            $tab = [];
             foreach ($svcTab as $tmp) {
                 $tab = array_merge(array_keys($tmp), $tab);
             }
@@ -509,15 +509,15 @@ class CentreonNotification
         }
 
         while ($row = $res2->fetchRow()) {
-            $this->svcBreak = array(1 => false, 2 => false);
+            $this->svcBreak = [1 => false, 2 => false];
             $flag = false;
             if ($this->getServiceTemplateNotifications($row['service_id'], $templates) === true) {
                 if (array_key_exists($row['service_id'], $list)) {
                     $row3 = $list[$row['service_id']];
                     if (!isset($svcTab[$row3['host_id']])) {
-                        $svcTab[$row3['host_id']] = array();
+                        $svcTab[$row3['host_id']] = [];
                     }
-                    $svcTab[$row3['host_id']][$row['service_id']] = array();
+                    $svcTab[$row3['host_id']][$row['service_id']] = [];
                     $svcTab[$row3['host_id']][$row['service_id']]['host_name'] = $row3['host_name'];
                     $svcTab[$row3['host_id']][$row['service_id']]['service_description'] = $row['service_description'];
                 }

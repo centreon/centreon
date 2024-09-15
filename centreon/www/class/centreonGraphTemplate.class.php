@@ -64,11 +64,11 @@ class CentreonGraphTemplate
      * @return array
      * @throws PDOException
      */
-    public function getObjectForSelect2($values = array(), $options = array(), $register = '1')
+    public function getObjectForSelect2($values = [], $options = [], $register = '1')
     {
-        $items = array();
+        $items = [];
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if (!empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':graph' . $v . ',';
@@ -92,10 +92,7 @@ class CentreonGraphTemplate
         $stmt->execute();
 
         while ($row = $stmt->fetchRow()) {
-            $items[] = array(
-                'id' => $row['graph_id'],
-                'text' => $row['name']
-            );
+            $items[] = ['id' => $row['graph_id'], 'text' => $row['name']];
         }
         return $items;
     }

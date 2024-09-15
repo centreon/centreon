@@ -54,19 +54,9 @@ class InformationTest extends \PHPUnit\Framework\TestCase
 
     public function testGetConfiguration(): void
     {
-        $expectedResult = array(
-            'name' => 'MyModule',
-            'rname' => 'MyModule',
-            'mod_release' => '1.0.0'
-        );
+        $expectedResult = ['name' => 'MyModule', 'rname' => 'MyModule', 'mod_release' => '1.0.0'];
 
-        $moduleConfiguration = array(
-            'MyModule' => array(
-                'name' => 'MyModule',
-                'rname' => 'MyModule',
-                'mod_release' => '1.0.0'
-            )
-        );
+        $moduleConfiguration = ['MyModule' => ['name' => 'MyModule', 'rname' => 'MyModule', 'mod_release' => '1.0.0']];
         $this->utils->expects($this->any())
             ->method('requireConfiguration')
             ->willReturn($moduleConfiguration);
@@ -81,9 +71,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
     {
         $this->db->addResultSet(
             "SELECT name FROM modules_informations WHERE id = :id",
-            array(
-                array('name' => 'MyModule')
-            )
+            [['name' => 'MyModule']]
         );
 
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
@@ -96,54 +84,18 @@ class InformationTest extends \PHPUnit\Framework\TestCase
 
     public function testGetList(): void
     {
-        $expectedResult = array(
-            'MyModule1' => array(
-                'id' => 1,
-                'name' => 'MyModule1',
-                'rname' => 'MyModule1',
-                'mod_release' => '1.0.0',
-                'license_expiration' => '2020-10-10 12:00:00',
-                'source_available' => true,
-                'is_installed' => true,
-                'upgradeable' => false,
-                'installed_version' => '1.0.0',
-                'available_version' => '1.0.0'
-            ),
-            'MyModule2' => array(
-                'id' => 2,
-                'name' => 'MyModule2',
-                'rname' => 'MyModule2',
-                'mod_release' => '2.0.0',
-                'license_expiration' => '2020-10-10 12:00:00',
-                'source_available' => true,
-                'is_installed' => true,
-                'upgradeable' => true,
-                'installed_version' => '1.0.0',
-                'available_version' => '2.0.0'
-            )
-        );
+        $expectedResult = ['MyModule1' => ['id' => 1, 'name' => 'MyModule1', 'rname' => 'MyModule1', 'mod_release' => '1.0.0', 'license_expiration' => '2020-10-10 12:00:00', 'source_available' => true, 'is_installed' => true, 'upgradeable' => false, 'installed_version' => '1.0.0', 'available_version' => '1.0.0'], 'MyModule2' => ['id' => 2, 'name' => 'MyModule2', 'rname' => 'MyModule2', 'mod_release' => '2.0.0', 'license_expiration' => '2020-10-10 12:00:00', 'source_available' => true, 'is_installed' => true, 'upgradeable' => true, 'installed_version' => '1.0.0', 'available_version' => '2.0.0']];
 
         $this->db->addResultSet(
             "SELECT * FROM modules_informations ",
-            array(
-                array(
-                    'id' => 1,
-                    'name' => 'MyModule1',
-                    'mod_release' => '1.0.0'
-                ),
-                array(
-                    'id' => 2,
-                    'name' => 'MyModule2',
-                    'mod_release' => '1.0.0'
-                )
-            )
+            [['id' => 1, 'name' => 'MyModule1', 'mod_release' => '1.0.0'], ['id' => 2, 'name' => 'MyModule2', 'mod_release' => '1.0.0']]
         );
 
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
 
         $filesystem = $this->getMockBuilder(\Symfony\Component\Filesystem\Filesystem::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(array('exists'))
+            ->onlyMethods(['exists'])
             ->getMock();
         $filesystem->expects($this->any())
             ->method('exists')
@@ -152,7 +104,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
 
         $finder = $this->getMockBuilder(\Symfony\Component\Finder\Finder::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(array('directories', 'depth', 'in', 'getIterator'))
+            ->onlyMethods(['directories', 'depth', 'in', 'getIterator'])
             ->getMock();
         $finder->expects($this->any())
             ->method('directories')
@@ -171,20 +123,8 @@ class InformationTest extends \PHPUnit\Framework\TestCase
             ]));
         $this->container->registerProvider(new FinderProvider($finder));
 
-        $moduleConfiguration1 = array(
-            'MyModule1' => array(
-                'name' => 'MyModule1',
-                'rname' => 'MyModule1',
-                'mod_release' => '1.0.0'
-            )
-        );
-        $moduleConfiguration2 = array(
-            'MyModule2' => array(
-                'name' => 'MyModule2',
-                'rname' => 'MyModule2',
-                'mod_release' => '2.0.0'
-            )
-        );
+        $moduleConfiguration1 = ['MyModule1' => ['name' => 'MyModule1', 'rname' => 'MyModule1', 'mod_release' => '1.0.0']];
+        $moduleConfiguration2 = ['MyModule2' => ['name' => 'MyModule2', 'rname' => 'MyModule2', 'mod_release' => '2.0.0']];
         $this->utils->expects($this->exactly(2))
             ->method('requireConfiguration')
             ->will(

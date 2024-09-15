@@ -70,7 +70,7 @@ function testActionExistence($name = null)
  * @param null $aclActionId
  * @param array $actions
  */
-function enableActionInDB($aclActionId = null, $actions = array())
+function enableActionInDB($aclActionId = null, $actions = [])
 {
     if ($aclActionId === null && empty($actions)) {
         return;
@@ -79,7 +79,7 @@ function enableActionInDB($aclActionId = null, $actions = array())
     global $pearDB, $centreon;
 
     if ($aclActionId) {
-        $actions = array($aclActionId => "1");
+        $actions = [$aclActionId => "1"];
     }
 
     $queryValues = [];
@@ -127,7 +127,7 @@ function enableActionInDB($aclActionId = null, $actions = array())
  * @param null $aclActionId
  * @param array $actions
  */
-function disableActionInDB($aclActionId = null, $actions = array())
+function disableActionInDB($aclActionId = null, $actions = [])
 {
     if ($aclActionId === null && empty($actions)) {
         return;
@@ -136,7 +136,7 @@ function disableActionInDB($aclActionId = null, $actions = array())
     global $pearDB, $centreon;
 
     if ($aclActionId) {
-        $actions = array($aclActionId => "1");
+        $actions = [$aclActionId => "1"];
     }
 
     $queryValues = [];
@@ -185,7 +185,7 @@ function disableActionInDB($aclActionId = null, $actions = array())
  * delete an action rules
  * @param $actions
  */
-function deleteActionInDB($actions = array())
+function deleteActionInDB($actions = [])
 {
     global $pearDB, $centreon;
 
@@ -233,7 +233,7 @@ function deleteActionInDB($actions = array())
  * @param $actions
  * @param $nbrDup
  */
-function multipleActionInDB($actions = array(), $nbrDup = array())
+function multipleActionInDB($actions = [], $nbrDup = [])
 {
     global $pearDB, $centreon;
 
@@ -308,7 +308,7 @@ function multipleActionInDB($actions = array(), $nbrDup = array())
  * Insert all information in DB
  * @param $ret
  */
-function insertActionInDB($ret = array())
+function insertActionInDB($ret = [])
 {
     global $form, $centreon;
 
@@ -414,7 +414,7 @@ function updateAction($aclActionId = null)
  * @param $aclActionId
  * @param $ret
  */
-function updateGroupActions($aclActionId, $ret = array())
+function updateGroupActions($aclActionId, $ret = [])
 {
     if (!$aclActionId) {
         return;
@@ -442,7 +442,7 @@ function updateGroupActions($aclActionId, $ret = array())
  * @param $aclActionId
  * @param $ret
  */
-function updateRulesActions($aclActionId, $ret = array())
+function updateRulesActions($aclActionId, $ret = [])
 {
     global $form, $pearDB;
 
@@ -455,7 +455,7 @@ function updateRulesActions($aclActionId, $ret = array())
     $statement->bindValue(':acl_action_rule_id', (int) $aclActionId, \PDO::PARAM_INT);
     $statement->execute();
 
-    $actions = array();
+    $actions = [];
     $actions = listActions();
 
     foreach ($actions as $action) {
@@ -477,7 +477,7 @@ function listActions()
 {
     global $dependencyInjector;
 
-    $actions = array();
+    $actions = [];
     $informationsService = $dependencyInjector['centreon_remote.informations_service'];
     $serverIsMaster = $informationsService->serverIsMaster();
 

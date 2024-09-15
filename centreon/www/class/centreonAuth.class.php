@@ -81,7 +81,7 @@ class CentreonAuth
     /** @var int */
     protected $autologin;
     /** @var string[] */
-    protected $cryptPossibilities = array('MD5', 'SHA1');
+    protected $cryptPossibilities = ['MD5', 'SHA1'];
 
     /** @var CentreonDB */
     protected $pearDB;
@@ -97,9 +97,9 @@ class CentreonAuth
     /** @var */
     protected $authType;
     /** @var array */
-    protected $ldap_auto_import = array();
+    protected $ldap_auto_import = [];
     /** @var array */
-    protected $ldap_store_password = array();
+    protected $ldap_store_password = [];
     /** @var int */
     protected $default_page = self::DEFAULT_PAGE;
 

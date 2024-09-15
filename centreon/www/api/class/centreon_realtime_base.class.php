@@ -79,7 +79,7 @@ class CentreonRealtimeBase extends CentreonWebService
             throw new RestBadRequestException("Bad parameters target");
         }
 
-        $defaultValuesParameters = array();
+        $defaultValuesParameters = [];
         $targetedFile = _CENTREON_PATH_ . "/www/class/centreon$target.class.php";
         if (file_exists($targetedFile)) {
             require_once $targetedFile;
@@ -94,10 +94,7 @@ class CentreonRealtimeBase extends CentreonWebService
         if (isset($defaultValuesParameters['type']) && $defaultValuesParameters['type'] === 'simple') {
             if (isset($defaultValuesParameters['reverse']) && $defaultValuesParameters['reverse']) {
                 $selectedValues = $this->retrieveSimpleValues(
-                    array(
-                        'table' => $defaultValuesParameters['externalObject']['table'],
-                        'id' => $defaultValuesParameters['currentObject']['id']
-                    ),
+                    ['table' => $defaultValuesParameters['externalObject']['table'], 'id' => $defaultValuesParameters['currentObject']['id']],
                     $id,
                     $defaultValuesParameters['externalObject']['id']
                 );
@@ -111,7 +108,7 @@ class CentreonRealtimeBase extends CentreonWebService
         }
 
         # Manage final data
-        $finalDatas = array();
+        $finalDatas = [];
         if (count($selectedValues) > 0) {
             $finalDatas = $this->retrieveExternalObjectDatas(
                 $defaultValuesParameters['externalObject'],
@@ -129,7 +126,7 @@ class CentreonRealtimeBase extends CentreonWebService
      */
     protected function retrieveExternalObjectDatas($externalObject, $values)
     {
-        $tmpValues = array();
+        $tmpValues = [];
 
         if (isset($externalObject['object'])) {
             $classFile = $externalObject['object'] . '.class.php';
@@ -137,7 +134,7 @@ class CentreonRealtimeBase extends CentreonWebService
             $calledClass = ucfirst($externalObject['object']);
             $externalObjectInstance = new $calledClass($this->pearDB);
 
-            $options = array();
+            $options = [];
             if (isset($externalObject['objectOptions'])) {
                 $options = $externalObject['objectOptions'];
             }
@@ -148,7 +145,7 @@ class CentreonRealtimeBase extends CentreonWebService
             }
         } else {
             $explodedValues = '';
-            $queryValues = array();
+            $queryValues = [];
 
             if (!empty($values)) {
                 foreach ($values as $key => $value) {
@@ -172,10 +169,7 @@ class CentreonRealtimeBase extends CentreonWebService
             $stmt->execute();
 
             while ($row = $stmt->fetch()) {
-                $tmpValues[] = array(
-                    'id' => $row[$externalObject['id']],
-                    'text' => $row[$externalObject['name']]
-                );
+                $tmpValues[] = ['id' => $row[$externalObject['id']], 'text' => $row[$externalObject['name']]];
             }
         }
         return $tmpValues;
@@ -189,9 +183,9 @@ class CentreonRealtimeBase extends CentreonWebService
      */
     protected function retrieveSimpleValues($currentObject, $id, $field)
     {
-        $tmpValues = array();
+        $tmpValues = [];
 
-        $fields = array();
+        $fields = [];
         $fields[] = $field;
         if (isset($currentObject['additionalField'])) {
             $fields[] = $currentObject['additionalField'];
@@ -223,9 +217,9 @@ class CentreonRealtimeBase extends CentreonWebService
      */
     protected function retrieveRelatedValues($relationObject, $id)
     {
-        $tmpValues = array();
+        $tmpValues = [];
 
-        $fields = array();
+        $fields = [];
         $fields[] = $relationObject['field'];
         if (isset($relationObject['additionalField'])) {
             $fields[] = $relationObject['additionalField'];

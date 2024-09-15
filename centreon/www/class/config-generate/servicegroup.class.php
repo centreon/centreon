@@ -133,7 +133,7 @@ class Servicegroup extends AbstractObject
             return 1;
         }
 
-        $this->sg[$sg_id]['members_cache'][$host_id . '_' . $service_id] = array($host_name, $service_description);
+        $this->sg[$sg_id]['members_cache'][$host_id . '_' . $service_id] = [$host_name, $service_description];
         return 0;
     }
 
@@ -157,7 +157,7 @@ class Servicegroup extends AbstractObject
             if (isset($this->sg_relation_cache[$value['service_service_id']])) {
                 $this->sg_relation_cache[$value['service_service_id']][] = $value;
             } else {
-                $this->sg_relation_cache[$value['service_service_id']] = array($value);
+                $this->sg_relation_cache[$value['service_service_id']] = [$value];
             }
         }
 
@@ -177,7 +177,7 @@ class Servicegroup extends AbstractObject
             return $this->sg_relation_cache[$service_id];
         }
         if ($this->done_cache == 1) {
-            return array();
+            return [];
         }
 
         if (is_null($this->stmt_stpl_sg)) {
@@ -212,7 +212,7 @@ class Servicegroup extends AbstractObject
             return $this->sg_relation_cache[$service_id];
         }
         if ($this->done_cache == 1) {
-            return array();
+            return [];
         }
 
         if (is_null($this->stmt_service_sg)) {
@@ -313,7 +313,7 @@ class Servicegroup extends AbstractObject
      */
     public function getServicegroups()
     {
-        $result = array();
+        $result = [];
         foreach ($this->sg as $id => &$value) {
             if (is_null($value) || count($value['members_cache']) == 0) {
                 continue;
@@ -332,8 +332,8 @@ class Servicegroup extends AbstractObject
         parent::reset();
         foreach ($this->sg as &$value) {
             if (!is_null($value)) {
-                $value['members_cache'] = array();
-                $value['members'] = array();
+                $value['members_cache'] = [];
+                $value['members'] = [];
             }
         }
     }

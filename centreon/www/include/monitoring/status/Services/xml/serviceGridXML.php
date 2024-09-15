@@ -196,7 +196,7 @@ while ($ndo = $dbResult->fetch()) {
         $str .= ",";
     }
     $str .= "'" . $ndo["name"] . "'";
-    $tab_final[$ndo["name"]] = array("cs" => $ndo["state"], "hid" => $ndo["host_id"]);
+    $tab_final[$ndo["name"]] = ["cs" => $ndo["state"], "hid" => $ndo["host_id"]];
     $tabIcone[$ndo["name"]] = $ndo["icon_image"] != "" ? $ndo["icon_image"] : "none";
 }
 $dbResult->closeCursor();

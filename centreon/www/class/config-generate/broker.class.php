@@ -93,13 +93,9 @@ class Broker extends AbstractObjectJSON
         centreonbroker_logs_path
     ';
     /** @var string[] */
-    protected $exclude_parameters = array(
-        'blockId'
-    );
+    protected $exclude_parameters = ['blockId'];
     /** @var string[] */
-    protected $authorized_empty_field = array(
-        'db_password'
-    );
+    protected $authorized_empty_field = ['db_password'];
     /** @var null */
     protected $stmt_engine = null;
     /** @var null */
@@ -145,7 +141,7 @@ class Broker extends AbstractObjectJSON
             return;
         }
 
-        $this->cacheExternalValue = array();
+        $this->cacheExternalValue = [];
         $stmt = $this->backend_instance->db->prepare("
             SELECT CONCAT(cf.fieldname, '_', cttr.cb_tag_id, '_', ctfr.cb_type_id) as name, external
             FROM cb_field cf, cb_type_field_relation ctfr, cb_tag_type_relation cttr
@@ -168,7 +164,7 @@ class Broker extends AbstractObjectJSON
         if (!is_null($this->cacheLogValue)) {
             return;
         }
-        $this->cacheLogValue = array();
+        $this->cacheLogValue = [];
         $stmt = $this->backend_instance->db->prepare("
             SELECT relation.`id_centreonbroker`, log.`name`, lvl.`name` as level
             FROM `cfg_centreonbroker_log` relation
@@ -594,7 +590,7 @@ class Broker extends AbstractObjectJSON
         $stmt = $db->prepare($query);
         $stmt->execute();
 
-        $infos = array();
+        $infos = [];
         while (($row = $stmt->fetch(PDO::FETCH_ASSOC))) {
             $val = $row[$s_column];
             if (!is_null($s_rpn)) {
@@ -624,7 +620,7 @@ class Broker extends AbstractObjectJSON
         try {
             $val = array_reduce(
                 preg_split('/\s+/', $val . ' ' . $rpn),
-                array($this, 'rpnOperation')
+                [$this, 'rpnOperation']
             );
             return $val[0];
         } catch (InvalidArgumentException $e) {
@@ -641,13 +637,13 @@ class Broker extends AbstractObjectJSON
      */
     private function rpnOperation($result, $item)
     {
-        if (in_array($item, array('+', '-', '*', '/'))) {
+        if (in_array($item, ['+', '-', '*', '/'])) {
             if (count($result) < 2) {
                 throw new InvalidArgumentException('Not enough arguments to apply operator');
             }
             $a = $result[0];
             $b = $result[1];
-            $result = array();
+            $result = [];
             $result[0] = eval("return $a $item $b;");
         } elseif (is_numeric($item)) {
             $result[] = $item;

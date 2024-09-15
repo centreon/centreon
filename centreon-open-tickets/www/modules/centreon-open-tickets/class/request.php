@@ -26,13 +26,13 @@ class CentreonOpenTicketsRequest
      *
      * @var array
      */
-    protected $postVar = array();
+    protected $postVar = [];
 
     /**
      *
      * @var array
      */
-    protected $getVar = array();
+    protected $getVar = [];
 
     /**
      * constructor

@@ -65,10 +65,7 @@ require_once __DIR__ . "/Validator/RtValidator.php";
 class CentreonRtAcknowledgement extends CentreonObject
 {
     /** @var array */
-    protected $acknowledgementType = array(
-        'HOST',
-        'SVC'
-    );
+    protected $acknowledgementType = ['HOST', 'SVC'];
 
     /** @var */
     protected $aHosts;
@@ -143,14 +140,7 @@ class CentreonRtAcknowledgement extends CentreonObject
         // Make safe the comment
         $comment = escapeshellarg($comment);
 
-        return array(
-            'type' => $type,
-            'resource' => $resource,
-            'comment' => $comment,
-            'sticky' => $sticky,
-            'notify' => $notify,
-            'persistent' => $persistent
-        );
+        return ['type' => $type, 'resource' => $resource, 'comment' => $comment, 'sticky' => $sticky, 'notify' => $notify, 'persistent' => $persistent];
     }
 
     /**
@@ -184,7 +174,7 @@ class CentreonRtAcknowledgement extends CentreonObject
      * @param array $filter
      * @throws CentreonClapiException
      */
-    public function show($parameters = null, $filter = array()): void
+    public function show($parameters = null, $filter = []): void
     {
         if ($parameters !== '') {
             $parsedParameters = $this->parseShowparameters($parameters);
@@ -221,16 +211,7 @@ class CentreonRtAcknowledgement extends CentreonObject
      */
     public function showHost($hostList): void
     {
-        $fields = array(
-            'id',
-            'host_name',
-            'entry_time',
-            'author',
-            'comment_data',
-            'sticky',
-            'notify_contacts',
-            'persistent_comment',
-        );
+        $fields = ['id', 'host_name', 'entry_time', 'author', 'comment_data', 'sticky', 'notify_contacts', 'persistent_comment'];
 
         if (!empty($hostList)) {
             $hostList = array_filter(explode('|', $hostList));
@@ -243,8 +224,8 @@ class CentreonRtAcknowledgement extends CentreonObject
             );
 
             // check if host exist
-            $unknownHost = array();
-            $existingHostIds = array();
+            $unknownHost = [];
+            $existingHostIds = [];
             foreach ($hostList as $host) {
                 if (($hostId = $this->hostObject->getHostID($host)) == 0) {
                     $unknownHost[] = $host;
@@ -292,21 +273,11 @@ class CentreonRtAcknowledgement extends CentreonObject
      */
     public function showSvc($svcList): void
     {
-        $serviceAcknowledgementList = array();
-        $unknownService = array();
-        $existingService = array();
+        $serviceAcknowledgementList = [];
+        $unknownService = [];
+        $existingService = [];
 
-        $fields = array(
-            'id',
-            'host_name',
-            'service_name',
-            'entry_time',
-            'author',
-            'comment_data',
-            'sticky',
-            'notify_contacts',
-            'persistent_comment',
-        );
+        $fields = ['id', 'host_name', 'service_name', 'entry_time', 'author', 'comment_data', 'sticky', 'notify_contacts', 'persistent_comment'];
 
         if (!empty($svcList)) {
             $svcList = array_filter(explode('|', $svcList));
@@ -412,7 +383,7 @@ class CentreonRtAcknowledgement extends CentreonObject
         if ($resource === "") {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $unknownHost = array();
+        $unknownHost = [];
         $listHost = explode('|', $resource);
 
         foreach ($listHost as $host) {
@@ -453,8 +424,8 @@ class CentreonRtAcknowledgement extends CentreonObject
         if ($resource === "") {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $unknownService = array();
-        $existingService = array();
+        $unknownService = [];
+        $existingService = [];
         $listService = explode('|', $resource);
 
         // check if service exist
@@ -497,7 +468,7 @@ class CentreonRtAcknowledgement extends CentreonObject
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
         $listAcknowledgement = explode('|', $parameters);
-        $unknownAcknowledgement = array();
+        $unknownAcknowledgement = [];
 
         foreach ($listAcknowledgement as $acknowledgement) {
             list($hostName, $serviceName) = explode(',', $acknowledgement);
@@ -510,7 +481,7 @@ class CentreonRtAcknowledgement extends CentreonObject
                 ) {
                     $this->externalCmdObj->deleteAcknowledgement(
                         'SVC',
-                        array($hostName . ';' . $serviceName => 'on')
+                        [$hostName . ';' . $serviceName => 'on']
                     );
                 } else {
                     $unknownAcknowledgement[] = $acknowledgement;
@@ -520,7 +491,7 @@ class CentreonRtAcknowledgement extends CentreonObject
                 if ($this->object->hostIsAcknowledged($hostId)) {
                     $this->externalCmdObj->deleteAcknowledgement(
                         'HOST',
-                        array($hostName => 'on')
+                        [$hostName => 'on']
                     );
                 } else {
                     $unknownAcknowledgement[] = $acknowledgement;

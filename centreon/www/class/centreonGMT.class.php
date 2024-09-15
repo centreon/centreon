@@ -445,12 +445,12 @@ class CentreonGMT
      * @return array
      * @throws PDOException
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
-        $items = array();
+        $items = [];
 
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if (!empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':timezone' . $v . ',';
@@ -475,10 +475,7 @@ class CentreonGMT
         $stmt->execute();
 
         while ($row = $stmt->fetch()) {
-            $items[] = array(
-                'id' => $row['timezone_id'],
-                'text' => $row['timezone_name']
-            );
+            $items[] = ['id' => $row['timezone_id'], 'text' => $row['timezone_name']];
         }
 
         return $items;
