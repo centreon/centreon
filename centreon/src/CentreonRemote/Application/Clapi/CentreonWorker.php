@@ -51,7 +51,7 @@ class CentreonWorker implements CentreonClapiServiceInterface
      */
     public static function getName() : string
     {
-        return (new \ReflectionClass(__CLASS__))->getShortName();
+        return (new \ReflectionClass(self::class))->getShortName();
     }
 
     /**

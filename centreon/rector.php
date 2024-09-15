@@ -36,6 +36,8 @@ use Rector\Php53\Rector\Ternary\TernaryToElvisRector;
 use Rector\Php53\Rector\Variable\ReplaceHttpServerVarsByServerRector;
 use Rector\Php54\Rector\Array_\LongArrayToShortArrayRector;
 use Rector\Php54\Rector\Break_\RemoveZeroBreakContinueRector;
+use Rector\Php55\Rector\Class_\ClassConstantToSelfClassRector;
+use Rector\Php55\Rector\ClassConstFetch\StaticToSelfOnFinalClassRector;
 use Rector\Php55\Rector\FuncCall\GetCalledClassToSelfClassRector;
 use Rector\Php55\Rector\FuncCall\GetCalledClassToStaticClassRector;
 use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
@@ -126,23 +128,19 @@ return RectorConfig::configure()
         //        RemoveZeroBreakContinueRector::class, // KO 0 files / Remove 0 from break and continue (5.4)
 //        LongArrayToShortArrayRector::class, // OK 612 files / Long array to short array (5.4)
 //                GetCalledClassToSelfClassRector::class, // KO 0 files Change get_called_class() to self::class on final class (5.5)
-                GetCalledClassToStaticClassRector::class, // Change get_called_class() to static::class on non-final class (5.5)
-        //        StaticToSelfOnFinalClassRector::class, // Change static::class to self::class on final class (5.5)
-        //        StaticToSelfOnFinalClassRector::class, // Change static::class to self::class on final class (5.5)
-        //        StringClassNameToClassConstantRector::class, // Replace string class names by ::class constant (5.5)
-        //        ClassConstantToSelfClassRector::class, // Change __CLASS__ to self::class (5.5)
-        //        ClassConstantToSelfClassRector::class, // Change __CLASS__ to self::class (5.5)
+//                GetCalledClassToStaticClassRector::class, // OK 6 files / Change get_called_class() to static::class on non-final class (5.5)
+//                StaticToSelfOnFinalClassRector::class, // KO 0 files / Change static::class to self::class on final class (5.5)
+//                StaticToSelfOnFinalClassRector::class, // KO 0 files / Change static::class to self::class on final class (5.5)
+//                StringClassNameToClassConstantRector::class, // KO 0 files / Replace string class names by ::class constant (5.5)
+                ClassConstantToSelfClassRector::class, // 3 files / Change __CLASS__ to self::class (5.5)
         //        ExceptionHandlerTypehintRector::class, // Change typehint from Exception to Throwable. (7.0)
-        //        ThisCallOnStaticMethodToStaticCallRector::class, // Changes $this->call() to static method to static call (7.0)
         //        ThisCallOnStaticMethodToStaticCallRector::class, // Changes $this->call() to static method to static call (7.0)
         //        EregToPregMatchRector::class, // Changes ereg*() to preg*() calls (7.0)
         //        CallUserMethodRector::class, // Changes call_user_method()/call_user_method_array() to call_user_func()/call_user_func_array() (7.0)
         //        RenameMktimeWithoutArgsToTimeRector::class, // Renames mktime() without arguments to time() (7.0)
         //        MultiDirnameRector::class, // Changes multiple dirname() calls to one with nesting level (7.0)
         //        StaticCallOnNonStaticToInstanceCallRector::class, // Changes static call to instance call, where not useful (7.0)
-        //        StaticCallOnNonStaticToInstanceCallRector::class, // Changes static call to instance call, where not useful (7.0)
         //        IfIssetToCoalescingRector::class, // Change if with isset and return to coalesce (7.0)
-        //        TernaryToNullCoalescingRector::class, // Changes unneeded null check to ?? operator (7.0)
         //        TernaryToNullCoalescingRector::class, // Changes unneeded null check to ?? operator (7.0)
         //        Php4ConstructorRector::class, // Changes PHP 4 style constructor to __construct (7.0)
         //        RemoveExtraParametersRector::class, // Remove extra parameters (7.1)
