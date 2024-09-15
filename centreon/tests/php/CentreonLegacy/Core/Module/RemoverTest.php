@@ -46,7 +46,7 @@ class RemoverTest extends \PHPUnit\Framework\TestCase
             'svc_tools' => null,
             'host_tools' => null
         );
-        $this->information = $this->getMockBuilder('CentreonLegacy\Core\Module\Information')
+        $this->information = $this->getMockBuilder(\CentreonLegacy\Core\Module\Information::class)
             ->disableOriginalConstructor()
             ->onlyMethods(array('getConfiguration'))
             ->getMock();
@@ -55,7 +55,7 @@ class RemoverTest extends \PHPUnit\Framework\TestCase
             ->method('getConfiguration')
             ->willReturn($configuration);
 
-        $this->utils = $this->getMockBuilder('CentreonLegacy\Core\Utils\Utils')
+        $this->utils = $this->getMockBuilder(\CentreonLegacy\Core\Utils\Utils::class)
             ->disableOriginalConstructor()
             ->getMock();
     }
@@ -68,7 +68,7 @@ class RemoverTest extends \PHPUnit\Framework\TestCase
 
     public function testRemove(): void
     {
-        $filesystem = $this->getMockBuilder('\Symfony\Component\Filesystem\Filesystem')
+        $filesystem = $this->getMockBuilder(\Symfony\Component\Filesystem\Filesystem::class)
             ->disableOriginalConstructor()
             ->onlyMethods(array('exists'))
             ->getMock();

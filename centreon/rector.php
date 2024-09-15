@@ -17,7 +17,9 @@ use Rector\CodeQuality\Rector\Ternary\ArrayKeyExistsTernaryThenValueToCoalescing
 use Rector\CodingStyle\Rector\Assign\SplitDoubleAssignRector;
 use Rector\CodingStyle\Rector\ClassConst\RemoveFinalFromConstRector;
 use Rector\CodingStyle\Rector\ClassConst\SplitGroupedClassConstantsRector;
+use Rector\CodingStyle\Rector\ClassMethod\MakeInheritedMethodVisibilitySameAsParentRector;
 use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
+use Rector\CodingStyle\Rector\If_\NullableCompareToNullRector;
 use Rector\CodingStyle\Rector\Property\SplitGroupedPropertiesRector;
 use Rector\CodingStyle\Rector\Ternary\TernaryConditionVariableAssignmentRector;
 use Rector\Config\RectorConfig;
@@ -29,6 +31,7 @@ use Rector\EarlyReturn\Rector\If_\ChangeAndIfToEarlyReturnRector;
 use Rector\EarlyReturn\Rector\If_\ChangeOrIfContinueToMultiContinueRector;
 use Rector\EarlyReturn\Rector\If_\RemoveAlwaysElseRector;
 use Rector\Php52\Rector\Property\VarToPublicPropertyRector;
+use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
 use Rector\Php71\Rector\BinaryOp\BinaryOpBetweenNumberAndStringRector;
 use Rector\Php71\Rector\FuncCall\RemoveExtraParametersRector;
 use Rector\Php73\Rector\ConstFetch\SensitiveConstantNameRector;
@@ -107,10 +110,8 @@ return RectorConfig::configure()
 //        SplitGroupedPropertiesRector::class, // KO 0 files / Separate grouped properties to own lines
 //        SplitGroupedClassConstantsRector::class, // OK 63 files / Separate class constant to own lines
 //        SplitDoubleAssignRector::class, // OK 34 files / Split multiple inline assigns to each own lines default value, to prevent undefined array issues
-        TernaryConditionVariableAssignmentRector::class, // OK 102 files / Assign outcome of ternary condition to variable, where applicable
-//        NullableCompareToNullRector::class, // Changes negate of empty comparison of nullable value to explicit === or !== compare
-//        MakeInheritedMethodVisibilitySameAsParentRector::class, // Make method visibility same as parent one
-//        StringClassNameToClassConstantRector::class, // Replace string class names by ::class constant (5.5)
+//        TernaryConditionVariableAssignmentRector::class, // OK 102 files / Assign outcome of ternary condition to variable, where applicable
+        StringClassNameToClassConstantRector::class, // OK 11 files / Replace string class names by ::class constant (5.5)
 //        // -------------- PHP ----------------
 //        DirNameFileConstantToDirConstantRector::class, // Convert dirname(__FILE__) to __DIR__ (5.3)
 //        ReplaceHttpServerVarsByServerRector::class, // Rename old $HTTP_* variable names to new replacements (5.3)
@@ -195,7 +196,12 @@ return RectorConfig::configure()
 //        RenameParamToMatchTypeRector::class, // Rename param to match ClassType
 //        RenamePropertyToMatchTypeRector::class, // Rename property and method param to match its type
 //        RenameVariableToMatchMethodCallReturnTypeRector::class, // Rename variable to match method return type
-    //  -- -- deprecated ?? ---
+    //------ strange ----
+//        NullableCompareToNullRector::class, // Changes negate of empty comparison of nullable value to explicit === or !== compare
+//        -        if ($user = $this->security->getUser()) {
+//    +        if (($user = $this->security->getUser()) !== null) {
+//        MakeInheritedMethodVisibilitySameAsParentRector::class, // Make method visibility same as parent one ==> only for test classes
+        //  -- -- deprecated ?? ---
         //        WrapEncapsedVariableInCurlyBracesRector::class, // 152 files Wrap encapsed variables in curly braces
 
     ]);

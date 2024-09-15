@@ -55,7 +55,7 @@ class PollerDefaultsOverwriteService
         return $this->findPollerAndSetResourceData(
             $data,
             'id',
-            'CentreonRemote\Domain\Resources\DefaultConfig\NagiosServer'
+            \CentreonRemote\Domain\Resources\DefaultConfig\NagiosServer::class
         );
     }
 
@@ -76,7 +76,7 @@ class PollerDefaultsOverwriteService
         return $this->findPollerAndSetResourceData(
             $data,
             'nagios_server_id',
-            'CentreonRemote\Domain\Resources\DefaultConfig\CfgNagios'
+            \CentreonRemote\Domain\Resources\DefaultConfig\CfgNagios::class
         );
     }
 
@@ -116,7 +116,7 @@ class PollerDefaultsOverwriteService
         return $this->findPollerAndSetResourceData(
             $data,
             'ns_nagios_server',
-            'CentreonRemote\Domain\Resources\DefaultConfig\CfgCentreonBroker'
+            \CentreonRemote\Domain\Resources\DefaultConfig\CfgCentreonBroker::class
         );
     }
 
@@ -158,7 +158,7 @@ class PollerDefaultsOverwriteService
         return $this->findPollerAndSetResourceData(
             $data,
             '_instance_id',
-            'CentreonRemote\Domain\Resources\DefaultConfig\CfgResource'
+            \CentreonRemote\Domain\Resources\DefaultConfig\CfgResource::class
         );
     }
 

@@ -37,7 +37,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
 
         $this->db = new CentreonDB();
 
-        $this->information = $this->getMockBuilder('CentreonLegacy\Core\Module\Information')
+        $this->information = $this->getMockBuilder(\CentreonLegacy\Core\Module\Information::class)
             ->disableOriginalConstructor()
             ->onlyMethods(array('getInstalledInformation', 'getModulePath', 'getConfiguration'))
             ->getMock();
@@ -74,7 +74,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             ->method('getModulePath')
             ->willReturn('/MyModule/');
 
-        $this->utils = $this->getMockBuilder('CentreonLegacy\Core\Utils\Utils')
+        $this->utils = $this->getMockBuilder(\CentreonLegacy\Core\Utils\Utils::class)
             ->disableOriginalConstructor()
             ->onlyMethods(array('requireConfiguration', 'executeSqlFile', 'executePhpFile'))
             ->getMock();
@@ -105,7 +105,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
 
     public function testUpgrader(): void
     {
-        $filesystem = $this->getMockBuilder('\Symfony\Component\Filesystem\Filesystem')
+        $filesystem = $this->getMockBuilder(\Symfony\Component\Filesystem\Filesystem::class)
             ->disableOriginalConstructor()
             ->onlyMethods(array('exists'))
             ->getMock();
@@ -115,7 +115,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             //->willReturn(true);
         $this->container->registerProvider(new FilesystemProvider($filesystem));
 
-        $finder = $this->getMockBuilder('\Symfony\Component\Finder\Finder')
+        $finder = $this->getMockBuilder(\Symfony\Component\Finder\Finder::class)
             ->disableOriginalConstructor()
             ->onlyMethods(array('directories', 'depth', 'in', 'getIterator'))
             ->getMock();

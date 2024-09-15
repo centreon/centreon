@@ -37,7 +37,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
 
         $this->db = new CentreonDB();
 
-        $this->utils = $this->getMockBuilder('CentreonLegacy\Core\Utils\Utils')
+        $this->utils = $this->getMockBuilder(\CentreonLegacy\Core\Utils\Utils::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -81,7 +81,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $expectedResult = $this->configuration;
         $expectedResult['autoRefresh'] = 0;
 
-        $filesystem = $this->getMockBuilder('\Symfony\Component\Filesystem\Filesystem')
+        $filesystem = $this->getMockBuilder(\Symfony\Component\Filesystem\Filesystem::class)
             ->disableOriginalConstructor()
             ->onlyMethods(array('exists'))
             ->getMock();
@@ -224,7 +224,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
             'my-widget' => $configuration
         );
 
-        $finder = $this->getMockBuilder('\Symfony\Component\Finder\Finder')
+        $finder = $this->getMockBuilder(\Symfony\Component\Finder\Finder::class)
             ->disableOriginalConstructor()
             ->onlyMethods(array('directories', 'depth', 'in', 'getIterator'))
             ->getMock();
@@ -242,7 +242,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
             ->willReturn(new \ArrayIterator([new \SplFileInfo('my-widget')]));
         $this->container->registerProvider(new FinderProvider($finder));
 
-        $filesystem = $this->getMockBuilder('\Symfony\Component\Filesystem\Filesystem')
+        $filesystem = $this->getMockBuilder(\Symfony\Component\Filesystem\Filesystem::class)
             ->disableOriginalConstructor()
             ->onlyMethods(array('exists'))
             ->getMock();
@@ -307,7 +307,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
             ->method('buildPath')
             ->willReturn('MyWidget');
 
-        $finder = $this->getMockBuilder('\Symfony\Component\Finder\Finder')
+        $finder = $this->getMockBuilder(\Symfony\Component\Finder\Finder::class)
             ->disableOriginalConstructor()
             ->onlyMethods(array('directories', 'depth', 'in', 'getIterator'))
             ->getMock();
@@ -325,7 +325,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
             ->willReturn(new \ArrayIterator([new \SplFileInfo('my-widget')]));
         $this->container->registerProvider(new FinderProvider($finder));
 
-        $filesystem = $this->getMockBuilder('\Symfony\Component\Filesystem\Filesystem')
+        $filesystem = $this->getMockBuilder(\Symfony\Component\Filesystem\Filesystem::class)
             ->disableOriginalConstructor()
             ->onlyMethods(array('exists'))
             ->getMock();

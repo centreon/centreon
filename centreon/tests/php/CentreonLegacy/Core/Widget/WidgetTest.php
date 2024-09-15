@@ -94,7 +94,7 @@ class WidgetTest extends \PHPUnit\Framework\TestCase
             'autoRefresh' => 0
         );
 
-        $this->information = $this->getMockBuilder('CentreonLegacy\Core\Widget\Information')
+        $this->information = $this->getMockBuilder(\CentreonLegacy\Core\Widget\Information::class)
             ->disableOriginalConstructor()
             ->onlyMethods(array('getConfiguration'))
             ->getMock();
@@ -103,7 +103,7 @@ class WidgetTest extends \PHPUnit\Framework\TestCase
             ->method('getConfiguration')
             ->willReturn($configuration);
 
-        $this->utils = $this->getMockBuilder('CentreonLegacy\Core\Utils\Utils')
+        $this->utils = $this->getMockBuilder(\CentreonLegacy\Core\Utils\Utils::class)
             ->disableOriginalConstructor()
             ->onlyMethods(array('buildPath'))
             ->getMock();

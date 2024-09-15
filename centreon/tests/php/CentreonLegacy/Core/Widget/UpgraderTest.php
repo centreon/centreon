@@ -96,7 +96,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             'autoRefresh' => 0
         );
 
-        $this->information = $this->getMockBuilder('CentreonLegacy\Core\Widget\Information')
+        $this->information = $this->getMockBuilder(\CentreonLegacy\Core\Widget\Information::class)
             ->disableOriginalConstructor()
             ->onlyMethods(
                 array(
@@ -174,7 +174,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             ->method('getParameterIdByName')
             ->willReturn(1);
 
-        $this->utils = $this->getMockBuilder('CentreonLegacy\Core\Utils\Utils')
+        $this->utils = $this->getMockBuilder(\CentreonLegacy\Core\Utils\Utils::class)
             ->disableOriginalConstructor()
             ->getMock();
     }
