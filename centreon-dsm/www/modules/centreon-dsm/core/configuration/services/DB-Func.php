@@ -109,17 +109,17 @@ function hostPoolPrefixUsed($hostId, $poolPrefix, $poolId = null)
     global $pearDB;
 
     $query = <<<'SQL'
-        SELECT COUNT(pool_id) AS nb
+        SELECT COUNT(*) AS nb
         FROM mod_dsm_pool
         WHERE pool_host_id = :host_id
             AND pool_prefix = :pool_prefix
-        SQL;
+    SQL;
     $params = [
         ':host_id' => [$hostId, PDO::PARAM_INT],
         ':pool_prefix' => [$poolPrefix, PDO::PARAM_STR]
     ];
 
-    if ((int)$poolId <= 0) {
+    if ((int)$poolId > 0) {
         $query .= " AND pool_id != :pool_id";
         $params[':pool_id'] = [$poolId, PDO::PARAM_INT];
     }
@@ -320,7 +320,6 @@ function insertPoolInDB($ret = array())
 }
 
 /**
- *
  * Check Pool Existence
  * @param string $pool_name The pool name to check
  * @return int 0 if the pool does not exist, 1 if it does
@@ -331,17 +330,17 @@ function testPoolExistence($pool_name)
 
     $statement = $pearDB->prepareQuery(
          <<<'SQL'
-            SELECT *
+            SELECT COUNT(*) AS nb
             FROM `mod_dsm_pool`
             WHERE `pool_name` = :pool_name
         SQL
     );
     $pearDB->executePreparedQuery($statement, [':pool_name' => [$pool_name, PDO::PARAM_STR]], true);
 
-    $exists = $statement->rowCount() == 0 ? 0 : 1;
+    $row = $pearDB->fetch($statement);
     $pearDB->closeQuery($statement);
 
-    return $exists;
+    return ($row['nb'] > 0) ? 1 : 0;
 }
 
 /**
