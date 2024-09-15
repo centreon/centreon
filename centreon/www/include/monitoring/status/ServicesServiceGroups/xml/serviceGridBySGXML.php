@@ -270,7 +270,7 @@ if ($numRows > 0) {
 
         if (!isset($aTab[$tab["sg_name"]]['host'][$tab["host_name"]])) {
             $count++;
-            $icone = $tab["icon_image"] ? $tab["icon_image"] : "none";
+            $icone = $tab["icon_image"] ?: "none";
             $aTab[$tab["sg_name"]]['host'][$tab["host_name"]] = array(
                 'h' => $tab["host_name"],
                 'hs' => _($obj->statusHost[$tab["host_state"]]),

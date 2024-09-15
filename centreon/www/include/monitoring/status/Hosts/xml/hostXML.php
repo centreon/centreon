@@ -354,8 +354,8 @@ while ($data = $dbResult->fetch()) {
     $obj->XML->writeElement("pha", $data["acknowledged"]);
     $obj->XML->writeElement("pce", $data["passive_checks"]);
     $obj->XML->writeElement("ace", $data["active_checks"]);
-    $obj->XML->writeElement("lsc", ($duration ? $duration : "N/A"));
-    $obj->XML->writeElement("lhs", ($hard_duration ? $hard_duration : "N/A"));
+    $obj->XML->writeElement("lsc", ($duration ?: "N/A"));
+    $obj->XML->writeElement("lhs", ($hard_duration ?: "N/A"));
     $obj->XML->writeElement("ha", $data["acknowledged"]);
     $obj->XML->writeElement("hdtm", $data["scheduled_downtime_depth"]);
     $obj->XML->writeElement(

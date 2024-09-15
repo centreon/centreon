@@ -32,6 +32,8 @@ use Rector\EarlyReturn\Rector\If_\ChangeOrIfContinueToMultiContinueRector;
 use Rector\EarlyReturn\Rector\If_\RemoveAlwaysElseRector;
 use Rector\Php52\Rector\Property\VarToPublicPropertyRector;
 use Rector\Php53\Rector\FuncCall\DirNameFileConstantToDirConstantRector;
+use Rector\Php53\Rector\Ternary\TernaryToElvisRector;
+use Rector\Php53\Rector\Variable\ReplaceHttpServerVarsByServerRector;
 use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
 use Rector\Php71\Rector\BinaryOp\BinaryOpBetweenNumberAndStringRector;
 use Rector\Php71\Rector\FuncCall\RemoveExtraParametersRector;
@@ -89,11 +91,11 @@ return RectorConfig::configure()
 //        CompleteDynamicPropertiesRector::class, // OK / Add missing dynamic properties
 //        AddVoidReturnTypeWhereNoReturnRector::class, // OK 215 files / Add return type void to function like without any return
 //        AddClosureVoidReturnTypeWhereNoReturnRector::class, // OK 114 files / Add closure return type void if there is no return
-//        AddParamTypeSplFixedArrayRector::class, // KO / Add exact fixed array type in known cases
-//        NestedAnnotationToAttributeRector::class, // KO / Changed nested annotations to attributes
-//        AttributeKeyToClassConstFetchRector::class, // KO / Replace key value on specific attribute to class constant
+//        AddParamTypeSplFixedArrayRector::class, // KO 0 files / Add exact fixed array type in known cases
+//        NestedAnnotationToAttributeRector::class, // KO 0 files  / Changed nested annotations to attributes
+//        AttributeKeyToClassConstFetchRector::class, // KO 0 files  / Replace key value on specific attribute to class constant
 //        VarToPublicPropertyRector::class, // OK 1 file / Change property modifier from var to public
-//        RemoveUnusedPublicMethodParameterRector::class, // KO not exists / Remove unused parameter in public method on final class without extends and interface
+//        RemoveUnusedPublicMethodParameterRector::class, // KO class rules not exists / Remove unused parameter in public method on final class without extends and interface
 //        SimplifyEmptyArrayCheckRector::class, // OK 1 file / Simplify is_array and empty functions combination into a simple identical check for an empty array
 //        SimplifyEmptyCheckOnEmptyArrayRector::class, // OK 131 files / Simplify empty() functions calls on empty arrays
 //        ArrayKeyExistsTernaryThenValueToCoalescingRector::class, // OK 1 file // Change array_key_exists() ternary to coalescing
@@ -114,9 +116,9 @@ return RectorConfig::configure()
 //        TernaryConditionVariableAssignmentRector::class, // OK 102 files / Assign outcome of ternary condition to variable, where applicable
 //        StringClassNameToClassConstantRector::class, // OK 11 files / Replace string class names by ::class constant (5.5)
 //         -------------- PHP ----------------
-        DirNameFileConstantToDirConstantRector::class, // OK 78 files / Convert dirname(__FILE__) to __DIR__ (5.3)
-//        ReplaceHttpServerVarsByServerRector::class, // Rename old $HTTP_* variable names to new replacements (5.3)
-//        TernaryToElvisRector::class, // Use ?: instead of ?, where useful (5.3)
+//        DirNameFileConstantToDirConstantRector::class, // OK 78 files / Convert dirname(__FILE__) to __DIR__ (5.3)
+//        ReplaceHttpServerVarsByServerRector::class, // KO 0 files / Rename old $HTTP_* variable names to new replacements (5.3)
+        TernaryToElvisRector::class, // Use ?: instead of ?, where useful (5.3)
 //        RemoveZeroBreakContinueRector::class, // Remove 0 from break and continue (5.4)
 //        LongArrayToShortArrayRector::class, // Long array to short array (5.4)
 //        GetCalledClassToSelfClassRector::class, // Change get_called_class() to self::class on final class (5.5)

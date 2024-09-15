@@ -40,15 +40,15 @@ if (!isset($centreon)) {
 
 $hG = isset($_GET["hc_id"]) ? $_GET["hc_id"] : null;
 $hP = isset($_POST["hc_id"]) ? $_POST["hc_id"] : null;
-$hc_id = $hG ? $hG : $hP;
+$hc_id = $hG ?: $hP;
 
 $cG = isset($_GET["select"]) ? $_GET["select"] : null;
 $cP = isset($_POST["select"]) ? $_POST["select"] : null;
-$select = $cG ? $cG : $cP;
+$select = $cG ?: $cP;
 
 $cG = isset($_GET["dupNbr"]) ? $_GET["dupNbr"] : null;
 $cP = isset($_POST["dupNbr"]) ? $_POST["dupNbr"] : null;
-$dupNbr = $cG ? $cG : $cP;
+$dupNbr = $cG ?: $cP;
 
 /*
  * Path to the configuration dir

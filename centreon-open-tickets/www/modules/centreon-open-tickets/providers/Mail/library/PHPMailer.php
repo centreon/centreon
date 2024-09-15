@@ -2125,7 +2125,7 @@ class PHPMailer
             }
             if ($this->smtp->connect($prefix . $host, $port, $this->Timeout, $options)) {
                 try {
-                    $hello = $this->Helo ? $this->Helo : $this->serverHostname();
+                    $hello = $this->Helo ?: $this->serverHostname();
                     $this->smtp->hello($hello);
                     //Automatically enable TLS encryption if:
                     //* it's not disabled

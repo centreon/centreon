@@ -483,7 +483,7 @@ $res->execute();
 
 $nbRows = $dbb->query("SELECT FOUND_ROWS()")->fetchColumn();
 $data = array();
-$outputLength = $preferences['output_length'] ? $preferences['output_length'] : 50;
+$outputLength = $preferences['output_length'] ?: 50;
 
 $hostObj = new CentreonHost($db);
 $svcObj = new CentreonService($db);

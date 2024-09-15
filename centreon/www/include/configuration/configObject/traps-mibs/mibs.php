@@ -39,7 +39,7 @@ if (!isset($centreon)) {
 
 $mnftrG = isset($_GET["id"]) ? $_GET["id"] : null;
 $mnftrP = isset($_POST["id"]) ? $_POST["id"] : null;
-$id = $mnftrG ? $mnftrG : $mnftrP;
+$id = $mnftrG ?: $mnftrP;
 
 #Path to the configuration dir
 $path = "./include/configuration/configObject/traps-mibs/";

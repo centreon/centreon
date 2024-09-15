@@ -91,7 +91,7 @@ class CentreonWorker implements CentreonClapiServiceInterface
         }
         $params = $taskParams['params'];
         $centreonPath = trim($params['centreon_path'], '/');
-        $centreonPath = $centreonPath ? $centreonPath : '/centreon';
+        $centreonPath = $centreonPath ?: '/centreon';
         $url = $params['http_method'] ? $params['http_method'] . '://' : '';
         $url .= $params['remote_ip'];
         $url .= $params['http_port'] ? ':' . $params['http_port'] : '';

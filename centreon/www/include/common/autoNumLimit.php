@@ -57,7 +57,7 @@ if (isset($_POST['limit']) && $_POST['limit']) {
         $dbResult = $pearDB->query("SELECT * FROM `options` WHERE `key` = 'maxViewConfiguration'");
     }
     $gopt = $dbResult->fetch();
-    $limit = (int)$gopt['value'] ? (int)$gopt['value'] : 30;
+    $limit = (int)$gopt['value'] ?: 30;
 }
 
 $_SESSION[$sessionLimitKey] = $limit;

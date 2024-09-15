@@ -40,15 +40,15 @@ if (!isset($centreon)) {
 
 $trapGroupG = isset($_GET["id"]) ? $_GET["id"] : null;
 $trapGroupP = isset($_POST["id"]) ? $_POST["id"] : null;
-$id = $trapGroupG ? $trapGroupG : $trapGroupP;
+$id = $trapGroupG ?: $trapGroupP;
 
 $cG = isset($_GET["select"]) ? $_GET["select"] : null;
 $cP = isset($_POST["select"]) ? $_POST["select"] : null;
-$select = $cG ? $cG : $cP;
+$select = $cG ?: $cP;
 
 $cG = isset($_GET["dupNbr"]) ? $_GET["dupNbr"] : null;
 $cP = isset($_POST["dupNbr"]) ? $_POST["dupNbr"] : null;
-$dupNbr = $cG ? $cG : $cP;
+$dupNbr = $cG ?: $cP;
 
 #Path to the configuration dir
 $path = "./include/configuration/configObject/traps-groups/";
