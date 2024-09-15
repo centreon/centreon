@@ -18,7 +18,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-require_once dirname(__FILE__) . '/../../../centreon-open-tickets.conf.php';
+require_once __DIR__ . '/../../../centreon-open-tickets.conf.php';
 require_once $centreon_path . 'www/modules/centreon-open-tickets/providers/register.php';
 require_once $centreon_path . 'www/modules/centreon-open-tickets/class/rule.php';
 require_once $centreon_path . 'www/modules/centreon-open-tickets/class/centreonDBManager.class.php';

@@ -31,6 +31,7 @@ use Rector\EarlyReturn\Rector\If_\ChangeAndIfToEarlyReturnRector;
 use Rector\EarlyReturn\Rector\If_\ChangeOrIfContinueToMultiContinueRector;
 use Rector\EarlyReturn\Rector\If_\RemoveAlwaysElseRector;
 use Rector\Php52\Rector\Property\VarToPublicPropertyRector;
+use Rector\Php53\Rector\FuncCall\DirNameFileConstantToDirConstantRector;
 use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
 use Rector\Php71\Rector\BinaryOp\BinaryOpBetweenNumberAndStringRector;
 use Rector\Php71\Rector\FuncCall\RemoveExtraParametersRector;
@@ -111,9 +112,9 @@ return RectorConfig::configure()
 //        SplitGroupedClassConstantsRector::class, // OK 63 files / Separate class constant to own lines
 //        SplitDoubleAssignRector::class, // OK 34 files / Split multiple inline assigns to each own lines default value, to prevent undefined array issues
 //        TernaryConditionVariableAssignmentRector::class, // OK 102 files / Assign outcome of ternary condition to variable, where applicable
-        StringClassNameToClassConstantRector::class, // OK 11 files / Replace string class names by ::class constant (5.5)
-//        // -------------- PHP ----------------
-//        DirNameFileConstantToDirConstantRector::class, // Convert dirname(__FILE__) to __DIR__ (5.3)
+//        StringClassNameToClassConstantRector::class, // OK 11 files / Replace string class names by ::class constant (5.5)
+//         -------------- PHP ----------------
+        DirNameFileConstantToDirConstantRector::class, // OK 78 files / Convert dirname(__FILE__) to __DIR__ (5.3)
 //        ReplaceHttpServerVarsByServerRector::class, // Rename old $HTTP_* variable names to new replacements (5.3)
 //        TernaryToElvisRector::class, // Use ?: instead of ?, where useful (5.3)
 //        RemoveZeroBreakContinueRector::class, // Remove 0 from break and continue (5.4)

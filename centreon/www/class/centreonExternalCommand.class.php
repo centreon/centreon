@@ -34,13 +34,13 @@
  */
 
 // file centreon.config.php may not exist in test environment
-$configFile = realpath(dirname(__FILE__) . "/../../config/centreon.config.php");
+$configFile = realpath(__DIR__ . "/../../config/centreon.config.php");
 if ($configFile !== false) {
     require_once $configFile;
 }
 
 require_once __DIR__ . '/centreonDB.class.php';
-require_once realpath(dirname(__FILE__) . "/centreonDBInstance.class.php");
+require_once realpath(__DIR__ . "/centreonDBInstance.class.php");
 require_once __DIR__ . '/../include/common/common-Func.php';
 
 /**

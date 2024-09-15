@@ -32,7 +32,7 @@
  * For more information : contact@centreon.com
  *
  */
-require_once dirname(__FILE__) . "/formConnectorFunction.php";
+require_once __DIR__ . "/formConnectorFunction.php";
 
 try {
     $tpl = new Smarty();

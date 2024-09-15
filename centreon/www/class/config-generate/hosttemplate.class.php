@@ -37,7 +37,7 @@
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
-require_once dirname(__FILE__) . '/abstract/host.class.php';
+require_once __DIR__ . '/abstract/host.class.php';
 
 /**
  * Class

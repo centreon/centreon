@@ -41,7 +41,7 @@ if (!isset($centreon)) {
 require_once "./include/monitoring/common-Func.php";
 require_once "./class/centreonDB.class.php";
 require_once "./class/centreonGMT.class.php";
-require_once realpath(dirname(__FILE__) . "/../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . "/../../../../config/centreon.config.php");
 
 function createArrayStats($arrayFromJson)
 {

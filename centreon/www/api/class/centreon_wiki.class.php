@@ -35,7 +35,7 @@
 
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once _CENTREON_PATH_ . "/www/class/centreon-knowledge/wikiApi.class.php";
-require_once dirname(__FILE__) . "/webService.class.php";
+require_once __DIR__ . "/webService.class.php";
 
 class CentreonWiki extends CentreonWebService
 {

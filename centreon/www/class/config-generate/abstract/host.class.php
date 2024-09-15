@@ -34,7 +34,7 @@
  *
  */
 
-require_once dirname(__FILE__) . '/object.class.php';
+require_once __DIR__ . '/object.class.php';
 
 /**
  * Class

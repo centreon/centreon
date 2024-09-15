@@ -42,42 +42,42 @@ use Pimple\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
-$configFile = realpath(dirname(__FILE__) . "/../../../config/centreon.config.php");
+$configFile = realpath(__DIR__ . "/../../../config/centreon.config.php");
 if ($configFile !== false) {
     require_once $configFile;
 }
 
-require_once dirname(__FILE__) . '/abstract/object.class.php';
-require_once dirname(__FILE__) . '/abstract/objectJSON.class.php';
-require_once dirname(__FILE__) . '/backend.class.php';
-require_once dirname(__FILE__) . '/broker.class.php';
-require_once dirname(__FILE__) . '/command.class.php';
-require_once dirname(__FILE__) . '/connector.class.php';
-require_once dirname(__FILE__) . '/contact.class.php';
-require_once dirname(__FILE__) . '/contactgroup.class.php';
-require_once dirname(__FILE__) . '/dependency.class.php';
-require_once dirname(__FILE__) . '/engine.class.php';
-require_once dirname(__FILE__) . '/escalation.class.php';
-require_once dirname(__FILE__) . '/host.class.php';
-require_once dirname(__FILE__) . '/hostcategory.class.php';
-require_once dirname(__FILE__) . '/hostgroup.class.php';
-require_once dirname(__FILE__) . '/hosttemplate.class.php';
-require_once dirname(__FILE__) . '/macro.class.php';
-require_once dirname(__FILE__) . '/media.class.php';
-require_once dirname(__FILE__) . '/meta_command.class.php';
-require_once dirname(__FILE__) . '/meta_host.class.php';
-require_once dirname(__FILE__) . '/meta_service.class.php';
-require_once dirname(__FILE__) . '/meta_timeperiod.class.php';
-require_once dirname(__FILE__) . '/resource.class.php';
-require_once dirname(__FILE__) . '/service.class.php';
-require_once dirname(__FILE__) . '/servicecategory.class.php';
-require_once dirname(__FILE__) . '/servicegroup.class.php';
-require_once dirname(__FILE__) . '/servicetemplate.class.php';
-require_once dirname(__FILE__) . '/severity.class.php';
-require_once dirname(__FILE__) . '/timeperiod.class.php';
-require_once dirname(__FILE__) . '/timezone.class.php';
-require_once dirname(__FILE__) . '/vault.class.php';
-require_once dirname(__FILE__) . '/AdditionalConnectorVmWareV6.class.php';
+require_once __DIR__ . '/abstract/object.class.php';
+require_once __DIR__ . '/abstract/objectJSON.class.php';
+require_once __DIR__ . '/backend.class.php';
+require_once __DIR__ . '/broker.class.php';
+require_once __DIR__ . '/command.class.php';
+require_once __DIR__ . '/connector.class.php';
+require_once __DIR__ . '/contact.class.php';
+require_once __DIR__ . '/contactgroup.class.php';
+require_once __DIR__ . '/dependency.class.php';
+require_once __DIR__ . '/engine.class.php';
+require_once __DIR__ . '/escalation.class.php';
+require_once __DIR__ . '/host.class.php';
+require_once __DIR__ . '/hostcategory.class.php';
+require_once __DIR__ . '/hostgroup.class.php';
+require_once __DIR__ . '/hosttemplate.class.php';
+require_once __DIR__ . '/macro.class.php';
+require_once __DIR__ . '/media.class.php';
+require_once __DIR__ . '/meta_command.class.php';
+require_once __DIR__ . '/meta_host.class.php';
+require_once __DIR__ . '/meta_service.class.php';
+require_once __DIR__ . '/meta_timeperiod.class.php';
+require_once __DIR__ . '/resource.class.php';
+require_once __DIR__ . '/service.class.php';
+require_once __DIR__ . '/servicecategory.class.php';
+require_once __DIR__ . '/servicegroup.class.php';
+require_once __DIR__ . '/servicetemplate.class.php';
+require_once __DIR__ . '/severity.class.php';
+require_once __DIR__ . '/timeperiod.class.php';
+require_once __DIR__ . '/timezone.class.php';
+require_once __DIR__ . '/vault.class.php';
+require_once __DIR__ . '/AdditionalConnectorVmWareV6.class.php';
 
 /**
  * Class

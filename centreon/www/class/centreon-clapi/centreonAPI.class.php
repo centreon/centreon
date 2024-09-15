@@ -40,14 +40,14 @@ use Security\Domain\Authentication\Exceptions\ProviderException;
 use Security\Domain\Authentication\Model\LocalProvider;
 
 require_once _CENTREON_PATH_ . "www/class/centreon-clapi/centreonExported.class.php";
-require_once realpath(dirname(__FILE__) . "/../centreonDB.class.php");
-require_once realpath(dirname(__FILE__) . "/../centreonXML.class.php");
+require_once realpath(__DIR__ . "/../centreonDB.class.php");
+require_once realpath(__DIR__ . "/../centreonXML.class.php");
 require_once _CENTREON_PATH_ . "www/include/configuration/configGenerate/DB-Func.php";
 require_once _CENTREON_PATH_ . 'www/class/config-generate/generate.class.php';
 require_once __DIR__ . '/../centreonAuth.class.php';
 require_once _CENTREON_PATH_ . "www/class/centreonAuth.LDAP.class.php";
 require_once _CENTREON_PATH_ . 'www/class/centreonLog.class.php';
-require_once realpath(dirname(__FILE__) . "/../centreonSession.class.php");
+require_once realpath(__DIR__ . "/../centreonSession.class.php");
 
 
 /**

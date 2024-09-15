@@ -33,7 +33,7 @@
  *
  */
 
-$configFile = realpath(dirname(__FILE__) . "/../../../config/centreon.config.php");
+$configFile = realpath(__DIR__ . "/../../../config/centreon.config.php");
 require_once __DIR__ . '/../../class/config-generate/host.class.php';
 require_once __DIR__ . '/../../class/config-generate/service.class.php';
 

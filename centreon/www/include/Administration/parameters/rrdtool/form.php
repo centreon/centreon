@@ -37,7 +37,7 @@ if (!isset($oreon)) {
     exit();
 }
 
-require_once dirname(__FILE__) . "/formFunction.php";
+require_once __DIR__ . "/formFunction.php";
 
 $DBRESULT = $pearDB->query("SELECT * FROM `options`");
 while ($opt = $DBRESULT->fetchRow()) {

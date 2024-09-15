@@ -34,8 +34,8 @@
  *
  */
 
-require_once dirname(__FILE__) . '/abstract/host.class.php';
-require_once dirname(__FILE__) . '/abstract/service.class.php';
+require_once __DIR__ . '/abstract/host.class.php';
+require_once __DIR__ . '/abstract/service.class.php';
 
 /**
  * Class

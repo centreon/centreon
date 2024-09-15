@@ -32,7 +32,7 @@
  * For more information : contact@centreon.com
  */
 
-require_once realpath(dirname(__FILE__) . "/centreonDBInstance.class.php");
+require_once realpath(__DIR__ . "/centreonDBInstance.class.php");
 require_once _CENTREON_PATH_ . '/www/include/common/sqlCommonFunction.php';
 
 /**

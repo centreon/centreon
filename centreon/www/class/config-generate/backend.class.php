@@ -34,7 +34,7 @@
  */
 
 // file centreon.config.php may not exist in test environment
-$configFile = realpath(dirname(__FILE__) . "/../../../config/centreon.config.php");
+$configFile = realpath(__DIR__ . "/../../../config/centreon.config.php");
 if ($configFile !== false) {
     require_once $configFile;
 }

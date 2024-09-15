@@ -1044,7 +1044,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      */
     public function getElementJs($raw = true, $min = false)
     {
-        $js = dirname(__FILE__) . DIRECTORY_SEPARATOR;
+        $js = __DIR__ . DIRECTORY_SEPARATOR;
 
         if ($min) {
             $js .= 'qfamsHandler-min.js';

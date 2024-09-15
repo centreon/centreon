@@ -40,7 +40,7 @@ use App\Kernel;
 use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
 use Core\Domain\Engine\Model\EngineCommandGenerator;
 
-require_once realpath(dirname(__FILE__) . "/../../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
 require_once realpath(__DIR__ . "/../../../../../config/bootstrap.php");
 require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
 require_once _CENTREON_PATH_ . "www/include/configuration/configGenerate/DB-Func.php";

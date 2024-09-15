@@ -33,7 +33,7 @@
  *
  */
 $stateType = 'service';
-require_once realpath(dirname(__FILE__) . "/initXmlFeed.php");
+require_once realpath(__DIR__ . "/initXmlFeed.php");
 
 $color = array_filter($_GET['color'] ?? [], function ($oneColor) {
     return filter_var($oneColor, FILTER_VALIDATE_REGEXP, [

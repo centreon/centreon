@@ -35,7 +35,7 @@
 
 use CentreonLegacy\Core\Menu\Menu;
 
-require_once dirname(__FILE__) . "/webService.class.php";
+require_once __DIR__ . "/webService.class.php";
 
 /**
  * Class
