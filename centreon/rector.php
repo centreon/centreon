@@ -93,9 +93,9 @@ return RectorConfig::configure()
 //        SimplifyIfElseToTernaryRector::class, // OK 154 files / Changes if/else for same value as assign to ternary
 //        ShortenElseIfRector::class, // OK 47 files / Shortens else/if to elseif
 //        CompleteMissingIfElseBracketRector::class, // KO / Complete missing if/else brackets
-        TernaryFalseExpressionToIfRector::class, // OK 26 files /Change ternary with false to if and explicit call
-//        // -------------- coding style ----------
-//        ExplicitPublicClassMethodRector::class, // Add explicit public method visibility
+//        TernaryFalseExpressionToIfRector::class, // OK 26 files /Change ternary with false to if and explicit call
+//         -------------- coding style ----------
+        ExplicitPublicClassMethodRector::class, // OK 1 file / Add explicit public method visibility
 //        FuncCallToConstFetchRector::class, // Changes use of function calls to use constants
 //        RemoveFinalFromConstRector::class, // Remove final from constants in classes defined as final
 //        SplitGroupedPropertiesRector::class, // Separate grouped properties to own lines
