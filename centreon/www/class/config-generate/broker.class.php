@@ -539,7 +539,7 @@ class Broker extends AbstractObjectJSON
             if (strpos($config, '=') == false) {
                 continue;
             }
-            list($key, $value) = explode('=', $config);
+            [$key, $value] = explode('=', $config);
             switch ($key) {
                 case 'D':
                     $s_db = $value;

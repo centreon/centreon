@@ -317,7 +317,7 @@ class CentreonWidget
         }
 
         while ($position = $stmt->fetch()) {
-            list($col, $row) = explode('_', $position['widget_order']);
+            [$col, $row] = explode('_', $position['widget_order']);
             if (false == isset($matrix[$row])) {
                 $matrix[$row] = [];
             }

@@ -141,7 +141,7 @@ class Generate
                 . ' host_name=VALUES(host_name), service_description=VALUES(service_description) '
             );
 
-            foreach ($bindParams as $bindKey => list($bindValue, $bindType)) {
+            foreach ($bindParams as $bindKey => [$bindValue, $bindType]) {
                 $stmt->bindValue($bindKey, $bindValue, $bindType);
             }
 

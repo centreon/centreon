@@ -268,7 +268,7 @@ function multipleCentreonBrokerInDB($ids, $nbrDup)
             if (is_array($groups)) {
                 foreach ($groups as $gid => $infos) {
                     if (isset($infos['blockId'])) {
-                        list($tagId, $typeId) = explode('_', $infos['blockId']);
+                        [$tagId, $typeId] = explode('_', $infos['blockId']);
                         $fieldtype = $cbObj->getFieldtypes($typeId);
                     } else {
                         $fieldtype = [];

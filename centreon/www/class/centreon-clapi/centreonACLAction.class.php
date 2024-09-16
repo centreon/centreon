@@ -208,7 +208,7 @@ class CentreonACLAction extends CentreonObject
      */
     public function grant($parameters): void
     {
-        list($aclActionId, $action) = $this->splitParams($parameters);
+        [$aclActionId, $action] = $this->splitParams($parameters);
         if ($action == "*") {
             $actions = $this->availableActions;
         } else {
@@ -246,7 +246,7 @@ class CentreonACLAction extends CentreonObject
      */
     public function revoke($parameters): void
     {
-        list($aclActionId, $action) = $this->splitParams($parameters);
+        [$aclActionId, $action] = $this->splitParams($parameters);
         if ($action == "*") {
             $this->db->query(
                 "DELETE FROM acl_actions_rules WHERE acl_action_rule_id = ?",

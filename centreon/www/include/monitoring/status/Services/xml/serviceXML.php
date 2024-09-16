@@ -150,7 +150,7 @@ function analyseGraphs(array $hostServiceIds): void
     $index = 0;
     $valuesToBind = [];
     foreach ($hostServiceIds as $hostServiceId) {
-        list ($hostId, $serviceId) = explode('_', $hostServiceId);
+        [$hostId, $serviceId] = explode('_', $hostServiceId);
         if (! empty($whereConditions)) {
             $whereConditions .= ' OR ';
         }

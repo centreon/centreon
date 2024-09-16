@@ -862,7 +862,7 @@ class CentreonDependency extends CentreonObject
             $stmt->bindParam(':hostId', $hostIds[0], PDO::PARAM_INT);
             $stmt->execute();
         } elseif ($relType == 'child' && strstr($objectToInsert, ',')) { // service child
-            list($host, $service) = explode(",", $objectToInsert);
+            [$host, $service] = explode(",", $objectToInsert);
             $idTab = $this->serviceObj->getHostAndServiceId($host, $service);
             if (!count($idTab)) {
                 throw new CentreonClapiException(sprintf('Could not find service %s on host %s', $service, $host));
@@ -928,7 +928,7 @@ class CentreonDependency extends CentreonObject
             if (!strstr($objectToInsert, ',')) {
                 throw new CentreonClapiException('Invalid service definition');
             }
-            list($host, $service) = explode(",", $objectToInsert);
+            [$host, $service] = explode(",", $objectToInsert);
             $idTab = $this->serviceObj->getHostAndServiceId($host, $service);
             if (!count($idTab)) {
                 throw new CentreonClapiException(sprintf('Could not find service %s on host %s', $service, $host));
@@ -956,7 +956,7 @@ class CentreonDependency extends CentreonObject
             $stmt->bindParam(':svcId', $idTab[1], PDO::PARAM_INT);
             $stmt->execute();
         } elseif ($relType == 'child' && strstr($objectToInsert, ',')) { // service child
-            list($host, $service) = explode(",", $objectToInsert);
+            [$host, $service] = explode(",", $objectToInsert);
             $idTab = $this->serviceObj->getHostAndServiceId($host, $service);
             if (!count($idTab)) {
                 throw new CentreonClapiException(
@@ -1167,7 +1167,7 @@ class CentreonDependency extends CentreonObject
                 WHERE dependency_dep_id = ?
                 AND host_host_id = ?
                 AND service_service_id = ?";
-            list($host, $service) = explode(",", $objectToDelete);
+            [$host, $service] = explode(",", $objectToDelete);
             $idTab = $this->serviceObj->getHostAndServiceId($host, $service);
             if (!count($idTab)) {
                 throw new CentreonClapiException(sprintf('Could not find service %s on host %s', $service, $host));
@@ -1205,7 +1205,7 @@ class CentreonDependency extends CentreonObject
             if (!strstr($objectToDelete, ',')) {
                 throw new CentreonClapiException('Invalid service definition');
             }
-            list($host, $service) = explode(",", $objectToDelete);
+            [$host, $service] = explode(",", $objectToDelete);
             $idTab = $this->serviceObj->getHostAndServiceId($host, $service);
             if (!count($idTab)) {
                 throw new CentreonClapiException(sprintf('Could not find service %s on host %s', $service, $host));
@@ -1216,7 +1216,7 @@ class CentreonDependency extends CentreonObject
                 WHERE dependency_dep_id = ?
                 AND host_host_id = ?
                 AND service_service_id = ?";
-            list($host, $service) = explode(",", $objectToDelete);
+            [$host, $service] = explode(",", $objectToDelete);
             $idTab = $this->serviceObj->getHostAndServiceId($host, $service);
             if (!count($idTab)) {
                 throw new CentreonClapiException(sprintf('Could not find service %s on host %s', $service, $host));

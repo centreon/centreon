@@ -437,7 +437,7 @@ function getIndexIdFromHostServiceId(\CentreonDB $dbMonitoring, string $hostServ
 
     if (preg_match('/\d+\-\d+/', $hostServiceId)) {
         # Get index_id
-        list($hostId, $serviceId) = explode('-', $hostServiceId);
+        [$hostId, $serviceId] = explode('-', $hostServiceId);
 
         $prepare = $dbMonitoring->prepare(
             "SELECT id FROM index_data
@@ -535,7 +535,7 @@ function enableVirtualMetricInDB($vmetric_id = null)
         "UPDATE `virtual_metrics` SET `vmetric_activate` = '1' WHERE `vmetric_id` = :vmetric_id"
     );
     foreach ($v_ena as $v_id) {
-        list($rc, $output) = checkRRDGraphData($v_id);
+        [$rc, $output] = checkRRDGraphData($v_id);
         if ($rc) {
             $error = preg_replace('/^ERROR:\s*/', '', $output);
             throw new Exception("Wrong RPN syntax (RRDtool said: $error)");

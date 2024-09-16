@@ -104,7 +104,7 @@ function getPeriodToReport(?string $alternate = null): array
         $interval = getDateSelectPredefined($period);
     }
 
-    list($start_date, $end_date) = $interval;
+    [$start_date, $end_date] = $interval;
 
     return [$start_date, $end_date];
 }
@@ -231,7 +231,7 @@ function getDateSelectCustomized($start, $end)
     if (is_numeric($end)) {
         $end_time = $end;
     } elseif (isset($end) && $end != "") {
-        list($m, $d, $y) = preg_split('/\//', $end);
+        [$m, $d, $y] = preg_split('/\//', $end);
         $end = mktime(24, 0, 0, $m, $d, $y);
         if ($end < $end_time) {
             $end_time = $end;
@@ -242,7 +242,7 @@ function getDateSelectCustomized($start, $end)
         isset($start) &&
         $start != ""
     ) {
-        list($m, $d, $y) = preg_split('/\//', $start);
+        [$m, $d, $y] = preg_split('/\//', $start);
         $start_time = mktime(0, 0, 0, $m, $d, $y);
     } else {
         $start_time = $start;
@@ -302,7 +302,7 @@ function getTotalTimeFromInterval($start, $end, $reportTimePeriod)
 
 function myGetTimeTamps($dateSTR)
 {
-    list($m, $d, $y) = preg_split('/\//', $dateSTR);
+    [$m, $d, $y] = preg_split('/\//', $dateSTR);
     return (mktime(0, 0, 0, $m, $d, $y));
 }
 

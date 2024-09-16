@@ -49,7 +49,7 @@ function get_list($file)
     $packages = [];
     $fd = fopen($file, 'r');
     while ($line = fgets($fd)) {
-        list($name, $version, $status) = preg_split('/::/', trim($line));
+        [$name, $version, $status] = preg_split('/::/', trim($line));
         $package = ['name' => $name, 'version' => $version];
         if ($status) {
             $package['status'] = $status;

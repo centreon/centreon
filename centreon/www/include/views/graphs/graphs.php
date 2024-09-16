@@ -132,7 +132,7 @@ if (isset($svc_id) &&
             $graphId = $hostId . '-' . $serviceId;
             $graphTitle = $serviceObj->getMonitoringFullName($serviceId, $hostId);
         } elseif (preg_match('/^(.+);(.+)/', $svc, $matches)) {
-            list($hostname, $serviceDescription) = explode(";", $svc);
+            [$hostname, $serviceDescription] = explode(";", $svc);
             $hostId = getMyHostID($hostname);
             $serviceId = getMyServiceID($serviceDescription, $hostId);
             $graphId = $hostId . '-' . $serviceId;

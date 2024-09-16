@@ -132,7 +132,7 @@ if (isset($_POST['service_group_filter'])) {
     foreach ($_POST['service_group_filter'] as $sgId) {
         $services = getMyServiceGroupServices($sgId);
         foreach ($services as $hostSvcId => $svcName) {
-            list($hostId, $svcId) = explode('_', $hostSvcId);
+            [$hostId, $svcId] = explode('_', $hostSvcId);
             $servicesReturn[] = getGraphByService($hostId, $svcId, $svcName, $isAdmin, $lca);
         }
     }
@@ -141,7 +141,7 @@ if (isset($_POST['service_group_filter'])) {
 /* By service */
 if (isset($_POST['service_selector'])) {
     foreach ($_POST['service_selector'] as $selectedService) {
-        list($hostId, $svcId) = explode('-', $selectedService['id']);
+        [$hostId, $svcId] = explode('-', $selectedService['id']);
         $svcGraph = getGraphByService($hostId, $svcId, $selectedService['text'], $isAdmin, $lca);
         if ($svcGraph !== false) {
             $servicesReturn[] = $svcGraph;

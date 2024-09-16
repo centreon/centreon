@@ -142,7 +142,7 @@ class CentreonSettings extends CentreonObject
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
 
-        list($key, $value) = $params;
+        [$key, $value] = $params;
         if (!isset($this->authorizedOptions[$key])) {
             throw new CentreonClapiException(self::KEYNOTALLOWED);
         }

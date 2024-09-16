@@ -82,7 +82,7 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
             $userPref = $this->getUserPreferences($params);
             $svcTab = [];
             if (isset($userPref)) {
-                list($hostId, $serviceId) = explode('-', $userPref);
+                [$hostId, $serviceId] = explode('-', $userPref);
                 $svcTab = $this->getServiceIds($hostId);
             }
             $this->quickform->addElement(
@@ -186,7 +186,7 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
     {
         $userPref = $this->getUserPreferences($params);
         if (isset($userPref)) {
-            list($hostId, $serviceId) = explode('-', $userPref);
+            [$hostId, $serviceId] = explode('-', $userPref);
             $this->quickform->setDefaults(['param_trigger_' . $params['parameter_id'] => $hostId]);
             $this->quickform->setDefaults(['param_' . $params['parameter_id'] => $userPref]);
         }

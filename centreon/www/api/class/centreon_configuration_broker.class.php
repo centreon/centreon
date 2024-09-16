@@ -64,7 +64,7 @@ class CentreonConfigurationBroker extends CentreonConfigurationObjects
         $form = $cbObj->quickFormById($blockId, $page, $position, "new_" . rand(100, 1000));
 
         $helps = [];
-        list($tagId, $typeId) = explode('_', $blockId);
+        [$tagId, $typeId] = explode('_', $blockId);
         $typeName = $cbObj->getTypeName($typeId);
         $fields = $cbObj->getBlockInfos($typeId);
         $helps[] = ['name' => $tag . '[' . $position . '][name]', 'desc' => _('The name of block configuration')];

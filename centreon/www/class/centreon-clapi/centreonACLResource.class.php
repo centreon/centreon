@@ -322,7 +322,7 @@ class CentreonACLResource extends CentreonObject
      */
     protected function grant($type, $arg)
     {
-        list($aclResourceId, $resourceIds) = $this->splitParams($type, $arg);
+        [$aclResourceId, $resourceIds] = $this->splitParams($type, $arg);
 
         if (isset($this->resourceTypeObjectRelation)) {
             $results = $this->resourceTypeObjectRelation->getTargetIdFromSourceId(
@@ -355,7 +355,7 @@ class CentreonACLResource extends CentreonObject
      */
     protected function revoke($type, $arg)
     {
-        list($aclResourceId, $resourceIds) = $this->splitParams($type, $arg);
+        [$aclResourceId, $resourceIds] = $this->splitParams($type, $arg);
 
         if (isset($this->resourceTypeObjectRelation)) {
             foreach ($resourceIds as $resourceId) {

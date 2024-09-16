@@ -293,7 +293,7 @@ class CentreonCommand extends CentreonObject
             $this->db->query($sql, [$objectId]);
 
             foreach ($data as $description) {
-                list($arg, $desc) = explode(':', $description, 2);
+                [$arg, $desc] = explode(':', $description, 2);
                 $sql = "INSERT INTO command_arg_description (cmd_id, macro_name, macro_description) VALUES (?,?,?)";
                 $this->db->query($sql, [$objectId, $arg, $desc]);
             }

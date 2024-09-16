@@ -321,7 +321,7 @@ class CentreonConfigCentreonBroker
      */
     public function quickFormById($blockId, $page, $formId = 1, $config_id = 0)
     {
-        list($tagId, $typeId) = explode('_', $blockId);
+        [$tagId, $typeId] = explode('_', $blockId);
         $fields = $this->getBlockInfos($typeId);
         $tag = $this->getTagName($tagId);
         $this->nbSubGroup = 1;
@@ -1093,7 +1093,7 @@ class CentreonConfigCentreonBroker
         foreach (array_keys($formsInfos) as $key) {
             $qf = $this->quickFormById($formsInfos[$key]['blockId'], $page, $key, $config_id);
             //Replace loaded configuration with defaults external values
-            list($tagId, $typeId) = explode('_', $formsInfos[$key]['blockId']);
+            [$tagId, $typeId] = explode('_', $formsInfos[$key]['blockId']);
             $tag = $this->getTagName($tagId);
             $fields = $this->getBlockInfos($typeId);
 
@@ -1196,7 +1196,7 @@ class CentreonConfigCentreonBroker
         }
         $helps = [];
         while ($row = $res->fetchRow()) {
-            list($tagId, $typeId) = explode('_', $row['config_value']);
+            [$tagId, $typeId] = explode('_', $row['config_value']);
             $pos = $row['config_group_id'];
             $fields = $this->getBlockInfos((int) $typeId);
             $help = [];
@@ -1336,7 +1336,7 @@ class CentreonConfigCentreonBroker
             if (strpos($config, '=') == false) {
                 continue;
             }
-            list($key, $value) = explode('=', $config);
+            [$key, $value] = explode('=', $config);
             switch ($key) {
                 case 'D':
                     $s_db = $value;

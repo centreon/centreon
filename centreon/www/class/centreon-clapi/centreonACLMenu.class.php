@@ -344,7 +344,7 @@ class CentreonACLMenu extends CentreonObject
      */
     public function grantRw($parameters): void
     {
-        list($aclMenuId, $menus, $topologies, $processChildren) = $this->splitParams($parameters);
+        [$aclMenuId, $menus, $topologies, $processChildren] = $this->splitParams($parameters);
         foreach ($menus as $level => $menuId) {
             $this->db->query(
                 "DELETE FROM acl_topology_relations WHERE acl_topo_id = ? AND topology_topology_id = ?",
@@ -371,7 +371,7 @@ class CentreonACLMenu extends CentreonObject
      */
     public function grantRo($parameters): void
     {
-        list($aclMenuId, $menus, $topologies, $processChildren) = $this->splitParams($parameters);
+        [$aclMenuId, $menus, $topologies, $processChildren] = $this->splitParams($parameters);
         foreach ($menus as $level => $menuId) {
             $this->db->query(
                 "DELETE FROM acl_topology_relations WHERE acl_topo_id = ? AND topology_topology_id = ?",
@@ -398,7 +398,7 @@ class CentreonACLMenu extends CentreonObject
      */
     public function revoke($parameters): void
     {
-        list($aclMenuId, $menus, $topologies, $processChildren) = $this->splitParams($parameters);
+        [$aclMenuId, $menus, $topologies, $processChildren] = $this->splitParams($parameters);
         foreach ($menus as $level => $menuId) {
             if ($processChildren && !isset($menus[$level + 1])) {
                 $this->db->query(

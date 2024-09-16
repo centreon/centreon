@@ -141,7 +141,7 @@ class CentreonRtDowntime extends CentreonObject
     private function parseParameters($parameters)
     {
         // Make safe the inputs
-        list($type, $resource, $start, $end, $fixed, $duration, $comment, $withServices) = explode(';', $parameters);
+        [$type, $resource, $start, $end, $fixed, $duration, $comment, $withServices] = explode(';', $parameters);
 
         // Check if object type is supported
         if (!in_array(strtoupper($type), $this->downtimeType)) {

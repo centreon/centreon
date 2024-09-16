@@ -250,7 +250,7 @@ function insertComponentTemplate()
         $formValues['ds_color_area'] = $formValues['ds_color_line'];
     }
 
-    list($formValues['host_id'], $formValues['service_id']) = parseHostIdPostParameter($formValues['host_id']);
+    [$formValues['host_id'], $formValues['service_id']] = parseHostIdPostParameter($formValues['host_id']);
 
     $bindParams = sanitizeFormComponentTemplatesParameters($formValues);
 
@@ -264,7 +264,7 @@ function insertComponentTemplate()
 
     $query .= 'VALUES (NULL, ' . implode(', ', array_keys($bindParams)) . ')';
     $stmt = $pearDB->prepare($query);
-    foreach ($bindParams as $token => list($paramType, $value)) {
+    foreach ($bindParams as $token => [$paramType, $value]) {
         $stmt->bindValue($token, $value, $paramType);
     }
     $stmt->execute();
@@ -314,7 +314,7 @@ function updateComponentTemplate($compoId = null)
         $formValues['ds_color_area'] = $formValues['ds_color_line'];
     }
 
-    list($formValues['host_id'], $formValues['service_id']) = parseHostIdPostParameter($formValues['host_service_id']);
+    [$formValues['host_id'], $formValues['service_id']] = parseHostIdPostParameter($formValues['host_service_id']);
 
     // Sets the default values if they have not been sent (used to deselect the checkboxes)
     $checkBoxValueToSet = [
@@ -345,7 +345,7 @@ function updateComponentTemplate($compoId = null)
     $query .= ' WHERE compo_id = :compo_id';
 
     $stmt = $pearDB->prepare($query);
-    foreach ($bindParams as $token => list($paramType, $value)) {
+    foreach ($bindParams as $token => [$paramType, $value]) {
             $stmt->bindValue($token, $value, $paramType);
     }
     $stmt->bindValue(':compo_id', $compoId, \PDO::PARAM_INT);

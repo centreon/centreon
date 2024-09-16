@@ -43,7 +43,7 @@ if (!defined('SMARTY_DIR')) {
  */
 function microtime_float(): bool
 {
-    list($usec, $sec) = explode(" ", microtime());
+    [$usec, $sec] = explode(" ", microtime());
     return ((float)$usec + (float)$sec);
 }
 

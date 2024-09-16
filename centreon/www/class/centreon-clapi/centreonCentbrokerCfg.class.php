@@ -631,7 +631,7 @@ class CentreonCentbrokerCfg extends CentreonObject
             return false;
         }
 
-        list($tagId, $typeId) = explode('_', $row['config_value']);
+        [$tagId, $typeId] = explode('_', $row['config_value']);
         $sql = "SELECT fieldtype, cf.cb_field_id, ct.cb_module_id
         		FROM cb_type_field_relation ctfr, cb_field cf, cb_type ct
         		WHERE ctfr.cb_field_id = cf.cb_field_id
@@ -816,7 +816,7 @@ class CentreonCentbrokerCfg extends CentreonObject
             }
             foreach ($addParamStr as $id => $add) {
                 if (isset($blockId[$id]) && isset($setParamStr[$id])) {
-                    list($tag, $type) = explode('_', $blockId[$id]);
+                    [$tag, $type] = explode('_', $blockId[$id]);
                     $resType = $this->db->query(
                         "SELECT type_shortname FROM cb_type WHERE cb_type_id = ?",
                         [$type]
@@ -829,7 +829,7 @@ class CentreonCentbrokerCfg extends CentreonObject
                     unset($resType);
                 }
                 if (isset($categories[$id])) {
-                    list($configGroup, $configGroupId) = explode('_', $id);
+                    [$configGroup, $configGroupId] = explode('_', $id);
                     echo $this->action . $this->delim . "SET" . strtoupper($configGroup)
                         . $this->delim . $element['config_name']
                         . $this->delim . $configGroupId

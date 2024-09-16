@@ -307,7 +307,7 @@ class Host extends AbstractHost
                 $stack = [[$hostIdTopLevel, 1]];
                 $loop = [];
                 $currentLevelCatch = null;
-                while ((list($hostId, $level) = array_shift($stack))) {
+                while (([$hostId, $level] = array_shift($stack))) {
                     if (!is_null($currentLevelCatch) && $currentLevelCatch >= $level) {
                         break;
                     }

@@ -298,7 +298,7 @@ class CentreonMetric extends CentreonWebService
 
         if (isset($this->arguments['type']) && $this->arguments['type'] === 'ng') {
             foreach ($ids as $id) {
-                list($hostId, $serviceId, $metricId) = explode('_', $id);
+                [$hostId, $serviceId, $metricId] = explode('_', $id);
                 $hostId = (int)$hostId;
                 $serviceId = (int)$serviceId;
                 $metricId = (int)$metricId;
@@ -307,7 +307,7 @@ class CentreonMetric extends CentreonWebService
             }
         } else {
             foreach ($ids as $id) {
-                list($hostId, $serviceId, $metricId) = explode('_', $id);
+                [$hostId, $serviceId, $metricId] = explode('_', $id);
                 $hostId = (int)$hostId;
                 $serviceId = (int)$serviceId;
                 $metricId = (int)$metricId;
@@ -389,7 +389,7 @@ class CentreonMetric extends CentreonWebService
         $selectedMetrics = [];
         if (is_string($services) && strlen($services) > 0) {
             foreach (explode(',', $services) as $service) {
-                list($hostId, $serviceId) = explode('_', $service);
+                [$hostId, $serviceId] = explode('_', $service);
                 if (!is_numeric($hostId) || !is_numeric($serviceId)) {
                     continue;
                 }
@@ -480,7 +480,7 @@ class CentreonMetric extends CentreonWebService
 
         if (is_string($services) && strlen($services) > 0) {
             foreach (explode(',', $services) as $service) {
-                list($hostId, $serviceId) = explode('_', $service);
+                [$hostId, $serviceId] = explode('_', $service);
                 if (!is_numeric($hostId) || !is_numeric($serviceId)) {
                     continue;
                 }
@@ -572,7 +572,7 @@ class CentreonMetric extends CentreonWebService
             $graph = new CentreonGraphNg($centreon->user->user_id);
             $graph->setMultipleServices($multipleServices);
             foreach ($selectedMetrics as $service => $metrics) {
-                list($hostId, $serviceId) = explode('_', $service);
+                [$hostId, $serviceId] = explode('_', $service);
                 if (count(array_keys($metrics)) <= 0) {
                     $graph->addServiceMetrics($hostId, $serviceId);
                 } else {
@@ -589,7 +589,7 @@ class CentreonMetric extends CentreonWebService
             /* Get extra information (downtime/acknowledgment) */
             $result['acknowledge'] = [];
             $result['downtime'] = [];
-            list($hostId, $serviceId) = explode('_', array_key_first($selectedMetrics));
+            [$hostId, $serviceId] = explode('_', array_key_first($selectedMetrics));
             $result['acknowledge'] = $this->getAcknowledgements(
                 (int)$hostId,
                 (int)$serviceId,
@@ -661,7 +661,7 @@ class CentreonMetric extends CentreonWebService
         $result = [];
 
         foreach ($ids as $id) {
-            list($hostId, $serviceId) = explode('_', $id);
+            [$hostId, $serviceId] = explode('_', $id);
             if (
                 !is_numeric($hostId) ||
                 !is_numeric($serviceId)
@@ -771,7 +771,7 @@ class CentreonMetric extends CentreonWebService
         $start = $this->arguments['start'];
         $end = $this->arguments['end'];
 
-        list($hostId, $serviceId) = explode('_', $id);
+        [$hostId, $serviceId] = explode('_', $id);
         if (
             !is_numeric($hostId) ||
             !is_numeric($serviceId)
@@ -879,7 +879,7 @@ class CentreonMetric extends CentreonWebService
             throw new RestBadRequestException("The rows must be greater as 10");
         }
 
-        list($hostId, $serviceId) = explode('_', $id);
+        [$hostId, $serviceId] = explode('_', $id);
         if (
             !is_numeric($hostId) ||
             !is_numeric($serviceId)

@@ -185,7 +185,7 @@ class RequestTracker2Provider extends AbstractProvider
     protected function assignRtQueue($entry, &$groups_order, &$groups)
     {
         // no filter $entry['Filter']. preg_match used
-        list($code, $items) = $this->listQueueRt();
+        [$code, $items] = $this->listQueueRt();
 
         $groups[$entry['Id']] = ['label' => _($entry['Label']) . (
             isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
@@ -224,7 +224,7 @@ class RequestTracker2Provider extends AbstractProvider
     protected function assignRtCustomField($entry, &$groups_order, &$groups)
     {
         // $entry['Filter']: to get the custom list
-        list($code, $items) = $this->listCustomFieldRt($entry['Filter']);
+        [$code, $items] = $this->listCustomFieldRt($entry['Filter']);
 
         $groups[$entry['Id']] = ['label' => _($entry['Label']) . (
             isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''

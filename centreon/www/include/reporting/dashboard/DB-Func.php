@@ -471,7 +471,7 @@ function getServicesLogs(array $services, $startDate, $endDate, $reportTimePerio
     $statement = $pearDBO->prepare($rq);
 
     foreach ($bindValues as $bindName => $bindParams) {
-        list($bindType, $bindValue) = $bindParams;
+        [$bindType, $bindValue] = $bindParams;
         $statement->bindValue($bindName, $bindValue, $bindType);
     }
 

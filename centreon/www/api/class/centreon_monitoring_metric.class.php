@@ -133,7 +133,7 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
 
         $stmt = $this->pearDBMonitoring->prepare($query);
         foreach ($queryValues as $name => $parameters) {
-            list($value, $type) = $parameters;
+            [$value, $type] = $parameters;
             $stmt->bindValue($name, $value, $type);
         }
         $stmt->execute();
@@ -205,7 +205,7 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
         $result = [];
 
         foreach ($ids as $id) {
-            list($hostId, $serviceId) = explode('_', $id);
+            [$hostId, $serviceId] = explode('_', $id);
             if (false === is_numeric($hostId) || false === is_numeric($serviceId)) {
                 throw new RestBadRequestException("Bad parameters");
             }

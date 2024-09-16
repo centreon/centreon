@@ -52,7 +52,7 @@ if (!isset($_GET['service'])) {
     exit;
 }
 
-list($hostId, $serviceId) = explode('-', $_GET['service']);
+[$hostId, $serviceId] = explode('-', $_GET['service']);
 
 $db = $dependencyInjector['realtime_db'];
 $query = <<<'SQL'

@@ -115,7 +115,7 @@ class CentreonRtAcknowledgement extends CentreonObject
     private function parseParameters($parameters)
     {
         // Make safe the inputs
-        list($type, $resource, $comment, $sticky, $notify, $persistent) = explode(';', $parameters);
+        [$type, $resource, $comment, $sticky, $notify, $persistent] = explode(';', $parameters);
 
         // Check if object type is supported
         if (!in_array(strtoupper($type), $this->acknowledgementType)) {
@@ -471,7 +471,7 @@ class CentreonRtAcknowledgement extends CentreonObject
         $unknownAcknowledgement = [];
 
         foreach ($listAcknowledgement as $acknowledgement) {
-            list($hostName, $serviceName) = explode(',', $acknowledgement);
+            [$hostName, $serviceName] = explode(',', $acknowledgement);
 
             if ($serviceName) {
                 $serviceId = $this->serviceObject->getObjectId($hostName . ";" . $serviceName);

@@ -242,8 +242,8 @@ function isInCompatibleMode(\PDO $db)
 {
     $statement = $db->query("SELECT VERSION() AS version");
     $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
-    list($version, $dbType) = explode('-', $result[0]['version']);
-    list($majorVersion, $minorVersion, $revision) = explode('.', $version);
+    [$version, $dbType] = explode('-', $result[0]['version']);
+    [$majorVersion, $minorVersion, $revision] = explode('.', $version);
     if ($dbType === 'MariaDB' && $majorVersion >= 10) {
         return false;
     } elseif ($dbType === 'standard' && $majorVersion >= 5 && $minorVersion >= 6) {
@@ -287,7 +287,7 @@ try {
     if ($argc > 1) {
         foreach ($argv as $parameter) {
             if (substr($parameter, 0, 11) === '--password=') {
-                list(, $dbPassword) = explode('=', $parameter);
+                [, $dbPassword] = explode('=', $parameter);
             } elseif ($parameter === '--no-keep') {
                 $shouldDeleteOldData = true;
             } elseif ($parameter === '--keep') {
@@ -295,11 +295,11 @@ try {
             } elseif (substr($parameter, 0, 10) === '--continue') {
                 $firstRecoveryPartitionName = '';
                 if (strpos($parameter, '=', 0) !== false) {
-                    list(, $firstRecoveryPartitionName) = explode('=', $parameter);
+                    [, $firstRecoveryPartitionName] = explode('=', $parameter);
                 }
                 $isMigrationRecovery = true;
             } elseif (substr($parameter, 0, 17) === '--temporary-path=') {
-                list(, $temporaryPath) = explode('=', $parameter);
+                [, $temporaryPath] = explode('=', $parameter);
             }
         }
     }

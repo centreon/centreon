@@ -297,7 +297,7 @@ class CentreonService
 
             if ($filteredSvcIds !== []) {
                 foreach ($filteredSvcIds as $hostAndServiceId) {
-                    list($hostId, $serviceId) = explode("_", $hostAndServiceId);
+                    [$hostId, $serviceId] = explode("_", $hostAndServiceId);
                     $where .= empty($where) ? " ( " : " OR ";
                     $where .= " (h.host_id = $hostId AND s.service_id = $serviceId) ";
                 }
