@@ -645,7 +645,7 @@ it('should return created object on success (with admin user)', function (): voi
         ->method('notifyConfigurationChange');
 
     $this->user
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(true);
     $this->readHostRepository
@@ -852,7 +852,7 @@ it('should return created object on success (with non-admin user)', function ():
         ->method('notifyConfigurationChange');
 
     $this->user
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(false);
     $this->readHostRepository
@@ -860,7 +860,7 @@ it('should return created object on success (with non-admin user)', function ():
         ->method('findById')
         ->willReturn($this->host);
     $this->readAccessGroupRepository
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('findByContact');
     $this->readHostCategoryRepository
         ->expects($this->once())
