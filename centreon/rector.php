@@ -18,6 +18,7 @@ use Rector\CodingStyle\Rector\Assign\SplitDoubleAssignRector;
 use Rector\CodingStyle\Rector\ClassConst\RemoveFinalFromConstRector;
 use Rector\CodingStyle\Rector\ClassConst\SplitGroupedClassConstantsRector;
 use Rector\CodingStyle\Rector\ClassMethod\MakeInheritedMethodVisibilitySameAsParentRector;
+use Rector\CodingStyle\Rector\FuncCall\ConsistentImplodeRector;
 use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
 use Rector\CodingStyle\Rector\If_\NullableCompareToNullRector;
 use Rector\CodingStyle\Rector\Property\SplitGroupedPropertiesRector;
@@ -27,6 +28,7 @@ use Rector\DeadCode\Rector\ClassMethod\RemoveNullTagValueNodeRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUselessParamTagRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUselessReturnTagRector;
 use Rector\DeadCode\Rector\Property\RemoveUselessVarTagRector;
+use Rector\DeadCode\Rector\StaticCall\RemoveParentCallWithoutParentRector;
 use Rector\EarlyReturn\Rector\If_\ChangeAndIfToEarlyReturnRector;
 use Rector\EarlyReturn\Rector\If_\ChangeOrIfContinueToMultiContinueRector;
 use Rector\EarlyReturn\Rector\If_\RemoveAlwaysElseRector;
@@ -201,11 +203,11 @@ return RectorConfig::configure()
 //                RealToFloatTypeCastRector::class, // KO 0 files / Change deprecated (real) to (float) (7.4)
 //                ExportToReflectionFunctionRector::class, // KO 0 files / Change export() to ReflectionFunction alternatives (7.4)
 //                RestoreDefaultNullToNullableTypePropertyRector::class, // KO 26 files / Add null default to properties with PHP 7.4 property nullable type(7.4)
-                NullCoalescingOperatorRector::class, // OK 17 files / Use null coalescing operator ??= (7.4)
-//                ParenthesizeNestedTernaryRector::class, // Add parentheses to nested ternary (7.4)
-//                CurlyToSquareBracketArrayStringRector::class, // Change curly based array and string to square bracket (7.4)
-        //        ConsistentImplodeRector::class, // Changes various implode forms to consistent one (8.0)
-        //        RemoveParentCallWithoutParentRector::class, // Remove unused parent call with no parent class (8.0)
+//                NullCoalescingOperatorRector::class, // OK 17 files / Use null coalescing operator ??= (7.4)
+//                ParenthesizeNestedTernaryRector::class, // KO 0 files / Add parentheses to nested ternary (7.4)
+//                CurlyToSquareBracketArrayStringRector::class, // KO 0 files / Change curly based array and string to square bracket (7.4)
+                ConsistentImplodeRector::class, // Changes various implode forms to consistent one (8.0)
+//                RemoveParentCallWithoutParentRector::class, // Remove unused parent call with no parent class (8.0)
         //        ClassOnObjectRector::class, // Change get_class($object) to faster $object::class (8.0)
         //        ClassOnThisVariableObjectRector::class, // Change $this::class to static::class or self::class depends on class modifier (8.0)
         //        StrEndsWithRector::class, // Change helper functions to str_ends_with() (8.0)
