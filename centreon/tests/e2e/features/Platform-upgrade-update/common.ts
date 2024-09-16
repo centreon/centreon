@@ -122,7 +122,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
     }
 
     const distribPrefix = Number(versionMatches[1]) >= 24 ? '~' : '-';
-    const packageVersionSuffix = `${version}${distribPrefix}${Cypress.env('WEB_IMAGE_OS')}`;
+    const packageVersionSuffix = `${version}-1${distribPrefix}${Cypress.env('WEB_IMAGE_OS')}`;
 
     cy.execInContainer({
       command: [
@@ -249,14 +249,14 @@ const updatePlatformPackages = (): Cypress.Chainable => {
           installCommands = [
             `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
             `dnf module install -y php:remi-8.2`,
-            `dnf module reset php`,
+            `dnf module reset -y php`,
             `dnf install -y ${containerPackageDirectory}/*.rpm`
           ];
           break;
         case 'alma9':
           installCommands = [
             `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
-            `dnf module reset php`,
+            `dnf module -y reset php`,
             `dnf module enable -y php:8.2`,
             `dnf install -y ${containerPackageDirectory}/*.rpm`
           ];
