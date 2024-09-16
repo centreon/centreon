@@ -1,7 +1,7 @@
 import { FormikValues, useFormikContext } from 'formik';
 import FileDropZone, { transformFileListToArray } from '../../FileDropZone';
 import { InputPropsWithoutGroup } from './models';
-import { isEmpty, path, split } from 'ramda';
+import { isEmpty, isNil, path, split } from 'ramda';
 import { useMemo } from 'react';
 import { PostAdd } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
@@ -12,46 +12,6 @@ interface FileContentProps {
   files: FileList | null;
   label?: string;
 }
-
-const FileContent = ({ files, label }: FileContentProps): JSX.Element => {
-  const { t } = useTranslation();
-
-  const fileList = transformFileListToArray(files);
-
-  const title = label
-    ? `${t(label)} (${t(labelDropOrSelectAFile)})`
-    : t(labelDropOrSelectAFile);
-
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        gap: 1,
-        alignItems: 'center',
-        justifySelf: 'flex-start'
-      }}
-    >
-      <PostAdd color="primary" />
-      {isEmpty(fileList) ? (
-        <Typography>{title}</Typography>
-      ) : (
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 0.5,
-            alignItems: 'center'
-          }}
-        >
-          {fileList.map((file) => (
-            <Typography key={file.name}>{file.name}</Typography>
-          ))}
-        </Box>
-      )}
-    </Box>
-  );
-};
 
 const File = ({
   fieldName,
@@ -94,7 +54,6 @@ const File = ({
         files={files || null}
         changeFiles={changeFiles}
         resetFilesStatusAndUploadData={() => undefined}
-        CustomDropZoneContent={FileContent}
         label={label}
       />
     </Box>
