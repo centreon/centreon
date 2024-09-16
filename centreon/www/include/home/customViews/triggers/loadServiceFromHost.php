@@ -95,9 +95,7 @@ try {
         }
     }
     $xml->endElement();
-} catch (CentreonCustomViewException $e) {
-    $xml->writeElement('error', $e->getMessage());
-} catch (CentreonWidgetException $e) {
+} catch (CentreonCustomViewException|CentreonWidgetException $e) {
     $xml->writeElement('error', $e->getMessage());
 }
 $xml->endElement();

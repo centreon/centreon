@@ -330,9 +330,7 @@ try {
             throw new CentreonCustomViewException('Unsupported action provided.');
     }
     $xml->writeElement('custom_view_id', $postInputs['custom_view_id']);
-} catch (CentreonCustomViewException $e) {
-    $xml->writeElement('error', $e->getMessage());
-} catch (CentreonWidgetException $e) {
+} catch (CentreonCustomViewException|CentreonWidgetException $e) {
     $xml->writeElement('error', $e->getMessage());
 }
 $xml->endElement();

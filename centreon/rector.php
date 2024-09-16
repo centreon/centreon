@@ -50,8 +50,10 @@ use Rector\Php70\Rector\MethodCall\ThisCallOnStaticMethodToStaticCallRector;
 use Rector\Php70\Rector\StaticCall\StaticCallOnNonStaticToInstanceCallRector;
 use Rector\Php70\Rector\StmtsAwareInterface\IfIssetToCoalescingRector;
 use Rector\Php70\Rector\Ternary\TernaryToNullCoalescingRector;
+use Rector\Php71\Rector\Assign\AssignArrayToStringRector;
 use Rector\Php71\Rector\BinaryOp\BinaryOpBetweenNumberAndStringRector;
 use Rector\Php71\Rector\FuncCall\RemoveExtraParametersRector;
+use Rector\Php71\Rector\TryCatch\MultiExceptionCatchRector;
 use Rector\Php73\Rector\ConstFetch\SensitiveConstantNameRector;
 use Rector\Php73\Rector\String_\SensitiveHereNowDocRector;
 use Rector\Php80\Rector\Catch_\RemoveUnusedVariableInCatchRector;
@@ -151,9 +153,9 @@ return RectorConfig::configure()
 //                IfIssetToCoalescingRector::class, // OK 23 files / Change if with isset and return to coalesce (7.0)
 //                TernaryToNullCoalescingRector::class, // OK 120 files / Changes unneeded null check to ?? operator (7.0)
 //                Php4ConstructorRector::class, // KO 0 files /  Changes PHP 4 style constructor to __construct (7.0)
-                RemoveExtraParametersRector::class, // OK 48 files / Remove extra parameters (7.1)
-        //        AssignArrayToStringRector::class, // String cannot be turned into array by assignment anymore (7.1)
-        //        MultiExceptionCatchRector::class, // Changes multi catch of same exception to single one | separated. (7.1)
+//                RemoveExtraParametersRector::class, // OK 48 files / Remove extra parameters (7.1)
+//                AssignArrayToStringRector::class, // KO 0 files / String cannot be turned into array by assignment anymore (7.1)
+                MultiExceptionCatchRector::class, // OK 4 files / Changes multi catch of same exception to single one | separated. (7.1)
         //        IsIterableRector::class, // Changes is_array + Traversable check to is_iterable (7.1)
         //        ListToArrayDestructRector::class, // Change list() to array destruct (7.1)
         //        WhileEachToForeachRector::class, // each() function is deprecated, use foreach() instead. (7.2)

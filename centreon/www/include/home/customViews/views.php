@@ -109,10 +109,6 @@ try {
         returnSvg("www/img/icons/question_2.svg", "var(--help-tool-tip-icon-fill-color)", 18, 18)
     );
     $template->display($columnClass . ".ihtml");
-} catch (CentreonWidgetException $e) {
-    echo $e->getMessage() . "<br/>";
-} catch (CentreonCustomViewException $e) {
-    echo $e->getMessage() . "<br/>";
-} catch (Exception $e) {
+} catch (CentreonWidgetException|CentreonCustomViewException|Exception $e) {
     echo $e->getMessage() . "<br/>";
 }

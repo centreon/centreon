@@ -799,9 +799,7 @@ class CentreonAPI
                 }
                 try {
                     $this->launchActionForImport();
-                } catch (CentreonClapiException $e) {
-                    echo "Line $i : " . $e->getMessage() . "\n";
-                } catch (\Exception $e) {
+                } catch (CentreonClapiException|\Exception $e) {
                     echo "Line $i : " . $e->getMessage() . "\n";
                 }
                 if ($this->return_code) {
