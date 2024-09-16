@@ -433,7 +433,7 @@ class CentreonLog
     private function getExceptionInfos(Throwable $exception): array
     {
         $exceptionInfos = [
-            'exception_type' => get_class($exception),
+            'exception_type' => $exception::class,
             'file' => $exception->getFile(),
             'line' => $exception->getLine(),
             'code' => $exception->getCode(),

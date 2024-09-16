@@ -82,6 +82,7 @@ use Rector\Php74\Rector\Property\RestoreDefaultNullToNullableTypePropertyRector;
 use Rector\Php74\Rector\StaticCall\ExportToReflectionFunctionRector;
 use Rector\Php74\Rector\Ternary\ParenthesizeNestedTernaryRector;
 use Rector\Php80\Rector\Catch_\RemoveUnusedVariableInCatchRector;
+use Rector\Php80\Rector\FuncCall\ClassOnObjectRector;
 use Rector\Php80\Rector\FunctionLike\MixedTypeRector;
 use Rector\Php80\Rector\Property\NestedAnnotationToAttributeRector;
 use Rector\Php81\Rector\Property\ReadOnlyPropertyRector;
@@ -206,9 +207,9 @@ return RectorConfig::configure()
 //                NullCoalescingOperatorRector::class, // OK 17 files / Use null coalescing operator ??= (7.4)
 //                ParenthesizeNestedTernaryRector::class, // KO 0 files / Add parentheses to nested ternary (7.4)
 //                CurlyToSquareBracketArrayStringRector::class, // KO 0 files / Change curly based array and string to square bracket (7.4)
-                ConsistentImplodeRector::class, // Changes various implode forms to consistent one (8.0)
-//                RemoveParentCallWithoutParentRector::class, // Remove unused parent call with no parent class (8.0)
-        //        ClassOnObjectRector::class, // Change get_class($object) to faster $object::class (8.0)
+//                ConsistentImplodeRector::class, // OK 1 file Changes various implode forms to consistent one (8.0)
+//                RemoveParentCallWithoutParentRector::class, // KO 1 file but not correct / Remove unused parent call with no parent class (8.0)
+                ClassOnObjectRector::class, // Change get_class($object) to faster $object::class (8.0)
         //        ClassOnThisVariableObjectRector::class, // Change $this::class to static::class or self::class depends on class modifier (8.0)
         //        StrEndsWithRector::class, // Change helper functions to str_ends_with() (8.0)
         //        StrStartsWithRector::class, // Change helper functions to str_starts_with() (8.0)

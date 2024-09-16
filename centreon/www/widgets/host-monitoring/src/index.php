@@ -505,7 +505,7 @@ try {
         [
             'file' => $e->getFile(),
             'line' => $e->getLine(),
-            'exception_type' => get_class($e),
+            'exception_type' => $e::class,
             'exception_message' => $e->getMessage()
         ]
     );
