@@ -40,6 +40,7 @@ Feature: Configuring status grid widget
     When the dashboard administrator user updates the maximum number of displayed tiles in the configuration properties
     Then the Status Grid widget displays up to that number of tiles
 
+
   @TEST_MON-24944
   Scenario: Duplicating a Status Grid widget
     Given a dashboard having a configured Status Grid widget
