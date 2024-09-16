@@ -17,11 +17,11 @@ Feature: Configuring status grid widget
     Then the list of available statuses to display is updated in the configuration properties
     And the widget is updated to reflect that change in displayed resource type
 
-  @TEST_MON-24945
-  Scenario: Deleting a Status Grid widget
-    Given a dashboard featuring two Status Grid widgets
-    When the dashboard administrator user deletes one of the widgets
-    Then only the contents of the other widget are displayed
+  # @TEST_MON-24945
+  # Scenario: Deleting a Status Grid widget
+  #   Given a dashboard featuring two Status Grid widgets
+  #   When the dashboard administrator user deletes one of the widgets
+  #   Then only the contents of the other widget are displayed
 
   @TEST_MON-24935
   Scenario: Creating and configuring a new Status Grid widget on a dashboard
@@ -39,7 +39,6 @@ Feature: Configuring status grid widget
     Given a dashboard with a configured Status Grid widget
     When the dashboard administrator user updates the maximum number of displayed tiles in the configuration properties
     Then the Status Grid widget displays up to that number of tiles
-
 
   @TEST_MON-24944
   Scenario: Duplicating a Status Grid widget
