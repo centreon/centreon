@@ -39,11 +39,10 @@ sub new {
     $connector = $class->SUPER::new(%options);
     bless $connector, $class;
 
-    $connector->{pool_id} = $options{pool_id};
-    $connector->{clients} = {};
+    $connector->{pool_id}           = $options{pool_id};
+    $connector->{clients}           = {};
     $connector->{internal_channels} = {};
-    $connector->{watchers} = {};
-
+    $connector->{watchers}          = {};
 
     $connector->set_signal_handlers();
     return $connector;
@@ -52,21 +51,21 @@ sub new {
 sub set_signal_handlers {
     my $self = shift;
 
-    $SIG{TERM} = \&class_handle_TERM;
+    $SIG{TERM}               = \&class_handle_TERM;
     $handlers{TERM}->{$self} = sub { $self->handle_TERM() };
-    $SIG{HUP} = \&class_handle_HUP;
-    $handlers{HUP}->{$self} = sub { $self->handle_HUP() };
+    $SIG{HUP}                = \&class_handle_HUP;
+    $handlers{HUP}->{$self}  = sub { $self->handle_HUP() };
 }
 
 sub handle_HUP {
-    my $self = shift;
+    my $self        = shift;
     $self->{reload} = 0;
 }
 
 sub handle_TERM {
     my $self = shift;
     $self->{logger}->writeLogInfo("[proxy] $$ Receiving order to stop...");
-    $self->{stop} = 1;
+    $self->{stop}      = 1;
     $self->{stop_time} = time();
 }
 
@@ -116,22 +115,22 @@ sub read_message_client {
         $connector->{clients}->{ $client_identity }->{com_read_internal} = 1;
         $connector->send_internal_action({
             action => 'PONG',
-            data => $data,
-            token => $token,
+            data   => $data,
+            token  => $token,
             target => ''
         });
     } elsif ($options{data} =~ /^\[(?:REGISTERNODES|UNREGISTERNODES|SYNCLOGS)\]/) {
         if ($options{data} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)/ms) {
             return undef;
         }
-        my ($action, $token, $data)  = ($1, $2, $3);
+        my ($action, $token, $data) = ($1, $2, $3);
 
         $connector->send_internal_action({
-            action => $action,
-            data => $data,
+            action        => $action,
+            data          => $data,
             data_noencode => 1,
-            token => $token,
-            target => ''
+            token         => $token,
+            target        => ''
         });
     } elsif ($options{data} =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)/ms) {
         my ($code, $data) = $connector->json_decode(argument => $2);
@@ -142,8 +141,8 @@ sub read_message_client {
         if (defined($data->{data}->{action}) && $data->{data}->{action} eq 'getlog') {
             $connector->send_internal_action({
                 action => 'SETLOGS',
-                data => $data,
-                token => $1,
+                data   => $data,
+                token  => $1,
                 target => ''
             });
         }
@@ -155,39 +154,41 @@ sub connect {
 
     if ($self->{clients}->{$options{id}}->{type} eq 'push_zmq') {
         $self->{clients}->{$options{id}}->{class} = gorgone::class::clientzmq->new(
-            context => $self->{zmq_context},
-            core_loop => $self->{loop},
-            identity => 'gorgone-proxy-' . $self->{core_id} . '-' . $options{id}, 
-            cipher => $self->{clients}->{ $options{id} }->{cipher}, 
-            vector => $self->{clients}->{ $options{id} }->{vector},
-            client_pubkey => 
-                defined($self->{clients}->{ $options{id} }->{client_pubkey}) && $self->{clients}->{ $options{id} }->{client_pubkey} ne ''
-                    ? $self->{clients}->{ $options{id} }->{client_pubkey} : $self->get_core_config(name => 'pubkey'),
-            client_privkey =>
-                defined($self->{clients}->{ $options{id} }->{client_privkey}) && $self->{clients}->{ $options{id} }->{client_privkey} ne ''
-                    ? $self->{clients}->{ $options{id} }->{client_privkey} : $self->get_core_config(name => 'privkey'),
-            target_type => defined($self->{clients}->{ $options{id} }->{target_type}) ?
-                $self->{clients}->{ $options{id} }->{target_type} :
-                'tcp',
-            target_path => defined($self->{clients}->{ $options{id} }->{target_path}) ?
-                $self->{clients}->{ $options{id} }->{target_path} :
-                $self->{clients}->{ $options{id} }->{address} . ':' . $self->{clients}->{ $options{id} }->{port},
-            config_core =>  $self->get_core_config(),
-            logger => $self->{logger}
+            context        => $self->{zmq_context},
+            core_loop      => $self->{loop},
+            identity       => 'gorgone-proxy-' . $self->{core_id} . '-' . $options{id},
+            cipher         => $self->{clients}->{ $options{id} }->{cipher},
+            vector         => $self->{clients}->{ $options{id} }->{vector},
+            client_pubkey  => defined($self->{clients}->{ $options{id} }->{client_pubkey})
+                              && $self->{clients}->{ $options{id} }->{client_pubkey} ne ''
+                              ? $self->{clients}->{ $options{id} }->{client_pubkey}
+                              : $self->get_core_config(name => 'pubkey'),
+            client_privkey => defined($self->{clients}->{ $options{id} }->{client_privkey})
+                              && $self->{clients}->{ $options{id} }->{client_privkey} ne ''
+                              ? $self->{clients}->{ $options{id} }->{client_privkey}
+                              : $self->get_core_config(name => 'privkey'),
+            target_type    => defined($self->{clients}->{ $options{id} }->{target_type}) ?
+                              $self->{clients}->{ $options{id} }->{target_type} :
+                              'tcp',
+            target_path    => defined($self->{clients}->{ $options{id} }->{target_path})
+                              ? $self->{clients}->{ $options{id} }->{target_path}
+                              : $self->{clients}->{ $options{id} }->{address} . ':' . $self->{clients}->{ $options{id} }->{port},
+            config_core    => $self->get_core_config(),
+            logger         => $self->{logger}
         );
         $self->{clients}->{ $options{id} }->{class}->init(callback => \&read_message_client);
     } elsif ($self->{clients}->{ $options{id} }->{type} eq 'push_ssh') {
-        $self->{clients}->{$options{id}}->{class} = gorgone::modules::core::proxy::sshclient->new(logger => $self->{logger});
+        $self->{clients}->{$options{id}}->{class} = gorgone::modules::core::proxy::sshclient->new(logger =>$self->{logger});
         my $code = $self->{clients}->{$options{id}}->{class}->open_session(
-            ssh_host => $self->{clients}->{$options{id}}->{address},
-            ssh_port => $self->{clients}->{$options{id}}->{ssh_port},
-            ssh_username => $self->{clients}->{$options{id}}->{ssh_username},
-            ssh_password => $self->{clients}->{$options{id}}->{ssh_password},
-            ssh_directory => $self->{clients}->{$options{id}}->{ssh_directory},
-            ssh_known_hosts => $self->{clients}->{$options{id}}->{ssh_known_hosts},
-            ssh_identity => $self->{clients}->{$options{id}}->{ssh_identity},
+            ssh_host               => $self->{clients}->{$options{id}}->{address},
+            ssh_port               => $self->{clients}->{$options{id}}->{ssh_port},
+            ssh_username           => $self->{clients}->{$options{id}}->{ssh_username},
+            ssh_password           => $self->{clients}->{$options{id}}->{ssh_password},
+            ssh_directory          => $self->{clients}->{$options{id}}->{ssh_directory},
+            ssh_known_hosts        => $self->{clients}->{$options{id}}->{ssh_known_hosts},
+            ssh_identity           => $self->{clients}->{$options{id}}->{ssh_identity},
             strict_serverkey_check => $self->{clients}->{$options{id}}->{strict_serverkey_check},
-            ssh_connect_timeout => $self->{clients}->{$options{id}}->{ssh_connect_timeout}
+            ssh_connect_timeout    => $self->{clients}->{$options{id}}->{ssh_connect_timeout}
         );
         if ($code != 0) {
             $self->{clients}->{ $options{id} }->{delete} = 1;
@@ -208,7 +209,9 @@ sub action_proxyaddnode {
         # test if a connection parameter changed
         my $changed = 0;
         foreach (keys %$data) {
-            if (ref($data->{$_}) eq '' && (!defined($self->{clients}->{ $data->{id} }->{$_}) || $data->{$_} ne $self->{clients}->{ $data->{id} }->{$_})) {
+            if (ref($data->{$_}) eq ''
+                && (!defined($self->{clients}->{ $data->{id} }->{$_})
+                    || $data->{$_} ne $self->{clients}->{ $data->{id} }->{$_})) {
                 $changed = 1;
                 last;
             }
@@ -216,32 +219,32 @@ sub action_proxyaddnode {
 
         if ($changed == 0) {
             $self->{logger}->writeLogInfo("[proxy] Session not changed $data->{id}");
-            return ;
+            return;
         }
 
         $self->{logger}->writeLogInfo("[proxy] Recreate session for $data->{id}");
         # we send a pong reset. because the ping can be lost
         $self->send_internal_action({
-            action => 'PONGRESET',
-            data => '{ "data": { "id": ' . $data->{id} . ' } }',
+            action        => 'PONGRESET',
+            data          => '{ "data": { "id": ' . $data->{id} . ' } }',
             data_noencode => 1,
-            token => $self->generate_token(),
-            target => ''
+            token         => $self->generate_token(),
+            target        => ''
         });
 
         $self->{clients}->{ $data->{id} }->{class}->close();
     } else {
         $self->{internal_channels}->{ $data->{id} } = gorgone::standard::library::connect_com(
-            context => $self->{zmq_context},
+            context  => $self->{zmq_context},
             zmq_type => 'ZMQ_DEALER',
-            name => 'gorgone-proxy-channel-' . $data->{id},
-            logger => $self->{logger},
-            type => $self->get_core_config(name => 'internal_com_type'),
-            path => $self->get_core_config(name => 'internal_com_path')
+            name     => 'gorgone-proxy-channel-' . $data->{id},
+            logger   => $self->{logger},
+            type     => $self->get_core_config(name => 'internal_com_type'),
+            path     => $self->get_core_config(name => 'internal_com_path')
         );
         $self->send_internal_action({
             action => 'PROXYREADY',
-            data => {
+            data   => {
                 node_id => $data->{id}
             }
         });
@@ -254,9 +257,9 @@ sub action_proxyaddnode {
         );
     }
 
-    $self->{clients}->{ $data->{id} } = $data;
-    $self->{clients}->{ $data->{id} }->{delete} = 0;
-    $self->{clients}->{ $data->{id} }->{class} = undef;
+    $self->{clients}->{ $data->{id} }                      = $data;
+    $self->{clients}->{ $data->{id} }->{delete}            = 0;
+    $self->{clients}->{ $data->{id} }->{class}             = undef;
     $self->{clients}->{ $data->{id} }->{com_read_internal} = 1;
 }
 
@@ -283,7 +286,7 @@ sub action_proxycloseconnection {
 
     $self->{clients}->{ $data->{id} }->{class}->close();
     $self->{clients}->{ $data->{id} }->{delete} = 0;
-    $self->{clients}->{ $data->{id} }->{class} = undef;
+    $self->{clients}->{ $data->{id} }->{class}  = undef;
 }
 
 sub close_connections {
@@ -310,32 +313,32 @@ sub proxy_ssh {
             $self->{clients}->{ $options{target_client} }->{com_read_internal} = 1;
             $self->send_internal_action({
                 action => 'PONG',
-                data => { data => { id => $options{target_client} } },
-                token => $options{token},
+                data   => { data => { id => $options{target_client} } },
+                token  => $options{token},
                 target => ''
             });
         }
-        return ;
+        return;
     }
 
     my $retry = 1; # manage server disconnected
     while ($retry >= 0) {
         my ($status, $data_ret) = $self->{clients}->{ $options{target_client} }->{class}->action(
-            action => $options{action},
-            data => $decoded_data,
+            action        => $options{action},
+            data          => $decoded_data,
             target_direct => $options{target_direct},
-            target => $options{target},
-            token => $options{token}
+            target        => $options{target},
+            token         => $options{token}
         );
 
         if (ref($data_ret) eq 'ARRAY') {
             foreach (@{$data_ret}) {
                 $self->send_log(
-                    code => $_->{code},
-                    token => $options{token},
+                    code    => $_->{code},
+                    token   => $options{token},
                     logging => $decoded_data->{logging},
                     instant => $decoded_data->{instant},
-                    data => $_->{data}
+                    data    => $_->{data}
                 );
             }
             last;
@@ -344,19 +347,19 @@ sub proxy_ssh {
         $self->{logger}->writeLogDebug("[proxy] Sshclient return: [message = $data_ret->{message}]");
         if ($status == 0) {
             $self->send_log(
-                code => GORGONE_ACTION_FINISH_OK,
-                token => $options{token},
+                code    => GORGONE_ACTION_FINISH_OK,
+                token   => $options{token},
                 logging => $decoded_data->{logging},
-                data => $data_ret
+                data    => $data_ret
             );
             last;
         }
 
         $self->send_log(
-            code => GORGONE_ACTION_FINISH_KO,
-            token => $options{token},
+            code    => GORGONE_ACTION_FINISH_KO,
+            token   => $options{token},
             logging => $decoded_data->{logging},
-            data => $data_ret
+            data    => $data_ret
         );
 
         # quit because it's not a ssh connection issue
@@ -367,7 +370,7 @@ sub proxy_ssh {
 
 sub proxy {
     my (%options) = @_;
-    
+
     if ($options{message} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/m) {
         return undef;
     }
@@ -378,32 +381,32 @@ sub proxy {
 
     if ($action eq 'PROXYADDNODE') {
         $connector->action_proxyaddnode(data => $data);
-        return ;
+        return;
     } elsif ($action eq 'PROXYDELNODE') {
         $connector->action_proxydelnode(data => $data);
-        return ;
+        return;
     } elsif ($action eq 'BCASTLOGGER' && $target_complete eq '') {
         (undef, $data) = $connector->json_decode(argument => $data);
         $connector->action_bcastlogger(data => $data);
-        return ;
+        return;
     } elsif ($action eq 'BCASTCOREKEY' && $target_complete eq '') {
         (undef, $data) = $connector->json_decode(argument => $data);
         $connector->action_bcastcorekey(data => $data);
-        return ;
+        return;
     } elsif ($action eq 'PROXYCLOSECONNECTION') {
         $connector->action_proxycloseconnection(data => $data);
-        return ;
+        return;
     }
 
     if ($target_complete !~ /^(.+)~~(.+)$/) {
         $connector->send_log(
-            code => GORGONE_ACTION_FINISH_KO,
+            code  => GORGONE_ACTION_FINISH_KO,
             token => $token,
-            data => {
+            data  => {
                 message => "unknown target format '$target_complete'"
             }
         );
-        return ;
+        return;
     }
 
     my ($target_client, $target, $target_direct) = ($1, $2, 1);
@@ -414,28 +417,28 @@ sub proxy {
         $connector->{logger}->writeLogInfo("[proxy] connect for $target_client");
         if ($connector->connect(id => $target_client) != 0) {
             $connector->send_log(
-                code => GORGONE_ACTION_FINISH_KO,
+                code  => GORGONE_ACTION_FINISH_KO,
                 token => $token,
-                data => {
+                data  => {
                     message => "cannot connect on target node '$target_client'"
                 }
             );
-            return ;
+            return;
         }
     }
 
     if ($connector->{clients}->{$target_client}->{type} eq 'push_zmq') {
         my ($status, $msg) = $connector->{clients}->{$target_client}->{class}->send_message(
             action => $action,
-            token => $token,
+            token  => $token,
             target => $target_direct == 0 ? $target : undef,
-            data => $data
+            data   => $data
         );
         if ($status != 0) {
             $connector->send_log(
-                code => GORGONE_ACTION_FINISH_KO,
+                code  => GORGONE_ACTION_FINISH_KO,
                 token => $token,
-                data => {
+                data  => {
                     message => "Send message problem for '$target': $msg"
                 }
             );
@@ -444,12 +447,12 @@ sub proxy {
         }
     } elsif ($connector->{clients}->{$target_client}->{type} eq 'push_ssh') {
         $connector->proxy_ssh(
-            action => $action,
-            data => $data,
+            action        => $action,
+            data          => $data,
             target_client => $target_client,
-            target => $target,
+            target        => $target,
             target_direct => $target_direct,
-            token => $token
+            token         => $token
         );
     }
 }
@@ -459,16 +462,17 @@ sub event {
 
     my $socket;
     if (defined($options{channel})) {
-        #$self->{logger}->writeLogDebug("[proxy] event channel $options{channel} delete: $self->{clients}->{ $options{channel} }->{delete} com_read_internal: $self->{clients}->{ $options{channel} }->{com_read_internal}")
-        #    if (defined($self->{clients}->{ $options{channel} }));
-        return if (
-            defined($self->{clients}->{ $options{channel} }) && 
-            ($self->{clients}->{ $options{channel} }->{com_read_internal} == 0 || $self->{clients}->{ $options{channel} }->{delete} == 1)
+        if (defined($self->{clients}->{ $options{channel} })) {
+            $self->{logger}->writeLogDebug("[proxy] event channel $options{channel} delete: $self->{clients}->{ $options{channel} }->{delete} com_read_internal: $self->{clients}->{ $options{channel} }->{com_read_internal}");
+        }
+        return if (defined($self->{clients}->{ $options{channel} })
+                   && ( $self->{clients}->{ $options{channel} }->{com_read_internal} == 0
+                        || $self->{clients}->{ $options{channel} }->{delete} == 1)
         );
 
         $socket = $options{channel} eq 'control' ? $self->{internal_socket} : $self->{internal_channels}->{ $options{channel} };
     } else {
-        $socket = $options{socket};
+        $socket           = $options{socket};
         $options{channel} = 'control';
     }
 
@@ -480,9 +484,9 @@ sub event {
         if ($self->{stop} == 1 && (time() - $self->{exit_timeout}) > $self->{stop_time}) {
             $self->exit_process();
         }
-        return if (
-            defined($self->{clients}->{ $options{channel} }) && 
-            ($self->{clients}->{ $options{channel} }->{com_read_internal} == 0 || $self->{clients}->{ $options{channel} }->{delete} == 1)
+        return if (defined($self->{clients}->{ $options{channel} })
+                   &&($self->{clients}->{ $options{channel} }->{com_read_internal} == 0
+                      || $self->{clients}->{ $options{channel} }->{delete} == 1)
         );
     }
 }
@@ -491,15 +495,22 @@ sub periodic_exec {
     foreach (keys %{$connector->{clients}}) {
         if (defined($connector->{clients}->{$_}->{delete}) && $connector->{clients}->{$_}->{delete} == 1) {
             $connector->send_internal_action({
-                action => 'PONGRESET',
-                data => '{ "data": { "id": ' . $_ . ' } }',
+                action        => 'PONGRESET',
+                data          => '{ "data": { "id": ' . $_ . ' } }',
                 data_noencode => 1,
-                token => $connector->generate_token(),
-                target => ''
+                token         => $connector->generate_token(),
+                target        => ''
             });
-            $connector->{clients}->{$_}->{class}->close() if (defined($connector->{clients}->{$_}->{class}));
-            $connector->{clients}->{$_}->{class} = undef;
-            $connector->{clients}->{$_}->{delete} = 0;
+            if (defined($connector->{clients}->{$_}->{class})) {
+                $connector->{clients}->{$_}->{class}->close();
+            }
+            # if the connection to the node is not established, we stop listening for new event for this destination,
+            # so event will be stored in zmq buffer until we start processing them again (see proxy_addnode)
+            # zmq queues have a size limit (high water mark), so if the node never connects, we lose some messages,
+            # preventing us from having memory leaks or other inconvenient problems.
+            delete $connector->{watchers}->{$_};
+            $connector->{clients}->{$_}->{class}             = undef;
+            $connector->{clients}->{$_}->{delete}            = 0;
             $connector->{clients}->{$_}->{com_read_internal} = 0;
             $connector->{logger}->writeLogInfo("[proxy] periodic close connection for $_");
             next;
@@ -519,22 +530,22 @@ sub run {
     my ($self, %options) = @_;
 
     $self->{internal_socket} = gorgone::standard::library::connect_com(
-        context => $self->{zmq_context},
+        context  => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
-        name => 'gorgone-proxy-' . $self->{pool_id},
-        logger => $self->{logger},
-        type => $self->get_core_config(name => 'internal_com_type'),
-        path => $self->get_core_config(name => 'internal_com_path')
+        name     => 'gorgone-proxy-' . $self->{pool_id},
+        logger   => $self->{logger},
+        type     => $self->get_core_config(name => 'internal_com_type'),
+        path     => $self->get_core_config(name => 'internal_com_path')
     );
     $self->send_internal_action({
         action => 'PROXYREADY',
-        data => {
+        data   => {
             pool_id => $self->{pool_id}
         }
     });
 
     my $watcher_timer = $self->{loop}->timer(5, 5, \&periodic_exec);
-    my $watcher_io = $self->{loop}->io(
+    my $watcher_io    = $self->{loop}->io(
         $self->{internal_socket}->get_fd(),
         EV::READ,
         sub {

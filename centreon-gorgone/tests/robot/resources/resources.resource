@@ -149,5 +149,6 @@ Wait Until Port Is Bind
           BREAK
         END
     END
+
     Should Be True    ${i} < 10    Gorgone did not listen on port ${port} on time.
     Log To Console    tcp port ${port} bind after ${i} attempt (0.5 seconds each)
