@@ -36,8 +36,6 @@ use Core\Media\Application\Exception\MediaException;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Media\Application\Repository\WriteMediaRepositoryInterface;
 use Core\Media\Domain\Model\Media;
-use enshrined\svgSanitize\Sanitizer;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Mime\MimeTypes;
 
 /**
@@ -55,7 +53,6 @@ final class UpdateMedia
         private readonly ReadMediaRepositoryInterface $readMediaRepository,
         private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly ContactInterface $user,
-        private readonly Sanitizer $svgSanitizer,
     ) {
     }
 
@@ -105,54 +102,32 @@ final class UpdateMedia
     }
 
     /**
-     * @param UploadedFile $file
+     * @param string $fileName
      *
      * @return bool
      */
-    private function isExtensionAllowed(UploadedFile $file): bool
+    private function isExtensionAllowed(string $fileName): bool
     {
-        $fileInformation = pathinfo($file->getClientOriginalName());
+        $fileInformation = pathinfo($fileName);
 
         return in_array($fileInformation['extension'] ?? '', $this->fileExtensionsAllowed, true);
-    }
-
-    /**
-     * @param UploadedFile $file
-     *
-     * @return string
-     */
-    private function sanitizeContent(UploadedFile $file): string
-    {
-        $fileInformation = pathinfo($file->getClientOriginalName());
-
-        if (
-            array_key_exists('extension', $fileInformation)
-            && $fileInformation['extension'] === 'svg'
-        ) {
-            $this->svgSanitizer->minify(true);
-
-            return $this->svgSanitizer->sanitize($file->getContent());
-        }
-
-        return $file->getContent();
     }
 
     /**
      * @param Media $existingMedia
      * @param UpdateMediaRequest $request
      *
+     * @throws MediaException
+     *
      * @return Media
      */
     private function updateExistingMediaContent(Media $existingMedia, UpdateMediaRequest $request): Media
     {
-        /** @var UploadedFile $file */
-        $file = $request->file;
-
-        if (! $this->isExtensionAllowed($file)) {
+        if (! $this->isExtensionAllowed($request->fileName)) {
             throw MediaException::fileExtensionNotAuthorized();
         }
 
-        $existingMedia->setData($this->sanitizeContent($file));
+        $existingMedia->setData($request->data);
 
         return $existingMedia;
     }

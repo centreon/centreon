@@ -23,14 +23,13 @@ declare(strict_types = 1);
 
 namespace Core\Media\Application\UseCase\UpdateMedia;
 
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-
 final class UpdateMediaRequest
 {
     /**
-     * @param UploadedFile $file
+     * @param string $fileName
+     * @param string $data
      */
-    public function __construct(public UploadedFile $file)
+    public function __construct(public string $fileName, public string $data)
     {
     }
 }

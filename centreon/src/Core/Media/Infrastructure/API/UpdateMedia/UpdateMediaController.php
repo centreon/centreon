@@ -30,6 +30,7 @@ use Core\Media\Application\UseCase\UpdateMedia\UpdateMedia;
 use Core\Media\Application\UseCase\UpdateMedia\UpdateMediaRequest;
 use Core\Media\Infrastructure\API\AddMedia\AddMediaValidator;
 use Core\Media\Infrastructure\API\Exception\MediaException;
+use enshrined\svgSanitize\Sanitizer;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,6 +38,13 @@ use Symfony\Component\HttpFoundation\Response;
 final class UpdateMediaController extends AbstractController
 {
     use LoggerTrait;
+
+    /**
+     * @param Sanitizer $svgSanitizer
+     */
+    public function __construct(private readonly Sanitizer $svgSanitizer)
+    {
+    }
 
     public function __invoke(int $mediaId, Request $request, UpdateMedia $useCase, UpdateMediaPresenter $presenter): Response
     {
@@ -53,7 +61,10 @@ final class UpdateMediaController extends AbstractController
             $file = $request->files->get('data');
             $uploadedFileName = $file->getPathname();
 
-            $updateMediaRequest = new UpdateMediaRequest($file);
+            $updateMediaRequest = new UpdateMediaRequest(
+                fileName: $file->getClientOriginalName(),
+                data: $this->sanitizeData($file)
+            );
 
             $useCase($mediaId, $updateMediaRequest, $presenter);
         } catch (MediaException $ex) {
@@ -79,6 +90,27 @@ final class UpdateMediaController extends AbstractController
         }
 
         return $presenter->show();
+    }
+
+    /**
+     * @param UploadedFile $file
+     *
+     * @return string
+     */
+    private function sanitizeData(UploadedFile $file): string
+    {
+        $fileInformation = pathinfo($file->getClientOriginalName());
+
+        if (
+            array_key_exists('extension', $fileInformation)
+            && $fileInformation['extension'] === 'svg'
+        ) {
+            $this->svgSanitizer->minify(true);
+
+            return $this->svgSanitizer->sanitize($file->getContent());
+        }
+
+        return $file->getContent();
     }
 }
 

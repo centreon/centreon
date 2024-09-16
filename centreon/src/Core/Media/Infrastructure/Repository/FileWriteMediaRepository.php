@@ -58,7 +58,10 @@ class FileWriteMediaRepository implements WriteMediaRepositoryInterface
      */
     public function update(Media $media): void
     {
-        if ($media->getData() === null) {
+        if (
+            $media->getData() === null
+            || $media->getData() === ''
+        ) {
             throw new \Exception('File content cannot be empty on update');
         }
 
