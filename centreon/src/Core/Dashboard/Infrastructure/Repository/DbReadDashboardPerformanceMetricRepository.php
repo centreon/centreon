@@ -422,14 +422,14 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         bool $hasMetricName = false): string
     {
         $request
-            = <<<'SQL'
-                    SELECT SQL_CALC_FOUND_ROWS DISTINCT
-                    m.metric_id, m.metric_name, m.unit_name, m.warn, m.crit, m.current_value, m.warn_low, m.crit_low, m.min,
-                    m.max, r.parent_name, r.name, r.id as service_id, r.parent_id
-                    FROM `:dbstg`.`metrics` AS m
-                    INNER JOIN `:dbstg`.`index_data` AS id ON id.id = m.index_id
-                    INNER JOIN `:dbstg`.`resources` AS r ON r.id = id.service_id
-                SQL;
+            = <<<'SQL_WRAP'
+    SELECT SQL_CALC_FOUND_ROWS DISTINCT
+    m.metric_id, m.metric_name, m.unit_name, m.warn, m.crit, m.current_value, m.warn_low, m.crit_low, m.min,
+    m.max, r.parent_name, r.name, r.id as service_id, r.parent_id
+    FROM `:dbstg`.`metrics` AS m
+    INNER JOIN `:dbstg`.`index_data` AS id ON id.id = m.index_id
+    INNER JOIN `:dbstg`.`resources` AS r ON r.id = id.service_id
+SQL_WRAP;
 
         $accessGroupIds = array_map(
             fn ($accessGroup) => $accessGroup->getId(),

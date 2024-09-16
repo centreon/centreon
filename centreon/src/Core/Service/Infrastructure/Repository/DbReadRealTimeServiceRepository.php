@@ -205,35 +205,35 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
     private function returnBaseQuery(): string
     {
         // tags 0=servicegroup, 1=hostgroup, 2=servicecategory, 3=hostcategory
-        return <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS
-                    services.id AS `id`,
-                    services.name AS `name`,
-                    services.status AS `status`
-                FROM `:dbstg`.resources AS services
-                INNER JOIN `:dbstg`.resources AS hosts
-                    ON hosts.id = services.parent_id
-                LEFT JOIN `:dbstg`.resources_tags AS rtags_host_groups
-                    ON hosts.resource_id = rtags_host_groups.resource_id
-                LEFT JOIN `:dbstg`.tags host_groups
-                    ON rtags_host_groups.tag_id = host_groups.tag_id
-                    AND host_groups.type = 1
-                LEFT JOIN `:dbstg`.resources_tags AS rtags_host_categories
-                    ON hosts.resource_id = rtags_host_categories.resource_id
-                LEFT JOIN `:dbstg`.tags host_categories
-                    ON rtags_host_categories.tag_id = host_categories.tag_id
-                    AND host_categories.type = 3
-                LEFT JOIN `:dbstg`.resources_tags AS rtags_service_groups
-                    ON services.resource_id = rtags_service_groups.resource_id
-                LEFT JOIN `:dbstg`.tags service_groups
-                    ON rtags_service_groups.tag_id = service_groups.tag_id
-                    AND service_groups.type = 0
-                LEFT JOIN `:dbstg`.resources_tags AS rtags_service_categories
-                    ON services.resource_id = rtags_service_categories.resource_id
-                LEFT JOIN `:dbstg`.tags service_categories
-                    ON rtags_service_categories.tag_id = service_categories.tag_id
-                    AND service_categories.type = 2
-            SQL;
+        return <<<'SQL_WRAP'
+    SELECT SQL_CALC_FOUND_ROWS
+        services.id AS `id`,
+        services.name AS `name`,
+        services.status AS `status`
+    FROM `:dbstg`.resources AS services
+    INNER JOIN `:dbstg`.resources AS hosts
+        ON hosts.id = services.parent_id
+    LEFT JOIN `:dbstg`.resources_tags AS rtags_host_groups
+        ON hosts.resource_id = rtags_host_groups.resource_id
+    LEFT JOIN `:dbstg`.tags host_groups
+        ON rtags_host_groups.tag_id = host_groups.tag_id
+        AND host_groups.type = 1
+    LEFT JOIN `:dbstg`.resources_tags AS rtags_host_categories
+        ON hosts.resource_id = rtags_host_categories.resource_id
+    LEFT JOIN `:dbstg`.tags host_categories
+        ON rtags_host_categories.tag_id = host_categories.tag_id
+        AND host_categories.type = 3
+    LEFT JOIN `:dbstg`.resources_tags AS rtags_service_groups
+        ON services.resource_id = rtags_service_groups.resource_id
+    LEFT JOIN `:dbstg`.tags service_groups
+        ON rtags_service_groups.tag_id = service_groups.tag_id
+        AND service_groups.type = 0
+    LEFT JOIN `:dbstg`.resources_tags AS rtags_service_categories
+        ON services.resource_id = rtags_service_categories.resource_id
+    LEFT JOIN `:dbstg`.tags service_categories
+        ON rtags_service_categories.tag_id = service_categories.tag_id
+        AND service_categories.type = 2
+SQL_WRAP;
     }
 
     /**

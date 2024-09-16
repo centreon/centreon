@@ -101,15 +101,15 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
      */
     public function findAll(?RequestParametersInterface $requestParameters): array
     {
-        $request = <<<'SQL'
-            SELECT SQL_CALC_FOUND_ROWS DISTINCT
-                hc.hc_id,
-                hc.hc_name,
-                hc.hc_alias,
-                hc.hc_activate,
-                hc.hc_comment
-            FROM `:db`.hostcategories hc
-            SQL;
+        $request = <<<'SQL_WRAP'
+SELECT SQL_CALC_FOUND_ROWS DISTINCT
+    hc.hc_id,
+    hc.hc_name,
+    hc.hc_alias,
+    hc.hc_activate,
+    hc.hc_comment
+FROM `:db`.hostcategories hc
+SQL_WRAP;
 
         // Setup for search, pagination and order
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
@@ -180,23 +180,23 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
 
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
 
-        $request = <<<'SQL'
-            SELECT SQL_CALC_FOUND_ROWS DISTINCT
-                hc.hc_id,
-                hc.hc_name,
-                hc.hc_alias,
-                hc.hc_activate,
-                hc.hc_comment
-            FROM `:db`.hostcategories hc
-            INNER JOIN `:db`.acl_resources_hc_relations arhr
-                ON hc.hc_id = arhr.hc_id
-            INNER JOIN `:db`.acl_resources res
-                ON arhr.acl_res_id = res.acl_res_id
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON res.acl_res_id = argr.acl_res_id
-            INNER JOIN `:db`.acl_groups ag
-                ON argr.acl_group_id = ag.acl_group_id
-            SQL;
+        $request = <<<'SQL_WRAP'
+SELECT SQL_CALC_FOUND_ROWS DISTINCT
+    hc.hc_id,
+    hc.hc_name,
+    hc.hc_alias,
+    hc.hc_activate,
+    hc.hc_comment
+FROM `:db`.hostcategories hc
+INNER JOIN `:db`.acl_resources_hc_relations arhr
+    ON hc.hc_id = arhr.hc_id
+INNER JOIN `:db`.acl_resources res
+    ON arhr.acl_res_id = res.acl_res_id
+INNER JOIN `:db`.acl_res_group_relations argr
+    ON res.acl_res_id = argr.acl_res_id
+INNER JOIN `:db`.acl_groups ag
+    ON argr.acl_group_id = ag.acl_group_id
+SQL_WRAP;
 
         // Setup for search, pagination and order
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;

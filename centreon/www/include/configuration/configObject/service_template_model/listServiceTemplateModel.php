@@ -157,7 +157,7 @@ for ($i = 0; $service = $statement->fetch(); $i++) {
     $tplStr = "";
     $tplArr = getMyServiceTemplateModels($service["service_template_model_stm_id"]);
 
-    if ((is_array($tplArr) || $tplArr instanceof Countable) && count($tplArr)) {
+    if ((is_countable($tplArr)) && count($tplArr)) {
         foreach ($tplArr as $key => $value) {
             $value = str_replace('#S#', "/", $value);
             $value = str_replace('#BS#', "\\", $value);

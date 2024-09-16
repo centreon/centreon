@@ -63,14 +63,14 @@ class DbReadProviderRepository extends AbstractRepositoryRDB implements ReadProv
 
         $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
 
-        $request = <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS
-                    rule_id,
-                    alias,
-                    provider_id,
-                    activate
-                FROM `:db`.mod_open_tickets_rule
-            SQL;
+        $request = <<<'SQL_WRAP'
+    SELECT SQL_CALC_FOUND_ROWS
+        rule_id,
+        alias,
+        provider_id,
+        activate
+    FROM `:db`.mod_open_tickets_rule
+SQL_WRAP;
 
         // handle search
         $request .= $sqlTranslator?->translateSearchParameterToSql();

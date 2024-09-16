@@ -31,6 +31,7 @@ use Rector\EarlyReturn\Rector\If_\ChangeAndIfToEarlyReturnRector;
 use Rector\EarlyReturn\Rector\If_\ChangeOrIfContinueToMultiContinueRector;
 use Rector\EarlyReturn\Rector\If_\RemoveAlwaysElseRector;
 use Rector\Php52\Rector\Property\VarToPublicPropertyRector;
+use Rector\Php52\Rector\Switch_\ContinueToBreakInSwitchRector;
 use Rector\Php53\Rector\FuncCall\DirNameFileConstantToDirConstantRector;
 use Rector\Php53\Rector\Ternary\TernaryToElvisRector;
 use Rector\Php53\Rector\Variable\ReplaceHttpServerVarsByServerRector;
@@ -56,7 +57,17 @@ use Rector\Php71\Rector\BooleanOr\IsIterableRector;
 use Rector\Php71\Rector\FuncCall\RemoveExtraParametersRector;
 use Rector\Php71\Rector\List_\ListToArrayDestructRector;
 use Rector\Php71\Rector\TryCatch\MultiExceptionCatchRector;
+use Rector\Php72\Rector\FuncCall\CreateFunctionToAnonymousFunctionRector;
+use Rector\Php72\Rector\FuncCall\GetClassOnNullRector;
+use Rector\Php72\Rector\FuncCall\ParseStrWithResultArgumentRector;
+use Rector\Php72\Rector\FuncCall\StringifyDefineRector;
+use Rector\Php72\Rector\Unset_\UnsetCastRector;
+use Rector\Php72\Rector\While_\WhileEachToForeachRector;
+use Rector\Php73\Rector\BooleanOr\IsCountableRector;
 use Rector\Php73\Rector\ConstFetch\SensitiveConstantNameRector;
+use Rector\Php73\Rector\FuncCall\ArrayKeyFirstLastRector;
+use Rector\Php73\Rector\FuncCall\SetCookieRector;
+use Rector\Php73\Rector\FuncCall\StringifyStrNeedlesRector;
 use Rector\Php73\Rector\String_\SensitiveHereNowDocRector;
 use Rector\Php80\Rector\Catch_\RemoveUnusedVariableInCatchRector;
 use Rector\Php80\Rector\FunctionLike\MixedTypeRector;
@@ -158,21 +169,21 @@ return RectorConfig::configure()
 //                RemoveExtraParametersRector::class, // OK 48 files / Remove extra parameters (7.1)
 //                AssignArrayToStringRector::class, // KO 0 files / String cannot be turned into array by assignment anymore (7.1)
 //                MultiExceptionCatchRector::class, // OK 4 files / Changes multi catch of same exception to single one | separated. (7.1)
-//                IsIterableRector::class, // Ok 0 files / Changes is_array + Traversable check to is_iterable (7.1)
-                ListToArrayDestructRector::class, // OK 41 files / Change list() to array destruct (7.1)
-        //        WhileEachToForeachRector::class, // each() function is deprecated, use foreach() instead. (7.2)
-        //        StringifyDefineRector::class, // Make first argument of define() string (7.2)
-        //        ParseStrWithResultArgumentRector::class, // Use $result argument in parse_str() function (7.2)
-        //        CreateFunctionToAnonymousFunctionRector::class, // Use anonymous functions instead of deprecated create_function() (7.2)
-        //        GetClassOnNullRector::class, // Null is no more allowed in get_class() (7.2)
-        //        UnsetCastRector::class, // Removes (unset) cast (7.2)
-        //        StringifyStrNeedlesRector::class, // Makes needles explicit strings (7.3)
-        //        SetCookieRector::class, // Convert setcookie argument to PHP7.3 option array (7.3)
-        //        ArrayKeyFirstLastRector::class, // Make use of array_key_first() and array_key_last() (7.3)
-        //        SensitiveHereNowDocRector::class, // Changes heredoc/nowdoc that contains closing word to safe wrapper name (7.3)
-        //        SensitiveConstantNameRector::class, // Changes case insensitive constants to sensitive ones.(7.3)
-        //        IsCountableRector::class, // Changes is_array + Countable check to is_countable (7.3)
-        //        ContinueToBreakInSwitchRector::class, // Use break instead of continue in switch statements (7.3)
+//                IsIterableRector::class, // KO 0 files / Changes is_array + Traversable check to is_iterable (7.1)
+//                ListToArrayDestructRector::class, // OK 41 files / Change list() to array destruct (7.1)
+//                WhileEachToForeachRector::class, // KO 0 files / each() function is deprecated, use foreach() instead. (7.2)
+//                StringifyDefineRector::class, // KO 0 files / Make first argument of define() string (7.2)
+//                ParseStrWithResultArgumentRector::class, // Use $result argument in parse_str() function (7.2)
+//                CreateFunctionToAnonymousFunctionRector::class, // KO 0 files / Use anonymous functions instead of deprecated create_function() (7.2)
+//                GetClassOnNullRector::class, // KO 0 files / Null is no more allowed in get_class() (7.2)
+//                UnsetCastRector::class, // KO 0 files /  Removes (unset) cast (7.2)
+                StringifyStrNeedlesRector::class, // Makes needles explicit strings (7.3)
+                SetCookieRector::class, // Convert setcookie argument to PHP7.3 option array (7.3)
+                ArrayKeyFirstLastRector::class, // Make use of array_key_first() and array_key_last() (7.3)
+                SensitiveHereNowDocRector::class, // Changes heredoc/nowdoc that contains closing word to safe wrapper name (7.3)
+                SensitiveConstantNameRector::class, // Changes case insensitive constants to sensitive ones.(7.3)
+                IsCountableRector::class, // Changes is_array + Countable check to is_countable (7.3)
+                ContinueToBreakInSwitchRector::class, // Use break instead of continue in switch statements (7.3)
         //        ClosureToArrowFunctionRector::class, // Change closure to arrow function (7.4)
         //        FilterVarToAddSlashesRector::class, // Change filter_var() with slash escaping to addslashes() (7.4)
         //        MbStrrposEncodingArgumentPositionRector::class, // Change mb_strrpos() encoding argument position (7.4)

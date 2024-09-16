@@ -112,12 +112,12 @@ class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
             $queryValues['limit'] = $limit;
         }
 
-        $query = <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS
-                    ag.acl_group_id,
-                    ag.acl_group_name
-                FROM acl_groups ag
-            SQL;
+        $query = <<<'SQL_WRAP'
+    SELECT SQL_CALC_FOUND_ROWS
+        ag.acl_group_id,
+        ag.acl_group_name
+    FROM acl_groups ag
+SQL_WRAP;
 
         $query .= ! $isUserAdmin
             ? <<<'SQL'

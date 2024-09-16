@@ -640,11 +640,12 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     {
 
         $query = $this->translateDbName(
-            <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS id, name, timeperiod_id, tp_name, is_activated
-                FROM `:db`.notification
-                INNER JOIN timeperiod ON timeperiod_id = tp_id
-                SQL
+            <<<'SQL_WRAP'
+SELECT SQL_CALC_FOUND_ROWS id, name, timeperiod_id, tp_name, is_activated
+FROM `:db`.notification
+INNER JOIN timeperiod ON timeperiod_id = tp_id
+SQL_WRAP
+
         );
 
         if ($sqlTranslator === null) {

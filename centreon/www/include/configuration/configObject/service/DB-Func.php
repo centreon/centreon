@@ -257,8 +257,8 @@ function testServiceExistence($name = null, $hPars = [], $hgPars = [], $returnId
     global $form;
 
     $id = null;
-    $hPars = (is_array($hPars) || $hPars instanceof Countable) ? $hPars : [];
-    $hgPars = (is_array($hgPars) || $hgPars instanceof Countable) ? $hgPars : [];
+    $hPars = (is_countable($hPars)) ? $hPars : [];
+    $hgPars = (is_countable($hgPars)) ? $hgPars : [];
 
     if (isset($form) && !count($hPars) && !count($hgPars)) {
         $arr = count($params) ? $params : $form->getSubmitValues();
@@ -2162,7 +2162,7 @@ function insertServiceExtInfos($serviceId = null, $submittedValues = [])
     /*
      * Check if image selected isn't a directory
      */
-    if (isset($submittedValues["esi_icon_image"]) && strrchr("REP_", $submittedValues["esi_icon_image"])) {
+    if (isset($submittedValues["esi_icon_image"]) && strrchr("REP_", (string) $submittedValues["esi_icon_image"])) {
         $submittedValues["esi_icon_image"] = null;
     }
     /*
@@ -2718,7 +2718,7 @@ function updateServiceContact($service_id = null, $ret = [])
     $dbResult = $pearDB->query($rq);
     $ret = $ret["service_cs"] ?? $form->getSubmitValue("service_cs");
 
-    $loopCount = (is_array($ret) || $ret instanceof Countable) ? count($ret) : 0;
+    $loopCount = (is_countable($ret)) ? count($ret) : 0;
 
     for ($i = 0; $i < $loopCount; $i++) {
         $rq = "INSERT INTO contact_service_relation ";
@@ -3417,7 +3417,7 @@ function updateServiceExtInfos($serviceId = null, $submittedValues = [])
     /*
      * Check if image selected isn't a directory
      */
-    if (isset($submittedValues["esi_icon_image"]) && strrchr("REP_", $submittedValues["esi_icon_image"])) {
+    if (isset($submittedValues["esi_icon_image"]) && strrchr("REP_", (string) $submittedValues["esi_icon_image"])) {
         $submittedValues["esi_icon_image"] = null;
     }
 

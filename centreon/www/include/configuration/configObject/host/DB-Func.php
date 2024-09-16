@@ -1812,10 +1812,10 @@ function updateHostExtInfos($host_id = null, $ret = [])
     /*
      * Check if image selected isn't a directory
      */
-    if (isset($ret["ehi_icon_image"]) && strrchr("REP_", $ret["ehi_icon_image"])) {
+    if (isset($ret["ehi_icon_image"]) && strrchr("REP_", (string) $ret["ehi_icon_image"])) {
         $ret["ehi_icon_image"] = null;
     }
-    if (isset($ret["ehi_statusmap_image"]) && strrchr("REP_", $ret["ehi_statusmap_image"])) {
+    if (isset($ret["ehi_statusmap_image"]) && strrchr("REP_", (string) $ret["ehi_statusmap_image"])) {
         $ret["ehi_statusmap_image"] = null;
     }
     /*

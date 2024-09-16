@@ -107,22 +107,22 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
      */
     public function findAll(?RequestParametersInterface $requestParameters = null): \Traversable&\Countable
     {
-        $request = <<<'SQL'
-            SELECT SQL_CALC_FOUND_ROWS DISTINCT
-                hg.hg_id,
-                hg.hg_name,
-                hg.hg_alias,
-                hg.hg_notes,
-                hg.hg_notes_url,
-                hg.hg_action_url,
-                hg.hg_icon_image,
-                hg.hg_map_icon_image,
-                hg.hg_rrd_retention,
-                hg.geo_coords,
-                hg.hg_comment,
-                hg.hg_activate
-            FROM `:db`.`hostgroup` hg
-            SQL;
+        $request = <<<'SQL_WRAP'
+SELECT SQL_CALC_FOUND_ROWS DISTINCT
+    hg.hg_id,
+    hg.hg_name,
+    hg.hg_alias,
+    hg.hg_notes,
+    hg.hg_notes_url,
+    hg.hg_action_url,
+    hg.hg_icon_image,
+    hg.hg_map_icon_image,
+    hg.hg_rrd_retention,
+    hg.geo_coords,
+    hg.hg_comment,
+    hg.hg_activate
+FROM `:db`.`hostgroup` hg
+SQL_WRAP;
 
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
         $sqlTranslator?->setConcordanceArray([
@@ -192,30 +192,30 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
 
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
 
-        $request = <<<'SQL'
-            SELECT SQL_CALC_FOUND_ROWS DISTINCT
-                hg.hg_id,
-                hg.hg_name,
-                hg.hg_alias,
-                hg.hg_notes,
-                hg.hg_notes_url,
-                hg.hg_action_url,
-                hg.hg_icon_image,
-                hg.hg_map_icon_image,
-                hg.hg_rrd_retention,
-                hg.geo_coords,
-                hg.hg_comment,
-                hg.hg_activate
-            FROM `:db`.`hostgroup` hg
-            INNER JOIN `:db`.acl_resources_hg_relations arhr
-                ON hg.hg_id = arhr.hg_hg_id
-            INNER JOIN `:db`.acl_resources res
-                ON arhr.acl_res_id = res.acl_res_id
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON res.acl_res_id = argr.acl_res_id
-            INNER JOIN `:db`.acl_groups ag
-                ON argr.acl_group_id = ag.acl_group_id
-            SQL;
+        $request = <<<'SQL_WRAP'
+SELECT SQL_CALC_FOUND_ROWS DISTINCT
+    hg.hg_id,
+    hg.hg_name,
+    hg.hg_alias,
+    hg.hg_notes,
+    hg.hg_notes_url,
+    hg.hg_action_url,
+    hg.hg_icon_image,
+    hg.hg_map_icon_image,
+    hg.hg_rrd_retention,
+    hg.geo_coords,
+    hg.hg_comment,
+    hg.hg_activate
+FROM `:db`.`hostgroup` hg
+INNER JOIN `:db`.acl_resources_hg_relations arhr
+    ON hg.hg_id = arhr.hg_hg_id
+INNER JOIN `:db`.acl_resources res
+    ON arhr.acl_res_id = res.acl_res_id
+INNER JOIN `:db`.acl_res_group_relations argr
+    ON res.acl_res_id = argr.acl_res_id
+INNER JOIN `:db`.acl_groups ag
+    ON argr.acl_group_id = ag.acl_group_id
+SQL_WRAP;
 
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
         $sqlTranslator?->setConcordanceArray([

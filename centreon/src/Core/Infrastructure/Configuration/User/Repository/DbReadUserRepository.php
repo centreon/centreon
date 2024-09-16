@@ -75,18 +75,18 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
     {
         $this->info('Fetching users from database');
 
-        $request = <<<'SQL'
-            SELECT SQL_CALC_FOUND_ROWS
-                contact_id,
-                contact_alias,
-                contact_name,
-                contact_email,
-                contact_admin,
-                contact_theme,
-                user_interface_density,
-                contact_oreon AS `user_can_reach_frontend`
-            FROM `:db`.contact
-            SQL;
+        $request = <<<'SQL_WRAP'
+SELECT SQL_CALC_FOUND_ROWS
+    contact_id,
+    contact_alias,
+    contact_name,
+    contact_email,
+    contact_admin,
+    contact_theme,
+    user_interface_density,
+    contact_oreon AS `user_can_reach_frontend`
+FROM `:db`.contact
+SQL_WRAP;
 
         // Search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
@@ -135,20 +135,20 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
      */
     public function findByContactGroups(ContactInterface $contact): array
     {
-        $request = <<<'SQL'
-            SELECT SQL_CALC_FOUND_ROWS DISTINCT
-                contact_id,
-                contact_alias,
-                contact_name,
-                contact_email,
-                contact_admin,
-                contact_theme,
-                user_interface_density,
-                contact_oreon AS `user_can_reach_frontend`
-            FROM `:db`.contact
-            INNER JOIN `:db`.contactgroup_contact_relation AS cg
-            ON cg.contact_contact_id = contact.contact_id
-            SQL;
+        $request = <<<'SQL_WRAP'
+SELECT SQL_CALC_FOUND_ROWS DISTINCT
+    contact_id,
+    contact_alias,
+    contact_name,
+    contact_email,
+    contact_admin,
+    contact_theme,
+    user_interface_density,
+    contact_oreon AS `user_can_reach_frontend`
+FROM `:db`.contact
+INNER JOIN `:db`.contactgroup_contact_relation AS cg
+ON cg.contact_contact_id = contact.contact_id
+SQL_WRAP;
 
         // Search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();

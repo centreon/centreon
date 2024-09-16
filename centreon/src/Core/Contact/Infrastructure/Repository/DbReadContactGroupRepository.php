@@ -168,11 +168,11 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
      */
     public function findAll(?RequestParametersInterface $requestParameters = null): array
     {
-        $request = <<<'SQL'
-            SELECT SQL_CALC_FOUND_ROWS
-                cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
-            FROM `:db`.contactgroup
-            SQL;
+        $request = <<<'SQL_WRAP'
+SELECT SQL_CALC_FOUND_ROWS
+    cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
+FROM `:db`.contactgroup
+SQL_WRAP;
 
         $sqlTranslator = $requestParameters !== null
             ? new SqlRequestParametersTranslator($requestParameters)
@@ -227,13 +227,13 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
      */
     public function findAllByUserId(int $userId): array
     {
-        $request = <<<'SQL'
-            SELECT SQL_CALC_FOUND_ROWS
-                cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
-            FROM `:db`.contactgroup cg
-            INNER JOIN `:db`.contactgroup_contact_relation ccr
-                ON ccr.contactgroup_cg_id = cg.cg_id
-            SQL;
+        $request = <<<'SQL_WRAP'
+SELECT SQL_CALC_FOUND_ROWS
+    cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
+FROM `:db`.contactgroup cg
+INNER JOIN `:db`.contactgroup_contact_relation ccr
+    ON ccr.contactgroup_cg_id = cg.cg_id
+SQL_WRAP;
 
         // Search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();

@@ -1116,7 +1116,7 @@ function updateHostGroupHosts($hg_id, $ret = [], $increment = false)
     $hgNEW = [];
 
     $rq = "INSERT INTO hostgroup_hg_relation (hg_parent_id, hg_child_id) VALUES ";
-    $loopCount = (is_array($ret) || $ret instanceof Countable) ? count($ret) : 0;
+    $loopCount = (is_countable($ret)) ? count($ret) : 0;
 
     $query = "SELECT hg_parent_id FROM hostgroup_hg_relation WHERE hg_parent_id = :hg_parent_id
             AND hg_child_id = :hg_child_id";
