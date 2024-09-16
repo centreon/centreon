@@ -34,6 +34,7 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
+use Core\Service\Application\Repository\WriteRealTimeServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 use Core\Service\Application\UseCase\DeployServices\DeployServices;
 use Core\Service\Application\UseCase\DeployServices\DeployServicesResponse;
@@ -54,7 +55,8 @@ beforeEach(function (): void {
         $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
         $this->readServiceRepository = $this->createMock(ReadServiceRepositoryInterface::class),
         $this->readServiceTemplateRepository = $this->createMock(ReadServiceTemplateRepositoryInterface::class),
-        $this->writeServiceRepository = $this->createMock(WriteServiceRepositoryInterface::class)
+        $this->writeServiceRepository = $this->createMock(WriteServiceRepositoryInterface::class),
+        $this->writeRealTimeServiceRepository = $this->createMock(WriteRealTimeServiceRepositoryInterface::class)
     );
 });
 
