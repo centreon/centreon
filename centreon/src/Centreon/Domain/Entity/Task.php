@@ -201,7 +201,7 @@ class Task implements EntityInterface
         $ref = new ReflectionClass(self::class);
         $constants = $ref->getConstants();
         $statusConstants = $this->arrayFilterKey($constants, function ($key) {
-            return strpos($key, 'STATE_') === 0;
+            return str_starts_with($key, 'STATE_');
         });
         $statuses = [];
         foreach ($statusConstants as $stKey => $stConstant) {

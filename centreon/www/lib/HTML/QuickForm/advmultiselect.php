@@ -606,7 +606,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
         $selected_count = 0;
 
         // placeholder {unselected} existence determines if we will render
-        if (strpos($this->_elementTemplate, '{unselected}') === false) {
+        if (!str_contains($this->_elementTemplate, '{unselected}')) {
             // ... a single multi-select with checkboxes
             $this->_jsPostfix = 'editSelection';
 

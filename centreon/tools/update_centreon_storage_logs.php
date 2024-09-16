@@ -71,7 +71,7 @@ function checkTemporaryDirectory(&$temporaryPath)
             'This path for temporary files (' . $temporaryPath . ') does not exist'
         );
     }
-    if (substr($temporaryPath, -1, 1) != '/') {
+    if (!str_ends_with($temporaryPath, '/')) {
         $temporaryPath .= '/';
     }
 }
@@ -286,19 +286,19 @@ try {
     // We load start parameters
     if ($argc > 1) {
         foreach ($argv as $parameter) {
-            if (substr($parameter, 0, 11) === '--password=') {
+            if (str_starts_with($parameter, '--password=')) {
                 [, $dbPassword] = explode('=', $parameter);
             } elseif ($parameter === '--no-keep') {
                 $shouldDeleteOldData = true;
             } elseif ($parameter === '--keep') {
                 $shouldDeleteOldData = false;
-            } elseif (substr($parameter, 0, 10) === '--continue') {
+            } elseif (str_starts_with($parameter, '--continue')) {
                 $firstRecoveryPartitionName = '';
-                if (strpos($parameter, '=', 0) !== false) {
+                if (str_contains($parameter, '=')) {
                     [, $firstRecoveryPartitionName] = explode('=', $parameter);
                 }
                 $isMigrationRecovery = true;
-            } elseif (substr($parameter, 0, 17) === '--temporary-path=') {
+            } elseif (str_starts_with($parameter, '--temporary-path=')) {
                 [, $temporaryPath] = explode('=', $parameter);
             }
         }

@@ -39,7 +39,7 @@ if (!isset($centreon)) {
 }
 
 if (!$oreon->user->admin) {
-    if ($sc_id && $scString != "''" && false === strpos($scString, "'" . $sc_id . "'")) {
+    if ($sc_id && $scString != "''" && !str_contains($scString, "'" . $sc_id . "'")) {
         $msg = new CentreonMsg();
         $msg->setImage("./img/icons/warning.png");
         $msg->setTextStyle("bold");

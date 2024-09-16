@@ -188,7 +188,7 @@ class centreonGraphPoller
      */
     public function setRRDOption($name, $value = null): void
     {
-        if (strpos($value, " ")!==false) {
+        if (str_contains($value, " ")) {
             $value = "'".$value."'";
         }
         $this->rrdOptions[$name] = $value;

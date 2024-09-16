@@ -48,7 +48,7 @@ use Centreon\Domain\VersionHelper;
  */
 function isSqlComment($str)
 {
-    if (substr(trim($str), 0, 2) == "--") {
+    if (str_starts_with(trim($str), "--")) {
         return true;
     }
     return false;
@@ -401,7 +401,7 @@ function getMariaDBVersion(\PDO $db): ?string
         }
     }
 
-    if (strpos($dbmsName, "MariaDB") !== false && $version !== null) {
+    if (str_contains($dbmsName, "MariaDB") && $version !== null) {
         return $version;
     }
 

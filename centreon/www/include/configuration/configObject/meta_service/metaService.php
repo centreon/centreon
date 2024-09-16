@@ -88,7 +88,7 @@ $acl = $oreon->user->access;
 $aclDbName = $acl->getNameDBAcl();
 $metaStr = $acl->getMetaServiceString();
 
-if (!$oreon->user->admin && $meta_id && false === strpos($metaStr, "'" . $meta_id . "'")) {
+if (!$oreon->user->admin && $meta_id && !str_contains($metaStr, "'" . $meta_id . "'")) {
     $msg = new CentreonMsg();
     $msg->setImage("./img/icons/warning.png");
     $msg->setTextStyle("bold");

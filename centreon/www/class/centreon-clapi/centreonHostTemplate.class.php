@@ -193,8 +193,8 @@ class CentreonHostTemplate extends CentreonHost
                 $description = $macro['description'];
                 if (
                     strlen($description) > 0
-                    && substr($description, 0, 1) !== "'"
-                    && substr($description, -1, 1) !== "'"
+                    && !str_starts_with($description, "'")
+                    && !str_ends_with($description, "'")
                 ) {
                     $description = "'" . $description . "'";
                 }

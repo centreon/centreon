@@ -121,7 +121,7 @@ class CentreonDBAdapter
 
         try {
             $result = $this->query->execute();
-            $isSelect = strpos(strtolower($query), 'select') !== false;
+            $isSelect = str_contains(strtolower($query), 'select');
 
             if ($result && $isSelect) {
                 $this->result = $this->query->fetchAll(\PDO::FETCH_OBJ);

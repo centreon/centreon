@@ -160,7 +160,7 @@ class CentreonWebService
     {
         $webServiceClass = [];
         foreach (self::$webServicePaths as $webServicePath) {
-            if (false !== strpos($webServicePath, $object . '.class.php')) {
+            if (str_contains($webServicePath, $object . '.class.php')) {
                 require_once $webServicePath;
                 $explodedClassName = explode('_', $object);
                 $className = "";

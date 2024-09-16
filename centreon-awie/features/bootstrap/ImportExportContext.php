@@ -42,7 +42,7 @@ class ImportExportContext extends CentreonAwieContext
         $output = explode("\n", $output['output']);
         $fileCreate = false;
         foreach ($output as $file) {
-            if (substr("$file", -3) == 'zip') {
+            if (str_ends_with("$file", 'zip')) {
                 $fileCreate = true;
             }
         }

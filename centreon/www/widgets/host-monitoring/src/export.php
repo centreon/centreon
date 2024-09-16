@@ -70,7 +70,7 @@ $widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' 
  * Sanitize and concatenate selected resources for the query
  */
 // Check returned list and make an array of it
-if (false !== strpos($_GET['list'], ',')) {
+if (str_contains($_GET['list'], ',')) {
     $exportList = explode(',', $_GET['list']);
 } else {
     $exportList[] = $_GET['list'];

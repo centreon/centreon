@@ -310,7 +310,7 @@ class CentreonGraphStatus
      */
     protected function setRRDOption($name, $value = null)
     {
-        if (strpos($value, " ")!==false) {
+        if (str_contains($value, " ")) {
             $value = "'".$value."'";
         }
         $this->rrdOptions[$name] = $value;

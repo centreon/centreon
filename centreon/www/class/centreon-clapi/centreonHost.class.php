@@ -926,7 +926,7 @@ class CentreonHost extends CentreonObject
             strlen($description) === 0
             || (
                 strlen($description) === 2
-                && substr($description, 0, 1) === "'"
+                && str_starts_with($description, "'")
                 && substr($description, 1, 1) === "'"
             )
         ) {
@@ -1400,8 +1400,8 @@ class CentreonHost extends CentreonObject
                 $description = $macro['description'];
                 if (
                     strlen($description) > 0
-                    && substr($description, 0, 1) !== "'"
-                    && substr($description, -1, 1) !== "'"
+                    && !str_starts_with($description, "'")
+                    && !str_ends_with($description, "'")
                 ) {
                     $description = "'" . $description . "'";
                 }

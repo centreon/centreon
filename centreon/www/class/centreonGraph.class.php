@@ -972,7 +972,7 @@ class CentreonGraph
                     }
                     $rpn_values .= $this->vname[$tm["metric"]] . ",UN,0," . $this->vname[$tm["metric"]] . ",IF,";
                     $rpn_expr .= ",+";
-                    if (strpos($arg, ' ') === false) {
+                    if (!str_contains($arg, ' ')) {
                         $this->addArgument($arg);
                     } else {
                         $args = explode(' ', $arg);

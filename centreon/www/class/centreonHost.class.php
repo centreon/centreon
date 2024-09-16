@@ -723,16 +723,16 @@ class CentreonHost
          * replace if not template
          */
         if ($row['host_register'] == 1) {
-            if (strpos($string, '$HOSTADDRESS$') !== false) {
+            if (str_contains($string, '$HOSTADDRESS$')) {
                 $string = str_replace('$HOSTADDRESS$', $row['host_address'], $string);
             }
-            if (strpos($string, '$HOSTNAME$') !== false) {
+            if (str_contains($string, '$HOSTNAME$')) {
                 $string = str_replace('$HOSTNAME$', $row['host_name'], $string);
             }
-            if (strpos($string, '$HOSTALIAS$') !== false) {
+            if (str_contains($string, '$HOSTALIAS$')) {
                 $string = str_replace('$HOSTALIAS$', $row['host_alias'], $string);
             }
-            if (strpos($string, '$INSTANCENAME$') !== false) {
+            if (str_contains($string, '$INSTANCENAME$')) {
                 $pollerId = $row['nagios_server_id'] ?? $this->getHostPollerId($hostId);
                 $string = str_replace(
                     '$INSTANCENAME$',
@@ -740,7 +740,7 @@ class CentreonHost
                     $string
                 );
             }
-            if (strpos($string, '$INSTANCEADDRESS$') !== false) {
+            if (str_contains($string, '$INSTANCEADDRESS$')) {
                 if (!isset($pollerId)) {
                     $pollerId = $row['nagios_server_id'] ?? $this->getHostPollerId($hostId);
                 }

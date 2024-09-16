@@ -104,13 +104,13 @@ $obj->setInstanceHistory($instance);
  */
 $s_search = "";
 // Display service problems
-if (substr($o, -3) === '_pb') {
+if (str_ends_with($o, '_pb')) {
     $s_search .= " AND s.state != 0 AND s.state != 4 ";
 }
 // Display acknowledged services
-if (substr($o, -6) === '_ack_1') {
+if (str_ends_with($o, '_ack_1')) {
     $s_search .= " AND s.acknowledged = '1' ";
-} elseif (substr($o, -6) === '_ack_0') {
+} elseif (str_ends_with($o, '_ack_0')) {
 // Display not acknowledged services
     $s_search .= " AND s.state != 0 AND s.state != 4 AND s.acknowledged = 0 ";
 }

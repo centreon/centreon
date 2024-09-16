@@ -72,7 +72,7 @@ $widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' 
  * Sanitize and concatenate selected resources for the query
  */
 // Check returned combinations
-if (false !== strpos($_GET['list'], ',')) {
+if (str_contains($_GET['list'], ',')) {
     $resources = explode(',', $_GET['list']);
 } else {
     $resources[] = $_GET['list'];
@@ -80,7 +80,7 @@ if (false !== strpos($_GET['list'], ',')) {
 // Check combinations consistency and split them in an [hostId, serviceId] array
 $exportList = [];
 foreach ($resources as $resource) {
-    if (false !== strpos($resource, '\;')) {
+    if (str_contains($resource, '\;')) {
         continue;
     } else {
         $exportList[] = explode(';', $resource);

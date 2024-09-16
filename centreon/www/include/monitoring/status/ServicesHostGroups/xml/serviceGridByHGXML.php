@@ -125,7 +125,7 @@ if ($instance !== -1) {
     $rq1 .= " AND h.instance_id = :instance ";
     $queryValues['instance'] = [PDO::PARAM_INT => (int)$instance];
 }
-if (substr($o, -3) === '_pb') {
+if (str_ends_with($o, '_pb')) {
     $rq1 .= <<<SQL
 
     AND h.host_id IN (
@@ -135,7 +135,7 @@ if (substr($o, -3) === '_pb') {
     )
     SQL;
     $filterRq2 = " AND s.state != 0 AND s.state != 4";
-} elseif (substr($o, -6) === '_ack_0') {
+} elseif (str_ends_with($o, '_ack_0')) {
     $rq1 .= <<<SQL
     
     AND h.host_id IN (
@@ -145,7 +145,7 @@ if (substr($o, -3) === '_pb') {
     )
     SQL;
     $filterRq2 =  " AND s.state != 0 AND s.state != 4 AND s.acknowledged = 0";
-} elseif (substr($o, -6) === '_ack_1') {
+} elseif (str_ends_with($o, '_ack_1')) {
     $rq1 .= <<<SQL
     
     AND h.host_id IN (

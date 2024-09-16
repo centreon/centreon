@@ -472,7 +472,7 @@ class CentreonConfigPoller
             if ($apacheUser != "") {
                 foreach (glob($Nagioscfg["cfg_dir"] . '/*.{json,cfg}', GLOB_BRACE) as $file) {
                     //handle path traversal vulnerability
-                    if (strpos($file, '..') !== false) {
+                    if (str_contains($file, '..')) {
                         throw new \Exception('Path traversal found');
                     }
                     if (posix_getuid() === 0) {
@@ -482,7 +482,7 @@ class CentreonConfigPoller
                 }
                 foreach (glob($Nagioscfg["cfg_dir"] . "/*.DEBUG") as $file) {
                     //handle path traversal vulnerability
-                    if (strpos($file, '..') !== false) {
+                    if (str_contains($file, '..')) {
                         throw new \Exception('Path traversal found');
                     }
                     if (posix_getuid() === 0) {
@@ -533,7 +533,7 @@ class CentreonConfigPoller
                 if ($apacheUser != "") {
                     foreach (glob(rtrim($centreonBrokerDirCfg, "/") . "/" . "/*.{xml,json,cfg}", GLOB_BRACE) as $file) {
                         //handle path traversal vulnerability
-                        if (strpos($file, '..') !== false) {
+                        if (str_contains($file, '..')) {
                             throw new \Exception('Path traversal found');
                         }
                         @chown($file, $apacheUser);
@@ -670,7 +670,7 @@ class CentreonConfigPoller
         }
         $filename = "{$trapdPath}/{$pollerId}/centreontrapd.sdb";
         //handle path traversal vulnerability
-        if (strpos($filename, '..') !== false) {
+        if (str_contains($filename, '..')) {
             throw new \Exception('Path traversal found');
         }
         $cmd = sprintf('%s %d %s 2>&1',

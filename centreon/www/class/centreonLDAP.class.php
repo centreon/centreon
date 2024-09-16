@@ -648,7 +648,7 @@ class CentreonLDAP
      */
     public static function validateFilterPattern($filter): bool
     {
-        return !(strpos($filter, '%s') === false);
+        return !(!str_contains($filter, '%s'));
     }
 
     /**

@@ -300,8 +300,8 @@ function return_plugin($rep)
                 $plugins = array_merge($plugins, $plg_tmp);
                 unset($plg_tmp);
             } elseif (!isset($is_not_a_plugin[$filename]) &&
-                substr($filename, -1) != "~" &&
-                substr($filename, -1) != "#"
+                !str_ends_with($filename, "~") &&
+                !str_ends_with($filename, "#")
             ) {
                 $key = substr($rep . "/" . $filename, strlen($centreon->optGen["nagios_path_plugins"]));
                 $plugins[$key] = $key;

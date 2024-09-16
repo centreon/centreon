@@ -536,7 +536,7 @@ class Broker extends AbstractObjectJSON
          */
         $configs = explode(':', $string);
         foreach ($configs as $config) {
-            if (strpos($config, '=') == false) {
+            if (!str_contains($config, '=')) {
                 continue;
             }
             [$key, $value] = explode('=', $config);

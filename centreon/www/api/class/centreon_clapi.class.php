@@ -132,31 +132,31 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
             ob_end_clean();
         } catch (\CentreonClapi\CentreonClapiException $e) {
             $message = $e->getMessage();
-            if (strpos($message, \CentreonClapi\CentreonObject::UNKNOWN_METHOD) === 0) {
+            if (str_starts_with($message, \CentreonClapi\CentreonObject::UNKNOWN_METHOD)) {
                 throw new RestNotFoundException($message);
             }
-            if (strpos($message, \CentreonClapi\CentreonObject::MISSINGPARAMETER) === 0) {
+            if (str_starts_with($message, \CentreonClapi\CentreonObject::MISSINGPARAMETER)) {
                 throw new RestBadRequestException($message);
             }
-            if (strpos($message, \CentreonClapi\CentreonObject::MISSINGNAMEPARAMETER) === 0) {
+            if (str_starts_with($message, \CentreonClapi\CentreonObject::MISSINGNAMEPARAMETER)) {
                 throw new RestBadRequestException($message);
             }
-            if (strpos($message, \CentreonClapi\CentreonObject::OBJECTALREADYEXISTS) === 0) {
+            if (str_starts_with($message, \CentreonClapi\CentreonObject::OBJECTALREADYEXISTS)) {
                 throw new RestConflictException($message);
             }
-            if (strpos($message, \CentreonClapi\CentreonObject::OBJECT_NOT_FOUND) === 0) {
+            if (str_starts_with($message, \CentreonClapi\CentreonObject::OBJECT_NOT_FOUND)) {
                 throw new RestNotFoundException($message);
             }
-            if (strpos($message, \CentreonClapi\CentreonObject::NAMEALREADYINUSE) === 0) {
+            if (str_starts_with($message, \CentreonClapi\CentreonObject::NAMEALREADYINUSE)) {
                 throw new RestConflictException($message);
             }
-            if (strpos($message, \CentreonClapi\CentreonObject::UNKNOWNPARAMETER) === 0) {
+            if (str_starts_with($message, \CentreonClapi\CentreonObject::UNKNOWNPARAMETER)) {
                 throw new RestBadRequestException($message);
             }
-            if (strpos($message, \CentreonClapi\CentreonObject::OBJECTALREADYLINKED) === 0) {
+            if (str_starts_with($message, \CentreonClapi\CentreonObject::OBJECTALREADYLINKED)) {
                 throw new RestConflictException($message);
             }
-            if (strpos($message, \CentreonClapi\CentreonObject::OBJECTNOTLINKED) === 0) {
+            if (str_starts_with($message, \CentreonClapi\CentreonObject::OBJECTNOTLINKED)) {
                 throw new RestBadRequestException($message);
             }
             throw new RestInternalServerErrorException($message);
@@ -177,7 +177,7 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
             }
 
             $lastRecord = end($result);
-            if ($lastRecord && strpos($lastRecord[0], 'Return code end :') === 0) {
+            if ($lastRecord && str_starts_with($lastRecord[0], 'Return code end :')) {
                 array_pop($result);
             }
 
@@ -194,7 +194,7 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
         } else {
             $result = [];
             foreach (explode("\n", $contents) as &$line) {
-                if (trim($line) !== '' && strpos($line, 'Return code end :') !== 0) {
+                if (trim($line) !== '' && !str_starts_with($line, 'Return code end :')) {
                     $result[] = $line;
                 }
             }

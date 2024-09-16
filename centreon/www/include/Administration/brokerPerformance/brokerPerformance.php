@@ -128,7 +128,7 @@ function createArrayStats($arrayFromJson)
 function parseStatsFile($statfile)
 {
     //handle path traversal vulnerability
-    if (strpos($statfile, '..') !== false) {
+    if (str_contains($statfile, '..')) {
         throw new Exception('Path traversal found');
     }
     $jsonc_content = file_get_contents($statfile);
@@ -294,8 +294,8 @@ try {
         if (
             !file_exists($statsfile)
             || !is_readable($statsfile)
-            || ((substr(realpath($statsfile), 0, strlen(_CENTREON_VARLIB_)) !== _CENTREON_VARLIB_ )
-            && (substr(realpath($statsfile), 0, strlen(_CENTREON_CACHEDIR_)) !== _CENTREON_CACHEDIR_ ))
+            || ((!str_starts_with(realpath($statsfile), _CENTREON_VARLIB_) )
+            && (!str_starts_with(realpath($statsfile), _CENTREON_CACHEDIR_) ))
         ) {
             $perf_err[$row['config_name']] = _('Cannot open statistics file');
         } else {

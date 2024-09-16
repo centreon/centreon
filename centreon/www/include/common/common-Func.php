@@ -1646,7 +1646,7 @@ function validateGeoCoords()
 function getSelectOption()
 {
     $stringToArray = function (string $value): array {
-        if (strpos($value, ',') !== false) {
+        if (str_contains($value, ',')) {
             $value = explode(',', rtrim($value, ','));
             return array_flip($value);
         }

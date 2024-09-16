@@ -282,7 +282,7 @@ class CentreonUser
             }
 
             // check that the variable value end with .UTF-8 or add it
-            $lang = (strpos($lang, '.UTF-8') !== false) ?: $lang . '.UTF-8';
+            $lang = (str_contains($lang, '.UTF-8')) ?: $lang . '.UTF-8';
         }
 
         return $lang;

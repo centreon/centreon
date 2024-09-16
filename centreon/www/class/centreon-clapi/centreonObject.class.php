@@ -669,7 +669,7 @@ abstract class CentreonObject
      */
     protected function csvEscape($text)
     {
-        if ($text[0] === '"' || strpos($text, $this->delim) !== false || strpos($text, "\n") !== false) {
+        if ($text[0] === '"' || str_contains($text, $this->delim) || str_contains($text, "\n")) {
             $text = '"' . str_replace('"', '""', $text) . '"';
         }
         return $text;

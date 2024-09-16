@@ -406,7 +406,7 @@ class CentreonLogAction
                     $list_modifications[$i]["field_value_after"] = $field["field_value"];
                     foreach ($macroPasswordRef as $macroPasswordId) {
                         // handle the display modification for the fields macroOldValue_n while nothing was set before
-                        if (strpos($field["field_name"], 'macroOldValue_' . $macroPasswordId) !== false) {
+                        if (str_contains($field["field_name"], 'macroOldValue_' . $macroPasswordId)) {
                             $list_modifications[$i]["field_value_after"] = self::PASSWORD_AFTER;
                         }
                     }
@@ -417,7 +417,7 @@ class CentreonLogAction
                     $list_modifications[$i]["field_value_after"] = $field["field_value"];
                     foreach ($macroPasswordRef as $macroPasswordId) {
                         // handle the display modification for the fields macroOldValue_n for "Before" and "After" value
-                        if (strpos($field["field_name"], 'macroOldValue_' . $macroPasswordId) !== false) {
+                        if (str_contains($field["field_name"], 'macroOldValue_' . $macroPasswordId)) {
                             $list_modifications[$i]["field_value_before"] = self::PASSWORD_BEFORE;
                             $list_modifications[$i]["field_value_after"] = self::PASSWORD_AFTER;
                         }

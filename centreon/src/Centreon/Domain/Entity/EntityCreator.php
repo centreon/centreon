@@ -116,7 +116,7 @@ class EntityCreator
             // If a prefix is defined, we keep only $data for which the keys start
             // with the prefix
             $data = array_filter($data, function ($column) use ($prefix) {
-                if (substr($column, 0, strlen($prefix)) === $prefix) {
+                if (str_starts_with($column, $prefix)) {
                     return true;
                 }
                 return false;

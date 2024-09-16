@@ -232,7 +232,7 @@ class HTML_QuickFormCustom extends HTML_QuickForm
             foreach ($element as $elName) {
                 $value = $this->getSubmitValue($elName);
                 if (null !== $value) {
-                    if (false === strpos($elName, '[')) {
+                    if (!str_contains($elName, '[')) {
                         $this->_submitValues[$elName] = $this->_recursiveFilter($filter, $value);
                     } else {
                         $idx  = "['" . str_replace(

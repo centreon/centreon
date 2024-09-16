@@ -48,8 +48,8 @@ function return_plugin($rep)
                     $availableConnectors = array_merge($availableConnectors, $plg_tmp);
                     unset($plg_tmp);
                 } elseif (!isset($is_not_a_plugin[$filename])
-                    && substr($filename, -1)!= "~"
-                    && substr($filename, -1) != "#"
+                    && !str_ends_with($filename, "~")
+                    && !str_ends_with($filename, "#")
                 ) {
                     if (isset($oreon)) {
                         $key = substr($rep."/".$filename, strlen($oreon->optGen["cengine_path_connectors"]));

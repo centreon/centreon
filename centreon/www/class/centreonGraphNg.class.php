@@ -1034,7 +1034,7 @@ class CentreonGraphNg
      */
     public function setRRDOption($name, $value = null): void
     {
-        if ($value !== null && strpos($value, " ") !== false) {
+        if ($value !== null && str_contains($value, " ")) {
             $value = "'" . $value . "'";
         }
         $this->rrdOptions[$name] = $value;
