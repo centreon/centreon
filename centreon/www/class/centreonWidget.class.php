@@ -793,7 +793,7 @@ class CentreonWidget
     {
         $xmlString = file_get_contents($filename);
         $xmlObj = simplexml_load_string($xmlString);
-        return CentreonUtils::objectIntoArray($xmlObj);// FIXME not a static method
+        return (new CentreonUtils())->objectIntoArray($xmlObj);
     }
 
     /**

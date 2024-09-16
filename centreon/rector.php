@@ -41,7 +41,12 @@ use Rector\Php55\Rector\ClassConstFetch\StaticToSelfOnFinalClassRector;
 use Rector\Php55\Rector\FuncCall\GetCalledClassToSelfClassRector;
 use Rector\Php55\Rector\FuncCall\GetCalledClassToStaticClassRector;
 use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
+use Rector\Php70\Rector\FuncCall\CallUserMethodRector;
+use Rector\Php70\Rector\FuncCall\EregToPregMatchRector;
+use Rector\Php70\Rector\FuncCall\MultiDirnameRector;
+use Rector\Php70\Rector\FuncCall\RenameMktimeWithoutArgsToTimeRector;
 use Rector\Php70\Rector\MethodCall\ThisCallOnStaticMethodToStaticCallRector;
+use Rector\Php70\Rector\StaticCall\StaticCallOnNonStaticToInstanceCallRector;
 use Rector\Php71\Rector\BinaryOp\BinaryOpBetweenNumberAndStringRector;
 use Rector\Php71\Rector\FuncCall\RemoveExtraParametersRector;
 use Rector\Php73\Rector\ConstFetch\SensitiveConstantNameRector;
@@ -134,12 +139,12 @@ return RectorConfig::configure()
 //                StaticToSelfOnFinalClassRector::class, // KO 0 files / Change static::class to self::class on final class (5.5)
 //                StringClassNameToClassConstantRector::class, // KO 0 files / Replace string class names by ::class constant (5.5)
 //                ClassConstantToSelfClassRector::class, // 3 files / Change __CLASS__ to self::class (5.5)
-                ThisCallOnStaticMethodToStaticCallRector::class, // OK 2 files / Changes $this->call() to static method to static call (7.0)
-        //        EregToPregMatchRector::class, // Changes ereg*() to preg*() calls (7.0)
-        //        CallUserMethodRector::class, // Changes call_user_method()/call_user_method_array() to call_user_func()/call_user_func_array() (7.0)
-        //        RenameMktimeWithoutArgsToTimeRector::class, // Renames mktime() without arguments to time() (7.0)
-        //        MultiDirnameRector::class, // Changes multiple dirname() calls to one with nesting level (7.0)
-        //        StaticCallOnNonStaticToInstanceCallRector::class, // Changes static call to instance call, where not useful (7.0)
+//                ThisCallOnStaticMethodToStaticCallRector::class, // OK 2 files / Changes $this->call() to static method to static call (7.0)
+//                EregToPregMatchRector::class, // KO 0 files / Changes ereg*() to preg*() calls (7.0)
+//                CallUserMethodRector::class, // KO 0 files / Changes call_user_method()/call_user_method_array() to call_user_func()/call_user_func_array() (7.0)
+//                RenameMktimeWithoutArgsToTimeRector::class, // KO 0 files /  Renames mktime() without arguments to time() (7.0)
+//                MultiDirnameRector::class, // KO 0 files /  Changes multiple dirname() calls to one with nesting level (7.0)
+                StaticCallOnNonStaticToInstanceCallRector::class, // OK 1 files /  Changes static call to instance call, where not useful (7.0)
         //        IfIssetToCoalescingRector::class, // Change if with isset and return to coalesce (7.0)
         //        TernaryToNullCoalescingRector::class, // Changes unneeded null check to ?? operator (7.0)
         //        Php4ConstructorRector::class, // Changes PHP 4 style constructor to __construct (7.0)

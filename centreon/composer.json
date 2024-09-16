@@ -156,8 +156,8 @@
     "phpstan:core": "phpstan analyse -c phpstan.core.neon --memory-limit=1G",
     "codestyle:core": "php-cs-fixer fix --dry-run --format=checkstyle > checkstyle.core.xml",
     "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
-    "rector:check": "rector --dry-run",
-    "rector:exec": "rector"
+    "rector:check": "rector process --dry-run --no-progress-bar",
+    "rector:exec": "rector process --no-progress-bar"
   },
   "extra": {
     "symfony": {
