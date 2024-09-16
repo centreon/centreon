@@ -665,7 +665,7 @@ Then(
       tag: 'div'
     }).should('be.visible')
     cy.getByLabel({
-      label: 'To',
+      label: 'to',
       tag: 'div'
     }).should('be.visible')
   }
