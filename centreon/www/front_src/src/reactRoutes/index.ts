@@ -60,8 +60,8 @@ const reactRoutes = [
     path: routeMap.additionalConnectorConfiguration
   },
   {
-    comp: lazy(() => import('../AgentConfiguration/Page')),
-    path: routeMap.agentConfigurations
+    comp: lazy(() => import('../VaultConfiguration/VaultConfiguration')),
+    path: routeMap.vaultConfiguration
   }
 ];
 

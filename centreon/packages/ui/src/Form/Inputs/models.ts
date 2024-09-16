@@ -39,7 +39,7 @@ export interface InputProps {
     creatable?: boolean;
     options: Array<SelectEntry>;
   };
-  change?: ({ setFieldValue, setFieldTouched, value }) => void;
+  change?: ({ setFieldValue, value, setFieldTouched }) => void;
   checkbox?: {
     direction?: 'horizontal' | 'vertical';
     labelPlacement?: LabelPlacement;
@@ -109,6 +109,7 @@ export interface InputProps {
     multilineRows?: number;
     placeholder?: string;
     type?: string;
+    min?: number;
   };
   type: InputType;
 }
