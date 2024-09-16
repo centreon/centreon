@@ -503,7 +503,6 @@ sub periodic_exec {
             });
             if (defined($connector->{clients}->{$_}->{class})) {
                 $connector->{clients}->{$_}->{class}->close();
-                $connector->{clients}->{$_}->{class}->cleanup();
             }
             # if the connection to the node is not established, we stop listening for new event for this destination,
             # so event will be stored in zmq buffer until we start processing them again (see proxy_addnode)

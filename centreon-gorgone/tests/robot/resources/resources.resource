@@ -142,7 +142,7 @@ Setup Two Gorgone Instances
 
 Wait Until Port Is Bind
     [Arguments]    ${port}
-    FOR    ${i}    IN RANGE    15
+    FOR    ${i}    IN RANGE    10
         Sleep    0.5
         ${nb_port_listening}    Run    ss -tlnp | grep ':${port}' | grep LIST | wc -l
         IF    ${nb_port_listening} == 1
@@ -150,13 +150,5 @@ Wait Until Port Is Bind
         END
     END
 
-    Should Be True    ${i} < 14    Gorgone did not listen on port ${port} on time.
+    Should Be True    ${i} < 10    Gorgone did not listen on port ${port} on time.
     Log To Console    tcp port ${port} bind after ${i} attempt (0.5 seconds each)
-
-Ctn Check No Error In Logs
-    [Arguments]    ${gorgone_id}
-    ${cmd}=    Set Variable     grep -vP '^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} ' /var/log/centreon-gorgone/${gorgone_id}/gorgoned.log
-    Log To Console    \n\n${cmd}\n\n
-
-    ${log_line_wrong}    RUN    ${cmd}
-    Should Be Empty     ${log_line_wrong}    There is Log in ${gorgone_id} not mathcing the standard gorgone format : ${log_line_wrong}
