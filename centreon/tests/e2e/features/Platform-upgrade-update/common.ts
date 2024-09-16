@@ -139,7 +139,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
         `apt-get update`,
         `apt-get install -y ${packagesToInstall.join(' ')}`,
         `mkdir -p /usr/lib/centreon-connector`,
-        `echo "date.timezone = Europe/Paris" >> /etc/php/8.2/mods-available/centreon.ini`,
+        `echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini`,
         `sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql`,
         `service mysql start`,
         `mkdir -p /run/php`,
