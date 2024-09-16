@@ -34,6 +34,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\TrimmedString;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteRealTimeServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
@@ -190,7 +191,7 @@ final class DeployServices
     /**
      * @param array<array{parent_id:int,child_id:int,order:int}> $hostParents
      * @param int $hostId
-     * @param AccessGroups[] $accessGroups
+     * @param AccessGroup[] $accessGroups
      *
      * @throws \Throwable
      *
