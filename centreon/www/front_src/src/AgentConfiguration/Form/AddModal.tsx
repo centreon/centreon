@@ -23,7 +23,7 @@ const AddModal = () => {
 
   return (
     <>
-      <Modal open={isModalOpen} onClose={openAskBeforeClose} size="large">
+      <Modal open={isModalOpen} onClose={openAskBeforeClose} size="xlarge">
         <Modal.Header>{t(labelAddAgentConfiguration)}</Modal.Header>
         <Modal.Body>
           <AgentConfigurationForm variant={FormVariant.Add} />

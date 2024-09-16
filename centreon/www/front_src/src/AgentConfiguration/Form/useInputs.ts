@@ -7,14 +7,20 @@ import { AgentType } from '../models';
 import {
   labelAgentConfiguration,
   labelAgentType,
+  labelCaCertificate,
+  labelCertificate,
+  labelConfigurationServer,
   labelListeningAddress,
   labelName,
   labelOTelServer,
   labelPollerConfiguration,
   labelPollers,
-  labelPort
+  labelPort,
+  labelPrivateKey,
+  labelPublicCertificate
 } from '../translatedLabels';
 import { portRegex } from './useValidationSchema';
+import Empty from './Empty';
 export const useInputs = (): {
   groups: Array<Group>;
   inputs: Array<InputProps>;
@@ -38,7 +44,10 @@ export const useInputs = (): {
         group: t(labelAgentConfiguration),
         fieldName: 'name',
         required: true,
-        label: t(labelName)
+        label: t(labelName),
+        text: {
+          fullWidth: false
+        }
       },
       {
         type: InputType.SingleAutocomplete,
@@ -47,6 +56,7 @@ export const useInputs = (): {
         required: true,
         label: t(labelAgentType),
         autocomplete: {
+          fullWidth: false,
           options: [
             { id: AgentType.Telegraf, name: capitalize(AgentType.Telegraf) }
           ]
@@ -113,6 +123,73 @@ export const useInputs = (): {
                     text: {
                       type: 'number'
                     }
+                  },
+                  {
+                    type: InputType.Text,
+                    fieldName: 'configuration.otelPublicCertificate',
+                    required: true,
+                    label: t(labelPublicCertificate)
+                  },
+                  {
+                    type: InputType.Text,
+                    fieldName: 'configuration.otelCaCertificate',
+                    required: true,
+                    label: t(labelCaCertificate)
+                  },
+                  {
+                    type: InputType.Text,
+                    fieldName: 'configuration.otelPrivateKey',
+                    required: true,
+                    label: t(labelPrivateKey)
+                  }
+                ],
+                gridTemplateColumns: 'repeat(2, 1fr)'
+              }
+            },
+            {
+              type: InputType.Custom,
+              fieldName: '',
+              label: '',
+              custom: {
+                Component: Empty
+              }
+            },
+            {
+              type: InputType.Grid,
+              fieldName: '',
+              label: '',
+              additionalLabel: t(labelConfigurationServer),
+              grid: {
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                columns: [
+                  {
+                    type: InputType.Text,
+                    fieldName: 'configuration.confServerPort',
+                    required: true,
+                    label: t(labelPort),
+                    text: {
+                      type: 'number'
+                    }
+                  },
+                  {
+                    type: InputType.Custom,
+                    fieldName: '',
+                    label: '',
+                    custom: {
+                      Component: Empty
+                    }
+                  },
+                  {
+                    type: InputType.Text,
+                    fieldName: 'configuration.confCertificate',
+                    required: true,
+                    label: t(labelCertificate)
+                  },
+                  {
+                    type: InputType.Text,
+                    fieldName: 'configuration.confPrivateKey',
+                    required: true,
+                    label: t(labelPrivateKey)
                   }
                 ]
               }

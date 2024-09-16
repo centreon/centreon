@@ -7,6 +7,7 @@ import {
 } from '../models';
 import {
   labelAddressInvalid,
+  labelExtensionNotAllowed,
   labelPortExpectedAtMost,
   labelPortMustStartFrom1,
   labelRequired
@@ -20,7 +21,16 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
 
   const requiredString = useMemo(() => string().required(t(labelRequired)), []);
   const requiredNumber = useMemo(() => number().required(t(labelRequired)), []);
-  const requiredMixed = useMemo(() => mixed().required(t(labelRequired)), []);
+  const filenameValidation = useMemo(
+    () =>
+      requiredString.test({
+        name: 'is-filename-valid',
+        exclusive: true,
+        message: t(labelExtensionNotAllowed),
+        test: (filename) => !filename.match(/\.(pem|crt|key|cer)$/)
+      }),
+    []
+  );
 
   return object<AgentConfigurationForm>({
     name: requiredString,
@@ -47,14 +57,15 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
         .min(1, t(labelPortMustStartFrom1))
         .max(65535, t(labelPortExpectedAtMost))
         .required(t(labelRequired)),
-      confServerPort: requiredNumber
-    }),
-    files: object({
-      otelPublicCertificate: requiredMixed,
-      otelCaCertificate: requiredMixed,
-      otelPrivateKey: requiredMixed,
-      confCertificate: requiredMixed,
-      confPrivateKey: requiredMixed
+      confServerPort: number()
+        .min(1, t(labelPortMustStartFrom1))
+        .max(65535, t(labelPortExpectedAtMost))
+        .required(t(labelRequired)),
+      otelPublicCertificate: filenameValidation,
+      otelCaCertificate: filenameValidation,
+      otelPrivateKey: filenameValidation,
+      confCertificate: filenameValidation,
+      confPrivateKey: filenameValidation
     })
   });
 };

@@ -38,6 +38,7 @@ export interface InputProps {
   autocomplete?: {
     creatable?: boolean;
     options: Array<SelectEntry>;
+    fullWidth?: boolean;
   };
   change?: ({ setFieldValue, value, setFieldTouched }) => void;
   checkbox?: {
@@ -110,6 +111,7 @@ export interface InputProps {
     placeholder?: string;
     type?: string;
     min?: number;
+    fullWidth?: boolean;
   };
   type: InputType;
 }

@@ -27,21 +27,9 @@ export type AgentConfigurationConfigurationForm = Pick<
   'otelServerAddress' | 'otelServerPort' | 'confServerPort'
 >;
 
-export interface GetAgentConfiguration
-  extends Omit<AgentConfigurationListing, 'id'> {
-  configuration: AgentConfigurationConfiguration;
-}
-
-export interface AgentConfigurationForm
+export interface AgentConfiguration
   extends Omit<AgentConfigurationListing, 'id'> {
   configuration: AgentConfigurationConfigurationForm;
-  files: {
-    otelPublicCertificate: File | null;
-    otelCaCertificate: File | null;
-    otelPrivateKey: File | null;
-    confCertificate: File | null;
-    confPrivateKey: File | null;
-  };
 }
 
 export enum FormVariant {

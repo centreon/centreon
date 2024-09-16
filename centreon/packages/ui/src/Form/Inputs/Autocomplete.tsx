@@ -172,6 +172,7 @@ const Autocomplete = ({
           value={getValues() ?? null}
           onChange={changeValues}
           onTextChange={textChange}
+          style={{ width: autocomplete?.fullWidth ?? true ? 'auto' : '180px' }}
         />
         {inputErrors && (
           <Stack>
