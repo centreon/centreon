@@ -86,6 +86,7 @@ use Rector\Php80\Rector\ClassConstFetch\ClassOnThisVariableObjectRector;
 use Rector\Php80\Rector\FuncCall\ClassOnObjectRector;
 use Rector\Php80\Rector\FunctionLike\MixedTypeRector;
 use Rector\Php80\Rector\Identical\StrEndsWithRector;
+use Rector\Php80\Rector\Identical\StrStartsWithRector;
 use Rector\Php80\Rector\Property\NestedAnnotationToAttributeRector;
 use Rector\Php81\Rector\Property\ReadOnlyPropertyRector;
 use Rector\Php82\Rector\Class_\ReadOnlyClassRector;
@@ -213,8 +214,8 @@ return RectorConfig::configure()
 //                RemoveParentCallWithoutParentRector::class, // KO 1 file but not correct / Remove unused parent call with no parent class (8.0)
 //                ClassOnObjectRector::class, // OK 6 files / Change get_class($object) to faster $object::class (8.0)
 //                ClassOnThisVariableObjectRector::class, // Change $this::class to static::class or self::class depends on class modifier (8.0)
-                StrEndsWithRector::class, // OK 12 files / Change helper functions to str_ends_with() (8.0)
-        //        StrStartsWithRector::class, // Change helper functions to str_starts_with() (8.0)
+//                StrEndsWithRector::class, // OK 12 files / Change helper functions to str_ends_with() (8.0)
+                StrStartsWithRector::class, // OK 15 files / Change helper functions to str_starts_with() (8.0)
         //        StrContainsRector::class, // Replace strpos() !== false and strstr() with str_contains() (8.0)
         //        ChangeSwitchToMatchRector::class, // Change switch() to match() (8.0)
         //        StringableForToStringRector::class, // Add Stringable interface to classes with __toString() method (8.0)
