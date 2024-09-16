@@ -37,6 +37,7 @@ const useStyles = makeStyles<StylesProps>()(
       },
       border: `${theme.spacing(0.3)} dashed ${theme.palette.primary.main}`,
       boxShadow: isDraggingOver ? theme.shadows[3] : theme.shadows[0],
+      borderRadius: `${theme.shape.borderRadius}px`,
       padding: theme.spacing(0.5, 1),
       width: hasCustomDropZoneContent ? '100%' : theme.spacing(50)
     },

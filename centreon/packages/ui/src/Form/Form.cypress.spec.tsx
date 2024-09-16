@@ -161,7 +161,7 @@ describe('File', () => {
   it('uploads a file when a file is selected', () => {
     initializeFile();
 
-    cy.contains('json (Drop or select a file)').should('be.visible');
+    cy.contains('Drop or select a file').should('be.visible');
     cy.findByLabelText('select a file').selectFile('package.json', {
       force: true
     });
