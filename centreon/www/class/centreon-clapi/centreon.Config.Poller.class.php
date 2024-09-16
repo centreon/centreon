@@ -64,7 +64,7 @@ class CentreonConfigPoller
     /**
      * @var EngineCommandGenerator|null
      */
-    private ?EngineCommandGenerator $commandGenerator;
+    private ?EngineCommandGenerator $commandGenerator = null;
 
     /**
      * @var ContainerInterface

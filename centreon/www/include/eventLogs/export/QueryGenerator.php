@@ -33,7 +33,7 @@ class QueryGenerator
      * @var array<array<int,mixed>>
      */
     private array $queryValues = [];
-    private ?int $is_admin;
+    private ?int $is_admin = null;
     private string $openid = '';
     private string $output = '';
     private CentreonACL $access;
@@ -72,7 +72,7 @@ class QueryGenerator
     private string $engine;
     private string|int $export;
     private int $num = 0;
-    private ?int $limit;
+    private ?int $limit = null;
 
     public function __construct(private CentreonDB $pearDBO)
     {

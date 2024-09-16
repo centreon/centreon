@@ -69,6 +69,16 @@ use Rector\Php73\Rector\FuncCall\ArrayKeyFirstLastRector;
 use Rector\Php73\Rector\FuncCall\SetCookieRector;
 use Rector\Php73\Rector\FuncCall\StringifyStrNeedlesRector;
 use Rector\Php73\Rector\String_\SensitiveHereNowDocRector;
+use Rector\Php74\Rector\ArrayDimFetch\CurlyToSquareBracketArrayStringRector;
+use Rector\Php74\Rector\Assign\NullCoalescingOperatorRector;
+use Rector\Php74\Rector\Closure\ClosureToArrowFunctionRector;
+use Rector\Php74\Rector\Double\RealToFloatTypeCastRector;
+use Rector\Php74\Rector\FuncCall\ArrayKeyExistsOnPropertyRector;
+use Rector\Php74\Rector\FuncCall\FilterVarToAddSlashesRector;
+use Rector\Php74\Rector\FuncCall\MbStrrposEncodingArgumentPositionRector;
+use Rector\Php74\Rector\Property\RestoreDefaultNullToNullableTypePropertyRector;
+use Rector\Php74\Rector\StaticCall\ExportToReflectionFunctionRector;
+use Rector\Php74\Rector\Ternary\ParenthesizeNestedTernaryRector;
 use Rector\Php80\Rector\Catch_\RemoveUnusedVariableInCatchRector;
 use Rector\Php80\Rector\FunctionLike\MixedTypeRector;
 use Rector\Php80\Rector\Property\NestedAnnotationToAttributeRector;
@@ -177,23 +187,23 @@ return RectorConfig::configure()
 //                CreateFunctionToAnonymousFunctionRector::class, // KO 0 files / Use anonymous functions instead of deprecated create_function() (7.2)
 //                GetClassOnNullRector::class, // KO 0 files / Null is no more allowed in get_class() (7.2)
 //                UnsetCastRector::class, // KO 0 files /  Removes (unset) cast (7.2)
-                StringifyStrNeedlesRector::class, // Makes needles explicit strings (7.3)
-                SetCookieRector::class, // Convert setcookie argument to PHP7.3 option array (7.3)
-                ArrayKeyFirstLastRector::class, // Make use of array_key_first() and array_key_last() (7.3)
-                SensitiveHereNowDocRector::class, // Changes heredoc/nowdoc that contains closing word to safe wrapper name (7.3)
-                SensitiveConstantNameRector::class, // Changes case insensitive constants to sensitive ones.(7.3)
-                IsCountableRector::class, // Changes is_array + Countable check to is_countable (7.3)
-                ContinueToBreakInSwitchRector::class, // Use break instead of continue in switch statements (7.3)
-        //        ClosureToArrowFunctionRector::class, // Change closure to arrow function (7.4)
-        //        FilterVarToAddSlashesRector::class, // Change filter_var() with slash escaping to addslashes() (7.4)
-        //        MbStrrposEncodingArgumentPositionRector::class, // Change mb_strrpos() encoding argument position (7.4)
-        //        ArrayKeyExistsOnPropertyRector::class, // Change array_key_exists() on property to property_exists() (7.4)
-        //        RealToFloatTypeCastRector::class, // Change deprecated (real) to (float) (7.4)
-        //        ExportToReflectionFunctionRector::class, // Change export() to ReflectionFunction alternatives (7.4)
-        //        RestoreDefaultNullToNullableTypePropertyRector::class, // Add null default to properties with PHP 7.4 property nullable type(7.4)
-        //        NullCoalescingOperatorRector::class, // Use null coalescing operator ??= (7.4)
-        //        ParenthesizeNestedTernaryRector::class, // Add parentheses to nested ternary (7.4)
-        //        CurlyToSquareBracketArrayStringRector::class, // Change curly based array and string to square bracket (7.4)
+//                StringifyStrNeedlesRector::class, // Makes needles explicit strings (7.3)
+//                SetCookieRector::class, // Convert setcookie argument to PHP7.3 option array (7.3)
+//                ArrayKeyFirstLastRector::class, // Make use of array_key_first() and array_key_last() (7.3)
+//                SensitiveHereNowDocRector::class, // Changes heredoc/nowdoc that contains closing word to safe wrapper name (7.3)
+//                SensitiveConstantNameRector::class, // Changes case insensitive constants to sensitive ones.(7.3)
+//                IsCountableRector::class, // Changes is_array + Countable check to is_countable (7.3)
+//                ContinueToBreakInSwitchRector::class, // Use break instead of continue in switch statements (7.3)
+//         ---->       ClosureToArrowFunctionRector::class, // OK 111 files / Change closure to arrow function (7.4)
+//                FilterVarToAddSlashesRector::class, // KO 0 files / Change filter_var() with slash escaping to addslashes() (7.4)
+//                MbStrrposEncodingArgumentPositionRector::class, // KO 0 files / Change mb_strrpos() encoding argument position (7.4)
+//                ArrayKeyExistsOnPropertyRector::class, // Change array_key_exists() on property to property_exists() (7.4)
+//                RealToFloatTypeCastRector::class, // KO 0 files / Change deprecated (real) to (float) (7.4)
+//                ExportToReflectionFunctionRector::class, // KO 0 files / Change export() to ReflectionFunction alternatives (7.4)
+                RestoreDefaultNullToNullableTypePropertyRector::class, // KO 26 files / Add null default to properties with PHP 7.4 property nullable type(7.4)
+//                NullCoalescingOperatorRector::class, // Use null coalescing operator ??= (7.4)
+//                ParenthesizeNestedTernaryRector::class, // Add parentheses to nested ternary (7.4)
+//                CurlyToSquareBracketArrayStringRector::class, // Change curly based array and string to square bracket (7.4)
         //        ConsistentImplodeRector::class, // Changes various implode forms to consistent one (8.0)
         //        RemoveParentCallWithoutParentRector::class, // Remove unused parent call with no parent class (8.0)
         //        ClassOnObjectRector::class, // Change get_class($object) to faster $object::class (8.0)
