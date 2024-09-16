@@ -597,7 +597,7 @@ function migrateBrokerConfigOutputsToUnifiedSql(CentreonDB $pearDB): void
         $bindedValues = [];
         $columnNames = null;
         foreach ($unifiedSqlOutput as $configKey => $configInput) {
-            $columnNames = $columnNames ?? implode(", ", array_keys($configInput));
+            $columnNames ??= implode(", ", array_keys($configInput));
 
             $queryKeys = [];
             foreach ($configInput as $key => $value) {

@@ -217,7 +217,7 @@ $buffer->startElement("root");
 $lang_ = \HtmlAnalyzer::sanitizeAndRemoveTags($inputs["lang"] ?? "-1");
 $openid = \HtmlAnalyzer::sanitizeAndRemoveTags($inputs["id"] ?? "-1");
 $sid = session_id();
-$sid = $sid ?? "-1";
+$sid ??= "-1";
 
 /*
  * Init GMT class

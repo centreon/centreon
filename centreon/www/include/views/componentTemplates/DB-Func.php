@@ -330,7 +330,7 @@ function updateComponentTemplate($compoId = null)
         'ds_total'
     ];
     foreach ($checkBoxValueToSet as $element) {
-        $formValues[$element] = $formValues[$element] ?? '0';
+        $formValues[$element] ??= '0';
     }
 
     $bindParams = sanitizeFormComponentTemplatesParameters($formValues);

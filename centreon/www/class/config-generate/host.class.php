@@ -77,7 +77,7 @@ class Host extends AbstractHost
      */
     private function getHostGroups(&$host): void
     {
-        $host['group_tags'] = $host['group_tags'] ?? [];
+        $host['group_tags'] ??= [];
 
         if (!isset($host['hg'])) {
             if (is_null($this->stmt_hg)) {

@@ -40,8 +40,8 @@ if (!isset($centreon)) {
 
 require_once "./class/centreonUtils.class.php";
 
-$hostgroupsFilter = $hostgroupsFilter ?? null;
-$statusHostFilter = $statusHostFilter ?? null;
+$hostgroupsFilter ??= null;
+$statusHostFilter ??= null;
 
 /*
  * Object init

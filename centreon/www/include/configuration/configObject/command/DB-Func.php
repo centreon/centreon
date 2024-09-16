@@ -198,7 +198,7 @@ function updateCommand($cmd_id = null, $params = [])
         "WHERE `command_id` = :command_id";
 
     $ret["connectors"] = (isset($ret["connectors"]) && !empty($ret["connectors"])) ? $ret["connectors"] : null;
-    $ret["command_activate"]["command_activate"] = $ret["command_activate"]["command_activate"] ?? null;
+    $ret["command_activate"]["command_activate"] ??= null;
 
     $sth = $pearDB->prepare($rq);
     $sth->bindParam(':command_name', $ret["command_name"], PDO::PARAM_STR);

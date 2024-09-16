@@ -49,7 +49,7 @@ $hostAclId = preg_split('/,/', str_replace("'", "", $hostStr));
 
 $hObj = new CentreonHost($pearDB);
 $serviceObj = new CentreonService($pearDB);
-$resourceId = $resourceId ?? 0;
+$resourceId ??= 0;
 
 /**
  * @param array $fields form data

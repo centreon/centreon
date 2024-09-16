@@ -103,8 +103,8 @@ $steps = ["0" => _("No Step"), "2" => "2", "6" => "6", "10" => "10", "20" => "20
 $sel = $form->addElement('select', 'step', _("Recovery Step"), $steps);
 
 if ($o == "c" || $o == "a") {
-    $nameColor = $nameColor ?? '';
-    $attrsText5 = $attrsText5 ?? '';
+    $nameColor ??= '';
+    $attrsText5 ??= '';
     $form->addElement('button', $nameColor . '_modify', _("Modify"), $attrsText5);
 }
 

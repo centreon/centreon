@@ -80,7 +80,7 @@ class CentreonWebService
      */
     protected function loadDb()
     {
-        $this->pearDB = $this->pearDB ?? new CentreonDB();
+        $this->pearDB ??= new CentreonDB();
     }
 
     /**
