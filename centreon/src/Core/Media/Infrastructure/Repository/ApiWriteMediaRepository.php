@@ -47,6 +47,14 @@ class ApiWriteMediaRepository implements WriteMediaRepositoryInterface
     /**
      * @inheritDoc
      */
+    public function update(Media $media): void
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function delete(Media $media): void
     {
         throw RepositoryException::notYetImplemented();

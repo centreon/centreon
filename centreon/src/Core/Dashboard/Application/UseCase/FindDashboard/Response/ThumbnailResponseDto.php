@@ -19,33 +19,17 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
-namespace Core\Media\Application\Repository;
+namespace Core\Dashboard\Application\UseCase\FindDashboard\Response;
 
-use Core\Media\Domain\Model\Media;
-use Core\Media\Domain\Model\NewMedia;
-
-interface WriteMediaRepositoryInterface
+final class ThumbnailResponseDto
 {
-    /**
-     * @param NewMedia $media
-     *
-     * @throws \Throwable
-     *
-     * @return int
-     */
-    public function add(NewMedia $media): int;
-
-    /**
-     * @param Media $media
-     *
-     * @throws \Throwable
-     */
-    public function delete(Media $media): void;
-
-    /**
-     * @param Media $media
-     */
-    public function update(Media $media): void;
+    public function __construct(
+        public int $id = 0,
+        public string $name = '',
+        public string $directory = '',
+    ) {
+    }
 }
+
