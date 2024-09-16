@@ -393,12 +393,12 @@ function set_mariadb_repos() {
 	esac
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
-		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=debian --os-version="$detected_os_version" --mariadb-server-version="$detected_mariadb_version"
+		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=debian --os-version="$detected_os_version" --mariadb-server-version="$detected_mariadb_version" --skip-maxscale
 	elif [[ "${detected_os_release}" =~ ubuntu-release-.* ]]; then
 		distrib_codename=$(awk -F'=' '/DISTRIB_CODENAME/ {print $2}' /etc/lsb-release)
-		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=ubuntu --os-version="$distrib_codename" --mariadb-server-version="$detected_mariadb_version"
+		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=ubuntu --os-version="$distrib_codename" --mariadb-server-version="$detected_mariadb_version" --skip-maxscale
 	else
-		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --mariadb-server-version="$detected_mariadb_version"
+		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --mariadb-server-version="$detected_mariadb_version" --skip-maxscale
 	fi
 	if [ $? -ne 0 ]; then
 		error_and_exit "Could not install the $dbms repository"
@@ -1381,7 +1381,7 @@ install)
 
 esac
 
-# Set MariaDB password from ENV or random password if not defined
+# Set DBMS password from ENV or random password if not defined
 if [ "$operation" == "install" ]; then
 	db_root_password=${ENV_DB_ROOT_PASSWD:-"$(genpasswd "Database user: root")"}
 

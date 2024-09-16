@@ -17,10 +17,7 @@ import useFormInitialValues from './useFormInitialValues';
 import useFormInputs from './useFormInputs';
 import useValidationSchema from './useValidationSchema';
 
-import {
-  FormActions,
-  FormActionsProps
-} from 'packages/ui/src/components/Form/FormActions';
+import { FormActions, FormActionsProps } from '@centreon/ui/components';
 
 export type AdditionalConnectorFormProps = {
   connectorId?: number;
