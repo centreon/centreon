@@ -121,8 +121,8 @@ const installCentreon = (version: string): Cypress.Chainable => {
       throw new Error('Cannot parse version number.');
     }
 
-    const distribPrefix = Number(versionMatches[1]) >= 24 ? '~' : '-';
-    const packageVersionSuffix = `${version}-1${distribPrefix}${Cypress.env('WEB_IMAGE_OS')}`;
+    const distribPrefix = Number(versionMatches[1]) >= 24 ? '-1~' : '-';
+    const packageVersionSuffix = `${version}${distribPrefix}${Cypress.env('WEB_IMAGE_OS')}`;
 
     cy.execInContainer({
       command: [
