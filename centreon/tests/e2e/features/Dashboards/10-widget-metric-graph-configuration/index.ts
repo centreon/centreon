@@ -652,8 +652,8 @@ Then('the graph should be displayed as a bar chart', () => {
 When(
   'the dashboard administrator selects a custom time period for the graph',
   () => {
-    cy.contains('Last hour').realClick()
-    cy.contains('Customize').realClick()
+    cy.contains('Last hour').click({force:true})
+    cy.contains('Customize').click({force:true})
   }
 );
 
