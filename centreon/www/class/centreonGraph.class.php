@@ -860,7 +860,7 @@ class CentreonGraph
                     if ($this->onecurve && isset($tm["warn"]) && $tm["warn"] != 0 &&
                         isset($tm["crit"]) && $tm["crit"] != 0
                     ) {
-                        $l_CMP = "," . $this->getCmpOperator($tm) . ",";
+                        $l_CMP = "," . self::getCmpOperator($tm) . ",";
                         $this->addArgument(
                             "CDEF:ok" . $cpt . "=v" . $cpt . "," . $tm["warn"] . $l_CMP . $tm["warn"] . ",v" .
                             $cpt . ",IF"
@@ -906,7 +906,7 @@ class CentreonGraph
                 $this->addArgument($arg);
             }
             if ($this->onecurve && isset($tm["warn"]) && $tm["warn"] != 0 && isset($tm["crit"]) && $tm["crit"] != 0) {
-                $l_CMP = "," . $this->getCmpOperator($tm) . ",";
+                $l_CMP = "," . self::getCmpOperator($tm) . ",";
                 $nb = substr($this->vname[$tm["metric"]], 2, strlen($this->vname[$tm["metric"]]) - 2);
                 $this->addArgument(
                     "CDEF:ok" . $nb . "=" . $this->vname[$tm["metric"]] . "," . $tm["warn"] .

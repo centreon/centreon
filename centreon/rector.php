@@ -41,6 +41,7 @@ use Rector\Php55\Rector\ClassConstFetch\StaticToSelfOnFinalClassRector;
 use Rector\Php55\Rector\FuncCall\GetCalledClassToSelfClassRector;
 use Rector\Php55\Rector\FuncCall\GetCalledClassToStaticClassRector;
 use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
+use Rector\Php70\Rector\MethodCall\ThisCallOnStaticMethodToStaticCallRector;
 use Rector\Php71\Rector\BinaryOp\BinaryOpBetweenNumberAndStringRector;
 use Rector\Php71\Rector\FuncCall\RemoveExtraParametersRector;
 use Rector\Php73\Rector\ConstFetch\SensitiveConstantNameRector;
@@ -132,9 +133,8 @@ return RectorConfig::configure()
 //                StaticToSelfOnFinalClassRector::class, // KO 0 files / Change static::class to self::class on final class (5.5)
 //                StaticToSelfOnFinalClassRector::class, // KO 0 files / Change static::class to self::class on final class (5.5)
 //                StringClassNameToClassConstantRector::class, // KO 0 files / Replace string class names by ::class constant (5.5)
-                ClassConstantToSelfClassRector::class, // 3 files / Change __CLASS__ to self::class (5.5)
-        //        ExceptionHandlerTypehintRector::class, // Change typehint from Exception to Throwable. (7.0)
-        //        ThisCallOnStaticMethodToStaticCallRector::class, // Changes $this->call() to static method to static call (7.0)
+//                ClassConstantToSelfClassRector::class, // 3 files / Change __CLASS__ to self::class (5.5)
+                ThisCallOnStaticMethodToStaticCallRector::class, // OK 2 files / Changes $this->call() to static method to static call (7.0)
         //        EregToPregMatchRector::class, // Changes ereg*() to preg*() calls (7.0)
         //        CallUserMethodRector::class, // Changes call_user_method()/call_user_method_array() to call_user_func()/call_user_func_array() (7.0)
         //        RenameMktimeWithoutArgsToTimeRector::class, // Renames mktime() without arguments to time() (7.0)
@@ -201,6 +201,8 @@ return RectorConfig::configure()
         //        RenameParamToMatchTypeRector::class, // Rename param to match ClassType
         //        RenamePropertyToMatchTypeRector::class, // Rename property and method param to match its type
         //        RenameVariableToMatchMethodCallReturnTypeRector::class, // Rename variable to match method return type
+        //        ExceptionHandlerTypehintRector::class, // Change typehint from Exception to Throwable. (7.0)
+
         // ------ strange ----
         //        NullableCompareToNullRector::class, // Changes negate of empty comparison of nullable value to explicit === or !== compare
         //        -        if ($user = $this->security->getUser()) {
