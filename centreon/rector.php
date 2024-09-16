@@ -48,6 +48,7 @@ use Rector\Php70\Rector\FuncCall\RenameMktimeWithoutArgsToTimeRector;
 use Rector\Php70\Rector\MethodCall\ThisCallOnStaticMethodToStaticCallRector;
 use Rector\Php70\Rector\StaticCall\StaticCallOnNonStaticToInstanceCallRector;
 use Rector\Php70\Rector\StmtsAwareInterface\IfIssetToCoalescingRector;
+use Rector\Php70\Rector\Ternary\TernaryToNullCoalescingRector;
 use Rector\Php71\Rector\BinaryOp\BinaryOpBetweenNumberAndStringRector;
 use Rector\Php71\Rector\FuncCall\RemoveExtraParametersRector;
 use Rector\Php73\Rector\ConstFetch\SensitiveConstantNameRector;
@@ -146,8 +147,8 @@ return RectorConfig::configure()
 //                RenameMktimeWithoutArgsToTimeRector::class, // KO 0 files /  Renames mktime() without arguments to time() (7.0)
 //                MultiDirnameRector::class, // KO 0 files /  Changes multiple dirname() calls to one with nesting level (7.0)
 //                StaticCallOnNonStaticToInstanceCallRector::class, // OK 1 files /  Changes static call to instance call, where not useful (7.0)
-                IfIssetToCoalescingRector::class, // OK 23 files / Change if with isset and return to coalesce (7.0)
-        //        TernaryToNullCoalescingRector::class, // Changes unneeded null check to ?? operator (7.0)
+//                IfIssetToCoalescingRector::class, // OK 23 files / Change if with isset and return to coalesce (7.0)
+                TernaryToNullCoalescingRector::class, // OK 120 files / Changes unneeded null check to ?? operator (7.0)
         //        Php4ConstructorRector::class, // Changes PHP 4 style constructor to __construct (7.0)
         //        RemoveExtraParametersRector::class, // Remove extra parameters (7.1)
         //        AssignArrayToStringRector::class, // String cannot be turned into array by assignment anymore (7.1)

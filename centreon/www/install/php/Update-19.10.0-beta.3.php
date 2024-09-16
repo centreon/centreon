@@ -267,9 +267,7 @@ $statement = $pearDB->prepare(
 // update poller preferences from name to id
 while ($row = $result->fetch()) {
     $pollerName = strtolower($row['preference_value']);
-    $pollerId = isset($pollers[$pollerName])
-        ? $pollers[$pollerName]
-        : '';
+    $pollerId = $pollers[$pollerName] ?? '';
 
     $statement->bindValue(':value', $pollerId, \PDO::PARAM_STR);
     $statement->bindValue(':view_id', $row['widget_view_id'], \PDO::PARAM_INT);

@@ -220,9 +220,7 @@ foreach ($servers as $config) {
         $nagiosInfo[$config['id']]['is_currently_running'] == 1)
         ? true
         : false;
-    $version = (isset($nagiosInfo[$config['id']]['version']))
-        ? $nagiosInfo[$config['id']]['version']
-        : _('N/A');
+    $version = $nagiosInfo[$config['id']]['version'] ?? _('N/A');
     $updateTime = (isset($nagiosInfo[$config['id']]['last_alive']) &&
         $nagiosInfo[$config['id']]['last_alive'])
         ? $nagiosInfo[$config['id']]['last_alive']

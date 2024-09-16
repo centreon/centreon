@@ -49,8 +49,8 @@ if (!isset($obj->session_id) || !CentreonSession::checkSession($obj->session_id,
     print "Bad Session ID";
     exit();
 }
-$statusService = isset($statusService) ? $statusService : null;
-$statusFilter = isset($statusFilter) ? $statusFilter : null;
+$statusService = $statusService ?? null;
+$statusFilter = $statusFilter ?? null;
 
 // Store in session the last type of call
 $_SESSION['monitoring_serviceByHg_status'] = $statusService;

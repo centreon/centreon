@@ -288,7 +288,7 @@ isset($order) ? true : $order = null;
 
 $tpl->assign("host_name", $host_name);
 $tpl->assign("status", $status);
-$tpl->assign("limite", isset($limite) ? $limite : null);
+$tpl->assign("limite", $limite ?? null);
 $tpl->assign("begin", $num);
 $tpl->assign("end", $limit);
 $tpl->assign("pagin_page", _("Page"));

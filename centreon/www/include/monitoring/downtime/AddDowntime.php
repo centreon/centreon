@@ -326,7 +326,7 @@ if (
         $_POST["comment"] = str_replace("'", " ", $_POST['comment']);
         $duration = null;
         if (isset($_POST['duration'])) {
-            $duration_scale = isset($_POST['duration_scale']) ? $_POST['duration_scale'] : 's';
+            $duration_scale = $_POST['duration_scale'] ?? 's';
 
             switch ($duration_scale) {
                 default:

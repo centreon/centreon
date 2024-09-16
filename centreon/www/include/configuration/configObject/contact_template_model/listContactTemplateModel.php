@@ -152,19 +152,15 @@ foreach ($contacts as $contact) {
         $contact_type = 3;
     }
 
-    $elemArr[] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => html_entity_decode($contact["contact_name"], ENT_QUOTES, "UTF-8"), "RowMenu_ico" => isset($contactTypeIcone[$contact_type]) ? $contactTypeIcone[$contact_type] : "", "RowMenu_ico_title" => _('This is a contact template.'), "RowMenu_link" => "main.php?p=" . $p . "&o=c&contact_id=" . $contact['contact_id'], "RowMenu_desc" => CentreonUtils::escapeSecure(
+    $elemArr[] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => html_entity_decode($contact["contact_name"], ENT_QUOTES, "UTF-8"), "RowMenu_ico" => $contactTypeIcone[$contact_type] ?? "", "RowMenu_ico_title" => _('This is a contact template.'), "RowMenu_link" => "main.php?p=" . $p . "&o=c&contact_id=" . $contact['contact_id'], "RowMenu_desc" => CentreonUtils::escapeSecure(
         html_entity_decode(
             $contact["contact_alias"],
             ENT_QUOTES,
             "UTF-8"
         )
-    ), "RowMenu_hostNotif" => html_entity_decode($tpCache[(isset($contact["timeperiod_tp_id"])
-            ? $contact["timeperiod_tp_id"] : "")], ENT_QUOTES, "UTF-8") . " (" .
-        (isset($contact["contact_host_notification_options"]) ? $contact["contact_host_notification_options"]
-            : "") . ")", "RowMenu_svNotif" => html_entity_decode($tpCache[(isset($contact["timeperiod_tp_id2"])
-            ? $contact["timeperiod_tp_id2"] : "")], ENT_QUOTES, "UTF-8") . " (" .
-        (isset($contact["contact_service_notification_options"]) ? $contact["contact_service_notification_options"]
-            : "") . ")", "RowMenu_status" => $contact["contact_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $contact["contact_activate"] ? "service_ok" : "service_critical", "RowMenu_options" => $moptions];
+    ), "RowMenu_hostNotif" => html_entity_decode($tpCache[($contact["timeperiod_tp_id"] ?? "")], ENT_QUOTES, "UTF-8") . " (" .
+        ($contact["contact_host_notification_options"] ?? "") . ")", "RowMenu_svNotif" => html_entity_decode($tpCache[($contact["timeperiod_tp_id2"] ?? "")], ENT_QUOTES, "UTF-8") . " (" .
+        ($contact["contact_service_notification_options"] ?? "") . ")", "RowMenu_status" => $contact["contact_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $contact["contact_activate"] ? "service_ok" : "service_critical", "RowMenu_options" => $moptions];
     $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);

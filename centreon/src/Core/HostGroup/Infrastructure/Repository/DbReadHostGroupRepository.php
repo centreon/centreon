@@ -156,9 +156,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         // handle sort
         $sortRequest = $sqlTranslator?->translateSortParameterToSql();
 
-        $request .= $sortRequest !== null
-            ? $sortRequest
-            : ' ORDER BY hg.hg_name ASC';
+        $request .= $sortRequest ?? ' ORDER BY hg.hg_name ASC';
 
         // handle pagination
         $request .= $sqlTranslator?->translatePaginationToSql();
@@ -258,9 +256,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         // handle sort
         $sortRequest = $sqlTranslator?->translateSortParameterToSql();
 
-        $request .= $sortRequest !== null
-            ? $sortRequest
-            : ' ORDER BY hg.hg_name ASC';
+        $request .= $sortRequest ?? ' ORDER BY hg.hg_name ASC';
 
         // handle pagination
         $request .= $sqlTranslator?->translatePaginationToSql();

@@ -1341,9 +1341,7 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
         }
     }
 
-    $server_id = isset($ret["nagios_server_id"])
-        ? $ret["nagios_server_id"]
-        : $form->getSubmitValue("nagios_server_id");
+    $server_id = $ret["nagios_server_id"] ?? $form->getSubmitValue("nagios_server_id");
 
     if (! isset($server_id) || $server_id == "" || $server_id == 0) {
         $server_id = null;
@@ -1920,7 +1918,7 @@ function updateHostContactGroup($host_id, $ret = [])
     $rq .= "WHERE host_host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
 
-    $ret = isset($ret["host_cgs"]) ? $ret["host_cgs"] : CentreonUtils::mergeWithInitialValues($form, 'host_cgs');
+    $ret = $ret["host_cgs"] ?? CentreonUtils::mergeWithInitialValues($form, 'host_cgs');
     $cg = new CentreonContactgroup($pearDB);
     $counter = count($ret);
     for ($i = 0; $i < $counter; $i++) {
@@ -1957,7 +1955,7 @@ function updateHostContact($host_id, $ret = [])
     $rq .= "WHERE host_host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
 
-    $ret = isset($ret["host_cs"]) ? $ret["host_cs"] : CentreonUtils::mergeWithInitialValues($form, 'host_cs');
+    $ret = $ret["host_cs"] ?? CentreonUtils::mergeWithInitialValues($form, 'host_cs');
     $counter = count($ret);
     for ($i = 0; $i < $counter; $i++) {
         $rq = "INSERT INTO contact_host_relation ";
@@ -2056,7 +2054,7 @@ function updateHostNotifs($host_id = null, $ret = [])
         return;
     }
 
-    $ret = isset($ret["host_notifOpts"]) ? $ret["host_notifOpts"] : $form->getSubmitValue("host_notifOpts");
+    $ret = $ret["host_notifOpts"] ?? $form->getSubmitValue("host_notifOpts");
 
     $rq = "UPDATE host SET ";
     $rq .= "host_notification_options  = ";
@@ -2149,7 +2147,7 @@ function updateHostNotifOptionTimeperiod($host_id = null, $ret = [])
     global $form;
     global $pearDB;
 
-    $ret = isset($ret["timeperiod_tp_id2"]) ? $ret["timeperiod_tp_id2"] : $form->getSubmitValue("timeperiod_tp_id2");
+    $ret = $ret["timeperiod_tp_id2"] ?? $form->getSubmitValue("timeperiod_tp_id2");
 
     $rq = "UPDATE host SET ";
     $rq .= "timeperiod_tp_id2 = ";
@@ -2291,7 +2289,7 @@ function updateHostHostGroup($host_id, $ret = [])
     $rq = "DELETE FROM hostgroup_relation ";
     $rq .= "WHERE host_host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
-    $ret = isset($ret["host_hgs"]) ? $ret["host_hgs"] : $form->getSubmitValue("host_hgs");
+    $ret = $ret["host_hgs"] ?? $form->getSubmitValue("host_hgs");
     $hgsNEW = [];
 
     if ($ret) {
@@ -2383,7 +2381,7 @@ function updateHostHostCategory($host_id, $ret = [])
                             AND hc.level IS NOT NULL) ";
     $pearDB->query($rq);
 
-    $ret = isset($ret["host_hcs"]) ? $ret["host_hcs"] : $ret = $form->getSubmitValue("host_hcs");
+    $ret = $ret["host_hcs"] ?? ($ret = $form->getSubmitValue("host_hcs"));
     $hcsNEW = [];
 
     if (!$ret) {
@@ -2606,9 +2604,7 @@ function updateNagiosServerRelation($hostId, $ret = [])
         return;
     }
 
-    $ret = isset($ret["nagios_server_id"])
-        ? $ret["nagios_server_id"]
-        : $form->getSubmitValue("nagios_server_id");
+    $ret = $ret["nagios_server_id"] ?? $form->getSubmitValue("nagios_server_id");
 
     if (isset($ret) && $ret != "" && $ret != 0) {
         $pearDB->query("DELETE FROM `ns_host_relation` WHERE `host_host_id` = '" . (int) $hostId . "'");
@@ -2850,7 +2846,7 @@ function insertHostInAPI(array $ret = []): int|null
             'type' => 'HOST',
             'id' => $hostId,
             'action' => 'ADD',
-            'access_grp_id' => (isset($formData['acl_groups']) ? $formData['acl_groups'] : null),
+            'access_grp_id' => ($formData['acl_groups'] ?? null),
         ]);
         // Insert change logs
         $fields = CentreonLogAction::prepareChanges($formData);

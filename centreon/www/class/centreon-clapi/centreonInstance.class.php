@@ -224,7 +224,7 @@ class CentreonInstance extends CentreonObject
         echo $paramString . "\n";
         $elements = $this->object->getList($params, -1, 0, null, null, $filters);
         foreach ($elements as $tab) {
-            $tab["ns_status"] = isset($pollerState[$tab["id"]]) ? $pollerState[$tab["id"]] : '-';
+            $tab["ns_status"] = $pollerState[$tab["id"]] ?? '-';
             $tab["gorgone_communication_type"] =
                 array_search($tab["gorgone_communication_type"], self::GORGONE_COMMUNICATION);
 

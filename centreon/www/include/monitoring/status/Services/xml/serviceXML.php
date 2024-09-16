@@ -321,9 +321,7 @@ if ($statusService === 'svc_unhandled' || $statusService === 'svcpb') {
 }
 
 // Sort order by
-$request .= isset($tabOrder[$sortType])
-    ? $tabOrder[$sortType]
-    : $tabOrder["default"];
+$request .= $tabOrder[$sortType] ?? $tabOrder["default"];
 
 $request .= " LIMIT :numLimit, :limit";
 $queryValues['numLimit'] = [\PDO::PARAM_INT => ($num * $limit)];

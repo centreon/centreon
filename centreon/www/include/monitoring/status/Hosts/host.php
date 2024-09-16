@@ -386,7 +386,7 @@ $form->addElement(
     $critArray,
     ['id' => 'critFilter', 'onChange' => "filterCrit(this.value);"]
 );
-$form->setDefaults(['criticality' => isset($_SESSION['criticality_id']) ? $_SESSION['criticality_id'] : "0"]);
+$form->setDefaults(['criticality' => $_SESSION['criticality_id'] ?? "0"]);
 
 $tpl->assign('limit', $limit);
 $tpl->assign('hostStr', _('Host'));

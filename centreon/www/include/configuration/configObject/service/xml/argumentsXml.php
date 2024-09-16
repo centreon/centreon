@@ -176,7 +176,7 @@ if (isset($_GET['cmdId']) && isset($_GET['svcId']) && isset($_GET['svcTplId']) &
         $xml->startElement('arg');
         $xml->writeElement('name', $name, false);
         $xml->writeElement('description', $description, false);
-        $xml->writeElement('value', isset($valueTab[$name]) ? $valueTab[$name] : "", false);
+        $xml->writeElement('value', $valueTab[$name] ?? "", false);
         $xml->writeElement('example', isset($exampleTab[$name]) ? myDecodeValue($exampleTab[$name]) : "", false);
         $xml->writeElement('style', $style);
         $xml->writeElement('disabled', $disabled);

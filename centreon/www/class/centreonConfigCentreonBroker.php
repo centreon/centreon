@@ -1325,7 +1325,7 @@ class CentreonConfigCentreonBroker
             return false;
         }
 
-        $monitoringDb = isset($pearDBO) ? $pearDBO : new CentreonDB('centstorage');
+        $monitoringDb = $pearDBO ?? new CentreonDB('centstorage');
 
         // Default values
         $s_db = "centreon";

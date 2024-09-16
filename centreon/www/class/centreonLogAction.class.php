@@ -530,7 +530,7 @@ class CentreonLogAction
                                 }
                             }
                         }
-                        $info[$key] = isset($value[$key]) ? $value[$key] : implode(",", $value);
+                        $info[$key] = $value[$key] ?? implode(",", $value);
                     } else {
                         $info[$key] = CentreonDB::escape($value);
                     }

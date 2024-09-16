@@ -67,7 +67,7 @@ function fillBuffer($statesTab, $row, $color)
         } else {
             $statTab[$value . "_T"] = 0;
         }
-        $statTab[$value . "_A"] = isset($row[$value."nbEvent"]) ? $row[$value."nbEvent"] : 0;
+        $statTab[$value . "_A"] = $row[$value."nbEvent"] ?? 0;
     }
     $date_start = $row["date_start"];
     $date_end = $row["date_end"];

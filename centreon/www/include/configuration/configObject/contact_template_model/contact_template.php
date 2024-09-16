@@ -42,16 +42,16 @@ if (!isset($centreon)) {
     exit();
 }
 
-$cG = isset($_GET["contact_id"]) ? $_GET["contact_id"] : null;
-$cP = isset($_POST["contact_id"]) ? $_POST["contact_id"] : null;
+$cG = $_GET["contact_id"] ?? null;
+$cP = $_POST["contact_id"] ?? null;
 $contact_id = $cG ?: $cP;
 
-$cG = isset($_GET["select"]) ? $_GET["select"] : null;
-$cP = isset($_POST["select"]) ? $_POST["select"] : null;
+$cG = $_GET["select"] ?? null;
+$cP = $_POST["select"] ?? null;
 $select = $cG ?: $cP;
 
-$cG = isset($_GET["dupNbr"]) ? $_GET["dupNbr"] : null;
-$cP = isset($_POST["dupNbr"]) ? $_POST["dupNbr"] : null;
+$cG = $_GET["dupNbr"] ?? null;
+$cP = $_POST["dupNbr"] ?? null;
 $dupNbr = $cG ?: $cP;
 
 /*
@@ -150,7 +150,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            enableContactInDB(null, isset($select) ? $select : []);
+            enableContactInDB(null, $select ?? []);
         } else {
             unvalidFormMessage();
         }
@@ -170,7 +170,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            disableContactInDB(null, isset($select) ? $select : []);
+            disableContactInDB(null, $select ?? []);
         } else {
             unvalidFormMessage();
         }
@@ -185,7 +185,7 @@ switch ($o) {
                 $eventContext,
                 EventDispatcher::EVENT_DUPLICATE,
                 [
-                    'contact_ids' => isset($select) ? $select : [],
+                    'contact_ids' => $select ?? [],
                     'numbers' => $dupNbr
                 ]
             );
@@ -202,7 +202,7 @@ switch ($o) {
             $eventDispatcher->notify(
                 $eventContext,
                 EventDispatcher::EVENT_DELETE,
-                ['contact_ids' => isset($select) ? $select : []]
+                ['contact_ids' => $select ?? []]
             );
         } else {
             unvalidFormMessage();

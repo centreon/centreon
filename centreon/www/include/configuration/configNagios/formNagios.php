@@ -92,7 +92,7 @@ if (($o === 'c' || $o === 'w') && $nagiosId) {
 $mainCfg = new CentreonConfigEngine($pearDB);
 $cdata = CentreonData::getInstance();
 if ($o != "a") {
-    $dirArray = $mainCfg->getBrokerDirectives(isset($nagiosId) ? $nagiosId : null);
+    $dirArray = $mainCfg->getBrokerDirectives($nagiosId ?? null);
 } else {
     $dirArray[0]['in_broker_#index#'] = "/usr/lib64/centreon-engine/externalcmd.so";
     $dirArray[1]['in_broker_#index#'] = "/usr/lib64/nagios/cbmod.so /etc/centreon-broker/poller-module.json";

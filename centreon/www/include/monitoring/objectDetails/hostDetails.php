@@ -233,9 +233,7 @@ if (!$is_admin && !$haveAccess) {
                     $graphs[$row["host_id"]] = [];
                 }
             }
-            $row["svc_index"] = (isset($graphs[$row["host_id"]][$row["service_id"]])
-                ? $graphs[$row["host_id"]][$row["service_id"]]
-                : 0
+            $row["svc_index"] = ($graphs[$row["host_id"]][$row["service_id"]] ?? 0
             );
 
             $duration = "";

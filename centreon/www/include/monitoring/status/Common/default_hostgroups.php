@@ -33,4 +33,4 @@
  * 
  */
  
-$default_hg = isset($_SESSION['monitoring_default_hostgroups']) ? $_SESSION['monitoring_default_hostgroups'] : "0";
+$default_hg = $_SESSION['monitoring_default_hostgroups'] ?? "0";

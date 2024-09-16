@@ -614,10 +614,8 @@ class CentreonService
                 }
                 $arr[$i]['macroPassword_#index#'] = $valPassword;
 
-                $arr[$index]['macroDescription_#index#'] = isset($_REQUEST['description'][$key]) ?
-                    $_REQUEST['description'][$key] : null;
-                $arr[$index]['macroDescription'] = isset($_REQUEST['description'][$key]) ?
-                    $_REQUEST['description'][$key] : null;
+                $arr[$index]['macroDescription_#index#'] = $_REQUEST['description'][$key] ?? null;
+                $arr[$index]['macroDescription'] = $_REQUEST['description'][$key] ?? null;
                 $i++;
             }
         }
@@ -776,10 +774,8 @@ class CentreonService
                     $macroTmp['macroInput_#index#'] = $macroInput;
                     $macroTmp['macroValue_#index#'] = $form['macroValue'][$key];
                     $macroTmp['macroPassword_#index#'] = isset($form['is_password'][$key]) ? 1 : null;
-                    $macroTmp['macroDescription_#index#'] = isset($form['description'][$key]) ?
-                        $form['description'][$key] : null;
-                    $macroTmp['macroDescription'] = isset($form['description'][$key]) ?
-                        $form['description'][$key] : null;
+                    $macroTmp['macroDescription_#index#'] = $form['description'][$key] ?? null;
+                    $macroTmp['macroDescription'] = $form['description'][$key] ?? null;
                     $Macros[] = $macroTmp;
                 }
             }

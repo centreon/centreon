@@ -67,7 +67,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         $sort = $sqlTranslator->translateSortParameterToSql();
 
-        $request .= $sort !== null ? $sort : ' ORDER BY services.name ASC';
+        $request .= $sort ?? ' ORDER BY services.name ASC';
 
         $statement = $this->db->prepare($this->translateDbName($request));
         $sqlTranslator->bindSearchValues($statement);
@@ -110,7 +110,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         $sort = $sqlTranslator->translateSortParameterToSql();
 
-        $request .= $sort !== null ? $sort : ' ORDER BY services.name ASC';
+        $request .= $sort ?? ' ORDER BY services.name ASC';
 
         $statement = $this->db->prepare($this->translateDbName($request));
         $sqlTranslator->bindSearchValues($statement);
@@ -141,7 +141,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         $sort = $sqlTranslator->translateSortParameterToSql();
 
-        $request .= $sort !== null ? $sort : ' ORDER BY services.name ASC';
+        $request .= $sort ?? ' ORDER BY services.name ASC';
 
         $request .= $sqlTranslator->translatePaginationToSql();
 
@@ -185,7 +185,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         $sort = $sqlTranslator->translateSortParameterToSql();
 
-        $request .= $sort !== null ? $sort : ' ORDER BY services.name ASC';
+        $request .= $sort ?? ' ORDER BY services.name ASC';
 
         $statement = $this->db->prepare($this->translateDbName($request));
         $sqlTranslator->bindSearchValues($statement);

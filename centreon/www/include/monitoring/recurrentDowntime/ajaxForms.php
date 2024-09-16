@@ -40,9 +40,9 @@ if (!isset($centreon)) {
     return;
 }
 
-$period_tab = isset($_GET['period']) ? $_GET['period'] : 1;
+$period_tab = $_GET['period'] ?? 1;
 
-$form = isset($_GET['period_form']) ? $_GET['period_form'] : "general";
+$form = $_GET['period_form'] ?? "general";
 
     $path = "./include/monitoring/recurrentDowntime/";
 

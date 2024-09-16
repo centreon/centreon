@@ -43,10 +43,10 @@ require_once "./class/centreonDB.class.php";
 $pearDBndo = $pearDBO;
 
 
-$host_name = isset($_GET["host_name"]) ? $_GET["host_name"] : null;
-$service_description = isset($_GET["service_description"]) ? $_GET["service_description"] : null;
-$cmd = isset($_GET["cmd"]) ? $_GET["cmd"] : null;
-$en = isset($_GET["en"]) ? $_GET["en"] : 1;
+$host_name = $_GET["host_name"] ?? null;
+$service_description = $_GET["service_description"] ?? null;
+$cmd = $_GET["cmd"] ?? null;
+$en = $_GET["en"] ?? 1;
 
 $path = "./include/monitoring/acknowlegement/";
 

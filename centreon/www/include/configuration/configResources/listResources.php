@@ -124,7 +124,7 @@ for ($i = 0; $resource = $dbResult->fetch(); $i++) {
         "event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;\" " .
         "maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" .
         $resource['resource_id'] . "]' />";
-    $elemArr[$i] = ["order" => isset($tabResources[1]) ? $tabResources[1] : null, "MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => CentreonUtils::escapeSecure(
+    $elemArr[$i] = ["order" => $tabResources[1] ?? null, "MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => CentreonUtils::escapeSecure(
         $resource["resource_name"],
         CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
     ), "RowMenu_link" => "main.php?p=" . $p . "&o=c&resource_id=" . $resource['resource_id'], "RowMenu_values" => CentreonUtils::escapeSecure(

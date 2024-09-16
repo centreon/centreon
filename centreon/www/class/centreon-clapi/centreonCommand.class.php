@@ -459,9 +459,7 @@ class CentreonCommand extends CentreonObject
                 foreach ($matches as $match) {
                     if (!in_array($match[1], $macroToFilter)) {
                         $sName = $match[1];
-                        $sDesc = isset($aDescription[$sName]['description'])
-                            ? $aDescription[$sName]['description']
-                            : "";
+                        $sDesc = $aDescription[$sName]['description'] ?? "";
                         $arr[$i][$inputName . '_macro_name'] = $sName;
                         $arr[$i][$inputName . '_macro_value'] = "";
                         $arr[$i]['is_password'] = null;

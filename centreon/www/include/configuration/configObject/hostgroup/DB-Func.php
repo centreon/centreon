@@ -1078,7 +1078,7 @@ function updateHostGroupHosts($hg_id, $ret = [], $increment = false)
         $pearDB->query($rq);
     }
 
-    $ret = isset($ret["hg_hosts"]) ? $ret["hg_hosts"] : CentreonUtils::mergeWithInitialValues($form, 'hg_hosts');
+    $ret = $ret["hg_hosts"] ?? CentreonUtils::mergeWithInitialValues($form, 'hg_hosts');
 
     $hgNEW = [];
 
@@ -1112,7 +1112,7 @@ function updateHostGroupHosts($hg_id, $ret = [], $increment = false)
         $statement->bindValue(':hg_parent_id', (int) $hg_id, \PDO::PARAM_INT);
         $statement->execute();
     }
-    $ret = isset($ret["hg_hg"]) ? $ret["hg_hg"] : $form->getSubmitValue("hg_hg");
+    $ret = $ret["hg_hg"] ?? $form->getSubmitValue("hg_hg");
     $hgNEW = [];
 
     $rq = "INSERT INTO hostgroup_hg_relation (hg_parent_id, hg_child_id) VALUES ";

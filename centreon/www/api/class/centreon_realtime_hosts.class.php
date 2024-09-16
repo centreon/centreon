@@ -334,8 +334,8 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
     protected function setHostFilters(): void
     {
         // Pagination Elements
-        $this->limit = isset($this->arguments['limit']) ? $this->arguments['limit'] : 30;
-        $this->number = isset($this->arguments['number']) ? $this->arguments['number'] : 0;
+        $this->limit = $this->arguments['limit'] ?? 30;
+        $this->number = $this->arguments['number'] ?? 0;
         if (! is_numeric($this->number) || ! is_numeric($this->limit)) {
             throw new \RestBadRequestException('Error, limit must be numerical');
         }
@@ -351,13 +351,13 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
         } else {
             $this->status = null;
         }
-        $this->hostgroup = isset($this->arguments['hostgroup']) ? $this->arguments['hostgroup'] : null;
-        $this->search = isset($this->arguments['search']) ? $this->arguments['search'] : null;
-        $this->instance = isset($this->arguments['instance']) ? $this->arguments['instance'] : null;
-        $this->criticality = isset($this->arguments['criticality']) ? $this->arguments['criticality'] : null;
+        $this->hostgroup = $this->arguments['hostgroup'] ?? null;
+        $this->search = $this->arguments['search'] ?? null;
+        $this->instance = $this->arguments['instance'] ?? null;
+        $this->criticality = $this->arguments['criticality'] ?? null;
 
         // view properties
-        $this->viewType = isset($this->arguments['viewType']) ? $this->arguments['viewType'] : null;
+        $this->viewType = $this->arguments['viewType'] ?? null;
         if (isset($this->arguments['order'])) {
             if (
                 mb_strtolower($this->arguments['order']) === 'asc'
@@ -370,7 +370,7 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
         } else {
             $this->order = null;
         }
-        $this->sortType = isset($this->arguments['sortType']) ? $this->arguments['sortType'] : null;
+        $this->sortType = $this->arguments['sortType'] ?? null;
     }
 
     /**

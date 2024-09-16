@@ -74,8 +74,8 @@ class CentreonUtils
             $db = new \CentreonDB('centreon');
         }
         $tab = preg_split("/\//", $imagename);
-        $dirname = isset($tab[0]) ? $tab[0] : null;
-        $imagename = isset($tab[1]) ? $tab[1] : null;
+        $dirname = $tab[0] ?? null;
+        $imagename = $tab[1] ?? null;
 
         if (!isset($imagename) || !isset($dirname)) {
             return null;

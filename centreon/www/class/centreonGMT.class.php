@@ -353,7 +353,7 @@ class CentreonGMT
     public function getHostCurrentDatetime($host_id, $date_format = 'c')
     {
         $locations = $this->getHostLocations();
-        $timezone = isset($locations[$host_id]) ? $locations[$host_id] : '';
+        $timezone = $locations[$host_id] ?? '';
         $sDate = new DateTime();
         $sDate->setTimezone(new DateTimeZone($this->getActiveTimezone($timezone)));
         return $sDate;

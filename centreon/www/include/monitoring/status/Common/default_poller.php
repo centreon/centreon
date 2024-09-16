@@ -33,4 +33,4 @@
  * 
  */
  
-$default_poller = isset($_SESSION['monitoring_default_poller']) ? $_SESSION['monitoring_default_poller'] : -1;
+$default_poller = $_SESSION['monitoring_default_poller'] ?? -1;

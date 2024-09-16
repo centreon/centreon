@@ -626,7 +626,7 @@ class CentreonServiceTemplate extends CentreonObject
         $serviceDescription = $params[0];
         $macroName = $params[1];
         $macroValue = $params[2];
-        $macroDescription = isset($params[3]) ? $params[3] : '';
+        $macroDescription = $params[3] ?? '';
         $macroPassword = !empty($params[4]) ? (int)$params[4] : 0;
 
         $elements = $this->object->getList(
@@ -1121,8 +1121,7 @@ class CentreonServiceTemplate extends CentreonObject
             0,
             null,
             null,
-            ['svc_svc_id' => isset($element[$this->object->getPrimaryKey()])
-            ? $element[$this->object->getPrimaryKey()] : null],
+            ['svc_svc_id' => $element[$this->object->getPrimaryKey()] ?? null],
             "AND"
         );
         foreach ($macros as $macro) {

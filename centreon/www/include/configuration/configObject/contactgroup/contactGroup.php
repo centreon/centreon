@@ -38,16 +38,16 @@ if (!isset($centreon)) {
     exit();
 }
 
-$cG = isset($_GET["cg_id"]) ? $_GET["cg_id"] : null;
-$cP = isset($_POST["cg_id"]) ? $_POST["cg_id"] : null;
+$cG = $_GET["cg_id"] ?? null;
+$cP = $_POST["cg_id"] ?? null;
 $cg_id = $cG ?: $cP;
 
-$cG = isset($_GET["select"]) ? $_GET["select"] : null;
-$cP = isset($_POST["select"]) ? $_POST["select"] : null;
+$cG = $_GET["select"] ?? null;
+$cP = $_POST["select"] ?? null;
 $select = $cG ?: $cP;
 
-$cG = isset($_GET["dupNbr"]) ? $_GET["dupNbr"] : null;
-$cP = isset($_POST["dupNbr"]) ? $_POST["dupNbr"] : null;
+$cG = $_GET["dupNbr"] ?? null;
+$cP = $_POST["dupNbr"] ?? null;
 $dupNbr = $cG ?: $cP;
 
 /*
@@ -136,7 +136,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            multipleContactGroupInDB(isset($select) ? $select : [], $dupNbr);
+            multipleContactGroupInDB($select ?? [], $dupNbr);
         } else {
             unvalidFormMessage();
         }
@@ -149,7 +149,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteContactGroupInDB(isset($select) ? $select : []);
+            deleteContactGroupInDB($select ?? []);
         } else {
             unvalidFormMessage();
         }

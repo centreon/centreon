@@ -265,8 +265,8 @@ function testServiceExistence($name = null, $hPars = [], $hgPars = [], $returnId
         if (isset($arr["service_id"])) {
             $id = $arr["service_id"];
         }
-        $hPars = isset($arr["service_hPars"]) ? $arr["service_hPars"] : [];
-        $hgPars = isset($arr["service_hgPars"]) ? $arr["service_hgPars"] : [];
+        $hPars = $arr["service_hPars"] ?? [];
+        $hgPars = $arr["service_hgPars"] ?? [];
     }
 
     $escapeName = CentreonDB::escape($centreon->checkIllegalChar($name));
@@ -1861,7 +1861,7 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
             $service_id["MAX(service_id)"],
             $_REQUEST['macroInput'],
             $_REQUEST['macroValue'],
-            isset($_REQUEST['macroPassword']) ? $_REQUEST['macroPassword'] : null,
+            $_REQUEST['macroPassword'] ?? null,
             $macroDescription,
             false
         );
@@ -2106,7 +2106,7 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
             $service_id["MAX(service_id)"],
             $_REQUEST['macroInput'],
             $_REQUEST['macroValue'],
-            isset($_REQUEST['macroPassword']) ? $_REQUEST['macroPassword'] : null,
+            $_REQUEST['macroPassword'] ?? null,
             $macroDescription,
             false,
             $submittedValues["command_command_id"]
@@ -2716,7 +2716,7 @@ function updateServiceContact($service_id = null, $ret = [])
     $rq = "DELETE FROM contact_service_relation ";
     $rq .= "WHERE service_service_id = '" . $service_id . "'";
     $dbResult = $pearDB->query($rq);
-    $ret = isset($ret["service_cs"]) ? $ret["service_cs"] : $form->getSubmitValue("service_cs");
+    $ret = $ret["service_cs"] ?? $form->getSubmitValue("service_cs");
 
     $loopCount = (is_array($ret) || $ret instanceof Countable) ? count($ret) : 0;
 
@@ -2740,7 +2740,7 @@ function updateServiceContactGroup($service_id = null, $ret = [])
     $rq .= "WHERE service_service_id = '" . $service_id . "'";
     $dbResult = $pearDB->query($rq);
 
-    $ret = isset($ret["service_cgs"]) ? $ret["service_cgs"] : $form->getSubmitValue("service_cgs");
+    $ret = $ret["service_cgs"] ?? $form->getSubmitValue("service_cgs");
 
     $cg = new CentreonContactgroup($pearDB);
 
@@ -2775,7 +2775,7 @@ function updateServiceNotifs($service_id = null, $ret = [])
     global $form;
     global $pearDB;
 
-    $ret = isset($ret["service_notifOpts"]) ? $ret["service_notifOpts"] : $form->getSubmitValue("service_notifOpts");
+    $ret = $ret["service_notifOpts"] ?? $form->getSubmitValue("service_notifOpts");
 
     $rq = "UPDATE service SET ";
     $rq .= "service_notification_options = ";
@@ -2870,7 +2870,7 @@ function updateServiceNotifOptionTimeperiod($service_id = null, $ret = [])
         return;
     }
 
-    $ret = isset($ret["timeperiod_tp_id2"]) ? $ret["timeperiod_tp_id2"] : $form->getSubmitValue("timeperiod_tp_id2");
+    $ret = $ret["timeperiod_tp_id2"] ?? $form->getSubmitValue("timeperiod_tp_id2");
 
     $rq = "UPDATE service SET ";
     $rq .= "timeperiod_tp_id2 = ";
@@ -3027,7 +3027,7 @@ function updateServiceServiceGroup($service_id = null, $ret = [])
     $rq .= "WHERE service_service_id = '" . $service_id . "'";
     $pearDB->query($rq);
 
-    $ret = isset($ret["service_sgs"]) ? $ret["service_sgs"] : CentreonUtils::mergeWithInitialValues($form, 'service_sgs');
+    $ret = $ret["service_sgs"] ?? CentreonUtils::mergeWithInitialValues($form, 'service_sgs');
     $counter = count($ret);
     for ($i = 0; $i < $counter; $i++) {
         /* We need to record each relation for host / hostgroup selected */
@@ -3123,7 +3123,7 @@ function updateServiceTrap($service_id = null, $ret = [])
     $rq = "DELETE FROM traps_service_relation ";
     $rq .= "WHERE service_id = '" . $service_id . "'";
     $dbResult = $pearDB->query($rq);
-    $ret = isset($ret["service_traps"]) ? $ret["service_traps"] : $form->getSubmitValue("service_traps");
+    $ret = $ret["service_traps"] ?? $form->getSubmitValue("service_traps");
 
     if (is_array($ret)) {
         $counter = count($ret);
@@ -3517,7 +3517,7 @@ function updateServiceCategories_MC($service_id = null, $ret = [])
         return;
     }
 
-    $ret = isset($ret["service_categories"]) ? $ret["service_categories"] : $form->getSubmitValue("service_categories");
+    $ret = $ret["service_categories"] ?? $form->getSubmitValue("service_categories");
     if (is_array($ret)) {
         $counter = count($ret);
         for ($i = 0; $i < $counter; $i++) {

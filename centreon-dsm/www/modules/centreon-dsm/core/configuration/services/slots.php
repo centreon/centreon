@@ -38,16 +38,16 @@ if (!isset($oreon)) {
     exit();
 }
 
-$cG = isset($_GET["pool_id"]) ? $_GET["pool_id"] : null;
-$cP = isset($_POST["pool_id"]) ? $_POST["pool_id"] : null;
+$cG = $_GET["pool_id"] ?? null;
+$cP = $_POST["pool_id"] ?? null;
 $slot_id = $cG ?: $cP;
 
-$cG = isset($_GET["select"]) ? $_GET["select"] : null;
-$cP = isset($_POST["select"]) ? $_POST["select"] : null;
+$cG = $_GET["select"] ?? null;
+$cP = $_POST["select"] ?? null;
 $select = $cG ?: $cP;
 
-$cG = isset($_GET["dupNbr"]) ? $_GET["dupNbr"] : null;
-$cP = isset($_POST["dupNbr"]) ? $_POST["dupNbr"] : null;
+$cG = $_GET["dupNbr"] ?? null;
+$cP = $_POST["dupNbr"] ?? null;
 $dupNbr = $cG ?: $cP;
 
 $search = isset($_POST['searchSlot']) ? htmlentities($_POST['searchSlot'], ENT_QUOTES) : null;
@@ -78,7 +78,7 @@ switch ($o) {
         include_once $path . "listSlot.php"; // Activate a slot
         break;
     case "ms":
-        enablePoolInDB(null, isset($select) ? $select : []);
+        enablePoolInDB(null, $select ?? []);
         include_once $path . "listSlot.php";
         break;
     case "u":
@@ -86,15 +86,15 @@ switch ($o) {
         include_once $path . "listSlot.php"; // Desactivate a slot
         break;
     case "mu":
-        disablePoolInDB(null, isset($select) ? $select : []);
+        disablePoolInDB(null, $select ?? []);
         include_once $path . "listSlot.php";
         break;
     case "m":
-        multiplePoolInDB(isset($select) ? $select : [], $dupNbr);
+        multiplePoolInDB($select ?? [], $dupNbr);
         include_once $path . "listSlot.php"; // Duplicate n slots
         break;
     case "d":
-        deletePoolInDB(isset($select) ? $select : []);
+        deletePoolInDB($select ?? []);
         include_once $path . "listSlot.php"; // Delete n slots
         break;
     default:

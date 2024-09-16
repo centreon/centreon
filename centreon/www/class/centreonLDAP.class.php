@@ -613,7 +613,7 @@ class CentreonLDAP
         /* Sort */
         if ($sr !== false) {
             $numberReturned = ldap_count_entries($this->ds, $sr);
-            $this->debug("LDAP Search : " . (isset($numberReturned) ? $numberReturned : "0") . " entries found");
+            $this->debug("LDAP Search : " . ($numberReturned ?? "0") . " entries found");
         } else {
             $this->debug("LDAP Search : cannot retrieve entries");
             return [];

@@ -414,9 +414,7 @@ for ($i = 0; $host = $dbResult->fetch(); $i++) {
         }
 
         // Create Array Data for template list
-        $elemArr[$i] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => CentreonUtils::escapeSecure($host["host_name"]), "RowMenu_id" => $host["host_id"], "RowMenu_icone" => $host_icone, "RowMenu_link" => "main.php?p=" . $p . "&o=c&host_id=" . $host['host_id'], "RowMenu_desc" => CentreonUtils::escapeSecure($host["host_alias"]), "RowMenu_address" => CentreonUtils::escapeSecure($host["host_address"]), "RowMenu_poller" => isset($tab_relation[$host["host_id"]])
-            ? $tab_relation[$host["host_id"]]
-            : "", "RowMenu_parent" => CentreonUtils::escapeSecure($tplStr), "RowMenu_status" => $host["host_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $host["host_activate"] ? "service_ok" : "service_critical", "RowMenu_options" => $moptions, "isSvgFile" => $isSvgFile];
+        $elemArr[$i] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => CentreonUtils::escapeSecure($host["host_name"]), "RowMenu_id" => $host["host_id"], "RowMenu_icone" => $host_icone, "RowMenu_link" => "main.php?p=" . $p . "&o=c&host_id=" . $host['host_id'], "RowMenu_desc" => CentreonUtils::escapeSecure($host["host_alias"]), "RowMenu_address" => CentreonUtils::escapeSecure($host["host_address"]), "RowMenu_poller" => $tab_relation[$host["host_id"]] ?? "", "RowMenu_parent" => CentreonUtils::escapeSecure($tplStr), "RowMenu_status" => $host["host_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $host["host_activate"] ? "service_ok" : "service_critical", "RowMenu_options" => $moptions, "isSvgFile" => $isSvgFile];
 
         $style = $style != "two"
             ? "two"

@@ -18,7 +18,7 @@
 
 require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/centreon-awie.conf.php';
 
-$export = isset($export) ? $export : null;
+$export = $export ?? null;
 $import = realpath(__DIR__);
 // Smarty template Init
 $path = _MODULE_PATH_ . "/core/templates/";

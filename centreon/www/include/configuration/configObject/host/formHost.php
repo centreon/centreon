@@ -346,7 +346,7 @@ $cdata->addJsData('clone-values-macro', htmlspecialchars(
 $cdata->addJsData('clone-count-macro', count($aMacros));
 
 // Preset values of host templates
-$tplArray = $hostObj->getTemplates(isset($host_id) ? $host_id : null);
+$tplArray = $hostObj->getTemplates($host_id ?? null);
 $cdata->addJsData('clone-values-template', htmlspecialchars(
     json_encode($tplArray),
     ENT_QUOTES

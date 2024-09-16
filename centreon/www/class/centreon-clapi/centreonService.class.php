@@ -909,11 +909,11 @@ class CentreonService extends CentreonObject
         if (count($macroList)) {
             $macroObj->update(
                 $macroList[0][$macroObj->getPrimaryKey()],
-                ['svc_macro_value' => $params[3], 'is_password' => (strlen($params[4]) === 0) ? 0 : (int) $params[4], 'description' => isset($params[5]) ? $params[5] : '']
+                ['svc_macro_value' => $params[3], 'is_password' => (strlen($params[4]) === 0) ? 0 : (int) $params[4], 'description' => $params[5] ?? '']
             );
         } else {
             $macroObj->insert(
-                ['svc_svc_id' => $elements[0]['service_id'], 'svc_macro_name' => $this->wrapMacro($params[2]), 'svc_macro_value' => $params[3], 'is_password' => (strlen($params[4]) === 0) ? 0 : (int) $params[4], 'description' => isset($params[5]) ? $params[5] : '', 'macro_order' => $macroOrder]
+                ['svc_svc_id' => $elements[0]['service_id'], 'svc_macro_name' => $this->wrapMacro($params[2]), 'svc_macro_value' => $params[3], 'is_password' => (strlen($params[4]) === 0) ? 0 : (int) $params[4], 'description' => $params[5] ?? '', 'macro_order' => $macroOrder]
             );
         }
         $this->addAuditLog(

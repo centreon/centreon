@@ -112,7 +112,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            enableServiceInDB(null, isset($select) ? $select : []);
+            enableServiceInDB(null, $select ?? []);
         } else {
             unvalidFormMessage();
         }
@@ -132,7 +132,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            disableServiceInDB(null, isset($select) ? $select : []);
+            disableServiceInDB(null, $select ?? []);
         } else {
             unvalidFormMessage();
         }
@@ -142,7 +142,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            multipleServiceInDB(isset($select) ? $select : [], $dupNbr);
+            multipleServiceInDB($select ?? [], $dupNbr);
         } else {
             unvalidFormMessage();
         }
@@ -152,7 +152,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteServiceInDB(isset($select) ? $select : []);
+            deleteServiceInDB($select ?? []);
         } else {
             unvalidFormMessage();
         }

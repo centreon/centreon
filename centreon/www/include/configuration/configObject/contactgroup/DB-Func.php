@@ -292,7 +292,7 @@ function updateContactGroupContacts($cg_id, $ret = [])
     $rq = "DELETE FROM `contactgroup_contact_relation` WHERE `contactgroup_cg_id` = '" . (int)$cg_id . "'";
     $dbResult = $pearDB->query($rq);
 
-    $ret = isset($ret["cg_contacts"]) ? $ret["cg_contacts"] : CentreonUtils::mergeWithInitialValues($form, 'cg_contacts');
+    $ret = $ret["cg_contacts"] ?? CentreonUtils::mergeWithInitialValues($form, 'cg_contacts');
     $counter = count($ret);
 
     for ($i = 0; $i < $counter; $i++) {

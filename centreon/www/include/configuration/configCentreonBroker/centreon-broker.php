@@ -48,16 +48,16 @@ const DELETE_BROKER_CONFIGURATIONS = 'd';
 const LISTING_FILE = '/listCentreonBroker.php';
 const FORM_FILE = '/formCentreonBroker.php';
 
-$cG = isset($_GET["id"]) ? $_GET["id"] : null;
-$cP = isset($_POST["id"]) ? $_POST["id"] : null;
+$cG = $_GET["id"] ?? null;
+$cP = $_POST["id"] ?? null;
 $id = $cG ?: $cP;
 
-$cG = isset($_GET["select"]) ? $_GET["select"] : null;
-$cP = isset($_POST["select"]) ? $_POST["select"] : null;
+$cG = $_GET["select"] ?? null;
+$cP = $_POST["select"] ?? null;
 $select = $cG ?: $cP;
 
-$cG = isset($_GET["dupNbr"]) ? $_GET["dupNbr"] : null;
-$cP = isset($_POST["dupNbr"]) ? $_POST["dupNbr"] : null;
+$cG = $_GET["dupNbr"] ?? null;
+$cP = $_POST["dupNbr"] ?? null;
 $dupNbr = $cG ?: $cP;
 
 require_once './class/centreonConfigCentreonBroker.php';
@@ -128,7 +128,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            multipleCentreonBrokerInDB(isset($select) ? $select : [], $dupNbr);
+            multipleCentreonBrokerInDB($select ?? [], $dupNbr);
         } else {
             unvalidFormMessage();
         }
@@ -139,7 +139,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteCentreonBrokerInDB(isset($select) ? $select : []);
+            deleteCentreonBrokerInDB($select ?? []);
         } else {
             unvalidFormMessage();
         }

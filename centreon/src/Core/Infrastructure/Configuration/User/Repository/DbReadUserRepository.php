@@ -95,7 +95,7 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY contact_id ASC';
+        $request .= $sortRequest ?? ' ORDER BY contact_id ASC';
 
         // Pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();
@@ -158,7 +158,7 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY contact_id ASC';
+        $request .= $sortRequest ?? ' ORDER BY contact_id ASC';
 
         // Pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();

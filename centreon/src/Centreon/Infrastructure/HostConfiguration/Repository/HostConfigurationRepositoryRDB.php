@@ -256,7 +256,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
                 ON host_server.host_host_id = host.host_id
             INNER JOIN `:db`.nagios_server nagios
                 ON nagios.id = host_server.nagios_server_id '  .
-            ($accessGroupRequest !== null ? $accessGroupRequest : '') .
+            ($accessGroupRequest ?? '') .
             'WHERE host.host_id = :host_id
             AND host.host_register = \'1\''
         );

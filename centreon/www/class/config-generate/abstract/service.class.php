@@ -190,9 +190,7 @@ abstract class AbstractService extends AbstractObject
         $loop = [];
 
         $services_tpl = ServiceTemplate::getInstance($this->dependencyInjector)->service_cache;
-        $service_id = isset($this->service_cache[$service_id]['service_template_model_stm_id'])
-            ? $this->service_cache[$service_id]['service_template_model_stm_id']
-            : null;
+        $service_id = $this->service_cache[$service_id]['service_template_model_stm_id'] ?? null;
         while (!is_null($service_id)) {
             if (isset($loop[$service_id])) {
                 break;
@@ -203,9 +201,7 @@ abstract class AbstractService extends AbstractObject
             ) {
                 return $services_tpl[$service_id][$command_label];
             }
-            $service_id = isset($services_tpl[$service_id]['service_template_model_stm_id'])
-                ? $services_tpl[$service_id]['service_template_model_stm_id']
-                : null;
+            $service_id = $services_tpl[$service_id]['service_template_model_stm_id'] ?? null;
         }
 
         return null;

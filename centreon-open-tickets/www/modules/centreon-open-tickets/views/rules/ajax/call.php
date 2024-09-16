@@ -49,7 +49,7 @@ if (!isset($_POST['data']) && !isset($_REQUEST['action'])) {
 } else {
     $get_information = isset($_POST['data']) ? json_decode($_POST['data'], true): null;
     $action = !is_null($get_information) && isset($get_information['action']) ?
-        $get_information['action'] : (isset($_REQUEST['action']) ? $_REQUEST['action'] : 'none');
+        $get_information['action'] : ($_REQUEST['action'] ?? 'none');
     if (!isset($actions[$action])) {
         $resultat = ["code" => 1, "msg" => "Action not good."];
     } else {

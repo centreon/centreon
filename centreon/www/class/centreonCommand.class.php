@@ -174,8 +174,7 @@ class CentreonCommand
                 foreach ($matches as $match) {
                     if (!in_array($match[1], $macroToFilter)) {
                         $sName = $match[1];
-                        $sDesc = isset($aDescription[$sName]['description']) ?
-                            $aDescription[$sName]['description'] : "";
+                        $sDesc = $aDescription[$sName]['description'] ?? "";
                         $arr[$i]['macroInput_#index#'] = $sName;
                         $arr[$i]['macroValue_#index#'] = "";
                         $arr[$i]['macroPassword_#index#'] = null;

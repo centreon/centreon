@@ -36,8 +36,8 @@ if (!isset($centreon)) {
     exit();
 }
 
-$tpG = isset($_GET["tp_id"]) ? $_GET["tp_id"] : null;
-$tpP = isset($_POST["tp_id"]) ? $_POST["tp_id"] : null;
+$tpG = $_GET["tp_id"] ?? null;
+$tpP = $_POST["tp_id"] ?? null;
 $tp_id = $tpG ?: $tpP;
 $path = "./include/configuration/configObject/timeperiod/";
 require_once $path . "DB-Func.php";

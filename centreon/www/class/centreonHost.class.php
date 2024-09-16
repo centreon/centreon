@@ -969,10 +969,8 @@ class CentreonHost
                 $arr[$index]['macroInput_#index#'] = $val;
                 $arr[$index]['macroValue_#index#'] = $_REQUEST['macroValue'][$key];
                 $arr[$index]['macroPassword_#index#'] = isset($_REQUEST['macroPassword'][$key]) ? 1 : null;
-                $arr[$index]['macroDescription_#index#'] = isset($_REQUEST['description'][$key]) ?
-                    $_REQUEST['description'][$key] : null;
-                $arr[$index]['macroDescription'] = isset($_REQUEST['description'][$key]) ?
-                    $_REQUEST['description'][$key] : null;
+                $arr[$index]['macroDescription_#index#'] = $_REQUEST['description'][$key] ?? null;
+                $arr[$index]['macroDescription'] = $_REQUEST['description'][$key] ?? null;
                 $i++;
             }
         }
@@ -1178,12 +1176,8 @@ class CentreonHost
                     $macroTmp['macroInput_#index#'] = $macroInput;
                     $macroTmp['macroValue_#index#'] = $form['macroValue'][$key];
                     $macroTmp['macroPassword_#index#'] = isset($form['is_password'][$key]) ? 1 : null;
-                    $macroTmp['macroDescription_#index#'] = isset($form['description'][$key])
-                        ? $form['description'][$key]
-                        : null;
-                    $macroTmp['macroDescription'] = isset($form['description'][$key])
-                        ? $form['description'][$key]
-                        : null;
+                    $macroTmp['macroDescription_#index#'] = $form['description'][$key] ?? null;
+                    $macroTmp['macroDescription'] = $form['description'][$key] ?? null;
                     $Macros[] = $macroTmp;
                 }
             }

@@ -43,8 +43,8 @@ require_once _CENTREON_PATH_ . "www/class/centreonHost.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonDB.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonACL.class.php";
 
-$host_name = isset($_GET["host_name"]) ? $_GET["host_name"] : null;
-$cmd = isset($_GET["cmd"]) ? $_GET["cmd"] : null;
+$host_name = $_GET["host_name"] ?? null;
+$cmd = $_GET["cmd"] ?? null;
 
 $hObj = new CentreonHost($pearDB);
 $path = "./include/monitoring/submitPassivResults/";

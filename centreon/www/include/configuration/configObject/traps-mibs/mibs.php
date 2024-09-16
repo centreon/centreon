@@ -37,8 +37,8 @@ if (!isset($centreon)) {
     exit();
 }
 
-$mnftrG = isset($_GET["id"]) ? $_GET["id"] : null;
-$mnftrP = isset($_POST["id"]) ? $_POST["id"] : null;
+$mnftrG = $_GET["id"] ?? null;
+$mnftrP = $_POST["id"] ?? null;
 $id = $mnftrG ?: $mnftrP;
 
 #Path to the configuration dir

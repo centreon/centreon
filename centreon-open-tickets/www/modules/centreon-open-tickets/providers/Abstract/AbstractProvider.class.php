@@ -906,18 +906,10 @@ Output: {$service.output|substr:0:1024}
         $this->save_config['clones']['chainruleList'] = $this->getCloneSubmitted('chainruleList', ['Provider']);
         $this->save_config['clones']['commandList'] = $this->getCloneSubmitted('commandList', ['Cmd']);
 
-        $this->save_config['simple']['proxy_address'] = isset(
-            $this->submitted_config['proxy_address']
-        ) ? $this->submitted_config['proxy_address'] : '';
-        $this->save_config['simple']['proxy_port'] = isset(
-            $this->submitted_config['proxy_port']
-        ) ? $this->submitted_config['proxy_port'] : '';
-        $this->save_config['simple']['proxy_username'] = isset(
-            $this->submitted_config['proxy_username']
-        ) ? $this->submitted_config['proxy_username'] : '';
-        $this->save_config['simple']['proxy_password'] = isset(
-            $this->submitted_config['proxy_password']
-        ) ? $this->submitted_config['proxy_password'] : '';
+        $this->save_config['simple']['proxy_address'] = $this->submitted_config['proxy_address'] ?? '';
+        $this->save_config['simple']['proxy_port'] = $this->submitted_config['proxy_port'] ?? '';
+        $this->save_config['simple']['proxy_username'] = $this->submitted_config['proxy_username'] ?? '';
+        $this->save_config['simple']['proxy_password'] = $this->submitted_config['proxy_password'] ?? '';
     }
 
     /**
@@ -1238,7 +1230,7 @@ Output: {$service.output|substr:0:1024}
         $groups = $this->assignFormatPopupTemplate($tpl, $args);
         $tpl->assign('string', $this->rule_data['format_popup']);
         $result['format_popup'] = $tpl->fetch('eval.ihtml');
-        $result['attach_files_enable'] = isset($this->rule_data['attach_files']) ? $this->rule_data['attach_files'] : 0;
+        $result['attach_files_enable'] = $this->rule_data['attach_files'] ?? 0;
         if ($addGroups === true) {
             $result['groups'] = $groups;
         }

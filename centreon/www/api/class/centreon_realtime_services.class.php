@@ -137,8 +137,8 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
     protected function setServiceFilters()
     {
         /* Pagination Elements */
-        $this->limit = isset($this->arguments['limit']) ? $this->arguments['limit'] : 30;
-        $this->number = isset($this->arguments['number']) ? $this->arguments['number'] : 0;
+        $this->limit = $this->arguments['limit'] ?? 30;
+        $this->number = $this->arguments['number'] ?? 0;
         if (!is_numeric($this->number) || !is_numeric($this->limit)) {
             throw new \RestBadRequestException('Error, limit must be numerical');
         }
@@ -154,19 +154,19 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
         } else {
             $this->status = null;
         }
-        $this->hostgroup = isset($this->arguments['hostgroup']) ? $this->arguments['hostgroup'] : null;
-        $this->servicegroup = isset($this->arguments['servicegroup']) ? $this->arguments['servicegroup'] : null;
-        $this->search = isset($this->arguments['search']) ? $this->arguments['search'] : null;
-        $this->searchHost = isset($this->arguments['searchHost']) ? $this->arguments['searchHost'] : null;
-        $this->searchOutput = isset($this->arguments['searchOutput']) ? $this->arguments['searchOutput'] : null;
-        $this->instance = isset($this->arguments['instance']) ? $this->arguments['instance'] : null;
+        $this->hostgroup = $this->arguments['hostgroup'] ?? null;
+        $this->servicegroup = $this->arguments['servicegroup'] ?? null;
+        $this->search = $this->arguments['search'] ?? null;
+        $this->searchHost = $this->arguments['searchHost'] ?? null;
+        $this->searchOutput = $this->arguments['searchOutput'] ?? null;
+        $this->instance = $this->arguments['instance'] ?? null;
         // set criticality
         $this->criticality = $this->arguments['criticality'] ?? null;
 
         /* view properties */
-        $this->viewType = isset($this->arguments['viewType']) ? $this->arguments['viewType'] : null;
-        $this->sortType = isset($this->arguments['sortType']) ? $this->arguments['sortType'] : null;
-        $this->order = isset($this->arguments['order']) ? $this->arguments['order'] : null;
+        $this->viewType = $this->arguments['viewType'] ?? null;
+        $this->sortType = $this->arguments['sortType'] ?? null;
+        $this->order = $this->arguments['order'] ?? null;
     }
 
     /**

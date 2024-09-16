@@ -44,9 +44,9 @@ require_once(_CENTREON_PATH_ . "www/class/centreonService.class.php");
 include_once(_CENTREON_PATH_ . "www/class/centreonMeta.class.php");
 require_once(_CENTREON_PATH_ . "www/class/centreonDB.class.php");
 
-$host_name = isset($_GET["host_name"]) ? $_GET["host_name"] : null;
-$service_description = isset($_GET["service_description"]) ? $_GET["service_description"] : null;
-$cmd = isset($_GET["cmd"]) ? $_GET["cmd"] : null;
+$host_name = $_GET["host_name"] ?? null;
+$service_description = $_GET["service_description"] ?? null;
+$cmd = $_GET["cmd"] ?? null;
 $is_meta = isset($_GET["is_meta"]) && $_GET["is_meta"] == 'true' ? $_GET["is_meta"] : 'false';
 
 $hObj = new CentreonHost($pearDB);

@@ -115,7 +115,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            multipleNagiosInDB(isset($select) ? $select : [], $dupNbr);
+            multipleNagiosInDB($select ?? [], $dupNbr);
         } else {
             unvalidFormMessage();
         }
@@ -125,7 +125,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteNagiosInDB(isset($select) ? $select : []);
+            deleteNagiosInDB($select ?? []);
         } else {
             unvalidFormMessage();
         }

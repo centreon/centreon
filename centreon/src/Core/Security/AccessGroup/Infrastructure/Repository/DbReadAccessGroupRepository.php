@@ -78,7 +78,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY acl_group_id ASC';
+        $request .= $sortRequest ?? ' ORDER BY acl_group_id ASC';
 
         // Pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();
@@ -175,7 +175,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY acl_group_id ASC';
+        $request .= $sortRequest ?? ' ORDER BY acl_group_id ASC';
 
         // Pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();

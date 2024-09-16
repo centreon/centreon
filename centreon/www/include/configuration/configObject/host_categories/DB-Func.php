@@ -485,14 +485,10 @@ function updateHostCategoriesHosts($hcId, $ret = [])
     $statement->bindValue(':hc_id', $hcId, \PDO::PARAM_INT);
     $statement->execute();
     // get host relations
-    $linkedHosts = isset($ret["hc_hosts"]) ?
-        $ret["hc_hosts"] :
-        CentreonUtils::mergeWithInitialValues($form, 'hc_hosts');
+    $linkedHosts = $ret["hc_hosts"] ?? CentreonUtils::mergeWithInitialValues($form, 'hc_hosts');
 
     // get host template relations
-    $linkedHostTemplates = isset($ret["hc_hostsTemplate"]) ?
-        $ret["hc_hostsTemplate"] :
-        CentreonUtils::mergeWithInitialValues($form, 'hc_hostsTemplate');
+    $linkedHostTemplates = $ret["hc_hostsTemplate"] ?? CentreonUtils::mergeWithInitialValues($form, 'hc_hostsTemplate');
 
     // merge host and host template relations
     $linkedObjects = array_merge($linkedHosts, $linkedHostTemplates);

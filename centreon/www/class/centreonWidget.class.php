@@ -1042,7 +1042,7 @@ class CentreonWidget
                 $queryValues2 = [];
                 $str2 = "";
                 foreach ($pref['option'] as $option) {
-                    $opt = isset($option['@attributes']) ? $option['@attributes'] : $option;
+                    $opt = $option['@attributes'] ?? $option;
                     if ($str2 != "") {
                         $str2 .= ", ";
                     }

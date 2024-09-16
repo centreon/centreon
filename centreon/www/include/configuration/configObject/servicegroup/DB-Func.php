@@ -699,7 +699,7 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
     }
 
     /* service templates */
-    $retTmp = isset($ret["sg_tServices"]) ? $ret["sg_tServices"] : $form->getSubmitValue("sg_tServices");
+    $retTmp = $ret["sg_tServices"] ?? $form->getSubmitValue("sg_tServices");
     if ($retTmp) {
         $statement = $pearDB->prepare("
             SELECT servicegroup_sg_id service FROM servicegroup_relation
@@ -732,9 +732,7 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
     }
 
     /* regular services */
-    $retTmp = isset($ret["sg_hServices"])
-        ? $ret["sg_hServices"]
-        : CentreonUtils::mergeWithInitialValues($form, 'sg_hServices');
+    $retTmp = $ret["sg_hServices"] ?? CentreonUtils::mergeWithInitialValues($form, 'sg_hServices');
 
     $statement = $pearDB->prepare("
         SELECT servicegroup_sg_id service FROM servicegroup_relation
@@ -766,9 +764,7 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
     }
 
     /* hostgroup services */
-    $retTmp = isset($ret["sg_hgServices"])
-        ? $ret["sg_hgServices"]
-        : CentreonUtils::mergeWithInitialValues($form, 'sg_hgServices');
+    $retTmp = $ret["sg_hgServices"] ?? CentreonUtils::mergeWithInitialValues($form, 'sg_hgServices');
 
     $statement = $pearDB->prepare("
         SELECT servicegroup_sg_id service FROM servicegroup_relation

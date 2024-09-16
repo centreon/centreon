@@ -198,7 +198,7 @@ function updateContact($contactId = null)
     $centreon->user->alias = $ret['contact_alias'];
     $centreon->user->lang = $ret['contact_lang'];
     $centreon->user->email = $ret['contact_email'];
-    $centreon->user->setToken(isset($ret['contact_autologin_key']) ? $ret['contact_autologin_key'] : "''");
+    $centreon->user->setToken($ret['contact_autologin_key'] ?? "''");
 }
 
 /**

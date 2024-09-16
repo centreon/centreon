@@ -167,7 +167,7 @@ class Installer extends Widget
         $sth = $this->services->get('configuration_db')->prepare($query);
 
         foreach ($preference['option'] as $option) {
-            $opt = isset($option['@attributes']) ? $option['@attributes'] : $option;
+            $opt = $option['@attributes'] ?? $option;
 
             $sth->bindParam(':parameter_id', $paramId, \PDO::PARAM_INT);
             $sth->bindParam(':option_name', $opt['label'], \PDO::PARAM_STR);

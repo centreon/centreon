@@ -38,16 +38,16 @@ if (!isset($centreon)) {
     exit();
 }
 
-$hG = isset($_GET["hc_id"]) ? $_GET["hc_id"] : null;
-$hP = isset($_POST["hc_id"]) ? $_POST["hc_id"] : null;
+$hG = $_GET["hc_id"] ?? null;
+$hP = $_POST["hc_id"] ?? null;
 $hc_id = $hG ?: $hP;
 
-$cG = isset($_GET["select"]) ? $_GET["select"] : null;
-$cP = isset($_POST["select"]) ? $_POST["select"] : null;
+$cG = $_GET["select"] ?? null;
+$cP = $_POST["select"] ?? null;
 $select = $cG ?: $cP;
 
-$cG = isset($_GET["dupNbr"]) ? $_GET["dupNbr"] : null;
-$cP = isset($_POST["dupNbr"]) ? $_POST["dupNbr"] : null;
+$cG = $_GET["dupNbr"] ?? null;
+$cP = $_POST["dupNbr"] ?? null;
 $dupNbr = $cG ?: $cP;
 
 /*
@@ -96,7 +96,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            enableHostCategoriesInDB(null, isset($select) ? $select : []);
+            enableHostCategoriesInDB(null, $select ?? []);
         } else {
             unvalidFormMessage();
         }
@@ -116,7 +116,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            disableHostCategoriesInDB(null, isset($select) ? $select : []);
+            disableHostCategoriesInDB(null, $select ?? []);
         } else {
             unvalidFormMessage();
         }
@@ -126,7 +126,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            multipleHostCategoriesInDB(isset($select) ? $select : [], $dupNbr);
+            multipleHostCategoriesInDB($select ?? [], $dupNbr);
         } else {
             unvalidFormMessage();
         }
@@ -136,7 +136,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteHostCategoriesInDB(isset($select) ? $select : []);
+            deleteHostCategoriesInDB($select ?? []);
         } else {
             unvalidFormMessage();
         }

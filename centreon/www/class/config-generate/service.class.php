@@ -189,9 +189,7 @@ class Service extends AbstractService
         $results = ['cg' => $service['contact_groups_cache'], 'contact' => $service['contacts_cache']];
 
         $servicesTpl = ServiceTemplate::getInstance($this->dependencyInjector)->service_cache;
-        $serviceId = isset($this->service_cache[$service['service_id']]['service_template_model_stm_id'])
-            ? $this->service_cache[$service['service_id']]['service_template_model_stm_id']
-            : null;
+        $serviceId = $this->service_cache[$service['service_id']]['service_template_model_stm_id'] ?? null;
         $serviceIdTopLevel = $serviceId;
 
         if (!is_null($serviceIdTopLevel) && !isset($servicesTpl[$serviceIdTopLevel]['contacts_computed_cache'])) {
@@ -216,9 +214,7 @@ class Service extends AbstractService
                     $contacts = array_merge($contacts, $servicesTpl[$serviceId]['contacts_cache']);
                 }
 
-                $serviceId = isset($servicesTpl[$serviceId]['service_template_model_stm_id'])
-                    ? $servicesTpl[$serviceId]['service_template_model_stm_id']
-                    : null;
+                $serviceId = $servicesTpl[$serviceId]['service_template_model_stm_id'] ?? null;
             }
 
             $servicesTpl[$serviceIdTopLevel]['contacts_computed_cache'] = array_unique($contacts);
@@ -252,9 +248,7 @@ class Service extends AbstractService
         }
 
         $servicesTpl = ServiceTemplate::getInstance($this->dependencyInjector)->service_cache;
-        $serviceId = isset($this->service_cache[$service['service_id']]['service_template_model_stm_id'])
-            ? $this->service_cache[$service['service_id']]['service_template_model_stm_id']
-            : null;
+        $serviceId = $this->service_cache[$service['service_id']]['service_template_model_stm_id'] ?? null;
         $serviceIdTopLevel = $serviceId;
 
         if (!is_null($serviceIdTopLevel) && !isset($servicesTpl[$serviceIdTopLevel][$attribute . '_computed_cache'])) {
@@ -277,9 +271,7 @@ class Service extends AbstractService
                     break;
                 }
 
-                $serviceId = isset($servicesTpl[$serviceId]['service_template_model_stm_id'])
-                    ? $servicesTpl[$serviceId]['service_template_model_stm_id']
-                    : null;
+                $serviceId = $servicesTpl[$serviceId]['service_template_model_stm_id'] ?? null;
             }
             return $servicesTpl[$serviceIdTopLevel][$attribute . '_computed_cache'];
         }
@@ -301,9 +293,7 @@ class Service extends AbstractService
         }
 
         $servicesTpl = ServiceTemplate::getInstance($this->dependencyInjector)->service_cache;
-        $serviceId = isset($this->service_cache[$service['service_id']]['service_template_model_stm_id'])
-            ? $this->service_cache[$service['service_id']]['service_template_model_stm_id']
-            : null;
+        $serviceId = $this->service_cache[$service['service_id']]['service_template_model_stm_id'] ?? null;
         $serviceIdTopLevel = $serviceId;
         $computedCache = [];
         if (!is_null($serviceIdTopLevel) && !isset($servicesTpl[$serviceIdTopLevel][$attribute . '_computed_cache'])) {
@@ -326,9 +316,7 @@ class Service extends AbstractService
                         break;
                     }
                 }
-                $serviceId = isset($servicesTpl[$serviceId]['service_template_model_stm_id'])
-                    ? $servicesTpl[$serviceId]['service_template_model_stm_id']
-                    : null;
+                $serviceId = $servicesTpl[$serviceId]['service_template_model_stm_id'] ?? null;
             }
             $servicesTpl[$serviceIdTopLevel][$attribute . '_computed_cache'] = array_unique($computedCache);
         }
@@ -450,9 +438,7 @@ class Service extends AbstractService
         // Check from service templates
         $loop = [];
         $servicesTpl = &ServiceTemplate::getInstance($this->dependencyInjector)->service_cache;
-        $servicesTopTpl = isset($this->service_cache[$serviceIdArg]['service_template_model_stm_id'])
-            ? $this->service_cache[$serviceIdArg]['service_template_model_stm_id']
-            : null;
+        $servicesTopTpl = $this->service_cache[$serviceIdArg]['service_template_model_stm_id'] ?? null;
         $serviceId = $servicesTopTpl;
         $severityId = null;
         while (!is_null($serviceId)) {
@@ -471,9 +457,7 @@ class Service extends AbstractService
                 $servicesTpl[$servicesTopTpl]['severity_id_from_below'] = $servicesTpl[$serviceId]['severity_id'];
                 break;
             }
-            $serviceId = isset($servicesTpl[$serviceId]['service_template_model_stm_id'])
-                ? $servicesTpl[$serviceId]['service_template_model_stm_id']
-                : null;
+            $serviceId = $servicesTpl[$serviceId]['service_template_model_stm_id'] ?? null;
         }
 
         return;
@@ -653,9 +637,7 @@ class Service extends AbstractService
         $this->getContacts($this->service_cache[$serviceId]);
         $serviceTplInstance = ServiceTemplate::getInstance($this->dependencyInjector);
 
-        $serviceTplId = isset($this->service_cache[$serviceId]['service_template_model_stm_id'])
-            ? $this->service_cache[$serviceId]['service_template_model_stm_id']
-            : null;
+        $serviceTplId = $this->service_cache[$serviceId]['service_template_model_stm_id'] ?? null;
         $loop = [];
         while (!is_null($serviceTplId)) {
             if (isset($loop[$serviceTplId])) {
@@ -670,9 +652,7 @@ class Service extends AbstractService
             $serviceTplInstance->getContactGroups($serviceTplInstance->service_cache[$serviceTplId]);
             $serviceTplInstance->getContacts($serviceTplInstance->service_cache[$serviceTplId]);
 
-            $serviceTplId = isset($serviceTplInstance->service_cache[$serviceTplId]['service_template_model_stm_id'])
-                    ? $serviceTplInstance->service_cache[$serviceTplId]['service_template_model_stm_id']
-                    : null;
+            $serviceTplId = $serviceTplInstance->service_cache[$serviceTplId]['service_template_model_stm_id'] ?? null;
         }
         return $this->manageNotificationInheritance($this->service_cache[$serviceId], false);
     }

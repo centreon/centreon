@@ -99,7 +99,7 @@ class Listing implements JsonSerializable
         $this->entities = $entities ?? [];
         $this->total = $total ?: count($this->entities);
         $this->offset = $offset;
-        $this->limit = $limit !== null ? $limit : $this->total;
+        $this->limit = $limit ?? $this->total;
         $this->entityClass = $entityClass ?? Entity::class;
     }
 
@@ -113,7 +113,7 @@ class Listing implements JsonSerializable
         $result = [
             'pagination' => [
                 'total' => $this->total,
-                'offset' => $this->offset !== null ? $this->offset : 0,
+                'offset' => $this->offset ?? 0,
                 'limit' => $this->limit,
             ],
             'entities' => [],

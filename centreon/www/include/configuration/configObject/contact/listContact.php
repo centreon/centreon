@@ -267,26 +267,20 @@ foreach ($contacts as $contact) {
     $elemArr[] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => CentreonUtils::escapeSecure(
         html_entity_decode($contact["contact_name"], ENT_QUOTES, "UTF-8"),
         CentreonUtils::ESCAPE_ILLEGAL_CHARS
-    ), "RowMenu_ico" => isset($contactTypeIcon[$contact_type]) ? $contactTypeIcon[$contact_type] : "", "RowMenu_ico_title" => isset($contactTypeIconTitle[$contact_type])
-        ? $contactTypeIconTitle[$contact_type]
-        : "", "RowMenu_type" => $contact_type, "RowMenu_link" => "main.php?p=" . $p . "&o=c&contact_id=" . $contact['contact_id'], "RowMenu_desc" => CentreonUtils::escapeSecure(
+    ), "RowMenu_ico" => $contactTypeIcon[$contact_type] ?? "", "RowMenu_ico_title" => $contactTypeIconTitle[$contact_type] ?? "", "RowMenu_type" => $contact_type, "RowMenu_link" => "main.php?p=" . $p . "&o=c&contact_id=" . $contact['contact_id'], "RowMenu_desc" => CentreonUtils::escapeSecure(
         html_entity_decode($contact["contact_alias"], ENT_QUOTES, "UTF-8"),
         CentreonUtils::ESCAPE_ILLEGAL_CHARS
     ), "RowMenu_email" => $contact["contact_email"], "RowMenu_hostNotif" =>
         html_entity_decode(
-            $tpCache[(isset($contact["timeperiod_tp_id"]) ? $contact["timeperiod_tp_id"] : "")],
+            $tpCache[($contact["timeperiod_tp_id"] ?? "")],
             ENT_QUOTES,
             "UTF-8"
-        ) . " (" . (isset($contact["contact_host_notification_options"])
-            ? $contact["contact_host_notification_options"]
-            : "") . ")", "RowMenu_svNotif" =>
+        ) . " (" . ($contact["contact_host_notification_options"] ?? "") . ")", "RowMenu_svNotif" =>
         html_entity_decode(
-            $tpCache[(isset($contact["timeperiod_tp_id2"]) ? $contact["timeperiod_tp_id2"] : "")],
+            $tpCache[($contact["timeperiod_tp_id2"] ?? "")],
             ENT_QUOTES,
             "UTF-8"
-        ) . " (" . (isset($contact["contact_service_notification_options"])
-            ? $contact["contact_service_notification_options"]
-            : "") . ")", "RowMenu_lang" => $contact["contact_lang"], "RowMenu_access" => $contact["contact_oreon"] ? _("Enabled") : _("Disabled"), "RowMenu_admin" => $contact["contact_admin"] ? _("Yes") : _("No"), "RowMenu_status" => $contact["contact_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $contact["contact_activate"] ? "service_ok" : "service_critical", "RowMenu_refreshLdap" => $isLinkedToLdap ? $refreshLdapBadge[$isLinkedToLdap] : "", "RowMenu_refreshLdapHelp" => $isLinkedToLdap ? $refreshLdapHelp[$isLinkedToLdap] : "", "RowMenu_options" => $moptions, "RowMenu_unblock" => $contact["blocking_time"] !== null ? $blockedUserIcon : "-"];
+        ) . " (" . ($contact["contact_service_notification_options"] ?? "") . ")", "RowMenu_lang" => $contact["contact_lang"], "RowMenu_access" => $contact["contact_oreon"] ? _("Enabled") : _("Disabled"), "RowMenu_admin" => $contact["contact_admin"] ? _("Yes") : _("No"), "RowMenu_status" => $contact["contact_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $contact["contact_activate"] ? "service_ok" : "service_critical", "RowMenu_refreshLdap" => $isLinkedToLdap ? $refreshLdapBadge[$isLinkedToLdap] : "", "RowMenu_refreshLdapHelp" => $isLinkedToLdap ? $refreshLdapHelp[$isLinkedToLdap] : "", "RowMenu_options" => $moptions, "RowMenu_unblock" => $contact["blocking_time"] !== null ? $blockedUserIcon : "-"];
     $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("isAdmin", $centreon->user->admin);

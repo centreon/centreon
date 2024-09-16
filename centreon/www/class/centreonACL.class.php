@@ -2391,7 +2391,7 @@ class CentreonACL
                 return '';
             }
             $key .= $separator . $res[$value];
-            $separator = isset($options['keys_separator']) ? $options['keys_separator'] : '_';
+            $separator = $options['keys_separator'] ?? '_';
         }
 
         return $key;

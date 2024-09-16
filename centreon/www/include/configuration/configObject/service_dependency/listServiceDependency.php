@@ -41,7 +41,7 @@ include_once("./class/centreonUtils.class.php");
 
 include("./include/common/autoNumLimit.php");
 
-$list = isset($_GET["list"]) ? $_GET["list"] : null;
+$list = $_GET["list"] ?? null;
 
 $search = \HtmlAnalyzer::sanitizeAndRemoveTags(
     $_POST['searchSD'] ?? $_GET['searchSD'] ?? null

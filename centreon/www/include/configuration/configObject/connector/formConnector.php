@@ -81,7 +81,7 @@ try {
     unset($row);
     $DBRESULT->closeCursor();
 
-    $availableConnectors_list = return_plugin((isset($oreon->optGen["cengine_path_connectors"]) ? $oreon->optGen["cengine_path_connectors"] : null));
+    $availableConnectors_list = return_plugin(($oreon->optGen["cengine_path_connectors"] ?? null));
 
     $form = new HTML_QuickFormCustom('Form', 'post', "?p=".$p);
 
@@ -99,7 +99,7 @@ try {
     $attrsAdvSelect = ["style" => "width: 300px; height: 100px;"];
     $attrCommands = ['datasourceOrigin' => 'ajax', 'multiple' => true, 'defaultDatasetRoute' => './include/common/webServices/rest/internal.php?'
     . 'object=centreon_configuration_command&action=defaultValues&target=connector&field=command_id&id='
-    . (isset($connector_id) ? $connector_id : ''), 'availableDatasetRoute' => './include/common/webServices/rest/internal.php?'
+    . ($connector_id ?? ''), 'availableDatasetRoute' => './include/common/webServices/rest/internal.php?'
     . 'object=centreon_configuration_command&action=list', 'linkedObject' => 'centreonCommand'];
 
     $form->addElement('text', 'connector_name', _("Connector Name"), $attrsText);
@@ -162,7 +162,7 @@ try {
         $connectorValues['name'] = \HtmlAnalyzer::sanitizeAndRemoveTags($tab['connector_name']);
         $connectorValues['description'] = \HtmlAnalyzer::sanitizeAndRemoveTags($tab['connector_description']);
         $connectorValues['enabled'] = $tab['connector_status']['connector_status'] === '0' ? 0 : 1;
-        $connectorValues['command_id'] = isset($tab['command_id']) ? $tab['command_id'] : null;
+        $connectorValues['command_id'] = $tab['command_id'] ?? null;
         $connectorValues['command_line'] = $tab['command_line'];
         $connectorId = (int) $tab['connector_id'];
 

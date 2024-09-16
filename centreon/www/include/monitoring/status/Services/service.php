@@ -120,7 +120,7 @@ if ($resetFilter) {
 }
 
 if (!isset($o) || empty($o)) {
-    $o = isset($_SESSION['monitoring_service_status']) ? $_SESSION['monitoring_service_status'] : null;
+    $o = $_SESSION['monitoring_service_status'] ?? null;
 }
 
 foreach ($myinputsGet as $key => $value) {
@@ -511,7 +511,7 @@ $form->addElement(
     $critArray,
     ['id' => 'critFilter', 'onChange' => "filterCrit(this.value);"]
 );
-$form->setDefaults(['criticality' => isset($_SESSION['criticality_id']) ? $_SESSION['criticality_id'] : "0"]);
+$form->setDefaults(['criticality' => $_SESSION['criticality_id'] ?? "0"]);
 
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);

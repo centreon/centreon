@@ -221,9 +221,7 @@ class Centreon_OpenTickets_Rule
                 $row['last_hard_state_change_duration'] = CentreonDuration::toString(
                     time() - $row['last_hard_state_change']
                 );
-                $row['num_metrics'] = isset(
-                    $datas_graph[$row['host_id'] . '.' . $row['service_id']]
-                ) ? $datas_graph[$row['host_id'] . '.' . $row['service_id']] : 0;
+                $row['num_metrics'] = $datas_graph[$row['host_id'] . '.' . $row['service_id']] ?? 0;
                 $selected['service_selected'][] = $row;
             }
         } elseif ($cmd == 4) {

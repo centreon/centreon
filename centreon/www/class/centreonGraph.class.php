@@ -730,7 +730,7 @@ class CentreonGraph
                             );
                         } else {
                             $this->metrics[$metric["metric_id"]]["legend"] = (
-                            isset($ds_data["ds_name"]) ? $ds_data["ds_name"] : ""
+                            $ds_data["ds_name"] ?? ""
                             );
                         }
                         $this->metrics[$metric["metric_id"]]["legend"] = str_replace(
@@ -1088,7 +1088,7 @@ class CentreonGraph
         }
 
         if ($l_unit == 'B' || $l_unit == 'o' || $l_unit == 'b/s') {
-            $l_base = isset($this->RRDoptions["base"]) ? $this->RRDoptions["base"] : 1000;
+            $l_base = $this->RRDoptions["base"] ?? 1000;
 
             $l_px = ["8" => ["1000" => "Y", "1024" => "Yi"], "7" => ["1000" => "Z", "1024" => "Zi"], "6" => ["1000" => "E", "1024" => "Ei"], "5" => ["1000" => "P", "1024" => "Pi"], "4" => ["1000" => "T", "1024" => "Ti"], "3" => ["1000" => "G", "1024" => "Gi"], "2" => ["1000" => "M", "1024" => "Mi"], "1" => ["1000" => "K", "1024" => "Ki"]];
             $l_sign = "";

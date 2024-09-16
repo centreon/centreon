@@ -111,7 +111,7 @@ class CentreonAPI
         $this->options = $options;
         $this->centreon_path = $centreon_path;
 
-        $this->variables = isset($options["v"]) ? $options["v"] : "";
+        $this->variables = $options["v"] ?? "";
 
         $this->object = isset($options["o"]) ? htmlentities(strtoupper($options["o"]), ENT_QUOTES) : "";
 
@@ -896,8 +896,8 @@ class CentreonAPI
             foreach ($selected as $select) {
                 $splits = explode(';', $select);
 
-                $splits[0] = isset($splits[0]) ? $splits[0] : null;
-                $splits[1] = isset($splits[1]) ? $splits[1] : null;
+                $splits[0] = $splits[0] ?? null;
+                $splits[1] = $splits[1] ?? null;
 
                 if (!isset($this->objectTable[$splits[0]])) {
                     print "Unknown object : $splits[0]\n";
