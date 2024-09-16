@@ -123,13 +123,21 @@ const installCentreon = (version: string): Cypress.Chainable => {
 
     const distribPrefix = Number(versionMatches[1]) >= 24 ? '-1~' : '-';
     const packageVersionSuffix = `${version}${distribPrefix}${Cypress.env('WEB_IMAGE_OS')}`;
+    const packagesToInstall = [
+      `centreon-poller=${packageVersionSuffix}`,
+      `centreon-web=${packageVersionSuffix}`,
+      `centreon-common=${packageVersionSuffix}`
+    ];
+    if (Number(versionMatches[1]) < 24) {
+      packagesToInstall.push(`centreon-web-apache=${packageVersionSuffix}`);
+    }
 
     cy.execInContainer({
       command: [
         `mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak`,
         `mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak`,
         `apt-get update`,
-        `apt-get install -y centreon-poller=${packageVersionSuffix} centreon-web-apache=${packageVersionSuffix} centreon-web=${packageVersionSuffix} centreon-common=${packageVersionSuffix}`,
+        `apt-get install -y ${packagesToInstall.join(' ')}`,
         `mkdir -p /usr/lib/centreon-connector`,
         `echo "date.timezone = Europe/Paris" >> /etc/php/8.2/mods-available/centreon.ini`,
         `sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql`,
