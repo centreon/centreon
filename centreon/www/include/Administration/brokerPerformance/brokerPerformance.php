@@ -209,7 +209,7 @@ function parseStatsFile($statfile)
  * Init GMT class
  */
 $centreonGMT = new CentreonGMT($pearDB);
-$centreonGMT->getMyGMTFromSession(session_id(), $pearDB);
+$centreonGMT->getMyGMTFromSession(session_id());
 
 $form = new HTML_QuickFormCustom('form', 'post', "?p=" . $p);
 

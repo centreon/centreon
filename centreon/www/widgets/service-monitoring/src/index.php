@@ -413,7 +413,7 @@ $commentLength = $preferences['comment_length'] ?: 50;
 $hostObj = new CentreonHost($db);
 $svcObj = new CentreonService($db);
 $gmt = new CentreonGMT($db);
-$gmt->getMyGMTFromSession(session_id(), $db);
+$gmt->getMyGMTFromSession(session_id());
 $allowedActionProtocols = ['http[s]?', '//', 'ssh', 'rdp', 'ftp', 'sftp'];
 $allowedProtocolsRegex = '#(^' . implode(
     ')|(^',

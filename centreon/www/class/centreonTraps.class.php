@@ -564,7 +564,7 @@ class CentreonTraps
             $stmt->bindValue($key, $value);
         }
         $stmt->execute();
-        $this->setMatchingOptions($traps_id, $_POST);
+        $this->setMatchingOptions($traps_id);
         $this->setServiceRelations($traps_id);
         $this->setServiceTemplateRelations($traps_id);
         $this->setPreexec($traps_id);
@@ -953,7 +953,7 @@ class CentreonTraps
         $res = $this->db->query("SELECT MAX(traps_id) FROM traps");
         $traps_id = $res->fetch();
 
-        $this->setMatchingOptions($traps_id['MAX(traps_id)'], $_POST);
+        $this->setMatchingOptions($traps_id['MAX(traps_id)']);
         $this->setServiceRelations($traps_id['MAX(traps_id)']);
         $this->setServiceTemplateRelations($traps_id['MAX(traps_id)']);
         $this->setPreexec($traps_id['MAX(traps_id)']);

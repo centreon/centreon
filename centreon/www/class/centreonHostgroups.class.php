@@ -105,7 +105,7 @@ class CentreonHostgroups
         if (isset($hostgroups) && count($hostgroups)) {
             foreach ($hostgroups as $hg_id2) {
                 $ref[$hg_id2] = [];
-                $tmp = $this->getHostGroupHosts($hg_id2, "", 1);
+                $tmp = $this->getHostGroupHosts($hg_id2);
                 foreach ($tmp as $id) {
                     print "     host: $id<br>";
                 }
@@ -271,7 +271,7 @@ class CentreonHostgroups
             "SELECT * FROM hostgroup WHERE hg_id NOT IN (SELECT hg_child_id FROM hostgroup_hg_relation)"
         );
         while ($data = $DBRESULT->fetchRow()) {
-            $this->dataTree[$data['hg_id']] = $this->getHostGroupHosts($data['hg_id'], $this->dataTree);
+            $this->dataTree[$data['hg_id']] = $this->getHostGroupHosts($data['hg_id']);
         }
         $DBRESULT->closeCursor();
         return $hostgroups;

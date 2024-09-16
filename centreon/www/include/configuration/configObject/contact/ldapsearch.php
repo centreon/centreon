@@ -202,7 +202,7 @@ foreach ($ids as $arId) {
                     $buffer->text($searchResult[$i]['name'], 1, 0);
                     $buffer->endElement();
                     $buffer->startElement("uid");
-                    $buffer->writeAttribute("isvalid", (($searchResult[$i]['alias'] != '') ? "1" : "0"), 1, 0);
+                    $buffer->writeAttribute("isvalid", (($searchResult[$i]['alias'] != '') ? "1" : "0"), 1);
                     $buffer->text($searchResult[$i]['alias'], 1, 0);
                     $buffer->endElement();
                     $buffer->startElement("in_database");

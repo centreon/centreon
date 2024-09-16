@@ -142,11 +142,9 @@ for ($i = 0; $group = $statement->fetchRow(); $i++) {
     $dbResult3->closeCursor();
 
     $elemArr[$i] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => CentreonUtils::escapeAll(
-        $group["acl_group_name"],
-        CentreonUtils::ESCAPE_ALL
+        $group["acl_group_name"]
     ), "RowMenu_link" => "main.php?p=" . $p . "&o=c&acl_group_id=" . $group['acl_group_id'], "RowMenu_desc" => CentreonUtils::escapeAll(
-        $group["acl_group_alias"],
-        CentreonUtils::ESCAPE_ALL
+        $group["acl_group_alias"]
     ), "RowMenu_contacts" => $ctNbr["nbr"], "RowMenu_contactgroups" => $cgNbr["nbr"], "RowMenu_status" => $group["acl_group_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $group["acl_group_activate"] ? "service_ok" : "service_critical", "RowMenu_options" => $moptions];
 
     $style = $style != "two" ? "two" : "one";

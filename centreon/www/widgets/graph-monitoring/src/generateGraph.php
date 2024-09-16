@@ -94,7 +94,7 @@ require_once $centreon_path . "www/include/common/common-Func.php";
 $obj->setRRDOption("start", (time() - $graphPeriod));
 $obj->setRRDOption("end", time());
 
-$obj->GMT->getMyGMTFromSession(session_id(), $db);
+$obj->GMT->getMyGMTFromSession(session_id());
 
 /**
  * Template Management

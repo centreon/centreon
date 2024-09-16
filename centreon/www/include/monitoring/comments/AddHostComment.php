@@ -46,7 +46,7 @@ include_once _CENTREON_PATH_ . "www/class/centreonDB.class.php";
 $hostStr = $oreon->user->access->getHostsString("ID", $pearDBO);
 
 $centreonGMT = new CentreonGMT($pearDB);
-$centreonGMT->getMyGMTFromSession(session_id(), $pearDB);
+$centreonGMT->getMyGMTFromSession(session_id());
 
 if ($centreon->user->access->checkAction("host_comment")) {
     /*

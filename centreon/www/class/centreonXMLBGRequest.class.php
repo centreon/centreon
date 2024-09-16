@@ -194,7 +194,7 @@ class CentreonXMLBGRequest
              * Timezone management
              */
             $this->GMT = new CentreonGMT($this->DB);
-            $this->GMT->getMyGMTFromSession($this->session_id, $this->DB);
+            $this->GMT->getMyGMTFromSession($this->session_id);
         }
 
         /*

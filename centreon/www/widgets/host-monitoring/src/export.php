@@ -279,7 +279,7 @@ $outputLength = $preferences['output_length'] ?? 50;
 $commentLength = $preferences['comment_length'] ?? 50;
 $hostObj = new CentreonHost($db);
 $gmt = new CentreonGMT($db);
-$gmt->getMyGMTFromSession(session_id(), $db);
+$gmt->getMyGMTFromSession(session_id());
 
 while ($row = $res->fetch()) {
     foreach ($row as $key => $value) {

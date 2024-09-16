@@ -254,7 +254,7 @@ if ($form->validate()) {
         /*
         * Update in DB
         */
-        updateGeneralConfigData(1);
+        updateGeneralConfigData();
 
         /*
         * Update in Oreon Object

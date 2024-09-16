@@ -123,7 +123,7 @@ class CentreonContactgroup
             $ldapRes = $this->db->query($query);
             while ($ldapRow = $ldapRes->fetch()) {
                 $ldap = new CentreonLDAP($this->db, null, $ldapRow['ar_id']);
-                $ldap->connect(null, $ldapRow['ar_id']);
+                $ldap->connect();
                 $ldapGroups = $ldap->listOfGroups();
 
                 foreach ($ldapGroups as $ldapGroup) {

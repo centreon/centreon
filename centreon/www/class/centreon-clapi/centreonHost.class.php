@@ -336,7 +336,7 @@ class CentreonHost extends CentreonObject
         $i = 1;
         $templateRelationObject = new Centreon_Object_Relation_Host_Template_Host($this->dependencyInjector);
         foreach ($this->templateIds as $templateId) {
-            $templateRelationObject->insert($templateId, $hostId, $i);
+            $templateRelationObject->insert($templateId, $hostId);
             $i++;
         }
         $hostgroupRelationObject = new Centreon_Object_Relation_Host_Group_Host($this->dependencyInjector);

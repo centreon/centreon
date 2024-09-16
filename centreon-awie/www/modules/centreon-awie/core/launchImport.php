@@ -100,7 +100,7 @@ $finalFile = $confPath . basename($uploadFile, '.zip') . '.txt';
 
 try {
     ob_start();
-    $clapiConnector->import($finalFile, $tmpLogFile);
+    $clapiConnector->import($finalFile);
     ob_end_clean();
     $importReturn['response'] = 'Import successful';
 } catch (\Exception $e) {

@@ -1143,7 +1143,7 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     //Retrieve UUID for vault path before updating values in database.
     $uuid = null;
     if ($vaultConfiguration !== null ){
-        $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $service_id, $vaultConfiguration->getName());
+        $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $service_id);
     }
 
     if (isset($ret["sg_name"])) {
@@ -1527,8 +1527,8 @@ function updateServiceInDBForOnPrem($serviceId = null, $massiveChange = false, $
         updateServiceContactGroup($serviceId, $parameters);
         updateServiceContact($serviceId, $parameters);
     } elseif (isset($ret["mc_mod_cgs"]["mc_mod_cgs"]) && !$ret["mc_mod_cgs"]["mc_mod_cgs"]) {
-        updateServiceContactGroup_MC($serviceId, $parameters);
-        updateServiceContact_MC($serviceId, $parameters);
+        updateServiceContactGroup_MC($serviceId);
+        updateServiceContact_MC($serviceId);
     } else {
         updateServiceContactGroup($serviceId, $parameters);
         updateServiceContact($serviceId, $parameters);

@@ -82,7 +82,7 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
             $acl = new CentreonACL($userId, $isAdmin);
             $aclServices .= 'AND s.service_id IN (' . $acl->getServicesString('ID', $this->pearDBMonitoring) . ') ';
             $aclMetaServices .= 'AND ms.service_id IN (' .
-                $acl->getMetaServiceString('ID', $this->pearDBMonitoring) . ') ';
+                $acl->getMetaServiceString() . ') ';
         }
 
         // Check for select2 'q' argument

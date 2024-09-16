@@ -143,8 +143,7 @@ $query = "SELECT contact_id, contact_name "
 $DBRESULT = $pearDB->query($query);
 while ($contact = $DBRESULT->fetchRow()) {
     $contacts[$contact["contact_id"]] = CentreonUtils::escapeAll(
-        $contact["contact_name"],
-        CentreonUtils::ESCAPE_ALL
+        $contact["contact_name"]
     );
 }
 unset($contact);
@@ -158,8 +157,7 @@ $menus = [];
 $DBRESULT = $pearDB->query("SELECT acl_topo_id, acl_topo_name FROM acl_topology ORDER BY acl_topo_name");
 while ($topo = $DBRESULT->fetchRow()) {
     $menus[$topo["acl_topo_id"]] = CentreonUtils::escapeAll(
-        $topo["acl_topo_name"],
-        CentreonUtils::ESCAPE_ALL
+        $topo["acl_topo_name"]
     );
 }
 unset($topo);
@@ -170,8 +168,7 @@ $action = [];
 $DBRESULT = $pearDB->query("SELECT acl_action_id, acl_action_name FROM acl_actions ORDER BY acl_action_name");
 while ($data = $DBRESULT->fetchRow()) {
     $action[$data["acl_action_id"]] = CentreonUtils::escapeAll(
-        $data["acl_action_name"],
-        CentreonUtils::ESCAPE_ALL
+        $data["acl_action_name"]
     );
 }
 unset($data);
@@ -186,8 +183,7 @@ $query = 'SELECT acl_res_id, acl_res_name '
 $DBRESULT = $pearDB->query($query);
 while ($res = $DBRESULT->fetchRow()) {
     $resources[$res["acl_res_id"]] = CentreonUtils::escapeAll(
-        $res["acl_res_name"],
-        CentreonUtils::ESCAPE_ALL
+        $res["acl_res_name"]
     );
 }
 unset($res);

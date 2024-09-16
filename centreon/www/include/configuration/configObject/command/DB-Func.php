@@ -296,7 +296,7 @@ function return_plugin($rep)
     while (false != ($filename = readdir($handle[$rep]))) {
         if ($filename != "." && $filename != "..") {
             if (is_dir($rep . $filename)) {
-                $plg_tmp = return_plugin($rep . "/" . $filename, $handle[$rep]);
+                $plg_tmp = return_plugin($rep . "/" . $filename);
                 $plugins = array_merge($plugins, $plg_tmp);
                 unset($plg_tmp);
             } elseif (!isset($is_not_a_plugin[$filename]) &&

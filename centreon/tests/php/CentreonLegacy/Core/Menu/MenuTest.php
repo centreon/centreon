@@ -60,7 +60,7 @@ class MenuTest extends \PHPUnit\Framework\TestCase
         );
         $menu = new Menu($this->db);
         $this->assertEquals(
-            $menu->getGroups(2),
+            $menu->getGroups(),
             [2 =>
                 [201 => 'By host', 202 => 'By services']]
         );

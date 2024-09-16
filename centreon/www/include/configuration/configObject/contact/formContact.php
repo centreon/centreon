@@ -1167,7 +1167,7 @@ if ($form->validate() && $from_list_menu == false) {
         $select = explode(",", $select);
         foreach ($select as $key => $selectedContactId) {
             if ($selectedContactId) {
-                updateContactInDB($selectedContactId, true);
+                updateContactInDB($selectedContactId);
 
                 $eventDispatcher->notify(
                     'contact.form',

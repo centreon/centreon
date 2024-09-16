@@ -113,7 +113,7 @@ function schedule_check(bool $isService, bool $isForced, bool $autoCloseActionPo
 
     $path = $centreon_path . "www/widgets/open-tickets/src/";
     $template = new Smarty();
-    $template = initSmartyTpl($path . 'templates/', $template, "./", $centreon_path);
+    $template = initSmartyTpl($path . 'templates/', $template, "./");
     $template->assign('selection', $selection);
     $template->assign('titleLabel', _("Scheduling checks"));
     $template->assign('forced', $isForced);

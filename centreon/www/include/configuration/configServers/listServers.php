@@ -42,7 +42,7 @@ include "./include/common/autoNumLimit.php";
 
 // Init GMT class
 $centreonGMT = new CentreonGMT($pearDB);
-$centreonGMT->getMyGMTFromSession(session_id(), $pearDB);
+$centreonGMT->getMyGMTFromSession(session_id());
 
 
 $search = \HtmlAnalyzer::sanitizeAndRemoveTags(

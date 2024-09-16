@@ -272,7 +272,7 @@ if ($form->validate()) {
     if ($form->getSubmitValue("submitA")) {
         $depObj->setValue(insertHostGroupDependencyInDB());
     } elseif ($form->getSubmitValue("submitC")) {
-        updateHostGroupDependencyInDB($depObj->getValue("dep_id"));
+        updateHostGroupDependencyInDB($depObj->getValue());
     }
     $o = null;
     $valid = true;

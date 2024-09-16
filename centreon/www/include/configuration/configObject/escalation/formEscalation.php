@@ -233,7 +233,7 @@ if ($form->validate()) {
     if ($form->getSubmitValue("submitA")) {
         $escObj->setValue(insertEscalationInDB());
     } elseif ($form->getSubmitValue("submitC")) {
-        updateEscalationInDB($escObj->getValue("esc_id"));
+        updateEscalationInDB($escObj->getValue());
     }
     $o = null;
     $valid = true;

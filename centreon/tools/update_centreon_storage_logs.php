@@ -530,11 +530,11 @@ try {
         $logs("We do not delete the old log table");
     }
 } catch (Exception $ex) {
-    mySysLog("ERROR: {$ex->getMessage()}", false);
+    mySysLog("ERROR: {$ex->getMessage()}");
 }
 
 if (file_exists($lockFileName)) {
     unlink($lockFileName);
 }
 
-mySysLog(sprintf("End of %s", __FILE__), false);
+mySysLog(sprintf("End of %s", __FILE__));

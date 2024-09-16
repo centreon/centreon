@@ -290,7 +290,7 @@ if ($form->validate()) {
     if ($form->getSubmitValue("submitA")) {
         $depObj->setValue(insertServiceDependencyInDB());
     } elseif ($form->getSubmitValue("submitC")) {
-        updateServiceDependencyInDB($depObj->getValue("dep_id"));
+        updateServiceDependencyInDB($depObj->getValue());
     }
     $o = null;
     $valid = true;

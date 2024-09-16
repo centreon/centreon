@@ -230,7 +230,7 @@ if ($form->validate() && $from_list_menu == false) {
     if ($form->getSubmitValue("submitA")) {
         $cctObj->setValue(insertServiceCategorieInDB());
     } elseif ($form->getSubmitValue("submitC")) {
-        updateServiceCategorieInDB($cctObj->getValue());
+        updateServiceCategorieInDB();
     }
     $o = null;
     $valid = true;

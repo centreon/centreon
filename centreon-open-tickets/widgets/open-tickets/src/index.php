@@ -488,7 +488,7 @@ $outputLength = $preferences['output_length'] ?: 50;
 $hostObj = new CentreonHost($db);
 $svcObj = new CentreonService($db);
 $gmt = new CentreonGMT($db);
-$gmt->getMyGMTFromSession(session_id(), $db);
+$gmt->getMyGMTFromSession(session_id());
 while ($row = $res->fetch()) {
     foreach ($row as $key => $value) {
         if ($key == "last_check") {

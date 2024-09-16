@@ -223,7 +223,7 @@ $sid = $sid ?? "-1";
  * Init GMT class
  */
 $centreonGMT = new CentreonGMT($pearDB);
-$centreonGMT->getMyGMTFromSession($sid, $pearDB);
+$centreonGMT->getMyGMTFromSession($sid);
 
 /*
  * Check Session

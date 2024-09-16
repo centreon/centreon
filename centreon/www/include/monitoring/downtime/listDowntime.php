@@ -105,7 +105,7 @@ if (isset($_POST['SearchB'])) {
  * Init GMT class
  */
 $centreonGMT = new CentreonGMT($pearDB);
-$centreonGMT->getMyGMTFromSession(session_id(), $pearDB);
+$centreonGMT->getMyGMTFromSession(session_id());
 
 /**
  * true: URIs will correspond to deprecated pages

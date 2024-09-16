@@ -92,7 +92,7 @@ class CentreonExternalCommand
          * Init GMT classes
          */
         $this->GMT = new CentreonGMT();
-        $this->GMT->getMyGMTFromSession(session_id(), CentreonDBInstance::getDbCentreonInstance());
+        $this->GMT->getMyGMTFromSession(session_id());
 
         if (!is_null($centreon)) {
             $this->userId = $centreon->user->get_id();

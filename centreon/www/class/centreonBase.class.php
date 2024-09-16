@@ -122,7 +122,7 @@ class CentreonBase
 		 * Timezone management
 		 */
         $this->GMT = new CentreonGMT($this->DB);
-        $this->GMT->getMyGMTFromSession($this->sessionId, $this->DB);
+        $this->GMT->getMyGMTFromSession($this->sessionId);
     }
 
     /**

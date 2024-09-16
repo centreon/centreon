@@ -41,6 +41,7 @@ use Rector\Php55\Rector\ClassConstFetch\StaticToSelfOnFinalClassRector;
 use Rector\Php55\Rector\FuncCall\GetCalledClassToSelfClassRector;
 use Rector\Php55\Rector\FuncCall\GetCalledClassToStaticClassRector;
 use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
+use Rector\Php70\Rector\ClassMethod\Php4ConstructorRector;
 use Rector\Php70\Rector\FuncCall\CallUserMethodRector;
 use Rector\Php70\Rector\FuncCall\EregToPregMatchRector;
 use Rector\Php70\Rector\FuncCall\MultiDirnameRector;
@@ -148,9 +149,9 @@ return RectorConfig::configure()
 //                MultiDirnameRector::class, // KO 0 files /  Changes multiple dirname() calls to one with nesting level (7.0)
 //                StaticCallOnNonStaticToInstanceCallRector::class, // OK 1 files /  Changes static call to instance call, where not useful (7.0)
 //                IfIssetToCoalescingRector::class, // OK 23 files / Change if with isset and return to coalesce (7.0)
-                TernaryToNullCoalescingRector::class, // OK 120 files / Changes unneeded null check to ?? operator (7.0)
-        //        Php4ConstructorRector::class, // Changes PHP 4 style constructor to __construct (7.0)
-        //        RemoveExtraParametersRector::class, // Remove extra parameters (7.1)
+//                TernaryToNullCoalescingRector::class, // OK 120 files / Changes unneeded null check to ?? operator (7.0)
+//                Php4ConstructorRector::class, // KO 0 files /  Changes PHP 4 style constructor to __construct (7.0)
+                RemoveExtraParametersRector::class, // OK 48 files / Remove extra parameters (7.1)
         //        AssignArrayToStringRector::class, // String cannot be turned into array by assignment anymore (7.1)
         //        MultiExceptionCatchRector::class, // Changes multi catch of same exception to single one | separated. (7.1)
         //        IsIterableRector::class, // Changes is_array + Traversable check to is_iterable (7.1)
