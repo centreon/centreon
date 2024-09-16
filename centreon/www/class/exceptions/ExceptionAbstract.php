@@ -69,7 +69,7 @@ abstract class ExceptionAbstract extends Exception
      */
     protected function getClassName(): string
     {
-        return $this::class;
+        return static::class;
     }
 
     /**
