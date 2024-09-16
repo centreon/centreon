@@ -301,10 +301,7 @@ class CentreonGraphService extends CentreonGraph
      */
     public function getBase()
     {
-        if (isset($this->templateInformations['base'])) {
-            return $this->templateInformations['base'];
-        }
-        return 1000;
+        return $this->templateInformations['base'] ?? 1000;
     }
 
     public function getLegends()

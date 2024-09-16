@@ -433,10 +433,7 @@ abstract class AbstractHost extends AbstractObject
      */
     public function getString($host_id, $attr)
     {
-        if (isset($this->hosts[$host_id][$attr])) {
-            return $this->hosts[$host_id][$attr];
-        }
-        return null;
+        return $this->hosts[$host_id][$attr] ?? null;
     }
 
     /**

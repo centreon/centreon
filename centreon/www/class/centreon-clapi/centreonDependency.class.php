@@ -214,10 +214,7 @@ class CentreonDependency extends CentreonObject
             AND d.dep_name = :name";
         $res = $this->db->query($sql, [':name' => $dependencyName]);
         $row = $res->fetch();
-        if (isset($row['type'])) {
-            return $row['type'];
-        }
-        return "";
+        return $row['type'] ?? "";
     }
 
     /**
@@ -233,10 +230,7 @@ class CentreonDependency extends CentreonObject
         $stmt->bindParam(':depId', $dependencyId, PDO::PARAM_INT);
         $stmt->execute();
         $row = $stmt->fetch();
-        if (isset($row['dep_name'])) {
-            return $row['dep_name'];
-        }
-        return "";
+        return $row['dep_name'] ?? "";
     }
 
     /**

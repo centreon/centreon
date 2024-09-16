@@ -302,9 +302,6 @@ class ServiceGroup extends AbstractObject
      */
     public function getString(int $sgId, string $attr)
     {
-        if (isset($this->sg[$sgId][$attr])) {
-            return $this->sg[$sgId][$attr];
-        }
-        return null;
+        return $this->sg[$sgId][$attr] ?? null;
     }
 }

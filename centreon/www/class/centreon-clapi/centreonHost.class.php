@@ -173,10 +173,7 @@ class CentreonHost extends CentreonObject
         if (preg_match("/^ehi_/", $columnName)) {
             return substr($columnName, strlen("ehi_"));
         }
-        if (isset($table[$columnName])) {
-            return $table[$columnName];
-        }
-        return $columnName;
+        return $table[$columnName] ?? $columnName;
     }
 
     /**

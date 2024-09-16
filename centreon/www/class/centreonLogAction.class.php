@@ -315,10 +315,7 @@ class CentreonLogAction
         $DBRESULT2->bindValue(':hg_id', $hg_id, PDO::PARAM_INT);
         $DBRESULT2->execute();
         $info = $DBRESULT2->fetch(PDO::FETCH_ASSOC);
-        if (isset($info['object_name'])) {
-            return $info['object_name'];
-        }
-        return -1;
+        return $info['object_name'] ?? -1;
     }
 
     /**

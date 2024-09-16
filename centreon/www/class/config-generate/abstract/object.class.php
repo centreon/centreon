@@ -385,10 +385,7 @@ abstract class AbstractObject
      */
     public function getExported()
     {
-        if (isset($this->exported)) {
-            return $this->exported;
-        }
-        return [];
+        return $this->exported ?? [];
     }
 
     /**

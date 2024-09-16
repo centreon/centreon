@@ -267,11 +267,8 @@ class CentreonHostGroupService extends CentreonObject
         if (preg_match("/^esi_/", $columnName)) {
             return ltrim($columnName, "esi_");
         }
-        if (isset($table[$columnName])) {
-            return $table[$columnName];
-        }
 
-        return $columnName;
+        return $table[$columnName] ?? $columnName;
     }
 
     /**
@@ -730,11 +727,8 @@ class CentreonHostGroupService extends CentreonObject
     public function getObjectName($id)
     {
         $tmp = $this->object->getParameters($id, ['service_description']);
-        if (isset($tmp['service_description'])) {
-            return $tmp['service_description'];
-        }
 
-        return "";
+        return $tmp['service_description'] ?? "";
     }
 
     /**

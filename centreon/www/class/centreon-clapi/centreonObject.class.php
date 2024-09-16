@@ -247,10 +247,7 @@ abstract class CentreonObject
     public function getObjectName($id)
     {
         $tmp = $this->object->getParameters($id, [$this->object->getUniqueLabelField()]);
-        if (isset($tmp[$this->object->getUniqueLabelField()])) {
-            return $tmp[$this->object->getUniqueLabelField()];
-        }
-        return "";
+        return $tmp[$this->object->getUniqueLabelField()] ?? "";
     }
 
     /**

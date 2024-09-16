@@ -414,10 +414,7 @@ class CentreonCommand extends CentreonObject
         if (!isset($table)) {
             $table = ["graph_id" => "graph"];
         }
-        if (isset($table[$columnName])) {
-            return $table[$columnName];
-        }
-        return $columnName;
+        return $table[$columnName] ?? $columnName;
     }
 
 

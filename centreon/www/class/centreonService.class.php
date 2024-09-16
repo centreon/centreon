@@ -272,10 +272,7 @@ class CentreonService
                 $svcTab[$sid] = $row['service_alias'];
             }
         }
-        if (isset($svcTab[$sid])) {
-            return $svcTab[$sid];
-        }
-        return null;
+        return $svcTab[$sid] ?? null;
     }
 
     /**

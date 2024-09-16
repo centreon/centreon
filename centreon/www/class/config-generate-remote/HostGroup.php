@@ -175,9 +175,6 @@ class HostGroup extends AbstractObject
      */
     public function getString(int $hgId, string $attr)
     {
-        if (isset($this->hg[$hgId][$attr])) {
-            return $this->hg[$hgId][$attr];
-        }
-        return null;
+        return $this->hg[$hgId][$attr] ?? null;
     }
 }

@@ -326,10 +326,7 @@ class CentreonExternalCommand
             $statement->execute();
         }
         $row = $statement->fetchRow();
-        if (isset($row['instance_id'])) {
-            return $row['instance_id'];
-        }
-        return 0;
+        return $row['instance_id'] ?? 0;
     }
 
     /**

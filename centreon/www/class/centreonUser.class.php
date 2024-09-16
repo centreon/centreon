@@ -167,11 +167,7 @@ class CentreonUser
         if (!isset($div_name)) {
             return 0;
         }
-
-        if (isset($_SESSION['_Div_' . $div_name])) {
-            return $_SESSION['_Div_' . $div_name];
-        }
-        return 1;
+        return $_SESSION['_Div_' . $div_name] ?? 1;
     }
 
     /**
@@ -450,10 +446,7 @@ class CentreonUser
                 $userNames[$row['contact_id']] = $row['contact_name'];
             }
         }
-        if (isset($userNames[$userId])) {
-            return $userNames[$userId];
-        }
-        return null;
+        return $userNames[$userId] ?? null;
     }
 
     /**

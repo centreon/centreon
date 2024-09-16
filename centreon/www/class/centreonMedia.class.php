@@ -266,10 +266,7 @@ class CentreonMedia
         while ($row = $res->fetchRow()) {
             $this->filenames[$row['img_id']] = $row["dir_alias"] . "/" . $row["img_path"];
         }
-        if (isset($this->filenames[$imgId])) {
-            return $this->filenames[$imgId];
-        }
-        return "";
+        return $this->filenames[$imgId] ?? "";
     }
 
     /**

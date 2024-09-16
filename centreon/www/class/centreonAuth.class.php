@@ -171,10 +171,7 @@ class CentreonAuth
     {
         $res = $this->pearDB->query("SELECT value FROM options WHERE `key` = 'debug_auth'");
         $data = $res->fetch();
-        if (isset($data["value"])) {
-            return $data["value"];
-        }
-        return 0;
+        return $data["value"] ?? 0;
     }
 
     /**

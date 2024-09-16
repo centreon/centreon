@@ -382,9 +382,6 @@ class CentreonServicegroups// FIXME CentreonServiceGroups exists too
                 $ids[$sgName] = $row['sg_id'];
             }
         }
-        if (isset($ids[$sgName])) {
-            return $ids[$sgName];
-        }
-        return 0;
+        return $ids[$sgName] ?? 0;
     }
 }

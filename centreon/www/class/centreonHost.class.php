@@ -515,10 +515,7 @@ class CentreonHost
                 $aliasTab[$hostId] = $row['host_alias'];
             }
         }
-        if (isset($aliasTab[$hostId])) {
-            return $aliasTab[$hostId];
-        }
-        return null;
+        return $aliasTab[$hostId] ?? null;
     }
 
     /**
@@ -546,10 +543,7 @@ class CentreonHost
                 $addrTab[$hostId] = $row['host_address'];
             }
         }
-        if (isset($addrTab[$hostId])) {
-            return $addrTab[$hostId];
-        }
-        return null;
+        return $addrTab[$hostId] ?? null;
     }
 
     /**
@@ -613,10 +607,7 @@ class CentreonHost
                 $ids[$hostName] = $row['host_id'];
             }
         }
-        if (isset($ids[$hostName])) {
-            return $ids[$hostName];
-        }
-        return null;
+        return $ids[$hostName] ?? null;
     }
 
     /**

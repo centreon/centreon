@@ -115,11 +115,7 @@ class CentreonMeta
                 $services[$metaId] = $row['service_id'];
             }
         }
-
-        if (isset($services[$metaId])) {
-            return $services[$metaId];
-        }
-        return 0;
+        return $services[$metaId] ?? 0;
     }
 
     /**

@@ -322,10 +322,7 @@ class CentreonServiceTemplate extends CentreonObject
         if (preg_match("/^esi_/", $columnName)) {
             return substr($columnName, strlen("esi_"));
         }
-        if (isset($table[$columnName])) {
-            return $table[$columnName];
-        }
-        return $columnName;
+        return $table[$columnName] ?? $columnName;
     }
 
     /**

@@ -98,10 +98,7 @@ class CentreonCriticality
                 }
             }
         }
-        if (isset($data[$critId])) {
-            return $data[$critId];
-        }
-        return null;
+        return $data[$critId] ?? null;
     }
 
     /**
@@ -129,10 +126,7 @@ class CentreonCriticality
                 }
             }
         }
-        if (isset($data[$critId])) {
-            return $data[$critId];
-        }
-        return null;
+        return $data[$critId] ?? null;
     }
     
     /**
@@ -193,10 +187,7 @@ class CentreonCriticality
                 $ids[$row['host_id']] = $row['criticality'];
             }
         }
-        if (isset($ids[$hostId])) {
-            return $ids[$hostId];
-        }
-        return 0;
+        return $ids[$hostId] ?? 0;
     }
 
 
@@ -219,10 +210,7 @@ class CentreonCriticality
                 $ids[$row['service_id']] = $row['criticality'];
             }
         }
-        if (isset($ids[$serviceId])) {
-            return $ids[$serviceId];
-        }
-        return 0;
+        return $ids[$serviceId] ?? 0;
     }
 
     /**

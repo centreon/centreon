@@ -407,11 +407,7 @@ class CentreonGMT
     {
         $locations = $this->getHostLocations();
 
-        if (isset($locations[$hostId])) {
-            return $locations[$hostId];
-        }
-
-        return null;
+        return $locations[$hostId] ?? null;
     }
 
     /**

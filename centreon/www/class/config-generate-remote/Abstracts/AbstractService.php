@@ -250,9 +250,6 @@ abstract class AbstractService extends AbstractObject
      */
     public function getString(int $serviceId, string $attr): ?string
     {
-        if (isset($this->serviceCache[$serviceId][$attr])) {
-            return $this->serviceCache[$serviceId][$attr];
-        }
-        return null;
+        return $this->serviceCache[$serviceId][$attr] ?? null;
     }
 }

@@ -1387,10 +1387,7 @@ class CentreonGraph
      */
     public function getOption($name)
     {
-        if (isset($this->options[$name])) {
-            return $this->options[$name];
-        }
-        return false;
+        return $this->options[$name] ?? false;
     }
 
     /**

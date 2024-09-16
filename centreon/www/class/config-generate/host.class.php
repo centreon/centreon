@@ -640,10 +640,7 @@ class Host extends AbstractHost
      */
     public function getHostIdByHostName($host_name)
     {
-        if (isset($this->hosts_by_name[$host_name])) {
-            return $this->hosts_by_name[$host_name];
-        }
-        return null;
+        return $this->hosts_by_name[$host_name] ?? null;
     }
 
     /**

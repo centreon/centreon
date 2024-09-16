@@ -135,10 +135,7 @@ class CentreonHostgroups
                 $names[$hg_id] = $row['hg_name'];
             }
         }
-        if (isset($names[$hg_id])) {
-            return $names[$hg_id];
-        }
-        return "";
+        return $names[$hg_id] ?? "";
     }
 
 
@@ -209,10 +206,7 @@ class CentreonHostgroups
                 $ids[$hg_name] = $row['hg_id'];
             }
         }
-        if (isset($ids[$hg_name])) {
-            return $ids[$hg_name];
-        }
-        return 0;
+        return $ids[$hg_name] ?? 0;
     }
 
     /**
