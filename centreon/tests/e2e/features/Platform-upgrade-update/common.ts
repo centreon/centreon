@@ -116,14 +116,22 @@ const installCentreon = (version: string): Cypress.Chainable => {
       name: 'web'
     });
   } else {
+    const versionMatches = version.match(/(\d+)\.\d+\.\d+/);
+    if (!versionMatches) {
+      throw new Error('Cannot parse version number.');
+    }
+
+    const distribPrefix = Number(versionMatches[1]) >= 24 ? '~' : '-';
+    const packageVersionSuffix = `${version}${distribPrefix}${Cypress.env('WEB_IMAGE_OS')}`;
+
     cy.execInContainer({
       command: [
         `mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak`,
         `mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak`,
         `apt-get update`,
-        `apt-get install -y centreon-poller=${version}-${Cypress.env('WEB_IMAGE_OS')} centreon-web-apache=${version}-${Cypress.env('WEB_IMAGE_OS')} centreon-web=${version}-${Cypress.env('WEB_IMAGE_OS')} centreon-common=${version}-${Cypress.env('WEB_IMAGE_OS')}`,
+        `apt-get install -y centreon-poller=${packageVersionSuffix} centreon-web-apache=${packageVersionSuffix} centreon-web=${packageVersionSuffix} centreon-common=${packageVersionSuffix}`,
         `mkdir -p /usr/lib/centreon-connector`,
-        `echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini`,
+        `echo "date.timezone = Europe/Paris" >> /etc/php/8.2/mods-available/centreon.ini`,
         `sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql`,
         `service mysql start`,
         `mkdir -p /run/php`,
