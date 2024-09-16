@@ -36,13 +36,13 @@ import CheckboxGroup from './CheckboxGroup';
 import ConnectedAutocomplete from './ConnectedAutocomplete';
 import Custom from './Custom';
 import FieldsTable from './FieldsTable/FieldsTable';
+import File from './File';
 import Grid from './Grid';
 import List from './List/List';
 import LoadingSkeleton from './LoadingSkeleton';
 import RadioInput from './Radio';
 import SwitchInput from './Switch';
 import TextInput from './Text';
-import File from './File';
 import { Group, InputProps, InputPropsWithoutGroup, InputType } from './models';
 
 export const getInput = cond<
