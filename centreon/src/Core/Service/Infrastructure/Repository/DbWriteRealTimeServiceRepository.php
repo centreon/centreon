@@ -27,7 +27,6 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Service\Application\Repository\WriteRealTimeServiceRepositoryInterface;
-use Core\Service\Domain\Model\Service;
 
 class DbWriteRealTimeServiceRepository extends AbstractRepositoryRDB implements WriteRealTimeServiceRepositoryInterface
 {
@@ -67,51 +66,6 @@ class DbWriteRealTimeServiceRepository extends AbstractRepositoryRDB implements 
         }
         $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
         $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
-
-        $statement->execute();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function addServicesToResourceAcls(int $hostId, array $services, array $accessGroups): void
-    {
-        $serviceIds = array_map(
-            fn(Service $service) => $service->getId(),
-            $services
-        );
-
-        $accessGroupIds = array_map(
-            fn(AccessGroup $accessGroup) => $accessGroup->getId(),
-            $accessGroups
-        );
-
-        $request = <<<'SQL'
-            INSERT INTO `:dbstg`.`centreon_acl`(`group_id`, `host_id`, `service_id`) VALUES
-            SQL;
-        $subRequests = [];
-
-        foreach ($accessGroupIds as $accessGroupId) {
-            foreach ($serviceIds as $serviceId) {
-                $subRequests[] = <<<SQL
-                        (:group_{$accessGroupId}, :host_id, :service_{$serviceId})
-                    SQL;
-            }
-        }
-        $subRequestsAsString = implode(', ', $subRequests);
-        $request .= $subRequestsAsString;
-
-        $statement = $this->db->prepare($this->translateDbName($request));
-
-        foreach ($accessGroupIds as $accessGroupId) {
-            $statement->bindValue(':group_' . $accessGroupId, $accessGroupIds, \PDO::PARAM_INT);
-        }
-
-        foreach ($serviceIds as $serviceId) {
-            $statement->bindValue(':service_' . $serviceId, $serviceId, \PDO::PARAM_INT);
-        }
-
-        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
 
         $statement->execute();
     }

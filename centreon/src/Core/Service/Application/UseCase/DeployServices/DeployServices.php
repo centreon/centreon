@@ -228,11 +228,13 @@ final class DeployServices
             }
 
             if ($accessGroups !== []) {
-                $this->writeRealTimeServiceRepository->addServicesToResourceAcls(
-                    $hostId,
-                    $deployedServices,
-                    $accessGroups
-                );
+                foreach ($deployedServices as $deployedService) {
+                    $this->writeRealTimeServiceRepository->addServiceToResourceAcls(
+                        $hostId,
+                        $deployedService->getId(),
+                        $accessGroups
+                    );
+                }
             }
 
             $this->dataStorageEngine->commitTransaction();
