@@ -484,17 +484,35 @@ function set_required_prerequisite() {
 			esac
 
 			if [ "$topology" == "central" ]; then
-				install_remi_repo
+				case "$version" in
+					"21.10" | "22.04")
+						install_remi_repo
+						log "INFO" "Installing PHP 8.0 and enable it"
+						$PKG_MGR module reset php -y -q
+						$PKG_MGR module install php:remi-8.0 -y -q
+						;;
+					"22.10" | "23.04" | "23.10" | "24.04")
+						install_remi_repo
+						log "INFO" "Installing PHP 8.1 and enable it"
+						$PKG_MGR module install php:remi-8.1 -y -q
+						$PKG_MGR module enable php:remi-8.1 -y -q
+						;;
+					*)
+						log "INFO" "Installing PHP 8.2 from OS official repositories"
+						;;
+				esac
 
-				if [[ "$version" == "21.10" || "$version" == "22.04" ]]; then
-					log "INFO" "Installing PHP 8.0 and enable it"
-					$PKG_MGR module reset php -y -q
-					$PKG_MGR module install php:remi-8.0 -y -q
-				else
-					log "INFO" "Installing PHP 8.1 and enable it"
-					$PKG_MGR module install php:remi-8.1 -y -q
-					$PKG_MGR module enable php:remi-8.1 -y -q
-				fi
+				# install_remi_repo
+
+				# if [[ "$version" == "21.10" || "$version" == "22.04" ]]; then
+				# 	log "INFO" "Installing PHP 8.0 and enable it"
+				# 	$PKG_MGR module reset php -y -q
+				# 	$PKG_MGR module install php:remi-8.0 -y -q
+				# else
+				# 	log "INFO" "Installing PHP 8.1 and enable it"
+				# 	$PKG_MGR module install php:remi-8.1 -y -q
+				# 	$PKG_MGR module enable php:remi-8.1 -y -q
+				# fi
 			fi
 			;;
 
@@ -530,9 +548,8 @@ function set_required_prerequisite() {
 			esac
 
 			if [ "$topology" == "central" ]; then
-				log "INFO" "Installing PHP 8.1 and enable it"
-				$PKG_MGR module install php:8.1 -y -q
-				$PKG_MGR module enable php:8.1 -y -q
+				log "INFO" "Installing PHP 8.2 from OS official repositories"
+				$PKG_MGR install php8.2
 			fi
 			;;
 
@@ -560,7 +577,7 @@ function set_required_prerequisite() {
 		;;
 	debian-release* | ubuntu-release*)
 		log "INFO" "Setting specific part for $detected_os_release"
-		PHP_SERVICE_UNIT="php8.1-fpm"
+		#PHP_SERVICE_UNIT="php8.2-fpm"
 		HTTP_SERVICE_UNIT="apache2"
 		PKG_MGR="apt -qq"
 		case "$detected_os_release" in
@@ -570,11 +587,13 @@ function set_required_prerequisite() {
 				if ! [[ "$version" == "22.04" || "$version" == "22.10" || "$version" == "23.04" || "$version" == "23.10" || "$version" == "24.04" ]]; then
 					error_and_exit "For Debian $detected_os_version, only Centreon versions >= 22.04 are compatible. You chose $version"
 				fi
+				PHP_SERVICE_UNIT="php8.1-fpm"
 				;;
 			12)
 				if ! [[ "$version" == "24.04" ]]; then
 					error_and_exit "For Debian $detected_os_version, only Centreon versions >= 24.04 are compatible. You chose $version"
 				fi
+				PHP_SERVICE_UNIT="php8.2-fpm"
 				;;
 			*)
 				error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9), Debian 11/12 and Ubuntu 22.04. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
@@ -597,6 +616,7 @@ function set_required_prerequisite() {
 			if ! [[ "$version" == "24.04" ]]; then
 				error_and_exit "For Ubuntu, only Centreon versions >= 24.04 are compatible. You chose $version"
 			fi
+			PHP_SERVICE_UNIT="php8.1-fpm"
 			${PKG_MGR} update && ${PKG_MGR} install -y apt-transport-https gnupg2
 			repo_prefix="ubuntu"
 			;;
@@ -615,6 +635,7 @@ function set_required_prerequisite() {
 
 		if [ "$topology" == "central" ]; then
 			# Add PHP repo
+			# if OLD VERSIONS => PHP 8.1(install remi repos), else PHP 8.2 (do not install remi repos)
 			echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
 			wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
 			if [[ "$dbms" == "MariaDB" ]]; then
