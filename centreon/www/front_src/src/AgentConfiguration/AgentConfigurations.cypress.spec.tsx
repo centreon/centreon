@@ -2,25 +2,40 @@ import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import i18next from 'i18next';
 import { Provider, createStore } from 'jotai';
 import { initReactI18next } from 'react-i18next';
+import { labelPortExpectedAtMost } from '../VaultConfiguration/translatedLabels';
 import AgentConfigurationPage from './Page';
 import {
+  getAgentConfigurationEndpoint,
   getAgentConfigurationsEndpoint,
   getPollerAgentEndpoint
 } from './api/endpoints';
 import {
   labelAction,
+  labelAddAgentConfiguration,
   labelAddNewAgent,
+  labelAddressInvalid,
+  labelAgentConfigurationCreated,
+  labelAgentConfigurationUpdated,
   labelAgentType,
   labelAgentTypes,
   labelAgentsConfigurations,
+  labelCaCertificate,
   labelCancel,
+  labelCertificate,
   labelClear,
   labelDelete,
   labelDeleteAgent,
   labelDeletePoller,
+  labelExtensionNotAllowed,
+  labelListeningAddress,
   labelName,
   labelPoller,
   labelPollers,
+  labelPort,
+  labelPrivateKey,
+  labelPublicCertificate,
+  labelRequired,
+  labelSave,
   labelWelcomeToTheAgentsConfigurationPage
 } from './translatedLabels';
 
@@ -69,6 +84,49 @@ const initialize = ({ isListingEmpty = false }) => {
     alias: 'deletePoller',
     method: Method.DELETE,
     path: `./api/latest${getPollerAgentEndpoint({ agentId: 0, pollerId: 1 })}`
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'postAgentConfiguration',
+    method: Method.POST,
+    path: `./api/latest${getAgentConfigurationsEndpoint}`
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'patchAgentConfiguration',
+    method: Method.PATCH,
+    path: `./api/latest${getAgentConfigurationEndpoint(1)}`
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getAgentConfiguration',
+    method: Method.GET,
+    path: `./api/latest${getAgentConfigurationEndpoint(1)}`,
+    response: {
+      id: 1,
+      name: 'agent',
+      type: 'telegraf',
+      pollers: [
+        {
+          id: 1,
+          name: 'poller 1'
+        },
+        {
+          id: 2,
+          name: 'poller 2'
+        }
+      ],
+      configuration: {
+        otel_server_address: '127.0.0.1',
+        otel_server_port: 8080,
+        otel_public_certificate: 'coucou',
+        otel_ca_certificate: 'coucou',
+        otel_private_key: 'coucou',
+        conf_server_port: 9090,
+        conf_certificate: 'coucou',
+        conf_private_key: 'coucou'
+      }
+    }
   });
 
   cy.mount({
@@ -329,6 +387,141 @@ describe('Agent configurations', () => {
 
     cy.contains(labelDeleteAgent).should('not.exist');
     cy.waitForRequest('@getAgentConfigurations');
+
+    cy.makeSnapshot();
+  });
+});
+
+describe('Agent configurations modal', () => {
+  it('does not validate the when fields contain errors', () => {
+    initialize({});
+
+    cy.contains(labelAddNewAgent).click();
+
+    cy.contains(labelAddAgentConfiguration).should('be.visible');
+
+    cy.findByLabelText(labelName).focus();
+    cy.findByLabelText(labelName).blur();
+    cy.findByLabelText(labelPollers).focus();
+    cy.findByLabelText(labelPollers).blur();
+    cy.findByLabelText(labelListeningAddress).type('address');
+    cy.findAllByLabelText(labelPort).eq(0).type('123456');
+    cy.findAllByLabelText(labelPort).eq(1).type('123456');
+    cy.findByLabelText(labelPublicCertificate).type('test.cer');
+    cy.findByLabelText(labelCaCertificate).type('test.pem');
+    cy.findAllByLabelText(labelPrivateKey).eq(0).type('test.crt');
+    cy.findAllByLabelText(labelPrivateKey).eq(1).type('test.crt');
+    cy.findByLabelText(labelCertificate).type('test.key');
+    cy.findByLabelText(labelCertificate).blur();
+
+    cy.findByLabelText(labelAgentType).should('have.value', 'Telegraf');
+    cy.findAllByText(labelRequired).should('have.length', 2);
+    cy.findAllByText(labelExtensionNotAllowed).should('have.length', 5);
+    cy.findAllByText(labelAddressInvalid).should('have.length', 1);
+    cy.findAllByText(labelPortExpectedAtMost).should('have.length', 2);
+    cy.contains(labelSave).should('be.disabled');
+
+    cy.makeSnapshot();
+  });
+
+  it('discards the form when the cancel button is clicked and the corresponding button is clicked', () => {
+    initialize({});
+
+    cy.contains(labelAddNewAgent).click();
+
+    cy.findByLabelText(labelName).type('agent');
+
+    cy.contains(labelCancel).click();
+    cy.contains('Discard').click();
+
+    cy.contains(labelAddAgentConfiguration).should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('resolves the form when the cancel button is clicked and the corresponding button is clicked', () => {
+    initialize({});
+
+    cy.contains(labelAddNewAgent).click();
+
+    cy.findByLabelText(labelName).type('agent');
+
+    cy.contains(labelCancel).click();
+    cy.contains('Resolve').click();
+
+    cy.contains(labelAddAgentConfiguration).should('exist');
+    cy.contains('Resolve').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends the form when fields are valid and the corresponding button is clicked', () => {
+    initialize({});
+
+    cy.contains(labelAddNewAgent).click();
+
+    cy.findByLabelText(labelName).type('agent');
+    cy.findByLabelText(labelPollers).click();
+    cy.contains('poller1').click();
+    cy.findByLabelText(labelListeningAddress).type('127.0.0.1');
+    cy.findAllByLabelText(labelPort).eq(0).type('1234');
+    cy.findAllByLabelText(labelPort).eq(1).type('1234');
+    cy.findByLabelText(labelPublicCertificate).type('test');
+    cy.findByLabelText(labelCaCertificate).type('test');
+    cy.findAllByLabelText(labelPrivateKey).eq(0).type('test');
+    cy.findAllByLabelText(labelPrivateKey).eq(1).type('test');
+    cy.findByLabelText(labelCertificate).type('test');
+    cy.contains(labelSave).click();
+
+    cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
+      expect(request.body).equal(
+        '{"name":"agent","type":"telegraf","pollers":[1],"configuration":{"otel_private_key":"test","otel_server_port":1234,"otel_ca_certificate":"test","otel_server_address":"127.0.0.1","otel_public_certificate":"test","conf_certificate":"test","conf_private_key":"test","conf_server_port":1234}}'
+      );
+    });
+
+    cy.contains(labelAgentConfigurationCreated).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends the form when a listing row is clicked, fields are valid and the corresponding button is clicked', () => {
+    initialize({});
+
+    cy.contains('AC 1').click();
+
+    cy.waitForRequest('@getAgentConfiguration');
+
+    cy.findByLabelText(labelName).type(' updated');
+
+    cy.contains(labelSave).click();
+
+    cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
+      expect(request.body).equal(
+        '{"name":"agent updated","type":"telegraf","pollers":[1,2],"configuration":{"otel_private_key":"coucou","otel_server_port":8080,"otel_ca_certificate":"coucou","otel_server_address":"127.0.0.1","otel_public_certificate":"coucou","conf_certificate":"coucou","conf_private_key":"coucou","conf_server_port":9090}}'
+      );
+    });
+
+    cy.contains(labelAgentConfigurationUpdated).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends the form when a listing row is clicked, fields are valid, the cancel button is clicked and the corresponding button is clicked', () => {
+    initialize({});
+
+    cy.contains('AC 1').click();
+
+    cy.findByLabelText(labelName).type(' updated');
+    cy.contains(labelCancel).click();
+    cy.findByTestId('confirm').click();
+
+    cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
+      expect(request.body).equal(
+        '{"name":"agent updated","type":"telegraf","pollers":[1,2],"configuration":{"otel_private_key":"coucou","otel_server_port":8080,"otel_ca_certificate":"coucou","otel_server_address":"127.0.0.1","otel_public_certificate":"coucou","conf_certificate":"coucou","conf_private_key":"coucou","conf_server_port":9090}}'
+      );
+    });
+
+    cy.contains(labelAgentConfigurationUpdated).should('be.visible');
 
     cy.makeSnapshot();
   });

@@ -24,14 +24,22 @@ const Buttons = (): JSX.Element => {
     [dirty, isValid, isSubmitting]
   );
 
+  const discard = useCallback(() => {
+    setAskBeforeCloseFormModal(false);
+    setOpenFormModal(null);
+  }, []);
+
   const close = useCallback(() => {
+    if (dirty) {
+      setAskBeforeCloseFormModal(true);
+      return;
+    }
     setOpenFormModal(null);
     setAskBeforeCloseFormModal(false);
-  }, []);
+  }, [dirty]);
 
   const submitAndClose = useCallback(() => {
     submitForm();
-    setOpenFormModal(null);
     setAskBeforeCloseFormModal(false);
   }, []);
 
@@ -68,7 +76,7 @@ const Buttons = (): JSX.Element => {
         isValidForm={isValid}
         saveChanges={submitAndClose}
         closeDialog={closeAskBeforeCloseModal}
-        discardChanges={close}
+        discardChanges={discard}
         dialogOpened={askBeforeCloseForm && dirty}
       />
     </>

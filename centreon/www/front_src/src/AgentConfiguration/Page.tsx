@@ -1,7 +1,6 @@
 import { PageSkeleton } from '@centreon/ui';
 import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
 import { useSetAtom } from 'jotai';
-import { isNil } from 'ramda';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import AddModal from './Form/AddModal';
@@ -18,13 +17,14 @@ import {
 const AgentConfigurationPage = (): JSX.Element => {
   const { t } = useTranslation();
 
-  const { isDataEmpty, isLoading, total, data } = useGetAgentConfigurations();
+  const { isDataEmpty, isLoading, hasData, total, data } =
+    useGetAgentConfigurations();
 
   const setOpenFormModal = useSetAtom(openFormModalAtom);
 
   const add = useCallback(() => setOpenFormModal('add'), []);
 
-  if (isLoading || isNil(data)) {
+  if (isLoading && !hasData) {
     return <PageSkeleton displayHeaderAndNavigation={false} />;
   }
 

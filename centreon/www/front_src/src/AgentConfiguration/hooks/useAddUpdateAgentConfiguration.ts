@@ -59,7 +59,6 @@ export const useAddUpdateAgentConfiguration =
       AgentConfigurationAPI,
       { id; setSubmitting }
     >({
-      baseEndpoint: 'http://localhost:3001/centreon/api/latest',
       getEndpoint: ({ id }) =>
         id ? getAgentConfigurationEndpoint(id) : getAgentConfigurationsEndpoint,
       method: equals(openFormModal, 'add') ? Method.POST : Method.PATCH,

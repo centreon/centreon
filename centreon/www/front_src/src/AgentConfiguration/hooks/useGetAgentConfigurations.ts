@@ -22,6 +22,7 @@ import { useListingQueryKey } from './useListingQueryKey';
 interface UseGetAgentConfigurationsState {
   data: Array<AgentConfigurationListing>;
   isLoading: boolean;
+  hasData: boolean;
   isDataEmpty: boolean;
   total: number;
 }
@@ -71,7 +72,6 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
   const { data, isLoading } = useFetchQuery<
     ListingModel<AgentConfigurationListing>
   >({
-    baseEndpoint: 'http://localhost:3001/centreon/api/latest',
     decoder: agentConfigurationsListingDecoder,
     getQueryKey: () => queryKey,
     getEndpoint: () =>
@@ -98,10 +98,12 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
   });
 
   const agentConfigurations = data?.result || [];
+  const hasData = !!data;
 
   return {
     data: agentConfigurations,
     isDataEmpty: isEmpty(agentConfigurations),
+    hasData,
     isLoading,
     total: data?.meta.total || 0
   };
