@@ -637,11 +637,11 @@ function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $o
             }
             while ($i <= $number) {
                 $suffix = "";
-            for ($t = $i; $t < 1000; $t *= 10) {
-                $suffix .= "0";
-            }
-            $suffix .= $i;
-            $statementInsert = $pearDB->prepareQuery(
+                for ($t = $i; $t < 1000; $t *= 10) {
+                    $suffix .= "0";
+                }
+                $suffix .= $i;
+                $statementInsert = $pearDB->prepareQuery(
                     <<<'SQL'
                         INSERT INTO service (
                             service_description,
@@ -721,8 +721,13 @@ function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $o
             logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
             message: "Error generating services for pool with prefix: $prefix",
             customContext: [
-                'prefix' => $prefix, 'number' => $number, 'host_id' => $host_id,
-                'template' => $template, 'cmd' => $cmd, 'args' => $args, 'oldPrefix' => $oldPrefix
+                'prefix' => $prefix,
+                'number' => $number,
+                'host_id' => $host_id,
+                'template' => $template,
+                'cmd' => $cmd,
+                'args' => $args,
+                'oldPrefix' => $oldPrefix
             ],
             exception: $e
         );
@@ -814,7 +819,6 @@ function insertPool($ret = array())
         }
 
         return ($pool_id["MAX(pool_id)"]);
-
     } catch (CentreonDbException $e) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
@@ -916,7 +920,6 @@ function updatePool($pool_id = null)
         }
 
         return true;
-
     } catch (CentreonDbException $e) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_BUSINESS_LOG,

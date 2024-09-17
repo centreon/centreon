@@ -38,12 +38,17 @@ if (!isset($oreon)) {
     exit();
 }
 
-/*
- * Form Rules
+/**
+ * Replaces spaces with underscores in the 'pool_name' field from the form submission.
+ *
+ * This function retrieves all submitted form values, specifically targets the 'pool_name' field,
+ * and replaces any spaces in its value with underscores.
+ *
+ * @global HTML_QuickFormCustom $form The form object containing the submitted values.
+ * @return string The 'pool_name' value with spaces replaced by underscores.
  */
- function myReplace()
+function replaceSpacesWithUnderscores($form)
 {
-    global $form;
     $ret = $form->getSubmitValues();
     return (str_replace(" ", "_", $ret["pool_name"]));
 }
@@ -52,7 +57,7 @@ $valid = false;
 $msgErr = "";
 $pool = array();
 
-try{
+try {
     if (($o == "c" || $o == "w") && $slot_id) {
         $statement = $pearDB->prepareQuery("SELECT * FROM mod_dsm_pool WHERE pool_id = :slot_id LIMIT 1");
         $pearDB->executePreparedQuery($statement, [':slot_id' => [(int)$slot_id, PDO::PARAM_INT]], true);
@@ -158,7 +163,7 @@ try{
 
 
     $form->applyFilter('__ALL__', 'myTrim');
-    $form->applyFilter('pool_name', 'myReplace');
+    $form->applyFilter('pool_name', fn($form) => replaceSpacesWithUnderscores($form));
     $from_list_menu = false;
     if ($o != "mc") {
         $form->addRule('pool_name', _("Compulsory Name"), 'required');
@@ -208,21 +213,11 @@ try{
     if ($form->validate() && $from_list_menu == false) {
         $poolObj = $form->getElement('pool_id');
         if ($form->getSubmitValue("submitA")) {
-            try {
-                $pId = insertpoolInDB();
-                $valid = true;
-                $poolObj->setValue($pId);
-            } catch (Exception $e) {
-                $valid = false;
-                $msgErr = $e->getMessage();
-            }
+            $pId = insertpoolInDB();
+            $valid = true;
+            $poolObj->setValue($pId);
         } elseif ($form->getSubmitValue("submitC")) {
-            try {
-                $valid = updatePoolInDB($poolObj->getValue());
-            } catch (Exception $e) {
-                $valid = false;
-                $msgErr = $e->getMessage();
-            }
+            $valid = updatePoolInDB($poolObj->getValue());
         }
         $o = null;
         $form->addElement(
@@ -236,7 +231,7 @@ try{
         );
         $form->freeze();
     }
-}catch(Throwable $e){
+} catch (Throwable $e) {
     $valid = false;
     $msgErr = "Internal Error, contact your administrator for more information";
     CentreonLog::create()->error(
