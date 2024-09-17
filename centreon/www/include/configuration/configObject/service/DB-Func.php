@@ -1713,6 +1713,10 @@ function insertServiceInDBForCloud($submittedValues = [], $onDemandMacro = null)
     global $centreon;
 
     $tmp_fields = insertServiceForCloud($submittedValues, $onDemandMacro);
+    if (! isset($tmp_fields['service_id'])) {
+        return null;
+    }
+
     $serviceId = $tmp_fields['service_id'];
     updateServiceHost($serviceId, $submittedValues);
     updateServiceServiceGroup($serviceId, $submittedValues);
@@ -1735,7 +1739,11 @@ function insertServiceInDBForOnPremise($submittedValues = [], $onDemandMacro = n
     global $centreon;
 
     $tmp_fields = insertServiceForOnPremise($submittedValues, $onDemandMacro);
-    $serviceId = $tmp_fields['service_id'];
+    if (! isset($tmp_fields['service_id'])) {
+        return null;
+    }
+
+    $serviceId = (int) $tmp_fields['service_id'];
     updateServiceContactGroup($serviceId, $submittedValues);
     updateServiceContact($serviceId, $submittedValues);
     updateServiceNotifs($serviceId, $submittedValues);
@@ -2917,13 +2925,15 @@ function updateServiceNotifOptionInterval_MC($service_id = null)
     }
 }
 
-function updateServiceNotifOptionTimeperiod($service_id = null, $ret = array())
+/**
+ * @param int $serviceId
+ * @param array $ret
+ *
+ * @throws \PDOException
+ */
+function updateServiceNotifOptionTimeperiod(int $serviceId, $ret = array())
 {
     global $pearDB;
-
-    if (! $service_id) {
-        return;
-    }
 
     $request = <<<'SQL'
         UPDATE `service` SET `timeperiod_tp_id2` = :timeperiod_tp_id2
@@ -2933,7 +2943,7 @@ function updateServiceNotifOptionTimeperiod($service_id = null, $ret = array())
     isset($ret['timeperiod_tp_id2'])
         ? $statement->bindValue(':timeperiod_tp_id2', $ret['timeperiod_tp_id2'], \PDO::PARAM_STR)
         : $statement->bindValue(':timeperiod_tp_id2', null, \PDO::PARAM_NULL);
-    $statement->bindValue(':service_id', $service_id, \PDO::PARAM_INT);
+    $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
     $statement->execute();
 }
 
