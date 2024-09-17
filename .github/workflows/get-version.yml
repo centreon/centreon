@@ -146,6 +146,7 @@ jobs:
               ;;
             develop)
               echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
+              GITHUB_RELEASE_CLOUD=1
               echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               ;;
             dev-[2-9][0-9].[0-9][0-9].x)
