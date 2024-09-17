@@ -86,11 +86,11 @@ $g->set_tool_tip('#val#%');
 
 if (isset($_GET["service_name"]) && isset($_GET["host_name"])) {
     $g->title(
-        utf8_encode($_GET["service_name"]) . " on " . utf8_encode($_GET["host_name"]),
+        mb_convert_encoding($_GET["service_name"], 'UTF-8', 'ISO-8859-1') . " on " . mb_convert_encoding($_GET["host_name"], 'UTF-8', 'ISO-8859-1'),
         '{font-size:15px; color: #424242}'
     );
 } elseif (isset($_GET["host_name"])) {
-    $g->title(utf8_encode($_GET["host_name"]), '{font-size:18px; color: #424242}');
+    $g->title(mb_convert_encoding($_GET["host_name"], 'UTF-8', 'ISO-8859-1'), '{font-size:18px; color: #424242}');
 }
 header("Cache-Control: cache, must-revalidate");
 header("Pragma: public");

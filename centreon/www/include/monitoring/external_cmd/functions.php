@@ -59,7 +59,7 @@ function write_command($cmd, $poller)
     $informations = preg_split("/\;/", $key);
 
     if (!mb_detect_encoding($cmd, 'UTF-8', true)) {
-        $cmd = utf8_encode($cmd);
+        $cmd = mb_convert_encoding($cmd, 'UTF-8', 'ISO-8859-1');
     }
     setlocale(LC_CTYPE, 'en_US.UTF-8');
 

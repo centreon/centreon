@@ -899,7 +899,7 @@ function getMyServiceIDStorage($service_description, $host_id)
                         OR s.description = :utf8_uncoded_service_description ) "
         . " AND s.host_id = :host_id LIMIT 1");
     $statement->bindValue(':service_description', $service_description, \PDO::PARAM_STR);
-    $statement->bindValue(':utf8_uncoded_service_description', utf8_encode($service_description), \PDO::PARAM_STR);
+    $statement->bindValue(':utf8_uncoded_service_description', mb_convert_encoding($service_description, 'UTF-8', 'ISO-8859-1'), \PDO::PARAM_STR);
     $statement->bindValue(':host_id', (int) $host_id, \PDO::PARAM_INT);
     $statement->execute();
     $row = $statement->fetchRow();
@@ -923,7 +923,7 @@ function getMyServiceID($service_description = null, $host_id = null, $hg_id = n
             "AND (service_description = :service_description OR" .
             " service_description = :utf8_encoded_service_description ) LIMIT 1");
         $statement->bindValue(':host_host_id', (int) $host_id, \PDO::PARAM_INT);
-        $statement->bindValue(':utf8_encoded_service_description', utf8_encode($service_description), \PDO::PARAM_STR);
+        $statement->bindValue(':utf8_encoded_service_description', mb_convert_encoding($service_description, 'UTF-8', 'ISO-8859-1'), \PDO::PARAM_STR);
         $statement->bindValue(':service_description', $service_description, \PDO::PARAM_STR);
         $statement->execute();
         $row = $statement->fetchRow();
@@ -1222,7 +1222,7 @@ function getMyHostID($host_name = null)
     global $pearDB;
     $statement = $pearDB->prepare("SELECT host_id FROM host WHERE host_name = :host_name " .
         "OR host_name = :ut8_encoded_host_name LIMIT 1");
-    $statement->bindValue(':ut8_encoded_host_name', utf8_encode($host_name), \PDO::PARAM_STR);
+    $statement->bindValue(':ut8_encoded_host_name', mb_convert_encoding($host_name, 'UTF-8', 'ISO-8859-1'), \PDO::PARAM_STR);
     $statement->bindValue('host_name', $host_name, \PDO::PARAM_STR);
     $statement->execute();
     if ($statement->rowCount()) {

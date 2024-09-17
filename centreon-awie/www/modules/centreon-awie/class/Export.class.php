@@ -258,7 +258,7 @@ class Export
     {
         $fp = fopen($this->tmpFile, 'w');
         foreach ($content as $command) {
-            fwrite($fp, utf8_encode($command));
+            fwrite($fp, mb_convert_encoding($command, 'UTF-8', 'ISO-8859-1'));
         }
         fclose($fp);
         return $this->tmpName;

@@ -92,7 +92,7 @@ if (count($GroupListofUser) > 0 && $is_admin == 0) {
 if (isset($_GET["host_name"]) && $_GET["host_name"]) {
     $host_name = $_GET["host_name"];
     if (isset($_REQUEST['cmd'])) {
-        $host_name = utf8_decode($host_name);
+        $host_name = mb_convert_encoding($host_name, 'ISO-8859-1');
     }
 } else {
     foreach ($_GET["select"] as $key => $value) {
