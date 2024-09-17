@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use Rector\CodeQuality\Rector\Class_\CompleteDynamicPropertiesRector;
+use Rector\CodeQuality\Rector\For_\ForRepeatedCountToOwnVariableRector;
+use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
 use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\ClassMethod\RemoveNullTagValueNodeRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUselessParamTagRector;
@@ -63,7 +65,7 @@ return RectorConfig::configure()
         __DIR__ . '/../centreon-open-tickets/www',
         __DIR__ . '/../centreon-open-tickets/.php-cs-fixer.unstrict.php',
         __DIR__ . '/../centreon-open-tickets/.php-cs-fixer.dist.php',
-    ])->withRules([
+    ])->withRules(rules: [
 //        // ******************* performance (done) *******************
 //        CountArrayToEmptyArrayComparisonRector::class, // OK 70 files / Change count array comparison to empty array comparison to improve performance
 //        ForRepeatedCountToOwnVariableRector::class, // OK 27 files / Change count() in for function to own variable

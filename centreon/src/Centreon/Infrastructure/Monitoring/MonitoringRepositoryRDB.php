@@ -461,19 +461,19 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $searchParameters = $this->sqlRequestTranslator->getRequestParameters()->extractSearchNames();
 
         $shouldJoinHost = false;
-        if (count(array_intersect($searchParameters, array_keys($hostConcordanceArray))) > 0) {
+        if (array_intersect($searchParameters, array_keys($hostConcordanceArray)) !== []) {
             $shouldJoinHost = true;
             $hostGroupConcordanceArray = array_merge($hostGroupConcordanceArray, $hostConcordanceArray);
         }
 
         $shouldJoinService = false;
-        if (count(array_intersect($searchParameters, array_keys($serviceConcordanceArray))) > 0) {
+        if (array_intersect($searchParameters, array_keys($serviceConcordanceArray)) !== []) {
             $shouldJoinService = true;
             $hostGroupConcordanceArray = array_merge($hostGroupConcordanceArray, $serviceConcordanceArray);
         }
 
         $shouldJoinHostCategory = false;
-        if (count(array_intersect($searchParameters, array_keys($hostCategoryConcordanceArray))) > 0) {
+        if (array_intersect($searchParameters, array_keys($hostCategoryConcordanceArray)) !== []) {
             $shouldJoinHostCategory = true;
             $hostGroupConcordanceArray = array_merge($hostGroupConcordanceArray, $hostCategoryConcordanceArray);
         }
@@ -1498,25 +1498,25 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $searchParameters = $this->sqlRequestTranslator->getRequestParameters()->extractSearchNames();
 
         $shouldJoinHost = false;
-        if (count(array_intersect($searchParameters, array_keys($hostConcordanceArray))) > 0) {
+        if (array_intersect($searchParameters, array_keys($hostConcordanceArray)) !== []) {
             $shouldJoinHost = true;
             $serviceGroupConcordanceArray = array_merge($serviceGroupConcordanceArray, $hostConcordanceArray);
         }
 
         $shouldJoinService = false;
-        if (count(array_intersect($searchParameters, array_keys($serviceConcordanceArray))) > 0) {
+        if (array_intersect($searchParameters, array_keys($serviceConcordanceArray)) !== []) {
             $shouldJoinService = true;
             $serviceGroupConcordanceArray = array_merge($serviceGroupConcordanceArray, $serviceConcordanceArray);
         }
 
         $shouldJoinHostGroup = false;
-        if (count(array_intersect($searchParameters, array_keys($hostGroupConcordanceArray))) > 0) {
+        if (array_intersect($searchParameters, array_keys($hostGroupConcordanceArray)) !== []) {
             $shouldJoinHostGroup = true;
             $serviceGroupConcordanceArray = array_merge($serviceGroupConcordanceArray, $hostGroupConcordanceArray);
         }
 
         $shouldJoinHostCategory = false;
-        if (count(array_intersect($searchParameters, array_keys($hostCategoryConcordanceArray))) > 0) {
+        if (array_intersect($searchParameters, array_keys($hostCategoryConcordanceArray)) !== []) {
             $shouldJoinHostCategory = true;
             $serviceGroupConcordanceArray = array_merge($serviceGroupConcordanceArray, $hostCategoryConcordanceArray);
         }

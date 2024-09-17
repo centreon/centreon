@@ -120,7 +120,7 @@ class Centreon_Object_Contact extends \Centreon_Object
         $filterTab = array();
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
-                if (!count($filterTab)) {
+                if ($filterTab === []) {
                     $sql .= " WHERE $key ";
                 } else {
                     $sql .= " $filterType $key ";

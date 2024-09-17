@@ -902,7 +902,7 @@ class OtrsProvider extends AbstractProvider
                 'ContentType' => mime_content_type($file['filepath'])
             );
         }
-        if (count($files) > 0) {
+        if ($files !== []) {
             $argument['Attachment'] = $files;
         }
 
