@@ -457,7 +457,7 @@ if ($engine == "true" && isset($openid) && $openid != "") {
     });
 
     $pollerParams = [];
-    if (count($filteredIds) > 0) {
+    if ($filteredIds !== []) {
         $in = '';
         foreach ($filteredIds as $index => $filteredId) {
             $key = ':pollerId' . $index;
@@ -470,14 +470,14 @@ if ($engine == "true" && isset($openid) && $openid != "") {
 }
 
 if ($notification == 'true') {
-    if (count($host_msg_status_set)) {
+    if ($host_msg_status_set !== []) {
         $msg_req .= "(";
         $flag_begin = 1;
         $msg_req .= " (`msg_type` = '3' ";
         $msg_req .= " AND `status` IN (" . implode(',', $host_msg_status_set) . "))";
         $msg_req .= ") ";
     }
-    if (count($svc_msg_status_set)) {
+    if ($svc_msg_status_set !== []) {
         if ($flag_begin == 0) {
             $msg_req .= "(";
         } else {
@@ -492,7 +492,7 @@ if ($notification == 'true') {
     }
 }
 if ($alert == 'true') {
-    if (count($host_msg_status_set)) {
+    if ($host_msg_status_set !== []) {
         if ($flag_begin) {
             $msg_req .= " OR ";
         }
@@ -505,7 +505,7 @@ if ($alert == 'true') {
         $msg_req .= " AND `status` IN (" . implode(',', $host_msg_status_set) . ")) ";
         $msg_req .= ") ";
     }
-    if (count($svc_msg_status_set)) {
+    if ($svc_msg_status_set !== []) {
         if ($flag_begin) {
             $msg_req .= " OR ";
         }

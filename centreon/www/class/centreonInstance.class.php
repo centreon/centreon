@@ -142,7 +142,7 @@ class CentreonInstance
              */
             $filteredPollerIds = $this->filteredArrayId($pollerIds);
             $pollerParams = [];
-            if (count($filteredPollerIds) > 0) {
+            if ($filteredPollerIds !== []) {
                 /*
                  * Building the pollerParams hash table in order to correctly
                  * bind ids as ints for the request.

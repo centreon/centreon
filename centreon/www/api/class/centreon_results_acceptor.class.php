@@ -169,7 +169,7 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
         $this->getHostServiceInfo();
 
         if (isset($this->arguments['results']) && is_array($this->arguments['results'])) {
-            if (count($this->arguments['results'])) {
+            if ($this->arguments['results'] !== []) {
                 if ($this->pipeOpened == 0) {
                     $this->openPipe();
                 }

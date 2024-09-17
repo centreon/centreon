@@ -296,7 +296,7 @@ class CentreonNotification
         while ($row = $res->fetchRow()) {
             $escTab[$row['escalation_esc_id']] = $row['esc_name'];
         }
-        if (!count($escTab)) {
+        if ($escTab === []) {
             return array();
         }
         if ($notifType == self::HOST_ESC) {
@@ -341,7 +341,7 @@ class CentreonNotification
         }
         unset($res);
 
-        if (count($this->notifiedHosts)) {
+        if ($this->notifiedHosts !== []) {
             $sql2 = "SELECT host_id, host_name
                 FROM host
                 WHERE host_id NOT IN (" . implode(',', array_keys($this->notifiedHosts)) . ") AND host_register = '1'";
@@ -485,7 +485,7 @@ class CentreonNotification
             unset($res);
         }
 
-        if (count($svcTab)) {
+        if ($svcTab !== []) {
             $tab = array();
             foreach ($svcTab as $tmp) {
                 $tab = array_merge(array_keys($tmp), $tab);

@@ -50,7 +50,7 @@ function checkSeverity($fields)
     if (isset($fields['sc_type']) && $fields['sc_severity_icon'] == "") {
         $arr['sc_severity_icon'] = "Severity icon is required";
     }
-    if (count($arr)) {
+    if ($arr !== []) {
         return $arr;
     }
     return true;

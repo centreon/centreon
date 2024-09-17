@@ -298,8 +298,9 @@ function updateContactGroupContacts($cg_id, $ret = array())
     } else {
         $ret = CentreonUtils::mergeWithInitialValues($form, 'cg_contacts');
     }
+    $counter = count($ret);
 
-    for ($i = 0; $i < count($ret); $i++) {
+    for ($i = 0; $i < $counter; $i++) {
         $rq = "INSERT INTO `contactgroup_contact_relation` (`contact_contact_id`, `contactgroup_cg_id`) ";
         $rq .= "VALUES ('" . $ret[$i] . "', '" . (int)$cg_id . "')";
         $dbResult = $pearDB->query($rq);
@@ -324,8 +325,9 @@ function updateContactGroupAclGroups($cg_id, $ret = array())
     } else {
         $ret = CentreonUtils::mergeWithInitialValues($form, 'cg_acl_groups');
     }
+    $counter = count($ret);
 
-    for ($i = 0; $i < count($ret); $i++) {
+    for ($i = 0; $i < $counter; $i++) {
         $rq = "INSERT INTO `acl_group_contactgroups_relations` (`acl_group_id`, `cg_cg_id`) ";
         $rq .= "VALUES ('" . $ret[$i] . "', '" . (int)$cg_id . "')";
         $dbResult = $pearDB->query($rq);

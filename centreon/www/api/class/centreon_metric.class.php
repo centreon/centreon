@@ -967,9 +967,11 @@ class CentreonMetric extends CentreonWebService
         $graph->initCurveList();
         $graph->createLegend();
         $serviceData = $graph->getData($rows);
+        /* Replace NaN */
+        $counter = count($serviceData);
 
         /* Replace NaN */
-        for ($i = 0; $i < count($serviceData); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($serviceData[$i]['data'])) {
                 $times = array_keys($serviceData[$i]['data']);
                 $values = array_map(

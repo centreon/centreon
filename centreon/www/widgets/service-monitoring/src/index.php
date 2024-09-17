@@ -236,7 +236,7 @@ if (isset($preferences['hide_unreachable_host']) && $preferences['hide_unreachab
 }
 
 
-if (count($stateTab)) {
+if ($stateTab !== []) {
     $query = CentreonUtils::conditionBuilder($query, ' s.state IN (' . implode(',', $stateTab) . ')');
 }
 if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgement_filter']) {

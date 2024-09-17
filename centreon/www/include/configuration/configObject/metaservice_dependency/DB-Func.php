@@ -294,7 +294,8 @@ function updateMetaServiceDependencyMetaServiceParents($dep_id = null)
     $pearDB->query($rq);
     $ret = array();
     $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_msParents');
-    for ($i = 0; $i < count($ret); $i++) {
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         $rq = "INSERT INTO dependency_metaserviceParent_relation ";
         $rq .= "(dependency_dep_id, meta_service_meta_id) ";
         $rq .= "VALUES ";
@@ -315,7 +316,8 @@ function updateMetaServiceDependencyMetaServiceChilds($dep_id = null)
     $pearDB->query($rq);
     $ret = array();
     $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_msChilds');
-    for ($i = 0; $i < count($ret); $i++) {
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         $rq = "INSERT INTO dependency_metaserviceChild_relation ";
         $rq .= "(dependency_dep_id, meta_service_meta_id) ";
         $rq .= "VALUES ";

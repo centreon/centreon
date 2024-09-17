@@ -1684,8 +1684,9 @@ class CentreonService extends CentreonObject
         //filter a macro
         $aTempMacro = array();
         $serv = current($aMacroInService);
-        if (count($aMacroInService) > 0) {
-            for ($i = 0; $i < count($serv); $i++) {
+        if ($aMacroInService !== []) {
+            $counter = count($serv);
+            for ($i = 0; $i < $counter; $i++) {
                 $serv[$i]['macroOldValue_#index#'] = $serv[$i]["svc_macro_value"];
                 $serv[$i]['macroFrom_#index#'] = 'fromService';
                 $serv[$i]['source'] = 'fromService';
@@ -1693,7 +1694,7 @@ class CentreonService extends CentreonObject
             }
         }
 
-        if (count($aMacroTemplate) > 0) {
+        if ($aMacroTemplate !== []) {
             foreach ($aMacroTemplate as $key => $macr) {
                 foreach ($macr as $mm) {
                     $mm['macroOldValue_#index#'] = $mm["svc_macro_value"];

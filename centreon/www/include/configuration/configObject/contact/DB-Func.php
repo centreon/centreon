@@ -1237,7 +1237,7 @@ function insertLdapContactInDB($tmpContacts = array())
         if (false !== $ldap->connect()) {
             $listGroup = $ldap->listGroupsForUser($tmpContacts["dn"][$select_key]);
         }
-        if (count($listGroup) > 0) {
+        if ($listGroup !== []) {
             $query = "SELECT cg_id FROM contactgroup WHERE cg_name IN ('" . join("','", $listGroup) . "')";
             try {
                 $res = $pearDB->query($query);
@@ -1599,7 +1599,7 @@ function validatePasswordCreation(array $fields)
         $errors['contact_passwd'] = $e->getMessage();
     }
 
-    return count($errors) > 0 ? $errors : true;
+    return $errors !== [] ? $errors : true;
 }
 
 /**
@@ -1627,7 +1627,7 @@ function validatePasswordModification(array $fields)
         $errors['contact_passwd'] = $e->getMessage();
     }
 
-    return count($errors) > 0 ? $errors : true;
+    return $errors !== [] ? $errors : true;
 }
 
 /**
@@ -1672,5 +1672,5 @@ function validateAutologin(array $fields)
         }
     }
 
-    return count($errors) > 0 ? $errors : true;
+    return $errors !== [] ? $errors : true;
 }

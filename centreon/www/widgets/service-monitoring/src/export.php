@@ -242,7 +242,7 @@ if (isset($preferences['hide_down_host']) && $preferences['hide_down_host']) {
 if (isset($preferences['hide_unreachable_host']) && $preferences['hide_unreachable_host']) {
     $query = CentreonUtils::conditionBuilder($query, " h.state != 2 ");
 }
-if (count($stateTab)) {
+if ($stateTab !== []) {
     $query = CentreonUtils::conditionBuilder($query, " s.state IN (" . implode(',', $stateTab) . ")");
 }
 if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgement_filter']) {

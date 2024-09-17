@@ -372,7 +372,8 @@ function updateServiceDependencyServiceParents($dep_id = null, $ret = array())
     } else {
         $ret1 = CentreonUtils::mergeWithInitialValues($form, "dep_hSvPar");
     }
-    for ($i = 0; $i < count($ret1); $i++) {
+    $counter = count($ret1);
+    for ($i = 0; $i < $counter; $i++) {
         $exp = explode("-", $ret1[$i]);
         if (count($exp) == 2) {
             $rq = "INSERT INTO dependency_serviceParent_relation ";
@@ -402,7 +403,8 @@ function updateServiceDependencyServiceChilds($dep_id = null, $ret = array())
     } else {
         $ret1 = CentreonUtils::mergeWithInitialValues($form, "dep_hSvChi");
     }
-    for ($i = 0; $i < count($ret1); $i++) {
+    $counter = count($ret1);
+    for ($i = 0; $i < $counter; $i++) {
         $exp = explode("-", $ret1[$i]);
         if (count($exp) == 2) {
             $rq = "INSERT INTO dependency_serviceChild_relation ";
@@ -435,7 +437,8 @@ function updateServiceDependencyHostChildren($dep_id = null, $ret = array())
     } else {
         $ret1 = CentreonUtils::mergeWithInitialValues($form, "dep_hHostChi");
     }
-    for ($i = 0; $i < count($ret1); $i++) {
+    $counter = count($ret1);
+    for ($i = 0; $i < $counter; $i++) {
         $rq = "INSERT INTO dependency_hostChild_relation ";
         $rq .= "(dependency_dep_id, host_host_id) ";
         $rq .= "VALUES ";

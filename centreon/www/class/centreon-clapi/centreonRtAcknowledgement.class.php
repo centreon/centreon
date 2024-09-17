@@ -252,7 +252,7 @@ class CentreonRtAcknowledgement extends CentreonObject
                     $existingHostIds[] = $hostId;
                 }
             }
-            if (count($unknownHost) !== 0) {
+            if ($unknownHost !== []) {
                 echo "\n";
                 throw new CentreonClapiException(
                     self::OBJECT_NOT_FOUND . ' : Host : ' . implode('|', $unknownHost) . "\n"
@@ -329,7 +329,7 @@ class CentreonRtAcknowledgement extends CentreonObject
             }
 
             // Result of the research in the base
-            if (count($existingService)) {
+            if ($existingService !== []) {
                 foreach ($existingService as $svc) {
                     $tmpAcknowledgement = $this->object->getLastSvcAcknowledgement($svc);
                     if (!empty($tmpAcknowledgement)) {
@@ -363,7 +363,7 @@ class CentreonRtAcknowledgement extends CentreonObject
             }
         }
 
-        if (count($unknownService) !== 0) {
+        if ($unknownService !== []) {
             echo "\n";
             throw new CentreonClapiException(
                 self::OBJECT_NOT_FOUND . ' : Service : ' . implode('|', $unknownService) . "\n"
@@ -430,7 +430,7 @@ class CentreonRtAcknowledgement extends CentreonObject
             }
         }
 
-        if (count($unknownHost)) {
+        if ($unknownHost !== []) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ' HOST : ' . implode('|', $unknownHost));
         }
     }
@@ -468,7 +468,7 @@ class CentreonRtAcknowledgement extends CentreonObject
         }
 
         // Result of the research in the base
-        if (count($existingService)) {
+        if ($existingService !== []) {
             foreach ($existingService as $service) {
                 $this->externalCmdObj->acknowledgeService(
                     $service[0],
@@ -481,7 +481,7 @@ class CentreonRtAcknowledgement extends CentreonObject
                 );
             }
         }
-        if (count($unknownService)) {
+        if ($unknownService !== []) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ' SERVICE : ' . implode('|', $unknownService));
         }
     }

@@ -347,7 +347,7 @@ class CentreonRtDowntime extends CentreonObject
             }
         }
 
-        if (count($unknownHost) !== 0) {
+        if ($unknownHost !== []) {
             echo "\n";
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ' : Host : ' . implode('|', $unknownHost) . "\n");
         }
@@ -399,7 +399,7 @@ class CentreonRtDowntime extends CentreonObject
             }
 
             // Result of the research in the base
-            if (count($existingService)) {
+            if ($existingService !== []) {
                 foreach ($existingService as $svc) {
                     $tmpDowntime = $this->object->getSvcDowntimes($svc);
                     if (!empty($tmpDowntime)) {
@@ -454,7 +454,7 @@ class CentreonRtDowntime extends CentreonObject
             }
         }
 
-        if (count($unknownService) !== 0) {
+        if ($unknownService !== []) {
             echo "\n";
             throw new CentreonClapiException(
                 self::OBJECT_NOT_FOUND . ' : Service : ' . implode('|', $unknownService) . "\n"
@@ -536,7 +536,7 @@ class CentreonRtDowntime extends CentreonObject
             }
         }
 
-        if (count($unknownHost)) {
+        if ($unknownHost !== []) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ' HOST : ' . implode('|', $unknownHost));
         }
     }
@@ -576,7 +576,7 @@ class CentreonRtDowntime extends CentreonObject
         }
 
         // Result of the research in the base
-        if (count($existingService)) {
+        if ($existingService !== []) {
             foreach ($existingService as $service) {
                 $this->externalCmdObj->addSvcDowntime(
                     $service[0],
@@ -590,7 +590,7 @@ class CentreonRtDowntime extends CentreonObject
             }
         }
 
-        if (count($unknownService)) {
+        if ($unknownService !== []) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ' SERVICE : ' . implode('|', $unknownService));
         }
     }
@@ -629,7 +629,7 @@ class CentreonRtDowntime extends CentreonObject
                 $unknownHg[] = $hg;
             }
         }
-        if (count($existingHg)) {
+        if ($existingHg !== []) {
             foreach ($existingHg as $hg) {
                 $hostList = $this->hgObject->getHostsByHostgroupName($hg);
                 //check add services with host
@@ -646,7 +646,7 @@ class CentreonRtDowntime extends CentreonObject
                 }
             }
         }
-        if (count($unknownHg)) {
+        if ($unknownHg !== []) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ' HG : ' . implode('|', $unknownHg));
         }
     }
@@ -687,7 +687,7 @@ class CentreonRtDowntime extends CentreonObject
             }
         }
 
-        if (count($existingSg)) {
+        if ($existingSg !== []) {
             foreach ($existingSg as $sg) {
                 $serviceList = [
                     ...$this->sgObject->getServicesByServicegroupName($sg),
@@ -707,7 +707,7 @@ class CentreonRtDowntime extends CentreonObject
             }
         }
 
-        if (count($unknownSg)) {
+        if ($unknownSg !== []) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ' SG : ' . implode('|', $unknownSg));
         }
     }
@@ -747,7 +747,7 @@ class CentreonRtDowntime extends CentreonObject
             }
         }
 
-        if (count($existingPoller)) {
+        if ($existingPoller !== []) {
             foreach ($existingPoller as $poller) {
                 $hostList = $this->instanceObject->getHostsByInstance($poller);
                 //check add services with host with true in last param
@@ -765,7 +765,7 @@ class CentreonRtDowntime extends CentreonObject
             }
         }
 
-        if (count($unknownPoller)) {
+        if ($unknownPoller !== []) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ' INSTANCE : ' . implode('|', $unknownPoller));
         }
     }

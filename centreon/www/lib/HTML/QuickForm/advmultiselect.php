@@ -849,7 +849,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
 
             // The 'hidden' multi-select
             $strHtmlHidden = "<select$attrHidden>". PHP_EOL;
-            if (count($arrHtmlHidden) > 0) {
+            if ($arrHtmlHidden !== []) {
                 foreach ($arrHtmlHidden as $data) {
                     if (!isset($data['attr']) || !isset($data['text'])) {
                         continue;

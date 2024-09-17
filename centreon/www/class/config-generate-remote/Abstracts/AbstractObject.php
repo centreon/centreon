@@ -195,7 +195,8 @@ abstract class AbstractObject
     {
         $line = '';
         $append = '';
-        for ($i = 0; $i < count($this->attributesWrite); $i++) {
+        $counter = count($this->attributesWrite);
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($object[$this->attributesWrite[$i]]) && strlen($object[$this->attributesWrite[$i]])) {
                 $line .= $append . '"' . str_replace('"', '""', $object[$this->attributesWrite[$i]]) . '"';
             } else {

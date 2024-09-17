@@ -587,14 +587,14 @@ class CentreonLdapAdmin
      */
     public function deleteConfiguration(array $configList = []): void
     {
-        if (count($configList)) {
+        if ($configList !== []) {
             $configIds = [];
             foreach ($configList as $configId) {
                 if (is_numeric($configId)) {
                     $configIds[] = (int) $configId;
                 }
             }
-            if (count($configIds)) {
+            if ($configIds !== []) {
                 $this->db->query(
                     'DELETE FROM auth_ressource WHERE ar_id IN (' . implode(',', $configIds) . ')'
                 );
@@ -620,7 +620,7 @@ class CentreonLdapAdmin
                     $configIds[] = (int) $configId;
                 }
             }
-            if (count($configIds)) {
+            if ($configIds !== []) {
                 $statement = $this->db->prepare(
                     'UPDATE auth_ressource 
                     SET ar_enable = :is_enabled

@@ -715,7 +715,8 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
             INSERT INTO servicegroup_relation (host_host_id, service_service_id, servicegroup_sg_id)
             VALUES (:host_host_id, :service_service_id, :servicegroup_sg_id)
         ");
-        for ($i = 0; $i < count($retTmp); $i++) {
+        $counter = count($retTmp);
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($retTmp[$i]) && $retTmp[$i]) {
                 $t = preg_split("/\-/", $retTmp[$i]);
                 $hostHostId = filter_var($t[0], FILTER_VALIDATE_INT);
@@ -749,7 +750,8 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
         INSERT INTO servicegroup_relation (host_host_id, service_service_id, servicegroup_sg_id)
         VALUES (:host_host_id, :service_service_id, :servicegroup_sg_id)
     ");
-    for ($i = 0; $i < count($retTmp); $i++) {
+    $counter = count($retTmp);
+    for ($i = 0; $i < $counter; $i++) {
         if (isset($retTmp[$i]) && $retTmp[$i]) {
             $t = preg_split("/\-/", $retTmp[$i]);
             $hostHostId = filter_var($t[0], FILTER_VALIDATE_INT);
@@ -782,7 +784,8 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
         INSERT INTO servicegroup_relation (hostgroup_hg_id, service_service_id, servicegroup_sg_id)
         VALUES (:hostgroup_hg_id, :service_service_id, :servicegroup_sg_id)
     ");
-    for ($i = 0; $i < count($retTmp); $i++) {
+    $counter = count($retTmp);
+    for ($i = 0; $i < $counter; $i++) {
         $t = preg_split("/\-/", $retTmp[$i]);
         $hostGroupId = filter_var($t[0], FILTER_VALIDATE_INT);
         $serviceServiceId = filter_var($t[1], FILTER_VALIDATE_INT);

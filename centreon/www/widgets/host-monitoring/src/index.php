@@ -180,7 +180,7 @@ if (isset($preferences['host_down']) && $preferences['host_down']) {
 if (isset($preferences['host_unreachable']) && $preferences['host_unreachable']) {
     $stateTab[] = 2;
 }
-if (count($stateTab)) {
+if ($stateTab !== []) {
     $query = CentreonUtils::conditionBuilder($query, ' state IN (' . implode(',', $stateTab) . ')');
 }
 if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgement_filter']) {

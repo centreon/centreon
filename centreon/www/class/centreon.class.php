@@ -215,7 +215,8 @@ class Centreon
                     }
                     if (class_exists($className)) {
                         $hookName = '';
-                        for ($i = 1; $i < count($explodedClassName); $i++) {
+                        $counter = count($explodedClassName);
+                        for ($i = 1; $i < $counter; $i++) {
                             $hookName .= ucfirst(strtolower($explodedClassName[$i]));
                         }
                         $hookMethods = get_class_methods($className);

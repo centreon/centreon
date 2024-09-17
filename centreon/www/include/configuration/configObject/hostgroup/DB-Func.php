@@ -1091,7 +1091,8 @@ function updateHostGroupHosts($hg_id, $ret = array(), $increment = false)
     $query = "SELECT hostgroup_hg_id FROM hostgroup_relation WHERE hostgroup_hg_id = :hostgroup_hg_id
         AND host_host_id = :host_host_id";
     $statement = $pearDB->prepare($query);
-    for ($i = 0; $i < count($ret); $i++) {
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         $statement->bindValue(':hostgroup_hg_id', (int) $hg_id, \PDO::PARAM_INT);
         $statement->bindValue(':host_host_id', (int) $ret[$i], \PDO::PARAM_INT);
         $statement->execute();

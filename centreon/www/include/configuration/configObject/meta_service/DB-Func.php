@@ -475,7 +475,8 @@ function updateMetaServiceContact($meta_id)
     $ret = CentreonUtils::mergeWithInitialValues($form, 'ms_cs');
     if (count($ret)) {
         $queryAddRelation = "INSERT INTO meta_contact (meta_id, contact_id) VALUES ";
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if ($i > 0) {
                 $queryAddRelation .= ', ';
             }
@@ -499,7 +500,8 @@ function updateMetaServiceContactGroup($meta_id = null)
     $ret = array();
     $ret = CentreonUtils::mergeWithInitialValues($form, 'ms_cgs');
     $cg = new CentreonContactgroup($pearDB);
-    for ($i = 0; $i < count($ret); $i++) {
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         if (!is_numeric($ret[$i])) {
             $res = $cg->insertLdapGroup($ret[$i]);
             if ($res != 0) {

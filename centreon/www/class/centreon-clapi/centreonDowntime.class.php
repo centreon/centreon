@@ -142,7 +142,7 @@ class CentreonDowntime extends CentreonObject
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND);
         }
 
-        if (count($filter) === 0) {
+        if ($filter === []) {
             echo $paramString . "\n";
             $filterList = '';
             foreach ($elements as $element) {

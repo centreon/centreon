@@ -81,7 +81,7 @@ if (
     );
 }
 
-if (!count($err['required']) && $err['password'] && $err['email'] && $err['password_security_policy']) {
+if ($err['required'] === [] && $err['password'] && $err['email'] && $err['password_security_policy']) {
     $step = new \CentreonLegacy\Core\Install\Step\Step5($dependencyInjector);
     $step->setAdminConfiguration($parameters);
 }

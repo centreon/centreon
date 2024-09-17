@@ -240,7 +240,7 @@ class CentreonSubmitResults extends CentreonWebService
         $hasError = false;
 
         if (isset($this->arguments['results']) && is_array($this->arguments['results'])) {
-            if (count($this->arguments['results'])) {
+            if ($this->arguments['results'] !== []) {
                 if ($this->pipeOpened === false) {
                     $this->openPipe();
                 }

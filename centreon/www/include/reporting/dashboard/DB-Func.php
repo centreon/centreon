@@ -424,7 +424,7 @@ function getServicesLogs(array $services, $startDate, $endDate, $reportTimePerio
 {
     global $pearDBO, $centreon;
 
-    if (count($services) === 0) {
+    if ($services === []) {
         return [];
     }
 

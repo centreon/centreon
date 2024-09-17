@@ -328,7 +328,7 @@ class CentreonMedia
             }
         }
 
-        if (!count($files)) {
+        if ($files === []) {
             throw new Exception('Archive file is empty');
         }
 

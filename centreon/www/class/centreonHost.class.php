@@ -452,7 +452,7 @@ class CentreonHost
              */
             $filteredHostIds = $this->filteredArrayId($hostId);
             $hostParams = [];
-            if (count($filteredHostIds) > 0) {
+            if ($filteredHostIds !== []) {
                 /*
                  * Building the hostParams hash table in order to correctly
                  * bind ids as ints for the request.
@@ -1281,7 +1281,7 @@ class CentreonHost
         //filter a macro
         $aTempMacro = array();
 
-        if (count($macroArray) > 0) {
+        if ($macroArray !== []) {
             foreach ($macroArray as $directMacro) {
                 $directMacro['macroOldValue_#index#'] = $directMacro["macroValue_#index#"];
                 $directMacro['macroFrom_#index#'] = 'direct';
@@ -1290,7 +1290,7 @@ class CentreonHost
             }
         }
 
-        if (count($aMacroTemplate) > 0) {
+        if ($aMacroTemplate !== []) {
             foreach ($aMacroTemplate as $key => $macr) {
                 foreach ($macr as $mm) {
                     $mm['macroOldValue_#index#'] = $mm["macroValue_#index#"];
@@ -1303,7 +1303,8 @@ class CentreonHost
 
         if (count($aMacroInCommande) > 0) {
             $macroCommande = $aMacroInCommande;
-            for ($i = 0; $i < count($macroCommande); $i++) {
+            $counter = count($macroCommande);
+            for ($i = 0; $i < $counter; $i++) {
                 $macroCommande[$i]['macroOldValue_#index#'] = $macroCommande[$i]["macroValue_#index#"];
                 $macroCommande[$i]['macroFrom_#index#'] = 'fromCommand';
                 $macroCommande[$i]['source'] = 'fromCommand';
@@ -2524,7 +2525,7 @@ class CentreonHost
             }
         }
 
-        if (count($updateFields)) {
+        if ($updateFields !== []) {
             $query .= implode(',', $updateFields) . 'WHERE host_host_id = ? ';
             $queryValues[] = (int)$hostId;
             $stmt = $this->db->prepare($query);
