@@ -49,7 +49,9 @@ Then('the user sees the Specific Connector Configuration page', () => {
 });
 
 Then('there is no additional connector configuration listed', () => {
-  cy.get('*[class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-122biyf-root-emptyDataCell"]').eq(0).should('contain', 'No result found');
+  cy.get('*[class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-122biyf-root-emptyDataCell"]')
+    .eq(0)
+    .should('contain', 'No result found');
 });
 
 Given('a non-admin user is in the Specific Connector Configuration page', () => {
@@ -74,6 +76,9 @@ Given('an already existing additional connector configuration', () => {
   cy.getByTestId({ testId: 'Port_value' }).eq(1).should('have.value', '5700');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
   cy.wait('@addAdditionalConnector');
+  cy.get('*[class="MuiTypography-root MuiTypography-body1 css-7bmf3k-text-rowNotHovered"]')
+    .eq(0)
+    .should('contain', 'Connector-001');
 });
 
 When('the user clicks on the Edit button of the additional connector configuration', () => {

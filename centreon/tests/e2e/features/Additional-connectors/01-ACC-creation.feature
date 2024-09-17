@@ -9,7 +9,7 @@ Feature: Create a new Additional Connector Configuration
     Then a pop-up menu with the form is displayed
     When the user fills in all the informations
     And the user clicks on Create
-    Then the new configuration is displayed in the Specific Connector Configuration page
+    Then the first connector is displayed in the Specific Connector Configuration page
 #    And the parameters should be saved in vault
 
   Scenario: Add an additional connector configuration with mandatory informations
@@ -18,7 +18,7 @@ Feature: Create a new Additional Connector Configuration
     Then a pop-up menu with the form is displayed
     When the user fills in the mandatory informations
     And the user clicks on Create
-    Then the new configuration is displayed in the Specific Connector Configuration page
+    Then the second configuration is displayed in the Specific Connector Configuration page
 #    And the parameters should be saved in vault
 
   Scenario: Add an additional connector configuration with missing informations

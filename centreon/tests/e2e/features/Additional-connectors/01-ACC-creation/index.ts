@@ -62,6 +62,9 @@ When('the user clicks on Create', () => {
 
 Then('the new configuration is displayed in the Specific Connector Configuration page', () => {
   cy.wait('@addAdditionalConnector');
+  cy.get('*[class="MuiTypography-root MuiTypography-body1 css-7bmf3k-text-rowNotHovered"]')
+    .eq(0)
+    .should('contain', 'Connector-001');
 });
 
 When('the user fills in the mandatory informations', () => {
@@ -74,6 +77,13 @@ When('the user fills in the mandatory informations', () => {
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2021');
   cy.getByTestId({ testId: 'Port_value' }).eq(1).should('have.value', '5700');
+});
+
+Then('the new configuration is displayed in the Specific Connector Configuration page', () => {
+  cy.wait('@addAdditionalConnector');
+  cy.get('*[class="MuiTypography-root MuiTypography-body1 css-7bmf3k-text-rowNotHovered"]')
+    .eq(0)
+    .should('contain', 'Connector-002');
 });
 
 When("the user doesn't fill in all the mandatory informations", () => {

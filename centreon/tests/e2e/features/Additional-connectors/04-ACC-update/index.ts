@@ -1,7 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
-  cy.startContainers();
+  // cy.startContainers();
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/acc-acl-user.json');
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
@@ -31,7 +31,7 @@ beforeEach(() => {
 });
 
 after(() => {
-  cy.stopContainers();
+  // cy.stopContainers();
 });
 
 Given('a non-admin user is in the Specific Connector Configuration page', () => {
@@ -56,6 +56,9 @@ Given('an additional connector configuration is already created', () => {
   cy.getByTestId({ testId: 'Port_value' }).eq(1).should('have.value', '5700');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
   cy.wait('@addAdditionalConnector');
+  cy.get('*[class="MuiTypography-root MuiTypography-body1 css-7bmf3k-text-rowNotHovered"]')
+    .eq(0)
+    .should('contain', 'Connector-001');
 });
 
 When('the user clicks on the Edit properties button of an additional connector configuration', () => {
@@ -103,6 +106,9 @@ Then('the form is closed', () => {
 });
 
 Then('the informations are successfully saved', () => {
+  cy.get('*[class="MuiTypography-root MuiTypography-body1 css-7bmf3k-text-rowNotHovered"]')
+    .eq(0)
+    .should('contain', 'Connector-002');
   cy.getByLabel({ label: 'Edit connector configuration', tag: 'button' }).click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('have.value', 'Connector-002');
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('be.empty');
