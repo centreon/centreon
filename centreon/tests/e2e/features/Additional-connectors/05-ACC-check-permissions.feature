@@ -26,10 +26,10 @@ Feature: Additional Connector Configuration
     Then the additional connector configuration is no longer displayed in the listing page
   #  And its parameters should no longer be saved in vault
 
- Scenario: Access to Specific Connector Configuration page with a non-admin user without topology rights
-   Given a non-admin user without topology rights is logged in
-   When the user tries to access the Specific Connector Configuration page
-   Then the user cannot access the Specific Connector Configuration page
+  Scenario: Access to Specific Connector Configuration page with a non-admin user without topology rights
+    Given a non-admin user without topology rights is logged in
+    When the user tries to access the Specific Connector Configuration page
+    Then the user cannot access the Specific Connector Configuration page
 
   Scenario: Access to Specific Connector Configuration page with a non-admin user with filters on Pollers
     Given a non-admin user is logged in
