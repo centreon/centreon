@@ -40,15 +40,16 @@ if (!isset($oreon)) {
 
 isset($_GET["pool_id"]) ? $cG = $_GET["pool_id"] : $cG = null;
 isset($_POST["pool_id"]) ? $cP = $_POST["pool_id"] : $cP = null;
-$cG ? $slot_id = $cG : $slot_id = $cP;
+$slot_id = $cG ?? $cP;
+$slot_id = $slot_id !== null ? (int)$slot_id : null;
 
 isset($_GET["select"]) ? $cG = $_GET["select"] : $cG = null;
 isset($_POST["select"]) ? $cP = $_POST["select"] : $cP = null;
-$cG ? $select = $cG : $select = $cP;
+$select = $cG ?? $cP;
 
 isset($_GET["dupNbr"]) ? $cG = $_GET["dupNbr"] : $cG = null;
 isset($_POST["dupNbr"]) ? $cP = $_POST["dupNbr"] : $cP = null;
-$cG ? $dupNbr = $cG : $dupNbr = $cP;
+$dupNbr = $cG ?? $cP;
 
 $search = isset($_POST['searchSlot']) ? htmlentities($_POST['searchSlot'], ENT_QUOTES) : null;
 
