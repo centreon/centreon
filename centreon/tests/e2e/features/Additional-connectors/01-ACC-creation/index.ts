@@ -60,7 +60,7 @@ When('the user clicks on Create', () => {
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
 });
 
-Then('the new configuration is displayed in the Specific Connector Configuration page', () => {
+Then('the first connector is displayed in the Specific Connector Configuration page', () => {
   cy.wait('@addAdditionalConnector');
   cy.get('*[class="MuiTypography-root MuiTypography-body1 css-7bmf3k-text-rowNotHovered"]')
     .eq(0)
@@ -79,10 +79,9 @@ When('the user fills in the mandatory informations', () => {
   cy.getByTestId({ testId: 'Port_value' }).eq(1).should('have.value', '5700');
 });
 
-Then('the new configuration is displayed in the Specific Connector Configuration page', () => {
+Then('the second configuration is displayed in the Specific Connector Configuration page', () => {
   cy.wait('@addAdditionalConnector');
-  cy.get('*[class="MuiTypography-root MuiTypography-body1 css-7bmf3k-text-rowNotHovered"]')
-    .eq(0)
+  cy.get('#maint-content > div > div > div > div > div > div.css-1xsyaox-container > div:nth-child(2) > div > div > div.MuiTableBody-root.css-ws5y8r-tableBody > div:nth-child(2) > div > div:nth-child(1) > p')
     .should('contain', 'Connector-002');
 });
 
