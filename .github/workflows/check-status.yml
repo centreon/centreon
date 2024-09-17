@@ -37,7 +37,6 @@ jobs:
           PR_NUMBER: ${{ github.event.number }}
         with:
           script: |
-            exit(1);
             await exec.exec("sleep 20s");
 
             for (let i = 0; i < 120; i++) {
