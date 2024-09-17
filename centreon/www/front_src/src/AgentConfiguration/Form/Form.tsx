@@ -1,48 +1,49 @@
 import { Form } from '@centreon/ui';
+import { equals } from 'ramda';
+import { useAddUpdateAgentConfiguration } from '../hooks/useAddUpdateAgentConfiguration';
 import {
   AgentConfigurationForm as AgentConfigurationFormModel,
-  FormVariant
+  AgentType
 } from '../models';
 import Buttons from './Buttons';
-import { useInputs } from './useInputs';
+import { agentTypes, useInputs } from './useInputs';
 import { useValidationSchema } from './useValidationSchema';
 
 interface Props {
   initialValues?: AgentConfigurationFormModel;
-  variant: FormVariant;
+  isLoading?: boolean;
 }
 
 const defaultInitialValues: AgentConfigurationFormModel = {
   name: '',
-  type: null,
+  type: agentTypes.find(({ id }) => equals(id, AgentType.Telegraf)) || null,
   pollers: [],
   configuration: {
     otelServerAddress: '',
     otelServerPort: '',
-    confServerPort: ''
-  },
-  files: {
-    otelCaCertificate: null,
-    otelPrivateKey: null,
-    otelPublicCertificate: null,
-    confCertificate: null,
-    confPrivateKey: null
+    confServerPort: '',
+    otelPrivateKey: '',
+    otelCaCertificate: '',
+    otelPublicCertificate: '',
+    confPrivateKey: '',
+    confCertificate: ''
   }
 };
 
 const AgentConfigurationForm = ({
-  initialValues = defaultInitialValues
+  initialValues = defaultInitialValues,
+  isLoading
 }: Props): JSX.Element => {
   const { groups, inputs } = useInputs();
 
   const validationSchema = useValidationSchema();
-
-  const submit = () => undefined;
+  const { submit } = useAddUpdateAgentConfiguration();
 
   return (
-    <Form
+    <Form<AgentConfigurationFormModel>
       Buttons={Buttons}
       validationSchema={validationSchema}
+      isLoading={isLoading}
       groups={groups}
       isCollapsible
       areGroupsOpen

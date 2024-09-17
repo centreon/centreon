@@ -5,6 +5,7 @@ import { isNil } from 'ramda';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import AddModal from './Form/AddModal';
+import UpdateModal from './Form/UpdateModal';
 import ACListing from './Listing/Listing';
 import { openFormModalAtom } from './atoms';
 import { useGetAgentConfigurations } from './hooks/useGetAgentConfigurations';
@@ -23,7 +24,7 @@ const AgentConfigurationPage = (): JSX.Element => {
 
   const add = useCallback(() => setOpenFormModal('add'), []);
 
-  if (isLoading && isNil(data)) {
+  if (isLoading || isNil(data)) {
     return <PageSkeleton displayHeaderAndNavigation={false} />;
   }
 
@@ -57,6 +58,7 @@ const AgentConfigurationPage = (): JSX.Element => {
         </DataTable>
       </PageLayout.Body>
       <AddModal />
+      <UpdateModal />
     </PageLayout>
   );
 };

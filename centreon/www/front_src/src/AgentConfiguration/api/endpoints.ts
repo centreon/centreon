@@ -21,3 +21,6 @@ export const getPollerAgentEndpoint = ({
   pollerId
 }: GetPollerAgentEndpointProps): string =>
   `${getAgentConfigurationsEndpoint}/${agentId}${pollerId ? `/pollers/${pollerId}` : ''}`;
+
+export const getAgentConfigurationEndpoint = (id: number) =>
+  `${getAgentConfigurationsEndpoint}/${id}`;

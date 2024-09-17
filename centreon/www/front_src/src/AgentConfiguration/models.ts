@@ -22,14 +22,33 @@ export interface AgentConfigurationConfiguration {
   confPrivateKey: string;
 }
 
-export type AgentConfigurationConfigurationForm = Pick<
-  AgentConfigurationConfiguration,
-  'otelServerAddress' | 'otelServerPort' | 'confServerPort'
->;
+export interface AgentConfigurationConfigurationAPI {
+  otel_server_address: string;
+  otel_server_port: number | string;
+  otel_public_certificate: string;
+  otel_ca_certificate: string;
+  otel_private_key: string;
+  conf_server_port: string | number;
+  conf_certificate: string;
+  conf_private_key: string;
+}
 
 export interface AgentConfiguration
-  extends Omit<AgentConfigurationListing, 'id'> {
-  configuration: AgentConfigurationConfigurationForm;
+  extends Omit<AgentConfigurationListing, 'id' | 'type'> {
+  configuration: AgentConfigurationConfiguration;
+  type: AgentType;
+}
+
+export interface AgentConfigurationForm
+  extends Omit<AgentConfigurationListing, 'id' | 'type'> {
+  configuration: AgentConfigurationConfiguration;
+  type: SelectEntry | null;
+}
+
+export interface AgentConfigurationAPI
+  extends Omit<AgentConfigurationListing, 'id' | 'pollers'> {
+  configuration: AgentConfigurationConfigurationAPI;
+  pollers: Array<number>;
 }
 
 export enum FormVariant {

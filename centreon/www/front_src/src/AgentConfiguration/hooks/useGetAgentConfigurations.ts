@@ -71,6 +71,7 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
   const { data, isLoading } = useFetchQuery<
     ListingModel<AgentConfigurationListing>
   >({
+    baseEndpoint: 'http://localhost:3001/centreon/api/latest',
     decoder: agentConfigurationsListingDecoder,
     getQueryKey: () => queryKey,
     getEndpoint: () =>

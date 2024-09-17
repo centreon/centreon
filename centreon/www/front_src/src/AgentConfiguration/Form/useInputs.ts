@@ -1,4 +1,4 @@
-import { Group, InputProps, InputType } from '@centreon/ui';
+import { Group, InputProps, InputType, SelectEntry } from '@centreon/ui';
 import { capitalize } from '@mui/material';
 import { isEmpty, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
@@ -19,8 +19,13 @@ import {
   labelPrivateKey,
   labelPublicCertificate
 } from '../translatedLabels';
-import { portRegex } from './useValidationSchema';
 import Empty from './Empty';
+import { portRegex } from './useValidationSchema';
+
+export const agentTypes: Array<SelectEntry> = [
+  { id: AgentType.Telegraf, name: capitalize(AgentType.Telegraf) }
+];
+
 export const useInputs = (): {
   groups: Array<Group>;
   inputs: Array<InputProps>;
@@ -57,9 +62,7 @@ export const useInputs = (): {
         label: t(labelAgentType),
         autocomplete: {
           fullWidth: false,
-          options: [
-            { id: AgentType.Telegraf, name: capitalize(AgentType.Telegraf) }
-          ]
+          options: agentTypes
         }
       },
       {

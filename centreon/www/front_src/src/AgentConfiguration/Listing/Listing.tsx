@@ -1,9 +1,11 @@
 import { Listing } from '@centreon/ui';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { isNotNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import {
   changeSortAtom,
   limitAtom,
+  openFormModalAtom,
   pageAtom,
   sortFieldAtom,
   sortOrderAtom
@@ -29,6 +31,15 @@ const ACListing = ({ rows, total, isLoading }: Props): JSX.Element => {
   const sortOrder = useAtomValue(sortOrderAtom);
   const sortField = useAtomValue(sortFieldAtom);
   const changeSort = useSetAtom(changeSortAtom);
+  const setOpenFormModal = useSetAtom(openFormModalAtom);
+
+  const updateAgentConfiguration = ({ id, internalListingParentId }) => {
+    if (isNotNil(internalListingParentId)) {
+      return;
+    }
+
+    setOpenFormModal(id);
+  };
 
   return (
     <>
@@ -43,6 +54,7 @@ const ACListing = ({ rows, total, isLoading }: Props): JSX.Element => {
           labelCollapse: t(labelCollapse)
         }}
         loading={isLoading}
+        onRowClick={updateAgentConfiguration}
         rows={rows}
         currentPage={page}
         onPaginate={setPage}

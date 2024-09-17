@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Schema, array, mixed, number, object, string } from 'yup';
 import {
-  AgentConfigurationConfigurationForm,
+  AgentConfigurationConfiguration,
   AgentConfigurationForm
 } from '../models';
 import {
@@ -20,7 +20,6 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
   const { t } = useTranslation();
 
   const requiredString = useMemo(() => string().required(t(labelRequired)), []);
-  const requiredNumber = useMemo(() => number().required(t(labelRequired)), []);
   const filenameValidation = useMemo(
     () =>
       requiredString.test({
@@ -43,7 +42,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
         })
       )
       .min(1, t(labelRequired)),
-    configuration: object<AgentConfigurationConfigurationForm>({
+    configuration: object<AgentConfigurationConfiguration>({
       otelServerAddress: string()
         .test({
           name: 'is-address-valid',
