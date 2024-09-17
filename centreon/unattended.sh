@@ -4,7 +4,7 @@
 OPTIONS="hst:v:r:l:p:d:V:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
-declare -A SUPPORTED_VERSION=([21.10]=1 [22.04]=1 [22.10]=1 [23.04]=1 [23.10]=1 [24.04]=1)
+declare -A SUPPORTED_VERSION=([21.10]=1 [22.04]=1 [22.10]=1 [23.04]=1 [23.10]=1 [24.04]=1 [24.10]=1)
 declare -A SUPPORTED_REPOSITORY=([testing]=1 [unstable]=1 [stable]=1)
 declare -A SUPPORTED_DBMS=([MariaDB]=1 [MySQL]=1)
 default_timeout_in_sec=5
@@ -18,7 +18,7 @@ passwords_file=/etc/centreon/generated.tobesecured         #File where the gener
 tmp_passwords_file=$(mktemp /tmp/generated.XXXXXXXXXXXXXX) #Random tmp file as the /etc/centreon does not exist yet
 
 topology=${ENV_CENTREON_TOPOLOGY:-"central"}    #Default topology to be installed
-version=${ENV_CENTREON_VERSION:-"24.04"}        #Default version to be installed
+version=${ENV_CENTREON_VERSION:-"24.10"}        #Default version to be installed
 repo=${ENV_CENTREON_REPO:-"stable"}             #Default repository to be used
 dbms=${ENV_CENTREON_DBMS:-"MariaDB"}            #Default database system to be used
 operation=${ENV_CENTREON_OPERATION:-"install"}  #Default operation to be executed
@@ -85,7 +85,7 @@ function usage() {
 	echo
 	echo "Usage:"
 	echo
-	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.04> (default: 24.04)] [-r <stable|testing|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
+	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.10> (default: 24.10)] [-r <stable|testing|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
 	echo
 	echo Example:
 	echo
@@ -384,7 +384,7 @@ function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
 
 	case $version in
-	"24.04")
+	"24.04" | "24.10" )
 		detected_mariadb_version="10.11"
 	;;
 	*)
@@ -517,7 +517,7 @@ function set_required_prerequisite() {
 			;;
 
 		9*)
-			if ! [[ "$version" == "23.04" || "$version" == "23.10" || "$version" == "24.04" ]]; then
+			if ! [[ "$version" == "23.04" || "$version" == "23.10" || "$version" == "24.04" || "$version" == "24.10" ]]; then
 				error_and_exit "Only Centreon version >=23.04 is compatible with EL9, you chose $version"
 			fi
 
@@ -549,7 +549,8 @@ function set_required_prerequisite() {
 
 			if [ "$topology" == "central" ]; then
 				log "INFO" "Installing PHP 8.2 from OS official repositories"
-				$PKG_MGR install php8.2
+				$PKG_MGR module reset php
+				$PKG_MGR module install php:8.2
 			fi
 			;;
 
@@ -590,7 +591,7 @@ function set_required_prerequisite() {
 				PHP_SERVICE_UNIT="php8.1-fpm"
 				;;
 			12)
-				if ! [[ "$version" == "24.04" ]]; then
+				if ! [[ "$version" == "24.04" || "$version" == "24.10" ]]; then
 					error_and_exit "For Debian $detected_os_version, only Centreon versions >= 24.04 are compatible. You chose $version"
 				fi
 				PHP_SERVICE_UNIT="php8.2-fpm"
@@ -607,14 +608,14 @@ function set_required_prerequisite() {
 			ARCH=""
 			if [[ "$VENDORID" == "ARM" ]]; then
 				ARCH="[ arch=all,arm64 ]"
-				if ! [[ "$version" == "23.10" || "$version" == "24.04" || "$topology" == "poller" ]]; then
+				if ! [[ "$version" == "23.10" || "$version" == "24.04" || "$version" == "24.10" || "$topology" == "poller" ]]; then
 					error_and_exit "For Debian on Raspberry, only Centreon versions (poller mode) >=23.10 are compatible. You chose $version to install $topology server"
 				fi
 			fi
 			;;
 		ubuntu-release*)
 			if ! [[ "$version" == "24.04" ]]; then
-				error_and_exit "For Ubuntu, only Centreon versions >= 24.04 are compatible. You chose $version"
+				error_and_exit "For Ubuntu, only Centreon versions = 24.04 are compatible. You chose $version"
 			fi
 			PHP_SERVICE_UNIT="php8.1-fpm"
 			${PKG_MGR} update && ${PKG_MGR} install -y apt-transport-https gnupg2
@@ -636,8 +637,17 @@ function set_required_prerequisite() {
 		if [ "$topology" == "central" ]; then
 			# Add PHP repo
 			# if OLD VERSIONS => PHP 8.1(install remi repos), else PHP 8.2 (do not install remi repos)
-			echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
-			wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
+			case "$version" in
+				"22.10" | "23.04" | "23.10" | "24.04")
+					echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
+					wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
+					;;
+				"24.10")
+					echo "Installing php from official os repositories."
+					;;
+			esac
+			# echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
+			# wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
 			if [[ "$dbms" == "MariaDB" ]]; then
 				set_mariadb_repos
 			else
@@ -928,7 +938,7 @@ function play_install_wizard() {
 	install_wizard_post ${sessionID} "partitionTables.php"
 	install_wizard_post ${sessionID} "generationCache.php"
 	INSTALLED_EXTENSIONS='modules%5B%5D=centreon-license-manager&modules%5B%5D=centreon-pp-manager&modules%5B%5D=centreon-autodiscovery-server&widgets%5B%5D=engine-status&widgets%5B%5D=global-health&widgets%5B%5D=graph-monitoring&widgets%5B%5D=grid-map&widgets%5B%5D=host-monitoring&widgets%5B%5D=hostgroup-monitoring&widgets%5B%5D=httploader&widgets%5B%5D=live-top10-cpu-usage&widgets%5B%5D=live-top10-memory-usage&widgets%5B%5D=service-monitoring&widgets%5B%5D=servicegroup-monitoring&widgets%5B%5D=tactical-overview&widgets%5B%5D=single-metric'
-	if [[ "$version" == "24.04" ]]; then
+	if [[ "$version" == "24.04" || $version == "24.10" ]]; then
 		INSTALLED_EXTENSIONS+='&modules%5B%5D=centreon-it-edition-extensions'
 	fi
 	install_wizard_post ${sessionID} "process_step8.php" "$INSTALLED_EXTENSIONS"
