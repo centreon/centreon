@@ -748,8 +748,8 @@ class CentreonGraph
 
                     /* Checks whether or not string must be decoded */
                     $lgd = $this->metrics[$metric["metric_id"]]["legend"];
-                    if (preg_match('!!u', utf8_decode($lgd))) {
-                        $this->metrics[$metric["metric_id"]]["legend"] = utf8_decode($lgd);
+                    if (preg_match('!!u', mb_convert_encoding($lgd, 'ISO-8859-1'))) {
+                        $this->metrics[$metric["metric_id"]]["legend"] = mb_convert_encoding($lgd, 'ISO-8859-1');
                     }
 
                     $this->metrics[$metric["metric_id"]]["legend_len"] =
@@ -1263,10 +1263,10 @@ class CentreonGraph
             $sdesc = $this->indexData['service_description'];
             $hname = $this->indexData['host_name'];
             if (!mb_detect_encoding($sdesc, 'UTF-8', true)) {
-                $sdesc = utf8_encode($sdesc);
+                $sdesc = mb_convert_encoding($sdesc, 'UTF-8', 'ISO-8859-1');
             }
             if (!mb_detect_encoding($hname, 'UTF-8', true)) {
-                $hname = utf8_encode($hname);
+                $hname = mb_convert_encoding($hname, 'UTF-8', 'ISO-8859-1');
             }
             $this->setRRDOption("title", _("Graph") . " " . $hname . '/' . $sdesc . $metrictitle);
         } else {

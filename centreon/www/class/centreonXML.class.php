@@ -108,7 +108,7 @@ class CentreonXML
         $txt = $this->cleanStr($txt);
         $txt = html_entity_decode($txt);
         if ($encode || !$this->is_utf8($txt)) {
-            $this->buffer->writeCData(utf8_encode($txt));
+            $this->buffer->writeCData(mb_convert_encoding($txt, 'UTF-8', 'ISO-8859-1'));
         } elseif ($cdata) {
             $this->buffer->writeCData($txt);
         } else {
@@ -146,7 +146,7 @@ class CentreonXML
         $element_value = $this->cleanStr($element_value);
         $element_value = html_entity_decode($element_value);
         if ($encode || !$this->is_utf8($element_value)) {
-            $this->buffer->writeCData(utf8_encode($element_value));
+            $this->buffer->writeCData(mb_convert_encoding($element_value, 'UTF-8', 'ISO-8859-1'));
         } else {
             $this->buffer->writeCData($element_value);
         }
@@ -167,7 +167,7 @@ class CentreonXML
     {
         $att_value = $this->cleanStr($att_value);
         if ($encode) {
-            $this->buffer->writeAttribute($att_name, utf8_encode(html_entity_decode($att_value)));
+            $this->buffer->writeAttribute($att_name, mb_convert_encoding(html_entity_decode($att_value), 'UTF-8', 'ISO-8859-1'));
         } else {
             $this->buffer->writeAttribute($att_name, html_entity_decode($att_value));
         }

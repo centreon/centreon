@@ -83,6 +83,8 @@ use Rector\Php74\Rector\StaticCall\ExportToReflectionFunctionRector;
 use Rector\Php74\Rector\Ternary\ParenthesizeNestedTernaryRector;
 use Rector\Php80\Rector\Catch_\RemoveUnusedVariableInCatchRector;
 use Rector\Php80\Rector\ClassConstFetch\ClassOnThisVariableObjectRector;
+use Rector\Php80\Rector\ClassMethod\AddParamBasedOnParentClassMethodRector;
+use Rector\Php80\Rector\ClassMethod\FinalPrivateToPrivateVisibilityRector;
 use Rector\Php80\Rector\FuncCall\ClassOnObjectRector;
 use Rector\Php80\Rector\FunctionLike\MixedTypeRector;
 use Rector\Php80\Rector\Identical\StrEndsWithRector;
@@ -91,6 +93,7 @@ use Rector\Php80\Rector\NotIdentical\StrContainsRector;
 use Rector\Php80\Rector\Property\NestedAnnotationToAttributeRector;
 use Rector\Php81\Rector\Property\ReadOnlyPropertyRector;
 use Rector\Php82\Rector\Class_\ReadOnlyClassRector;
+use Rector\Php82\Rector\FuncCall\Utf8DecodeEncodeToMbConvertEncodingRector;
 use Rector\Transform\Rector\Attribute\AttributeKeyToClassConstFetchRector;
 use Rector\Transform\Rector\FuncCall\FuncCallToConstFetchRector;
 use Rector\TypeDeclaration\Rector\Class_\MergeDateTimePropertyTypeDeclarationRector;
@@ -217,19 +220,19 @@ return RectorConfig::configure()
 //                ClassOnThisVariableObjectRector::class, // Change $this::class to static::class or self::class depends on class modifier (8.0)
 //                StrEndsWithRector::class, // OK 12 files / Change helper functions to str_ends_with() (8.0)
 //                StrStartsWithRector::class, // OK 15 files / Change helper functions to str_starts_with() (8.0)
-                StrContainsRector::class, // Replace strpos() !== false and strstr() with str_contains() (8.0)
+//                StrContainsRector::class, // OK 33 files / Replace strpos() !== false and strstr() with str_contains() (8.0)
         //        ChangeSwitchToMatchRector::class, // Change switch() to match() (8.0)
         //        StringableForToStringRector::class, // Add Stringable interface to classes with __toString() method (8.0)
         //        StringableForToStringRector::class, // Add Stringable interface to classes with __toString() method (8.0)
         //        ClassPropertyAssignToConstructorPromotionRector::class, // Change simple property init and assign to constructor promotion (8.0)
-        //        FinalPrivateToPrivateVisibilityRector::class, // Changes method visibility from final private to only private (8.0)
-        //        AddParamBasedOnParentClassMethodRector::class, // Add missing parameter based on parent class method (8.0)
+//                    FinalPrivateToPrivateVisibilityRector::class, // KO 0 file / Changes method visibility from final private to only private (8.0)
+//               AddParamBasedOnParentClassMethodRector::class, // KO 0 files / Add missing parameter based on parent class method (8.0)
         //        MyCLabsMethodCallToEnumConstRector::class, // Refactor MyCLabs enum fetch to Enum const (8.1)
         //        SpatieEnumMethodCallToEnumConstRector::class, // Refactor Spatie enum method calls (8.1)
         //        NullToStrictStringFuncCallArgRector::class, // Change null to strict string defined function call args (8.1)
         //        NullToStrictStringFuncCallArgRector::class, // Change null to strict string defined function call args (8.1)
-        //        Utf8DecodeEncodeToMbConvertEncodingRector::class, // Change deprecated utf8_decode and utf8_encode to mb_convert_encoding (8.2)
-        //        VariableInStringInterpolationFixerRector::class, // Replace deprecated "${var}" to "{$var}" (8.2)
+                 Utf8DecodeEncodeToMbConvertEncodingRector::class, // OK 7 files / Change deprecated utf8_decode and utf8_encode to mb_convert_encoding (8.2)
+        //       x VariableInStringInterpolationFixerRector::class, // Replace deprecated "${var}" to "{$var}" (8.2)
         //        // ---------------- PHP not sure ----------------
         //        ReadOnlyPropertyRector::class, // Decorate read-only property with readonly attribute (8.1)
         //        NewInInitializerRector::class, // Replace property declaration of new state with direct new (8.1)
