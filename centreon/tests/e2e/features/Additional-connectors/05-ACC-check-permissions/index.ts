@@ -2,10 +2,10 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
   // cy.startContainers();
-  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/acc-acl-user.json');
-  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/local-authentication-acl-user.json');
-  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
-  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
+  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/acc-acl-user.json');
+  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/local-authentication-acl-user.json');
+  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
+  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
 });
 
 beforeEach(() => {
@@ -36,7 +36,7 @@ beforeEach(() => {
 });
 
 after(() => {
-  // cy.stopContainers();
+  cy.stopContainers();
 });
 
 Given('an admin user is in the Specific Connector Configuration page', () => {
@@ -297,30 +297,3 @@ When('the user deletes the additional connector configuration', () => {
   cy.getByLabel({ label: 'Delete', tag: 'button' }).eq(0).click();
   cy.getByTestId({ testId: 'confirm' }).click();
 });
-
-
-
-// Then('the admin user can view all the additional connector already configured', () => {
-//   cy.get('@getConnectorPage')
-//     .its('response.body.result')
-//     .should('include',
-//       JSON.stringify({
-//         "name": "Connector-001",
-//         "type": "vmware_v6",
-//         "description": null,
-//         "created_by": {
-//             "id": 1,
-//             "name": "admin admin"
-//         },
-//         "updated_by": {
-//             "id": 1,
-//             "name": "admin admin"
-//         }
-//       })
-//     ).its('response.body.meta')
-//     .should('include',
-//       JSON.stringify({
-//         "total": 1
-//       })
-//     );
-// });

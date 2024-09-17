@@ -1,7 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
-  // cy.startContainers();
+  cy.startContainers();
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/acc-acl-user.json');
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
@@ -31,7 +31,7 @@ beforeEach(() => {
 });
 
 after(() => {
-  // cy.stopContainers();
+  cy.stopContainers();
 });
 
 Given('a non-admin user is in the Specific Connector Configuration page', () => {
