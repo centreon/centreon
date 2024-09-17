@@ -160,104 +160,174 @@ class Centreon_OpenTickets_Rule
         return $result;
     }
 
-    public function loadSelection($db_storage, $cmd, $selection)
+    /**
+     * @param CentreonDB|null $dbStorage
+     * @param string $cmd
+     * @param string $selection
+     *
+     * @return array<string, array>
+     */
+    public function loadSelection(?CentreonDB $dbStorage, string $cmd, string $selection): array
     {
         global $centreon_bg;
 
-        if (is_null($db_storage)) {
-            $db_storage = new CentreonDB('centstorage');
+        if (is_null($dbStorage)) {
+            $dbStorage = new CentreonDB('centstorage');
         }
 
-        $selected_values = explode(',', $selection);
-        $selected = array('host_selected' => array(), 'service_selected' => array());
+        $selected = ['host_selected' => [], 'service_selected' => []];
+
+        if (empty($selection)) {
+            return $selected;
+        }
+
+        $selectedValues = explode(',', $selection);
 
         if ($cmd == 3) {
-            $selected_str = '';
-            $selected_str2 = '';
-            $selected_str_append = '';
-            foreach ($selected_values as $value) {
-                $str = explode(';', $value);
-                $selected_str .= $selected_str_append .
-                    'services.host_id = ' . $str[0] .
-                    ' AND services.service_id = ' . $str[1];
-                $selected_str2 .= $selected_str_append . 'host_id = ' . $str[0] . ' AND service_id = ' . $str[1];
-                $selected_str_append = ' OR ';
+            $selectedStr = '';
+            $selectedStr2 = '';
+            $selectedStrAppend = '';
+            $queryParams = [];
+            foreach ($selectedValues as $key => $value) {
+                [$hostId, $serviceId] = explode(';', $value);
+                $selectedStr .=
+                    $selectedStrAppend
+                    . 'services.host_id = :host_id_' . $key
+                    . ' AND services.service_id = :service_id_' . $key;
+                $selectedStr2 .= $selectedStrAppend
+                    . 'host_id = :host_id_' . $key
+                    . ' AND service_id = :service_id_' . $key;
+                $queryParams['host_id_' . $key] = $hostId;
+                $queryParams['service_id_' . $key] = $serviceId;
+                $selectedStrAppend = ' OR ';
             }
 
-            $query = "SELECT
+            $query = <<<SQL
+                SELECT
                     services.*,
                     hosts.address,
                     hosts.state AS host_state,
                     hosts.host_id,
                     hosts.name AS host_name,
                     hosts.instance_id
-                FROM services, hosts";
-            $query_where = " WHERE (" . $selected_str . ') AND services.host_id = hosts.host_id';
+                FROM services
+                INNER JOIN hosts
+                    ON services.host_id = hosts.host_id
+                WHERE ($selectedStr)
+            SQL;
+
             if (!$centreon_bg->is_admin) {
-                $query_where .= " AND EXISTS(
-                    SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN (" . $centreon_bg->grouplistStr . "
-                    ) AND hosts.host_id = centreon_acl.host_id AND services.service_id = centreon_acl.service_id
-                )";
+                $query .= <<<'SQL'
+
+                    AND EXISTS (
+                        SELECT * FROM centreon_acl
+                        WHERE centreon_acl.group_id IN (:group_ids)
+                        AND hosts.host_id = centreon_acl.host_id
+                        AND services.service_id = centreon_acl.service_id
+                    )
+                SQL;
+                $queryParams["group_ids"] = $centreon_bg->grouplistStr;
             }
+            
+            $graphQuery = <<<SQL
+                SELECT
+                    host_id,
+                    service_id,
+                    COUNT(*) AS num_metrics
+                FROM index_data
+                INNER JOIN metrics
+                    ON index_data.id = metrics.index_id
+                WHERE ($selectedStr2)
+                GROUP BY host_id, service_id
+                SQL;
 
-            $dbResult = $db_storage->query($query . $query_where);
+            try {
+                $hostServiceStatement = $dbStorage->prepareQuery($query);
+                $dbStorage->executePreparedQuery($hostServiceStatement, $queryParams);
+            
+                $graphStatement = $dbStorage->prepareQuery($graphQuery);
+                $dbStorage->executePreparedQuery($graphStatement, $queryParams);
+                
+                $graphData = [];
+                while (($row = $dbStorage->fetch($graphStatement))) {
+                    $graphData[$row['host_id'] . '.' . $row['service_id']] = $row['num_metrics'];
+                }
 
-            $dbResult_graph = $db_storage->query(
-                "SELECT host_id, service_id, COUNT(*) AS num_metrics 
-                FROM index_data, metrics 
-                WHERE (" . $selected_str2 . ")
-                AND index_data.id = metrics.index_id 
-                GROUP BY host_id, service_id"
-            );
-            $datas_graph = array();
-            while (($row = $dbResult_graph->fetch())) {
-                $datas_graph[$row['host_id'] . '.' . $row['service_id']] = $row['num_metrics'];
-            }
-
-            while (($row = $dbResult->fetch())) {
-                $row['service_state'] = $row['state'];
-                $row['state_str'] = $this->getServiceStateStr($row['state']);
-                $row['last_state_change_duration'] = CentreonDuration::toString(
-                    time() - $row['last_state_change']
+                while (($row = $dbStorage->fetch($hostServiceStatement))) {
+                    $row['service_state'] = $row['state'];
+                    $row['state_str'] = $this->getServiceStateStr($row['state']);
+                    $row['last_state_change_duration'] = CentreonDuration::toString(
+                        time() - $row['last_state_change']
+                    );
+                    $row['last_hard_state_change_duration'] = CentreonDuration::toString(
+                        time() - $row['last_hard_state_change']
+                    );
+                    $row['num_metrics'] = $graphData[$row['host_id'] . '.' . $row['service_id']] ?? 0;
+                    $selected['service_selected'][] = $row;
+                }
+            } catch (CentreonDbException $e) {
+                CentreonLog::create()->error(
+                    CentreonLog::TYPE_SQL,
+                    "rule:loadSelection Error while retrieving hosts and services",
+                    ['selection' => $selection],
+                    $e
                 );
-                $row['last_hard_state_change_duration'] = CentreonDuration::toString(
-                    time() - $row['last_hard_state_change']
-                );
-                $row['num_metrics'] = isset(
-                    $datas_graph[$row['host_id'] . '.' . $row['service_id']]
-                ) ? $datas_graph[$row['host_id'] . '.' . $row['service_id']] : 0;
-                $selected['service_selected'][] = $row;
+                
+                return $selected;
             }
         } elseif ($cmd == 4) {
-            $hosts_selected_str = '';
-            $hosts_selected_str_append = '';
-            foreach ($selected_values as $value) {
-                $str = explode(';', $value);
-                $hosts_selected_str .= $hosts_selected_str_append . $str[0];
-                $hosts_selected_str_append = ', ';
+            $hostsSelectedStr = '';
+            $hostsSelectedStrAppend = '';
+            $queryParams = [];
+            foreach ($selectedValues as $key => $value) {
+                [$hostId] = explode(';', $value);
+                $hostsSelectedStr .= $hostsSelectedStrAppend . ':host_id_' . $key;
+                $queryParams['host_id_' . $key] = $hostId;
+                $hostsSelectedStrAppend = ', ';
             }
 
-            $query = "SELECT * FROM hosts";
-            $query_where = " WHERE host_id IN (" . $hosts_selected_str . ")";
+            $query = <<<SQL
+                SELECT *
+                FROM hosts
+                WHERE host_id IN ($hostsSelectedStr)
+                SQL;
+
             if (!$centreon_bg->is_admin) {
-                $query_where .= " AND EXISTS(
-                    SELECT * FROM centreon_acl
-                    WHERE centreon_acl.group_id IN (" . $centreon_bg->grouplistStr . ")
-                    AND hosts.host_id = centreon_acl.host_id
-                )";
+                $query .= <<<'SQL'
+
+                    AND EXISTS (
+                        SELECT * FROM centreon_acl
+                        WHERE centreon_acl.group_id IN (:group_ids)
+                        AND hosts.host_id = centreon_acl.host_id
+                    )
+                SQL;
+                $queryParams['group_ids'] = $centreon_bg->grouplistStr;
             }
 
-            $dbResult = $db_storage->query($query . $query_where);
-            while (($row = $dbResult->fetch())) {
-                $row['host_state'] = $row['state'];
-                $row['state_str'] = $this->getHostStateStr($row['state']);
-                $row['last_state_change_duration'] = CentreonDuration::toString(
-                    time() - $row['last_state_change']
+            try {
+                $hostStatement = $dbStorage->prepareQuery($query);
+                $dbStorage->executePreparedQuery($hostStatement, $queryParams);
+
+                while (($row = $dbStorage->fetch($hostStatement))) {
+                    $row['host_state'] = $row['state'];
+                    $row['state_str'] = $this->getHostStateStr($row['state']);
+                    $row['last_state_change_duration'] = CentreonDuration::toString(
+                        time() - $row['last_state_change']
+                    );
+                    $row['last_hard_state_change_duration'] = CentreonDuration::toString(
+                        time() - $row['last_hard_state_change']
+                    );
+                    $selected['host_selected'][] = $row;
+                }
+            } catch (CentreonDbException $e) {
+                CentreonLog::create()->error(
+                    CentreonLog::TYPE_SQL,
+                    "rule:loadSelection Error while retrieving hosts and services",
+                    ['selection' => $selection],
+                    $e
                 );
-                $row['last_hard_state_change_duration'] = CentreonDuration::toString(
-                    time() - $row['last_hard_state_change']
-                );
-                $selected['host_selected'][] = $row;
+
+                return $selected;
             }
         }
 
@@ -269,7 +339,7 @@ class Centreon_OpenTickets_Rule
         $infos = $this->getAliasAndProviderId($rule_id);
         $this->loadProvider($rule_id, $infos['provider_id'], $widget_id, $uniq_id);
 
-        $selected = $this->loadSelection(null, $cmd, $selection);
+        $selected = $this->loadSelection(null, (string) $cmd, (string) $selection);
         $args['host_selected'] = $selected['host_selected'];
         $args['service_selected'] = $selected['service_selected'];
 
