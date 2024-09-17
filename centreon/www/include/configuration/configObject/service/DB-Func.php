@@ -1717,7 +1717,7 @@ function insertServiceInDBForCloud($submittedValues = [], $onDemandMacro = null)
         return null;
     }
 
-    $serviceId = $tmp_fields['service_id'];
+    $serviceId = (int) $tmp_fields['service_id'];
     updateServiceHost($serviceId, $submittedValues);
     updateServiceServiceGroup($serviceId, $submittedValues);
     insertServiceExtInfos($serviceId, $submittedValues);
