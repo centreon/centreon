@@ -159,8 +159,8 @@ $db_storage = new centreonDBManager('centstorage');
 
 $selected = $rule->loadSelection(
     $db_storage,
-    $get_information['form']['cmd'],
-    $get_information['form']['selection']
+    (string) $get_information['form']['cmd'],
+    (string) $get_information['form']['selection']
 );
 
 $sticky = ! empty($centreon->optGen['monitoring_ack_sticky']) ? 2 : 1;
