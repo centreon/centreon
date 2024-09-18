@@ -1,5 +1,5 @@
-import { FormikValues } from 'formik';
-import { TFunction } from 'i18next';
+import type { FormikValues } from 'formik';
+import type { TFunction } from 'i18next';
 import {
   path,
   always,
@@ -24,7 +24,7 @@ import {
   string
 } from 'yup';
 import {
-  FederatedWidgetOption,
+  type FederatedWidgetOption,
   FederatedWidgetOptionType
 } from '../../../../../../federatedModules/models';
 import {
@@ -33,8 +33,8 @@ import {
   labelRequired
 } from '../../../translatedLabels';
 import {
-  ShowInput,
-  WidgetDataResource,
+  type ShowInput,
+  type WidgetDataResource,
   WidgetResourceType
 } from '../../models';
 
