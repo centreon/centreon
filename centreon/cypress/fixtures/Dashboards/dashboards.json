@@ -15,7 +15,11 @@
         "name": "Arnaud"
       },
       "own_role": "editor",
-      "thumbnail": "img/media/dashboards/dashboard-1.png",
+      "thumbnail": {
+        "id" : 1 , 
+        "name" : "dashboard-1.png",
+        "directory" : "dashboards"
+      },
       "shares": {
         "contacts": [
           {
