@@ -53,7 +53,7 @@ const Autocomplete = ({
 
   const [inputText, setInputText] = useState('');
 
-  const { values, setFieldValue, errors, touched } =
+  const { values, setFieldValue, setFieldTouched, errors, touched } =
     useFormikContext<FormikValues>();
 
   const isMultiple = equals(inputType, InputType.MultiAutocomplete);
@@ -68,11 +68,12 @@ const Autocomplete = ({
     setInputText('');
 
     if (change) {
-      change({ setFieldValue, value: normalizedNewValues });
+      change({ setFieldValue, value: normalizedNewValues, setFieldTouched });
 
       return;
     }
 
+    setFieldTouched(fieldName, true, false);
     setFieldValue(fieldName, normalizedNewValues);
   };
 
