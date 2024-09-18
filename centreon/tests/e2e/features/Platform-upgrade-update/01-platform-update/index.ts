@@ -124,6 +124,12 @@ Given(
                 break;
               case 'penultimate stable':
                 minor_version_index = stable_minor_versions.length - 2;
+                if (
+                  stable_minor_versions[minor_version_index] ===
+                  Cypress.env('lastStableMinorVersion')
+                ) {
+                  return cy.stopContainer({ name: 'web' }).wrap('skipped');
+                }
                 break;
               case 'antepenultimate stable':
                 minor_version_index = stable_minor_versions.length - 3;
