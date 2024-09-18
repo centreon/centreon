@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "5b8a25cd-1044-4a2e-90d4-89308d45096d",
+		"_postman_id": "70afadf4-2394-42c8-bc83-092dde17f688",
 		"name": "Notifications",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "5258648"
+		"_exporter_id": "16182525",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-70afadf4-2394-42c8-bc83-092dde17f688?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -3067,6 +3068,7 @@
 							"script": {
 								"exec": [
 									"var response = pm.response.json();\r",
+									"console.log(response);\r",
 									"pm.test(\"The notification has not been created, because the the channel value is not correct.\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
 									"    pm.expect(response.message).to.eql(\"\\\"Smzzzzzs\\\" is not a valid backing value for enum \\\"Core\\\\Notification\\\\Domain\\\\Model\\\\Channel\\\"\");\r",
