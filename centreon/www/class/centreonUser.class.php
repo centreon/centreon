@@ -86,7 +86,7 @@ class CentreonUser
     private $showDeprecatedPages;
     /** @var int */
     private $currentPage;
-    /** @var string|string */
+    /** @var string|null */
     public $theme;
 
     /** @var bool */

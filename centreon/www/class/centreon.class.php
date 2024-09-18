@@ -113,9 +113,11 @@ class Centreon
     public $extCmd;
 
     /**
-     * Class constructor
+     * Centreon constructor
      *
-     * @param object $userInfos User objects
+     * @param array $userInfos User objects
+     *
+     * @throws PDOException
      */
     public function __construct($userInfos)
     {

@@ -243,7 +243,6 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
             $graph->createLegend();
 
             $serviceData = $graph->getData($rows);
-
             /* Replace NaN */
             $counter = count($serviceData);
             for ($i = 0; $i < $counter; $i++) {

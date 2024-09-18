@@ -34,6 +34,7 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
+use Core\Service\Application\Repository\WriteRealTimeServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 use Core\Service\Application\UseCase\DeployServices\DeployServices;
 use Core\Service\Application\UseCase\DeployServices\DeployServicesResponse;
@@ -54,7 +55,8 @@ beforeEach(function (): void {
         $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
         $this->readServiceRepository = $this->createMock(ReadServiceRepositoryInterface::class),
         $this->readServiceTemplateRepository = $this->createMock(ReadServiceTemplateRepositoryInterface::class),
-        $this->writeServiceRepository = $this->createMock(WriteServiceRepositoryInterface::class)
+        $this->writeServiceRepository = $this->createMock(WriteServiceRepositoryInterface::class),
+        $this->writeRealTimeServiceRepository = $this->createMock(WriteRealTimeServiceRepositoryInterface::class)
     );
 });
 
@@ -83,6 +85,11 @@ it('should present a Not Found Response when provided host ID does not exist for
         ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(false);
+
+    $this->readHostRepository
+        ->expects($this->any())
+        ->method('findParents')
+        ->willReturn([['parent_id' => 3, 'child_id' => 15, 'order' => 2]]);
 
     $accessGroups = [(new AccessGroup(1, 'nonAdmin', 'nonAdmin')), (new AccessGroup(3, 'SimpleUser', 'SimpleUser'))];
     $this->readAccessGroupRepository
@@ -116,6 +123,11 @@ it('should present a Not Found Response when provided host ID does not exist for
         ->willReturn(true);
 
     $this->readHostRepository
+        ->expects($this->any())
+        ->method('findParents')
+        ->willReturn([['parent_id' => 3, 'child_id' => 15, 'order' => 2]]);
+
+    $this->readHostRepository
         ->expects($this->once())
         ->method('exists')
         ->willReturn(false);
@@ -141,6 +153,11 @@ it(
             ->expects($this->any())
             ->method('isAdmin')
             ->willReturn(false);
+
+        $this->readHostRepository
+            ->expects($this->any())
+            ->method('findParents')
+            ->willReturn([['parent_id' => 3, 'child_id' => 15, 'order' => 2]]);
 
         $accessGroups = [(new AccessGroup(1, 'nonAdmin', 'nonAdmin')), (new AccessGroup(3, 'SimpleUser', 'SimpleUser'))];
         $this->readAccessGroupRepository
@@ -229,6 +246,11 @@ it('should present an Error Response when an unhandled error occurs', function (
         ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(false);
+
+    $this->readHostRepository
+        ->expects($this->any())
+        ->method('findParents')
+        ->willReturn([['parent_id' => 3, 'child_id' => 15, 'order' => 2]]);
 
     $this->readAccessGroupRepository
         ->expects($this->once())

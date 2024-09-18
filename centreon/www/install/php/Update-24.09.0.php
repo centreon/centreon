@@ -212,7 +212,7 @@ try {
     $createAcc($pearDB);
     $addCentreonBrokerForeignKeyOnBrokerLogTable($pearDB);
 
-    // Tansactional queries
+    // Transactional queries
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }

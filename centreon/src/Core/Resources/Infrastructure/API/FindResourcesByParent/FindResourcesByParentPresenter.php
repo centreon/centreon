@@ -118,7 +118,7 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
      * @param ResourceResponseDto $response
      * @param array<string, array<mixed, mixed>> $extraData
      *
-     * @return array<string, array<string, mixed>>
+     * @return array<string, mixed>
      */
     private function createResourceFromResponse(ResourceResponseDto $response, array $extraData): array
     {

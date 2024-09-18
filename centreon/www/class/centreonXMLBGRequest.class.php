@@ -55,9 +55,9 @@ class CentreonXMLBGRequest
      */
 
     /** @var CentreonDB */
-    public $DB;
+    public CentreonDB $DB;
     /** @var CentreonDB */
-    public $DBC;
+    public CentreonDB $DBC;
     /** @var CentreonXML */
     public $XML;
     /** @var CentreonGMT */

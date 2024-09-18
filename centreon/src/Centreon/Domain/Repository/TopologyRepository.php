@@ -128,17 +128,18 @@ class TopologyRepository extends ServiceEntityRepository
                 }
                 $DBRESULT->closeCursor();
 
-                if ($topology !== []) {
-                    $query3 = "SELECT topology_url "
-                        . "FROM topology FORCE INDEX (`PRIMARY`) "
-                        . "WHERE topology_url IS NOT NULL "
-                        . "AND is_react = '1' "
-                        . "AND topology_id IN (" . implode(', ', $topology) . ") ";
-                    $DBRESULT3 = $this->db->query($query3);
-                    while ($topo_page = $DBRESULT3->fetchRow()) {
-                        $topologyUrls[] = $topo_page["topology_url"];
+                    if ($topology !== []) {
+                        $query3 = "SELECT topology_url "
+                            . "FROM topology FORCE INDEX (`PRIMARY`) "
+                            . "WHERE topology_url IS NOT NULL "
+                            . "AND is_react = '1' "
+                            . "AND topology_id IN (" . implode(', ', $topology) . ") ";
+                        $DBRESULT3 = $this->db->query($query3);
+                        while ($topo_page = $DBRESULT3->fetchRow()) {
+                            $topologyUrls[] = $topo_page["topology_url"];
+                        }
+                        $DBRESULT3->closeCursor();
                     }
-                    $DBRESULT3->closeCursor();
                 }
             }
         }

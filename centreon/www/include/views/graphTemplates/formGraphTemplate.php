@@ -95,7 +95,23 @@ $form->addElement('checkbox', 'size_to_max', _("Size to max"), '', ['id' => 'siz
 $form->addElement('text', 'ds_name', _("Data Source Name"), $attrsText);
 $form->addElement('select', 'base', _("Base"), ["1000" => "1000", "1024" => "1024"]);
 
-$periods = ["10800" => _("Last 3 Hours"), "21600" => _("Last 6 Hours"), "43200" => _("Last 12 Hours"), "86400" => _("Last 24 Hours"), "172800" => _("Last 2 Days"), "302400" => _("Last 4 Days"), "604800" => _("Last 7 Days"), "1209600" => _("Last 14 Days"), "2419200" => _("Last 28 Days"), "2592000" => _("Last 30 Days"), "2678400" => _("Last 31 Days"), "5184000" => _("Last 2 Months"), "10368000" => _("Last 4 Months"), "15552000" => _("Last 6 Months"), "31104000" => _("Last Year")];
+$periods = [
+    "10800" => _("Last 3 hours"),
+    "21600" => _("Last 6 hours"),
+    "43200" => _("Last 12 hours"),
+    "86400" => _("Last 24 hours"),
+    "172800" => _("Last 2 days"),
+    "302400" => _("Last 4 days"),
+    "604800" => _("Last 7 days"),
+    "1209600" => _("Last 14 days"),
+    "2419200" => _("Last 28 days"),
+    "2592000" => _("Last 30 days"),
+    "2678400" => _("Last 31 days"),
+    "5184000" => _("Last 2 months"),
+    "10368000" => _("Last 4 months"),
+    "15552000" => _("Last 6 months"),
+    "31104000" => _("Last year")
+];
 
 $sel = $form->addElement('select', 'period', _("Graph Period"), $periods);
 $steps = ["0" => _("No Step"), "2" => "2", "6" => "6", "10" => "10", "20" => "20", "50" => "50", "100" => "100"];

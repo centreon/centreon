@@ -1,7 +1,7 @@
 ARG REGISTRY_URL
-ARG VERSION
+ARG FROM_IMAGE_VERSION=develop
 
-FROM ${REGISTRY_URL}/centreon-web-dependencies-bullseye:${VERSION}
+FROM ${REGISTRY_URL}/centreon-web-dependencies-bullseye:${FROM_IMAGE_VERSION}
 
 ARG VERSION
 ARG MYDUMPER_VERSION
@@ -29,10 +29,10 @@ chmod -R 755 /usr/share/centreon/container.*
 mv /tmp/configuration/* /usr/share/centreon/www/install/tmp/
 chown -R www-data:www-data /usr/share/centreon/www/install/tmp
 
-echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini
+echo "date.timezone = Europe/Paris" >> /etc/php/8.2/mods-available/centreon.ini
 
-touch /var/log/php8.1-fpm-centreon-error.log
-chown www-data:www-data /var/log/php8.1-fpm-centreon-error.log
+touch /var/log/php8.2-fpm-centreon-error.log
+chown www-data:www-data /var/log/php8.2-fpm-centreon-error.log
 
 sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql
 
@@ -69,7 +69,7 @@ systemctl stop gorgoned
 systemctl stop centengine
 systemctl stop cbd
 systemctl stop apache2
-systemctl stop php8.1-fpm
+systemctl stop php8.2-fpm
 
 service mysql stop
 

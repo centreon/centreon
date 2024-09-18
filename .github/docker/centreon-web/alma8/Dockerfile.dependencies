@@ -95,7 +95,7 @@ dnf install -y libfaketime
 
 dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm
 dnf module reset -y php
-dnf module install -y php:remi-8.1
+dnf module install -y php:remi-8.2
 
 dnf install -y \
   php-common \
