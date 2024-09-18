@@ -213,15 +213,15 @@ class CentreonConfigurationHostgroup extends CentreonConfigurationObjects
         }
 
         $request = <<<'SQL_WRAP'
-    SELECT SQL_CALC_FOUND_ROWS DISTINCT
-        h.host_name,
-        h.host_id
-    FROM hostgroup hg
-    INNER JOIN hostgroup_relation hgr
-        ON hg.hg_id = hgr.hostgroup_hg_id
-    INNER JOIN host h
-        ON h.host_id = hgr.host_host_id
-SQL_WRAP;
+            SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                h.host_name,
+                h.host_id
+            FROM hostgroup hg
+            INNER JOIN hostgroup_relation hgr
+                ON hg.hg_id = hgr.hostgroup_hg_id
+            INNER JOIN host h
+                ON h.host_id = hgr.host_host_id
+            SQL_WRAP;
 
         if ($filters !== []) {
             $whereCondition .= empty($whereCondition) ? ' WHERE ' : ' AND ';

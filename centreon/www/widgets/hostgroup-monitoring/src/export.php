@@ -77,11 +77,11 @@ $hostStateLabels = [0 => "Up", 1 => "Down", 2 => "Unreachable", 4 => "Pending"];
 $serviceStateLabels = [0 => "Ok", 1 => "Warning", 2 => "Critical", 3 => "Unknown", 4 => "Pending"];
 
 $query = <<<'SQL_WRAP'
-SELECT SQL_CALC_FOUND_ROWS DISTINCT
-    1 AS REALTIME,
-    name
-FROM hostgroups 
-SQL_WRAP;
+    SELECT SQL_CALC_FOUND_ROWS DISTINCT
+        1 AS REALTIME,
+        name
+    FROM hostgroups 
+    SQL_WRAP;
 
 
 if (isset($preferences['hg_name_search']) && $preferences['hg_name_search'] != "") {

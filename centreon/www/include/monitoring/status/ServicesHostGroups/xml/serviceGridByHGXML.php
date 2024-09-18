@@ -97,14 +97,14 @@ $filterRq2 = '';
 
 //Get Host status
 $rq1 = <<<SQL_WRAP
-SELECT SQL_CALC_FOUND_ROWS DISTINCT
-1 AS REALTIME, hg.name AS alias, h.host_id id, h.name AS host_name, hgm.hostgroup_id, h.state hs, h.icon_image
-FROM hosts h
-INNER JOIN hosts_hostgroups hgm
-  ON hgm.host_id = h.host_id
-INNER JOIN hostgroups hg
-  ON hg.hostgroup_id = hgm.hostgroup_id
-SQL_WRAP;
+    SELECT SQL_CALC_FOUND_ROWS DISTINCT
+    1 AS REALTIME, hg.name AS alias, h.host_id id, h.name AS host_name, hgm.hostgroup_id, h.state hs, h.icon_image
+    FROM hosts h
+    INNER JOIN hosts_hostgroups hgm
+      ON hgm.host_id = h.host_id
+    INNER JOIN hostgroups hg
+      ON hg.hostgroup_id = hgm.hostgroup_id
+    SQL_WRAP;
 
 if (!$obj->is_admin) {
     $rq1 .= <<<SQL

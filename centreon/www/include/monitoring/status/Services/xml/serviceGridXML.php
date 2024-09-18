@@ -96,10 +96,10 @@ $queryValues = [];
  * Get Host status
  */
 $request = <<<SQL_WRAP
-SELECT SQL_CALC_FOUND_ROWS DISTINCT
-  1 AS REALTIME, hosts.name, hosts.state, hosts.icon_image, hosts.host_id
-FROM hosts
-SQL_WRAP;
+    SELECT SQL_CALC_FOUND_ROWS DISTINCT
+      1 AS REALTIME, hosts.name, hosts.state, hosts.icon_image, hosts.host_id
+    FROM hosts
+    SQL_WRAP;
 
 if ($hostgroups) {
     $request .= <<<SQL

@@ -174,15 +174,15 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
 
         $request = <<<'SQL_WRAP'
-SELECT SQL_CALC_FOUND_ROWS
-    ng.`id`,
-    ng.`name`
-FROM `:db`.`nagios_server` ng
-LEFT JOIN `:db`.`acc_poller_relation` rel
-    ON rel.poller_id = ng.id
-LEFT JOIN `:db`.`additional_connector_configuration` acc
-    ON rel.acc_id = acc.id
-SQL_WRAP;
+            SELECT SQL_CALC_FOUND_ROWS
+                ng.`id`,
+                ng.`name`
+            FROM `:db`.`nagios_server` ng
+            LEFT JOIN `:db`.`acc_poller_relation` rel
+                ON rel.poller_id = ng.id
+            LEFT JOIN `:db`.`additional_connector_configuration` acc
+                ON rel.acc_id = acc.id
+            SQL_WRAP;
 
         // Search
         $request .= $search = $sqlTranslator?->translateSearchParameterToSql();
@@ -372,14 +372,14 @@ SQL_WRAP;
         ]);
 
         $request = <<<'SQL_WRAP'
-SELECT SQL_CALC_FOUND_ROWS
-    acc.*
-FROM `:db`.`additional_connector_configuration` acc
-LEFT JOIN `:db`.`acc_poller_relation` rel
-    ON  acc.id = rel.acc_id
-INNER JOIN `:db`.`nagios_server` ns
-    ON rel.poller_id = ns.id
-SQL_WRAP;
+            SELECT SQL_CALC_FOUND_ROWS
+                acc.*
+            FROM `:db`.`additional_connector_configuration` acc
+            LEFT JOIN `:db`.`acc_poller_relation` rel
+                ON  acc.id = rel.acc_id
+            INNER JOIN `:db`.`nagios_server` ns
+                ON rel.poller_id = ns.id
+            SQL_WRAP;
 
         // Search
         $request .= $sqlTranslator->translateSearchParameterToSql();

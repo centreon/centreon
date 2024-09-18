@@ -108,39 +108,39 @@ $queryValues = [];
  * Get Host status
  */
 $rq1 = <<<SQL_WRAP
-SELECT SQL_CALC_FOUND_ROWS DISTINCT
-    1 AS REALTIME,
-    h.state,
-    h.acknowledged,
-    h.passive_checks,
-    h.active_checks,
-    h.notify,
-    h.last_state_change,
-    h.last_hard_state_change,
-    h.output,
-    h.last_check,
-    h.address,
-    h.name,
-    h.alias,
-    h.action_url,
-    h.notes_url,
-    h.notes,
-    h.icon_image,
-    h.icon_image_alt,
-    h.max_check_attempts,
-    h.state_type,
-    h.check_attempt,
-    h.scheduled_downtime_depth,
-    h.host_id,
-    h.flapping,
-    hph.parent_id AS is_parent,
-    i.name AS instance_name,
-    cv.value AS criticality,
-    cv.value IS NULL AS isnull
-    FROM instances i
-INNER JOIN hosts h 
-    ON h.instance_id = i.instance_id
-SQL_WRAP;
+        SELECT SQL_CALC_FOUND_ROWS DISTINCT
+            1 AS REALTIME,
+            h.state,
+            h.acknowledged,
+            h.passive_checks,
+            h.active_checks,
+            h.notify,
+            h.last_state_change,
+            h.last_hard_state_change,
+            h.output,
+            h.last_check,
+            h.address,
+            h.name,
+            h.alias,
+            h.action_url,
+            h.notes_url,
+            h.notes,
+            h.icon_image,
+            h.icon_image_alt,
+            h.max_check_attempts,
+            h.state_type,
+            h.check_attempt,
+            h.scheduled_downtime_depth,
+            h.host_id,
+            h.flapping,
+            hph.parent_id AS is_parent,
+            i.name AS instance_name,
+            cv.value AS criticality,
+            cv.value IS NULL AS isnull
+            FROM instances i
+        INNER JOIN hosts h 
+            ON h.instance_id = i.instance_id
+    SQL_WRAP;
 
 if (!$obj->is_admin) {
     $rq1 .= <<<SQL

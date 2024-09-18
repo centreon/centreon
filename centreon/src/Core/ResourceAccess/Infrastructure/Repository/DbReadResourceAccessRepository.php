@@ -171,13 +171,13 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
         ]);
 
         $request = <<<'SQL_WRAP'
-    SELECT SQL_CALC_FOUND_ROWS
-        acl_group_id AS `id`,
-        acl_group_name AS `name`,
-        cloud_description AS `description`,
-        acl_group_activate AS `is_enabled`
-    FROM `:db`.acl_groups
-SQL_WRAP;
+                SELECT SQL_CALC_FOUND_ROWS
+                    acl_group_id AS `id`,
+                    acl_group_name AS `name`,
+                    cloud_description AS `description`,
+                    acl_group_activate AS `is_enabled`
+                FROM `:db`.acl_groups
+            SQL_WRAP;
 
         $request .= $search = $sqlTranslator->translateSearchParameterToSql();
         $request .= $search !== null

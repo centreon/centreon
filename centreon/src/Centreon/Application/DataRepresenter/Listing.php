@@ -60,7 +60,7 @@ class Listing implements JsonSerializable
     private $entities;
 
     /**
-     * @var int
+     * @var int|null
      */
     private $offset;
 

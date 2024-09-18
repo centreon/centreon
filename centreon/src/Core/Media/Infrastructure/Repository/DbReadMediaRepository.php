@@ -89,19 +89,19 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
     public function findAll(): Traversable&\Countable
     {
         $request = <<<'SQL_WRAP'
-SELECT SQL_CALC_FOUND_ROWS
-    `img`.img_id,
-    `img`.img_path,
-    `img`.img_comment,
-    `dir`.dir_name
-FROM `:db`.`view_img` img
-INNER JOIN `:db`.`view_img_dir_relation` rel
-    ON rel.img_img_id = img.img_id
-INNER JOIN `:db`.`view_img_dir` dir
-    ON dir.dir_id = rel.dir_dir_parent_id
-ORDER BY img_id
-LIMIT :from, :max_item_by_request
-SQL_WRAP;
+            SELECT SQL_CALC_FOUND_ROWS
+                `img`.img_id,
+                `img`.img_path,
+                `img`.img_comment,
+                `dir`.dir_name
+            FROM `:db`.`view_img` img
+            INNER JOIN `:db`.`view_img_dir_relation` rel
+                ON rel.img_img_id = img.img_id
+            INNER JOIN `:db`.`view_img_dir` dir
+                ON dir.dir_id = rel.dir_dir_parent_id
+            ORDER BY img_id
+            LIMIT :from, :max_item_by_request
+            SQL_WRAP;
         $index = 0;
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement->bindParam(':from', $index, \PDO::PARAM_INT);
@@ -181,17 +181,17 @@ SQL_WRAP;
             'directory' => 'dir_name',
         ]);
         $request = <<<'SQL_WRAP'
-SELECT SQL_CALC_FOUND_ROWS
-    `img`.img_id,
-    `img`.img_path,
-    `img`.img_comment,
-    `dir`.dir_name
-FROM `:db`.`view_img` img
-INNER JOIN `:db`.`view_img_dir_relation` rel
-    ON rel.img_img_id = img.img_id
-INNER JOIN `:db`.`view_img_dir` dir
-    ON dir.dir_id = rel.dir_dir_parent_id
-SQL_WRAP;
+            SELECT SQL_CALC_FOUND_ROWS
+                `img`.img_id,
+                `img`.img_path,
+                `img`.img_comment,
+                `dir`.dir_name
+            FROM `:db`.`view_img` img
+            INNER JOIN `:db`.`view_img_dir_relation` rel
+                ON rel.img_img_id = img.img_id
+            INNER JOIN `:db`.`view_img_dir` dir
+                ON dir.dir_id = rel.dir_dir_parent_id
+            SQL_WRAP;
 
         $searchRequest = $sqlTranslator->translateSearchParameterToSql();
         if ($searchRequest !== null) {
