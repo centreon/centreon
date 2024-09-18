@@ -23,12 +23,14 @@
 	<table class="ToolbarTable table">
 		<tr class="ToolbarTR">
 			{if $mode_access=='w'}
-				<td>
-					<a href="{$msg.addL}" class="btc bt_success ml-2">{$msg.addT}</a>&nbsp;
-					{$duplicateBtn}&nbsp;&nbsp;
-					{$deleteBtn}&nbsp;&nbsp;
-					{$disableBtn}&nbsp;&nbsp;
-					{$enableBtn}
+				<td style="display: flex">
+					<a href="{$msg.addL}" class="btc bt_success">{$msg.addT}</a>&nbsp;
+                    <div style="margin-left: 20px; padding: 4px 2px 2px 2px">
+                        {$duplicateBtn}&nbsp;&nbsp;
+                        {$deleteBtn}&nbsp;&nbsp;
+                        {$disableBtn}&nbsp;&nbsp;
+                        {$enableBtn}
+                    </div>
 				</td>
 			{else}
 				<td>&nbsp;</td>
