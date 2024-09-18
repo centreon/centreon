@@ -1,46 +1,39 @@
 import Timeline from './Timeline';
 
-const statuses = [
+const data = [
   {
     start: new Date('2024-09-09T10:57:42Z'),
     end: new Date('2024-09-09T11:15:00Z'),
-    status: 'ok',
     color: 'green'
   },
   {
     start: new Date('2024-09-09T11:15:00Z'),
     end: new Date('2024-09-09T11:30:00Z'),
-    status: 'down',
     color: 'red'
   },
   {
     start: new Date('2024-09-09T11:30:00Z'),
     end: new Date('2024-09-09T11:45:00Z'),
-    status: 'unknown',
     color: 'gray'
   },
   {
     start: new Date('2024-09-09T11:45:00Z'),
     end: new Date('2024-09-09T12:00:00Z'),
-    status: 'ok',
     color: 'green'
   },
   {
     start: new Date('2024-09-09T12:00:00Z'),
     end: new Date('2024-09-09T12:20:00Z'),
-    status: 'down',
     color: 'red'
   },
   {
     start: new Date('2024-09-09T12:20:00Z'),
     end: new Date('2024-09-09T12:40:00Z'),
-    status: 'unknown',
     color: 'gray'
   },
   {
     start: new Date('2024-09-09T12:40:00Z'),
     end: new Date('2024-09-09T12:57:42Z'),
-    status: 'ok',
     color: 'green'
   }
 ];
@@ -61,7 +54,7 @@ const initialize = (): void => {
         }}
       >
         <Timeline
-          statuses={statuses}
+          data={data}
           start_date={startDate}
           end_date={endDate}
         />
