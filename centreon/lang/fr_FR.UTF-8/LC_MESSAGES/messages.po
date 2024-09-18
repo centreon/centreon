@@ -19449,3 +19449,81 @@ msgstr "Attention, les domaines en dehors de votre organisation doivent être au
 
 msgid "Web page preview"
 msgstr "Aperçu de la page web"
+
+msgid "agent configuration"
+msgstr "configuration d'agent"
+
+msgsid "welcome to the agent configuration page"
+msgstr "bienvenue sur la page de configuration d'agent"
+
+msgid "agent type"
+msgstr "type d'agent"
+
+msgid "expand"
+msgstr "étendre"
+
+msgid "collapse"
+msgstr "réduire"
+
+msgid "add new agent"
+msgstr "ajouter un nouvel agent"
+
+msgid "agent types"
+msgstr "types d'agent"
+
+msgid "delete poller"
+msgstr "supprimer un collecteur"
+
+msgid "delete agent"
+msgstr "supprimer un agent"
+
+msgid "agent configurations"
+msgstr "configurations d'agent"
+
+msgid "poller configuration"
+msgstr "configuration du collecteur"
+
+msgid "invalid address"
+msgstr "adresse invalide"
+
+msgid "add agent configuration"
+msgstr "ajouter une configuration d'agent"
+
+msgid "otel server"
+msgstr "serveur otel"
+
+msgid "listening address"
+msgstr "addresse d'écoute"
+
+msgid "port number must be at most 65535"
+msgstr "le numéro du port ne doit pas excéder 65535"
+
+msgid "port number must be a least 1"
+msgstr "le numéro du port doit être au minimum 1"
+
+msgid "extension not allowed"
+msgstr "extension non autorisée"
+
+msgid "public certificate file name"
+msgstr "nom de fichier du certificat publique"
+
+msgid "ca file name"
+msgstr "nom de fichier du ca"
+
+msgid "certificate file name"
+msgstr "nom de fichier du certificat"
+
+msgid "private key file name"
+msgstr "nom de fichier de la clé privée"
+
+msgid "configuration server"
+msgstr "serveur de configuration"
+
+msgid "agent configuration created"
+msgstr "configuration d'agent créé"
+
+msgid "agent configuration updated"
+msgstr "configuration d'agent mis à jour"
+
+msgid "update agent configuration"
+msgstr "mettre à jour la configuration d'agent"
