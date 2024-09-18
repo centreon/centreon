@@ -5,7 +5,7 @@ import { getAdditionalConnectorEndpoint } from '../../api/endpoints';
 import { defaultParameters } from '../../utils';
 import { AdditionalConnectorConfiguration } from '../models';
 
-import { useFetchQuery } from 'packages/ui/src';
+import { useFetchQuery } from '@centreon/ui';
 
 interface InitialValuesState {
   initialValues: AdditionalConnectorConfiguration;

@@ -17,7 +17,7 @@ import {
   resourcesEndpoint,
   viewByHostEndpoint
 } from '../api/endpoints';
-import { Data, PanelOptions } from '../models';
+import type { Data, PanelOptions } from '../models';
 
 import {
   labelCloseATicket,
