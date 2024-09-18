@@ -10,8 +10,14 @@ import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import statusGridWidget from '../../../fixtures/dashboards/creation/widgets/status-grid-widget.json';
 import twoStatusGridWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwostatusGrid.json';
+import statusGridWidgetWithNewAddedHost from '../../../fixtures/dashboards/creation/widgets/statusGridWidgetWithNewAddedHost.json';
 
 const services = {
+  newService: {
+    host: 'host4',
+    name: 'service3',
+    template: 'SNMP-Linux-Load-Average'
+  },
   serviceCritical: {
     host: 'host3',
     name: 'service3',
@@ -22,12 +28,7 @@ const services = {
     host: 'host2',
     name: 'service2',
     template: 'SNMP-Linux-Memory'
-  },
-  newService: {
-    host: 'host4',
-    name: 'service3',
-    template: 'SNMP-Linux-Load-Average'
-  },
+  }
 };
 const resultsToSubmit = [
   {
@@ -59,7 +60,7 @@ const resultsToSubmit = [
     output: 'submit_status_2',
     service: services.serviceCritical.name,
     status: 'critical'
-  },
+  }
 ];
 
 before(() => {
@@ -451,22 +452,20 @@ Then(
   }
 );
 
-Then(
-  'the dashboard administrator adds a new host',
-  () => {
-    cy.logoutViaAPI()
-    cy.loginByTypeOfUser({
-      jsonName: 'admin',
-      loginViaApi: false
+Given('a new host is successfully added and configured', () => {
+  cy.logoutViaAPI();
+  cy.loginByTypeOfUser({
+    jsonName: 'admin',
+    loginViaApi: false
+  });
+  cy.addNewHostAndReturnId().then((hostId) => {
+    cy.log(`Host ID is: ${hostId}`);
+    cy.getServiceIdByName('service_test_ok').then((serviceId) => {
+      cy.log(`Service ID is: ${serviceId}`);
+      cy.patchServiceWithHost(hostId, serviceId);
     });
-    cy.addNewHostAndReturnId().then((hostId) => {
-      cy.log(`Host ID is: ${hostId}`);
-      cy.getServiceIdByName('service_test_ok').then((serviceId) => {
-        cy.log(`Service ID is: ${serviceId}`);
-        cy.patchHostWithService(hostId, serviceId);
-      });
-    });
-    cy.waitUntil(
+  });
+  cy.waitUntil(
     () => {
       return cy
         .getByLabel({ label: 'Up status hosts', tag: 'a' })
@@ -481,6 +480,17 @@ Then(
     },
     { interval: 10000, timeout: 600000 }
   );
-  cy.logoutViaAPI();
-}
-);
+});
+
+When('the dashboard administrator adds a status grid widget', () => {
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    statusGridWidgetWithNewAddedHost
+  );
+  cy.editDashboard(dashboards.default.name);
+  cy.wait('@resourceRequest');
+});
+
+Then('the newly added host should appear in the status grid widget', () => {
+  cy.getByTestId({ testId: 'link to service_test_ok' }).should('be.visible');
+});

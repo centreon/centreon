@@ -301,32 +301,28 @@ Cypress.Commands.add(
 
 Cypress.Commands.add('addNewHostAndReturnId', (hostData = {}) => {
   const defaultHostData = {
-    "monitoring_server_id": 1,
-    "name": "generic-active-host",
-    "address": "127.0.0.1",
-    "alias": "generic-active-host",
-    "templates": [
-      2
-      ],
-    "groups": [
-        53,
-    ],
-    "macros": [
+    address: '127.0.0.1',
+    alias: 'generic-active-host',
+    groups: [53],
+    macros: [
       {
-        "name": "MacroName",
-        "value": "macroValue",
-        "is_password": false,
-        "description": "Some text to describe the macro"
+        description: 'Some text to describe the macro',
+        is_password: false,
+        name: 'MacroName',
+        value: 'macroValue'
       }
-    ]
+    ],
+    monitoring_server_id: 1,
+    name: 'generic-active-host',
+    templates: [2]
   };
 
   const requestBody = { ...defaultHostData, ...hostData };
 
   cy.request({
+    body: requestBody,
     method: 'POST',
-    url: '/centreon/api/latest/configuration/hosts',
-    body: requestBody
+    url: '/centreon/api/latest/configuration/hosts'
   }).then((response) => {
     expect(response.status).to.eq(201);
     return response.body.id;
@@ -334,27 +330,30 @@ Cypress.Commands.add('addNewHostAndReturnId', (hostData = {}) => {
 });
 
 Cypress.Commands.add('getServiceIdByName', (serviceName) => {
-  return cy.request({
-    method: 'GET',
-    url: '/centreon/api/latest/monitoring/services',
-  }).then((response) => {
-    const service = response.body.result.find(s => s.display_name === serviceName);
-    if (service) {
-      return service.id;
-    } else {
+  return cy
+    .request({
+      method: 'GET',
+      url: '/centreon/api/latest/monitoring/services'
+    })
+    .then((response) => {
+      const service = response.body.result.find(
+        (s) => s.display_name === serviceName
+      );
+      if (service) {
+        return service.id;
+      }
       throw new Error(`Service with name ${serviceName} not found`);
-    }
-  });
+    });
 });
 
-Cypress.Commands.add('patchHostWithService', (hostId, serviceId) => {
+Cypress.Commands.add('patchServiceWithHost', (hostId, serviceId) => {
   const patchData = {
-    "host_id": hostId,
+    host_id: hostId
   };
   cy.request({
+    body: patchData,
     method: 'PATCH',
-    url: `/centreon/api/latest/configuration/services/${serviceId}`,
-    body: patchData
+    url: `/centreon/api/latest/configuration/services/${serviceId}`
   }).then((response) => {
     expect(response.status).to.eq(204);
   });
@@ -366,51 +365,51 @@ interface Dashboard {
 }
 
 interface HostDataType {
-  monitoring_server_id: number;
-  name: string;
+  acknowledgement_timeout: number;
+  action_url: string;
+  active_check_enabled: number;
+  add_inherited_contact: boolean;
+  add_inherited_contact_group: boolean;
   address: string;
   alias: string;
-  snmp_community: string;
-  snmp_version: string;
-  geo_coords: string;
-  timezone_id: number;
-  severity_id: number;
+  categories: Array<number>;
+  check_command_args: Array<string>;
   check_command_id: number;
-  check_command_args: string[];
   check_timeperiod_id: number;
-  max_check_attempts: number;
-  normal_check_interval: number;
-  retry_check_interval: number;
-  active_check_enabled: number;
-  passive_check_enabled: number;
-  notification_enabled: number;
-  notification_options: number;
-  notification_interval: number;
-  notification_timeperiod_id: number;
-  add_inherited_contact_group: boolean;
-  add_inherited_contact: boolean;
+  comment: string;
+  event_handler_command_args: Array<string>;
+  event_handler_command_id: number;
+  event_handler_enabled: number;
   first_notification_delay: number;
-  recovery_notification_delay: number;
-  acknowledgement_timeout: number;
+  flap_detection_enabled: number;
   freshness_checked: number;
   freshness_threshold: number;
-  flap_detection_enabled: number;
-  low_flap_threshold: number;
+  geo_coords: string;
+  groups: Array<number>;
   high_flap_threshold: number;
-  event_handler_enabled: number;
-  event_handler_command_id: number;
-  event_handler_command_args: string[];
-  note_url: string;
-  note: string;
-  action_url: string;
-  icon_id: number;
   icon_alternative: string;
-  comment: string;
+  icon_id: number;
   is_activated: boolean;
-  categories: number[];
-  groups: number[];
-  templates: number[];
-  macros: object[];
+  low_flap_threshold: number;
+  macros: Array<object>;
+  max_check_attempts: number;
+  monitoring_server_id: number;
+  name: string;
+  snmp_community: string;
+  note: string;
+  note_url: string;
+  notification_enabled: number;
+  normal_check_interval: number;
+  notification_options: number;
+  snmp_version: string;
+  passive_check_enabled: number;
+  recovery_notification_delay: number;
+  retry_check_interval: number;
+  notification_interval: number;
+  timezone_id: number;
+  notification_timeperiod_id: number;
+  templates: Array<number>;
+  severity_id: number;
 }
 
 type metricsGraphWidgetJSONData = typeof metricsGraphWidget;
@@ -432,17 +431,22 @@ type widgetJSONData =
 declare global {
   namespace Cypress {
     interface Chainable {
+      addNewHostAndReturnId: (
+        hostData?: Partial<HostDataType>
+      ) => Cypress.Chainable;
       applyAcl: () => Cypress.Chainable;
-      getServiceIdByName: (serviceName: string) => Cypress.Chainable;
-      patchHostWithService :(hostId: string ,serviceId:string) => Cypress.Chainable;
-      addNewHostAndReturnId: (hostData?: Partial<HostDataType>) => Cypress.Chainable;
       editDashboard: (name: string) => Cypress.Chainable;
       editWidget: (nameOrPosition: string | number) => Cypress.Chainable;
       enableDashboardFeature: () => Cypress.Chainable;
       getCellContent: (rowIndex: number, colIndex: number) => Cypress.Chainable;
+      getServiceIdByName: (serviceName: string) => Cypress.Chainable;
       insertDashboardWithWidget: (
         dashboard: Dashboard,
         patch: widgetJSONData
+      ) => Cypress.Chainable;
+      patchServiceWithHost: (
+        hostId: string,
+        serviceId: string
       ) => Cypress.Chainable;
       verifyDuplicatesGraphContainer: (metrics) => Cypress.Chainable;
       verifyGraphContainer: (metrics) => Cypress.Chainable;

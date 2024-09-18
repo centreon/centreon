@@ -54,7 +54,7 @@ Feature: Configuring status grid widget
   #   Then the user should be redirected to the resource status screen and all the resources must be displayed
 
   @TEST_MON-130767
-  Scenario: Adding a new host and check the widget behavior
-    Given a dashboard with a Status Grid widget
-    When the dashboard administrator adds a new host
-    Then the user should be redirected to the resource status screen and all the resources must be displayed
+  Scenario: Adding a new host and verifying widget behavior
+    Given a new host is successfully added and configured
+    When the dashboard administrator adds a status grid widget
+    Then the newly added host should appear in the status grid widget
