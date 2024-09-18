@@ -29,6 +29,9 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
@@ -46,13 +49,15 @@ use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 /**
  * @phpstan-import-type _RolesMapping from UpdateSAMLConfigurationRequest
  */
 final class UpdateSAMLConfiguration
 {
-    use LoggerTrait;
+    use LoggerTrait, VaultTrait;
 
     /**
      * @param WriteSAMLConfigurationRepositoryInterface $repository
@@ -61,6 +66,8 @@ final class UpdateSAMLConfiguration
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
      * @param DataStorageEngineInterface $dataStorageEngine
      * @param ProviderAuthenticationFactoryInterface $providerAuthenticationFactory
+     * @param ReadVaultConfigurationRepositoryInterface $vaultConfigurationRepository
+     * @param WriteVaultRepositoryInterface $writeVaultRepository
      */
     public function __construct(
         private WriteSAMLConfigurationRepositoryInterface $repository,
@@ -68,8 +75,11 @@ final class UpdateSAMLConfiguration
         private ReadContactGroupRepositoryInterface $contactGroupRepository,
         private ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private DataStorageEngineInterface $dataStorageEngine,
-        private ProviderAuthenticationFactoryInterface $providerAuthenticationFactory
+        private ProviderAuthenticationFactoryInterface $providerAuthenticationFactory,
+        private ReadVaultConfigurationRepositoryInterface $vaultConfigurationRepository,
+        private WriteVaultRepositoryInterface $writeVaultRepository,
     ) {
+        $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SAML_CREDENTIALS_VAULT_PATH);
     }
 
     /**
@@ -97,6 +107,15 @@ final class UpdateSAMLConfiguration
                 $request->authenticationConditions
             );
             $requestArray['groups_mapping'] = $this->createGroupsMapping($request->groupsMapping);
+
+            /**
+             * @var CustomConfiguration $customConfiguration
+             */
+            $customConfiguration = $configuration->getCustomConfiguration();
+            $requestArray['certificate'] = $this->manageCertificateInVault(
+                $requestArray['certificate'],
+                $customConfiguration
+            );
             $configuration->setCustomConfiguration(new CustomConfiguration($requestArray));
             $this->updateConfiguration($configuration);
         } catch (AssertionException|AssertionFailedException|ConfigurationException $ex) {
@@ -414,5 +433,45 @@ final class UpdateSAMLConfiguration
         }
 
         return null;
+    }
+
+    /**
+     * Manage the certificate in vault.
+     * This method will upsert the certificate if it is not already stored in vault.
+     * If the certificate is already stored in vault, this method will return the
+     * path of the certificate in vault.
+     *
+     * @param string $certificate the certificate to manage
+     * @param CustomConfiguration $customConfiguration the custom configuration
+     *
+     * @return string the path of the certificate in vault
+     *
+     * @throws \Throwable
+     */
+    private function manageCertificateInVault(string $certificate, CustomConfiguration $customConfiguration): string
+    {
+        if (! $this->vaultConfigurationRepository->exists()) {
+            return $certificate;
+        }
+
+        /**
+         * Retrieve UUID from Certificate
+         */
+        $uuid = null;
+        $originalCertificate = $customConfiguration->getPublicCertificate();
+        if ($originalCertificate !== null && $this->isAVaultPath($originalCertificate)) {
+            $uuid = $this->getUuidFromPath($originalCertificate);
+        }
+
+        if (! $this->isAVaultPath($certificate)) {
+            $vaultPaths = $this->writeVaultRepository->upsert(
+                $uuid,
+                [VaultConfiguration::SAML_PUBLIC_CERTIFICATE_KEY => $certificate],
+            );
+
+            $certificate = $vaultPaths[VaultConfiguration::SAML_PUBLIC_CERTIFICATE_KEY];
+        }
+
+        return $certificate;
     }
 }

@@ -47,6 +47,7 @@ class VaultConfiguration
     public const DATABASE_USERNAME_KEY = '_DBUSERNAME';
     public const DATABASE_PASSWORD_KEY = '_DBPASSWORD';
     public const KNOWLEDGE_BASE_KEY = '_KBPASSWORD';
+    public const SAML_PUBLIC_CERTIFICATE_KEY = '_SAML_PUBLIC_CERTIFICATE';
 
     /** Patterns Constants */
     public const VAULT_PATH_PATTERN = 'secret::';

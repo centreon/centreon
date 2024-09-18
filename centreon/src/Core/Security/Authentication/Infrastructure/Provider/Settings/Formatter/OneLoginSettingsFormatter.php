@@ -23,20 +23,26 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Infrastructure\Provider\Settings\Formatter;
 
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\UseCase\VaultTrait;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Security\ProviderConfiguration\Domain\CustomConfigurationInterface;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class OneLoginSettingsFormatter implements SettingsFormatterInterface
 {
-    use HttpUrlTrait;
+    use HttpUrlTrait, VaultTrait;
 
     /**
      * @param UrlGeneratorInterface $urlGenerator
+     * @param ReadVaultRepositoryInterface $readVaultRepository
      */
-    public function __construct(private readonly UrlGeneratorInterface $urlGenerator)
-    {
+    public function __construct(
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly ReadVaultRepositoryInterface $readVaultRepository
+    ) {
 
     }
 
@@ -70,11 +76,32 @@ class OneLoginSettingsFormatter implements SettingsFormatterInterface
                 'singleLogoutService' => [
                     'url' => $customConfiguration->getLogoutFromUrl(),
                 ],
-                'x509cert' => $customConfiguration->getPublicCertificate(),
+                'x509cert' => $this->retrievePublicCertificate($customConfiguration->getPublicCertificate()),
             ],
             'security' => [
                 'requestedAuthnContextComparison' => 'minimum',
             ],
         ];
+    }
+
+    /**
+     * Retrieve the public certificate from vault if the provided public certificate is a vault path.
+     *
+     * @param string $publicCertificate the public certificate to retrieve
+     *
+     * @return string the public certificate
+     *
+     * @throws \Throwable
+     */
+    private function retrievePublicCertificate(string $publicCertificate): string
+    {
+        if (! $this->isAVaultPath($publicCertificate)) {
+            return $publicCertificate;
+        }
+
+        $vaultData = $this->readVaultRepository->findFromPath($publicCertificate);
+
+        return $vaultData[VaultConfiguration::SAML_PUBLIC_CERTIFICATE_KEY]
+            ?? throw new \Exception('Public certificate not found');
     }
 }
