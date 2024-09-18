@@ -1,4 +1,3 @@
----
 name: release-trigger-builds
 
 on:
@@ -17,6 +16,7 @@ on:
 
 jobs:
   release-trigger-builds:
+    if: github.event.pull_request.base.repo.name  == 'centreon'
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7

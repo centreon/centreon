@@ -40,6 +40,9 @@ jobs:
     with:
       pull_request_environment: ${{ needs.set-pr-environment.outputs.pull_request_environment }}
       version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
+    secrets:
+      my_internal_secret: ${{ secrets.MY_INTERNAL_SECRET }}
+      my_shared_secret: ${{ secrets.MY_SHARED_SECRET }}
 
   veracode-analysis:
     needs: [get-version]
@@ -146,7 +149,10 @@ jobs:
   deliver-sources:
     runs-on: [self-hosted, common]
     needs: [get-version, package]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch'}}
+    if: |
+      contains(fromJson('["stable"]'), needs.get-version.outputs.stability) &&
+      github.event_name != 'workflow_dispatch' &&
+      github.event.pull_request.base.repo.name  == 'centreon'
 
     steps:
       - name: Checkout sources
@@ -164,7 +170,9 @@ jobs:
 
   deliver-rpm:
     needs: [get-version, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    if: |
+      contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) &&
+      github.event.pull_request.base.repo.name  == 'centreon'
     runs-on: [self-hosted, common]
     environment: ${{ needs.get-version.outputs.environment }}
 
@@ -190,7 +198,9 @@ jobs:
 
   deliver-deb:
     needs: [get-version, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    if: |
+      contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) &&
+      github.event.pull_request.base.repo.name  == 'centreon'
     runs-on: [self-hosted, common]
     environment: ${{ needs.get-version.outputs.environment }}
 
@@ -219,7 +229,8 @@ jobs:
       (contains(fromJson('["stable", "testing"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      github.event.pull_request.base.repo.name  == 'centreon'
     runs-on: [self-hosted, common]
     strategy:
       matrix:

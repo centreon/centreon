@@ -14,17 +14,27 @@ jobs:
       - name: Determine whether the contribution is internal or external
         id: set-pr-environment
         run: |
+          # By default, all pull requests are considered from external contributors
+          # (head_ref does not belong to organization repositories + a fork) + (pull_request_target)
+          # Requiring internal approvals if head does not come from centreon/centreon and pull_request_target
+          # and head is a fork
           PULL_REQUEST_ENVIRONMENT="external_contributor"
-          if [[ "${{ github.event_name }}" == 'pull_request_target' ]] &&
-            [[ "${{ github.event.pull_request.author_association }}" == "MEMBER" ||
-                "${{ github.event.pull_request.author_association }}" == "CONTRIBUTOR" ||
-                "${{ github.event.pull_request.author_association }}" == "OWNER" ]]
+
+          # (head_ref belongs to organization repositories + not a fork) + (any event that is not a pull_request_target)
+          # Not requiring internal approvals if head comes from centreon/centreon and push & dispatch
+          # and the head is not a fork
+          if [[ ("${{ github.event_name }}" != "pull_request" || "${{ github.event_name }}" != "pull_request_target")
+            && "${{ github.event.pull_request.head.repo.fork }}" == "false" ]]
           then
-            # Not requiring internal approvals if the author is from the Centreon organization
             PULL_REQUEST_ENVIRONMENT="internal_contributor"
-          elif [[ "${{ github.event_name }}" != 'pull_request_target' && "${{ github.event_name }}" != 'pull_request' ]]; then
-            # Not requiring internal approvals for push and workflow_dispatch triggers
+          elif [[ "${{ github.event_name }}" != "pull_request_target" ]]
+          then
             PULL_REQUEST_ENVIRONMENT="internal_contributor"
           fi
           echo "pull_request_environment=$PULL_REQUEST_ENVIRONMENT" >> $GITHUB_OUTPUT
+          cat $GITHUB_OUTPUT
+        shell: bash
+
+      - name: DEBUG Check env secret
+        run: echo "is my secret safe ? ${{ secrets.MY_INTERNAL_SECRET }}"
         shell: bash

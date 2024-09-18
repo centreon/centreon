@@ -8,6 +8,11 @@ on:
         description: "Environment for workflow run deployment"
         required: true
         type: string
+    secrets:
+      my_internal_secret:
+        required: false
+      my_shared_secret:
+        required: false
     outputs:
       major_version:
         description: "major version"
@@ -33,6 +38,7 @@ on:
       release_cloud:
         description: "context of release (cloud or not cloud)"
         value: ${{ jobs.get-version.outputs.release_cloud }}
+
 
 jobs:
   get-version:
