@@ -75,89 +75,89 @@ before(() => {
     method: 'GET',
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
-  // cy.startContainers();
-  // cy.enableDashboardFeature();
-  // cy.executeCommandsViaClapi(
-  //   'resources/clapi/config-ACL/dashboard-metrics-graph.json'
-  // );
-  // cy.addHost({
-  //   hostGroup: 'Linux-Servers',
-  //   name: services.serviceOk.host,
-  //   template: 'generic-host'
-  // })
-  //   .addService({
-  //     activeCheckEnabled: false,
-  //     host: services.serviceOk.host,
-  //     maxCheckAttempts: 1,
-  //     name: services.serviceOk.name,
-  //     template: services.serviceOk.template
-  //   })
-  //   .addService({
-  //     activeCheckEnabled: false,
-  //     host: services.serviceOk.host,
-  //     maxCheckAttempts: 1,
-  //     name: 'service2',
-  //     template: services.serviceWarning.template
-  //   })
-  //   .addService({
-  //     activeCheckEnabled: false,
-  //     host: services.serviceOk.host,
-  //     maxCheckAttempts: 1,
-  //     name: services.serviceCritical.name,
-  //     template: services.serviceCritical.template
-  //   })
-  //   .applyPollerConfiguration();
+  cy.startContainers();
+  cy.enableDashboardFeature();
+  cy.executeCommandsViaClapi(
+    'resources/clapi/config-ACL/dashboard-metrics-graph.json'
+  );
+  cy.addHost({
+    hostGroup: 'Linux-Servers',
+    name: services.serviceOk.host,
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: services.serviceOk.name,
+      template: services.serviceOk.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: 'service2',
+      template: services.serviceWarning.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: services.serviceCritical.name,
+      template: services.serviceCritical.template
+    })
+    .applyPollerConfiguration();
 
-  // cy.addHost({
-  //   hostGroup: 'Linux-Servers',
-  //   name: services.serviceCritical.host,
-  //   template: 'generic-host'
-  // })
-  //   .addService({
-  //     activeCheckEnabled: false,
-  //     host: services.serviceCritical.host,
-  //     maxCheckAttempts: 1,
-  //     name: services.serviceOk.name,
-  //     template: services.serviceOk.template
-  //   })
-  //   .addService({
-  //     activeCheckEnabled: false,
-  //     host: services.serviceCritical.host,
-  //     maxCheckAttempts: 1,
-  //     name: 'service2',
-  //     template: services.serviceWarning.template
-  //   })
-  //   .addService({
-  //     activeCheckEnabled: false,
-  //     host: services.serviceCritical.host,
-  //     maxCheckAttempts: 1,
-  //     name: services.serviceCritical.name,
-  //     template: services.serviceCritical.template
-  //   })
-  //   .applyPollerConfiguration();
+  cy.addHost({
+    hostGroup: 'Linux-Servers',
+    name: services.serviceCritical.host,
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: services.serviceOk.name,
+      template: services.serviceOk.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: 'service2',
+      template: services.serviceWarning.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: services.serviceCritical.name,
+      template: services.serviceCritical.template
+    })
+    .applyPollerConfiguration();
 
-  // cy.loginByTypeOfUser({
-  //   jsonName: 'admin'
-  // });
+  cy.loginByTypeOfUser({
+    jsonName: 'admin'
+  });
 
-  // cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' });
+  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' });
 
-  // checkHostsAreMonitored([
-  //   { name: services.serviceOk.host },
-  //   { name: services.serviceCritical.host }
-  // ]);
-  // checkServicesAreMonitored([
-  //   { name: services.serviceCritical.name },
-  //   { name: services.serviceOk.name }
-  // ]);
-  // cy.submitResults(resultsToSubmit);
-  // checkServicesAreMonitored([
-  //   { name: services.serviceCritical.name, status: 'critical' },
-  //   { name: services.serviceOk.name, status: 'ok' }
-  // ]);
+  checkHostsAreMonitored([
+    { name: services.serviceOk.host },
+    { name: services.serviceCritical.host }
+  ]);
+  checkServicesAreMonitored([
+    { name: services.serviceCritical.name },
+    { name: services.serviceOk.name }
+  ]);
+  cy.submitResults(resultsToSubmit);
+  checkServicesAreMonitored([
+    { name: services.serviceCritical.name, status: 'critical' },
+    { name: services.serviceOk.name, status: 'ok' }
+  ]);
 
-  // cy.logoutViaAPI();
-  // cy.applyAcl();
+  cy.logoutViaAPI();
+  cy.applyAcl();
 });
 
 beforeEach(() => {
@@ -459,48 +459,28 @@ Then(
       jsonName: 'admin',
       loginViaApi: false
     });
+    cy.addNewHostAndReturnId().then((hostId) => {
+      cy.log(`Host ID is: ${hostId}`);
+      cy.getServiceIdByName('service_test_ok').then((serviceId) => {
+        cy.log(`Service ID is: ${serviceId}`);
+        cy.patchHostWithService(hostId, serviceId);
+      });
+    });
+    cy.waitUntil(
+    () => {
+      return cy
+        .getByLabel({ label: 'Up status hosts', tag: 'a' })
+        .invoke('text')
+        .then((text) => {
+          if (text != '4') {
+            cy.exportConfig();
+          }
 
-    // cy.addHost({
-      //   hostGroup: 'Linux-Servers',
-      //   name: services.serviceOk.host,
-      //   template: 'generic-host'
-      // })
-      //   .addService({
-      //     activeCheckEnabled: false,
-      //     host: services.serviceOk.host,
-      //     maxCheckAttempts: 1,
-      //     name: services.serviceOk.name,
-      //     template: services.serviceOk.template
-      //   })
-      //   .addService({
-      //     activeCheckEnabled: false,
-      //     host: services.serviceOk.host,
-      //     maxCheckAttempts: 1,
-      //     name: 'service2',
-      //     template: services.serviceWarning.template
-      //   })
-      //   .addService({
-      //     activeCheckEnabled: false,
-      //     host: services.serviceOk.host,
-      //     maxCheckAttempts: 1,
-      //     name: services.serviceCritical.name,
-      //     template: services.serviceCritical.template
-      //   })
-      //   .applyPollerConfiguration();
-
-    cy.addHost({
-      hostGroup: 'Linux-Servers',
-      name: services.newService.host,
-      template: 'generic-host'
-    })
-      .addService({
-        activeCheckEnabled: false,
-        host: services.newService.host,
-        maxCheckAttempts: 1,
-        name: services.newService.name,
-        template: services.serviceOk.template
-      })
-      .applyPollerConfiguration();
-  // cy.submitResults(resultsToSubmit);
+          return text === '4';
+        });
+    },
+    { interval: 10000, timeout: 600000 }
+  );
+  cy.logoutViaAPI();
 }
 );
