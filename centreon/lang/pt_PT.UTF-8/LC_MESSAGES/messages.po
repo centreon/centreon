@@ -18142,7 +18142,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Agent configuration"
 # msgstr ""
 
-# msgsid "Welcome to the agent configuration page"
+# msgid "Welcome to the agent configuration page"
 # msgstr ""
 
 # msgid "Agent type"

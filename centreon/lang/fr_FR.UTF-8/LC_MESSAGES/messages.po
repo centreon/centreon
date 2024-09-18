@@ -19453,7 +19453,7 @@ msgstr "Aperçu de la page web"
 msgid "agent configuration"
 msgstr "configuration d'agent"
 
-msgsid "welcome to the agent configuration page"
+msgid "welcome to the agent configuration page"
 msgstr "bienvenue sur la page de configuration d'agent"
 
 msgid "agent type"
