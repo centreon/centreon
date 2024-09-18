@@ -549,8 +549,25 @@ function set_required_prerequisite() {
 
 			if [ "$topology" == "central" ]; then
 				log "INFO" "Installing PHP 8.2 from OS official repositories"
+				# Lines below are for pre testing, remove before merging
 				$PKG_MGR module reset php
 				$PKG_MGR module install php:8.2
+				dnf install \
+					php-common \
+					php-cli\
+					php-pdo \
+					php-mysqlnd \
+					php-gd \
+					php-xml \
+					php-mbstring \
+					php-ldap \
+					php-snmp \
+					php-intl \
+					php-fpm \
+					php-curl \
+					php-zip \
+					php-pear \
+					php-json
 			fi
 			;;
 
