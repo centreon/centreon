@@ -661,7 +661,7 @@ fi
 %attr(0775, centreon, centreon) %{_datadir}/centreon/src
 %attr(0775, centreon, centreon) %{_datadir}/centreon/www
 %attr(0775, centreon, centreon) %{_datadir}/centreon/api
-%{_datadir}/centreon/cron
+%attr(0755, centreon, centreon) %{_datadir}/centreon/cron
 %{_datadir}/centreon/lib
 
 %attr(0775, centreon, centreon) %{_datadir}/centreon/www/img/media
