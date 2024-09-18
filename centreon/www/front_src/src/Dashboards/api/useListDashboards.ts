@@ -38,7 +38,7 @@ const useListDashboards = (): UseListDashboards => {
   const { data, isLoading, isFetching } = useFetchQuery<
     List<Omit<Dashboard, 'refresh'>>
   >({
-    baseEndpoint: 'http://localhost:3001/centreon/',
+    // baseEndpoint: 'http://localhost:3001/centreon/',
     decoder: dashboardListDecoder,
     doNotCancelCallsOnUnmount: true,
     getEndpoint: () =>
