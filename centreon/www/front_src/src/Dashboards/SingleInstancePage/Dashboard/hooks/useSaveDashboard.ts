@@ -1,8 +1,8 @@
+import { useTheme } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
+import { toBlob } from 'html-to-image';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { toBlob } from 'html-to-image';
-import { useTheme } from '@mui/material';
 
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 

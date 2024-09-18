@@ -48,12 +48,12 @@ import {
   labelDuplicateDashboard,
   labelName,
   labelSave,
+  labelSaveYourDashboardForThumbnail,
   labelShareWithContacts,
   labelSharesSaved,
   labelUpdate,
   labelUserDeleted,
-  labelWelcomeToDashboardInterface,
-  labelSaveYourDashboardForThumbnail
+  labelWelcomeToDashboardInterface
 } from './translatedLabels';
 
 interface InitializeAndMountProps {
