@@ -75,6 +75,9 @@ const DashboardsOverview = (): ReactElement => {
     title: t(labelWelcomeToDashboardInterface)
   };
 
+  const getThumbnailSrc = (dashboard): string =>
+    `img/media/${dashboard.thumbnail?.directory}/${dashboard.thumbnail?.name}?${new Date().getTime()}`;
+
   if (isCardsView && isLoading && isNil(data)) {
     return <DashboardsOverviewSkeleton />;
   }
@@ -104,7 +107,7 @@ const DashboardsOverview = (): ReactElement => {
             hasActions={hasEditPermission(dashboard)}
             thumbnail={
               dashboard.thumbnail
-                ? `${dashboard.thumbnail}?${new Date().getTime()}`
+                ? getThumbnailSrc(dashboard)
                 : fallbackThumbnail
             }
             title={dashboard.name}

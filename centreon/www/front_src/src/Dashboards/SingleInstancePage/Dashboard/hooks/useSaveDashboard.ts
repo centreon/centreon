@@ -4,11 +4,18 @@ import { toBlob } from 'html-to-image';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
+import {
+  Method,
+  useMutationQuery,
+  useSnackbar
+} from '@centreon/ui';
 
-import { getDashboardEndpoint, mediasEndpoint } from '../../../api/endpoints';
+import {
+  getDashboardEndpoint,
+  mediasEndpoint
+} from '../../../api/endpoints';
 import { resource } from '../../../api/models';
-import { dashboardAtom, switchPanelsEditionModeDerivedAtom } from '../atoms';
+import { dashboardAtom, switchPanelsEditionModeDerivedAtom, thumbnailAtom } from '../atoms';
 import { Panel, PanelDetailsToAPI } from '../models';
 import { labelYourDashboardHasBeenSaved } from '../translatedLabels';
 
@@ -59,9 +66,11 @@ const useSaveDashboard = (): UseSaveDashboardState => {
   const theme = useTheme();
 
   const dashboard = useAtomValue(dashboardAtom);
+
   const switchPanelsEditionMode = useSetAtom(
     switchPanelsEditionModeDerivedAtom
   );
+  const thumbnail = useAtomValue(thumbnailAtom)
 
   const { showSuccessMessage } = useSnackbar();
 
@@ -70,39 +79,55 @@ const useSaveDashboard = (): UseSaveDashboardState => {
     method: Method.PATCH
   });
   const { mutateAsync: mutateMedias } = useMutationQuery({
-    getEndpoint: () => mediasEndpoint,
+    getEndpoint: () =>
+      thumbnail
+        ? `${mediasEndpoint}/${thumbnail?.id}/content`
+        : mediasEndpoint,
     method: Method.POST
   });
 
   const saveDashboard = (): void => {
     const node = document.querySelector('.react-grid-layout') as HTMLElement;
+
     toBlob(node, {
       backgroundColor: theme.palette.background.default,
       height: 360
-    }).then((blob) => {
-      if (!blob) {
-        return;
-      }
+    })
+      .then((blob) => {
+        if (!blob) {
+          return;
+        }
 
-      const formData = new FormData();
-      formData.append('directory', 'dashboards');
-      formData.append('data', blob, `dashboard-${dashboardId}.png`);
+        const formData = new FormData();
+        formData.append('directory', 'dashboards');
+        formData.append('data', blob, `dashboard-${dashboardId}.png`);
 
-      mutateMedias({
-        payload: formData
+        return mutateMedias({ payload: formData }).then((res) => {
+          const response = thumbnail
+            ? res
+            : res?.result?.[0];
+
+          const newThumbnail = {
+            name: response?.filename,
+            id: response?.id,
+            directory: response?.directory
+          };
+
+          return mutateAsync({
+            payload: {
+              panels: formatPanelsToAPI(dashboard.layout),
+              thumbnail: newThumbnail
+            }
+          });
+        });
+      })
+      .then(() => {
+        showSuccessMessage(t(labelYourDashboardHasBeenSaved));
+        switchPanelsEditionMode(false);
+        queryClient.invalidateQueries({
+          queryKey: [resource.dashboard, dashboardId]
+        });
       });
-    });
-    mutateAsync({
-      payload: {
-        panels: formatPanelsToAPI(dashboard.layout)
-      }
-    }).then(() => {
-      showSuccessMessage(t(labelYourDashboardHasBeenSaved));
-      switchPanelsEditionMode(false);
-      queryClient.invalidateQueries({
-        queryKey: [resource.dashboard, dashboardId]
-      });
-    });
   };
 
   return { saveDashboard };
