@@ -43,156 +43,310 @@ if (!isset($oreon)) {
  *
  * @param int $poolId The pool id
  * @return array
+ * @throws CentreonDbException if a database error occurs
  */
 function getListServiceForPool($poolId)
 {
     global $pearDB;
 
-    /*
-    * Get pool informations
-    */
-    $res = $pearDB->query('SELECT pool_host_id, pool_prefix FROM mod_dsm_pool WHERE pool_id = ' . $poolId);
-    $row = $res->fetch();
-    $res->closeCursor();
-
-    if (is_null($row['pool_host_id']) || $row['pool_host_id'] == '') {
-        return array();
-    }
-
-    $poolPrefix = $row['pool_prefix'];
-
-    $res = $pearDB->query(
-        'SELECT service_id, service_description
-        FROM service s, host_service_relation hsr
-        WHERE hsr.host_host_id = ' . $row['pool_host_id'] . '
-            AND service_id = service_service_id
-            AND service_description LIKE "' . $poolPrefix . '%"'
-    );
-    $listServices = array();
-    while ($row = $res->fetch()) {
-        if (preg_match('/^' . $poolPrefix . '(\d{4})$/', $row['service_description'])) {
-            $listServices[] = $row['service_id'];
+    try {
+        if ((int)$poolId <= 0) {
+            return [];
         }
+
+        /*
+        * Get pool informations
+        */
+        $statement = $pearDB->prepareQuery(
+            <<<'SQL'
+                SELECT pool_host_id, pool_prefix
+                FROM mod_dsm_pool
+                WHERE pool_id = :pool_id
+            SQL
+        );
+        $pearDB->executePreparedQuery($statement, [':pool_id' => [$poolId, PDO::PARAM_INT]], true);
+        $row = $pearDB->fetch($statement);
+        if (is_null($row['pool_host_id']) || $row['pool_host_id'] == '') {
+            $pearDB->closeQuery($statement);
+            return [];
+        }
+
+        $poolPrefix = $row['pool_prefix'];
+
+        $statement = $pearDB->prepareQuery(
+            <<<'SQL'
+                SELECT service_id, service_description
+                FROM service s, host_service_relation hsr
+                WHERE hsr.host_host_id = :host_id
+                    AND service_id = service_service_id
+                    AND service_description LIKE :pool_prefix
+            SQL
+        );
+
+        $pearDB->executePreparedQuery($statement, [
+            ':host_id' => [$row['pool_host_id'], PDO::PARAM_INT],
+            ':pool_prefix' => [$poolPrefix . '%', PDO::PARAM_STR]
+        ], true);
+
+        $listServices = [];
+        while ($row = $pearDB->fetch($statement)) {
+            if (preg_match('/^' . preg_quote($poolPrefix, '/') . '(\d{4})$/', $row['service_description'])) {
+                $listServices[] = $row['service_id'];
+            }
+        }
+        $pearDB->closeQuery($statement);
+        return $listServices;
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error fetching list of services for pool ID: $poolId",
+            customContext: ['poolId' => $poolId],
+            exception: $e
+        );
+        throw $e;
     }
-    $res->closeCursor();
-    return $listServices;
 }
 
 /**
- * Return if a host is already use in DSM
+ * Return if a host is already used in DSM
  *
  * @param int $hostId The host id
  * @param string $poolPrefix The pool prefix
+ * @param int|null $poolId The pool id (optional)
  * @return bool
+ * @throws CentreonDbException if a database error occurs
  */
 function hostPoolPrefixUsed($hostId, $poolPrefix, $poolId = null)
 {
     global $pearDB;
 
-    $query = "SELECT COUNT(pool_id) AS nb FROM mod_dsm_pool WHERE pool_host_id = '" .
-        $hostId . "' AND pool_prefix = '" . $poolPrefix . "'";
-    if (!is_null($poolId)) {
-        $query .= " AND pool_id != " . $poolId;
+    try {
+        $query = <<<'SQL'
+            SELECT COUNT(*) AS nb
+            FROM mod_dsm_pool
+            WHERE pool_host_id = :host_id
+                AND pool_prefix = :pool_prefix
+        SQL;
+
+        $params = [
+            ':host_id' => [$hostId, PDO::PARAM_INT],
+            ':pool_prefix' => [$poolPrefix, PDO::PARAM_STR]
+        ];
+
+        if ((int)$poolId > 0) {
+            $query .= " AND pool_id != :pool_id";
+            $params[':pool_id'] = [$poolId, PDO::PARAM_INT];
+        }
+
+        $statement = $pearDB->prepareQuery($query);
+        $pearDB->executePreparedQuery($statement, $params, true);
+
+        $row = $pearDB->fetch($statement);
+        $pearDB->closeQuery($statement);
+
+        return ($row['nb'] > 0);
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error checking if host $hostId is already used with prefix '$poolPrefix'",
+            customContext: ['hostId' => $hostId, 'poolPrefix' => $poolPrefix, 'poolId' => $poolId],
+            exception: $e
+        );
+        throw $e;
     }
-    $res = $pearDB->query($query);
-    $row = $res->fetch();
-    if ($row['nb'] > 0) {
-        return true;
-    }
-    return false;
 }
 
 /**
- *
  * Enable a slot pool system
- * @param $pool_id
- * @param $pool_arr
+ *
+ * @param int|null $pool_id The pool ID to enable (optional)
+ * @param array $pool_arr An array of pool IDs to enable
+ * @throws CentreonDbException if a database error occurs
  */
 function enablePoolInDB($pool_id = null, $pool_arr = array())
 {
     global $pearDB;
 
-    if (!$pool_id && !count($pool_arr)) {
-        return;
-    }
-
-    if ($pool_id) {
-        $pool_arr = array($pool_id => "1");
-    }
-
-    /*
-        * Update services in Centreon configuration
-        */
-    foreach ($pool_arr as $id => $values) {
-        $pearDB->query("UPDATE mod_dsm_pool SET pool_activate = '1' WHERE pool_id = '" . $id . "'");
-        $listServices = getListServiceForPool($id);
-        if (count($listServices) > 0) {
-            $pearDB->query(
-                "UPDATE service SET service_activate = '1' WHERE service_id IN (" . join(', ', $listServices) . ")"
-            );
+    try {
+        if (!$pool_id && empty($pool_arr)) {
+            return;
         }
+
+        if ($pool_id) {
+            $pool_arr = array($pool_id => "1");
+        }
+
+        /*
+         * Update services in Centreon configuration
+         */
+        foreach ($pool_arr as $id => $values) {
+            if ((int)$id <= 0) {
+                continue;
+            }
+
+            $statement = $pearDB->prepareQuery(
+                <<<'SQL'
+                    UPDATE mod_dsm_pool
+                    SET pool_activate = 1
+                    WHERE pool_id = :pool_id
+                SQL
+            );
+            $pearDB->executePreparedQuery($statement, [':pool_id' => [$id, PDO::PARAM_INT]], true);
+            $pearDB->closeQuery($statement);
+
+            $listServices = getListServiceForPool($id);
+            if (!empty($listServices)) {
+                $placeholders = implode(', ', array_fill(0, count($listServices), '?'));
+                $query = sprintf(
+                    <<<'SQL'
+                        UPDATE service
+                        SET service_activate = '1'
+                        WHERE service_id IN (%s)
+                    SQL,
+                    $placeholders
+                );
+
+                // Prepare and execute the query with service IDs
+                $statement = $pearDB->prepareQuery($query);
+                $pearDB->executePreparedQuery($statement, array_map(fn($serviceId) => [$serviceId, PDO::PARAM_INT], $listServices), false);
+                $pearDB->closeQuery($statement);
+            }
+        }
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error enabling pool(s) in DB",
+            customContext: ['pool_id' => $pool_id, 'pool_arr' => $pool_arr],
+            exception: $e
+        );
+        throw $e;
     }
 }
 
 /**
  *
  * Disable a slot pool system
- * @param $pool_id
- * @param $pool_arr
+ *
+ * @param int|null $pool_id The pool ID to disable (optional)
+ * @param array $pool_arr An array of pool IDs to disable
+ * @throws CentreonDbException if a database error occurs
  */
 function disablePoolInDB($pool_id = null, $pool_arr = array())
 {
     global $pearDB;
 
-    if (!$pool_id && !count($pool_arr)) {
-        return;
-    }
-
-    if ($pool_id) {
-        $pool_arr = array($pool_id => "1");
-    }
-
-    foreach ($pool_arr as $id => $values) {
-        $pearDB->query("UPDATE mod_dsm_pool SET pool_activate = '0' WHERE pool_id = '" . $id . "'");
-
-        /*
-         * Update services in Centreon configuration
-         */
-        $listServices = getListServiceForPool($id);
-        if (count($listServices) > 0) {
-            $pearDB->query(
-                "UPDATE service SET service_activate = '0' WHERE service_id IN (" . join(', ', $listServices) . ")"
-            );
+    try {
+        if (!$pool_id && empty($pool_arr)) {
+            return;
         }
+
+        if ($pool_id) {
+            $pool_arr = array($pool_id => "1");
+        }
+
+        foreach ($pool_arr as $id => $values) {
+            if ((int)$id <= 0) {
+                continue;
+            }
+
+            $statement = $pearDB->prepareQuery(
+                <<<'SQL'
+                    UPDATE mod_dsm_pool
+                    SET pool_activate = 0
+                    WHERE pool_id = :pool_id
+                SQL
+            );
+            $pearDB->executePreparedQuery($statement, [':pool_id' => [$id, PDO::PARAM_INT]], true);
+            $pearDB->closeQuery($statement);
+
+            /*
+             * Update services in Centreon configuration
+             */
+            $listServices = getListServiceForPool($id);
+            if (!empty($listServices)) {
+                $placeholders = implode(', ', array_fill(0, count($listServices), '?'));
+                $query = sprintf(
+                    <<<'SQL'
+                        UPDATE service
+                        SET service_activate = '0'
+                        WHERE service_id IN (%s)
+                    SQL,
+                    $placeholders
+                );
+
+                $statement = $pearDB->prepareQuery($query);
+                $pearDB->executePreparedQuery($statement, array_map(fn($serviceId) => [$serviceId, PDO::PARAM_INT], $listServices), false);
+                $pearDB->closeQuery($statement);
+            }
+        }
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error disabling pool(s) in DB",
+            customContext: ['pool_id' => $pool_id, 'pool_arr' => $pool_arr],
+            exception: $e
+        );
+        throw $e;
     }
 }
 
 /**
- *
  * Delete a slot pool system
- * @param $pools
+ * @param array $pools An array of pool IDs to delete
+ * @throws CentreonDbException if a database error occurs
  */
 function deletePoolInDB($pools = array())
 {
     global $pearDB;
 
-    foreach ($pools as $key => $value) {
-        /*
-         * Delete services in Centreon configuration
-         */
-        $listServices = getListServiceForPool($key);
-        if (count($listServices) > 0) {
-            $pearDB->query('DELETE FROM service WHERE service_id IN (' . join(', ', $listServices) . ')');
+    try {
+        foreach ($pools as $key => $value) {
+            /*
+             * Delete services in Centreon configuration
+             */
+            $listServices = getListServiceForPool($key);
+            if (!empty($listServices)) {
+                $placeholders = implode(', ', array_fill(0, count($listServices), '?'));
+                $query = sprintf(
+                    <<<'SQL'
+                        DELETE FROM service
+                        WHERE service_id IN (%s)
+                    SQL,
+                    $placeholders
+                );
+
+                $statement = $pearDB->prepareQuery($query);
+                $pearDB->executePreparedQuery($statement, array_map(fn($serviceId) => [$serviceId, PDO::PARAM_INT], $listServices), false);
+                $pearDB->closeQuery($statement);
+            }
+
+            $statement = $pearDB->prepareQuery(
+                <<<'SQL'
+                    DELETE FROM mod_dsm_pool
+                    WHERE pool_id = :pool_id
+                SQL
+            );
+            $pearDB->executePreparedQuery($statement, [':pool_id' => [$key, PDO::PARAM_INT]], true);
+            $pearDB->closeQuery($statement);
         }
-        $pearDB->query("DELETE FROM mod_dsm_pool WHERE pool_id = '" . $key . "'");
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error deleting pool(s) in DB",
+            customContext: ['pools' => $pools],
+            exception: $e
+        );
+        throw $e;
     }
 }
 
 /**
  *
  * Update a slot pool in DB
- * @param $pool_id
+ *
+ * @param int|null $pool_id The pool ID to update
  * @return bool
+ * @throws CentreonDbException if a database error occurs
  */
 function updatePoolInDB($pool_id = null)
 {
@@ -205,16 +359,17 @@ function updatePoolInDB($pool_id = null)
     $ret = $form->getSubmitValues();
 
     /*
-        * Global function to use
-        */
+     * Global function to use
+     */
     return updatePool($pool_id);
 }
 
 /**
  * Insert a slot pool in DB
  *
- * @param array The values
+ * @param array $ret The values for new pool
  * @return int $pool_id The pool id, return -1 if error
+ * @throws CentreonDbException if a database error occurs
  */
 function insertPoolInDB($ret = array())
 {
@@ -223,242 +378,360 @@ function insertPoolInDB($ret = array())
 }
 
 /**
- *
- * Check Pool Existance
- * @param $pool_name
+ * Check Pool Existence
+ * @param string $pool_name The pool name to check
+ * @return int 0 if the pool does not exist, 1 if it does
+ * @throws CentreonDbException if a database error occurs
  */
 function testPoolExistence($pool_name)
 {
     global $pearDB;
 
-    $dbResult = $pearDB->query("SELECT * FROM `mod_dsm_pool` WHERE `pool_name` = '" . $pool_name . "'");
-    if ($dbResult->rowCount() == 0) {
-        return 0;
-    } else {
-        return 1;
+    try {
+        $statement = $pearDB->prepareQuery(
+            <<<'SQL'
+                SELECT COUNT(*) AS nb
+                FROM `mod_dsm_pool`
+                WHERE `pool_name` = :pool_name
+            SQL
+        );
+        $pearDB->executePreparedQuery($statement, [':pool_name' => [$pool_name, PDO::PARAM_STR]], true);
+
+        $row = $pearDB->fetch($statement);
+        $pearDB->closeQuery($statement);
+
+        return ($row['nb'] > 0) ? 1 : 0;
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error checking pool existence for pool name: $pool_name",
+            customContext: ['pool_name' => $pool_name],
+            exception: $e
+        );
+        throw $e;
     }
 }
 
 /**
- *
  * Duplicate Pool
- * @param $select
- * @param $nbrDup
+ *
+ * @param array $pool An array of pool IDs to duplicate
+ * @param array $nbrDup An array of the number of duplications for each pool
+ * @throws CentreonDbException if a database error occurs
  */
 function multiplePoolInDB($pool = array(), $nbrDup = array())
 {
     global $pearDB;
 
-    foreach ($pool as $key => $value) {
-        $dbResult = $pearDB->query("SELECT * FROM `mod_dsm_pool` WHERE `pool_id` = '" . $key . "' LIMIT 1");
+    try {
+        foreach ($pool as $key => $value) {
+            $statement = $pearDB->prepareQuery(
+                <<<'SQL'
+                    SELECT *
+                    FROM `mod_dsm_pool`
+                    WHERE `pool_id` = :pool_id
+                    LIMIT 1
+                SQL
+            );
+            $pearDB->executePreparedQuery($statement, [':pool_id' => [$key, PDO::PARAM_INT]], true);
 
-        $row = $dbResult->fetch();
-        $row["pool_id"] = null;
+            $row = $pearDB->fetch($statement);
+            $pearDB->closeQuery($statement);
 
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $val = null;
+            $row["pool_id"] = null;
 
-            foreach ($row as $key2 => $value2) {
-                $key2 == "pool_name" ? ($pool_name = $value2 = $value2 . "_" . $i) : null;
-                if ($key2 == 'pool_host_id') {
-                    $value2 = null;
-                } elseif ($key2 == 'pool_activate') {
-                    $value2 = '0';
+            for ($i = 1; $i <= $nbrDup[$key]; $i++) {
+                $val = null;
+
+                foreach ($row as $key2 => $value2) {
+                    $key2 == "pool_name" ? ($pool_name = $value2 = $value2 . "_" . $i) : null;
+                    if ($key2 == 'pool_host_id') {
+                        $value2 = null;
+                    } elseif ($key2 == 'pool_activate') {
+                        $value2 = '0';
+                    }
+                    $val ? $val .= (
+                        $value2 != null ? (", '" . $pearDB->escapeString($value2) . "'") : ", NULL"
+                    ) : $val .= (
+                        $value2 != null ? ("'" . $pearDB->escapeString($value2) . "'") : "NULL"
+                    );
+                    if ($key2 != "pool_id") {
+                        $fields[$key2] = $pearDB->escapeString($value2);
+                    }
+                    if (isset($pool_name)) {
+                        $fields["pool_name"] = $pool_name . "_$i";
+                    }
                 }
-                $val ? $val .= (
-                $value2 != null ? (", '" . $pearDB->escape($value2) . "'") : ", NULL"
-                ) : $val .= (
-                $value2 != null ? ("'" . $pearDB->escape($value2) . "'") : "NULL"
-                );
-                if ($key2 != "pool_id") {
-                    $fields[$key2] = $pearDB->escape($value2);
-                }
-                if (isset($pool_name)) {
-                    $fields["pool_name"] = $pool_name . "_$i";
-                }
-            }
 
-            if (isset($pool_name) && !testPoolExistence($pool_name)) {
-                $val ? $rq = "INSERT INTO `mod_dsm_pool` VALUES (" . $val . ")" : $rq = null;
-                $dbResult = $pearDB->query($rq);
-                $dbResult = $pearDB->query("SELECT MAX(pool_id) FROM `mod_dsm_pool`");
-                $cmd_id = $dbResult->fetch();
+                if (isset($pool_name) && !testPoolExistence($pool_name)) {
+                    if ($val) {
+                        $statement = $pearDB->prepareQuery("INSERT INTO `mod_dsm_pool` VALUES ($val)");
+                        $pearDB->executePreparedQuery($statement, [], false);
+                        $pearDB->closeQuery($statement);
+                    }
+
+                    $statement = $pearDB->prepareQuery("SELECT MAX(pool_id) FROM `mod_dsm_pool`");
+                    $pearDB->executePreparedQuery($statement, [], false);
+                    $cmd_id = $pearDB->fetch($statement);
+                    $pearDB->closeQuery($statement);
+                }
             }
         }
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error duplicating pools with pool IDs: " . implode(', ', array_keys($pool)),
+            customContext: ['pool' => $pool, 'nbrDup' => $nbrDup],
+            exception: $e
+        );
+        throw $e;
     }
 }
 
 /**
+ * Generate Slot services for a pool
  *
- * Generate Slot services for pool
- * @param $prefix
- * @param $number
- * @param $host_id
- * @param $template
- * @param $cmd
- * @param $args
- * @param $oldPrefix
+ * @param string $prefix The prefix for the service
+ * @param int $number The number of services to generate
+ * @param int $host_id The host ID for the services
+ * @param int $template The template ID for the services
+ * @param int|null $cmd The command ID (optional)
+ * @param string|null $args The command arguments (optional)
+ * @param string $oldPrefix The old prefix to be replaced
+ * @throws CentreonDbException if a database error occurs
  */
 function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $oldPrefix)
 {
     global $pearDB;
 
-    if (!isset($oldPrefix)) {
-        $oldPrefix = "213343434334343434343";
-    }
+    try {
+        if (!isset($oldPrefix)) {
+            $oldPrefix = "213343434334343434343";
+        }
 
-    $dbResult = $pearDB->query(
-        "SELECT service_id, service_description " .
-        "FROM service s, host_service_relation hsr " .
-        "WHERE hsr.host_host_id = '" . $host_id . "' " .
-        "AND service_id = service_service_id " .
-        "AND service_description LIKE '" . $oldPrefix . "%' ORDER BY service_description ASC"
-    );
-    $currentNumber = $dbResult->rowCount();
-    if ($currentNumber == 0) {
-        for ($i = 1; $i <= $number; $i++) {
-            $suffix = "";
-            for ($t = $i; $t < 1000; $t *= 10) {
-                $suffix .= "0";
+        $statement = $pearDB->prepareQuery(
+            <<<'SQL'
+                SELECT service_id, service_description
+                FROM service s, host_service_relation hsr
+                WHERE hsr.host_host_id = :host_id
+                    AND service_id = service_service_id
+                    AND service_description LIKE :oldPrefix
+                ORDER BY service_description ASC
+            SQL
+        );
+        $pearDB->executePreparedQuery($statement, [
+            ':host_id' => [$host_id, PDO::PARAM_INT],
+            ':oldPrefix' => [$oldPrefix . '%', PDO::PARAM_STR]
+        ], true);
+
+        $currentNumber = $statement->rowCount();
+
+        if ($currentNumber == 0) {
+            for ($i = 1; $i <= $number; $i++) {
+                $suffix = "";
+                for ($t = $i; $t < 1000; $t *= 10) {
+                    $suffix .= "0";
+                }
+                $suffix .= $i;
+                $statementInsert = $pearDB->prepareQuery(
+                    <<<'SQL'
+                        INSERT INTO service (
+                            service_description,
+                            service_template_model_stm_id,
+                            command_command_id,
+                            command_command_id_arg,
+                            service_activate,
+                            service_register,
+                            service_active_checks_enabled,
+                            service_passive_checks_enabled,
+                            service_parallelize_check,
+                            service_obsess_over_service,
+                            service_check_freshness,
+                            service_event_handler_enabled,
+                            service_process_perf_data,
+                            service_retain_status_information,
+                            service_notifications_enabled,
+                            service_is_volatile
+                        ) VALUES (
+                            :service_description, :template, :cmd, :args, '1', '1', '0', '1', '2', '2', '2', '2', '2', '2', '2', '2'
+                        )
+                    SQL
+                );
+                $pearDB->executePreparedQuery($statementInsert, [
+                    ':service_description' => [$prefix . $suffix, PDO::PARAM_STR],
+                    ':template' => [$template, PDO::PARAM_INT],
+                    ':cmd' => [$cmd ?: null, $cmd ? PDO::PARAM_INT : PDO::PARAM_NULL],
+                    ':args' => [$args ?: null, $args ? PDO::PARAM_STR : PDO::PARAM_NULL]
+                ], true);
+                $pearDB->closeQuery($statementInsert);
+
+                $statementMax = $pearDB->prepareQuery(
+                    <<<'SQL'
+                        SELECT MAX(service_id)
+                        FROM service
+                        WHERE service_description = :service_description
+                            AND service_activate = '1'
+                            AND service_register = '1'
+                    SQL
+                );
+                $pearDB->executePreparedQuery($statementMax, [':service_description' => [$prefix . $suffix, PDO::PARAM_STR]], true);
+                $service = $pearDB->fetch($statementMax);
+                $service_id = $service["MAX(service_id)"];
+                $pearDB->closeQuery($statementMax);
+
+                if ($service_id != 0) {
+                    $statementInsertHostRelation = $pearDB->prepareQuery(
+                        "INSERT INTO host_service_relation (service_service_id, host_host_id) 
+                        VALUES (:service_id, :host_id)"
+                    );
+                    $pearDB->executePreparedQuery($statementInsertHostRelation, [
+                        ':service_id' => [$service_id, PDO::PARAM_INT],
+                        ':host_id' => [$host_id, PDO::PARAM_INT]
+                    ], true);
+                    $pearDB->closeQuery($statementInsertHostRelation);
+
+                    $statementInsertExtended = $pearDB->prepareQuery(
+                        "INSERT INTO extended_service_information (service_service_id) VALUES (:service_id)"
+                    );
+                    $pearDB->executePreparedQuery($statementInsertExtended, [':service_id' => [$service_id, PDO::PARAM_INT]], true);
+                    $pearDB->closeQuery($statementInsertExtended);
+                }
             }
-            $suffix .= $i;
-            $pearDB->query(
-                "INSERT INTO service (
-                    service_description,
-                    service_template_model_stm_id,
-                    command_command_id,
-                    command_command_id_arg,
-                    service_activate,
-                    service_register,
-                    service_active_checks_enabled,
-                    service_passive_checks_enabled,
-                    service_parallelize_check,
-                    service_obsess_over_service,
-                    service_check_freshness,
-                    service_event_handler_enabled,
-                    service_process_perf_data,
-                    service_retain_status_information,
-                    service_notifications_enabled,
-                    service_is_volatile
-                ) VALUES ('" .
-                $prefix . $suffix .
-                "', '" . $template .
-                "', " . ($cmd ? "'$cmd'" : "NULL") .
-                ", " . ($args ? "'$args'" : "NULL") .
-                ", '1', '1', '0', '1', '2', '2', '2', '2', '2', '2', '2', '2'
-                )"
-            );
-
-            $dbResult = $pearDB->query(
-                "SELECT MAX(service_id)
-                FROM service
-                WHERE service_description = '" . $prefix . $suffix . "'
-                AND service_activate = '1' AND service_register = '1'"
-            );
-            $service = $dbResult->fetch();
-            $service_id = $service["MAX(service_id)"];
-
-            if ($service_id != 0) {
-                $pearDB->query(
-                    "INSERT INTO host_service_relation (
-                        service_service_id, host_host_id
-                    ) VALUES ('" . $service_id . "', '" . $host_id . "')"
+        } elseif ($currentNumber <= $number) {
+            for ($i = 1; $data = $pearDB->fetch($statement); $i++) {
+                $suffix = str_pad($i, 4, '0', STR_PAD_LEFT);
+                $statementUpdate = $pearDB->prepareQuery(
+                    <<<'SQL'
+                        UPDATE service
+                        SET service_template_model_stm_id = :template,
+                            service_description = :service_description,
+                            command_command_id = :cmd,
+                            command_command_id_arg = :args
+                        WHERE service_id = :service_id
+                    SQL
                 );
-                $pearDB->query(
-                    "INSERT INTO extended_service_information (service_service_id) VALUES ('" . $service_id . "')"
+                $pearDB->executePreparedQuery($statementUpdate, [
+                    ':template' => [$template, PDO::PARAM_INT],
+                    ':service_description' => [$prefix . $suffix, PDO::PARAM_STR],
+                    ':cmd' => [$cmd ?: null, $cmd ? PDO::PARAM_INT : PDO::PARAM_NULL],
+                    ':args' => [$args ?: null, $args ? PDO::PARAM_STR : PDO::PARAM_NULL],
+                    ':service_id' => [$data["service_id"], PDO::PARAM_INT]
+                ], true);
+                $pearDB->closeQuery($statementUpdate);
+
+                $statementDeleteHostRelation = $pearDB->prepareQuery(
+                    "DELETE FROM host_service_relation WHERE service_service_id = :service_id"
                 );
+                $pearDB->executePreparedQuery($statementDeleteHostRelation, [':service_id' => [$data["service_id"], PDO::PARAM_INT]], true);
+                $pearDB->closeQuery($statementDeleteHostRelation);
+
+                $statementInsertHostRelation = $pearDB->prepareQuery(
+                    "INSERT INTO host_service_relation (service_service_id, host_host_id)
+                    VALUES (:service_id, :host_id)"
+                );
+                $pearDB->executePreparedQuery($statementInsertHostRelation, [
+                    ':service_id' => [$data["service_id"], PDO::PARAM_INT],
+                    ':host_id' => [$host_id, PDO::PARAM_INT]
+                ], true);
+                $pearDB->closeQuery($statementInsertHostRelation);
+            }
+            while ($i <= $number) {
+                $suffix = "";
+                for ($t = $i; $t < 1000; $t *= 10) {
+                    $suffix .= "0";
+                }
+                $suffix .= $i;
+                $statementInsert = $pearDB->prepareQuery(
+                    <<<'SQL'
+                        INSERT INTO service (
+                            service_description,
+                            service_template_model_stm_id,
+                            command_command_id,
+                            command_command_id_arg,
+                            service_activate,
+                            service_register,
+                            service_active_checks_enabled,
+                            service_passive_checks_enabled,
+                            service_parallelize_check,
+                            service_obsess_over_service,
+                            service_check_freshness,
+                            service_event_handler_enabled,
+                            service_process_perf_data,
+                            service_retain_status_information,
+                            service_notifications_enabled,
+                            service_is_volatile
+                        ) VALUES (
+                            :service_description, :template, :cmd, :args, '1', '1', '0', '1', '2', '2', '2', '2', '2', '2', '2', '2'
+                        )
+                    SQL
+                );
+                $pearDB->executePreparedQuery($statementInsert, [
+                    ':service_description' => [$prefix . $suffix, PDO::PARAM_STR],
+                    ':template' => [$template, PDO::PARAM_INT],
+                    ':cmd' => [$cmd ?: null, $cmd ? PDO::PARAM_INT : PDO::PARAM_NULL],
+                    ':args' => [$args ?: null, $args ? PDO::PARAM_STR : PDO::PARAM_NULL]
+                ], true);
+                $pearDB->closeQuery($statementInsert);
+
+                $statementMax = $pearDB->prepareQuery(
+                    <<<'SQL'
+                        SELECT MAX(service_id) FROM service
+                        WHERE service_description = :service_description
+                            AND service_activate = '1'
+                            AND service_register = '1'
+                    SQL
+                );
+                $pearDB->executePreparedQuery($statementMax, [':service_description' => [$prefix . $suffix, PDO::PARAM_STR]], true);
+                $service = $pearDB->fetch($statementMax);
+                $service_id = $service["MAX(service_id)"];
+                $pearDB->closeQuery($statementMax);
+
+                if ($service_id != 0) {
+                    $statementInsertHostRelation = $pearDB->prepareQuery(
+                        "INSERT INTO host_service_relation (service_service_id, host_host_id)
+                        VALUES (:service_id, :host_id)"
+                    );
+                    $pearDB->executePreparedQuery($statementInsertHostRelation, [
+                        ':service_id' => [$service_id, PDO::PARAM_INT],
+                        ':host_id' => [$host_id, PDO::PARAM_INT]
+                    ], true);
+                    $pearDB->closeQuery($statementInsertHostRelation);
+
+                    $statementInsertExtended = $pearDB->prepareQuery(
+                        "INSERT INTO extended_service_information (service_service_id) VALUES (:service_id)"
+                    );
+                    $pearDB->executePreparedQuery($statementInsertExtended, [':service_id' => [$service_id, PDO::PARAM_INT]], true);
+                    $pearDB->closeQuery($statementInsertExtended);
+                }
+                $i++;
+            }
+        } elseif ($currentNumber > $number) {
+            for ($i = 1; $data = $pearDB->fetch($statement); $i++) {
+                if ($i > $number) {
+                    $statementDeleteService = $pearDB->prepareQuery("DELETE FROM service WHERE service_id = :service_id");
+                    $pearDB->executePreparedQuery($statementDeleteService, [':service_id' => [$data["service_id"], PDO::PARAM_INT]], true);
+                    $pearDB->closeQuery($statementDeleteService);
+                }
             }
         }
-    } elseif ($currentNumber <= $number) {
-        for ($i = 1; $data = $dbResult->fetch(); $i++) {
-            $suffix = "";
-            for ($t = $i; $t < 1000; $t *= 10) {
-                $suffix .= "0";
-            }
-            $suffix .= $i;
-            $pearDB->query(
-                "UPDATE service SET
-                service_template_model_stm_id = '" . $template . "',
-                service_description = '" . $prefix . $suffix . "',
-                command_command_id = " . ($cmd ? "'$cmd'" : "NULL") . ",
-                command_command_id_arg = " . ($args ? "'$args'" : "NULL") . "
-                WHERE service_id = '" . $data["service_id"] . "'"
-            );
-            $pearDB->query(
-                "DELETE FROM host_service_relation WHERE service_service_id = '" . $data["service_id"] . "'"
-            );
-            $pearDB->query(
-                "INSERT INTO host_service_relation (
-                    service_service_id, host_host_id
-                ) VALUES (
-                    '" . $data["service_id"] . "', '" . $host_id . "'
-                )"
-            );
-        }
-        while ($i <= $number) {
-            $suffix = "";
-            for ($t = $i; $t < 1000; $t *= 10) {
-                $suffix .= "0";
-            }
-            $suffix .= $i;
-            $pearDB->query(
-                "INSERT INTO service (
-                    service_description,
-                    service_template_model_stm_id,
-                    command_command_id,
-                    command_command_id_arg,
-                    service_activate,
-                    service_register,
-                    service_active_checks_enabled,
-                    service_passive_checks_enabled,
-                    service_parallelize_check,
-                    service_obsess_over_service,
-                    service_check_freshness,
-                    service_event_handler_enabled,
-                    service_process_perf_data,
-                    service_retain_status_information,
-                    service_notifications_enabled,
-                    service_is_volatile
-                ) VALUES (
-                    '" . $prefix . $suffix . "',
-                    '" . $template . "',
-                    " . ($cmd ? "'$cmd'" : "NULL") . ",
-                    " . ($args ? "'$args'" : "NULL") . ",
-                    '1', '1', '0', '1', '2', '2', '2', '2', '2', '2', '2', '2'
-                )"
-            );
 
-            $dbResult = $pearDB->query(
-                "SELECT MAX(service_id)
-                FROM service
-                WHERE service_description = '" . $prefix . $suffix . "'
-                AND service_activate = '1'
-                AND service_register = '1'"
-            );
-            $service = $dbResult->fetch();
-            $service_id = $service["MAX(service_id)"];
-
-            if ($service_id != 0) {
-                $pearDB->query(
-                    "INSERT INTO host_service_relation (
-                        service_service_id, host_host_id
-                    ) VALUES ('" . $service_id . "', '" . $host_id . "')"
-                );
-
-                $pearDB->query(
-                    "INSERT INTO extended_service_information (
-                        service_service_id
-                    ) VALUES ('" . $service_id . "')"
-                );
-            }
-            $i++;
-        }
-    } elseif ($currentNumber > $number) {
-        for ($i = 1; $data = $dbResult->fetch(); $i++) {
-            if ($i > $number) {
-                $pearDB->query("DELETE FROM service WHERE service_id = '" . $data["service_id"] . "'");
-            }
-        }
+        $pearDB->closeQuery($statement);
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error generating services for pool with prefix: $prefix",
+            customContext: [
+                'prefix' => $prefix,
+                'number' => $number,
+                'host_id' => $host_id,
+                'template' => $template,
+                'cmd' => $cmd,
+                'args' => $args,
+                'oldPrefix' => $oldPrefix
+            ],
+            exception: $e
+        );
+        throw $e;
     }
 }
 
@@ -466,230 +739,288 @@ function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $o
  * Insert Pool
  *
  * @param array $ret The values for new pool
- * @return int The pool id
+ * @return int The pool ID, or -1 if an error occurs
+ * @throws CentreonDbException if a database error occurs
  */
 function insertPool($ret = array())
 {
     global $form, $pearDB;
 
-    if (!count($ret)) {
-        $ret = $form->getSubmitValues();
+    try {
+        if (empty($ret)) {
+            $ret = $form->getSubmitValues();
+        }
+
+        if (hostPoolPrefixUsed($ret['pool_host_id'], $ret['pool_prefix'])) {
+            throw new Exception(_('Hosts is already using that pool prefix'));
+        }
+
+        $statement = $pearDB->prepareQuery(
+            <<<'SQL'
+                INSERT INTO `mod_dsm_pool` (
+                    `pool_id`,
+                    `pool_name`,
+                    `pool_host_id`,
+                    `pool_description`,
+                    `pool_number`,
+                    `pool_prefix`,
+                    `pool_cmd_id`,
+                    `pool_args`,
+                    `pool_activate`,
+                    `pool_service_template_id`
+                ) VALUES (
+                    NULL, :pool_name, :pool_host_id, :pool_description, :pool_number,
+                    :pool_prefix, :pool_cmd_id, :pool_args, :pool_activate, :pool_service_template_id
+                )
+            SQL
+        );
+
+        // Generate all services
+        generateServices(
+            $ret["pool_prefix"],
+            $ret["pool_number"],
+            $ret["pool_host_id"],
+            $ret["pool_service_template_id"],
+            $ret["pool_cmd_id"],
+            $ret["pool_args"],
+            "kjqsddlqkjdqslkjdqsldkj"
+        );
+
+        $fields = [
+            'pool_name' => PDO::PARAM_STR,
+            'pool_host_id' => PDO::PARAM_INT,
+            'pool_description' => PDO::PARAM_STR,
+            'pool_number' => PDO::PARAM_INT,
+            'pool_prefix' => PDO::PARAM_STR,
+            'pool_cmd_id' => PDO::PARAM_INT,
+            'pool_args' => PDO::PARAM_STR,
+            'pool_activate' => PDO::PARAM_INT,
+            'pool_service_template_id' => PDO::PARAM_INT,
+        ];
+
+        $parameters = [];
+        foreach ($fields as $field => $type) {
+            $value = $ret[$field] ?? null;
+            $parameters[":$field"] = [$value, $value !== null ? $type : PDO::PARAM_NULL];
+        }
+
+        $pearDB->executePreparedQuery($statement, $parameters, true);
+        $pearDB->closeQuery($statement);
+
+        $statementMax = $pearDB->prepareQuery("SELECT MAX(pool_id) FROM mod_dsm_pool");
+        $pearDB->executePreparedQuery($statementMax, [], false);
+        $pool_id = $pearDB->fetch($statementMax);
+        $pearDB->closeQuery($statementMax);
+
+        if ($ret["pool_activate"] == 1) {
+            enablePoolInDB($pool_id["MAX(pool_id)"]);
+        } else {
+            disablePoolInDB($pool_id["MAX(pool_id)"]);
+        }
+
+        return ($pool_id["MAX(pool_id)"]);
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error inserting pool with name: " . ($ret['pool_name'] ?? 'N/A'),
+            customContext: [
+                'pool_name' => $ret['pool_name'] ?? null,
+                'pool_host_id' => $ret['pool_host_id'] ?? null,
+                'pool_prefix' => $ret['pool_prefix'] ?? null
+            ],
+            exception: $e
+        );
+        throw $e;
     }
-
-    if (hostPoolPrefixUsed($ret['pool_host_id'], $ret['pool_prefix'])) {
-        throw new Exception(_('Hosts is already use that pool prefix'));
-    }
-
-    $rq = "INSERT INTO `mod_dsm_pool` (
-        `pool_id`,
-        `pool_name`,
-        `pool_host_id`,
-        `pool_description`,
-        `pool_number`,
-        `pool_prefix`,
-        `pool_cmd_id`,
-        `pool_args`,
-        `pool_activate`,
-        `pool_service_template_id`
-    ) VALUES (
-        NULL, ";
-    isset($ret["pool_name"])
-    && $ret["pool_name"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["pool_name"]) . "', " : $rq .= "NULL, ";
-    isset($ret["pool_host_id"])
-    && $ret["pool_host_id"] != null
-        ? $rq .= "'" . $ret["pool_host_id"] . "', " : $rq .= "NULL, ";
-    isset($ret["pool_description"])
-    && $ret["pool_description"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["pool_description"]) . "', " : $rq .= "NULL, ";
-    isset($ret["pool_number"])
-    && $ret["pool_number"] != null
-        ? $rq .= "'" . $ret["pool_number"] . "', " : $rq .= "NULL, ";
-    isset($ret["pool_prefix"])
-    && $ret["pool_prefix"] != null
-        ? $rq .= "'" . $ret["pool_prefix"] . "', " : $rq .= "NULL, ";
-    isset($ret["pool_cmd_id"])
-    && $ret["pool_cmd_id"] != null
-        ? $rq .= "'" . $ret["pool_cmd_id"] . "', " : $rq .= "NULL, ";
-    isset($ret["pool_args"])
-    && $ret["pool_args"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["pool_args"]) . "', " : $rq .= "NULL, ";
-    isset($ret["pool_activate"]["pool_activate"])
-    && $ret["pool_activate"]["pool_activate"] != null
-        ? $rq .= "'" . $ret["pool_activate"]["pool_activate"] . "', " : $rq .= "NULL, ";
-    isset($ret["pool_service_template_id"])
-    && $ret["pool_service_template_id"] != null
-        ? $rq .= "'" . $ret["pool_service_template_id"] . "' " : $rq .= "NULL ";
-    $rq .= ")";
-
-    /*
-        * Generate all services
-        */
-    generateServices(
-        $ret["pool_prefix"],
-        $ret["pool_number"],
-        $ret["pool_host_id"],
-        $ret["pool_service_template_id"],
-        $ret["pool_cmd_id"],
-        $ret["pool_args"],
-        "kjqsddlqkjdqslkjdqsldkj"
-    );
-
-    $dbResult = $pearDB->query($rq);
-    $dbResult = $pearDB->query("SELECT MAX(pool_id) FROM mod_dsm_pool");
-    $pool_id = $dbResult->fetch();
-
-    if ($ret["pool_activate"]["pool_activate"] == 1) {
-        enablePoolInDB($pool_id["MAX(pool_id)"]);
-    } else {
-        disablePoolInDB($pool_id["MAX(pool_id)"]);
-    }
-
-    return ($pool_id["MAX(pool_id)"]);
 }
 
 /**
  * Update Pool
  *
- * @param int $pool_id The pool ID
+ * @param int|null $pool_id The pool ID
  * @return bool
+ * @throws CentreonDbException if a database error occurs
  */
 function updatePool($pool_id = null)
 {
     global $form, $pearDB;
 
-    if (!$pool_id) {
-        return false;
+    try {
+        if (!$pool_id) {
+            return false;
+        }
+
+        // Get Old Prefix
+        $statement = $pearDB->prepareQuery("SELECT pool_prefix FROM mod_dsm_pool WHERE pool_id = :pool_id");
+        $pearDB->executePreparedQuery($statement, [':pool_id' => [$pool_id, PDO::PARAM_INT]], true);
+        $data = $pearDB->fetch($statement);
+        $oldPrefix = $data["pool_prefix"];
+        $pearDB->closeQuery($statement);
+
+        $ret = $form->getSubmitValues();
+
+        // Validate if host is not already used
+        if (isset($ret['pool_host_id'], $ret['pool_prefix']) && hostPoolPrefixUsed($ret['pool_host_id'], $ret['pool_prefix'], $pool_id)) {
+            throw new Exception(_('Host is already using that pool prefix'));
+        }
+
+        $statement = $pearDB->prepareQuery(
+            <<<'SQL'
+                UPDATE mod_dsm_pool SET
+                    pool_name = :pool_name,
+                    pool_description = :pool_description,
+                    pool_host_id = :pool_host_id,
+                    pool_number = :pool_number,
+                    pool_prefix = :pool_prefix,
+                    pool_cmd_id = :pool_cmd_id,
+                    pool_args = :pool_args,
+                    pool_activate = :pool_activate,
+                    pool_service_template_id = :pool_service_template_id
+                WHERE pool_id = :pool_id
+            SQL
+        );
+
+        $fields = [
+            'pool_name' => PDO::PARAM_STR,
+            'pool_description' => PDO::PARAM_STR,
+            'pool_host_id' => PDO::PARAM_INT,
+            'pool_number' => PDO::PARAM_INT,
+            'pool_prefix' => PDO::PARAM_STR,
+            'pool_cmd_id' => PDO::PARAM_INT,
+            'pool_args' => PDO::PARAM_STR,
+            'pool_activate' => PDO::PARAM_INT,
+            'pool_service_template_id' => PDO::PARAM_INT,
+        ];
+
+        $parameters = [];
+        foreach ($fields as $field => $type) {
+            $value = $ret[$field] ?? null;
+            $parameters[":$field"] = [$value, $value !== null ? $type : PDO::PARAM_NULL];
+        }
+
+        $parameters[':pool_id'] = [$pool_id, PDO::PARAM_INT];
+
+        $pearDB->executePreparedQuery($statement, $parameters, true);
+        $pearDB->closeQuery($statement);
+
+        generateServices(
+            $ret["pool_prefix"],
+            $ret["pool_number"],
+            $ret["pool_host_id"],
+            $ret["pool_service_template_id"],
+            $ret["pool_cmd_id"],
+            $ret["pool_args"],
+            $oldPrefix
+        );
+
+        if ($ret["pool_activate"] == 1) {
+            enablePoolInDB($pool_id);
+        } else {
+            disablePoolInDB($pool_id);
+        }
+
+        return true;
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error updating pool with ID: " . ($pool_id ?? 'N/A'),
+            customContext: [
+                'pool_id' => $pool_id,
+                'pool_name' => $ret['pool_name'] ?? null,
+                'pool_prefix' => $ret['pool_prefix'] ?? null
+            ],
+            exception: $e
+        );
+        throw $e;
     }
-
-    /*
-     * Get Old Prefix
-     */
-    $dbResult = $pearDB->query("SELECT pool_prefix FROM mod_dsm_pool WHERE pool_id = '" . $pool_id . "'");
-    $data = $dbResult->fetch();
-    $oldPrefix = $data["pool_prefix"];
-
-    $ret = array();
-    $ret = $form->getSubmitValues();
-
-    /*
-     * Validate if host is not already use
-     */
-    if (hostPoolPrefixUsed($ret['pool_host_id'], $ret['pool_prefix'], $pool_id)) {
-        throw new Exception(_('Hosts is already use that pool prefix'));
-    }
-
-    $rq = "UPDATE mod_dsm_pool SET
-        pool_name = ";
-    isset($ret["pool_name"])
-    && $ret["pool_name"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["pool_name"]) . "', " : $rq .= "NULL, ";
-    $rq .= "pool_description = ";
-    isset($ret["pool_description"])
-    && $ret["pool_description"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["pool_description"]) . "', " : $rq .= "NULL, ";
-    $rq .= "pool_host_id = ";
-    isset($ret["pool_host_id"])
-    && $ret["pool_host_id"] != null
-        ? $rq .= "'" . $ret["pool_host_id"] . "', " : $rq .= "NULL, ";
-    $rq .= "pool_number = ";
-    isset($ret["pool_number"])
-    && $ret["pool_number"] != null
-        ? $rq .= "'" . $ret["pool_number"] . "', " : $rq .= "NULL, ";
-    $rq .= "pool_prefix = ";
-    isset($ret["pool_prefix"])
-    && $ret["pool_prefix"] != null
-        ? $rq .= "'" . $ret["pool_prefix"] . "', " : $rq .= "NULL, ";
-    $rq .= "pool_cmd_id = ";
-    isset($ret["pool_cmd_id"])
-    && $ret["pool_cmd_id"] != null
-        ? $rq .= "'" . $ret["pool_cmd_id"] . "', " : $rq .= "NULL, ";
-    $rq .= "pool_args = ";
-    isset($ret["pool_args"])
-    && $ret["pool_args"] != null
-        ? $rq .= "'" . $pearDB->escape($ret["pool_args"]) . "', " : $rq .= "NULL, ";
-    $rq .= "pool_activate = ";
-    isset($ret["pool_activate"]["pool_activate"])
-    && $ret["pool_activate"]["pool_activate"] != null
-        ? $rq .= "'" . $ret["pool_activate"]["pool_activate"] . "', " : $rq .= "NULL, ";
-    $rq .= "pool_service_template_id = ";
-    isset($ret["pool_service_template_id"])
-    && $ret["pool_service_template_id"] != null
-        ? $rq .= "'" . $ret["pool_service_template_id"] . "' " : $rq .= "NULL ";
-    $rq .= "WHERE pool_id = '" . $pool_id . "'";
-    $dbResult = $pearDB->query($rq);
-
-    generateServices(
-        $ret["pool_prefix"],
-        $ret["pool_number"],
-        $ret["pool_host_id"],
-        $ret["pool_service_template_id"],
-        $ret["pool_cmd_id"],
-        $ret["pool_args"],
-        $oldPrefix
-    );
-
-    if ($ret["pool_activate"]["pool_activate"] == 1) {
-        enablePoolInDB($pool_id);
-    } else {
-        disablePoolInDB($pool_id);
-    }
-
-    return true;
 }
 
 /**
  *
  * Update Pool ContactGroups
- * @param $ret
+ * @param array $ret
+ * @throws CentreonDbException if a database error occurs
  */
 function updatePoolContactGroup($pool_id = null, $ret = array())
 {
     global $form, $pearDB;
 
-    if (!$pool_id) {
-        return;
-    }
+    try {
+        if (!$pool_id) {
+            return;
+        }
 
-    $pearDB->query("DELETE FROM mod_dsm_cg_relation WHERE pool_id = '" . $pool_id . "'");
+        $statement = $pearDB->prepareQuery("DELETE FROM mod_dsm_cg_relation WHERE pool_id = :pool_id");
+        $pearDB->executePreparedQuery($statement, [':pool_id' => [$pool_id, PDO::PARAM_INT]], true);
+        $pearDB->closeQuery($statement);
 
-    (isset($ret["pool_cg"])) ? $ret = $ret["pool_cg"] : $ret = $form->getSubmitValue("pool_cg");
+        $ret = isset($ret["pool_cg"]) ? $ret["pool_cg"] : $form->getSubmitValue("pool_cg");
 
-    for ($i = 0; $i < count($ret); $i++) {
-        $pearDB->query(
-            "INSERT INTO mod_dsm_cg_relation (
-                pool_id, cg_cg_id
-            ) VALUES (
-                '" . $pool_id . "', '" . $ret[$i] . "'
-            )"
+        foreach ($ret as $cg_id) {
+            $statement = $pearDB->prepareQuery(
+                "INSERT INTO mod_dsm_cg_relation (pool_id, cg_cg_id) VALUES (:pool_id, :cg_cg_id)"
+            );
+            $pearDB->executePreparedQuery($statement, [
+                ':pool_id' => [$pool_id, PDO::PARAM_INT],
+                ':cg_cg_id' => [$cg_id, PDO::PARAM_INT]
+            ], true);
+            $pearDB->closeQuery($statement);
+        }
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error updating contact groups for pool with ID: " . ($pool_id ?? 'N/A'),
+            customContext: [
+                'pool_id' => $pool_id,
+                'contact_groups' => $ret
+            ],
+            exception: $e
         );
+        throw $e;
     }
 }
 
 /**
- *
  * Update Pool Contacts
- * @param $ret
+ * @param int|null $pool_id The pool ID to update
+ * @param array $ret The contacts to update
+ * @throws CentreonDbException if a database error occurs
  */
 function updatePoolContact($pool_id = null, $ret = array())
 {
     global $form, $pearDB;
 
-    if (!$pool_id) {
-        return;
-    }
+    try {
+        if (!$pool_id) {
+            return;
+        }
 
-    $pearDB->query("DELETE FROM mod_dsm_cct_relation WHERE pool_id = '" . $pool_id . "'");
+        $statement = $pearDB->prepareQuery("DELETE FROM mod_dsm_cct_relation WHERE pool_id = :pool_id");
+        $pearDB->executePreparedQuery($statement, [':pool_id' => [$pool_id, PDO::PARAM_INT]], true);
+        $pearDB->closeQuery($statement);
 
-    (isset($ret["pool_cct"])) ? $ret = $ret["pool_cct"] : $ret = $form->getSubmitValue("pool_cct");
+        $ret = isset($ret["pool_cct"]) ? $ret["pool_cct"] : $form->getSubmitValue("pool_cct");
 
-    for ($i = 0; $i < count($ret); $i++) {
-        $pearDB->query(
-            "INSERT INTO mod_dsm_cct_relation (
-                pool_id, cct_cct_id
-            ) VALUES (
-                '" . $pool_id . "', '" . $ret[$i] . "'
-            )"
+        foreach ($ret as $cct_id) {
+            $statement = $pearDB->prepareQuery(
+                "INSERT INTO mod_dsm_cct_relation (pool_id, cct_cct_id) VALUES (:pool_id, :cct_cct_id)"
+            );
+            $pearDB->executePreparedQuery($statement, [
+                ':pool_id' => [$pool_id, PDO::PARAM_INT],
+                ':cct_cct_id' => [$cct_id, PDO::PARAM_INT]
+            ], true);
+            $pearDB->closeQuery($statement);
+        }
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error updating contacts for pool with ID: " . ($pool_id ?? 'N/A'),
+            customContext: [
+                'pool_id' => $pool_id,
+                'contacts' => $ret
+            ],
+            exception: $e
         );
+        throw $e;
     }
 }

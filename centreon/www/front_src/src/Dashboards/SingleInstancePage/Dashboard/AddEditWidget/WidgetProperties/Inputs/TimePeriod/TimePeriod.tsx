@@ -1,8 +1,10 @@
 import { useMemo } from 'react';
 
 import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
+dayjs.extend(isSameOrAfter);
 
 import { Typography } from '@mui/material';
 

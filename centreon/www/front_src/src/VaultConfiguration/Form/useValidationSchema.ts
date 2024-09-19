@@ -8,7 +8,7 @@ import {
   labelRequired
 } from '../translatedLabels';
 
-const urlRegex = /^[a-zA-Z0-9]+\.?[a-zA-Z0-9.]+\.?[a-zA-Z0-9]+$/;
+const urlRegex = /^[a-zA-Z0-9_-]+\.?[a-zA-Z0-9-_.]+\.?[a-zA-Z0-9-_]+$/;
 export const portRegex = /:[0-9]+$/;
 
 export const useValidationSchema = (): Schema<PostVaultConfiguration> => {

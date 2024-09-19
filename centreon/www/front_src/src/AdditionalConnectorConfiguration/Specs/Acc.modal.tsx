@@ -175,7 +175,7 @@ export default (): void => {
         .should('have.value', labelPort)
         .should('be.disabled');
 
-      cy.get(`input[data-testid=${labelPort}_value`)
+      cy.get('input[name="port"]')
         .should('be.visible')
         .should('have.value', 5700)
         .should('not.be.disabled');
@@ -251,7 +251,7 @@ export default (): void => {
         .should('have.value', labelPort)
         .should('be.disabled');
 
-      cy.get(`input[data-testid=${labelPort}_value`)
+      cy.get('input[name="port"]')
         .should('be.visible')
         .should('have.value', 443)
         .should('not.be.disabled');
@@ -506,11 +506,9 @@ export default (): void => {
       it('validates that port field is required', () => {
         initializeModal({ variant: 'create' });
 
-        cy.get(`input[data-testid=${labelPort}_value`).clear();
+        cy.get('input[name="port"]').clear().blur();
 
-        cy.get('body').click(0, 0);
-
-        cy.contains(labelRequired).should('be.visible');
+        cy.contains(labelInvalidPortNumber).should('be.visible');
 
         cy.matchImageSnapshot();
       });
@@ -538,7 +536,7 @@ export default (): void => {
       it('validates that the port should be a valid integer', () => {
         initializeModal({ variant: 'create' });
 
-        cy.get(`input[data-testid=${labelPort}_value`).clear().type('0.1');
+        cy.get('input[name="port"]').clear().type('0.1');
 
         cy.get('body').click(0, 0);
 
@@ -549,7 +547,7 @@ export default (): void => {
       it('validates that the port should be between 0 and 65535', () => {
         initializeModal({ variant: 'create' });
 
-        cy.get(`input[data-testid=${labelPort}_value`).clear().type('70000');
+        cy.get('input[name="port"]').clear().type('70000');
 
         cy.get('body').click(0, 0);
 
@@ -613,7 +611,11 @@ export default (): void => {
 
         cy.contains(labelAdditionalConnectorCreated);
 
-        cy.waitForRequest('@createConnector');
+        cy.waitForRequest('@createConnector').then(({ request }) => {
+          expect(request.body).equals(
+            '{"description":null,"name":"New name","parameters":{"port":5700,"vcenters":[{"name":"my_vcenter","password":"password","url":"http://10.10.10.10/sdk","username":"username"}]},"pollers":[1],"type":"vmware_v6"}'
+          );
+        });
 
         cy.matchImageSnapshot();
       });
@@ -623,10 +625,15 @@ export default (): void => {
         cy.findByText(labelUpdateConnectorConfiguration).should('be.visible');
 
         cy.findAllByTestId(labelName).eq(1).clear().type('Updated name');
+        cy.get('input[name=port]').clear().type('100');
 
         cy.get(`button[data-testid="submit"`).click();
 
-        cy.waitForRequest('@updateConnector');
+        cy.waitForRequest('@updateConnector').then(({ request }) => {
+          expect(request.body).equals(
+            '{"name":"Updated name","description":"Description for VMWare1","parameters":{"port":1000,"vcenters":[{"name":"vCenter1","password":"password1","url":"https://vcenter1.example.com/sdk","username":"user1"},{"name":"vCenter2","password":"password2","url":"192.0.0.1","username":"user2"}]},"pollers":[101,102],"type":"vmware_v6"}'
+          );
+        });
 
         cy.contains(labelAdditionalConnectorUpdated);
 
