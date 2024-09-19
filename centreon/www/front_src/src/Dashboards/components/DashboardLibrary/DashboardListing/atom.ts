@@ -14,8 +14,8 @@ export const sortFieldAtom = atom<string>('name');
 export const searchAtom = atom<string>('');
 
 export const viewModeAtom = atomWithStorage<ViewMode>(
-  'dashboards-view-mode',
-  ViewMode.List
+  'dashboards-view-mode-24.10',
+  ViewMode.Cards
 );
 
 export const askBeforeRevokeAtom = atom<{
