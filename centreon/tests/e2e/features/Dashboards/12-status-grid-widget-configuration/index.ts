@@ -13,11 +13,6 @@ import twoStatusGridWidgets from '../../../fixtures/dashboards/creation/widgets/
 import statusGridWidgetWithNewAddedHost from '../../../fixtures/dashboards/creation/widgets/statusGridWidgetWithNewAddedHost.json';
 
 const services = {
-  newService: {
-    host: 'host4',
-    name: 'service3',
-    template: 'SNMP-Linux-Load-Average'
-  },
   serviceCritical: {
     host: 'host3',
     name: 'service3',
@@ -54,12 +49,6 @@ const resultsToSubmit = [
     output: 'submit_status_2',
     service: services.serviceOk.name,
     status: 'ok'
-  },
-  {
-    host: services.newService.host,
-    output: 'submit_status_2',
-    service: services.serviceCritical.name,
-    status: 'critical'
   }
 ];
 
