@@ -81,7 +81,7 @@ foreach ($_POST as $object => $value) {
                 if (!empty($generateContent['error'])) {
                     $ajaxReturn['error'][] = $generateContent['error'];
                 }
-                if (isset($generateContent['result'])) {
+                if (!empty($generateContent['result'])) {
                     $scriptContent[] = $generateContent['result'];
                 }
             }
@@ -90,7 +90,7 @@ foreach ($_POST as $object => $value) {
             if (!empty($generateContent['error'])) {
                 $ajaxReturn['error'][] = $generateContent['error'];
             }
-            if (isset($generateContent['result'])) {
+            if (!empty($generateContent['result'])) {
                 $scriptContent[] = $generateContent['result'];
             }
         }
