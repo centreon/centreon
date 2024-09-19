@@ -34,7 +34,9 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\TrimmedString;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
+use Core\Service\Application\Repository\WriteRealTimeServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 use Core\Service\Domain\Model\NewService;
 use Core\Service\Domain\Model\Service;
@@ -51,7 +53,8 @@ final class DeployServices
         private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly ReadServiceRepositoryInterface $readServiceRepository,
         private readonly ReadServiceTemplateRepositoryInterface $readServiceTemplateRepository,
-        private readonly WriteServiceRepositoryInterface $writeServiceRepository
+        private readonly WriteServiceRepositoryInterface $writeServiceRepository,
+        private readonly WriteRealTimeServiceRepositoryInterface $writeRealTimeServiceRepository
     ) {}
 
     /**
@@ -72,26 +75,6 @@ final class DeployServices
                 return;
             }
 
-            if ($this->contact->isAdmin()) {
-                if (! $this->readHostRepository->exists($hostId)) {
-                    $this->error('Host with provided id is not found', ['host_id' => $hostId]);
-                    $response = new NotFoundResponse('Host');
-                    $presenter->presentResponse($response);
-
-                    return;
-                }
-            } else {
-                $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
-
-                if (! $this->readHostRepository->existsByAccessGroups($hostId, $accessGroups)) {
-                    $this->error('Host with provided id is not found', ['host_id' => $hostId]);
-                    $response = new NotFoundResponse('Host');
-                    $presenter->presentResponse($response);
-
-                    return;
-                }
-            }
-
             $hostParents = $this->readHostRepository->findParents($hostId);
             if ($hostParents === []) {
                 $this->info(
@@ -104,7 +87,29 @@ final class DeployServices
                 return;
             }
 
-            $deployedServices = $this->deployServicesInTransaction($hostParents, $hostId);
+            if ($this->contact->isAdmin()) {
+                if (! $this->readHostRepository->exists($hostId)) {
+                    $this->error('Host with provided id is not found', ['host_id' => $hostId]);
+                    $response = new NotFoundResponse('Host');
+                    $presenter->presentResponse($response);
+
+                    return;
+                }
+
+                $deployedServices = $this->deployServicesInTransaction($hostParents, $hostId);
+            } else {
+                $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
+
+                if (! $this->readHostRepository->existsByAccessGroups($hostId, $accessGroups)) {
+                    $this->error('Host with provided id is not found', ['host_id' => $hostId]);
+                    $response = new NotFoundResponse('Host');
+                    $presenter->presentResponse($response);
+
+                    return;
+                }
+
+                $deployedServices = $this->deployServicesInTransaction($hostParents, $hostId, $accessGroups);
+            }
 
             if ($deployedServices === []) {
                 $this->info(
@@ -186,12 +191,13 @@ final class DeployServices
     /**
      * @param array<array{parent_id:int,child_id:int,order:int}> $hostParents
      * @param int $hostId
+     * @param AccessGroup[] $accessGroups
      *
      * @throws \Throwable
      *
      * @return Service[]
      */
-    private function deployServicesInTransaction(array $hostParents, int $hostId): array
+    private function deployServicesInTransaction(array $hostParents, int $hostId, array $accessGroups = []): array
     {
         $deployedServices = [];
 
@@ -219,6 +225,16 @@ final class DeployServices
                     if ($service !== null) {
                         $deployedServices[] = $service;
                     }
+                }
+            }
+
+            if ($accessGroups !== []) {
+                foreach ($deployedServices as $deployedService) {
+                    $this->writeRealTimeServiceRepository->addServiceToResourceAcls(
+                        $hostId,
+                        $deployedService->getId(),
+                        $accessGroups
+                    );
                 }
             }
 
