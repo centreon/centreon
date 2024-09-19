@@ -3071,7 +3071,7 @@
 									"console.log(response);\r",
 									"pm.test(\"The notification has not been created, because the the channel value is not correct.\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
-									"    pm.expect(response.message).to.eql(\"\\\"Smzzzzzs\\\" is not a valid backing value for enum \\\"Core\\\\Notification\\\\Domain\\\\Model\\\\Channel\\\"\");\r",
+									"    pm.expect(response.message).to.eql('\"Smzzzzzs\" is not a valid backing value for enum Core\\\\Notification\\\\Domain\\\\Model\\\\Channel');\r",
 									"});\r",
 									""
 								],
