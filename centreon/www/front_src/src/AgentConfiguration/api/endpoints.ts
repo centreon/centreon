@@ -1,7 +1,7 @@
 import { buildListingEndpoint } from '@centreon/ui';
 
 export const getAgentConfigurationsEndpoint =
-  '/configuration/agent_configurations';
+  '/configuration/agent-configurations';
 
 export const pollersEndpoint = '/configuration/monitoring-servers';
 
