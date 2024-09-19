@@ -12,7 +12,9 @@ import {
 import TimePeriod from './TimePeriod';
 import { options } from './useTimePeriod';
 
-const initializeComponent = (canEdit = true): void => {
+interface Props{canEdit ?:  boolean, isInGroup ?: boolean}
+
+const initializeComponent = ( { canEdit = true, isInGroup = false } : Props): void => {
   const store = createStore();
 
   store.set(hasEditPermissionAtom, canEdit);
@@ -35,7 +37,7 @@ const initializeComponent = (canEdit = true): void => {
           }}
           onSubmit={cy.stub()}
         >
-          <TimePeriod label="" propertyName="timeperiod" />
+          <TimePeriod isInGroup={isInGroup} propertyName="timeperiod" />
         </Formik>
       </Provider>
     )
@@ -44,7 +46,7 @@ const initializeComponent = (canEdit = true): void => {
 
 describe('Time Period', () => {
   beforeEach(() => {
-    initializeComponent();
+    initializeComponent({});
   });
 
   it('displays the last hour as pre-selected', () => {
@@ -89,14 +91,30 @@ describe('Time Period', () => {
     cy.get('input').eq(1).should('have.value', '04/05/2023 07:00 AM');
     cy.get('input').eq(2).should('have.value', '05/05/2023 08:00 AM');
   });
+
 });
 
 describe('Time period disabled', () => {
-  beforeEach(() => initializeComponent(false));
+  beforeEach(() => initializeComponent({ canEdit :  false}));
 
   it('displays the time period field as disabled when the user is not allowed to edit field', () => {
     cy.findByTestId(labelTimePeriod).should('be.disabled');
 
     cy.makeSnapshot();
   });
+});
+
+describe('Component Title', () => {
+  it('renders label as Typography when isInGroup is true', () => {
+    initializeComponent({isInGroup :  true})
+
+    cy.get('p').should('exist'); 
+  });
+
+  it('renders label Subtitle when isInGroup is false', () => {
+    initializeComponent({isInGroup :  false})
+
+    cy.get('h6').should('exist'); 
+  });
+
 });
