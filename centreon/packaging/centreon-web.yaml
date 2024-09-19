@@ -265,6 +265,13 @@ contents:
     file_info:
       mode: 0755
 
+  - src: "../cron/outdated-token-removal.php"
+    dst: "/usr/share/centreon/cron/outdated-token-removal.php"
+    file_info:
+      mode: 0775
+      owner: "centreon"
+      group: "centreon"
+
   - src: "../lib"
     dst: "/usr/share/centreon/lib"
     file_info:
