@@ -42,6 +42,7 @@ class Escalation implements Mapping\MetadataInterface
      * </example>
      */
     public const TABLE = 'escalation';
+
     /**
      * Use class metadata instead calling of this constant.
      *
