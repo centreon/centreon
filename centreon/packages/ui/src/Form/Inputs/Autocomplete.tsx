@@ -68,6 +68,7 @@ const Autocomplete = ({
     setInputText('');
 
     if (change) {
+      setFieldTouched(fieldName, true, false);
       change({ setFieldValue, value: normalizedNewValues, setFieldTouched });
 
       return;
