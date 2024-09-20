@@ -111,8 +111,8 @@ return RectorConfig::configure()
 
 //        // ******************* coding quality (done) *******************
 //        CompleteDynamicPropertiesRector::class, // OK / Add missing dynamic properties
-//        AddVoidReturnTypeWhereNoReturnRector::class, // OK 215 files / Add return type void to function like without any return
-//        AddClosureVoidReturnTypeWhereNoReturnRector::class, // OK 114 files / Add closure return type void if there is no return
+        AddVoidReturnTypeWhereNoReturnRector::class, // OK 215 files / Add return type void to function like without any return
+        AddClosureVoidReturnTypeWhereNoReturnRector::class, // OK 114 files / Add closure return type void if there is no return
 //        AddParamTypeSplFixedArrayRector::class, // KO 0 files / Add exact fixed array type in known cases
 //        NestedAnnotationToAttributeRector::class, // KO 0 files  / Changed nested annotations to attributes
 //        AttributeKeyToClassConstFetchRector::class, // KO 0 files  / Replace key value on specific attribute to class constant

@@ -73,7 +73,7 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
      * @param int $skey
      * @return void
      */
-    public function insert($fkey, $skey = null)
+    public function insert($fkey, $skey = null): void
     {
         $sql = "INSERT INTO $this->relationTable ($this->secondKey, $this->firstKey) VALUES (?, ?)";
         $this->db->query($sql, [$fkey, $skey]);
@@ -144,7 +144,7 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
      * @param int|null $skey
      * @return void
      */
-    public function delete($fkey, $skey = null)
+    public function delete($fkey, $skey = null): void
     {
         if (isset($fkey) && isset($skey)) {
             $sql = "DELETE FROM $this->relationTable WHERE $this->firstKey = ? AND $this->secondKey = ?";

@@ -33,6 +33,8 @@
  *
  */
 
+use Pimple\Container;
+
 /**
  * Abstract Centreon Object class
  */
@@ -59,11 +61,11 @@ abstract class Centreon_ObjectRt
     protected $uniqueLabelField = null;
 
     /**
-     * Constructor
+     * Centreon_ObjectRt constructor
      *
-     * @return void
+     * @param Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         $this->dbMon = $dependencyInjector['realtime_db'];
     }

@@ -22,14 +22,24 @@
 require_once "Centreon/Object/Object.php";
 
 /**
- * Used for interacting with dependencies
+ * Class
  *
+ * @class Centreon_Object_DependencyHostParent
+ * @description Used for interacting with dependencies
  */
 class Centreon_Object_DependencyHostParent extends Centreon_Object
 {
+    /** @var string */
     protected $table = "dependency_hostParent_relation";
+    /** @var string */
     protected $primaryKey = "dependency_dep_id";
 
+    /**
+     * @param int $hostId
+     *
+     * @return void
+     * @throws PDOException
+     */
     public function removeRelationLastHostDependency(int $hostId): void
     {
         $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id

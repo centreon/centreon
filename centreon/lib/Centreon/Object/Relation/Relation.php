@@ -34,10 +34,12 @@
  *
  */
 
+use Pimple\Container;
+
 /**
- * Centreon Object Relation
+ * Class
  *
- * @author sylvestre
+ * @class Centreon_Object_Relation
  */
 abstract class Centreon_Object_Relation
 {
@@ -57,9 +59,9 @@ abstract class Centreon_Object_Relation
     /**
      * Centreon_Object_Relation constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         $this->db = $dependencyInjector['configuration_db'];
     }

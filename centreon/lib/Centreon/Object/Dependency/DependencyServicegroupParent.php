@@ -22,14 +22,24 @@
 require_once "Centreon/Object/Object.php";
 
 /**
- * Used for interacting with dependencies
+ * Class
  *
+ * @class Centreon_Object_DependencyServicegroupParent
+ * @description Used for interacting with dependencies
  */
 class Centreon_Object_DependencyServicegroupParent extends Centreon_Object
 {
+    /** @var string */
     protected $table = "dependency_servicegroupParent_relation";
+    /** @var string */
     protected $primaryKey = "dependency_dep_id";
 
+    /**
+     * @param int $servicegroupId
+     *
+     * @return void
+     * @throws PDOException
+     */
     public function removeRelationLastServicegroupDependency(int $servicegroupId): void
     {
         $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id

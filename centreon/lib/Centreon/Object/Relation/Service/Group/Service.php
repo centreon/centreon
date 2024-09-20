@@ -46,7 +46,7 @@ class Centreon_Object_Relation_Service_Group_Service extends Centreon_Object_Rel
      * @param int $fkey
      * @param null $key
      */
-    public function insert($fkey, $key = null)
+    public function insert($fkey, $key = null): void
     {
         $hostId = $key['hostId'];
         $serviceId = $key['serviceId'];
@@ -62,7 +62,7 @@ class Centreon_Object_Relation_Service_Group_Service extends Centreon_Object_Rel
      * @param int $serviceId
      * @return void
      */
-    public function delete($fkey, $hostId = null, $serviceId = null)
+    public function delete($fkey, $hostId = null, $serviceId = null):void
     {
         if (isset($fkey) && isset($hostId) && isset($serviceId)) {
             $sql = "DELETE FROM $this->relationTable WHERE $this->firstKey = ? AND host_host_id = ? AND $this->secondKey = ?";

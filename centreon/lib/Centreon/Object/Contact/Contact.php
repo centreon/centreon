@@ -37,19 +37,26 @@
 require_once __DIR__ . '/../Object.php';
 require_once __DIR__ . '/../../../../www/class/centreonContact.class.php';
 
+
 /**
- * Used for interacting with Contact objects
+ * Class
  *
- * @author sylvestre
+ * @class Centreon_Object_Contact
  */
 class Centreon_Object_Contact extends \Centreon_Object
 {
+    /** @var string */
     protected $table = "contact";
+    /** @var string */
     protected $primaryKey = "contact_id";
+    /** @var string */
     protected $uniqueLabelField = "contact_alias";
 
     /**
-     * @inheritDoc
+     * @param $params
+     *
+     * @return false|string|null
+     * @throws PDOException
      */
     public function insert($params = [])
     {

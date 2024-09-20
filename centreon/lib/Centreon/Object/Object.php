@@ -34,6 +34,8 @@
  *
  */
 
+use Pimple\Container;
+
 /**
  * Abstract Centreon Object class
  *
@@ -49,25 +51,28 @@ abstract class Centreon_Object
 
     /**
      * Table name of the object
+     * @var string|null
      */
     protected $table = null;
 
     /**
      * Primary key name
+     * @var string|null
      */
     protected $primaryKey = null;
 
     /**
      * Unique label field
+     * @var string|null
      */
     protected $uniqueLabelField = null;
 
     /**
-     * Constructor
+     * Centreon_Object constructor
      *
-     * @return void
+     * @param Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         $this->db = $dependencyInjector['configuration_db'];
     }
@@ -78,7 +83,9 @@ abstract class Centreon_Object
      * @param string $sqlQuery
      * @param array $sqlParams
      * @param string $fetchMethod
+     *
      * @return array
+     * @throws PDOException
      */
     protected function getResult($sqlQuery, $sqlParams = [], $fetchMethod = "fetchAll")
     {
@@ -92,7 +99,9 @@ abstract class Centreon_Object
      * Used for inserting object into database
      *
      * @param array $params
-     * @return int
+     *
+     * @return false|string|null
+     * @throws PDOException
      */
     public function insert($params = [])
     {
@@ -126,6 +135,8 @@ abstract class Centreon_Object
      * Used for deleteing object from database
      *
      * @param int $objectId
+     *
+     * @throws PDOException
      */
     public function delete($objectId): void
     {
@@ -138,7 +149,9 @@ abstract class Centreon_Object
      *
      * @param int $objectId
      * @param array $params
+     *
      * @return void
+     * @throws PDOException
      */
     public function update($objectId, $params = []): void
     {
@@ -186,6 +199,8 @@ abstract class Centreon_Object
      *
      * @param int $sourceObjectId
      * @param int $duplicateEntries
+     *
+     * @throws PDOException
      * @todo relations
      */
     public function duplicate($sourceObjectId, $duplicateEntries = 1): void
@@ -214,7 +229,9 @@ abstract class Centreon_Object
      *
      * @param int $objectId
      * @param mixed $parameterNames
+     *
      * @return array
+     * @throws PDOException
      */
     public function getParameters($objectId, $parameterNames)
     {
@@ -288,7 +305,9 @@ abstract class Centreon_Object
      *
      * @param string $paramName
      * @param array $paramValues
+     *
      * @return array
+     * @throws PDOException
      */
     public function getIdByParameter($paramName, $paramValues = [])
     {

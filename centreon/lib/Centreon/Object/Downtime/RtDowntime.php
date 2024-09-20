@@ -36,15 +36,19 @@
 require_once "Centreon/Object/ObjectRt.php";
 
 /**
- * Used for interacting with downtime objects
+ * Class
  *
- * @author Baldo Guillaume
+ * @class Centreon_Object_RtDowntime
  */
 class Centreon_Object_RtDowntime extends Centreon_ObjectRt
 {
+    /** @var string */
     protected $table = "downtimes";
+    /** @var string */
     protected $name = "downtime_name";
+    /** @var string */
     protected $primaryKey = "downtime_id";
+    /** @var string */
     protected $uniqueLabelField = "comment_data";
 
     /**

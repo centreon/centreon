@@ -37,14 +37,17 @@
 require_once "Centreon/Object/ObjectRt.php";
 
 /**
- * Used for interacting with acknowledge objects
+ * Class
  *
- * @author Laurent Loic
+ * @class Centreon_Object_RtAcknowledgement
  */
 class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
 {
+    /** @var string */
     protected $table = "acknowledgements";
+    /** @var string */
     protected $primaryKey = "acknowledgement_id";
+    /** @var string */
     protected $uniqueLabelField = "comment_data";
 
     /**
