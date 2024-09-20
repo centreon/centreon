@@ -272,13 +272,6 @@ contents:
     file_info:
       mode: 0755
 
-  - src: "../cron/outdated-token-removal.php"
-    dst: "/usr/share/centreon/cron/outdated-token-removal.php"
-    file_info:
-      mode: 0755
-      owner: "root"
-      group: "root"
-
   - src: "../cron/{centreon-backup.pl, centAcl.php, centAcl-Func.php, centstorage_purge.php, centAcl-Func.php, eventReportBuilder, centreon-send-stats.php, dashboardBuilder, centreon-backup-mysql.sh, centreon-partitioning.php, downtimeManager.php, centKnowledgeSynchronizer.php, }"
     dst: "/usr/share/centreon/cron/"
     file_info:
