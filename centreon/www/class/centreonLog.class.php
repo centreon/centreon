@@ -171,8 +171,6 @@ class CentreonLog
     public const TYPE_LDAP = 3;
     public const TYPE_UPGRADE = 4;
     public const TYPE_PLUGIN_PACK_MANAGER = 5;
-    public const TYPE_BUSINESS_LOG = 6;
-
 
     private const DEFAULT_LOG_FILES = [
         self::TYPE_LOGIN => 'login.log',
