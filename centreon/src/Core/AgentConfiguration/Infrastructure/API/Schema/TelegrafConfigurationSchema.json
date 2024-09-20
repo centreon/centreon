@@ -1,0 +1,51 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Telegraf configuration parameters schema",
+    "type": "object",
+    "required": [
+        "configuration"
+    ],
+    "additionalProperties": true,
+    "properties": {
+        "configuration": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "otel_server_address",
+                "otel_server_port",
+                "otel_public_certificate",
+                "otel_ca_certificate",
+                "otel_private_key",
+                "conf_server_port",
+                "conf_certificate",
+                "conf_private_key"
+            ],
+            "properties": {
+                "otel_server_address": {
+                    "type": "string"
+                },
+                "otel_server_port": {
+                    "type": "integer"
+                },
+                "otel_public_certificate": {
+                    "type": "string"
+                },
+                "otel_ca_certificate": {
+                    "type": "string"
+                },
+                "otel_private_key": {
+                    "type": "string"
+                },
+                "conf_server_port": {
+                    "type": "integer"
+                },
+                "conf_certificate": {
+                    "type": "string"
+                },
+                "conf_private_key": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
