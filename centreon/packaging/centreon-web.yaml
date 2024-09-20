@@ -267,8 +267,8 @@ contents:
     file_info:
       mode: 0664
 
-  - src: "../cron"
-    dst: "/usr/share/centreon/cron"
+  - dst: "/usr/share/centreon/cron"
+    type: dir
     file_info:
       mode: 0755
 
