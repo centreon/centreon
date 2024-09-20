@@ -61,7 +61,7 @@ export const useAddUpdateAgentConfiguration =
     >({
       getEndpoint: ({ id }) =>
         id ? getAgentConfigurationEndpoint(id) : getAgentConfigurationsEndpoint,
-      method: equals(openFormModal, 'add') ? Method.POST : Method.PATCH,
+      method: equals(openFormModal, 'add') ? Method.POST : Method.PUT,
       onMutate: ({ _meta }) => {
         _meta.setSubmitting(true);
       },

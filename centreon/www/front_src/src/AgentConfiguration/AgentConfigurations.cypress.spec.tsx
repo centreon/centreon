@@ -94,7 +94,7 @@ const initialize = ({ isListingEmpty = false }) => {
 
   cy.interceptAPIRequest({
     alias: 'patchAgentConfiguration',
-    method: Method.PATCH,
+    method: Method.PUT,
     path: `./api/latest${getAgentConfigurationEndpoint(1)}`
   });
 
