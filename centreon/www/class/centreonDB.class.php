@@ -759,11 +759,14 @@ class CentreonDB extends PDO
                 $sth->execute($parameters);
             }
         } catch (\PDOException $e) {
-            // skip if we use CentreonDBStatement::execute method
             if (is_null($parameters)) {
-                $string = str_replace("`", "", $queryString);
-                $string = str_replace('*', "\*", $string);
-                $this->logSqlError($string, $e->getMessage());
+                $queryString = str_replace(["`", '*'], ["", "\*"], $queryString);
+                $this->writeDbLog(
+                    'Error while using CentreonDb::query',
+                    ['bind_params' => $parameters],
+                    query: $queryString,
+                    exception: $e
+                );
             }
 
             throw $e;
@@ -799,7 +802,11 @@ class CentreonDB extends PDO
             $rows = $result->fetchAll();
             $this->requestSuccessful++;
         } catch (\PDOException $e) {
-            $this->logSqlError($query_string, $e->getMessage());
+            $this->writeDbLog(
+                'Error while using CentreonDb::getAll',
+                query: $query_string,
+                exception: $e
+            );
             throw new \PDOException($e->getMessage(), hexdec($e->getCode()));
         }
 
