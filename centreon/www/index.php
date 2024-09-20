@@ -59,11 +59,11 @@ if (isset($_SESSION["centreon"])) {
 /*
  * Check PHP version
  *
- *  Centreon >= 22.10 doesn't support PHP < 8.1
+ *  Centreon >= 24.10 doesn't support PHP < 8.2
  *
  */
-if (version_compare(phpversion(), '8.1') < 0) {
-    echo "<div class='msg'> PHP version is < 8.1. Please Upgrade PHP</div>";
+if (version_compare(phpversion(), '8.2') < 0) {
+    echo "<div class='msg'> PHP version is < 8.2. Please Upgrade PHP</div>";
     return;
 }
 
