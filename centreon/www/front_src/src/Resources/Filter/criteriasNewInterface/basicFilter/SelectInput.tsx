@@ -2,14 +2,21 @@ import { useAtomValue } from 'jotai';
 import { equals, find, isEmpty, isNil, propEq, reject, type } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { MultiConnectedAutocompleteField, SelectEntry } from '@centreon/ui';
+import {
+  MultiConnectedAutocompleteField,
+  type SelectEntry
+} from '@centreon/ui';
 
 import { selectedVisualizationAtom } from '../../../Actions/actionsAtoms';
 import { buildResourcesEndpoint } from '../../../Listing/api/endpoint';
 import { Visualization } from '../../../models';
 import { labelHost, labelService } from '../../../translatedLabels';
-import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
-import { ChangedCriteriaParams, DeactivateProps, SectionType } from '../model';
+import type { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
+import {
+  type ChangedCriteriaParams,
+  type DeactivateProps,
+  SectionType
+} from '../model';
 import useInputData from '../useInputsData';
 import { removeDuplicateFromObjectArray } from '../utils';
 
