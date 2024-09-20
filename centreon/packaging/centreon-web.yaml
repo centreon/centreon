@@ -276,8 +276,6 @@ contents:
     dst: "/usr/share/centreon/cron/"
     file_info:
       mode: 0755
-      owner: "root"
-      group: "root"
 
   - src: "../cron/outdated-token-removal.php"
     dst: "/usr/share/centreon/cron/outdated-token-removal.php"
