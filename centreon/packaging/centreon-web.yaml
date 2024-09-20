@@ -275,7 +275,7 @@ contents:
   - src: "../cron/{centreon-backup.pl, centAcl.php, centAcl-Func.php, centstorage_purge.php, centAcl-Func.php, eventReportBuilder, centreon-send-stats.php, dashboardBuilder, centreon-backup-mysql.sh, centreon-partitioning.php, downtimeManager.php, centKnowledgeSynchronizer.php, }"
     dst: "/usr/share/centreon/cron/"
     file_info:
-      mode: 0775
+      mode: 0755
       owner: "root"
       group: "root"
 
