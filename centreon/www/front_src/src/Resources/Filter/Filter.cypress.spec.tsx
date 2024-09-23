@@ -341,7 +341,7 @@ const initializeRequests = (): void => {
 
   setupIntercept({
     alias: 'pollersRequest',
-    fixtureFile: 'resources/filter/pollers.json',
+    fixtureFile: 'resources/filter/pollers/pollers.json',
     path: '**/monitoring/servers?*'
   });
 
