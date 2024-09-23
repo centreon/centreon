@@ -25,6 +25,7 @@ namespace Core\AgentConfiguration\Application\Validation;
 
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfigurationRequest;
+use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\UpdateAgentConfigurationRequest;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\Type;
 
@@ -44,7 +45,7 @@ class TelegrafValidator implements TypeValidatorInterface
     /**
      * @inheritDoc
      */
-    public function validateParametersOrFail(AddAgentConfigurationRequest $request): void
+    public function validateParametersOrFail(AddAgentConfigurationRequest|UpdateAgentConfigurationRequest $request): void
     {
         // TODO: do we need to check certif/key filename characters
         // /** @var _TelegrafParameters $configuration */

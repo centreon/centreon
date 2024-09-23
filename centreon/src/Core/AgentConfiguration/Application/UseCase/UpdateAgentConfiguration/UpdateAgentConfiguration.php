@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration;
+namespace Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
@@ -33,14 +33,14 @@ use Core\AgentConfiguration\Application\Factory\AgentConfigurationFactory;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Application\Repository\WriteAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
-use Core\AgentConfiguration\Domain\Model\NewAgentConfiguration;
-use Core\AgentConfiguration\Domain\Model\Poller;
-use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\Common\UseCase\PresenterInterface;
 
-final class AddAgentConfiguration
+final class UpdateAgentConfiguration
 {
     use LoggerTrait;
 
@@ -54,8 +54,8 @@ final class AddAgentConfiguration
     }
 
     public function __invoke(
-        AddAgentConfigurationRequest $request,
-        AddAgentConfigurationPresenterInterface $presenter
+        UpdateAgentConfigurationRequest $request,
+        PresenterInterface $presenter
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW)) {
@@ -63,8 +63,16 @@ final class AddAgentConfiguration
                     "User doesn't have sufficient rights to access agent configurations",
                     ['user_id' => $this->user->getId()]
                 );
-                $presenter->presentResponse(
+                $presenter->setResponseStatus(
                     new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
+                );
+
+                return;
+            }
+
+            if (null === $agentConfiguration = $this->readAcRepository->find($request->id)) {
+                $presenter->setResponseStatus(
+                    new NotFoundResponse('Agent Configuration')
                 );
 
                 return;
@@ -72,77 +80,51 @@ final class AddAgentConfiguration
 
             $request->pollerIds = array_unique($request->pollerIds);
 
-            $this->validator->validateRequestOrFail($request);
+            $this->validator->validateRequestOrFail($request, $agentConfiguration);
 
-            $newAc = AgentConfigurationFactory::createNewAgentConfiguration(
+            $updatedAgentConfiguration = AgentConfigurationFactory::updateAgentConfiguration(
+                agentConfiguration: $agentConfiguration,
                 name: $request->name,
-                type: Type::from($request->type),
-                parameters: $request->configuration,
+                parameters: $request->configuration
             );
 
-            $agentConfigurationId = $this->save($newAc, $request->pollerIds);
+            $this->save($updatedAgentConfiguration, $request->pollerIds);
 
-            if (null === $agentConfiguration = $this->readAcRepository->find($agentConfigurationId)) {
-                throw AgentConfigurationException::errorWhileRetrievingObject();
-            }
-
-            $pollers = $this->readAcRepository->findPollersByAcId($agentConfigurationId);
-
-            $presenter->presentResponse($this->createResponse($agentConfiguration, $pollers));
+            $presenter->setResponseStatus(New NoContentResponse());
         } catch (AssertionFailedException|\InvalidArgumentException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->presentResponse(new InvalidArgumentResponse($ex));
+            $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->presentResponse(new ErrorResponse(
+            $presenter->setResponseStatus(new ErrorResponse(
                 $ex instanceof AgentConfigurationException
                     ? $ex
-                    : AgentConfigurationException::addAc()
+                    : AgentConfigurationException::updateAc()
             ));
         }
     }
 
     /**
-     * @param NewAgentConfiguration $agentConfiguration
+     * @param AgentConfiguration $agentConfiguration
      * @param int[] $pollers
      *
      * @throws \Throwable
-     *
-     * @return int
      */
-    private function save(NewAgentConfiguration $agentConfiguration, array $pollers): int
+    private function save(AgentConfiguration $agentConfiguration, array $pollers): void
     {
         try {
             $this->dataStorageEngine->startTransaction();
 
-            $newAcId = $this->writeAcRepository->add($agentConfiguration);
-            $this->writeAcRepository->linkToPollers($newAcId, $pollers);
+            $this->writeAcRepository->update($agentConfiguration);
+            $this->writeAcRepository->removePollers($agentConfiguration->getId());
+            $this->writeAcRepository->linkToPollers($agentConfiguration->getId(), $pollers);
 
             $this->dataStorageEngine->commitTransaction();
         } catch (\Throwable $ex) {
-            $this->error("Rollback of 'AddAgentConfiguration' transaction.");
+            $this->error("Rollback of 'UpdateAgentConfiguration' transaction.");
             $this->dataStorageEngine->rollbackTransaction();
 
             throw $ex;
         }
-
-        return $newAcId;
-    }
-
-    /**
-     * @param AgentConfiguration $agentConfiguration
-     * @param Poller[] $pollers
-     *
-     * @return AddAgentConfigurationResponse
-     */
-    private function createResponse(AgentConfiguration $agentConfiguration, array $pollers): AddAgentConfigurationResponse
-    {
-        return new AddAgentConfigurationResponse(
-            id: $agentConfiguration->getId(),
-            type: $agentConfiguration->getType(),
-            name: $agentConfiguration->getName(),
-            configuration: $agentConfiguration->getConfiguration()->getData(),
-            pollers: $pollers
-        );
     }
 }

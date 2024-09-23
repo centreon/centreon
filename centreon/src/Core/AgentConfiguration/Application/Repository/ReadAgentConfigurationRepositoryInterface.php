@@ -46,13 +46,13 @@ interface ReadAgentConfigurationRepositoryInterface
     /**
      * Find an Agent Configuration (AC).
      *
-     * @param int $agentConfigurationcId
+     * @param int $agentConfigurationId
      *
      * @throws \Throwable
      *
      * @return ?AgentConfiguration
      */
-    public function find(int $agentConfigurationcId): ?AgentConfiguration;
+    public function find(int $agentConfigurationId): ?AgentConfiguration;
 
     /**
      * Find all the pollers associated with any AC of the specified type.

@@ -73,7 +73,7 @@ class DbWriteAgentConfigurationRepository  extends AbstractRepositoryRDB impleme
                 UPDATE `:db`.`agent_configuration`
                 SET
                     `name` = :name,
-                    `configuration` = :configuration,
+                    `configuration` = :configuration
                 WHERE
                     `id` = :id
                 SQL

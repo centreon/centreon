@@ -38,7 +38,7 @@ class AgentConfigurationFactory
      *
      * @return NewAgentConfiguration
      */
-    public function createNewAgentConfiguration(
+    public static function createNewAgentConfiguration(
         string $name,
         Type $type,
         array $parameters,
@@ -62,7 +62,7 @@ class AgentConfigurationFactory
      *
      * @return AgentConfiguration
      */
-    public function createAgentConfiguration(
+    public static function createAgentConfiguration(
         int $id,
         string $name,
         Type $type,
@@ -80,35 +80,27 @@ class AgentConfigurationFactory
         );
     }
 
-    // /**
-    //  * @param Acc $agentConfigurationc
-    //  * @param string $name
-    //  * @param int $updatedBy
-    //  * @param array<string,mixed> $parameters
-    //  * @param null|string $description
-    //  *
-    //  * @return Acc
-    //  */
-    // public function updateAcc(
-    //     Acc $agentConfigurationc,
-    //     string $name,
-    //     int $updatedBy,
-    //     array $parameters,
-    //     ?string $description = null,
-    // ): Acc
-    // {
-    //     return new Acc(
-    //         id: $agentConfigurationc->getId(),
-    //         name: $name,
-    //         type: $agentConfigurationc->getType(),
-    //         createdBy: $agentConfigurationc->getCreatedBy(),
-    //         updatedBy: $updatedBy,
-    //         createdAt: $agentConfigurationc->getCreatedAt(),
-    //         updatedAt: new \DateTimeImmutable(),
-    //         description: $description,
-    //         parameters: match ($agentConfigurationc->getType()) {
-    //             Type::VMWARE_V6 => VmWareV6Parameters::update($this->encryption, $agentConfigurationc->getParameters(), $parameters),
-    //         }
-    //     );
-    // }
+    /**
+     * @param AgentConfiguration $agentConfiguration
+     * @param string $name
+     * @param array<string,mixed> $parameters
+     *
+     * @return AgentConfiguration
+     */
+    public static function updateAgentConfiguration(
+        AgentConfiguration $agentConfiguration,
+        string $name,
+        array $parameters,
+    ): AgentConfiguration
+    {
+        return new AgentConfiguration(
+            id: $agentConfiguration->getId(),
+            name: $name,
+            type: $agentConfiguration->getType(),
+            configuration: match ($agentConfiguration->getType()) {
+                Type::TELEGRAF => new TelegrafConfigurationParameters($parameters),
+                default => throw new \Exception('This error should never happen')
+            }
+        );
+    }
 }
