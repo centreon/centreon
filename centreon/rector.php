@@ -160,7 +160,6 @@ return RectorConfig::configure()
 //        IfIssetToCoalescingRector::class, // OK 23 files / Change if with isset and return to coalesce (7.0)
 //        TernaryToNullCoalescingRector::class, // OK 120 files / Changes unneeded null check to ?? operator (7.0)
 //        Php4ConstructorRector::class, // KO 0 files /  Changes PHP 4 style constructor to __construct (7.0)
-//        RemoveExtraParametersRector::class, // OK 48 files / Remove extra parameters (7.1)
 //        AssignArrayToStringRector::class, // KO 0 files / String cannot be turned into array by assignment anymore (7.1)
 //        MultiExceptionCatchRector::class, // OK 4 files / Changes multi catch of same exception to single one | separated. (7.1)
 //        IsIterableRector::class, // KO 0 files / Changes is_array + Traversable check to is_iterable (7.1)
@@ -211,7 +210,8 @@ return RectorConfig::configure()
 //        NullToStrictStringFuncCallArgRector::class, // Change null to strict string defined function call args (8.1)
 
 //        // ******************* NOT TO USE *******************
-        //        TernaryFalseExpressionToIfRector::class, // OK 26 files /Change ternary with false to if and explicit call
+//        TernaryFalseExpressionToIfRector::class, // OK 26 files /Change ternary with false to if and explicit call
+//        RemoveExtraParametersRector::class, // OK 48 files / Remove extra parameters (7.1)
 
 
 //        // ******************* TO DISCUSS (not done) *******************

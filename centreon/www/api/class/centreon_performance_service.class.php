@@ -163,13 +163,18 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
         $query .= $additionalCondition . ') ';
         if (isset($acl)) {
             $virtualObject = $this->getVirtualServicesCondition(
-                $additionalTables
+                $additionalTables,
+                $additionalCondition,
+                $additionalValues,
+                $acl
             );
             $virtualServicesCondition = $virtualObject['query'];
             $virtualValues = $virtualObject['value'];
         } else {
             $virtualObject = $this->getVirtualServicesCondition(
-                $additionalTables
+                $additionalTables,
+                $additionalCondition,
+                $additionalValues
             );
             $virtualServicesCondition = $virtualObject['query'];
             $virtualValues = $virtualObject['value'];

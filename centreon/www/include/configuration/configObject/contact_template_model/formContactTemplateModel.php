@@ -666,7 +666,7 @@ if ($form->validate() && $from_list_menu == false) {
 
         foreach ($select as $key => $value) {
             if (!$value) {
-                updateContactInDB($value);
+                updateContactInDB($value, true);
 
                 $eventDispatcher->notify($eventContext, EventDispatcher::EVENT_UPDATE, $eventData);
             }

@@ -297,7 +297,7 @@ if ($form->validate()) {
     if ($form->getSubmitValue("submitA")) {
         $depObj->setValue(insertMetaServiceDependencyInDB());
     } elseif ($form->getSubmitValue("submitC")) {
-        updateMetaServiceDependencyInDB($depObj->getValue());
+        updateMetaServiceDependencyInDB($depObj->getValue("dep_id"));
     }
     $o = null;
     $valid = true;

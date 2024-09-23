@@ -32,7 +32,7 @@ function usage($command)
 
 if (count($argv) != 2) {
     fwrite(STDERR, "Incorrect number of arguments\n");
-    usage();
+    usage($argv[0]);
     exit(1);
 }
 
@@ -40,7 +40,7 @@ $centreon_etc = realpath($argv[1]);
 
 if (!file_exists($centreon_etc . '/centreon.conf.php')) {
     fwrite(STDERR, "Centreon configuration file doesn't exists\n");
-    usage();
+    usage($argv[0]);
     exit(1);
 }
 
