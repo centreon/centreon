@@ -20,7 +20,7 @@ export interface ShowInput {
 }
 
 export interface WidgetPropertyProps {
-  baseEndpoint: string;
+  baseEndpoint?: string;
   className?: string;
   datePicker?: {
     maxDays?: number;
