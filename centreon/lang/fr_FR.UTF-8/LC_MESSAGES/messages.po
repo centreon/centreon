@@ -19449,3 +19449,6 @@ msgstr "Attention, les domaines en dehors de votre organisation doivent être au
 
 msgid "Web page preview"
 msgstr "Aperçu de la page web"
+
+msgid "If tickets are enabled, only the “by service” view is available."
+msgstr "Si les tickets sont activés, seule la vue par service est disponible."

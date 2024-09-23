@@ -18158,3 +18158,6 @@ msgstr ""
 
 #  msgid "Web page preview"
 #  msgstr ""
+
+#  msgid "If tickets are enabled, only the “by service” view is available."
+#  msgstr ""
