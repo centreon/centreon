@@ -2935,16 +2935,20 @@ function updateServiceNotifOptionTimeperiod(int $serviceId, $ret = array())
 {
     global $pearDB;
 
+    $queryParams = [];
     $request = <<<'SQL'
         UPDATE `service` SET `timeperiod_tp_id2` = :timeperiod_tp_id2
         WHERE `service_id` = :service_id
         SQL;
-    $statement = $pearDB->prepare($request);
+
+    $stmt = $pearDB->prepareQuery($request);
+    $queryParams['service_id'] = $serviceId;
+
     isset($ret['timeperiod_tp_id2'])
-        ? $statement->bindValue(':timeperiod_tp_id2', $ret['timeperiod_tp_id2'], \PDO::PARAM_STR)
-        : $statement->bindValue(':timeperiod_tp_id2', null, \PDO::PARAM_NULL);
-    $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
-    $statement->execute();
+        ? $queryParams['timeperiod_tp_id2'] = (int) $ret['timeperiod_tp_id2']
+        : $queryParams['timeperiod_tp_id2'] = null;
+
+    $pearDB->executePreparedQuery($stmt, $queryParams);
 }
 
 // For massive change. incremental mode
