@@ -2935,18 +2935,29 @@ function updateServiceNotifOptionTimeperiod(int $serviceId, $ret = array())
 {
     global $pearDB;
 
-    $queryParams = [];
-    $request = <<<'SQL'
-        UPDATE `service` SET `timeperiod_tp_id2` = :timeperiod_tp_id2
-        WHERE `service_id` = :service_id
-        SQL;
+    try {
+        $queryParams = [];
+        $request = <<<'SQL'
+            UPDATE `service` SET `timeperiod_tp_id2` = :timeperiod_tp_id2
+            WHERE `service_id` = :service_id
+            SQL;
 
-    $stmt = $pearDB->prepareQuery($request);
-    $queryParams['service_id'] = $serviceId;
+        $stmt = $pearDB->prepareQuery($request);
+        $queryParams['service_id'] = $serviceId;
 
-    $queryParams['timeperiod_tp_id2'] = $ret['timeperiod_tp_id2'] ?? null;
+        $queryParams['timeperiod_tp_id2'] = $ret['timeperiod_tp_id2'] ?? null;
 
-    $pearDB->executePreparedQuery($stmt, $queryParams);
+        $pearDB->executePreparedQuery($stmt, $queryParams);
+    } catch (CentreonDbException $ex) {
+        CentreonLog::create()->error(
+            CentreonLog::LEVEL_ERROR,
+            $ex->getMessage(),
+            ['service_id' => $serviceId],
+            $ex
+        );
+
+        throw $ex;
+    }
 }
 
 // For massive change. incremental mode
