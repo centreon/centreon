@@ -135,7 +135,6 @@ function multipleCommandInDB($commands = array(), $nbrDup = array())
                     $fields["command_name"] = $command_name;
                 }
                 $fields["command_locked"] = 0;
-                var_Dump($fields);
             }
 
             if (isset($command_name) && testCmdExistence($command_name)) {
