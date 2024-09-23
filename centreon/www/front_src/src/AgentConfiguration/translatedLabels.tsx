@@ -38,3 +38,5 @@ export const labelConfigurationServer = 'Configuration server';
 export const labelAgentConfigurationCreated = 'Agent configuration created';
 export const labelAgentConfigurationUpdated = 'Agent configuration updated';
 export const labelUpdateAgentConfiguration = 'Update agent configuration';
+export const labelOTLPReceiver = 'OTLP Receiver';
+export const labelHostConfigurations = 'Host configurations';

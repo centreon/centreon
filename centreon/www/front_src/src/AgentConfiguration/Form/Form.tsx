@@ -1,5 +1,8 @@
 import { Form } from '@centreon/ui';
-import { equals } from 'ramda';
+import { useAtomValue } from 'jotai';
+import { equals, isNil, isNotNil } from 'ramda';
+import { useEffect, useRef } from 'react';
+import { agentTypeFormAtom } from '../atoms';
 import { useAddUpdateAgentConfiguration } from '../hooks/useAddUpdateAgentConfiguration';
 import {
   AgentConfigurationForm as AgentConfigurationFormModel,
@@ -14,33 +17,61 @@ interface Props {
   isLoading?: boolean;
 }
 
-const defaultInitialValues: AgentConfigurationFormModel = {
+const getDefaultInitialValues = (
+  agentType: AgentType | null
+): AgentConfigurationFormModel => ({
   name: '',
-  type: agentTypes.find(({ id }) => equals(id, AgentType.Telegraf)) || null,
+  type: agentTypes.find(({ id }) => equals(id, agentType)),
   pollers: [],
-  configuration: {
-    otelServerAddress: '',
-    otelServerPort: '',
-    confServerPort: '',
-    otelPrivateKey: '',
-    otelCaCertificate: '',
-    otelPublicCertificate: '',
-    confPrivateKey: '',
-    confCertificate: ''
-  }
-};
+  configuration: equals(agentType, AgentType.Telegraf)
+    ? {
+        otelServerAddress: '',
+        otelServerPort: '',
+        confServerPort: '',
+        otelPrivateKey: '',
+        otelCaCertificate: '',
+        otelPublicCertificate: '',
+        confPrivateKey: '',
+        confCertificate: ''
+      }
+    : {
+        isReverse: true,
+        otlpReceiverAddress: '',
+        otlpReceiverPort: '',
+        otlpCertificate: '',
+        otlpCaCertificate: '',
+        otlpPrivateKey: '',
+        hosts: [
+          {
+            address: '',
+            port: '',
+            certificate: '',
+            key: ''
+          }
+        ]
+      }
+});
 
 const AgentConfigurationForm = ({
-  initialValues = defaultInitialValues,
+  initialValues,
   isLoading
 }: Props): JSX.Element => {
+  const agentTypeForm = useAtomValue(agentTypeFormAtom);
+  const previousAgentTypeFormRef = useRef(agentTypeForm);
   const { groups, inputs } = useInputs();
 
   const validationSchema = useValidationSchema();
   const { submit } = useAddUpdateAgentConfiguration();
 
+  useEffect(() => {
+    if (!equals(previousAgentTypeFormRef.current, agentTypeForm)) {
+      previousAgentTypeFormRef.current = agentTypeForm;
+    }
+  }, [agentTypeForm]);
+
   return (
     <Form<AgentConfigurationFormModel>
+      enableReinitialize
       Buttons={Buttons}
       validationSchema={validationSchema}
       isLoading={isLoading}
@@ -48,7 +79,14 @@ const AgentConfigurationForm = ({
       isCollapsible
       areGroupsOpen
       inputs={inputs}
-      initialValues={initialValues}
+      initialValues={
+        (!equals(previousAgentTypeFormRef.current, agentTypeForm) &&
+          isNotNil(agentTypeForm) &&
+          isNotNil(previousAgentTypeFormRef.current)) ||
+        isNil(initialValues)
+          ? getDefaultInitialValues(agentTypeForm)
+          : initialValues
+      }
       submit={submit}
     />
   );

@@ -1,8 +1,10 @@
 import { Group, InputProps, InputType, SelectEntry } from '@centreon/ui';
 import { capitalize } from '@mui/material';
-import { isEmpty, isNil } from 'ramda';
+import { useAtom } from 'jotai';
+import { equals, isEmpty, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { pollersEndpoint } from '../api/endpoints';
+import { agentTypeFormAtom } from '../atoms';
 import { AgentType } from '../models';
 import {
   labelAgentConfiguration,
@@ -10,9 +12,11 @@ import {
   labelCaCertificate,
   labelCertificate,
   labelConfigurationServer,
+  labelHostConfigurations,
   labelListeningAddress,
   labelName,
   labelOTelServer,
+  labelOTLPReceiver,
   labelPollerConfiguration,
   labelPollers,
   labelPort,
@@ -20,10 +24,12 @@ import {
   labelPublicCertificate
 } from '../translatedLabels';
 import Empty from './Empty';
+import HostConfigurations from './HostConfigurations/HostConfigurations';
 import { portRegex } from './useValidationSchema';
 
 export const agentTypes: Array<SelectEntry> = [
-  { id: AgentType.Telegraf, name: capitalize(AgentType.Telegraf) }
+  { id: AgentType.Telegraf, name: capitalize(AgentType.Telegraf) },
+  { id: AgentType.CMA, name: 'CMA' }
 ];
 
 export const useInputs = (): {
@@ -31,6 +37,11 @@ export const useInputs = (): {
   inputs: Array<InputProps>;
 } => {
   const { t } = useTranslation();
+  const [agentTypeForm, setAgentTypeForm] = useAtom(agentTypeFormAtom);
+
+  const isCMA = equals(agentTypeForm, AgentType.CMA);
+  const listeningAddressProperty = `configuration.${isCMA ? 'otlpReceiverAddress' : 'otelServerAddress'}`;
+  const listeningPortProperty = `configuration.${isCMA ? 'otlpReceiverPort' : 'otelServerProps'}`;
 
   return {
     groups: [
@@ -63,6 +74,10 @@ export const useInputs = (): {
         autocomplete: {
           fullWidth: false,
           options: agentTypes
+        },
+        change: ({ setFieldValue, value }) => {
+          setAgentTypeForm(value.id);
+          setFieldValue('type', value);
         }
       },
       {
@@ -89,38 +104,35 @@ export const useInputs = (): {
               type: InputType.Grid,
               fieldName: '',
               label: '',
-              additionalLabel: t(labelOTelServer),
+              additionalLabel: t(isCMA ? labelOTLPReceiver : labelOTelServer),
               grid: {
                 columns: [
                   {
                     type: InputType.Text,
-                    fieldName: 'configuration.otelServerAddress',
+                    fieldName: listeningAddressProperty,
                     required: true,
                     label: t(labelListeningAddress),
                     change: ({ setFieldValue, setFieldTouched, value }) => {
                       const port = value.match(portRegex);
 
                       if (isNil(port) || isEmpty(port)) {
-                        setFieldValue('configuration.otelServerAddress', value);
+                        setFieldValue(listeningAddressProperty, value);
                         return;
                       }
 
                       const newAddress = value.replace(port[0], '');
 
-                      setFieldTouched('configuration.otelServerPort', true);
+                      setFieldTouched(listeningPortProperty, true);
+                      setFieldValue(listeningAddressProperty, newAddress);
                       setFieldValue(
-                        'configuration.otelServerAddress',
-                        newAddress
-                      );
-                      setFieldValue(
-                        'configuration.otelServerPort',
+                        listeningPortProperty,
                         port[0].substring(1)
                       );
                     }
                   },
                   {
                     type: InputType.Text,
-                    fieldName: 'configuration.otelServerPort',
+                    fieldName: listeningPortProperty,
                     required: true,
                     label: t(labelPort),
                     text: {
@@ -160,6 +172,7 @@ export const useInputs = (): {
             {
               type: InputType.Grid,
               fieldName: '',
+              hideInput: (values) => equals(values?.type?.id, AgentType.CMA),
               label: '',
               additionalLabel: t(labelConfigurationServer),
               grid: {
@@ -195,6 +208,16 @@ export const useInputs = (): {
                     label: t(labelPrivateKey)
                   }
                 ]
+              }
+            },
+            {
+              type: InputType.Custom,
+              fieldName: 'host_configurations',
+              label: labelHostConfigurations,
+              hideInput: (values) =>
+                equals(values?.type?.id, AgentType.Telegraf),
+              custom: {
+                Component: HostConfigurations
               }
             }
           ]

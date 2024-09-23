@@ -1,10 +1,8 @@
+import { equals } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Schema, array, mixed, number, object, string } from 'yup';
-import {
-  AgentConfigurationConfiguration,
-  AgentConfigurationForm
-} from '../models';
+import { Schema, array, boolean, mixed, number, object, string } from 'yup';
+import { AgentConfigurationForm, AgentType } from '../models';
 import {
   labelAddressInvalid,
   labelExtensionNotAllowed,
@@ -30,6 +28,53 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
       }),
     []
   );
+  const portValidation = number()
+    .min(1, t(labelPortMustStartFrom1))
+    .max(65535, t(labelPortExpectedAtMost))
+    .required(t(labelRequired));
+
+  const telegrafConfigurationSchema = {
+    otelServerAddress: string()
+      .test({
+        name: 'is-address-valid',
+        message: t(labelAddressInvalid),
+        exclusive: true,
+        test: (address) =>
+          address?.match(ipAddressRegex) && !address.match(portRegex)
+      })
+      .required(t(labelRequired)),
+    otelServerPort: portValidation,
+    confServerPort: portValidation,
+    otelPublicCertificate: filenameValidation,
+    otelCaCertificate: filenameValidation,
+    otelPrivateKey: filenameValidation,
+    confCertificate: filenameValidation,
+    confPrivateKey: filenameValidation
+  };
+
+  const CMAConfigurationSchema = {
+    isReverse: boolean(),
+    otlpReceiverAddress: requiredString,
+    otlpReceiverPort: portValidation,
+    otlpCertificate: requiredString,
+    otlpCaCertificate: requiredString,
+    otlpPrivateKey: requiredString,
+    hosts: array()
+      .of(
+        object({
+          address: requiredString,
+          port: portValidation,
+          certificate: requiredString,
+          key: requiredString
+        })
+      )
+      .when('isReverse', {
+        is: true,
+        // biome-ignore lint/suspicious/noThenProperty: <explanation>
+        then: (schema) => schema.min(1),
+        otherwise: (schema) => schema
+      })
+  };
 
   return object<AgentConfigurationForm>({
     name: requiredString,
@@ -42,29 +87,11 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
         })
       )
       .min(1, t(labelRequired)),
-    configuration: object<AgentConfigurationConfiguration>({
-      otelServerAddress: string()
-        .test({
-          name: 'is-address-valid',
-          message: t(labelAddressInvalid),
-          exclusive: true,
-          test: (address) =>
-            address?.match(ipAddressRegex) && !address.match(portRegex)
-        })
-        .required(t(labelRequired)),
-      otelServerPort: number()
-        .min(1, t(labelPortMustStartFrom1))
-        .max(65535, t(labelPortExpectedAtMost))
-        .required(t(labelRequired)),
-      confServerPort: number()
-        .min(1, t(labelPortMustStartFrom1))
-        .max(65535, t(labelPortExpectedAtMost))
-        .required(t(labelRequired)),
-      otelPublicCertificate: filenameValidation,
-      otelCaCertificate: filenameValidation,
-      otelPrivateKey: filenameValidation,
-      confCertificate: filenameValidation,
-      confPrivateKey: filenameValidation
+    configuration: object().when('type', {
+      is: (type) => equals(type.id, AgentType.Telegraf),
+      // biome-ignore lint/suspicious/noThenProperty: <explanation>
+      then: (schema) => schema.shape(telegrafConfigurationSchema),
+      otherwise: (schema) => schema.shape(CMAConfigurationSchema)
     })
   });
 };
