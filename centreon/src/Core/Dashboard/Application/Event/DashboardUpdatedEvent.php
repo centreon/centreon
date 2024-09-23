@@ -21,19 +21,40 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request;
+namespace Core\Dashboard\Application\Event;
 
+use Core\Media\Domain\Model\Media;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-final class ThumbnailRequestDto
+final class DashboardUpdatedEvent
 {
-    public UploadedFile $file;
-
+    /**
+     * @param int $dashboardId
+     * @param Media|UploadedFile $media
+     * @param string $directory
+     */
     public function __construct(
-        public ?int $id,
-        public string $directory,
-        public string $name,
+        private readonly int $dashboardId,
+        private string $directory,
+        private readonly Media|UploadedFile $media,
     ) {
     }
-}
 
+    /**
+     * @return Media|UploadedFile
+     */
+    public function getMedia(): Media|UploadedFile
+    {
+        return $this->media;
+    }
+
+    public function getDashboardId(): int
+    {
+        return $this->dashboardId;
+    }
+
+    public function getDirectory(): string
+    {
+        return $this->directory;
+    }
+}

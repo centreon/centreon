@@ -24,12 +24,9 @@ declare(strict_types = 1);
 namespace Core\Media\Application\UseCase\UpdateMedia;
 
 use Assert\AssertionFailedException;
-use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Media\Application\Exception\MediaException;
@@ -52,7 +49,6 @@ final class UpdateMedia
         private readonly WriteMediaRepositoryInterface $writeMediaRepository,
         private readonly ReadMediaRepositoryInterface $readMediaRepository,
         private readonly DataStorageEngineInterface $dataStorageEngine,
-        private readonly ContactInterface $user,
     ) {
     }
 
@@ -64,17 +60,6 @@ final class UpdateMedia
     public function __invoke(int $mediaId, UpdateMediaRequest $request, UpdateMediaPresenterInterface $presenter): void
     {
         try {
-            if (! $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_PARAMETERS_IMAGES_RW)) {
-                $this->error(
-                    "User doesn't have sufficient rights to update a media", ['user_id' => $this->user->getId()]
-                );
-                $presenter->presentResponse(
-                    new ForbiddenResponse(MediaException::updateNotAllowed()->getMessage())
-                );
-
-                return;
-            }
-
             $media = $this->readMediaRepository->findById($mediaId);
 
             if ($media === null) {

@@ -9,7 +9,7 @@ services:
     Core\Dashboard\:
         resource: '../../../../Core/Dashboard/*'
 
-    Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboard:
+    Core\Dashboard\Application\UseCase\AddDashboardThumbnailRelation\AddDashboardThumbnailRelation:
         arguments:
             $mediaRepository: '@Core\Media\Infrastructure\Repository\DbReadMediaRepository'
 

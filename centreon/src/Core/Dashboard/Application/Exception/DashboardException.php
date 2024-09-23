@@ -126,6 +126,14 @@ class DashboardException extends \Exception
     /**
      * @return self
      */
+    public static function errorWhileLinkingDashboardAndThumbnail(): self
+    {
+        return new self(_('Error while linking a dashboard to its thumbnail'));
+    }
+
+    /**
+     * @return self
+     */
     public static function errorTryingToUpdateAPanelWhichDoesNotBelongsToTheDashboard(): self
     {
         return new self(_('Error while trying to update a widget which belongs to another dashboard'));

@@ -37,7 +37,7 @@ use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardPanelRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboard;
-use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboardRequest;
+use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboardRequestDto;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Refresh;
@@ -61,7 +61,7 @@ beforeEach(function (): void {
         $this->isCloudPlatform = false
     );
 
-    $this->testedPartialUpdateDashboardRequest = new PartialUpdateDashboardRequest();
+    $this->testedPartialUpdateDashboardRequest = new PartialUpdateDashboardRequestDto();
     $this->testedPartialUpdateDashboardRequest->name = 'updated-dashboard';
 
     $this->testedDashboard = new Dashboard(
