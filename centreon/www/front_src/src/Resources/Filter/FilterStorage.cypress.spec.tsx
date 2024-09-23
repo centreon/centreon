@@ -92,34 +92,56 @@ const emptyListData = {
 
 const linuxServersHostGroup = {
   id: 0,
-  name: 'Linux-servers'
+  name: 'Linux-servers',
+  formattedName: 'Linux-servers'
 };
 
 const webAccessServiceGroup = {
   id: 0,
-  name: 'Web-access'
+  name: 'Web-access',
+  formattedName: 'Web-access'
+};
+
+const monitoringServers = {
+  id: 0,
+  name: 'Poller test',
+  formattedName: 'Poller\\stest'
 };
 
 const filter = {
   criterias: [
     {
       name: 'resource_types',
-      value: [{ id: 'host', name: labelHost }]
+      type: 'multi_select',
+      value: [{ id: 'host', name: labelHost, formattedName: labelHost }]
     },
     {
       name: 'states',
+      type: 'multi_select',
       value: [{ id: 'acknowledged', name: labelAcknowledged }]
     },
-    { name: 'statuses', value: [{ id: 'OK', name: labelOk }] },
+    {
+      name: 'statuses',
+      type: 'multi_select',
+      value: [{ id: 'OK', name: labelOk }]
+    },
     {
       name: 'host_groups',
+      type: 'multi_select',
       object_type: 'host_groups',
       value: [linuxServersHostGroup]
     },
     {
       name: 'service_groups',
+      type: 'multi_select',
       object_type: 'service_groups',
       value: [webAccessServiceGroup]
+    },
+    {
+      name: 'monitoring_servers',
+      type: 'multi_select',
+      object_type: 'monitoring_servers',
+      value: [monitoringServers]
     },
     { name: 'search', value: 'Search me' },
     { name: 'sort', value: [defaultSortField, defaultSortOrder] }
@@ -225,7 +247,7 @@ describe('Filter storage', () => {
       'http://localhost:9092': {
         MSW_COOKIE_STORE: '[]',
         'centreon-resource-status-23.10-filter':
-          '{"criterias":[{"name":"resource_types","object_type":null,"type":"multi_select","value":[{"id":"host","name":"Host"}]},{"name":"states","object_type":null,"type":"multi_select","value":[]},{"name":"statuses","object_type":null,"type":"multi_select","value":[{"id":"UP","name":"Up"},{"id":"DOWN","name":"Down"}]},{"name":"status_types","object_type":null,"type":"multi_select","value":[]},{"name":"host_groups","object_type":"host_groups","type":"multi_select","value":[{"id":0,"name":"HG"}]},{"name":"service_groups","object_type":"service_groups","type":"multi_select","value":[]},{"name":"monitoring_servers","object_type":"monitoring_servers","type":"multi_select","value":[]},{"name":"host_categories","object_type":"host_categories","type":"multi_select","value":[]},{"name":"service_categories","object_type":"service_categories","type":"multi_select","value":[]},{"name":"host_severities","object_type":"host_severities","type":"multi_select","value":[]},{"name":"host_severity_levels","object_type":"host_severity_levels","type":"multi_select","value":[]},{"name":"service_severities","object_type":"service_severities","type":"multi_select","value":[]},{"name":"service_severity_levels","object_type":"service_severity_levels","type":"multi_select","value":[]},{"name":"parent_names","object_type":"parent_names","type":"multi_select","value":[{"id":0,"name":"Server"}]},{"name":"names","object_type":"names","type":"multi_select","value":[{"id":0,"name":"Service"}]},{"name":"search","object_type":null,"type":"text","value":""},{"name":"sort","value":["status_severity_code","desc"]}],"id":0,"name":"My filter"}'
+          '{"criterias":[{"name":"resource_types","object_type":null,"type":"multi_select","value":[{"id":"host","name":"Host","formattedName":"Host"}]},{"name":"states","object_type":null,"type":"multi_select","value":[]},{"name":"statuses","object_type":null,"type":"multi_select","value":[{"id":"UP","name":"Up"},{"id":"DOWN","name":"Down"}]},{"name":"status_types","object_type":null,"type":"multi_select","value":[]},{"name":"host_groups","object_type":"host_groups","type":"multi_select","value":[{"id":0,"name":"HG","formattedName":"HG"}]},{"name":"service_groups","object_type":"service_groups","type":"multi_select","value":[]},{"name":"monitoring_servers","object_type":"monitoring_servers","type":"multi_select","value":[{"id":0,name:"Poller test","formattedName":"Poller\\stest"}]},{"name":"host_categories","object_type":"host_categories","type":"multi_select","value":[]},{"name":"service_categories","object_type":"service_categories","type":"multi_select","value":[]},{"name":"host_severities","object_type":"host_severities","type":"multi_select","value":[]},{"name":"host_severity_levels","object_type":"host_severity_levels","type":"multi_select","value":[]},{"name":"service_severities","object_type":"service_severities","type":"multi_select","value":[]},{"name":"service_severity_levels","object_type":"service_severity_levels","type":"multi_select","value":[]},{"name":"parent_names","object_type":"parent_names","type":"multi_select","value":[{"id":0,"name":"Server","formattedName":"Server"}]},{"name":"names","object_type":"names","type":"multi_select","value":[{"id":0,"name":"Service","formattedName":"Service"}]},{"name":"search","object_type":null,"type":"text","value":""},{"name":"sort","value":["status_severity_code","desc"]}],"id":0,"name":"My filter"}'
       }
     });
 
