@@ -42,7 +42,6 @@ interface Props {
 }
 const platformFeatures = {
   featureFlags: {
-    resouresTableOpenTickets: true
   },
   isCloudPlatform: false
 };

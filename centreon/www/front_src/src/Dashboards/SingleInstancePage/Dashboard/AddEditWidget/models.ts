@@ -59,6 +59,7 @@ export interface WidgetPropertyProps {
   };
   type: string;
   useAdditionalResources?: boolean;
+  isRequiredProperty?: boolean;
 }
 
 export interface WidgetDataResource {

@@ -53,7 +53,7 @@ import StatusColumn from './Status';
 import truncate from './truncate';
 
 interface ColumnProps {
-  displayResources: 'all' | 'withTicket' | 'withoutTicket';
+  displayResources: 'withTicket' | 'withoutTicket';
   displayType?: DisplayType;
   isOpenTicketEnabled: boolean;
   provider?: { id: number; name: string };
@@ -64,9 +64,13 @@ interface ColumnsState {
   defaultSelectedColumnIds: Array<string>;
 }
 
+const getTicketInformations = (row) =>
+  row?.extra?.open_tickets?.tickets ||
+  row?.parent?.extra?.open_tickets?.tickets;
+
 const useColumns = ({
   displayType = DisplayType.All,
-  displayResources = 'all',
+  displayResources,
   provider,
   isOpenTicketEnabled
 }: ColumnProps): ColumnsState => {
@@ -98,7 +102,7 @@ const useColumns = ({
     isOpenTicketInstalled && isOpenTicketEnabled && hasProvider;
 
   const isOpenTicketActionColumnVisible =
-    isOpenTicketColumnsVisible && !equals(displayResources, 'withTicket');
+    isOpenTicketColumnsVisible && equals(displayResources, 'withoutTicket');
 
   const areTicketColumnsVisible =
     isOpenTicketColumnsVisible && equals(displayResources, 'withTicket');
@@ -167,33 +171,23 @@ const useColumns = ({
     ...(areTicketColumnsVisible
       ? [
           {
-            getFormattedString: (row): string =>
-              row?.extra?.open_tickets?.tickets.id,
+            getFormattedString: (row): string => getTicketInformations(row)?.id,
             id: 'ticket_id',
             label: t(labelTicketID),
             type: ColumnType.string
-          }
-        ]
-      : []),
-
-    ...(areTicketColumnsVisible
-      ? [
+          },
           {
             getFormattedString: (row): string =>
-              row?.extra?.open_tickets?.tickets?.subject,
+              getTicketInformations(row)?.subject,
             id: 'ticket_subject',
             label: t(labelTicketSubject),
             type: ColumnType.string
-          }
-        ]
-      : []),
-    ...(areTicketColumnsVisible
-      ? [
+          },
           {
             getFormattedString: (row): string =>
-              row?.extra?.open_tickets?.tickets?.created_at
+              getTicketInformations(row)?.created_at
                 ? format({
-                    date: row?.extra?.open_tickets?.tickets?.created_at,
+                    date: getTicketInformations(row)?.created_at,
                     formatString: 'L'
                   })
                 : '',

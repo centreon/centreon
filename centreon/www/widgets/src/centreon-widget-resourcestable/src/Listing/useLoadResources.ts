@@ -20,7 +20,7 @@ interface LoadResourcesProps
     CommonWidgetProps<PanelOptions>,
     'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
   > {
-  displayResources: 'all' | 'withTicket' | 'withoutTicket';
+  displayResources: 'withTicket' | 'withoutTicket';
   displayType: DisplayType;
   hostSeverities: Array<NamedEntity>;
   isDownHostHidden: boolean;
@@ -78,7 +78,6 @@ const useLoadResources = ({
       getWidgetEndpoint({
         dashboardId,
         defaultEndpoint: buildResourcesEndpoint({
-          displayResources,
           hostSeverities,
           limit: limit || 10,
           page: page || 1,
@@ -93,7 +92,8 @@ const useLoadResources = ({
             ? {
                 isDownHostHidden,
                 isUnreachableHostHidden,
-                provider
+                provider,
+                displayResources
               }
             : {})
         }),
@@ -116,6 +116,7 @@ const useLoadResources = ({
       JSON.stringify(serviceSeverities),
       JSON.stringify(hostSeverities),
       displayResources,
+      provider?.id,
       sortField,
       sortOrder,
       limit,
@@ -123,8 +124,7 @@ const useLoadResources = ({
       page,
       refreshCount,
       isDownHostHidden,
-      isUnreachableHostHidden,
-      displayResources
+      isUnreachableHostHidden
     ],
     queryOptions: {
       refetchInterval: refreshIntervalToUse,

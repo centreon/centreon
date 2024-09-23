@@ -58,7 +58,7 @@ interface UseListingProps
     'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
   > {
   changeViewMode?: (displayType) => void;
-  displayResources: 'all' | 'withTicket' | 'withoutTicket';
+  displayResources: 'withTicket' | 'withoutTicket';
   displayType: DisplayType;
   hostSeverities: Array<NamedEntity>;
   isDownHostHidden: boolean;
@@ -123,6 +123,16 @@ const useListing = ({
   const [resourcesToSetDowntime, setResourcesToSetDowntime] = useAtom(
     resourcesToSetDowntimeAtom
   );
+
+  useEffect(() => {
+    if (isOpenTicketEnabled) {
+      setPanelOptions?.({ displayType: DisplayType.Service });
+
+      return;
+    }
+
+    setPanelOptions?.({ provider: {} });
+  }, [isOpenTicketEnabled]);
 
   const isOpenTicketInstalled = useIsOpenTicketInstalled();
 

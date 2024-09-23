@@ -13,7 +13,7 @@ export const resourcesEndpoint = '/monitoring/resources';
 export const viewByHostEndpoint = '/monitoring/resources/hosts';
 
 interface BuildResourcesEndpointProps {
-  displayResources: 'all' | 'withTicket' | 'withoutTicket';
+  displayResources?: 'withTicket' | 'withoutTicket';
   hostSeverities: Array<NamedEntity>;
   isDownHostHidden?: boolean;
   isUnreachableHostHidden?: boolean;
@@ -61,24 +61,16 @@ export const buildResourcesEndpoint = ({
   const { resourcesSearchConditions, resourcesCustomParameters } =
     getResourcesSearchQueryParameters(resources);
 
-  const getDisplayResources = (): Array<{ name: string; value: boolean }> => {
-    if (equals(displayResources, 'all')) {
-      return [];
-    }
-
-    return [
-      {
-        name: 'only_with_opened_tickets',
-        value: !!equals(displayResources, 'withTicket')
-      }
-    ];
-  };
-
   return buildListingEndpoint({
     baseEndpoint,
     customQueryParameters: [
-      ...(provider ? [{ name: 'ticket_provider_id', value: provider.id }] : []),
-      ...getDisplayResources(),
+      ...(provider ? [
+        { name: 'ticket_provider_id', value: provider.id },
+        {
+          name: 'only_with_opened_tickets',
+          value: !!equals(displayResources, 'withTicket')
+        }
+      ] : []),
       { name: 'types', value: formattedType },
       { name: 'statuses', value: formattedStatuses },
       { name: 'status_types', value: statusTypes },

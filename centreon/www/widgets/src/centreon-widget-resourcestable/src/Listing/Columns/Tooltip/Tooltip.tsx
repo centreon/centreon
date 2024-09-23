@@ -53,7 +53,8 @@ const TooltipContent = ({
           <strong>{t(labelSubject)}: </strong> {subject}
         </Typography>
         <Typography className={classes.listContainer} variant="body2">
-          <strong>{t(labelOpenedOn)}: </strong> {format({date : created_at , formatString : "L"})}
+          <strong>{t(labelOpenedOn)}: </strong>{' '}
+          {format({ date: created_at, formatString: 'L' })}
         </Typography>
       </Box>
 

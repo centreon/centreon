@@ -94,6 +94,7 @@
   "categories": {
     "Ticket settings": {
       "hasModule": "centreon-open-tickets",
+      "availableOnPremOnly": true,
       "groups": [
         {
           "id": "isOpenTicketEnabled",
@@ -109,6 +110,10 @@
         }
       ],
       "elements": {
+        "warning": {
+          "type": "warning",
+          "label": "If tickets are enabled, only the “by service” view is available."
+        },
         "isOpenTicketEnabled": {
           "type": "switch",
           "label": "Enable tickets",
@@ -125,31 +130,27 @@
             "when": "options.isOpenTicketEnabled",
             "method": "equals",
             "matches": false
-          }
+          },
+          "isRequiredProperty": true
         },
         "displayResources": {
           "type": "radio",
           "label": "Display resources",
           "options": [
             {
-              "id": "all",
-              "name": "All resources"
+              "id": "withoutTicket",
+              "name": "Resources with no ticket"
             },
             {
               "id": "withTicket",
               "name": "Resources linked to a ticket"
-            },
-            {
-              "id": "withoutTicket",
-              "name": "Resources with no ticket"
             }
           ],
-          "defaultValue": "all",
+          "defaultValue": "withoutTicket",
           "hiddenCondition": {
             "target": "options",
-            "when": "options.isOpenTicketEnabled",
-            "method": "equals",
-            "matches": false
+            "when": "options.provider",
+            "method": "isNil"
           }
         },
         "isDownHostHidden": {
