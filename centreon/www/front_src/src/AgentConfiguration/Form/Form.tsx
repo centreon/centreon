@@ -69,6 +69,8 @@ const AgentConfigurationForm = ({
     }
   }, [agentTypeForm]);
 
+  console.log(agentTypeForm);
+
   return (
     <Form<AgentConfigurationFormModel>
       enableReinitialize

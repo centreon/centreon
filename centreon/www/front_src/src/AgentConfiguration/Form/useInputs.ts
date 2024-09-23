@@ -42,6 +42,9 @@ export const useInputs = (): {
   const isCMA = equals(agentTypeForm, AgentType.CMA);
   const listeningAddressProperty = `configuration.${isCMA ? 'otlpReceiverAddress' : 'otelServerAddress'}`;
   const listeningPortProperty = `configuration.${isCMA ? 'otlpReceiverPort' : 'otelServerProps'}`;
+  const publicCertificateProperty = `configuration.${isCMA ? 'otlpCertificate' : 'otelPublicCertificate'}`;
+  const caCertificateProperty = `configuration.${isCMA ? 'otlpCaCertificate' : 'otelCaCertificate'}`;
+  const privateKeyProperty = `configuration.${isCMA ? 'otlpPrivateKey' : 'otelPrivateKey'}`;
 
   return {
     groups: [
@@ -141,19 +144,19 @@ export const useInputs = (): {
                   },
                   {
                     type: InputType.Text,
-                    fieldName: 'configuration.otelPublicCertificate',
+                    fieldName: publicCertificateProperty,
                     required: true,
                     label: t(labelPublicCertificate)
                   },
                   {
                     type: InputType.Text,
-                    fieldName: 'configuration.otelCaCertificate',
+                    fieldName: caCertificateProperty,
                     required: true,
                     label: t(labelCaCertificate)
                   },
                   {
                     type: InputType.Text,
-                    fieldName: 'configuration.otelPrivateKey',
+                    fieldName: privateKeyProperty,
                     required: true,
                     label: t(labelPrivateKey)
                   }

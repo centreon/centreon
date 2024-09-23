@@ -24,18 +24,22 @@ export const useGetAgentConfiguration = (
 ): UseGetAgentConfigurationState => {
   const setAgentTypeForm = useSetAtom(agentTypeFormAtom);
 
+  const enabled = isNotNil(id) && !equals('add', id);
+
   const { data, isLoading } = useFetchQuery({
     baseEndpoint: 'http://localhost:3001/centreon/api/latest',
     getEndpoint: () => getAgentConfigurationEndpoint(id),
     getQueryKey: () => ['agent-configuration', id],
     decoder: agentConfigurationDecoder,
     queryOptions: {
-      enabled: isNotNil(id) && !equals('add', id),
+      enabled,
       suspense: false
     }
   });
 
-  setAgentTypeForm(data?.type || null);
+  if (data && enabled) {
+    setAgentTypeForm(data.type);
+  }
 
   return {
     initialValues: data ? adaptAgentConfigurationToForm(data) : undefined,
