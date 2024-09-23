@@ -12,6 +12,7 @@ import {
 } from '../translatedLabels';
 
 const ipAddressRegex = /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/;
+const urlRegex = /^[a-zA-Z0-9-_]+\.?[a-zA-Z0-9._-]+\.?[a-zA-Z0-9-_]+$/;
 export const portRegex = /:[0-9]+$/;
 
 export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
@@ -62,7 +63,15 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
     hosts: array()
       .of(
         object({
-          address: requiredString,
+          address: string()
+            .test({
+              name: 'is-dns-ip-valid',
+              exclusive: true,
+              message: t(labelAddressInvalid),
+              test: (address) =>
+                address?.match(ipAddressRegex) || address?.match(urlRegex)
+            })
+            .required(t(labelRequired)),
           port: portValidation,
           certificate: requiredString,
           key: requiredString
@@ -88,7 +97,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
       )
       .min(1, t(labelRequired)),
     configuration: object().when('type', {
-      is: (type) => equals(type.id, AgentType.Telegraf),
+      is: (type) => equals(type?.id, AgentType.Telegraf),
       // biome-ignore lint/suspicious/noThenProperty: <explanation>
       then: (schema) => schema.shape(telegrafConfigurationSchema),
       otherwise: (schema) => schema.shape(CMAConfigurationSchema)

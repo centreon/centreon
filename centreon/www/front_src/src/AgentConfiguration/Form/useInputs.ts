@@ -17,7 +17,7 @@ import {
   labelName,
   labelOTelServer,
   labelOTLPReceiver,
-  labelPollerConfiguration,
+  labelParameters,
   labelPollers,
   labelPort,
   labelPrivateKey,
@@ -53,39 +53,49 @@ export const useInputs = (): {
         order: 1
       },
       {
-        name: t(labelPollerConfiguration),
+        name: t(labelParameters),
         order: 2
       }
     ],
     inputs: [
       {
-        type: InputType.Text,
+        type: InputType.Grid,
         group: t(labelAgentConfiguration),
-        fieldName: 'name',
-        required: true,
+        fieldName: 'name_type',
         label: t(labelName),
-        text: {
-          fullWidth: false
-        }
-      },
-      {
-        type: InputType.SingleAutocomplete,
-        group: t(labelAgentConfiguration),
-        fieldName: 'type',
-        required: true,
-        label: t(labelAgentType),
-        autocomplete: {
-          fullWidth: false,
-          options: agentTypes
-        },
-        change: ({ setFieldValue, value }) => {
-          setAgentTypeForm(value.id);
-          setFieldValue('type', value);
+        grid: {
+          gridTemplateColumns: '0.5fr 0.5fr 1fr',
+          columns: [
+            {
+              type: InputType.SingleAutocomplete,
+              fieldName: 'type',
+              required: true,
+              label: t(labelAgentType),
+              autocomplete: {
+                fullWidth: false,
+                options: agentTypes
+              },
+              change: ({ setFieldValue, value }) => {
+                setAgentTypeForm(value.id);
+                setFieldValue('type', value);
+              }
+            },
+            {
+              type: InputType.Text,
+              fieldName: 'name',
+              required: true,
+              label: t(labelName),
+              text: {
+                fullWidth: false
+              }
+            }
+          ]
         }
       },
       {
         type: InputType.Grid,
-        group: t(labelPollerConfiguration),
+        group: t(labelParameters),
+        hideInput: (values) => isNil(values.type),
         fieldName: '',
         label: '',
         grid: {
@@ -217,6 +227,7 @@ export const useInputs = (): {
               type: InputType.Custom,
               fieldName: 'host_configurations',
               label: labelHostConfigurations,
+              additionalLabel: t(labelHostConfigurations),
               hideInput: (values) =>
                 equals(values?.type?.id, AgentType.Telegraf),
               custom: {

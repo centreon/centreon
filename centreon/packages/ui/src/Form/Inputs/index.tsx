@@ -167,7 +167,7 @@ const Inputs = ({
     );
 
     return pluck('name', usedGroups);
-  }, []);
+  }, [inputsByGroup, groups]);
 
   const sortedInputsByGroup = useMemo(
     () =>

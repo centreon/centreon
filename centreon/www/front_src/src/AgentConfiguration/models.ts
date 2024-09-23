@@ -49,6 +49,13 @@ export interface TelegrafConfigurationAPI {
   conf_private_key: string;
 }
 
+export interface HostConfiguration {
+  address: string;
+  port: number;
+  certificate: string;
+  key: string;
+}
+
 export interface CMAConfigurationAPI {
   is_reverse: boolean;
   otlp_receiver_address: string;
@@ -56,12 +63,7 @@ export interface CMAConfigurationAPI {
   otlp_certificate: string;
   otlp_ca_certificate: string;
   otlp_private_key: string;
-  hosts: Array<{
-    address: string;
-    port: number;
-    certificate: string;
-    key: string;
-  }>;
+  hosts: Array<HostConfiguration>;
 }
 
 export interface AgentConfiguration

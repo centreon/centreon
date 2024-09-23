@@ -1,7 +1,7 @@
 import { Form } from '@centreon/ui';
 import { useAtomValue } from 'jotai';
 import { equals, isNil, isNotNil } from 'ramda';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { agentTypeFormAtom } from '../atoms';
 import { useAddUpdateAgentConfiguration } from '../hooks/useAddUpdateAgentConfiguration';
 import {
@@ -21,7 +21,7 @@ const getDefaultInitialValues = (
   agentType: AgentType | null
 ): AgentConfigurationFormModel => ({
   name: '',
-  type: agentTypes.find(({ id }) => equals(id, agentType)),
+  type: agentTypes.find(({ id }) => equals(id, agentType)) || null,
   pollers: [],
   configuration: equals(agentType, AgentType.Telegraf)
     ? {
@@ -63,13 +63,17 @@ const AgentConfigurationForm = ({
   const validationSchema = useValidationSchema();
   const { submit } = useAddUpdateAgentConfiguration();
 
-  useEffect(() => {
-    if (!equals(previousAgentTypeFormRef.current, agentTypeForm)) {
-      previousAgentTypeFormRef.current = agentTypeForm;
-    }
-  }, [agentTypeForm]);
+  const values =
+    (!equals(previousAgentTypeFormRef.current, agentTypeForm) &&
+      isNotNil(agentTypeForm) &&
+      isNotNil(previousAgentTypeFormRef.current)) ||
+    isNil(initialValues)
+      ? getDefaultInitialValues(agentTypeForm)
+      : initialValues;
 
-  console.log(agentTypeForm);
+  if (!equals(previousAgentTypeFormRef.current, agentTypeForm)) {
+    previousAgentTypeFormRef.current = agentTypeForm;
+  }
 
   return (
     <Form<AgentConfigurationFormModel>
@@ -81,14 +85,7 @@ const AgentConfigurationForm = ({
       isCollapsible
       areGroupsOpen
       inputs={inputs}
-      initialValues={
-        (!equals(previousAgentTypeFormRef.current, agentTypeForm) &&
-          isNotNil(agentTypeForm) &&
-          isNotNil(previousAgentTypeFormRef.current)) ||
-        isNil(initialValues)
-          ? getDefaultInitialValues(agentTypeForm)
-          : initialValues
-      }
+      initialValues={values}
       submit={submit}
     />
   );

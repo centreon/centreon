@@ -40,3 +40,7 @@ export const labelAgentConfigurationUpdated = 'Agent configuration updated';
 export const labelUpdateAgentConfiguration = 'Update agent configuration';
 export const labelOTLPReceiver = 'OTLP Receiver';
 export const labelHostConfigurations = 'Host configurations';
+export const labelAddAHost = 'Add a host';
+export const labelParameters = 'Parameters';
+export const labelDNSIP = 'DNS/IP';
+export const labelAddHost = 'Add host';

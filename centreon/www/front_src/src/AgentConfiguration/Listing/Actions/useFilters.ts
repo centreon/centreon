@@ -13,6 +13,10 @@ export const agentTypeOptions = [
   {
     id: AgentType.Telegraf,
     name: capitalize(AgentType.Telegraf)
+  },
+  {
+    id: AgentType.CMA,
+    name: 'CMA'
   }
 ];
 

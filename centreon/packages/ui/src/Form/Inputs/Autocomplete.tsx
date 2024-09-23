@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { path, equals, isNil, map, not, prop, type } from 'ramda';
+import { equals, isNil, map, not, path, prop, type } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { FormHelperText, Stack } from '@mui/material';
