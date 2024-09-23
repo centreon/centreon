@@ -2944,9 +2944,7 @@ function updateServiceNotifOptionTimeperiod(int $serviceId, $ret = array())
     $stmt = $pearDB->prepareQuery($request);
     $queryParams['service_id'] = $serviceId;
 
-    isset($ret['timeperiod_tp_id2'])
-        ? $queryParams['timeperiod_tp_id2'] = (int) $ret['timeperiod_tp_id2']
-        : $queryParams['timeperiod_tp_id2'] = null;
+    $queryParams['timeperiod_tp_id2'] = $ret['timeperiod_tp_id2'] ?? null;
 
     $pearDB->executePreparedQuery($stmt, $queryParams);
 }
