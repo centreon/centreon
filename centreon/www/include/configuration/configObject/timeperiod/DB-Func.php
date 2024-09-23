@@ -260,9 +260,9 @@ function insertTimeperiod($ret = [], $exceptions = null)
     $rq = "INSERT INTO timeperiod ";
     $rq .= "(tp_name, tp_alias, tp_sunday, tp_monday, tp_tuesday, tp_wednesday, tp_thursday, tp_friday, tp_saturday) ";
     $rq .= "VALUES (";
-    if (isset($ret["tp_name"]) && $ret["tp_name"] != null) {
-        $rq .= "'" . htmlentities($ret["tp_name"], ENT_QUOTES, "UTF-8") . "', ";
-    }
+    isset($ret["tp_name"]) && $ret["tp_name"] != null
+        ? $rq .= "'" . htmlentities($ret["tp_name"], ENT_QUOTES, "UTF-8") . "', "
+        : $rq .= "NULL, ";
     isset($ret["tp_alias"]) && $ret["tp_alias"] != null
         ? $rq .= "'" . htmlentities($ret["tp_alias"], ENT_QUOTES, "UTF-8") . "', "
         : $rq .= "NULL, ";

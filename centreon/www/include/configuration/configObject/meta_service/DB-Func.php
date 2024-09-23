@@ -295,9 +295,9 @@ function insertMetaService($ret = [])
         "data_source_type, meta_select_mode, regexp_str, metric, warning, critical, " .
         "graph_id, meta_comment, geo_coords, meta_activate) " .
         "VALUES ( ";
-    if (isset($ret["meta_name"]) && $ret["meta_name"] != null) {
-        $rq .= "'" . htmlentities($ret["meta_name"], ENT_QUOTES, "UTF-8") . "', ";
-    }
+    isset($ret["meta_name"]) && $ret["meta_name"] != null
+        ? $rq .= "'" . htmlentities($ret["meta_name"], ENT_QUOTES, "UTF-8") . "', "
+        : $rq .= "NULL, ";
     isset($ret["meta_display"]) && $ret["meta_display"] != null
         ? $rq .= "'" . htmlentities($ret["meta_display"], ENT_QUOTES, "UTF-8") . "', "
         : $rq .= "NULL, ";
@@ -388,9 +388,9 @@ function updateMetaService($meta_id = null)
     $ret = $form->getSubmitValues();
     $rq = "UPDATE meta_service SET ";
     $rq .= "meta_name = ";
-    if ($ret["meta_name"] != null) {
-        $rq .= "'" . htmlentities($ret["meta_name"], ENT_QUOTES, "UTF-8") . "', ";
-    }
+    $ret["meta_name"] != null
+        ? $rq .= "'" . htmlentities($ret["meta_name"], ENT_QUOTES, "UTF-8") . "', "
+        : $rq .= "NULL, ";
     $rq .= "meta_display = ";
     $ret["meta_display"] != null
         ? $rq .= "'" . htmlentities($ret["meta_display"], ENT_QUOTES, "UTF-8") . "', "
@@ -547,9 +547,7 @@ function insertMetric($ret = [])
     $rq = "INSERT INTO meta_service_relation " .
         "(meta_id, host_id, metric_id, msr_comment, activate) " .
         "VALUES ( ";
-    if (isset($ret["meta_id"]) && $ret["meta_id"] != null) {
-        $rq .= "'" . $ret["meta_id"] . "', ";
-    }
+    isset($ret["meta_id"]) && $ret["meta_id"] != null ? $rq .= "'" . $ret["meta_id"] . "', " : $rq .= "NULL, ";
     isset($ret["host_id"]) && $ret["host_id"] != null ? $rq .= "'" . $ret["host_id"] . "', " : $rq .= "NULL, ";
     isset($ret["metric_sel"][1]) && $ret["metric_sel"][1] != null
         ? $rq .= "'" . $ret["metric_sel"][1] . "', "
@@ -577,9 +575,7 @@ function updateMetric($msr_id = null)
     $ret = $form->getSubmitValues();
     $rq = "UPDATE meta_service_relation SET ";
     $rq .= "meta_id = ";
-    if ($ret["meta_id"] != null) {
-        $rq .= "'" . $ret["meta_id"] . "', ";
-    }
+    $ret["meta_id"] != null ? $rq .= "'" . $ret["meta_id"] . "', " : $rq .= "NULL, ";
     $rq .= "host_id = ";
     $ret["host_id"] != null ? $rq .= "'" . $ret["host_id"] . "', " : $rq .= "NULL, ";
     $rq .= "metric_id = ";

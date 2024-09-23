@@ -111,8 +111,8 @@ return RectorConfig::configure()
 
 //        // ******************* coding quality (done) *******************
 //        CompleteDynamicPropertiesRector::class, // OK / Add missing dynamic properties
-        AddVoidReturnTypeWhereNoReturnRector::class, // OK 215 files / Add return type void to function like without any return
-        AddClosureVoidReturnTypeWhereNoReturnRector::class, // OK 114 files / Add closure return type void if there is no return
+//        AddVoidReturnTypeWhereNoReturnRector::class, // OK 215 files / Add return type void to function like without any return
+//        AddClosureVoidReturnTypeWhereNoReturnRector::class, // OK 114 files / Add closure return type void if there is no return
 //        AddParamTypeSplFixedArrayRector::class, // KO 0 files / Add exact fixed array type in known cases
 //        NestedAnnotationToAttributeRector::class, // KO 0 files  / Changed nested annotations to attributes
 //        AttributeKeyToClassConstFetchRector::class, // KO 0 files  / Replace key value on specific attribute to class constant
@@ -127,7 +127,6 @@ return RectorConfig::configure()
 //        SimplifyIfElseToTernaryRector::class, // OK 154 files / Changes if/else for same value as assign to ternary
 //        ShortenElseIfRector::class, // OK 47 files / Shortens else/if to elseif
 //        CompleteMissingIfElseBracketRector::class, // KO / Complete missing if/else brackets
-//        TernaryFalseExpressionToIfRector::class, // OK 26 files /Change ternary with false to if and explicit call
 //
 //        // ******************* coding style (done) *******************
 //        ExplicitPublicClassMethodRector::class, // OK 1 file / Add explicit public method visibility
@@ -210,6 +209,10 @@ return RectorConfig::configure()
 //        SpatieEnumMethodCallToEnumConstRector::class, // Refactor Spatie enum method calls (8.1)
 //        NullToStrictStringFuncCallArgRector::class, // Change null to strict string defined function call args (8.1)
 //        NullToStrictStringFuncCallArgRector::class, // Change null to strict string defined function call args (8.1)
+
+//        // ******************* NOT TO USE *******************
+        //        TernaryFalseExpressionToIfRector::class, // OK 26 files /Change ternary with false to if and explicit call
+
 
 //        // ******************* TO DISCUSS (not done) *******************
 //        // ---------------- PHP not sure ----------------

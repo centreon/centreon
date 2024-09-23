@@ -2104,9 +2104,8 @@ class CentreonHost
             'host_snmp_version, host_location, host_comment, host_locked, host_register, host_activate, ' .
             'host_acknowledgement_timeout) ' .
             'VALUES ( ';
-        if (isset($ret["host_template_model_htm_id"]) && $ret["host_template_model_htm_id"] != null) {
-            $rq .= "'" . $ret["host_template_model_htm_id"] . "', ";
-        }
+        isset($ret["host_template_model_htm_id"]) && $ret["host_template_model_htm_id"] != null ?
+            $rq .= "'" . $ret["host_template_model_htm_id"] . "', " : $rq .= "NULL, ";
         isset($ret["command_command_id"]) && $ret["command_command_id"] != null ?
             $rq .= "'" . $ret["command_command_id"] . "', " : $rq .= "NULL, ";
         isset($ret["command_command_id_arg1"]) && $ret["command_command_id_arg1"] != null ?
@@ -2296,9 +2295,8 @@ class CentreonHost
 
         $rq = "UPDATE host SET ";
         $rq .= "command_command_id = ";
-        if (isset($ret["command_command_id"]) && $ret["command_command_id"] != null) {
-            $rq .= "'" . $ret["command_command_id"] . "', ";
-        }
+        isset($ret["command_command_id"]) && $ret["command_command_id"] != null ?
+            $rq .= "'" . $ret["command_command_id"] . "', " : $rq .= "NULL, ";
         $rq .= "command_command_id_arg1 = ";
         isset($ret["command_command_id_arg1"]) && $ret["command_command_id_arg1"] != null ?
             $rq .= "'" . $ret["command_command_id_arg1"] . "', " : $rq .= "NULL, ";
