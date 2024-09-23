@@ -79,7 +79,7 @@ class CentreonHostTemplate extends CentreonHost
      *
      * @throws CentreonClapiException
      */
-    public function setinstance($parameters = null)
+    public function setinstance($parameters = null): void
     {
         throw new CentreonClapiException(self::UNKNOWN_METHOD);
     }
