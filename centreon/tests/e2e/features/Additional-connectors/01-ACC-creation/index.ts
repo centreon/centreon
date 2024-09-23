@@ -53,7 +53,7 @@ When('the user fills in all the informations', () => {
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2021');
-  cy.getByTestId({ testId: 'Port_value' }).eq(1).should('have.value', '5700');
+  cy.getByTestId({ testId: 'Port_value' }).eq(1).eq(0).should('have.value', '5700');
 });
 
 When('the user clicks on Create', () => {
@@ -76,7 +76,7 @@ When('the user fills in the mandatory informations', () => {
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2021');
-  cy.getByTestId({ testId: 'Port_value' }).eq(1).should('have.value', '5700');
+  cy.getByTestId({ testId: 'Port_value' }).eq(1).eq(0).should('have.value', '5700');
 });
 
 Then('the second configuration is displayed in the Specific Connector Configuration page', () => {
@@ -93,7 +93,7 @@ When("the user doesn't fill in all the mandatory informations", () => {
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear();
   cy.getByTestId({ testId: 'Username_value' }).eq(0).click();
   cy.getByTestId({ testId: 'Password_value' }).eq(0).click();
-  cy.getByTestId({ testId: 'Port_value' }).eq(1).click();
+  cy.getByTestId({ testId: 'Port_value' }).eq(1).eq(0).click();
 });
 
 Then('the user cannot click on Create', () => {
@@ -122,7 +122,7 @@ When("the user doesn't fill in correct type of informations", () => {
 Then('the form displayed an error', () => {
   cy.getByTestId({ testId: 'Name' }).contains('The name should be at least 3 characters long');
   cy.getByTestId({ testId: 'URL_value' }).contains('Please enter a valid URL or IP address');
-  cy.getByTestId({ testId: 'Port_value' }).contains('Invalid port number');
+  cy.getByTestId({ testId: 'Port_value' }).eq(0).contains('Invalid port number');
 });
 
 When('the user fills in the needed informations', () => {
@@ -134,7 +134,7 @@ When('the user fills in the needed informations', () => {
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2021');
-  cy.getByTestId({ testId: 'Port_value' }).eq(1).should('have.value', '5700');
+  cy.getByTestId({ testId: 'Port_value' }).eq(1).eq(0).should('have.value', '5700');
 });
 
 When('the user clicks on the Cancel button of the creation form', () => {
@@ -167,5 +167,5 @@ Then('the form fields are empty', () => {
   cy.getByTestId({ testId: 'URL_value' }).eq(1).should('have.value', 'https://<ip_hostname>/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(1).should('be.empty');
   cy.getByTestId({ testId: 'Password_value' }).eq(1).should('be.empty');
-  cy.getByTestId({ testId: 'Port_value' }).eq(1).should('have.value', '5700');
+  cy.getByTestId({ testId: 'Port_value' }).eq(1).eq(0).should('have.value', '5700');
 });
