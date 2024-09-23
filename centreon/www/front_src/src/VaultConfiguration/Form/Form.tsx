@@ -1,4 +1,4 @@
-import { Form } from 'packages/ui/src';
+import { Form } from '@centreon/ui';
 import { useGetVaultConfiguration } from '../hooks/useGetVaultConfiguration';
 import { useUpdateVaultConfiguration } from '../hooks/useUpdateVaultConfiguration';
 import { PostVaultConfiguration } from '../models';
