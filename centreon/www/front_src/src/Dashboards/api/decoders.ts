@@ -19,6 +19,7 @@ import {
   Shares,
   UserRole
 } from './models';
+import { Thumbnail } from '../SingleInstancePage/Dashboard/models';
 
 const namedEntityDecoder = {
   id: JsonDecoder.number,
@@ -99,7 +100,7 @@ export const dashboardEntityDecoder = {
     }
   ),
   thumbnail: JsonDecoder.optional(
-    JsonDecoder.object(
+    JsonDecoder.object<Thumbnail>(
       {
         id: JsonDecoder.number,
         name: JsonDecoder.string,
