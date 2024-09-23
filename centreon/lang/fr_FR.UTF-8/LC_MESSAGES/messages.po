@@ -19450,80 +19450,80 @@ msgstr "Attention, les domaines en dehors de votre organisation doivent être au
 msgid "Web page preview"
 msgstr "Aperçu de la page web"
 
-msgid "agent configuration"
-msgstr "configuration d'agent"
+msgid "Agent configuration"
+msgstr "Configuration d'agent"
 
-msgid "welcome to the agent configuration page"
-msgstr "bienvenue sur la page de configuration d'agent"
+msgid "Welcome to the agent configuration page"
+msgstr "Bienvenue sur la page de configuration d'agent"
 
-msgid "agent type"
-msgstr "type d'agent"
+msgid "Agent type"
+msgstr "Type d'agent"
 
-msgid "expand"
-msgstr "étendre"
+msgid "Expand"
+msgstr "Étendre"
 
-msgid "collapse"
-msgstr "réduire"
+msgid "Collapse"
+msgstr "Réduire"
 
-msgid "add new agent"
-msgstr "ajouter un nouvel agent"
+msgid "Add new agent"
+msgstr "Ajouter un nouvel agent"
 
-msgid "agent types"
-msgstr "types d'agent"
+msgid "Agent types"
+msgstr "Types d'agent"
 
-msgid "delete poller"
-msgstr "supprimer un collecteur"
+msgid "Delete poller"
+msgstr "Supprimer un collecteur"
 
-msgid "delete agent"
-msgstr "supprimer un agent"
+msgid "Delete agent"
+msgstr "Supprimer un agent"
 
-msgid "agent configurations"
-msgstr "configurations d'agent"
+msgid "Agent configurations"
+msgstr "Configurations d'agent"
 
-msgid "poller configuration"
-msgstr "configuration du collecteur"
+msgid "Poller configuration"
+msgstr "Configuration du collecteur"
 
-msgid "invalid address"
-msgstr "adresse invalide"
+msgid "Invalid address"
+msgstr "Adresse invalide"
 
-msgid "add agent configuration"
-msgstr "ajouter une configuration d'agent"
+msgid "Add agent configuration"
+msgstr "Ajouter une configuration d'agent"
 
-msgid "otel server"
-msgstr "serveur otel"
+msgid "Otel server"
+msgstr "Serveur otel"
 
-msgid "listening address"
-msgstr "addresse d'écoute"
+msgid "Listening address"
+msgstr "Addresse d'écoute"
 
-msgid "port number must be at most 65535"
-msgstr "le numéro du port ne doit pas excéder 65535"
+msgid "Port number must be at most 65535"
+msgstr "Le numéro du port ne doit pas excéder 65535"
 
-msgid "port number must be a least 1"
-msgstr "le numéro du port doit être au minimum 1"
+msgid "Port number must be a least 1"
+msgstr "Le numéro du port doit être au minimum 1"
 
-msgid "extension not allowed"
-msgstr "extension non autorisée"
+msgid "Extension not allowed"
+msgstr "Extension non autorisée"
 
-msgid "public certificate file name"
-msgstr "nom de fichier du certificat publique"
+msgid "Public certificate file name"
+msgstr "Nom de fichier du certificat publique"
 
-msgid "ca file name"
-msgstr "nom de fichier du ca"
+msgid "Ca file name"
+msgstr "Nom de fichier du ca"
 
-msgid "certificate file name"
-msgstr "nom de fichier du certificat"
+msgid "Certificate file name"
+msgstr "Nom de fichier du certificat"
 
-msgid "private key file name"
-msgstr "nom de fichier de la clé privée"
+msgid "Private key file name"
+msgstr "Nom de fichier de la clé privée"
 
-msgid "configuration server"
-msgstr "serveur de configuration"
+msgid "Configuration server"
+msgstr "Serveur de configuration"
 
-msgid "agent configuration created"
-msgstr "configuration d'agent créé"
+msgid "Agent configuration created"
+msgstr "Configuration d'agent créé"
 
-msgid "agent configuration updated"
-msgstr "configuration d'agent mis à jour"
+msgid "Agent configuration updated"
+msgstr "Configuration d'agent mis à jour"
 
-msgid "update agent configuration"
-msgstr "mettre à jour la configuration d'agent"
+msgid "Update agent configuration"
+msgstr "Mettre à jour la configuration d'agent"
