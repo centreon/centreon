@@ -59,7 +59,7 @@ if (isset($_SESSION["centreon"])) {
 /*
  * Check PHP version
  *
- *  Centreon >= 22.10 doesn't support PHP < 8.2
+ *  Centreon >= 24.10 doesn't support PHP < 8.2
  *
  */
 if (version_compare(phpversion(), '8.2') < 0) {
