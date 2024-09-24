@@ -6,6 +6,7 @@ import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import metricsGraphWidget from '../../../fixtures/dashboards/creation/widgets/metricsGraphWidget.json';
 import metricsGraphDoublecWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwometricsGraphWidget.json';
+import { checkMetricsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
 
 before(() => {
   cy.startWebContainer();
@@ -36,6 +37,23 @@ before(() => {
     method: 'GET',
     url: /\/api\/latest\/monitoring\/dashboard\/metrics\/performances\/data\?.*$/
   }).as('performanceData');
+  cy.loginAsAdminViaApiV2()
+  .scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' })
+  .logoutViaAPI();
+
+  checkServicesAreMonitored([
+    {
+      name: 'Ping',
+      status: 'ok'
+    }
+  ]);
+  checkMetricsAreMonitored([
+    {
+      host: 'Centreon-Server',
+      name: 'rta',
+      service: 'Ping'
+    }
+  ]);
 });
 
 beforeEach(() => {
