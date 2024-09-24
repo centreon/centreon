@@ -85,7 +85,7 @@ Then('the first configuration is displayed in the Specific Connector Configurati
 });
 
 Given('an additional connector configuration is already created', () => {
-  cy.get('*[class="MuiTable-root MuiTable-stickyHeader css-11u5dvc-table"]')
+  cy.get('*[class="MuiTable-root MuiTable-stickyHeader css-1n28wy3-table"]')
     .eq(0)
     .should('not.contain', 'No result found');
 });
@@ -119,7 +119,7 @@ Then('the admin user can update the additional connector configuration', () => {
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.3.3.3/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2022');
-  cy.get('[id="Portvalue"]').clear().type('6900');
+  cy.get('[id="Portvalue"]').clear().click().type('6900');
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
   cy.wait('@updateConnectorDetail');
   cy.get('Update additional connector configuration').should('not.exist');
