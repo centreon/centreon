@@ -73,7 +73,7 @@
     "friends-of-behat/mink": "^1.9",
     "friends-of-behat/mink-extension": "^2.5",
     "friendsofphp/php-cs-fixer": "3.64.*",
-    "pestphp/pest": "2.35.*",
+    "pestphp/pest": "^1.9",
     "php-vfs/php-vfs": "^1.4",
     "phpcompatibility/php-compatibility": "9.3.*",
     "phpstan/phpstan": "1.12.*",
