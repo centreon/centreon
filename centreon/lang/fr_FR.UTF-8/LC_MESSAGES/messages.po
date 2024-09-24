@@ -19465,8 +19465,8 @@ msgstr "Étendre"
 msgid "Collapse"
 msgstr "Réduire"
 
-msgid "Add new agent"
-msgstr "Ajouter un nouvel agent"
+msgid "Add new agent configuration"
+msgstr "Ajouter une nouvelle configuration d'agent"
 
 msgid "Agent types"
 msgstr "Types d'agent"

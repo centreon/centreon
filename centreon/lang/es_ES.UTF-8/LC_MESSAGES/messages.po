@@ -17716,7 +17716,7 @@ msgstr "Modo avanzado"
 # msgid "Collapse"
 # msgstr ""
 
-# msgid "Add new agent"
+# msgid "Add new agent configuration"
 # msgstr ""
 
 # msgid "Agent types"
