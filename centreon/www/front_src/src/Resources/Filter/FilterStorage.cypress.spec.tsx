@@ -385,7 +385,7 @@ describe('Filter storage', () => {
 
     cy.findByPlaceholderText(labelSearch).clear();
     cy.findByPlaceholderText(labelSearch).type(
-      'type:host parent_name:Server name:Service host_group:HG status:up,down monitoring_server:Poller\\stest'
+      'type:host parent_name:Server name:Service host_group:HG monitoring_server:Poller\\stest status:up,down'
     );
 
     cy.getAllLocalStorage().should('deep.equal', {
