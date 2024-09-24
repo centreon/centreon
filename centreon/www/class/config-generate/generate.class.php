@@ -38,6 +38,7 @@
 
 use App\Kernel;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
+use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 
 $configFile = realpath(dirname(__FILE__) . "/../../../config/centreon.config.php");
 if ($configFile !== false) {
@@ -75,6 +76,7 @@ require_once dirname(__FILE__) . '/timeperiod.class.php';
 require_once dirname(__FILE__) . '/timezone.class.php';
 require_once dirname(__FILE__) . '/vault.class.php';
 require_once dirname(__FILE__) . '/AdditionalConnectorVmWareV6.class.php';
+require_once dirname(__FILE__) . '/AgentConfiguration.class.php';
 
 class Generate
 {
@@ -260,10 +262,16 @@ class Generate
         $kernel = Kernel::createForWeb();
         $readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
             ?? throw new \Exception('ReadAccRepositoryInterface not found');
+        $readAgentConfigurationRepository = $kernel->getContainer()->get(ReadAgentConfigurationRepositoryInterface::class)
+            ?? throw new \Exception('ReadAgentConfigurationRepositoryInterface not found');
         (new AdditionalConnectorVmWareV6(
             Backend::getInstance($this->dependencyInjector),
             $readAdditionalConnectorRepository
         ))->reset();
+        (new AgentConfiguration(
+            Backend::getInstance($this->dependencyInjector),
+            $readAgentConfigurationRepository)
+        )->reset();
         $this->resetModuleObjects();
     }
 
@@ -276,10 +284,16 @@ class Generate
         $kernel = Kernel::createForWeb();
         $readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
             ?? throw new \Exception('ReadAccRepositoryInterface not found');
+        $readAgentConfigurationRepository = $kernel->getContainer()->get(ReadAgentConfigurationRepositoryInterface::class)
+            ?? throw new \Exception('ReadAgentConfigurationRepositoryInterface not found');
         (new AdditionalConnectorVmWareV6(
             Backend::getInstance($this->dependencyInjector),
             $readAdditionalConnectorRepository
         ))->generateFromPollerId($this->current_poller['id']);
+        (new AgentConfiguration(
+            Backend::getInstance($this->dependencyInjector),
+            $readAgentConfigurationRepository)
+        )->generateFromPollerId($this->current_poller['id']);
 
         Vault::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);
         Host::getInstance($this->dependencyInjector)->generateFromPollerId(

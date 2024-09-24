@@ -32,6 +32,8 @@ use Centreon\Domain\Common\Assertion\Assertion;
 class AgentConfiguration
 {
     public const MAX_NAME_LENGTH = 255;
+    public const DEFAULT_HOST = '0.0.0.0';
+    public const DEFAULT_PORT = 4317;
 
     private string $name = '';
 
