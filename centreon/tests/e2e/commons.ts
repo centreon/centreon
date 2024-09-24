@@ -22,6 +22,7 @@ const pollingCheckTimeout = 60000;
 const maxSteps = pollingCheckTimeout / stepWaitingTime;
 const waitToExport = 5000;
 
+
 const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
 const versionApi = 'latest';
@@ -30,6 +31,7 @@ const apiLogout = '/centreon/api/latest/authentication/logout';
 
 let servicesFoundStepCount = 0;
 let hostsFoundStepCount = 0;
+let metricsFoundStepCount = 0;
 
 const getStatusNumberFromString = (status: string): number => {
   const statuses = {
@@ -402,12 +404,65 @@ const configureACLGroups = (path: string): Cypress.Chainable => {
     .should('have.value', 'ACL Group test');
 };
 
+interface MonitoredMetric {
+  host: string;
+  name: string;
+  service: string;
+}
+
+const checkMetricsAreMonitored = (metrics: Array<MonitoredMetric>): void => {
+  cy.log('Checking metrics in database');
+
+  let query =
+    'SELECT COUNT(m.metric_id) AS count_metrics FROM metrics m, index_data idata WHERE m.index_id = idata.id AND (';
+  const conditions: Array<string> = [];
+  metrics.forEach(({ host, name, service }) => {
+    conditions.push(
+      `(idata.host_name = '${host}' AND idata.service_description = '${service}' AND m.metric_name = '${name}')`
+    );
+  });
+  query += conditions.join(' OR ');
+  query += ')';
+  cy.log(query);
+
+  cy.requestOnDatabase({
+    database: 'centreon_storage',
+    query
+  }).then(([rows]) => {
+    metricsFoundStepCount += 1;
+
+    const foundMetricCount = rows.length ? rows[0].count_metrics : 0;
+
+    cy.log('Metric count in database', foundMetricCount);
+    cy.log('Metric database check step count', metricsFoundStepCount);
+
+    if (foundMetricCount >= metrics.length) {
+      metricsFoundStepCount = 0;
+
+      return null;
+    }
+
+    if (metricsFoundStepCount < maxSteps) {
+      cy.wait(stepWaitingTime);
+
+      return cy.wrap(null).then(() => checkMetricsAreMonitored(metrics));
+    }
+
+    throw new Error(
+      `Metrics ${metrics
+        .map(({ name }) => name)
+        .join()} are not monitored after ${pollingCheckTimeout}ms`
+    );
+  });
+};
+
 export {
   ActionClapi,
   SubmitResult,
   checkThatConfigurationIsExported,
   checkHostsAreMonitored,
   checkServicesAreMonitored,
+  checkMetricsAreMonitored,
   getStatusNumberFromString,
   submitResultsViaClapi,
   updateFixturesResult,
