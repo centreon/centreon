@@ -36,6 +36,7 @@ const HostConfigurations = () => {
                 icon={<DeleteOutline fontSize="small" color="disabled" />}
                 className={classes.deleteButton}
                 onClick={deleteHostConfiguration(index)}
+                data-testid={`delete-host-configuration-${index}`}
               />
             </Box>
           </Box>

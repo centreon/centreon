@@ -15,8 +15,8 @@ import {
   labelConnectionInitiatedByPoller,
   labelHostConfigurations,
   labelName,
-  labelOTelServer,
   labelOTLPReceiver,
+  labelOTelServer,
   labelParameters,
   labelPollers,
   labelPort,
@@ -39,8 +39,6 @@ export const useInputs = (): {
   const [agentTypeForm, setAgentTypeForm] = useAtom(agentTypeFormAtom);
 
   const isCMA = equals(agentTypeForm, AgentType.CMA);
-  const listeningAddressProperty = `configuration.${isCMA ? 'otlpReceiverAddress' : 'otelServerAddress'}`;
-  const listeningPortProperty = `configuration.${isCMA ? 'otlpReceiverPort' : 'otelServerProps'}`;
   const publicCertificateProperty = `configuration.${isCMA ? 'otlpCertificate' : 'otelPublicCertificate'}`;
   const caCertificateProperty = `configuration.${isCMA ? 'otlpCaCertificate' : 'otelCaCertificate'}`;
   const privateKeyProperty = `configuration.${isCMA ? 'otlpPrivateKey' : 'otelPrivateKey'}`;

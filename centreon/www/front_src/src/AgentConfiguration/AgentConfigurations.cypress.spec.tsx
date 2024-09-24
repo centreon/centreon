@@ -11,7 +11,9 @@ import {
 } from './api/endpoints';
 import {
   labelAction,
+  labelAddAHost,
   labelAddAgentConfiguration,
+  labelAddHost,
   labelAddNewAgent,
   labelAgentConfigurationCreated,
   labelAgentConfigurationUpdated,
@@ -22,11 +24,15 @@ import {
   labelCancel,
   labelCertificate,
   labelClear,
+  labelConnectionInitiatedByPoller,
+  labelDNSIP,
   labelDelete,
   labelDeleteAgent,
   labelDeletePoller,
   labelExtensionNotAllowed,
+  labelHostConfigurations,
   labelName,
+  labelOTLPReceiver,
   labelPoller,
   labelPollers,
   labelPort,
@@ -211,6 +217,10 @@ describe('Agent configurations', () => {
     cy.findAllByTestId('Search').eq(0).type('My agent');
     cy.findByLabelText('Filters').click();
     cy.findByLabelText(labelAgentTypes).click({ force: true });
+
+    cy.contains('CMA').should('be.visible');
+    cy.contains('Telegraf').should('be.visible');
+
     cy.contains('Telegraf').click();
     cy.findByLabelText(labelPollers).click({ force: true });
 
@@ -398,6 +408,8 @@ describe('Agent configurations modal', () => {
 
     cy.contains(labelAddAgentConfiguration).should('be.visible');
 
+    cy.findByLabelText(labelAgentType).click();
+    cy.contains('Telegraf').click();
     cy.findByLabelText(labelName).focus();
     cy.findByLabelText(labelName).blur();
     cy.findByLabelText(labelPollers).focus();
@@ -455,6 +467,8 @@ describe('Agent configurations modal', () => {
 
     cy.contains(labelAddNewAgent).click();
 
+    cy.findByLabelText(labelAgentType).click();
+    cy.contains('Telegraf').click();
     cy.findByLabelText(labelName).type('agent');
     cy.findByLabelText(labelPollers).click();
     cy.contains('poller1').click();
@@ -518,4 +532,44 @@ describe('Agent configurations modal', () => {
 
     cy.makeSnapshot();
   });
+
+  it('displays the CMA form when the CMA agent type is selected', () => {
+    initialize({});
+
+    cy.contains(labelAddNewAgent).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.contains('CMA').click();
+
+    cy.findByLabelText(labelConnectionInitiatedByPoller).should('be.checked');
+    cy.contains(labelOTLPReceiver).should('be.visible');
+    cy.contains(labelHostConfigurations).should('be.visible');
+    cy.findByLabelText(labelPublicCertificate).should('have.value', '');
+    cy.findByLabelText(labelCaCertificate).should('have.value', '');
+    cy.findAllByLabelText(labelPrivateKey).eq(0).should('have.value', '');
+    cy.findAllByLabelText(labelPrivateKey).eq(1).should('have.value', '');
+    cy.findByLabelText(labelAddHost).should('be.visible');
+    cy.findByLabelText(labelDNSIP).should('have.value', '');
+    cy.findByTestId(labelPort).should('have.value', '');
+    cy.findByTestId(labelCertificate).should('have.value', '');
+    cy.contains(labelAddAHost).should('exist');
+    cy.findByTestId('delete-host-configuration-0').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('resets the form a different agent type is selected', () => {});
+
+  it('does not validate the form when there is no host configuration', () => {});
+
+  it('validates the form when fields are filled and the reverse switch is unchecked', () => {});
+
+  it('configures the host address and port when a host is selected', () => {});
+
+  it('splits the address and the port when a full address is pasted in the address field', () => {});
+
+  it('adds a new host configuration when the corresponding button is clicked', () => {});
+
+  it('removes a host configuration when the corresponding button is clicked', () => {});
+
+  it('sends the CMA agent type when the form is valid and the save button is clicked', () => {});
 });

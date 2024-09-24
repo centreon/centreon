@@ -1,8 +1,8 @@
 import {
-  buildListingEndpoint,
   NumberField,
   SingleConnectedAutocompleteField,
-  TextField
+  TextField,
+  buildListingEndpoint
 } from '@centreon/ui';
 import { Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
@@ -35,6 +35,8 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
     index
   });
 
+  console.log(host);
+
   return (
     <Box
       sx={{
@@ -64,6 +66,9 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
         label={t(labelDNSIP)}
         dataTestId={labelDNSIP}
         fullWidth
+        inputProps={{
+          'aria-label': labelDNSIP
+        }}
         error={hostTouched?.address && hostErrors?.address}
       />
       <NumberField
@@ -85,6 +90,9 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
         onChange={changeStringInput('certificate')}
         label={t(labelCertificate)}
         dataTestId={labelCertificate}
+        inputProps={{
+          'aria-label': labelCertificate
+        }}
         fullWidth
         error={hostTouched?.certificate && hostErrors?.certificate}
       />
@@ -93,6 +101,9 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
         value={host.key}
         onChange={changeStringInput('key')}
         label={t(labelPrivateKey)}
+        inputProps={{
+          'aria-label': labelPrivateKey
+        }}
         dataTestId={labelPrivateKey}
         fullWidth
         error={hostTouched?.key && hostErrors?.key}
