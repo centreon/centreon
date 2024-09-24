@@ -108,6 +108,16 @@ fixSymfonyCacheRights() {
   fi
 }
 
+fixCentreonCronPermissions() {
+  # MON-146883
+  # Override permissions for cron scripts
+  chmod 0755 \
+    /usr/share/centreon/cron/outdated-token-removal.php
+
+  chown -R centreon:centreon \
+    /usr/share/centreon/cron/outdated-token-removal.php
+}
+
 package_type="rpm"
 if  [ "$1" = "configure" ]; then
   package_type="deb"
@@ -139,6 +149,7 @@ case "$action" in
     manageApacheAndPhpFpm $package_type
     fixSymfonyCacheRights $package_type
     rebuildSymfonyCache $package_type
+    fixCentreonCronPermissions
     ;;
   *)
     # $1 == version being installed
