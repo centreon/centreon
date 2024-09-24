@@ -6,14 +6,12 @@ import {
   AgentConfigurationForm
 } from '../models';
 import {
-  labelAddressInvalid,
   labelExtensionNotAllowed,
   labelPortExpectedAtMost,
   labelPortMustStartFrom1,
   labelRequired
 } from '../translatedLabels';
 
-const ipAddressRegex = /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/;
 export const portRegex = /:[0-9]+$/;
 
 export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
@@ -43,19 +41,6 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
       )
       .min(1, t(labelRequired)),
     configuration: object<AgentConfigurationConfiguration>({
-      otelServerAddress: string()
-        .test({
-          name: 'is-address-valid',
-          message: t(labelAddressInvalid),
-          exclusive: true,
-          test: (address) =>
-            address?.match(ipAddressRegex) && !address.match(portRegex)
-        })
-        .required(t(labelRequired)),
-      otelServerPort: number()
-        .min(1, t(labelPortMustStartFrom1))
-        .max(65535, t(labelPortExpectedAtMost))
-        .required(t(labelRequired)),
       confServerPort: number()
         .min(1, t(labelPortMustStartFrom1))
         .max(65535, t(labelPortExpectedAtMost))

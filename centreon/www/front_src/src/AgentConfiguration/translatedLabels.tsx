@@ -21,10 +21,8 @@ export const labelDelete = 'Delete';
 export const labelAgentConfiguration = 'Agent configuration';
 export const labelPollerConfiguration = 'Poller configuration';
 export const labelRequired = 'Required';
-export const labelAddressInvalid = 'Address invalid';
 export const labelAddAgentConfiguration = 'Add poller/agent configuration';
 export const labelOTelServer = 'OTLP receiver';
-export const labelListeningAddress = 'Listening address';
 export const labelPort = 'Port';
 export const labelSave = 'Save';
 export const labelPortExpectedAtMost = 'Port number must be at most 65535';
@@ -35,6 +33,9 @@ export const labelCaCertificate = 'CA file name';
 export const labelPrivateKey = 'Private key file name';
 export const labelCertificate = 'Certificate file name';
 export const labelConfigurationServer = 'Configuration provider';
-export const labelAgentConfigurationCreated = 'Poller/agent configuration created';
-export const labelAgentConfigurationUpdated = 'Poller/agent configuration updated';
-export const labelUpdateAgentConfiguration = 'Update poller/agent configuration';
+export const labelAgentConfigurationCreated =
+  'Poller/agent configuration created';
+export const labelAgentConfigurationUpdated =
+  'Poller/agent configuration updated';
+export const labelUpdateAgentConfiguration =
+  'Update poller/agent configuration';

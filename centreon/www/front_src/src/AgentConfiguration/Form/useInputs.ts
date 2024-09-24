@@ -1,6 +1,5 @@
 import { Group, InputProps, InputType, SelectEntry } from '@centreon/ui';
 import { capitalize } from '@mui/material';
-import { isEmpty, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { pollersEndpoint } from '../api/endpoints';
 import { AgentType } from '../models';
@@ -10,7 +9,6 @@ import {
   labelCaCertificate,
   labelCertificate,
   labelConfigurationServer,
-  labelListeningAddress,
   labelName,
   labelOTelServer,
   labelPollerConfiguration,
@@ -20,7 +18,6 @@ import {
   labelPublicCertificate
 } from '../translatedLabels';
 import Empty from './Empty';
-import { portRegex } from './useValidationSchema';
 
 export const agentTypes: Array<SelectEntry> = [
   { id: AgentType.Telegraf, name: capitalize(AgentType.Telegraf) }
@@ -92,41 +89,6 @@ export const useInputs = (): {
               additionalLabel: t(labelOTelServer),
               grid: {
                 columns: [
-                  {
-                    type: InputType.Text,
-                    fieldName: 'configuration.otelServerAddress',
-                    required: true,
-                    label: t(labelListeningAddress),
-                    change: ({ setFieldValue, setFieldTouched, value }) => {
-                      const port = value.match(portRegex);
-
-                      if (isNil(port) || isEmpty(port)) {
-                        setFieldValue('configuration.otelServerAddress', value);
-                        return;
-                      }
-
-                      const newAddress = value.replace(port[0], '');
-
-                      setFieldTouched('configuration.otelServerPort', true);
-                      setFieldValue(
-                        'configuration.otelServerAddress',
-                        newAddress
-                      );
-                      setFieldValue(
-                        'configuration.otelServerPort',
-                        port[0].substring(1)
-                      );
-                    }
-                  },
-                  {
-                    type: InputType.Text,
-                    fieldName: 'configuration.otelServerPort',
-                    required: true,
-                    label: t(labelPort),
-                    text: {
-                      type: 'number'
-                    }
-                  },
                   {
                     type: InputType.Text,
                     fieldName: 'configuration.otelPublicCertificate',
