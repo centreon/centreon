@@ -11,6 +11,7 @@ import { useGetAgentConfigurations } from './hooks/useGetAgentConfigurations';
 import {
   labelAddNewAgent,
   labelAgentsConfigurations,
+  labelWelcomeDescription,
   labelWelcomeToTheAgentsConfigurationPage
 } from './translatedLabels';
 
@@ -46,6 +47,7 @@ const AgentConfigurationPage = (): JSX.Element => {
               data-testid="create-agent-configuration"
               labels={{
                 title: t(labelWelcomeToTheAgentsConfigurationPage),
+                description: t(labelWelcomeDescription),
                 actions: {
                   create: t(labelAddNewAgent)
                 }

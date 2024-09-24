@@ -18236,3 +18236,6 @@ msgstr ""
 
 # msgid "Update agent configuration"
 # msgstr ""
+
+# msgid "An agent is a piece of software you install on the host you want to monitor, that executes the checks."
+# msgstr ""

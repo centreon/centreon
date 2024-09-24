@@ -40,3 +40,5 @@ export const labelAgentConfigurationUpdated =
 export const labelUpdateAgentConfiguration =
   'Update poller/agent configuration';
 export const labelInvalidFilename = 'Invalid filename';
+export const labelWelcomeDescription =
+  'An agent is a piece of software you install on the host you want to monitor, that executes the checks.';
