@@ -79,6 +79,10 @@ on:
         required: true
       registry_password:
         required: true
+      sign_username:
+        required: true
+      sign_token:
+        required: true
 
 jobs:
   package:
@@ -130,8 +134,8 @@ jobs:
       image: docker.centreon.com/centreon-private/rpm-signing:latest
       options: -t
       credentials:
-        username: ${{ secrets.registry_username }}
-        password: ${{ secrets.registry_password }}
+        username: ${{ secrets.sign_username }}
+        password: ${{ secrets.sign_token }}
 
     steps:
       - run: |

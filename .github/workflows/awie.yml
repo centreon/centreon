@@ -91,6 +91,8 @@ jobs:
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      sign_username: ${{ secrets.RPM_GPG_SIGNING_REPO_USERNAME }}
+      sign_token: ${{ secrets.RPM_GPG_SIGNING_REPO_TOKEN }}
 
   deliver-sources:
     runs-on: [self-hosted, common]
