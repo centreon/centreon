@@ -2929,7 +2929,7 @@ function updateServiceNotifOptionInterval_MC($service_id = null)
  * @param int $serviceId
  * @param array $ret
  *
- * @throws \PDOException
+ * @throws CentreonDbException
  */
 function updateServiceNotifOptionTimeperiod(int $serviceId, $ret = array())
 {
@@ -2951,8 +2951,8 @@ function updateServiceNotifOptionTimeperiod(int $serviceId, $ret = array())
     } catch (CentreonDbException $ex) {
         CentreonLog::create()->error(
             CentreonLog::LEVEL_ERROR,
-            $ex->getMessage(),
-            ['service_id' => $serviceId],
+            'Error while updating service notification timeperiod: ' . $ex->getMessage(),
+            ['service_id' => $serviceId, 'ret' => $ret],
             $ex
         );
 
