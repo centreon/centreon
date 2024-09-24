@@ -52,7 +52,10 @@
       "type": "resources",
       "defaultValue": [],
       "required": true,
-      "excludedResourceTypes": ["meta-service"]
+      "restrictedResourceTypes": [
+        "host",
+        "meta-service"
+      ]
     },
     "metrics": {
       "type": "metrics",

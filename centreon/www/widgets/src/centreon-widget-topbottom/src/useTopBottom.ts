@@ -15,7 +15,11 @@ import {
   Metric,
   Resource
 } from '../../models';
-import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
+import {
+  areResourcesFullfilled,
+  getIsMetaServiceSelected,
+  getWidgetEndpoint
+} from '../../utils';
 
 import { metricsTopDecoder } from './api/decoder';
 import { metricsTopEndpoint } from './api/endpoint';
@@ -64,6 +68,8 @@ const useTopBottom = ({
 
   const metricName = metrics?.[0]?.name;
 
+  const isMetaServiceSelected = getIsMetaServiceSelected(resources);
+  
   const { data: metricsTop, isFetching } = useFetchQuery<MetricsTop>({
     decoder: metricsTopDecoder,
     getEndpoint: () =>
@@ -87,7 +93,7 @@ const useTopBottom = ({
                 : 'ASC'
             }
           }
-        })}&metric_name=${encodeURIComponent(metricName)}`,
+        })}${isMetaServiceSelected ? '' : `&metric_name=${encodeURIComponent(metricName)}`}`,
         isOnPublicPage,
         playlistHash,
         widgetId: id
@@ -102,7 +108,9 @@ const useTopBottom = ({
       refreshCount
     ],
     queryOptions: {
-      enabled: areResourcesFullfilled(resources) && !!metricName,
+      enabled:
+        areResourcesFullfilled(resources) &&
+        (isMetaServiceSelected || !!metricName),
       refetchInterval: refreshIntervalToUse,
       suspense: false
     }
@@ -110,7 +118,7 @@ const useTopBottom = ({
 
   return {
     isLoading: isFetching && !metricsTop,
-    isMetricEmpty: isNil(metricName),
+    isMetricEmpty: !isMetaServiceSelected && isNil(metricName),
     metricsTop
   };
 };

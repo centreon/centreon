@@ -14,7 +14,7 @@ import {
   toPairs
 } from 'ramda';
 
-import { SeverityCode, centreonBaseURL } from '@centreon/ui';
+import { ResourceType, SeverityCode, centreonBaseURL } from '@centreon/ui';
 
 import { Resource, SeverityStatus } from './models';
 
@@ -445,3 +445,9 @@ export const getResourcesSearchQueryParameters = (
     resourcesSearchConditions: flatten(resourcesSearchConditions)
   };
 };
+
+export const getIsMetaServiceSelected = (
+  resources: Array<Resource> = []
+): boolean =>
+  equals(resources.length, 1) &&
+  equals(resources[0].resourceType, ResourceType.metaService);

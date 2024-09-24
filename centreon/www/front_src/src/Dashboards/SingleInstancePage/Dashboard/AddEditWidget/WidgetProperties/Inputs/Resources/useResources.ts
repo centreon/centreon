@@ -79,6 +79,7 @@ interface UseResourcesState {
   getResourceStatic: (resourceType: WidgetResourceType) => boolean | undefined;
   getResourceTypeOptions: (index, resource) => Array<ResourceTypeOption>;
   getSearchField: (resourceType: WidgetResourceType) => string;
+  hideResourceDeleteButton: () => boolean | undefined;
   hasSelectedHostForSingleMetricwidget?: boolean;
   isLastResourceInTree: boolean;
   singleResourceSelection?: boolean;
@@ -182,6 +183,17 @@ const getAdditionalQueryParameters = (
   }
 ];
 
+const singleMetricBaseResources = [
+  {
+    resourceType: WidgetResourceType.host,
+    resources: []
+  },
+  {
+    resourceType: WidgetResourceType.service,
+    resources: []
+  }
+];
+
 const useResources = ({
   propertyName,
   restrictedResourceTypes,
@@ -226,13 +238,39 @@ const useResources = ({
     return (
       widgetProperties?.singleMetricSelection &&
       widgetProperties?.singleResourceSelection &&
-      (equals(resourceType, WidgetResourceType.host) ||
-        equals(resourceType, WidgetResourceType.service))
+      equals(resourceType, WidgetResourceType.service)
+    );
+  };
+
+
+  const hideResourceDeleteButton = (): boolean | undefined => {
+    return (
+      widgetProperties?.singleMetricSelection &&
+      widgetProperties?.singleResourceSelection
     );
   };
 
   const changeResourceType =
     (index: number) => (e: ChangeEvent<HTMLInputElement>) => {
+      if (
+        widgetProperties?.singleMetricSelection &&
+        widgetProperties?.singleResourceSelection &&
+        equals(WidgetResourceType.host, e.target.value)
+      ) {
+        setFieldValue(`data.${propertyName}`, [
+          {
+            resourceType: WidgetResourceType.host,
+            resources: []
+          },
+          {
+            resourceType: WidgetResourceType.service,
+            resources: []
+          }
+        ]);
+        
+        return;
+      }
+      
       const isNotLastResourceTypeChanged = value?.length || 0 - 1 > index;
 
       if (isNotLastResourceTypeChanged) {
@@ -550,14 +588,23 @@ const useResources = ({
         );
       }, availableResourceTypes);
 
-      return filteredResourceTypeOptions;
+      const forceAddServiceToOptions =
+      widgetProperties?.singleMetricSelection &&
+      widgetProperties?.singleResourceSelection &&
+      equals(resource.resourceType, WidgetResourceType.service);
+
+    return forceAddServiceToOptions
+      ? [...filteredResourceTypeOptions, { id: WidgetResourceType.service, name: labelService }]
+      : filteredResourceTypeOptions;
+
     },
     [
       additionalResources,
       useAdditionalResources,
       hasRestrictedTypes,
       excludedResourceTypes,
-      value
+      value,
+      widgetProperties
     ]
   );
 
@@ -637,7 +684,8 @@ const useResources = ({
     isLastResourceInTree,
     singleResourceSelection: widgetProperties?.singleResourceSelection,
     value: value || [],
-    isValidatingResources
+    isValidatingResources,
+    hideResourceDeleteButton
   };
 };
 
