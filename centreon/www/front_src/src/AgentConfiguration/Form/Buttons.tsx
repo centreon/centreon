@@ -22,12 +22,15 @@ const Buttons = (): JSX.Element => {
   const setOpenFormModal = useSetAtom(openFormModalAtom);
   const setAgentTypeForm = useSetAtom(agentTypeFormAtom);
 
-  const { isValid, dirty, isSubmitting, submitForm } = useFormikContext();
+  const { isValid, dirty, isSubmitting, submitForm, errors } =
+    useFormikContext();
 
   const isSubmitDisabled = useMemo(
     () => !dirty || !isValid || isSubmitting,
     [dirty, isValid, isSubmitting]
   );
+
+  console.log(errors);
 
   const discard = useCallback(() => {
     setAskBeforeCloseFormModal(false);

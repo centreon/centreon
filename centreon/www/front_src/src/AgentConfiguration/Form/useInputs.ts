@@ -12,6 +12,7 @@ import {
   labelCaCertificate,
   labelCertificate,
   labelConfigurationServer,
+  labelConnectionInitiatedByPoller,
   labelHostConfigurations,
   labelListeningAddress,
   labelName,
@@ -75,9 +76,40 @@ export const useInputs = (): {
                 fullWidth: false,
                 options: agentTypes
               },
-              change: ({ setFieldValue, value }) => {
+              change: ({ value, setValues, values, setTouched }) => {
                 setAgentTypeForm(value.id);
-                setFieldValue('type', value);
+                setValues({
+                  ...values,
+                  type: value,
+                  configuration: equals(value.id, AgentType.Telegraf)
+                    ? {
+                        otelServerAddress: '',
+                        otelServerPort: '',
+                        confServerPort: '',
+                        otelPrivateKey: '',
+                        otelCaCertificate: '',
+                        otelPublicCertificate: '',
+                        confPrivateKey: '',
+                        confCertificate: ''
+                      }
+                    : {
+                        isReverse: true,
+                        otlpReceiverAddress: '',
+                        otlpReceiverPort: '',
+                        otlpCertificate: '',
+                        otlpCaCertificate: '',
+                        otlpPrivateKey: '',
+                        hosts: [
+                          {
+                            address: '',
+                            port: '',
+                            certificate: '',
+                            key: ''
+                          }
+                        ]
+                      }
+                });
+                setTouched({}, false);
               }
             },
             {
@@ -102,15 +134,32 @@ export const useInputs = (): {
           gridTemplateColumns: '0.6fr 1fr',
           columns: [
             {
-              type: InputType.MultiConnectedAutocomplete,
-              fieldName: 'pollers',
-              required: true,
-              label: t(labelPollers),
+              type: InputType.Grid,
+              fieldName: 'poller_reverse',
+              label: '',
               additionalLabel: t(labelPollers),
-              connectedAutocomplete: {
-                additionalConditionParameters: [],
-                endpoint: pollersEndpoint,
-                filterKey: 'name'
+              grid: {
+                gridTemplateColumns: '1fr',
+                columns: [
+                  {
+                    type: InputType.MultiConnectedAutocomplete,
+                    fieldName: 'pollers',
+                    required: true,
+                    label: t(labelPollers),
+                    connectedAutocomplete: {
+                      additionalConditionParameters: [],
+                      endpoint: pollersEndpoint,
+                      filterKey: 'name'
+                    }
+                  },
+                  {
+                    type: InputType.Switch,
+                    fieldName: 'configuration.isReverse',
+                    hideInput: (values) =>
+                      equals(values?.type?.id, AgentType.Telegraf),
+                    label: t(labelConnectionInitiatedByPoller)
+                  }
+                ]
               }
             },
             {
@@ -229,7 +278,8 @@ export const useInputs = (): {
               label: labelHostConfigurations,
               additionalLabel: t(labelHostConfigurations),
               hideInput: (values) =>
-                equals(values?.type?.id, AgentType.Telegraf),
+                equals(values?.type?.id, AgentType.Telegraf) ||
+                !values?.configuration?.isReverse,
               custom: {
                 Component: HostConfigurations
               }

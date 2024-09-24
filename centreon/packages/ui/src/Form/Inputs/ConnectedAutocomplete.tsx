@@ -30,8 +30,15 @@ const ConnectedAutocomplete = ({
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
 
-  const { values, touched, errors, setFieldValue, setFieldTouched } =
-    useFormikContext<FormikValues>();
+  const {
+    values,
+    touched,
+    errors,
+    setFieldValue,
+    setFieldTouched,
+    setValues,
+    setTouched
+  } = useFormikContext<FormikValues>();
 
   const filterKey = connectedAutocomplete?.filterKey || defaultFilterKey;
 
@@ -58,7 +65,14 @@ const ConnectedAutocomplete = ({
   const changeAutocomplete = useCallback(
     (_, value): void => {
       if (change) {
-        change({ setFieldValue, value, setFieldTouched });
+        change({
+          setFieldValue,
+          value,
+          setFieldTouched,
+          setValues,
+          values,
+          setTouched
+        });
 
         return;
       }
