@@ -64,27 +64,39 @@ Cypress.Commands.add(
   }
 );
 
+interface ServiceCheck {
+  host: string;
+  isForced?: boolean;
+  service: string;
+}
+
 Cypress.Commands.add(
   'scheduleServiceCheck',
-  ({
-    host,
-    isForced = true,
-    service
-  }: ServiceCheck): Cypress.Chainable => {
+  ({ host, isForced = true, service }: ServiceCheck): Cypress.Chainable => {
+    cy.log(`Host: ${host}, Service: ${service}`);
+
     let query = `SELECT parent_id, id FROM resources WHERE parent_name = '${host}' AND name = '${service}'`;
 
     return cy
-      .requestOnDatabase({
+      .fetchHostData({
         database: 'centreon_storage',
         query
       })
-      .then(([rows]) => {
-        if (rows.length === 0) {
+      .then((rows) => {
+        cy.log('Rows:', JSON.stringify(rows));
+
+        if (!Array.isArray(rows) || rows.length === 0) {
           throw new Error(`Cannot find service ${host} / ${service}`);
         }
 
-        const hostId = rows[0].parent_id;
-        const serviceId = rows[0].id;
+        const hostId = parseInt(rows[0].parent_id, 10);
+        const serviceId = parseInt(rows[0].id, 10);
+
+        cy.log(`Host ID: ${hostId}, Service ID: ${serviceId}`);
+
+        if (isNaN(hostId) || isNaN(serviceId)) {
+          throw new Error(`Invalid IDs: hostId = ${hostId}, serviceId = ${serviceId}`);
+        }
 
         return cy.request({
           body: {
@@ -112,6 +124,7 @@ Cypress.Commands.add(
       });
   }
 );
+
 
 declare global {
   namespace Cypress {

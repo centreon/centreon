@@ -114,7 +114,22 @@ interface MonitoredService {
   name: string;
   output?: string;
   status?: string;
+  statusType?: string;
 }
+
+
+const getStatusTypeNumberFromString = (statusType: string): number => {
+  const statusesType = {
+    hard: '1',
+    soft: '0'
+  };
+
+  if (statusType in statusesType) {
+    return statusesType[statusType];
+  }
+
+  throw new Error(`Status type ${statusType} does not exist`);
+};
 
 const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
   cy.log('Checking services in database');
@@ -425,33 +440,40 @@ const checkMetricsAreMonitored = (metrics: Array<MonitoredMetric>): void => {
   query += ')';
   cy.log(query);
 
-  cy.requestOnDatabase({
-    database: 'centreon_storage',
-    query
-  }).then(([rows]) => {
-    metricsFoundStepCount += 1;
+  const command = `docker exec -i ${Cypress.env('dockerName')} mysql -ucentreon -pcentreon centreon_storage -e "${query}"`;
 
-    const foundMetricCount = rows.length ? rows[0].count_metrics : 0;
+  cy.exec(command).then(({ code, stdout, stderr }) => {
+    if (stderr) {
+      throw new Error(`Database command execution failed: ${stderr}`);
+    }
+
+    // Split stdout lines and extract the metric count
+    const outputLines = stdout.split('\n').filter(Boolean); // Remove empty lines
+    cy.log('Output Lines:', outputLines);
+
+    if (outputLines.length < 2) {
+      throw new Error('No results returned from the query');
+    }
+
+    const foundMetricCount = parseInt(outputLines[1], 10) || 0; // The count will be in the second line
 
     cy.log('Metric count in database', foundMetricCount);
     cy.log('Metric database check step count', metricsFoundStepCount);
 
-    if (foundMetricCount >= metrics.length) {
-      metricsFoundStepCount = 0;
+    metricsFoundStepCount += 1;
 
-      return null;
+    if (foundMetricCount >= metrics.length) {
+      metricsFoundStepCount = 0; // Reset the step count if all metrics are found
+      return null; // Exit the function
     }
 
     if (metricsFoundStepCount < maxSteps) {
       cy.wait(stepWaitingTime);
-
-      return cy.wrap(null).then(() => checkMetricsAreMonitored(metrics));
+      return cy.wrap(null).then(() => checkMetricsAreMonitored(metrics)); // Recursive call
     }
 
     throw new Error(
-      `Metrics ${metrics
-        .map(({ name }) => name)
-        .join()} are not monitored after ${pollingCheckTimeout}ms`
+      `Metrics ${metrics.map(({ name }) => name).join()} are not monitored after ${pollingCheckTimeout}ms`
     );
   });
 };
@@ -467,6 +489,7 @@ export {
   submitResultsViaClapi,
   updateFixturesResult,
   apiBase,
+  getStatusTypeNumberFromString,
   apiActionV1,
   applyConfigurationViaClapi,
   versionApi,
