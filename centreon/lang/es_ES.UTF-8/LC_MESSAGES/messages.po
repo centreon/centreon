@@ -17710,11 +17710,11 @@ msgstr "Modo avanzado"
 # msgid "Agent type"
 # msgstr ""
 
-# msgid "Expand"
-# msgstr ""
+msgid "Expand"
+msgstr "Expandir"
 
-# msgid "Collapse"
-# msgstr ""
+msgid "Collapse"
+msgstr "Retractar"
 
 # msgid "Add new agent configuration"
 # msgstr ""
