@@ -13,7 +13,7 @@ import {
 } from '../../translatedLabels';
 import { widgetPropertiesAtom } from '../atoms';
 
-import { platformVersionsAtom ,platformFeaturesAtom} from '@centreon/ui-context';
+import { platformVersionsAtom} from '@centreon/ui-context';
 import CollapsibleWidgetProperties from './CollapsibleWidgetProperties';
 import { WidgetRichTextEditor, WidgetSwitch, WidgetTextField } from './Inputs';
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
@@ -24,18 +24,15 @@ const WidgetProperties = (): JSX.Element => {
 
   const selectedWidgetProperties = useAtomValue(widgetPropertiesAtom);
   const platformVersions = useAtomValue(platformVersionsAtom);
-  const platformFeatures = useAtomValue(platformFeaturesAtom);
   
-  const isCloudPlatform = platformFeatures?.isCloudPlatform;
   const isWidgetSelected = !isNil(selectedWidgetProperties);
 
- 
   const additionalCategories = reject((category) => {
     if (!category?.hasModule) {
       return false;
     }
 
-    return !has(category?.hasModule, platformVersions?.modules) || ( category?.availableOnPremOnly && isCloudPlatform);
+    return !has(category?.hasModule, platformVersions?.modules);
   }, selectedWidgetProperties?.categories || []);
 
   const inputCategories = isWidgetSelected

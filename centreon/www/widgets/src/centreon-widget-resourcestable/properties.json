@@ -94,7 +94,6 @@
   "categories": {
     "Ticket settings": {
       "hasModule": "centreon-open-tickets",
-      "availableOnPremOnly": true,
       "groups": [
         {
           "id": "isOpenTicketEnabled",

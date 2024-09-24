@@ -113,7 +113,6 @@ export interface FederatedWidgetProperties {
       };
       groups: Array<SelectEntry>;
       hasModule?: string;
-      availableOnPremOnly?: boolean;
     };
   };
   customBaseColor?: boolean;
