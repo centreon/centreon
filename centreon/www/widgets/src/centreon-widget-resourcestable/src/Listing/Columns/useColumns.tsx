@@ -42,6 +42,7 @@ import {
 
 import useIsOpenTicketInstalled from '../useIsOpenTicketInstalled';
 import CloseTicket from './CloseTicket/CloseTicket';
+
 import useStyles, { useStatusStyles } from './Columns.styles';
 import OpenTicket from './OpenTicket/OpenTicket';
 import ParentResourceColumn from './Parent';
