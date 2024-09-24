@@ -25,7 +25,7 @@ import {
   labelDelete,
   labelDeleteAgent,
   labelDeletePoller,
-  labelExtensionNotAllowed,
+  labelInvalidFilename,
   labelName,
   labelPoller,
   labelPollers,
@@ -391,7 +391,7 @@ describe('Agent configurations', () => {
 });
 
 describe('Agent configurations modal', () => {
-  it('does not validate the when fields contain errors', () => {
+  it('does not validate the form when fields contain errors', () => {
     initialize({});
 
     cy.contains(labelAddNewAgent).click();
@@ -403,16 +403,16 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelPollers).focus();
     cy.findByLabelText(labelPollers).blur();
     cy.findAllByLabelText(labelPort).eq(0).type('123456');
-    cy.findByLabelText(labelPublicCertificate).type('test.cer');
-    cy.findByLabelText(labelCaCertificate).type('test.pem');
-    cy.findAllByLabelText(labelPrivateKey).eq(0).type('test.crt');
-    cy.findAllByLabelText(labelPrivateKey).eq(1).type('test.crt');
-    cy.findByLabelText(labelCertificate).type('test.key');
+    cy.findByLabelText(labelPublicCertificate).type('test.cert');
+    cy.findByLabelText(labelCaCertificate).type('test.crt');
+    cy.findAllByLabelText(labelPrivateKey).eq(0).type('test.key');
+    cy.findAllByLabelText(labelPrivateKey).eq(1).type('test.key');
+    cy.findByLabelText(labelCertificate).type('test.cer');
     cy.findByLabelText(labelCertificate).blur();
 
     cy.findByLabelText(labelAgentType).should('have.value', 'Telegraf');
     cy.findAllByText(labelRequired).should('have.length', 2);
-    cy.findAllByText(labelExtensionNotAllowed).should('have.length', 5);
+    cy.findAllByText(labelInvalidFilename).should('have.length', 5);
     cy.findAllByText(labelPortExpectedAtMost).should('have.length', 1);
     cy.contains(labelSave).should('be.disabled');
 

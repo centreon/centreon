@@ -39,3 +39,4 @@ export const labelAgentConfigurationUpdated =
   'Poller/agent configuration updated';
 export const labelUpdateAgentConfiguration =
   'Update poller/agent configuration';
+export const labelInvalidFilename = 'Invalid filename';

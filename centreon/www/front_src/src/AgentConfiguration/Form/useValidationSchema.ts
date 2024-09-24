@@ -6,28 +6,26 @@ import {
   AgentConfigurationForm
 } from '../models';
 import {
-  labelExtensionNotAllowed,
+  labelInvalidFilename,
   labelPortExpectedAtMost,
   labelPortMustStartFrom1,
   labelRequired
 } from '../translatedLabels';
 
 export const portRegex = /:[0-9]+$/;
+export const certificateFilenameRegexp = /^[a-zA-Z0-9-_.]+(?<!\.crt|cert|cer)$/;
+export const keyFilenameRegexp = /^[a-zA-Z0-9-_.]+(?<!\.key)$/;
 
 export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
   const { t } = useTranslation();
 
   const requiredString = useMemo(() => string().required(t(labelRequired)), []);
-  const filenameValidation = useMemo(
-    () =>
-      requiredString.test({
-        name: 'is-filename-valid',
-        exclusive: true,
-        message: t(labelExtensionNotAllowed),
-        test: (filename) => !filename.match(/\.(pem|crt|key|cer)$/)
-      }),
-    []
-  );
+  const certificateValidation = string()
+    .matches(certificateFilenameRegexp, t(labelInvalidFilename))
+    .required(t(labelRequired));
+  const keyValidation = string()
+    .matches(keyFilenameRegexp, t(labelInvalidFilename))
+    .required(t(labelRequired));
 
   return object<AgentConfigurationForm>({
     name: requiredString,
@@ -45,11 +43,11 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
         .min(1, t(labelPortMustStartFrom1))
         .max(65535, t(labelPortExpectedAtMost))
         .required(t(labelRequired)),
-      otelPublicCertificate: filenameValidation,
-      otelCaCertificate: filenameValidation,
-      otelPrivateKey: filenameValidation,
-      confCertificate: filenameValidation,
-      confPrivateKey: filenameValidation
+      otelPublicCertificate: certificateValidation,
+      otelCaCertificate: certificateValidation,
+      otelPrivateKey: keyValidation,
+      confCertificate: certificateValidation,
+      confPrivateKey: keyValidation
     })
   });
 };
