@@ -5,11 +5,11 @@ import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import textWidget from '../../../fixtures/dashboards/creation/widgets/textWidget.json';
 
 before(() => {
-  cy.startContainers();
-  cy.enableDashboardFeature();
-  cy.executeCommandsViaClapi(
-    'resources/clapi/config-ACL/dashboard-configuration-creator.json'
-  );
+  // cy.startContainers();
+  // cy.enableDashboardFeature();
+  // cy.executeCommandsViaClapi(
+  //   'resources/clapi/config-ACL/dashboard-configuration-creator.json'
+  // );
 });
 
 after(() => {
@@ -30,7 +30,7 @@ beforeEach(() => {
     url: '/centreon/api/latest/configuration/dashboards'
   }).as('createDashboard');
   cy.loginByTypeOfUser({
-    jsonName: 'user-dashboard-creator',
+    jsonName: 'admin',
     loginViaApi: false
   });
 });
@@ -215,7 +215,7 @@ When('the dashboard administrator user starts to edit the dashboard', () => {
 Then("creates a new dashboard on the previous dashboard's edition page", () => {
 
   cy.get("button[type=button]").contains("Add a widget").should("be.visible");
-  cy.getByTestId({ testId: 'ArrowDropDownIcon' }).click();
+  cy.getByTestId({ testId: 'MenuIcon' }).click();
   cy.contains('Create a dashboard').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(dashboards.default.name);
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
