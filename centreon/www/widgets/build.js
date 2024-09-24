@@ -10,7 +10,7 @@ const getWidgets = () => {
     .map(({ name }) => name)
     .filter((name) =>
       name !== 'node_modules' && widgets.length > 0 ? widgets.includes(replace('centreon-widget-', '', name)) : name.match(/^centreon-widget/)
-    );
+    ).filter((name) => name === "centreon-widget-singlemetric" || name === "centreon-widget-graph" || name === "centreon-widget-topbottom" || name === "centreon-widget-resourcestable");
 };
 
 const getWebpackBuildConfiguration = () => {
