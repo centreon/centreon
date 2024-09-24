@@ -54,7 +54,10 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
     public function __construct(
         array $parameters
     ){
+
         /** @var _TelegrafParameters $parameters */
+        Assertion::ipAddress($parameters['otel_server_address'], 'configuration.otel_server_address');
+
         Assertion::range($parameters['otel_server_port'], 0, 65535, 'configuration.otel_server_port');
         Assertion::range($parameters['conf_server_port'], 0, 65535, 'configuration.conf_server_port');
 

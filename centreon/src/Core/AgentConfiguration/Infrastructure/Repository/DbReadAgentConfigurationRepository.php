@@ -206,6 +206,24 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
     }
 
     /**
+     * @inheritDoc
+     */
+    public function haveBrokerModuleDirective(string $module): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    `cfg_nagios_id`
+                FROM `:db`.`cfg_nagios_broker_module`
+                WHERE cfg_nagios_id = :id
+                SQL
+        ));
+        $statement->bindValue(':id', $agentConfigurationId, \PDO::PARAM_INT);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+    }
+
+    /**
      * @param _AgentConfiguration $row
      *
      * @return AgentConfiguration

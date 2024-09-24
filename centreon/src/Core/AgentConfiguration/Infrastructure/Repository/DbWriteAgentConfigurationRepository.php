@@ -139,4 +139,27 @@ class DbWriteAgentConfigurationRepository  extends AbstractRepositoryRDB impleme
         $statement->bindValue(':ac_id', $agentConfigurationId, \PDO::PARAM_INT);
         $statement->execute();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function addBrokerModuleDirective(string $module, array $pollerIds): void
+    {
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                INSERT INTO `:db`.`cfg_nagios_broker_module`
+                (cfg_nagios_id, broker_module)
+                VALUES (:pollerId, :module)
+                SQL
+        ));
+
+        $pollerId = null;
+        $statement->bindValue(':module', $module, \PDO::PARAM_INT);
+        $statement->bindParam(':poller_id', $pollerId, \PDO::PARAM_INT);
+        foreach ($pollerIds as $poller) {
+            $pollerId = $poller;
+            $statement->execute();
+        }
+    }
 }

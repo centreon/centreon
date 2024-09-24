@@ -100,11 +100,22 @@ interface ReadAgentConfigurationRepositoryInterface
     /**
      * Find all the pollers associated with an AC ID.
      *
-     * @param int $agentConfigurationId
+     * @param int[] $pollerIds
      *
      * @throws \Throwable
      *
      * @return Poller[]
      */
     public function findPollersByAcId(int $agentConfigurationId): array;
+
+    /**
+     * Return poller IDs that have the specified module directive defined in their engine configuration.
+     *
+     * @param string $module
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function findPollersWithBrokerModuleDirective(string $module): array;
 }

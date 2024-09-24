@@ -71,16 +71,32 @@ final class AddAgentConfiguration
             }
 
             $request->pollerIds = array_unique($request->pollerIds);
+            $type = Type::from($request->type);
 
             $this->validator->validateRequestOrFail($request);
 
             $newAc = AgentConfigurationFactory::createNewAgentConfiguration(
                 name: $request->name,
-                type: Type::from($request->type),
+                type: $type,
                 parameters: $request->configuration,
             );
 
-            $agentConfigurationId = $this->save($newAc, $request->pollerIds);
+            $needBrokerModuleDirectives = [];
+            $module = match ($type) {
+                Type::TELEGRAF => '/usr/lib64/centreon-engine/libopentelemetry.so /etc/centreon-engine/otl_server.json',
+                default => throw new \Exception('This error should never happen'),
+            };
+            if ($type === Type::TELEGRAF) {
+                $haveBrokerModuleDirectives = $this->readAcRepository->findPollersWithBrokerModuleDirective($module);
+                $needBrokerModuleDirectives = array_diff($request->pollerIds, $haveBrokerModuleDirectives);
+            }
+
+            $agentConfigurationId = $this->save(
+                $newAc,
+                $request->pollerIds,
+                $module,
+                $needBrokerModuleDirectives
+            );
 
             if (null === $agentConfiguration = $this->readAcRepository->find($agentConfigurationId)) {
                 throw AgentConfigurationException::errorWhileRetrievingObject();
@@ -105,18 +121,20 @@ final class AddAgentConfiguration
     /**
      * @param NewAgentConfiguration $agentConfiguration
      * @param int[] $pollers
+     * @param int[] $needBrokerModuleDirectives
      *
      * @throws \Throwable
      *
      * @return int
      */
-    private function save(NewAgentConfiguration $agentConfiguration, array $pollers): int
+    private function save(NewAgentConfiguration $agentConfiguration, array $pollers, string $module, array $needBrokerModuleDirectives): int
     {
         try {
             $this->dataStorageEngine->startTransaction();
 
             $newAcId = $this->writeAcRepository->add($agentConfiguration);
             $this->writeAcRepository->linkToPollers($newAcId, $pollers);
+            $this->writeAcRepository->addBrokerModuleDirective($module, $needBrokerModuleDirectives);
 
             $this->dataStorageEngine->commitTransaction();
         } catch (\Throwable $ex) {
