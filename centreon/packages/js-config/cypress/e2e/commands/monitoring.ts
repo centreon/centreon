@@ -64,10 +64,60 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add(
+  'scheduleServiceCheck',
+  ({
+    host,
+    isForced = true,
+    service
+  }: ServiceCheck): Cypress.Chainable => {
+    let query = `SELECT parent_id, id FROM resources WHERE parent_name = '${host}' AND name = '${service}'`;
+
+    return cy
+      .requestOnDatabase({
+        database: 'centreon_storage',
+        query
+      })
+      .then(([rows]) => {
+        if (rows.length === 0) {
+          throw new Error(`Cannot find service ${host} / ${service}`);
+        }
+
+        const hostId = rows[0].parent_id;
+        const serviceId = rows[0].id;
+
+        return cy.request({
+          body: {
+            check: {
+              is_forced: isForced
+            },
+            resources: [
+              {
+                id: serviceId,
+                parent: {
+                  id: hostId
+                },
+                type: 'service'
+              }
+            ]
+          },
+          method: 'POST',
+          timeout: 30000,
+          url: '/centreon/api/latest/monitoring/resources/check'
+        }).then((response) => {
+          expect(response.status).to.eq(204);
+
+          return cy.wrap(null);
+        });
+      });
+  }
+);
+
 declare global {
   namespace Cypress {
     interface Chainable {
       submitResults: (props: Array<SubmitResult>) => Cypress.Chainable;
+      scheduleServiceCheck: (serviceCheck) => Cypress.Chainable;
     }
   }
 }
