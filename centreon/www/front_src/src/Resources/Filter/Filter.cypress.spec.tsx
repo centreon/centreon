@@ -631,7 +631,7 @@ describe('Replaces whitespace with the \\s regex pattern', () => {
 
     cy.waitForRequest('@pollersWithSpaceOnNameRequest');
 
-    cy.findByRole('tooltip', { name: pollerName }).click();
+    cy.findByRole('menuitem', { name: pollerName }).click();
 
     cy.findByPlaceholderText(labelSearch)
       .invoke('val')

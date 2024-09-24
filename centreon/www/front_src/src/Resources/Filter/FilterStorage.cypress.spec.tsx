@@ -111,16 +111,19 @@ const filter = {
   criterias: [
     {
       name: 'resource_types',
+      object_type: null,
       type: 'multi_select',
       value: [{ id: 'host', name: labelHost, formattedName: labelHost }]
     },
     {
       name: 'states',
+      object_type: null,
       type: 'multi_select',
       value: [{ id: 'acknowledged', name: labelAcknowledged }]
     },
     {
       name: 'statuses',
+      object_type: null,
       type: 'multi_select',
       value: [{ id: 'OK', name: labelOk }]
     },
