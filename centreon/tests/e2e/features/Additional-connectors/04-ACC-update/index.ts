@@ -56,8 +56,7 @@ Given('an additional connector configuration is already created', () => {
   cy.get('[id="Portvalue"]').should('have.value', '5700');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
   cy.wait('@addAdditionalConnector');
-  cy.get('*[class="MuiTypography-root MuiTypography-body1 css-7bmf3k-text-rowNotHovered"]')
-    .eq(0)
+  cy.get('*[role="rowgroup"]')
     .should('contain', 'Connector-001');
 });
 
@@ -106,8 +105,7 @@ Then('the form is closed', () => {
 });
 
 Then('the informations are successfully saved', () => {
-  cy.get('*[class="MuiTypography-root MuiTypography-body1 css-7bmf3k-text-rowNotHovered"]')
-    .eq(0)
+  cy.get('*[role="rowgroup"]')
     .should('contain', 'Connector-002');
   cy.getByLabel({ label: 'Edit connector configuration', tag: 'button' }).click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('have.value', 'Connector-002');
