@@ -494,7 +494,7 @@ describe('Open tickets', () => {
 
     cy.waitForRequest('@getResources');
 
-    cy.contains('Ticket');
+    cy.contains('Ticket').should('be.visible');
 
     cy.makeSnapshot();
   });

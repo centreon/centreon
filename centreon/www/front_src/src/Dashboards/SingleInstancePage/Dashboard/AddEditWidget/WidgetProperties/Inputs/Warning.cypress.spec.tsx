@@ -40,9 +40,9 @@ const label = "Warning message!" ;
 
 describe('WidgetTextField', () => {
   it('displays the text field', () => {
-    initialize({label });
+    initialize({ label });
 
-    cy.contains(label);
+    cy.contains(label).should('be.visible');
 
     cy.makeSnapshot();
   });

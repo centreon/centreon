@@ -54,7 +54,7 @@ const ConnectedAutocomplete = ({
           limitTags={2}
           value={value}
           onChange={changeValue}
-          required= {isRequiredProperty}
+          required={isRequiredProperty}
         />
       ) : (
         <MultiConnectedAutocompleteField
@@ -70,7 +70,7 @@ const ConnectedAutocomplete = ({
           placeholder=""
           value={value}
           onChange={changeValues}
-          required= {isRequiredProperty}
+          required={isRequiredProperty}
         />
       )}
     </div>
