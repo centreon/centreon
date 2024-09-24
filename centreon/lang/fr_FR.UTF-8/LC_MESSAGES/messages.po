@@ -19450,11 +19450,11 @@ msgstr "Attention, les domaines en dehors de votre organisation doivent être au
 msgid "Web page preview"
 msgstr "Aperçu de la page web"
 
-msgid "Agent configuration"
-msgstr "Configuration d'agent"
+msgid "Poller/agent configuration"
+msgstr "Configuration collecteur/agent"
 
-msgid "Welcome to the agent configuration page"
-msgstr "Bienvenue sur la page de configuration d'agent"
+msgid "Welcome to the poller/agent configuration page"
+msgstr "Bienvenue sur la page des configurations collecteur/agent"
 
 msgid "Agent type"
 msgstr "Type d'agent"
@@ -19486,11 +19486,11 @@ msgstr "Configuration du collecteur"
 msgid "Invalid address"
 msgstr "Adresse invalide"
 
-msgid "Add agent configuration"
-msgstr "Ajouter une configuration d'agent"
+msgid "Add poller/agent configuration"
+msgstr "Ajouter une configuration collecteur/agent"
 
-msgid "Otel server"
-msgstr "Serveur otel"
+msgid "OTLP receiver"
+msgstr "Receveur OTLP"
 
 msgid "Listening address"
 msgstr "Addresse d'écoute"
@@ -19505,10 +19505,10 @@ msgid "Extension not allowed"
 msgstr "Extension non autorisée"
 
 msgid "Public certificate file name"
-msgstr "Nom de fichier du certificat publique"
+msgstr "Nom de fichier du certificat public"
 
-msgid "Ca file name"
-msgstr "Nom de fichier du ca"
+msgid "CA file name"
+msgstr "Nom de fichier du CA"
 
 msgid "Certificate file name"
 msgstr "Nom de fichier du certificat"
@@ -19516,14 +19516,14 @@ msgstr "Nom de fichier du certificat"
 msgid "Private key file name"
 msgstr "Nom de fichier de la clé privée"
 
-msgid "Configuration server"
-msgstr "Serveur de configuration"
+msgid "Configuration provider"
+msgstr "Fournisseur de configuration"
 
-msgid "Agent configuration created"
-msgstr "Configuration d'agent créé"
+msgid "Poller/agent configuration created"
+msgstr "Configuration collecteur/agent créée"
 
-msgid "Agent configuration updated"
-msgstr "Configuration d'agent mis à jour"
+msgid "Poller/agent configuration updated"
+msgstr "Configuration collecteur/agent mise à jour"
 
-msgid "Update agent configuration"
-msgstr "Mettre à jour la configuration d'agent"
+msgid "Update poller/agent configuration"
+msgstr "Mettre à jour la configuration collecteur/agent"
