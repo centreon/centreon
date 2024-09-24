@@ -13,8 +13,6 @@ export interface AgentConfigurationListing {
 }
 
 export interface TelegrafConfiguration {
-  otelServerAddress: string;
-  otelServerPort: number | string;
   otelPublicCertificate: string;
   otelCaCertificate: string;
   otelPrivateKey: string;
@@ -25,8 +23,6 @@ export interface TelegrafConfiguration {
 
 export interface CMAConfiguration {
   isReverse: boolean;
-  otlpReceiverAddress: string;
-  otlpReceiverPort: number;
   otlpCertificate: string;
   otlpCaCertificate: string;
   otlpPrivateKey: string;
@@ -39,8 +35,6 @@ export interface CMAConfiguration {
 }
 
 export interface TelegrafConfigurationAPI {
-  otel_server_address: string;
-  otel_server_port: number | string;
   otel_public_certificate: string;
   otel_ca_certificate: string;
   otel_private_key: string;
@@ -58,8 +52,6 @@ export interface HostConfiguration {
 
 export interface CMAConfigurationAPI {
   is_reverse: boolean;
-  otlp_receiver_address: string;
-  otlp_receiver_port: number;
   otlp_certificate: string;
   otlp_ca_certificate: string;
   otlp_private_key: string;

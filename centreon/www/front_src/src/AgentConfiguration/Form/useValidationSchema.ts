@@ -4,12 +4,15 @@ import { useTranslation } from 'react-i18next';
 import { Schema, array, boolean, mixed, number, object, string } from 'yup';
 import { AgentConfigurationForm, AgentType } from '../models';
 import {
+  labelAddressInvalid,
   labelExtensionNotAllowed,
   labelPortExpectedAtMost,
   labelPortMustStartFrom1,
   labelRequired
 } from '../translatedLabels';
 
+const ipAddressRegex = /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/;
+const urlRegex = /^[a-zA-Z0-9]+\.?[a-zA-Z0-9.]+\.?[a-zA-Z0-9]+$/;
 export const portRegex = /:[0-9]+$/;
 
 export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
@@ -32,16 +35,6 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
     .required(t(labelRequired));
 
   const telegrafConfigurationSchema = {
-    otelServerAddress: string()
-      .test({
-        name: 'is-address-valid',
-        message: t(labelAddressInvalid),
-        exclusive: true,
-        test: (address) =>
-          address?.match(ipAddressRegex) && !address.match(portRegex)
-      })
-      .required(t(labelRequired)),
-    otelServerPort: portValidation,
     confServerPort: portValidation,
     otelPublicCertificate: filenameValidation,
     otelCaCertificate: filenameValidation,
@@ -52,8 +45,6 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
 
   const CMAConfigurationSchema = {
     isReverse: boolean(),
-    otlpReceiverAddress: requiredString,
-    otlpReceiverPort: portValidation,
     otlpCertificate: requiredString,
     otlpCaCertificate: requiredString,
     otlpPrivateKey: requiredString,

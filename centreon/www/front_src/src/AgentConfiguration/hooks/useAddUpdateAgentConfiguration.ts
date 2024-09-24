@@ -38,9 +38,7 @@ const adaptTelegrafConfigurationToAPI = (
     type: (agentConfiguration.type as SelectEntry).id,
     configuration: {
       otel_private_key: configuration.otelPrivateKey,
-      otel_server_port: configuration.otelServerPort,
       otel_ca_certificate: configuration.otelCaCertificate,
-      otel_server_address: configuration.otelServerAddress,
       otel_public_certificate: configuration.otelPublicCertificate,
       conf_certificate: configuration.confCertificate,
       conf_private_key: configuration.confPrivateKey,
@@ -63,8 +61,6 @@ const adaptCMAConfigurationToAPI = (
       otlp_ca_certificate: configuration.otlpCaCertificate,
       otlp_certificate: configuration.otlpCertificate,
       otlp_private_key: configuration.otlpPrivateKey,
-      otlp_receiver_port: configuration.otlpReceiverPort,
-      otlp_receiver_address: configuration.otlpReceiverAddress,
       hosts: configuration.hosts
     }
   };

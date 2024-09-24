@@ -33,9 +33,7 @@ export const agentConfigurationsListingDecoder = buildListingDecoder({
 const telegrafConfigurationDecoder = JsonDecoder.object<TelegrafConfiguration>(
   {
     otelPrivateKey: JsonDecoder.string,
-    otelServerPort: JsonDecoder.number,
     otelCaCertificate: JsonDecoder.string,
-    otelServerAddress: JsonDecoder.string,
     otelPublicCertificate: JsonDecoder.string,
     confPrivateKey: JsonDecoder.string,
     confServerPort: JsonDecoder.number,
@@ -44,8 +42,6 @@ const telegrafConfigurationDecoder = JsonDecoder.object<TelegrafConfiguration>(
   'Telegraf configuration',
   {
     otelPrivateKey: 'otel_private_key',
-    otelServerPort: 'otel_server_port',
-    otelServerAddress: 'otel_server_address',
     otelCaCertificate: 'otel_ca_certificate',
     otelPublicCertificate: 'otel_public_certificate',
     confCertificate: 'conf_certificate',
@@ -60,8 +56,6 @@ const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
     otlpCaCertificate: JsonDecoder.string,
     otlpCertificate: JsonDecoder.string,
     otlpPrivateKey: JsonDecoder.string,
-    otlpReceiverAddress: JsonDecoder.string,
-    otlpReceiverPort: JsonDecoder.number,
     hosts: JsonDecoder.array(
       JsonDecoder.object(
         {
@@ -80,9 +74,7 @@ const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
     isReverse: 'is_reverse',
     otlpPrivateKey: 'otlp_private_key',
     otlpCertificate: 'otlp_certificate',
-    otlpCaCertificate: 'otlp_ca_certificate',
-    otlpReceiverAddress: 'otlp_receiver_address',
-    otlpReceiverPort: 'otlp_receiver_port'
+    otlpCaCertificate: 'otlp_ca_certificate'
   }
 );
 

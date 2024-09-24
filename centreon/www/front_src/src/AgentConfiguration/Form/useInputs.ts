@@ -1,7 +1,7 @@
 import { Group, InputProps, InputType, SelectEntry } from '@centreon/ui';
 import { capitalize } from '@mui/material';
 import { useAtom } from 'jotai';
-import { equals, isEmpty, isNil } from 'ramda';
+import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { pollersEndpoint } from '../api/endpoints';
 import { agentTypeFormAtom } from '../atoms';
@@ -14,7 +14,6 @@ import {
   labelConfigurationServer,
   labelConnectionInitiatedByPoller,
   labelHostConfigurations,
-  labelListeningAddress,
   labelName,
   labelOTelServer,
   labelOTLPReceiver,
@@ -26,7 +25,6 @@ import {
 } from '../translatedLabels';
 import Empty from './Empty';
 import HostConfigurations from './HostConfigurations/HostConfigurations';
-import { portRegex } from './useValidationSchema';
 
 export const agentTypes: Array<SelectEntry> = [
   { id: AgentType.Telegraf, name: capitalize(AgentType.Telegraf) },
@@ -169,38 +167,6 @@ export const useInputs = (): {
               additionalLabel: t(isCMA ? labelOTLPReceiver : labelOTelServer),
               grid: {
                 columns: [
-                  {
-                    type: InputType.Text,
-                    fieldName: listeningAddressProperty,
-                    required: true,
-                    label: t(labelListeningAddress),
-                    change: ({ setFieldValue, setFieldTouched, value }) => {
-                      const port = value.match(portRegex);
-
-                      if (isNil(port) || isEmpty(port)) {
-                        setFieldValue(listeningAddressProperty, value);
-                        return;
-                      }
-
-                      const newAddress = value.replace(port[0], '');
-
-                      setFieldTouched(listeningPortProperty, true);
-                      setFieldValue(listeningAddressProperty, newAddress);
-                      setFieldValue(
-                        listeningPortProperty,
-                        port[0].substring(1)
-                      );
-                    }
-                  },
-                  {
-                    type: InputType.Text,
-                    fieldName: listeningPortProperty,
-                    required: true,
-                    label: t(labelPort),
-                    text: {
-                      type: 'number'
-                    }
-                  },
                   {
                     type: InputType.Text,
                     fieldName: publicCertificateProperty,
