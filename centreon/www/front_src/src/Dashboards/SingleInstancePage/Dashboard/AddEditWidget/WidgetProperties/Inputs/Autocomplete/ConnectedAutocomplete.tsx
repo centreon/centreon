@@ -70,7 +70,7 @@ const ConnectedAutocomplete = ({
           placeholder=""
           value={value}
           onChange={changeValues}
-          required= {isRequiredProperty}
+          required={isRequiredProperty}
         />
       )}
     </div>
