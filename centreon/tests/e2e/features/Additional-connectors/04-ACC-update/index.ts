@@ -1,10 +1,10 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
-  cy.startContainers();
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/acc-acl-user.json');
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
+  // cy.startContainers();
+  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/acc-acl-user.json');
+  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
+  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
 });
 
 beforeEach(() => {
@@ -31,7 +31,7 @@ beforeEach(() => {
 });
 
 after(() => {
-  cy.stopContainers();
+  // cy.stopContainers();
 });
 
 Given('a non-admin user is in the Specific Connector Configuration page', () => {
@@ -93,7 +93,7 @@ When('the user udpates some informations', () => {
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.3.3.3/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2022');
-  cy.get('[id="Portvalue"]').clear().type('6900');
+  cy.get('[id="Portvalue"]').clear().click().type('6900');
 });
 
 When('the user clicks on Update', () => {
