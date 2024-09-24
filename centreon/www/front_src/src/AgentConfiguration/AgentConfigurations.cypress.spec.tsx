@@ -13,7 +13,6 @@ import {
   labelAction,
   labelAddAgentConfiguration,
   labelAddNewAgent,
-  labelAddressInvalid,
   labelAgentConfigurationCreated,
   labelAgentConfigurationUpdated,
   labelAgentType,
@@ -27,7 +26,6 @@ import {
   labelDeleteAgent,
   labelDeletePoller,
   labelExtensionNotAllowed,
-  labelListeningAddress,
   labelName,
   labelPoller,
   labelPollers,
@@ -404,9 +402,7 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelName).blur();
     cy.findByLabelText(labelPollers).focus();
     cy.findByLabelText(labelPollers).blur();
-    cy.findByLabelText(labelListeningAddress).type('address');
     cy.findAllByLabelText(labelPort).eq(0).type('123456');
-    cy.findAllByLabelText(labelPort).eq(1).type('123456');
     cy.findByLabelText(labelPublicCertificate).type('test.cer');
     cy.findByLabelText(labelCaCertificate).type('test.pem');
     cy.findAllByLabelText(labelPrivateKey).eq(0).type('test.crt');
@@ -417,8 +413,7 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelAgentType).should('have.value', 'Telegraf');
     cy.findAllByText(labelRequired).should('have.length', 2);
     cy.findAllByText(labelExtensionNotAllowed).should('have.length', 5);
-    cy.findAllByText(labelAddressInvalid).should('have.length', 1);
-    cy.findAllByText(labelPortExpectedAtMost).should('have.length', 2);
+    cy.findAllByText(labelPortExpectedAtMost).should('have.length', 1);
     cy.contains(labelSave).should('be.disabled');
 
     cy.makeSnapshot();
@@ -463,9 +458,7 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelName).type('agent');
     cy.findByLabelText(labelPollers).click();
     cy.contains('poller1').click();
-    cy.findByLabelText(labelListeningAddress).type('127.0.0.1');
     cy.findAllByLabelText(labelPort).eq(0).type('1234');
-    cy.findAllByLabelText(labelPort).eq(1).type('1234');
     cy.findByLabelText(labelPublicCertificate).type('test');
     cy.findByLabelText(labelCaCertificate).type('test');
     cy.findAllByLabelText(labelPrivateKey).eq(0).type('test');
@@ -475,7 +468,7 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).equal(
-        '{"name":"agent","type":"telegraf","pollers":[1],"configuration":{"otel_private_key":"test","otel_server_port":1234,"otel_ca_certificate":"test","otel_server_address":"127.0.0.1","otel_public_certificate":"test","conf_certificate":"test","conf_private_key":"test","conf_server_port":1234}}'
+        '{"name":"agent","type":"telegraf","pollers":[1],"configuration":{"otel_private_key":"test","otel_ca_certificate":"test","otel_public_certificate":"test","conf_certificate":"test","conf_private_key":"test","conf_server_port":1234}}'
       );
     });
 
@@ -497,7 +490,7 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
       expect(request.body).equal(
-        '{"name":"agent updated","type":"telegraf","pollers":[1,2],"configuration":{"otel_private_key":"coucou","otel_server_port":8080,"otel_ca_certificate":"coucou","otel_server_address":"127.0.0.1","otel_public_certificate":"coucou","conf_certificate":"coucou","conf_private_key":"coucou","conf_server_port":9090}}'
+        '{"name":"agent updated","type":"telegraf","pollers":[1,2],"configuration":{"otel_private_key":"coucou","otel_ca_certificate":"coucou","otel_public_certificate":"coucou","conf_certificate":"coucou","conf_private_key":"coucou","conf_server_port":9090}}'
       );
     });
 
@@ -517,7 +510,7 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
       expect(request.body).equal(
-        '{"name":"agent updated","type":"telegraf","pollers":[1,2],"configuration":{"otel_private_key":"coucou","otel_server_port":8080,"otel_ca_certificate":"coucou","otel_server_address":"127.0.0.1","otel_public_certificate":"coucou","conf_certificate":"coucou","conf_private_key":"coucou","conf_server_port":9090}}'
+        '{"name":"agent updated","type":"telegraf","pollers":[1,2],"configuration":{"otel_private_key":"coucou","otel_ca_certificate":"coucou","otel_public_certificate":"coucou","conf_certificate":"coucou","conf_private_key":"coucou","conf_server_port":9090}}'
       );
     });
 
