@@ -1,10 +1,10 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
-  cy.startContainers();
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/acc-acl-user.json');
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
+  // cy.startContainers();
+  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/acc-acl-user.json');
+  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
+  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
 });
 
 beforeEach(() => {
@@ -20,17 +20,17 @@ beforeEach(() => {
     method: 'POST',
     url: '/centreon/api/latest/configuration/additional-connector-configurations'
   }).as('addAdditionalConnector');
+});
+
+after(() => {
+  // cy.stopContainers();
+});
+
+Given('a non-admin user is in the Specific Connector Configuration page', () => {
   cy.loginByTypeOfUser({
     jsonName: 'user-non-admin-for-ACC',
     loginViaApi: false
   });
-});
-
-after(() => {
-  cy.stopContainers();
-});
-
-Given('a non-admin user is in the Specific Connector Configuration page', () => {
   cy.visit('/centreon/configuration/additional-connector-configurations');
   cy.wait('@getConnectorPage');
 });
@@ -53,7 +53,7 @@ When('the user fills in all the informations', () => {
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2021');
-  cy.getByTestId({ testId: 'Port_value' }).eq(1).eq(0).should('have.value', '5700');
+  cy.get('[id="Portvalue"]').should('have.value', '5700');
 });
 
 When('the user clicks on Create', () => {
@@ -76,7 +76,7 @@ When('the user fills in the mandatory informations', () => {
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2021');
-  cy.getByTestId({ testId: 'Port_value' }).eq(1).eq(0).should('have.value', '5700');
+  cy.get('[id="Portvalue"]').should('have.value', '5700');
 });
 
 Then('the second configuration is displayed in the Specific Connector Configuration page', () => {
@@ -93,7 +93,7 @@ When("the user doesn't fill in all the mandatory informations", () => {
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear();
   cy.getByTestId({ testId: 'Username_value' }).eq(0).click();
   cy.getByTestId({ testId: 'Password_value' }).eq(0).click();
-  cy.getByTestId({ testId: 'Port_value' }).eq(1).eq(0).click();
+  cy.get('[id="Portvalue"]').click();
 });
 
 Then('the user cannot click on Create', () => {
@@ -115,7 +115,7 @@ When("the user doesn't fill in correct type of informations", () => {
   cy.getByTestId({ testId: 'URL_value' }).eq(0).click();
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2021');
-  cy.getByTestId({ testId: 'Port_value' }).eq(1).clear().type('500000');
+  cy.get('[id="Portvalue"]').clear().type('500000');
   cy.getByLabel({ label: 'Name', tag: 'input' }).click();
 });
 
@@ -134,7 +134,7 @@ When('the user fills in the needed informations', () => {
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2021');
-  cy.getByTestId({ testId: 'Port_value' }).eq(1).eq(0).should('have.value', '5700');
+  cy.get('[id="Portvalue"]').should('have.value', '5700');
 });
 
 When('the user clicks on the Cancel button of the creation form', () => {
@@ -167,5 +167,5 @@ Then('the form fields are empty', () => {
   cy.getByTestId({ testId: 'URL_value' }).eq(1).should('have.value', 'https://<ip_hostname>/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(1).should('be.empty');
   cy.getByTestId({ testId: 'Password_value' }).eq(1).should('be.empty');
-  cy.getByTestId({ testId: 'Port_value' }).eq(1).eq(0).should('have.value', '5700');
+  cy.get('[id="Portvalue"]').should('have.value', '5700');
 });

@@ -66,7 +66,7 @@ When('the admin user fills in all the informations', () => {
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2021');
-  cy.getByTestId({ testId: 'Port_value' }).eq(1).should('have.value', '5700');
+  cy.get('[id="Portvalue"]').should('have.value', '5700');
 });
 
 When('the admin user clicks on Save', () => {
@@ -105,7 +105,7 @@ Then('a pop up is displayed with all of the additional connector informations', 
   cy.getByTestId({ testId: 'URL_value' }).eq(1).should('have.value', 'https://10.0.0.0/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(1).should('be.empty');
   cy.getByTestId({ testId: 'Password_value' }).eq(1).should('be.empty');
-  cy.getByTestId({ testId: 'Port_value' }).eq(1).should('have.value', '5700');
+  cy.get('[id="Portvalue"]').should('have.value', '5700');
 });
 
 Then('the admin user can update the additional connector configuration', () => {
@@ -119,7 +119,7 @@ Then('the admin user can update the additional connector configuration', () => {
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.3.3.3/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2022');
-  cy.getByTestId({ testId: 'Port_value' }).eq(1).clear().type('6900');
+  cy.get('[id="Portvalue"]').clear().type('6900');
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
   cy.wait('@updateConnectorDetail');
   cy.get('Update additional connector configuration').should('not.exist');
@@ -173,7 +173,7 @@ Given('an Additional Connector Configuration already created linked with two pol
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2021');
-  cy.getByTestId({ testId: 'Port_value' }).eq(1).should('have.value', '5700');
+  cy.get('[id="Portvalue"]').should('have.value', '5700');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
   cy.wait('@addAdditionalConnector');
   cy.get('*[class="MuiTypography-root MuiTypography-body1 css-7bmf3k-text-rowNotHovered"]')
@@ -245,7 +245,7 @@ When('a pop up is displayed with all of the additional connector informations an
   cy.getByTestId({ testId: 'URL_value' }).eq(1).should('have.value', 'https://10.0.0.0/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(1).should('be.empty');
   cy.getByTestId({ testId: 'Password_value' }).eq(1).should('be.empty');
-  cy.getByTestId({ testId: 'Port_value' }).eq(1).should('have.value', '5700');
+  cy.get('[id="Portvalue"]').should('have.value', '5700');
 });
 
 Then('the user can update the additional connector configuration', () => {
@@ -284,7 +284,7 @@ When('the non-admin user fills in all the informations', () => {
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.1.1.1/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2021');
-  cy.getByTestId({ testId: 'Port_value' }).eq(1).should('have.value', '5700');
+  cy.get('[id="Portvalue"]').should('have.value', '5700');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
 });
 

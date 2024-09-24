@@ -49,7 +49,7 @@ Given('an additional connector configuration is already created', () => {
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2021');
-  cy.getByTestId({ testId: 'Port_value' }).eq(1).should('have.value', '5700');
+  cy.get('[id="Portvalue"]').should('have.value', '5700');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
   cy.wait('@addAdditionalConnector');
 });
