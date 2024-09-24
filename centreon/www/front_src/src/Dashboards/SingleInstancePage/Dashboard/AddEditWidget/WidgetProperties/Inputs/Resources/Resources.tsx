@@ -108,7 +108,9 @@ const Resources = ({
             <ItemComposition.Item
               className={classes.resourceCompositionItem}
               deleteButtonHidden={
-                deleteButtonHidden || getResourceStatic(resource.resourceType) || hideResourceDeleteButton()
+                deleteButtonHidden ||
+                getResourceStatic(resource.resourceType) ||
+                hideResourceDeleteButton()
               }
               key={`${index}${resource.resources[0]}`}
               labelDelete={t(labelDelete)}

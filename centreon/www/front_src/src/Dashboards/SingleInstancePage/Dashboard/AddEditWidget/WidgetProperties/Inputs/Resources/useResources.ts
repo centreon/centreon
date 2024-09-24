@@ -242,7 +242,6 @@ const useResources = ({
     );
   };
 
-
   const hideResourceDeleteButton = (): boolean | undefined => {
     return (
       widgetProperties?.singleMetricSelection &&
@@ -257,20 +256,11 @@ const useResources = ({
         widgetProperties?.singleResourceSelection &&
         equals(WidgetResourceType.host, e.target.value)
       ) {
-        setFieldValue(`data.${propertyName}`, [
-          {
-            resourceType: WidgetResourceType.host,
-            resources: []
-          },
-          {
-            resourceType: WidgetResourceType.service,
-            resources: []
-          }
-        ]);
-        
+        setFieldValue(`data.${propertyName}`, singleMetricBaseResources);
+
         return;
       }
-      
+
       const isNotLastResourceTypeChanged = value?.length || 0 - 1 > index;
 
       if (isNotLastResourceTypeChanged) {
@@ -589,14 +579,16 @@ const useResources = ({
       }, availableResourceTypes);
 
       const forceAddServiceToOptions =
-      widgetProperties?.singleMetricSelection &&
-      widgetProperties?.singleResourceSelection &&
-      equals(resource.resourceType, WidgetResourceType.service);
+        widgetProperties?.singleMetricSelection &&
+        widgetProperties?.singleResourceSelection &&
+        equals(resource.resourceType, WidgetResourceType.service);
 
-    return forceAddServiceToOptions
-      ? [...filteredResourceTypeOptions, { id: WidgetResourceType.service, name: labelService }]
-      : filteredResourceTypeOptions;
-
+      return forceAddServiceToOptions
+        ? [
+            ...filteredResourceTypeOptions,
+            { id: WidgetResourceType.service, name: labelService }
+          ]
+        : filteredResourceTypeOptions;
     },
     [
       additionalResources,
@@ -617,16 +609,7 @@ const useResources = ({
       widgetProperties?.singleMetricSelection &&
       widgetProperties?.singleResourceSelection
     ) {
-      setFieldValue(`data.${propertyName}`, [
-        {
-          resourceType: WidgetResourceType.host,
-          resources: []
-        },
-        {
-          resourceType: WidgetResourceType.service,
-          resources: []
-        }
-      ]);
+      setFieldValue(`data.${propertyName}`, singleMetricBaseResources);
 
       return;
     }

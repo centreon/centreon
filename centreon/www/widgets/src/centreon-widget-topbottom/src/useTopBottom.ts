@@ -69,7 +69,7 @@ const useTopBottom = ({
   const metricName = metrics?.[0]?.name;
 
   const isMetaServiceSelected = getIsMetaServiceSelected(resources);
-  
+
   const { data: metricsTop, isFetching } = useFetchQuery<MetricsTop>({
     decoder: metricsTopDecoder,
     getEndpoint: () =>

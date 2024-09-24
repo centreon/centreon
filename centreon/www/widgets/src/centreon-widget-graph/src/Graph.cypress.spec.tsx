@@ -396,7 +396,7 @@ describe('Graph Widget', () => {
 
     cy.makeSnapshot();
   });
-  
+
   it('sends a request with meta-service when the corresponding data is provided', () => {
     initializeComponent({
       data: metaServiceData

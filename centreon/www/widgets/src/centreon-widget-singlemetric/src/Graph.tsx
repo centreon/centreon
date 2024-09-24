@@ -95,7 +95,7 @@ const Graph = ({
   const areResourcesOk = areResourcesFullfilled(resources);
 
   const isMetaServiceSelected = getIsMetaServiceSelected(resources);
-  
+
   if (
     !areResourcesOk ||
     (!isMetaServiceSelected && isMetricsEmpty) ||
