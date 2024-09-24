@@ -28,6 +28,7 @@ const useListDashboards = (): UseListDashboards => {
   const searchValue = useAtomValue(searchAtom);
 
   const sort = { [sortField]: sortOrder };
+
   const search = {
     regex: {
       fields: ['name'],
@@ -38,7 +39,6 @@ const useListDashboards = (): UseListDashboards => {
   const { data, isLoading, isFetching } = useFetchQuery<
     List<Omit<Dashboard, 'refresh'>>
   >({
-    baseEndpoint: 'http://localhost:3001/centreon/',
     decoder: dashboardListDecoder,
     doNotCancelCallsOnUnmount: true,
     getEndpoint: () =>

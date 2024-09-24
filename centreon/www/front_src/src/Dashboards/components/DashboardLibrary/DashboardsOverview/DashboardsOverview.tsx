@@ -8,9 +8,11 @@ import { generatePath, useNavigate } from 'react-router-dom';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Box } from '@mui/material';
 
-import { DataTable, Tooltip } from '@centreon/ui/components';
 import { userAtom } from '@centreon/ui-context';
+import { DataTable, Tooltip } from '@centreon/ui/components';
 
+import thumbnailFallbackDark from '../../../../assets/thumbnail-fallback-dark.svg';
+import thumbnailFallbackLight from '../../../../assets/thumbnail-fallback-light.svg';
 import routeMap from '../../../../reactRoutes/routeMap';
 import { Dashboard } from '../../../api/models';
 import { DashboardLayout } from '../../../models';
@@ -25,8 +27,6 @@ import { DashboardListing } from '../DashboardListing';
 import { searchAtom, viewModeAtom } from '../DashboardListing/atom';
 import { ViewMode } from '../DashboardListing/models';
 import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
-import thumbnailFallbackLight from '../../../../assets/thumbnail-fallback-light.svg';
-import thumbnailFallbackDark from '../../../../assets/thumbnail-fallback-dark.svg';
 
 import { useStyles } from './DashboardsOverview.styles';
 import { DashboardsOverviewSkeleton } from './DashboardsOverviewSkeleton';
@@ -75,6 +75,9 @@ const DashboardsOverview = (): ReactElement => {
     title: t(labelWelcomeToDashboardInterface)
   };
 
+  const getThumbnailSrc = (dashboard): string =>
+    `img/media/${dashboard.thumbnail?.directory}/${dashboard.thumbnail?.name}?${new Date().getTime()}`;
+
   if (isCardsView && isLoading && isNil(data)) {
     return <DashboardsOverviewSkeleton />;
   }
@@ -104,7 +107,7 @@ const DashboardsOverview = (): ReactElement => {
             hasActions={hasEditPermission(dashboard)}
             thumbnail={
               dashboard.thumbnail
-                ? `${dashboard.thumbnail}?${new Date().getTime()}`
+                ? getThumbnailSrc(dashboard)
                 : fallbackThumbnail
             }
             title={dashboard.name}

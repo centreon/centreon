@@ -35,13 +35,8 @@ import {
   dashboardSharesEndpoint,
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
-<<<<<<< HEAD
-  getDashboardEndpoint
-=======
-  dashboardSharesEndpoint,
   getDashboardEndpoint,
   mediasEndpoint
->>>>>>> f0968ae4c8 (enh(UI): Save and display dashboard thumbnails (#4762))
 } from '../../api/endpoints';
 import { DashboardRole } from '../../api/models';
 import {

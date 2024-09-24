@@ -19,6 +19,7 @@ import {
   Shares,
   UserRole
 } from './models';
+import { Thumbnail } from '../SingleInstancePage/Dashboard/models';
 
 const namedEntityDecoder = {
   id: JsonDecoder.number,
@@ -98,7 +99,16 @@ export const dashboardEntityDecoder = {
       contactGroups: 'contact_groups'
     }
   ),
-  thumbnail: JsonDecoder.optional(JsonDecoder.string),
+  thumbnail: JsonDecoder.optional(
+    JsonDecoder.object<Thumbnail>(
+      {
+        id: JsonDecoder.number,
+        name: JsonDecoder.string,
+        directory: JsonDecoder.string
+      },
+      'thumbnail'
+    )
+  ),
   updatedAt: JsonDecoder.string,
   updatedBy: JsonDecoder.nullable(
     JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')
