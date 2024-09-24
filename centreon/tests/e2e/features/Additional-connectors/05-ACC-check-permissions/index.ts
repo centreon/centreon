@@ -79,14 +79,12 @@ Then('the form is closed', () => {
 });
 
 Then('the first configuration is displayed in the Specific Connector Configuration page', () => {
-  cy.get('*[class="MuiTypography-root MuiTypography-body1 css-7bmf3k-text-rowNotHovered"]')
-    .eq(0)
+  cy.get('*[role="rowgroup"]')
     .should('contain', 'Connector-001');
 });
 
 Given('an additional connector configuration is already created', () => {
-  cy.get('*[class="MuiTable-root MuiTable-stickyHeader css-1n28wy3-table"]')
-    .eq(0)
+  cy.get('*[role="rowgroup"]')
     .should('not.contain', 'No result found');
 });
 
@@ -132,8 +130,7 @@ When('the admin user deletes the additional connector configuration', () => {
 
 Then('the additional connector configuration is no longer displayed in the listing page', () => {
   cy.wait('@deleteConnector');
-  cy.get('*[class="MuiTable-root MuiTable-stickyHeader css-11u5dvc-table"]')
-    .eq(0)
+  cy.get('*[role="rowgroup"]')
     .should('not.contain', 'Connector-001');
 });
 
@@ -176,8 +173,7 @@ Given('an Additional Connector Configuration already created linked with two pol
   cy.get('[id="Portvalue"]').should('have.value', '5700');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
   cy.wait('@addAdditionalConnector');
-  cy.get('*[class="MuiTypography-root MuiTypography-body1 css-7bmf3k-text-rowNotHovered"]')
-    .eq(0)
+  cy.get('*[role="rowgroup"]')
     .should('contain', 'Connector-001');
 });
 
@@ -204,9 +200,8 @@ When('the user accesses the Specific Connector Configuration page', () => {
 });
 
 Then('the user can not view the additional connector linked to the 2 pollers', () => {
-  cy.get('*[class="MuiTable-root MuiTable-stickyHeader css-11u5dvc-table"]')
-  .eq(0)
-  .should('contain', 'No result found');
+  cy.get('*[role="rowgroup"]')
+    .should('contain', 'No result found');
 });
 
 When('the admin user updates the filtered pollers of the non-admin user', () => {
@@ -229,8 +224,7 @@ When('the admin user updates the filtered pollers of the non-admin user', () => 
 Then('the user can view the additional connector linked to the pollers', () => {
   cy.visit('/centreon/configuration/additional-connector-configurations');
   cy.wait('@getConnectorPage');
-  cy.get('*[class="MuiTypography-root MuiTypography-body1 css-7bmf3k-text-rowNotHovered"]')
-    .eq(0)
+  cy.get('*[role="rowgroup"]')
     .should('contain', 'Connector-001');
 });
 
@@ -289,7 +283,7 @@ When('the non-admin user fills in all the informations', () => {
 });
 
 Then('the new configuration is displayed in the Specific Connector Configuration page', () => {
-  cy.get('#maint-content > div > div > div > div > div > div.css-1xsyaox-container > div:nth-child(2) > div > div > div.MuiTableBody-root.css-ws5y8r-tableBody > div:nth-child(2) > div > div:nth-child(1) > p')
+  cy.get('*[role="rowgroup"]')
     .should('contain', 'Connector-002');
 });
 
