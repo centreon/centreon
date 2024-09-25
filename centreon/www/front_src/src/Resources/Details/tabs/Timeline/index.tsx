@@ -133,8 +133,8 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
               limitTags={3}
               options={translatedTypes}
               value={selectedTypes}
-              onChange={changeSelectedTypes}
               chipProps={{ onDelete }}
+              onChange={changeSelectedTypes}
             />
           </Paper>
           {displayCsvExport && (
