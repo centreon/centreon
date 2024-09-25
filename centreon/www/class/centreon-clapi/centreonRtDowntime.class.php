@@ -93,9 +93,9 @@ class CentreonRtDowntime extends CentreonObject
         'SG',
         'INSTANCE',
     );
-    /** @var */
+    /** @var array */
     protected $dHosts;
-    /** @var */
+    /** @var array */
     protected $dServices;
     /** @var CentreonHost */
     protected $hostObject;

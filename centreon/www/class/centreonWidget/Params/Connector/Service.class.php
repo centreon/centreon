@@ -51,6 +51,8 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
      * @param $db
      * @param $quickform
      * @param $userId
+     *
+     * @throws PDOException
      */
     public function __construct($db, $quickform, $userId)
     {

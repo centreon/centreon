@@ -42,15 +42,15 @@ require_once __DIR__ . "/../Params.class.php";
  */
 class CentreonWidgetParamsPassword extends CentreonWidgetParams
 {
-    /** @var */
+    /** @var HTML_QuickForm_Element */
     public $element;
 
     /**
-     * CentreonWidgetParamsPassword constructor
+     * CentreonWidgetParamsPassword Constructor
      *
-     * @param $db
-     * @param $quickform
-     * @param $userId
+     * @param CentreonDB $db
+     * @param HTML_Quickform $quickform
+     * @param int $userId
      *
      * @throws PDOException
      */

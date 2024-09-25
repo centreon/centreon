@@ -127,7 +127,7 @@ class CentreonService extends CentreonObject
 
     /** @var int */
     public $register;
-    /** @var */
+    /** @var int */
     protected $hostId;
 
     /**
@@ -169,7 +169,10 @@ class CentreonService extends CentreonObject
      * Get Object Id
      *
      * @param string $name
+     * @param int $type
+     *
      * @return int
+     * @throws PDOException
      */
     public function getObjectId($name, int $type = CentreonObject::SINGLE_VALUE)
     {
@@ -355,6 +358,7 @@ class CentreonService extends CentreonObject
      *
      * @return void
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function add($parameters): void
     {
@@ -369,8 +373,10 @@ class CentreonService extends CentreonObject
      * Delete service
      *
      * @param string $objectName
+     *
      * @return void
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function del($objectName)
     {
@@ -424,6 +430,7 @@ class CentreonService extends CentreonObject
      *
      * @return void
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function enable($objectName)
     {
@@ -441,6 +448,7 @@ class CentreonService extends CentreonObject
      *
      * @return void
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function disable($objectName)
     {
@@ -907,8 +915,10 @@ class CentreonService extends CentreonObject
      * Get macro list of a service
      *
      * @param string $parameters
+     *
      * @return void
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function getmacro($parameters)
     {
@@ -1263,8 +1273,10 @@ class CentreonService extends CentreonObject
      *
      * @param string $name
      * @param array $arg
+     *
      * @return void
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function __call($name, $arg)
     {
@@ -1621,7 +1633,9 @@ class CentreonService extends CentreonObject
      * @param $macroInput
      * @param $macroValue
      * @param bool $cmdId
+     *
      * @return bool
+     * @throws PDOException
      */
     public function hasMacroFromServiceChanged($pearDB, $service_id, &$macroInput, &$macroValue, $cmdId = false)
     {

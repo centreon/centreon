@@ -139,7 +139,7 @@ class CentreonLDAP extends CentreonObject
     /**
      * @param $id
      *
-     * @return array|false
+     * @return array
      * @throws PDOException
      */
     public function getLdapServers($id)

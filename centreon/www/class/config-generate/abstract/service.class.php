@@ -34,6 +34,9 @@
  *
  */
 
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
 require_once dirname(__FILE__) . '/object.class.php';
 
 /**
@@ -152,19 +155,20 @@ abstract class AbstractService extends AbstractObject
     );
     /** @var array */
     protected $loop_stpl = array(); # To be reset
-    /** @var null */
+    /** @var CentreonDBStatement|null */
     protected $stmt_macro = null;
-    /** @var null */
+    /** @var CentreonDBStatement|null */
     protected $stmt_stpl = null;
-    /** @var null */
+    /** @var CentreonDBStatement|null */
     protected $stmt_contact = null;
-    /** @var null */
+    /** @var CentreonDBStatement|null */
     protected $stmt_service = null;
 
     /**
      * @param $service
      *
      * @return void
+     * @throws PDOException
      */
     protected function getImages(&$service)
     {
@@ -195,6 +199,7 @@ abstract class AbstractService extends AbstractObject
      * @param $service
      *
      * @return void
+     * @throws PDOException
      */
     protected function getServiceTemplates(&$service)
     {
@@ -206,6 +211,8 @@ abstract class AbstractService extends AbstractObject
 
     /**
      * @param array $service (passing by Reference)
+     *
+     * @throws PDOException
      */
     protected function getContacts(array &$service): void
     {
@@ -216,7 +223,9 @@ abstract class AbstractService extends AbstractObject
     }
 
     /**
-      * @param array $service (passing by Reference)
+     * @param array $service (passing by Reference)
+     *
+     * @throws PDOException
      */
     protected function getContactGroups(array &$service): void
     {
@@ -265,6 +274,10 @@ abstract class AbstractService extends AbstractObject
      * @param $command_arg_label
      *
      * @return int
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     protected function getServiceCommand(&$service, $result_name, $command_id_label, $command_arg_label)
     {
@@ -301,6 +314,10 @@ abstract class AbstractService extends AbstractObject
      * @param $service
      *
      * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     protected function getServiceCommands(&$service)
     {
@@ -312,6 +329,7 @@ abstract class AbstractService extends AbstractObject
      * @param $service
      *
      * @return void
+     * @throws PDOException
      */
     protected function getServicePeriods(&$service)
     {
@@ -339,6 +357,8 @@ abstract class AbstractService extends AbstractObject
     /**
      * @param ServiceCategory $serviceCategory
      * @param int $serviceId
+     *
+     * @throws PDOException
      */
     protected function insertServiceInServiceCategoryMembers(ServiceCategory $serviceCategory, int $serviceId): void
     {

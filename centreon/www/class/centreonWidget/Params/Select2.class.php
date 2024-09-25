@@ -46,11 +46,11 @@ class CentreonWidgetParamsSelect2 extends CentreonWidgetParams
     public $element;
 
     /**
-     * CentreonWidgetParamsSelect2 constructor
+     * CentreonWidgetParamsSelect2 Constructor
      *
-     * @param $db
-     * @param $quickform
-     * @param $userId
+     * @param CentreonDB $db
+     * @param HTML_Quickform $quickform
+     * @param int $userId
      *
      * @throws PDOException
      */

@@ -336,8 +336,10 @@ class CentreonHostGroup extends CentreonObject
 
     /**
      * @param null $parameters
+     *
      * @return array
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function initUpdateParameters($parameters = null)
     {

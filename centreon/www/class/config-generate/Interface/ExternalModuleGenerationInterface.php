@@ -48,5 +48,8 @@ interface ExternalModuleGenerationInterface
      */
     public function generateFromPollerId(int $pollerId, bool $isLocalhost): void;
 
+    /**
+     * @return void
+     */
     public function reset(): void;
 }

@@ -94,7 +94,7 @@ class CentreonServiceGroup extends CentreonObject
     }
 
     /**
-     * @param null $parameters
+     * @param mixed|null $parameters
      * @param array $filters
      *
      * @throws Exception
@@ -146,7 +146,7 @@ class CentreonServiceGroup extends CentreonObject
     /**
      * Get a parameter
      *
-     * @param null $parameters
+     * @param string|null $parameters
      * @throws CentreonClapiException
      */
     public function getparam($parameters = null)

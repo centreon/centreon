@@ -71,14 +71,10 @@ class CentreonACLGroup extends CentreonObject
         'ACLRESOURCE'
     );
 
-    /**
-     * @var AclGroupRepository
-     */
+    /** @var AclGroupRepository */
     private AclGroupRepository $aclGroupRepository;
 
-    /**
-     * @var SessionRepository
-     */
+    /** @var SessionRepository */
     private SessionRepository $sessionRepository;
 
     /**
@@ -106,7 +102,7 @@ class CentreonACLGroup extends CentreonObject
 
     /**
      * @param $parameters
-     * @return mixed|void
+     * @return void
      * @throws CentreonClapiException
      */
     public function initInsertParameters($parameters)
@@ -185,6 +181,8 @@ class CentreonACLGroup extends CentreonObject
      *
      * @return void
      * @throws CentreonClapiException
+     * @throws InvalidArgumentException
+     * @throws Throwable
      */
     public function __call($name, $arg)
     {

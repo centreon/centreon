@@ -34,6 +34,9 @@
  *
  */
 
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
 require_once dirname(__FILE__) . '/object.class.php';
 
 /**
@@ -43,9 +46,9 @@ require_once dirname(__FILE__) . '/object.class.php';
  */
 abstract class AbstractHost extends AbstractObject
 {
-    const TYPE_HOST = 1;
-    const TYPE_TEMPLATE = 0;
-    const TYPE_VIRTUAL_HOST = 2;
+    public const TYPE_HOST = 1;
+    public const TYPE_TEMPLATE = 0;
+    public const TYPE_VIRTUAL_HOST = 2;
 
     /** @var array */
     protected $hosts;
@@ -203,6 +206,7 @@ abstract class AbstractHost extends AbstractObject
      * @param $host
      *
      * @return void
+     * @throws PDOException
      */
     protected function getImages(&$host)
     {
@@ -222,8 +226,8 @@ abstract class AbstractHost extends AbstractObject
      * @return int
      * @throws LogicException
      * @throws PDOException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     protected function getMacros(&$host)
     {
@@ -268,7 +272,10 @@ abstract class AbstractHost extends AbstractObject
      * @param array $host
      * @param bool $generate
      *
+     * @throws LogicException
      * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     protected function getHostTemplates(array &$host, bool $generate = true): void
     {
@@ -401,6 +408,7 @@ abstract class AbstractHost extends AbstractObject
      * @param $host
      *
      * @return void
+     * @throws PDOException
      */
     protected function getHostTimezone(&$host)
     {
@@ -418,6 +426,10 @@ abstract class AbstractHost extends AbstractObject
      * @param $command_arg_label
      *
      * @return int
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     protected function getHostCommand(&$host, $result_name, $command_id_label, $command_arg_label)
     {
@@ -453,6 +465,10 @@ abstract class AbstractHost extends AbstractObject
      * @param $host
      *
      * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     protected function getHostCommands(&$host)
     {
@@ -464,6 +480,7 @@ abstract class AbstractHost extends AbstractObject
      * @param $host
      *
      * @return void
+     * @throws PDOException
      */
     protected function getHostPeriods(&$host)
     {

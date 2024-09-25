@@ -38,6 +38,7 @@ namespace CentreonClapi;
 use Centreon_Object_Instance;
 use Centreon_Object_Relation_Instance_Host;
 use Exception;
+use LogicException;
 use PDOException;
 use Pimple\Container;
 
@@ -72,6 +73,7 @@ class CentreonInstance extends CentreonObject
      * @param Container $dependencyInjector
      *
      * @throws PDOException
+     * @throws LogicException
      */
     public function __construct(Container $dependencyInjector)
     {

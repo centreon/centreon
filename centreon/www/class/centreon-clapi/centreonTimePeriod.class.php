@@ -63,11 +63,11 @@ class CentreonTimePeriod extends CentreonObject
     public const TP_EXCLUDE = "exclude";
     public const TP_EXCEPTION = "exception";
 
-    /** @var Centreon_Relation_Timeperiod_Exclude */
+    /** @var Centreon_Object_Timeperiod */
     protected $exclude;
     /** @var Container */
     protected $dependencyInjector;
-    /** @var Centreon_Relation_Timeperiod_Include */
+    /** @var Centreon_Object_Timeperiod */
     protected $include;
 
     /**

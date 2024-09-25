@@ -44,9 +44,7 @@ require_once _CENTREON_PATH_ . "/www/class/centreon-knowledge/wiki.class.php";
  */
 class WikiApi
 {
-    /**
-     * @var never[]
-     */
+    /** @var never[] */
     public $cookies;
     /** @var CentreonDB */
     private $db;
@@ -54,17 +52,17 @@ class WikiApi
     private $wikiObj;
     /** @var string */
     private $url;
-    /** @var mixed */
+    /** @var string */
     private $username;
-    /** @var mixed */
+    /** @var string */
     private $password;
     /** @var float */
     private $version;
     /** @var CurlHandle|false */
     private $curl;
-    /** @var */
+    /** @var bool */
     private $loggedIn;
-    /** @var */
+    /** @var array */
     private $tokens;
     /** @var mixed */
     private $noSslCertificate;
@@ -271,8 +269,11 @@ class WikiApi
 
     /**
      * API Endpoint for deleting Knowledgebase Page
+     *
      * @param string $title
+     *
      * @return bool
+     * @throws Exception
      */
     public function deletePage($title = '')
     {
@@ -405,7 +406,8 @@ class WikiApi
     }
 
     /**
-     *
+     * @return void
+     * @throws PDOException
      */
     public function synchronize()
     {
@@ -453,6 +455,8 @@ class WikiApi
 
     /**
      * @param $hostName
+     *
+     * @throws PDOException
      */
     public function updateLinkForHost($hostName)
     {
@@ -478,6 +482,8 @@ class WikiApi
     /**
      * @param $hostName
      * @param $serviceDescription
+     *
+     * @throws PDOException
      */
     public function updateLinkForService($hostName, $serviceDescription)
     {
@@ -506,6 +512,8 @@ class WikiApi
 
     /**
      * @param $serviceName
+     *
+     * @throws PDOException
      */
     public function updateLinkForServiceTemplate($serviceName)
     {
@@ -530,8 +538,11 @@ class WikiApi
 
     /**
      * make a call to mediawiki api to delete a page
+     *
      * @param string $title
+     *
      * @return object
+     * @throws Exception
      */
     private function deleteMWPage($title = '')
     {

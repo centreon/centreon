@@ -36,6 +36,17 @@
 
 namespace CentreonClapi;
 
+use CentreonDB;
+use Exception;
+use PDO;
+use PDOException;
+
+/**
+ * Class
+ *
+ * @class CentreonConfigurationChange
+ * @package CentreonClapi
+ */
 class CentreonConfigurationChange
 {
     public const UNKNOWN_RESOURCE_TYPE = 'Unknown resource type';
@@ -45,12 +56,12 @@ class CentreonConfigurationChange
     public const RESOURCE_TYPE_SERVICEGROUP = 'servicegroup';
 
     /**
-     * Constructor
+     * CentreonConfigurationChange constructor
      *
-     * @return void
+     * @param CentreonDB $db
      */
     public function __construct(
-        private \CentreonDB $db
+        private CentreonDB $db
     ) {
     }
 
@@ -60,7 +71,7 @@ class CentreonConfigurationChange
      * @param int[] $hostgroupIds
      * @param bool $shouldHostgroupBeEnabled (default true)
      * @return int[]
-     * @throws \Exception
+     * @throws Exception
      */
     public function findHostsForConfigChangeFlagFromHostGroupIds(
         array $hostgroupIds,
@@ -88,20 +99,21 @@ class CentreonConfigurationChange
 
         $stmt = $this->db->prepare($query);
         foreach ($bindedParams as $bindedParam => $bindedValue) {
-            $stmt->bindValue($bindedParam, $bindedValue, \PDO::PARAM_INT);
+            $stmt->bindValue($bindedParam, $bindedValue, PDO::PARAM_INT);
         }
         $stmt->execute();
 
-        return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
     /**
      * Return ids of hosts linked to services
      *
      * @param int[] $serviceIds
-     * @param bool $shouldServiceBeEnabled (default true)
+     * @param bool $shoudlServiceBeEnabled
+     *
      * @return int[]
-     * @throws \Exception
+     * @throws PDOException
      */
     public function findHostsForConfigChangeFlagFromServiceIds(
         array $serviceIds,
@@ -130,11 +142,11 @@ class CentreonConfigurationChange
 
         $stmt = $this->db->prepare($query);
         foreach ($bindedParams as $bindedParam => $bindedValue) {
-            $stmt->bindValue($bindedParam, $bindedValue, \PDO::PARAM_INT);
+            $stmt->bindValue($bindedParam, $bindedValue, PDO::PARAM_INT);
         }
         $stmt->execute();
 
-        return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
     /**
@@ -142,7 +154,7 @@ class CentreonConfigurationChange
      *
      * @param int[] $serviceTemplateIds
      * @return int[]
-     * @throws \Exception
+     * @throws Exception
      */
     private function findServicesForConfigChangeFlagFromServiceTemplateIds(array $serviceTemplateIds): array
     {
@@ -161,13 +173,13 @@ class CentreonConfigurationChange
 
         $stmt = $this->db->prepare($query);
         foreach ($bindedParams as $bindedParam => $bindedValue) {
-            $stmt->bindValue($bindedParam, $bindedValue, \PDO::PARAM_INT);
+            $stmt->bindValue($bindedParam, $bindedValue, PDO::PARAM_INT);
         }
         $stmt->execute();
 
         $serviceIds = [];
         $serviceTemplateIds2 = [];
-        foreach ($stmt->fetchAll(\PDO::FETCH_ASSOC) as $value) {
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
             if ($value['service_register'] === '0') {
                 $serviceTemplateIds2[] = $value['service_id'];
             } else {
@@ -186,7 +198,7 @@ class CentreonConfigurationChange
      * @param int $servicegroupId
      * @param bool $shouldServicegroupBeEnabled (default true)
      * @return int[]
-     * @throws \Exception
+     * @throws Exception
      */
     public function findHostsForConfigChangeFlagFromServiceGroupId(
         int $servicegroupId,
@@ -200,13 +212,13 @@ class CentreonConfigurationChange
             . ($shouldServicegroupBeEnabled ? " AND servicegroup.sg_activate = '1'" : "");
 
         $stmt = $this->db->prepare($query);
-        $stmt->bindValue(':servicegroup_id', $servicegroupId, \PDO::PARAM_INT);
+        $stmt->bindValue(':servicegroup_id', $servicegroupId, PDO::PARAM_INT);
         $stmt->execute();
 
         $hostIds = [];
         $hostgroupIds = [];
         $serviceTemplateIds = [];
-        foreach ($stmt->fetchAll(\PDO::FETCH_ASSOC) as $value) {
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
             if ($value['service_register'] === '0') {
                 $serviceTemplateIds[] = $value['service_service_id'];
             } elseif ($value['hostgroup_hg_id'] !== null) {
@@ -231,7 +243,7 @@ class CentreonConfigurationChange
      * @param int[] $hostIds
      * @param bool $shouldHostBeEnabled (default true)
      * @return int[]
-     * @throws \Exception
+     * @throws Exception
      */
     public function findPollersForConfigChangeFlagFromHostIds(array $hostIds, bool $shouldHostBeEnabled = true): array
     {
@@ -256,18 +268,18 @@ class CentreonConfigurationChange
 
         $stmt = $this->db->prepare($query);
         foreach ($bindedParams as $bindedParam => $bindedValue) {
-            $stmt->bindValue($bindedParam, $bindedValue, \PDO::PARAM_INT);
+            $stmt->bindValue($bindedParam, $bindedValue, PDO::PARAM_INT);
         }
         $stmt->execute();
 
-        return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
     /**
      * Set 'updated' flag to '1' for all listed poller ids
      *
      * @param int[] $pollerIds
-     * @throws \Exception
+     * @throws Exception
      */
     private function definePollersToUpdated(array $pollerIds): void
     {
@@ -283,7 +295,7 @@ class CentreonConfigurationChange
             . implode(', ', array_keys($bindedParams)) . ")";
         $stmt = $this->db->prepare($query);
         foreach ($bindedParams as $bindedParam => $bindedValue) {
-            $stmt->bindValue($bindedParam, $bindedValue, \PDO::PARAM_INT);
+            $stmt->bindValue($bindedParam, $bindedValue, PDO::PARAM_INT);
         }
         $stmt->execute();
     }
@@ -295,7 +307,7 @@ class CentreonConfigurationChange
      * @param int $resourceId
      * @param int[] $previousPollers
      * @param bool $shouldResourceBeEnabled (default true)
-     * @throws \Exception
+     * @throws Exception
      */
     public function signalConfigurationChange(
         string $resourceType,

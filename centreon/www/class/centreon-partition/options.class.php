@@ -34,26 +34,31 @@
  */
 
 /**
+ * Class
  *
- * Class that checks program options
- * @author msugumaran
- *
+ * @class Options
+ * @description Class that checks program options
  */
 class Options
 {
-    public $options;
-    public $shortopts;
     const INFO = "info";
     const DEBUG = "debug";
     const WARNING = "warning";
     const ERROR = "error";
+
+    /** @var array|false|false[]|string[] */
+    public $options;
+    /** @var string */
+    public $shortopts;
+    /** @var string */
     public $verbosity = "info";
+    /** @var mixed */
     public $confFile;
+    /** @var string */
     public $version = '1.1';
 
-    /*
-     *
-     * Class constructor
+    /**
+     * Options constructor
      */
     public function __construct()
     {
@@ -70,8 +75,12 @@ class Options
         $this->updateVerboseLevel();
     }
     
-    /*
+    /**
      * get option value
+     *
+     * @param string $label
+     *
+     * @return false|mixed|string|null
      */
     public function getOptionValue($label)
     {
@@ -80,8 +89,10 @@ class Options
         return $value;
     }
     
-    /*
+    /**
      * Check options and print help if necessary
+     *
+     * @return bool
      */
     public function isMissingOptions()
     {
@@ -99,8 +110,10 @@ class Options
         return (false);
     }
 
-    /*
+    /**
      * Check if migration option is set
+     *
+     * @return bool
      */
     public function isMigration()
     {
@@ -112,8 +125,10 @@ class Options
         return(false);
     }
     
-    /*
+    /**
      * Check if partitions initialization option is set
+     *
+     * @return bool
      */
     public function isCreation()
     {
@@ -125,8 +140,10 @@ class Options
         return(false);
     }
     
-    /*
+    /**
      * Check if partitionned table update option is set
+     *
+     * @return bool
      */
     public function isUpdate()
     {
@@ -138,8 +155,10 @@ class Options
         return(false);
     }
     
-    /*
+    /**
      * Check if backup option is set
+     *
+     * @return bool
      */
     public function isBackup()
     {
@@ -151,8 +170,10 @@ class Options
         return(false);
     }
     
-    /*
+    /**
      * Check if optimize option is set
+     *
+     * @return bool
      */
     public function isOptimize()
     {
@@ -164,8 +185,10 @@ class Options
         return(false);
     }
     
-    /*
+    /**
      * Check if purge option is set
+     *
+     * @return bool
      */
     public function isPurge()
     {
@@ -177,8 +200,10 @@ class Options
         return(false);
     }
     
-    /*
+    /**
      * Check if parts list option is set
+     *
+     * @return bool
      */
     public function isPartList()
     {
@@ -190,8 +215,10 @@ class Options
         return(false);
     }
     
-    /*
+    /**
      * Update verbose level of program
+     *
+     * @return void
      */
     private function updateVerboseLevel()
     {
@@ -200,24 +227,30 @@ class Options
         }
     }
     
-    /*
+    /**
      * returns verbose level of program
+     *
+     * @return mixed|string
      */
     public function getVerboseLevel()
     {
         return $this->verbosity;
     }
     
-    /*
+    /**
      * returns centreon partitioning $confFile
+     *
+     * @return mixed
      */
     public function getConfFile()
     {
         return $this->confFile;
     }
     
-    /*
+    /**
      * Print program usage
+     *
+     * @return void
      */
     public function printHelp()
     {

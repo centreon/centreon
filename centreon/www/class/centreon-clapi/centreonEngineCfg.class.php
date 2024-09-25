@@ -394,7 +394,9 @@ class CentreonEngineCfg extends CentreonObject
 
     /**
      * @param $parameters
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function addbrokermodule($parameters)
     {
@@ -443,7 +445,9 @@ class CentreonEngineCfg extends CentreonObject
 
     /**
      * @param $parameters
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function delbrokermodule($parameters)
     {
@@ -491,6 +495,8 @@ class CentreonEngineCfg extends CentreonObject
      * This method is automatically called in CentreonObject
      *
      * @param int $nagiosId
+     *
+     * @throws PDOException
      */
     public function insertRelations(int $nagiosId): void
     {

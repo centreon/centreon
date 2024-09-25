@@ -47,11 +47,11 @@ class CentreonWidgetParamsCompare extends CentreonWidgetParams
     public $element;
 
     /**
-     * CentreonWidgetParamsCompare constructor
+     * CentreonWidgetParamsCompare Constructor
      *
-     * @param $db
-     * @param $quickform
-     * @param $userId
+     * @param CentreonDB $db
+     * @param HTML_Quickform $quickform
+     * @param int $userId
      *
      * @throws PDOException
      */

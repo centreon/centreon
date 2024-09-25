@@ -33,9 +33,16 @@
  *
  */
 require_once __DIR__ . "/../Select2.class.php";
+
 /**
  * Creation of a new connector for the host severity that use the centreonHostcategories object 
  * with configuration from centreon_configuration_host_severity file
+ */
+
+/**
+ * Class
+ *
+ * @class CentreonWidgetParamsConnectorHostSeverityMulti
  */
 class CentreonWidgetParamsConnectorHostSeverityMulti extends CentreonWidgetParamsSelect2
 {

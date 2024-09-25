@@ -35,26 +35,32 @@
 
 namespace CentreonClapi;
 
+use Pimple\Container;
+
 require_once "centreonUtils.class.php";
 
 /**
- * Class for managing ACL system
- * @author sylvestre
+ * Class
  *
+ * @class CentreonACL
+ * @package CentreonClapi
  */
 class CentreonACL
 {
+    /** @var CentreonDB */
     protected $db;
     // hack to get rid of warning messages
+    /** @var array */
     public $topology = array();
+    /** @var string */
     public $topologyStr = "";
 
     /**
-     * Constructor
+     * CentreonACL constructor
      *
-     * @return void
+     * @param Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         $this->db = $dependencyInjector['configuration_db'];
     }

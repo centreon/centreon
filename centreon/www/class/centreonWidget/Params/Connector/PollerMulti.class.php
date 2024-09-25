@@ -35,13 +35,30 @@
 
 require_once __DIR__ . "/../Select2.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonWidgetParamsConnectorPollerMulti
+ */
 class CentreonWidgetParamsConnectorPollerMulti extends CentreonWidgetParamsSelect2
 {
+    /**
+     * CentreonWidgetParamsConnectorPollerMulti constructor
+     *
+     * @param $db
+     * @param $quickform
+     * @param $userId
+     *
+     * @throws PDOException
+     */
     public function __construct($db, $quickform, $userId)
     {
         parent::__construct($db, $quickform, $userId);
     }
 
+    /**
+     * @return array|mixed
+     */
     public function getParameters()
     {
         static $tab;

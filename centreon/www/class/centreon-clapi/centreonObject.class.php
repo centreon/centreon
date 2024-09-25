@@ -69,22 +69,16 @@ abstract class CentreonObject
     public const SINGLE_VALUE = 0;
     public const MULTIPLE_VALUE = 1;
 
-    /** @var CentreonApi */
-    public $api;
-    /** @var null */
-    private $centreon_api = null;
     /** @var array */
     protected static $instances;
 
-    /**
-     * Db object provided by dependency injector
-     *
-     * @var CentreonDB
-     */
+    /** @var CentreonApi */
+    public $api;
+    /** @var CentreonDB */
     protected $db;
     /** @var string */
     protected string $action;
-    /** @var */
+    /** @var array */
     protected $dependencyInjector;
 
     /**
@@ -519,8 +513,10 @@ abstract class CentreonObject
     /**
      * Export from a specific object
      *
-     * @param $filterName
+     * @param string|null $filterName
+     *
      * @return bool
+     * @throws Exception
      */
     public function export($filterName = null)
     {
@@ -659,7 +655,7 @@ abstract class CentreonObject
                 throw $e;
             }
         }
-    }
+    }// FIXME no return
 
 
     /**

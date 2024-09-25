@@ -404,7 +404,7 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
     /**
      * Export
      *
-     * @param null $filterName
+     * @param string|null $filterName
      *
      * @return false|void
      * @throws Exception

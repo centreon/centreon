@@ -92,7 +92,6 @@ class CentreonContact extends CentreonObject
     );
 
     /**
-     *
      * @var array
      * Contains : list of authorized notifications_options for each objects
      */

@@ -48,8 +48,8 @@ class Config
     /** @var string */
     public $XMLFile;
     /** @var */
-    public $XMLfile;
-    /** @var */
+    public $XMLfile; // FIXME not used
+    /** @var array */
     private $defaultConfiguration;
     /** @var array */
     public $tables;
