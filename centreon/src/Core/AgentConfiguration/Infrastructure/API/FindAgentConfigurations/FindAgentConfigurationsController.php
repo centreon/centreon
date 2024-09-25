@@ -21,26 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\AgentConfiguration\Domain\Model;
+namespace Core\AgentConfiguration\Infrastructure\API\FindAgentConfigurations;
 
-/**
- * @immutable
- */
-class Poller
+use Centreon\Application\Controller\AbstractController;
+use Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations\FindAgentConfigurations;
+use Symfony\Component\HttpFoundation\Response;
+
+final class FindAgentConfigurationsController extends AbstractController
 {
-    public function __construct(
-        public readonly int $id,
-        public readonly string $name,
-    ) {
-    }
-
-    public function getId(): int
+    public function __invoke(FindAgentConfigurations $useCase, FindAgentConfigurationsPresenter $presenter): Response
     {
-        return $this->id;
-    }
+        $this->denyAccessUnlessGrantedForApiConfiguration();
+        $useCase($presenter);
 
-    public function getName(): string
-    {
-        return $this->name;
+        return $presenter->show();
     }
 }

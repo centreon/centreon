@@ -25,6 +25,7 @@ namespace Core\AgentConfiguration\Infrastructure\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
@@ -208,7 +209,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
     /**
      * @inheritDoc
      */
-    public function haveBrokerModuleDirective(string $module): array
+    public function findPollersWithBrokerModuleDirective(string $module): array
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
@@ -218,9 +219,176 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
                 WHERE cfg_nagios_id = :id
                 SQL
         ));
-        $statement->bindValue(':id', $agentConfigurationId, \PDO::PARAM_INT);
+        $statement->bindValue(':id', $module, \PDO::PARAM_INT);
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
+
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAllByRequestParameters(RequestParametersInterface $requestParameters): array
+    {
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->setConcordanceArray([
+            'name' => 'ac.name',
+            'type' => 'ac.type',
+            'poller.id' => 'rel.poller_id',
+        ]);
+
+        $request = <<<'SQL'
+            SELECT SQL_CALC_FOUND_ROWS
+                ac.id,
+                ac.name,
+                ac.type,
+                ac.configuration
+            FROM `:db`.`agent_configuration` ac
+            INNER JOIN `:db`.`ac_poller_relation` rel
+                ON ac.id = rel.ac_id
+            SQL;
+
+        // Search
+        $request .= $sqlTranslator->translateSearchParameterToSql();
+        $request .= ' GROUP BY ac.name';
+
+        // Sort
+        $sortRequest = $sqlTranslator->translateSortParameterToSql();
+        $request .= ! is_null($sortRequest)
+            ? $sortRequest
+            : ' ORDER BY ac.id ASC';
+
+        // Pagination
+        $request .= $sqlTranslator->translatePaginationToSql();
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+
+        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+            $type = key($data);
+            if ($type !== null) {
+                $value = $data[$type];
+                $statement->bindValue($key, $value, $type);
+            }
+        }
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $result = $this->db->query('SELECT FOUND_ROWS()');
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+        }
+
+        $agentConfigurations = [];
+        foreach ($statement as $result) {
+            /** @var _AgentConfiguration $result */
+            $agentConfigurations[] = $this->createFromArray($result);
+        }
+
+        return $agentConfigurations;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAllByRequestParametersAndAccessGroups(RequestParametersInterface $requestParameters, array $accessGroups): array
+    {
+        if ($accessGroups === []) {
+            return [];
+        }
+
+        $accessGroupIds = array_map(
+            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        if (! $this->hasRestrictedAccessToMonitoringServers($accessGroupIds)) {
+            return $this->findAllByRequestParameters($requestParameters);
+        }
+
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->setConcordanceArray([
+            'name' => 'ac.name',
+            'type' => 'ac.type',
+            'poller.id' => 'rel.poller_id',
+        ]);
+
+        [$accessGroupsBindValues, $accessGroupIdsQuery] = $this->createMultipleBindQuery(
+            array_map(fn (AccessGroup $accessGroup) => $accessGroup->getId(), $accessGroups),
+            ':acl_'
+        );
+
+        $request = <<<SQL
+            SELECT
+                ac.id,
+                ac.name,
+                ac.type,
+                ac.configuration
+            FROM `:db`.`agent_configuration` ac
+            INNER JOIN `:db`.`ac_poller_relation` rel
+                ON ac.id = rel.ac_id
+            INNER JOIN `:db`.`nagios_server` ns
+                ON rel.poller_id = ns.id
+            INNER JOIN `:db`.acl_resources_poller_relations arpr
+                ON ns.id = arpr.poller_id
+            INNER JOIN `:db`.acl_res_group_relations argr
+                ON argr.acl_res_id = arpr.acl_res_id
+                AND argr.acl_group_id IN ({$accessGroupIdsQuery})
+        SQL;
+
+        // Search
+        $request .= $search = $sqlTranslator->translateSearchParameterToSql();
+        $request .= $search !== null
+            ? ' AND '
+            : ' WHERE ';
+        $request .= ' ac.id NOT IN (
+            SELECT rel.ac_id
+            FROM `ac_poller_relation` rel
+            LEFT JOIN acl_resources_poller_relations arpr ON rel.poller_id = arpr.poller_id
+            LEFT JOIN acl_res_group_relations argr ON argr.acl_res_id = arpr.acl_res_id
+            WHERE argr.acl_group_id IS NULL
+        )';
+        $request .= ' GROUP BY ac.name';
+
+        // Sort
+        $sortRequest = $sqlTranslator->translateSortParameterToSql();
+        $request .= ! is_null($sortRequest)
+            ? $sortRequest
+            : ' ORDER BY ac.id ASC';
+
+        // Pagination
+        $request .= $sqlTranslator->translatePaginationToSql();
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+
+        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+            $type = key($data);
+            if ($type !== null) {
+                $value = $data[$type];
+                $statement->bindValue($key, $value, $type);
+            }
+        }
+        foreach ($accessGroupsBindValues as $bindKey => $hostGroupId) {
+            $statement->bindValue($bindKey, $hostGroupId, \PDO::PARAM_INT);
+        }
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        // Set total
+        $result = $this->db->query('SELECT FOUND_ROWS()');
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+        }
+
+        $agentConfigurations = [];
+        foreach ($statement as $result) {
+            /** @var _AgentConfiguration $result */
+            $agentConfigurations[] = $this->createFromArray($result);
+        }
+
+        return $agentConfigurations;
     }
 
     /**

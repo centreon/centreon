@@ -156,9 +156,8 @@ class DbWriteAgentConfigurationRepository  extends AbstractRepositoryRDB impleme
 
         $pollerId = null;
         $statement->bindValue(':module', $module, \PDO::PARAM_INT);
-        $statement->bindParam(':poller_id', $pollerId, \PDO::PARAM_INT);
-        foreach ($pollerIds as $poller) {
-            $pollerId = $poller;
+        foreach ($pollerIds as $pollerId) {
+            $statement->bindParam(':pollerId', $pollerId, \PDO::PARAM_INT);
             $statement->execute();
         }
     }
