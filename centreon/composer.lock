@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "63d15d183e79bcc3fee85031136dc2cf",
+    "content-hash": "e75aba73a513fda4f4bd1a657d4053f8",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -6943,16 +6943,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-MON-147667-upgrade-to-php-8.2-with-upgrade-dependencies",
+            "version": "dev-MON-147667-upgrade-to-php-8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "cd960e22cde13e32765852b8e7d026293b9efd12"
+                "reference": "cac8f3c330fb878dfaf296ae6798e3015f2e3844"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/cd960e22cde13e32765852b8e7d026293b9efd12",
-                "reference": "cd960e22cde13e32765852b8e7d026293b9efd12",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/cac8f3c330fb878dfaf296ae6798e3015f2e3844",
+                "reference": "cac8f3c330fb878dfaf296ae6798e3015f2e3844",
                 "shasum": ""
             },
             "require": {
@@ -7006,9 +7006,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/MON-147667-upgrade-to-php-8.2-with-upgrade-dependencies"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/MON-147667-upgrade-to-php-8.2"
             },
-            "time": "2024-09-25T08:54:27+00:00"
+            "time": "2024-09-25T14:10:00+00:00"
         },
         {
             "name": "clue/ndjson-react",

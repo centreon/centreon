@@ -9,13 +9,13 @@
   ],
   "license": "GPL-2.0-only",
   "require": {
-    "centreon/centreon": "dev-MON-146851-upgrade-to-php-8.2-with-dependencies-upgraded",
+    "centreon/centreon": "dev-MON-146851-upgrade-to-php-8.2-with-rector",
     "ext-openssl": "*",
     "ext-json": "*"
   },
   "require-dev": {
     "beberlei/assert": "^3.3",
-    "centreon/centreon-test-lib": "dev-MON-147667-upgrade-to-php-8.2-with-upgrade-dependencies",
+    "centreon/centreon-test-lib": "dev-MON-147667-upgrade-to-php-8.2",
     "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
     "friendsofphp/php-cs-fixer": "3.64.*",
     "pestphp/pest": "^1.21",

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2f05f7228cf895d69fec9bce199f839d",
+    "content-hash": "38813657693e66d056b5f46aa7c60b56",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -75,11 +75,11 @@
         },
         {
             "name": "centreon/centreon",
-            "version": "dev-MON-146851-upgrade-to-php-8.2-with-dependencies-upgraded",
+            "version": "dev-MON-146851-upgrade-to-php-8.2-with-rector",
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "4b96b55c1952caafdd03cb982482271ca81314d9"
+                "reference": "b282c6afe6d758beccf2f36e3d47b2d6d80c5dd0"
             },
             "require": {
                 "beberlei/assert": "^3.3",
@@ -157,7 +157,7 @@
             "require-dev": {
                 "behat/behat": "^3.10",
                 "behat/mink-selenium2-driver": "1.6.*",
-                "centreon/centreon-test-lib": "dev-MON-147667-upgrade-to-php-8.2-with-upgrade-dependencies",
+                "centreon/centreon-test-lib": "dev-MON-147667-upgrade-to-php-8.2",
                 "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
                 "friends-of-behat/mink": "^1.9",
                 "friends-of-behat/mink-extension": "^2.5",
@@ -266,10 +266,10 @@
                     "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8"
                 ],
                 "rector:check": [
-                    "rector --dry-run --debug"
+                    "rector process --dry-run --debug"
                 ],
                 "rector:exec": [
-                    "rector --debug"
+                    "rector process --debug"
                 ]
             },
             "license": [
@@ -7080,16 +7080,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-MON-147667-upgrade-to-php-8.2-with-upgrade-dependencies",
+            "version": "dev-MON-147667-upgrade-to-php-8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "cd960e22cde13e32765852b8e7d026293b9efd12"
+                "reference": "cac8f3c330fb878dfaf296ae6798e3015f2e3844"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/cd960e22cde13e32765852b8e7d026293b9efd12",
-                "reference": "cd960e22cde13e32765852b8e7d026293b9efd12",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/cac8f3c330fb878dfaf296ae6798e3015f2e3844",
+                "reference": "cac8f3c330fb878dfaf296ae6798e3015f2e3844",
                 "shasum": ""
             },
             "require": {
@@ -7143,9 +7143,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/MON-147667-upgrade-to-php-8.2-with-upgrade-dependencies"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/MON-147667-upgrade-to-php-8.2"
             },
-            "time": "2024-09-25T08:54:27+00:00"
+            "time": "2024-09-25T14:10:00+00:00"
         },
         {
             "name": "clue/ndjson-react",
