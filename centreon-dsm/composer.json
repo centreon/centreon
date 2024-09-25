@@ -7,12 +7,13 @@
     "centreon/centreon": "dev-develop"
   },
   "require-dev": {
+    "centreon/centreon-test-lib": "dev-MON-147667-upgrade-to-php-8.2-with-upgrade-dependencies",
     "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
-    "squizlabs/php_codesniffer": "3.10.*",
     "friendsofphp/php-cs-fixer": "3.64.*",
     "phpcompatibility/php-compatibility": "9.3.*",
     "phpstan/phpstan": "1.12.*",
-    "rector/rector": "1.2.*"
+    "rector/rector": "1.2.*",
+    "squizlabs/php_codesniffer": "3.10.*"
   },
   "repositories": [
     {
@@ -28,11 +29,13 @@
     },
     "allow-plugins": {
       "symfony/flex": false,
-      "dealerdirect/phpcodesniffer-composer-installer": true
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "pestphp/pest-plugin": true
     }
   },
   "scripts": {
     "phpcs": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff",
+    "phpcs:exec": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --diff",
     "phpcs:ci": "@phpcs",
     "phpstan": "phpstan analyse -c phpstan.neon --level=0 --memory-limit=512M --debug",
     "phpstan:ci": "@phpstan --no-progress",
