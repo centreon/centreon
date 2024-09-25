@@ -25,8 +25,6 @@ namespace Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations;
 
 final class FindAgentConfigurationsResponse
 {
-    /**
-     * @var AgentConfigurationDto[]
-     */
+    /** @var AgentConfigurationDto[] */
     public array $agentConfigurations = [];
 }

@@ -42,6 +42,8 @@ final class FindAgentConfigurations
     /**
      * @param ContactInterface $user
      * @param ReadAgentConfigurationRepositoryInterface $readRepository
+     * @param RequestParametersInterface $requestParameters
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
      */
     public function __construct(
         private readonly ContactInterface $user,
@@ -88,6 +90,7 @@ final class FindAgentConfigurations
      * Creates a response from the given array of agent configurations.
      *
      * @param AgentConfiguration[] $agentConfigurations
+     *
      * @return FindAgentConfigurationsResponse
      */
     private function createResponse(array $agentConfigurations): FindAgentConfigurationsResponse

@@ -25,7 +25,6 @@ namespace Core\AgentConfiguration\Application\Repository;
 
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\NewAgentConfiguration;
-use Core\AgentConfiguration\Domain\Model\Type;
 
 interface WriteAgentConfigurationRepositoryInterface
 {

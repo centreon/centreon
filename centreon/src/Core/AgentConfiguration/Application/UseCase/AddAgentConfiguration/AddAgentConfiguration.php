@@ -122,6 +122,7 @@ final class AddAgentConfiguration
      * @param NewAgentConfiguration $agentConfiguration
      * @param int[] $pollers
      * @param int[] $needBrokerModuleDirectives
+     * @param string $module
      *
      * @throws \Throwable
      *
