@@ -410,10 +410,9 @@ Then('the second widget has the same properties as the first widget', () => {
     .parent()
     .invoke('removeAttr', 'target')
     .click({ force: true });
-  cy.get('[class*="resourceName"]')
-    .eq(3)
-    .contains('Centreon-Server')
-    .should('exist');
+  cy.waitForElementToBeVisible('[class*="resourceName"]', 10000, 500).then(() => {
+    cy.get('[class*="resourceName"]').eq(3).contains('Centreon-Server').should('be.visible');
+  });
   cy.get('[class*="resourceName"]').contains('host2').should('exist');
   cy.get('[class*="resourceName"]').contains('host3').should('exist');
 });
