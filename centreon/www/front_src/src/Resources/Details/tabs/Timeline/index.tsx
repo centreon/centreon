@@ -114,6 +114,13 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
 
   const displayCsvExport = !isNil(timelineDownloadEndpoint);
 
+  const onDelete = (_, option): void => {
+    const updatedTypeIds = selectedTypes.filter(
+      ({ id }) => !equals(id, option.id)
+    );
+    setSelectedTypes(updatedTypeIds);
+  };
+
   return (
     <InfiniteScroll
       details={details}
@@ -127,6 +134,7 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
               options={translatedTypes}
               value={selectedTypes}
               onChange={changeSelectedTypes}
+              chipProps={{ onDelete }}
             />
           </Paper>
           {displayCsvExport && (
