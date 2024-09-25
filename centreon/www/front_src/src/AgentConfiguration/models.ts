@@ -24,7 +24,8 @@ export interface TelegrafConfiguration {
 export interface CMAConfiguration {
   isReverse: boolean;
   otlpCertificate: string;
-  otlpCaCertificate: string;
+  otlpCaCertificate: string | null;
+  otlpCaCertificateName: string | null;
   otlpPrivateKey: string;
   hosts: Array<{
     address: string;
@@ -53,7 +54,8 @@ export interface HostConfiguration {
 export interface CMAConfigurationAPI {
   is_reverse: boolean;
   otlp_certificate: string;
-  otlp_ca_certificate: string;
+  otlp_ca_certificate: string | null;
+  otlp_ca_certificate_name: string | null;
   otlp_private_key: string;
   hosts: Array<HostConfiguration>;
 }

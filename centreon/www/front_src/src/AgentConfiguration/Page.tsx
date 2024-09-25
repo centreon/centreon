@@ -11,6 +11,7 @@ import { useGetAgentConfigurations } from './hooks/useGetAgentConfigurations';
 import {
   labelAddNewAgent,
   labelAgentsConfigurations,
+  labelWelcomeDescription,
   labelWelcomeToTheAgentsConfigurationPage
 } from './translatedLabels';
 

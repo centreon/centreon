@@ -59,6 +59,7 @@ const adaptCMAConfigurationToAPI = (
     configuration: {
       is_reverse: configuration.isReverse,
       otlp_ca_certificate: configuration.otlpCaCertificate,
+      otlp_ca_certificate_name: configuration.otlpCaCertificateName,
       otlp_certificate: configuration.otlpCertificate,
       otlp_private_key: configuration.otlpPrivateKey,
       hosts: configuration.hosts

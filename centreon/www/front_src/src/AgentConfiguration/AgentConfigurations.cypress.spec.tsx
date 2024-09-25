@@ -5,9 +5,11 @@ import { initReactI18next } from 'react-i18next';
 import { labelPortExpectedAtMost } from '../VaultConfiguration/translatedLabels';
 import AgentConfigurationPage from './Page';
 import {
+  agentConfigurationPollersEndpoint,
   getAgentConfigurationEndpoint,
   getAgentConfigurationsEndpoint,
-  getPollerAgentEndpoint
+  getPollerAgentEndpoint,
+  pollersEndpoint
 } from './api/endpoints';
 import {
   labelAction,
@@ -20,17 +22,19 @@ import {
   labelAgentType,
   labelAgentTypes,
   labelAgentsConfigurations,
+  labelCMA,
   labelCaCertificate,
   labelCancel,
   labelCertificate,
   labelClear,
+  labelConfigurationServer,
   labelConnectionInitiatedByPoller,
   labelDNSIP,
   labelDelete,
   labelDeleteAgent,
   labelDeletePoller,
-  labelExtensionNotAllowed,
   labelHostConfigurations,
+  labelInvalidFilename,
   labelName,
   labelOTLPReceiver,
   labelPoller,
@@ -420,16 +424,16 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelPollers).focus();
     cy.findByLabelText(labelPollers).blur();
     cy.findAllByLabelText(labelPort).eq(0).type('123456');
-    cy.findByLabelText(labelPublicCertificate).type('test.cer');
-    cy.findByLabelText(labelCaCertificate).type('test.pem');
-    cy.findAllByLabelText(labelPrivateKey).eq(0).type('test.crt');
-    cy.findAllByLabelText(labelPrivateKey).eq(1).type('test.crt');
-    cy.findByLabelText(labelCertificate).type('test.key');
+    cy.findByLabelText(labelPublicCertificate).type('test.cert');
+    cy.findByLabelText(labelCaCertificate).type('test.crt');
+    cy.findAllByLabelText(labelPrivateKey).eq(0).type('test.key');
+    cy.findAllByLabelText(labelPrivateKey).eq(1).type('test.key');
+    cy.findByLabelText(labelCertificate).type('test.cer');
     cy.findByLabelText(labelCertificate).blur();
 
     cy.findByLabelText(labelAgentType).should('have.value', 'Telegraf');
     cy.findAllByText(labelRequired).should('have.length', 2);
-    cy.findAllByText(labelExtensionNotAllowed).should('have.length', 5);
+    cy.findAllByText(labelInvalidFilename).should('have.length', 5);
     cy.findAllByText(labelPortExpectedAtMost).should('have.length', 1);
     cy.contains(labelSave).should('be.disabled');
 
@@ -543,7 +547,7 @@ describe('Agent configurations modal', () => {
 
     cy.contains(labelAddNewAgent).click();
     cy.findByLabelText(labelAgentType).click();
-    cy.contains('CMA').click();
+    cy.contains(labelCMA).click();
 
     cy.findByLabelText(labelConnectionInitiatedByPoller).should('be.checked');
     cy.contains(labelOTLPReceiver).should('be.visible');
@@ -562,11 +566,43 @@ describe('Agent configurations modal', () => {
     cy.makeSnapshot();
   });
 
-  it('resets the form a different agent type is selected', () => {});
+  it('resets the form a different agent type is selected', () => {
+    initialize({});
+
+    cy.contains(labelAddNewAgent).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.contains(labelCMA).click();
+    cy.findByLabelText(labelName).type('My agent');
+    cy.findByLabelText(labelCertificate).type('something').clear();
+    cy.findByLabelText(labelCertificate).blur();
+    cy.findAllByLabelText(labelPrivateKey).eq(0).type('filename.key').blur();
+
+    cy.contains(labelRequired).should('be.visible');
+    cy.contains(labelInvalidFilename).should('be.visible');
+
+    cy.findByLabelText(labelAgentType).click();
+    cy.contains('Telegraf').click();
+
+    cy.contains(labelHostConfigurations).should('not.exist');
+    cy.contains(labelRequired).should('not.exist');
+    cy.contains(labelInvalidFilename).should('not.exist');
+    cy.findByLabelText(labelName).should('have.value', 'My agent');
+    cy.contains(labelConfigurationServer).should('be.visible');
+
+    cy.makeSnapshot();
+  });
 
   it('does not validate the form when there is no host configuration', () => {});
 
-  it('validates the form when fields are filled and the reverse switch is unchecked', () => {});
+  it.only('validates the form when fields are filled and the reverse switch is unchecked', () => {
+    initialize({});
+
+    cy.contains(labelAddNewAgent).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.contains(labelCMA).click();
+    cy.findByLabelText(labelName).type('My agent');
+    cy.contains(labelConnectionInitiatedByPoller).click();
+  });
 
   it('configures the host address and port when a host is selected', () => {});
 

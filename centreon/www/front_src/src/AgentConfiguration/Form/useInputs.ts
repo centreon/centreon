@@ -9,6 +9,8 @@ import { AgentType } from '../models';
 import {
   labelAgentConfiguration,
   labelAgentType,
+  labelCAName,
+  labelCMA,
   labelCaCertificate,
   labelCertificate,
   labelConfigurationServer,
@@ -28,7 +30,7 @@ import HostConfigurations from './HostConfigurations/HostConfigurations';
 
 export const agentTypes: Array<SelectEntry> = [
   { id: AgentType.Telegraf, name: capitalize(AgentType.Telegraf) },
-  { id: AgentType.CMA, name: 'CMA' }
+  { id: AgentType.CMA, name: labelCMA }
 ];
 
 export const useInputs = (): {
@@ -93,7 +95,8 @@ export const useInputs = (): {
                         otlpReceiverAddress: '',
                         otlpReceiverPort: '',
                         otlpCertificate: '',
-                        otlpCaCertificate: '',
+                        otlpCaCertificate: null,
+                        otlpCaCertificateName: null,
                         otlpPrivateKey: '',
                         hosts: [
                           {
@@ -174,7 +177,17 @@ export const useInputs = (): {
                   {
                     type: InputType.Text,
                     fieldName: caCertificateProperty,
+                    hideInput: (values) =>
+                      equals(values?.type?.id, AgentType.CMA),
                     required: true,
+                    label: t(labelCaCertificate)
+                  },
+                  {
+                    type: InputType.Text,
+                    fieldName: caCertificateProperty,
+                    hideInput: (values) =>
+                      equals(values?.type?.id, AgentType.Telegraf),
+                    required: false,
                     label: t(labelCaCertificate)
                   },
                   {
@@ -182,6 +195,15 @@ export const useInputs = (): {
                     fieldName: privateKeyProperty,
                     required: true,
                     label: t(labelPrivateKey)
+                  },
+                  {
+                    type: InputType.Text,
+                    fieldName: 'configuration.caCertificateName',
+                    hideInput: (values) =>
+                      equals(values?.type?.id, AgentType.Telegraf) ||
+                      !values?.configuration?.isReverse,
+                    required: false,
+                    label: t(labelCAName)
                   }
                 ],
                 gridTemplateColumns: 'repeat(2, 1fr)'

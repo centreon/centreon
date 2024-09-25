@@ -8,6 +8,7 @@ import {
   filtersAtom
 } from '../../atoms';
 import { AgentType } from '../../models';
+import { labelCMA } from '../../translatedLabels';
 
 export const agentTypeOptions = [
   {
@@ -16,7 +17,7 @@ export const agentTypeOptions = [
   },
   {
     id: AgentType.CMA,
-    name: 'CMA'
+    name: labelCMA
   }
 ];
 

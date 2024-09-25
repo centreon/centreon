@@ -52,3 +52,5 @@ export const labelUpdateAgentConfiguration =
 export const labelInvalidFilename = 'Invalid filename';
 export const labelWelcomeDescription =
   'An agent is a piece of software you install on the host you want to monitor, that executes the checks.';
+export const labelCMA = 'Centreon Monitoring Agent';
+export const labelCAName = 'CA name';

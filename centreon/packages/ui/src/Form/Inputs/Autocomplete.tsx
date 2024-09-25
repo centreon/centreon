@@ -62,6 +62,7 @@ const Autocomplete = ({
     setValues,
     setTouched
   } = useFormikContext<FormikValues>();
+  console.log(values);
 
   const isMultiple = equals(inputType, InputType.MultiAutocomplete);
 
@@ -202,6 +203,7 @@ const Autocomplete = ({
       </div>
     ),
     memoProps: [
+      values,
       getValues(),
       inputErrors,
       additionalLabel,

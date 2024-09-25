@@ -5,12 +5,14 @@ import { Schema, array, boolean, mixed, number, object, string } from 'yup';
 import { AgentConfigurationForm, AgentType } from '../models';
 import {
   labelAddressInvalid,
-  labelExtensionNotAllowed,
+  labelInvalidFilename,
   labelPortExpectedAtMost,
   labelPortMustStartFrom1,
   labelRequired
 } from '../translatedLabels';
 
+const ipAddressRegex = /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/;
+const urlRegex = /^[a-zA-Z0-9_-]+\.?[a-zA-Z0-9-_.]+\.?[a-zA-Z0-9-_]+$/;
 export const portRegex = /:[0-9]+$/;
 export const certificateFilenameRegexp = /^[a-zA-Z0-9-_.]+(?<!\.crt|cert|cer)$/;
 export const keyFilenameRegexp = /^[a-zA-Z0-9-_.]+(?<!\.key)$/;
@@ -19,14 +21,18 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
   const { t } = useTranslation();
 
   const requiredString = useMemo(() => string().required(t(labelRequired)), []);
-  const filenameValidation = useMemo(
+  const certificateValidation = useMemo(
     () =>
-      requiredString.test({
-        name: 'is-filename-valid',
-        exclusive: true,
-        message: t(labelExtensionNotAllowed),
-        test: (filename) => !filename.match(/\.(pem|crt|key|cer)$/)
-      }),
+      string()
+        .matches(certificateFilenameRegexp, t(labelInvalidFilename))
+        .required(t(labelRequired)),
+    []
+  );
+  const keyValidation = useMemo(
+    () =>
+      string()
+        .matches(keyFilenameRegexp, t(labelInvalidFilename))
+        .required(t(labelRequired)),
     []
   );
   const portValidation = number()
@@ -36,18 +42,19 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
 
   const telegrafConfigurationSchema = {
     confServerPort: portValidation,
-    otelPublicCertificate: filenameValidation,
-    otelCaCertificate: filenameValidation,
-    otelPrivateKey: filenameValidation,
-    confCertificate: filenameValidation,
-    confPrivateKey: filenameValidation
+    otelPublicCertificate: certificateValidation,
+    otelCaCertificate: certificateValidation,
+    otelPrivateKey: keyValidation,
+    confCertificate: certificateValidation,
+    confPrivateKey: keyValidation
   };
 
   const CMAConfigurationSchema = {
     isReverse: boolean(),
-    otlpCertificate: requiredString,
-    otlpCaCertificate: requiredString,
-    otlpPrivateKey: requiredString,
+    otlpCertificate: certificateValidation,
+    otlpCaCertificate: certificateValidation,
+    otlpCaCertificateName: string().nullable(),
+    otlpPrivateKey: keyValidation,
     hosts: array().when('isReverse', {
       is: true,
       // biome-ignore lint/suspicious/noThenProperty: <explanation>
@@ -65,20 +72,14 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
                 })
                 .required(t(labelRequired)),
               port: portValidation,
-              certificate: requiredString,
-              key: requiredString
+              certificate: certificateValidation,
+              key: keyValidation
             })
           )
           .min(1),
       otherwise: (schema) => schema.min(0)
     })
   };
-  const certificateValidation = string()
-    .matches(certificateFilenameRegexp, t(labelInvalidFilename))
-    .required(t(labelRequired));
-  const keyValidation = string()
-    .matches(keyFilenameRegexp, t(labelInvalidFilename))
-    .required(t(labelRequired));
 
   return object<AgentConfigurationForm>({
     name: requiredString,
