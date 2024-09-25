@@ -136,4 +136,12 @@ class AgentConfigurationException extends \Exception
             self::CODE_CONFLICT
         );
     }
+
+    public static function onlyOnePoller(int $pollerId, int $acId): self
+    {
+         return new self(
+            sprintf(_('Poller ID #%d is the only one linked to Agent Configuration ID #%d'), $pollerId, $acId),
+            self::CODE_CONFLICT
+        );
+    }
 }
