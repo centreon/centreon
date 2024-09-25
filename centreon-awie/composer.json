@@ -11,6 +11,7 @@
     "behat/mink-selenium2-driver": "^1.5",
     "friends-of-behat/mink": "^1.9",
     "friends-of-behat/mink-extension": "^2.5",
+    "friendsofphp/php-cs-fixer": "3.64.*",
     "centreon/centreon-test-lib": "dev-MON-147667-upgrade-to-php-8.2-with-upgrade-dependencies",
     "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
     "squizlabs/php_codesniffer": "3.10.*",
@@ -38,8 +39,8 @@
     }
   },
   "scripts": {
-    "codestyle": "phpcs --extensions=php --standard=./ruleset.xml ./ --no-cache",
-    "codestyle:ci": "@codestyle --report=checkstyle --report-file=./build/checkstyle.xml",
+    "phpcs": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff",
+    "phpcs:ci": "@phpcs",
     "phpstan": "phpstan analyse -c phpstan.neon --level=6 --memory-limit=512M --debug",
     "phpstan:ci": "@phpstan --no-progress",
     "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",

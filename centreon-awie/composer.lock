@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "61791783c5b2b6b92a75ce951f7c27ea",
+    "content-hash": "e3f5fffb041db1c958e9392ba8fd9982",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -79,7 +79,7 @@
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "b127c40b1c5ebca676317cc87078d4ff963d6a53"
+                "reference": "dc68f245355bce372bc2d4f69b867540f8735dba"
             },
             "require": {
                 "beberlei/assert": "^3.3",
@@ -226,14 +226,17 @@
                 "test:ci": [
                     "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml --no-interaction"
                 ],
-                "codestyle": [
-                    "phpcs --extensions=php --standard=./ruleset.xml ./ --no-cache"
+                "phpcs:strict": [
+                    "php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff"
                 ],
-                "codestyle:ci": [
-                    "@codestyle --report=checkstyle --report-file=./build/checkstyle-be.xml"
+                "phpcs:unstrict": [
+                    "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff"
                 ],
-                "codestyle:core": [
-                    "php-cs-fixer fix --dry-run --format=checkstyle > checkstyle.core.xml"
+                "phpcs:strict:ci": [
+                    "@phpcs:strict"
+                ],
+                "phpcs:unstrict:ci": [
+                    "@phpcs:unstrict"
                 ],
                 "phpstan": [
                     "phpstan analyse -c phpstan.neon --level=6 --memory-limit=512M --debug"
@@ -241,11 +244,17 @@
                 "phpstan:core": [
                     "phpstan analyse -c phpstan.core.neon --level=8 --memory-limit=1G --debug"
                 ],
+                "phpstan:test": [
+                    "phpstan analyse -c phpstan.test.neon --level=2 --memory-limit=1G --debug"
+                ],
                 "phpstan:ci": [
                     "@phpstan --no-progress"
                 ],
                 "phpstan:core:ci": [
                     "@phpstan:core --no-progress"
+                ],
+                "phpstan:test:ci": [
+                    "@phpstan:test --no-progress"
                 ],
                 "php:check8.2": [
                     "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8"
