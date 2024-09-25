@@ -98,7 +98,6 @@ export const useInputs = (): {
                   {
                     type: InputType.Text,
                     fieldName: 'configuration.otelCaCertificate',
-                    required: true,
                     label: t(labelCaCertificate)
                   },
                   {
