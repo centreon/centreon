@@ -27,16 +27,16 @@ require_once _CENTREON_PATH_ . '/www/class/centreon.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonUser.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
 require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/centreon-awie.conf.php';
-define('_CLAPI_LIB_', _CENTREON_PATH_ . "/lib");
-define('_CLAPI_CLASS_', _CENTREON_PATH_ . "/www/class/centreon-clapi");
+define('_CLAPI_LIB_', _CENTREON_PATH_ . '/lib');
+define('_CLAPI_CLASS_', _CENTREON_PATH_ . '/www/class/centreon-clapi');
 
 set_include_path(implode(PATH_SEPARATOR, [
     realpath(_CLAPI_LIB_),
     realpath(_CLAPI_CLASS_),
-    get_include_path()
+    get_include_path(),
 ]));
-require_once _CLAPI_CLASS_ . "/centreonUtils.class.php";
-require_once _CLAPI_CLASS_ . "/centreonAPI.class.php";
+require_once _CLAPI_CLASS_ . '/centreonUtils.class.php';
+require_once _CLAPI_CLASS_ . '/centreonAPI.class.php';
 
 $formValue = [
     'export_cmd',
@@ -53,44 +53,42 @@ $formValue = [
     'SC',
     'ACL',
     'LDAP',
-    'export_INSTANCE'
+    'export_INSTANCE',
 ];
 
 $centreonSession = new CentreonSession();
 $centreonSession->start();
 $username = $_SESSION['centreon']->user->alias;
 /** @var Pimple\Container $dependencyInjector */
-$clapiConnector = new \ClapiObject($dependencyInjector, ['username' => $username]);
+$clapiConnector = new ClapiObject($dependencyInjector, ['username' => $username]);
 
-/*
-* Set log_contact
-*/
-\CentreonClapi\CentreonUtils::setUserName($username);
+// Set log_contact
+CentreonClapi\CentreonUtils::setUserName($username);
 
 $scriptContent = [];
 $ajaxReturn = [];
 
-$oExport = new \Export($clapiConnector, $dependencyInjector);
+$oExport = new Export($clapiConnector, $dependencyInjector);
 
 foreach ($_POST as $object => $value) {
     if (in_array($object, $formValue)) {
         $type = explode('_', $object);
         if ($type[0] == 'export') {
             $generateContent = $oExport->generateGroup($type[1], $value);
-            if (!empty($generateContent)) {
-                if (!empty($generateContent['error'])) {
+            if (! empty($generateContent)) {
+                if (! empty($generateContent['error'])) {
                     $ajaxReturn['error'][] = $generateContent['error'];
                 }
-                if (!is_null($generateContent['result'])) {
+                if (! is_null($generateContent['result'])) {
                     $scriptContent[] = $generateContent['result'];
                 }
             }
         } elseif ($type[0] != 'submitC') {
             $generateContent = $oExport->generateObject($type[0]);
-            if (!empty($generateContent['error'])) {
+            if (! empty($generateContent['error'])) {
                 $ajaxReturn['error'][] = $generateContent['error'];
             }
-            if (!is_null($generateContent['result'])) {
+            if (! is_null($generateContent['result'])) {
                 $scriptContent[] = $generateContent['result'];
             }
         }
@@ -101,4 +99,5 @@ foreach ($_POST as $object => $value) {
 
 $ajaxReturn['fileGenerate'] = $oExport->clapiExport($scriptContent);
 echo json_encode($ajaxReturn);
+
 exit;

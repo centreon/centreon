@@ -33,8 +33,7 @@
  * For more information : contact@centreon.com
  *
  **/
-
-if (!isset($oreon)) {
+if (! isset($oreon)) {
     exit();
 }
 
@@ -45,109 +44,94 @@ if (!isset($oreon)) {
  * and replaces any spaces in its value with underscores.
  *
  * @global HTML_QuickFormCustom $form The form object containing the submitted values.
- * @return string The 'pool_name' value with spaces replaced by underscores.
+ * @param mixed $form
+ * @return string the 'pool_name' value with spaces replaced by underscores
  */
 function replaceSpacesWithUnderscores($form)
 {
     $ret = $form->getSubmitValues();
-    return (str_replace(" ", "_", $ret["pool_name"]));
+
+    return str_replace(' ', '_', $ret['pool_name']);
 }
 
 $valid = false;
-$msgErr = "";
-$pool = array();
+$msgErr = '';
+$pool = [];
 
 try {
-    if (($o == "c" || $o == "w") && $slot_id) {
-        $statement = $pearDB->prepareQuery("SELECT * FROM mod_dsm_pool WHERE pool_id = :slot_id LIMIT 1");
-        $pearDB->executePreparedQuery($statement, [':slot_id' => [(int)$slot_id, PDO::PARAM_INT]], true);
+    if (($o == 'c' || $o == 'w') && $slot_id) {
+        $statement = $pearDB->prepareQuery('SELECT * FROM mod_dsm_pool WHERE pool_id = :slot_id LIMIT 1');
+        $pearDB->executePreparedQuery($statement, [':slot_id' => [(int) $slot_id, PDO::PARAM_INT]], true);
         $pool = $pearDB->fetch($statement);
     }
 
-    /*
-     * Commands
-     */
-    $Cmds = array();
+    // Commands
+    $Cmds = [];
     $dbResult = $pearDB->query(
         "SELECT command_id, command_name FROM command WHERE command_type = '2' ORDER BY command_name"
     );
     while ($Cmd = $dbResult->fetch()) {
-        $Cmds[$Cmd["command_id"]] = $Cmd["command_name"];
+        $Cmds[$Cmd['command_id']] = $Cmd['command_name'];
     }
 
-    /*
-     * pool hosts
-     */
-    $poolHost = array();
+    // pool hosts
+    $poolHost = [];
     $dbResult = $pearDB->query("SELECT host_id, host_name FROM host WHERE host_register = '1' ORDER BY host_name");
     while ($data = $dbResult->fetch()) {
-        $poolHost[$data["host_id"]] = $data["host_name"];
+        $poolHost[$data['host_id']] = $data['host_name'];
     }
 
-    /*
-     * pool service_template
-     */
-    $poolST = array(null => null);
+    // pool service_template
+    $poolST = [null => null];
     $dbResult = $pearDB->query(
         "SELECT service_id, service_description FROM service WHERE service_register = '0' ORDER BY service_description"
     );
     while ($data = $dbResult->fetch()) {
-        $data["service_description"] = str_replace("#S#", "/", $data["service_description"]);
-        $data["service_description"] = str_replace("#BS#", "\\", $data["service_description"]);
-        $poolST[$data["service_id"]] = $data["service_description"];
+        $data['service_description'] = str_replace('#S#', '/', $data['service_description']);
+        $data['service_description'] = str_replace('#BS#', '\\', $data['service_description']);
+        $poolST[$data['service_id']] = $data['service_description'];
     }
 
-    /*
-     * Template / Style for Quickform input
-     */
-    $attrsText = array("size" => "30");
-    $attrsTextSmall = array("size" => "10");
-    $attrsText2 = array("size" => "60");
-    $attrsAdvSelect = array("style" => "width: 300px; height: 100px;");
-    $attrsTextarea = array("rows" => "5", "cols" => "40");
-    $template = "<table><tr><td>{unselected}</td><td align='center'>{add}<br /><br /><br />" .
-        "{remove}</td><td>{selected}</td></tr></table>";
+    // Template / Style for Quickform input
+    $attrsText = ['size' => '30'];
+    $attrsTextSmall = ['size' => '10'];
+    $attrsText2 = ['size' => '60'];
+    $attrsAdvSelect = ['style' => 'width: 300px; height: 100px;'];
+    $attrsTextarea = ['rows' => '5', 'cols' => '40'];
+    $template = "<table><tr><td>{unselected}</td><td align='center'>{add}<br /><br /><br />"
+        . '{remove}</td><td>{selected}</td></tr></table>';
 
-    /*
-     * Form begin
-     */
-    $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
-    if ($o == "a") {
-        $form->addElement('header', 'title', _("Add a pool of services"));
-    } elseif ($o == "c") {
-        $form->addElement('header', 'title', _("Modify a pool of services"));
-    } elseif ($o == "w") {
-        $form->addElement('header', 'title', _("View a pool of services"));
+    // Form begin
+    $form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
+    if ($o == 'a') {
+        $form->addElement('header', 'title', _('Add a pool of services'));
+    } elseif ($o == 'c') {
+        $form->addElement('header', 'title', _('Modify a pool of services'));
+    } elseif ($o == 'w') {
+        $form->addElement('header', 'title', _('View a pool of services'));
     }
 
-    /*
-     * pool basic information
-     */
-    $form->addElement('header', 'information', _("General Information"));
-    $form->addElement('header', 'slotInformation', _("Slots Information"));
-    $form->addElement('header', 'Notification', _("Notifications Information"));
+    // pool basic information
+    $form->addElement('header', 'information', _('General Information'));
+    $form->addElement('header', 'slotInformation', _('Slots Information'));
+    $form->addElement('header', 'Notification', _('Notifications Information'));
 
+    // No possibility to change name and alias, because there's no interest
+    $form->addElement('text', 'pool_name', _('Name'), $attrsText);
+    $form->addElement('text', 'pool_description', _('Description'), $attrsText);
+    $form->addElement('text', 'pool_number', _('Number of Slots'), $attrsTextSmall);
+    $form->addElement('text', 'pool_prefix', _('Slot name prefix'), $attrsText);
+    $form->addElement('select', 'pool_host_id', _('Host Name'), $poolHost);
+    $form->addElement('select', 'pool_cmd_id', _('Check commands'), $Cmds);
+    $form->addElement('text', 'pool_args', _('arguments'), $attrsText2);
+    $form->addElement('select', 'pool_service_template_id', _('Service template based'), $poolST);
 
-    /*
-     * No possibility to change name and alias, because there's no interest
-     */
-    $form->addElement('text', 'pool_name', _("Name"), $attrsText);
-    $form->addElement('text', 'pool_description', _("Description"), $attrsText);
-    $form->addElement('text', 'pool_number', _("Number of Slots"), $attrsTextSmall);
-    $form->addElement('text', 'pool_prefix', _("Slot name prefix"), $attrsText);
-    $form->addElement('select', 'pool_host_id', _("Host Name"), $poolHost);
-    $form->addElement('select', 'pool_cmd_id', _("Check commands"), $Cmds);
-    $form->addElement('text', 'pool_args', _("arguments"), $attrsText2);
-    $form->addElement('select', 'pool_service_template_id', _("Service template based"), $poolST);
-
-    /*
-     * Further informations
-     */
-    $form->addElement('header', 'furtherInfos', _("Additional Information"));
-    $poolActivation[] = $form->createElement('radio', 'pool_activate', null, _("Enabled"), '1');
-    $poolActivation[] = $form->createElement('radio', 'pool_activate', null, _("Disabled"), '0');
-    $form->addGroup($poolActivation, 'pool_activate', _("Status"), '&nbsp;');
-    $form->setDefaults(array('pool_activate' => '1'));
+    // Further informations
+    $form->addElement('header', 'furtherInfos', _('Additional Information'));
+    $poolActivation[] = $form->createElement('radio', 'pool_activate', null, _('Enabled'), '1');
+    $poolActivation[] = $form->createElement('radio', 'pool_activate', null, _('Disabled'), '0');
+    $form->addGroup($poolActivation, 'pool_activate', _('Status'), '&nbsp;');
+    $form->setDefaults(['pool_activate' => '1']);
 
     $form->addElement('hidden', 'pool_id');
     $redirect = $form->addElement('hidden', 'o');
@@ -155,98 +139,92 @@ try {
     if (is_array($select)) {
         $select_str = null;
         foreach ($select as $key => $value) {
-            $select_str .= $key . ",";
+            $select_str .= $key . ',';
         }
         $select_pear = $form->addElement('hidden', 'select');
         $select_pear->setValue($select_str);
     }
 
-
     $form->applyFilter('__ALL__', 'myTrim');
     $form->applyFilter('pool_name', fn($form) => replaceSpacesWithUnderscores($form));
     $from_list_menu = false;
-    if ($o != "mc") {
-        $form->addRule('pool_name', _("Compulsory Name"), 'required');
-        $form->addRule('pool_host_id', _("Compulsory Alias"), 'required');
-        $form->addRule('pool_prefix', _("Compulsory Alias"), 'required');
-        $form->addRule('pool_number', _("Compulsory Alias"), 'required');
-    } elseif ($o == "mc") {
-        if ($form->getSubmitValue("submitMC")) {
+    if ($o != 'mc') {
+        $form->addRule('pool_name', _('Compulsory Name'), 'required');
+        $form->addRule('pool_host_id', _('Compulsory Alias'), 'required');
+        $form->addRule('pool_prefix', _('Compulsory Alias'), 'required');
+        $form->addRule('pool_number', _('Compulsory Alias'), 'required');
+    } elseif ($o == 'mc') {
+        if ($form->getSubmitValue('submitMC')) {
             $from_list_menu = false;
         } else {
             $from_list_menu = true;
         }
     }
-    $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
+    $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required fields'));
 
-    /*
-     * Smarty template Init
-     */
+    // Smarty template Init
     $tpl = new Smarty();
     $tpl = initSmartyTpl($path, $tpl);
 
-    if ($o == "w") {
+    if ($o == 'w') {
         // Just watch a pool information
         $form->addElement(
-            "button",
-            "change",
-            _("Modify"),
-            array(
-                "class" => "btc bt_default",
-                "onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&pool_id=" . $pool_id . "'"
-            )
+            'button',
+            'change',
+            _('Modify'),
+            [
+                'class' => 'btc bt_default',
+                'onClick' => "javascript:window.location.href='?p=" . $p . '&o=c&pool_id=' . $pool_id . "'",
+            ]
         );
         $form->setDefaults($pool);
         $form->freeze();
-    } elseif ($o == "c") {
+    } elseif ($o == 'c') {
         // Modify a pool information
-        $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-        $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+        $subC = $form->addElement('submit', 'submitC', _('Save'), ['class' => 'btc bt_success']);
+        $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
         $form->setDefaults($pool);
-    } elseif ($o == "a") {
+    } elseif ($o == 'a') {
         // Add a pool information
-        $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-        $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+        $subA = $form->addElement('submit', 'submitA', _('Save'), ['class' => 'btc bt_success']);
+        $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
     }
-
 
     if ($form->validate() && $from_list_menu == false) {
         $poolObj = $form->getElement('pool_id');
-        if ($form->getSubmitValue("submitA")) {
+        if ($form->getSubmitValue('submitA')) {
             $pId = insertpoolInDB();
             $valid = true;
             $poolObj->setValue($pId);
-        } elseif ($form->getSubmitValue("submitC")) {
+        } elseif ($form->getSubmitValue('submitC')) {
             $valid = updatePoolInDB($poolObj->getValue());
         }
         $o = null;
         $form->addElement(
-            "button",
-            "change",
-            _("Modify"),
-            array(
-                "class" => "btc bt_default",
-                "onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&pool_id=" . $poolObj->getValue() . "'"
-            )
+            'button',
+            'change',
+            _('Modify'),
+            [
+                'class' => 'btc bt_default',
+                'onClick' => "javascript:window.location.href='?p=" . $p . '&o=c&pool_id=' . $poolObj->getValue() . "'",
+            ]
         );
         $form->freeze();
     }
 } catch (Throwable $e) {
     $valid = false;
-    $msgErr = "Internal Error, contact your administrator for more information";
+    $msgErr = 'Internal Error, contact your administrator for more information';
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-        message: "while managing a pool : $msgErr",
+        message: "while managing a pool : {$msgErr}",
         exception: $e
     );
 }
 
 if ($valid) {
-    include $path . "listSlot.php";
+    include $path . 'listSlot.php';
 } else {
-    /*
-     * Apply a template definition
-     */
+    // Apply a template definition
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
     $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
     $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
@@ -255,11 +233,11 @@ if ($valid) {
     $tpl->assign('o', $o);
     $tpl->assign('msgErr', $msgErr);
 
-    $helptext = "";
-    include "help.php";
+    $helptext = '';
+    include 'help.php';
     foreach ($help as $key => $text) {
         $helptext .= '<span style="display:none" id="help:' . $key . '">' . $text . '</span>' . "\n";
     }
-    $tpl->assign("helptext", $helptext);
-    $tpl->display("formSlot.ihtml");
+    $tpl->assign('helptext', $helptext);
+    $tpl->display('formSlot.ihtml');
 }

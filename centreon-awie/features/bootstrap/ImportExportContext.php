@@ -25,12 +25,12 @@ class ImportExportContext extends CentreonAwieContext
         $mythis = $this;
 
         $this->spin(
-            function ($context) use ($mythis) {
+            function ($context) {
                 if ($context->getSession()->getPage()->has('css', '.loadingWrapper')) {
-                    return !$context->assertFind('css', '.loadingWrapper')->isVisible();
-                } else {
-                    return true;
+                    return ! $context->assertFind('css', '.loadingWrapper')->isVisible();
                 }
+  
+                    return true;
             }
         );
 
@@ -42,13 +42,13 @@ class ImportExportContext extends CentreonAwieContext
         $output = explode("\n", $output['output']);
         $fileCreate = false;
         foreach ($output as $file) {
-            if (substr("$file", -3) == 'zip') {
+            if (substr("{$file}", -3) == 'zip') {
                 $fileCreate = true;
             }
         }
 
-        if (!$fileCreate) {
-            throw new \Exception('File not create');
+        if (! $fileCreate) {
+            throw new Exception('File not create');
         }
     }
 }
