@@ -182,8 +182,9 @@ class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHos
      *    macro_order:int
      * } $data
      *
-     * @return Macro
      * @throws AssertionFailedException
+     *
+     * @return Macro
      */
     private function createHostMacroFromArray(array $data): Macro
     {
