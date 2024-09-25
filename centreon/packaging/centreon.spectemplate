@@ -79,7 +79,7 @@ Requires:   centreon-perl-libs = %{version}-%{release}
 Requires:   centreon-poller = %{version}-%{release}
 Requires:   bc
 Requires:   initscripts
-%if %{dist} == ".el7"
+%if "%{dist}" == ".el7"
 Requires:   httpd24
 Requires:   mysql
 %else
@@ -135,7 +135,7 @@ This package contains WebUI files.
 Summary:    Centreon Databases
 Group:      Networking/Other
 License:    Apache-2.0
-%if %{dist} == ".el7"
+%if "%{dist}" == ".el7"
 Requires:   mysql-server
 %else
 Requires:   mariadb-server
@@ -286,7 +286,7 @@ find . -type f -not -path "./vendor/*" | grep -v additional/centreon-macroreplac
 %{__cp} centreon/tmpl/install/centreon.cron %buildroot%{_sysconfdir}/cron.d/centreon
 %{__cp} centreon/tmpl/install/centstorage.cron %buildroot%{_sysconfdir}/cron.d/centstorage
 
-%if %{dist} == ".el7"
+%if "%{dist}" == ".el7"
 %{__install} -d -m 0755 %buildroot/opt/rh/httpd24/root/etc/httpd/conf.d
 %{__cp} additional/centreon-apache.conf %buildroot/opt/rh/httpd24/root/etc/httpd/conf.d/10-centreon.conf
 %else
@@ -525,7 +525,7 @@ fi
 
 # httpd and PHP configuration
 %defattr(-, root, root, -)
-%if %{dist} == ".el7"
+%if "%{dist}" == ".el7"
 %config(noreplace) /opt/rh/httpd24/root/etc/httpd/conf.d/10-centreon.conf
 %else
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/10-centreon.conf
@@ -606,7 +606,7 @@ fi
 
 %post web
 
-%if %{dist} == ".el7"
+%if "%{dist}" == ".el7"
 %{_sbindir}/usermod -d /opt/rh/httpd24/root/usr/share/httpd apache
 %endif
 
@@ -630,7 +630,7 @@ sed -i -e 's/mode => 1/mode => 0/g' /etc/centreon/centreontrapd.pm
 #setsebool -P httpd_can_network_connect on 2>/dev/null || :
 #setsebool -P httpd_can_network_relay on 2>/dev/null || :
 
-%if %{dist} == ".el7"
+%if "%{dist}" == ".el7"
 systemctl try-restart httpd24-httpd || :
 %else
 systemctl try-restart httpd || :
