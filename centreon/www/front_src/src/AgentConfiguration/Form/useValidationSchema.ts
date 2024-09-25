@@ -39,6 +39,9 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
     .min(1, t(labelPortMustStartFrom1))
     .max(65535, t(labelPortExpectedAtMost))
     .required(t(labelRequired));
+  const certificateNullableValidation = string()
+    .matches(certificateFilenameRegexp, t(labelInvalidFilename))
+    .nullable();
 
   const telegrafConfigurationSchema = {
     confServerPort: portValidation,
