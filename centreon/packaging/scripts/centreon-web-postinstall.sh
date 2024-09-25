@@ -140,6 +140,7 @@ case "$action" in
     manageLocales $package_type
     manageApacheAndPhpFpm $package_type
     fixSymfonyCacheRights $package_type
+    fixCentreonCronPermissions
     ;;
   "2" | "upgrade")
     manageUsersAndGroups $package_type
