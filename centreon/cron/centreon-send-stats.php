@@ -122,6 +122,7 @@ if ($isRemote === false) {
         $authentication = $oStatistics->getAuthenticationOptions();
         $authentication['api_token'] = $oStatistics->getApiTokensInfo();
         $additional = [];
+        $acc = $oStatistics->getAccData();
 
         /*
          * Only send statistics if user using a free version has enabled this option
@@ -143,7 +144,8 @@ if ($isRemote === false) {
             'infos' => $infos,
             'timezone' => $timezone,
             'authentication' => $authentication,
-            'additional' => $additional
+            'additional' => $additional,
+            'acc' => $acc
         );
 
         if ( isset($options["d"]) || isset($options["debug"]) ) {

@@ -17367,7 +17367,7 @@ msgstr "Modo avanzado"
 # msgid "Select host severities"
 # msgstr ""
 
-# msgid "Enable Open Tickets"
+# msgid "Enable tickets"
 # msgstr ""
 
 # msgid "Ticket provider"
@@ -17388,7 +17388,7 @@ msgstr "Modo avanzado"
 # msgid "Hide services with Down host"
 # msgstr ""
 
-# msgstr "hide services with Unreachable host"
+# msgstr "Hide services with Unreachable host"
 # msgstr ""
 
 # msgstr "Ticket ID"
@@ -17699,4 +17699,7 @@ msgstr "Modo avanzado"
 #  msgstr ""
 
 #  msgid "Web page preview"
+#  msgstr ""
+
+#  msgid "If tickets are enabled, only the “by service” view is available."
 #  msgstr ""
