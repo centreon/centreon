@@ -1,7 +1,7 @@
 import { Group, InputProps, InputType, SelectEntry } from '@centreon/ui';
 import { capitalize } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { pollersEndpoint } from '../api/endpoints';
+import { agentConfigurationPollersEndpoint } from '../api/endpoints';
 import { AgentType } from '../models';
 import {
   labelAgentConfiguration,
@@ -78,7 +78,7 @@ export const useInputs = (): {
               additionalLabel: t(labelPollers),
               connectedAutocomplete: {
                 additionalConditionParameters: [],
-                endpoint: pollersEndpoint,
+                endpoint: agentConfigurationPollersEndpoint,
                 filterKey: 'name'
               }
             },
