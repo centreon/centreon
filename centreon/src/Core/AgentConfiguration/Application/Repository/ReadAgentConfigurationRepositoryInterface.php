@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\Repository;
 
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\AgentConfiguration\Domain\Model\Type;
@@ -84,4 +85,28 @@ interface ReadAgentConfigurationRepositoryInterface
      * @return int[]
      */
     public function findPollersWithBrokerDirective(string $module): array;
+
+    /**
+     * Return all the agent configurations.
+     *
+     * @throws \Throwable
+     *
+     * @return AgentConfiguration[]
+     */
+    public function findAllByRequestParameters(RequestParametersInterface $requestParameters): array;
+
+    /**
+     * Return all the agent configurations based on request parameters and ACL.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return AgentConfiguration[]
+     */
+    public function findAllByRequestParametersAndAccessGroups(
+        RequestParametersInterface $requestParameters,
+        array $accessGroups
+    ): array;
 }
