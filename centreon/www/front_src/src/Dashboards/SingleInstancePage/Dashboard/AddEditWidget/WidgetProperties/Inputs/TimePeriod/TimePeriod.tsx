@@ -24,6 +24,7 @@ const TimePeriod = ({
   isInGroup
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useTimePeriodStyles();
+
   const { t } = useTranslation();
 
   const {
