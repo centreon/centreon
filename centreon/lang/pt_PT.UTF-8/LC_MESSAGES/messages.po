@@ -18138,3 +18138,84 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Web page preview"
 #  msgstr ""
+
+# msgid "Agent configuration"
+# msgstr ""
+
+# msgid "Welcome to the agent configuration page"
+# msgstr ""
+
+# msgid "Agent type"
+# msgstr ""
+
+# msgid "Expand"
+# msgstr ""
+
+# msgid "Collapse"
+# msgstr ""
+
+# msgid "Add new agent configuration"
+# msgstr ""
+
+# msgid "Agent types"
+# msgstr ""
+
+# msgid "Delete poller"
+# msgstr ""
+
+# msgid "Delete agent"
+# msgstr ""
+
+# msgid "Agent configurations"
+# msgstr ""
+
+# msgid "Poller configuration"
+# msgstr ""
+
+# msgid "Invalid address"
+# msgstr ""
+
+# msgid "Add agent configuration"
+# msgstr ""
+
+# msgid "OTel server"
+# msgstr ""
+
+# msgid "Listening address"
+# msgstr ""
+
+# msgid "Port number must be at most 65535"
+# msgstr ""
+
+# msgid "Port number must be a least 1"
+# msgstr ""
+
+# msgid "Extension not allowed"
+# msgstr ""
+
+# msgid "Public certificate file name"
+# msgstr ""
+
+# msgid "CA file name"
+# msgstr ""
+
+# msgid "Certificate file name"
+# msgstr ""
+
+# msgid "Private key file name"
+# msgstr ""
+
+# msgid "Configuration server"
+# msgstr ""
+
+# msgid "Agent configuration created"
+# msgstr ""
+
+# msgid "Agent configuration updated"
+# msgstr ""
+
+# msgid "Update agent configuration"
+# msgstr ""
+
+# msgid "An agent is a piece of software you install on the host you want to monitor, that executes the checks."
+# msgstr ""

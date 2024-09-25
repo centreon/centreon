@@ -19449,3 +19449,84 @@ msgstr "Attention, les domaines en dehors de votre organisation doivent être au
 
 msgid "Web page preview"
 msgstr "Aperçu de la page web"
+
+msgid "Poller/agent configuration"
+msgstr "Configuration collecteur/agent"
+
+msgid "Welcome to the poller/agent configuration page"
+msgstr "Bienvenue sur la page des configurations collecteur/agent"
+
+msgid "Agent type"
+msgstr "Type d'agent"
+
+msgid "Expand"
+msgstr "Étendre"
+
+msgid "Collapse"
+msgstr "Réduire"
+
+msgid "Add new agent configuration"
+msgstr "Ajouter une nouvelle configuration d'agent"
+
+msgid "Agent types"
+msgstr "Types d'agent"
+
+msgid "Delete poller"
+msgstr "Supprimer un collecteur"
+
+msgid "Delete agent"
+msgstr "Supprimer un agent"
+
+msgid "Agent configurations"
+msgstr "Configurations d'agent"
+
+msgid "Poller configuration"
+msgstr "Configuration du collecteur"
+
+msgid "Invalid address"
+msgstr "Adresse invalide"
+
+msgid "Add poller/agent configuration"
+msgstr "Ajouter une configuration collecteur/agent"
+
+msgid "OTLP receiver"
+msgstr "Receveur OTLP"
+
+msgid "Listening address"
+msgstr "Addresse d'écoute"
+
+msgid "Port number must be at most 65535"
+msgstr "Le numéro du port ne doit pas excéder 65535"
+
+msgid "Port number must be a least 1"
+msgstr "Le numéro du port doit être au minimum 1"
+
+msgid "Extension not allowed"
+msgstr "Extension non autorisée"
+
+msgid "Public certificate file name"
+msgstr "Nom de fichier du certificat public"
+
+msgid "CA file name"
+msgstr "Nom de fichier du CA"
+
+msgid "Certificate file name"
+msgstr "Nom de fichier du certificat"
+
+msgid "Private key file name"
+msgstr "Nom de fichier de la clé privée"
+
+msgid "Configuration provider"
+msgstr "Fournisseur de configuration"
+
+msgid "Poller/agent configuration created"
+msgstr "Configuration collecteur/agent créée"
+
+msgid "Poller/agent configuration updated"
+msgstr "Configuration collecteur/agent mise à jour"
+
+msgid "Update poller/agent configuration"
+msgstr "Mettre à jour la configuration collecteur/agent"
+
+msgid "An agent is a piece of software you install on the host you want to monitor, that executes the checks."
+msgstr "Un agent est une partie d'un logiciel que vous installez sur l'hôte que vous souhaitez superviser qui exécutes les vérifications."
