@@ -61,7 +61,7 @@ $rule = new Centreon_OpenTickets_Rule($db);
 $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
 $payload = json_decode($request->getContent(), true);
 
-$data = isset($payload['data']) ? $payload['data'] : null;
+$data = $payload['data'] ?? null;
 
 if ($data === null) {
     $resultat = ['code' => 1, 'msg' => 'POST data key missing'];
