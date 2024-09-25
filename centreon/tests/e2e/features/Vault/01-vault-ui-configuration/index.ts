@@ -12,8 +12,12 @@ beforeEach(() => {
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
   cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/administration/vaults/configurations'
+  }).as('getVault');
+  cy.intercept({
     method: 'PUT',
-    url: '/administration/vaults/configurations'
+    url: '/centreon/api/latest/administration/vaults/configurations'
   }).as('updateVault');
 });
 
@@ -27,14 +31,15 @@ Given('an admin user is in the Vault page', () => {
     loginViaApi: false
   });
   cy.visit('/centreon/administration/parameters/vault');
+  cy.wait('@getVault');
 });
 
 When('the user fills in all the informations', () => {
-  cy.getByLabel({ label: 'Vault address', tag: 'input' }).type('vault-sdbx.apps.centreon.com');
+  cy.getByLabel({ label: 'Vault address', tag: 'input' }).type('vault-ft-secrets-dev.apps.centreon.com');
   cy.getByLabel({ label: 'Port', tag: 'input' }).type('443');
   cy.getByLabel({ label: 'Root path', tag: 'input' }).type('marion');
-  cy.getByLabel({ label: 'Role ID', tag: 'input' }).type('5935dd16-d18d-884a-0786-6847681f99a9');
-  cy.getByLabel({ label: 'Secret ID', tag: 'input' }).type('cf31afc2-5e7c-849a-ac72-bb45fc883895');
+  cy.getByLabel({ label: 'Role ID', tag: 'input' }).type('ec09c7e9-b9eb-f812-ef31-47f557d019e2');
+  cy.getByLabel({ label: 'Secret ID', tag: 'input' }).type('0b47ab5c-7406-19f7-e26f-ba64b0154f07');
 });
 
 When('the user clicks on the Reset button', () => {
@@ -46,7 +51,7 @@ Then('a pop-up appears to confirm the reset', () => {
 });
 
 When('the user confirms the reset', () => {
-  cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Reset', tag: 'button' }).click();
 });
 
 Then('the vault configuration fields are empty', () => {
@@ -74,7 +79,7 @@ When('the user clicks on the Vault page', () => {
 });
 
 Then('the user is redirected to the Vault page', () => {
-  cy.contains('Vault configuration');
+  cy.wait('@getVault');
 });
 
 When('the user clicks on Save', () => {
@@ -87,9 +92,33 @@ Then('the vault is successfully saved', () => {
 });
 
 Then('the informations are displayed', () => {
-  cy.getByLabel({ label: 'Vault address', tag: 'input' }).should('have.value', 'vault-sdbx.apps.centreon.com');
+  cy.getByLabel({ label: 'Vault address', tag: 'input' }).should('have.value', 'vault-ft-secrets-dev.apps.centreon.com');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '443');
   cy.getByLabel({ label: 'Root path', tag: 'input' }).should('have.value', 'marion');
-  cy.getByLabel({ label: 'Role ID', tag: 'input' }).should('have.value', '5935dd16-d18d-884a-0786-6847681f99a9');
+  cy.getByLabel({ label: 'Role ID', tag: 'input' }).should('have.value', 'ec09c7e9-b9eb-f812-ef31-47f557d019e2');
   cy.getByLabel({ label: 'Secret ID', tag: 'input' }).should('be.empty');
+});
+
+When("the user doesn't fill in all the informations", () => {
+  cy.getByLabel({ label: 'Vault address', tag: 'input' }).type('vault-ft-secrets-dev.apps.centreon.com');
+  cy.getByLabel({ label: 'Root path', tag: 'input' }).type('marion');
+  cy.getByLabel({ label: 'Role ID', tag: 'input' }).type('ec09c7e9-b9eb-f812-ef31-47f557d019e2');
+  cy.getByLabel({ label: 'Secret ID', tag: 'input' }).type('0b47ab5c-7406-19f7-e26f-ba64b0154f07');
+});
+
+Then('the user cannot click on Save', () => {
+  cy.get('*[class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1ln3kta-button"]')
+  .should('be.disabled');
+});
+
+When("the user doesn't fill in the correct informations", () => {
+  cy.getByLabel({ label: 'Vault address', tag: 'input' }).type('vault-ft-secrets-dev.apps.centreon.com');
+  cy.getByLabel({ label: 'Port', tag: 'input' }).type('443');
+  cy.getByLabel({ label: 'Root path', tag: 'input' }).type('marion');
+  cy.getByLabel({ label: 'Role ID', tag: 'input' }).type('nop');
+  cy.getByLabel({ label: 'Secret ID', tag: 'input' }).type('nop');
+});
+
+Then('the form displayed an error for invalid configuration', () => {
+  cy.get('*[role="alert"]').should('have.text', "Vault configuration is invalid");
 });
