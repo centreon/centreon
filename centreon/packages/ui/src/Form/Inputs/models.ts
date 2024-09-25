@@ -19,7 +19,8 @@ export enum InputType {
   Custom = 10,
   Checkbox = 11,
   CheckboxGroup = 12,
-  List = 13
+  List = 13,
+  File = 14
 }
 
 interface FieldsTableGetRequiredProps {
@@ -37,6 +38,7 @@ export interface InputProps {
   autocomplete?: {
     creatable?: boolean;
     options: Array<SelectEntry>;
+    fullWidth?: boolean;
   };
   change?: ({ setFieldValue, value, setFieldTouched }) => void;
   checkbox?: {
@@ -50,6 +52,12 @@ export interface InputProps {
     endpoint?: string;
     filterKey?: string;
     getRenderedOptionText?: (option) => string | JSX.Element;
+  };
+  file?: {
+    multiple?: boolean;
+    accept?: string;
+    maxFileSize?: number;
+    CustomDropZoneContent: ({ files }) => JSX.Element;
   };
   custom?: {
     Component: React.ComponentType<InputPropsWithoutGroup>;
@@ -103,6 +111,7 @@ export interface InputProps {
     placeholder?: string;
     type?: string;
     min?: number;
+    fullWidth?: boolean;
   };
   type: InputType;
 }

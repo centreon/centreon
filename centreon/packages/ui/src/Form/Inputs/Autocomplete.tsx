@@ -53,7 +53,8 @@ const Autocomplete = ({
 
   const [inputText, setInputText] = useState('');
 
-  const { values, setFieldValue, errors } = useFormikContext<FormikValues>();
+  const { values, setFieldValue, setFieldTouched, errors, touched } =
+    useFormikContext<FormikValues>();
 
   const isMultiple = equals(inputType, InputType.MultiAutocomplete);
 
@@ -67,11 +68,13 @@ const Autocomplete = ({
     setInputText('');
 
     if (change) {
-      change({ setFieldValue, value: normalizedNewValues });
+      setFieldTouched(fieldName, true, false);
+      change({ setFieldValue, value: normalizedNewValues, setFieldTouched });
 
       return;
     }
 
+    setFieldTouched(fieldName, true, false);
     setFieldValue(fieldName, normalizedNewValues);
   };
 
@@ -83,6 +86,10 @@ const Autocomplete = ({
   );
 
   const getError = useCallback((): Array<string> | undefined => {
+    if (!path([...fieldName.split('.')], touched)) {
+      return undefined;
+    }
+
     const error = path([...fieldName.split('.')], errors) as
       | Array<string>
       | string
@@ -111,7 +118,7 @@ const Autocomplete = ({
     const filteredError = formattedError?.filter(Boolean);
 
     return (filteredError as Array<string>) || undefined;
-  }, [errors, fieldName, isMultiple, selectedValues]);
+  }, [errors, fieldName, isMultiple, selectedValues, touched]);
 
   const textChange = useCallback(
     (event): void => setInputText(event.target.value),
@@ -167,6 +174,7 @@ const Autocomplete = ({
           value={getValues() ?? null}
           onChange={changeValues}
           onTextChange={textChange}
+          style={{ width: autocomplete?.fullWidth ?? true ? 'auto' : '180px' }}
         />
         {inputErrors && (
           <Stack>
