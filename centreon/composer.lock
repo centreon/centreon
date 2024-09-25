@@ -6947,12 +6947,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "a0124107b0b21be89f245e5562ee74b2c2bb6134"
+                "reference": "cd960e22cde13e32765852b8e7d026293b9efd12"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/a0124107b0b21be89f245e5562ee74b2c2bb6134",
-                "reference": "a0124107b0b21be89f245e5562ee74b2c2bb6134",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/cd960e22cde13e32765852b8e7d026293b9efd12",
+                "reference": "cd960e22cde13e32765852b8e7d026293b9efd12",
                 "shasum": ""
             },
             "require": {
@@ -7008,7 +7008,7 @@
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
                 "source": "https://github.com/centreon/centreon-test-lib/tree/MON-147667-upgrade-to-php-8.2-with-upgrade-dependencies"
             },
-            "time": "2024-09-24T08:27:22+00:00"
+            "time": "2024-09-25T08:54:27+00:00"
         },
         {
             "name": "clue/ndjson-react",
