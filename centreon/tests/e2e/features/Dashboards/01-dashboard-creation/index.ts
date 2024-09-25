@@ -30,7 +30,7 @@ beforeEach(() => {
     url: '/centreon/api/latest/configuration/dashboards'
   }).as('createDashboard');
   cy.loginByTypeOfUser({
-    jsonName: 'admin',
+    jsonName: 'user-dashboard-creator',
     loginViaApi: false
   });
 });
