@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Macro\Infrastructure\Repository;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
@@ -182,14 +183,17 @@ class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHos
      * } $data
      *
      * @return Macro
+     * @throws AssertionFailedException
      */
     private function createHostMacroFromArray(array $data): Macro
     {
         preg_match('/^\$_HOST(?<macro_name>.*)\$$/', $data['host_macro_name'], $matches);
 
+        $macroName = $matches['macro_name'] ?? '';
+
         $macro = new Macro(
             (int) $data['host_host_id'],
-            $matches['macro_name'],
+            $macroName,
             $data['host_macro_value'],
         );
         $macro->setIsPassword((bool) $data['is_password']);
