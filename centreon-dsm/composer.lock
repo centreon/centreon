@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "12d6c7b03bf03e59bbf611afd83fb3ac",
+    "content-hash": "2f05f7228cf895d69fec9bce199f839d",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -75,7 +75,7 @@
         },
         {
             "name": "centreon/centreon",
-            "version": "dev-develop",
+            "version": "dev-MON-146851-upgrade-to-php-8.2-with-dependencies-upgraded",
             "dist": {
                 "type": "path",
                 "url": "../centreon",
