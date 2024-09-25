@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0015ad6d7ae15c5aa422a5149712751f",
+    "content-hash": "07b49cbac712a6c0e4e0e5fcfbe68bf6",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -75,11 +75,11 @@
         },
         {
             "name": "centreon/centreon",
-            "version": "dev-MON-146851-upgrade-to-php-8.2-with-rector",
+            "version": "dev-MON-146851-upgrade-to-php-8.2",
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "b282c6afe6d758beccf2f36e3d47b2d6d80c5dd0"
+                "reference": "c504c29761c4320a4f0f39de27ecddb871cc1163"
             },
             "require": {
                 "beberlei/assert": "^3.3",
@@ -266,10 +266,10 @@
                     "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8"
                 ],
                 "rector:check": [
-                    "rector process --dry-run --debug"
+                    "rector --dry-run --debug"
                 ],
                 "rector:exec": [
-                    "rector process --debug"
+                    "rector --debug"
                 ]
             },
             "license": [
