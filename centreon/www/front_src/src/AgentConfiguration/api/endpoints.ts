@@ -4,6 +4,7 @@ export const getAgentConfigurationsEndpoint =
   '/configuration/agent-configurations';
 
 export const pollersEndpoint = '/configuration/monitoring-servers';
+export const agentConfigurationPollersEndpoint = `${getAgentConfigurationsEndpoint}/pollers`;
 
 export const getPollersEndpoint = (parameters): string =>
   buildListingEndpoint({

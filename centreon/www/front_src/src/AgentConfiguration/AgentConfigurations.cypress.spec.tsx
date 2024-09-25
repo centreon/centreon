@@ -5,9 +5,11 @@ import { initReactI18next } from 'react-i18next';
 import { labelPortExpectedAtMost } from '../VaultConfiguration/translatedLabels';
 import AgentConfigurationPage from './Page';
 import {
+  agentConfigurationPollersEndpoint,
   getAgentConfigurationEndpoint,
   getAgentConfigurationsEndpoint,
-  getPollerAgentEndpoint
+  getPollerAgentEndpoint,
+  pollersEndpoint
 } from './api/endpoints';
 import {
   labelAction,
@@ -65,9 +67,18 @@ const initialize = ({ isListingEmpty = false }) => {
 
   cy.fixture('ACC/pollers-vmware.json').then((listing): void => {
     cy.interceptAPIRequest({
+      alias: 'getFilterPollers',
+      method: Method.GET,
+      path: `./api/latest${pollersEndpoint}**`,
+      response: listing
+    });
+  });
+
+  cy.fixture('ACC/pollers-vmware.json').then((listing): void => {
+    cy.interceptAPIRequest({
       alias: 'getPollers',
       method: Method.GET,
-      path: './api/latest/configuration/monitoring-servers**',
+      path: `./api/latest${agentConfigurationPollersEndpoint}**`,
       response: listing
     });
   });
@@ -214,7 +225,7 @@ describe('Agent configurations', () => {
     cy.contains('Telegraf').click();
     cy.findByLabelText(labelPollers).click({ force: true });
 
-    cy.waitForRequest('@getPollers');
+    cy.waitForRequest('@getFilterPollers');
 
     cy.contains('poller6').click();
 
@@ -239,7 +250,7 @@ describe('Agent configurations', () => {
     cy.findByLabelText('Filters').click();
     cy.findByLabelText(labelPollers).click({ force: true });
 
-    cy.waitForRequest('@getPollers');
+    cy.waitForRequest('@getFilterPollers');
 
     cy.contains('poller6').click();
 
@@ -287,7 +298,7 @@ describe('Agent configurations', () => {
     cy.contains('Telegraf').click();
     cy.findByLabelText(labelPollers).click({ force: true });
 
-    cy.waitForRequest('@getPollers');
+    cy.waitForRequest('@getFilterPollers');
 
     cy.contains('poller6').click();
     cy.contains(labelClear).click({ force: true });
