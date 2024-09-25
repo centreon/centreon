@@ -471,7 +471,6 @@ describe('Agent configurations modal', () => {
     cy.contains('poller1').click();
     cy.findAllByLabelText(labelPort).eq(0).type('1234');
     cy.findByLabelText(labelPublicCertificate).type('test');
-    cy.findByLabelText(labelCaCertificate).type('test');
     cy.findAllByLabelText(labelPrivateKey).eq(0).type('test');
     cy.findAllByLabelText(labelPrivateKey).eq(1).type('test');
     cy.findByLabelText(labelCertificate).type('test');
@@ -479,7 +478,7 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).equal(
-        '{"name":"agent","type":"telegraf","pollers":[1],"configuration":{"otel_private_key":"test","otel_ca_certificate":"test","otel_public_certificate":"test","conf_certificate":"test","conf_private_key":"test","conf_server_port":1234}}'
+        '{"name":"agent","type":"telegraf","pollers":[1],"configuration":{"otel_private_key":"test","otel_ca_certificate":null,"otel_public_certificate":"test","conf_certificate":"test","conf_private_key":"test","conf_server_port":1234}}'
       );
     });
 

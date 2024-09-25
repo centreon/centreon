@@ -13,7 +13,7 @@ export interface AgentConfigurationListing {
 
 export interface AgentConfigurationConfiguration {
   otelPublicCertificate: string;
-  otelCaCertificate: string;
+  otelCaCertificate: string | null;
   otelPrivateKey: string;
   confServerPort: string | number;
   confCertificate: string;
@@ -22,7 +22,7 @@ export interface AgentConfigurationConfiguration {
 
 export interface AgentConfigurationConfigurationAPI {
   otel_public_certificate: string;
-  otel_ca_certificate: string;
+  otel_ca_certificate: string | null;
   otel_private_key: string;
   conf_server_port: string | number;
   conf_certificate: string;

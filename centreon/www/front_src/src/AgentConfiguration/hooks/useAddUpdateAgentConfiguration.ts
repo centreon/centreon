@@ -28,7 +28,8 @@ const adaptAgentConfigurationToAPI = (
   type: (agentConfiguration.type as SelectEntry).id,
   configuration: {
     otel_private_key: agentConfiguration.configuration.otelPrivateKey,
-    otel_ca_certificate: agentConfiguration.configuration.otelCaCertificate,
+    otel_ca_certificate:
+      agentConfiguration.configuration.otelCaCertificate || null,
     otel_public_certificate:
       agentConfiguration.configuration.otelPublicCertificate,
     conf_certificate: agentConfiguration.configuration.confCertificate,
