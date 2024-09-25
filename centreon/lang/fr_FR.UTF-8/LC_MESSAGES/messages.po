@@ -19465,8 +19465,8 @@ msgstr "Étendre"
 msgid "Collapse"
 msgstr "Réduire"
 
-msgid "Add new agent"
-msgstr "Ajouter un nouvel agent"
+msgid "Add new agent configuration"
+msgstr "Ajouter une nouvelle configuration d'agent"
 
 msgid "Agent types"
 msgstr "Types d'agent"
@@ -19527,3 +19527,6 @@ msgstr "Configuration collecteur/agent mise à jour"
 
 msgid "Update poller/agent configuration"
 msgstr "Mettre à jour la configuration collecteur/agent"
+
+msgid "An agent is a piece of software you install on the host you want to monitor, that executes the checks."
+msgstr "Un agent est une partie d'un logiciel que vous installez sur l'hôte que vous souhaitez superviser qui exécutes les vérifications."

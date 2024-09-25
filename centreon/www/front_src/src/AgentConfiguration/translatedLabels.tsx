@@ -8,7 +8,7 @@ export const labelPoller = 'Poller';
 export const labelAction = 'Action';
 export const labelExpand = 'Expand';
 export const labelCollapse = 'Collapse';
-export const labelAddNewAgent = 'Add new agent';
+export const labelAddNewAgent = 'Add new agent configuration';
 export const labelSearch = 'Search';
 export const labelFilters = 'Filters';
 export const labelAgentTypes = 'Agent types';
@@ -49,3 +49,6 @@ export const labelAgentConfigurationUpdated =
   'Poller/agent configuration updated';
 export const labelUpdateAgentConfiguration =
   'Update poller/agent configuration';
+export const labelInvalidFilename = 'Invalid filename';
+export const labelWelcomeDescription =
+  'An agent is a piece of software you install on the host you want to monitor, that executes the checks.';

@@ -18154,7 +18154,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Collapse"
 # msgstr ""
 
-# msgid "Add new agent"
+# msgid "Add new agent configuration"
 # msgstr ""
 
 # msgid "Agent types"
@@ -18215,4 +18215,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 # msgid "Update agent configuration"
+# msgstr ""
+
+# msgid "An agent is a piece of software you install on the host you want to monitor, that executes the checks."
 # msgstr ""

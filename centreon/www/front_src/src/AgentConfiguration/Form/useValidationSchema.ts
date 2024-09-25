@@ -11,9 +11,9 @@ import {
   labelRequired
 } from '../translatedLabels';
 
-const ipAddressRegex = /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/;
-const urlRegex = /^[a-zA-Z0-9]+\.?[a-zA-Z0-9.]+\.?[a-zA-Z0-9]+$/;
 export const portRegex = /:[0-9]+$/;
+export const certificateFilenameRegexp = /^[a-zA-Z0-9-_.]+(?<!\.crt|cert|cer)$/;
+export const keyFilenameRegexp = /^[a-zA-Z0-9-_.]+(?<!\.key)$/;
 
 export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
   const { t } = useTranslation();
@@ -73,6 +73,12 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
       otherwise: (schema) => schema.min(0)
     })
   };
+  const certificateValidation = string()
+    .matches(certificateFilenameRegexp, t(labelInvalidFilename))
+    .required(t(labelRequired));
+  const keyValidation = string()
+    .matches(keyFilenameRegexp, t(labelInvalidFilename))
+    .required(t(labelRequired));
 
   return object<AgentConfigurationForm>({
     name: requiredString,

@@ -71,9 +71,18 @@ const initialize = ({ isListingEmpty = false }) => {
 
   cy.fixture('ACC/pollers-vmware.json').then((listing): void => {
     cy.interceptAPIRequest({
+      alias: 'getFilterPollers',
+      method: Method.GET,
+      path: `./api/latest${pollersEndpoint}**`,
+      response: listing
+    });
+  });
+
+  cy.fixture('ACC/pollers-vmware.json').then((listing): void => {
+    cy.interceptAPIRequest({
       alias: 'getPollers',
       method: Method.GET,
-      path: './api/latest/configuration/monitoring-servers**',
+      path: `./api/latest${agentConfigurationPollersEndpoint}**`,
       response: listing
     });
   });
@@ -217,14 +226,10 @@ describe('Agent configurations', () => {
     cy.findAllByTestId('Search').eq(0).type('My agent');
     cy.findByLabelText('Filters').click();
     cy.findByLabelText(labelAgentTypes).click({ force: true });
-
-    cy.contains('CMA').should('be.visible');
-    cy.contains('Telegraf').should('be.visible');
-
     cy.contains('Telegraf').click();
     cy.findByLabelText(labelPollers).click({ force: true });
 
-    cy.waitForRequest('@getPollers');
+    cy.waitForRequest('@getFilterPollers');
 
     cy.contains('poller6').click();
 
@@ -249,7 +254,7 @@ describe('Agent configurations', () => {
     cy.findByLabelText('Filters').click();
     cy.findByLabelText(labelPollers).click({ force: true });
 
-    cy.waitForRequest('@getPollers');
+    cy.waitForRequest('@getFilterPollers');
 
     cy.contains('poller6').click();
 
@@ -297,7 +302,7 @@ describe('Agent configurations', () => {
     cy.contains('Telegraf').click();
     cy.findByLabelText(labelPollers).click({ force: true });
 
-    cy.waitForRequest('@getPollers');
+    cy.waitForRequest('@getFilterPollers');
 
     cy.contains('poller6').click();
     cy.contains(labelClear).click({ force: true });
@@ -401,7 +406,7 @@ describe('Agent configurations', () => {
 });
 
 describe('Agent configurations modal', () => {
-  it('does not validate the when fields contain errors', () => {
+  it('does not validate the form when fields contain errors', () => {
     initialize({});
 
     cy.contains(labelAddNewAgent).click();

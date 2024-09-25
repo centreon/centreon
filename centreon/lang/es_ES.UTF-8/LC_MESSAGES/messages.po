@@ -17710,13 +17710,13 @@ msgstr "Modo avanzado"
 # msgid "Agent type"
 # msgstr ""
 
-# msgid "Expand"
-# msgstr ""
+msgid "Expand"
+msgstr "Expandir"
 
-# msgid "Collapse"
-# msgstr ""
+msgid "Collapse"
+msgstr "Retractar"
 
-# msgid "Add new agent"
+# msgid "Add new agent configuration"
 # msgstr ""
 
 # msgid "Agent types"
@@ -17777,4 +17777,7 @@ msgstr "Modo avanzado"
 # msgstr ""
 
 # msgid "Update agent configuration"
+# msgstr ""
+
+# msgid "An agent is a piece of software you install on the host you want to monitor, that executes the checks."
 # msgstr ""

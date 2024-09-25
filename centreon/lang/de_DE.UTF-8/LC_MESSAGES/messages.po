@@ -17364,7 +17364,7 @@ msgstr "Erweiterter Modus"
 # msgid "Collapse"
 # msgstr ""
 
-# msgid "Add new agent"
+# msgid "Add new agent configuration"
 # msgstr ""
 
 # msgid "Agent types"
@@ -17425,4 +17425,7 @@ msgstr "Erweiterter Modus"
 # msgstr ""
 
 # msgid "Update agent configuration"
+# msgstr ""
+
+# msgid "An agent is a piece of software you install on the host you want to monitor, that executes the checks."
 # msgstr ""
