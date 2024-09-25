@@ -58,18 +58,13 @@ const ConnectedAutocomplete = ({
   const changeAutocomplete = useCallback(
     (_, value): void => {
       if (change) {
-        change({ setFieldValue, value });
+        change({ setFieldValue, value, setFieldTouched });
 
         return;
       }
 
+      setFieldTouched(fieldName, true, false);
       setFieldValue(fieldName, value);
-
-      if (path(fieldNamePath, touched)) {
-        return;
-      }
-
-      setFieldTouched(fieldName, true);
     },
     [fieldName, touched, additionalMemoProps]
   );
@@ -105,6 +100,7 @@ const ConnectedAutocomplete = ({
   const deleteItem = (_, option): void => {
     const newValue = reject(propEq(option.id, 'id'), value);
 
+    setFieldTouched(fieldName, true, false);
     setFieldValue(fieldName, newValue);
   };
 

@@ -36,6 +36,7 @@ import CheckboxGroup from './CheckboxGroup';
 import ConnectedAutocomplete from './ConnectedAutocomplete';
 import Custom from './Custom';
 import FieldsTable from './FieldsTable/FieldsTable';
+import File from './File';
 import Grid from './Grid';
 import List from './List/List';
 import LoadingSkeleton from './LoadingSkeleton';
@@ -78,6 +79,7 @@ export const getInput = cond<
     always(CheckboxGroup)
   ],
   [equals(InputType.List) as (b: InputType) => boolean, always(List)],
+  [equals(InputType.File) as (b: InputType) => boolean, always(File)],
   [T, always(TextInput)]
 ]);
 
