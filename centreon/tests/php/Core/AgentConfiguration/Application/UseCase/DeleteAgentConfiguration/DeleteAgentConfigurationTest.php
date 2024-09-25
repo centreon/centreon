@@ -21,48 +21,41 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\AdditionalConnectorConfiguration\Application\UseCase\DeleteAcc;
+namespace Tests\Core\AgentConfiguration\Application\UseCase\DeleteAgentConfiguration;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\AdditionalConnectorConfiguration\Application\Exception\AccException;
-use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
-use Core\AdditionalConnectorConfiguration\Application\Repository\WriteAccRepositoryInterface;
-use Core\AdditionalConnectorConfiguration\Application\UseCase\DeleteAcc\DeleteAcc;
-use Core\AdditionalConnectorConfiguration\Domain\Model\Acc;
-use Core\AdditionalConnectorConfiguration\Domain\Model\AccParametersInterface;
-use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
+use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
+use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
+use Core\AgentConfiguration\Application\Repository\WriteAgentConfigurationRepositoryInterface;
+use Core\AgentConfiguration\Application\UseCase\DeleteAgentConfiguration\DeleteAgentConfiguration;
+use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
+use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
+use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Common\Infrastructure\FeatureFlags;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
-    $this->useCase = new DeleteAcc(
-        $this->readAccRepository = $this->createMock(ReadAccRepositoryInterface::class),
-        $this->writeAccRepository = $this->createMock(WriteAccRepositoryInterface::class),
+    $this->useCase = new DeleteAgentConfiguration(
+        $this->readAgentConfigurationRepository = $this->createMock(ReadAgentConfigurationRepositoryInterface::class),
+        $this->writeAgentConfigurationRepository = $this->createMock(WriteAgentConfigurationRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->readMonitoringServerRepository = $this->createMock(ReadMonitoringServerRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
-        $this->flags = new FeatureFlags(false, ''),
-        $this->writeVaultAccRepositories = new \ArrayIterator([]),
     );
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new DefaultPresenter($this->presenterFormatter);
 
-    $this->testedAcc = (new Acc(
-        id: $this->testedAccId = 1,
-        name: 'acc-name',
-        type: Type::VMWARE_V6,
-        createdBy: $this->testedAccCreatedBy = 2,
-        updatedBy: $this->testedAccCreatedBy,
-        createdAt: $this->testedAccCreatedAt = new \DateTimeImmutable('2023-05-09T12:00:00+00:00'),
-        updatedAt: $this->testedAccCreatedAt,
-        parameters: $this->createMock(AccParametersInterface::class),
+    $this->testedAc = (new AgentConfiguration(
+        id: $this->testedAcId = 1,
+        name: 'ac-name',
+        type: Type::TELEGRAF,
+        configuration: $this->createMock(ConfigurationParametersInterface::class),
     ));
 });
 
@@ -71,17 +64,17 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->readAccRepository
+    $this->readAgentConfigurationRepository
         ->expects($this->once())
         ->method('find')
         ->willThrowException(new \Exception());
 
-    ($this->useCase)($this->testedAccId, $this->presenter);
+    ($this->useCase)($this->testedAcId, $this->presenter);
 
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->getResponseStatus()->getMessage())
-        ->toBe(AccException::deleteAcc()->getMessage());
+        ->toBe(AgentConfigurationException::deleteAc()->getMessage());
 });
 
 it('should present a ForbiddenResponse when a user has insufficient rights', function (): void {
@@ -90,30 +83,30 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
         ->method('hasTopologyRole')
         ->willReturn(false);
 
-    ($this->useCase)($this->testedAccId, $this->presenter);
+    ($this->useCase)($this->testedAcId, $this->presenter);
 
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ForbiddenResponse::class)
         ->and($this->presenter->getResponseStatus()->getMessage())
-        ->toBe(AccException::accessNotAllowed()->getMessage());
+        ->toBe(AgentConfigurationException::accessNotAllowed()->getMessage());
 });
 
-it('should present a NotFoundResponse when the Additional Connector Configuration does not exist', function (): void {
+it('should present a NotFoundResponse when the host template does not exist', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->readAccRepository
+    $this->readAgentConfigurationRepository
         ->expects($this->once())
         ->method('find')
         ->willReturn(null);
 
-    ($this->useCase)($this->testedAccId, $this->presenter);
+    ($this->useCase)($this->testedAcId, $this->presenter);
 
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(NotFoundResponse::class)
         ->and($this->presenter->getResponseStatus()->getMessage())
-        ->toBe('Additional Connector Configuration not found');
+        ->toBe('Agent Configuration not found');
 });
 
 it('should present a NoContentResponse on success', function (): void {
@@ -121,19 +114,19 @@ it('should present a NoContentResponse on success', function (): void {
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->readAccRepository
+    $this->readAgentConfigurationRepository
         ->expects($this->once())
         ->method('find')
-        ->willReturn($this->testedAcc);
+        ->willReturn($this->testedAc);
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
-    $this->writeAccRepository
+    $this->writeAgentConfigurationRepository
         ->expects($this->once())
         ->method('delete');
 
-    ($this->useCase)($this->testedAccId, $this->presenter);
+    ($this->useCase)($this->testedAcId, $this->presenter);
 
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
 });
