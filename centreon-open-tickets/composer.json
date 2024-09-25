@@ -9,22 +9,22 @@
   ],
   "license": "GPL-2.0-only",
   "require": {
-    "centreon/centreon": "dev-develop",
+    "centreon/centreon": "dev-MON-146851-upgrade-to-php-8.2-with-dependencies-upgraded",
     "ext-openssl": "*",
     "ext-json": "*"
   },
   "require-dev": {
     "beberlei/assert": "^3.3",
     "centreon/centreon-test-lib": "dev-MON-147667-upgrade-to-php-8.2-with-upgrade-dependencies",
-    "pestphp/pest": "^1.21",
-    "phpstan/phpstan-beberlei-assert": "1.1.*",
-    "symfony/console": "6.4.*",
     "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
-    "squizlabs/php_codesniffer": "3.10.*",
     "friendsofphp/php-cs-fixer": "3.64.*",
+    "pestphp/pest": "^1.21",
     "phpcompatibility/php-compatibility": "9.3.*",
     "phpstan/phpstan": "1.12.*",
-    "rector/rector": "1.2.*"
+    "phpstan/phpstan-beberlei-assert": "1.1.*",
+    "rector/rector": "1.2.*",
+    "squizlabs/php_codesniffer": "3.10.*",
+    "symfony/console": "6.4.*"
   },
   "autoload": {
     "psr-4": {
@@ -55,6 +55,8 @@
     "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage.xml --no-interaction",
     "phpcs:strict": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff",
     "phpcs:unstrict": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff",
+    "phpcs:strict:exec": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --diff",
+    "phpcs:unstrict:exec": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --diff",
     "phpcs:strict:ci": "@phpcs:strict",
     "phpcs:unstrict:ci": "@phpcs:unstrict",
     "phpstan": "phpstan analyse -c phpstan.neon --level=2 --memory-limit=512M --debug",

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9eb284365f3e0ecefeb17f57abf38fd1",
+    "content-hash": "8699114058f0c64ba746434718aac754",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -75,11 +75,11 @@
         },
         {
             "name": "centreon/centreon",
-            "version": "dev-develop",
+            "version": "dev-MON-146851-upgrade-to-php-8.2-with-dependencies-upgraded",
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "b127c40b1c5ebca676317cc87078d4ff963d6a53"
+                "reference": "4b96b55c1952caafdd03cb982482271ca81314d9"
             },
             "require": {
                 "beberlei/assert": "^3.3",
@@ -226,14 +226,23 @@
                 "test:ci": [
                     "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml --no-interaction"
                 ],
-                "codestyle": [
-                    "phpcs --extensions=php --standard=./ruleset.xml ./ --no-cache"
+                "phpcs:strict": [
+                    "php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff"
                 ],
-                "codestyle:ci": [
-                    "@codestyle --report=checkstyle --report-file=./build/checkstyle-be.xml"
+                "phpcs:unstrict": [
+                    "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff"
                 ],
-                "codestyle:core": [
-                    "php-cs-fixer fix --dry-run --format=checkstyle > checkstyle.core.xml"
+                "phpcs:strict:exec": [
+                    "php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --diff"
+                ],
+                "phpcs:unstrict:exec": [
+                    "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --diff"
+                ],
+                "phpcs:strict:ci": [
+                    "@phpcs:strict"
+                ],
+                "phpcs:unstrict:ci": [
+                    "@phpcs:unstrict"
                 ],
                 "phpstan": [
                     "phpstan analyse -c phpstan.neon --level=6 --memory-limit=512M --debug"
@@ -241,11 +250,17 @@
                 "phpstan:core": [
                     "phpstan analyse -c phpstan.core.neon --level=8 --memory-limit=1G --debug"
                 ],
+                "phpstan:test": [
+                    "phpstan analyse -c phpstan.test.neon --level=2 --memory-limit=1G --debug"
+                ],
                 "phpstan:ci": [
                     "@phpstan --no-progress"
                 ],
                 "phpstan:core:ci": [
                     "@phpstan:core --no-progress"
+                ],
+                "phpstan:test:ci": [
+                    "@phpstan:test --no-progress"
                 ],
                 "php:check8.2": [
                     "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8"
@@ -7069,12 +7084,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "a0124107b0b21be89f245e5562ee74b2c2bb6134"
+                "reference": "cd960e22cde13e32765852b8e7d026293b9efd12"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/a0124107b0b21be89f245e5562ee74b2c2bb6134",
-                "reference": "a0124107b0b21be89f245e5562ee74b2c2bb6134",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/cd960e22cde13e32765852b8e7d026293b9efd12",
+                "reference": "cd960e22cde13e32765852b8e7d026293b9efd12",
                 "shasum": ""
             },
             "require": {
@@ -7130,7 +7145,7 @@
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
                 "source": "https://github.com/centreon/centreon-test-lib/tree/MON-147667-upgrade-to-php-8.2-with-upgrade-dependencies"
             },
-            "time": "2024-09-24T08:27:22+00:00"
+            "time": "2024-09-25T08:54:27+00:00"
         },
         {
             "name": "clue/ndjson-react",
