@@ -129,11 +129,11 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
           <Paper className={classes.filterHeader}>
             <TimePeriodButtonGroup disableGraphOptions disablePaper />
             <MultiAutocompleteField
+              chipProps={{ onDelete }}
               label={t(labelEvent)}
               limitTags={3}
               options={translatedTypes}
               value={selectedTypes}
-              chipProps={{ onDelete }}
               onChange={changeSelectedTypes}
             />
           </Paper>
