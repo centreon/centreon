@@ -46,7 +46,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
   const telegrafConfigurationSchema = {
     confServerPort: portValidation,
     otelPublicCertificate: certificateValidation,
-    otelCaCertificate: certificateValidation,
+    otelCaCertificate: certificateNullableValidation,
     otelPrivateKey: keyValidation,
     confCertificate: certificateValidation,
     confPrivateKey: keyValidation
@@ -56,8 +56,9 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
     isReverse: boolean(),
     otlpCertificate: certificateValidation,
     otlpCaCertificate: certificateValidation,
-    otlpCaCertificateName: string().nullable(),
     otlpPrivateKey: keyValidation,
+    pollerCaCertificate: certificateNullableValidation,
+    pollerCaName: string().nullable(),
     hosts: array().when('isReverse', {
       is: true,
       // biome-ignore lint/suspicious/noThenProperty: <explanation>

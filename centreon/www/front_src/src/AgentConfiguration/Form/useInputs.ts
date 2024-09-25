@@ -9,7 +9,6 @@ import { AgentType } from '../models';
 import {
   labelAgentConfiguration,
   labelAgentType,
-  labelCAName,
   labelCMA,
   labelCaCertificate,
   labelCertificate,
@@ -20,6 +19,8 @@ import {
   labelOTLPReceiver,
   labelOTelServer,
   labelParameters,
+  labelPollerCaCertificateFileName,
+  labelPollerCaName,
   labelPollers,
   labelPort,
   labelPrivateKey,
@@ -177,17 +178,7 @@ export const useInputs = (): {
                   {
                     type: InputType.Text,
                     fieldName: caCertificateProperty,
-                    hideInput: (values) =>
-                      equals(values?.type?.id, AgentType.CMA),
                     required: true,
-                    label: t(labelCaCertificate)
-                  },
-                  {
-                    type: InputType.Text,
-                    fieldName: caCertificateProperty,
-                    hideInput: (values) =>
-                      equals(values?.type?.id, AgentType.Telegraf),
-                    required: false,
                     label: t(labelCaCertificate)
                   },
                   {
@@ -197,13 +188,30 @@ export const useInputs = (): {
                     label: t(labelPrivateKey)
                   },
                   {
+                    type: InputType.Custom,
+                    fieldName: 'empty',
+                    label: '',
+                    custom: {
+                      Component: Empty
+                    }
+                  },
+                  {
                     type: InputType.Text,
-                    fieldName: 'configuration.caCertificateName',
+                    fieldName: 'configuration.pollerCaCertificate',
                     hideInput: (values) =>
                       equals(values?.type?.id, AgentType.Telegraf) ||
                       !values?.configuration?.isReverse,
                     required: false,
-                    label: t(labelCAName)
+                    label: t(labelPollerCaCertificateFileName)
+                  },
+                  {
+                    type: InputType.Text,
+                    fieldName: 'configuration.pollerCaName',
+                    hideInput: (values) =>
+                      equals(values?.type?.id, AgentType.Telegraf) ||
+                      !values?.configuration?.isReverse,
+                    required: false,
+                    label: t(labelPollerCaName)
                   }
                 ],
                 gridTemplateColumns: 'repeat(2, 1fr)'

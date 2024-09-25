@@ -54,9 +54,10 @@ const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
   {
     isReverse: JsonDecoder.boolean,
     otlpCaCertificate: JsonDecoder.string,
-    otlpCertificate: JsonDecoder.nullable(JsonDecoder.string),
-    otlpCaCertificateName: JsonDecoder.nullable(JsonDecoder.string),
+    otlpCertificate: JsonDecoder.string,
     otlpPrivateKey: JsonDecoder.string,
+    pollerCaCertificate: JsonDecoder.nullable(JsonDecoder.string),
+    pollerCaName: JsonDecoder.nullable(JsonDecoder.string),
     hosts: JsonDecoder.array(
       JsonDecoder.object(
         {
@@ -76,7 +77,8 @@ const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
     otlpPrivateKey: 'otlp_private_key',
     otlpCertificate: 'otlp_certificate',
     otlpCaCertificate: 'otlp_ca_certificate',
-    otlpCaCertificateName: 'otlp_ca_certificate_name'
+    pollerCaCertificate: 'poller_ca_certificate',
+    pollerCaName: 'poller_ca_name'
   }
 );
 
