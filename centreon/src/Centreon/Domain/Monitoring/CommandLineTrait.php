@@ -107,7 +107,7 @@ trait CommandLineTrait
         $foundMacroNames = [];
 
         if (preg_match_all('/(\$\S+?\$)/', $commandLine, $matches)) {
-            if (isset($matches[0])) {
+            if ($matches !== []) {
                 $foundMacroNames = $matches[0];
             }
         }
@@ -131,7 +131,7 @@ trait CommandLineTrait
     {
         $countFoundMacros = 0;
         if (preg_match_all('/(\$\S+?\$)/', $configurationCommand, $matches)) {
-            if (isset($matches[0])) {
+            if ($matches !== []) {
                 $countFoundMacros = count($matches[0]);
             }
         }
