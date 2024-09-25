@@ -113,7 +113,7 @@ const Text = ({
   return useMemoComponent({
     Component: (
       <TextField
-        fullWidth
+        fullWidth={text?.fullWidth ?? true}
         EndAdornment={EndAdornment}
         ariaLabel={t(label) || ''}
         autoFocus={autoFocus}
