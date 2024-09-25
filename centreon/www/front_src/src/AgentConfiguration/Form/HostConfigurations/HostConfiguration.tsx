@@ -35,8 +35,6 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
     index
   });
 
-  console.log(host);
-
   return (
     <Box
       sx={{
@@ -79,7 +77,7 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
         dataTestId={labelPort}
         fullWidth
         error={hostTouched?.port && hostErrors?.port}
-        inpuProps={{
+        inputProps={{
           min: 1,
           max: 65535
         }}

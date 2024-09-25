@@ -9,6 +9,7 @@ import {
   getAgentConfigurationEndpoint,
   getAgentConfigurationsEndpoint,
   getPollerAgentEndpoint,
+  hostsConfigurationEndpoint,
   pollersEndpoint
 } from './api/endpoints';
 import {
@@ -38,6 +39,8 @@ import {
   labelName,
   labelOTLPReceiver,
   labelPoller,
+  labelPollerCaCertificateFileName,
+  labelPollerCaName,
   labelPollers,
   labelPort,
   labelPrivateKey,
@@ -143,6 +146,16 @@ const initialize = ({ isListingEmpty = false }) => {
         conf_certificate: 'coucou',
         conf_private_key: 'coucou'
       }
+    }
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getHosts',
+    path: `./api/latest${hostsConfigurationEndpoint}**`,
+    method: Method.GET,
+    response: {
+      result: [{ id: 1, name: 'central', address: '127.0.0.2' }],
+      meta: { limit: 10, page: 1, total: 1 }
     }
   });
 
@@ -560,6 +573,11 @@ describe('Agent configurations modal', () => {
     cy.findByTestId(labelPort).should('have.value', '');
     cy.findByTestId(labelCertificate).should('have.value', '');
     cy.contains(labelAddAHost).should('exist');
+    cy.findByLabelText(labelPollerCaCertificateFileName).should(
+      'have.value',
+      ''
+    );
+    cy.findByLabelText(labelPollerCaName).should('have.value', '');
     cy.findByTestId('delete-host-configuration-0').should('be.visible');
 
     cy.makeSnapshot();
@@ -591,9 +609,26 @@ describe('Agent configurations modal', () => {
     cy.makeSnapshot();
   });
 
-  it('does not validate the form when there is no host configuration', () => {});
+  it('does not validate the form when there is no host configuration', () => {
+    initialize({});
 
-  it.only('validates the form when fields are filled and the reverse switch is unchecked', () => {
+    cy.contains(labelAddNewAgent).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.contains(labelCMA).click();
+    cy.findByTestId('delete-host-configuration-0').click();
+    cy.findByLabelText(labelName).type('My agent');
+    cy.findByLabelText(labelPublicCertificate).type('test');
+    cy.findByLabelText(labelCaCertificate).type('test');
+    cy.findByLabelText(labelPrivateKey).type('key');
+    cy.findByLabelText(labelPollers).click();
+    cy.contains('poller1').click();
+
+    cy.contains(labelSave).should('be.disabled');
+
+    cy.makeSnapshot();
+  });
+
+  it('validates the form when fields are filled and the reverse switch is unchecked', () => {
     initialize({});
 
     cy.contains(labelAddNewAgent).click();
@@ -601,9 +636,39 @@ describe('Agent configurations modal', () => {
     cy.contains(labelCMA).click();
     cy.findByLabelText(labelName).type('My agent');
     cy.contains(labelConnectionInitiatedByPoller).click();
+    cy.findByLabelText(labelPollers).click();
+    cy.contains('poller1').click();
+    cy.findByLabelText(labelPublicCertificate).type('test');
+    cy.findByLabelText(labelCaCertificate).type('test');
+    cy.findByLabelText(labelPrivateKey).type('key');
+    cy.contains(labelSave).click();
+
+    cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
+      expect(request.body).equal(
+        '{"name":"My agent","type":"centreon_agent","pollers":[1],"configuration":{"is_reverse":false,"otlp_ca_certificate":"test","otlp_certificate":"test","otlp_private_key":"key","poller_ca_name":null,"poller_ca_certificate":null,"hosts":[{"address":"","port":"","certificate":"","key":""}]}}'
+      );
+    });
+
+    cy.makeSnapshot();
   });
 
-  it('configures the host address and port when a host is selected', () => {});
+  it('configures the host address and port when a host is selected', () => {
+    initialize({});
+
+    cy.contains(labelAddNewAgent).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.contains(labelCMA).click();
+    cy.findByLabelText(labelAddHost).click();
+
+    cy.waitForRequest('@getHosts');
+
+    cy.contains('central').click();
+
+    cy.findByLabelText(labelDNSIP).should('have.value', '127.0.0.2');
+    cy.findByTestId(labelPort).find('input').should('have.value', '4317');
+
+    cy.makeSnapshot();
+  });
 
   it('splits the address and the port when a full address is pasted in the address field', () => {});
 
