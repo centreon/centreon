@@ -25,7 +25,7 @@ class CentreonAwieContext extends CentreonContext
         // Check that page is valid for this class.
         $mythis = $this;
         $this->spin(
-            function ($context) use ($mythis) {
+            function ($context) {
                 return $context->getSession()->getPage()->has('css', '#poller');
             }
         );
@@ -36,7 +36,7 @@ class CentreonAwieContext extends CentreonContext
         $this->visit('main.php?p=61202');
         $mythis = $this;
         $this->spin(
-            function ($context) use ($mythis) {
+            function ($context) {
                 return $context->getSession()->getPage()->has('css', '#file');
             }
         );

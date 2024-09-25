@@ -24,8 +24,8 @@ require_once _CENTREON_PATH_ . '/www/class/centreon.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonUser.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
 
-define('_CLAPI_LIB_', _CENTREON_PATH_ . "/lib");
-define('_CLAPI_CLASS_', _CENTREON_PATH_ . "/www/class/centreon-clapi");
+define('_CLAPI_LIB_', _CENTREON_PATH_ . '/lib');
+define('_CLAPI_CLASS_', _CENTREON_PATH_ . '/www/class/centreon-clapi');
 
 set_include_path(
     implode(
@@ -33,41 +33,41 @@ set_include_path(
         [
             realpath(_CLAPI_LIB_),
             realpath(_CLAPI_CLASS_),
-            get_include_path()
+            get_include_path(),
         ]
     )
 );
-require_once _CLAPI_CLASS_ . "/centreonUtils.class.php";
-require_once _CLAPI_CLASS_ . "/centreonAPI.class.php";
-
+require_once _CLAPI_CLASS_ . '/centreonUtils.class.php';
+require_once _CLAPI_CLASS_ . '/centreonAPI.class.php';
 
 $centreonSession = new CentreonSession();
 $centreonSession->start();
 $username = $_SESSION['centreon']->user->alias;
 /** @var Pimple\Container $dependencyInjector */
-$clapiConnector = new \ClapiObject($dependencyInjector, ['username' => $username]);
+$clapiConnector = new ClapiObject($dependencyInjector, ['username' => $username]);
 $importReturn = [];
 
 /**
  * Upload file
  */
-
-if (!isset($_FILES['clapiImport'])) {
-    $importReturn['error'] = "File is empty";
+if (! isset($_FILES['clapiImport'])) {
+    $importReturn['error'] = 'File is empty';
     echo json_encode($importReturn);
+
     exit;
 }
 
 $uploadDir = _CENTREON_CACHEDIR_ . '/';
 $uploadFile = $uploadDir . basename($_FILES['clapiImport']['name']);
 $tmpLogFile = $uploadDir . 'log' . time() . '.htm';
-if (!is_dir($uploadDir)) {
+if (! is_dir($uploadDir)) {
     mkdir($uploadDir);
 }
 $moveFile = move_uploaded_file($_FILES['clapiImport']['tmp_name'], $uploadFile);
-if (!$moveFile) {
-    $importReturn['error'] = "Upload failed";
+if (! $moveFile) {
+    $importReturn['error'] = 'Upload failed';
     echo json_encode($importReturn);
+
     exit;
 }
 
@@ -82,15 +82,16 @@ if ($openResult === true) {
     $zip->extractTo($confPath);
     $zip->close();
 } elseif ($openResult !== 0 /** {@see ZipArchive::ER_OK} */) {
-    $importReturn['error'] = "Unzip failed";
+    $importReturn['error'] = 'Unzip failed';
     echo json_encode($importReturn);
+
     exit;
 }
 
 /**
  * Set log_contact
  */
-\CentreonClapi\CentreonUtils::setUserName($username);
+CentreonClapi\CentreonUtils::setUserName($username);
 
 /**
  * Using CLAPI command to import configuration
@@ -103,10 +104,11 @@ try {
     $clapiConnector->import($finalFile);
     ob_end_clean();
     $importReturn['response'] = 'Import successful';
-} catch (\Exception $e) {
+} catch (Exception $e) {
     $importReturn['error'] = $e->getMessage();
 }
 unlink($uploadFile);
 unlink($finalFile);
 echo json_encode($importReturn);
+
 exit;

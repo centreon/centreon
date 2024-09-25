@@ -133,9 +133,11 @@ class DbReadServiceMacroRepository extends AbstractRepositoryRDB implements Read
     {
         preg_match('/^\$_SERVICE(?<macro_name>.*)\$$/', $data['svc_macro_name'], $matches);
 
+        $macroName = $matches['macro_name'] ?? '';
+
         $macro = new Macro(
             (int) $data['svc_svc_id'],
-            $matches['macro_name'],
+            $macroName,
             $data['svc_macro_value'],
         );
         $macro->setIsPassword($data['is_password'] === 1);

@@ -26,17 +26,18 @@ use PhpCsFixer\{Config, Finder};
 
 $finder = Finder::create()
     ->in([
-        __DIR__ . '/src/Core',
+        __DIR__ . '/features',
+        __DIR__ . '/www',
     ]);
 
 /**
  * These rules have various risky rune like 'declare_strict_types' which may be dangerous on legacy code.
  * 👉️ We use the other php-cs-fixer config file for this legacy code.
  *
- * @see .php-cs-fixer.unstrict.php
+ * @see .php-cs-fixer.dist.php
  */
 return (new Config())
     ->setFinder($finder)
-    ->setRiskyAllowed(true)
+    ->setRiskyAllowed(false) // 👈 risky NOT allowed
     ->setUsingCache(false)
-    ->setRules(PhpCsFixerRuleSet::getRules());
+    ->setRules(PhpCsFixerRuleSet::getRulesSafe());

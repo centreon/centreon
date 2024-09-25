@@ -34,14 +34,14 @@
  *
  */
 
-if (!isset($oreon)) {
+if (! isset($oreon)) {
     exit();
 }
 
 $cG = $_GET["pool_id"] ?? null;
 $cP = $_POST["pool_id"] ?? null;
 $slot_id = $cG ?? $cP;
-$slot_id = $slot_id !== null ? (int)$slot_id : null;
+$slot_id = $slot_id !== null ? (int) $slot_id : null;
 
 $cG = $_GET["select"] ?? null;
 $cP = $_POST["select"] ?? null;
@@ -53,52 +53,48 @@ $dupNbr = $cG ?? $cP;
 
 $search = isset($_POST['searchSlot']) ? htmlentities($_POST['searchSlot'], ENT_QUOTES) : null;
 
-/*
- * Path to the configuration dir
- */
-$path = "./modules/centreon-dsm/core/configuration/services/";
+// Path to the configuration dir
+$path = './modules/centreon-dsm/core/configuration/services/';
 
-/*
- * PHP functions
- */
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+// PHP functions
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
 switch ($o) {
-    case "a":
-        include_once $path . "formSlot.php"; // Add a slot
+    case 'a':
+        include_once $path . 'formSlot.php'; // Add a slot
         break;
-    case "w":
-        include_once $path . "formSlot.php"; // Watch a slot
+    case 'w':
+        include_once $path . 'formSlot.php'; // Watch a slot
         break;
-    case "c":
-        include_once $path . "formSlot.php"; // Modify a slot
+    case 'c':
+        include_once $path . 'formSlot.php'; // Modify a slot
         break;
-    case "s":
+    case 's':
         enablePoolInDB($slot_id);
-        include_once $path . "listSlot.php"; // Activate a slot
+        include_once $path . 'listSlot.php'; // Activate a slot
         break;
-    case "ms":
+    case 'ms':
         enablePoolInDB(null, $select ?? []);
-        include_once $path . "listSlot.php";
+        include_once $path . 'listSlot.php';
         break;
-    case "u":
+    case 'u':
         disablePoolInDB($slot_id);
-        include_once $path . "listSlot.php"; // Desactivate a slot
+        include_once $path . 'listSlot.php'; // Desactivate a slot
         break;
-    case "mu":
+    case 'mu':
         disablePoolInDB(null, $select ?? []);
-        include_once $path . "listSlot.php";
+        include_once $path . 'listSlot.php';
         break;
-    case "m":
+    case 'm':
         multiplePoolInDB($select ?? [], $dupNbr);
-        include_once $path . "listSlot.php"; // Duplicate n slots
+        include_once $path . 'listSlot.php'; // Duplicate n slots
         break;
-    case "d":
+    case 'd':
         deletePoolInDB($select ?? []);
-        include_once $path . "listSlot.php"; // Delete n slots
+        include_once $path . 'listSlot.php'; // Delete n slots
         break;
     default:
-        include_once $path . "listSlot.php";
+        include_once $path . 'listSlot.php';
         break;
 }

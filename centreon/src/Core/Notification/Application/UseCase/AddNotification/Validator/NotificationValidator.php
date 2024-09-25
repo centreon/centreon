@@ -132,7 +132,7 @@ class NotificationValidator
      *
      * @throws \Throwable|NotificationException
      */
-    private function validateContactGroups(array $contactGroupIds):void {
+    private function validateContactGroups(array $contactGroupIds): void {
         $contactGroupIds = array_unique($contactGroupIds);
 
         if ($this->currentContact->isAdmin()) {
