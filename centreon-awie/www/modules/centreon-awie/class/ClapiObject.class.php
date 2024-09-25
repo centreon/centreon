@@ -15,27 +15,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 class ClapiObject
 {
-
     /** @var array<mixed> */
     protected $dbConfigCentreon = [];
+
     /** @var array<mixed> */
     protected $dbConfigCentreonStorage = [];
+
     /** @var mixed */
     protected $db;
+
     /** @var mixed */
     protected $dbMon;
+
     /** @var array<mixed> */
     protected $clapiParameters = [];
-    /** @var \CentreonClapi\CentreonAPI */
+
+    /** @var CentreonClapi\CentreonAPI */
     protected $clapiConnector;
-    /** @var \Pimple\Container */
+
+    /** @var Pimple\Container */
     protected $dependencyInjector;
 
     /**
-     * @param \Pimple\Container $dependencyInjector
+     * @param Pimple\Container $dependencyInjector
      * @param array<mixed> $clapiParameters
      */
     public function __construct($dependencyInjector, $clapiParameters)
@@ -56,22 +60,6 @@ class ClapiObject
     }
 
     /**
-     * @return void
-     */
-    private function connectToClapi()
-    {
-        \CentreonClapi\CentreonUtils::setUserName($this->clapiParameters['username']);
-        $this->clapiConnector = \CentreonClapi\CentreonAPI::getInstance(
-            '',
-            '',
-            '',
-            _CENTREON_PATH_,
-            $this->clapiParameters,
-            $this->dependencyInjector
-        );
-    }
-
-    /**
      * Export
      *
      * @param bool $withoutClose boolean disable using of PHP exit function (default: false)
@@ -81,8 +69,8 @@ class ClapiObject
     {
 
         $this->clapiConnector->setOption($this->clapiParameters);
-        $export = $this->clapiConnector->export($withoutClose);
-        return $export;
+
+        return $this->clapiConnector->export($withoutClose);
     }
 
     /**
@@ -91,7 +79,22 @@ class ClapiObject
      */
     public function import($fileName)
     {
-        $import = $this->clapiConnector->import($fileName);
-        return $import;
+        return $this->clapiConnector->import($fileName);
+    }
+
+    /**
+     * @return void
+     */
+    private function connectToClapi()
+    {
+        CentreonClapi\CentreonUtils::setUserName($this->clapiParameters['username']);
+        $this->clapiConnector = CentreonClapi\CentreonAPI::getInstance(
+            '',
+            '',
+            '',
+            _CENTREON_PATH_,
+            $this->clapiParameters,
+            $this->dependencyInjector
+        );
     }
 }
