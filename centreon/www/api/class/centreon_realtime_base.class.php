@@ -36,15 +36,18 @@
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once dirname(__FILE__) . "/webService.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonRealtimeBase
+ */
 class CentreonRealtimeBase extends CentreonWebService
 {
-    /**
-     * @var
-     */
+    /** @var CentreonDB */
     protected $realTimeDb;
 
     /**
-     * CentreonConfigurationObjects constructor.
+     * CentreonConfigurationObjects constructor
      */
     public function __construct()
     {
@@ -125,7 +128,9 @@ class CentreonRealtimeBase extends CentreonWebService
     /**
      * @param $externalObject
      * @param $values
+     *
      * @return array
+     * @throws PDOException
      */
     protected function retrieveExternalObjectDatas($externalObject, $values)
     {
@@ -143,7 +148,7 @@ class CentreonRealtimeBase extends CentreonWebService
             }
             try {
                 $tmpValues = $externalObjectInstance->getObjectForSelect2($values, $options);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 print $e->getMessage();
             }
         } else {
@@ -253,9 +258,9 @@ class CentreonRealtimeBase extends CentreonWebService
      * Authorize to access to the action
      *
      * @param string $action The action name
-     * @param \CentreonUser $user The current user
-     * @param boolean $isInternal If the api is call in internal
-     * @return boolean If the user has access to the action
+     * @param CentreonUser $user The current user
+     * @param bool $isInternal If the api is call in internal
+     * @return bool If the user has access to the action
      */
     public function authorize($action, $user, $isInternal = false)
     {

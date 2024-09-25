@@ -38,10 +38,15 @@
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/centreon_configuration_service.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationServicetemplate
+ */
 class CentreonConfigurationServicetemplate extends CentreonConfigurationService
 {
     /**
-     * Constructor
+     * CentreonConfigurationServicetemplate constructor
      */
     public function __construct()
     {
@@ -97,7 +102,9 @@ class CentreonConfigurationServicetemplate extends CentreonConfigurationService
     /**
      * @param $q
      * @param array $range
+     *
      * @return array
+     * @throws PDOException
      */
     private function listClassic($q, $range = array())
     {
@@ -134,7 +141,9 @@ class CentreonConfigurationServicetemplate extends CentreonConfigurationService
     /**
      * @param string $q
      * @param array $range
+     *
      * @return array
+     * @throws PDOException
      */
     private function listWithHostTemplate($q = '', $range = array())
     {

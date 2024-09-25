@@ -35,10 +35,15 @@
 
 require_once dirname(__FILE__) . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationBroker
+ */
 class CentreonConfigurationBroker extends CentreonConfigurationObjects
 {
     /**
-     * @return array
+     * @return false|string
      * @throws Exception
      */
     public function getBlock()

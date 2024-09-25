@@ -44,7 +44,7 @@ require_once __DIR__ . "/centreon_configuration_objects.class.php";
  */
 class CentreonConfigurationService extends CentreonConfigurationObjects
 {
-    /** @var */
+    /** @var CentreonDB */
     public $db;
     /**
      * @var CentreonDB
@@ -52,7 +52,7 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
     protected $pearDBMonitoring;
 
     /**
-     * CentreonConfigurationService constructor.
+     * CentreonConfigurationService constructor
      */
     public function __construct()
     {

@@ -36,10 +36,15 @@
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once dirname(__FILE__) . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationGraphvirtualmetric
+ */
 class CentreonConfigurationGraphvirtualmetric extends CentreonConfigurationObjects
 {
     /**
-     * Constructor
+     * CentreonConfigurationGraphvirtualmetric constructor
      */
     public function __construct()
     {

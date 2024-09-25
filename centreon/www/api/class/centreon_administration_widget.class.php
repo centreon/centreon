@@ -40,6 +40,11 @@ require_once __DIR__ . "/webService.class.php";
 require_once __DIR__ . '/../interface/di.interface.php';
 require_once __DIR__ . '/../trait/diAndUtilis.trait.php';
 
+/**
+ * Class
+ *
+ * @class CentreonAdministrationWidget
+ */
 class CentreonAdministrationWidget extends CentreonWebService implements CentreonWebServiceDiInterface
 {
     use CentreonWebServiceDiAndUtilisTrait;
@@ -65,7 +70,7 @@ class CentreonAdministrationWidget extends CentreonWebService implements Centreo
                 || !is_numeric($this->arguments['page_limit'])
                 || $this->arguments['page_limit'] < 1
             ) {
-                throw new \RestBadRequestException('Error, limit must be an integer greater than zero');
+                throw new RestBadRequestException('Error, limit must be an integer greater than zero');
             }
             $limit = ($this->arguments['page'] - 1) * $this->arguments['page_limit'];
             $range = array((int) $limit, (int) $this->arguments['page_limit']);
@@ -82,9 +87,9 @@ class CentreonAdministrationWidget extends CentreonWebService implements Centreo
      * Authorize to access to the action
      *
      * @param string $action The action name
-     * @param \CentreonUser $user The current user
-     * @param boolean $isInternal If the api is call in internal
-     * @return boolean If the user has access to the action
+     * @param CentreonUser $user The current user
+     * @param bool $isInternal If the api is call in internal
+     * @return bool If the user has access to the action
      */
     public function authorize($action, $user, $isInternal = false)
     {

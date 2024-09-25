@@ -38,38 +38,39 @@ require_once __DIR__ . '/webService.class.php';
 require_once __DIR__ . '/../../class/centreonDB.class.php';
 require_once __DIR__ . '/../../class/centreonContact.class.php';
 
+/**
+ * Class
+ *
+ * @class CentreonTopCounter
+ */
 class CentreonTopCounter extends CentreonWebService
 {
-    /**
-     * @var CentreonDB
-     */
+    /** @var CentreonDB */
     protected $pearDBMonitoring;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $timeUnit = 60;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $refreshTime;
 
+    /** @var bool */
     protected $hasAccessToTopCounter = false;
 
+    /** @var bool */
     protected $hasAccessToPollers = false;
 
+    /** @var bool */
     protected $hasAccessToProfile = false;
 
+    /** @var bool */
     protected $soundNotificationsEnabled = false;
 
-    /**
-     * @var Centreon
-     */
+    /** @var Centreon */
     protected $centreon;
 
     /**
-     * CentreonTopCounter constructor.
+     * CentreonTopCounter constructor
      * @throws Exception
      */
     public function __construct()
@@ -90,6 +91,7 @@ class CentreonTopCounter extends CentreonWebService
      * Get refresh interval of top counter
      *
      * @return void
+     * @throws PDOException
      */
     private function initRefreshInterval()
     {
@@ -105,7 +107,7 @@ class CentreonTopCounter extends CentreonWebService
     }
 
     /**
-     * @throws RestUnauthorizedException
+     * @return void
      */
     private function checkAccess()
     {
@@ -137,6 +139,8 @@ class CentreonTopCounter extends CentreonWebService
      * The current time of the server
      *
      * Method GET
+     *
+     * @return array
      */
     public function getClock()
     {
@@ -155,6 +159,9 @@ class CentreonTopCounter extends CentreonWebService
      * If the user must be disconnected
      *
      * Method GET
+     *
+     * @return bool[]
+     * @throws CentreonDbException
      */
     public function getAutologout()
     {
@@ -176,6 +183,9 @@ class CentreonTopCounter extends CentreonWebService
      * Get the user information
      *
      * Method PUT
+     *
+     * @return void
+     * @throws PDOException
      */
     public function putAutoLoginToken()
     {
@@ -189,7 +199,7 @@ class CentreonTopCounter extends CentreonWebService
         $res = $stmt->execute();
 
         if (!$res) {
-            throw new \Exception('Error while update autologinKey ' . $autoLoginKey);
+            throw new Exception('Error while update autologinKey ' . $autoLoginKey);
         }
 
         /**
@@ -202,6 +212,10 @@ class CentreonTopCounter extends CentreonWebService
      * Get the user information
      *
      * Method GET
+     *
+     * @return array
+     * @throws RestInternalServerErrorException
+     * @throws RestUnauthorizedException
      */
     public function getUser()
     {
@@ -221,8 +235,8 @@ class CentreonTopCounter extends CentreonWebService
             $res = $this->pearDB->query(
                 'SELECT value FROM options WHERE options.key = "enable_autologin"'
             );
-        } catch (\Exception $e) {
-            throw new \RestInternalServerErrorException('Error getting the user.');
+        } catch (Exception $e) {
+            throw new RestInternalServerErrorException('Error getting the user.');
         }
 
         $rowEnableShortcut = $res->fetch();
@@ -232,8 +246,8 @@ class CentreonTopCounter extends CentreonWebService
             $res = $this->pearDB->query(
                 'SELECT value FROM options WHERE options.key = "display_autologin_shortcut"'
             );
-        } catch (\Exception $e) {
-            throw new \RestInternalServerErrorException('Error getting the user.');
+        } catch (Exception $e) {
+            throw new RestInternalServerErrorException('Error getting the user.');
         }
 
         $rowEnableAutoLogin = $res->fetch();
@@ -251,14 +265,14 @@ class CentreonTopCounter extends CentreonWebService
                 $res = $this->pearDB->prepare(
                     'SELECT contact_autologin_key FROM contact WHERE contact_id = :userId'
                 );
-                $res->bindValue(':userId', (int) $this->centreon->user->user_id, \PDO::PARAM_INT);
+                $res->bindValue(':userId', (int) $this->centreon->user->user_id, PDO::PARAM_INT);
                 $res->execute();
-            } catch (\Exception $e) {
-                throw new \RestInternalServerErrorException('Error getting the user.');
+            } catch (Exception $e) {
+                throw new RestInternalServerErrorException('Error getting the user.');
             }
 
             if ($res->rowCount() === 0) {
-                throw new \RestUnauthorizedException('User does not exist.');
+                throw new RestUnauthorizedException('User does not exist.');
             }
 
             $row = $res->fetch();
@@ -284,6 +298,7 @@ class CentreonTopCounter extends CentreonWebService
      * int : number of seconds before expiration
      *
      * @return int|null
+     * @throws PDOException
      */
     private function getPasswordRemainingTime(): ?int
     {
@@ -314,11 +329,15 @@ class CentreonTopCounter extends CentreonWebService
      * Get the pollers status
      *
      * Method GET
+     *
+     * @return array
+     * @throws RestInternalServerErrorException
+     * @throws RestUnauthorizedException
      */
     public function getPollersStatus()
     {
         if (!$this->hasAccessToPollers) {
-            throw new \RestUnauthorizedException("You're not authorized to access poller datas");
+            throw new RestUnauthorizedException("You're not authorized to access poller datas");
         }
 
         $pollers = $this->pollersStatusList();
@@ -365,12 +384,16 @@ class CentreonTopCounter extends CentreonWebService
      * Get the list of pollers by status type
      *
      * Method GET
+     *
+     * @return array
+     * @throws RestBadRequestException
+     * @throws RestInternalServerErrorException
      */
     public function getPollers()
     {
         $listType = ['configuration', 'stability', 'database', 'latency'];
         if (!isset($this->arguments['type']) || !in_array($this->arguments['type'], $listType)) {
-            throw new \RestBadRequestException('Missing type argument or bad type name.');
+            throw new RestBadRequestException('Missing type argument or bad type name.');
         }
 
         $result = [
@@ -428,11 +451,15 @@ class CentreonTopCounter extends CentreonWebService
      * Get the list of pollers with problems
      *
      * Method GET
+     *
+     * @return array
+     * @throws RestInternalServerErrorException
+     * @throws RestUnauthorizedException
      */
     public function getPollersListIssues()
     {
         if (!$this->hasAccessToPollers) {
-            throw new \RestUnauthorizedException(_("You're not authorized to access poller data"));
+            throw new RestUnauthorizedException(_("You're not authorized to access poller data"));
         }
 
         $pollers = $this->pollersStatusList();
@@ -590,11 +617,15 @@ class CentreonTopCounter extends CentreonWebService
      * Get the hosts status
      *
      * Method GET
+     *
+     * @return array|mixed
+     * @throws RestInternalServerErrorException
+     * @throws RestUnauthorizedException
      */
     public function getHosts_status()
     {
         if (!$this->hasAccessToTopCounter) {
-            throw new \RestUnauthorizedException("You're not authorized to access resource data");
+            throw new RestUnauthorizedException("You're not authorized to access resource data");
         }
 
         if (
@@ -628,8 +659,8 @@ class CentreonTopCounter extends CentreonWebService
 
         try {
             $res = $this->pearDBMonitoring->query($query);
-        } catch (\Exception $e) {
-            throw new \RestInternalServerErrorException($e);
+        } catch (Exception $e) {
+            throw new RestInternalServerErrorException($e);
         }
 
         $row = $res->fetch();
@@ -658,11 +689,15 @@ class CentreonTopCounter extends CentreonWebService
      * Get the services status
      *
      * Method GET
+     *
+     * @return array|mixed
+     * @throws RestInternalServerErrorException
+     * @throws RestUnauthorizedException
      */
     public function getServicesStatus()
     {
         if (!$this->hasAccessToTopCounter) {
-            throw new \RestUnauthorizedException("You're not authorized to access resource data");
+            throw new RestUnauthorizedException("You're not authorized to access resource data");
         }
 
         if (
@@ -705,8 +740,8 @@ class CentreonTopCounter extends CentreonWebService
 
         try {
             $res = $this->pearDBMonitoring->query($query);
-        } catch (\Exception $e) {
-            throw new \RestInternalServerErrorException($e);
+        } catch (Exception $e) {
+            throw new RestInternalServerErrorException($e);
         }
 
         $row = $res->fetch();
@@ -739,14 +774,17 @@ class CentreonTopCounter extends CentreonWebService
     /**
      * Get intervals for refreshing header data
      * Method: GET
+     *
+     * @return array
+     * @throws RestInternalServerErrorException
      */
     public function getRefreshIntervals()
     {
         $query = "SELECT * FROM `options` WHERE `key` IN ('AjaxTimeReloadMonitoring','AjaxTimeReloadStatistic')";
         try {
             $res = $this->pearDB->query($query);
-        } catch (\Exception $e) {
-            throw new \RestInternalServerErrorException($e);
+        } catch (Exception $e) {
+            throw new RestInternalServerErrorException($e);
         }
         $row = $res->fetchAll();
 
@@ -760,6 +798,9 @@ class CentreonTopCounter extends CentreonWebService
 
     /**
      * Get the configured pollers
+     *
+     * @return array
+     * @throws RestInternalServerErrorException
      */
     protected function pollersList()
     {
@@ -778,8 +819,8 @@ class CentreonTopCounter extends CentreonWebService
 
         try {
             $res = $this->pearDB->query($query);
-        } catch (\Exception $e) {
-            throw new \RestInternalServerErrorException($e);
+        } catch (Exception $e) {
+            throw new RestInternalServerErrorException($e);
         }
 
         if ($res->rowCount() === 0) {
@@ -798,6 +839,9 @@ class CentreonTopCounter extends CentreonWebService
 
     /**
      * Get information for pollers
+     *
+     * @return array
+     * @throws RestInternalServerErrorException
      */
     protected function pollersStatusList()
     {
@@ -825,8 +869,8 @@ class CentreonTopCounter extends CentreonWebService
 
         try {
             $res = $this->pearDBMonitoring->query($query);
-        } catch (\Exception $e) {
-            throw new \RestInternalServerErrorException($e);
+        } catch (Exception $e) {
+            throw new RestInternalServerErrorException($e);
         }
 
         while ($row = $res->fetch()) {
@@ -855,8 +899,8 @@ class CentreonTopCounter extends CentreonWebService
 
         try {
             $res = $this->pearDBMonitoring->query($query);
-        } catch (\Exception $e) {
-            throw new \RestInternalServerErrorException($e);
+        } catch (Exception $e) {
+            throw new RestInternalServerErrorException($e);
         }
 
         while ($row = $res->fetch()) {
@@ -876,9 +920,9 @@ class CentreonTopCounter extends CentreonWebService
      * Authorize to access to the action
      *
      * @param string $action The action name
-     * @param array $user The current user
-     * @param boolean $isInternal If the api is call in internal
-     * @return boolean If the has access to the action
+     * @param CentreonUser $user The current user
+     * @param bool $isInternal If the api is call in internal
+     * @return bool If the has access to the action
      */
     public function authorize($action, $user, $isInternal = false)
     {

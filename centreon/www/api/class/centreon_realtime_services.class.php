@@ -44,49 +44,45 @@ require_once dirname(__FILE__) . "/centreon_realtime_base.class.php";
  */
 class CentreonRealtimeServices extends CentreonRealtimeBase
 {
-    /** @var */
+    /** @var int|string|null */
     public $servicegroup;
-    /** @var */
+    /** @var string|null*/
     public $searchOutput;
-    /**
-     * @var CentreonDB
-     */
+    /** @var CentreonACL */
     protected $aclObj;
     /** @var int */
     protected $admin;
 
     /* parameters */
-    /** @var */
+    /** @var int|null*/
     protected $limit;
-    /** @var */
+    /** @var int|null*/
     protected $number;
-    /** @var */
+    /** @var string|null*/
     protected $status;
-    /** @var */
+    /** @var string|null*/
     protected $hostgroup;
-    /** @var */
+    /** @var string|null*/
     protected $search;
-    /** @var */
+    /** @var string|null*/
     protected $searchHost;
-    /** @var */
+    /** @var string|null*/
     protected $viewType;
-    /** @var */
+    /** @var string|null*/
     protected $sortType;
-    /** @var */
+    /** @var string|null*/
     protected $order;
-    /** @var */
+    /** @var int|null*/
     protected $instance;
-    /** @var */
+    /** @var string|null*/
     protected $criticality;
-
-    /** @var */
+    /** @var string|null*/
     protected $fieldList;
-
-    /** @var */
+    /** @var array|null*/
     protected $criticalityList;
 
     /**
-     * CentreonConfigurationService constructor.
+     * CentreonConfigurationService constructor
      */
     public function __construct()
     {
@@ -108,6 +104,8 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
 
     /**
      * @return array
+     * @throws PDOException
+     * @throws RestBadRequestException
      */
     public function getList()
     {
@@ -393,6 +391,8 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
 
     /**
      * @return array
+     * @throws PDOException
+     * @throws RestBadRequestException
      */
     public function getServiceState()
     {

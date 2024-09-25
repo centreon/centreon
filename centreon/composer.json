@@ -10,6 +10,7 @@
     "enshrined/svg-sanitize": "^0.15",
     "doctrine/annotations": "^1.0",
     "ext-ctype": "*",
+    "ext-gettext": "*",
     "ext-iconv": "*",
     "ext-json": "*",
     "ext-ldap": "*",

@@ -39,10 +39,15 @@ require_once _CENTREON_PATH_ . "/www/class/centreonContactgroup.class.php";
 require_once _CENTREON_PATH_ . "/www/class/centreonLDAP.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationContactgroup
+ */
 class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
 {
     /**
-     * CentreonConfigurationContactgroup constructor.
+     * CentreonConfigurationContactgroup constructor
      */
     public function __construct()
     {
@@ -51,6 +56,7 @@ class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
 
     /**
      * @return array
+     * @throws PDOException
      * @throws RestBadRequestException
      */
     public function getList()
@@ -63,7 +69,7 @@ class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
                 || !is_numeric($this->arguments['page_limit'])
                 || $this->arguments['page_limit'] < 1
             ) {
-                throw new \RestBadRequestException('Error, limit must be an integer greater than zero');
+                throw new RestBadRequestException('Error, limit must be an integer greater than zero');
             }
             $limit = ($this->arguments['page'] - 1) * $this->arguments['page_limit'];
             $offset = $this->arguments['page_limit'];
@@ -149,6 +155,12 @@ class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
         );
     }
 
+    /**
+     * @param $val
+     * @param array $array
+     *
+     * @return bool
+     */
     protected function uniqueKey($val, &$array)
     {
 

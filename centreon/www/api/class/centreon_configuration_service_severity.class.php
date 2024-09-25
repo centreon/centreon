@@ -36,13 +36,17 @@
 
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
+
 /**
- * Configure the selection of multiple host severity (select2 filter)
+ * Class
+ *
+ * @class CentreonConfigurationServiceSeverity
+ * @description Configure the selection of multiple host severity (select2 filter)
  */
 class CentreonConfigurationServiceSeverity extends CentreonConfigurationObjects
 {
     /**
-     * CentreonConfigurationServicecategory constructor.
+     * CentreonConfigurationServicecategory constructor
      */
     public function __construct()
     {

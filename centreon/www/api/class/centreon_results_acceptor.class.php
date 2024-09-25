@@ -37,24 +37,33 @@ require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once dirname(__FILE__) . "/centreon_configuration_objects.class.php";
 require_once _CENTREON_PATH_ . "/www/class/centreonHost.class.php";
 
-
+/**
+ * Class
+ *
+ * @class CentreonResultsAcceptor
+ */
 class CentreonResultsAcceptor extends CentreonConfigurationObjects
 {
-    /**
-     *
-     * @var type
-     */
+
+    /** @var CentreonDB */
     protected $pearDBMonitoring;
+    /** @var string */
     protected $centcore_file;
+    /** @var */
     protected $pollers;
+    /** @var int */
     protected $pipeOpened;
+    /** @var resource */
     protected $fh;
+    /** @var CentreonDB */
     protected $pearDBC;
+    /** @var array */
     protected $pollerHosts;
+    /** @var array */
     protected $hostServices;
 
     /**
-     * Constructor
+     * CentreonResultsAcceptor constructor
      */
     public function __construct()
     {
@@ -71,6 +80,10 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
 
     /*
      * Get poller Listing
+     */
+    /**
+     * @return void
+     * @throws PDOException
      */
     private function getPollers()
     {
@@ -90,6 +103,10 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
         }
     }
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     private function getHostServiceInfo()
     {
         if (!isset($this->hostServices)) {
@@ -113,6 +130,10 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
         }
     }
 
+    /**
+     * @return void
+     * @throws RestBadRequestException
+     */
     private function openPipe()
     {
         if ($this->fh = @fopen($this->centcore_file, 'a+')) {
@@ -122,12 +143,21 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
         }
     }
 
+    /**
+     * @return void
+     */
     private function closePipe()
     {
         fclose($this->fh);
         $this->pipeOpened = 0;
     }
 
+    /**
+     * @param $string
+     *
+     * @return void
+     * @throws RestBadRequestException
+     */
     private function writeInPipe($string)
     {
         if ($this->pipeOpened == 0) {
@@ -139,6 +169,12 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
         }
     }
 
+    /**
+     * @param $data
+     *
+     * @return void
+     * @throws RestBadRequestException
+     */
     private function sendResults($data)
     {
         if (!isset($this->pollerHosts['name'][$data["host"]])) {
@@ -159,8 +195,10 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
     }
 
     /**
-     *
      * @return array
+     * @throws PDOException
+     * @throws RestBadRequestException
+     * @throws RestException
      */
     public function postSubmit()
     {
@@ -244,9 +282,9 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
      * Authorize to access to the action
      *
      * @param string $action The action name
-     * @param \CentreonUser $user The current user
-     * @param boolean $isInternal If the api is call in internal
-     * @return boolean If the user has access to the action
+     * @param CentreonUser $user The current user
+     * @param bool $isInternal If the api is call in internal
+     * @return bool If the user has access to the action
      */
     public function authorize($action, $user, $isInternal = false)
     {

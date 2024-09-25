@@ -37,13 +37,18 @@
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 require_once __DIR__ . '/centreon_configuration_objects.class.php';
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationHostgroup
+ */
 class CentreonConfigurationHostgroup extends CentreonConfigurationObjects
 {
     /** @var CentreonDB */
     protected $pearDBMonitoring;
 
     /**
-     * CentreonConfigurationHostgroup constructor.
+     * CentreonConfigurationHostgroup constructor
      */
     public function __construct()
     {
@@ -52,9 +57,9 @@ class CentreonConfigurationHostgroup extends CentreonConfigurationObjects
     }
 
     /**
-     * @throws Exception
-     *
      * @return array
+     * @throws PDOException
+     * @throws RestBadRequestException
      */
     public function getList()
     {
@@ -146,9 +151,9 @@ class CentreonConfigurationHostgroup extends CentreonConfigurationObjects
     }
 
     /**
-     * @throws RestBadRequestException
-     *
      * @return array
+     * @throws PDOException
+     * @throws RestBadRequestException
      */
     public function getHostList()
     {

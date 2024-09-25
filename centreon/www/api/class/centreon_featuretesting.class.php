@@ -36,12 +36,18 @@
 require_once dirname(__FILE__) . '/webService.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonFeature.class.php';
 
+/**
+ * Class
+ *
+ * @class CentreonFeaturetesting
+ */
 class CentreonFeaturetesting extends CentreonWebService
 {
+    /** @var CentreonFeature */
     protected $obj;
 
     /**
-     * Constructor
+     * CentreonFeaturetesting constructor
      */
     public function __construct()
     {
@@ -53,6 +59,11 @@ class CentreonFeaturetesting extends CentreonWebService
      * Enabled or disabled a feature flipping for an user
      *
      * METHOD POST
+     *
+     * @return void
+     * @throws PDOException
+     * @throws RestBadRequestException
+     * @throws RestUnauthorizedException
      */
     public function postEnabled()
     {

@@ -41,10 +41,17 @@ require_once _CENTREON_PATH_ . "/www/class/centreonGraphPoller.class.php";
 require_once _CENTREON_PATH_ . "/www/class/centreonGraphStatus.class.php";
 require_once __DIR__ . "/webService.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonMetric
+ */
 class CentreonMetric extends CentreonWebService
 {
+    /** @var CentreonDB */
     protected $pearDBMonitoring;
 
+    /** @var string[] */
     protected $statusColors = array(
         'ok' => '#88b917',
         'warning' => '#ff9a13',
@@ -53,11 +60,7 @@ class CentreonMetric extends CentreonWebService
     );
 
     /**
-     * Constructor
-     *
-     * @param CentreonDB $db
-     *
-     * @return void
+     * CentreonMetric constructor
      */
     public function __construct()
     {
@@ -98,10 +101,10 @@ class CentreonMetric extends CentreonWebService
 
         $query .= ' ORDER BY `metric_name` COLLATE utf8_general_ci ';
         $stmt = $this->pearDBMonitoring->prepare($query);
-        $stmt->bindParam(':name', $queryValues['name'], \PDO::PARAM_STR);
+        $stmt->bindParam(':name', $queryValues['name'], PDO::PARAM_STR);
         $dbResult = $stmt->execute();
         if (!$dbResult) {
-            throw new \Exception("An error occured");
+            throw new Exception("An error occured");
         }
 
         $metrics = array();
@@ -118,6 +121,7 @@ class CentreonMetric extends CentreonWebService
     /**
      * @return array
      *
+     * @throws PDOException
      * @throws RestBadRequestException
      */
     protected function getListByService()
@@ -154,7 +158,7 @@ class CentreonMetric extends CentreonWebService
                 || !is_numeric($this->arguments['page_limit'])
                 || $this->arguments['page_limit'] < 1
             ) {
-                throw new \RestBadRequestException('400 Bad Request, limit error');
+                throw new RestBadRequestException('400 Bad Request, limit error');
             }
             $offset = ($this->arguments['page'] - 1) * $this->arguments['page_limit'];
             $query .= 'LIMIT :offset,:limit';
@@ -162,10 +166,10 @@ class CentreonMetric extends CentreonWebService
             $queryValues['limit'] = (int)$this->arguments['page_limit'];
         }
         $stmt = $this->pearDBMonitoring->prepare($query);
-        $stmt->bindParam(':name', $queryValues['name'], \PDO::PARAM_STR);
+        $stmt->bindParam(':name', $queryValues['name'], PDO::PARAM_STR);
         if (isset($queryValues['offset'])) {
-            $stmt->bindParam(':offset', $queryValues["offset"], \PDO::PARAM_INT);
-            $stmt->bindParam(':limit', $queryValues["limit"], \PDO::PARAM_INT);
+            $stmt->bindParam(':offset', $queryValues["offset"], PDO::PARAM_INT);
+            $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
         $metrics = array();
@@ -184,6 +188,7 @@ class CentreonMetric extends CentreonWebService
     /**
      * @return array
      *
+     * @throws PDOException
      * @throws RestBadRequestException
      */
     protected function getListOfMetricsByService()
@@ -194,9 +199,9 @@ class CentreonMetric extends CentreonWebService
             $queryValues['host_id'] = (int)$tmp[0];
             $queryValues['service_id'] = (int)$tmp[1];
         } else {
-            throw new \RestBadRequestException('400 Bad Request, invalid service id');
+            throw new RestBadRequestException('400 Bad Request, invalid service id');
         }
-        $nameArg = \HtmlAnalyzer::sanitizeAndRemoveTags($this->arguments['q'] ?? false);
+        $nameArg = HtmlAnalyzer::sanitizeAndRemoveTags($this->arguments['q'] ?? false);
         if ($nameArg !== false) {
             $queryValues['name'] = '%' . $nameArg . '%';
         } else {
@@ -221,7 +226,7 @@ class CentreonMetric extends CentreonWebService
                 || !is_numeric($this->arguments['page_limit'])
                 || $this->arguments['page_limit'] < 1
             ) {
-                throw new \RestBadRequestException('400 Bad Request, limit error');
+                throw new RestBadRequestException('400 Bad Request, limit error');
             }
             $offset = ($this->arguments['page'] - 1) * $this->arguments['page_limit'];
             $query .= 'LIMIT :offset,:limit';
@@ -229,12 +234,12 @@ class CentreonMetric extends CentreonWebService
             $queryValues['limit'] = (int)$this->arguments['page_limit'];
         }
         $stmt = $this->pearDBMonitoring->prepare($query);
-        $stmt->bindParam(':name', $queryValues['name'], \PDO::PARAM_STR);
-        $stmt->bindParam(':host_id', $queryValues['host_id'], \PDO::PARAM_INT);
-        $stmt->bindParam(':service_id', $queryValues['service_id'], \PDO::PARAM_INT);
+        $stmt->bindParam(':name', $queryValues['name'], PDO::PARAM_STR);
+        $stmt->bindParam(':host_id', $queryValues['host_id'], PDO::PARAM_INT);
+        $stmt->bindParam(':service_id', $queryValues['service_id'], PDO::PARAM_INT);
         if (isset($queryValues['offset'])) {
-            $stmt->bindParam(':offset', $queryValues["offset"], \PDO::PARAM_INT);
-            $stmt->bindParam(':limit', $queryValues["limit"], \PDO::PARAM_INT);
+            $stmt->bindParam(':offset', $queryValues["offset"], PDO::PARAM_INT);
+            $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
         $metrics = array();
@@ -254,6 +259,9 @@ class CentreonMetric extends CentreonWebService
      * Get last metrics value by services or/and metrics
      *
      * @return array | null if arguments are not set
+     * @throws RestBadRequestException
+     * @throws RestForbiddenException
+     * @throws RestNotFoundException
      */
     public function getLastMetricsData()
     {
@@ -272,6 +280,9 @@ class CentreonMetric extends CentreonWebService
      * Get metrics data by service or/and metrics
      *
      * @return array | null if arguments are not set
+     * @throws RestBadRequestException
+     * @throws RestForbiddenException
+     * @throws RestNotFoundException
      */
     public function getMetricsData()
     {
@@ -289,6 +300,9 @@ class CentreonMetric extends CentreonWebService
      * Get metrics datas for a service
      *
      * @return array
+     * @throws RestBadRequestException
+     * @throws RestForbiddenException
+     * @throws RestNotFoundException
      */
     public function getMetricsDataByService()
     {
@@ -316,7 +330,10 @@ class CentreonMetric extends CentreonWebService
     /**
      * Get metrics datas for a metric
      *
-     * @return mixed
+     * @return array
+     * @throws RestBadRequestException
+     * @throws RestForbiddenException
+     * @throws RestNotFoundException
      */
     public function getMetricsDataByMetric()
     {
@@ -354,12 +371,13 @@ class CentreonMetric extends CentreonWebService
     /**
      * Check acl for user
      *
-     * @param int    $hostId     Host id to check
-     * @param int    $serviceId  Service id to check
-     * @param string $aclGroups  String with user acl groups
-     * @param int    $isAdmin    User is admin or not
+     * @param int $hostId Host id to check
+     * @param int $serviceId Service id to check
+     * @param array|null $aclGroups String with user acl groups
+     * @param bool $isAdmin User is admin or not
      *
      * @return bool if the user is allowed to get service information
+     * @throws PDOException
      */
     private function checkAcl($hostId, $serviceId, ?array $aclGroups, $isAdmin = true): bool
     {
@@ -371,8 +389,8 @@ class CentreonMetric extends CentreonWebService
                 'AND group_id IN (' . $aclGroups . ')';
 
             $stmt = $this->pearDBMonitoring->prepare($query);
-            $stmt->bindParam(':hostId', $hostId, \PDO::PARAM_INT);
-            $stmt->bindParam(':serviceId', $serviceId, \PDO::PARAM_INT);
+            $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
+            $stmt->bindParam(':serviceId', $serviceId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
             if (!$dbResult || $stmt->rowCount() === 0) {
                 return false;
@@ -386,9 +404,11 @@ class CentreonMetric extends CentreonWebService
      * Get array builded from arguments
      *
      * @param string $services List of services (like hostId_serviceId,hostId2_serviceId2,...)
-     * @param string $metrics  List of metrics (like metricId,metricId2,...)
+     * @param string $metrics List of metrics (like metricId,metricId2,...)
      *
-     * @return mixed
+     * @return array
+     * @throws PDOException
+     * @throws RestBadRequestException
      */
     private function manageMetricsDataArguments($services, $metrics)
     {
@@ -460,7 +480,7 @@ class CentreonMetric extends CentreonWebService
                  AND metrics.index_id = index_data.id'
             );
             foreach ($queryValues as $param => $value) {
-                $stmt->bindValue($param, $value, \PDO::PARAM_INT);
+                $stmt->bindValue($param, $value, PDO::PARAM_INT);
             }
             $stmt->execute();
 
@@ -488,14 +508,11 @@ class CentreonMetric extends CentreonWebService
      * Get last data for metrics (by services and/or metrics)
      *
      * @param string $services List of services (like hostId_serviceId,hostId2_serviceId2,...)
-     * @param string $metrics  List of metrics (like metricId,metricId2,...)
+     * @param string $metrics List of metrics (like metricId,metricId2,...)
      *
      * @return array
      *
-     * @throws Exception
-     * @throws RestBadRequestException
-     * @throws RestForbiddenException
-     * @throws RestNotFoundException
+     * @throws PDOException
      */
     protected function lastMetricsData($services, $metrics)
     {
@@ -551,7 +568,7 @@ class CentreonMetric extends CentreonWebService
         }
 
         if ($query === '') {
-            throw new \Exception("No metrics found");
+            throw new Exception("No metrics found");
         }
 
         /* Get ACL if user is not admin */
@@ -571,7 +588,7 @@ class CentreonMetric extends CentreonWebService
         $stmt = $this->pearDBMonitoring->prepare($query);
         foreach ([$filterHostIds, $filterServiceIds, $filterMetricIds] as $filterParams) {
             foreach ($filterParams as $param => $value) {
-                $stmt->bindValue($param, $value, \PDO::PARAM_INT);
+                $stmt->bindValue($param, $value, PDO::PARAM_INT);
             }
         }
         $stmt->execute();
@@ -583,13 +600,12 @@ class CentreonMetric extends CentreonWebService
      * Get data for metrics (by services and/or metrics)
      *
      * @param string $services List of services (like hostId_serviceId,hostId2_serviceId2,...)
-     * @param string $metrics  List of metrics (like metricId,metricId2,...)
+     * @param string $metrics List of metrics (like metricId,metricId2,...)
      *
      * @return array
      *
-     * @throws Exception
+     * @throws PDOException
      * @throws RestBadRequestException
-     * @throws RestForbiddenException
      * @throws RestNotFoundException
      */
     protected function metricsData($services, $metrics)
@@ -642,11 +658,13 @@ class CentreonMetric extends CentreonWebService
     /**
      * Get the status for a service
      *
-     * @return mixed
+     * @return array
      *
+     * @throws PDOException
      * @throws RestBadRequestException
      * @throws RestForbiddenException
      * @throws RestNotFoundException
+     * @throws RuntimeException
      */
     public function getStatusByService()
     {
@@ -710,11 +728,11 @@ class CentreonMetric extends CentreonWebService
                     'AND group_id IN (' . $aclGroups . ')';
 
                 $stmt = $this->pearDBMonitoring->prepare($query);
-                $stmt->bindParam(':hostId', $hostId, \PDO::PARAM_INT);
-                $stmt->bindParam(':serviceId', $serviceId, \PDO::PARAM_INT);
+                $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
+                $stmt->bindParam(':serviceId', $serviceId, PDO::PARAM_INT);
                 $dbResult = $stmt->execute();
                 if (!$dbResult) {
-                    throw new \Exception("An error occured");
+                    throw new Exception("An error occured");
                 }
 
                 if ($stmt->rowCount() === 0) {
@@ -749,13 +767,13 @@ class CentreonMetric extends CentreonWebService
                     'AND :start < entry_time ' .
                     'AND :end > entry_time';
                 $stmt = $this->pearDBMonitoring->prepare($queryComment);
-                $stmt->bindParam(':hostId', $hostId, \PDO::PARAM_INT);
-                $stmt->bindParam(':serviceId', $serviceId, \PDO::PARAM_INT);
-                $stmt->bindParam(':start', $start, \PDO::PARAM_INT);
-                $stmt->bindParam(':end', $end, \PDO::PARAM_INT);
+                $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
+                $stmt->bindParam(':serviceId', $serviceId, PDO::PARAM_INT);
+                $stmt->bindParam(':start', $start, PDO::PARAM_INT);
+                $stmt->bindParam(':end', $end, PDO::PARAM_INT);
                 $dbResult = $stmt->execute();
                 if (!$dbResult) {
-                    throw new \Exception("An error occured");
+                    throw new Exception("An error occured");
                 }
 
                 while ($row = $stmt->fetch()) {
@@ -831,11 +849,11 @@ class CentreonMetric extends CentreonWebService
                 'AND group_id IN (' . $aclGroups . ')';
 
             $stmt = $this->pearDBMonitoring->prepare($query);
-            $stmt->bindParam(':hostId', $hostId, \PDO::PARAM_INT);
-            $stmt->bindParam(':serviceId', $serviceId, \PDO::PARAM_INT);
+            $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
+            $stmt->bindParam(':serviceId', $serviceId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
             if (!$dbResult) {
-                throw new \Exception("An error occured");
+                throw new Exception("An error occured");
             }
             if ($stmt->rowCount() === 0) {
                 throw new RestForbiddenException("Access denied");
@@ -939,11 +957,11 @@ class CentreonMetric extends CentreonWebService
                 'AND group_id IN (' . $aclGroups . ')';
 
             $stmt = $this->pearDBMonitoring->prepare($query);
-            $stmt->bindParam(':hostId', $hostId, \PDO::PARAM_INT);
-            $stmt->bindParam(':serviceId', $serviceId, \PDO::PARAM_INT);
+            $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
+            $stmt->bindParam(':serviceId', $serviceId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
             if (!$dbResult) {
-                throw new \Exception("An error occured");
+                throw new Exception("An error occured");
             }
             if ($stmt->rowCount() === 0) {
                 throw new RestForbiddenException("Access denied");
@@ -1023,10 +1041,9 @@ class CentreonMetric extends CentreonWebService
      *
      * @return array
      *
-     * @throws Exception
      * @throws RestBadRequestException
-     * @throws RestForbiddenException
      * @throws RestNotFoundException
+     * @throws RuntimeException
      */
     public function getMetricsDataByPoller()
     {
@@ -1078,7 +1095,7 @@ class CentreonMetric extends CentreonWebService
                 $this->pearDBMonitoring
             );
             $graphPollerObject->setPoller($id, $graphName);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new RestNotFoundException("Graph not found");
         }
 
@@ -1112,6 +1129,7 @@ class CentreonMetric extends CentreonWebService
      * @param int $end the end timestamp
      *
      * @return array The list of acknowledgements
+     * @throws PDOException
      */
     protected function getAcknowledgements(int $hostId, int $serviceId, int $start, int $end): array
     {
@@ -1121,10 +1139,10 @@ class CentreonMetric extends CentreonWebService
             'AND service_id = :serviceId ' .
             'AND (entry_time >= :start AND entry_time <= :end)';
         $stmt = $this->pearDBMonitoring->prepare($query);
-        $stmt->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
-        $stmt->bindValue(':serviceId', $serviceId, \PDO::PARAM_INT);
-        $stmt->bindValue(':start', $start, \PDO::PARAM_INT);
-        $stmt->bindValue(':end', $end, \PDO::PARAM_INT);
+        $stmt->bindValue(':hostId', $hostId, PDO::PARAM_INT);
+        $stmt->bindValue(':serviceId', $serviceId, PDO::PARAM_INT);
+        $stmt->bindValue(':start', $start, PDO::PARAM_INT);
+        $stmt->bindValue(':end', $end, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -1132,7 +1150,13 @@ class CentreonMetric extends CentreonWebService
     /**
      * Get the list of a acknowlegment for a service during a period
      *
+     * @param $hostId
+     * @param $serviceId
+     * @param $start
+     * @param $end
+     *
      * @return array The list of ack
+     * @throws Exception
      */
     protected function getAcknowlegePeriods($hostId, $serviceId, $start, $end)
     {
@@ -1165,6 +1189,7 @@ class CentreonMetric extends CentreonWebService
      * @param int $end the end timestamp
      *
      * @return array
+     * @throws Exception
      */
     protected function getDowntimePeriods($hostId, $serviceId, $start, $end): array
     {
@@ -1182,22 +1207,23 @@ class CentreonMetric extends CentreonWebService
 
     /**
      * @param string $query
-     * @param int    $start
-     * @param int    $end
-     * @param mixed  $queryValues
+     * @param int $start
+     * @param int $end
+     * @param mixed $queryValues
      *
      * @return array
+     * @throws PDOException
      */
     protected function executeQueryPeriods($query, $start, $end, $queryValues)
     {
         $periods = array();
         $stmt = $this->pearDBMonitoring->prepare($query);
         foreach ($queryValues as $key => $value) {
-            $stmt->bindValue(':' . $key, $value, \PDO::PARAM_INT);
+            $stmt->bindValue(':' . $key, $value, PDO::PARAM_INT);
         }
         $dbResult = $stmt->execute();
         if (!$dbResult) {
-            throw new \Exception("An error occured");
+            throw new Exception("An error occured");
         }
 
         while ($row = $stmt->fetch()) {
@@ -1229,9 +1255,9 @@ class CentreonMetric extends CentreonWebService
      *
      * @param string  $action     The action name
      * @param array   $user       The current user
-     * @param boolean $isInternal If the api is call in internal
+     * @param bool $isInternal If the api is call in internal
      *
-     * @return boolean If the user has access to the action
+     * @return bool If the user has access to the action
      */
     public function authorize($action, $user, $isInternal = false)
     {
