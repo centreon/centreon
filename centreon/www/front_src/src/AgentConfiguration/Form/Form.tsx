@@ -19,9 +19,7 @@ const defaultInitialValues: AgentConfigurationFormModel = {
   type: agentTypes.find(({ id }) => equals(id, AgentType.Telegraf)) || null,
   pollers: [],
   configuration: {
-    otelServerAddress: '',
-    otelServerPort: '',
-    confServerPort: '',
+    confServerPort: 1443,
     otelPrivateKey: '',
     otelCaCertificate: '',
     otelPublicCertificate: '',
