@@ -1,7 +1,7 @@
 Feature:
   In order to get information on the current user
   As a user
-  I want retrieve those information
+  I want to retrieve this information
 
   Background:
     Given a running instance of Centreon Web API
