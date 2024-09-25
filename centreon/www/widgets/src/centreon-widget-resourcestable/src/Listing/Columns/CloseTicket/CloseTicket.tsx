@@ -23,7 +23,9 @@ const CloseTicket = ({ row }: ComponentColumnProps): JSX.Element | null => {
     ]);
   };
 
-  const ticket = row?.extra?.open_tickets?.tickets;
+  const ticket =
+    row?.extra?.open_tickets?.tickets ||
+    row?.parent?.extra?.open_tickets?.tickets;
   const hasTicket = !!ticket?.id;
 
   if (!hasTicket) {
