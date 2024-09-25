@@ -1,0 +1,32 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Update an agent configuration (AC)",
+    "type": "object",
+    "required": [
+        "type",
+        "name",
+        "poller_ids",
+        "configuration"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "type": {
+            "type": "string",
+            "enum": [
+                "telegraf"
+            ]
+        },
+        "name": {
+            "type": "string"
+        },
+        "poller_ids": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            }
+        },
+        "configuration": {
+            "type": "object"
+        }
+    }
+}
