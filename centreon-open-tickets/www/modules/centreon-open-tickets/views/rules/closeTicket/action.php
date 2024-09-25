@@ -73,7 +73,7 @@ if ($data === null) {
 
 if (
     ! isset($data['rule_id'])
-    || ! is_int((int) $data['rule_id'])
+    || (int) $data['rule_id'] <= 0
 ) {
     $resultat = ['code' => 1, 'msg' => 'Rule ID should be provided as an integer'];
     header('Content-type: text/plain');
