@@ -26,6 +26,9 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
   const keyValidation = string()
     .matches(keyFilenameRegexp, t(labelInvalidFilename))
     .required(t(labelRequired));
+  const certificateNullableValidation = string()
+    .matches(certificateFilenameRegexp, t(labelInvalidFilename))
+    .nullable();
 
   return object<AgentConfigurationForm>({
     name: requiredString,
@@ -44,7 +47,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
         .max(65535, t(labelPortExpectedAtMost))
         .required(t(labelRequired)),
       otelPublicCertificate: certificateValidation,
-      otelCaCertificate: certificateValidation,
+      otelCaCertificate: certificateNullableValidation,
       otelPrivateKey: keyValidation,
       confCertificate: certificateValidation,
       confPrivateKey: keyValidation

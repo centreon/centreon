@@ -46,7 +46,7 @@ export const agentConfigurationDecoder = JsonDecoder.object<AgentConfiguration>(
     configuration: JsonDecoder.object<AgentConfigurationConfiguration>(
       {
         otelPrivateKey: JsonDecoder.string,
-        otelCaCertificate: JsonDecoder.string,
+        otelCaCertificate: JsonDecoder.nullable(JsonDecoder.string),
         otelPublicCertificate: JsonDecoder.string,
         confPrivateKey: JsonDecoder.string,
         confServerPort: JsonDecoder.number,
