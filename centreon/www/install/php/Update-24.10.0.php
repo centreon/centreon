@@ -94,6 +94,26 @@ $fixNamingAndActivateAccTopology = function (CentreonDB $pearDB) use (&$errorMes
     );
 };
 
+// Agent configurations
+$insertAgentConfigurations = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to retrieve from topology table';
+    $statement = $pearDB->executeQuery(
+        <<<'SQL'
+            SELECT 1 FROM `topology` WHERE `topology_name` = 'Agent configurations'
+            SQL
+    );
+
+    $errorMessage = 'Unable to insert data into table topology';
+    if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
+        $pearDB->executeQuery(
+            <<<'SQL'
+                INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_show`, `is_react`)
+                VALUES (92,'Agent configurations',609,60905,50,1,'/configuration/pollers/agent-configurations', '1', '1');
+                SQL
+        );
+    }
+};
+
 try {
     $addDisableServiceCheckColumn($pearDB);
 
@@ -105,6 +125,7 @@ try {
     $insertVaultConfiguration($pearDB);
     $insertWebPageWidget($pearDB);
     $fixNamingAndActivateAccTopology($pearDB);
+    $insertAgentConfigurations($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {
