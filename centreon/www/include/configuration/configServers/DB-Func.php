@@ -73,11 +73,14 @@ function getAvailableSuffixIds(
     $serverName = preg_quote($serverName);
 
     // Get list of suffix already used
-    $serverName = CentreonDB::escape($serverName);
-    $query = "SELECT CAST(SUBSTRING_INDEX(name,'_',-1) AS INT) AS suffix "
-        . "FROM nagios_server WHERE name REGEXP '^" . $serverName . $separator . "[0-9]+$' "
-        . "ORDER BY suffix";
-    $results = $pearDB->query($query);
+    $serverName = $pearDB->escapeString($serverName);
+    $separator = $pearDB->escapeString($separator);
+    $query = <<<SQL
+        SELECT CAST(SUBSTRING_INDEX(name, '_', -1) AS SIGNED) AS suffix
+        FROM nagios_server WHERE name REGEXP '^"{$serverName}{$separator}[0-9]+$'
+        ORDER BY suffix
+        SQL;
+    $results = $pearDB->executeQuery($query);
 
     $notAvailableSuffixes = [];
 
