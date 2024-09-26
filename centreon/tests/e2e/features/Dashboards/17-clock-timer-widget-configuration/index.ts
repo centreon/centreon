@@ -230,6 +230,8 @@ When(
   'the dashboard administrator user duplicates the Clock timer widget',
   () => {
     cy.editDashboard(dashboards.default.name);
+    cy.get('p[class$="timezone"]').should('be.visible')
+    cy.get('div[class$="clockLabel"] p').should('be.visible')
     cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click({ force: true });
   }

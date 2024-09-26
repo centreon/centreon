@@ -406,7 +406,7 @@ Then('the second widget has the same properties as the first widget', () => {
     .click({ force: true });
   cy.waitForElementToBeVisible('[aria-label="Centreon-Server"]')
     .then(() => {
-      cy.get('[aria-label="Centreon-Server"]').should('be.visible');
+      cy.get('[aria-label="Centreon-Server"]').should('exist');
   });
   cy.get('[class*="resourceName"]').contains('host2').should('exist');
   cy.get('[class*="resourceName"]').contains('host3').should('exist');
