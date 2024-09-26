@@ -21,27 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Infrastructure\API\FindVaultConfiguration;
+namespace Core\Security\Vault\Application\UseCase\FindVaultConfiguration;
 
-use Centreon\Application\Controller\AbstractController;
-use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\FindVaultConfiguration;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 
-final class FindVaultConfigurationController extends AbstractController
+interface FindVaultConfigurationPresenterInterface
 {
-    /**
-     * @param FindVaultConfiguration $useCase
-     * @param FindVaultConfigurationPresenter $presenter
-     *
-     * @return object
-     */
-    public function __invoke(
-        FindVaultConfiguration $useCase,
-        FindVaultConfigurationPresenter $presenter
-    ): object {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
-
-        $useCase($presenter);
-
-        return $presenter->show();
-    }
+    public function presentResponse(FindVaultConfigurationResponse|ResponseStatusInterface $response): void;
 }
