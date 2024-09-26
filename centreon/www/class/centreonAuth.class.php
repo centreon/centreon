@@ -34,6 +34,8 @@
  *
  */
 
+use Pimple\Container;
+
 require_once __DIR__ . '/centreonContact.class.php';
 require_once __DIR__ . '/centreonAuth.LDAP.class.php';
 
@@ -88,7 +90,7 @@ class CentreonAuth
 
     /** @var int */
     protected $debug;
-    /** @var */
+    /** @var Container */
     protected $dependencyInjector;
 
     // Flags
@@ -114,7 +116,7 @@ class CentreonAuth
     /**
      * CentreonAuth constructor
      *
-     * @param $dependencyInjector
+     * @param Container $dependencyInjector
      * @param string $username
      * @param string $password
      * @param int $autologin
@@ -284,7 +286,7 @@ class CentreonAuth
                 if (isset($this->ldap_store_password[$arId]) && $this->ldap_store_password[$arId]) {
                     if (!isset($this->userInfos["contact_passwd"])) {
                         $hashedPassword = password_hash($this->password, self::PASSWORD_HASH_ALGORITHM);
-                        $contact = new \CentreonContact($this->pearDB);
+                        $contact = new CentreonContact($this->pearDB);
                         $contactId = $contact->findContactIdByAlias($this->login);
                         if ($contactId !== null) {
                             $contact->addPasswordByContactId($contactId, $hashedPassword);
@@ -292,7 +294,7 @@ class CentreonAuth
                     // Update password if LDAP authentication is valid but password not up to date in Centreon.
                     } elseif (!password_verify($this->password, $this->userInfos["contact_passwd"])) {
                         $hashedPassword = password_hash($this->password, self::PASSWORD_HASH_ALGORITHM);
-                        $contact = new \CentreonContact($this->pearDB);
+                        $contact = new CentreonContact($this->pearDB);
                         $contactId = $contact->findContactIdByAlias($this->login);
                         if ($contactId !== null) {
                             $contact->replacePasswordByContactId(
@@ -351,9 +353,9 @@ class CentreonAuth
                 "UPDATE `contact_password` SET password = :newPassword
                 WHERE password = :oldPassword AND contact_id = :contactId"
             );
-            $statement->bindValue(':newPassword', $newPassword, \PDO::PARAM_STR);
-            $statement->bindValue(':oldPassword', $this->userInfos["contact_passwd"], \PDO::PARAM_STR);
-            $statement->bindValue(':contactId', $this->userInfos["contact_id"], \PDO::PARAM_INT);
+            $statement->bindValue(':newPassword', $newPassword, PDO::PARAM_STR);
+            $statement->bindValue(':oldPassword', $this->userInfos["contact_passwd"], PDO::PARAM_STR);
+            $statement->bindValue(':contactId', $this->userInfos["contact_id"], PDO::PARAM_INT);
             $statement->execute();
             $this->passwdOk = self::PASSWORD_VALID;
             return;
@@ -382,7 +384,7 @@ class CentreonAuth
                 AND `contact_activate` = '1' AND `contact_register` = '1'
                 ORDER BY contact_password.creation_date DESC LIMIT 1"
             );
-            $dbResult->bindValue(':contactAlias', $username, \PDO::PARAM_STR);
+            $dbResult->bindValue(':contactAlias', $username, PDO::PARAM_STR);
             $dbResult->execute();
         } else {
             $dbResult = $this->pearDB->query(
@@ -397,10 +399,10 @@ class CentreonAuth
                 $statement = $this->pearDB->prepare(
                     "SELECT topology_url_opt FROM topology WHERE topology_page = :topology_page"
                 );
-                $statement->bindValue(':topology_page', (int) $this->userInfos["default_page"], \PDO::PARAM_INT);
+                $statement->bindValue(':topology_page', (int) $this->userInfos["default_page"], PDO::PARAM_INT);
                 $statement->execute();
                 if ($statement->rowCount()) {
-                    $data = $statement->fetch(\PDO::FETCH_ASSOC);
+                    $data = $statement->fetch(PDO::FETCH_ASSOC);
                     $this->userInfos["default_page"] .= $data["topology_url_opt"];
                 }
             }
@@ -441,18 +443,18 @@ class CentreonAuth
                 "WHERE `contact_alias` = :contact_alias " .
                 "AND `contact_activate` = '1' AND `contact_register` = '1' LIMIT 1"
             );
-            $statement->bindValue(':contact_alias', $this->pearDB->escape($username, true), \PDO::PARAM_STR);
+            $statement->bindValue(':contact_alias', $this->pearDB->escape($username, true), PDO::PARAM_STR);
             $statement->execute();
             if ($statement->rowCount()) {
-                $this->userInfos = $statement->fetch(\PDO::FETCH_ASSOC);
+                $this->userInfos = $statement->fetch(PDO::FETCH_ASSOC);
                 if ($this->userInfos["default_page"]) {
                     $statement = $this->pearDB->prepare(
                         "SELECT topology_url_opt FROM topology WHERE topology_page = :topology_page"
                     );
-                    $statement->bindValue(':topology_page', (int) $this->userInfos["default_page"], \PDO::PARAM_INT);
+                    $statement->bindValue(':topology_page', (int) $this->userInfos["default_page"], PDO::PARAM_INT);
                     $statement->execute();
                     if ($statement->rowCount()) {
-                        $data = $statement->fetch(\PDO::FETCH_ASSOC);
+                        $data = $statement->fetch(PDO::FETCH_ASSOC);
                         $this->userInfos["default_page"] .= $data["topology_url_opt"];
                     }
                 }

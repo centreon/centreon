@@ -41,18 +41,10 @@
  */
 class CentreonMainCfg
 {
-    /** @var array */
-    private $aDefaultBrokerDirective;
-
-    /** @var array */
-    private $aInstanceDefaultValues;
-
-    /** @var CentreonDB */
-    private $DB;
 
     // List of broker options Centreon Engine
     // (https://documentation.centreon.com/docs/centreon-engine/en/latest/user/configuration/basics/main_configuration_file_options.html#event-broker-options)
-    const EVENT_BROKER_OPTIONS = [
+    public const EVENT_BROKER_OPTIONS = [
         -1 => 'All',
         0 => 'None',
         1 => 'Program state',
@@ -83,6 +75,15 @@ class CentreonMainCfg
         33554432 => 'Command data'
     ];
 
+    /** @var array */
+    private $aDefaultBrokerDirective;
+
+    /** @var array */
+    private $aInstanceDefaultValues;
+
+    /** @var CentreonDB */
+    private $DB;
+
     /** @var array<string,string> */
     private $loggerDefaultCfg = [
         'log_v2_logger' => 'file',
@@ -101,6 +102,9 @@ class CentreonMainCfg
         'log_level_runtime' => 'err',
     ];
 
+    /**
+     * CentreonMainCfg constructor
+     */
     public function __construct()
     {
         $this->DB = new CentreonDB();
@@ -108,11 +112,17 @@ class CentreonMainCfg
         $this->setEngineOptions();
     }
 
+    /**
+     * @return void
+     */
     private function setBrokerOptions(): void
     {
         $this->aDefaultBrokerDirective = ['ui' => '/usr/lib64/centreon-engine/externalcmd.so', 'wizard' => '/usr/lib64/nagios/cbmod.so /etc/centreon-broker/poller-module.json'];
     }
 
+    /**
+     * @return void
+     */
     private function setEngineOptions(): void
     {
         $this->aInstanceDefaultValues = [
