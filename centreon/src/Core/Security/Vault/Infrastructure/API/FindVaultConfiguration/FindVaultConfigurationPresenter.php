@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,21 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Security\Vault\Application\UseCase\FindVaultConfiguration;
+namespace Core\Security\Vault\Infrastructure\API\FindVaultConfiguration;
 
-use Core\Application\Common\UseCase\{AbstractPresenter, PresenterInterface, ResponseStatusInterface};
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\FindVaultConfigurationPresenterInterface;
 use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\FindVaultConfigurationResponse;
 
-class FindVaultConfigurationPresenterStub extends AbstractPresenter implements FindVaultConfigurationPresenterInterface
+final class FindVaultConfigurationPresenter extends AbstractPresenter implements FindVaultConfigurationPresenterInterface
 {
-    /**
-     * @var FindVaultConfigurationResponse|ResponseStatusInterface
-     */
-    public FindVaultConfigurationResponse|ResponseStatusInterface $data;
-
     public function presentResponse(FindVaultConfigurationResponse|ResponseStatusInterface $data): void
     {
-        $this->data = $data;
+        if ($data instanceof ResponseStatusInterface) {
+            $this->setResponseStatus($data);
+        } else {
+            $this->present([
+                'address' => $data->address,
+                'port' => $data->port,
+                'root_path' => $data->rootPath,
+            ]);
+        }
     }
 }

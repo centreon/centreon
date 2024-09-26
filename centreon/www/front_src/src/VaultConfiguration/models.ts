@@ -13,11 +13,7 @@ export interface PostVaultConfigurationAPI
   secret_id: string;
 }
 
-export interface GetVaultConfiguration
-  extends Pick<
-    PostVaultConfiguration,
-    'address' | 'port' | 'rootPath' | 'roleId'
-  > {
-  id: number;
-  vaultId: number;
-}
+export type GetVaultConfiguration = Pick<
+  PostVaultConfiguration,
+  'address' | 'port' | 'rootPath'
+>;
