@@ -35,23 +35,21 @@
  */
 
 /**
+ * Class
  *
- * Class that handles MySQL table partitions
- *
- * @author msugumaran
- *
+ * @class PartEngine
+ * @description Class that handles MySQL table partitions
  */
 class PartEngine
 {
     /**
+     * @param $db
+     * @param $tableName
+     * @param $table
      *
-     * Class constructor
+     * @return void
+     * @throws Exception
      */
-    public function __construct()
-    {
-        ;
-    }
-
     private function createMaxvaluePartition($db, $tableName, $table): void
     {
         if ($this->hasMaxValuePartition($db, $table) === false) {
@@ -59,7 +57,7 @@ class PartEngine
                 $dbResult = $db->query(
                     "ALTER TABLE " . $tableName . " ADD PARTITION (PARTITION `pmax` VALUES LESS THAN MAXVALUE)"
                 );
-            } catch (\PDOException $e) {
+            } catch (PDOException $e) {
                 throw new Exception(
                     "Error: cannot add a maxvalue partition for table "
                     . $tableName . ", " . $e->getMessage() . "\n"
@@ -68,6 +66,11 @@ class PartEngine
         }
     }
 
+    /**
+     * @param $table
+     *
+     * @return string
+     */
     private function purgeDailyPartitionCondition($table)
     {
         date_default_timezone_set($table->getTimezone());
@@ -80,6 +83,17 @@ class PartEngine
         return $condition;
     }
 
+    /**
+     * @param $db
+     * @param $tableName
+     * @param $month
+     * @param $day
+     * @param $year
+     * @param $hasMaxValuePartition
+     *
+     * @return false|int
+     * @throws Exception
+     */
     private function updateAddDailyPartitions($db, $tableName, $month, $day, $year, $hasMaxValuePartition = false)
     {
         $current_time = mktime(0, 0, 0, $month, $day, $year);
@@ -110,7 +124,7 @@ class PartEngine
 
         try {
             $dbResult = $db->query($request);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new Exception("Error: cannot add a new partition 'p" . ($ntime[5] + 1900) . $month . $day
                 . "' for table " . $tableName . ", " . $e->getMessage() . "\n");
         }
@@ -118,6 +132,15 @@ class PartEngine
         return $current_time;
     }
 
+    /**
+     * @param $db
+     * @param $tableName
+     * @param $table
+     * @param $lastTime
+     *
+     * @return void
+     * @throws Exception
+     */
     private function updateDailyPartitions($db, $tableName, $table, $lastTime): void
     {
         $hasMaxValuePartition = $this->hasMaxValuePartition($db, $table);
@@ -233,6 +256,8 @@ class PartEngine
      * @param MysqlTable $table The table to partition
      * @param CentreonDB $db The database connection
      * @param bool $createPastPartitions If the past partitions need to be created
+     *
+     * @throws Exception
      */
     public function createParts($table, $db, $createPastPartitions): void
     {
@@ -254,7 +279,7 @@ class PartEngine
 
         try {
             $dbResult = $db->query("use `" . $table->getSchema() . "`");
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new Exception(
                 "SQL Error: Cannot use database "
                 . $table->getSchema() . "," . $e->getMessage() . "\n"
@@ -263,7 +288,7 @@ class PartEngine
 
         try {
             $dbResult = $db->query($table->getCreateStmt() . $partition_part);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new Exception(
                 "Error : Cannot create table " . $tableName . " with partitions, "
                 . $e->getMessage() . "\n"
@@ -276,6 +301,12 @@ class PartEngine
 
     /**
      * Get last part range max value
+     *
+     * @param $table
+     * @param $db
+     *
+     * @return int|string
+     * @throws Exception
      */
     private function getLastPartRange($table, $db)
     {
@@ -284,7 +315,7 @@ class PartEngine
             $dbResult = $db->query(
                 'SHOW CREATE TABLE `' . $table->getSchema() . '`.`' . $table->getName() . '`'
             );
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             $error = true;
         }
         if ($error || !$dbResult->rowCount()) {
@@ -313,6 +344,10 @@ class PartEngine
      * Drop partitions that are older than the retention duration
      *
      * @param MysqlTable $table
+     * @param $db
+     *
+     * @return true|void
+     * @throws Exception
      */
     public function purgeParts($table, $db)
     {
@@ -338,7 +373,7 @@ class PartEngine
 
         try {
             $dbResult = $db->query($request);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new Exception("Error : Cannot get partitions to purge for table "
                 . $tableName . ", " . $e->getMessage() . "\n");
         }
@@ -347,7 +382,7 @@ class PartEngine
             $request = "ALTER TABLE " . $tableName . " DROP PARTITION `" . $row["PARTITION_NAME"] . "`;";
             try {
                 $dbResult2 =& $db->query($request);
-            } catch (\PDOException $e) {
+            } catch (PDOException $e) {
                 throw new Exception("Error : Cannot drop partition " . $row["PARTITION_NAME"] . " of table "
                     . $tableName . ", " . $e->getMessage() . "\n");
             }
@@ -361,6 +396,12 @@ class PartEngine
      * Create new table with partitions and initial name
      * Load data into new table
      * Delete old table
+     *
+     * @param $table
+     * @param $db
+     *
+     * @return void
+     * @throws Exception
      */
     public function migrate($table, $db): void
     {
@@ -378,7 +419,7 @@ class PartEngine
         echo "[" . date(DATE_RFC822) . "][migrate] Renaming table " . $tableName . " TO " . $tableName . "_old\n";
         try {
             $dbResult = $db->query("RENAME TABLE " . $tableName . " TO " . $tableName . "_old");
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new Exception(
                 "Error: Cannot rename table " . $tableName
                 . " to " . $tableName . "_old, "
@@ -398,7 +439,7 @@ class PartEngine
         $request = "INSERT INTO " . $tableName . " SELECT * FROM " . $tableName . "_old";
         try {
             $dbResult = $db->query($request);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new Exception(
                 "Error: Cannot copy " . $tableName . "_old data to new table "
                 . $e->getMessage() . "\n"
@@ -408,6 +449,12 @@ class PartEngine
 
     /**
      * Update a partitionned table to add new partitions
+     *
+     * @param $table
+     * @param $db
+     *
+     * @return void
+     * @throws Exception
      */
     public function updateParts($table, $db): void
     {
@@ -431,6 +478,11 @@ class PartEngine
      * list all partitions for a table
      *
      * @param MysqlTable $table
+     * @param $db
+     * @param bool $throwException
+     *
+     * @return array
+     * @throws Exception
      */
     public function listParts($table, $db, $throwException = true)
     {
@@ -452,7 +504,7 @@ class PartEngine
         $request .= "ORDER BY PARTITION_NAME DESC ";
         try {
             $dbResult = $db->query($request);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new Exception(
                 "Error : Cannot get table schema information  for "
                 . $tableName . ", " . $e->getMessage() . "\n"
@@ -480,6 +532,9 @@ class PartEngine
      * Backup Partition
      *
      * @param MysqlTable $table
+     * @param $db
+     *
+     * @throws Exception
      */
     public function backupParts($table, $db): void
     {
@@ -500,7 +555,7 @@ class PartEngine
         $request .= "LIMIT 2";
         try {
             $dbResult = $db->query($request);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new Exception(
                 "Error : Cannot get table schema information  for "
                 . $tableName . ", " . $e->getMessage() . "\n"
@@ -533,7 +588,7 @@ class PartEngine
 
         try {
             $dbResult = $db->query($request);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new Exception(
                 "FATAL : Cannot dump table " . $tableName
                 . " into file " . $filename . ", "
@@ -546,9 +601,10 @@ class PartEngine
      *
      * Check if MySQL/MariaDB version is compatible with partitionning.
      *
-     * @param $db The Db singleton
+     * @param CentreonDB $db The Db singleton
      *
-     * @return boolean
+     * @return bool
+     * @throws PDOException
      */
     public function isCompatible($db)
     {
@@ -595,8 +651,13 @@ class PartEngine
     }
 
     /**
-     *
      * Check if a table is partitioned.
+     *
+     * @param $table
+     * @param $db
+     *
+     * @return bool
+     * @throws Exception
      */
     public function isPartitioned($table, $db): bool
     {
@@ -604,7 +665,7 @@ class PartEngine
             $dbResult = $db->query(
                 'SHOW CREATE TABLE `' . $table->getSchema() . '`.`' . $table->getName() . '`'
             );
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new Exception('Cannot get partition information');
         }
 
@@ -620,13 +681,19 @@ class PartEngine
     /**
      *
      * Check if a table has max value partition.
+     *
+     * @param $db
+     * @param $table
+     *
+     * @return bool
+     * @throws Exception
      */
     private function hasMaxValuePartition($db, $table): bool
     {
         # Check if we need to create it
         try {
             $dbResult = $db->query('SHOW CREATE TABLE `' . $table->getSchema() . '`.`' . $table->getName() . '`');
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new Exception(
                 "Error : Cannot get partition maxvalue information for table "
                 . $table->getName() . ", " . $e->getMessage() . "\n"

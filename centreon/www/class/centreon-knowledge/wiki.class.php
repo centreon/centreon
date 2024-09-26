@@ -42,14 +42,29 @@ use App\Kernel;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Centreon\Domain\Log\Logger;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
+/**
+ * Class
+ *
+ * @class Wiki
+ */
 class Wiki
 {
+    /** @var CentreonDB */
     private $db;
+    /** @var array */
     private $config = null;
 
     /**
-     * WikiApi constructor.
+     * Wiki constructor
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws Throwable
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function __construct()
     {
@@ -57,6 +72,14 @@ class Wiki
         $this->config = $this->getWikiConfig();
     }
 
+    /**
+     * @return array|mixed
+     * @throws LogicException
+     * @throws PDOException
+     * @throws Throwable
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
     public function getWikiConfig()
     {
         if (!is_null($this->config)) {
@@ -74,7 +97,7 @@ class Wiki
         $res->closeCursor();
 
         if (!isset($options['kb_wiki_url']) || $options['kb_wiki_url'] == '') {
-            throw new \Exception(
+            throw new Exception(
                 'Wiki is not configured. ' .
                 'You can disable cron in /etc/cron.d/centreon for wiki synchronization.'
             );

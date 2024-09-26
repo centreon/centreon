@@ -34,19 +34,21 @@
  *
  */
 
-
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationTrap
+ */
 class CentreonConfigurationTrap extends CentreonConfigurationObjects
 {
-    /**
-     * @var CentreonDB
-     */
+    /**@var CentreonDB */
     protected $pearDBMonitoring;
 
     /**
-     * CentreonConfigurationTrap constructor.
+     * CentreonConfigurationTrap constructor
      */
     public function __construct()
     {
@@ -56,6 +58,7 @@ class CentreonConfigurationTrap extends CentreonConfigurationObjects
 
     /**
      * @return array
+     * @throws PDOException
      * @throws RestBadRequestException
      */
     public function getList()
@@ -97,6 +100,11 @@ class CentreonConfigurationTrap extends CentreonConfigurationObjects
         return ['items' => $trapList, 'total' => (int) $this->pearDB->numberRows()];
     }
 
+    /**
+     * @return array
+     * @throws PDOException
+     * @throws RestBadRequestException
+     */
     public function getDefaultValues()
     {
         $finalDatas = parent::getDefaultValues();

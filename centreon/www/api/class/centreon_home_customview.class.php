@@ -36,10 +36,15 @@
 require_once __DIR__ . "/webService.class.php";
 require_once _CENTREON_PATH_ . 'www/class/centreonCustomView.class.php';
 
+/**
+ * Class
+ *
+ * @class CentreonHomeCustomview
+ */
 class CentreonHomeCustomview extends CentreonWebService
 {
     /**
-     * CentreonHomeCustomview constructor.
+     * CentreonHomeCustomview constructor
      */
     public function __construct()
     {
@@ -48,6 +53,7 @@ class CentreonHomeCustomview extends CentreonWebService
 
     /**
      * @return array
+     * @throws PDOException
      */
     public function getListSharedViews()
     {
@@ -96,7 +102,7 @@ class CentreonHomeCustomview extends CentreonWebService
         // Check for select2 'q' argument
         if (isset($this->arguments['q'])) {
             if (!is_numeric($this->arguments['q'])) {
-                throw new \RestBadRequestException('Error, custom view id must be numerical');
+                throw new RestBadRequestException('Error, custom view id must be numerical');
             }
             $customViewId = $this->arguments['q'];
         } else {
@@ -118,7 +124,7 @@ class CentreonHomeCustomview extends CentreonWebService
         // Check for select2 'q' argument
         if (isset($this->arguments['q'])) {
             if (!is_numeric($this->arguments['q'])) {
-                throw new \RestBadRequestException('Error, custom view id must be numerical');
+                throw new RestBadRequestException('Error, custom view id must be numerical');
             }
             $customViewId = $this->arguments['q'];
         } else {
@@ -135,6 +141,7 @@ class CentreonHomeCustomview extends CentreonWebService
      * Get the list of views
      *
      * @return array
+     * @throws Exception
      */
     public function getListViews()
     {
@@ -151,7 +158,7 @@ class CentreonHomeCustomview extends CentreonWebService
 
     /**
      * Get the list of preferences
-     * @return array
+     * @return false|string
      * @throws Exception
      */
     public function getPreferences()
@@ -160,7 +167,7 @@ class CentreonHomeCustomview extends CentreonWebService
             filter_var(($widgetId = $this->arguments['widgetId'] ?? false), FILTER_VALIDATE_INT) === false
             || filter_var(($viewId = $this->arguments['viewId'] ?? false), FILTER_VALIDATE_INT) === false
         ) {
-            throw new \InvalidArgumentException('Bad argument format');
+            throw new InvalidArgumentException('Bad argument format');
         }
 
         require_once _CENTREON_PATH_ . "www/class/centreonWidget.class.php";
@@ -200,7 +207,7 @@ class CentreonHomeCustomview extends CentreonWebService
          * Smarty template Init
          */
         $libDir = __DIR__ . "/../../../GPL_LIB";
-        $tpl = new \SmartyBC();
+        $tpl = new SmartyBC();
         $tpl->setTemplateDir(_CENTREON_PATH_ . '/www/include/home/customViews/');
         $tpl->setCompileDir($libDir . '/SmartyCache/compile');
         $tpl->setConfigDir($libDir . '/SmartyCache/config');
@@ -307,14 +314,14 @@ class CentreonHomeCustomview extends CentreonWebService
      * Get preferences by widget id
      *
      * @return array The widget preferences
-     * @throws \Exception When missing argument
+     * @throws Exception When missing argument
      */
     public function getPreferencesByWidgetId()
     {
         global $centreon;
 
         if (!isset($this->arguments['widgetId'])) {
-            throw new \Exception('Missing argument : widgetId');
+            throw new Exception('Missing argument : widgetId');
         }
         $widgetId = $this->arguments['widgetId'];
         $widgetObj = new CentreonWidget($centreon, $this->pearDB);
@@ -326,9 +333,9 @@ class CentreonHomeCustomview extends CentreonWebService
      * Authorize to access to the action
      *
      * @param string $action The action name
-     * @param array $user The current user
-     * @param boolean $isInternal If the api is call in internal
-     * @return boolean If the user has access to the action
+     * @param CentreonUser $user The current user
+     * @param bool $isInternal If the api is call in internal
+     * @return bool If the user has access to the action
      */
     public function authorize($action, $user, $isInternal = false)
     {

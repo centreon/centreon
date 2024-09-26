@@ -46,25 +46,23 @@ require_once __DIR__ . "/centreon_configuration_objects.class.php";
  */
 class CentreonPerformanceService extends CentreonConfigurationObjects
 {
-    /** @var */
+    /** @var array */
     public $arguments;
-    /**
-     * @var CentreonDB
-     */
+    /** @var CentreonDB */
     protected $pearDBMonitoring;
 
     /**
-     * CentreonPerformanceService constructor.
+     * CentreonPerformanceService constructor
      */
     public function __construct()
     {
-        global $pearDBO;
         parent::__construct();
         $this->pearDBMonitoring = new CentreonDB('centstorage');
     }
 
     /**
      * @return array
+     * @throws PDOException
      * @throws RestBadRequestException
      */
     public function getList()
@@ -230,7 +228,7 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
      * @param $additionalTables
      * @param $additionalCondition
      * @param $additionalValues
-     * @param null $aclObj
+     * @param CentreonACL|null $aclObj
      * @return array
      * @throws RestBadRequestException
      */
@@ -254,7 +252,7 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
         /* First, get virtual services for metaservices */
         $metaServiceCondition = '';
         $metaValues = $additionalValues;
-        if (isset($aclObj) && !is_null($aclObj)) {
+        if (isset($aclObj)) {
             $metaServices = $aclObj->getMetaServices();
             $virtualServices = [];
             foreach ($metaServices as $metaServiceId => $metaServiceName) {

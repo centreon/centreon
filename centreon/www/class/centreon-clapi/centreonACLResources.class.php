@@ -35,6 +35,10 @@
 
 namespace CentreonClapi;
 
+use CentreonDB;
+use PDOException;
+use Pimple\Container;
+
 /**
  * Class
  *
@@ -43,7 +47,7 @@ namespace CentreonClapi;
  */
 class CentreonACLResources
 {
-    /** @var mixed */
+    /** @var CentreonDB */
     public $_DB;
     /** @var */
     private $DB; // FIXME not used ?
@@ -51,17 +55,18 @@ class CentreonACLResources
     /**
      * CentreonACLResources constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         $this->_DB = $dependencyInjector['configuration_db'];
     }
 
     /**
-     * @param $name
+     * @param string $name
      *
      * @return int
+     * @throws PDOException
      */
     public function getACLResourceID($name)
     {
@@ -81,6 +86,7 @@ class CentreonACLResources
      * @param $aclid
      *
      * @return int
+     * @throws PDOException
      */
     public function addContact($contact_id, $aclid)
     {
@@ -100,6 +106,7 @@ class CentreonACLResources
      * @param $aclid
      *
      * @return int
+     * @throws PDOException
      */
     public function delContact($contact_id, $aclid)
     {
@@ -111,6 +118,7 @@ class CentreonACLResources
 
     /**
      * @return int
+     * @throws PDOException
      */
     public function updateACL()
     {

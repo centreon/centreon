@@ -35,44 +35,62 @@
 
 namespace CentreonClapi;
 
+/**
+ * Class
+ *
+ * @class CentreonExported
+ * @package CentreonClapi
+ */
 class CentreonExported
 {
+    /** @var array */
     private $exported = [];
+    /** @var array */
     private $ariane = [];
+    /** @var int */
     private $filter = 0;
+    /** @var array|null */
     private $filter_type = null;
+    /** @var array|null */
     private $filter_ariane = null;
-
-    /**
-     * @var Singleton
-     * @access private
-     * @static
-     */
+    /** @var CentreonExported|null */
     private static $instance = null;
 
-    /**    *
-     * @param void
+    /**
+     * @param $object
+     * @param $id
+     * @param $name
+     *
      * @return void
      */
-    private function __construct()
-    {
-    }
-
     public function arianePush($object, $id, $name): void
     {
         array_push($this->ariane, $object . ':' . $name . ':' . $id);
     }
 
+    /**
+     * @return void
+     */
     public function arianePop(): void
     {
         array_pop($this->ariane);
     }
 
+    /**
+     * @param $value
+     *
+     * @return void
+     */
     public function setFilter($value = 1): void
     {
         $this->filter = $value;
     }
 
+    /**
+     * @param $options
+     *
+     * @return void
+     */
     public function setOptions($options): void
     {
         if (isset($options['filter-type'])) {
@@ -90,12 +108,25 @@ class CentreonExported
         }
     }
 
+    /**
+     * @param string $object
+     * @param int $id
+     *
+     * @return void
+     */
     public function setExported(string $object, int $id): void
     {
         $this->exported[$object][$id] = 1;
     }
 
 
+    /**
+     * @param $object
+     * @param $id
+     * @param $name
+     *
+     * @return int
+     */
     private function checkAriane($object, $id, $name)
     {
         if (!is_null($this->filter_ariane)) {
@@ -111,6 +142,13 @@ class CentreonExported
         return 0;
     }
 
+    /**
+     * @param $object
+     * @param $id
+     * @param $name
+     *
+     * @return int
+     */
     private function checkFilter($object, $id, $name)
     {
         if (!is_null($this->filter_type)) {
@@ -125,6 +163,13 @@ class CentreonExported
         return 0;
     }
 
+    /**
+     * @param $object
+     * @param $id
+     * @param $name
+     *
+     * @return int
+     */
     public function isExported($object, $id, $name)
     {
         if ($this->filter == 0) {
@@ -151,8 +196,6 @@ class CentreonExported
     }
 
     /**
-     *
-     * @param void
      * @return CentreonExported
      */
     public static function getInstance()

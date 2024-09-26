@@ -45,10 +45,9 @@ require_once _CENTREON_PATH_ . '/www/class/centreon-knowledge/wikiApi.class.php'
  */
 class ProceduresProxy
 {
-
     /** @var procedures */
     public $proc;
-    /** @var */
+    /** @var CentreonDB */
     private $DB;
     /** @var mixed */
     private $wikiUrl;
@@ -60,7 +59,7 @@ class ProceduresProxy
     /**
      * ProceduresProxy constructor
      *
-     * @param $pearDB
+     * @param CentreonDB $pearDB
      *
      * @throws PDOException
      */
@@ -77,7 +76,9 @@ class ProceduresProxy
 
     /**
      * @param string $hostName
+     *
      * @return int
+     * @throws PDOException
      */
     private function getHostId($hostName)
     {
@@ -96,7 +97,9 @@ class ProceduresProxy
      *
      * @param string $hostName
      * @param string $serviceDescription
+     *
      * @return int|null
+     * @throws PDOException
      */
     private function getServiceId($hostName, $serviceDescription): ?int
     {
@@ -144,7 +147,9 @@ class ProceduresProxy
      * Get service notes url
      *
      * @param int $serviceId
+     *
      * @return string|null
+     * @throws PDOException
      */
     private function getServiceNotesUrl(int $serviceId): ?string
     {
@@ -170,7 +175,9 @@ class ProceduresProxy
      * Get host url
      *
      * @param string $hostName
+     *
      * @return string|null
+     * @throws PDOException
      */
     public function getHostUrl($hostName): ?string
     {
@@ -213,7 +220,9 @@ class ProceduresProxy
      *
      * @param string $hostName
      * @param string $serviceDescription
+     *
      * @return string|null
+     * @throws PDOException
      */
     public function getServiceUrl($hostName, $serviceDescription): ?string
     {

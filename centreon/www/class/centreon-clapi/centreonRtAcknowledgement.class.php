@@ -67,9 +67,9 @@ class CentreonRtAcknowledgement extends CentreonObject
     /** @var array */
     protected $acknowledgementType = ['HOST', 'SVC'];
 
-    /** @var */
+    /** @var array */
     protected $aHosts;
-    /** @var */
+    /** @var array */
     protected $aServices;
     /** @var CentreonHost */
     protected $hostObject;
@@ -85,7 +85,7 @@ class CentreonRtAcknowledgement extends CentreonObject
     protected $rtValidator;
 
     /**
-     * CentreonRtAcknowledgement constructor.
+     * CentreonRtAcknowledgement constructor
      *
      * @param Container $dependencyInjector
      *
@@ -371,7 +371,9 @@ class CentreonRtAcknowledgement extends CentreonObject
      * @param $sticky
      * @param $notify
      * @param $persistent
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     private function addHostAcknowledgement(
         $resource,
@@ -412,7 +414,9 @@ class CentreonRtAcknowledgement extends CentreonObject
      * @param $sticky
      * @param $notify
      * @param $persistent
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     private function addSvcAcknowledgement(
         $resource,
@@ -459,8 +463,10 @@ class CentreonRtAcknowledgement extends CentreonObject
 
 
     /**
-     * @param null $parameters
+     * @param mixed $parameters
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function cancel($parameters = null): void
     {

@@ -168,6 +168,7 @@ abstract class AbstractObject
      * 1 = vertical, 2 = close, 3 = cumulative
      *
      * @return int
+     * @throws PDOException
      */
     public function getInheritanceMode() : int
     {
@@ -211,6 +212,8 @@ abstract class AbstractObject
      * write header if file is created
      *
      * @param string $filePath
+     *
+     * @throws Exception
      */
     protected function openFileForUpdate(string $filePath): void
     {

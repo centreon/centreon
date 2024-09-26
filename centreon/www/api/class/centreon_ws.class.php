@@ -36,8 +36,16 @@
 
 require_once __DIR__ . "/webService.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonWs
+ */
 class CentreonWs extends CentreonWebService
 {
+    /**
+     * CentreonWs constructor
+     */
     public function __construct()
     {
         parent::__construct();
@@ -45,6 +53,8 @@ class CentreonWs extends CentreonWebService
 
     /**
      * Keep alive function
+     *
+     * @return void
      */
     public function getKeepAlive(): void
     {

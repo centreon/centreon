@@ -125,11 +125,11 @@ class CentreonHost extends CentreonObject
      */
     public static $aAuthorizedNotificationsOptions = ['d' => 'Down', 'u' => 'Unreachable', 'r' => 'Recovery', 'f' => 'Flapping', 's' => 'Downtime Scheduled', 'n' => 'None'];
 
-    /** @var */
+    /** @var array */
     protected $templateIds;
-    /** @var */
+    /** @var array */
     protected $hostgroupIds;
-    /** @var */
+    /** @var mixed */
     protected $instanceId;
 
 
@@ -399,10 +399,11 @@ class CentreonHost extends CentreonObject
     }
 
     /**
-     * @param $parameters
+     * @param array $parameters
      *
      * @return void
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function setParam($parameters = []): void
     {
@@ -849,8 +850,10 @@ class CentreonHost extends CentreonObject
      * Get macro list of a host
      *
      * @param string $hostName
+     *
      * @return void
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function getmacro($hostName): void
     {
@@ -1539,9 +1542,10 @@ class CentreonHost extends CentreonObject
      * @param $host_id
      * @param $macroInput
      * @param $macroValue
-     * @param $cmdId
+     * @param bool $cmdId
      *
      * @return bool
+     * @throws PDOException
      */
     public function hasMacroFromHostChanged($host_id, &$macroInput, &$macroValue, $cmdId = false)
     {

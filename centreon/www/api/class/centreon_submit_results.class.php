@@ -37,7 +37,10 @@ require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/webService.class.php";
 
 /**
- * Class for provide the webservice for submit a status for a service or host
+ * Class
+ *
+ * @class CentreonSubmitResults
+ * @description Class for provide the webservice for submit a status for a service or host
  */
 class CentreonSubmitResults extends CentreonWebService
 {
@@ -46,7 +49,7 @@ class CentreonSubmitResults extends CentreonWebService
      */
     protected $centcoreFile;
     /**
-     * @var boolean If the file pipe is open
+     * @var bool If the file pipe is open
      */
     protected $pipeOpened = false;
     /**
@@ -79,7 +82,7 @@ class CentreonSubmitResults extends CentreonWebService
     protected $perfDataRegex = "/(('([^'=]+)'|([^'= ]+))=[0-9\.-]+[a-zA-Z%\/]*(;[0-9\.-]*){0,4}[ ]?)+/";
 
     /**
-     * Constructor
+     * CentreonSubmitResults constructor
      */
     public function __construct()
     {
@@ -95,6 +98,9 @@ class CentreonSubmitResults extends CentreonWebService
 
     /**
      * Load the cache for pollers/hosts
+     *
+     * @return void
+     * @throws PDOException
      */
     private function getPollers(): void
     {
@@ -116,6 +122,9 @@ class CentreonSubmitResults extends CentreonWebService
 
     /**
      * Load the cache for hosts/services
+     *
+     * @return void
+     * @throws PDOException
      */
     private function getHostServiceInfo(): void
     {
@@ -139,6 +148,9 @@ class CentreonSubmitResults extends CentreonWebService
 
     /**
      * Open the centcore pipe file
+     *
+     * @return void
+     * @throws RestBadRequestException
      */
     private function openPipe(): void
     {
@@ -151,6 +163,8 @@ class CentreonSubmitResults extends CentreonWebService
 
     /**
      * Close the centcore pipe file
+     *
+     * @return void
      */
     private function closePipe(): void
     {
@@ -160,6 +174,10 @@ class CentreonSubmitResults extends CentreonWebService
 
     /**
      * Write into the centcore pipe filr
+     *
+     * @param $string
+     *
+     * @return bool
      */
     private function writeInPipe($string)
     {
@@ -175,6 +193,11 @@ class CentreonSubmitResults extends CentreonWebService
 
     /**
      * Send the data to CentCore
+     *
+     * @param array $data
+     *
+     * @return bool
+     * @throws RestBadRequestException
      */
     private function sendResults($data)
     {
@@ -200,6 +223,11 @@ class CentreonSubmitResults extends CentreonWebService
 
     /**
      * Entry point for submit a passive check result
+     *
+     * @return array[]
+     * @throws PDOException
+     * @throws RestBadRequestException
+     * @throws RestPartialContent
      */
     public function postSubmit()
     {
@@ -270,8 +298,11 @@ class CentreonSubmitResults extends CentreonWebService
                         if (!$this->sendResults($data)) {
                             throw new RestInternalServerErrorException('Error during send command to CentCore.');
                         }
-                        $results[] = ['code' => 202, 'message' => 'The status send to the engine'];
-                    } catch (\Exception $error) {
+                        $results[] = [
+                            'code' => 202,
+                            'message' => 'The status send to the engine'
+                        ];
+                    } catch (Exception $error) {
                         $hasError = true;
                         $results[] = ['code' => $error->getCode(), 'message' => $error->getMessage()];
                     }
@@ -291,9 +322,9 @@ class CentreonSubmitResults extends CentreonWebService
      * Authorize to access to the action
      *
      * @param string $action The action name
-     * @param \CentreonUser $user The current user
-     * @param boolean $isInternal If the api is call in internal
-     * @return boolean If the user has access to the action
+     * @param CentreonUser $user The current user
+     * @param bool $isInternal If the api is call in internal
+     * @return bool If the user has access to the action
      */
     public function authorize($action, $user, $isInternal = false)
     {

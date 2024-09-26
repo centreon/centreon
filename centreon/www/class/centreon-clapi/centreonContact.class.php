@@ -88,7 +88,6 @@ class CentreonContact extends CentreonObject
     public static $aDepends = ['CONTACTTPL', 'CMD', 'TP'];
 
     /**
-     *
      * @var array
      * Contains : list of authorized notifications_options for each objects
      */

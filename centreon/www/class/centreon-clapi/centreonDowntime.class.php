@@ -99,7 +99,9 @@ class CentreonDowntime extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function show($parameters = null, $filters = []): void
     {
@@ -219,8 +221,10 @@ class CentreonDowntime extends CentreonObject
     /**
      * List periods
      *
-     * @param  string $parameters | downtime name
+     * @param string $parameters | downtime name
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function listperiods($parameters): void
     {
@@ -244,8 +248,10 @@ class CentreonDowntime extends CentreonObject
     /**
      * Add weekly period
      *
-     * @param  string $parameters | downtime_name;start;end;fixed;duration;monday...sunday
+     * @param string $parameters | downtime_name;start;end;fixed;duration;monday...sunday
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function addweeklyperiod($parameters): void
     {
@@ -282,7 +288,9 @@ class CentreonDowntime extends CentreonObject
 
     /**
      * @param $parameters
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function addmonthlyperiod($parameters): void
     {
@@ -312,8 +320,10 @@ class CentreonDowntime extends CentreonObject
     /**
      * Add specific period
      *
-     * @param  string $parameters | downtime_name;start;end;fixed;duration;monday...sunday;first,last
+     * @param string $parameters | downtime_name;start;end;fixed;duration;monday...sunday;first,last
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function addspecificperiod($parameters): void
     {
@@ -545,6 +555,7 @@ class CentreonDowntime extends CentreonObject
      * @param string $parameters | downtime name; host names separated by "|" character
      *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function addhost($parameters): void
     {
@@ -578,6 +589,7 @@ class CentreonDowntime extends CentreonObject
      * @param string $parameters | downtime name; host names separated by "|" character
      *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function delhost($parameters): void
     {
@@ -591,6 +603,7 @@ class CentreonDowntime extends CentreonObject
      * @param string $parameters | downtime name; host group names separated by "|" character
      *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function addhostgroup($parameters): void
     {
@@ -624,6 +637,7 @@ class CentreonDowntime extends CentreonObject
      * @param string $parameters | downtime name; host group names separated by "|" character
      *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function delhostgroup($parameters): void
     {
@@ -790,6 +804,7 @@ class CentreonDowntime extends CentreonObject
      * @param string $parameters | downtime name; service group names separated by "|" character
      *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function addservicegroup($parameters): void
     {
@@ -823,6 +838,7 @@ class CentreonDowntime extends CentreonObject
      * @param string $parameters | downtime name; service group names separated by "|" character
      *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function delservicegroup($parameters): void
     {
@@ -833,9 +849,10 @@ class CentreonDowntime extends CentreonObject
     /**
      * Export
      *
-     * @param $filterName
+     * @param null $filterName
      *
      * @return false|void
+     * @throws PDOException
      */
     public function export($filterName = null)
     {
@@ -903,6 +920,7 @@ class CentreonDowntime extends CentreonObject
 
     /**
      * @return void
+     * @throws PDOException
      */
     protected function exportHostRel()
     {
@@ -915,6 +933,7 @@ class CentreonDowntime extends CentreonObject
 
     /**
      * @return void
+     * @throws PDOException
      */
     protected function exportHostgroupRel()
     {
@@ -927,6 +946,7 @@ class CentreonDowntime extends CentreonObject
 
     /**
      * @return void
+     * @throws PDOException
      */
     protected function exportServiceRel()
     {
@@ -940,6 +960,7 @@ class CentreonDowntime extends CentreonObject
 
     /**
      * @return void
+     * @throws PDOException
      */
     protected function exportServicegroupRel()
     {

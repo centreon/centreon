@@ -36,6 +36,7 @@
 namespace CentreonClapi;
 
 use Centreon_Object_Manufacturer;
+use Exception;
 use PDOException;
 use Pimple\Container;
 
@@ -93,6 +94,8 @@ class CentreonManufacturer extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws Exception
      */
     public function show($parameters = null, $filters = []): void
     {

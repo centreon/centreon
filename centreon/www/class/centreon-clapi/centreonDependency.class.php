@@ -134,9 +134,11 @@ class CentreonDependency extends CentreonObject
     /**
      * Add action
      *
-     * @param string $parameters
+     * @param null $parameters
+     *
      * @return void
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function add($parameters = null): void
     {

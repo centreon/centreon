@@ -36,14 +36,19 @@
 
 require_once __DIR__ . '/centreon_configuration_objects.class.php';
 
+/**
+ * Class
+ *
+ * @class CentreonAdministrationAclgroup
+ */
 class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
 {
     public const ADMIN_ACL_GROUP = 'customer_admin_acl';
 
     /**
-     * @throws RestBadRequestException
-     *
      * @return array
+     * @throws PDOException
+     * @throws RestBadRequestException
      */
     public function getList()
     {

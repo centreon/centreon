@@ -86,7 +86,7 @@ class CentreonTrap extends CentreonObject
     }
 
     /**
-     * @param null $parameters
+     * @param string|null $parameters
      * @return void
      * @throws CentreonClapiException
      */
@@ -130,7 +130,7 @@ class CentreonTrap extends CentreonObject
     }
 
     /**
-     * @param null $parameters
+     * @param string|null $parameters
      * @return array
      * @throws CentreonClapiException
      */
@@ -169,7 +169,7 @@ class CentreonTrap extends CentreonObject
     }
 
     /**
-     * @param null $parameters
+     * @param string|null $parameters
      * @param array $filters
      *
      * @throws Exception
@@ -202,7 +202,7 @@ class CentreonTrap extends CentreonObject
     /**
      * Get matching rules
      *
-     * @param string $parameters
+     * @param string|null $parameters
      * @return void
      * @throws CentreonClapiException
      */
@@ -238,7 +238,7 @@ class CentreonTrap extends CentreonObject
     }
 
     /**
-     * @param null $parameters
+     * @param string|null $parameters
      * @throws CentreonClapiException
      */
     public function addmatching($parameters = null): void
@@ -275,7 +275,7 @@ class CentreonTrap extends CentreonObject
     }
 
     /**
-     * @param null $parameters
+     * @param mixed $parameters
      * @throws CentreonClapiException
      */
     public function delmatching($parameters = null): void
@@ -291,7 +291,7 @@ class CentreonTrap extends CentreonObject
     }
 
     /**
-     * @param null $parameters
+     * @param string|null $parameters
      * @throws CentreonClapiException
      */
     public function updatematching($parameters = null): void
@@ -325,7 +325,7 @@ class CentreonTrap extends CentreonObject
     /**
      * Export
      *
-     * @param null $filterName
+     * @param string|null $filterName
      *
      * @return false|void
      * @throws Exception

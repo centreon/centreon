@@ -37,10 +37,15 @@
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationGraphtemplate
+ */
 class CentreonConfigurationGraphtemplate extends CentreonConfigurationObjects
 {
     /**
-     * Constructor
+     * CentreonConfigurationGraphtemplate constructor
      */
     public function __construct()
     {
@@ -49,6 +54,7 @@ class CentreonConfigurationGraphtemplate extends CentreonConfigurationObjects
 
     /**
      * @return array
+     * @throws PDOException
      * @throws RestBadRequestException
      */
     public function getList()

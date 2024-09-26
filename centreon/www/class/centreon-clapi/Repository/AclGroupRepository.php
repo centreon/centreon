@@ -21,12 +21,24 @@
 
 namespace CentreonClapi\Repository;
 
+use InvalidArgumentException;
+use PDO;
+use PDOException;
+
+/**
+ * Class
+ *
+ * @class AclGroupRepository
+ * @package CentreonClapi\Repository
+ */
 class AclGroupRepository
 {
     /**
-     * @param \PDO $db
+     * AclGroupRepository constructor
+     *
+     * @param PDO $db
      */
-    public function __construct(private \PDO $db)
+    public function __construct(private PDO $db)
     {
     }
 
@@ -34,7 +46,9 @@ class AclGroupRepository
      * Get Acl Group Ids by their action id.
      *
      * @param int $actionId
+     *
      * @return int[]
+     * @throws PDOException
      */
     public function getAclGroupIdsByActionId(int $actionId): array
     {
@@ -43,11 +57,11 @@ class AclGroupRepository
             "SELECT DISTINCT acl_group_id FROM acl_group_actions_relations
                 WHERE acl_action_id = :aclActionId"
         );
-        $statement->bindValue(":aclActionId", $actionId, \PDO::PARAM_INT);
+        $statement->bindValue(":aclActionId", $actionId, PDO::PARAM_INT);
         $statement->execute();
         while ($result = $statement->fetch()) {
             $aclGroupIds[] = (int) $result["acl_group_id"];
-        };
+        }
 
         return $aclGroupIds;
     }
@@ -55,8 +69,11 @@ class AclGroupRepository
     /**
      * Get User ids by their acl group.
      *
-     * @param integer $aclGroup
+     * @param array $aclGroupIds
+     *
      * @return int[]
+     * @throws InvalidArgumentException
+     * @throws PDOException
      */
     public function getUsersIdsByAclGroupIds(array $aclGroupIds): array
     {
@@ -68,7 +85,7 @@ class AclGroupRepository
         foreach ($aclGroupIds as $index => $aclGroupId) {
             $sanitizedAclGroupId = filter_var($aclGroupId, FILTER_VALIDATE_INT);
             if ($sanitizedAclGroupId === false) {
-                throw new \InvalidArgumentException("Invalid ID");
+                throw new InvalidArgumentException("Invalid ID");
             }
             $queryValues[":acl_group_id_" . $index] = $sanitizedAclGroupId;
         }
@@ -80,7 +97,7 @@ class AclGroupRepository
                 IN $aclGroupIdQueryString"
         );
         foreach ($queryValues as $bindParameter => $bindValue) {
-            $statement->bindValue($bindParameter, $bindValue, \PDO::PARAM_INT);
+            $statement->bindValue($bindParameter, $bindValue, PDO::PARAM_INT);
         }
         $statement->execute();
         $userIds = [];

@@ -42,15 +42,15 @@ require_once __DIR__ . "/../Params.class.php";
  */
 class CentreonWidgetParamsText extends CentreonWidgetParams
 {
-    /** @var HTML_QuickForm_element*/
+    /** @var HTML_QuickForm_element */
     public $element;
 
     /**
-     * CentreonWidgetParamsText constructor
+     * CentreonWidgetParamsText Constructor
      *
-     * @param $db
-     * @param $quickform
-     * @param $userId
+     * @param CentreonDB $db
+     * @param HTML_Quickform $quickform
+     * @param int $userId
      *
      * @throws PDOException
      */
@@ -60,7 +60,7 @@ class CentreonWidgetParamsText extends CentreonWidgetParams
     }
 
     /**
-     * @param $params
+     * @param array $params
      *
      * @return void
      * @throws HTML_QuickForm_Error

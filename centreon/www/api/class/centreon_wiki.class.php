@@ -37,16 +37,24 @@ require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once _CENTREON_PATH_ . "/www/class/centreon-knowledge/wikiApi.class.php";
 require_once __DIR__ . "/webService.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonWiki
+ */
 class CentreonWiki extends CentreonWebService
 {
     /**
-     * Constructor
+     * CentreonWiki constructor
      */
     public function __construct()
     {
         parent::__construct();
     }
 
+    /**
+     * @return array
+     */
     public function postDeletePage()
     {
         $wikiApi = new WikiApi();
@@ -58,9 +66,9 @@ class CentreonWiki extends CentreonWebService
      * Authorize to access to the action
      *
      * @param string $action The action name
-     * @param \CentreonUser $user The current user
-     * @param boolean $isInternal If the api is call in internal
-     * @return boolean If the user has access to the action
+     * @param CentreonUser $user The current user
+     * @param bool $isInternal If the api is call in internal
+     * @return bool If the user has access to the action
      */
     public function authorize($action, $user, $isInternal = false)
     {

@@ -34,12 +34,20 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class CentreonMainCfg
+ */
 class CentreonMainCfg
 {
+    /** @var array */
     private $aDefaultBrokerDirective;
 
+    /** @var array */
     private $aInstanceDefaultValues;
 
+    /** @var CentreonDB */
     private $DB;
 
     // List of broker options Centreon Engine
@@ -188,6 +196,7 @@ class CentreonMainCfg
     /**
      * Get Default values
      *
+     * @return array
      */
     public function getDefaultMainCfg()
     {
@@ -197,7 +206,7 @@ class CentreonMainCfg
     /**
      * Get default engine logger values
      *
-     * @param array<string,string>
+     * @return array
      */
     public function getDefaultLoggerCfg(): array
     {
@@ -207,6 +216,7 @@ class CentreonMainCfg
     /**
      * Get Default values
      *
+     * @return array
      */
     public function getDefaultBrokerOptions()
     {
@@ -216,9 +226,11 @@ class CentreonMainCfg
     /**
      * Insert the broker modules in cfg_nagios
      *
-     * @param string $sName
-     * @param ? $source
      * @param int $iId
+     * @param ? $source
+     *
+     * @return false|void
+     * @throws PDOException
      */
     public function insertBrokerDefaultDirectives($iId, $source)
     {
@@ -241,6 +253,8 @@ class CentreonMainCfg
 
     /**
      * @param int $nagiosId
+     *
+     * @throws PDOException
      */
     public function insertDefaultCfgNagiosLogger(int $nagiosId): void
     {
@@ -252,6 +266,8 @@ class CentreonMainCfg
     /**
      * @param int $nagiosId
      * @param int $serverId
+     *
+     * @throws PDOException
      */
     public function insertCfgNagiosLogger(int $nagiosId, int $serverId): void
     {
@@ -285,13 +301,15 @@ class CentreonMainCfg
         $stmt->execute();
     }
 
-
     /**
      * Insert the instance in cfg_nagios
      *
      * @param int $source The poller id
-     * @param string $sName
      * @param int $iId
+     * @param string $sName
+     *
+     * @return false|mixed
+     * @throws PDOException
      */
     public function insertServerInCfgNagios($source, $iId, $sName)
     {
@@ -381,6 +399,7 @@ class CentreonMainCfg
      * @param int $id
      *
      * @return array $entries
+     * @throws PDOException
      */
     public function getBrokerModules($id)
     {

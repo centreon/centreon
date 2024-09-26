@@ -38,15 +38,24 @@ define("PROCEDURE_SIMPLE_MODE", 0);
 define("PROCEDURE_INHERITANCE_MODE", 1);
 require_once _CENTREON_PATH_ . "/www/class/centreon-knowledge/wikiApi.class.php";
 
+/**
+ * Class
+ *
+ * @class procedures
+ */
 class procedures
 {
+    /** @var array */
     private $procList = [];
+    /** @var CentreonDB */
     public $DB;
+    /** @var CentreonDB */
     public $centreon_DB;
+    /** @var WikiApi */
     public $api;
 
     /**
-     * Constructor
+     * procedures constructor
      *
      * @param CentreonDB $pearDB
      */
@@ -78,8 +87,10 @@ class procedures
     /**
      * Get service template
      *
-     * @param int $service_id
+     * @param null $service_id
+     *
      * @return array
+     * @throws PDOException
      */
     public function getMyServiceTemplateModels($service_id = null)
     {
@@ -123,8 +134,10 @@ class procedures
     /**
      * Get host template models
      *
-     * @param int $host_id
+     * @param null $host_id
+     *
      * @return array
+     * @throws PDOException
      */
     public function getMyHostMultipleTemplateModels($host_id = null)
     {

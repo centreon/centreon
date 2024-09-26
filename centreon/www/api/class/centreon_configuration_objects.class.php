@@ -36,10 +36,15 @@
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/webService.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationObjects
+ */
 class CentreonConfigurationObjects extends CentreonWebService
 {
     /**
-     * CentreonConfigurationObjects constructor.
+     * CentreonConfigurationObjects constructor
      */
     public function __construct()
     {
@@ -113,8 +118,8 @@ class CentreonConfigurationObjects extends CentreonWebService
     }
 
     /**
-     * @param $externalObject
-     * @param $values
+     * @param array $externalObject
+     * @param array $values
      * @return array
      * @throws Exception
      */
@@ -134,7 +139,7 @@ class CentreonConfigurationObjects extends CentreonWebService
             }
             try {
                 $tmpValues = $externalObjectInstance->getObjectForSelect2($values, $options);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 print $e->getMessage();
             }
         } else {
@@ -161,7 +166,7 @@ class CentreonConfigurationObjects extends CentreonWebService
             $dbResult = $stmt->execute($values);
 
             if (!$dbResult) {
-                throw new \Exception("An error occured");
+                throw new Exception("An error occured");
             }
 
             while ($row = $stmt->fetch()) {
@@ -172,7 +177,7 @@ class CentreonConfigurationObjects extends CentreonWebService
     }
 
     /**
-     * @param $additonalComparator
+     * @param array $additonalComparator
      * @return string
      */
     protected function processAdditionalComparator($additonalComparator)
@@ -193,13 +198,15 @@ class CentreonConfigurationObjects extends CentreonWebService
      * @param $currentObject
      * @param $id
      * @param $field
+     *
      * @return array
+     * @throws PDOException
      * @throws RestBadRequestException
      */
     protected function retrieveSimpleValues($currentObject, $id, $field)
     {
         if (!is_numeric($id)) {
-            throw new \RestBadRequestException('Error, id must be numerical');
+            throw new RestBadRequestException('Error, id must be numerical');
         }
         $tmpValues = [];
         $fields = [];
@@ -230,7 +237,9 @@ class CentreonConfigurationObjects extends CentreonWebService
     /**
      * @param $relationObject
      * @param $id
+     *
      * @return array
+     * @throws PDOException
      */
     protected function retrieveRelatedValues($relationObject, $id)
     {
@@ -264,9 +273,9 @@ class CentreonConfigurationObjects extends CentreonWebService
      * Authorize to access to the action
      *
      * @param string $action The action name
-     * @param \CentreonUser $user The current user
-     * @param boolean $isInternal If the api is call in internal
-     * @return boolean If the user has access to the action
+     * @param CentreonUser $user The current user
+     * @param bool $isInternal If the api is call in internal
+     * @return bool If the user has access to the action
      */
     public function authorize($action, $user, $isInternal = false)
     {

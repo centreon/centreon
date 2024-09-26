@@ -38,50 +38,62 @@ namespace CentreonClapi;
 
 use App\Kernel;
 use Centreon\Domain\Entity\Task;
+use CentreonDB;
 use CentreonRemote\ServiceProvider;
 use Core\Domain\Engine\Model\EngineCommandGenerator;
+use Exception;
+use Generate;
+use LogicException;
+use PDO;
+use PDOException;
+use Pimple\Container;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 require_once "centreonUtils.class.php";
 require_once "centreonClapiException.class.php";
 require_once _CENTREON_PATH_ . 'www/class/config-generate/generate.class.php';
 
 /**
+ * Class
  *
- * @author Julien Mathis
- *
+ * @class CentreonConfigPoller
+ * @package CentreonClapi
  */
 class CentreonConfigPoller
 {
-    private $DB;
-    private $DBC;
-    private $dependencyInjector;
-    private $resultTest = ["warning" => 0, "errors" => 0];
-    private $brokerCachePath;
-    private $engineCachePath;
-    private $centreon_path;
-
-    /**
-     * @var EngineCommandGenerator|null
-     */
-    private ?EngineCommandGenerator $commandGenerator = null;
-
-    /**
-     * @var ContainerInterface
-     */
-    private ContainerInterface $container;
-
     public const MISSING_POLLER_ID = "Missing poller ID";
     public const UNKNOWN_POLLER_ID = "Unknown poller ID";
 
+    /** @var CentreonDB */
+    private $DB;
+    /** @var CentreonDB */
+    private $DBC;
+    /** @var Container */
+    private $dependencyInjector;
+    /** @var int[] */
+    private $resultTest = ["warning" => 0, "errors" => 0];
+    /** @var string */
+    private $brokerCachePath;
+    /** @var string */
+    private $engineCachePath;
+    /** @var string */
+    private $centreon_path;
+    /** @var EngineCommandGenerator|null */
+    private ?EngineCommandGenerator $commandGenerator = null;
+    /** @var ContainerInterface */
+    private ContainerInterface $container;
+
     /**
-     * Constructor
-     * @param CentreonDB $DB
-     * @param string $centreon_path
-     * @param CentreonDB $DBC
-     * @return void
+     * CentreonConfigPoller constructor
+     *
+     * @param $centreon_path
+     * @param Container $dependencyInjector
+     *
+     * @throws LogicException
      */
-    public function __construct($centreon_path, \Pimple\Container $dependencyInjector)
+    public function __construct($centreon_path, Container $dependencyInjector)
     {
         $this->dependencyInjector = $dependencyInjector;
         $this->DB = $this->dependencyInjector["configuration_db"];
@@ -120,16 +132,19 @@ class CentreonConfigPoller
      * the ID of that poller. If the poller does not exist, raise an exception.
      *
      * @param string|int $poller
+     *
      * @return int
+     * @throws CentreonClapiException
+     * @throws PDOException
      */
     private function ensurePollerId($poller)
     {
         if (is_numeric($poller)) {
             $statement = $this->DB->prepare("SELECT id FROM nagios_server WHERE id = :poller");
-            $statement->bindValue(':poller', $poller, \PDO::PARAM_INT);
+            $statement->bindValue(':poller', $poller, PDO::PARAM_INT);
         } else {
             $statement = $this->DB->prepare("SELECT id FROM nagios_server WHERE name = :poller");
-            $statement->bindValue(':poller', $poller, \PDO::PARAM_STR);
+            $statement->bindValue(':poller', $poller, PDO::PARAM_STR);
         }
 
         $statement->execute();
@@ -142,9 +157,10 @@ class CentreonConfigPoller
     }
 
     /**
+     * @param string $format
      *
-     * @param type $format
      * @return int
+     * @throws PDOException
      */
     public function getPollerList($format)
     {
@@ -162,7 +178,12 @@ class CentreonConfigPoller
 
     /**
      * @param $variables
-     * @return mixed
+     *
+     * @return int
+     * @throws CentreonClapiException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function pollerReload($variables)
     {
@@ -176,22 +197,22 @@ class CentreonConfigPoller
         $statement = $this->DB->prepare(
             "SELECT * FROM `nagios_server` WHERE `id` = :poller_id  LIMIT 1"
         );
-        $statement->bindValue(':poller_id', (int) $poller_id, \PDO::PARAM_INT);
+        $statement->bindValue(':poller_id', (int) $poller_id, PDO::PARAM_INT);
         $statement->execute();
-        $host = $statement->fetch(\PDO::FETCH_ASSOC);
+        $host = $statement->fetch(PDO::FETCH_ASSOC);
         $statement->closeCursor();
 
         $this->commandGenerator = $this->container->get(EngineCommandGenerator::class);
         $reloadCommand = $this->commandGenerator->getEngineCommand('RELOAD');
         $return_code = $this->writeToCentcorePipe($reloadCommand, $host["id"]);
-        $return_code = $this->writeToCentcorePipe('RELOADBROKER', $host["id"]);
+        $return_code = $this->writeToCentcorePipe('RELOADBROKER', $host["id"]);// FIXME variable erased
         $msg_restart = _("OK: A reload signal has been sent to '" . $host["name"] . "'");
         print $msg_restart . "\n";
         $statement = $this->DB->prepare(
             "UPDATE `nagios_server` SET `last_restart` = :last_restart, `updated` = '0' WHERE `id` = :poller_id LIMIT 1"
         );
-        $statement->bindValue(':last_restart', time(), \PDO::PARAM_INT);
-        $statement->bindValue(':poller_id', (int) $poller_id, \PDO::PARAM_INT);
+        $statement->bindValue(':last_restart', time(), PDO::PARAM_INT);
+        $statement->bindValue(':poller_id', (int) $poller_id, PDO::PARAM_INT);
         $statement->execute();
         return $return_code;
     }
@@ -200,7 +221,10 @@ class CentreonConfigPoller
      * Execute post generation command
      *
      * @param int $pollerId
+     *
+     * @return int
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function execCmd($pollerId)
     {
@@ -231,9 +255,13 @@ class CentreonConfigPoller
     }
 
     /**
+     * @param $variables
      *
-     * Restart a serveur
-     * @param unknown_type $variables
+     * @return int|void
+     * @throws CentreonClapiException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function pollerRestart($variables)
     {
@@ -247,9 +275,9 @@ class CentreonConfigPoller
         $statement = $this->DB->prepare(
             "SELECT * FROM `nagios_server` WHERE `id` = :poller_id  LIMIT 1"
         );
-        $statement->bindValue(':poller_id', (int) $poller_id, \PDO::PARAM_INT);
+        $statement->bindValue(':poller_id', (int) $poller_id, PDO::PARAM_INT);
         $statement->execute();
-        $host = $statement->fetch(\PDO::FETCH_ASSOC);
+        $host = $statement->fetch(PDO::FETCH_ASSOC);
         $statement->closeCursor();
 
         $this->commandGenerator = $this->container->get(EngineCommandGenerator::class);
@@ -261,17 +289,19 @@ class CentreonConfigPoller
         $statement = $this->DB->prepare(
             "UPDATE `nagios_server` SET `last_restart` = :last_restart, `updated` = '0' WHERE `id` = :poller_id LIMIT 1"
         );
-        $statement->bindValue(':last_restart', time(), \PDO::PARAM_INT);
-        $statement->bindValue(':poller_id', (int) $poller_id, \PDO::PARAM_INT);
+        $statement->bindValue(':last_restart', time(), PDO::PARAM_INT);
+        $statement->bindValue(':poller_id', (int) $poller_id, PDO::PARAM_INT);
         $statement->execute();
         return $return_code;
     }
 
     /**
+     * @param $format
+     * @param $variables
      *
-     * Test poller configuration
-     * @param unknown_type $format
-     * @param unknown_type $variables
+     * @return int|void
+     * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function pollerTest($format, $variables)
     {
@@ -362,14 +392,19 @@ class CentreonConfigPoller
     /**
      *
      * Generate configuration files for a specific poller
+     *
      * @param $variables
-     * @param $login
-     * @param $password
+     * @param string $login
+     * @param string $password
+     *
+     * @return int
+     * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function pollerGenerate($variables, $login, $password)
     {
 
-        $config_generate = new \Generate($this->dependencyInjector);
+        $config_generate = new Generate($this->dependencyInjector);
 
         $poller_id = $this->ensurePollerId($variables);
         $config_generate->configPollerFromId($poller_id, $login);
@@ -420,7 +455,12 @@ class CentreonConfigPoller
     /**
      *
      * Move configuration files to servers
-     * @param unknown_type $variables
+     *
+     * @param mixed|null $variables
+     *
+     * @return int|void
+     * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function cfgMove($variables = null)
     {
@@ -439,21 +479,19 @@ class CentreonConfigPoller
         $pollerId = $this->ensurePollerId($variables);
 
         $statement = $pearDB->prepare("SELECT * FROM `nagios_server` WHERE `id` = :pollerId");
-        $statement->bindValue(':pollerId', $pollerId, \PDO::PARAM_INT);
+        $statement->bindValue(':pollerId', $pollerId, PDO::PARAM_INT);
         $statement->execute();
         $host = $statement->fetchRow();
         $statement->closeCursor();
 
-        /**
-         * Move files.
-         */
+        // Move files
         $msg_copy = "";
         if (isset($host['localhost']) && $host['localhost'] == 1) {
             /* Get Apache user name */
             $apacheUser = $this->getApacheUser();
 
             $statement = $pearDB->prepare("SELECT `cfg_dir` FROM `cfg_nagios` WHERE `nagios_server_id` = :pollerId");
-            $statement->bindValue(':pollerId', $pollerId, \PDO::PARAM_INT);
+            $statement->bindValue(':pollerId', $pollerId, PDO::PARAM_INT);
             $statement->execute();
             $Nagioscfg = $statement->fetchRow();
             $statement->closeCursor();
@@ -473,7 +511,7 @@ class CentreonConfigPoller
                 foreach (glob($Nagioscfg["cfg_dir"] . '/*.{json,cfg}', GLOB_BRACE) as $file) {
                     //handle path traversal vulnerability
                     if (str_contains($file, '..')) {
-                        throw new \Exception('Path traversal found');
+                        throw new Exception('Path traversal found');
                     }
                     if (posix_getuid() === 0) {
                         @chown($file, $apacheUser);
@@ -483,7 +521,7 @@ class CentreonConfigPoller
                 foreach (glob($Nagioscfg["cfg_dir"] . "/*.DEBUG") as $file) {
                     //handle path traversal vulnerability
                     if (str_contains($file, '..')) {
-                        throw new \Exception('Path traversal found');
+                        throw new Exception('Path traversal found');
                     }
                     if (posix_getuid() === 0) {
                         @chown($file, $apacheUser);
@@ -504,7 +542,7 @@ class CentreonConfigPoller
                 if (!is_null($centreonBrokerDirCfg)) {
                     if (!is_dir($centreonBrokerDirCfg)) {
                         if (!mkdir($centreonBrokerDirCfg, 0755)) {
-                            throw new \Exception(
+                            throw new Exception(
                                 sprintf(
                                     _("Centreon Broker's configuration directory '%s' does not exist and could not be "
                                         . "created for monitoring engine '%s'. Please check it's path or create it"),
@@ -517,7 +555,7 @@ class CentreonConfigPoller
                     foreach ($listBrokerFile as $fileCfg) {
                         $succeded = @copy($fileCfg, rtrim($centreonBrokerDirCfg, "/") . '/' . basename($fileCfg));
                         if (!$succeded) {
-                            throw new \Exception(
+                            throw new Exception(
                                 sprintf(
                                     _("Could not write to Centreon Broker's configuration file '%s' for monitoring "
                                         . "engine '%s'. Please add writing permissions for the webserver's user"),
@@ -534,7 +572,7 @@ class CentreonConfigPoller
                     foreach (glob(rtrim($centreonBrokerDirCfg, "/") . "/" . "/*.{xml,json,cfg}", GLOB_BRACE) as $file) {
                         //handle path traversal vulnerability
                         if (str_contains($file, '..')) {
-                            throw new \Exception('Path traversal found');
+                            throw new Exception('Path traversal found');
                         }
                         @chown($file, $apacheUser);
                         @chgrp($file, $apacheUser);
@@ -549,7 +587,7 @@ class CentreonConfigPoller
                 $msg_copy .= _("OK: All configuration files copied with success.");
             }
         } else {
-            /**
+            /*
              * Get Parent Remote Servers of the Poller
              */
             $statementRemotes = $pearDB->prepare(
@@ -573,11 +611,11 @@ class CentreonConfigPoller
                 WHERE rspr.poller_server_id = :pollerId
                 AND pt.type = "remote"'
             );
-            $statementRemotes->bindValue(':pollerId', $pollerId, \PDO::PARAM_INT);
+            $statementRemotes->bindValue(':pollerId', $pollerId, PDO::PARAM_INT);
             $statementRemotes->execute();
-            $remotesResults = $statementRemotes->fetchAll(\PDO::FETCH_ASSOC);
+            $remotesResults = $statementRemotes->fetchAll(PDO::FETCH_ASSOC);
 
-            /**
+            /*
              * If the poller is linked to one or many remotes
              */
             foreach ($remotesResults as $remote) {
@@ -590,9 +628,9 @@ class CentreonConfigPoller
                     FROM rs_poller_relation
                     WHERE remote_server_id = :remoteId'
                 );
-                $linkedStatement->bindValue(':remoteId', $remote['id'], \PDO::PARAM_INT);
+                $linkedStatement->bindValue(':remoteId', $remote['id'], PDO::PARAM_INT);
                 $linkedStatement->execute();
-                $linkedResults = $linkedStatement->fetchAll(\PDO::FETCH_ASSOC);
+                $linkedResults = $linkedStatement->fetchAll(PDO::FETCH_ASSOC);
 
                 $exportParams = [
                     'server' => $remote['id'],
@@ -642,14 +680,16 @@ class CentreonConfigPoller
         } else {
             return "";
         }
-    }
+    } // fixme possible no return
 
     /**
      * Send Trap configuration files to poller
      *
-     * @param int $pollerId
-     * @return void
+     * @param int|null $pollerId
+     *
+     * @return int
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function sendTrapCfg($pollerId = null)
     {
@@ -661,7 +701,7 @@ class CentreonConfigPoller
         $centreonDir = $this->centreon_path;
         $pearDB = $this->dependencyInjector['configuration_db'];
         $statement = $pearDB->prepare("SELECT snmp_trapd_path_conf FROM nagios_server WHERE id = :pollerId");
-        $statement->bindValue(':pollerId', $pollerId, \PDO::PARAM_INT);
+        $statement->bindValue(':pollerId', $pollerId, PDO::PARAM_INT);
         $statement->execute();
         $row = $statement->fetchRow();
         $trapdPath = $row['snmp_trapd_path_conf'];
@@ -671,7 +711,7 @@ class CentreonConfigPoller
         $filename = "{$trapdPath}/{$pollerId}/centreontrapd.sdb";
         //handle path traversal vulnerability
         if (str_contains($filename, '..')) {
-            throw new \Exception('Path traversal found');
+            throw new Exception('Path traversal found');
         }
         $cmd = sprintf('%s %d %s 2>&1',
                        escapeshellarg($centreonDir . '/bin/generateSqlLite'),
@@ -685,9 +725,11 @@ class CentreonConfigPoller
     /**
      *
      * Display Copying files
-     * @param unknown_type $filename
-     * @param unknown_type $status
-     * @return string
+     *
+     * @param string|null $filename
+     * @param string|null $status
+     *
+     * @return string|void
      */
     private function displayCopyingFile($filename = null, $status = null)
     {
@@ -698,6 +740,10 @@ class CentreonConfigPoller
         return $str;
     }
 
+    /**
+     * @return array
+     * @throws PDOException
+     */
     public function getPollerState()
     {
         $pollerState = [];

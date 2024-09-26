@@ -53,6 +53,8 @@ class CentreonWidgetParamsConnectorPoller extends CentreonWidgetParamsList
      * @param $db
      * @param $quickform
      * @param int $userId
+     *
+     * @throws PDOException
      */
     public function __construct($db, $quickform, $userId)
     {

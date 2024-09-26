@@ -39,6 +39,9 @@ class CentreonRestHttp
      * CentreonRestHttp constructor
      *
      * @param string $contentType The content type
+     * @param string|null $logFile
+     *
+     * @throws PDOException
      */
     public function __construct($contentType = 'application/json', $logFile = null)
     {
@@ -72,7 +75,7 @@ class CentreonRestHttp
      *
      * @param string $url The endpoint url
      * @param string $method The HTTP method
-     * @param null $data The data to send on the request
+     * @param array|null $data The data to send on the request
      * @param array $headers The extra headers without Content-Type
      * @param bool $throwContent
      * @param bool $noCheckCertificate To disable CURLOPT_SSL_VERIFYPEER

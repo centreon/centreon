@@ -33,6 +33,8 @@
  *
  */
 
+use Pimple\Container;
+
 // file centreon.config.php may not exist in test environment
 $configFile = realpath(__DIR__ . "/../../../config/centreon.config.php");
 if ($configFile !== false) {
@@ -49,9 +51,9 @@ define('TMP_DIR_SUFFIX', '.d');
  */
 class Backend
 {
-    /** @var */
+    /** @var CentreonDBStatement */
     public $stmt_central_poller;
-    /** @var null */
+    /** @var Backend|null */
     private static $_instance = null;
     /** @var string */
     public $generate_path = '/var/cache/centreon/config';
@@ -62,29 +64,29 @@ class Backend
 
     /** @var CentreonDB|null  */
     public $db = null;
-    /** @var mixed|null */
+    /** @var CentreonDB|null */
     public $db_cs = null;
 
-    /** @var null */
+    /** @var string|null */
     private $tmp_file = null;
-    /** @var null */
+    /** @var string|null */
     private $tmp_dir = null;
-    /** @var null */
+    /** @var string|null */
     private $full_path = null;
     /** @var string */
     private $whoaim = 'unknown';
 
-    /** @var null */
+    /** @var string|null */
     private $poller_id = null;
-    /** @var null */
+    /** @var string|null */
     private $central_poller_id = null;
 
     /**
      * Backend constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
-    private function __construct(\Pimple\Container $dependencyInjector)
+    private function __construct(Container $dependencyInjector)
     {
         $this->generate_path = _CENTREON_CACHEDIR_ . '/config';
         $this->db = $dependencyInjector['configuration_db'];
@@ -92,11 +94,11 @@ class Backend
     }
 
     /**
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      *
      * @return Backend|null
      */
-    public static function getInstance(\Pimple\Container $dependencyInjector)
+    public static function getInstance(Container $dependencyInjector)
     {
         if (is_null(self::$_instance)) {
             self::$_instance = new Backend($dependencyInjector);

@@ -35,13 +35,30 @@
 
 require_once __DIR__ . "/../Select2.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonWidgetParamsConnectorHostMulti
+ */
 class CentreonWidgetParamsConnectorHostMulti extends CentreonWidgetParamsSelect2
 {
+    /**
+     * CentreonWidgetParamsConnectorHostMulti constructor
+     *
+     * @param $db
+     * @param $quickform
+     * @param $userId
+     *
+     * @throws PDOException
+     */
     public function __construct($db, $quickform, $userId)
     {
         parent::__construct($db, $quickform, $userId);
     }
 
+    /**
+     * @return array
+     */
     public function getParameters()
     {
         $path = './include/common/webServices/rest/internal.php?object=centreon_configuration_host&action=list';

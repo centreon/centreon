@@ -53,13 +53,13 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
     protected static $instances;
     /** @var int */
     public $userId;
-    /** @var */
+    /** @var mixed */
     public $element;
     /** @var CentreonDB */
     protected $db;
     /** @var HTML_Quickform */
     protected $quickform;
-    /** @var */
+    /** @var mixed */
     protected $params;
     /** @var array */
     protected $userGroups = [];

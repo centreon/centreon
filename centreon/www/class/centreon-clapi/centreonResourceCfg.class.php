@@ -38,6 +38,7 @@ namespace CentreonClapi;
 use Centreon_Object_Relation_Instance_Resource;
 use Centreon_Object_Resource;
 use Exception;
+use LogicException;
 use PDOException;
 use Pimple\Container;
 
@@ -76,6 +77,7 @@ class CentreonResourceCfg extends CentreonObject
      * @param Container $dependencyInjector
      *
      * @throws PDOException
+     * @throws LogicException
      */
     public function __construct(Container $dependencyInjector)
     {
@@ -214,7 +216,7 @@ class CentreonResourceCfg extends CentreonObject
             $updateParams['objectId'] = $objectId;
             return $updateParams;
         }
-    }
+    } // FIXME no return
 
     /**
      * @param $parameters

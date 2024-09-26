@@ -37,15 +37,18 @@
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationPoller
+ */
 class CentreonConfigurationPoller extends CentreonConfigurationObjects
 {
-    /**
-     * @var CentreonDB
-     */
+    /** @var CentreonDB */
     protected $pearDB;
 
     /**
-     * CentreonConfigurationPoller constructor.
+     * CentreonConfigurationPoller constructor
      */
     public function __construct()
     {
@@ -55,6 +58,7 @@ class CentreonConfigurationPoller extends CentreonConfigurationObjects
 
     /**
      * @return array
+     * @throws PDOException
      * @throws RestBadRequestException
      */
     public function getList()

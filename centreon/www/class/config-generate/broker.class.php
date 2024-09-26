@@ -34,6 +34,11 @@
  *
  */
 
+use App\Kernel;
+use Pimple\Container;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
 /**
  * Class
  *
@@ -44,13 +49,13 @@ class Broker extends AbstractObjectJSON
     private const STREAM_BBDO_SERVER = 'bbdo_server';
     private const STREAM_BBDO_CLIENT = 'bbdo_client';
 
-    /** @var null */
+    /** @var array|null */
     protected $engine = null;
-    /** @var null */
+    /** @var mixed|null */
     protected $broker = null;
-    /** @var null */
+    /** @var string|null */
     protected $generate_filename = null;
-    /** @var null */
+    /** @var string|null */
     protected $object_name = null;
     /** @var string */
     protected $attributes_select = '
@@ -96,17 +101,17 @@ class Broker extends AbstractObjectJSON
     protected $exclude_parameters = ['blockId'];
     /** @var string[] */
     protected $authorized_empty_field = ['db_password'];
-    /** @var null */
+    /** @var CentreonDBStatement|null */
     protected $stmt_engine = null;
-    /** @var null */
+    /** @var CentreonDBStatement|null */
     protected $stmt_broker = null;
-    /** @var null */
+    /** @var CentreonDBStatement|null */
     protected $stmt_broker_parameters = null;
-    /** @var null */
+    /** @var CentreonDBStatement|null */
     protected $stmt_engine_parameters = null;
-    /** @var null */
+    /** @var array|null */
     protected $cacheExternalValue = null;
-    /** @var null */
+    /** @var array|null */
     protected $cacheLogValue = null;
     /** @var object|null */
     protected $readVaultConfigurationRepository = null;
@@ -114,18 +119,18 @@ class Broker extends AbstractObjectJSON
     /**
      * Broker constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      *
      * @throws LogicException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
 
         // Get Centeron Vault Storage configuration
-        $kernel = \App\Kernel::createForWeb();
+        $kernel = Kernel::createForWeb();
         $this->readVaultConfigurationRepository = $kernel->getContainer()->get(
             Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
         );
@@ -258,8 +263,8 @@ class Broker extends AbstractObjectJSON
             $resultParameters = $this->stmt_broker_parameters->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_ASSOC);
 
             //logger
-            $object['log']['directory'] = \HtmlAnalyzer::sanitizeAndRemoveTags($row['log_directory']);
-            $object['log']['filename'] = \HtmlAnalyzer::sanitizeAndRemoveTags($row['log_filename']);
+            $object['log']['directory'] = HtmlAnalyzer::sanitizeAndRemoveTags($row['log_directory']);
+            $object['log']['filename'] = HtmlAnalyzer::sanitizeAndRemoveTags($row['log_filename']);
             $object['log']['max_size'] = filter_var($row['log_max_size'], FILTER_VALIDATE_INT);
             $this->getLogsValues();
             $logs = $this->cacheLogValue[$object['broker_id']];
@@ -663,9 +668,9 @@ class Broker extends AbstractObjectJSON
         global $pearDB;
         $result = $pearDB->query("SELECT `value` FROM informations WHERE `key` = 'uuid'");
 
-        if (! $record = $result->fetch(\PDO::FETCH_ASSOC)) {
+        if (! $record = $result->fetch(PDO::FETCH_ASSOC)) {
             return null;
-        };
+        }
 
         return $record['value'];
     }
@@ -705,7 +710,7 @@ class Broker extends AbstractObjectJSON
          *     proxy_password?: null|string
          * } $options
          */
-        $options = $pearDB->query($sql)->fetchAll(\PDO::FETCH_KEY_PAIR) ?: [];
+        $options = $pearDB->query($sql)->fetchAll(PDO::FETCH_KEY_PAIR) ?: [];
 
         $luaParameters = [];
 

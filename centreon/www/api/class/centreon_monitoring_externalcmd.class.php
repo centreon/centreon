@@ -37,17 +37,22 @@
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once _CENTREON_PATH_ . '/www/class/centreonExternalCommand.class.php';
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
+
+/**
+ * Class
+ *
+ * @class CentreonMonitoringExternalcmd
+ */
 class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
 {
-    /**
-     *
-     * @var type
-     */
+
+    /** @var CentreonDB */
     protected $pearDBMonitoring;
+    /** @var string */
     protected $centcore_file;
 
     /**
-     * Constructor
+     * CentreonMonitoringExternalcmd constructor
      */
     public function __construct()
     {
@@ -62,8 +67,10 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
 
     /**
      * @return array
+     * @throws PDOException
      * @throws RestBadRequestException
      * @throws RestException
+     * @throws RestUnauthorizedException
      */
     public function postSend()
     {

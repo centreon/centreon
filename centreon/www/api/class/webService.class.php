@@ -39,34 +39,32 @@ if (!(class_exists('centreonDB') || class_exists('\\centreonDB')) && defined('_C
 
 use Centreon\Infrastructure\Webservice\WebserviceAutorizePublicInterface;
 use Centreon\Infrastructure\Webservice\WebserviceAutorizeRestApiInterface;
+use Pimple\Container;
 
+/**
+ * Class
+ *
+ * @class CentreonWebService
+ */
 class CentreonWebService
 {
-    const RESULT_HTML = 'html';
-    const RESULT_JSON = 'json';
+    public const RESULT_HTML = 'html';
+    public const RESULT_JSON = 'json';
 
-    /**
-     * @var CentreonDB|null
-     */
+    /** @var CentreonDB|null */
     protected $pearDB = null;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $arguments = [];
 
-    /**
-     * @var null
-     */
+    /** @var null */
     protected $token = null;
 
-    /**
-     * @var
-     */
+    /** @var */
     protected static $webServicePaths;
 
     /**
-     * CentreonWebService constructor.
+     * CentreonWebService constructor
      */
     public function __construct()
     {
@@ -77,6 +75,8 @@ class CentreonWebService
 
     /**
      * Load database
+     *
+     * @return void
      */
     protected function loadDb()
     {
@@ -85,6 +85,8 @@ class CentreonWebService
 
     /**
      * Load arguments compared http method
+     *
+     * @return void
      */
     protected function loadArguments()
     {
@@ -125,6 +127,8 @@ class CentreonWebService
 
     /**
      * Load the token for class if exists
+     *
+     * @return void
      */
     protected function loadToken()
     {
@@ -137,9 +141,9 @@ class CentreonWebService
      * Authorize to access to the action
      *
      * @param string $action The action name
-     * @param null|\CentreonUser $user The current user
-     * @param boolean $isInternal If the api is call in internal
-     * @return boolean If the user has access to the action
+     * @param CentreonUser $user The current user
+     * @param bool $isInternal If the api is call in internal
+     * @return bool If the user has access to the action
      */
     public function authorize($action, $user, $isInternal = false)
     {
@@ -154,7 +158,8 @@ class CentreonWebService
      * Get webservice
      *
      * @param string $object
-     * @return type
+     *
+     * @return array|mixed
      */
     protected static function webservicePath($object = "")
     {
@@ -183,8 +188,11 @@ class CentreonWebService
     /**
      * Send json return
      *
-     * @param mixed $data The values
-     * @param integer $code The HTTP code
+     * @param mixed $data
+     * @param int $code
+     * @param string|null $format
+     *
+     * @return void
      */
     public static function sendResult($data, $code = 200, $format = null): void
     {
@@ -242,6 +250,8 @@ class CentreonWebService
 
     /**
      * Update the ttl for a token if the authentication is by token
+     *
+     * @return void
      */
     protected static function updateTokenTtl()
     {
@@ -258,7 +268,7 @@ class CentreonWebService
                     )
                     WHERE token = :token'
                 );
-                $stmt->bindValue(':token', $_SERVER['HTTP_CENTREON_AUTH_TOKEN'], \PDO::PARAM_STR);
+                $stmt->bindValue(':token', $_SERVER['HTTP_CENTREON_AUTH_TOKEN'], PDO::PARAM_STR);
                 $stmt->execute();
             } catch (Exception $e) {
                 static::sendResult("Internal error", 500);
@@ -268,14 +278,14 @@ class CentreonWebService
 
     /**
      * Route the webservice to the good method
-     * @global string _CENTREON_PATH_
-     * @global type $pearDB3
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      * @param CentreonUser $user The current user
-     * @param boolean $isInternal If the Rest API call is internal
+     * @param bool $isInternal If the Rest API call is internal
+     *
+     * @throws PDOException
      */
-    public static function router(\Pimple\Container $dependencyInjector, $user, $isInternal = false): void
+    public static function router(Container $dependencyInjector, $user, $isInternal = false): void
     {
         global $pearDB;
 
@@ -370,8 +380,9 @@ class CentreonWebService
      * @param WebserviceAutorizePublicInterface|WebserviceAutorizeRestApiInterface $webservice
      * @param string $action The action name
      * @param CentreonUser|null $user The current user
-     * @param boolean $isInternal If the api is call from internal
-     * @return boolean if the webservice is allowed for the current user
+     * @param bool $isInternal If the api is call from internal
+     *
+     * @return bool if the webservice is allowed for the current user
      */
     private static function isWebserviceAllowed($webservice, $action, $user, $isInternal): bool
     {
