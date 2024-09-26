@@ -41,18 +41,10 @@
  */
 class CentreonMainCfg
 {
-    /** @var array */
-    private $aDefaultBrokerDirective;
-
-    /** @var array */
-    private $aInstanceDefaultValues;
-
-    /** @var CentreonDB */
-    private $DB;
 
     // List of broker options Centreon Engine
     // (https://documentation.centreon.com/docs/centreon-engine/en/latest/user/configuration/basics/main_configuration_file_options.html#event-broker-options)
-    const EVENT_BROKER_OPTIONS = [
+    public const EVENT_BROKER_OPTIONS = [
         -1 => 'All',
         0 => 'None',
         1 => 'Program state',
@@ -83,6 +75,15 @@ class CentreonMainCfg
         33554432 => 'Command data'
     ];
 
+    /** @var array */
+    private $aDefaultBrokerDirective;
+
+    /** @var array */
+    private $aInstanceDefaultValues;
+
+    /** @var CentreonDB */
+    private $DB;
+
     /** @var array<string,string> */
     private $loggerDefaultCfg = [
         'log_v2_logger' => 'file',
@@ -100,6 +101,107 @@ class CentreonMainCfg
         'log_level_process' => 'info',
         'log_level_runtime' => 'err',
     ];
+
+    /**
+     * CentreonMainCfg constructor
+     */
+    public function __construct()
+    {
+        $this->DB = new CentreonDB();
+        $this->setBrokerOptions();
+        $this->setEngineOptions();
+    }
+
+    /**
+     * @return void
+     */
+    private function setBrokerOptions(): void
+    {
+        $this->aDefaultBrokerDirective = ['ui' => '/usr/lib64/centreon-engine/externalcmd.so', 'wizard' => '/usr/lib64/nagios/cbmod.so /etc/centreon-broker/poller-module.json'];
+    }
+
+    /**
+     * @return void
+     */
+    private function setEngineOptions(): void
+    {
+        $this->aInstanceDefaultValues = [
+            'log_file' => '/var/log/centreon-engine/centengine.log',
+            'cfg_dir' => '/etc/centreon-engine/',
+            'status_file' => '/var/log/centreon-engine/status.dat',
+            'status_update_interval' => '30',
+            'enable_notifications' => '1',
+            'execute_service_checks' => '1',
+            'accept_passive_service_checks' => '1',
+            'execute_host_checks' => '1',
+            'accept_passive_host_checks' => '1',
+            'enable_event_handlers' => '1',
+            'check_external_commands' => '1',
+            'external_command_buffer_slots' => '4096',
+            'command_check_interval' => '1s',
+            'command_file' => '/var/lib/centreon-engine/rw/centengine.cmd',
+            'retain_state_information' => '1',
+            'state_retention_file' => '/var/log/centreon-engine/retention.dat',
+            'retention_update_interval' => '60',
+            'use_retained_program_state' => '1',
+            'use_retained_scheduling_info' => '1',
+            'use_syslog' => '0',
+            'log_notifications' => '1',
+            'log_service_retries' => '1',
+            'log_host_retries' => '1',
+            'log_event_handlers' => '1',
+            'log_external_commands' => '1',
+            'log_passive_checks' => '1',
+            'sleep_time' => '1',
+            'service_inter_check_delay_method' => 's',
+            'host_inter_check_delay_method' => 's',
+            'service_interleave_factor' => 's',
+            'max_concurrent_checks' => '0',
+            'max_service_check_spread' => '15',
+            'max_host_check_spread' => '15',
+            'check_result_reaper_frequency' => '5',
+            'auto_reschedule_checks' => '0',
+            'enable_flap_detection' => '0',
+            'low_service_flap_threshold' => '25.0',
+            'high_service_flap_threshold' => '50.0',
+            'low_host_flap_threshold' => '25.0',
+            'high_host_flap_threshold' => '50.0',
+            'soft_state_dependencies' => '0',
+            'service_check_timeout' => '60',
+            'host_check_timeout' => '12',
+            'event_handler_timeout' => '30',
+            'notification_timeout' => '30',
+            'check_for_orphaned_services' => '0',
+            'check_for_orphaned_hosts' => '0',
+            'check_service_freshness' => '1',
+            'check_host_freshness' => '0',
+            'date_format' => 'euro',
+            'illegal_object_name_chars' => "~!$%^&*\"|'<>?,()=",
+            'illegal_macro_output_chars' => "`~$^&\"|'<>",
+            'use_regexp_matching' => '0',
+            'use_true_regexp_matching' => '0',
+            'admin_email' => 'admin@localhost',
+            'admin_pager' => 'admin',
+            'nagios_comment' => 'Centreon Engine configuration file',
+            'nagios_activate' => '1',
+            'event_broker_options' => '-1',
+            'nagios_server_id' => '1',
+            'enable_predictive_host_dependency_checks' => '1',
+            'enable_predictive_service_dependency_checks' => '1',
+            'passive_host_checks_are_soft' => '0',
+            'enable_environment_macros' => '0',
+            'debug_file' => '/var/log/centreon-engine/centengine.debug',
+            'debug_level' => '0',
+            'debug_level_opt' => '0',
+            'debug_verbosity' => '0',
+            'max_debug_file_size' => '1000000000',
+            'cfg_file' => 'centengine.cfg',
+            'cached_host_check_horizon' => '60',
+            'log_pid' => 1,
+            'enable_macros_filter' => 0,
+            'logger_version' => 'log_v2_enabled',
+        ];
+    }
 
     /**
      * Get Default values

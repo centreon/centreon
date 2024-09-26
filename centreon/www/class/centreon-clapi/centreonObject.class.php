@@ -78,7 +78,7 @@ abstract class CentreonObject
     protected $db;
     /** @var string */
     protected string $action;
-    /** @var array */
+    /** @var \Pimple\Container */
     protected $dependencyInjector;
 
     /**

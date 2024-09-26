@@ -88,7 +88,7 @@ class CentreonAuth
 
     /** @var int */
     protected $debug;
-    /** @var */
+    /** @var \Pimple\Container */
     protected $dependencyInjector;
 
     // Flags
