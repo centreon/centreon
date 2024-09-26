@@ -2693,8 +2693,8 @@
 									"        \"name\": \"Central\"\r",
 									"    });\r",
 									"    pm.expect(responseJson.pollers[1]).to.eql({\r",
-									"        \"id\": 4,\r",
-									"        \"name\": \"Poller-3\"\r",
+									"        \"id\": 2,\r",
+									"        \"name\": \"Poller-1\"\r",
 									"    });\r",
 									"    pm.expect(responseJson.created_by).to.eql({\r",
 									"        \"id\": 21,\r",
@@ -2719,7 +2719,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{ACC4Name}}\",\r\n    \"description\": \"{{ACC4Description}}\",\r\n    \"pollers\": [1, 4],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 5780,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter\",\r\n            \"url\": \"http://10.10.10.10/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{ACC4Name}}\",\r\n    \"description\": \"{{ACC4Description}}\",\r\n    \"pollers\": [1, 2],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 5780,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter\",\r\n            \"url\": \"http://10.10.10.10/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
@@ -3349,7 +3349,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addfilter_instance\",\r\n  \"object\": \"ACLRESOURCE\",\r\n  \"values\": \"All Resources;Poller-3\"\r\n}",
+							"raw": "{\r\n  \"action\": \"addfilter_instance\",\r\n  \"object\": \"ACLRESOURCE\",\r\n  \"values\": \"All Resources;Central\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3515,7 +3515,7 @@
 									"pm.test(\"The ACC has not been created, because the user does not have access to the chosen poller.\", function () {\r",
 									"    pm.response.to.have.status(500);\r",
 									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"The pollers does not exist with ID(s) '2'\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"The pollers does not exist with ID(s) '4'\");\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -3534,7 +3534,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{ACC1Name}}\",\r\n    \"description\": \"{{ACC1Description}}\",\r\n    \"pollers\": [2],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 5780,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter\",\r\n            \"url\": \"http://10.10.10.10/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{ACC1Name}}\",\r\n    \"description\": \"{{ACC1Description}}\",\r\n    \"pollers\": [4],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 5780,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter\",\r\n            \"url\": \"http://10.10.10.10/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
