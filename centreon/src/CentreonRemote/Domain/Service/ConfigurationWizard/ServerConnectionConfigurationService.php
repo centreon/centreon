@@ -57,13 +57,9 @@ abstract class ServerConnectionConfigurationService
     protected int|null $brokerID = null;
 
     public function __construct(
-        protected CentreonDBAdapter $dbAdapter,
-        // protected FeatureFlags $featureFlags,
-        // protected ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
-        // protected WriteVaultRepositoryInterface $writeVaultRepository
+        protected CentreonDBAdapter $dbAdapter
     )
     {
-        $this->dbAdapter = $dbAdapter;
     }
 
     /**
