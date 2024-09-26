@@ -86,7 +86,7 @@ const Timeline = ({
       ))}
 
       <AxisBottom
-        top={height - margin.bottom}
+        top={height - margin.bottom + 4}
         scale={xScale}
         numTicks={numTicks}
         tickFormat={(value) => {

@@ -5,6 +5,7 @@ export const useStyles = makeStyles()((theme) => ({
     backgroundColor: theme.palette.background.paper,
     color: theme.palette.text.primary,
     padding: 0,
-    position: 'relative'
+    position: 'relative',
+    left: theme.spacing(-1)
   }
 }));
