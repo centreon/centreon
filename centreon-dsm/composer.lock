@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "38813657693e66d056b5f46aa7c60b56",
+    "content-hash": "6c849f3dd69530fdf8bd93ebca654174",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -75,11 +75,11 @@
         },
         {
             "name": "centreon/centreon",
-            "version": "dev-MON-146851-upgrade-to-php-8.2-with-rector",
+            "version": "dev-MON-146850-php82",
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "b282c6afe6d758beccf2f36e3d47b2d6d80c5dd0"
+                "reference": "3bcd5183b75170578540ed59d4e165e67136a5f0"
             },
             "require": {
                 "beberlei/assert": "^3.3",
@@ -88,6 +88,8 @@
                 "dragonmantank/cron-expression": "3.1.0",
                 "enshrined/svg-sanitize": "^0.15",
                 "ext-ctype": "*",
+                "ext-curl": "*",
+                "ext-gettext": "*",
                 "ext-iconv": "*",
                 "ext-json": "*",
                 "ext-ldap": "*",
@@ -245,7 +247,7 @@
                     "@phpcs:unstrict"
                 ],
                 "phpstan": [
-                    "phpstan analyse -c phpstan.neon --level=6 --memory-limit=512M --debug"
+                    "phpstan analyse -c phpstan.neon --level=4 --memory-limit=1G --debug"
                 ],
                 "phpstan:core": [
                     "phpstan analyse -c phpstan.core.neon --level=8 --memory-limit=1G --debug"
@@ -1897,16 +1899,16 @@
         },
         {
             "name": "phpstan/phpdoc-parser",
-            "version": "1.31.0",
+            "version": "1.32.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpdoc-parser.git",
-                "reference": "249f15fb843bf240cf058372dad29e100cee6c17"
+                "reference": "6ca22b154efdd9e3c68c56f5d94670920a1c19a4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/249f15fb843bf240cf058372dad29e100cee6c17",
-                "reference": "249f15fb843bf240cf058372dad29e100cee6c17",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/6ca22b154efdd9e3c68c56f5d94670920a1c19a4",
+                "reference": "6ca22b154efdd9e3c68c56f5d94670920a1c19a4",
                 "shasum": ""
             },
             "require": {
@@ -1938,9 +1940,9 @@
             "description": "PHPDoc parser with support for nullable, intersection and generic types",
             "support": {
                 "issues": "https://github.com/phpstan/phpdoc-parser/issues",
-                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.31.0"
+                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.32.0"
             },
-            "time": "2024-09-22T11:32:18+00:00"
+            "time": "2024-09-26T07:23:32+00:00"
         },
         {
             "name": "pimple/pimple",
@@ -7625,26 +7627,26 @@
         },
         {
             "name": "filp/whoops",
-            "version": "2.15.4",
+            "version": "2.16.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filp/whoops.git",
-                "reference": "a139776fa3f5985a50b509f2a02ff0f709d2a546"
+                "reference": "befcdc0e5dce67252aa6322d82424be928214fa2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/filp/whoops/zipball/a139776fa3f5985a50b509f2a02ff0f709d2a546",
-                "reference": "a139776fa3f5985a50b509f2a02ff0f709d2a546",
+                "url": "https://api.github.com/repos/filp/whoops/zipball/befcdc0e5dce67252aa6322d82424be928214fa2",
+                "reference": "befcdc0e5dce67252aa6322d82424be928214fa2",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.5.9 || ^7.0 || ^8.0",
+                "php": "^7.1 || ^8.0",
                 "psr/log": "^1.0.1 || ^2.0 || ^3.0"
             },
             "require-dev": {
-                "mockery/mockery": "^0.9 || ^1.0",
-                "phpunit/phpunit": "^4.8.36 || ^5.7.27 || ^6.5.14 || ^7.5.20 || ^8.5.8 || ^9.3.3",
-                "symfony/var-dumper": "^2.6 || ^3.0 || ^4.0 || ^5.0"
+                "mockery/mockery": "^1.0",
+                "phpunit/phpunit": "^7.5.20 || ^8.5.8 || ^9.3.3",
+                "symfony/var-dumper": "^4.0 || ^5.0"
             },
             "suggest": {
                 "symfony/var-dumper": "Pretty print complex values better with var-dumper available",
@@ -7684,7 +7686,7 @@
             ],
             "support": {
                 "issues": "https://github.com/filp/whoops/issues",
-                "source": "https://github.com/filp/whoops/tree/2.15.4"
+                "source": "https://github.com/filp/whoops/tree/2.16.0"
             },
             "funding": [
                 {
@@ -7692,7 +7694,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-11-03T12:00:00+00:00"
+            "time": "2024-09-25T12:00:00+00:00"
         },
         {
             "name": "friendsofphp/php-cs-fixer",

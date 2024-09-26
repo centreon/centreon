@@ -9,7 +9,7 @@
   ],
   "license": "GPL-2.0-only",
   "require": {
-    "centreon/centreon": "dev-MON-146851-upgrade-to-php-8.2-with-rector",
+    "centreon/centreon": "dev-MON-146850-php82",
     "ext-openssl": "*",
     "ext-json": "*"
   },
