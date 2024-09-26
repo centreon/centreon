@@ -21,31 +21,32 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations;
+namespace Tests\Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\AgentConfiguration\Domain\Model\Type;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
-use Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations\AgentConfigurationDto;
-use Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations\FindAgentConfigurations;
-use Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations\FindAgentConfigurationsResponse;
-use Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations\PollerDto;
+use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\AgentConfigurationDto;
+use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfiguration;
+use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\PollerDto;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Respect\Validation\Rules\No;
 
 beforeEach(function (): void {
-    $this->presenter = new FindAgentConfigurationsPresenterStub();
-    $this->useCase = new FindAgentConfigurations(
+    $this->presenter = new FindAgentConfigurationPresenterStub();
+    $this->useCase = new FindAgentConfiguration(
         user: $this->user = $this->createMock(ContactInterface::class),
         readRepository: $this->readRepository = $this->createMock(ReadAgentConfigurationRepositoryInterface::class),
-        requestParameters: $this->requestParameters = $this->createMock(RequestParametersInterface::class),
+        readMonitoringServerRepository: $this->readMonitoringServerRepository = $this->createMock(ReadMonitoringServerRepositoryInterface::class),
         readAccessGroupRepository: $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
     );
 });
@@ -64,25 +65,37 @@ it('should present a Forbidden Response when user does not have topology role', 
         ->toBe(AgentConfigurationException::accessNotAllowed()->getMessage());
 });
 
-it('should retrieve agent configurations without calculating ACL for an admin', function () {
+it('should present a Not Found Response when Agent Configuration does not exist', function () {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
 
-    $this->user
-        ->expects($this->once())
-        ->method('isAdmin')
-        ->willReturn(true);
-
     $this->readRepository
         ->expects($this->once())
-        ->method('findAllByRequestParameters');
+        ->method('find')
+        ->willReturn(null);
 
     ($this->useCase)($this->presenter);
+
+    expect($this->presenter->data)
+        ->toBeInstanceOf(NotFoundResponse::class)
+        ->and($this->presenter->data->getMessage())
+        ->toBe('Agent Configuration not found');
 });
 
-it('should retrieve agent configurations without calculating ACL for a non admin', function () {
+it('should present a Not Found Response when AC got pollers not accessible by the user', function () {
+    $configuration = new TelegrafConfigurationParameters([
+        'otel_server_address' => '10.10.10.10',
+        'otel_server_port' => 453,
+        'otel_public_certificate' => 'public_certif',
+        'otel_ca_certificate' => 'ca_certif',
+        'otel_private_key' => 'otel-key',
+        'conf_server_port' => 454,
+        'conf_certificate' => 'conf-certif',
+        'conf_private_key' => 'conf-key'
+    ]);
+
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -95,26 +108,8 @@ it('should retrieve agent configurations without calculating ACL for a non admin
 
     $this->readRepository
         ->expects($this->once())
-        ->method('findAllByRequestParametersAndAccessGroups');
-
-    ($this->useCase)($this->presenter);
-});
-
-it('should present an ErrorResponse when a generic exception is thrown', function () {
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(true);
-
-    $this->user
-        ->expects($this->once())
-        ->method('isAdmin')
-        ->willReturn(false);
-
-    $this->readRepository
-        ->expects($this->once())
-        ->method('findAllByRequestParametersAndAccessGroups')
-        ->willThrowException(new \Exception());
+        ->method('find')
+        ->willReturn(new AgentConfiguration(1, 'acOne', Type::TELEGRAF, $configuration));
 
     ($this->useCase)($this->presenter);
 
