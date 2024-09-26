@@ -44,7 +44,7 @@ export const useTimeline = ({ locale = 'en' }) => {
         unit: pluralizedT({ label: labelYear, count: diffDuration.years() })
       },
       {
-        value: diffDuration.hours(),
+        value: diffDuration.months(),
         unit: pluralizedT({ label: labelMonth, count: diffDuration.hours() })
       },
       {
