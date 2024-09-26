@@ -16389,6 +16389,9 @@ msgstr "Voulez-vous réinitialiser le formulaire ?"
 msgid "Excluded users"
 msgstr "Utilisateurs exclus"
 
+msgid "Year"
+msgstr "Année"
+
 msgid "Month"
 msgstr "Mois"
 
@@ -16400,6 +16403,9 @@ msgstr "Heure"
 
 msgid "Minute"
 msgstr "Minute"
+
+msgid "Minutes"
+msgstr "Minutes"
 
 msgid "Second"
 msgstr "Seconde"

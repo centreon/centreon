@@ -53,11 +53,7 @@ const initialize = (): void => {
           alignItems: 'center'
         }}
       >
-        <Timeline
-          data={data}
-          start_date={startDate}
-          end_date={endDate}
-        />
+        <Timeline data={data} start_date={startDate} end_date={endDate} />
       </div>
     )
   });
