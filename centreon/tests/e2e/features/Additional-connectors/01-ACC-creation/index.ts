@@ -5,6 +5,7 @@ before(() => {
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/acc-acl-user.json');
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
+  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-3.json'); 
 });
 
 beforeEach(() => {
@@ -49,10 +50,10 @@ When('the user fills in all the informations', () => {
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.contains('Central').click();
-  cy.getByTestId({ testId: 'vCenter name_value' }).eq(0).clear().type('vCenter-001');
-  cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
-  cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
-  cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2021');
+  cy.get('[id="vCenternamevalue]').clear().type('vCenter-001');
+  cy.get('[id="URLvalue]').clear().type('https://10.0.0.0/sdk');
+  cy.get('[id="Usernamevalue-label]').type('admin');
+  cy.get('[id="Passwordvalue-label]').type('Centreon!2021');
   cy.get('[id="Portvalue"]').should('have.value', '5700');
 });
 
@@ -62,8 +63,7 @@ When('the user clicks on Create', () => {
 
 Then('the first connector is displayed in the Specific Connector Configuration page', () => {
   cy.wait('@addAdditionalConnector');
-  cy.get('*[class="MuiTypography-root MuiTypography-body1 css-7bmf3k-text-rowNotHovered"]')
-    .eq(0)
+  cy.get('*[role="rowgroup"]')
     .should('contain', 'Connector-001');
 });
 
@@ -72,17 +72,48 @@ When('the user fills in the mandatory informations', () => {
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.contains('Poller-1').click();
-  cy.getByTestId({ testId: 'vCenter name_value' }).eq(0).clear().type('vCenter-002');
-  cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
-  cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
-  cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2021');
+  cy.get('[id="vCenternamevalue]').clear().type('vCenter-002');
+  cy.get('[id="URLvalue]').clear().type('https://10.0.0.0/sdk');
+  cy.get('[id="Usernamevalue-label]').type('admin');
+  cy.get('[id="Passwordvalue-label]').type('Centreon!2021');
   cy.get('[id="Portvalue"]').should('have.value', '5700');
 });
 
 Then('the second configuration is displayed in the Specific Connector Configuration page', () => {
   cy.wait('@addAdditionalConnector');
-  cy.get('#maint-content > div > div > div > div > div > div.css-1xsyaox-container > div:nth-child(2) > div > div > div.MuiTableBody-root.css-ws5y8r-tableBody > div:nth-child(2) > div > div:nth-child(1) > p')
+  cy.get('*[role="rowgroup"]')
     .should('contain', 'Connector-002');
+});
+
+Then('the third configuration is displayed in the Specific Connector Configuration page', () => {
+  cy.wait('@addAdditionalConnector');
+  cy.get('*[role="rowgroup"]')
+    .should('contain', 'Connector-003');
+});
+
+When('the user clicks to add a second vCenter', () => {
+  cy.getByLabel({ label: 'Add vCenter/ESX"', tag: 'button' }).click();
+});
+
+Then('a second group of parameters is displayed', () => {
+  cy.get('[class="MuiTypography-root MuiTypography-body1 css-1e1169r-additionalLabel-parametersTitleText"]').find('vCenter name').should('eq', 2);
+});
+
+When('the user fills in the informations of all the parameter groups', () => {
+  cy.getByLabel({ label: 'Name', tag: 'input' }).type('Connector-003');
+  cy.getByLabel({ label: 'Description', tag: 'textarea' }).type("I have multiple parameters groups");
+  cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
+  cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
+  cy.contains('Poller-2').click();
+  cy.get('[id="vCenternamevalue]').eq(0).clear().type('vCenter-001');
+  cy.get('[id="URLvalue]').eq(0).clear().type('https://10.0.0.0/sdk');
+  cy.get('[id="Usernamevalue-label]').eq(0).type('admin');
+  cy.get('[id="Passwordvalue-label]').eq(0).type('Centreon!2021');  
+  cy.get('[id="vCenternamevalue]').eq(1).clear().type('vCenter-002');
+  cy.get('[id="URLvalue]').eq(1).clear().type('https://10.0.0.1/sdk');
+  cy.get('[id="Usernamevalue-label]').eq(1).type('admin-2');
+  cy.get('[id="Passwordvalue-label]').eq(1).type('Centreon!2022');
+  cy.get('[id="Portvalue"]').should('have.value', '5700');
 });
 
 When("the user doesn't fill in all the mandatory informations", () => {
@@ -129,8 +160,8 @@ When('the user fills in the needed informations', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('Connector-002');
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
-  cy.contains('Poller-2').click();
-  cy.getByTestId({ testId: 'vCenter name_value' }).eq(0).clear().type('vCenter-002');
+  cy.contains('Poller-3').click();
+  cy.getByTestId({ testId: 'vCenter name_value' }).eq(0).clear().type('vCenter-003');
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2021');
