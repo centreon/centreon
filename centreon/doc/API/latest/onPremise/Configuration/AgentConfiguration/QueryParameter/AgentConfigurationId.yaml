@@ -1,0 +1,8 @@
+in: path
+name: ac_id
+required: true
+description: "Agent Configuration ID"
+schema:
+  type: integer
+  minimum: 1
+  example: 1
