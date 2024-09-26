@@ -10,7 +10,7 @@ import { Divider, Typography } from '@mui/material';
 import { Button } from '@centreon/ui/components';
 
 import { labelState, labelType } from '../../translatedLabels';
-import { Criteria, CriteriaDisplayProps } from '../Criterias/models';
+import type { Criteria, CriteriaDisplayProps } from '../Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../filterAtoms';
 
 import MemoizedCheckBox from './MemoizedCheckBox';
@@ -25,11 +25,11 @@ import { useStyles } from './criterias.style';
 import ExtendedFilter from './extendedFilter';
 import {
   BasicCriteria,
-  BuildDataByCategoryFilter,
+  type BuildDataByCategoryFilter,
   CategoryFilter,
-  ChangedCriteriaParams,
-  Data,
-  DataByCategoryFilter,
+  type ChangedCriteriaParams,
+  type Data,
+  type DataByCategoryFilter,
   ExtendedCriteria
 } from './model';
 import {

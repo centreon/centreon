@@ -9,12 +9,14 @@ interface Props {
   displayType: DisplayTypeEnum;
   hasMetaService: boolean;
   setPanelOptions: (panelOptions) => void;
+  isOpenTicketEnabled: boolean;
 }
 
 const Actions = ({
   displayType,
   setPanelOptions,
-  hasMetaService
+  hasMetaService,
+  isOpenTicketEnabled
 }: Props): JSX.Element => {
   return (
     <Grid container>
@@ -26,6 +28,7 @@ const Actions = ({
           displayType={displayType}
           hasMetaService={hasMetaService}
           setPanelOptions={setPanelOptions}
+          isOpenTicketEnabled={isOpenTicketEnabled}
         />
       </Grid>
     </Grid>
