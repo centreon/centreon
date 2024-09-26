@@ -16404,9 +16404,6 @@ msgstr "Heure"
 msgid "Minute"
 msgstr "Minute"
 
-msgid "Minutes"
-msgstr "Minutes"
-
 msgid "Second"
 msgstr "Seconde"
 
