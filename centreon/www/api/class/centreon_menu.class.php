@@ -47,7 +47,7 @@ class CentreonMenu extends CentreonWebService implements CentreonWebServiceDiInt
 {
     /** @var CentreonDB */
     public $pearDB;
-    /** @var array */
+    /** @var Container */
     private $dependencyInjector;
 
     /**
