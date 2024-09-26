@@ -167,6 +167,14 @@ function updateCommandInDB($cmd_id = null)
     updateCommand($cmd_id);
 }
 
+/**
+ * @param $cmd_id
+ * @param $params
+ *
+ * @return void
+ * @throws PDOException
+ * @throws UnexpectedValueException
+ */
 function updateCommand($cmd_id = null, $params = array())
 {
     global $form, $pearDB, $centreon, $isCloudPlatform;
@@ -202,6 +210,10 @@ function updateCommand($cmd_id = null, $params = array())
     $ret["command_activate"]["command_activate"] = (isset($ret["command_activate"]["command_activate"]))
             ? $ret["command_activate"]["command_activate"]
             : null;
+
+    if(!isset($ret['type']) || !isset($ret["command_type"]["command_type"])) {
+        throw new UnexpectedValueException('error');
+    }
 
     $type = $isCloudPlatform ? $ret['type'] : $ret["command_type"]["command_type"];
 
