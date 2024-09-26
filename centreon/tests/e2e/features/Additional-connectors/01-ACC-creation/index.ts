@@ -142,7 +142,7 @@ When("the user doesn't fill in correct type of informations", () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('a');
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
-  cy.contains('Poller-2').click();
+  cy.contains('Poller-3').click();
   cy.get('[id="Usernamevalue"]').type('admin');
   cy.get('[id="Passwordvalue"]').type('Centreon!2021');
   cy.get('[id="vCenternamevalue"]').clear().type('vCenter-002');
