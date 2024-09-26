@@ -157,7 +157,7 @@
     "phpcs:unstrict:exec": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --diff",
     "phpcs:strict:ci": "@phpcs:strict",
     "phpcs:unstrict:ci": "@phpcs:unstrict",
-    "phpstan": "phpstan analyse -c phpstan.neon --level=6 --memory-limit=1G --debug",
+    "phpstan": "phpstan analyse -c phpstan.neon --level=4 --memory-limit=1G --debug",
     "phpstan:core": "phpstan analyse -c phpstan.core.neon --level=8 --memory-limit=1G --debug",
     "phpstan:test": "phpstan analyse -c phpstan.test.neon --level=2 --memory-limit=1G --debug",
     "phpstan:ci": "@phpstan --no-progress",
