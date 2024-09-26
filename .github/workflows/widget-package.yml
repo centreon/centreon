@@ -21,9 +21,9 @@ on:
         required: true
       registry_password:
         required: true
-      sign_username:
+      registry_private_username:
         required: true
-      sign_token:
+      registry_private_token:
         required: true
 
 jobs:
@@ -59,5 +59,5 @@ jobs:
     secrets:
       registry_username: ${{ secrets.registry_username }}
       registry_password: ${{ secrets.registry_password }}
-      sign_username: ${{ secrets.sign_username }}
-      sign_token: ${{ secrets.sign_token }}
+      registry_private_username: ${{ secrets.registry_private_username }}
+      registry_private_token: ${{ secrets.registry_private_token }}
