@@ -29,6 +29,8 @@ use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\AgentConfigurationDto;
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfiguration;
+use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfigurationRequest;
+use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfigurationResponse;
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\PollerDto;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
@@ -57,7 +59,10 @@ it('should present a Forbidden Response when user does not have topology role', 
         ->method('hasTopologyRole')
         ->willReturn(false);
 
-    ($this->useCase)($this->presenter);
+    $request = new FindAgentConfigurationRequest();
+    $request->agentConfigurationId = 1;
+
+    ($this->useCase)($request, $this->presenter);
 
     expect($this->presenter->data)
         ->toBeInstanceOf(ForbiddenResponse::class)
@@ -76,7 +81,10 @@ it('should present a Not Found Response when Agent Configuration does not exist'
         ->method('find')
         ->willReturn(null);
 
-    ($this->useCase)($this->presenter);
+    $request = new FindAgentConfigurationRequest();
+    $request->agentConfigurationId = 1;
+
+    ($this->useCase)($request, $this->presenter);
 
     expect($this->presenter->data)
         ->toBeInstanceOf(NotFoundResponse::class)
@@ -96,6 +104,11 @@ it('should present a Not Found Response when AC got pollers not accessible by th
         'conf_private_key' => 'conf-key'
     ]);
 
+    $pollers = [
+        new Poller(2, 'pollerOne'),
+        new Poller(2, 'pollerTwo')
+    ];
+
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -111,49 +124,65 @@ it('should present a Not Found Response when AC got pollers not accessible by th
         ->method('find')
         ->willReturn(new AgentConfiguration(1, 'acOne', Type::TELEGRAF, $configuration));
 
-    ($this->useCase)($this->presenter);
+    $this->readRepository
+        ->expects($this->once())
+        ->method('findPollersByAcId')
+        ->willReturn($pollers);
+
+    $this->readMonitoringServerRepository
+        ->expects($this->once())
+        ->method('existByAccessGroups')
+        ->willReturn([1]);
+
+    $request = new FindAgentConfigurationRequest();
+    $request->agentConfigurationId = 1;
+
+    ($this->useCase)($request, $this->presenter);
+
+    expect($this->presenter->data)
+        ->toBeInstanceOf(NotFoundResponse::class)
+        ->and($this->presenter->data->getMessage())
+        ->toBe('Agent Configuration not found');
+});
+
+it('should present an Error Response when an unexpected error occurs', function () {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+
+    $this->readRepository
+        ->expects($this->once())
+        ->method('find')
+        ->willThrowException(new \Exception());
+
+    $request = new FindAgentConfigurationRequest();
+    $request->agentConfigurationId = 1;
+
+    ($this->useCase)($request, $this->presenter);
 
     expect($this->presenter->data)
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->data->getMessage())
-        ->toBe(AgentConfigurationException::errorWhileRetrievingObjects()->getMessage());
+        ->toBe(AgentConfigurationException::errorWhileRetrievingObject()->getMessage());
 });
 
-it('should present a FindAgentConfigurationsResponse when no errors occurred', function () {
-    $acOne = new AgentConfiguration(
-        id: 1,
-        name: 'acOne',
-        type: Type::TELEGRAF,
-        configuration: new TelegrafConfigurationParameters([
-            'otel_server_address' => '10.10.10.10',
-            'otel_server_port' => 453,
-            'otel_public_certificate' => 'public_certif',
-            'otel_ca_certificate' => 'ca_certif',
-            'otel_private_key' => 'otel-key',
-            'conf_server_port' => 454,
-            'conf_certificate' => 'conf-certif',
-            'conf_private_key' => 'conf-key'
-        ])
-    );
+it('should present a FindConfigurationResponse when everything is ok', function () {
+    $configuration = new TelegrafConfigurationParameters([
+        'otel_server_address' => '10.10.10.10',
+        'otel_server_port' => 453,
+        'otel_public_certificate' => 'public_certif',
+        'otel_ca_certificate' => 'ca_certif',
+        'otel_private_key' => 'otel-key',
+        'conf_server_port' => 454,
+        'conf_certificate' => 'conf-certif',
+        'conf_private_key' => 'conf-key'
+    ]);
 
-    $acTwo = new AgentConfiguration(
-        id: 2,
-        name: 'acTwo',
-        type: Type::TELEGRAF,
-        configuration: new TelegrafConfigurationParameters([
-            'otel_server_address' => '10.10.10.11',
-            'otel_server_port' => 453,
-            'otel_public_certificate' => 'public_certif',
-            'otel_ca_certificate' => 'ca_certif',
-            'otel_private_key' => 'otel-key',
-            'conf_server_port' => 454,
-            'conf_certificate' => 'conf-certif',
-            'conf_private_key' => 'conf-key'
-        ])
-    );
-
-    $pollerOne = new Poller(1, 'poller_1');
-    $pollerTwo = new Poller(2, 'poller_2');
+    $pollers = [
+        new Poller(1, 'pollerOne'),
+        new Poller(2, 'pollerTwo')
+    ];
 
     $this->user
         ->expects($this->once())
@@ -163,71 +192,48 @@ it('should present a FindAgentConfigurationsResponse when no errors occurred', f
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
-        ->willReturn(false);
+        ->willReturn(true);
 
     $this->readRepository
         ->expects($this->once())
-        ->method('findAllByRequestParametersAndAccessGroups')
-        ->willReturn([$acOne, $acTwo]);
-
-    $this->readAccessGroupRepository
-        ->expects($this->once())
-        ->method('findByContact')
-        ->willReturn([new AccessGroup(1, 'customer_non_admin_acl', 'not an admin')]);
+        ->method('find')
+        ->willReturn(new AgentConfiguration(1, 'acOne', Type::TELEGRAF, $configuration));
 
     $this->readRepository
-        ->expects($this->any())
+        ->expects($this->once())
         ->method('findPollersByAcId')
-        ->willReturn([$pollerOne, $pollerTwo]);
+        ->willReturn($pollers);
 
-    ($this->useCase)($this->presenter);
+    $request = new FindAgentConfigurationRequest();
+    $request->agentConfigurationId = 1;
 
-    expect($this->presenter->data)
-        ->toBeInstanceOf(FindAgentConfigurationsResponse::class)
-        ->and($this->presenter->data->agentConfigurations)
-        ->toBeArray()
-        ->and($this->presenter->data->agentConfigurations[0])
-        ->toBeInstanceOf(AgentConfigurationDto::class)
-        ->and($this->presenter->data->agentConfigurations[0]->id)
-        ->toBe($acOne->getId())
-        ->and($this->presenter->data->agentConfigurations[0]->name)
-        ->toBe($acOne->getName())
-        ->and($this->presenter->data->agentConfigurations[0]->type)
-        ->toBe($acOne->getType())
-        ->and($this->presenter->data->agentConfigurations[0]->pollers)
-        ->toBeArray()
-        ->and($this->presenter->data->agentConfigurations[0]->pollers[0])
-        ->toBeInstanceOf(PollerDto::class)
-        ->and($this->presenter->data->agentConfigurations[0]->pollers[0]->id)
-        ->toBe($pollerOne->getId())
-        ->and($this->presenter->data->agentConfigurations[0]->pollers[0]->name)
-        ->toBe($pollerOne->getName())
-        ->and($this->presenter->data->agentConfigurations[0]->pollers[1])
-        ->toBeInstanceOf(PollerDto::class)
-        ->and($this->presenter->data->agentConfigurations[0]->pollers[1]->id)
-        ->toBe($pollerTwo->getId())
-        ->and($this->presenter->data->agentConfigurations[0]->pollers[1]->name)
-        ->toBe($pollerTwo->getName())
-        ->and($this->presenter->data->agentConfigurations[1])
-        ->toBeInstanceOf(AgentConfigurationDto::class)
-        ->and($this->presenter->data->agentConfigurations[1]->id)
-        ->toBe($acTwo->getId())
-        ->and($this->presenter->data->agentConfigurations[1]->name)
-        ->toBe($acTwo->getName())
-        ->and($this->presenter->data->agentConfigurations[1]->type)
-        ->toBe($acTwo->getType())
-        ->and($this->presenter->data->agentConfigurations[1]->pollers)
-        ->toBeArray()
-        ->and($this->presenter->data->agentConfigurations[1]->pollers[0])
-        ->toBeInstanceOf(PollerDto::class)
-        ->and($this->presenter->data->agentConfigurations[1]->pollers[0]->id)
-        ->toBe($pollerOne->getId())
-        ->and($this->presenter->data->agentConfigurations[1]->pollers[0]->name)
-        ->toBe($pollerOne->getName())
-        ->and($this->presenter->data->agentConfigurations[1]->pollers[1])
-        ->toBeInstanceOf(PollerDto::class)
-        ->and($this->presenter->data->agentConfigurations[1]->pollers[1]->id)
-        ->toBe($pollerTwo->getId())
-        ->and($this->presenter->data->agentConfigurations[1]->pollers[1]->name)
-        ->toBe($pollerTwo->getName());
+    ($this->useCase)($request, $this->presenter);
+
+    $pollerDtoOne = new PollerDto();
+    $pollerDtoOne->id = 1;
+    $pollerDtoOne->name = 'pollerOne';
+    $pollerDtoTwo = new PollerDto();
+    $pollerDtoTwo->id = 2;
+    $pollerDtoTwo->name = 'pollerTwo';
+
+    $response = $this->presenter->data;
+    expect($response)
+        ->toBeInstanceOf(FindAgentConfigurationResponse::class)
+        ->and($response->id)->toBe(1)
+        ->and($response->name)->toBe('acOne')
+        ->and($response->type)->toBe(Type::TELEGRAF)
+        ->and($response->configuration)->toBe([
+            'otel_server_address' => '10.10.10.10',
+            'otel_server_port' => 453,
+            'otel_public_certificate' => 'public_certif',
+            'otel_ca_certificate' => 'ca_certif',
+            'otel_private_key' => 'otel-key',
+            'conf_server_port' => 454,
+            'conf_certificate' => 'conf-certif',
+            'conf_private_key' => 'conf-key'
+        ])
+        ->and($response->pollers[0]->id)->toBe(1)
+        ->and($response->pollers[0]->name)->toBe('pollerOne')
+        ->and($response->pollers[1]->id)->toBe(2)
+        ->and($response->pollers[1]->name)->toBe('pollerTwo');
 });
