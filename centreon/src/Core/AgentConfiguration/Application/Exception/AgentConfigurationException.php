@@ -29,22 +29,22 @@ class AgentConfigurationException extends \Exception
 
     public static function addAc(): self
     {
-        return new self(_('Error while adding an agent configuration'));
+        return new self(_('Error while adding a poller/agent configuration'));
     }
 
     public static function updateAc(): self
     {
-        return new self(_('Error while updating an agent configuration'));
+        return new self(_('Error while updating a poller/agent configuration'));
     }
 
     public static function deleteAc(): self
     {
-        return new self(_('Error while deleting an agent configuration'));
+        return new self(_('Error while deleting a poller/agent configuration'));
     }
 
     public static function accessNotAllowed(): self
     {
-        return new self(_('You are not allowed to access agent configurations'));
+        return new self(_('You are not allowed to access poller/agent configurations'));
     }
 
     public static function unsufficientRights(): self
@@ -79,7 +79,7 @@ class AgentConfigurationException extends \Exception
     {
         return new self(
             sprintf(
-                _("An agent configuration is already associated with poller ID(s) '%s'"),
+                _("A poller/agent configuration is already associated with poller ID(s) '%s'"),
                 implode(',', $invalidPollers)
             ),
             self::CODE_CONFLICT
@@ -110,13 +110,13 @@ class AgentConfigurationException extends \Exception
 
     public static function errorWhileRetrievingObject(): self
     {
-        return new self(_('Error while retrieving an agent configuration'));
+        return new self(_('Error while retrieving a poller/agent configuration'));
     }
 
     public static function nameAlreadyExists(string $name): self
     {
         return new self(
-            sprintf( _("The agent configuration name '%s' already exists"), $name),
+            sprintf( _("The poller/agent configuration name '%s' already exists"), $name),
             self::CODE_CONFLICT
         );
     }
@@ -124,7 +124,7 @@ class AgentConfigurationException extends \Exception
     public static function typeChangeNotAllowed(): self
     {
         return new self(
-            _('Changing type of an existing agent configuration is not allowed'),
+            _('Changing type of an existing poller/agent configuration is not allowed'),
             self::CODE_CONFLICT
         );
     }
@@ -140,7 +140,7 @@ class AgentConfigurationException extends \Exception
     public static function onlyOnePoller(int $pollerId, int $acId): self
     {
          return new self(
-            sprintf(_('Poller ID #%d is the only one linked to Agent Configuration ID #%d'), $pollerId, $acId),
+            sprintf(_('Poller ID #%d is the only one linked to poller/agent configuration ID #%d'), $pollerId, $acId),
             self::CODE_CONFLICT
         );
     }
