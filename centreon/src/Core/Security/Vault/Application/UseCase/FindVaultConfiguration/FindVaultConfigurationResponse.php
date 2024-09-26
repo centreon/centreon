@@ -25,9 +25,9 @@ namespace Core\Security\Vault\Application\UseCase\FindVaultConfiguration;
 
 final class FindVaultConfigurationResponse
 {
-    public string $address;
+    public string $address = '';
 
-    public int $port;
+    public int $port = 443;
 
-    public string $rootPath;
+    public string $rootPath = '';
 }

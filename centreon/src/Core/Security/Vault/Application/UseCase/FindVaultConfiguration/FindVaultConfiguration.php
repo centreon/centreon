@@ -97,4 +97,5 @@ final class FindVaultConfiguration
         $findVaultConfigurationResponse->rootPath = $vaultConfiguration->getRootPath();
 
         return $findVaultConfigurationResponse;
-    }}
+    }
+}
