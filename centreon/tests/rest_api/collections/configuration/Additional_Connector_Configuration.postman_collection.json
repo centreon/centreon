@@ -197,6 +197,83 @@
 					"response": []
 				},
 				{
+					"name": "List pollers",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(4);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"Central\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
+									"        \"id\": 2,\r",
+									"        \"name\": \"Poller-1\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[2]).to.include({\r",
+									"        \"id\": 3,\r",
+									"        \"name\": \"Poller-2\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[3]).to.include({\r",
+									"        \"id\": 4,\r",
+									"        \"name\": \"Poller-3\"\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"pollers",
+								"vmware_v6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Add a additional connector configuration with all informations",
 					"event": [
 						{
@@ -519,6 +596,75 @@
 							"path": [
 								"configuration",
 								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List pollers",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"        \"id\": 3,\r",
+									"        \"name\": \"Poller-2\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
+									"        \"id\": 4,\r",
+									"        \"name\": \"Poller-3\"\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"pollers",
+								"vmware_v6"
 							]
 						}
 					},
@@ -1350,6 +1496,71 @@
 					"response": []
 				},
 				{
+					"name": "List pollers",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"Central\"\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"pollers",
+								"vmware_v6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Delete an additional connector configuration",
 					"event": [
 						{
@@ -1490,6 +1701,75 @@
 							"path": [
 								"configuration",
 								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List pollers",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"Central\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
+									"        \"id\": 2,\r",
+									"        \"name\": \"Poller-1\"\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"pollers",
+								"vmware_v6"
 							]
 						}
 					},
@@ -2338,6 +2618,66 @@
 					"response": []
 				},
 				{
+					"name": "List pollers",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The Pollers has not been listed.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    \r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional connector configurations\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"pollers",
+								"vmware_v6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Logout from non-admin user",
 					"event": [
 						{
@@ -2647,6 +2987,75 @@
 					"response": []
 				},
 				{
+					"name": "List pollers",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"Central\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
+									"        \"id\": 2,\r",
+									"        \"name\": \"Poller-1\"\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"pollers",
+								"vmware_v6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Add a additional connector configuration",
 					"event": [
 						{
@@ -2729,6 +3138,66 @@
 							"path": [
 								"configuration",
 								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List pollers",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result).to.be.an('Array').that.is.empty;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"pollers",
+								"vmware_v6"
 							]
 						}
 					},
@@ -3034,6 +3503,71 @@
 								"configuration",
 								"additional-connector-configurations",
 								"{{ACC1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List pollers",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"        \"id\": 4,\r",
+									"        \"name\": \"Poller-3\"\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"pollers",
+								"vmware_v6"
 							]
 						}
 					},
@@ -3771,6 +4305,66 @@
 					"response": []
 				},
 				{
+					"name": "List pollers",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result).to.be.an('Array').that.is.empty;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"pollers",
+								"vmware_v6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Update an additional connector configuration",
 					"event": [
 						{
@@ -3995,6 +4589,71 @@
 								"configuration",
 								"additional-connector-configurations",
 								"{{ACC3Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List pollers",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"        \"id\": 3,\r",
+									"        \"name\": \"Poller-2\"\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"pollers",
+								"vmware_v6"
 							]
 						}
 					},
