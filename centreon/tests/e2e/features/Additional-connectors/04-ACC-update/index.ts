@@ -49,10 +49,10 @@ Given('an additional connector configuration is already created', () => {
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.contains('Central').click();
-  cy.getByTestId({ testId: 'vCenter name_value' }).eq(0).clear().type('vCenter-001');
-  cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
-  cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
-  cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2021');
+  cy.get('[id="vCenternamevalue"]').clear().type('vCenter-001');
+  cy.get('[id="URLvalue"]').clear().type('https://10.0.0.0/sdk');
+  cy.get('[id="Usernamevalue"]').type('admin');
+  cy.get('[id="Passwordvalue"]').type('Centreon!2021');
   cy.get('[id="Portvalue"]').should('have.value', '5700');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
   cy.wait('@addAdditionalConnector');
@@ -74,10 +74,10 @@ Then('all of the informations of the additional connector configuration are corr
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('be.empty');
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.get('*[class="MuiChip-label MuiChip-labelMedium css-14vsv3w"]').should('contain', 'Central');
-  cy.getByTestId({ testId: 'vCenter name_value' }).eq(1).should('have.value', 'vCenter-001');
-  cy.getByTestId({ testId: 'URL_value' }).eq(1).should('have.value', 'https://10.0.0.0/sdk');
-  cy.getByTestId({ testId: 'Username_value' }).eq(1).should('be.empty');
-  cy.getByTestId({ testId: 'Password_value' }).eq(1).should('be.empty');
+  cy.get('[id="vCenternamevalue"]').should('have.value', 'vCenter-001');
+  cy.get('[id="URLvalue"]').should('have.value', 'https://10.0.0.0/sdk');
+  cy.get('[id="Usernamevalue"]').should('be.empty');
+  cy.get('[id="Passwordvalue"]').should('be.empty');
   cy.get('[id="Portvalue"]').should('have.value', '5700');
 });
 
@@ -88,10 +88,10 @@ When('the user udpates some informations', () => {
   cy.getByTestId({ testId: 'CancelIcon' }).click();
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click().click();
   cy.contains('Poller-1').click();
-  cy.getByTestId({ testId: 'vCenter name_value' }).eq(0).clear().type('vCenter-002');
-  cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.3.3.3/sdk');
-  cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
-  cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2022');
+  cy.get('[id="vCenternamevalue"]').clear().type('vCenter-002');
+  cy.get('[id="URLvalue"]').clear().type('https://10.3.3.3/sdk');
+  cy.get('[id="Usernamevalue"]').type('admin');
+  cy.get('[id="Passwordvalue"]').type('Centreon!2022');
   cy.get('[id="Portvalue"]').clear().click().type('6900');
 });
 
@@ -112,9 +112,9 @@ Then('the informations are successfully saved', () => {
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('be.empty');
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.get('*[class="MuiChip-label MuiChip-labelMedium css-14vsv3w"]').should('contain', 'Poller-1');
-  cy.getByTestId({ testId: 'vCenter name_value' }).eq(1).should('have.value', 'vCenter-002');
-  cy.getByTestId({ testId: 'URL_value' }).eq(1).should('have.value', 'https://10.3.3.3/sdk');
-  cy.getByTestId({ testId: 'Username_value' }).eq(1).should('be.empty');
-  cy.getByTestId({ testId: 'Password_value' }).eq(1).should('be.empty');
+  cy.get('[id="vCenternamevalue"]').should('have.value', 'vCenter-002');
+  cy.get('[id="URLvalue"]').should('have.value', 'https://10.3.3.3/sdk');
+  cy.get('[id="Usernamevalue"]').should('be.empty');
+  cy.get('[id="Passwordvalue"]').should('be.empty');
   cy.get('[id="Portvalue"]').should('have.value', '6900');
 });

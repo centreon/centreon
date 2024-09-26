@@ -45,10 +45,10 @@ Given('an additional connector configuration is already created', () => {
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.contains('Central').click();
-  cy.getByTestId({ testId: 'vCenter name_value' }).eq(0).clear().type('vCenter-001');
-  cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
-  cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
-  cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2021');
+  cy.get('[id="vCenternamevalue"]').clear().type('vCenter-001');
+  cy.get('[id="URLvalue"]').clear().type('https://10.0.0.0/sdk');
+  cy.get('[id="Usernamevalue"]').type('admin');
+  cy.get('[id="Passwordvalue"]').type('Centreon!2021');
   cy.get('[id="Portvalue"]').should('have.value', '5700');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
   cy.wait('@addAdditionalConnector');
@@ -64,5 +64,6 @@ When('the user confirms on the pop-up', () => {
 
 Then('the additional connector configuration is no longer displayed in the listing page', () => {
   cy.wait('@deleteConnector');
-  cy.get('*[class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-122biyf-root-emptyDataCell"]').eq(0).should('contain', 'No result found');
+  cy.get('*[role="rowgroup"]')
+    .should('contain', 'No result found');
 });
