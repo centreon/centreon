@@ -23,11 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Application\UseCase\FindVaultConfiguration;
 
-final class FindVaultConfigurationResponse
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+interface FindVaultConfigurationPresenterInterface
 {
-    public string $address;
-
-    public int $port;
-
-    public string $rootPath;
+    public function presentResponse(FindVaultConfigurationResponse|ResponseStatusInterface $response): void;
 }
