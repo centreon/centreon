@@ -382,6 +382,32 @@ class CentreonStatistics
     }
 
     /**
+     * Get additional connector configurations data.
+     *
+     * @return array
+     */
+    public function getAccData(): array
+    {
+        $data = ['total' => 0];
+
+        $statement = $this->dbConfig->executeQuery(
+            <<<'SQL'
+                SELECT type, count(id) as value
+                FROM additional_connector_configuration
+                GROUP BY type
+                UNION SELECT 'total' as type, count(id) as value
+                FROM additional_connector_configuration
+                SQL
+        );
+
+        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $row) {
+            $data[$row['type']] = $row['value'];
+        }
+
+        return $data;
+    }
+
+    /**
      * @return array{
      *     total: int,
      *     avg_hg_notification?: float,

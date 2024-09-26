@@ -5,6 +5,5 @@
   "vault_broker": 0,
   "vault_gorgone": 0,
   "ad_exclusion_periods": 0,
-  "resource_access_management": 2,
-  "resources_table_widget_open_tickets": 0
+  "resource_access_management": 2
 }

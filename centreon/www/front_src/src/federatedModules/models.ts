@@ -57,7 +57,8 @@ export enum FederatedWidgetOptionType {
   timePeriod = 'time-period',
   timezone = 'timezone',
   topBottomSettings = 'top-bottom-settings',
-  valueFormat = 'value-format'
+  valueFormat = 'value-format',
+  warning = 'warning'
 }
 
 interface WidgetHiddenCondition {
@@ -111,6 +112,7 @@ export interface FederatedWidgetProperties {
         };
       };
       groups: Array<SelectEntry>;
+      hasModule?: string;
     };
   };
   customBaseColor?: boolean;

@@ -267,10 +267,22 @@ contents:
     file_info:
       mode: 0664
 
-  - src: "../cron"
-    dst: "/usr/share/centreon/cron"
+  - dst: "/usr/share/centreon/cron"
+    type: dir
     file_info:
       mode: 0755
+
+  - src: "../cron/{centreon-backup.pl,centAcl.php,centAcl-Func.php,centstorage_purge.php,centAcl-Func.php,eventReportBuilder,centreon-send-stats.php,dashboardBuilder,centreon-backup-mysql.sh,centreon-partitioning.php,downtimeManager.php,centKnowledgeSynchronizer.php}"
+    dst: "/usr/share/centreon/cron/"
+    file_info:
+      mode: 0755
+
+  - src: "../cron/outdated-token-removal.php"
+    dst: "/usr/share/centreon/cron/outdated-token-removal.php"
+    file_info:
+      mode: 0755
+      owner: "centreon"
+      group: "centreon"
 
   - src: "../lib"
     dst: "/usr/share/centreon/lib"

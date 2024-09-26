@@ -74,10 +74,7 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
     {
 
         // Only get subRequest is asked and if ruleId is provided
-        if (
-            $filter->getOnlyWithTicketsOpened() === false
-            || $filter->getRuleId() === null
-        ) {
+        if ($filter->getRuleId() === null) {
             return '';
         }
 
@@ -86,6 +83,10 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
         if ($macroName === null) {
             throw new \Exception('Macro name used for rule not found');
         }
+
+        $onlyOpenedTicketsSubFilter = $filter->getOnlyWithTicketsOpened()
+            ? '(host_tickets.timestamp IS NOT NULL OR service_tickets.timestamp IS NOT NULL)'
+            : 'host_tickets.timestamp IS NULL AND service_tickets.timestamp IS NULL';
 
         return <<<SQL
                 AND EXISTS (
@@ -118,7 +119,7 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
                             (h.host_id = resources.parent_id AND s.service_id = resources.id)
                             OR (h.host_id = resources.id AND s.service_id IS NULL)
                         )
-                        AND (host_tickets.timestamp IS NOT NULL OR service_tickets.timestamp IS NOT NULL)
+                        AND {$onlyOpenedTicketsSubFilter}
                     LIMIT 1
                 )
             SQL;
