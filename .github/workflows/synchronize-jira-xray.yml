@@ -7,9 +7,15 @@ on:
       - dev-[2-9][0-9].[0-9][0-9].x
 
 jobs:
+  set-pr-environment:
+    if: github.event.pull_request.base.repo.name  == 'centreon'
+    uses: ./.github/workflows/set-pr-environment.yml
+
   get-version:
     uses: ./.github/workflows/get-version.yml
+    needs: [set-pr-environment]
     with:
+      pull_request_environment: ${{ needs.set-pr-environment.outputs.pull_request_environment }}
       version_file: centreon/www/install/insertBaseConf.sql
 
   synchronize-jira-xray:

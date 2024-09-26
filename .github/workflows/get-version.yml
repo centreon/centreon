@@ -4,6 +4,15 @@ on:
       version_file:
         required: true
         type: string
+      pull_request_environment:
+        description: "Environment for workflow run deployment"
+        required: true
+        type: string
+    secrets:
+      my_internal_secret:
+        required: false
+      my_shared_secret:
+        required: false
     outputs:
       major_version:
         description: "major version"
@@ -30,9 +39,11 @@ on:
         description: "context of release (cloud or not cloud)"
         value: ${{ jobs.get-version.outputs.release_cloud }}
 
+
 jobs:
   get-version:
     runs-on: ubuntu-22.04
+    environment: ${{ inputs.pull_request_environment }}
     outputs:
       major_version: ${{ steps.get_version.outputs.major_version }}
       minor_version: ${{ steps.get_version.outputs.minor_version }}
@@ -41,7 +52,7 @@ jobs:
       environment: ${{ steps.get_version.outputs.env }}
       os_and_database_matrix: ${{ steps.get_os_database_matrix.outputs.result }}
       release_type: ${{ steps.get_version.outputs.release_type }}
-      release_cloud: ${{ steps.get_version.outputs.release_cloud}}
+      release_cloud: ${{ steps.get_version.outputs.release_cloud }}
 
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -178,19 +189,33 @@ jobs:
               ;;
             *)
               # Any branch name
-              GITHUB_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
-              GITHUB_BRANCH_PR_STATE="$(gh pr view $BRANCHNAME -q .state --json headRefName,baseRefName,state)"
+              echo "Github repository context var: $GITHUB_REPOSITORY"
+              if [[ "${{ inputs.pull_request_environment }}" == "internal_contributor" ]]; then
+                echo "Internal contribution."
+                echo "release_cloud=1" >> $GITHUB_OUTPUT
+                echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+                # GITHUB_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
+                # GITHUB_BRANCH_PR_STATE="$(gh pr view $BRANCHNAME -q .state --json headRefName,baseRefName,state)"
+              elif [[ "${{ inputs.pull_request_environment }}" == "external_contributor" ]]; then
+                echo "External contribution."
+                echo "release_cloud=1" >> $GITHUB_OUTPUT
+                echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+                # CONTRIB_PR_NUMBER=$(gh pr list --repo ${{ github.repository }} --head ${{ github.head_ref }} -q .[].number --json number)
+                # GITHUB_BRANCH_PR_STATE="$(gh pr view $CONTRIB_PR_NUMBER -q .state --json headRefName,baseRefName,state)"
+              else
+                echo "Invalid value for inputs.pull_request_environment : ${{ inputs.pull_request_environment }} ."
+              fi
               echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
 
               # Check if pull request branch targeting develop
-              if [[ "$GITHUB_BRANCH_BASE_REF_NAME" == "develop" ]] && [[ "$GITHUB_BRANCH_PR_STATE" == "OPEN" ]]; then
-                echo "release_cloud=1" >> $GITHUB_OUTPUT
-                echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
-              else
-                echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
-                echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
-              fi
-              ;;
+              # if [[ "$GITHUB_BRANCH_BASE_REF_NAME" == "develop" ]] && [[ "$GITHUB_BRANCH_PR_STATE" == "OPEN" ]]; then
+              #   echo "release_cloud=1" >> $GITHUB_OUTPUT
+              #   echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+              # else
+              #   echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
+              #   echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+              # fi
+              # ;;
           esac
 
           case "$BRANCHNAME" in

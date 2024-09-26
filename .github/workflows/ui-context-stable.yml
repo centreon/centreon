@@ -2,7 +2,7 @@ name: centreon-ui-context-stable
 
 on:
   workflow_dispatch:
-  pull_request:
+  pull_request_target:
     types:
       - closed
     paths:
@@ -17,7 +17,9 @@ env:
 jobs:
   publish-new-npm-version:
     runs-on: ubuntu-22.04
-    if: ${{ github.event.pull_request.merged == true }}
+    if: |
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.repo.name  == 'centreon'
 
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7

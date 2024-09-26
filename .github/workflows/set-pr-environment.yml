@@ -1,0 +1,40 @@
+on:
+  workflow_call:
+    outputs:
+      pull_request_environment:
+        description: "Environment for workflow run deployment"
+        value: ${{ jobs.set-pr-environment.outputs.pull_request_environment }}
+
+jobs:
+  set-pr-environment:
+    runs-on: ubuntu-22.04
+    outputs:
+      pull_request_environment: ${{ steps.set-pr-environment.outputs.pull_request_environment }}
+    steps:
+      - name: Determine whether the contribution is internal or external
+        id: set-pr-environment
+        run: |
+          # By default, all pull requests are considered from external contributors
+          # (head_ref does not belong to organization repositories + a fork) + (pull_request_target)
+          # Requiring internal approvals if head does not come from centreon/centreon and pull_request_target
+          # and head is a fork
+          PULL_REQUEST_ENVIRONMENT="external_contributor"
+
+          # (head_ref belongs to organization repositories + not a fork) + (any event that is not a pull_request_target)
+          # Not requiring internal approvals if head comes from centreon/centreon and push & dispatch
+          # and the head is not a fork
+          if [[ ("${{ github.event_name }}" != "pull_request" || "${{ github.event_name }}" != "pull_request_target")
+            && "${{ github.event.pull_request.head.repo.fork }}" == "false" ]]
+          then
+            PULL_REQUEST_ENVIRONMENT="internal_contributor"
+          elif [[ "${{ github.event_name }}" != "pull_request_target" ]]
+          then
+            PULL_REQUEST_ENVIRONMENT="internal_contributor"
+          fi
+          echo "pull_request_environment=$PULL_REQUEST_ENVIRONMENT" >> $GITHUB_OUTPUT
+          cat $GITHUB_OUTPUT
+        shell: bash
+
+      - name: DEBUG Check env secret
+        run: echo "is my secret safe ? ${{ secrets.MY_INTERNAL_SECRET }}"
+        shell: bash
