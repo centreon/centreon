@@ -21,7 +21,7 @@ Feature: Create a new Additional Connector Configuration
     Then the second configuration is displayed in the Specific Connector Configuration page
 #    And the parameters should be saved in vault
 
-Scenario: Add an additional connector configuration with multiple parameter groups
+  Scenario: Add an additional connector configuration with multiple parameter groups
     Given a non-admin user is in the Specific Connector Configuration page
     When the user clicks on Add
     Then a pop-up menu with the form is displayed
