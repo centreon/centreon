@@ -82,19 +82,15 @@ export const useInputs = (): {
                   type: value,
                   configuration: equals(value.id, AgentType.Telegraf)
                     ? {
-                        otelServerAddress: '',
-                        otelServerPort: '',
-                        confServerPort: '',
+                        confServerPort: 1443,
                         otelPrivateKey: '',
-                        otelCaCertificate: '',
+                        otelCaCertificate: null,
                         otelPublicCertificate: '',
                         confPrivateKey: '',
                         confCertificate: ''
                       }
                     : {
                         isReverse: true,
-                        otlpReceiverAddress: '',
-                        otlpReceiverPort: '',
                         otlpCertificate: '',
                         otlpCaCertificate: null,
                         otlpCaCertificateName: null,
