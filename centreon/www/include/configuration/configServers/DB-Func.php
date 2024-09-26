@@ -1299,7 +1299,7 @@ function duplicateRemoteServerInformation(int $duplicatedId, int $newId): void
 {
     global $pearDB;
     $remoteServerInformation = getRemoteServerInformation($duplicatedId);
-    if (! empty($remoteServerInformation)) {
+    if ($remoteServerInformation !== []) {
         $insertRemoteServerStatement = $pearDB->prepare(
             "INSERT INTO `remote_servers` (ip, `version`, is_connected,
             centreon_path, http_method, http_port, no_check_certificate, no_proxy, server_id) VALUES

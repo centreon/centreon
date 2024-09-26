@@ -18,13 +18,13 @@
 
 $currentPath = __DIR__;
 
-if (!defined('_MODULE_PATH_')) {
+if (! defined('_MODULE_PATH_')) {
     define('_MODULE_PATH_', _CENTREON_PATH_ . '/www/modules/centreon-awie/');
 }
 
 // Autoload
 $sAppPath = _MODULE_PATH_ . '/core/class/';
-spl_autoload_register(function ($sClass) use ($sAppPath) {
+spl_autoload_register(function ($sClass) use ($sAppPath): void {
     $sFilePath = '';
 
     $explodedClassname = explode('\\', $sClass);

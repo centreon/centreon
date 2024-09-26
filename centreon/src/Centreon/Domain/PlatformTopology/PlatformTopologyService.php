@@ -493,7 +493,7 @@ class PlatformTopologyService implements PlatformTopologyServiceInterface
     public function getPlatformTopology(): array
     {
         $platformTopology = $this->platformTopologyRepository->getPlatformTopology();
-        if (empty($platformTopology)) {
+        if ($platformTopology === []) {
             throw new EntityNotFoundException(_('No Platform Topology found.'));
         }
 
@@ -543,7 +543,7 @@ class PlatformTopologyService implements PlatformTopologyServiceInterface
 
         $platformTopology = $this->platformTopologyRepository->getPlatformTopologyByAccessGroupIds($accessGroupIds);
 
-        if (empty($platformTopology)) {
+        if ($platformTopology === []) {
             throw new EntityNotFoundException(_('No Platform Topology found.'));
         }
 
@@ -592,7 +592,7 @@ class PlatformTopologyService implements PlatformTopologyServiceInterface
             }
             $childPlatforms = $this->platformTopologyRepository->findChildrenPlatformsByParentId($serverId);
 
-            if (!empty($childPlatforms)) {
+            if ($childPlatforms !== []) {
                 /**
                  * If at least one children platform was found,
                  * find the Top Parent platform and link children platform(s) to it.

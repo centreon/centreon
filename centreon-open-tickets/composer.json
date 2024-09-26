@@ -1,53 +1,70 @@
 {
-    "name": "centreon/centreon-open-tickets",
-    "description": "Module dedicated to open case on various Ticket systems",
-    "version": "24.10.0",
-    "type": "project",
-    "license": "GPL-2.0-only",
-    "keywords": [
-        "centreon",
-        "centreon-open-tickets"
-    ],
-    "scripts": {
-        "test": "pest",
-        "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage.xml --no-interaction --do-not-cache-result",
-        "codestyle": "phpcs --standard=./ruleset.xml ./",
-        "codestyle:ci": "@codestyle --report=checkstyle --report-file=./build/checkstyle.xml --no-cache",
-        "phpstan": "phpstan analyse -c phpstan.neon --level 6 --memory-limit=512M",
-        "phpstan:ci": "@phpstan --error-format=checkstyle --no-interaction --no-progress"
-    },
-    "repositories": [{
-        "type": "path",
-        "url": "../centreon"
-    }],
-    "require": {
-        "centreon/centreon": "dev-develop",
-        "ext-openssl": "*",
-        "ext-json": "*"
-    },
-    "require-dev": {
-        "beberlei/assert": "^3.3",
-        "centreon/centreon-test-lib": "dev-master",
-        "phpstan/phpstan": "^1.3.0",
-        "phpstan/phpstan-beberlei-assert": "^1.0.0",
-        "squizlabs/php_codesniffer": "^3.5",
-        "symfony/console": "6.4.*",
-        "pestphp/pest": "^1.21"
-    },
-    "autoload": {
-        "psr-4": {
-            "CentreonOpenTickets\\": "src/CentreonOpenTickets",
-            "Tests\\": "tests/php/"
-        }
-    },
-    "config": {
-        "secure-http": false,
-        "platform": {
-            "php": "8.1"
-        },
-        "allow-plugins": {
-            "symfony/flex": false,
-            "pestphp/pest-plugin": true
-        }
+  "name": "centreon/centreon-open-tickets",
+  "description": "Module dedicated to open case on various Ticket systems",
+  "version": "24.10.0",
+  "type": "project",
+  "keywords": [
+    "centreon",
+    "centreon-open-tickets"
+  ],
+  "license": "GPL-2.0-only",
+  "require": {
+    "centreon/centreon": "dev-MON-146851-upgrade-to-php-8.2-with-rector",
+    "ext-openssl": "*",
+    "ext-json": "*"
+  },
+  "require-dev": {
+    "beberlei/assert": "^3.3",
+    "centreon/centreon-test-lib": "dev-MON-147667-upgrade-to-php-8.2",
+    "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
+    "friendsofphp/php-cs-fixer": "3.64.*",
+    "pestphp/pest": "^1.21",
+    "phpcompatibility/php-compatibility": "9.3.*",
+    "phpstan/phpstan": "1.12.*",
+    "phpstan/phpstan-beberlei-assert": "1.1.*",
+    "rector/rector": "1.2.*",
+    "squizlabs/php_codesniffer": "3.10.*",
+    "symfony/console": "6.4.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "CentreonOpenTickets\\": "src/CentreonOpenTickets",
+      "Tests\\": "tests/php/"
     }
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../centreon"
+    }
+  ],
+  "config": {
+    "secure-http": false,
+    "sort-packages": true,
+    "platform": {
+      "php": "8.2"
+    },
+    "allow-plugins": {
+      "symfony/flex": false,
+      "pestphp/pest-plugin": true,
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  },
+  "scripts": {
+    "test": "pest --do-not-cache-result",
+    "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage.xml --no-interaction",
+    "phpcs:strict": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff",
+    "phpcs:unstrict": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff",
+    "phpcs:strict:exec": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --diff",
+    "phpcs:unstrict:exec": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --diff",
+    "phpcs:strict:ci": "@phpcs:strict",
+    "phpcs:unstrict:ci": "@phpcs:unstrict",
+    "phpstan": "phpstan analyse -c phpstan.neon --level=2 --memory-limit=512M --debug",
+    "phpstan:core": "phpstan analyse -c phpstan.core.neon --level=9 --memory-limit=512M --debug",
+    "phpstan:ci": "@phpstan --no-progress",
+    "phpstan:core:ci": "@phpstan:core --no-progress",
+    "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
+    "rector:check": "rector --dry-run --debug",
+    "rector:exec": "rector --debug"
+  }
 }

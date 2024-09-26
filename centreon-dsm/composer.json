@@ -3,28 +3,44 @@
   "version": "23.04.0",
   "type": "project",
   "license": "GPL-2.0-only",
-  "scripts": {
-    "codestyle": "phpcs --extensions=php --standard=./ruleset.xml ./",
-    "codestyle:ci": "@codestyle --report=checkstyle --report-file=./build/checkstyle.xml --no-cache"
-  },
-  "repositories": [{
-    "type": "path",
-    "url": "../centreon"
-  }],
   "require": {
-    "centreon/centreon": "dev-develop"
+    "centreon/centreon": "dev-MON-146851-upgrade-to-php-8.2-with-rector"
   },
   "require-dev": {
-    "squizlabs/php_codesniffer": "^3.5",
-    "phpstan/phpstan": "^1.10"
+    "centreon/centreon-test-lib": "dev-MON-147667-upgrade-to-php-8.2",
+    "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
+    "friendsofphp/php-cs-fixer": "3.64.*",
+    "phpcompatibility/php-compatibility": "9.3.*",
+    "phpstan/phpstan": "1.12.*",
+    "rector/rector": "1.2.*",
+    "squizlabs/php_codesniffer": "3.10.*"
   },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../centreon"
+    }
+  ],
   "config": {
     "secure-http": false,
+    "sort-packages": true,
     "platform": {
-      "php": "8.1"
+      "php": "8.2"
     },
     "allow-plugins": {
-      "symfony/flex": false
+      "symfony/flex": false,
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "pestphp/pest-plugin": true
     }
+  },
+  "scripts": {
+    "phpcs": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff",
+    "phpcs:exec": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --diff",
+    "phpcs:ci": "@phpcs",
+    "phpstan": "phpstan analyse -c phpstan.neon --level=0 --memory-limit=512M --debug",
+    "phpstan:ci": "@phpstan --no-progress",
+    "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
+    "rector:check": "rector --dry-run --debug",
+    "rector:exec": "rector --debug"
   }
 }

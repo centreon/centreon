@@ -41,7 +41,7 @@ if (!isset($centreon)) {
 include("./include/common/autoNumLimit.php");
 
 $SearchTool = null;
-$queryValues = array();
+$queryValues = [];
 $search = null;
 if (isset($_POST['searchCurve'])) {
     $search = $_POST['searchCurve'];
@@ -104,15 +104,12 @@ $form = new HTML_QuickFormCustom('select_form', 'POST', "?p=" . $p);
 //Different style between each lines
 $style = "one";
 
-$attrBtnSuccess = array(
-    "class" => "btc bt_success",
-    "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"
-);
+$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
 
 //Fill a tab with a multidimensionnal Array we put in $tpl
-$yesOrNo = array(null => _("No"), 0 => _("No"), 1 => _("Yes"));
-$elemArr = array();
+$yesOrNo = [null => _("No"), 0 => _("No"), 1 => _("Yes")];
+$elemArr = [];
 for ($i = 0; $compo = $stmt->fetch(); $i++) {
     $selectedElements = $form->addElement('checkbox', "select[" . $compo['compo_id'] . "]");
     $moptions = "&nbsp;<input onKeypress=\"if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) " .
@@ -123,30 +120,10 @@ for ($i = 0; $compo = $stmt->fetch(); $i++) {
     $query = "SELECT h.host_name FROM giv_components_template AS gct, host AS h WHERE gct.host_id = '" .
         $compo["host_id"] . "' AND gct.host_id = h.host_id";
     $titles = $pearDB->query($query);
-    if ($titles->rowCount()) {
-        $title = $titles->fetchRow();
-    } else {
-        $title = array("host_name" => "Global");
-    }
+    $title = $titles->rowCount() ? $titles->fetchRow() : ["host_name" => "Global"];
     $titles->closeCursor();
-    $elemArr[$i] = array(
-        "MenuClass" => "list_" . $style,
-        "title" => $title["host_name"],
-        "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_name" => $compo["name"],
-        "RowMenu_link" => "main.php?p=" . $p . "&o=c&compo_id=" . $compo['compo_id'],
-        "RowMenu_desc" => $compo["ds_name"],
-        "RowMenu_legend" => $compo["ds_legend"],
-        "RowMenu_stack" => $yesOrNo[$compo["ds_stack"]],
-        "RowMenu_order" => $compo["ds_order"],
-        "RowMenu_transp" => $compo["ds_transparency"],
-        "RowMenu_clrLine" => $compo["ds_color_line"],
-        "RowMenu_clrArea" => $compo["ds_color_area"],
-        "RowMenu_fill" => $yesOrNo[$compo["ds_filled"]],
-        "RowMenu_tickness" => $compo["ds_tickness"],
-        "RowMenu_options" => $moptions
-    );
-    $style != "two" ? $style = "two" : $style = "one";
+    $elemArr[$i] = ["MenuClass" => "list_" . $style, "title" => $title["host_name"], "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => $compo["name"], "RowMenu_link" => "main.php?p=" . $p . "&o=c&compo_id=" . $compo['compo_id'], "RowMenu_desc" => $compo["ds_name"], "RowMenu_legend" => $compo["ds_legend"], "RowMenu_stack" => $yesOrNo[$compo["ds_stack"]], "RowMenu_order" => $compo["ds_order"], "RowMenu_transp" => $compo["ds_transparency"], "RowMenu_clrLine" => $compo["ds_color_line"], "RowMenu_clrArea" => $compo["ds_color_area"], "RowMenu_fill" => $yesOrNo[$compo["ds_filled"]], "RowMenu_tickness" => $compo["ds_tickness"], "RowMenu_options" => $moptions];
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 
@@ -155,7 +132,7 @@ $tpl->assign("elemArr", $elemArr);
  */
 $tpl->assign(
     'msg',
-    array("addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?"))
+    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
 );
 
 /*
@@ -168,43 +145,39 @@ $tpl->assign(
         }
     </script>
 <?php
-$attrs1 = array(
-    'onchange' => "javascript: " .
-        "if (this.form.elements['o1'].selectedIndex === 1 && confirm('" .
-        _("Do you confirm the duplication ?") . "')) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex === 2 && confirm('" .
-        _("Do you confirm the deletion ?") . "')) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        "this.form.elements['o1'].selectedIndex = 0;" .
-        ""
-);
+$attrs1 = ['onchange' => "javascript: " .
+    "if (this.form.elements['o1'].selectedIndex === 1 && confirm('" .
+    _("Do you confirm the duplication ?") . "')) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex === 2 && confirm('" .
+    _("Do you confirm the deletion ?") . "')) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    "this.form.elements['o1'].selectedIndex = 0;" .
+    ""];
 $form->addElement(
     'select',
     'o1',
     null,
-    array(null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")),
+    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
     $attrs1
 );
 $o1 = $form->getElement('o1');
 $o1->setValue(null);
 
-$attrs = array(
-    'onchange' => "javascript: " .
-        "if (this.form.elements['o2'].selectedIndex === 1 && confirm('" .
-        _("Do you confirm the duplication ?") . "')) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex === 2 && confirm('" .
-        _("Do you confirm the deletion ?") . "')) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        "this.form.elements['o2'].selectedIndex = 0;" .
-        ""
-);
+$attrs = ['onchange' => "javascript: " .
+    "if (this.form.elements['o2'].selectedIndex === 1 && confirm('" .
+    _("Do you confirm the duplication ?") . "')) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex === 2 && confirm('" .
+    _("Do you confirm the deletion ?") . "')) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    "this.form.elements['o2'].selectedIndex = 0;" .
+    ""];
 $form->addElement(
     'select',
     'o2',
     null,
-    array(null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")),
+    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
     $attrs
 );
 $o2 = $form->getElement('o2');

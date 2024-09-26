@@ -92,7 +92,7 @@ if (($o === 'c' || $o === 'w') && $nagiosId) {
 $mainCfg = new CentreonConfigEngine($pearDB);
 $cdata = CentreonData::getInstance();
 if ($o != "a") {
-    $dirArray = $mainCfg->getBrokerDirectives(isset($nagiosId) ? $nagiosId : null);
+    $dirArray = $mainCfg->getBrokerDirectives($nagiosId ?? null);
 } else {
     $dirArray[0]['in_broker_#index#'] = "/usr/lib64/centreon-engine/externalcmd.so";
     $dirArray[1]['in_broker_#index#'] = "/usr/lib64/nagios/cbmod.so /etc/centreon-broker/poller-module.json";
@@ -141,9 +141,9 @@ $cdata->addJsData(
  * Check commands comes from DB -> Store in $checkCmds Array
  *
  */
-$checkCmds = array();
+$checkCmds = [];
 $dbResult = $pearDB->query("SELECT command_id, command_name FROM command WHERE command_type = 3 ORDER BY command_name");
-$checkCmds = array(null => null);
+$checkCmds = [null => null];
 while ($checkCmd = $dbResult->fetch()) {
     $checkCmds[$checkCmd["command_id"]] = $checkCmd["command_name"];
 }
@@ -152,21 +152,18 @@ $dbResult->closeCursor();
 /*
  * Get all nagios servers
  */
-$nagios_server = array(null => "");
+$nagios_server = [null => ""];
 $result = $oreon->user->access->getPollerAclConf(
-    array(
-        'fields' => array('name', 'id'),
-        'keys' => array('id')
-    )
+    ['fields' => ['name', 'id'], 'keys' => ['id']]
 );
 foreach ($result as $ns) {
     $nagios_server[$ns["id"]] = $ns["name"];
 }
 
-$attrsText = array("size" => "30");
-$attrsText2 = array("size" => "50");
-$attrsText3 = array("size" => "10");
-$attrsTextarea = array("rows" => "5", "cols" => "40");
+$attrsText = ["size" => "30"];
+$attrsText2 = ["size" => "50"];
+$attrsText3 = ["size" => "10"];
+$attrsTextarea = ["rows" => "5", "cols" => "40"];
 
 /*
  * Form begin
@@ -186,21 +183,16 @@ if ($o == "a") {
 $form->addElement('header', 'information', _("Information"));
 $form->addElement('text', 'nagios_name', _("Configuration Name"), $attrsText);
 $form->addElement('textarea', 'nagios_comment', _("Comments"), $attrsTextarea);
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'nagios_activate', null, _("Enabled"), '1');
 $nagTab[] = $form->createElement('radio', 'nagios_activate', null, _("Disabled"), '0');
 $form->addGroup($nagTab, 'nagios_activate', _("Status"), '&nbsp;');
 
 $form->addElement('select', 'nagios_server_id', _("Linked poller"), $nagios_server);
 
-$attrTimezones = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => './include/common/webServices/rest/internal.php?' .
-        'object=centreon_configuration_timezone&action=list',
-    'multiple' => false,
-    'linkedObject' => 'centreonGMT'
-);
-$form->addElement('select2', 'use_timezone', _("Timezone / Location"), array(), $attrTimezones);
+$attrTimezones = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => './include/common/webServices/rest/internal.php?' .
+    'object=centreon_configuration_timezone&action=list', 'multiple' => false, 'linkedObject' => 'centreonGMT'];
+$form->addElement('select2', 'use_timezone', _("Timezone / Location"), [], $attrTimezones);
 
 /* *************
  * Part 1
@@ -215,32 +207,32 @@ $form->addElement('text', 'cfg_file', _("Object Configuration File"), $attrsText
  * Enable / Disable functionalities
  */
 
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'enable_notifications', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'enable_notifications', null, _("No"), '0');
 $form->addGroup($nagTab, 'enable_notifications', _("Notification Option"), '&nbsp;');
 
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'execute_service_checks', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'execute_service_checks', null, _("No"), '0');
 $form->addGroup($nagTab, 'execute_service_checks', _("Service Check Execution Option"), '&nbsp;');
 
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'accept_passive_service_checks', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'accept_passive_service_checks', null, _("No"), '0');
 $form->addGroup($nagTab, 'accept_passive_service_checks', _("Passive Service Check Acceptance Option"), '&nbsp;');
 
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'execute_host_checks', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'execute_host_checks', null, _("No"), '0');
 $form->addGroup($nagTab, 'execute_host_checks', _("Host Check Execution Option"), '&nbsp;');
 
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'accept_passive_host_checks', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'accept_passive_host_checks', null, _("No"), '0');
 $form->addGroup($nagTab, 'accept_passive_host_checks', _("Passive Host Check Acceptance Option"), '&nbsp;');
 
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'enable_event_handlers', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'enable_event_handlers', null, _("No"), '0');
 $form->addGroup($nagTab, 'enable_event_handlers', _("Event Handler Option"), '&nbsp;');
@@ -248,7 +240,7 @@ $form->addGroup($nagTab, 'enable_event_handlers', _("Event Handler Option"), '&n
 /* *****************************************************
  * External Commands
  */
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'check_external_commands', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'check_external_commands', null, _("No"), '0');
 $form->addGroup($nagTab, 'check_external_commands', _("External Command Check Option"), '&nbsp;');
@@ -260,7 +252,7 @@ $form->addElement('text', 'command_file', _("External Command File"), $attrsText
 /* *****************************************************
  * Retention
  */
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'retain_state_information', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'retain_state_information', null, _("No"), '0');
 $form->addGroup($nagTab, 'retain_state_information', _("State Retention Option"), '&nbsp;');
@@ -268,12 +260,12 @@ $form->addGroup($nagTab, 'retain_state_information', _("State Retention Option")
 $form->addElement('text', 'state_retention_file', _("State Retention File"), $attrsText2);
 $form->addElement('text', 'retention_update_interval', _("Automatic State Retention Update Interval"), $attrsText3);
 
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'use_retained_program_state', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'use_retained_program_state', null, _("No"), '0');
 $form->addGroup($nagTab, 'use_retained_program_state', _("Use Retained Program State Option"), '&nbsp;');
 
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'use_retained_scheduling_info', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'use_retained_scheduling_info', null, _("No"), '0');
 $form->addGroup(
@@ -286,7 +278,7 @@ $form->addGroup(
 /* *****************************************************
  * logging options
  */
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement(
     'radio',
     'logger_version',
@@ -304,42 +296,42 @@ $nagTab[] = $form->createElement(
 $form->addGroup($nagTab, 'logger_version', _("Logger version"), '&nbsp;');
 
 // LOG V1
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'use_syslog', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'use_syslog', null, _("No"), '0');
 $form->addGroup($nagTab, 'use_syslog', _("Syslog Logging Option"), '&nbsp;');
 
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'log_notifications', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'log_notifications', null, _("No"), '0');
 $form->addGroup($nagTab, 'log_notifications', _("Notification Logging Option"), '&nbsp;');
 
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'log_service_retries', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'log_service_retries', null, _("No"), '0');
 $form->addGroup($nagTab, 'log_service_retries', _("Service Check Retry Logging Option"), '&nbsp;');
 
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'log_host_retries', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'log_host_retries', null, _("No"), '0');
 $form->addGroup($nagTab, 'log_host_retries', _("Host Retry Logging Option"), '&nbsp;');
 
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'log_event_handlers', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'log_event_handlers', null, _("No"), '0');
 $form->addGroup($nagTab, 'log_event_handlers', _("Event Handler Logging Option"), '&nbsp;');
 
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'log_external_commands', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'log_external_commands', null, _("No"), '0');
 $form->addGroup($nagTab, 'log_external_commands', _("External Command Logging Option"), '&nbsp;');
 
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'log_passive_checks', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'log_passive_checks', null, _("No"), '0');
 $form->addGroup($nagTab, 'log_passive_checks', _("Passive Check Logging Option"), '&nbsp;');
 
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'log_pid', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'log_pid', null, _("No"), '0');
 $form->addGroup($nagTab, 'log_pid', _("Enable logging pid information"), '&nbsp;');
@@ -380,14 +372,10 @@ $form->addElement('select', 'log_level_runtime', _("Runtime"), $logLevelOptions)
 $form->addElement('text', 'debug_file', _("Debug file (Directory + File)"), $attrsText);
 $form->addElement('text', 'max_debug_file_size', _("Debug file Maximum Size"), $attrsText);
 
-$verboseOptions = array(
-    '0' => _("Basic information"),
-    '1' => _("More detailed information"),
-    '2' => _("Highly detailed information")
-);
+$verboseOptions = ['0' => _("Basic information"), '1' => _("More detailed information"), '2' => _("Highly detailed information")];
 $form->addElement('select', 'debug_verbosity', _("Debug Verbosity"), $verboseOptions);
 
-$debugLevel = array();
+$debugLevel = [];
 $debugLevel["-1"] = _("Log everything");
 $debugLevel["0"] = _("Log nothing (default)");
 $debugLevel["1"] = _("Function enter/exit information");
@@ -440,7 +428,7 @@ $form->addElement('text', 'check_result_reaper_frequency', _("Check Result Reape
 /* *****************************************************
  * Auto Rescheduling Option
  */
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'auto_reschedule_checks', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'auto_reschedule_checks', null, _("No"), '0');
 $form->addGroup($nagTab, 'auto_reschedule_checks', _("Auto-Rescheduling Option"), '&nbsp;');
@@ -451,7 +439,7 @@ $form->addElement('text', 'auto_rescheduling_window', _("Auto-Rescheduling Windo
 /* *****************************************************
  * Flapping management.
  */
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'enable_flap_detection', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'enable_flap_detection', null, _("No"), '0');
 $form->addGroup($nagTab, 'enable_flap_detection', _("Flap Detection Option"), '&nbsp;');
@@ -464,7 +452,7 @@ $form->addElement('text', 'high_host_flap_threshold', _("High Host Flap Threshol
 /* *****************************************************
  * SOFT dependencies options
  */
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'soft_state_dependencies', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'soft_state_dependencies', null, _("No"), '0');
 $form->addGroup($nagTab, 'soft_state_dependencies', _("Soft Service Dependencies Option"), '&nbsp;');
@@ -480,12 +468,12 @@ $form->addElement('text', 'notification_timeout', _("Notification Timeout"), $at
 /* *****************************************************
  * Check orphaned
  */
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'check_for_orphaned_services', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'check_for_orphaned_services', null, _("No"), '0');
 $form->addGroup($nagTab, 'check_for_orphaned_services', _("Orphaned Service Check Option"), '&nbsp;');
 
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'check_for_orphaned_hosts', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'check_for_orphaned_hosts', null, _("No"), '0');
 $form->addGroup($nagTab, 'check_for_orphaned_hosts', _("Orphaned Host Check Option"), '&nbsp;');
@@ -493,12 +481,12 @@ $form->addGroup($nagTab, 'check_for_orphaned_hosts', _("Orphaned Host Check Opti
 /* *****************************************************
  * Freshness
  */
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'check_service_freshness', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'check_service_freshness', null, _("No"), '0');
 $form->addGroup($nagTab, 'check_service_freshness', _("Service Freshness Check Option"), '&nbsp;');
 $form->addElement('text', 'service_freshness_check_interval', _("Service Freshness Check Interval"), $attrsText3);
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'check_host_freshness', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'check_host_freshness', null, _("No"), '0');
 $form->addGroup($nagTab, 'check_host_freshness', _("Host Freshness Check Option"), '&nbsp;');
@@ -508,12 +496,7 @@ $form->addElement('text', 'additional_freshness_latency', _("Additional freshnes
 /* *****************************************************
  * General Informations
  */
-$dateFormats = array(
-    "euro" => "euro (30/06/2002 03:15:00)",
-    "us" => "us (06/30/2002 03:15:00)",
-    "iso8601" => "iso8601 (2002-06-30 03:15:00)",
-    "strict-iso8601" => "strict-iso8601 (2002-06-30 03:15:00)"
-);
+$dateFormats = ["euro" => "euro (30/06/2002 03:15:00)", "us" => "us (06/30/2002 03:15:00)", "iso8601" => "iso8601 (2002-06-30 03:15:00)", "strict-iso8601" => "strict-iso8601 (2002-06-30 03:15:00)"];
 $form->addElement('select', 'date_format', _("Date Format"), $dateFormats);
 $form->addElement('text', 'instance_heartbeat_interval', _("Heartbeat Interval"), $attrsText);
 $form->addElement('text', 'admin_email', _("Administrator Email Address"), $attrsText);
@@ -521,12 +504,12 @@ $form->addElement('text', 'admin_pager', _("Administrator Pager"), $attrsText);
 $form->addElement('text', 'illegal_object_name_chars', _("Illegal Object Name Characters"), $attrsText2);
 $form->addElement('text', 'illegal_macro_output_chars', _("Illegal Macro Output Characters"), $attrsText2);
 
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'use_regexp_matching', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'use_regexp_matching', null, _("No"), '0');
 $form->addGroup($nagTab, 'use_regexp_matching', _("Regular Expression Matching Option"), '&nbsp;');
 
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'use_true_regexp_matching', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'use_true_regexp_matching', null, _("No"), '0');
 $form->addGroup($nagTab, 'use_true_regexp_matching', _("True Regular Expression Matching Option"), '&nbsp;');
@@ -540,15 +523,12 @@ $form->addElement(
     'bkTextMultiple',
     _("This directive can be used multiple times, see nagios documentation.")
 );
-$cloneSet = array();
+$cloneSet = [];
 $cloneSet[] = $form->addElement(
     'text',
     'in_broker[#index#]',
     _('Event broker directive'),
-    array(
-        'id' => 'in_broker_#index#',
-        'size' => 100
-    )
+    ['id' => 'in_broker_#index#', 'size' => 100]
 );
 
 $eventBrokerOptionsData = [];
@@ -584,7 +564,7 @@ $form->addElement(
     'macros_filter',
     _('Macros whitelist')
 );
-$cloneSetMacrosFilter = array();
+$cloneSetMacrosFilter = [];
 $cloneSetMacrosFilter[] = $form->addElement(
     'text',
     'macros_filter[#index#]',
@@ -595,7 +575,7 @@ $cloneSetMacrosFilter[] = $form->addElement(
     ]
 );
 
-$tab = array();
+$tab = [];
 $tab[] = $form->createElement('radio', 'action', null, _("List"), '1');
 $tab[] = $form->createElement('radio', 'action', null, _("Form"), '0');
 $form->addGroup($tab, 'action', _("Post Validation"), '&nbsp;');
@@ -603,12 +583,12 @@ $form->addGroup($tab, 'action', _("Post Validation"), '&nbsp;');
 /*
  * Predictive dependancy options
  */
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'enable_predictive_host_dependency_checks', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'enable_predictive_host_dependency_checks', null, _("No"), '0');
 $form->addGroup($nagTab, 'enable_predictive_host_dependency_checks', _("Predictive Host Dependency Checks"), '&nbsp;');
 
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'enable_predictive_service_dependency_checks', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'enable_predictive_service_dependency_checks', null, _("No"), '0');
 $form->addGroup(
@@ -627,7 +607,7 @@ $form->addElement('text', 'cached_service_check_horizon', _("Cached Service Chec
 /*
  * Tunning
  */
-$nagTab = array();
+$nagTab = [];
 $nagTab[] = $form->createElement('radio', 'enable_environment_macros', null, _("Yes"), '1');
 $nagTab[] = $form->createElement('radio', 'enable_environment_macros', null, _("No"), '0');
 $form->addGroup($nagTab, 'enable_environment_macros', _("Enable environment macros"), '&nbsp;');
@@ -637,7 +617,7 @@ $form->addGroup($nagTab, 'enable_environment_macros', _("Enable environment macr
 $form->setDefaults($defaultEventBrokerOptions);
 $form->setDefaults($objMain->getDefaultMainCfg());
 $form->setDefaults($objMain->getDefaultLoggerCfg());
-$form->setDefaults(array('action' => '1'));
+$form->setDefaults(['action' => '1']);
 
 $form->addElement('hidden', 'nagios_id');
 $redirect = $form->addElement('hidden', 'o');
@@ -717,7 +697,7 @@ if ($o == "w") {
             "button",
             "change",
             _("Modify"),
-            array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&nagios_id=" . $nagiosId . "'")
+            ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&nagios_id=" . $nagiosId . "'"]
         );
     }
     $form->setDefaults($nagios);
@@ -726,12 +706,12 @@ if ($o == "w") {
     $form->freeze();
 } elseif ($o == "c") {
     // Modify nagios information
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
     $res = $form->addElement(
         'reset',
         'reset',
         _("Reset"),
-        array("onClick" => "javascript:resetBroker('" . $o . "')", "class" => "btc bt_default")
+        ["onClick" => "javascript:resetBroker('" . $o . "')", "class" => "btc bt_default"]
     );
 
     $form->setDefaults($nagios);
@@ -739,15 +719,15 @@ if ($o == "w") {
     $form->setDefaults($nagiosLogV2);
 } elseif ($o == "a") {
     // Add nagios information
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
     $res = $form->addElement(
         'reset',
         'reset',
         _("Reset"),
-        array("onClick" => "javascript:resetBroker('" . $o . "')", "class" => "btc bt_default")
+        ["onClick" => "javascript:resetBroker('" . $o . "')", "class" => "btc bt_default"]
     );
 }
-$tpl->assign('msg', array("nagios" => $oreon->user->get_version()));
+$tpl->assign('msg', ["nagios" => $oreon->user->get_version()]);
 
 $tpl->assign(
     "helpattr",
@@ -780,10 +760,8 @@ if ($form->validate()) {
             "button",
             "change",
             _("Modify"),
-            array(
-                "onClick" => "javascript:window.location.href='?p=" . $p .
-                    "&o=c&nagios_id=" . $nagiosObj->getValue() . "'"
-            )
+            ["onClick" => "javascript:window.location.href='?p=" . $p .
+                "&o=c&nagios_id=" . $nagiosObj->getValue() . "'"]
         );
     }
     $valid = true;

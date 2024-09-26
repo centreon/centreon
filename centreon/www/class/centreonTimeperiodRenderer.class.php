@@ -33,50 +33,47 @@
  *
  */
 
-
 /**
- * Original author is Tensibai, cleaned up by sho.
- * Used for rendering time periods in order to make them more human-readable.
+ * Class
  *
- * @author Tensibai
- * @author Sylvestre Ho
+ * @class CentreonTimeperiodRenderer
+ * @description Used for rendering time periods in order to make them more human-readable
  */
 class CentreonTimeperiodRenderer
 {
+    /** @var CentreonDB|null */
     protected $db;
+    /** @var int */
     protected $tpid;
+    /** @var mixed */
     protected $tpname;
+    /** @var mixed */
     protected $tpalias;
+    /** @var array[] */
     protected $timerange;
+    /** @var array[] */
     protected $timeline;
-    protected $includedTp;
-    protected $excludedTp;
-    protected $exceptionList;
+    /** @var array */
+    protected $includedTp = [];
+    /** @var array */
+    protected $excludedTp = [];
+    /** @var array */
+    protected $exceptionList = [];
 
     /**
-     * Constructor
+     * CentreonTimeperiodRenderer constructor
      *
      * @param CentreonDB $db
      * @param int $tpid
-     * @param strign $inex
-     * @return void
+     * @param string $inex
+     *
+     * @throws PDOException
      */
     public function __construct($db, $tpid, $inex)
     {
-        $dayTab = array(
-            "tp_sunday" => array(),
-            "tp_monday" => array(),
-            "tp_tuesday" => array(),
-            "tp_wednesday" => array(),
-            "tp_thursday" => array(),
-            "tp_friday" => array(),
-            "tp_saturday" => array()
-        );
+        $dayTab = ["tp_sunday" => [], "tp_monday" => [], "tp_tuesday" => [], "tp_wednesday" => [], "tp_thursday" => [], "tp_friday" => [], "tp_saturday" => []];
         $this->timerange = $dayTab;
         $this->timeline = $dayTab;
-        $this->includedTp = array();
-        $this->excludedTp = array();
-        $this->exceptionList = array();
         $this->db = $db;
         $this->tpid = $tpid;
         $query = "SELECT tp_name, tp_alias, tp_monday, tp_tuesday, tp_wednesday, tp_thursday, tp_friday,
@@ -110,18 +107,12 @@ class CentreonTimeperiodRenderer
      *
      * @return void
      */
-    public function timeBars()
+    public function timeBars(): void
     {
         $coef = 4;
         foreach ($this->timerange as $day => $ranges) {
             $timeindex=0;
-            $timeline[0]=array("start"    => 0,
-                               "style"    => "unset",
-                               "end"      => 0,
-                               "size"     => 0,
-                               "Text"     => "init",
-                               "From"     => "",
-                               "Textual"  => "");
+            $timeline[0]=["start"    => 0, "style"    => "unset", "end"      => 0, "size"     => 0, "Text"     => "init", "From"     => "", "Textual"  => ""];
             if (isset($ranges[0])) {
                 $last["in"] = "";
                 $last["nb"] = 0;
@@ -178,13 +169,7 @@ class CentreonTimeperiodRenderer
                                 break;
                         }
                         if ($i < 1440) {
-                            $timeline[++$timeindex] = array("start"    => $i,
-                                                            "style"    => "unset",
-                                                            "end"      => 0,
-                                                            "size"     => 0,
-                                                            "Text"     => "New in loop",
-                                                            "From"     => "",
-                                                            "Textual"  => "");
+                            $timeline[++$timeindex] = ["start"    => $i, "style"    => "unset", "end"      => 0, "size"     => 0, "Text"     => "New in loop", "From"     => "", "Textual"  => ""];
                         }
                     }
                     $last = $actual;
@@ -193,13 +178,7 @@ class CentreonTimeperiodRenderer
             $endtime = $timeline[$timeindex]["end"];
             if ($endtime < 1440) {
                 $textual = sprintf("%02d", intval($endtime/60)).":".sprintf("%02d", $endtime%60)."-24:00";
-                $timeline[$timeindex] = array("start"    => $endtime,
-                                              "style"    => "unset",
-                                              "end"      => 1440,
-                                              "size"     => (1440 - $endtime) / $coef,
-                                              "Text"     => "No Timeperiod covering ".$textual,
-                                              "From"     => "No Timeperiod covering ".$textual,
-                                              "Textual"  => $textual);
+                $timeline[$timeindex] = ["start"    => $endtime, "style"    => "unset", "end"      => 1440, "size"     => (1440 - $endtime) / $coef, "Text"     => "No Timeperiod covering ".$textual, "From"     => "No Timeperiod covering ".$textual, "Textual"  => $textual];
             }
             $this->timeline[$day] = $timeline;
             unset($timeline);
@@ -232,7 +211,7 @@ class CentreonTimeperiodRenderer
     protected function orderTimeRanges()
     {
         foreach ($this->timerange as $key => $val) {
-            usort($val, array("CentreonTimeperiodRenderer", "startCompare"));
+            usort($val, ["CentreonTimeperiodRenderer", "startCompare"]);
             $this->timerange[$key] = $val;
         }
     }
@@ -258,6 +237,7 @@ class CentreonTimeperiodRenderer
      * Update Inclusions
      *
      * @return void
+     * @throws PDOException
      */
     protected function updateInclusions()
     {
@@ -278,6 +258,7 @@ class CentreonTimeperiodRenderer
      * Update Exclusions
      *
      * @return void
+     * @throws PDOException
      */
     protected function updateExclusions()
     {
@@ -306,7 +287,7 @@ class CentreonTimeperiodRenderer
      */
     protected function getTimeRange($id, $name, $in, $range)
     {
-        $timeRange = array();
+        $timeRange = [];
         $timeRange['fromTpId'] = $id;
         $timeRange['fromTpName'] = $name;
         $timeRange['inex'] = $in;
@@ -334,13 +315,7 @@ class CentreonTimeperiodRenderer
      */
     protected function getException($id, $name, $day, $range)
     {
-        $exception = array();
-        $exception['fromTpId'] = $id;
-        $exception['fromTpName']  = $name;
-        $exception['day'] = $day;
-        $exception['range'] = $range;
-
-        return $exception;
+        return ['fromTpId' => $id, 'fromTpName' => $name, 'day' => $day, 'range' => $range];
     }
 
 
@@ -385,13 +360,13 @@ class CentreonTimeperiodRenderer
     }
     
     /**
+     * @param string $field
      *
-     * @param type $field
-     * @return string
+     * @return array
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'timeperiod';
         $parameters['currentObject']['id'] = 'tp_id';
         $parameters['currentObject']['name'] = 'tp_name';

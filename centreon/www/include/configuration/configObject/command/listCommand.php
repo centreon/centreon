@@ -132,22 +132,14 @@ $form = new HTML_QuickFormCustom('form', 'POST', "?p=" . $p);
 $style = "one";
 
 $addrType = $type ? "&type=" . $type : "";
-$attrBtnSuccess = array(
-    "class" => "btc bt_success",
-    "onClick" => "window.history.replaceState('', '', '?p=" . $p . $addrType . "');"
-);
+$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . $addrType . "');"];
 $form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
 
 // Define command Type table
-$commandType = array(
-    "1" => _("Notification"),
-    "2" => _("Check"),
-    "3" => _("Miscellaneous"),
-    "4" => _("Discovery")
-);
+$commandType = ["1" => _("Notification"), "2" => _("Check"), "3" => _("Miscellaneous"), "4" => _("Discovery")];
 
 // Fill a tab with a multidimensional Array we put in $tpl
-$elemArr = array();
+$elemArr = [];
 $centreonToken = createCSRFToken();
 
 for ($i = 0; $cmd = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
@@ -174,25 +166,13 @@ for ($i = 0; $cmd = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
             . $cmd['command_id'] . "]' />";
     }
     $decodedCommand = myDecodeCommand($cmd["command_line"]);
-    $elemArr[$i] = array(
-        "MenuClass" => "list_" . $style,
-        "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_name" => $cmd["command_name"],
-        "RowMenu_link" => "main.php?p=" . $p .
-            "&o=c&command_id=" . $cmd['command_id'] . "&type=" . $cmd['command_type'],
-        "RowMenu_desc" => (strlen($decodedCommand) > 50)
-            ? CentreonUtils::escapeSecure(substr($decodedCommand, 0, 50), CentreonUtils::ESCAPE_ALL) . "..."
-            : CentreonUtils::escapeSecure($decodedCommand, CentreonUtils::ESCAPE_ALL),
-        "RowMenu_type" => $commandType[$cmd["command_type"]],
-        "RowMenu_huse" => "<a name='#' title='" . _("Host links (host template links)") . "'>" .
-            getHostNumberUse($cmd['command_id']) . " (" . getHostTPLNumberUse($cmd['command_id']) . ")</a>",
-        "RowMenu_suse" => "<a name='#' title='" . _("Service links (service template links)") . "'>" .
-            getServiceNumberUse($cmd['command_id']) . " (" . getServiceTPLNumberUse($cmd['command_id']) . ")</a>",
-        "RowMenu_status" => $cmd["command_activate"] ? _("Enabled") : _("Disabled"),
-        "RowMenu_badge" => $cmd["command_activate"] ? "service_ok" : "service_critical",
-        "RowMenu_options" => $moptions
-    );
-    $style != "two" ? $style = "two" : $style = "one";
+    $elemArr[$i] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => $cmd["command_name"], "RowMenu_link" => "main.php?p=" . $p .
+        "&o=c&command_id=" . $cmd['command_id'] . "&type=" . $cmd['command_type'], "RowMenu_desc" => (strlen($decodedCommand) > 50)
+        ? CentreonUtils::escapeSecure(substr($decodedCommand, 0, 50), CentreonUtils::ESCAPE_ALL) . "..."
+        : CentreonUtils::escapeSecure($decodedCommand, CentreonUtils::ESCAPE_ALL), "RowMenu_type" => $commandType[$cmd["command_type"]], "RowMenu_huse" => "<a name='#' title='" . _("Host links (host template links)") . "'>" .
+        getHostNumberUse($cmd['command_id']) . " (" . getHostTPLNumberUse($cmd['command_id']) . ")</a>", "RowMenu_suse" => "<a name='#' title='" . _("Service links (service template links)") . "'>" .
+        getServiceNumberUse($cmd['command_id']) . " (" . getServiceTPLNumberUse($cmd['command_id']) . ")</a>", "RowMenu_status" => $cmd["command_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $cmd["command_activate"] ? "service_ok" : "service_critical", "RowMenu_options" => $moptions];
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 
@@ -205,49 +185,37 @@ if (isset($_GET['type']) && $_GET['type'] != "") {
 
 $tpl->assign(
     'msg',
-    array(
-        "addL" => "main.php?p=" . $p . "&o=a&type=" . $type,
-        "addT" => _("Add"),
-        "delConfirm" => _("Do you confirm the deletion ?")
-    )
+    ["addL" => "main.php?p=" . $p . "&o=a&type=" . $type, "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
 );
 
 $redirectType = $form->addElement('hidden', 'type');
 $redirectType->setValue($type);
 
 // Toolbar select
-foreach (array('o1', 'o2') as $option) {
-    $attrs1 = array(
-        'onchange' => "javascript: " .
-            "var bChecked = isChecked(); " .
-            "if (this.form.elements['$option'].selectedIndex != 0 && !bChecked) {" .
-            "   alert('" . _("Please select one or more items") . "'); return false;} " .
-            "if (this.form.elements['$option'].selectedIndex == 1 && confirm('" .
-            _("Do you confirm the duplication ?") . "')) {" .
-            "   setO(this.form.elements['$option'].value); submit();} " .
-            "else if (this.form.elements['$option'].selectedIndex == 2 && confirm('" .
-            _("Do you confirm the deletion ?") . "')) {" .
-            "   setO(this.form.elements['$option'].value); submit();} " .
-            "else if (this.form.elements['$option'].selectedIndex == 3) {" .
-            "   setO(this.form.elements['$option'].value); submit();} " .
-            "else if (this.form.elements['$option'].selectedIndex == 4) {" .
-            "   setO(this.form.elements['$option'].value); submit();} " .
-            "this.form.elements['$option'].selectedIndex = 0"
-    );
+foreach (['o1', 'o2'] as $option) {
+    $attrs1 = ['onchange' => "javascript: " .
+        "var bChecked = isChecked(); " .
+        "if (this.form.elements['$option'].selectedIndex != 0 && !bChecked) {" .
+        "   alert('" . _("Please select one or more items") . "'); return false;} " .
+        "if (this.form.elements['$option'].selectedIndex == 1 && confirm('" .
+        _("Do you confirm the duplication ?") . "')) {" .
+        "   setO(this.form.elements['$option'].value); submit();} " .
+        "else if (this.form.elements['$option'].selectedIndex == 2 && confirm('" .
+        _("Do you confirm the deletion ?") . "')) {" .
+        "   setO(this.form.elements['$option'].value); submit();} " .
+        "else if (this.form.elements['$option'].selectedIndex == 3) {" .
+        "   setO(this.form.elements['$option'].value); submit();} " .
+        "else if (this.form.elements['$option'].selectedIndex == 4) {" .
+        "   setO(this.form.elements['$option'].value); submit();} " .
+        "this.form.elements['$option'].selectedIndex = 0"];
     $form->addElement(
         'select',
         $option,
         null,
-        array(
-            null => _("More actions..."),
-            "m" => _("Duplicate"),
-            "d" => _("Delete"),
-            "me" => _("Enable"),
-            "md" => _("Disable")
-        ),
+        [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete"), "me" => _("Enable"), "md" => _("Disable")],
         $attrs1
     );
-    $form->setDefaults(array($option => null));
+    $form->setDefaults([$option => null]);
     $o1 = $form->getElement($option);
     $o1->setValue(null);
     $o1->setSelected(null);
