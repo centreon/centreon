@@ -20,8 +20,8 @@ const data = [
   }
 ];
 
-const start_date = '2024-09-25T21:00:42Z';
-const end_date = '2024-09-25T22:30:00Z';
+const startDate = '2024-09-25T21:00:42Z';
+const endDate = '2024-09-25T22:30:00Z';
 
 const meta: Meta<typeof Timeline> = {
   component: Timeline,
@@ -37,7 +37,7 @@ type Story = StoryObj<typeof Timeline>;
 
 const TooltipContent = ({ start, end, duration, color }): JSX.Element => {
   return (
-    <div style={{ color }}>
+    <div style={{ color, padding : "10px" }}>
       <div>{duration}</div>
       <div>{`${start} - ${end}`}</div>
     </div>
@@ -51,8 +51,8 @@ const Template = (args): JSX.Element => {
 export const Vertical: Story = {
   args: {
     data,
-    start_date,
-    end_date,
+    startDate,
+    endDate,
     TooltipContent
   },
   render: Template

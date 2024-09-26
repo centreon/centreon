@@ -46,14 +46,14 @@ const initialize = (): void => {
     Component: (
       <div
         style={{
-          height: '200px',
+          height: '120px',
           width: '100%',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center'
         }}
       >
-        <Timeline data={data} start_date={startDate} end_date={endDate} />
+        <Timeline data={data} startDate={startDate} endDate={endDate} />
       </div>
     )
   });

@@ -1,6 +1,10 @@
 export interface TimelineProps {
-  data: Array<object>;
-  start_date: string;
-  end_date: string;
+  data: Array<{
+    start: Date,
+    end: Date,
+    color: string;
+  }>;
+  startDate: string;
+  endDate: string;
   TooltipContent?: ({ start, end, color, duration }) => JSX.Element;
 }

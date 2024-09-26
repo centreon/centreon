@@ -4,6 +4,8 @@ import {
   useLocaleDateTimeFormat
 } from '@centreon/ui';
 
+import { useTheme } from '@mui/material';
+
 import dayjs from 'dayjs';
 
 import { userAtom } from '@centreon/ui-context';
@@ -20,10 +22,12 @@ interface Props extends TimelineProps {
   height: number;
 }
 
+const margin = { top: 10, bottom: 40, left: 15, right: 15 };
+
 const Timeline = ({
   data,
-  start_date,
-  end_date,
+  startDate,
+  endDate,
   width,
   height,
   TooltipContent
@@ -31,14 +35,11 @@ const Timeline = ({
   const { classes } = useStyles();
   const { format } = useLocaleDateTimeFormat();
   const { timezone, locale } = useAtomValue(userAtom);
-
-  const margin = { top: 10, bottom: 40, left: 15, right: 15 };
-
-  const startDate = new Date(start_date);
-  const endDate = new Date(end_date);
+  
+  const theme = useTheme();
 
   const xScale = scaleTime({
-    domain: [startDate, endDate],
+    domain: [ new Date(startDate),  new Date(endDate)],
     range: [margin.left, width - margin.right]
   });
 
@@ -48,7 +49,7 @@ const Timeline = ({
 
   return (
     <svg width={width} height={height}>
-      {data.map((d, i) => (
+      {data.map(({start, end, color}, i) => (
         <Tooltip
           hasCaret
           classes={{
@@ -60,26 +61,26 @@ const Timeline = ({
             TooltipContent && (
               <TooltipContent
                 start={format({
-                  date: dayjs(d.start).tz(timezone).toDate(),
+                  date: dayjs(start).tz(timezone).toDate(),
                   formatString: dateTimeFormat
                 })}
                 end={format({
-                  date: dayjs(d.end).tz(timezone).toDate(),
+                  date: dayjs(end).tz(timezone).toDate(),
                   formatString: dateTimeFormat
                 })}
-                color={d.color}
-                duration={getTimeDifference(dayjs(d.start), dayjs(d.end))}
+                color={color}
+                duration={getTimeDifference(dayjs(start), dayjs(end))}
               />
             )
           }
           position="right"
         >
           <rect
-            x={xScale(d.start)}
+            x={xScale(start)}
             y={margin.top}
-            width={xScale(d.end) - xScale(d.start)}
+            width={xScale(end) - xScale(start)}
             height={height - margin.top - margin.bottom}
-            fill={d.color}
+            fill={color}
           />
         </Tooltip>
       ))}
@@ -91,14 +92,14 @@ const Timeline = ({
         tickFormat={(value) => {
           return format({
             date: new Date(value),
-            formatString: getXAxisTickFormat({ end: end_date, start: start_date })
+            formatString: getXAxisTickFormat({ end: startDate, start: endDate })
           });
         }}
-        stroke="black"
-        tickStroke="black"
+        stroke={theme.palette.text.primary}
+        tickStroke={theme.palette.text.primary}
         tickLabelProps={() => ({
-          fill: 'black',
-          fontSize: 10,
+          fill: theme.palette.text.primary,
+          fontSize: theme.typography.caption.fontSize,
           textAnchor: 'middle'
         })}
       />
