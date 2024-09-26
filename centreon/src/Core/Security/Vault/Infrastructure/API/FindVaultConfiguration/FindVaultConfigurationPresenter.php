@@ -17,7 +17,7 @@ final class FindVaultConfigurationPresenter extends AbstractPresenter implements
             $this->present([
                 'address' => $data->address,
                 'port' => $data->port,
-                'root_path' => $data->rootPath
+                'root_path' => $data->rootPath,
             ]);
         }
     }
