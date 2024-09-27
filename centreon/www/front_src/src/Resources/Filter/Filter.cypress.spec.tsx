@@ -332,11 +332,6 @@ describe('Custom filters', () => {
   });
 });
 
-const initialize = (): void => {
-  cy.findByLabelText(labelSearchOptions).click();
-  cy.findByPlaceholderText(labelSearch).clear();
-};
-
 describe('Criterias', () => {
   beforeEach(() => {
     initializeRequests();
@@ -464,7 +459,7 @@ describe('Criterias', () => {
 // The backend does not consistently handle the creation of resources with spaces
 // (for some resources, it adds an underscore, while for others it does not, such as with pollers..)
 
-describe.only('Replaces whitespace with the \\s regex pattern', () => {
+describe('Replaces whitespace with the \\s regex pattern', () => {
   const pollerNameWithSpace = 'Poller test';
   const searchedValue = 'monitoring_server:Poller\\stest';
 
@@ -499,7 +494,8 @@ describe.only('Replaces whitespace with the \\s regex pattern', () => {
 
     cy.makeSnapshot();
 
-    initialize();
+    cy.findByLabelText(labelSearchOptions).click();
+    cy.findByPlaceholderText(labelSearch).clear();
   });
 
   it('replaces whitespace with the \\s regex pattern in the search bar when selecting values from the suggestions interface', () => {
