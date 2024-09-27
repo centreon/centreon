@@ -80,7 +80,7 @@ if ($o === 'c' || $o === 'w') {
     }
 
     /*
-     * Set Hosts Groups relations
+     * Set Host Groups relations
      */
     $statement = $pearDB->prepare("SELECT hg_hg_id FROM acl_resources_hg_relations WHERE acl_res_id = :aclId");
     $statement->bindValue(':aclId', $aclId, \PDO::PARAM_INT);
@@ -236,7 +236,7 @@ if ($o == "a") {
  * LCA basic information
  */
 $form->addElement('header', 'information', _("General Information"));
-$form->addElement('header', 'hostgroups', _("Hosts Groups Shared"));
+$form->addElement('header', 'hostgroups', _("Host Groups Shared"));
 $form->addElement('header', 'services', _("Filters"));
 $form->addElement('text', 'acl_res_name', _("Access list name"), $attrsText);
 $form->addElement('text', 'acl_res_alias', _("Description"), $attrsText2);

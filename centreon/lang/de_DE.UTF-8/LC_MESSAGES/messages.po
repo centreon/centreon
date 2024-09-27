@@ -3901,7 +3901,7 @@ msgid "View an ACL"
 msgstr "Zugriffssteuerungsliste (ACL) anzeigen"
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:239
-msgid "Hosts Groups Shared"
+msgid "Host Groups Shared"
 msgstr "Geteilte Hostgruppen"
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:241
@@ -12914,11 +12914,11 @@ msgid "Log Period"
 msgstr "Protokollzeitraum"
 
 #: centreon/www/include/eventLogs/viewLog.php:331
-msgid "Services Groups"
+msgid "Service Groups"
 msgstr "Servicegruppen"
 
 #: centreon/www/include/eventLogs/viewLog.php:363
-msgid "Hosts Groups"
+msgid "Host Groups"
 msgstr "Hostgruppen"
 
 #: centreon/www/include/eventLogs/xml/data.php:949
