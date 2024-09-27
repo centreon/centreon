@@ -211,8 +211,11 @@ function updateCommand($cmd_id = null, $params = array())
             ? $ret["command_activate"]["command_activate"]
             : null;
 
-    if(!isset($ret['type']) || !isset($ret["command_type"]["command_type"])) {
-        throw new UnexpectedValueException('error');
+    if (
+        ($isCloudPlatform && !isset($ret['type'])) ||
+        (!$isCloudPlatform && !isset($ret["command_type"]) && !isset($ret["command_type"]["command_type"]))
+    ) {
+        throw new UnexpectedValueException('command type is undefined');
     }
 
     $type = $isCloudPlatform ? $ret['type'] : $ret["command_type"]["command_type"];

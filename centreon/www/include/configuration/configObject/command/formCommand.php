@@ -333,7 +333,7 @@ if ($form->validate()) {
         $valid = true;
     } catch (Throwable $e) {
         $valid = false;
-        $errorMessage = '';
+        $errorMessage = 'Type of command is undefined';
     }
 }
 
@@ -393,11 +393,12 @@ if ($valid) {
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
     $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
     if (! empty($errorMessage)) {
-        $renderer->setErrorTemplate('<font color="red">' . $errorMessage . '</font><br />{$html}');
+        $renderer->setErrorTemplate('<font color="red">{$errorMessage}</font><br />{$html}');
     } else {
         $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
     }
     $form->accept($renderer);
+    $tpl->assign('errorMessage', $errorMessage);
     $tpl->assign('form', $renderer->toArray());
     $tpl->assign('o', $o);
     $tpl->assign('arg_desc_label', _("Argument Descriptions"));
