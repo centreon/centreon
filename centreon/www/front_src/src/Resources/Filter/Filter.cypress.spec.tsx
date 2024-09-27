@@ -341,7 +341,7 @@ const initializeRequests = (): void => {
 
   setupIntercept({
     alias: 'pollersRequest',
-    fixtureFile: 'resources/filter/pollers.json',
+    fixtureFile: 'resources/filter/pollers/pollers.json',
     path: '**/monitoring/servers?*'
   });
 
@@ -584,6 +584,62 @@ views.forEach(({ name, initSearch, ids }) => {
 
       initialize();
     });
+  });
+});
+
+//The backend does not consistently handle the creation of resources with spaces
+// (for some resources, it adds an underscore, while for others it does not, such as with pollers..)
+
+describe('Replaces whitespace with the \\s regex pattern', () => {
+  const pollerName = 'Poller test';
+  const searchedValue = 'monitoring_server:Poller\\stest';
+
+  beforeEach(() => {
+    const updatedStore = setView({
+      name: Visualization.All,
+      store: getStore()
+    });
+    mount({ store: updatedStore });
+    setupIntercept({
+      alias: 'pollersWithSpaceOnNameRequest',
+      fixtureFile: 'resources/filter/pollers/pollersWithSpaceOnName.json',
+      path: '**/monitoring/servers?*'
+    });
+  });
+
+  it('replaces whitespace with the \\s regex pattern in the search bar when selecting values from the criterias interface', () => {
+    cy.findByLabelText(labelSearchOptions).click();
+    cy.findByTestId(labelMonitoringServer).click();
+
+    cy.waitForRequest('@pollersWithSpaceOnNameRequest');
+
+    cy.findByRole('option', { name: pollerName }).click();
+    cy.findByTestId(labelMonitoringServer).parent().contains(pollerName);
+    cy.findByPlaceholderText(labelSearch)
+      .invoke('val')
+      .should('equal', `${searchedValue} `);
+
+    cy.makeSnapshot();
+
+    initialize();
+  });
+
+  it('replaces whitespace with the \\s regex pattern in the search bar when selecting values from the suggestions interface', () => {
+    const key = 'monitoring_server:';
+
+    cy.findByPlaceholderText(labelSearch).type(key);
+
+    cy.waitForRequest('@pollersWithSpaceOnNameRequest');
+
+    cy.findByRole('menuitem', { name: pollerName }).click();
+
+    cy.findByPlaceholderText(labelSearch)
+      .invoke('val')
+      .should('equal', searchedValue);
+
+    cy.makeSnapshot();
+
+    cy.findByPlaceholderText(labelSearch).clear();
   });
 });
 

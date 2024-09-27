@@ -29,7 +29,7 @@ const VaultForm = (): JSX.Element => {
         address: data?.address,
         port: data?.port,
         rootPath: data?.rootPath,
-        roleId: data?.roleId,
+        roleId: '',
         secretId: ''
       }}
       validationSchema={validationSchema}
