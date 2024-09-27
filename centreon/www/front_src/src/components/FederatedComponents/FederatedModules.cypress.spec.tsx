@@ -7,8 +7,6 @@ import { Provider, createStore } from 'jotai';
 
 import { Button } from '@mui/material';
 
-import { federatedWidgetsAtom } from '@centreon/ui-context';
-
 import { Remote } from '../../federatedModules/Load';
 import FederatedComponentFallback from '../../federatedModules/Load/FederatedComponentFallback';
 import FederatedPageFallback from '../../federatedModules/Load/FederatedPageFallback';
@@ -37,7 +35,6 @@ const initialize = ({
   ];
 
   const store = createStore();
-  store.set(federatedWidgetsAtom, federatedWidgets);
 
   cy.mount({
     Component: (
@@ -132,7 +129,6 @@ const initializePage = ({
   ];
 
   const store = createStore();
-  store.set(federatedWidgetsAtom, federatedWidgets);
 
   cy.mount({
     Component: (

@@ -1,8 +1,8 @@
-import { useRef } from 'react';
+import { Suspense, useRef } from 'react';
 
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
-import { isNil } from 'ramda';
+import { equals, find, isEmpty, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -22,6 +22,8 @@ import {
 import { isGenericText } from '../../utils';
 import { Widget } from '../models';
 
+import { federatedWidgetsAtom } from '@centreon/ui-context';
+import { FederatedModule } from '../../../../../federatedModules/models';
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
 
 const Preview = (): JSX.Element | null => {
@@ -29,6 +31,7 @@ const Preview = (): JSX.Element | null => {
   const { classes, cx } = useWidgetPropertiesStyles();
 
   const refreshInterval = useAtomValue(dashboardRefreshIntervalAtom);
+  const federatedWidgets = useAtomValue(federatedWidgetsAtom);
 
   const { canEdit } = useCanEditProperties();
 
@@ -44,6 +47,8 @@ const Preview = (): JSX.Element | null => {
     );
   }
 
+  const { Component, remoteEntry } = find((widget) => equals(widget.moduleName, values.moduleName), federatedWidgets as Array<FederatedModule>) as FederatedModule;
+
   const isGenericTextWidget = isGenericText(values.panelConfiguration?.path);
 
   const changePanelOptions = (partialOptions: object): void => {
@@ -56,9 +61,8 @@ const Preview = (): JSX.Element | null => {
     <div className={classes.previewPanelContainer} ref={previewRef}>
       <div
         style={{
-          height: `${
-            (previewRef.current?.getBoundingClientRect().height || 0) - 16
-          }px`,
+          height: `${(previewRef.current?.getBoundingClientRect().height || 0) - 16
+            }px`,
           overflowY: 'auto'
         }}
       >
@@ -85,16 +89,15 @@ const Preview = (): JSX.Element | null => {
         {!isGenericTextWidget && (
           <div
             style={{
-              height: `${
-                (previewRef.current?.getBoundingClientRect().height || 0) -
+              height: `${(previewRef.current?.getBoundingClientRect().height || 0) -
                 36 -
                 46
-              }px`,
+                }px`,
               overflow: 'auto',
               position: 'relative'
             }}
           >
-            <FederatedComponent
+            {!isEmpty(remoteEntry) || isNil(Component) ? (<FederatedComponent
               isFederatedWidget
               isFromPreview
               globalRefreshInterval={refreshInterval}
@@ -103,7 +106,18 @@ const Preview = (): JSX.Element | null => {
               panelOptions={values.options}
               path={values.panelConfiguration?.path || ''}
               setPanelOptions={changePanelOptions}
-            />
+            />) : (
+              <Suspense fallback={<div>Loading...</div>}>
+                <Component
+                  isFromPreview
+                  globalRefreshInterval={refreshInterval}
+                  panelData={values.data}
+                  panelOptions={values.options}
+                  path={values.panelConfiguration?.path || ''}
+                  setPanelOptions={changePanelOptions}
+                />
+              </Suspense>
+            )}
           </div>
         )}
       </div>

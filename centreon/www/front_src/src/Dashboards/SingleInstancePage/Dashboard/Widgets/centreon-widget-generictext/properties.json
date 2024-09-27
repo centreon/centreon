@@ -1,0 +1,7 @@
+{
+  "title": "Generic text",
+  "description": "Allows you to add free text to your dashboards (section titles, information, etc.).",
+  "options": {},
+  "moduleName": "centreon-widget-generictext",
+  "icon": "<path d=\"M8.59 11.78h30v5l-11.95.03v31.41h-6.25V16.81l-11.8-.03v-5z\"></path><path d=\"M31.41 22.31h20v3.75l-7.87.02v22.14h-4.25V26.08l-7.88-.02v-3.75z\"></path>"
+}

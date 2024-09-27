@@ -1,4 +1,5 @@
 import type { SelectEntry } from '@centreon/ui';
+import { ComponentType, LazyExoticComponent } from 'react';
 
 export interface FederatedComponentsConfiguration {
   federatedComponents: Array<string>;
@@ -16,6 +17,7 @@ export interface FederatedModule {
   preloadScript?: string;
   remoteEntry: string;
   remoteUrl?: string;
+  Component?: LazyExoticComponent<ComponentType>;
 }
 
 export interface PageComponent {
@@ -78,25 +80,25 @@ export interface SubInput {
 
 export interface FederatedWidgetOption {
   defaultValue:
-    | unknown
-    | {
-        is: unknown;
-        otherwise: unknown;
-        then: unknown;
-        when: string;
-      };
+  | unknown
+  | {
+    is: unknown;
+    otherwise: unknown;
+    then: unknown;
+    when: string;
+  };
   group?: string;
   hasModule?: string;
   hiddenCondition: WidgetHiddenCondition;
   label: string;
   options?:
-    | Array<SelectEntry>
-    | {
-        is: unknown;
-        otherwise: Array<SelectEntry>;
-        then: Array<SelectEntry>;
-        when: string;
-      };
+  | Array<SelectEntry>
+  | {
+    is: unknown;
+    otherwise: Array<SelectEntry>;
+    then: Array<SelectEntry>;
+    when: string;
+  };
   required?: boolean;
   secondaryLabel: string;
   subInputs?: Array<SubInput>;

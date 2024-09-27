@@ -1,0 +1,89 @@
+{
+  "title": "Status chart",
+  "description": "Displays a detailed view of the current status for selected resources as a chart.",
+  "icon": "<svg viewBox=\"0 0 24 24\"><g><path d=\"M16.36,5.87c-.06.08-.17.1-.26.05-.53-.36-1.11-.65-1.72-.86-.61-.21-1.24-.34-1.88-.38-.1,0-.18-.09-.18-.2l.07-1.69c0-.21.19-.38.41-.36.79.07,1.57.23,2.32.49.75.26,1.46.61,2.13,1.04.18.12.22.36.1.53l-.98,1.38Z\"/><path d=\"M12,21.6c-.08,0-.16,0-.24,0-2.55-.06-4.93-1.13-6.7-2.99-1.77-1.87-2.72-4.3-2.65-6.85.06-2.55,1.13-4.93,2.99-6.7,1.77-1.68,4.05-2.62,6.45-2.65.21,0,.39.17.38.39l-.04,1.69c0,.1-.09.18-.19.18-1.88,0-3.66.72-5.05,2.03-1.43,1.36-2.24,3.18-2.29,5.12s.67,3.8,2.03,5.23c1.36,1.43,3.18,2.24,5.12,2.29,1.94.05,3.8-.67,5.23-2.03,1.43-1.36,2.24-3.18,2.29-5.12.06-2.33-1-4.55-2.83-5.98-.08-.06-.1-.18-.04-.26l1-1.36c.13-.17.37-.2.54-.07,2.33,1.87,3.66,4.73,3.58,7.73-.06,2.55-1.13,4.93-2.99,6.7-1.81,1.72-4.14,2.66-6.6,2.66Z\"/></g></svg>",
+  "options": {
+    "displayType": {
+      "type": "displayType",
+      "options": [
+        {
+          "icon": "<svg viewBox=\"0 0 65 65\"> <rect width=\"65\" height=\"65\" rx=\"8\" ry=\"8\" fill=\"none\"/> <g id=\"Groupe_3913\" data-name=\"Groupe 3913\"> <path fill=\"#666\" class=\"cls-3\" d=\"M43.9,16.53c-.16.22-.46.27-.68.12-2.79-1.88-6.04-3-9.4-3.22-.27-.02-.47-.24-.46-.51l.19-4.39c.02-.54.48-.96,1.02-.94.01,0,.02,0,.04,0,4.13.35,8.12,1.71,11.59,3.97.45.3.58.9.28,1.36,0,.01-.01.02-.02.03l-2.55,3.58Z\"/> <path fill=\"#a2a2a2\" data-name=\"Tracé 3893\" d=\"M32.53,57.5c-.21,0-.42,0-.63,0-13.79-.32-24.72-11.75-24.39-25.53.16-6.65,2.96-12.97,7.8-17.54,4.53-4.35,10.55-6.82,16.83-6.91.54,0,.99.43.99.97,0,.01,0,.02,0,.03l-.11,4.4c0,.26-.23.47-.49.47-10.57,0-19.14,8.56-19.14,19.12,0,10.56,8.57,19.12,19.14,19.12s19.14-8.56,19.14-19.12c0-5.9-2.73-11.47-7.39-15.09-.21-.16-.26-.46-.1-.68l2.61-3.54c.32-.44.94-.53,1.38-.2,0,0,.02.01.02.02,10.76,8.69,12.43,24.45,3.74,35.2-4.74,5.85-11.86,9.27-19.4,9.29\"/> </g> </svg>",
+          "label": "Donut chart",
+          "id": "donut"
+        },
+        {
+          "icon": "<svg viewBox=\"0 0 65 65\"> <rect width=\"65\" height=\"65\" rx=\"8\" ry=\"8\" fill=\"none\"/> <g> <ellipse fill=\"#a2a2a2\" cx=\"31.84\" cy=\"33.48\" rx=\"24.34\" ry=\"24.02\"/> <path fill=\"#666\" d=\"M37.46,7.5c9.46,1.95,17.13,8.88,20.04,18.1-24.81,7.6-.57.2-25.66,7.84,5.42-25.16.35-1.35,5.63-25.94Z\"/> </g> </svg>",
+          "label": "Pie chart",
+          "id": "pie"
+        },
+        {
+          "icon": "<svg viewBox=\"0 0 65 65\"> <rect width=\"65\" height=\"65\" rx=\"8\" ry=\"8\" fill=\"none\" /> <g id=\"Groupe_3909\" data-name=\"Groupe 3909\"> <g> <rect x=\"7.5\" y=\"36.5\" width=\"50\" height=\"12\" rx=\"4\" ry=\"4\" fill=\"#a2a2a2\"/> <rect fill=\"#666\" x=\"7.5\" y=\"36.5\" width=\"32\" height=\"12\" rx=\"4\" ry=\"4\"/> </g> <g> <rect x=\"7.5\" y=\"16.5\" width=\"50\" height=\"12\" rx=\"4\" ry=\"4\" fill=\"#a2a2a2\"/> <rect fill=\"#666\" x=\"7.5\" y=\"16.5\" width=\"20\" height=\"12\" rx=\"4\" ry=\"4\"/> </g> </g> </svg>",
+          "label": "Horizontal bar chart",
+          "id": "horizontal"
+        },
+        {
+          "icon": "<svg viewBox=\"0 0 65 65\"> <rect/> <g > <g> <rect fill=\"#a2a2a2\" x=\"36.5\" y=\"7.5\" width=\"12\" height=\"50\" rx=\"4\" ry=\"4\"/> <rect fill=\"#666\" x=\"36.5\" y=\"25.5\" width=\"12\" height=\"32\" rx=\"4\" ry=\"4\"/> </g> <g > <rect fill=\"#a2a2a2\" x=\"16.5\" y=\"7.5\" width=\"12\" height=\"50\" rx=\"4\" ry=\"4\"/> <rect fill=\"#666\" x=\"16.5\" y=\"37.5\" width=\"12\" height=\"20\" rx=\"4\" ry=\"4\"/> </g> </g> </svg>",
+          "label": "Vertical bar chart",
+          "id": "vertical"
+        }
+      ],
+      "defaultValue": "donut"
+    },
+    "resourceTypes": {
+      "type": "checkbox",
+      "label": "Display resources with this type",
+      "options": [
+        {
+          "id": "host",
+          "name": "Host"
+        },
+        {
+          "id": "service",
+          "name": "Service"
+        }
+      ],
+      "defaultValue": ["host", "service"],
+      "keepOneOptionSelected": true
+    },
+    "unit": {
+      "type": "radio",
+      "label": "Display resources with this unit",
+      "options": [
+        {
+          "id": "percentage",
+          "name": "Percentage"
+        },
+        {
+          "id": "number",
+          "name": "Number"
+        }
+      ],
+      "defaultValue": "percentage"
+    },
+    "displayValues": {
+      "type": "switch",
+      "label": "Show value on chart",
+      "defaultValue": true
+    },
+    "displayLegend": {
+      "type": "switch",
+      "label": "Show legend",
+      "secondaryLabel": "Legend",
+      "defaultValue": true
+    },
+    "refreshInterval": {
+      "type": "refresh-interval",
+      "defaultValue": "default",
+      "label": "Interval"
+    }
+  },
+  "data": {
+    "resources": {
+      "type": "resources",
+      "defaultValue": [],
+      "required": false,
+      "excludedResourceTypes": ["meta-service"]
+    }
+  },
+  "moduleName": "centreon-widget-statuschart"
+}

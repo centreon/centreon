@@ -68,6 +68,7 @@ const WrapperChart = ({
   ...rest
 }: Props): JSX.Element | null => {
   const { classes, cx } = useChartStyles();
+  console.log(rest);
 
   const { adjustedData } = useChartData({ data, end, start });
   const lineChartRef = useRef<HTMLDivElement | null>(null);
@@ -120,6 +121,7 @@ const WrapperChart = ({
               tooltip={tooltip}
               width={width ?? responsiveWidth}
               zoomPreview={zoomPreview}
+              skipIntersectionObserver={rest.skipIntersectionObserver}
             />
           );
         }}

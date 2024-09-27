@@ -20,17 +20,21 @@ import useLinkToResourceStatus from '../../hooks/useLinkToResourceStatus';
 import useSaveDashboard from '../../hooks/useSaveDashboard';
 import { isGenericText, isRichTextEditorEmpty } from '../../utils';
 
+import { equals, find, isNil } from 'ramda';
+import { internalWidgetComponents } from '../../Widgets/widgets';
 import { usePanelHeaderStyles } from './usePanelStyles';
 
 interface Props {
   dashboardId: number | string;
   id: string;
+  name: string;
   playlistHash?: string;
   refreshCount?: number;
 }
 
 const Panel = ({
   id,
+  name,
   refreshCount,
   playlistHash,
   dashboardId
@@ -62,6 +66,8 @@ const Panel = ({
   const panelOptionsAndData = getPanelOptionsAndData(id);
 
   const panelConfigurations = getPanelConfigurations(id);
+
+  const { Component } = find((widget) => equals(widget.moduleName, name), internalWidgetComponents) || {};
 
   const widgetPrefixQuery = useMemo(
     () => `${panelConfigurations.path}_${id}`,
@@ -132,7 +138,7 @@ const Panel = ({
                 : classes.panelContent
             )}
           >
-            <FederatedComponent
+            {isNil(Component) ? <FederatedComponent
               isFederatedWidget
               canEdit={canEditField}
               changeViewMode={changeViewMode}
@@ -150,7 +156,25 @@ const Panel = ({
               saveDashboard={saveDashboard}
               setPanelOptions={changePanelOptions}
               widgetPrefixQuery={widgetPrefixQuery}
-            />
+            /> : (
+              <Component
+                canEdit={canEditField}
+                changeViewMode={changeViewMode}
+                dashboardId={dashboardId}
+                globalRefreshInterval={refreshInterval}
+                hasDescription={displayDescription}
+                isEditingDashboard={isEditing}
+                panelData={panelOptionsAndData?.data}
+                panelOptions={panelOptionsAndData?.options}
+                path={panelConfigurations.path}
+                playlistHash={playlistHash}
+                queryClient={client}
+                refreshCount={refreshCount}
+                saveDashboard={saveDashboard}
+                setPanelOptions={changePanelOptions}
+                widgetPrefixQuery={widgetPrefixQuery}
+              />
+            )}
           </div>
         )}
       </>
