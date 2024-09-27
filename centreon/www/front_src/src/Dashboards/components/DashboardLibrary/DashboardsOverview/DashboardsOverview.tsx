@@ -13,6 +13,7 @@ import { DataTable, Tooltip } from '@centreon/ui/components';
 
 import thumbnailFallbackDark from '../../../../assets/thumbnail-fallback-dark.svg';
 import thumbnailFallbackLight from '../../../../assets/thumbnail-fallback-light.svg';
+
 import routeMap from '../../../../reactRoutes/routeMap';
 import { Dashboard } from '../../../api/models';
 import { DashboardLayout } from '../../../models';
