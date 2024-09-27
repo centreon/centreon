@@ -1,4 +1,4 @@
-import { Form } from 'packages/ui/src';
+import { Form } from '@centreon/ui';
 import { useGetVaultConfiguration } from '../hooks/useGetVaultConfiguration';
 import { useUpdateVaultConfiguration } from '../hooks/useUpdateVaultConfiguration';
 import { PostVaultConfiguration } from '../models';
@@ -29,7 +29,7 @@ const VaultForm = (): JSX.Element => {
         address: data?.address,
         port: data?.port,
         rootPath: data?.rootPath,
-        roleId: data?.roleId,
+        roleId: '',
         secretId: ''
       }}
       validationSchema={validationSchema}

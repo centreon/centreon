@@ -19131,8 +19131,8 @@ msgstr "Sélectionner les sévérités des services"
 msgid "Select host severities"
 msgstr "Sélectionner les sévérités des hôtes"
 
-msgid "Enable Open Tickets"
-msgstr "Activer Open Tickets"
+msgid "Enable tickets"
+msgstr "Activer les tickets"
 
 msgid "Ticket provider"
 msgstr "Fournisseur de tickets"
@@ -19162,7 +19162,7 @@ msgid "Ticket subject"
 msgstr "Sujet du ticket"
 
 msgid "Opened on"
-msgstr "Date d'ouverture"
+msgstr "Ouvert le"
 
 msgid "Create a ticket"
 msgstr "Créer un ticket"
@@ -19449,3 +19449,6 @@ msgstr "Attention, les domaines en dehors de votre organisation doivent être au
 
 msgid "Web page preview"
 msgstr "Aperçu de la page web"
+
+msgid "If tickets are enabled, only the “by service” view is available."
+msgstr "Si les tickets sont activés, seule la vue par service est disponible."
