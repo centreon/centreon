@@ -19570,7 +19570,7 @@ msgstr "Erreur durant la récupération d'une configuration collecteur/agent"
 msgid "The poller/agent configuration name '%s' already exists"
 msgstr "La configuration collecteur/agent '%s' existe déjà"
 
-msgid "Changing type of an existing poller/agent configuration is not allowed"
+msgid "Changing the type of an existing poller/agent configuration is not allowed"
 msgstr "Changer le type d'une configuration collecteur/agent existante n'est pas autorisé"
 
 msgid "Filename '%s' (%s) is invalid"

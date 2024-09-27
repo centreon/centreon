@@ -174,7 +174,7 @@ it(
 );
 
 it(
-    'should present an ErrorResponse if the newly created AC cannot be retrieved',
+    'should present an ErrorResponse if the newly created object cannot be retrieved',
     function (): void {
         $this->user
             ->expects($this->once())

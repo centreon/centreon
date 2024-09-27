@@ -17469,7 +17469,7 @@ msgstr "Erweiterter Modus"
 #  msgid "The poller/agent configuration name '%s' already exists"
 #  msgstr ""
 
-#  msgid "Changing type of an existing poller/agent configuration is not allowed"
+#  msgid "Changing the type of an existing poller/agent configuration is not allowed"
 #  msgstr ""
 
 #  msgid "Filename '%s' (%s) is invalid"

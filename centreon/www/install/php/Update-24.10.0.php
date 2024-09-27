@@ -50,7 +50,7 @@ $insertWebPageWidget = function (CentreonDB $pearDB) use (&$errorMessage): void 
 
 // Vault configuration
 $insertVaultConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to retrieve from topology table';
+    $errorMessage = 'Unable to retrieve data from topology table';
     $statement = $pearDB->executeQuery(
         <<<'SQL'
             SELECT 1 FROM `topology` WHERE `topology_name` = 'Vault'

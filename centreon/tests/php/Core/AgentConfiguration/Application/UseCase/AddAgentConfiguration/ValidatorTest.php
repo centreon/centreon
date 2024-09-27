@@ -80,12 +80,12 @@ it('should throw an exception when a poller ID does not exist', function (): voi
     $this->validator->validatePollersOrFail($this->request);
 })->throws(AgentConfigurationException::idsDoNotExist('pollerIds', [1])->getMessage());
 
-it('should throw an exception when the AC type is not valid', function (): void {
+it('should throw an exception when the type is not valid', function (): void {
     $this->request->type = '';
     $this->validator->validateTypeOrFail($this->request);
 })->throws((new ValueError('"" is not a valid backing value for enum "Core\AgentConfiguration\Domain\Model\Type"'))->getMessage());
 
-it('should throw an exception when an AC is already associated to one of the pollers', function (): void {
+it('should throw an exception when the object is already associated to one of the pollers', function (): void {
      $this->user
         ->expects($this->once())
         ->method('isAdmin')

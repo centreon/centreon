@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "title": "Update an agent configuration (AC)",
+    "title": "Update a poller/agent configuration",
     "type": "object",
     "required": [
         "type",

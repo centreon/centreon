@@ -43,7 +43,7 @@ beforeEach(function (): void {
     };
 });
 
-it('should return properly set AC instance', function (): void {
+it('should return properly set instance', function (): void {
     $agentconfiguration = ($this->createAc)();
 
     expect($agentconfiguration->getId())->toBe(1)
@@ -54,7 +54,7 @@ it('should return properly set AC instance', function (): void {
 
 // mandatory fields
 it(
-    'should throw an exception when ACC name is an empty string',
+    'should throw an exception when name is an empty string',
     fn() => ($this->createAc)(['name' => ''])
 )->throws(
     AssertionException::class,
@@ -81,7 +81,7 @@ foreach (
 ) {
     $tooLong = str_repeat('a', $length + 1);
     it(
-        "should throw an exception when AC {$field} is too long",
+        "should throw an exception when {$field} is too long",
         fn() => ($this->createAc)([$field => $tooLong])
     )->throws(
         AssertionException::class,

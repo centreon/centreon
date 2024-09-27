@@ -95,7 +95,7 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
         ->toBe(AgentConfigurationException::accessNotAllowed()->getMessage());
 });
 
-it('should present a NotFoundResponse when the Agent Configuration does not exist', function (): void {
+it('should present a NotFoundResponse when the object does not exist', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -113,7 +113,7 @@ it('should present a NotFoundResponse when the Agent Configuration does not exis
         ->toBe('Agent Configuration not found');
 });
 
-it('should present a ErrorResponse when the poller is the only one linked to the Agent Configuration', function (): void {
+it('should present an ErrorResponse when the poller is the only one linked to the object', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')

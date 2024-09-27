@@ -100,7 +100,7 @@ it(
 );
 
 it(
-    'should present an ErrorResponse when a Exception is thrown',
+    'should present an ErrorResponse when an Exception is thrown',
     function (): void {
         $this->user
             ->expects($this->once())
@@ -153,7 +153,7 @@ it(
 );
 
 it(
-    'should present a InvalidArgumentResponse when a field value is not valid',
+    'should present an InvalidArgumentResponse when a field value is not valid',
     function (): void {
         $this->user
             ->expects($this->once())
@@ -182,7 +182,7 @@ it(
 );
 
 it(
-    'should present a UpdateAgentConfigurationResponse when no error occurs',
+    'should present an UpdateAgentConfigurationResponse when no error occurs',
     function (): void {
         $this->user
             ->expects($this->once())

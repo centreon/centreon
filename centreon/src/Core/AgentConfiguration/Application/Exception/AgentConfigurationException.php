@@ -124,7 +124,7 @@ class AgentConfigurationException extends \Exception
     public static function typeChangeNotAllowed(): self
     {
         return new self(
-            _('Changing type of an existing poller/agent configuration is not allowed'),
+            _('Changing the type of an existing poller/agent configuration is not allowed'),
             self::CODE_CONFLICT
         );
     }

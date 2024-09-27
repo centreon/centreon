@@ -70,12 +70,12 @@ it('should throw an exception when the name is invalid', function (): void {
     $this->validator->validateNameOrFail($this->request, $this->agentConfiguration);
 })->throws(AgentConfigurationException::nameAlreadyExists('my-AC')->getMessage());
 
-it('should throw an exception when the pollers list is empty', function (): void {
+it('should throw an exception when the poller list is empty', function (): void {
     $this->request->pollerIds = [];
     $this->validator->validatePollersOrFail($this->request, $this->agentConfiguration);
 })->throws(AgentConfigurationException::arrayCanNotBeEmpty('pollerIds')->getMessage());
 
-it('should throw an exception when the AC type is changed', function (): void {
+it('should throw an exception when the type is changed', function (): void {
     $this->request->type = '';
     $this->validator->validateTypeOrFail($this->request, $this->agentConfiguration);
 })->skip(true, 'Cannot be tested as long as there is only one supported type');
@@ -95,7 +95,7 @@ it('should throw an exception when a poller ID does not exist', function (): voi
     $this->validator->validatePollersOrFail($this->request, $this->agentConfiguration);
 })->throws(AgentConfigurationException::idsDoNotExist('pollerIds', [1])->getMessage());
 
-it('should throw an exception when an AC is already associated to one of the pollers', function (): void {
+it('should throw an exception when the object is already associated to one of the pollers', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
