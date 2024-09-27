@@ -334,6 +334,12 @@ if ($form->validate()) {
     } catch (Throwable $e) {
         $valid = false;
         $errorMessage = 'Type of command is undefined';
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: $e->getMessage(),
+            customContext: ['cmd_id' => $cmdObj->getValue()],
+            exception: $e
+        );
     }
 }
 
