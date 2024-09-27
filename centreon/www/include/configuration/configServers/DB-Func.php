@@ -77,14 +77,16 @@ function getAvailableSuffixIds(
     $separator = $pearDB->escapeString($separator);
     $query = <<<SQL
         SELECT CAST(SUBSTRING_INDEX(name, '_', -1) AS SIGNED) AS suffix
-        FROM nagios_server WHERE name REGEXP '^"{$serverName}{$separator}[0-9]+$'
+        FROM nagios_server WHERE name REGEXP :server_name_separator
         ORDER BY suffix
         SQL;
-    $results = $pearDB->executeQuery($query);
+    $stmt = $pearDB->prepare($query);
+    $stmt->bindValue(':server_name_separator', '^"' . $serverName . $separator . '[0-9]+$', \PDO::PARAM_STR);
+    $stmt->execute();
 
     $notAvailableSuffixes = [];
 
-    while ($result = $results->fetch()) {
+    while ($result = $stmt->fetch()) {
         $suffix = (int)$result['suffix'];
         if (!in_array($suffix, $notAvailableSuffixes)) {
             $notAvailableSuffixes[] = $suffix;
