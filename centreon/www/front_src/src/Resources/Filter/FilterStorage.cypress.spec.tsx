@@ -417,7 +417,11 @@ describe('Filter storage', () => {
 
     cy.findByLabelText(labelSearchOptions).click();
 
-    cy.findByTestId(labelHost).click();
+    cy.findByTestId(labelHost)
+      .parent()
+      .findByTestId('ArrowDropDownIcon')
+      .parent()
+      .click();
 
     const hostName = cy.findByText(resourcesByHostType.name);
     hostName.should('exist');
