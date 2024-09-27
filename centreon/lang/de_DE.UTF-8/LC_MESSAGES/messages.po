@@ -2736,6 +2736,7 @@ msgstr "Startseite"
 #: centreon/www/install/menu_translation.php:92
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:363
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php:791
+#: centreon/www/include/eventLogs/viewLog.php:363
 msgid "Host Groups"
 msgstr "Hostgruppen"
 
@@ -2974,6 +2975,7 @@ msgstr "Serverstatus"
 
 #: centreon/www/install/menu_translation.php:133
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:427
+#: centreon/www/include/eventLogs/viewLog.php:331
 msgid "Service Groups"
 msgstr "Servicegruppen"
 
@@ -12912,14 +12914,6 @@ msgstr "Nur HARD"
 #: centreon/www/include/eventLogs/viewLog.php:204
 msgid "Log Period"
 msgstr "Protokollzeitraum"
-
-#: centreon/www/include/eventLogs/viewLog.php:331
-msgid "Service Groups"
-msgstr "Servicegruppen"
-
-#: centreon/www/include/eventLogs/viewLog.php:363
-msgid "Host Groups"
-msgstr "Hostgruppen"
 
 #: centreon/www/include/eventLogs/xml/data.php:949
 msgid "Object name"
