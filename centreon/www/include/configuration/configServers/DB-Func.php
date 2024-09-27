@@ -73,8 +73,6 @@ function getAvailableSuffixIds(
     $serverName = preg_quote($serverName);
 
     // Get list of suffix already used
-    $serverName = $pearDB->escapeString($serverName);
-    $separator = $pearDB->escapeString($separator);
     $query = <<<SQL
         SELECT CAST(SUBSTRING_INDEX(name, '_', -1) AS SIGNED) AS suffix
         FROM nagios_server WHERE name REGEXP :server_name_separator
