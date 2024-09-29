@@ -17014,7 +17014,7 @@ msgstr "Erweiterter Modus"
 # msgid "Select host severities"
 # msgstr ""
 
-# msgid "Enable Open Tickets"
+# msgid "Enable tickets"
 # msgstr ""
 
 # msgid "Ticket provider"
@@ -17035,7 +17035,7 @@ msgstr "Erweiterter Modus"
 # msgid "Hide services with Down host"
 # msgstr ""
 
-# msgstr "hide services with Unreachable host"
+# msgstr "Hide services with Unreachable host"
 # msgstr ""
 
 # msgstr "Ticket ID"
@@ -17351,3 +17351,6 @@ msgstr "Erweiterter Modus"
 
 # msgid "Save your dashboard to generate a thumbnail"
 # msgstr ""
+
+#  msgid "If tickets are enabled, only the “by service” view is available."
+#  msgstr ""
