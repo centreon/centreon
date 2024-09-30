@@ -47,11 +47,13 @@ $deleteVaultTables = function(CentreonDB $pearDB) use(&$errorMessage): void {
 
 $updateCfgResourceTable = function (CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to update table cfg_resource';
-    $pearDB->query(
-        <<<'SQL'
+    if (!$pearDB->isColumnExist('cfg_resource', 'is_password')) {
+        $pearDB->query(
+            <<<'SQL'
             ALTER TABLE `cfg_resource` ADD COLUMN `is_password` tinyint(1) NOT NULL DEFAULT 0
             SQL
-    );
+        );
+    }
 };
 
 $updateBrokerCfgFieldTable = function (CentreonDB $pearDB) use(&$errorMessage): void {

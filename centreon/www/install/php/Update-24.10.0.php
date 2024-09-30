@@ -68,7 +68,22 @@ $insertVaultConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): 
     }
 };
 
+$addDisableServiceCheckColumn = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add column host_down_disable_service_checks to table cfg_nagios';
+    if (! $pearDB->isColumnExist('cfg_nagios', 'host_down_disable_service_checks')) {
+        $pearDB->executeQuery(
+            <<<'SQL'
+                ALTER TABLE `cfg_nagios`
+                ADD COLUMN `host_down_disable_service_checks` ENUM('0', '1') DEFAULT '0'
+                AFTER `enable_predictive_service_dependency_checks`
+                SQL
+        );
+    }
+};
+
 try {
+    $addDisableServiceCheckColumn($pearDB);
+
     // Transactional queries
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
