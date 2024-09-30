@@ -124,6 +124,7 @@ class CentreonEngineCfg extends CentreonObject
             'event_broker_options' => '-1',
             'enable_predictive_host_dependency_checks' => '2',
             'enable_predictive_service_dependency_checks' => '2',
+            'host_down_disable_service_checks' => '0',
             'enable_environment_macros' => '2',
             'debug_level' => '0',
             'debug_level_opt' => '0',

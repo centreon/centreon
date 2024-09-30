@@ -73,15 +73,18 @@ function getAvailableSuffixIds(
     $serverName = preg_quote($serverName);
 
     // Get list of suffix already used
-    $serverName = CentreonDB::escape($serverName);
-    $query = "SELECT CAST(SUBSTRING_INDEX(name,'_',-1) AS INT) AS suffix "
-        . "FROM nagios_server WHERE name REGEXP '^" . $serverName . $separator . "[0-9]+$' "
-        . "ORDER BY suffix";
-    $results = $pearDB->query($query);
+    $query = <<<SQL
+        SELECT CAST(SUBSTRING_INDEX(name, '_', -1) AS SIGNED) AS suffix
+        FROM nagios_server WHERE name REGEXP :server_name_separator
+        ORDER BY suffix
+        SQL;
+    $stmt = $pearDB->prepare($query);
+    $stmt->bindValue(':server_name_separator', '^"' . $serverName . $separator . '[0-9]+$', \PDO::PARAM_STR);
+    $stmt->execute();
 
     $notAvailableSuffixes = [];
 
-    while ($result = $results->fetch()) {
+    while ($result = $stmt->fetch()) {
         $suffix = (int)$result['suffix'];
         if (!in_array($suffix, $notAvailableSuffixes)) {
             $notAvailableSuffixes[] = $suffix;
