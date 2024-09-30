@@ -68,7 +68,6 @@ const WrapperChart = ({
   ...rest
 }: Props): JSX.Element | null => {
   const { classes, cx } = useChartStyles();
-  console.log(rest);
 
   const { adjustedData } = useChartData({ data, end, start });
   const lineChartRef = useRef<HTMLDivElement | null>(null);

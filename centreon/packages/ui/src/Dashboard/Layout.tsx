@@ -64,13 +64,18 @@ const DashboardLayout = <T extends Layout>({
 
   return useMemoComponent({
     Component: (
-      <ResponsiveHeight margin={40} >
+      <ResponsiveHeight margin={40}>
         <div ref={dashboardContainerRef}>
           <ParentSize>
             {({ width, height }): JSX.Element => (
               <div className={classes.container}>
                 {displayGrid && (
-                  <Grid columns={columns} height={height} width={width} containerRef={dashboardContainerRef} />
+                  <Grid
+                    columns={columns}
+                    height={height}
+                    width={width}
+                    containerRef={dashboardContainerRef}
+                  />
                 )}
                 <ReactGridLayout
                   cols={columns}

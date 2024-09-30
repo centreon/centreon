@@ -16,10 +16,18 @@ interface Props {
   containerRef: MutableRefObject<HTMLDivElement | null>;
 }
 
-const Grid = ({ width, height, columns, containerRef }: Props): ReactElement => {
+const Grid = ({
+  width,
+  height,
+  columns,
+  containerRef
+}: Props): ReactElement => {
   const theme = useTheme();
 
-  const containerHeight = useMemo(() => containerRef.current?.clientHeight || height, [containerRef.current, height])
+  const containerHeight = useMemo(
+    () => containerRef.current?.clientHeight || height,
+    [containerRef.current, height]
+  );
 
   const xScale = useMemo(
     () =>
