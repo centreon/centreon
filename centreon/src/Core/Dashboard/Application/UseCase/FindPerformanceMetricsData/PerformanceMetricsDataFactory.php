@@ -72,11 +72,31 @@ use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
  *      average_value: ?float
  *  }
  * @phpstan-type _MetricData array{
- *  global: array{
- *      base: int
- *  },
- *  metrics: array<_Metrics>,
- *  times: string[]
+ *     global: array{
+ *         base: int,
+ *         title: string,
+ *         host_name: string
+ *     },
+ *     metrics: array<_Metrics>,
+ *     times: string[]
+ * }
+ * @phpstan-type _DataSourceData array{
+ *     ds_min: ?string,
+ *     ds_max: ?string,
+ *     ds_minmax_int: ?string,
+ *     ds_last: ?string,
+ *     ds_average: ?string,
+ *     ds_total: ?string,
+ *     ds_tickness: int,
+ *     ds_color_line_mode: int,
+ *     ds_color_line: string,
+ *     ds_transparency: ?float,
+ *     ds_color_area: ?string,
+ *     legend: ?string,
+ *     ds_filled: ?int,
+ *     ds_invert: ?int,
+ *     ds_stack: ?int,
+ *     ds_order: ?int
  * }
  */
 class PerformanceMetricsDataFactory
@@ -96,9 +116,7 @@ class PerformanceMetricsDataFactory
         $times = [];
         foreach ($metricsData as $index => $metricData) {
             $metricBases[] = $metricData['global']['base'];
-            \preg_match('/^[[:ascii:]]+ graph on ([[:ascii:]]+)$/', $metricData['global']['title'], $matches);
-            $hostName = $matches[1];
-            $metrics['index:' . $index . ';host_name:' . $hostName] = $metricData['metrics'];
+            $metrics['index:' . $index . ';host_name:' . $metricData['global']['host_name']] = $metricData['metrics'];
             $times[] = $metricData['times'];
         }
         $base = $this->getHighestBase($metricBases);

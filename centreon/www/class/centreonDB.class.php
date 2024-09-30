@@ -169,7 +169,12 @@ class CentreonDB extends PDO
                 $this->options
             );
         } catch (Exception $e) {
-            $this->logger->insertLog(2, "Unable to connect to database : {$e->getMessage()}");
+            $this->writeDbLog(
+                "Unable to connect to database : {$e->getMessage()}",
+                ['dsn_mysql' => $this->dbConfig->getMysqlDsn()],
+                exception: $e,
+                level: CentreonLog::LEVEL_CRITICAL
+            );
             if (PHP_SAPI !== "cli") {
                 $this->displayConnectionErrorPage(
                     $e->getCode() === 2002 ? "Unable to connect to database" : $e->getMessage()
@@ -188,7 +193,7 @@ class CentreonDB extends PDO
      */
     public static function connectToCentreonDb(CentreonDbConfig $dbConfig): CentreonDB
     {
-        return new self(dbLabel: self::LABEL_DB_CONFIGURATION, dbConfig:  $dbConfig);
+        return new self(dbLabel: self::LABEL_DB_CONFIGURATION, dbConfig: $dbConfig);
     }
 
     /**
@@ -199,7 +204,7 @@ class CentreonDB extends PDO
      */
     public static function connectToCentreonStorageDb(CentreonDbConfig $dbConfig): CentreonDB
     {
-        return new self(dbLabel: self::LABEL_DB_REALTIME, dbConfig:  $dbConfig);
+        return new self(dbLabel: self::LABEL_DB_REALTIME, dbConfig: $dbConfig);
     }
 
     /**
@@ -225,7 +230,7 @@ class CentreonDB extends PDO
             return parent::prepare($query, $options);
         } catch (PDOException $e) {
             $message = "Error while preparing the query: {$e->getMessage()}";
-            $this->logSqlError($query, $message);
+            $this->writeDbLog($message, ['options' => $options], $query, $e);
             throw new CentreonDbException(
                 $message,
                 [
@@ -300,7 +305,7 @@ class CentreonDB extends PDO
             return $pdoStatement->execute();
         } catch (PDOException $e) {
             $message = "Error while executing the prepared query: {$e->getMessage()}";
-            $this->logSqlError($pdoStatement->queryString, $message);
+            $this->writeDbLog($message, ['bind_params' => $bindParams], $pdoStatement->queryString, $e);
             throw new CentreonDbException(
                 $message,
                 [
@@ -346,7 +351,7 @@ class CentreonDB extends PDO
             return parent::query($query, $fetchMode, ...$fetchModeArgs);
         } catch (PDOException $e) {
             $message = "Error while executing the simple query: {$e->getMessage()}";
-            $this->logSqlError($query, $message);
+            $this->writeDbLog($message, query: $query, exception: $e);
             throw new CentreonDbException(
                 $message,
                 [
@@ -400,7 +405,7 @@ class CentreonDB extends PDO
         } catch (PDOException $e) {
             $this->closeQuery($pdoStatement);
             $message = "Error while fetching the row: {$e->getMessage()}";
-            $this->logSqlError($pdoStatement->queryString, $message);
+            $this->writeDbLog($message, query: $pdoStatement->queryString, exception: $e);
             throw new CentreonDbException(
                 $message,
                 [
@@ -424,7 +429,7 @@ class CentreonDB extends PDO
             return $pdoStatement->fetchAll();
         } catch (PDOException $e) {
             $message = "Error while fetching all the rows: {$e->getMessage()}";
-            $this->logSqlError($pdoStatement->queryString, $message);
+            $this->writeDbLog($message, query: $pdoStatement->queryString, exception: $e);
             throw new CentreonDbException(
                 $message,
                 [
@@ -451,7 +456,7 @@ class CentreonDB extends PDO
             return $pdoStatement->fetchColumn($column);
         } catch (PDOException $e) {
             $message = "Error while fetching all the rows by column: {$e->getMessage()}";
-            $this->logSqlError($pdoStatement->queryString, $message);
+            $this->writeDbLog($message, ['column' => $column], query: $pdoStatement->queryString, exception: $e);
             throw new CentreonDbException(
                 $message,
                 [
@@ -478,7 +483,12 @@ class CentreonDB extends PDO
             return $pdoStatement->execute($bindParams);
         } catch (PDOException $e) {
             $message = "Error while executing the query: {$e->getMessage()}";
-            $this->logSqlError($pdoStatement->queryString, $message);
+            $this->writeDbLog(
+                $message,
+                ['bind_params' => $bindParams],
+                query: $pdoStatement->queryString,
+                exception: $e
+            );
             throw $e;
         }
     }
@@ -520,7 +530,16 @@ class CentreonDB extends PDO
             return $pdoStatement->bindValue($paramName, $value, $type);
         } catch (PDOException $e) {
             $message = "Error while binding value for param {$paramName} : {$e->getMessage()}";
-            $this->logSqlError($pdoStatement->queryString, $message);
+            $this->writeDbLog(
+                $message,
+                [
+                    'param_name' => $paramName,
+                    'param_type' => $type,
+                    'param_value' => $value,
+                ],
+                query: $pdoStatement->queryString,
+                exception: $e
+            );
             throw new CentreonDbException(
                 $message,
                 [
@@ -574,7 +593,17 @@ class CentreonDB extends PDO
             return $pdoStatement->bindParam($paramName, $var, $type, $maxLength);
         } catch (PDOException $e) {
             $message = "Error while binding param {$paramName} : {$e->getMessage()}";
-            $this->logSqlError($pdoStatement->queryString, $message);
+            $this->writeDbLog(
+                $message,
+                [
+                    'param_name' => $paramName,
+                    'param_var' => $var,
+                    'param_type' => $type,
+                    'param_max_length' => $maxLength
+                ],
+                query: $pdoStatement->queryString,
+                exception: $e
+            );
             throw new CentreonDbException(
                 $message,
                 [
@@ -602,7 +631,7 @@ class CentreonDB extends PDO
             return $pdoStatement->closeCursor();
         } catch (PDOException $e) {
             $message = "Error while closing the PDOStatement cursor: {$e->getMessage()}";
-            $this->logSqlError($pdoStatement->queryString, $message);
+            $this->writeDbLog($message, query: $pdoStatement->queryString, exception: $e);
             throw new CentreonDbException(
                 $message,
                 [
@@ -770,7 +799,11 @@ class CentreonDB extends PDO
             $rows = $result->fetchAll();
             $this->requestSuccessful++;
         } catch (\PDOException $e) {
-            $this->logSqlError($query_string, $e->getMessage());
+            $this->writeDbLog(
+                'Error while using CentreonDb::getAll',
+                query: $query_string,
+                exception: $e
+            );
             throw new \PDOException($e->getMessage(), hexdec($e->getCode()));
         }
 
@@ -891,8 +924,8 @@ class CentreonDB extends PDO
             return -1;
         }
 
-        $table = \HtmlAnalyzer::sanitizeAndRemoveTags($table);
-        $column = \HtmlAnalyzer::sanitizeAndRemoveTags($column);
+        $table = HtmlAnalyzer::sanitizeAndRemoveTags($table);
+        $column = HtmlAnalyzer::sanitizeAndRemoveTags($column);
 
         $query = "SELECT COLUMN_NAME
             FROM INFORMATION_SCHEMA.COLUMNS
@@ -903,9 +936,9 @@ class CentreonDB extends PDO
         $stmt = $this->prepare($query);
 
         try {
-            $stmt->bindValue(':dbName', $this->dbConfig->dbName, \PDO::PARAM_STR);
-            $stmt->bindValue(':tableName', $table, \PDO::PARAM_STR);
-            $stmt->bindValue(':columnName', $column, \PDO::PARAM_STR);
+            $stmt->bindValue(':dbName', $this->dbConfig->dbName, PDO::PARAM_STR);
+            $stmt->bindValue(':tableName', $table, PDO::PARAM_STR);
+            $stmt->bindValue(':columnName', $column, PDO::PARAM_STR);
             $stmt->execute();
             $stmt->fetch();
 
@@ -913,8 +946,16 @@ class CentreonDB extends PDO
                 return 1; // column already exist
             }
             return 0; // column to add
-        } catch (\PDOException $e) {
-            $this->logSqlError($query, $e->getMessage());
+        } catch (PDOException $e) {
+            $this->writeDbLog(
+                'Error while checking if the column exists',
+                [
+                    'table' => $table,
+                    'column' => $column,
+                ],
+                query: $stmt->queryString,
+                exception: $e
+            );
             return -1;
         }
     }
@@ -942,7 +983,7 @@ class CentreonDB extends PDO
         $statement->bindValue(':index_name', $indexName);
 
         $statement->execute();
-        return ! empty($statement->fetch(\PDO::FETCH_ASSOC));
+        return ! empty($statement->fetch(PDO::FETCH_ASSOC));
     }
 
     /**
@@ -955,7 +996,8 @@ class CentreonDB extends PDO
      */
     public function isConstraintExists(string $table, string $constraintName): bool
     {
-        $statement = $this->prepare(<<<'SQL'
+        $statement = $this->prepare(
+            <<<'SQL'
             SELECT 1
             FROM information_schema.TABLE_CONSTRAINTS
             WHERE CONSTRAINT_SCHEMA = :db_name
@@ -968,18 +1010,35 @@ class CentreonDB extends PDO
         $statement->bindValue(':constraint_name', $constraintName);
 
         $statement->execute();
-        return ! empty($statement->fetch(\PDO::FETCH_ASSOC));
+        return ! empty($statement->fetch(PDO::FETCH_ASSOC));
     }
 
     /**
-     * Write SQL errors messages and queries
+     * Write SQL errors messages
      *
-     * @param string $query the query string to write to log
-     * @param string $message the message to write to log
+     * @param string $message
+     * @param array $customContext
+     * @param string $query
+     * @param Throwable|null $exception
+     * @param string $level
      */
-    private function logSqlError(string $query, string $message): void
-    {
-        $this->logger->insertLog(2, "{$message} QUERY : {$query}");
+    private function writeDbLog(
+        string $message,
+        array $customContext = [],
+        string $query = '',
+        ?Throwable $exception = null,
+        string $level = CentreonLog::LEVEL_ERROR
+    ): void {
+        $defaultContext = ['db_name' => $this->dbConfig->dbName];
+        if (! empty($query)) {
+            $defaultContext['query'] = $query;
+        }
+        if ($exception instanceof PDOException) {
+            $defaultContext['pdo_error_infos'] = $exception->errorInfo;
+            $defaultContext['pdo_error_code'] = $exception->getCode();
+        }
+        $context = array_merge($defaultContext, $customContext);
+        $this->logger->log(CentreonLog::TYPE_SQL, $level, "[CentreonDb] $message", $context, $exception);
     }
 
     /**
@@ -991,8 +1050,8 @@ class CentreonDB extends PDO
      */
     public function getColumnType(string $tableName, string $columnName): string
     {
-        $tableName = \HtmlAnalyzer::sanitizeAndRemoveTags($tableName);
-        $columnName = \HtmlAnalyzer::sanitizeAndRemoveTags($columnName);
+        $tableName = HtmlAnalyzer::sanitizeAndRemoveTags($tableName);
+        $columnName = HtmlAnalyzer::sanitizeAndRemoveTags($columnName);
 
         $query = 'SELECT COLUMN_TYPE
             FROM INFORMATION_SCHEMA.COLUMNS
@@ -1003,17 +1062,25 @@ class CentreonDB extends PDO
         $stmt = $this->prepare($query);
 
         try {
-            $stmt->bindValue(':dbName', $this->dbConfig->dbName, \PDO::PARAM_STR);
-            $stmt->bindValue(':tableName', $tableName, \PDO::PARAM_STR);
-            $stmt->bindValue(':columnName', $columnName, \PDO::PARAM_STR);
+            $stmt->bindValue(':dbName', $this->dbConfig->dbName, PDO::PARAM_STR);
+            $stmt->bindValue(':tableName', $tableName, PDO::PARAM_STR);
+            $stmt->bindValue(':columnName', $columnName, PDO::PARAM_STR);
             $stmt->execute();
-            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
             if (! empty($result)) {
                 return $result['COLUMN_TYPE'];
             }
-            throw new \PDOException("Unable to get column type");
-        } catch (\PDOException $e) {
-            $this->logSqlError($query, $e->getMessage());
+            throw new PDOException("Unable to get column type");
+        } catch (PDOException $e) {
+            $this->writeDbLog(
+                'Error while checking if the column exists',
+                [
+                    'table' => $tableName,
+                    'column' => $columnName,
+                ],
+                query: $stmt->queryString,
+                exception: $e
+            );
         }
     }
 }

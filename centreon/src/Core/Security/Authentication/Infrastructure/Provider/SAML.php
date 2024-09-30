@@ -122,7 +122,7 @@ class SAML implements ProviderAuthenticationInterface
         $errors = $this->auth->getErrors();
         if (! empty($errors)) {
             $ex = ProcessAuthenticationResponseException::create();
-            $this->loginLogger->error(Provider::SAML, $ex->getMessage(), ['context' => (string) json_encode($errors)]);
+            $this->loginLogger->error(Provider::SAML, $ex->getMessage(), ['context' => (string) json_encode($errors), 'error' => $this->auth->getLastErrorReason()]);
 
             throw $ex;
         }
