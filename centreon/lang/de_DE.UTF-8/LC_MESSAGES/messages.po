@@ -4349,11 +4349,11 @@ msgid "Modify"
 msgstr "Bearbeiten"
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:549
-msgid "Hosts Resources"
+msgid "Host Resources"
 msgstr "Hostressourcen"
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:550
-msgid "Services Resources"
+msgid "Service Resources"
 msgstr "Serviceressourcen"
 
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php:90

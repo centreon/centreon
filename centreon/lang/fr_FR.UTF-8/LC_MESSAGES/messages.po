@@ -6265,11 +6265,11 @@ msgid "Required field"
 msgstr "Champ requis"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:429
-msgid "Hosts Resources"
+msgid "Host Resources"
 msgstr "Gestion des hôtes"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:430
-msgid "Services Resources"
+msgid "Service Resources"
 msgstr "Gestion des services"
 
 msgid "Centreon Users"

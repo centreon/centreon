@@ -5900,11 +5900,11 @@ msgid "Required field"
 msgstr "Campo obligatorio"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:429
-msgid "Hosts Resources"
+msgid "Host Resources"
 msgstr "Gestión de host"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:430
-msgid "Services Resources"
+msgid "Service Resources"
 msgstr "Gestión de servicios"
 
 msgid "Centreon Users"

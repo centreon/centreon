@@ -546,8 +546,8 @@ if ($form->validate()) {
         $tpl->assign('form', $renderer->toArray());
         $tpl->assign('o', $o);
         $tpl->assign("sort1", _("General Information"));
-        $tpl->assign("sort2", _("Hosts Resources"));
-        $tpl->assign("sort3", _("Services Resources"));
+        $tpl->assign("sort2", _("Host Resources"));
+        $tpl->assign("sort3", _("Service Resources"));
         $tpl->assign("sort4", _("Meta Services"));
         $tpl->assign("sort5", _("Filters"));
         $tpl->display("formResourcesAccess.ihtml");
