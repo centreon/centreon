@@ -9,8 +9,9 @@ import 'dayjs/locale/es';
 import 'dayjs/locale/fr';
 import 'dayjs/locale/pt';
 
-import { useTranslation } from 'react-i18next';
 import { usePluralizedTranslation } from '@centreon/ui';
+import { useTranslation } from 'react-i18next';
+import { Data } from './models';
 import {
   labelDay,
   labelHour,
@@ -25,13 +26,16 @@ dayjs.extend(localizedFormat);
 dayjs.extend(timezonePlugin);
 dayjs.extend(relativeTime);
 
-export const useTimeline = ({ locale = 'en' }) => {
+export const useTimeline = ({
+  data,
+  locale = 'en'
+}: { data: Array<Data>; locale: string }) => {
   const { t } = useTranslation();
   const { pluralizedT } = usePluralizedTranslation();
 
   dayjs.locale(locale);
 
-  const getTimeDifference = (startDate, endDate) => {
+  const getTimeDifference = (startDate: string, endDate: string) => {
     const start = dayjs(startDate);
     const end = dayjs(endDate);
 
@@ -68,7 +72,14 @@ export const useTimeline = ({ locale = 'en' }) => {
     return readableUnits.slice(0, 2).join(', ') || `1 ${t(labelMinutes)}`;
   };
 
+  const formattedData = data.map(({ start, end, color }) => ({
+    start: new Date(start),
+    end: new Date(end),
+    color
+  }));
+
   return {
-    getTimeDifference
+    getTimeDifference,
+    formattedData
   };
 };

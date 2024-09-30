@@ -35,28 +35,28 @@ const Timeline = ({
   const { classes } = useStyles();
   const { format } = useLocaleDateTimeFormat();
   const { timezone, locale } = useAtomValue(userAtom);
-  
+
   const theme = useTheme();
 
   const xScale = scaleTime({
-    domain: [ new Date(startDate),  new Date(endDate)],
+    domain: [new Date(startDate), new Date(endDate)],
     range: [margin.left, width - margin.right]
   });
 
   const numTicks = Math.min(Math.ceil(width / 82), 12);
 
-  const { getTimeDifference } = useTimeline({ locale });
+  const { getTimeDifference, formattedData } = useTimeline({ data, locale });
 
   return (
     <svg width={width} height={height}>
-      {data.map(({start, end, color}, i) => (
+      {formattedData.map(({ start, end, color }) => (
         <Tooltip
           hasCaret
           classes={{
             tooltip: classes.tooltip
           }}
           followCursor={false}
-          key={`rect-${i}`}
+          key={`rect-${start}--${end}`}
           label={
             TooltipContent && (
               <TooltipContent

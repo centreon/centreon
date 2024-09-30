@@ -2,38 +2,38 @@ import Timeline from './Timeline';
 
 const data = [
   {
-    start: new Date('2024-09-09T10:57:42Z'),
-    end: new Date('2024-09-09T11:15:00Z'),
+    start: '2024-09-09T10:57:42Z',
+    end: '2024-09-09T11:15:00Z',
     color: 'green'
   },
   {
-    start: new Date('2024-09-09T11:15:00Z'),
-    end: new Date('2024-09-09T11:30:00Z'),
+    start: '2024-09-09T11:15:00Z',
+    end: '2024-09-09T11:30:00Z',
     color: 'red'
   },
   {
-    start: new Date('2024-09-09T11:30:00Z'),
-    end: new Date('2024-09-09T11:45:00Z'),
+    start: '2024-09-09T11:30:00Z',
+    end: '2024-09-09T11:45:00Z',
     color: 'gray'
   },
   {
-    start: new Date('2024-09-09T11:45:00Z'),
-    end: new Date('2024-09-09T12:00:00Z'),
+    start: '2024-09-09T11:45:00Z',
+    end: '2024-09-09T12:00:00Z',
     color: 'green'
   },
   {
-    start: new Date('2024-09-09T12:00:00Z'),
-    end: new Date('2024-09-09T12:20:00Z'),
+    start: '2024-09-09T12:00:00Z',
+    end: '2024-09-09T12:20:00Z',
     color: 'red'
   },
   {
-    start: new Date('2024-09-09T12:20:00Z'),
-    end: new Date('2024-09-09T12:40:00Z'),
+    start: '2024-09-09T12:20:00Z',
+    end: '2024-09-09T12:40:00Z',
     color: 'gray'
   },
   {
-    start: new Date('2024-09-09T12:40:00Z'),
-    end: new Date('2024-09-09T12:57:42Z'),
+    start: '2024-09-09T12:40:00Z',
+    end: '2024-09-09T12:57:42Z',
     color: 'green'
   }
 ];
