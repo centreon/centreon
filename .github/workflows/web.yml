@@ -371,7 +371,6 @@ jobs:
         backend-unit-test,
         frontend-web-build,
         frontend-web-lint,
-        frontend-widgets-build,
         frontend-widgets-lint,
         frontend-unit-test,
         frontend-component-test,
