@@ -58,9 +58,3 @@ Feature: Configuring status grid widget
     Given a new host is successfully added and configured
     When the dashboard administrator adds a status grid widget
     Then the newly added host should appear in the status grid widget
-
-  @TEST_MON-148286
-  Scenario: Adding a new host and verifying widget behavior
-    Given a new host is successfully added and configured
-    When the dashboard administrator adds a status grid widget
-    Then the newly added host should appear in the status grid widget
