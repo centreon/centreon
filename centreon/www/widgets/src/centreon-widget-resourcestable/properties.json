@@ -78,78 +78,6 @@
       "baseEndpoint": "/monitoring/severities/service",
       "isSingleAutocomplete": false
     },
-    "isOpenTicketEnabled": {
-      "type": "switch",
-      "label": "Enable Open Tickets",
-      "defaultValue": false,
-      "hiddenCondition": {
-        "target": "featureFlags",
-        "when": "resouresTableOpenTickets",
-        "method": "equals",
-        "matches": false
-      },
-      "hasModule": "centreon-open-tickets"
-    },
-    "provider": {
-      "type": "connected-autocomplete",
-      "label": "Rule (ticket provider)",
-      "secondaryLabel": "Select rule (ticket provider)",
-      "baseEndpoint": "/open-tickets/providers",
-      "isSingleAutocomplete": true,
-      "hiddenCondition": {
-        "target": "options",
-        "when": "options.isOpenTicketEnabled",
-        "method": "equals",
-        "matches": false
-      }
-    },
-    "displayResources": {
-      "type": "radio",
-      "label": "Display resources",
-      "options": [
-        {
-          "id": "all",
-          "name": "All resources"
-        },
-        {
-          "id": "withTicket",
-          "name": "Resources linked to a ticket"
-        },
-        {
-          "id": "withoutTicket",
-          "name": "Resources with no ticket"
-        }
-      ],
-      "defaultValue": "all",
-      "hiddenCondition": {
-        "target": "options",
-        "when": "options.isOpenTicketEnabled",
-        "method": "equals",
-        "matches": false
-      }
-    },
-    "isDownHostHidden": {
-      "type": "switch",
-      "label": "Hide services with Down host",
-      "defaultValue": false,
-      "hiddenCondition": {
-        "target": "options",
-        "when": "options.isOpenTicketEnabled",
-        "method": "equals",
-        "matches": false
-      }
-    },
-    "isUnreachableHostHidden": {
-      "type": "switch",
-      "label": "hide services with Unreachable host",
-      "defaultValue": false,
-      "hiddenCondition": {
-        "target": "options",
-        "when": "options.isOpenTicketEnabled",
-        "method": "equals",
-        "matches": false
-      }
-    },
     "refreshInterval": {
       "type": "refresh-interval",
       "defaultValue": "default",
@@ -161,6 +89,92 @@
       "type": "resources",
       "defaultValue": [],
       "required": false
+    }
+  },
+  "categories": {
+    "Ticket settings": {
+      "hasModule": "centreon-open-tickets",
+      "groups": [
+        {
+          "id": "isOpenTicketEnabled",
+          "name": "Enable tickets"
+        },
+        {
+          "id": "provider",
+          "name": "Rule (ticket provider)"
+        },
+        {
+          "id": "displayResources",
+          "name": "Display resources"
+        }
+      ],
+      "elements": {
+        "warning": {
+          "type": "warning",
+          "label": "If tickets are enabled, only the “by service” view is available."
+        },
+        "isOpenTicketEnabled": {
+          "type": "switch",
+          "label": "Enable tickets",
+          "defaultValue": false
+        },
+        "provider": {
+          "type": "connected-autocomplete",
+          "label": "Rule (ticket provider)",
+          "secondaryLabel": "Select rule (ticket provider)",
+          "baseEndpoint": "/open-tickets/providers",
+          "isSingleAutocomplete": true,
+          "hiddenCondition": {
+            "target": "options",
+            "when": "options.isOpenTicketEnabled",
+            "method": "equals",
+            "matches": false
+          },
+          "isRequiredProperty": true
+        },
+        "displayResources": {
+          "type": "radio",
+          "label": "Display resources",
+          "options": [
+            {
+              "id": "withoutTicket",
+              "name": "Resources with no ticket"
+            },
+            {
+              "id": "withTicket",
+              "name": "Resources linked to a ticket"
+            }
+          ],
+          "defaultValue": "withoutTicket",
+          "hiddenCondition": {
+            "target": "options",
+            "when": "options.provider",
+            "method": "isNil"
+          }
+        },
+        "isDownHostHidden": {
+          "type": "switch",
+          "label": "Hide services with Down host",
+          "defaultValue": false,
+          "hiddenCondition": {
+            "target": "options",
+            "when": "options.isOpenTicketEnabled",
+            "method": "equals",
+            "matches": false
+          }
+        },
+        "isUnreachableHostHidden": {
+          "type": "switch",
+          "label": "Hide services with Unreachable host",
+          "defaultValue": false,
+          "hiddenCondition": {
+            "target": "options",
+            "when": "options.isOpenTicketEnabled",
+            "method": "equals",
+            "matches": false
+          }
+        }
+      }
     }
   },
   "moduleName": "centreon-widget-resourcestable"

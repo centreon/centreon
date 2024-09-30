@@ -19131,8 +19131,8 @@ msgstr "Sélectionner les sévérités des services"
 msgid "Select host severities"
 msgstr "Sélectionner les sévérités des hôtes"
 
-msgid "Enable Open Tickets"
-msgstr "Activer Open Tickets"
+msgid "Enable tickets"
+msgstr "Activer les tickets"
 
 msgid "Ticket provider"
 msgstr "Fournisseur de tickets"
@@ -19162,7 +19162,7 @@ msgid "Ticket subject"
 msgstr "Sujet du ticket"
 
 msgid "Opened on"
-msgstr "Date d'ouverture"
+msgstr "Ouvert le"
 
 msgid "Create a ticket"
 msgstr "Créer un ticket"
@@ -19386,3 +19386,69 @@ msgstr "Afficher la date"
 
 msgid "The ticket will be closed for the selected ticket provider"
 msgstr "Le ticket sera fermé pour le fournisseur de tickets sélectionné"
+
+msgid "Vault configuration"
+msgstr "Configuration du Vault"
+
+msgid "The address is invalid"
+msgstr "L'addresse est invalide"
+
+msgid "Vault address"
+msgstr "Addresse du Vault"
+
+msgid "Root path"
+msgstr "Chemin de la racine"
+
+msgid "Role ID"
+msgstr "Role ID"
+
+msgid "Secret ID"
+msgstr "Secret ID"
+
+msgid "Reset configuration"
+msgstr "Réinitialiser la configuration"
+
+msgid "The form will be cleared and all data will be lost. Do you want to proceed?"
+msgstr "Le formulaire sera réinitialisé et les données modifiées seront perdues. Souhaitez-vous continuer ?"
+
+msgid "Port expected at most 65535"
+msgstr "Le numéro de port maximum attendu est 65535"
+
+msgid "Vault configuration updated"
+msgstr "La configuration du Vault a été mise à jour"
+
+msgid "Post must start from 1"
+msgstr "Le numéro de port doit être au moins 1"
+
+msgid "Migrate"
+msgstr "Migrer"
+
+msgid "Migration script"
+msgstr "Script de migration"
+
+msgid "Execute this script as root on the central."
+msgstr "Exécuter ce script en tant que root sur le serveur central."
+
+msgid "The following script will migrate all your credentials from Centreon, Auto-discovery and the database."
+msgstr "Le script suivant migrera vos identifiants de Centreon, d'Auto-discovery ainsi que de la base de données."
+
+msgid "By executing this script, your platform will be in a locked mode and you will not be able to do <strong>anything</strong> during the migration process (example: deploying your configuration, updating administration parameters, etc...)."
+msgstr "En exécutant ce script, votre plateforme sera verrouillée and vous ne pourrez plus <strong>rien modifier</strong> durant le processus de migration (exemple: déployer la configuration, modifier les paramètres d'administration, etc...)."
+
+msgid "The migration process can take several minutes depending on your configuration."
+msgstr "Le processus de migration peut prendre plusieurs minutes selon votre configuration."
+
+msgid "Web page"
+msgstr "Page web"
+
+msgid "Displays a web page"
+msgstr "Affiche une page web"
+
+msgid "Please note that domains outside your organization must be authorized in your Apache configuration."
+msgstr "Attention, les domaines en dehors de votre organisation doivent être autorisés dans votre configuration Apache."
+
+msgid "Web page preview"
+msgstr "Aperçu de la page web"
+
+msgid "If tickets are enabled, only the “by service” view is available."
+msgstr "Si les tickets sont activés, seule la vue par service est disponible."
