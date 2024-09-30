@@ -125,7 +125,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el8, el9, bullseye, bookworm, jammy]
+        distrib: [el8, el9, bookworm, jammy]
         include:
           - package_extension: rpm
             image: packaging-nfpm-alma8
@@ -133,9 +133,6 @@ jobs:
           - package_extension: rpm
             image: packaging-nfpm-alma9
             distrib: el9
-          - package_extension: deb
-            image: packaging-nfpm-bullseye
-            distrib: bullseye
           - package_extension: deb
             image: packaging-nfpm-bookworm
             distrib: bookworm
@@ -227,7 +224,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bullseye, bookworm, jammy]
+        distrib: [bookworm, jammy]
     steps:
       - name: Checkout sources
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -254,7 +251,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye, bookworm]
+        distrib: [el8, el9, bookworm]
 
     steps:
       - name: Checkout sources
