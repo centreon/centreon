@@ -1,17 +1,21 @@
+import { equals } from 'ramda';
 import { lazy } from 'react';
 import { FederatedModule } from '../../../../federatedModules/models';
 
+const testWidgets = equals(window.Cypress?.testingType, 'component') && !equals(process.env.NODE_ENV, 'production') ?
+  [
+    { name: 'data' },
+    { name: 'input' },
+    { name: 'singledata' },
+    { name: 'text' }
+  ] : [];
+
 const internalWidgets = [
-  // Those are for test purpose
-  // 'data',
-  // 'input',
-  // 'singledata',
-  // 'text',
-  // Those are real web widgets
+  ...testWidgets,
   {
     name: 'batree',
     panelMinHeight: 5,
-    panelMinWidth: 6
+    panelMinWidth: 6,
   },
   {
     name: 'clock'
@@ -47,7 +51,7 @@ export const internalWidgetComponents: Array<FederatedModule> =
     federatedPages: [],
     federatedComponentsConfiguration: [
       {
-        path: `centreon-widget-${widget.name}`,
+        path: `/widgets/${widget.name}`,
         federatedComponents: [],
         ...widget
       }

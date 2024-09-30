@@ -1,4 +1,4 @@
-import { ReactElement, useMemo } from 'react';
+import { MutableRefObject, ReactElement, useMemo } from 'react';
 
 import { scaleLinear } from '@visx/scale';
 import { Grid as VisxGrid } from '@visx/visx';
@@ -13,10 +13,13 @@ interface Props {
   columns: number;
   height: number;
   width: number;
+  containerRef: MutableRefObject<HTMLDivElement | null>;
 }
 
-const Grid = ({ width, height, columns }: Props): ReactElement => {
+const Grid = ({ width, height, columns, containerRef }: Props): ReactElement => {
   const theme = useTheme();
+
+  const containerHeight = useMemo(() => containerRef.current?.clientHeight || height, [containerRef.current, height])
 
   const xScale = useMemo(
     () =>
@@ -27,15 +30,15 @@ const Grid = ({ width, height, columns }: Props): ReactElement => {
     [width]
   );
 
-  const numberOfRows = Math.floor(height / (rowHeight + 16));
+  const numberOfRows = Math.floor(containerHeight / (rowHeight + 16));
 
   const yScale = useMemo(
     () =>
       scaleLinear({
         domain: [0, numberOfRows],
-        range: [0, height]
+        range: [0, containerHeight]
       }),
-    [height]
+    [containerHeight]
   );
 
   const tick = maxColumns / columns;
@@ -44,19 +47,19 @@ const Grid = ({ width, height, columns }: Props): ReactElement => {
     .fill(0)
     .map((_, index) => index * tick);
 
+  const yTickValues = Array(numberOfRows)
+    .fill(0)
+    .map((_, index) => index);
+
   return useMemoComponent({
     Component: (
-      <svg style={{ height, position: 'absolute', width }}>
-        <VisxGrid.GridColumns
+      <svg style={{ height: '100%', position: 'absolute', width }}>
+        <VisxGrid.Grid
+          columnTickValues={xTickValues}
+          rowTickValues={yTickValues}
           height={height}
-          scale={xScale}
-          stroke={theme.palette.divider}
-          tickValues={xTickValues}
-          width={width}
-        />
-        <VisxGrid.GridRows
-          height={height}
-          scale={yScale}
+          yScale={yScale}
+          xScale={xScale}
           stroke={theme.palette.divider}
           top={-10}
           width={width}

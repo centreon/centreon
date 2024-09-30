@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useSetAtom } from 'jotai';
 import GridLayout, { Layout, WidthProvider } from 'react-grid-layout';
@@ -34,6 +34,8 @@ const DashboardLayout = <T extends Layout>({
   isStatic = false,
   additionalMemoProps = []
 }: DashboardLayoutProps<T>): JSX.Element => {
+  const dashboardContainerRef = useRef<HTMLDivElement | null>(null);
+
   const { classes } = useDashboardLayoutStyles(isStatic);
 
   const [columns, setColumns] = useState(getColumnsFromScreenSize());
@@ -62,30 +64,32 @@ const DashboardLayout = <T extends Layout>({
 
   return useMemoComponent({
     Component: (
-      <ResponsiveHeight margin={40}>
-        <ParentSize>
-          {({ width, height }): JSX.Element => (
-            <div className={classes.container}>
-              {displayGrid && (
-                <Grid columns={columns} height={height} width={width} />
-              )}
-              <ReactGridLayout
-                cols={columns}
-                containerPadding={[4, 0]}
-                layout={getLayout(layout)}
-                margin={[20, 20]}
-                resizeHandles={['s', 'e', 'se']}
-                rowHeight={rowHeight}
-                width={width}
-                onLayoutChange={changeLayout}
-                onResizeStart={startResize}
-                onResizeStop={stopResize}
-              >
-                {children}
-              </ReactGridLayout>
-            </div>
-          )}
-        </ParentSize>
+      <ResponsiveHeight margin={40} >
+        <div ref={dashboardContainerRef}>
+          <ParentSize>
+            {({ width, height }): JSX.Element => (
+              <div className={classes.container}>
+                {displayGrid && (
+                  <Grid columns={columns} height={height} width={width} containerRef={dashboardContainerRef} />
+                )}
+                <ReactGridLayout
+                  cols={columns}
+                  containerPadding={[4, 0]}
+                  layout={getLayout(layout)}
+                  margin={[20, 20]}
+                  resizeHandles={['s', 'e', 'se']}
+                  rowHeight={rowHeight}
+                  width={width}
+                  onLayoutChange={changeLayout}
+                  onResizeStart={startResize}
+                  onResizeStop={stopResize}
+                >
+                  {children}
+                </ReactGridLayout>
+              </div>
+            )}
+          </ParentSize>
+        </div>
       </ResponsiveHeight>
     ),
     memoProps: [columns, layout, displayGrid, isStatic, ...additionalMemoProps]
