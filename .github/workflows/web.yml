@@ -224,20 +224,6 @@ jobs:
           pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           lint_path: ./www/front_src/
 
-  frontend-widgets-lint:
-    runs-on: ubuntu-22.04
-    needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
-
-    steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-      - uses: ./.github/actions/frontend-lint
-        with:
-          frontend_directory: ${{ env.widgets_directory }}
-          module_name: centreon-widgets
-          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-          pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
   frontend-unit-test:
     runs-on: ubuntu-22.04
     needs: [changes, get-version]
@@ -371,7 +357,6 @@ jobs:
         backend-unit-test,
         frontend-web-build,
         frontend-web-lint,
-        frontend-widgets-lint,
         frontend-unit-test,
         frontend-component-test,
       ]
