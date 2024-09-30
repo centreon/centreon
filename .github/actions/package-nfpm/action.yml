@@ -45,6 +45,12 @@ runs:
   using: composite
 
   steps:
+    - name: Parse distrib name
+      id: parse-distrib
+      uses: ./.github/actions/parse-distrib
+      with:
+        distrib: ${{ inputs.distrib }}
+
     - name: Import gpg key
       env:
         RPM_GPG_SIGNING_KEY: ${{ inputs.rpm_gpg_key }}
@@ -62,15 +68,15 @@ runs:
         export ARCH="${{ inputs.arch }}"
 
         if  [ "${{ inputs.package_extension }}" = "rpm" ]; then
-          export DIST=".${{ inputs.distrib }}"
+          export DIST="${{ steps.parse-distrib.outputs.package_distrib_separator }}${{ steps.parse-distrib.outputs.package_distrib_name }}"
           export APACHE_USER="apache"
           export APACHE_GROUP="apache"
         else
           export DIST=""
           if [ "${{ inputs.stability }}" == "unstable" ] || [ "${{ inputs.stability }}" == "canary" ]; then
-            export RELEASE="$RELEASE~${{ inputs.distrib }}"
+            export RELEASE="$RELEASE${{ steps.parse-distrib.outputs.package_distrib_separator }}${{ steps.parse-distrib.outputs.package_distrib_name }}"
           else
-            export RELEASE="1~${{ inputs.distrib }}"
+            export RELEASE="1${{ steps.parse-distrib.outputs.package_distrib_separator }}${{ steps.parse-distrib.outputs.package_distrib_name }}"
           fi
           export APACHE_USER="www-data"
           export APACHE_GROUP="www-data"
