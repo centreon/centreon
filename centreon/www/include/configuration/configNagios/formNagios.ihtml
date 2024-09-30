@@ -250,6 +250,24 @@
                 </td>
                 <td class="FormRowValue">{$form.enable_predictive_service_dependency_checks.html}</td>
             </tr>
+            <tr class="list_two">
+                <td class="FormRowField">
+
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="host_down_disable_service_checks"/>
+
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.host_down_disable_service_checks.label}
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.host_down_disable_service_checks.html}</td>
+            </tr>
 
             <tr class="list_lvl_1">
         <td class="ListColLvl1_name" colspan="2">
