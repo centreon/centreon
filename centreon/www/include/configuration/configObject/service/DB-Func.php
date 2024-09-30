@@ -2692,7 +2692,6 @@ function updateServiceNotifOptionTimeperiod(int $serviceId, $ret = array())
             UPDATE `service` SET `timeperiod_tp_id2` = :timeperiod_tp_id2
             WHERE `service_id` = :service_id
             SQL;
-
         $stmt = $pearDB->prepareQuery($request);
         $queryParams['service_id'] = $serviceId;
 
