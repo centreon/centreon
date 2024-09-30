@@ -1,0 +1,42 @@
+[
+    {
+        "action": "ADD",
+        "object": "CONTACT",
+        "values": "user2;User2;user2@test.com;Centreon!2021User2;0;1;en_US;local"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLGROUP",
+        "values": "ACL Group test;CYPRESS"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLMENU",
+        "values": "acl_menu_test;;"
+    },
+    {
+        "action": "ADDMENU",
+        "object": "ACLGROUP",
+        "values": "ACL Group test;acl_menu_test"
+    },
+    {
+        "action": "ADDCONTACT",
+        "object": "ACLGROUP",
+        "values": "ACL Group test;user2"
+    },
+    {
+        "action": "ADDRESOURCE",
+        "object": "ACLGROUP",
+        "values": "ACL Group test;All Resources"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "acl_menu_test;1;Monitoring"
+    },
+    {
+        "action": "RELOAD",
+        "object": "ACL",
+        "values": ""
+    }
+]

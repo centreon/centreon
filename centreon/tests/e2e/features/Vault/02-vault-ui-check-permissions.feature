@@ -3,36 +3,24 @@ Feature: Check permissions for the vault
   I want to check if I can access the Vault page
   To manage Vault
 
-#   Scenario: Reset a creation form
-#     Given an admin user is in the Vault page
-#     When the user fills in all the informations
-#     And the user clicks on the Reset button
-#     Then a pop-up appears to confirm the reset
-#     When the user confirms the reset
-#     Then the vault configuration fields are empty
+  Scenario: Access the vault page with a non-admin user without topology right
+    Given a non-admin user without topology right is logged in
+    When the user visits the Vault page
+    Then the user cannot access the Vault page
 
-  Scenario: Add a first Vault configuration
-    Given an admin user is logged in
+  Scenario: Access the vault page with a non-admin user with topology right
+    Given a non-admin user with topology right is logged in
     When the user clicks on the Vault page
     Then the user is redirected to the Vault page
+    And an error message is displayed to require an admin user
     When the user fills in all the informations
     And the user clicks on Save
-    Then the vault is successfully saved
-    And the informations are displayed
+    Then an error message is displayed to require an admin user
 
-  Scenario: Add a Vault configuration with missing informations
-    Given an admin user is in the Vault page
-    When the user doesn't fill in all the informations
-    Then the user cannot click on Save
-
-  Scenario: Add a Vault configuration with incorrect informations
-    Given an admin user is in the Vault page
-    When the user doesn't fill in the correct informations
-    And the user clicks on Save
-    Then the form displayed an error for invalid configuration
-
-  Scenario: Display migration command
-    Given an admin user is in the Vault page
-    And the configuration is already defined
-    When the user clicks on the Migrate button
-    Then a pop-up appears with the migration informations
+  Scenario: Display the vault page details
+    Given the configuration is already defined
+    And a non-admin user with topology right is logged in
+    When the user clicks on the Vault page
+    Then the user is redirected to the Vault page
+    And an error message is displayed to require an admin user
+    And the vault fields are empty

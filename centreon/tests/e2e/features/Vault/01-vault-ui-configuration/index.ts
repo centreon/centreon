@@ -76,7 +76,6 @@ When('the user clicks on the Vault page', () => {
     page: 'Vault',
     rootItemNumber: 4,
     subMenu: 'Parameters'
-
   });
 });
 
