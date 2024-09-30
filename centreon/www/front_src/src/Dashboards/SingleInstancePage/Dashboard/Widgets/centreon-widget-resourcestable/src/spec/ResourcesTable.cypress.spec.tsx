@@ -447,9 +447,9 @@ describe('View by all', () => {
         "downtime": {
           "comment": "Downtime set by ",
           "duration": 3600,
-          "end_time": "2024-08-07T23:00:00Z",
+          "end_time": "2024-08-08T01:00:00Z",
           "is_fixed": true,
-          "start_time": "2024-08-07T22:00:00Z",
+          "start_time": "2024-08-08T00:00:00Z",
           "with_services": false
         },
         "resources": [
