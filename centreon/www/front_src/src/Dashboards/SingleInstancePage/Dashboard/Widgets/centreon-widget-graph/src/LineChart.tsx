@@ -141,7 +141,7 @@ const WidgetLineChart = ({
     zoomPreview: {
       enable: false
     },
-    skipIntersectionObserver: isFromPreview,
+    skipIntersectionObserver: isFromPreview
   };
 
   if (isLineChart) {

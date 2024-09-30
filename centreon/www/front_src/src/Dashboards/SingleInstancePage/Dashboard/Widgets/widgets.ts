@@ -1,5 +1,5 @@
-import { lazy } from "react";
-import { FederatedModule } from "../../../../federatedModules/models";
+import { lazy } from 'react';
+import { FederatedModule } from '../../../../federatedModules/models';
 
 const internalWidgets = [
   // Those are for test purpose
@@ -14,7 +14,7 @@ const internalWidgets = [
     panelMinWidth: 6
   },
   {
-    name: 'clock',
+    name: 'clock'
   },
   { name: 'generictext' },
   {
@@ -39,18 +39,19 @@ const internalWidgets = [
   { name: 'webpage' }
 ];
 
-export const internalWidgetComponents: Array<FederatedModule> = internalWidgets.map((widget) => ({
-  moduleName: `centreon-widget-${widget.name}`,
-  remoteEntry: '',
-  moduleFederationName: `centreon-widget-${widget.name}`,
-  federatedPages: [],
-  federatedComponentsConfiguration: [
-    {
-      path: `centreon-widget-${widget.name}`,
-      federatedComponents: [],
-      ...widget
-    }
-  ],
-  Component: lazy(() => import(`./centreon-widget-${widget.name}/src`)),
-  properties: require(`./centreon-widget-${widget.name}/properties.json`)
-}));
+export const internalWidgetComponents: Array<FederatedModule> =
+  internalWidgets.map((widget) => ({
+    moduleName: `centreon-widget-${widget.name}`,
+    remoteEntry: '',
+    moduleFederationName: `centreon-widget-${widget.name}`,
+    federatedPages: [],
+    federatedComponentsConfiguration: [
+      {
+        path: `centreon-widget-${widget.name}`,
+        federatedComponents: [],
+        ...widget
+      }
+    ],
+    Component: lazy(() => import(`./centreon-widget-${widget.name}/src`)),
+    properties: require(`./centreon-widget-${widget.name}/properties.json`)
+  }));

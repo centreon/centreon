@@ -1,4 +1,3 @@
-
 import { CommonWidgetProps, Data, FormThreshold } from '../../models';
 
 import TopBottom from './TopBottom';

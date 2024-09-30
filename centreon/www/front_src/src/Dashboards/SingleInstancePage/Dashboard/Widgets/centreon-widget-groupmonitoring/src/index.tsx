@@ -1,4 +1,3 @@
-
 import GroupMonitoring from './GroupMonitoring';
 import { WidgetProps } from './models';
 

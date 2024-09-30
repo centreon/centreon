@@ -47,7 +47,10 @@ const useFederatedWidgets = (): UseFederatedModulesState => {
 
   const widgets = getWidgets();
 
-  const externalWidgets = difference(widgets || [], pluck('moduleName', internalWidgetComponents));
+  const externalWidgets = difference(
+    widgets || [],
+    pluck('moduleName', internalWidgetComponents)
+  );
 
   const getFederatedModulesConfigurations = useCallback((): void => {
     if (!widgets) {
@@ -63,7 +66,9 @@ const useFederatedWidgets = (): UseFederatedModulesState => {
         })
       ) || []
     ).then((federatedWidgetConfigs: Array<FederatedModule>): void => {
-      setFederatedWidgets(federatedWidgetConfigs.concat(internalWidgetComponents));
+      setFederatedWidgets(
+        federatedWidgetConfigs.concat(internalWidgetComponents)
+      );
 
       federatedWidgetConfigs
         .filter(({ preloadScript }) => preloadScript)
@@ -81,7 +86,9 @@ const useFederatedWidgets = (): UseFederatedModulesState => {
           endpoint: `${getFederatedWidgetProperties(moduleName)}${timestamp}`
         })
       ) || []
-    ).then((properties) => setFederatedWidgetsProperties((current) => current.concat(properties)));
+    ).then((properties) =>
+      setFederatedWidgetsProperties((current) => current.concat(properties))
+    );
   }, [externalWidgets]);
 
   useEffect(

@@ -31,7 +31,7 @@ const OpenTicket = ({ row }: ComponentColumnProps): JSX.Element => {
   };
 
   const createHostTicket = (): void => {
-    setResourcesToOpenTicket([{ hostID: row?.parent.id}]);
+    setResourcesToOpenTicket([{ hostID: row?.parent.id }]);
   };
 
   const ticket = row?.extra?.open_tickets?.tickets;

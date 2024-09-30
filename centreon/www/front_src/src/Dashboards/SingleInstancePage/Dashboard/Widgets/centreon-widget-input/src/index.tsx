@@ -1,4 +1,3 @@
-
 import { Box, TextField, Typography } from '@mui/material';
 
 interface Options {
@@ -9,10 +8,7 @@ interface Props {
   setPanelOptions: (options: Options) => void;
 }
 
-const Input = ({
-  panelOptions,
-  setPanelOptions,
-}: Props): JSX.Element => {
+const Input = ({ panelOptions, setPanelOptions }: Props): JSX.Element => {
   const changeInput = (event): void => {
     setPanelOptions({ text: event.target.value });
   };

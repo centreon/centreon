@@ -106,13 +106,13 @@ export const useGroupMonitoring = ({
             page: inc(pageToUse),
             search: hasResourcesDefined
               ? {
-                lists: [
-                  {
-                    field: 'name',
-                    values: pluck('name', resource?.resources)
-                  }
-                ]
-              }
+                  lists: [
+                    {
+                      field: 'name',
+                      values: pluck('name', resource?.resources)
+                    }
+                  ]
+                }
               : undefined,
             sort: {
               [sortFieldToUse]: sortOrderToUse.toUpperCase()

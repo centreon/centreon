@@ -64,13 +64,15 @@ export const buildResourcesEndpoint = ({
   return buildListingEndpoint({
     baseEndpoint,
     customQueryParameters: [
-      ...(provider ? [
-        { name: 'ticket_provider_id', value: provider.id },
-        {
-          name: 'only_with_opened_tickets',
-          value: !!equals(displayResources, 'withTicket')
-        }
-      ] : []),
+      ...(provider
+        ? [
+            { name: 'ticket_provider_id', value: provider.id },
+            {
+              name: 'only_with_opened_tickets',
+              value: !!equals(displayResources, 'withTicket')
+            }
+          ]
+        : []),
       { name: 'types', value: formattedType },
       { name: 'statuses', value: formattedStatuses },
       { name: 'status_types', value: statusTypes },

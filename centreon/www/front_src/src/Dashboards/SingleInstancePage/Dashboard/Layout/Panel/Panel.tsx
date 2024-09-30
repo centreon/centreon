@@ -20,7 +20,7 @@ import useLinkToResourceStatus from '../../hooks/useLinkToResourceStatus';
 import useSaveDashboard from '../../hooks/useSaveDashboard';
 import { isGenericText, isRichTextEditorEmpty } from '../../utils';
 
-import { equals, find, isNil } from 'ramda';
+import { equals, find, isEmpty, isNil } from 'ramda';
 import { internalWidgetComponents } from '../../Widgets/widgets';
 import { usePanelHeaderStyles } from './usePanelStyles';
 
@@ -67,7 +67,7 @@ const Panel = ({
 
   const panelConfigurations = getPanelConfigurations(id);
 
-  const { Component } = find((widget) => equals(widget.moduleName, name), internalWidgetComponents) || {};
+  const { Component, remoteEntry } = find((widget) => equals(widget.moduleName, name), internalWidgetComponents) || {};
 
   const widgetPrefixQuery = useMemo(
     () => `${panelConfigurations.path}_${id}`,
@@ -86,66 +86,62 @@ const Panel = ({
     });
   };
 
+  const isGenericTextPanel = isGenericText(panelConfigurations?.path);
+
   const displayDescription =
+    !isGenericTextPanel &&
     panelOptionsAndData.options?.description?.enabled &&
     panelOptionsAndData.options?.description?.content &&
     !isRichTextEditorEmpty(panelOptionsAndData.options?.description?.content);
 
-  const isGenericTextPanel = isGenericText(panelConfigurations?.path);
-
-  const getDescription = (): JSX.Element | null => {
-    if (!displayDescription) {
-      return null;
-    }
-
-    if (isGenericTextPanel) {
-      return (
-        <RichTextEditor
-          disabled
-          contentClassName={cx(isGenericTextPanel && classes.description)}
-          editable={false}
-          editorState={
-            panelOptionsAndData.options?.description?.content || undefined
-          }
-        />
-      );
-    }
-
-    return (
-      <DescriptionWrapper>
-        <RichTextEditor
-          disabled
-          contentClassName={cx(isGenericTextPanel && classes.description)}
-          editable={false}
-          editorState={
-            panelOptionsAndData.options?.description?.content || undefined
-          }
-          inputClassname={classes.descriptionInput}
-        />
-      </DescriptionWrapper>
-    );
-  };
-
   return useMemoComponent({
     Component: (
       <>
-        {getDescription()}
-        {!isGenericTextPanel && (
-          <div
-            className={cx(
-              displayDescription
-                ? classes.panelContentWithDescription
-                : classes.panelContent
-            )}
-          >
-            {isNil(Component) ? <FederatedComponent
-              isFederatedWidget
+        {displayDescription && (
+          <DescriptionWrapper>
+            <RichTextEditor
+              disabled
+              contentClassName={cx(isGenericTextPanel && classes.description)}
+              editable={false}
+              editorState={
+                panelOptionsAndData.options?.description?.content || undefined
+              }
+              inputClassname={classes.descriptionInput}
+            />
+          </DescriptionWrapper>
+        )}
+        <div
+          className={cx(
+            displayDescription
+              ? classes.panelContentWithDescription
+              : classes.panelContent
+          )}
+        >
+          {!isEmpty(remoteEntry) || isNil(Component) ? <FederatedComponent
+            isFederatedWidget
+            canEdit={canEditField}
+            changeViewMode={changeViewMode}
+            dashboardId={dashboardId}
+            globalRefreshInterval={refreshInterval}
+            hasDescription={displayDescription}
+            id={id}
+            isEditingDashboard={isEditing}
+            panelData={panelOptionsAndData?.data}
+            panelOptions={panelOptionsAndData?.options}
+            path={panelConfigurations.path}
+            playlistHash={playlistHash}
+            queryClient={client}
+            refreshCount={refreshCount}
+            saveDashboard={saveDashboard}
+            setPanelOptions={changePanelOptions}
+            widgetPrefixQuery={widgetPrefixQuery}
+          /> : (
+            <Component
               canEdit={canEditField}
               changeViewMode={changeViewMode}
               dashboardId={dashboardId}
               globalRefreshInterval={refreshInterval}
               hasDescription={displayDescription}
-              id={id}
               isEditingDashboard={isEditing}
               panelData={panelOptionsAndData?.data}
               panelOptions={panelOptionsAndData?.options}
@@ -156,27 +152,9 @@ const Panel = ({
               saveDashboard={saveDashboard}
               setPanelOptions={changePanelOptions}
               widgetPrefixQuery={widgetPrefixQuery}
-            /> : (
-              <Component
-                canEdit={canEditField}
-                changeViewMode={changeViewMode}
-                dashboardId={dashboardId}
-                globalRefreshInterval={refreshInterval}
-                hasDescription={displayDescription}
-                isEditingDashboard={isEditing}
-                panelData={panelOptionsAndData?.data}
-                panelOptions={panelOptionsAndData?.options}
-                path={panelConfigurations.path}
-                playlistHash={playlistHash}
-                queryClient={client}
-                refreshCount={refreshCount}
-                saveDashboard={saveDashboard}
-                setPanelOptions={changePanelOptions}
-                widgetPrefixQuery={widgetPrefixQuery}
-              />
-            )}
-          </div>
-        )}
+            />
+          )}
+        </div>
       </>
     ),
     memoProps: [

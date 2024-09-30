@@ -83,16 +83,16 @@ const useWidgetModal = (): UseWidgetModalState => {
     const defaultOptions =
       selectedWidget && selectedWidgetProperties
         ? {
-          ...getDefaultValues(selectedWidgetProperties.options),
-          ...toPairs(inputCategories).reduce((acc, [, value]) => {
-            const hasGroups = !isEmpty(value?.groups);
+            ...getDefaultValues(selectedWidgetProperties.options),
+            ...toPairs(inputCategories).reduce((acc, [, value]) => {
+              const hasGroups = !isEmpty(value?.groups);
 
-            return {
-              ...acc,
-              ...getDefaultValues(hasGroups ? value.elements : value)
-            };
-          }, {})
-        }
+              return {
+                ...acc,
+                ...getDefaultValues(hasGroups ? value.elements : value)
+              };
+            }, {})
+          }
         : {};
 
     startTransition(() =>

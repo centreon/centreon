@@ -1,6 +1,5 @@
 import { equals } from 'ramda';
 
-
 import { CommonWidgetProps } from '../../models';
 
 import Clock from './Clock';
@@ -16,14 +15,15 @@ const Widget = ({
   hasDescription,
   forceHeight,
   forceWidth
-}: Props & ForceDimension): JSX.Element => equals(panelOptions.displayType, 'clock') ? (
-  <Clock
-    {...panelOptions}
-    forceHeight={forceHeight}
-    forceWidth={forceWidth}
-    hasDescription={hasDescription}
-  />
-) : (
+}: Props & ForceDimension): JSX.Element =>
+  equals(panelOptions.displayType, 'clock') ? (
+    <Clock
+      {...panelOptions}
+      forceHeight={forceHeight}
+      forceWidth={forceWidth}
+      hasDescription={hasDescription}
+    />
+  ) : (
     <Timer
       {...panelOptions}
       forceHeight={forceHeight}

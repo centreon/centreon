@@ -1,4 +1,3 @@
-
 import { FluidTypography } from '@centreon/ui';
 
 interface Props {

@@ -47,8 +47,8 @@ interface UseWidgetSelectionState {
 export const getDefaultValues = (
   options:
     | {
-      [key: string]: FederatedWidgetOption;
-    }
+        [key: string]: FederatedWidgetOption;
+      }
     | undefined
 ): object => {
   if (!options) {
@@ -197,9 +197,9 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
         description:
           shouldResetDescription || isNil(currentValues.options.description)
             ? {
-              content: null,
-              enabled: true
-            }
+                content: null,
+                enabled: true
+              }
             : currentValues.options.description,
         name: currentValues.options.name
       },

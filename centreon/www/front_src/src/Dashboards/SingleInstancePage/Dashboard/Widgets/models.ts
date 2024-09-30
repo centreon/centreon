@@ -1,4 +1,3 @@
-
 import { SelectEntry } from '@centreon/ui';
 
 export interface FormThreshold {
