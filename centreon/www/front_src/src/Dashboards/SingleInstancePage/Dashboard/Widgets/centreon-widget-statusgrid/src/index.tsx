@@ -4,7 +4,7 @@ import StatusGridCondensed from './StatusGridCondensed/StatusGridCondensed';
 import StatusGrid from './StatusGridStandard/StatusGrid';
 import { StatusGridProps } from './StatusGridStandard/models';
 
-export const Widget = ({
+const Widget = ({
   panelOptions,
   ...props
 }: StatusGridProps): JSX.Element =>

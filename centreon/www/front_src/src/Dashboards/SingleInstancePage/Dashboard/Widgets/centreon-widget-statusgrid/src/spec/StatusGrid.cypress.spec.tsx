@@ -6,7 +6,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom, userAtom } from '@centreon/ui-context';
 
-import { StatusGridWrapper } from '..';
+import Widget from '..';
 import {
   labelNoHostsFound,
   labelNoServicesFound
@@ -59,7 +59,7 @@ const initialize = ({ options, data, isPublic = false }: Props): void => {
         <Provider store={store}>
           <BrowserRouter>
             <div style={{ height: '100vh', width: '100vw' }}>
-              <StatusGridWrapper
+              <Widget
                 dashboardId={1}
                 globalRefreshInterval={{
                   interval: 30,

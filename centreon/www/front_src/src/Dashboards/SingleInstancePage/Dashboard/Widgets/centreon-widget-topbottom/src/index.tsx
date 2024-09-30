@@ -14,7 +14,7 @@ interface Props extends CommonWidgetProps<object> {
   };
 }
 
-export const Widget = ({
+const Widget = ({
   dashboardId,
   globalRefreshInterval,
   id,

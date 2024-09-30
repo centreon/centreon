@@ -11,7 +11,7 @@ import { getPublicWidgetEndpoint } from '../../utils';
 import { metricsTopEndpoint } from './api/endpoint';
 import { TopBottomSettings } from './models';
 
-import Widget, { TopBottomWrapper } from '.';
+import Widget from '.';
 
 interface Props {
   isPublic?: boolean;
@@ -100,7 +100,7 @@ const initializeComponent = ({
         <TestQueryProvider>
           <Provider store={store}>
             <BrowserRouter>
-              <TopBottomWrapper
+              <Widget
                 dashboardId={1}
                 globalRefreshInterval={{
                   interval: 30,
@@ -133,26 +133,28 @@ const initializeEmptyComponent = (): void => {
 
   cy.mount({
     Component: (
-      <div style={{ height: '400px', width: '100%' }}>
-        <BrowserRouter>
-          <Widget
-            globalRefreshInterval={{
-              interval: 30,
-              type: 'global'
-            }}
-            panelData={{}}
-            panelOptions={{
-              refreshInterval: 'custom',
-              refreshIntervalCustom: 30,
-              threshold: defaultThreshold,
-              topBottomSettings: defaultSettings,
-              valueFormat: 'human'
-            }}
-            refreshCount={0}
-            store={store}
-          />
-        </BrowserRouter>
-      </div>
+      <TestQueryProvider>
+        <div style={{ height: '400px', width: '100%' }}>
+          <BrowserRouter>
+            <Widget
+              globalRefreshInterval={{
+                interval: 30,
+                type: 'global'
+              }}
+              panelData={{}}
+              panelOptions={{
+                refreshInterval: 'custom',
+                refreshIntervalCustom: 30,
+                threshold: defaultThreshold,
+                topBottomSettings: defaultSettings,
+                valueFormat: 'human'
+              }}
+              refreshCount={0}
+              store={store}
+            />
+          </BrowserRouter>
+        </div>
+      </TestQueryProvider>
     )
   });
 };

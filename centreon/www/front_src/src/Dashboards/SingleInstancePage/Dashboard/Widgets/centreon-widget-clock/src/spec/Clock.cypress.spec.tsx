@@ -1,10 +1,11 @@
-import { QueryClient } from '@tanstack/react-query';
-import { createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 
 import { userAtom } from '@centreon/ui-context';
 
 import Widget from '..';
 import { PanelOptions } from '../models';
+
+import 'dayjs/locale/de';
 
 const countdown = 1722587072000;
 const farCountdown = 1723830148000;
@@ -31,23 +32,23 @@ const initialize = ({
 
   cy.mount({
     Component: (
-      <div style={{ height: '400px', position: 'relative', width: '600px' }}>
-        <Widget
-          {...(isSmall ? smallDisplay : normalDisplay)}
-          dashboardId={1}
-          globalRefreshInterval={{
-            interval: null,
-            type: 'manual'
-          }}
-          hasDescription={hasDescription}
-          id="dashboard"
-          panelOptions={options}
-          queryClient={new QueryClient()}
-          refreshCount={0}
-          store={store}
-          widgetPrefixQuery="prefix"
-        />
-      </div>
+      <Provider store={store}>
+        <div style={{ height: '400px', position: 'relative', width: '600px' }}>
+          <Widget
+            {...(isSmall ? smallDisplay : normalDisplay)}
+            dashboardId={1}
+            globalRefreshInterval={{
+              interval: null,
+              type: 'manual'
+            }}
+            hasDescription={hasDescription}
+            id="dashboard"
+            panelOptions={options}
+            refreshCount={0}
+            widgetPrefixQuery="prefix"
+          />
+        </div>
+      </Provider>
     )
   });
 };

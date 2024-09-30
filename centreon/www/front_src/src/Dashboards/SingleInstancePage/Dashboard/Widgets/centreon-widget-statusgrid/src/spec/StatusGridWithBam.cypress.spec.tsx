@@ -11,7 +11,7 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
-import { StatusGridWrapper } from '..';
+import Widget from '..';
 import { getPublicWidgetEndpoint } from '../../../utils';
 import { getStatusesEndpoint } from '../StatusGridCondensed/api/endpoints';
 import { Data, PanelOptions } from '../StatusGridStandard/models';
@@ -199,7 +199,7 @@ const initialize = ({ options, data, isPublic = false }: Props): void => {
         <Provider store={store}>
           <BrowserRouter>
             <div style={{ height: '100vh', width: '100vw' }}>
-              <StatusGridWrapper
+              <Widget
                 dashboardId={1}
                 globalRefreshInterval={{
                   interval: 30,
