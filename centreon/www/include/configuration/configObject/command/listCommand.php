@@ -119,7 +119,7 @@ $tpl->assign('mode_access', $lvl_access);
 /*
  * Main buttons
  */
-$duplicateBtn = "<button style='cursor: pointer; background-color: transparent; border: 0; height: 22px; width: 22px;' " .
+$duplicateBtn = "<button id='duplicate' style='cursor: pointer; background-color: transparent; border: 0; height: 22px; width: 22px;' " .
 "onclick=\"javascript:if (confirm('" . _("Do you confirm the duplication ?") . "')) {setO('m'); submit();}\">" .
 "<img src='img/icons/content_copy.png' " . "class='ico-22 margin_right' alt='" . _("Duplicate") . "'></button>";
 
