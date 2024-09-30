@@ -30,6 +30,6 @@ jobs:
               -H "Authorization: Bearer ${{ secrets.CENTREON_TECHNIQUE_PAT }}" \
               -H "Accept: application/vnd.github.v3+json" \
               https://api.github.com/repos/centreon/centreon-on-demand/actions/workflows/destroy.yml/dispatches \
-              -d '{"ref": "main", "inputs":{"workspace_to_destroy_id": 0, "confirm": true} }' \
+              -d '{"ref": "main", "inputs":{"confirm":"true"} }' \
               -w %http_code
         shell: bash
