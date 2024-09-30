@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Typography } from '@mui/material';
 
-import { RichTextEditor } from '@centreon/ui';
+import { LoadingSkeleton, RichTextEditor } from '@centreon/ui';
 
 import FederatedComponent from '../../../../../components/FederatedComponents';
 import { dashboardRefreshIntervalAtom } from '../../atoms';
@@ -70,9 +70,8 @@ const Preview = (): JSX.Element | null => {
     <div className={classes.previewPanelContainer} ref={previewRef}>
       <div
         style={{
-          height: `${
-            (previewRef.current?.getBoundingClientRect().height || 0) - 16
-          }px`,
+          height: `${(previewRef.current?.getBoundingClientRect().height || 0) - 16
+            }px`,
           overflowY: 'auto'
         }}
       >
@@ -98,11 +97,10 @@ const Preview = (): JSX.Element | null => {
         )}
         <div
           style={{
-            height: `${
-              (previewRef.current?.getBoundingClientRect().height || 0) -
+            height: `${(previewRef.current?.getBoundingClientRect().height || 0) -
               36 -
               46
-            }px`,
+              }px`,
             overflow: 'auto',
             position: 'relative'
           }}
@@ -120,7 +118,7 @@ const Preview = (): JSX.Element | null => {
               hasDescription={displayDescription}
             />
           ) : (
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<LoadingSkeleton variant='rectangular' width="100%" height="100%" />}>
               <Component
                 isFromPreview
                 globalRefreshInterval={refreshInterval}
