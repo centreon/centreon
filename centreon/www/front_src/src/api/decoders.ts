@@ -41,6 +41,7 @@ const dashboardDecoder = JsonDecoder.object<DashboardRolesAndPermissions>(
 export const userDecoder = JsonDecoder.object<User>(
   {
     alias: JsonDecoder.string,
+    canManageApiTokens: JsonDecoder.boolean,
     dashboard: JsonDecoder.failover(
       null,
       JsonDecoder.optional(JsonDecoder.nullable(dashboardDecoder))
@@ -65,6 +66,7 @@ export const userDecoder = JsonDecoder.object<User>(
   },
   'User parameters',
   {
+    canManageApiTokens: 'can_manage_api_tokens',
     isAdmin: 'is_admin',
     isExportButtonEnabled: 'is_export_button_enabled',
     themeMode: 'theme'

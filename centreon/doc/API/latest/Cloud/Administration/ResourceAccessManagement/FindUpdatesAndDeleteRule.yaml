@@ -27,29 +27,43 @@ get:
                 description: "Resource access rule description"
                 example: "Rule that will be applied to all viewers"
               contacts:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                      description: "ID of the contact linked to the rule"
-                      example: 1
-                    name:
-                      type: string
-                      description: "Name of the contact linked to the rule"
+                type: object
+                properties:
+                  values:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: "ID of the contact linked to the rule"
+                          example: 1
+                        name:
+                          type: string
+                          description: "Name of the contact linked to the rule"
+                  all:
+                    type: boolean
+                    description: "Indicates that the rule should be applied to all current / future contacts"
+                    example: false
               contact_groups:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                      description: "ID of the contact group linked to the rule"
-                      example: 1
-                    name:
-                      type: string
-                      description: "Name of the contact group linked to the rule"
+                type: object
+                properties:
+                  values:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: "ID of the contact group linked to the rule"
+                          example: 1
+                        name:
+                          type: string
+                          description: "Name of the contact group linked to the rule"
+                  all:
+                    type: boolean
+                    description: "Indicates that the rule should be applied to all current / future contact groups"
+                    example: false
               is_enabled:
                 type: boolean
                 description: "Indicates whether the resource access rule is activated or not"

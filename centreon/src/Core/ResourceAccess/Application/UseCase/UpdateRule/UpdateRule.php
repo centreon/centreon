@@ -137,10 +137,14 @@ final class UpdateRule
             $this->dataStorageEngine->startTransaction();
             $this->updateBasicInformation($rule, $request);
 
+            // At least one ID must be provided for contact or contactgroup
             $this->validator->assertContactsAndContactGroupsAreNotEmpty(
                 $request->contactIds,
-                $request->contactGroupIds
+                $request->contactGroupIds,
+                $request->applyToAllContacts,
+                $request->applyToAllContactGroups
             );
+
             $this->updateLinkedContacts($rule, $request);
             $this->updateLinkedContactGroups($rule, $request);
             $this->updateResourceLinks($request);
@@ -458,12 +462,16 @@ final class UpdateRule
      */
     private function updateLinkedContactGroups(Rule $rule, UpdateRuleRequest $updateRequest): void
     {
-        // Do not do uneccessary database calls if nothing has changed
+        /**
+         * Do not do uneccessary database calls if nothing has changed
+         * if all contact groups are linked to this rule.
+         */
         if (
             $this->shouldUpdateContactOrContactGroupRelations(
                 $rule->getLinkedContactGroupIds(),
                 $updateRequest->contactGroupIds
             )
+            && ! $updateRequest->applyToAllContactGroups
         ) {
             $this->validator->assertContactGroupIdsAreValid($updateRequest->contactGroupIds);
 
@@ -489,12 +497,16 @@ final class UpdateRule
      */
     private function updateLinkedContacts(Rule $rule, UpdateRuleRequest $updateRequest): void
     {
-        // Do not do uneccessary database calls if nothing has changed
+        /**
+         * Do not do uneccessary database calls if nothing has changed
+         * if all contacts are linked to this rule.
+         */
         if (
             $this->shouldUpdateContactOrContactGroupRelations(
                 $rule->getLinkedContactIds(),
                 $updateRequest->contactIds
             )
+            && ! $updateRequest->applyToAllContacts
         ) {
             $this->validator->assertContactIdsAreValid($updateRequest->contactIds);
 
@@ -530,6 +542,8 @@ final class UpdateRule
 
             $rule->setIsEnabled($updateRequest->isEnabled);
             $rule->setDescription($updateRequest->description);
+            $rule->setApplyToAllContacts($updateRequest->applyToAllContacts);
+            $rule->setApplyToAllContactGroups($updateRequest->applyToAllContactGroups);
 
             $this->debug(
                 'Updating basic resource access rule information',
@@ -538,6 +552,8 @@ final class UpdateRule
                     'name' => $rule->getName(),
                     'description' => $rule->getDescription() ?? '',
                     'is_enabled' => $rule->isEnabled(),
+                    'all_contacts' => $rule->doesApplyToAllContacts(),
+                    'all_contact_groups' => $rule->doesApplyToAllContactGroups(),
                 ]
             );
             $this->writeRepository->update($rule);
@@ -569,7 +585,9 @@ final class UpdateRule
         return
             $current->getName() !== NewRule::formatName($updateRequest->name)
                 || $current->getDescription() !== $updateRequest->description
-                || $current->isEnabled() !== $updateRequest->isEnabled;
+                || $current->isEnabled() !== $updateRequest->isEnabled
+                || $current->doesApplyToAllContactGroups() !== $updateRequest->applyToAllContactGroups
+                || $current->doesApplyToAllContacts() !== $updateRequest->applyToAllContacts;
     }
 
     /**

@@ -134,7 +134,7 @@ jobs:
             TARGETS=( "${{ github.base_ref || github.ref_name }}" "dev-${{ inputs.major_version }}.x" develop )
           fi
 
-          for TARGET in ${TARGETS[@]}; do
+          for TARGET in "${TARGETS[@]}"; do
             RESULT=0
             echo "[INFO] - Searching baseline file for $TARGET's"
             aws s3 ls "$BUCKET/$TARGET/results.json" || RESULT=$( echo $? )
@@ -285,7 +285,7 @@ jobs:
         continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
           appname: "${{ inputs.module_name }}"
-          version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_runId-${{ github.run_id }}"
+          version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_runId-${{ github.run_id }}_attempt-${{ github.run_attempt }}"
           filepath: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           vid: "vera01ei-${{ secrets.veracode_api_id }}"
           vkey: "vera01es-${{ secrets.veracode_api_key }}"
@@ -325,16 +325,40 @@ jobs:
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - name: Removing pnpm dependencies
+      - name: Prepare analysis
         run: |
           cd ${{ inputs.module_directory }}
+
           echo "[DEBUG] - pnpm dependencies analysis disabled"
           find ./ -type f -name "package.json" -o -name "package-lock.json" -o -name "npm-shrinkwrap.json" -delete
 
-          RESULT=`find ./ -type f -name "composer.lock" -o -name "composer.json"`
-          if [[ -n ${RESULT[0]} ]]; then
-          	echo "trigger_sca_scan=true" >> $GITHUB_ENV
+          if [[ -f composer.json ]]; then
+            echo "is_php_project=true" >> $GITHUB_ENV
+            PHP_VERSION=$( cat composer.json | grep -m1 '"php":' | cut -d ":" -f2 | cut -d"." -f 1,2 |  tr -d '">= ~' )
+            echo "php_version=$PHP_VERSION" >> $GITHUB_ENV
+            echo "trigger_sca_scan=true" >> $GITHUB_ENV
+            if [[ ! -f composer.lock ]]; then
+              echo "missing_lock_file=true">> $GITHUB_ENV
+            fi
           fi
+
+          cat $GITHUB_ENV
+
+      - name: install PHP
+        if: env.is_php_project == 'true'
+        uses: shivammathur/setup-php@2e947f1f6932d141d076ca441d0e1e881775e95b # v2.31.0
+        with:
+          php-version: ${{ env.php_version }}
+          extensions: none
+          tools: composer:v2
+          coverage: none
+        env:
+          fail-fast: "true"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: generate missing composer.lock
+        if: env.missing_lock_file == 'true'
+        run: composer install --no-dev --optimize-autoloader
 
       - name: SCA scan
         if: env.trigger_sca_scan == 'true'
