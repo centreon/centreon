@@ -31,7 +31,6 @@ use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\NewDashboard;
 use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
-use Core\Media\Domain\Model\Media;
 
 class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteDashboardRepositoryInterface
 {
@@ -46,7 +45,7 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
     /**
      * @inheritDoc
      */
-    public function addThumbnailRelation(Dashboard $dashboard, Media $thumbnail): void {
+    public function addThumbnailRelation(int $dashboardId, int $thumbnailId): void {
         $request = <<<'SQL'
                 INSERT INTO `:db`.dashboard_thumbnail_relation
                     (
@@ -61,8 +60,8 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
             SQL;
 
         $statement = $this->db->prepare($this->translateDbName($request));
-        $statement->bindValue(':dashboardId', $dashboard->getId(), \PDO::PARAM_INT);
-        $statement->bindValue(':thumbnailId', $thumbnail->getId(), \PDO::PARAM_INT);
+        $statement->bindValue(':dashboardId', $dashboardId, \PDO::PARAM_INT);
+        $statement->bindValue(':thumbnailId', $thumbnailId, \PDO::PARAM_INT);
         $statement->execute();
     }
 

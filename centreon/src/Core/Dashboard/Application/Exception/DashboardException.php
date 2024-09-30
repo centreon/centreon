@@ -126,7 +126,7 @@ class DashboardException extends \Exception
     /**
      * @return self
      */
-    public static function errorWhileLinkingDashboardAndThumbnail(): self
+    public static function errorWhileThumbnailToDashboard(): self
     {
         return new self(_('Error while linking a dashboard to its thumbnail'));
     }

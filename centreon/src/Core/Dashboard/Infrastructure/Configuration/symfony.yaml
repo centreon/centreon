@@ -9,10 +9,15 @@ services:
     Core\Dashboard\:
         resource: '../../../../Core/Dashboard/*'
 
-    Core\Dashboard\Application\UseCase\AddDashboardThumbnailRelation\AddDashboardThumbnailRelation:
+    Core\Dashboard\Application\UseCase\AddDashboardThumbnail\AddDashboardThumbnail:
         arguments:
-            $mediaRepository: '@Core\Media\Infrastructure\Repository\DbReadMediaRepository'
+            $writeMediaRepository: '@Core\Media\Infrastructure\Repository\FileProxyWriteMediaRepository'
 
     Core\Dashboard\Application\UseCase\DeleteDashboard\DeleteDashboard:
         arguments:
             $mediaRepository: '@Core\Media\Infrastructure\Repository\FileProxyWriteMediaRepository'
+
+    # Core\Dashboard\Infrastructure\Event\DashboardUpdatedSubscriber:
+    #     arguments:
+    #        $thumbnailCreator: '@Core\Dashboard\Application\UseCase\AddDashboardThumbnail'
+    #        $thumbnailCreatorPresenter: '@Core\Dashboard\Application\UseCase\AddDashboardThumbnailPresenterInterface'

@@ -28,6 +28,9 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
+/**
+ * @extends Voter<string, mixed>
+ */
 final class MediaVoters extends Voter
 {
     public const CREATE_MEDIA = 'create_media';

@@ -23,10 +23,8 @@ declare(strict_types = 1);
 
 namespace Tests\Core\Media\Application\UseCase\UpdateMedia;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Media\Application\Exception\MediaException;
@@ -36,7 +34,6 @@ use Core\Media\Application\UseCase\UpdateMedia\UpdateMedia;
 use Core\Media\Application\UseCase\UpdateMedia\UpdateMediaRequest;
 use Core\Media\Application\UseCase\UpdateMedia\UpdateMediaResponse;
 use Core\Media\Domain\Model\Media;
-use enshrined\svgSanitize\Sanitizer;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Tests\Core\Media\Infrastructure\API\UpdateMedia\UpdateMediaPresenterStub;
 
@@ -44,8 +41,6 @@ beforeEach(function (): void {
     $this->writeMediaRepository = $this->createMock(WriteMediaRepositoryInterface::class);
     $this->readMediaRepository = $this->createMock(ReadMediaRepositoryInterface::class);
     $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class);
-    $this->svgSanitizer = $this->createMock(Sanitizer::class);
-    $this->user = $this->createMock(ContactInterface::class);
     $this->presenter = new UpdateMediaPresenterStub(
         $this->createMock(PresenterFormatterInterface::class)
     );
@@ -53,8 +48,6 @@ beforeEach(function (): void {
         $this->writeMediaRepository,
         $this->readMediaRepository,
         $this->dataStorageEngine,
-        $this->user,
-        $this->svgSanitizer,
     );
 
     $this->imagePath = __DIR__ . '/../../../Infrastructure/API/UpdateMedia/logo.jpg';
@@ -66,33 +59,17 @@ beforeEach(function (): void {
     );
 });
 
-it('should present a ForbiddenResponse when a user has insufficient rights', function (): void {
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(false);
-
-    $request = new UpdateMediaRequest($this->uploadedFile);
-    ($this->useCase)(1, $request, $this->presenter);
-
-    expect($this->presenter->response)
-        ->toBeInstanceOf(ForbiddenResponse::class)
-        ->and($this->presenter->response->getMessage())
-        ->toBe(MediaException::updateNotAllowed()->getMessage());
-});
-
 it('should present an NotFoundResponse when the media to update does not exist', function (): void {
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(true);
-
     $this->readMediaRepository
         ->expects($this->once())
         ->method('findById')
         ->willReturn(null);
 
-    $request = new UpdateMediaRequest($this->uploadedFile);
+    $request = new UpdateMediaRequest(
+        $this->uploadedFile->getClientOriginalName(),
+        $this->uploadedFile->getContent()
+    );
+
     ($this->useCase)(1, $request, $this->presenter);
 
     expect($this->presenter->response)
@@ -102,11 +79,6 @@ it('should present an NotFoundResponse when the media to update does not exist',
 });
 
 it('should present an ErrorResponse when an exception is thrown', function (): void {
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(true);
-
     $this->readMediaRepository
         ->expects($this->once())
         ->method('findById')
@@ -117,7 +89,10 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
         ->method('update')
         ->willThrowException(new \Exception());
 
-    $request = new UpdateMediaRequest($this->uploadedFile);
+    $request = new UpdateMediaRequest(
+        $this->uploadedFile->getClientOriginalName(),
+        $this->uploadedFile->getContent()
+    );
     ($this->useCase)(1, $request, $this->presenter);
 
     expect($this->presenter->response)
@@ -127,11 +102,6 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
 });
 
 it('should present an UpdateMediaResponse when the media has been updated', function (): void {
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(true);
-
     $this->readMediaRepository
         ->expects($this->once())
         ->method('findById')
@@ -141,7 +111,10 @@ it('should present an UpdateMediaResponse when the media has been updated', func
         ->expects($this->once())
         ->method('update');
 
-    $request = new UpdateMediaRequest($this->uploadedFile);
+    $request = new UpdateMediaRequest(
+        $this->uploadedFile->getClientOriginalName(),
+        $this->uploadedFile->getContent()
+    );
 
     ($this->useCase)(1, $request, $this->presenter);
 

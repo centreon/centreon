@@ -30,6 +30,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Common\Application\Type\NoValue;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardPanelRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
@@ -38,12 +39,14 @@ use Core\Dashboard\Application\Repository\WriteDashboardPanelRepositoryInterface
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboard;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboardRequestDto;
+use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\ThumbnailRequestDto;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Refresh;
 use Core\Dashboard\Domain\Model\Refresh\RefreshType;
-use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 beforeEach(function (): void {
     $this->presenter = new PartialUpdateDashboardPresenterStub();
@@ -57,12 +60,14 @@ beforeEach(function (): void {
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
-        $this->readMediaRepository = $this->createMock(ReadMediaRepositoryInterface::class),
+        $this->eventDispatcher = $this->createMock(EventDispatcher::class),
         $this->isCloudPlatform = false
     );
 
     $this->testedPartialUpdateDashboardRequest = new PartialUpdateDashboardRequestDto();
     $this->testedPartialUpdateDashboardRequest->name = 'updated-dashboard';
+    $this->testedPartialUpdateDashboardRequest->thumbnail = new ThumbnailRequestDto(null, __DIR__, 'logo.jpg');
+    $this->testedPartialUpdateDashboardRequest->thumbnail->file = new UploadedFile(__DIR__ . '/logo.jpg', 'logo.jpg');
 
     $this->testedDashboard = new Dashboard(
         $this->testedDashboardId = random_int(1, 1_000_000),
@@ -284,4 +289,3 @@ it(
         expect($presentedData)->toBeInstanceOf(NoContentResponse::class);
     }
 );
-

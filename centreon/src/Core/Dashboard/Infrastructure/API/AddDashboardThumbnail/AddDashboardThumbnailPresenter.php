@@ -21,14 +21,14 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Infrastructure\API\AddDashboardThumbnailRelation;
+namespace Core\Dashboard\Infrastructure\API\AddDashboardThumbnail;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Dashboard\Application\UseCase\AddDashboardThumbnailRelation\AddDashboardThumbnailRelationPresenterInterface;
+use Core\Dashboard\Application\UseCase\AddDashboardThumbnail\AddDashboardThumbnailPresenterInterface;
 
-final class AddDashboardThumbnailRelationPresenter extends AbstractPresenter implements AddDashboardThumbnailRelationPresenterInterface
+final class AddDashboardThumbnailPresenter extends AbstractPresenter implements AddDashboardThumbnailPresenterInterface
 {
     public function presentResponse(NoContentResponse|ResponseStatusInterface $data): void
     {

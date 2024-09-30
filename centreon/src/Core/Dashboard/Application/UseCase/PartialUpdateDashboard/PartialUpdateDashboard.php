@@ -40,6 +40,7 @@ use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardPanelRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
+use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\ThumbnailRequestDto;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Refresh;
@@ -97,7 +98,10 @@ final class PartialUpdateDashboard
                 );
             }
 
-            $this->updateOrCreateDashboardThumbnail($dashboardId, $request);
+            // dispatch DashboardUpdatedEvent that will be handled by a subscriber
+            if (! $request->thumbnail instanceof NoValue) {
+                $this->updateOrCreateDashboardThumbnail($dashboardId, $request->thumbnail);
+            }
 
             $presenter->presentResponse($response);
         } catch (AssertionFailedException $ex) {
@@ -114,23 +118,18 @@ final class PartialUpdateDashboard
 
     /**
      * @param int $dashboardId
-     * @param PartialUpdateDashboardRequestDto $request
+     * @param ThumbnailRequestDto $request
      */
-    private function updateOrCreateDashboardThumbnail(int $dashboardId, PartialUpdateDashboardRequestDto $request): void
+    private function updateOrCreateDashboardThumbnail(int $dashboardId, ThumbnailRequestDto $request): void
     {
         $thumbnail = $this->readDashboardRepository->findThumbnailByDashboardId($dashboardId);
 
-        if ($request->thumbnail instanceof NoValue) {
-            throw new \Exception('Thumbnail data not defined');
+        if ($thumbnail !== null) {
+            $thumbnail->setData($request->file->getContent());
+            $event = new DashboardUpdatedEvent(dashboardId: $dashboardId, directory: $thumbnail->getDirectory(), thumbnail: $thumbnail);
+        } else {
+            $event = new DashboardUpdatedEvent(dashboardId: $dashboardId, directory: $request->directory, thumbnail: $request->file);
         }
-
-        $thumbnail?->setData($request->thumbnail->file->getContent());
-
-        $event = new DashboardUpdatedEvent(
-            $dashboardId,
-            $thumbnail?->getDirectory() ?? $request->thumbnail->directory,
-            $thumbnail ?? $request->thumbnail->file
-        );
 
         $this->dispatcher->dispatch($event);
     }

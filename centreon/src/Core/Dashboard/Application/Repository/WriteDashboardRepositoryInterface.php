@@ -25,7 +25,6 @@ namespace Core\Dashboard\Application\Repository;
 
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\NewDashboard;
-use Core\Media\Domain\Model\Media;
 
 interface WriteDashboardRepositoryInterface
 {
@@ -59,10 +58,10 @@ interface WriteDashboardRepositoryInterface
     public function update(Dashboard $dashboard): void;
 
     /**
-     * @param Media $thumbnail
-     * @param Dashboard $dashboard
+     * @param int $dashboardId
+     * @param int $thumbnailId
      *
      * @throws \Throwable
      */
-    public function addThumbnailRelation(Dashboard $dashboard, Media $thumbnail): void;
+    public function addThumbnailRelation(int $dashboardId, int $thumbnailId): void;
 }

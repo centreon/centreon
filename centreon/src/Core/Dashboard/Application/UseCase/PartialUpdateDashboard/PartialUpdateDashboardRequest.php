@@ -148,7 +148,7 @@ final class PartialUpdateDashboardRequest
     public function toDto(): PartialUpdateDashboardRequestDto
     {
         $name = empty($this->name) ? new NoValue() : $this->name;
-        $description = empty($this->description) ? new NoValue() : $this->description;
+        $description = $this->description === null ? new NoValue() : $this->description;
 
         return new PartialUpdateDashboardRequestDto(
             name: $name,
