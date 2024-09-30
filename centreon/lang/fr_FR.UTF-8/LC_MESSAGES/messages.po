@@ -19464,9 +19464,3 @@ msgstr "heure"
 
 msgid "minute"
 msgstr "minute"
-
-msgid "minutes"
-msgstr "minutes"
-
-msgid "second"
-msgstr "seconde"
