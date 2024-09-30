@@ -3,6 +3,7 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
+  aclAtom,
   isOnPublicPageAtom,
   platformFeaturesAtom,
   platformVersionsAtom
@@ -19,10 +20,24 @@ import {
 } from '../api/endpoints';
 import type { Data, PanelOptions } from '../models';
 
+import { acknowledgeEndpoint, checkEndpoint, downtimeEndpoint } from '../Listing/Actions/api/endpoint';
 import {
+  labelAcknowledge,
+  labelAcknowledgeCommandSent,
+  labelCheck,
+  labelCheckCommandSent,
   labelCloseATicket,
   labelCloseTicket,
   labelConfirm,
+  labelCreateticket,
+  labelDowntimeCommandSent,
+  labelEndDateGreaterThanStartDate,
+  labelForcedCheck,
+  labelForcedCheckCommandSent,
+  labelOpenTicketForHost,
+  labelOpenTicketForService,
+  labelSetDowntime,
+  labelSticky,
   labelTicketClosed,
   labelTicketWillBeClosedInTheProvider
 } from '../Listing/translatedLabels';
@@ -64,9 +79,33 @@ const platformVersions = {
   widgets: {}
 };
 
+const mockAcl = (canPerformActions = true): object => ({
+  actions: {
+    host: {
+      acknowledgement: canPerformActions,
+      check: canPerformActions,
+      comment: canPerformActions,
+      disacknowledgement: canPerformActions,
+      downtime: canPerformActions,
+      forced_check: canPerformActions,
+      submit_status: canPerformActions
+    },
+    service: {
+      acknowledgement: canPerformActions,
+      check: canPerformActions,
+      comment: canPerformActions,
+      disacknowledgement: canPerformActions,
+      downtime: canPerformActions,
+      forced_check: canPerformActions,
+      submit_status: canPerformActions
+    }
+  }
+})
+
 const store = createStore();
 const render = ({ options, data, isPublic = false }: Props): void => {
   store.set(isOnPublicPageAtom, isPublic);
+  store.set(aclAtom, mockAcl())
 
   cy.window().then((window) => {
     cy.stub(window, 'open').as('windowOpen');
@@ -156,6 +195,27 @@ const resourcesRequests = (): void => {
     method: Method.POST,
     path: closeTicketEndpoint,
     response: { code: 0, msg: 'Ticket closed: 12' }
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'postCheckCommand',
+    method: Method.POST,
+    path: checkEndpoint,
+    response: {}
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'postAcknowledgement',
+    method: Method.POST,
+    path: acknowledgeEndpoint,
+    response: {}
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'postDowntime',
+    method: Method.POST,
+    path: downtimeEndpoint,
+    response: {}
   });
 };
 
@@ -282,6 +342,161 @@ describe('View by all', () => {
     cy.contains('Downtime set by admin');
 
     cy.makeSnapshot();
+  });
+
+  it('sends a forced check request when resources are selected and the corresponding button is clicked', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, limit: 30 }
+    });
+
+    cy.findByLabelText('Select row 19').click();
+    cy.findByLabelText('Select row 24').click();
+    cy.findByLabelText(labelForcedCheck).click();
+
+    cy.waitForRequest('@postCheckCommand').then(({ request }) => {
+      expect(request.body).equal('{"check":{"is_forced":true},"resources":[{"id":19,"parent":{"id":14},"type":"service"},{"id":24,"parent":{"id":14},"type":"service"}]}')
+    })
+
+    cy.contains(labelForcedCheckCommandSent).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends a normal check request when resources are selected and the corresponding button is clicked', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, limit: 30 }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.findByLabelText('arrow').click();
+    cy.contains(labelCheck).click();
+    cy.findByLabelText('arrow').click();
+    cy.findByLabelText(labelCheck).click();
+
+    cy.waitForRequest('@postCheckCommand').then(({ request }) => {
+      expect(request.body).equal('{"check":{"is_forced":false},"resources":[{"id":19,"parent":{"id":14},"type":"service"},{"id":24,"parent":{"id":14},"type":"service"}]}')
+    })
+
+    cy.contains(labelCheckCommandSent).should('be.visible');
+
+    cy.makeSnapshot();
+  })
+
+  it('sends an acknowledgement request when resources are selected, the acknoldgement icon is clicked and the form is submitted', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, limit: 30 }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.findByLabelText(labelAcknowledge).click();
+    cy.contains(labelSticky).click();
+    cy.findAllByLabelText(labelAcknowledge).eq(2).click();
+
+    cy.waitForRequest('@postAcknowledgement').then(({ request }) => {
+      expect(request.body).deep.equal({
+        "acknowledgement": {
+          "comment": "Acknowledged by ",
+          "is_notify_contacts": true,
+          "is_persistent_comment": false,
+          "is_sticky": true,
+          "with_services": true
+        },
+        "resources": [
+          {
+            "id": 19,
+            "parent": {
+              "id": 14
+            },
+            "type": "service"
+          },
+          {
+            "id": 24,
+            "parent": {
+              "id": 14
+            },
+            "type": "service"
+          }
+        ]
+      })
+    })
+
+    cy.contains(labelAcknowledgeCommandSent).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends an downtime request when resources are selected, the acknoldgement icon is clicked and the form is submitted', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, limit: 30 }
+    });
+
+    cy.findByLabelText('Select row 19').click();
+    cy.findByLabelText('Select row 24').click();
+    cy.clock(new Date(2024, 7, 8).getTime());
+    cy.findByLabelText(labelSetDowntime).click();
+    cy.findAllByLabelText(labelSetDowntime).eq(1).click();
+
+    cy.waitForRequest('@postDowntime').then(({ request }) => {
+      expect(request.body).deep.equal({
+        "downtime": {
+          "comment": "Downtime set by ",
+          "duration": 3600,
+          "end_time": "2024-08-07T23:00:00Z",
+          "is_fixed": true,
+          "start_time": "2024-08-07T22:00:00Z",
+          "with_services": false
+        },
+        "resources": [
+          {
+            "id": 19,
+            "parent": {
+              "id": 14
+            },
+            "type": "service"
+          },
+          {
+            "id": 24,
+            "parent": {
+              "id": 14
+            },
+            "type": "service"
+          }
+        ]
+      });
+    });
+
+    cy.contains(labelDowntimeCommandSent).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('cannot send a downtime request when Downtime action is clicked and start date is greater than end date', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, limit: 30 }
+    });
+
+    cy.findByLabelText('Select row 19').click();
+    cy.findByLabelText('Select row 24').click();
+    cy.findByLabelText(labelSetDowntime).click();
+
+    cy.get('input').eq(10).type('03');
+
+    cy.contains(labelEndDateGreaterThanStartDate).should('be.visible');
+
+    cy.findByTestId('Confirm').should('be.disabled');
+
+    cy.makeSnapshot();
+
+    cy.findByTestId('Cancel').click();
+    cy.findByLabelText('Select row 19').click();
+    cy.findByLabelText('Select row 24').click();
   });
 
   it('executes a listing request with sort_by param from widget properties', () => {
@@ -524,6 +739,38 @@ describe('Open tickets', () => {
     cy.contains('Action').should('be.visible');
 
     cy.makeSnapshot();
+  });
+
+  it('displays a modal when an open ticket icon is clicked', () => {
+    render({
+      data: { resources },
+      options: {
+        ...resourcesOptions,
+        displayResources: 'withoutTicket',
+        isOpenTicketEnabled: true,
+        provider: { id: 1, name: 'Rule 1' },
+        selectedColumnIds: [
+          ...selectedColumnIds,
+          'open_ticket',
+        ]
+      }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.findAllByLabelText(labelOpenTicketForService).eq(1).click();
+
+    cy.contains(labelCreateticket).should('be.visible');
+    cy.get('iframe').should('have.attr', 'src', './main.get.php?p=60421&cmd=3&rule_id=1&host_id=14&service_id=24');
+
+    cy.findByLabelText('close').click();
+    cy.findAllByLabelText(labelOpenTicketForHost).eq(1).click();
+
+    cy.get('iframe').should('have.attr', 'src', './main.get.php?p=60421&cmd=4&rule_id=1&host_id=14');
+
+    cy.makeSnapshot();
+
+    cy.findByLabelText('close').click();
   });
 
   it('displays a confirmation modal when a close ticket button is clicked for a service', () => {
