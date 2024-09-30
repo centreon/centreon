@@ -74,7 +74,7 @@ class CommandConfigurationContext extends CentreonContext
         $this->currentPage->checkCheckbox($checkbox);
         $this->setConfirmBox(true);
         /*$this->selectInList('select[name="o1"]', 'Duplicate');*/
-        $duplicateButton = $this->assertFind('css', 'id="duplicate"');
+        $duplicateButton = $this->assertFind('css', '#duplicate');
         $duplicateButton->click();
     }
 
