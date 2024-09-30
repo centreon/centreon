@@ -1,9 +1,14 @@
-import { useMemo } from 'react';
+import { Suspense, useMemo } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 
-import { RichTextEditor, client, useMemoComponent } from '@centreon/ui';
+import {
+  LoadingSkeleton,
+  RichTextEditor,
+  client,
+  useMemoComponent
+} from '@centreon/ui';
 
 import FederatedComponent from '../../../../../components/FederatedComponents';
 import {
@@ -67,7 +72,11 @@ const Panel = ({
 
   const panelConfigurations = getPanelConfigurations(id);
 
-  const { Component, remoteEntry } = find((widget) => equals(widget.moduleName, name), internalWidgetComponents) || {};
+  const { Component, remoteEntry } =
+    find(
+      (widget) => equals(widget.moduleName, name),
+      internalWidgetComponents
+    ) || {};
 
   const widgetPrefixQuery = useMemo(
     () => `${panelConfigurations.path}_${id}`,
@@ -117,31 +126,15 @@ const Panel = ({
               : classes.panelContent
           )}
         >
-          {!isEmpty(remoteEntry) || isNil(Component) ? <FederatedComponent
-            isFederatedWidget
-            canEdit={canEditField}
-            changeViewMode={changeViewMode}
-            dashboardId={dashboardId}
-            globalRefreshInterval={refreshInterval}
-            hasDescription={displayDescription}
-            id={id}
-            isEditingDashboard={isEditing}
-            panelData={panelOptionsAndData?.data}
-            panelOptions={panelOptionsAndData?.options}
-            path={panelConfigurations.path}
-            playlistHash={playlistHash}
-            queryClient={client}
-            refreshCount={refreshCount}
-            saveDashboard={saveDashboard}
-            setPanelOptions={changePanelOptions}
-            widgetPrefixQuery={widgetPrefixQuery}
-          /> : (
-            <Component
+          {!isEmpty(remoteEntry) || isNil(Component) ? (
+            <FederatedComponent
+              isFederatedWidget
               canEdit={canEditField}
               changeViewMode={changeViewMode}
               dashboardId={dashboardId}
               globalRefreshInterval={refreshInterval}
               hasDescription={displayDescription}
+              id={id}
               isEditingDashboard={isEditing}
               panelData={panelOptionsAndData?.data}
               panelOptions={panelOptionsAndData?.options}
@@ -153,6 +146,34 @@ const Panel = ({
               setPanelOptions={changePanelOptions}
               widgetPrefixQuery={widgetPrefixQuery}
             />
+          ) : (
+            <Suspense
+              fallback={
+                <LoadingSkeleton
+                  variant="rectangular"
+                  width="100%"
+                  height="100%"
+                />
+              }
+            >
+              <Component
+                canEdit={canEditField}
+                changeViewMode={changeViewMode}
+                dashboardId={dashboardId}
+                globalRefreshInterval={refreshInterval}
+                hasDescription={displayDescription}
+                isEditingDashboard={isEditing}
+                panelData={panelOptionsAndData?.data}
+                panelOptions={panelOptionsAndData?.options}
+                path={panelConfigurations.path}
+                playlistHash={playlistHash}
+                queryClient={client}
+                refreshCount={refreshCount}
+                saveDashboard={saveDashboard}
+                setPanelOptions={changePanelOptions}
+                widgetPrefixQuery={widgetPrefixQuery}
+              />
+            </Suspense>
           )}
         </div>
       </>

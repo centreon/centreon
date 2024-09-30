@@ -70,8 +70,9 @@ const Preview = (): JSX.Element | null => {
     <div className={classes.previewPanelContainer} ref={previewRef}>
       <div
         style={{
-          height: `${(previewRef.current?.getBoundingClientRect().height || 0) - 16
-            }px`,
+          height: `${
+            (previewRef.current?.getBoundingClientRect().height || 0) - 16
+          }px`,
           overflowY: 'auto'
         }}
       >
@@ -97,10 +98,11 @@ const Preview = (): JSX.Element | null => {
         )}
         <div
           style={{
-            height: `${(previewRef.current?.getBoundingClientRect().height || 0) -
+            height: `${
+              (previewRef.current?.getBoundingClientRect().height || 0) -
               36 -
               46
-              }px`,
+            }px`,
             overflow: 'auto',
             position: 'relative'
           }}

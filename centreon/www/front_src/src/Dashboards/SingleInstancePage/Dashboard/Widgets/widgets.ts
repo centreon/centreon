@@ -2,20 +2,23 @@ import { equals } from 'ramda';
 import { lazy } from 'react';
 import { FederatedModule } from '../../../../federatedModules/models';
 
-const testWidgets = equals(window.Cypress?.testingType, 'component') && !equals(process.env.NODE_ENV, 'production') ?
-  [
-    { name: 'data' },
-    { name: 'input' },
-    { name: 'singledata' },
-    { name: 'text' }
-  ] : [];
+const testWidgets =
+  equals(window.Cypress?.testingType, 'component') &&
+  !equals(process.env.NODE_ENV, 'production')
+    ? [
+        { name: 'data' },
+        { name: 'input' },
+        { name: 'singledata' },
+        { name: 'text' }
+      ]
+    : [];
 
 const internalWidgets = [
   ...testWidgets,
   {
     name: 'batree',
     panelMinHeight: 5,
-    panelMinWidth: 6,
+    panelMinWidth: 6
   },
   {
     name: 'clock'

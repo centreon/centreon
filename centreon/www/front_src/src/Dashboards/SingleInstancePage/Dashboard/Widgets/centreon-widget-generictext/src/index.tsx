@@ -1,13 +1,13 @@
-import { RichTextEditor } from "@centreon/ui";
-import { isRichTextEditorEmpty } from "../../../utils";
+import { RichTextEditor } from '@centreon/ui';
+import { isRichTextEditorEmpty } from '../../../utils';
 
 interface Props {
   panelOptions?: {
     description?: {
       content?: string;
       enabled: boolean;
-    }
-  }
+    };
+  };
 }
 
 const GenericText = ({ panelOptions }: Props): JSX.Element | null => {
@@ -20,13 +20,13 @@ const GenericText = ({ panelOptions }: Props): JSX.Element | null => {
     return null;
   }
 
-  return <RichTextEditor
-    disabled
-    editable={false}
-    editorState={
-      panelOptions?.description?.content || undefined
-    }
-  />
+  return (
+    <RichTextEditor
+      disabled
+      editable={false}
+      editorState={panelOptions?.description?.content || undefined}
+    />
+  );
 };
 
 export default GenericText;
