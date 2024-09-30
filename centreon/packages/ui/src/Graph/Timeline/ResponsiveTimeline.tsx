@@ -9,7 +9,8 @@ import { useTheme } from '@mui/material';
 import dayjs from 'dayjs';
 
 import { userAtom } from '@centreon/ui-context';
-import { AxisBottom } from '@visx/axis';
+import { Axis } from '@visx/visx';
+
 import { scaleTime } from '@visx/scale';
 import { useAtomValue } from 'jotai';
 import { Tooltip } from '../../components';
@@ -85,14 +86,14 @@ const Timeline = ({
         </Tooltip>
       ))}
 
-      <AxisBottom
+      <Axis.AxisBottom
         top={height - margin.bottom + 4}
         scale={xScale}
         numTicks={numTicks}
         tickFormat={(value) => {
           return format({
             date: new Date(value),
-            formatString: getXAxisTickFormat({ end: startDate, start: endDate })
+            formatString: getXAxisTickFormat({ end: endDate, start: startDate })
           });
         }}
         stroke={theme.palette.text.primary}

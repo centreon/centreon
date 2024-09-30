@@ -1,6 +1,6 @@
-export const labelYear = 'Year';
-export const labelMonth = 'Month';
-export const labelDay = 'Day';
-export const labelHour = 'Hour';
-export const labelMinutes = 'Minutes';
-export const labelMinute = 'Minute';
+export const labelYear = 'year';
+export const labelMonth = 'month';
+export const labelDay = 'day';
+export const labelHour = 'hour';
+export const labelMinutes = 'minutes';
+export const labelMinute = 'minute';

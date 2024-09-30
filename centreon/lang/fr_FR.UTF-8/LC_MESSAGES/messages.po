@@ -16389,9 +16389,6 @@ msgstr "Voulez-vous réinitialiser le formulaire ?"
 msgid "Excluded users"
 msgstr "Utilisateurs exclus"
 
-msgid "Year"
-msgstr "Année"
-
 msgid "Month"
 msgstr "Mois"
 
@@ -19455,3 +19452,21 @@ msgstr "Aperçu de la page web"
 
 msgid "If tickets are enabled, only the “by service” view is available."
 msgstr "Si les tickets sont activés, seule la vue par service est disponible."
+
+msgid "year"
+msgstr "année"
+
+msgid "month"
+msgstr "mois"
+
+msgid "hour"
+msgstr "heure"
+
+msgid "minute"
+msgstr "minute"
+
+msgid "minutes"
+msgstr "minutes"
+
+msgid "second"
+msgstr "seconde"
