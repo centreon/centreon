@@ -53,7 +53,6 @@ Feature: Configuring status grid widget
     When the dashboard administrator clicks on a random resource
     Then the user should be redirected to the resource status screen and all the resources must be displayed
 
-
   @TEST_MON-148286
   Scenario: Adding a new host and verifying widget behavior
     Given a new host is successfully added and configured
