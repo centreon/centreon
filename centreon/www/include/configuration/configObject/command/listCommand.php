@@ -119,19 +119,19 @@ $tpl->assign('mode_access', $lvl_access);
 /*
  * Main buttons
  */
-$duplicateBtn = "<button id='duplicate' style='cursor: pointer; background-color: transparent; border: 0; height: 22px; width: 22px;' " .
+$duplicateBtn = "<button id='duplicate_cmd' style='cursor: pointer; background-color: transparent; border: 0; height: 22px; width: 22px;' " .
 "onclick=\"javascript:if (confirm('" . _("Do you confirm the duplication ?") . "')) {setO('m'); submit();}\">" .
 "<img src='img/icons/content_copy.png' " . "class='ico-22 margin_right' alt='" . _("Duplicate") . "'></button>";
 
-$deleteBtn = "<button style='cursor: pointer; background-color: transparent; border: 0; height: 22px; width: 22px;' " .
+$deleteBtn = "<button id='delete_cmd' style='cursor: pointer; background-color: transparent; border: 0; height: 22px; width: 22px;' " .
     "onclick=\"javascript: if (confirm('" . _("Do you confirm the deletion ?") . "')) {setO('d'); submit();}\">" .
     "<img src='img/icons/delete_new.png' " . "class='ico-22 margin_right' alt='" . _("Delete") . "'></button>";
 
-$disableBtn = "<button style='cursor: pointer; background-color: transparent; border: 0; height: 22px; width: 22px;' " .
+$disableBtn = "<button id='disable_cmd' style='cursor: pointer; background-color: transparent; border: 0; height: 22px; width: 22px;' " .
     "onclick=\"javascript: setO('md'); submit();\"><img src='img/icons/visibility_off.png' " .
     "class='ico-22 margin_right' alt='" . _("Disable") . "'></button>";
 
-$enableBtn = "<button style='cursor: pointer; background-color: transparent; border: 0; height: 22px; width: 22px;' " .
+$enableBtn = "<button id='enable_cmd' style='cursor: pointer; background-color: transparent; border: 0; height: 22px; width: 22px;' " .
     "onclick=\"javascript: setO('me'); submit();\"><img src='img/icons/visibility_on.png' " .
     "class='ico-22 margin_right' alt='" . _("Enable") . "'></button>";
 
