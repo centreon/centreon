@@ -1,0 +1,5 @@
+FindAgentConfigurationPollers:
+  methods: GET
+  path: /configuration/agent-configurations/pollers
+  controller: 'Core\AgentConfiguration\Infrastructure\API\FindPollers\FindPollersController'
+  condition: "request.attributes.get('version') >= 24.10"
