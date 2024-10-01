@@ -1,0 +1,32 @@
+get:
+  tags:
+    - Service
+  summary: "Count services by status"
+  description: |
+    Count services by their status (OK/WARNING/CRITICAL/UNKNOWN/PENDING)
+
+    The available parameters to **search** / **sort_by** are:
+
+    * name
+    * status
+    * host.name
+    * host.id
+    * host_category.name
+    * host_category.id
+    * host_group.name
+    * host_group.id
+    * service_group.name
+    * service_group.id
+    * service_category.name
+    * service_category.id
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/ServicesStatus.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

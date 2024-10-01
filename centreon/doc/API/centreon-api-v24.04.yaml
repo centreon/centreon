@@ -2009,9 +2009,9 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /monitoring/hosts/status:
-    $ref: './v24.04/Realtime/Resources/FindHostsStatus.yaml'
+    $ref: './v24.04/Realtime/Hosts/FindHostsStatus.yaml'
   /monitoring/services/status:
-    $ref: './v24.04/Realtime/Resources/FindServicesStatus.yaml'
+    $ref: './v24.04/Realtime/Services/FindServicesStatus.yaml'
   /monitoring/services:
     get:
       tags:
