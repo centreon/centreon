@@ -97,7 +97,8 @@ const Chart = ({
   },
   thresholds,
   thresholdUnit,
-  limitLegend
+  limitLegend,
+  skipIntersectionObserver
 }: Props): JSX.Element => {
   const { classes } = useChartStyles();
 
@@ -219,7 +220,7 @@ const Chart = ({
     [axis?.showGridLines]
   );
 
-  if (!isInViewport) {
+  if (!isInViewport && !skipIntersectionObserver) {
     return (
       <Skeleton
         height={graphSvgRef?.current?.clientHeight ?? graphHeight}

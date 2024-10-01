@@ -1,18 +1,8 @@
-/* eslint-disable import/no-unresolved,@typescript-eslint/no-unused-vars */
-
-import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-generictext/moduleFederation.json';
-import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
-// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-input/moduleFederation.json'.
-import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
-import widgetInputProperties from 'centreon-widgets/centreon-widget-input/properties.json';
-import widgetSingleMetricConfiguration from 'centreon-widgets/centreon-widget-singlemetric/moduleFederation.json';
-import widgetSingleMetricProperties from 'centreon-widgets/centreon-widget-singlemetric/properties.json';
-// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-text/moduleFederation.json'.
-import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
-import widgetTextProperties from 'centreon-widgets/centreon-widget-text/properties.json';
-
-import widgetWebpageConfiguration from 'centreon-widgets/centreon-widget-webpage/moduleFederation.json';
-import widgetWebpageProperties from 'centreon-widgets/centreon-widget-webpage/properties.json';
+import widgetGenericTextProperties from './Widgets/centreon-widget-generictext/properties.json';
+import widgetInputProperties from './Widgets/centreon-widget-input/properties.json';
+import widgetSingleMetricProperties from './Widgets/centreon-widget-singlemetric/properties.json';
+import widgetTextProperties from './Widgets/centreon-widget-text/properties.json';
+import widgetWebpageProperties from './Widgets/centreon-widget-webpage/properties.json';
 
 import i18next from 'i18next';
 import { Provider, createStore } from 'jotai';
@@ -44,8 +34,8 @@ import {
   labelSharesSaved
 } from '../../translatedLabels';
 
-import Dashboard from './Dashboard';
 import { dashboardAtom } from './atoms';
+import Dashboard from './Dashboard';
 import { routerParams } from './hooks/useDashboardDetails';
 import { saveBlockerHooks } from './hooks/useDashboardSaveBlocker';
 import {
@@ -68,33 +58,12 @@ import {
   labelWidgetType,
   labelYourRightsOnlyAllowToView
 } from './translatedLabels';
+import { internalWidgetComponents } from './Widgets/widgets';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {
-  const federatedWidgets = [
-    {
-      ...widgetTextConfiguration,
-      moduleFederationName: 'centreon-widget-text/src'
-    },
-    {
-      ...widgetInputConfiguration,
-      moduleFederationName: 'centreon-widget-input/src'
-    },
-    {
-      ...widgetGenericTextConfiguration,
-      moduleFederationName: 'centreon-widget-generictext/src'
-    },
-    {
-      ...widgetSingleMetricConfiguration,
-      moduleFederationName: 'centreon-widget-singlemetric/src'
-    },
-    {
-      ...widgetWebpageConfiguration,
-      moduleFederationName: 'centreon-widget-webpage/src'
-    }
-  ];
 
   const store = createStore();
-  store.set(federatedWidgetsAtom, federatedWidgets);
+  store.set(federatedWidgetsAtom, internalWidgetComponents);
   store.set(federatedWidgetsPropertiesAtom, [
     widgetTextProperties,
     widgetInputProperties,

@@ -42,7 +42,7 @@ const initialize = (): void => {
     response: {
       address: 'localhost',
       port: 1024,
-      root_path: '/path',
+      root_path: '/path'
     }
   });
 
@@ -161,7 +161,7 @@ describe('Vault configuration', () => {
 
     cy.findByLabelText(labelVaultAddress).should('have.value', 'example.com');
 
-    cy.findByLabelText(labelRoleID).type('role')
+    cy.findByLabelText(labelRoleID).type('role');
     cy.findByLabelText(labelSecretID).type('Secret');
 
     cy.contains(labelSave).click();

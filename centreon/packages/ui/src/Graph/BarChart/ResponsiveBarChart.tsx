@@ -54,7 +54,8 @@ const ResponsiveBarChart = ({
   limitLegend,
   orientation,
   tooltip,
-  barStyle
+  barStyle,
+  skipIntersectionObserver
 }: Props): JSX.Element => {
   const { title, timeSeries, baseAxis, lines } = graphData;
 
@@ -149,7 +150,7 @@ const ResponsiveBarChart = ({
     [axis?.showGridLines]
   );
 
-  if (!isInViewport) {
+  if (!isInViewport && !skipIntersectionObserver) {
     return (
       <Skeleton
         height={graphSvgRef?.current?.clientHeight ?? graphHeight}
