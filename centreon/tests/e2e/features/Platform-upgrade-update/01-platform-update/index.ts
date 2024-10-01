@@ -126,10 +126,12 @@ Given(
                 throw new Error(`${version_from_expression} not managed.`);
             }
             if (
+              minor_version_index <= 0 ||
               stable_minor_versions[minor_version_index] ===
-              Cypress.env('lastStableMinorVersion')
+                Cypress.env('lastStableMinorVersion')
             ) {
               cy.log(`Not needed to test ${version_from_expression} version.`);
+
               return cy.stopContainer({ name: 'web' }).wrap('skipped');
             }
           }
