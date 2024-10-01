@@ -65,37 +65,33 @@ interface ReadAgentConfigurationRepositoryInterface
      */
     public function findPollersByType(Type $type): array;
 
-    // /**
-    //  * Find pollers NOT associated with any AC of the specified type.
-    //  *
-    //  * @param Type $type
-    //  * @param null|RequestParametersInterface $requestParameters
-    //  *
-    //  * @throws \Throwable
-    //  *
-    //  * @return Poller[]
-    //  */
-    // public function findAvailablePollersByType(
-    //     Type $type,
-    //     ?RequestParametersInterface $requestParameters = null
-    // ): array;
+    /**
+     * Find pollers NOT associated with any AC.
+     *
+     * @param null|RequestParametersInterface $requestParameters
+     *
+     * @throws \Throwable
+     *
+     * @return Poller[]
+     */
+    public function findAvailablePollersByRequestParameters(
+        ?RequestParametersInterface $requestParameters = null
+    ): array;
 
-    // /**
-    //  * Find pollers NOT associated with any AC of the specified type (with ACL).
-    //  *
-    //  * @param Type $type
-    //  * @param AccessGroup[] $agentConfigurationcessGroups
-    //  * @param null|RequestParametersInterface $requestParameters
-    //  *
-    //  * @throws \Throwable
-    //  *
-    //  * @return Poller[]
-    //  */
-    // public function findAvailablePollersByTypeAndAccessGroup(
-    //     Type $type,
-    //     array $agentConfigurationcessGroups,
-    //     ?RequestParametersInterface $requestParameters = null
-    // ): array;
+    /**
+     * Find pollers NOT associated with any AC (with ACL).
+     *
+     * @param AccessGroup[] $accessGroups
+     * @param null|RequestParametersInterface $requestParameters
+     *
+     * @throws \Throwable
+     *
+     * @return Poller[]
+     */
+    public function findAvailablePollersByRequestParametersAndAccessGroups(
+        array $accessGroups,
+        ?RequestParametersInterface $requestParameters = null
+    ): array;
 
     /**
      * Find all the pollers associated with an AC ID.

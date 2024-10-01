@@ -137,4 +137,9 @@ class AgentConfigurationException extends \Exception
             self::CODE_CONFLICT
         );
     }
+
+    public static function findPollers(): self
+    {
+        return new self(sprintf(_("Error while searching for available pollers")));
+    }
 }
