@@ -92,12 +92,12 @@
     }
   },
   "categories": {
-    "Ticket settings": {
+    "Ticket management": {
       "hasModule": "centreon-open-tickets",
       "groups": [
         {
           "id": "isOpenTicketEnabled",
-          "name": "Enable tickets"
+          "name": "Enable ticket management"
         },
         {
           "id": "provider",
@@ -111,11 +111,11 @@
       "elements": {
         "warning": {
           "type": "warning",
-          "label": "If tickets are enabled, only the “by service” view is available."
+          "label": "If ticket management is enabled, only the “by service” view is available."
         },
         "isOpenTicketEnabled": {
           "type": "switch",
-          "label": "Enable tickets",
+          "label": "Enable ticket management",
           "defaultValue": false
         },
         "provider": {

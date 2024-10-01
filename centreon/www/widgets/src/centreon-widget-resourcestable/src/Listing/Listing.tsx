@@ -136,7 +136,7 @@ const Listing = ({
             isOpenTicketEnabled={isOpenTicketEnabled}
           />
         }
-        actionsBarMemoProps={[displayType, hasMetaService]}
+        actionsBarMemoProps={[displayType, hasMetaService,isOpenTicketEnabled]}
         columnConfiguration={{
           selectedColumnIds: selectedColumnIds || defaultSelectedColumnIds,
           sortable: true

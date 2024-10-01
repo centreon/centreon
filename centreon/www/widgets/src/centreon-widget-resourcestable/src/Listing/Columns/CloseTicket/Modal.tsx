@@ -65,7 +65,8 @@ const CloseTicketModal = ({ providerID }: Props): JSX.Element => {
     <Modal hasCloseButton open={isOpen} onClose={close}>
       <Modal.Header> {t(labelCloseATicket)} </Modal.Header>
       <Modal.Body>
-        <Typography>{t(labelTicketWillBeClosedInTheProvider)}</Typography>{' '}
+        <Typography>{t(labelTicketWillBeClosedInTheProvider)}</Typography>
+        <Typography>ticket id: {resource?.ticketId}</Typography>
       </Modal.Body>
       <Modal.Actions>
         <Button variant="secondary" onClick={close}>
