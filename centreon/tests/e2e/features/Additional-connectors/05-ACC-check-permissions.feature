@@ -8,7 +8,7 @@ Feature: Additional Connector Configuration
     Then a pop-up menu with the form is displayed
     When the admin user fills in all the informations
     And the admin user clicks on Save
-    Then the form is closed
+    Then the creation form is closed
     And the first configuration is displayed in the Specific Connector Configuration page
 #    And the parameters should be saved in vault
 
@@ -19,7 +19,7 @@ Feature: Additional Connector Configuration
     Then a pop up is displayed with all of the additional connector information
     When the user modifies the configuration
     And the user clicks on Save
-    Then the form is closed
+    Then the update form is closed
     And the updated configuration is displayed correctly in the Specific Connector Configuration page
 
   Scenario: Delete an additional connector configuration with an admin user
@@ -42,7 +42,7 @@ Feature: Additional Connector Configuration
     Then the user can not view the additional connector linked to the 2 pollers
     When the admin user updates the filtered pollers of the non-admin user
     Then the user can view the additional connector linked to the pollers
-    When the user clicks on the Edit button of the addiction connector configuration
+    When the user clicks on the Edit button of the additional connector configuration
     Then a pop up is displayed with all of the additional connector information with the 2 pollers
     And the user can update the additional connector configuration
 
@@ -52,7 +52,7 @@ Feature: Additional Connector Configuration
     When the user adds a second additional connector configuration
     Then only the free filtered pollers are listed in the Pollers field
     When the non-admin user fills in all the informations
-    Then the form is closed
+    Then the creation form is closed
     And the new configuration is displayed in the Specific Connector Configuration page
 #    And the parameters should be saved in vault
 

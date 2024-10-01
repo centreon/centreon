@@ -73,7 +73,7 @@ When('the admin user clicks on Save', () => {
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
 });
 
-Then('the form is closed', () => {
+Then('the creation form is closed', () => {
   cy.wait('@addAdditionalConnector');
   cy.get('Create additional connector configuration').should('not.exist');
 });
@@ -124,7 +124,7 @@ When('the user clicks on Save', () => {
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
 });
 
-Then('the form is closed', () => {
+Then('the update form is closed', () => {
   cy.wait('@updateConnectorDetail');
   cy.get('Update additional connector configuration').should('not.exist');
 });

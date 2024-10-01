@@ -158,7 +158,7 @@ Then('the form displayed an error', () => {
 });
 
 When('the user fills in the needed informations', () => {
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type('Connector-002');
+  cy.getByLabel({ label: 'Name', tag: 'input' }).type('Connector-004');
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.contains('Poller-3').click();
@@ -188,7 +188,7 @@ Then('the creation form is closed', () => {
 
 Then('the additional connector configuration has not been created', () => {
   cy.get('*[role="rowgroup"]')
-    .should('not.contain', 'Connector-002');
+    .should('not.contain', 'Connector-004');
 });
 
 Then('the form fields are empty', () => {
