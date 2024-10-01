@@ -73,7 +73,8 @@ class CommandConfigurationContext extends CentreonContext
         $checkbox = $this->assertFind('css', 'input[type="checkbox"][name="select[' . $object['id'] . ']"]');
         $this->currentPage->checkCheckbox($checkbox);
         $this->setConfirmBox(true);
-        $this->selectInList('select[name="o1"]', 'Duplicate');
+        $duplicateButton = $this->assertFind('css', '#duplicate_cmd');
+        $duplicateButton->click();
     }
 
     /**
@@ -98,7 +99,8 @@ class CommandConfigurationContext extends CentreonContext
         $checkbox = $this->assertFind('css', 'input[type="checkbox"][name="select[' . $object['id'] . ']"]');
         $this->currentPage->checkCheckbox($checkbox);
         $this->setConfirmBox(true);
-        $this->selectInList('select[name="o1"]', 'Delete');
+        $deleteButton = $this->assertFind('css', '#delete_cmd');
+        $deleteButton->click();
     }
 
     /**

@@ -81,6 +81,19 @@ $addDisableServiceCheckColumn = function (CentreonDB $pearDB) use (&$errorMessag
     }
 };
 
+// ACC
+$fixNamingAndActivateAccTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to update table topology';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE `topology`
+            SET `topology_show` = '1',
+                `topology_name` = 'Additional Connector Configurations'
+            WHERE `topology_url` = '/configuration/additional-connector-configurations'
+            SQL
+    );
+};
+
 try {
     $addDisableServiceCheckColumn($pearDB);
 
@@ -91,6 +104,7 @@ try {
 
     $insertVaultConfiguration($pearDB);
     $insertWebPageWidget($pearDB);
+    $fixNamingAndActivateAccTopology($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {

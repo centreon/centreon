@@ -184,7 +184,7 @@ if (!$isAdmin) {
         throw new \Exception('Access denied');
     }
 
-    $aclGroups = implode(',', array_keys($acl->getAccessGroups()));
+    $aclGroupIds = array_keys($acl->getAccessGroups());
 
     try {
         $sql = "SELECT host_id, service_id FROM index_data WHERE id = :index_data_id";
@@ -198,14 +198,26 @@ if (!$isAdmin) {
         unset($statement);
         $hostId = $row['host_id'];
         $serviceId = $row['service_id'];
+        $aclGroupQueryBinds = [];
+        foreach ($aclGroupIds as $index => $aclGroupId) {
+            $aclGroupQueryBinds[':acl_group_' . $index] = (int) $aclGroupId;
+        }
+        $aclGroupBinds = implode(',', array_keys($aclGroupQueryBinds));
 
-        $sql = "SELECT service_id FROM centreon_acl WHERE host_id = :host_id AND service_id = :service_id AND group_id IN (:acl_groups_ids)";
+        $sql = <<<SQL
+            SELECT service_id
+            FROM centreon_acl
+            WHERE host_id = :host_id
+                AND service_id = :service_id
+                AND group_id IN ({$aclGroupBinds})
+            SQL;
         $statement = $pearDBO->prepare($sql);
-        $statement->execute([
-            ':host_id' => (int)$hostId,
-            ':service_id' => (int)$serviceId,
-            ':acl_groups_ids' => $aclGroups,
-        ]);
+        $statement->bindValue(':host_id', (int) $hostId, \PDO::PARAM_INT);
+        $statement->bindValue(':service_id', (int) $serviceId, \PDO::PARAM_INT);
+        foreach ($aclGroupQueryBinds as $queryBind => $queryValue) {
+            $statement->bindValue($queryBind, (int) $queryValue, \PDO::PARAM_INT);
+        }
+        $statement->execute();
         if (!$statement->rowCount()) {
             die('Access denied');
         }

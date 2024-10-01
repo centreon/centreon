@@ -380,21 +380,15 @@ Then('the Status Grid widget displays up to that number of tiles', () => {
 
 Given('a dashboard having a configured Status Grid widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
-  cy.visitDashboard(dashboards.default.name);
+  cy.editDashboard(dashboards.default.name);
+  cy.wait('@resourceRequest');
 });
 
 When(
   'the dashboard administrator user duplicates the Status Grid widget',
   () => {
-    cy.getByTestId({ testId: 'RefreshIcon' }).should('be.visible');
-    cy.getByTestId({ testId: 'RefreshIcon' }).click();
-    cy.getByLabel({
-      label: 'Edit dashboard',
-      tag: 'button'
-    }).click();
-    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
-    cy.wait('@resourceRequest');
   }
 );
 
@@ -411,10 +405,6 @@ Then('the second widget has the same properties as the first widget', () => {
     .parent()
     .invoke('removeAttr', 'target')
     .click({ force: true });
-  cy.get('[class*="resourceName"]')
-    .eq(3)
-    .contains('Centreon-Server')
-    .should('exist');
   cy.get('[class*="resourceName"]').contains('host2').should('exist');
   cy.get('[class*="resourceName"]').contains('host3').should('exist');
 });

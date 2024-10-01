@@ -318,17 +318,29 @@ $tpl->assign('cmd_help', _("Plugin Help"));
 $tpl->assign("is_cloud_platform", $isCloudPlatform);
 
 $valid = false;
+$errorMessage = '';
 if ($form->validate()) {
-    $cmdObj = $form->getElement('command_id');
-    if ($form->getSubmitValue("submitA")) {
-        $cmdObj->setValue(insertCommandInDB());
-    } elseif ($form->getSubmitValue("submitC")) {
-        updateCommandInDB($cmdObj->getValue());
-    }
+    try {
+        $cmdObj = $form->getElement('command_id');
+        if ($form->getSubmitValue("submitA")) {
+            $cmdObj->setValue(insertCommandInDB());
+        } elseif ($form->getSubmitValue("submitC")) {
+            updateCommandInDB($cmdObj->getValue());
+        }
 
-    $o = null;
-    $cmdObj = $form->getElement('command_id');
-    $valid = true;
+        $o = null;
+        $cmdObj = $form->getElement('command_id');
+        $valid = true;
+    } catch (Throwable $e) {
+        $valid = false;
+        $errorMessage = 'Type of command is undefined';
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: $e->getMessage(),
+            customContext: ['cmd_id' => $cmdObj->getValue()],
+            exception: $e
+        );
+    }
 }
 
 ?>
@@ -386,8 +398,13 @@ if ($valid) {
      */
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
     $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
-    $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
+    if (! empty($errorMessage)) {
+        $renderer->setErrorTemplate('<font color="red">{$errorMessage}</font><br />{$html}');
+    } else {
+        $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
+    }
     $form->accept($renderer);
+    $tpl->assign('errorMessage', $errorMessage);
     $tpl->assign('form', $renderer->toArray());
     $tpl->assign('o', $o);
     $tpl->assign('arg_desc_label', _("Argument Descriptions"));
