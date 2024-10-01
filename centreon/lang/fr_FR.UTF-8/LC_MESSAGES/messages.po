@@ -3153,6 +3153,7 @@ msgstr "Accueil"
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:294
 #: centreon-web/www/include/options/accessLists/define/formLCA.php:244
 #: centreon-web/www/include/monitoring/objectDetails/serviceDetails.php:587
+#: centreon-web/www/include/eventLogs/viewLog.php:247
 msgid "Host Groups"
 msgstr "Groupes d'hôtes"
 
@@ -3355,6 +3356,7 @@ msgstr "État du serveur"
 #: centreon-web/www/install/menu_translation.php:133
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:330
 #: centreon-web/www/include/options/accessLists/define/formLCA.php:275
+#: centreon-web/www/include/eventLogs/viewLog.php:229
 msgid "Service Groups"
 msgstr "Groupes de services"
 
@@ -6162,7 +6164,7 @@ msgid "View an ACL"
 msgstr "Visualiser une ACL"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:230
-msgid "Hosts Groups Shared"
+msgid "Host Groups Shared"
 msgstr "Groupes d'hôtes partagés"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:232
@@ -6287,11 +6289,11 @@ msgid "Required field"
 msgstr "Champ requis"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:429
-msgid "Hosts Resources"
+msgid "Host Resources"
 msgstr "Gestion des hôtes"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:430
-msgid "Services Resources"
+msgid "Service Resources"
 msgstr "Gestion des services"
 
 msgid "Centreon Users"
@@ -12119,14 +12121,6 @@ msgstr "Etat validés (Hard) seulement"
 #: centreon-web/www/include/eventLogs/viewLog.php:200
 msgid "Log Period"
 msgstr "Période de visualisation"
-
-#: centreon-web/www/include/eventLogs/viewLog.php:229
-msgid "Services Groups"
-msgstr "Groupes de services"
-
-#: centreon-web/www/include/eventLogs/viewLog.php:247
-msgid "Hosts Groups"
-msgstr "Groupes d'hôtes"
 
 #: centreon-web/www/include/eventLogs/xml/data.php:715
 msgid "Y/m/d"
