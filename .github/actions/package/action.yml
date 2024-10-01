@@ -130,7 +130,9 @@ runs:
               # Add a zero before the new single numeric char
               BUMP_MAJOR_RIGHT_PART="0$BUMP_MAJOR_RIGHT_PART"
           fi
-          sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
+          sed -i "s/^centreon:version=.*$/centreon:version=${{ inputs.major_version }}/" debian/substvars
+          sed -i "s/^centreon:majorVersion=.*$/centreon:majorVersion=${{ inputs.major_version }}/" debian/substvars
+          sed -i "s/^centreon:minorVersion=.*$/centreon:minorVersion=${{ inputs.minor_version }}/" debian/substvars
           sed -i "s/^centreon:versionThreshold=.*$/centreon:versionThreshold=$(echo "$MAJOR_LEFT_PART.$BUMP_MAJOR_RIGHT_PART" | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
 
         fi
