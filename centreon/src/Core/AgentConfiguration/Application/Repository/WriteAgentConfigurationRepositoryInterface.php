@@ -61,11 +61,11 @@ interface WriteAgentConfigurationRepositoryInterface
      * Link listed poller to the agent configuration (AC).
      *
      * @param int $agentConfigurationId
-     * @param int[] $pollers
+     * @param int[] $pollerIds
      *
      * @throws \Throwable
      */
-    public function linkToPollers(int $agentConfigurationId, array $pollers): void;
+    public function linkToPollers(int $agentConfigurationId, array $pollerIds): void;
 
     /**
      * Unlink all pollers from the agent configuration (AC).
@@ -87,12 +87,12 @@ interface WriteAgentConfigurationRepositoryInterface
     public function removePoller(int $agentConfigurationId, int $pollerId): void;
 
     /**
-     * Add the broker module directive to pollers engine configurations.
+     * Add the broker directive to pollers engine configurations.
      *
      * @param string $module
      * @param int[] $pollerIds
      *
      * @throws \Throwable
      */
-    public function addBrokerModuleDirective(string $module, array $pollerIds): void;
+    public function addBrokerDirective(string $module, array $pollerIds): void;
 }

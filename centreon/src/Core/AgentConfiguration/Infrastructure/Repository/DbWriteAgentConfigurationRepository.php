@@ -105,7 +105,7 @@ class DbWriteAgentConfigurationRepository  extends AbstractRepositoryRDB impleme
     /**
      * @inheritDoc
      */
-    public function linkToPollers(int $agentConfigurationId, array $pollers): void
+    public function linkToPollers(int $agentConfigurationId, array $pollerIds): void
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
@@ -118,7 +118,7 @@ class DbWriteAgentConfigurationRepository  extends AbstractRepositoryRDB impleme
         $pollerId = null;
         $statement->bindValue(':ac_id', $agentConfigurationId, \PDO::PARAM_INT);
         $statement->bindParam(':poller_id', $pollerId, \PDO::PARAM_INT);
-        foreach ($pollers as $poller) {
+        foreach ($pollerIds as $poller) {
             $pollerId = $poller;
             $statement->execute();
         }
@@ -161,7 +161,7 @@ class DbWriteAgentConfigurationRepository  extends AbstractRepositoryRDB impleme
     /**
      * @inheritDoc
      */
-    public function addBrokerModuleDirective(string $module, array $pollerIds): void
+    public function addBrokerDirective(string $module, array $pollerIds): void
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'

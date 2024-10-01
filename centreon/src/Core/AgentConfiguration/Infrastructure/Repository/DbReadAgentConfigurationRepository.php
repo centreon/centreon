@@ -97,13 +97,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
     }
 
     /**
-     * Find all the pollers associated with any AC of the specified type.
-     *
-     * @param Type $type
-     *
-     * @throws \Throwable
-     *
-     * @return Poller[]
+     * @inheritDoc
      */
     public function findPollersByType(Type $type): array
     {
@@ -136,13 +130,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
     }
 
     /**
-     * Find all the pollers associated with an AC ID.
-     *
-     * @param int $agentConfigurationId
-     *
-     * @throws \Throwable
-     *
-     * @return Poller[]
+     * @inheritDoc
      */
     public function findPollersByAcId(int $agentConfigurationId): array
     {
@@ -174,7 +162,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
     /**
      * @inheritDoc
      */
-    public function findPollersWithBrokerModuleDirective(string $module): array
+    public function findPollersWithBrokerDirective(string $module): array
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'

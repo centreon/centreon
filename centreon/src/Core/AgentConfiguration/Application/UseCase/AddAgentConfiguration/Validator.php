@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration;
 
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
@@ -62,7 +63,7 @@ class Validator
     /**
      * @param AddAgentConfigurationRequest $request
      *
-     * @throws AgentConfigurationException|ValueError
+     * @throws AgentConfigurationException|ValueError|AssertionException
      */
     public function validateRequestOrFail(AddAgentConfigurationRequest $request): void
     {
@@ -89,6 +90,7 @@ class Validator
 
     /**
      * Validate that requesting user has access to pollers.
+     * Check that pollers are not already linked to same AC type.
      *
      * @param AddAgentConfigurationRequest $request
      *
@@ -136,17 +138,22 @@ class Validator
     }
 
     /**
-     * Check that pollers are not already linked to same AC type.
+     * Check type validity.
      *
      * @param AddAgentConfigurationRequest $request
      *
-     * @throws AgentConfigurationException|ValueError
+     * @throws ValueError
      */
     public function validateTypeOrFail(AddAgentConfigurationRequest $request): void
     {
         $type = Type::from($request->type);
     }
 
+    /**
+     * @param AddAgentConfigurationRequest $request
+     *
+     * @throws AgentConfigurationException|AssertionException
+     */
     public function validateParametersOrFail(AddAgentConfigurationRequest $request): void
     {
         foreach ($this->parametersValidators as $validator) {

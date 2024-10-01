@@ -30,5 +30,5 @@ interface ConfigurationParametersInterface
      */
     public function getData(): array;
 
-    public function getBrokerModuleDirective(): ?string;
+    public function getBrokerDirective(): ?string;
 }

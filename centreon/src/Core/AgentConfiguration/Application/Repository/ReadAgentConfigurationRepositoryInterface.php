@@ -75,7 +75,7 @@ interface ReadAgentConfigurationRepositoryInterface
     public function findPollersByAcId(int $agentConfigurationId): array;
 
     /**
-     * Return poller IDs that have the specified module directive defined in their engine configuration.
+     * Return poller IDs that have the specified broker directive defined in their engine configuration.
      *
      * @param string $module
      *
@@ -83,5 +83,5 @@ interface ReadAgentConfigurationRepositoryInterface
      *
      * @return int[]
      */
-    public function findPollersWithBrokerModuleDirective(string $module): array;
+    public function findPollersWithBrokerDirective(string $module): array;
 }

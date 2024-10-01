@@ -81,23 +81,16 @@ final class AddAgentConfiguration
                 parameters: $request->configuration,
             );
 
-            $module = $newAc->getConfiguration()->getBrokerModuleDirective();
-            $needBrokerModuleDirectivePollers = [];
-            if ($module !== null) {
-                $haveBrokerModuleDirectivePollers = $this->readAcRepository->findPollersWithBrokerModuleDirective(
-                    $module
-                );
-                $needBrokerModuleDirectivePollers = array_diff(
-                    $request->pollerIds,
-                    $haveBrokerModuleDirectivePollers
-                );
-            }
+            [$module, $needBrokerDirectivePollers] = $this->checkNeedForBrokerDirective(
+                $newAc,
+                $request->pollerIds
+            );
 
             $agentConfigurationId = $this->save(
                 $newAc,
                 $request->pollerIds,
                 $module,
-                $needBrokerModuleDirectivePollers
+                $needBrokerDirectivePollers
             );
 
             if (null === $agentConfiguration = $this->readAcRepository->find($agentConfigurationId)) {
@@ -124,21 +117,21 @@ final class AddAgentConfiguration
      * @param NewAgentConfiguration $agentConfiguration
      * @param int[] $pollers
      * @param null|string $module
-     * @param int[] $needBrokerModuleDirectives
+     * @param int[] $needBrokerDirectives
      *
      * @throws \Throwable
      *
      * @return int
      */
-    private function save(NewAgentConfiguration $agentConfiguration, array $pollers, ?string $module, array $needBrokerModuleDirectives): int
+    private function save(NewAgentConfiguration $agentConfiguration, array $pollers, ?string $module, array $needBrokerDirectives): int
     {
         try {
             $this->dataStorageEngine->startTransaction();
 
             $newAcId = $this->writeAcRepository->add($agentConfiguration);
             $this->writeAcRepository->linkToPollers($newAcId, $pollers);
-            if ($module !== null && $needBrokerModuleDirectives !== []) {
-                $this->writeAcRepository->addBrokerModuleDirective($module, $needBrokerModuleDirectives);
+            if ($module !== null && $needBrokerDirectives !== []) {
+                $this->writeAcRepository->addBrokerDirective($module, $needBrokerDirectives);
             }
 
             $this->dataStorageEngine->commitTransaction();
@@ -150,6 +143,33 @@ final class AddAgentConfiguration
         }
 
         return $newAcId;
+    }
+
+    /**
+     * Return the module directive and the poller IDs that need the AC type related broker directive to be added.
+     *
+     * @param NewAgentConfiguration $newAc
+     * @param int[] $pollerIds
+     *
+     * @throws \Throwable
+     *
+     * @return array{?string,int[]}
+     */
+    private function checkNeedForBrokerDirective(NewAgentConfiguration $newAc, array $pollerIds): array
+    {
+        $module = $newAc->getConfiguration()->getBrokerDirective();
+        $needBrokerDirectivePollers = [];
+        if ($module !== null) {
+            $haveBrokerDirectivePollers = $this->readAcRepository->findPollersWithBrokerDirective(
+                $module
+            );
+            $needBrokerDirectivePollers = array_diff(
+                $pollerIds,
+                $haveBrokerDirectivePollers
+            );
+        }
+
+        return [$module, $needBrokerDirectivePollers];
     }
 
     /**

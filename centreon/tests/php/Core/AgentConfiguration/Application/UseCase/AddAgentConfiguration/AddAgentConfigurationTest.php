@@ -223,7 +223,7 @@ it(
 
         $this->readAgentConfigurationRepository
             ->expects($this->once())
-            ->method('findPollersWithBrokerModuleDirective')
+            ->method('findPollersWithBrokerDirective')
             ->willReturn([$this->poller->id]);
 
         $this->readAgentConfigurationRepository

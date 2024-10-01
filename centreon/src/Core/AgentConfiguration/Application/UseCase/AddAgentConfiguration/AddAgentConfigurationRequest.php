@@ -29,7 +29,7 @@ final class AddAgentConfigurationRequest
 
     public string $type = '';
 
-	/** @var int [] */
+	/** @var int[] */
 	public array $pollerIds = [];
 
     /** @var array<string,mixed> */

@@ -39,7 +39,7 @@ use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
  */
 class TelegrafConfigurationParameters implements ConfigurationParametersInterface
 {
-    public const BROKER_MODULE_DIRECTIVE = '/usr/lib64/centreon-engine/libopentelemetry.so /etc/centreon-engine/otl_server.json';
+    public const BROKER_DIRECTIVE = '/usr/lib64/centreon-engine/libopentelemetry.so /etc/centreon-engine/otl_server.json';
     public const MAX_LENGTH = 255;
 
     /** @var _TelegrafParameters */
@@ -85,8 +85,8 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
         return $this->parameters;
     }
 
-    public function getBrokerModuleDirective(): ?string
+    public function getBrokerDirective(): ?string
     {
-        return self::BROKER_MODULE_DIRECTIVE;
+        return self::BROKER_DIRECTIVE;
     }
 }
