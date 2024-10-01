@@ -17819,7 +17819,7 @@ msgstr ""
 # msgid "Select host severities"
 # msgstr ""
 
-# msgid "Enable tickets"
+# msgid "Enable ticket management"
 # msgstr ""
 
 # msgid "Ticket provider"
@@ -17853,6 +17853,18 @@ msgstr ""
 # msgstr ""
 
 # msgid "Create a ticket"
+# msgstr ""
+
+# msgid "Close a ticket"
+# msgstr ""
+
+# msgid "Ticket created"
+# msgstr ""
+
+# msgid "Ticket closed"
+# msgstr ""
+
+# msgid "The ticket with ID #{{id}} will be closed for the selected ticket provider."
 # msgstr ""
 
 # msgid "Rule (ticket provider)"
@@ -18153,5 +18165,8 @@ msgstr ""
 #  msgid "Web page preview"
 #  msgstr ""
 
-#  msgid "If tickets are enabled, only the “by service” view is available."
+#  msgid "If ticket management is enabled, only the “by service” view is available."
+#  msgstr ""
+
+#  msgid "Ticket management"
 #  msgstr ""
