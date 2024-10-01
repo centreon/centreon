@@ -48,7 +48,7 @@ Given('an additional connector configuration is already created', () => {
   cy.get('[id="vCenternamevalue"]').clear().type('vCenter-001');
   cy.get('[id="URLvalue"]').clear().type('https://10.0.0.0/sdk');
   cy.get('[id="Usernamevalue"]').type('admin');
-  cy.get('[id="Passwordvalue"]').type('Centreon!2021');
+  cy.get('[id="Passwordvalue"]').type('Abcde!2021');
   cy.get('[id="Portvalue"]').should('have.value', '5700');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
   cy.wait('@addAdditionalConnector');

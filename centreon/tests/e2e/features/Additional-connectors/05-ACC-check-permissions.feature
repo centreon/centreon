@@ -15,9 +15,12 @@ Feature: Additional Connector Configuration
   Scenario: Update an additional connector configuration page with an admin user
     Given an admin user is in the Specific Connector Configuration page
     And an additional connector configuration is already created
-    When the user clicks on the Edit button of the addiction connector configuration
-    Then a pop up is displayed with all of the additional connector informations
-    And the admin user can update the additional connector configuration
+    When the user clicks on the Edit button of the additional connector configuration
+    Then a pop up is displayed with all of the additional connector information
+    When the user modifies the configuration
+    And the user clicks on Save
+    Then the form is closed
+    And the updated configuration is displayed correctly in the Specific Connector Configuration page
 
   Scenario: Delete an additional connector configuration with an admin user
     Given an admin user is in the Specific Connector Configuration page
@@ -40,7 +43,7 @@ Feature: Additional Connector Configuration
     When the admin user updates the filtered pollers of the non-admin user
     Then the user can view the additional connector linked to the pollers
     When the user clicks on the Edit button of the addiction connector configuration
-    Then a pop up is displayed with all of the additional connector informations and the 2 pollers
+    Then a pop up is displayed with all of the additional connector information with the 2 pollers
     And the user can update the additional connector configuration
 
   Scenario: Create a new additional connector configuration with a non-admin user with filters on Pollers

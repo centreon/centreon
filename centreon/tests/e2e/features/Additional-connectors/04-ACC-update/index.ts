@@ -52,7 +52,7 @@ Given('an additional connector configuration is already created', () => {
   cy.get('[id="vCenternamevalue"]').clear().type('vCenter-001');
   cy.get('[id="URLvalue"]').clear().type('https://10.0.0.0/sdk');
   cy.get('[id="Usernamevalue"]').type('admin');
-  cy.get('[id="Passwordvalue"]').type('Centreon!2021');
+  cy.get('[id="Passwordvalue"]').type('Abcde!2021');
   cy.get('[id="Portvalue"]').should('have.value', '5700');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
   cy.wait('@addAdditionalConnector');
@@ -81,7 +81,7 @@ Then('all of the informations of the additional connector configuration are corr
   cy.get('[id="Portvalue"]').should('have.value', '5700');
 });
 
-When('the user udpates some informations', () => {
+When('the user updates some information', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).clear().type('Connector-002');
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
@@ -91,7 +91,7 @@ When('the user udpates some informations', () => {
   cy.get('[id="vCenternamevalue"]').clear().type('vCenter-002');
   cy.get('[id="URLvalue"]').clear().type('https://10.3.3.3/sdk');
   cy.get('[id="Usernamevalue"]').type('admin');
-  cy.get('[id="Passwordvalue"]').type('Centreon!2022');
+  cy.get('[id="Passwordvalue"]').type('Abcde!2022');
   cy.get('[id="Portvalue"]').clear().click().type('6900');
 });
 
@@ -101,7 +101,7 @@ When('the user clicks on Update', () => {
 
 Then('the form is closed', () => {
   cy.wait('@updateConnectorDetail');
-  cy.get('Update additional connector configuration').should('not.exist');
+  cy.contains('Update additional connector configuration').should('not.exist');
 });
 
 Then('the informations are successfully saved', () => {

@@ -65,7 +65,7 @@ When('the admin user fills in all the informations', () => {
   cy.getByTestId({ testId: 'vCenter name_value' }).eq(0).clear().type('vCenter-001');
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
-  cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2021');
+  cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Abcde!2021');
   cy.get('[id="Portvalue"]').should('have.value', '5700');
 });
 
@@ -88,11 +88,11 @@ Given('an additional connector configuration is already created', () => {
     .should('not.contain', 'No result found');
 });
 
-When('the user clicks on the Edit button of the addiction connector configuration', () => {
+When('the user clicks on the Edit button of the additional connector configuration', () => {
   cy.getByLabel({ label: 'Edit connector configuration', tag: 'button' }).click();
 });
 
-Then('a pop up is displayed with all of the additional connector informations', () => {
+Then('a pop up is displayed with all of the additional connector information', () => {
   cy.wait('@getConnectorDetail');
   cy.contains('Update additional connector configuration').should('be.visible');
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('have.value', 'Connector-001');
@@ -106,7 +106,7 @@ Then('a pop up is displayed with all of the additional connector informations', 
   cy.get('[id="Portvalue"]').should('have.value', '5700');
 });
 
-Then('the admin user can update the additional connector configuration', () => {
+When('the user modifies the configuration', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).clear().type('Connector-002');
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
@@ -116,11 +116,22 @@ Then('the admin user can update the additional connector configuration', () => {
   cy.getByTestId({ testId: 'vCenter name_value' }).eq(0).clear().type('vCenter-002');
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.3.3.3/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
-  cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2022');
+  cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Abcde!2022');
   cy.get('[id="Portvalue"]').clear().click().type('6900');
+});
+
+When('the user clicks on Save', () => {
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+});
+
+Then('the form is closed', () => {
   cy.wait('@updateConnectorDetail');
   cy.get('Update additional connector configuration').should('not.exist');
+});
+
+Then('the updated configuration is displayed correctly in the Specific Connector Configuration page', () => {
+  cy.get('*[role="rowgroup"]')
+    .should('contain', 'Connector-002');
 });
 
 When('the admin user deletes the additional connector configuration', () => {
@@ -169,7 +180,7 @@ Given('an Additional Connector Configuration already created linked with two pol
   cy.getByTestId({ testId: 'vCenter name_value' }).eq(0).clear().type('vCenter-001');
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
-  cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2021');
+  cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Abcde!2021');
   cy.get('[id="Portvalue"]').should('have.value', '5700');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
   cy.wait('@addAdditionalConnector');
@@ -228,7 +239,7 @@ Then('the user can view the additional connector linked to the pollers', () => {
     .should('contain', 'Connector-001');
 });
 
-When('a pop up is displayed with all of the additional connector informations and the 2 pollers', () => {
+When('a pop up is displayed with all of the additional connector information with the 2 pollers', () => {
   cy.wait('@getConnectorDetail');
   cy.contains('Update additional connector configuration').should('be.visible');
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('have.value', 'Connector-001');
@@ -277,7 +288,7 @@ When('the non-admin user fills in all the informations', () => {
   cy.getByTestId({ testId: 'vCenter name_value' }).eq(0).clear().type('vCenter-001');
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.1.1.1/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
-  cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Centreon!2021');
+  cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Abcde!2021');
   cy.get('[id="Portvalue"]').should('have.value', '5700');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
 });

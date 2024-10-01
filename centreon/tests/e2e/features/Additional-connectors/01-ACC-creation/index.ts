@@ -51,7 +51,7 @@ When('the user fills in all the informations', () => {
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.contains('Central').click();
   cy.get('[id="Usernamevalue"]').type('admin');
-  cy.get('[id="Passwordvalue"]').type('Centreon!2021');
+  cy.get('[id="Passwordvalue"]').type('Abcde!2021');
   cy.get('[id="vCenternamevalue"]').clear().type('vCenter-001');
   cy.get('[id="URLvalue"]').clear().type('https://10.0.0.0/sdk');
   cy.get('[id="Portvalue"]').should('have.value', '5700');
@@ -73,7 +73,7 @@ When('the user fills in the mandatory informations', () => {
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.contains('Poller-1').click();
   cy.get('[id="Usernamevalue"]').type('admin');
-  cy.get('[id="Passwordvalue"]').type('Centreon!2021');
+  cy.get('[id="Passwordvalue"]').type('Abcde!2021');
   cy.get('[id="vCenternamevalue"]').clear().type('vCenter-002');
   cy.get('[id="URLvalue"]').clear().type('https://10.0.0.0/sdk');
   cy.get('[id="Portvalue"]').should('have.value', '5700');
@@ -107,11 +107,11 @@ When('the user fills in the informations of all the parameter groups', () => {
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.contains('Poller-2').click();
   cy.get('[id="Usernamevalue"]').eq(0).type('admin');
-  cy.get('[id="Passwordvalue"]').eq(0).type('Centreon!2021');  
+  cy.get('[id="Passwordvalue"]').eq(0).type('Abcde!2021');  
   cy.get('[id="vCenternamevalue"]').eq(0).clear().type('vCenter-001');
   cy.get('[id="URLvalue"]').eq(0).clear().type('https://10.0.0.0/sdk');
   cy.get('[id="Usernamevalue"]').eq(1).type('admin-2');
-  cy.get('[id="Passwordvalue"]').eq(1).type('Centreon!2022');
+  cy.get('[id="Passwordvalue"]').eq(1).type('Abcde!2022');
   cy.get('[id="vCenternamevalue"]').eq(1).clear().type('vCenter-002');
   cy.get('[id="URLvalue"]').eq(1).clear().type('https://10.0.0.1/sdk');
   cy.get('[id="Portvalue"]').should('have.value', '5700');
@@ -144,7 +144,7 @@ When("the user doesn't fill in correct type of informations", () => {
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.contains('Poller-3').click();
   cy.get('[id="Usernamevalue"]').type('admin');
-  cy.get('[id="Passwordvalue"]').type('Centreon!2021');
+  cy.get('[id="Passwordvalue"]').type('Abcde!2021');
   cy.get('[id="vCenternamevalue"]').clear().type('vCenter-002');
   cy.get('[id="URLvalue"]').click();
   cy.get('[id="Portvalue"]').clear().type('500000');
@@ -163,7 +163,7 @@ When('the user fills in the needed informations', () => {
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.contains('Poller-3').click();
   cy.get('[id="Usernamevalue"]').type('admin');
-  cy.get('[id="Passwordvalue"]').type('Centreon!2021');
+  cy.get('[id="Passwordvalue"]').type('Abcde!2021');
   cy.get('[id="vCenternamevalue"]').clear().type('vCenter-003');
   cy.get('[id="URLvalue"]').clear().type('https://10.0.0.0/sdk');
   cy.get('[id="Portvalue"]').should('have.value', '5700');
@@ -188,7 +188,7 @@ Then('the creation form is closed', () => {
 
 Then('the additional connector configuration has not been created', () => {
   cy.get('*[role="rowgroup"]')
-    .should('not.have.value', 'Connector-002');
+    .should('not.contain', 'Connector-002');
 });
 
 Then('the form fields are empty', () => {

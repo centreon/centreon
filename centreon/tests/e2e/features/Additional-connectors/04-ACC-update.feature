@@ -9,7 +9,7 @@ Feature: Additional Connector Configuration
     When the user clicks on the Edit properties button of an additional connector configuration
     Then a pop-up menu with the form is displayed
     And all of the informations of the additional connector configuration are correct
-    When the user udpates some informations
+    When the user updates some information
     And the user clicks on Update
     Then the form is closed
     And the informations are successfully saved
