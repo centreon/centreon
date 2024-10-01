@@ -724,7 +724,7 @@ class CentreonDB extends PDO
             $str = htmlspecialchars($str);
         }
 
-        return addslashes($str);
+        return addslashes($str ?? '');
     }
 
     /**
@@ -968,8 +968,8 @@ class CentreonDB extends PDO
      *
      * @param string $table
      * @param string $indexName
-     *
      * @return bool
+     * @throws PDOException
      */
     public function isIndexExists(string $table, string $indexName): bool
     {
@@ -981,7 +981,7 @@ class CentreonDB extends PDO
               AND INDEX_NAME = :index_name;
             SQL
         );
-        $statement->bindValue(':db_name', $this->dsn['database']);
+        $statement->bindValue(':db_name', $this->dbConfig->dbName);
         $statement->bindValue(':table_name', $table);
         $statement->bindValue(':index_name', $indexName);
 
@@ -994,8 +994,8 @@ class CentreonDB extends PDO
      *
      * @param string $table
      * @param string $constraintName
-     *
      * @return bool
+     * @throws PDOException
      */
     public function isConstraintExists(string $table, string $constraintName): bool
     {
@@ -1008,7 +1008,7 @@ class CentreonDB extends PDO
               AND CONSTRAINT_NAME = :constraint_name;
             SQL
         );
-        $statement->bindValue(':db_name', $this->dsn['database']);
+        $statement->bindValue(':db_name', $this->dbConfig->dbName);
         $statement->bindValue(':table_name', $table);
         $statement->bindValue(':constraint_name', $constraintName);
 

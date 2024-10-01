@@ -10,10 +10,8 @@ Build-Depends:
 Package: centreon
 Architecture: all
 Depends:
-    centreon-central (>= ${centreon:version}~),
-    centreon-database (>= ${centreon:version}~),
-    centreon-central (<< ${centreon:versionThreshold}~),
-    centreon-database (<< ${centreon:versionThreshold}~)
+    centreon-central (= ${centreon:majorVersion}.${centreon:minorVersion}-bullseye),
+    centreon-database (= ${centreon:majorVersion}.${centreon:minorVersion}-bullseye)
 Description: Centreon is a network, system, applicative supervision and monitoring tool,
  it is based upon the most effective Open Source monitoring engine : Nagios.
  Centreon provides a new frontend and new functionalities to Nagios.
@@ -29,23 +27,20 @@ Description: Centreon is a network, system, applicative supervision and monitori
 Package: centreon-central
 Architecture: all
 Depends:
-    centreon-poller-centreon-engine (>= ${centreon:version}~),
-    centreon-license-manager (>= ${centreon:version}~),
-    centreon-pp-manager (>= ${centreon:version}~),
-    centreon-auto-discovery-server (>= ${centreon:version}~),
-    centreon-it-edition-extensions (>= ${centreon:version}~),
-    centreon-web (>= ${centreon:version}~),
-    centreon-web-apache (>= ${centreon:version}~),
-    centreon-broker-cbd (>= ${centreon:version}~),
-    centreon-engine (>= ${centreon:version}~),
-    centreon-connector (>= ${centreon:version}~),
-    centreon-poller-centreon-engine (<< ${centreon:versionThreshold}~),
+    centreon-poller-centreon-engine (= ${centreon:majorVersion}.${centreon:minorVersion}-bullseye),
+    centreon-license-manager (>= ${centreon:majorVersion}~),
+    centreon-pp-manager (>= ${centreon:majorVersion}~),
+    centreon-auto-discovery-server (>= ${centreon:majorVersion}~),
+    centreon-it-edition-extensions (>= ${centreon:majorVersion}~),
+    centreon-web (= ${centreon:majorVersion}.${centreon:minorVersion}-bullseye),
+    centreon-web-apache (= ${centreon:majorVersion}.${centreon:minorVersion}-bullseye),
+    centreon-broker-cbd (>= ${centreon:majorVersion}~),
+    centreon-engine (>= ${centreon:majorVersion}~),
+    centreon-connector (>= ${centreon:majorVersion}~),
     centreon-license-manager (<< ${centreon:versionThreshold}~),
     centreon-pp-manager (<< ${centreon:versionThreshold}~),
     centreon-auto-discovery-server (<< ${centreon:versionThreshold}~),
     centreon-it-edition-extensions (<< ${centreon:versionThreshold}~),
-    centreon-web (<< ${centreon:versionThreshold}~),
-    centreon-web-apache (<< ${centreon:versionThreshold}~),
     centreon-broker-cbd (<< ${centreon:versionThreshold}~),
     centreon-engine (<< ${centreon:versionThreshold}~),
     centreon-connector (<< ${centreon:versionThreshold}~),
@@ -70,16 +65,13 @@ Description: The package contains base configuration for Centreon Engine and Cen
 Package: centreon-poller
 Architecture: all
 Depends:
-    centreon-common (>= ${centreon:version}~),
-    centreon-poller-centreon-engine (>= ${centreon:version}~),
-    centreon-trap (>= ${centreon:version}~),
-    centreon-engine (>= ${centreon:version}~),
-    centreon-broker-cbmod (>= ${centreon:version}~),
-    centreon-connector (>= ${centreon:version}~),
-    centreon-gorgone (>= ${centreon:version}~),
-    centreon-common (<< ${centreon:versionThreshold}~),
-    centreon-poller-centreon-engine (<< ${centreon:versionThreshold}~),
-    centreon-trap (<< ${centreon:versionThreshold}~),
+    centreon-common (= ${centreon:majorVersion}.${centreon:minorVersion}-bullseye),
+    centreon-poller-centreon-engine (= ${centreon:majorVersion}.${centreon:minorVersion}-bullseye),
+    centreon-trap (= ${centreon:majorVersion}.${centreon:minorVersion}-bullseye),
+    centreon-engine (>= ${centreon:majorVersion}~),
+    centreon-broker-cbmod (>= ${centreon:majorVersion}~),
+    centreon-connector (>= ${centreon:majorVersion}~),
+    centreon-gorgone (>= ${centreon:majorVersion}~),
     centreon-engine (<< ${centreon:versionThreshold}~),
     centreon-broker-cbmod (<< ${centreon:versionThreshold}~),
     centreon-connector (<< ${centreon:versionThreshold}~),
@@ -108,12 +100,9 @@ Description: This package add rights and default directories for a poller
 Package: centreon-web-common
 Architecture: all
 Depends:
-    centreon-poller-centreon-engine (>= ${centreon:version}~),
-    centreon-common (>= ${centreon:version}~),
-    centreon-perl-libs (>= ${centreon:version}~),
-    centreon-poller-centreon-engine (<< ${centreon:versionThreshold}~),
-    centreon-common (<< ${centreon:versionThreshold}~),
-    centreon-perl-libs (<< ${centreon:versionThreshold}~),
+    centreon-poller-centreon-engine (= ${centreon:majorVersion}.${centreon:minorVersion}-bullseye),
+    centreon-common (= ${centreon:majorVersion}.${centreon:minorVersion}-bullseye),
+    centreon-perl-libs (= ${centreon:majorVersion}.${centreon:minorVersion}-bullseye),
     php8.1,
     php8.1-cli,
     locales,
@@ -125,11 +114,10 @@ Architecture: all
 Depends:
     ${misc:Depends},
     lsb-release,
-    centreon-broker-cbd (>= ${centreon:version}~),
-    centreon-web-common (>= ${centreon:version}~),
-    centreon-gorgone (>= ${centreon:version}~),
+    centreon-broker-cbd (>= ${centreon:majorVersion}~),
+    centreon-web-common (= ${centreon:majorVersion}.${centreon:minorVersion}-bullseye),
+    centreon-gorgone (>= ${centreon:majorVersion}~),
     centreon-broker-cbd (<< ${centreon:versionThreshold}~),
-    centreon-web-common (<< ${centreon:versionThreshold}~),
     centreon-gorgone (<< ${centreon:versionThreshold}~),
     php8.1-curl,
     php8.1-intl,
@@ -153,8 +141,7 @@ Description: This package contains WebUI files.
 Package: centreon-perl-libs
 Depends:
     ${misc:Depends},
-    centreon-common (>= ${centreon:version}~),
-    centreon-common (<< ${centreon:versionThreshold}~),
+    centreon-common (= ${centreon:majorVersion}.${centreon:minorVersion}-bullseye),
     libconfig-inifiles-perl,
     libcrypt-des-perl,
     librrds-perl,
@@ -166,9 +153,9 @@ Description: This packages contains Centreon Perl libraries.
 
 Package: centreon-common
 Depends:
-    centreon-broker (>= ${centreon:version}~),
+    centreon-broker (>= ${centreon:majorVersion}~),
     centreon-broker (<< ${centreon:versionThreshold}~),
-    centreon-engine-daemon (>= ${centreon:version}~),
+    centreon-engine-daemon (>= ${centreon:majorVersion}~),
     centreon-engine-daemon (<< ${centreon:versionThreshold}~),
     ${misc:Depends},
     sudo
@@ -178,8 +165,7 @@ Description: Base package for all Centreon installations.
 Package: centreon-database
 Architecture: all
 Depends:
-    centreon-common (>= ${centreon:version}~),
-    centreon-common (<< ${centreon:versionThreshold}~),
+    centreon-common (= ${centreon:majorVersion}.${centreon:minorVersion}-bullseye),
     mariadb-server,
     ${misc:Depends}
 Description: Install a database server optimized for use with Centreon.
@@ -189,8 +175,7 @@ Architecture: all
 Depends:
     apache2,
     php8.1-fpm,
-    centreon-web (>= ${centreon:version}~),
-    centreon-web (<< ${centreon:versionThreshold}~),
+    centreon-web (= ${centreon:majorVersion}.${centreon:minorVersion}-bullseye),
     monitoring-plugins-basic,
     ${misc:Depends}
 Description: Centreon is a network, system, applicative supervision and monitoring tool,
@@ -200,10 +185,8 @@ Description: Centreon is a network, system, applicative supervision and monitori
 Package: centreon-trap
 Architecture: all
 Depends:
-    centreon-common (>= ${centreon:version}~),
-    centreon-common (<< ${centreon:versionThreshold}~),
-    centreon-perl-libs (>= ${centreon:version}~),
-    centreon-perl-libs (<< ${centreon:versionThreshold}~),
+    centreon-common (= ${centreon:majorVersion}.${centreon:minorVersion}-bullseye),
+    centreon-perl-libs (= ${centreon:majorVersion}.${centreon:minorVersion}-bullseye),
     snmptrapd,
     snmpd,
     ${misc:Depends}
@@ -212,14 +195,13 @@ Description: This package contains Centreon Trap engine
 Package: centreon-poller-centreon-engine
 Architecture: all
 Depends:
-    centreon-broker-cbmod (>= ${centreon:version}~),
-    centreon-engine (>= ${centreon:version}~),
-    centreon-gorgone (>= ${centreon:version}~),
-    centreon-trap (>= ${centreon:version}~),
+    centreon-broker-cbmod (>= ${centreon:majorVersion}~),
+    centreon-engine (>= ${centreon:majorVersion}~),
+    centreon-gorgone (>= ${centreon:majorVersion}~),
+    centreon-trap (= ${centreon:majorVersion}.${centreon:minorVersion}-bullseye),
     centreon-broker-cbmod (<< ${centreon:versionThreshold}~),
     centreon-engine (<< ${centreon:versionThreshold}~),
     centreon-gorgone (<< ${centreon:versionThreshold}~),
-    centreon-trap (<< ${centreon:versionThreshold}~),
     centreon-plugin-applications-databases-mysql,
     centreon-plugin-applications-monitoring-centreon-central,
     centreon-plugin-applications-monitoring-centreon-database,
@@ -242,10 +224,9 @@ Description: This package add rights and default directories for a poller
 Package: centreon-plugins-sudoers
 Architecture: all
 Depends:
-    centreon-common (>= ${centreon:version}~),
-    centreon-engine (>= ${centreon:version}~),
-    centreon-gorgone (>= ${centreon:version}~),
-    centreon-common (<< ${centreon:versionThreshold}~),
+    centreon-common (= ${centreon:majorVersion}.${centreon:minorVersion}-bullseye),
+    centreon-engine (>= ${centreon:majorVersion}~),
+    centreon-gorgone (>= ${centreon:majorVersion}~),
     centreon-engine (<< ${centreon:versionThreshold}~),
     centreon-gorgone (<< ${centreon:versionThreshold}~),
     ${misc:Depends}

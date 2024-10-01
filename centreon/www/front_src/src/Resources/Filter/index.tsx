@@ -67,11 +67,13 @@ import {
 import {
   DynamicCriteriaParametersAndValues,
   getAutocompleteSuggestions,
-  getDynamicCriteriaParametersAndValue
+  getDynamicCriteriaParametersAndValue,
+  replaceMiddleSpace
 } from './Criterias/searchQueryLanguage';
 import FilterLoadingSkeleton from './FilterLoadingSkeleton';
 import SearchHelp from './SearchHelp';
 import { selectedStatusByResourceTypeAtom } from './criteriasNewInterface/basicFilter/atoms';
+import { escapeRegExpSpecialChars } from './criteriasNewInterface/utils';
 import {
   applyCurrentFilterDerivedAtom,
   applyFilterDerivedAtom,
@@ -91,7 +93,6 @@ import {
 } from './models';
 import useBackToVisualizationByAll from './useBackToVisualizationByAll';
 import useFilterByModule from './useFilterByModule';
-import { escapeRegExpSpecialChars } from './criteriasNewInterface/utils';
 
 const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
   const { t } = useTranslation();
@@ -339,7 +340,9 @@ const Filter = (): JSX.Element => {
   const acceptAutocompleteSuggestionAtIndex = (index: number): void => {
     setNewFilter(t);
 
-    const acceptedSuggestion = autoCompleteSuggestions[index];
+    const acceptedSuggestion = replaceMiddleSpace(
+      autoCompleteSuggestions[index]
+    );
 
     if (equals(search[cursorPosition], ',')) {
       setSearch(search + acceptedSuggestion);

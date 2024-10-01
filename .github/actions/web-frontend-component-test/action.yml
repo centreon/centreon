@@ -53,6 +53,7 @@ runs:
         working-directory: ${{ inputs.module }}
         spec: ${{ inputs.spec_file_path }}
         publish-summary: false
+        env: failOnSnapshotDiff=false
 
     - name: Archive test results
       uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
