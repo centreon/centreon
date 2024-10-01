@@ -320,7 +320,7 @@ $attrServicegroup1 = array(
 $form->addElement(
     'select2',
     'service_group_filter',
-    _("Services Groups"),
+    _("Service Groups"),
     array(),
     $attrServicegroup1
 );
@@ -352,7 +352,7 @@ $attrHostGroup1 = array(
 $form->addElement(
     'select2',
     'host_group_filter',
-    _("Hosts Groups"),
+    _("Host Groups"),
     array(),
     $attrHostGroup1
 );
