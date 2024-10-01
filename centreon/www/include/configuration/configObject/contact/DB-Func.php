@@ -790,6 +790,7 @@ function updateContactHostCommands($contactId = null, $fields = [])
     global $form, $pearDB;
 
     $contactId = (int) $contactId;
+
     if ($contactId <= 0) {
         return;
     }
@@ -836,6 +837,7 @@ function updateContactHostCommands_MC($contactId = null, $ret = [])
     global $form, $pearDB;
 
     $contactId = (int) $contactId;
+
     if ($contactId <= 0) {
         return;
     }
@@ -881,6 +883,7 @@ function updateContactServiceCommands($contactId = null, array $fields = [])
     global $form, $pearDB;
 
     $contactId = (int) $contactId;
+
     if ($contactId <= 0) {
         return;
     }
@@ -930,6 +933,7 @@ function updateContactServiceCommands_MC($contactId = null, $ret = [])
     global $form, $pearDB;
 
     $contactId = (int) $contactId;
+
     if ($contactId <= 0) {
         return;
     }
@@ -975,6 +979,7 @@ function updateContactContactGroup($contactId = null, array $fields = [])
     global $centreon, $form, $pearDB;
 
     $contactId = (int) $contactId;
+
     if ($contactId <= 0) {
         return;
     }
@@ -1044,6 +1049,7 @@ function updateContactContactGroup_MC($contactId = null, $ret = [])
     global $centreon, $form, $pearDB;
 
     $contactId = (int) $contactId;
+
     if ($contactId <= 0) {
         return;
     }
@@ -1207,11 +1213,12 @@ function insertLdapContactInDB($tmpContacts = array())
  * @param array $fields
  * @return void
  */
-function updateAccessGroupLinks(int $contactId, array $fields = [])
+function updateAccessGroupLinks($contactId = null, array $fields = [])
 {
     global $form, $pearDB;
 
     $contactId = (int) $contactId;
+
     if ($contactId <= 0) {
         return;
     }
@@ -1261,6 +1268,7 @@ function updateAccessGroupLinks_MC($contactId, $flag)
     global $form, $pearDB;
 
     $contactId = (int) $contactId;
+
     if ($contactId <= 0) {
         return;
     }

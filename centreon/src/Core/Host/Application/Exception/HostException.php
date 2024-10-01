@@ -187,4 +187,20 @@ class HostException extends \Exception
     {
         return new self(_('Error while searching for host configurations'));
     }
+
+    /**
+     * @return self
+     */
+    public static function accessNotAllowedForRealTime(): self
+    {
+        return new self(_('You are not allowed to access hosts in the real time context'));
+    }
+
+    /**
+     * @return HostException
+     */
+    public static function errorWhileRetrievingHostStatusesCount(): self
+    {
+        return new self(_('Error while retrieving host statuses distribution'));
+    }
 }
