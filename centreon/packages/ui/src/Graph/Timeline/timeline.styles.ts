@@ -6,6 +6,7 @@ export const useStyles = makeStyles()((theme) => ({
     color: theme.palette.text.primary,
     padding: 0,
     position: 'relative',
-    left: theme.spacing(-1)
+    left: theme.spacing(-1),
+    boxShadow: theme.shadows[3]
   }
 }));

@@ -18141,3 +18141,15 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "If tickets are enabled, only the “by service” view is available."
 #  msgstr ""
+
+#  msgid "year"
+#  msgstr ""
+
+#  msgid "month"
+#  msgstr ""
+
+#  msgid "hour"
+#  msgstr ""
+
+#  msgid "minute"
+#  msgstr ""
