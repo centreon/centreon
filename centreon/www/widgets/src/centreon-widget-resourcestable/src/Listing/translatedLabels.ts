@@ -87,6 +87,6 @@ export const labelCreateticket = 'Create a ticket';
 export const labelCloseATicket = 'Close a ticket';
 export const labelConfirm = 'Confirm';
 export const labelTicketWillBeClosedInTheProvider =
-  'The ticket will be closed for the selected ticket provider';
+  'The ticket with ID #{{id}} will be closed for the selected ticket provider.';
 export const labelTicketCreated = 'Ticket created';
 export const labelTicketClosed = 'Ticket closed';

@@ -17855,6 +17855,18 @@ msgstr ""
 # msgid "Create a ticket"
 # msgstr ""
 
+# msgid "Close a ticket"
+# msgstr ""
+
+# msgid "Ticket created"
+# msgstr ""
+
+# msgid "Ticket closed"
+# msgstr ""
+
+# msgid "The ticket with ID #{{id}} will be closed for the selected ticket provider."
+# msgstr ""
+
 # msgid "Rule (ticket provider)"
 # msgstr ""
 
