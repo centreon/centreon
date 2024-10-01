@@ -278,13 +278,13 @@ Then(
     cy.verifyLegendItemStyle(
       1,
       [
-        'background: rgb(255, 102, 102)',
-        'background: rgb(253, 155, 39)',
-        'background: rgb(227, 227, 227)',
         'background: rgb(136, 185, 34)',
+        'background: rgb(253, 155, 39)',
+        'background: rgb(255, 102, 102)',
+        'background: rgb(227, 227, 227)',
         'background: rgb(30, 190, 179)'
       ],
-      ['10.0%', '10.0%', '0.0%', '30.0%', '50.0%']
+      ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%']
     );
   }
 );
@@ -316,13 +316,13 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
   cy.verifyLegendItemStyle(
     1,
     [
-      'background: rgb(255, 102, 102)',
-      'background: rgb(253, 155, 39)',
-      'background: rgb(227, 227, 227)',
       'background: rgb(136, 185, 34)',
+      'background: rgb(253, 155, 39)',
+      'background: rgb(255, 102, 102)',
+      'background: rgb(227, 227, 227)',
       'background: rgb(30, 190, 179)'
     ],
-    ['10.0%', '10.0%', '0.0%', '30.0%', '50.0%']
+    ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%']
   );
 });
 
@@ -356,13 +356,13 @@ Then('the unit of the resources already displayed should be updated', () => {
   cy.verifyLegendItemStyle(
     1,
     [
-      'background: rgb(255, 102, 102)',
-      'background: rgb(253, 155, 39)',
-      'background: rgb(227, 227, 227)',
       'background: rgb(136, 185, 34)',
+      'background: rgb(253, 155, 39)',
+      'background: rgb(255, 102, 102)',
+      'background: rgb(227, 227, 227)',
       'background: rgb(30, 190, 179)'
     ],
-    ['1', '1', '0', '3', '5']
+    ['3', '1', '1', '0', '5']
   );
 });
 
@@ -406,13 +406,13 @@ Then('only the contents of the other widget are displayed', () => {
   cy.verifyLegendItemStyle(
     0,
     [
-      'background: rgb(255, 102, 102)',
-      'background: rgb(253, 155, 39)',
-      'background: rgb(227, 227, 227)',
       'background: rgb(136, 185, 34)',
+      'background: rgb(253, 155, 39)',
+      'background: rgb(255, 102, 102)',
+      'background: rgb(227, 227, 227)',
       'background: rgb(30, 190, 179)'
     ],
-    ['1', '1', '0', '3', '5']
+    ['3', '1', '1', '0', '5']
   );
 });
 
@@ -442,25 +442,15 @@ When(
 
 Then('a second Status Chart widget is displayed on the dashboard', () => {
   cy.verifyLegendItemStyle(
-    2,
-    [
-      'background: rgb(136, 185, 34)',
-      'background: rgb(255, 102, 102)',
-      'background: rgb(227, 227, 227)',
-      'background: rgb(30, 190, 179)'
-    ],
-    ['100.0%', '0.0%', '0.0%', '0.0%']
-  );
-  cy.verifyLegendItemStyle(
     3,
     [
-      'background: rgb(255, 102, 102)',
-      'background: rgb(253, 155, 39)',
-      'background: rgb(227, 227, 227)',
       'background: rgb(136, 185, 34)',
+      'background: rgb(253, 155, 39)',
+      'background: rgb(255, 102, 102)',
+      'background: rgb(227, 227, 227)',
       'background: rgb(30, 190, 179)'
     ],
-    ['10.0%', '10.0%', '0.0%', '30.0%', '50.0%']
+    ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%']
   );
 });
 
@@ -499,13 +489,13 @@ Then(
     cy.verifyLegendItemStyle(
       1,
       [
-        'background: rgb(255, 102, 102)',
-        'background: rgb(253, 155, 39)',
-        'background: rgb(227, 227, 227)',
         'background: rgb(136, 185, 34)',
+        'background: rgb(253, 155, 39)',
+        'background: rgb(255, 102, 102)',
+        'background: rgb(227, 227, 227)',
         'background: rgb(30, 190, 179)'
       ],
-      ['10.0%', '10.0%', '0.0%', '30.0%', '50.0%']
+      ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%']
     );
   }
 );

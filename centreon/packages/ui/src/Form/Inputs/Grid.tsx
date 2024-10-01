@@ -8,15 +8,18 @@ interface StylesProps {
   alignItems?: string;
   columns?: number;
   gridTemplateColumns?: string;
+  isColumnDirection?: boolean;
 }
 
 const useStyles = makeStyles<StylesProps>()(
-  (theme, { columns, gridTemplateColumns, alignItems }) => ({
+  (theme, { columns, gridTemplateColumns, alignItems, isColumnDirection }) => ({
     gridFields: {
       alignItems: alignItems || 'flex-start',
       columnGap: theme.spacing(4),
-      display: 'grid',
-      gridTemplateColumns: gridTemplateColumns || `repeat(${columns}, 1fr)`,
+      display: isColumnDirection ? 'flex' : 'grid',
+      gridTemplateColumns: isColumnDirection
+        ? undefined
+        : gridTemplateColumns || `repeat(${columns}, 1fr)`,
       rowGap: theme.spacing(2)
     }
   })
@@ -26,7 +29,8 @@ const Grid = ({ grid }: InputPropsWithoutGroup): JSX.Element => {
   const { classes, cx } = useStyles({
     alignItems: grid?.alignItems,
     columns: grid?.columns.length,
-    gridTemplateColumns: grid?.gridTemplateColumns
+    gridTemplateColumns: grid?.gridTemplateColumns,
+    isColumnDirection: grid?.isColumnDirection
   });
 
   const className = grid?.className || '';

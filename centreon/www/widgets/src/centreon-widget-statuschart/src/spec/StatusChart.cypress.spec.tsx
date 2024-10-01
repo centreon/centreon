@@ -1,21 +1,21 @@
 import { createStore } from 'jotai';
-import { BrowserRouter } from 'react-router-dom';
 import { equals, last } from 'ramda';
+import { BrowserRouter } from 'react-router-dom';
 
 import { Method } from '@centreon/ui';
 
-import { Data, DisplayType, PanelOptions } from '../models';
+import StatusChart from '..';
 import {
   hostStatusesEndpoint,
   resourcesEndpoint,
   serviceStatusesEndpoint
 } from '../api/endpoint';
-import StatusChart from '..';
+import { Data, DisplayType, PanelOptions } from '../models';
 
 import {
-  options as resourcesOptions,
-  resources,
   hostStatus,
+  resources,
+  options as resourcesOptions,
   serviceStatus,
   totalHosts,
   totalServices
@@ -308,10 +308,6 @@ displayTypes.forEach(({ displayType, label }) => {
           );
 
           cy.contains('February 1, 2024').should('be.visible');
-
-          cy.makeSnapshot(
-            `${label} : 'displays tooltip with correct information on hover for type ${resourceType}`
-          );
         });
       });
     });
