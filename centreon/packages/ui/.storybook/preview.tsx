@@ -1,6 +1,3 @@
-import dayjs from 'dayjs';
-import timezonePlugin from 'dayjs/plugin/timezone';
-
 import { useDarkMode } from "storybook-dark-mode";
 import { initialize, mswLoader } from 'msw-storybook-addon';
 
@@ -12,7 +9,6 @@ import { allModes } from './modes';
 import { Decorator, Preview } from "@storybook/react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
-dayjs.extend(timezonePlugin);
 
 initialize();
 

@@ -1,5 +1,10 @@
 import { Meta, StoryObj } from '@storybook/react';
 
+import dayjs from 'dayjs';
+import timezonePlugin from 'dayjs/plugin/timezone';
+
+dayjs.extend(timezonePlugin);
+
 import Timeline from './Timeline';
 
 const data = [
