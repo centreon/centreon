@@ -1,0 +1,4780 @@
+{
+	"info": {
+		"_postman_id": "8fbc2ea2-8176-4637-a530-983339c0828a",
+		"name": "Additional_Connector_Configuration",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16182525",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Centreon-Web---API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-8fbc2ea2-8176-4637-a530-983339c0828a?action=share&source=collection_link&creator=16182525"
+	},
+	"item": [
+		{
+			"name": "By Admin",
+			"item": [
+				{
+					"name": "Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a fake poller-1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The poller has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"INSTANCE\",\r\n  \"values\": \"Poller-1;10.30.2.55;22;ZMQ;5556\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a fake poller-2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The poller has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"INSTANCE\",\r\n  \"values\": \"Poller-2;10.30.2.66;22;ZMQ;5556\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a fake poller-3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The poller has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"INSTANCE\",\r\n  \"values\": \"Poller-3;10.30.2.77;22;ZMQ;5556\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List pollers",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(4);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"Central\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
+									"        \"id\": 2,\r",
+									"        \"name\": \"Poller-1\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[2]).to.include({\r",
+									"        \"id\": 3,\r",
+									"        \"name\": \"Poller-2\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[3]).to.include({\r",
+									"        \"id\": 4,\r",
+									"        \"name\": \"Poller-3\"\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"pollers",
+								"vmware_v6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a additional connector configuration with all informations",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"ACC1Name\", \"acc-001\");\r",
+									"pm.collectionVariables.set(\"ACC1Description\", \"I'm the first ACC\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has been successfully created, with name '\" + pm.collectionVariables.get(\"ACC1Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new ACC \r",
+									"    pm.collectionVariables.set(\"ACC1Id\", responseJson.id);\r",
+									"\r",
+									"    pm.expect(responseJson).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ACC1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ACC1Name\"),\r",
+									"        \"type\": \"vmware_v6\",\r",
+									"        \"description\": pm.collectionVariables.get(\"ACC1Description\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.parameters).to.eql({\r",
+									"        \"port\": 5780,\r",
+									"        \"vcenters\": [{\r",
+									"            \"name\": \"my-vcenter\",\r",
+									"            \"url\": \"http://10.10.10.10/sdk\",\r",
+									"            \"username\": null,\r",
+									"            \"password\": null\r",
+									"        }]\r",
+									"    });\r",
+									"    pm.expect(responseJson.pollers.length).to.eql(1);\r",
+									"    pm.expect(responseJson.pollers[0]).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"Central\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.created_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"    \r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{ACC1Name}}\",\r\n    \"description\": \"{{ACC1Description}}\",\r\n    \"pollers\": [1],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 5780,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter\",\r\n            \"url\": \"http://10.10.10.10/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List additional connector configurations",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ACC1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ACC1Name\"),\r",
+									"        \"type\": \"vmware_v6\",\r",
+									"        \"description\": pm.collectionVariables.get(\"ACC1Description\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[0].created_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[0].updated_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a additional connector configuration with mandatory informations",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"ACC2Name\", \"acc-002\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has been successfully created, with name '\" + pm.collectionVariables.get(\"ACC2Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new ACC \r",
+									"    pm.collectionVariables.set(\"ACC2Id\", responseJson.id);\r",
+									"\r",
+									"    pm.expect(responseJson).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ACC2Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ACC2Name\"),\r",
+									"        \"type\": \"vmware_v6\",\r",
+									"        \"description\": null\r",
+									"    });\r",
+									"    pm.expect(responseJson.parameters).to.eql({\r",
+									"        \"port\": 5780,\r",
+									"        \"vcenters\": [{\r",
+									"            \"name\": \"my-vcenter-2\",\r",
+									"            \"url\": \"http://10.10.10.10/sdk\",\r",
+									"            \"username\": null,\r",
+									"            \"password\": null\r",
+									"        }]\r",
+									"    });\r",
+									"    pm.expect(responseJson.pollers.length).to.eql(1);\r",
+									"    pm.expect(responseJson.pollers[0]).to.eql({\r",
+									"        \"id\": 2,\r",
+									"        \"name\": \"Poller-1\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.created_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{ACC2Name}}\",\r\n    \"description\": null,\r\n    \"pollers\": [2],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 5780,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter-2\",\r\n            \"url\": \"http://10.10.10.10/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List additional connector configurations",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ACC1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ACC1Name\"),\r",
+									"        \"type\": \"vmware_v6\",\r",
+									"        \"description\": pm.collectionVariables.get(\"ACC1Description\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[0].created_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[0].updated_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ACC2Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ACC2Name\"),\r",
+									"        \"type\": \"vmware_v6\",\r",
+									"        \"description\": null\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[1].created_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[1].updated_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List pollers",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"        \"id\": 3,\r",
+									"        \"name\": \"Poller-2\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
+									"        \"id\": 4,\r",
+									"        \"name\": \"Poller-3\"\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"pollers",
+								"vmware_v6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a additional connector configuration without name",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has not been created, because the name is mandatory.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[name] The property name is required\\n\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"pollers\": [3],\r\n    \"description\": null,\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 5780,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter-2\",\r\n            \"url\": \"http://10.10.10.10/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a additional connector configuration with empty name",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has not been created, because the name cannot be empty.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[NewAcc::name] The string is empty, but non empty string was expected\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"\",\r\n    \"description\": null,\r\n    \"pollers\": [3],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 5780,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter-2\",\r\n            \"url\": \"http://10.10.10.10/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a additional connector configuration without poller",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has not been created, because the poller is mandatory.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[pollers] The property pollers is required\\n\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"bad-acc\",\r\n    \"description\": null,\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 5780,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter-2\",\r\n            \"url\": \"http://10.10.10.10/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a additional connector configuration without type",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has not been created, because the type is mandatory.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[type] The property type is required\\n\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"bad-acc\",\r\n    \"description\": null,\r\n    \"pollers\": [3],\r\n    \"parameters\": {\r\n        \"port\": 5780,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter-2\",\r\n            \"url\": \"http://10.10.10.10/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a additional connector configuration without parameters",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has not been created, because the parameters are mandatory.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[parameters] The property parameters is required\\n\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"bad-acc\",\r\n    \"description\": null,\r\n    \"pollers\": [1],\r\n    \"type\": \"vmware_v6\"\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a additional connector configuration with wrong parameters",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has not been created, because the parameters are mandatory.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[parameters.vcenters] The property vcenters is required\\n\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"bad-acc\",\r\n    \"description\": null,\r\n    \"pollers\": [1],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 5780\r\n    }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a additional connector configuration with duplicated name",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has not been created, because the name must be unique.\", function () {\r",
+									"    pm.response.to.have.status(500);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"The additional connector configuration name '\" + pm.collectionVariables.get(\"ACC1Name\") + \"' already exists\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{ACC1Name}}\",\r\n    \"description\": \"{{ACC1Description}}\",\r\n    \"pollers\": [3],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 5780,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter-3\",\r\n            \"url\": \"http://10.10.10.10/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a additional connector configuration with duplicated vcenter name",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has not been created, because the vcenter name must be unique.\", function () {\r",
+									"    pm.response.to.have.status(500);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"Duplicates not allowed for property 'parameters.vcenters[].name'\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"bac-acc\",\r\n    \"description\": \"{{ACC1Description}}\",\r\n    \"pollers\": [3],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 5780,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter\",\r\n            \"url\": \"http://10.10.10.10/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        },\r\n        {\"name\": \"my-vcenter\",\r\n            \"url\": \"http://10.10.10.11/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a additional connector configuration with duplicated poller",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has not been created, because the poller must be unique.\", function () {\r",
+									"    pm.response.to.have.status(500);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"An additional connector configuration of type 'vmware_v6' is already associated with poller ID(s) '1'\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"bad-acc\",\r\n    \"description\": \"{{ACC1Description}}\",\r\n    \"pollers\": [1],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 5780,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter\",\r\n            \"url\": \"http://10.10.10.10/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a additional connector configuration with special characters",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"ACC3Name\", \"àcc-003\");\r",
+									"pm.collectionVariables.set(\"ACC3Description\", \"I'm thé first ÂCC!\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has been successfully created, with name '\" + pm.collectionVariables.get(\"ACC3Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new ACC \r",
+									"    pm.collectionVariables.set(\"ACC3Id\", responseJson.id);\r",
+									"\r",
+									"    pm.expect(responseJson).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ACC3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ACC3Name\"),\r",
+									"        \"type\": \"vmware_v6\",\r",
+									"        \"description\": pm.collectionVariables.get(\"ACC3Description\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.parameters).to.eql({\r",
+									"        \"port\": 5780,\r",
+									"        \"vcenters\": [{\r",
+									"            \"name\": \"my-vcenter-3\",\r",
+									"            \"url\": \"http://10.10.10.10/sdk\",\r",
+									"            \"username\": null,\r",
+									"            \"password\": null\r",
+									"        }]\r",
+									"    });\r",
+									"    pm.expect(responseJson.pollers.length).to.eql(1);\r",
+									"    pm.expect(responseJson.pollers[0]).to.eql({\r",
+									"        \"id\": 3,\r",
+									"        \"name\": \"Poller-2\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.created_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{ACC3Name}}\",\r\n    \"description\": \"{{ACC3Description}}\",\r\n    \"pollers\": [3],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 5780,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter-3\",\r\n            \"url\": \"http://10.10.10.10/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List one additional connector configuration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ACC3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ACC3Name\"),\r",
+									"        \"type\": \"vmware_v6\",\r",
+									"        \"description\": pm.collectionVariables.get(\"ACC3Description\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.parameters).to.eql({\r",
+									"        \"port\": 5780,\r",
+									"        \"vcenters\": [{\r",
+									"            \"name\": \"my-vcenter-3\",\r",
+									"            \"url\": \"http://10.10.10.10/sdk\",\r",
+									"            \"username\": null,\r",
+									"            \"password\": null\r",
+									"        }]\r",
+									"    });\r",
+									"    pm.expect(responseJson.pollers.length).to.eql(1);\r",
+									"    pm.expect(responseJson.pollers[0]).to.eql({\r",
+									"        \"id\": 3,\r",
+									"        \"name\": \"Poller-2\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.created_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.updated_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/{{ACC3Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"{{ACC3Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update an additional connector configuration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"ACC1Name\", \"acc-001-updated\");\r",
+									"pm.collectionVariables.set(\"ACC1Description\", \"I'm the first ACC but not really\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACC has been successfully updated, with name '\" + pm.collectionVariables.get(\"ACC1Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{ACC1Name}}\",\r\n    \"description\": \"{{ACC1Description}}\",\r\n    \"pollers\": [4],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 5780,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter-updated\",\r\n            \"url\": \"http://10.20.20.10/sdk\",\r\n            \"username\": \"admin-v2\",\r\n            \"password\": \"my-pwd-v2\"\r\n        }]\r\n    }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/{{ACC1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"{{ACC1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List additional connector configurations",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(3);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ACC1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ACC1Name\"),\r",
+									"        \"type\": \"vmware_v6\",\r",
+									"        \"description\": pm.collectionVariables.get(\"ACC1Description\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[0].created_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[0].updated_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ACC2Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ACC2Name\"),\r",
+									"        \"type\": \"vmware_v6\",\r",
+									"        \"description\": null\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[1].created_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[1].updated_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[2]).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ACC3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ACC3Name\"),\r",
+									"        \"type\": \"vmware_v6\",\r",
+									"        \"description\": pm.collectionVariables.get(\"ACC3Description\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[2].created_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[2].updated_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List pollers",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"Central\"\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"pollers",
+								"vmware_v6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete an additional connector configuration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACC has been successfully deleted, with name '\" + pm.collectionVariables.get(\"ACC2Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"\r",
+									"    pm.collectionVariables.unset(\"ACC2Id\");\r",
+									"    pm.collectionVariables.unset(\"ACC2Name\");\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/{{ACC2Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"{{ACC2Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List additional connector configurations",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ACC1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ACC1Name\"),\r",
+									"        \"type\": \"vmware_v6\",\r",
+									"        \"description\": pm.collectionVariables.get(\"ACC1Description\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[0].created_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[0].updated_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ACC3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ACC3Name\"),\r",
+									"        \"type\": \"vmware_v6\",\r",
+									"        \"description\": pm.collectionVariables.get(\"ACC3Description\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[1].created_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[1].updated_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List pollers",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"Central\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
+									"        \"id\": 2,\r",
+									"        \"name\": \"Poller-1\"\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"pollers",
+								"vmware_v6"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Creation non-admin user",
+			"item": [
+				{
+					"name": "Add user_with_RW_rights",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new user has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"api_login_user\", \"user-non-admin\");\r",
+									"pm.collectionVariables.set(\"api_password_user\", \"Centreon!123\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user}};{{api_login_user}};{{api_login_user}}@localhost;{{api_password_user}};0;1;en_US;local\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add reach_api parameters",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user}};reach_api;1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add reach_api_rt parameters",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user}};reach_api_rt;1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create ACL Group RW_ALL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RW_ALL;RW_ALL\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link user to RW_ALL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addcontact\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RW_ALL;{{api_login_user}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link resources to RW_ALL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addresource\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RW_ALL;All Resources\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create ACL Menu RW",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"RW;RW\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link RW to RW_ALL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addmenu\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RW_ALL;RW\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "By User non-admin without Topology rights",
+			"item": [
+				{
+					"name": "Login with non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and doesn't have admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_user'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user}}\",\r\n      \"password\": \"{{api_password_user}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a additional connector configuration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has not been created.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    \r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional connector configurations\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"ACC-no\",\r\n    \"description\": null,\r\n    \"pollers\": [1],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 5780,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter\",\r\n            \"url\": \"http://10.10.10.10/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List additional connector configurations",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has not been listed.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    \r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional connector configurations\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List one additional connector configurations",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has not been listed.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    \r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional connector configurations\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/{{ACC1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"{{ACC1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update an additional connector configuration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"ACC1Name\", \"acc-001-updated\");\r",
+									"pm.collectionVariables.set(\"ACC1Description\", \"I'm the first ACC but not really\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has not been updated.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    \r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional connector configurations\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{ACC1Name}}\",\r\n    \"description\": \"{{ACC1Description}}\",\r\n    \"pollers\": [4],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 5780,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter-updated\",\r\n            \"url\": \"http://10.20.20.10/sdk\",\r\n            \"username\": \"admin-v2\",\r\n            \"password\": \"my-pwd-v2\"\r\n        }]\r\n    }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/{{ACC1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"{{ACC1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete an additional connector configuration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"ACC1Name\", \"acc-001-updated\");\r",
+									"pm.collectionVariables.set(\"ACC1Description\", \"I'm the first ACC but not really\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has not been deleted.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    \r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional connector configurations\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/{{ACC1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"{{ACC1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List pollers",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The Pollers has not been listed.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    \r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional connector configurations\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"pollers",
+								"vmware_v6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "By User non-admin with Topology rights",
+			"item": [
+				{
+					"name": "Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Grant RW right",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The Read/Write rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"grantrw\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"RW;1;Configuration\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "Login with non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and doesn't have admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_user'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user}}\",\r\n      \"password\": \"{{api_password_user}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List pollers",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"Central\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
+									"        \"id\": 2,\r",
+									"        \"name\": \"Poller-1\"\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"pollers",
+								"vmware_v6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a additional connector configuration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"ACC4Name\", \"acc-004\");\r",
+									"pm.collectionVariables.set(\"ACC4Description\", \"I'm the first ACC by the non-admin user\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has been successfully created, with name '\" + pm.collectionVariables.get(\"ACC1Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new ACC \r",
+									"    pm.collectionVariables.set(\"ACC4Id\", responseJson.id);\r",
+									"\r",
+									"    pm.expect(responseJson).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ACC4Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ACC4Name\"),\r",
+									"        \"type\": \"vmware_v6\",\r",
+									"        \"description\": pm.collectionVariables.get(\"ACC4Description\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.parameters).to.eql({\r",
+									"        \"port\": 5780,\r",
+									"        \"vcenters\": [{\r",
+									"            \"name\": \"my-vcenter\",\r",
+									"            \"url\": \"http://10.10.10.10/sdk\",\r",
+									"            \"username\": null,\r",
+									"            \"password\": null\r",
+									"        }]\r",
+									"    });\r",
+									"    pm.expect(responseJson.pollers.length).to.eql(2);\r",
+									"    pm.expect(responseJson.pollers[0]).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"Central\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.pollers[1]).to.eql({\r",
+									"        \"id\": 2,\r",
+									"        \"name\": \"Poller-1\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.created_by).to.eql({\r",
+									"        \"id\": 19,\r",
+									"        \"name\": \"user-non-admin\"\r",
+									"    });\r",
+									"    \r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{ACC4Name}}\",\r\n    \"description\": \"{{ACC4Description}}\",\r\n    \"pollers\": [1, 2],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 5780,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter\",\r\n            \"url\": \"http://10.10.10.10/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List pollers",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result).to.be.an('Array').that.is.empty;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"pollers",
+								"vmware_v6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List additional connector configurations",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(3);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ACC1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ACC1Name\"),\r",
+									"        \"type\": \"vmware_v6\",\r",
+									"        \"description\": pm.collectionVariables.get(\"ACC1Description\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[0].created_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[0].updated_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ACC3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ACC3Name\"),\r",
+									"        \"type\": \"vmware_v6\",\r",
+									"        \"description\": pm.collectionVariables.get(\"ACC3Description\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[1].created_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[1].updated_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"\r",
+									"        pm.expect(responseJson.result[2]).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ACC4Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ACC4Name\"),\r",
+									"        \"type\": \"vmware_v6\",\r",
+									"        \"description\": pm.collectionVariables.get(\"ACC4Description\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[2].created_by).to.eql({\r",
+									"        \"id\": 19,\r",
+									"        \"name\": \"user-non-admin\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[2].updated_by).to.eql({\r",
+									"        \"id\": 19,\r",
+									"        \"name\": \"user-non-admin\"\r",
+									"    });\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update an additional connector configuration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"ACC3Name\", \"acc-003-updated\");\r",
+									"pm.collectionVariables.set(\"ACC3Description\", \"I'm the third ACC but I changed\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACC has been successfully updated, with name '\" + pm.collectionVariables.get(\"ACC3Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{ACC3Name}}\",\r\n    \"description\": \"{{ACC3Description}}\",\r\n    \"pollers\": [3],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 6000,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter-up\",\r\n            \"url\": \"http://10.10.10.11/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/{{ACC3Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"{{ACC3Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List one additional connector configuration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ACC3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ACC3Name\"),\r",
+									"        \"type\": \"vmware_v6\",\r",
+									"        \"description\": pm.collectionVariables.get(\"ACC3Description\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.parameters).to.eql({\r",
+									"        \"port\": 6000,\r",
+									"        \"vcenters\": [{\r",
+									"            \"name\": \"my-vcenter-up\",\r",
+									"            \"url\": \"http://10.10.10.11/sdk\",\r",
+									"            \"username\": null,\r",
+									"            \"password\": null\r",
+									"        }]\r",
+									"    });\r",
+									"    pm.expect(responseJson.pollers.length).to.eql(1);\r",
+									"    pm.expect(responseJson.pollers[0]).to.eql({\r",
+									"        \"id\": 3,\r",
+									"        \"name\": \"Poller-2\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.created_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.updated_by).to.eql({\r",
+									"        \"id\": 19,\r",
+									"        \"name\": \"user-non-admin\"\r",
+									"    });\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/{{ACC3Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"{{ACC3Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete an additional connector configuration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACC has been successfully deleted, with name '\" + pm.collectionVariables.get(\"ACC1Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"\r",
+									"    pm.collectionVariables.unset(\"ACC1Id\");\r",
+									"    pm.collectionVariables.unset(\"ACC1Name\");\r",
+									"    pm.collectionVariables.unset(\"ACC1Description\");\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/{{ACC1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"{{ACC1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List pollers",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"        \"id\": 4,\r",
+									"        \"name\": \"Poller-3\"\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"pollers",
+								"vmware_v6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List additional connector configurations",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ACC3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ACC3Name\"),\r",
+									"        \"type\": \"vmware_v6\",\r",
+									"        \"description\": pm.collectionVariables.get(\"ACC3Description\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[0].created_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[0].updated_by).to.eql({\r",
+									"        \"id\": 19,\r",
+									"        \"name\": \"user-non-admin\"\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ACC4Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ACC4Name\"),\r",
+									"        \"type\": \"vmware_v6\",\r",
+									"        \"description\": pm.collectionVariables.get(\"ACC4Description\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[1].created_by).to.eql({\r",
+									"        \"id\": 19,\r",
+									"        \"name\": \"user-non-admin\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[1].updated_by).to.eql({\r",
+									"        \"id\": 19,\r",
+									"        \"name\": \"user-non-admin\"\r",
+									"    });\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "By User non-admin with filters on Pollers",
+			"item": [
+				{
+					"name": "Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a filter on a poller",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The fake poller filter has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addfilter_instance\",\r\n  \"object\": \"ACLRESOURCE\",\r\n  \"values\": \"All Resources;Poller-2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a filter on a poller",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The fake poller filter has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addfilter_instance\",\r\n  \"object\": \"ACLRESOURCE\",\r\n  \"values\": \"All Resources;Central\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "Login with non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and doesn't have admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_user'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user}}\",\r\n      \"password\": \"{{api_password_user}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a additional connector configuration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"ACC1Name\", \"acc-001\");\r",
+									"pm.collectionVariables.set(\"ACC1Description\", \"I'm the first ACC\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has not been created, because the user does not have access to the chosen poller.\", function () {\r",
+									"    pm.response.to.have.status(500);\r",
+									"    \r",
+									"    pm.expect(responseJson.message).to.eql(\"The pollers does not exist with ID(s) '4'\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{ACC1Name}}\",\r\n    \"description\": \"{{ACC1Description}}\",\r\n    \"pollers\": [4],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 5780,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter\",\r\n            \"url\": \"http://10.10.10.10/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List additional connector configurations",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ACC3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ACC3Name\"),\r",
+									"        \"type\": \"vmware_v6\",\r",
+									"        \"description\": pm.collectionVariables.get(\"ACC3Description\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[0].created_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[0].updated_by).to.eql({\r",
+									"        \"id\": 19,\r",
+									"        \"name\": \"user-non-admin\"\r",
+									"    });\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List one additional connector configuration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ACC3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ACC3Name\"),\r",
+									"        \"type\": \"vmware_v6\",\r",
+									"        \"description\": pm.collectionVariables.get(\"ACC3Description\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.parameters).to.eql({\r",
+									"        \"port\": 6000,\r",
+									"        \"vcenters\": [{\r",
+									"            \"name\": \"my-vcenter-up\",\r",
+									"            \"url\": \"http://10.10.10.11/sdk\",\r",
+									"            \"username\": null,\r",
+									"            \"password\": null\r",
+									"        }]\r",
+									"    });\r",
+									"    pm.expect(responseJson.pollers.length).to.eql(1);\r",
+									"    pm.expect(responseJson.pollers[0]).to.eql({\r",
+									"        \"id\": 3,\r",
+									"        \"name\": \"Poller-2\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.created_by).to.eql({\r",
+									"        \"id\": 1,\r",
+									"        \"name\": \"admin admin\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.updated_by).to.eql({\r",
+									"        \"id\": 19,\r",
+									"        \"name\": \"user-non-admin\"\r",
+									"    });\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/{{ACC3Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"{{ACC3Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List one additional connector configuration with no access",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has not been retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"Additional Connector not found\");\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/{{ACC4Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"{{ACC4Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List pollers",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result).to.be.an('Array').that.is.empty;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"pollers",
+								"vmware_v6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update an additional connector configuration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"ACC3Name\", \"acc-003-updated-again\");\r",
+									"pm.collectionVariables.set(\"ACC3Description\", \"I'm the third ACC but I changed\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACC has been successfully updated, with name '\" + pm.collectionVariables.get(\"ACC3Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{ACC3Name}}\",\r\n    \"description\": \"{{ACC3Description}}\",\r\n    \"pollers\": [3],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 6000,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter-up-v2\",\r\n            \"url\": \"http://10.10.10.11/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/{{ACC3Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"{{ACC3Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update an additional connector configuration with no access",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"ACC3Name\", \"acc-003-updated\");\r",
+									"pm.collectionVariables.set(\"ACC3Description\", \"I'm the third ACC but I changed\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has not been updated'.\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"Additional Connector Configuration not found\");\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{ACC3Name}}\",\r\n    \"description\": \"{{ACC3Description}}\",\r\n    \"pollers\": [3],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 6000,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter-up\",\r\n            \"url\": \"http://10.10.10.11/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/{{ACC4Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"{{ACC4Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete an additional connector configuration with no access",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The ACC has not been updated'.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"You don't have sufficient permissions for this action\");\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/{{ACC4Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"{{ACC4Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete an additional connector configuration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACC has been successfully deleted, with name '\" + pm.collectionVariables.get(\"ACC3Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"\r",
+									"    pm.collectionVariables.unset(\"ACC3Id\");\r",
+									"    pm.collectionVariables.unset(\"ACC3Name\");\r",
+									"    pm.collectionVariables.unset(\"ACC3Description\");\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/{{ACC3Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"{{ACC3Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List pollers",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"        \"id\": 3,\r",
+									"        \"name\": \"Poller-2\"\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"additional-connector-configurations",
+								"pollers",
+								"vmware_v6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "{{token}}",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "X-AUTH-TOKEN",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

@@ -68,7 +68,35 @@ $insertVaultConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): 
     }
 };
 
+$addDisableServiceCheckColumn = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add column host_down_disable_service_checks to table cfg_nagios';
+    if (! $pearDB->isColumnExist('cfg_nagios', 'host_down_disable_service_checks')) {
+        $pearDB->executeQuery(
+            <<<'SQL'
+                ALTER TABLE `cfg_nagios`
+                ADD COLUMN `host_down_disable_service_checks` ENUM('0', '1') DEFAULT '0'
+                AFTER `enable_predictive_service_dependency_checks`
+                SQL
+        );
+    }
+};
+
+// ACC
+$fixNamingAndActivateAccTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to update table topology';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE `topology`
+            SET `topology_show` = '1',
+                `topology_name` = 'Additional Connector Configurations'
+            WHERE `topology_url` = '/configuration/additional-connector-configurations'
+            SQL
+    );
+};
+
 try {
+    $addDisableServiceCheckColumn($pearDB);
+
     // Transactional queries
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
@@ -76,6 +104,7 @@ try {
 
     $insertVaultConfiguration($pearDB);
     $insertWebPageWidget($pearDB);
+    $fixNamingAndActivateAccTopology($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {
