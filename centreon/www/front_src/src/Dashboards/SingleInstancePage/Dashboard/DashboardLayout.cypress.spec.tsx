@@ -82,8 +82,6 @@ describe('DashboardLayout', () => {
 
     cy.contains('Widget text').should('be.visible');
     cy.contains('Generic text').should('be.visible');
-
-    cy.makeSnapshot();
   });
 
   it('sends a request to the public API when the dashboard is displayed in a public page', () => {
