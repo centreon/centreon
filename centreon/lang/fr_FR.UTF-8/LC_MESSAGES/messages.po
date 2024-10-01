@@ -18921,3 +18921,9 @@ msgstr "Vous n'êtes pas autorisé à lister les modèles de contact"
 
 msgid "Downloading the performance metrics is not allowed"
 msgstr "Le téléchargement des métriques de performance n'est pas autorisé"
+
+msgid "You are not allowed to access hosts in the real time context"
+msgstr "Vous n'êtes pas autorisé à accéder aux hôtes dans le cadre du temps réel"
+
+msgid "You are not allowed to access services in the real time context"
+msgstr "Vous n'êtes pas autorisé à accéder aux services dans le cadre du temps réel"
