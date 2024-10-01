@@ -40,7 +40,7 @@ servers:
         default: '80'
         description: "Port used by HTTP server"
       version:
-        default: v24.04
+        default: latest
         description: "Version of the API"
 tags:
   - name: Host

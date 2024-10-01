@@ -173,6 +173,7 @@ class CentreonMainCfg
             'nagios_server_id' => '1',
             'enable_predictive_host_dependency_checks' => '1',
             'enable_predictive_service_dependency_checks' => '1',
+            'host_down_disable_service_checks' => '0',
             'passive_host_checks_are_soft' => '0',
             'enable_environment_macros' => '0',
             'debug_file' => '/var/log/centreon-engine/centengine.debug',
@@ -332,8 +333,8 @@ class CentreonMainCfg
             `illegal_macro_output_chars`, `use_regexp_matching`, `use_true_regexp_matching`, `admin_email`,
             `admin_pager`, `nagios_comment`, `nagios_activate`, `event_broker_options`,
             `enable_predictive_host_dependency_checks`, `enable_predictive_service_dependency_checks`,
-            `passive_host_checks_are_soft`, `enable_environment_macros`, `debug_file`, `debug_level`,
-            `debug_level_opt`, `debug_verbosity`, `max_debug_file_size`, `cfg_file`
+            `host_down_disable_service_checks`, `passive_host_checks_are_soft`, `enable_environment_macros`,
+            `debug_file`, `debug_level`, `debug_level_opt`, `debug_verbosity`, `max_debug_file_size`, `cfg_file`
             )
             VALUES (
             :nagios_name, :nagios_server_id, :log_file, :cfg_dir,
@@ -355,8 +356,8 @@ class CentreonMainCfg
             :illegal_macro_output_chars, :use_regexp_matching, :use_true_regexp_matching, :admin_email,
             :admin_pager, :nagios_comment, :nagios_activate, :event_broker_options,
             :enable_predictive_host_dependency_checks, :enable_predictive_service_dependency_checks,
-            :passive_host_checks_are_soft, :enable_environment_macros, :debug_file, :debug_level,
-            :debug_level_opt, :debug_verbosity, :max_debug_file_size, :cfg_file
+            :host_down_disable_service_checks, :passive_host_checks_are_soft, :enable_environment_macros, :debug_file,
+            :debug_level, :debug_level_opt, :debug_verbosity, :max_debug_file_size, :cfg_file
             )";
 
         $params = array(
@@ -424,6 +425,7 @@ class CentreonMainCfg
             ':enable_predictive_host_dependency_checks' => $baseValues['enable_predictive_host_dependency_checks'],
             ':enable_predictive_service_dependency_checks' =>
                 $baseValues['enable_predictive_service_dependency_checks'],
+            ':host_down_disable_service_checks' => $baseValues['host_down_disable_service_checks'],
             ':passive_host_checks_are_soft' => $baseValues['passive_host_checks_are_soft'],
             ':enable_environment_macros' => $baseValues['enable_environment_macros'],
             ':debug_file' => $baseValues['debug_file'],

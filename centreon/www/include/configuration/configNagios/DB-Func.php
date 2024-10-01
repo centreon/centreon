@@ -405,6 +405,7 @@ function getNagiosCfgColumnsDetails(): array
         'enable_notifications' => ['isRadio' => true, 'default' => '1'],
         'enable_predictive_host_dependency_checks' => ['isRadio' => true, 'default' => '0'],
         'enable_predictive_service_dependency_checks' => ['isRadio' => true, 'default' => '0'],
+        'host_down_disable_service_checks' => ['isRadio' => true, 'default' => '0'],
         'execute_host_checks' => ['isRadio' => true, 'default' => '1'],
         'execute_service_checks' => ['isRadio' => true, 'default' => '1'],
         'log_event_handlers' => ['isRadio' => true, 'default' => '1'],
