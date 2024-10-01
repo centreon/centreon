@@ -60,6 +60,10 @@ if [ "$1" = "configure" ] ; then
     /usr/share/centreon/bin/centreon-sanitize-images.php \
     /usr/share/centreon/bin/centreon-remove-duplicate-host-service-relations.php
 
+  chown centreon:centreon \
+    /usr/share/centreon/cron/outdated-token-removal.php
+  chmod 0755 \
+    /usr/share/centreon/cron/outdated-token-removal.php
 
   if [ -f "/usr/bin/pear" ]; then
     /usr/bin/pear channel-update pear.php.net

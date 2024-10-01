@@ -217,6 +217,7 @@ const ResourceListing = (): JSX.Element => {
     <Listing
       checkable
       actions={<Actions onRefresh={initAutorefreshAndLoad} />}
+      actionsBarMemoProps={[selectedResourceDetails]}
       columnConfiguration={{
         selectedColumnIds,
         sortable: true
