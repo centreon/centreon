@@ -28,6 +28,7 @@ use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Common\Domain\TrimmedString;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadAgentConfigurationRepositoryInterface
 {
