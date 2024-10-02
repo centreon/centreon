@@ -18,6 +18,10 @@ on:
         required: true
       registry_password:
         required: true
+      registry_private_username:
+        required: true
+      registry_private_token:
+        required: true
 
 jobs:
   package:
@@ -52,3 +56,5 @@ jobs:
     secrets:
       registry_username: ${{ secrets.registry_username }}
       registry_password: ${{ secrets.registry_password }}
+      registry_private_username: ${{ secrets.registry_private_username }}
+      registry_private_token: ${{ secrets.registry_private_token }}
