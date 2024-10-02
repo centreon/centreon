@@ -1,0 +1,8 @@
+in: path
+name: ac_id
+required: true
+description: "Poller/agent configuration ID"
+schema:
+  type: integer
+  minimum: 1
+  example: 1

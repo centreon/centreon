@@ -19548,3 +19548,33 @@ msgstr "Mettre à jour la configuration collecteur/agent"
 
 msgid "An agent is a piece of software you install on the host you want to monitor, that executes the checks."
 msgstr "Un agent est une partie d'un logiciel que vous installez sur l'hôte que vous souhaitez superviser qui exécutes les vérifications."
+
+msgid "Error while adding a poller/agent configuration"
+msgstr "Erreur lors de l'ajout de la configuration collecteur/agent"
+
+msgid "Error while updating a poller/agent configuration"
+msgstr "Erreur lors de la mise à jour de la configuration collecteur/agent"
+
+msgid "Error while deleting a poller/agent configuration"
+msgstr "Erreur lors de la suppression de la configuration collecteur/agent"
+
+msgid "You are not allowed to access poller/agent configurations"
+msgstr "Vous n'êtes pas autorisé à accéder aux configurations collecteur/agent"
+
+msgid "A poller/agent configuration is already associated with poller ID(s) '%s'"
+msgstr "Une configuration collecteur/agent est déjà associée au(x) ID(s) de collecteur(s) '%s'"
+
+msgid "Error while retrieving a poller/agent configuration"
+msgstr "Erreur durant la récupération d'une configuration collecteur/agent"
+
+msgid "The poller/agent configuration name '%s' already exists"
+msgstr "La configuration collecteur/agent '%s' existe déjà"
+
+msgid "Changing the type of an existing poller/agent configuration is not allowed"
+msgstr "Changer le type d'une configuration collecteur/agent existante n'est pas autorisé"
+
+msgid "Filename '%s' (%s) is invalid"
+msgstr "Le nom de fichier '%s' (%s) est invalide"
+
+msgid "Poller ID #%d is the only one linked to poller/agent configuration ID #%d"
+msgstr "L'ID de collecteur #%d est le seul lié à l'ID de configuration collecteur/agent #%d"
