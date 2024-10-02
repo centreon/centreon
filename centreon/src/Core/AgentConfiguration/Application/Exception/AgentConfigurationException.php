@@ -115,7 +115,7 @@ class AgentConfigurationException extends \Exception
 
     public static function errorWhileRetrievingObjects(): self
     {
-        return new self(_('Error while retrieving multiple agent configurations'));
+        return new self(_('Error while retrieving multiple poller/agent configurations'));
     }
 
     public static function nameAlreadyExists(string $name): self

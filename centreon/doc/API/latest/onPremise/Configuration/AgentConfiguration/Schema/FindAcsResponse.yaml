@@ -1,0 +1,31 @@
+type: object
+properties:
+  id:
+    type: integer
+    example: 4
+  name:
+    type: string
+    description: "ACC name"
+    example: "my-acc-name"
+  type:
+    type: string
+    description: |
+      Type of AC
+
+      Supported ACC types:
+        * telegraf
+    example: telegraf
+  pollers:
+    type: array
+    description: "List of pollers that are attached to this ACC"
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "Poller ID"
+          example: 1
+        name:
+          type: string
+          description: "Poller name"
+          example: "my-poller-name"
