@@ -13,13 +13,15 @@ import TimePeriod from './TimePeriod';
 import { options } from './useTimePeriod';
 
 const openCalendar = (label): void => {
-  cy.findByLabelText(label).then(($input) => {
-    if ($input.attr('readonly')) {
-      cy.wrap($input).click();
-    } else {
-      cy.findByLabelText(label).findByRole('button').click({ force: true });
-    }
-  });
+  cy.findByLabelText(label)
+    .find('input')
+    .then(($input) => {
+      if ($input.attr('readonly')) {
+        cy.wrap($input).click();
+      } else {
+        cy.findByLabelText(label).findByRole('button').click({ force: true });
+      }
+    });
 };
 
 const initializeComponent = (canEdit = true): void => {
