@@ -5366,52 +5366,52 @@ msgstr "Oculto"
 #: centreon-web/www/include/views/graphs/graphs.php:185
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:107
 #: centreon-web/www/include/eventLogs/viewLog.php:165
-msgid "Last 3 Hours"
+msgid "Last 3 hours"
 msgstr "Últimas 3 Horas"
 
 #: centreon-web/www/include/views/graphs/graph-split.php:108
 #: centreon-web/www/include/views/graphs/graphs.php:186
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:108
 #: centreon-web/www/include/eventLogs/viewLog.php:166
-msgid "Last 6 Hours"
+msgid "Last 6 hours"
 msgstr "Últimas 6 Horas"
 
 #: centreon-web/www/include/views/graphs/graph-split.php:109
 #: centreon-web/www/include/views/graphs/graphs.php:187
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:109
 #: centreon-web/www/include/eventLogs/viewLog.php:167
-msgid "Last 12 Hours"
+msgid "Last 12 hours"
 msgstr "Últimas 12 Horas"
 
 #: centreon-web/www/include/views/graphs/graph-split.php:110
 #: centreon-web/www/include/views/graphs/graphs.php:188
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:110
 #: centreon-web/www/include/eventLogs/viewLog.php:168
-msgid "Last 24 Hours"
+msgid "Last 24 hours"
 msgstr "Últimas 24 Horas"
 
 #: centreon-web/www/include/views/graphs/graph-split.php:111
 #: centreon-web/www/include/views/graphs/graphs.php:189
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:111
 #: centreon-web/www/include/eventLogs/viewLog.php:169
-msgid "Last 2 Days"
+msgid "Last 2 days"
 msgstr "Últimos 2 Dias"
 
 #: centreon-web/www/include/views/graphs/graph-split.php:112
 #: centreon-web/www/include/views/graphs/graphs.php:190
-msgid "Last 3 Days"
+msgid "Last 3 days"
 msgstr "Últimos 3 Dias"
 
 #: centreon-web/www/include/views/graphs/graph-split.php:113
 #: centreon-web/www/include/views/graphs/graphs.php:191
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:112
 #: centreon-web/www/include/eventLogs/viewLog.php:170
-msgid "Last 4 Days"
+msgid "Last 4 days"
 msgstr "Últimos 4 Dias"
 
 #: centreon-web/www/include/views/graphs/graph-split.php:114
 #: centreon-web/www/include/views/graphs/graphs.php:192
-msgid "Last 5 Days"
+msgid "Last 5 days"
 msgstr "Últimos 5 Dias"
 
 #: centreon-web/www/include/views/graphs/graph-split.php:115
@@ -5419,21 +5419,21 @@ msgstr "Últimos 5 Dias"
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:113
 #: centreon-web/www/include/eventLogs/viewLog.php:171
 #: centreon-web/www/include/reporting/dashboard/common-Func.php:273
-msgid "Last 7 Days"
+msgid "Last 7 days"
 msgstr "Últimos 7 Dias"
 
 #: centreon-web/www/include/views/graphs/graph-split.php:116
 #: centreon-web/www/include/views/graphs/graphs.php:194
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:114
 #: centreon-web/www/include/eventLogs/viewLog.php:172
-msgid "Last 14 Days"
+msgid "Last 14 days"
 msgstr "Últimos 14 Dias"
 
 #: centreon-web/www/include/views/graphs/graph-split.php:117
 #: centreon-web/www/include/views/graphs/graphs.php:195
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:115
 #: centreon-web/www/include/eventLogs/viewLog.php:173
-msgid "Last 28 Days"
+msgid "Last 28 days"
 msgstr "Últimos 28 Dias"
 
 #: centreon-web/www/include/views/graphs/graph-split.php:118
@@ -5441,44 +5441,36 @@ msgstr "Últimos 28 Dias"
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:116
 #: centreon-web/www/include/eventLogs/viewLog.php:174
 #: centreon-web/www/include/reporting/dashboard/common-Func.php:275
-msgid "Last 30 Days"
+msgid "Last 30 days"
 msgstr "Últimos 30 Dias"
 
 #: centreon-web/www/include/views/graphs/graph-split.php:119
 #: centreon-web/www/include/views/graphs/graphs.php:197
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:117
 #: centreon-web/www/include/eventLogs/viewLog.php:175
-msgid "Last 31 Days"
+msgid "Last 31 days"
 msgstr "Últimos 31 Dias"
 
 #: centreon-web/www/include/views/graphs/graph-split.php:120
 #: centreon-web/www/include/views/graphs/graphs.php:198
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:118
 #: centreon-web/www/include/eventLogs/viewLog.php:176
-msgid "Last 2 Months"
+msgid "Last 2 months"
 msgstr "Últimos 2 Meses"
 
 #: centreon-web/www/include/views/graphs/graph-split.php:121
 #: centreon-web/www/include/views/graphs/graphs.php:199
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:119
 #: centreon-web/www/include/eventLogs/viewLog.php:177
-msgid "Last 4 Months"
+msgid "Last 4 months"
 msgstr "Últimos 4 Meses"
 
 #: centreon-web/www/include/views/graphs/graph-split.php:122
 #: centreon-web/www/include/views/graphs/graphs.php:200
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:120
 #: centreon-web/www/include/eventLogs/viewLog.php:178
-msgid "Last 6 Months"
+msgid "Last 6 months"
 msgstr "Últimos 6 Meses"
-
-#: centreon-web/www/include/views/graphs/graph-split.php:123
-#: centreon-web/www/include/views/graphs/graphs.php:201
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:121
-#: centreon-web/www/include/eventLogs/viewLog.php:179
-#: centreon-web/www/include/reporting/dashboard/common-Func.php:278
-msgid "Last Year"
-msgstr "Último Ano"
 
 #: centreon-web/www/include/views/graphs/graph-split.php:128
 #: centreon-web/www/include/views/graphs/graphs.php:206
@@ -5514,19 +5506,19 @@ msgid "Display Status"
 msgstr "Exibir Estado"
 
 #: centreon-web/www/include/views/graphs/graph-periods.php:83
-msgid "last day"
+msgid "Last day"
 msgstr "último dia"
 
 #: centreon-web/www/include/views/graphs/graph-periods.php:87
-msgid "last week"
+msgid "Last week"
 msgstr "semana passada"
 
 #: centreon-web/www/include/views/graphs/graph-periods.php:91
-msgid "last month"
+msgid "Last month"
 msgstr "mês passado"
 
 #: centreon-web/www/include/views/graphs/graph-periods.php:95
-msgid "last year"
+msgid "Last year"
 msgstr "ano passado"
 
 #: centreon-web/www/include/views/graphs/common/makeXML_ListMetrics.php:87
@@ -7051,10 +7043,6 @@ msgstr "Tipo do Objeto"
 msgid "Event Type"
 msgstr "Tipo de evento"
 
-#: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:91
-msgid "Last 3 hours"
-msgstr "Últimas 3 horas"
-
 #: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:92
 msgid "Today"
 msgstr "Hoje"
@@ -7063,26 +7051,6 @@ msgstr "Hoje"
 #: centreon-web/www/include/reporting/dashboard/common-Func.php:271
 msgid "Yesterday"
 msgstr "Ontem"
-
-#: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:94
-msgid "Last 4 days"
-msgstr "Últimos 4 Dias"
-
-#: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:95
-msgid "Last week"
-msgstr "Última semana"
-
-#: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:96
-msgid "Last month"
-msgstr "Último mês"
-
-#: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:97
-msgid "Last 6 months"
-msgstr "Últimos 6 Meses"
-
-#: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:98
-msgid "Last year"
-msgstr "Último Ano"
 
 #: centreon-web/www/include/Administration/brokerPerformance/brokerPerformance.php:49
 #: centreon-web/www/include/Administration/brokerPerformance/brokerPerformance.php:51
@@ -11299,10 +11267,6 @@ msgstr "Esta Semana"
 #: centreon-web/www/include/reporting/dashboard/common-Func.php:274
 msgid "This Month"
 msgstr "Este Mês"
-
-#: centreon-web/www/include/reporting/dashboard/common-Func.php:276
-msgid "Last Month"
-msgstr "Último Mês"
 
 #: centreon-web/www/include/reporting/dashboard/common-Func.php:277
 msgid "This Year"
