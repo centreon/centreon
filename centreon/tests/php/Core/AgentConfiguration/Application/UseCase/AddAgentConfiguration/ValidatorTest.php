@@ -83,7 +83,7 @@ it('should throw an exception when a poller ID does not exist', function (): voi
 it('should throw an exception when the type is not valid', function (): void {
     $this->request->type = '';
     $this->validator->validateTypeOrFail($this->request);
-})->throws((new ValueError('"" is not a valid backing value for enum Core\AgentConfiguration\Domain\Model\Type'))->getMessage());
+})->throws((new ValueError('"" is not a valid backing value for enum "Core\AgentConfiguration\Domain\Model\Type"'))->getMessage());
 
 it('should throw an exception when the object is already associated to one of the pollers', function (): void {
      $this->user
