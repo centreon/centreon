@@ -6,3 +6,11 @@ export const searchAtom = atom('');
 export const sortOrderAtom = atom('asc');
 export const sortFieldAtom = atom('name');
 export const openFormModalAtom = atom<number | 'add' | null>(null);
+
+export const changeSortAtom = atom(
+  null,
+  (_get, set, { sortOrder, sortField }) => {
+    set(sortOrderAtom, sortOrder);
+    set(sortFieldAtom, sortField);
+  }
+);

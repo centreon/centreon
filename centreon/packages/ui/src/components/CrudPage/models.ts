@@ -1,6 +1,7 @@
 import { PrimitiveAtom } from 'jotai';
 import { JsonDecoder } from 'ts.data.json';
-import { ListingModel, SearchParameter } from '../../..';
+import { Column, ListingModel, SearchParameter } from '../../..';
+import { ListingSubItems } from '../../Listing/models';
 
 interface CrudPageRootLabels {
   title: string;
@@ -37,7 +38,15 @@ export interface UseGetItemsState<TData> {
   total: number;
 }
 
+export interface ListingProps {
+  total: number;
+  isLoading: boolean;
+  columns: Array<Column>;
+  subItems?: ListingSubItems;
+}
+
 export interface CrudPageRootProps<TData, TFilters>
-  extends UseGetItemsProps<TData, TFilters> {
+  extends UseGetItemsProps<TData, TFilters>,
+    ListingProps {
   labels: CrudPageRootLabels;
 }
