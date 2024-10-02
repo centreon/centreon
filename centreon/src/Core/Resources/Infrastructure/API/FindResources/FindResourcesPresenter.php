@@ -178,7 +178,7 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
                     'tries' => $resource->tries,
                     'information' => $resource->information,
                     'performance_data' => null,
-                    'is_notification_enabled' => false,
+                    'is_notification_enabled' => $resource->areNotificationsEnabled(),
                     'severity' => $severity,
                     'links' => $links,
                     'extra' => $resource->resourceId !== null
