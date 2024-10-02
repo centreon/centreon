@@ -74,7 +74,7 @@ const Timeline = ({
               />
             )
           }
-          position="right"
+          position="top"
         >
           <rect
             x={xScale(start)}
