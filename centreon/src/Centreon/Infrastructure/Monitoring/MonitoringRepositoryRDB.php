@@ -497,8 +497,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                     ON gcgr.acl_group_id = grp.acl_group_id
                 LEFT JOIN `:db`.contactgroup_contact_relation cgcr
                     ON cgcr.contactgroup_cg_id = gcgr.cg_cg_id
-                    AND cgcr.contact_contact_id = :contact_id 
-                    OR gcr.contact_contact_id = :contact_id';
+                    AND (cgcr.contact_contact_id = :contact_id OR gcr.contact_contact_id = :contact_id)';
         }
 
         // This join will only be added if a search parameter corresponding to one of the host or Service parameter

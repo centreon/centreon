@@ -274,6 +274,7 @@ class Severity extends AbstractObject
     public function getServiceSeverityMappingHostSeverityByName($hc_name)
     {
         if (isset($this->service_severity_by_name_cache[$hc_name])) {
+            $this->service_severities[$this->service_severity_by_name_cache[$hc_name]['sc_id']] = $this->service_severity_by_name_cache[$hc_name];
             return $this->service_severity_by_name_cache[$hc_name];
         }
         if ($this->done_cache == 1) {
@@ -298,8 +299,9 @@ class Severity extends AbstractObject
         }
 
         $this->service_severity_by_name_cache[$hc_name] = &$severity;
-        $this->service_severity_cache[$hc_name] = &$severity;
-        return $severity['sc_id'];
+        $this->service_severity_cache[$severity['sc_id']] = &$severity;
+        $this->service_severities[$severity['sc_id']] = $this->service_severity_cache[$severity['sc_id']];
+        return $severity;
     }
 
     /**

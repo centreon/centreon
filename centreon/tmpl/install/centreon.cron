@@ -34,3 +34,7 @@ CRONTAB_EXEC_USER=""
 ##########################
 # Cron for Centreon-Backup
 30 3 * * * root @INSTALL_DIR_CENTREON@/cron/centreon-backup.pl >> @CENTREON_LOG@/centreon-backup.log 2>&1
+
+##########################
+# Cron for Outdated Token removal
+* * * * * centreon @INSTALL_DIR_CENTREON@/cron/outdated-token-removal.php >> @CENTREON_LOG@/centreon-tokens.log 2>&1

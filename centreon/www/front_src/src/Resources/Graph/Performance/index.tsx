@@ -8,14 +8,12 @@ import {
 
 import { useAtomValue } from 'jotai';
 import {
-  add,
   equals,
   find,
   head,
   isEmpty,
   isNil,
   map,
-  negate,
   not,
   or,
   pipe,
@@ -32,19 +30,15 @@ import { Skeleton, Typography } from '@mui/material';
 
 import {
   getData,
+  ParentSize,
   timeFormat,
   useLocaleDateTimeFormat,
-  useRequest,
-  ParentSize
+  useRequest
 } from '@centreon/ui';
 
 import { CommentParameters } from '../../Actions/api';
 import { selectedResourcesDetailsAtom } from '../../Details/detailsAtoms';
 import { ResourceDetails } from '../../Details/models';
-import {
-  CustomTimePeriod,
-  CustomTimePeriodProperty
-} from '../../Details/tabs/Graph/models';
 import { TimelineEvent } from '../../Details/tabs/Timeline/models';
 import { Resource } from '../../models';
 import { labelNoDataForThisPeriod } from '../../translatedLabels';
@@ -54,12 +48,10 @@ import {
   isListingGraphOpenAtom,
   timeValueAtom
 } from './Graph/mouseTimeValueAtoms';
-import { TimeShiftDirection } from './Graph/TimeShiftZones';
 import Legend from './Legend';
 import LoadingSkeleton from './LoadingSkeleton';
 import {
   AdditionalLines,
-  AdjustTimePeriodProps,
   FilterLines,
   GraphData,
   Line as LineModel,
@@ -69,11 +61,11 @@ import {
 import { getLineData, getMetrics, getTimeSeries } from './timeSeries';
 
 interface Props {
-  adjustTimePeriod?: (props: AdjustTimePeriodProps) => void;
-  customTimePeriod?: CustomTimePeriod;
+  canAdjustTimePeriod?: boolean;
   displayCompleteGraph?: () => void;
   displayEventAnnotations?: boolean;
   displayTitle?: boolean;
+  end: string;
   endpoint?: string;
   filterLines?: ({ lines, resource }: FilterLines) => NewLines;
   getPerformanceGraphRef?: (
@@ -87,7 +79,7 @@ interface Props {
   onAddComment?: (commentParameters: CommentParameters) => void;
   renderAdditionalLines?: (args: AdditionalLines) => ReactNode;
   resource: Resource | ResourceDetails;
-  resourceDetailsUpdated?: boolean;
+  start: string;
   timeline?: Array<TimelineEvent>;
   toggableLegend?: boolean;
   xAxisTickFormat?: string;
@@ -145,8 +137,6 @@ const useStyles = makeStyles<MakeStylesProps>()(
   })
 );
 
-const shiftRatio = 2;
-
 const PerformanceGraph = <T,>({
   endpoint,
   graphHeight,
@@ -155,9 +145,7 @@ const PerformanceGraph = <T,>({
   timeline,
   resource,
   onAddComment,
-  adjustTimePeriod,
-  customTimePeriod,
-  resourceDetailsUpdated = true,
+  canAdjustTimePeriod = false,
   displayEventAnnotations = false,
   displayTitle = true,
   limitLegendRows,
@@ -167,10 +155,12 @@ const PerformanceGraph = <T,>({
   graphActions,
   getPerformanceGraphRef,
   renderAdditionalLines,
+  end,
+  start,
   filterLines
 }: Props): JSX.Element => {
   const { classes } = useStyles({
-    canAdjustTimePeriod: not(isNil(adjustTimePeriod)),
+    canAdjustTimePeriod,
     displayTitle,
     graphHeight
   });
@@ -278,9 +268,8 @@ const PerformanceGraph = <T,>({
     );
   }
 
-  const getLineByMetric = (metric): LineModel => {
-    return find(propEq('metric', metric), lineData) as LineModel;
-  };
+  const getLineByMetric = (metric): LineModel =>
+    find(propEq('metric', metric), lineData) as LineModel;
 
   const toggleMetricLine = (metric): void => {
     const line = getLineByMetric(metric);
@@ -345,39 +334,6 @@ const PerformanceGraph = <T,>({
     );
   };
 
-  const getShiftedDate = ({ property, direction, timePeriod }): Date => {
-    const adjustTimePeriodProps =
-      (timePeriod.end.getTime() - timePeriod.start.getTime()) / shiftRatio;
-
-    return new Date(
-      add(
-        prop(property, timePeriod).getTime(),
-        equals(direction, TimeShiftDirection.backward)
-          ? negate(adjustTimePeriodProps)
-          : adjustTimePeriodProps
-      )
-    );
-  };
-
-  const shiftTime = (direction: TimeShiftDirection): void => {
-    if (isNil(customTimePeriod)) {
-      return;
-    }
-
-    adjustTimePeriod?.({
-      end: getShiftedDate({
-        direction,
-        property: CustomTimePeriodProperty.end,
-        timePeriod: customTimePeriod
-      }),
-      start: getShiftedDate({
-        direction,
-        property: CustomTimePeriodProperty.start,
-        timePeriod: customTimePeriod
-      })
-    });
-  };
-
   const timeTick = propOr<string, TimeValue | null, string>(
     '',
     'timeTick',
@@ -422,21 +378,19 @@ const PerformanceGraph = <T,>({
         <ParentSize>
           {({ width, height }): JSX.Element => (
             <Graph<T>
-              applyZoom={adjustTimePeriod}
               base={base as number}
-              canAdjustTimePeriod={not(isNil(adjustTimePeriod))}
+              canAdjustTimePeriod={canAdjustTimePeriod}
               containsMetrics={containsMetrics}
               displayEventAnnotations={displayEventAnnotations}
               displayTimeValues={displayTimeValues}
+              end={end}
               height={height}
               interactWithGraph={interactWithGraph}
               lines={displayedLines}
-              loading={
-                not(resourceDetailsUpdated) && sendingGetGraphDataRequest
-              }
+              loading={sendingGetGraphDataRequest}
               renderAdditionalLines={renderAdditionalLines}
               resource={resource}
-              shiftTime={shiftTime}
+              start={start}
               timeSeries={timeSeries}
               timeline={timeline}
               width={width}

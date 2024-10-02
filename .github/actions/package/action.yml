@@ -57,7 +57,7 @@ runs:
   steps:
     - name: Restore index file cache
       if: "${{ inputs.frontend_index_file != '' && inputs.frontend_index_cache_key != '' }}"
-      uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
         path: ${{ inputs.frontend_index_file }}
         key: ${{ inputs.frontend_index_cache_key }}
@@ -65,7 +65,7 @@ runs:
 
     - name: Restore static directory cache
       if: "${{ inputs.frontend_static_directory != '' && inputs.frontend_static_cache_key != '' }}"
-      uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
         path: ${{ inputs.frontend_static_directory }}
         key: ${{ inputs.frontend_static_cache_key }}
@@ -73,7 +73,7 @@ runs:
 
     - name: Restore widgets directory cache
       if: "${{ inputs.frontend_widgets_directory != '' && inputs.frontend_widgets_cache_key != '' }}"
-      uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
         path: ${{ inputs.frontend_widgets_directory }}
         key: ${{ inputs.frontend_widgets_cache_key }}
@@ -87,7 +87,7 @@ runs:
 
     - name: Restore vendor directory cache
       if: "${{ inputs.backend_vendor_directory != '' && inputs.backend_vendor_cache_key != '' }}"
-      uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
         path: ${{ inputs.backend_vendor_directory }}
         key: ${{ inputs.backend_vendor_cache_key }}
@@ -95,7 +95,7 @@ runs:
 
     - name: Restore translation directory cache
       if: "${{ inputs.translation_directory != '' && inputs.translation_cache_key != '' }}"
-      uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
         path: ${{ inputs.translation_directory }}
         key: ${{ inputs.translation_cache_key }}
@@ -150,7 +150,9 @@ runs:
               # Add a zero before the new single numeric char
               BUMP_MAJOR_RIGHT_PART="0$BUMP_MAJOR_RIGHT_PART"
           fi
-          sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
+          sed -i "s/^centreon:version=.*$/centreon:version=${{ inputs.major_version }}/" debian/substvars
+          sed -i "s/^centreon:majorVersion=.*$/centreon:majorVersion=${{ inputs.major_version }}/" debian/substvars
+          sed -i "s/^centreon:minorVersion=.*$/centreon:minorVersion=${{ inputs.minor_version }}/" debian/substvars
           sed -i "s/^centreon:versionThreshold=.*$/centreon:versionThreshold=$(echo "$MAJOR_LEFT_PART.$BUMP_MAJOR_RIGHT_PART" | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
 
         fi
@@ -173,7 +175,7 @@ runs:
         retention-days: 1
 
     - name: Cache packaged files
-      uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
         path: ./*.${{ inputs.package_extension }}
         key: ${{ inputs.cache_key }}

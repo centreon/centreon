@@ -22,3 +22,5 @@ export * from './useRefreshInterval';
 export * from './centreonBaseURL';
 export * from './useResizeObserver';
 export * from './useFullscreen';
+export * from '../Graph/LineChart/helpers';
+export * from '../Graph/LineChart/InteractiveComponents/TimeShiftZones/useTimeShiftZones';

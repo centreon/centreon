@@ -16819,7 +16819,7 @@ msgstr "Modo avanzado"
 # msgid "Resource table"
 # msgstr ""
 
-# msgid "Fullscreen (Alt+F)"
+# msgid "Fullscreen (F)"
 # msgstr ""
 
 #  msgid "Invalid page name. Valid page names are: %s"
@@ -16827,3 +16827,9 @@ msgstr "Modo avanzado"
 
 #  msgid "You are not allowed to access the Resources Status page"
 #  msgstr ""
+
+# msgid "You are not allowed to list contact templates"
+# msgstr ""
+
+# msgid "Downloading the performance metrics is not allowed"
+# msgstr ""

@@ -11,7 +11,6 @@ on:
     paths:
       - "centreon-awie/**"
       - "centreon-dsm/**"
-      - "centreon-gorgone/**"
       - "centreon-ha/**"
       - "centreon-open-tickets/**"
       - "centreon/**"
@@ -45,8 +44,9 @@ jobs:
         id: release
         uses: ./.github/actions/release
         with:
-          github_ref_name: ${{ github.head_ref || github.ref_name }}
+          github_ref_name: ${{ github.base_ref }}
           jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}
           jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
           jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
           jira_webhook_url: ${{ secrets.JIRA_RELEASE_WEBHOOK }}

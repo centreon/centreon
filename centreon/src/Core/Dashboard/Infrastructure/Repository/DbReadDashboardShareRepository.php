@@ -465,7 +465,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
 
         $query .= <<<'SQL'
             parent.topology_name = 'Dashboards'
-            AND topology.topology_name IN ('Viewer','Editor','Creator')
+            AND topology.topology_name IN ('Viewer','Administrator','Creator')
             AND acltr.access_right IS NOT NULL
                 AND c.contact_oreon = '1'
             GROUP BY c.contact_id
@@ -538,7 +538,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                     INNER JOIN `:db`.topology parent
                         ON topology.topology_parent = parent.topology_page
                     WHERE parent.topology_name = 'Dashboards'
-                        AND topology.topology_name IN ('Viewer','Editor','Creator')
+                        AND topology.topology_name IN ('Viewer','Administrator','Creator')
                         AND acltr.access_right IS NOT NULL
                         AND c.contact_oreon = '1'
                         AND c.contact_id IN ({$bindTokenAsString})
@@ -598,7 +598,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
 
         $query .= <<<'SQL'
             parent.topology_name = 'Dashboards'
-            AND topology.topology_name IN ('Viewer','Editor','Creator')
+            AND topology.topology_name IN ('Viewer','Administrator','Creator')
             AND acltr.access_right IS NOT NULL
             GROUP BY cg.cg_id
             SQL;
@@ -662,7 +662,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                     INNER JOIN `:db`.topology parent
                         ON topology.topology_parent = parent.topology_page
                     WHERE parent.topology_name = 'Dashboards'
-                        AND topology.topology_name IN ('Viewer','Editor','Creator')
+                        AND topology.topology_name IN ('Viewer','Administrator','Creator')
                         AND acltr.access_right IS NOT NULL
                         AND cg.cg_id IN ({$bindTokenAsString})
                     GROUP BY cg.cg_id
@@ -741,7 +741,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
 
         $query .= <<<SQL
             parent.topology_name = 'Dashboards'
-                AND topology.topology_name IN ('Viewer','Editor','Creator')
+                AND topology.topology_name IN ('Viewer','Administrator','Creator')
                 AND gcr.acl_group_id IN ({$bindTokenAsString})
                 AND acltr.access_right IS NOT NULL
                 AND c.contact_oreon = '1'
@@ -821,7 +821,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
 
         $query .= <<<'SQL'
             parent.topology_name = 'Dashboards'
-                AND topology.topology_name IN ('Viewer','Editor','Creator')
+                AND topology.topology_name IN ('Viewer','Administrator','Creator')
                 AND cgcr.contact_contact_id = :contactId
                 AND acltr.access_right IS NOT NULL
             GROUP BY cg.cg_id

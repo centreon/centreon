@@ -30,6 +30,9 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
+use Core\MonitoringServer\Infrastructure\Repository\MonitoringServerRepositoryTrait;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
  * This class is designed to manage the repository of the monitoring servers
@@ -38,6 +41,8 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
  */
 class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements MonitoringServerRepositoryInterface
 {
+    use MonitoringServerRepositoryTrait, SqlMultipleBindTrait;
+
     /**
      * @var SqlRequestParametersTranslator
      */
@@ -116,6 +121,31 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
     /**
      * @inheritDoc
      */
+    public function findServersWithRequestParametersAndAccessGroups(array $accessGroups): array
+    {
+        $this->sqlRequestTranslator->setConcordanceArray([
+            'id' => 'id',
+            'name' => 'name',
+            'is_localhost' => 'localhost',
+            'address' => 'ns_ip_address',
+            'is_activate' => 'ns_activate'
+        ]);
+
+        // Search
+        $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
+
+        // Sort
+        $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
+
+        // Pagination
+        $paginationRequest = $this->sqlRequestTranslator->translatePaginationToSql();
+
+        return $this->findServers($searchRequest, $sortRequest, $paginationRequest, $accessGroups);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findServersWithoutRequestParameters(): array
     {
         return $this->findServers(null, null, null);
@@ -127,24 +157,69 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
      * @param string|null $searchRequest Search request
      * @param string|null $sortRequest Sort request
      * @param string|null $paginationRequest Pagination request
-     * @return MonitoringServer[]
+     * @param AccessGroup[] $accessGroups
+     *
      * @throws \Exception
+     *
+     * @return MonitoringServer[]
+     *
      */
-    private function findServers(?string $searchRequest, ?string $sortRequest, ?string $paginationRequest): array
-    {
+    private function findServers(
+        ?string $searchRequest,
+        ?string $sortRequest,
+        ?string $paginationRequest,
+        array $accessGroups = []
+    ): array {
+        $aclMonitoringServersRequest = '';
+        $searchRequest ??= '';
+        $sortRequest ??= ' ORDER BY id DESC';
+        $paginationRequest ??= '';
+
+        $bindValues = [];
+
+        if ($accessGroups !== []) {
+            $accessGroupIds = array_map(
+                fn($accessGroup) => $accessGroup->getId(),
+                $accessGroups
+            );
+
+            if ($this->hasRestrictedAccessToMonitoringServers($accessGroupIds)) {
+                [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':acl_group_id_');
+
+                $aclMonitoringServersRequest = <<<SQL
+                    INNER JOIN `:db`.acl_resources_poller_relations arpr
+                        ON arpr.poller_id = id
+                    INNER JOIN `:db`.acl_resources res
+                        ON res.acl_res_id = arpr.acl_res_id
+                    INNER JOIN `:db`.acl_res_group_relations argr
+                        ON argr.acl_res_id = res.acl_res_id
+                    WHERE argr.acl_group_id IN ({$bindQuery})
+                    SQL;
+
+                $searchRequest = str_replace('WHERE', 'AND', $searchRequest);
+            }
+        }
+
         $request = $this->translateDbName(
-            'SELECT SQL_CALC_FOUND_ROWS * FROM `:db`.nagios_server'
+            <<<SQL
+                SELECT SQL_CALC_FOUND_ROWS * FROM `:db`.nagios_server
+                {$aclMonitoringServersRequest}
+                {$searchRequest}
+                {$sortRequest}
+                {$paginationRequest}
+                SQL
         );
 
-        $request .= !is_null($searchRequest) ? $searchRequest : '';
-        $request .= !is_null($sortRequest) ? $sortRequest : ' ORDER BY id DESC';
-        $request .= !is_null($paginationRequest) ? $paginationRequest : '';
         $statement = $this->db->prepare($request);
 
         foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
             $type = key($data);
             $value = $data[$type];
             $statement->bindValue($key, $value, $type);
+        }
+
+        foreach ($bindValues as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
         }
 
         $statement->execute();
@@ -194,6 +269,65 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
             }
             return $server;
         }
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByIdAndAccessGroups(int $monitoringServerId, array $accessGroups): ?MonitoringServer
+    {
+        if ($accessGroups === []) {
+            return null;
+        }
+
+        $accessGroupIds = array_map(
+            fn($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        if (! $this->hasRestrictedAccessToMonitoringServers($accessGroupIds)) {
+            return $this->findServer($monitoringServerId);
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':acl_group_id_');
+
+        $request = $this->translateDbName(
+            <<<SQL
+                SELECT * FROM `:db`.nagios_server
+                INNER JOIN `:db`.acl_resources_poller_relations arpr
+                    ON arpr.poller_id = id
+                INNER JOIN `:db`.acl_resources res
+                    ON res.acl_res_id = arpr.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON argr.acl_res_id = res.acl_res_id
+                WHERE argr.acl_group_id IN ({$bindQuery})
+                    AND id = :server_id
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+
+        $statement->bindValue(':server_id', $monitoringServerId, \PDO::PARAM_INT);
+        foreach ($bindValues as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        if (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            /** @var MonitoringServer $server */
+            $server = EntityCreator::createEntityByArray(
+                MonitoringServer::class,
+                $record
+            );
+            if ((int) $record['last_restart'] === 0) {
+                $server->setLastRestart(null);
+            }
+
+            return $server;
+        }
+
         return null;
     }
 

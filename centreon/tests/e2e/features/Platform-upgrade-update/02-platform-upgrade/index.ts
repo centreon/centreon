@@ -124,12 +124,13 @@ Given(
                 }
 
                 cy.log(
-                  `${version_from_expression} version is ${minor_version_index}`
+                  `${version_from_expression} version is ${stable_minor_versions[minor_version_index]}`
                 );
+                const installed_version = `${major_version_from}.${stable_minor_versions[minor_version_index]}`;
+                Cypress.env('installed_version', installed_version);
+                cy.log('installed_version', installed_version);
 
-                return installCentreon(
-                  `${major_version_from}.${stable_minor_versions[minor_version_index]}`
-                )
+                return installCentreon(installed_version)
                   .then(() => {
                     if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
                       const distrib =
@@ -152,7 +153,7 @@ EOF`,
                         echo "deb https://packages.centreon.com/apt-plugins-stable/ bullseye main" > /etc/apt/sources.list.d/centreon-plugins-stable.list
                         echo "deb https://packages.centreon.com/apt-plugins-testing/ bullseye main" > /etc/apt/sources.list.d/centreon-plugins-testing.list
                         echo "deb https://packages.centreon.com/apt-plugins-unstable/ bullseye main" > /etc/apt/sources.list.d/centreon-plugins-unstable.list
-                        wget -O- https://packages.centreon.com/api/security/keypair/Debian/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
+                        wget -O- https://packages.centreon.com/api/security/keypair/APT-GPG-KEY/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
                         apt-get update
 EOF`,
                       name: Cypress.env('dockerName')

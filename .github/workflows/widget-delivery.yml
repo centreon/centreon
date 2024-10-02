@@ -16,6 +16,12 @@ on:
       environment:
         required: true
         type: string
+      release_type:
+        required: true
+        type: string
+      release_cloud:
+        required: true
+        type: string
     secrets:
       artifactory_token:
         required: true
@@ -63,6 +69,8 @@ jobs:
           artifactory_token: ${{ secrets.artifactory_token }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           stability: ${{ inputs.stability }}
+          release_type: ${{ inputs.release_type }}
+          release_cloud: ${{ inputs.release_cloud }}
 
   delivery-deb:
     if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
@@ -86,3 +94,5 @@ jobs:
           artifactory_token: ${{ secrets.artifactory_token }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ inputs.stability }}
+          release_type: ${{ inputs.release_type }}
+          release_cloud: ${{ inputs.release_cloud }}

@@ -109,7 +109,7 @@ const useLogin = (): UseLoginState => {
       decoder: loginPageCustomisationDecoder,
       getEndpoint: () => loginPageCustomisationEndpoint,
       getQueryKey: () => ['loginPageCustomisation'],
-      httpCodesBypassErrorSnackbar: [404],
+      httpCodesBypassErrorSnackbar: [404, 401],
       queryOptions: {
         enabled: !!path(
           ['modules', 'centreon-it-edition-extensions'],

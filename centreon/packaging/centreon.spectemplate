@@ -530,6 +530,10 @@ fi
 %post common
 %systemd_post centreon.service || :
 
+# MON-60950
+chmod 0770 %{_localstatedir}/cache/centreon/config/engine/*
+chmod 0770 %{_localstatedir}/cache/centreon/config/broker/*
+
 %preun common
 %systemd_preun centreon.service || :
 
@@ -658,6 +662,7 @@ fi
 %attr(0775, centreon, centreon) %{_datadir}/centreon/www
 %attr(0775, centreon, centreon) %{_datadir}/centreon/api
 %{_datadir}/centreon/cron
+%attr(0755, centreon, centreon) %{_datadir}/centreon/cron/outdated-token-removal.php
 %{_datadir}/centreon/lib
 
 %attr(0775, centreon, centreon) %{_datadir}/centreon/www/img/media

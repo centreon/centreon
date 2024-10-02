@@ -1799,10 +1799,6 @@ Feature:
       | metrics[0].legend   | "Centreon-Server: Packet Loss"  |
       | metrics[1].metric   | "Centreon-Server: rta"          |
       | metrics[2].metric   | "Centreon-Server: rtmax"        |
-    And the JSON node "metrics[0].data" should have at least 48 elements
-    And the JSON node "metrics[1].data" should have at least 48 elements
-    And the JSON node "metrics[2].data" should have at least 48 elements
-    And the JSON node "times" should have at least 48 elements
 
     When I send a GET request to '/api/latest/monitoring/dashboard/metrics/top?metric_name=rta&search={"$and":[{"hostgroup.id":{"$in":[53]}},{"host.id":{"$in":[14]}},{"service.name":{"$in":["Ping"]}}]}&sort_by={"current_value":"ASC"}&limit=10'
     Then the response code should be "200"

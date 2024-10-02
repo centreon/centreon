@@ -4,7 +4,7 @@ gorgone:
   gorgonecore:
     privkey: "/var/lib/centreon-gorgone/.keys/rsakey.priv.pem"
     pubkey: "/var/lib/centreon-gorgone/.keys/rsakey.pub.pem"
-    id: 1
+    id: __SERVERID__
   modules:
     - name: httpserver
       package: "gorgone::modules::core::httpserver::hooks"
@@ -33,7 +33,7 @@ gorgone:
         - ^/usr/bin/php -q /usr/share/centreon/cron/centreon-helios\.php >> /var/log/centreon-helios\.log 2>&1\s*$
         - ^centreon
         - ^mkdir
-        - ^/usr/share/centreon/www/modules/centreon-autodiscovery-server/script/run_save_discovered_host --all --job-id=\d+ --export-conf --token=\S+$
+        - ^/usr/share/centreon/www/modules/centreon-autodiscovery-server/script/run_save_discovered_host
         - ^/usr/share/centreon/bin/centreon -u \"centreon-gorgone\" -p \S+ -w -o CentreonWorker -a processQueue$
     - name: cron
       package: "gorgone::modules::core::cron::hooks"

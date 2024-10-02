@@ -2,7 +2,7 @@ import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   button: {
-    height: '100%',
+    maxHeight: theme.spacing(4.5),
     padding: theme.spacing(0, 0.5)
   },
   buttonContent: {
@@ -11,23 +11,22 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex'
   },
   containerDates: {
-    display: 'flex',
-    gap: theme.spacing(0.5),
-    [theme.breakpoints.down('sm')]: {
-      columnGap: theme.spacing(0.5),
-      flexDirection: 'column'
-    }
+    display: 'flex'
+  },
+  containerDatesCondensed: {
+    flexDirection: 'column',
+    gap: theme.spacing(0.5)
   },
   date: {
-    minWidth: theme.spacing(12.5),
+    minWidth: theme.spacing(12),
     textAlign: 'start'
   },
   error: {
     textAlign: 'center'
   },
   label: {
-    minWidth: theme.spacing(3),
-    textAlign: 'start'
+    minWidth: theme.spacing(3.5),
+    textAlign: 'end'
   },
 
   picker: {
@@ -39,12 +38,12 @@ const useStyles = makeStyles()((theme) => ({
   },
   timeContainer: {
     alignItems: 'center',
-    columnGap: theme.spacing(1),
+    columnGap: theme.spacing(0.5),
     display: 'flex',
-    flexDirection: 'row',
-    [theme.breakpoints.down('sm')]: {
-      alignItems: 'flex-start'
-    }
+    flexDirection: 'row'
+  },
+  timeContainerCondensed: {
+    alignItems: 'flex-start'
   }
 }));
 

@@ -283,7 +283,19 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
         $sqlTranslator?->setConcordanceArray([
             'id' => 'd.id',
             'name' => 'd.name',
+            'created_at' => 'd.created_at',
+            'updated_at' => 'd.updated_at',
+            'created_by' => 'c.contact_name',
         ]);
+
+        if (array_key_exists('created_by', $requestParameters?->getSort() ?? [])) {
+            $concatenator->appendJoins(
+                <<<'SQL'
+                    LEFT JOIN contact c
+                    ON d.created_by = c.contact_id
+                    SQL
+            );
+        }
 
         // Update the SQL string builder with the RequestParameters through SqlRequestParametersTranslator
         $sqlTranslator?->translateForConcatenator($concatenator);

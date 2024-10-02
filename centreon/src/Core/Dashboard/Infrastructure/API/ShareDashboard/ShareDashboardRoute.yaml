@@ -1,4 +1,4 @@
-ShareDashboardPlaylist:
+ShareDashboard:
   methods: PUT
   path: /configuration/dashboards/{dashboardId}/shares
   requirements:

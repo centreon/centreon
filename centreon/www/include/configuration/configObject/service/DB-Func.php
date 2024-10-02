@@ -274,32 +274,48 @@ function testServiceExistence($name = null, $hPars = array(), $hgPars = array(),
 
     $escapeName = CentreonDB::escape($centreon->checkIllegalChar($name));
 
-    foreach ($hPars as $host) {
-        $query = "SELECT service_id FROM service, host_service_relation hsr " .
-            "WHERE hsr.host_host_id = '" . $host . "' AND hsr.service_service_id = service_id " .
-            "AND service.service_description = '" . $escapeName . "'";
-        $dbResult = $pearDB->query($query);
-        $service = $dbResult->fetch();
-        #Duplicate entry
-        if ($dbResult->rowCount() >= 1 && $service["service_id"] != $id) {
-            return (false == $returnId) ? false : $service['service_id'];
-        }
-        $dbResult->closeCursor();
-    }
-    $query = "SELECT service_id FROM service, host_service_relation hsr " .
-             "WHERE hsr.hostgroup_hg_id = :hostgroup_hg_id AND hsr.service_service_id = service_id " .
-             "AND service.service_description = :service_description";
-    $statement = $pearDB->prepare($query);
-    foreach ($hgPars as $hostgroup) {
-        $statement->bindValue(':hostgroup_hg_id', (int) $hostgroup, \PDO::PARAM_INT);
-        $statement->bindValue(':service_description', $centreon->checkIllegalChar($name), \PDO::PARAM_STR);
+    $statement = $pearDB->prepare(
+        <<<'SQL'
+                SELECT service.service_id
+                FROM service
+                INNER JOIN host_service_relation hsr
+                    ON hsr.service_service_id = service.service_id
+                WHERE hsr.host_host_id = :host_id
+                    AND service.service_description = :service_description
+                SQL
+    );
+    foreach ($hPars as $hostId) {
+        $statement->bindValue(':host_id', (int) $hostId, \PDO::PARAM_INT);
+        $statement->bindValue(':service_description', $escapeName);
+        $statement->execute();
         $service = $statement->fetch(\PDO::FETCH_ASSOC);
         #Duplicate entry
         if ($statement->rowCount() >= 1 && $service["service_id"] != $id) {
             return (false == $returnId) ? false : $service['service_id'];
         }
-        $statement->closeCursor();
     }
+
+    $statement = $pearDB->prepare(
+        <<<'SQL'
+            SELECT service_id
+            FROM service
+            INNER JOIN host_service_relation hsr
+                ON hsr.service_service_id = service_id
+            WHERE hsr.hostgroup_hg_id = :hostgroup_hg_id
+                AND service.service_description = :service_description
+            SQL
+    );
+    foreach ($hgPars as $hostGroupId) {
+        $statement->bindValue(':hostgroup_hg_id', (int) $hostGroupId, \PDO::PARAM_INT);
+        $statement->bindValue(':service_description', $escapeName);
+        $statement->execute();
+        $service = $statement->fetch(\PDO::FETCH_ASSOC);
+        #Duplicate entry
+        if ($statement->rowCount() >= 1 && $service["service_id"] != $id) {
+            return (false == $returnId) ? false : $service['service_id'];
+        }
+    }
+
     return (false == $returnId) ? true : 0;
 }
 
@@ -827,6 +843,7 @@ function multipleServiceInDB(
                          */
                         $mTpRq1 = "SELECT * FROM `on_demand_macro_service` WHERE `svc_svc_id` ='" . $key . "'";
                         $dbResult3 = $pearDB->query($mTpRq1);
+                        $macroPasswords = [];
                         while ($sv = $dbResult3->fetch()) {
                             $macName = str_replace("\$", "", $sv["svc_macro_name"]);
                             $macVal = $sv['svc_macro_value'];
@@ -1069,6 +1086,9 @@ function insertServiceInDB($ret = array(), $macro_on_demand = null)
     global $centreon;
 
     $tmp_fields = insertService($ret, $macro_on_demand);
+    if (! isset($tmp_fields['service_id'])) {
+        return null;
+    }
     $service_id = $tmp_fields['service_id'];
     updateServiceContactGroup($service_id, $ret);
     updateServiceContact($service_id, $ret);
@@ -1604,7 +1624,7 @@ function updateService_MC($service_id = null, $params = array())
     } else {
         $ret = $form->getSubmitValues();
     }
-
+    $isServiceTemplate = isset($ret['service_register']) && $ret['service_register'] === '0';
     if (isset($ret["sg_name"])) {
         $ret["sg_name"] = $centreon->checkIllegalChar($ret["sg_name"]);
     }
@@ -1739,9 +1759,13 @@ function updateService_MC($service_id = null, $params = array())
         $rq .= "geo_coords = '" . $ret["geo_coords"] . "', ";
     }
 
-    $rq .= (isset($ret["service_activate"]["service_activate"]) && $ret["service_activate"]["service_activate"] != null)
-        ? "service_activate = '" . $ret["service_activate"]["service_activate"] . "', "
-        : "service_activate = '1', ";
+    if (!$isServiceTemplate) {
+        if (isset($ret["service_activate"]["service_activate"]) && $ret["service_activate"]["service_activate"] != null) {
+            $rq .= "service_activate = '" . $ret["service_activate"]["service_activate"] . "', ";
+        }
+    } else {
+        $rq .= "service_activate = '1', ";
+    }
 
     if (strcmp("UPDATE service SET ", $rq)) {
         // Delete last ',' in request
@@ -1954,25 +1978,39 @@ function updateServiceNotifOptionInterval_MC($service_id = null)
     }
 }
 
-function updateServiceNotifOptionTimeperiod($service_id = null, $ret = array())
+/**
+ * @param int $serviceId
+ * @param array $ret
+ *
+ * @throws CentreonDbException
+ */
+function updateServiceNotifOptionTimeperiod(int $serviceId, $ret = array())
 {
-    global $form, $pearDB;
+    global $pearDB;
 
-    if (!$service_id) {
-        return;
+    try {
+        $queryParams = [];
+        $request = <<<'SQL'
+            UPDATE `service` SET `timeperiod_tp_id2` = :timeperiod_tp_id2
+            WHERE `service_id` = :service_id
+            SQL;
+
+        $stmt = $pearDB->prepareQuery($request);
+        $queryParams['service_id'] = $serviceId;
+
+        $queryParams['timeperiod_tp_id2'] = $ret['timeperiod_tp_id2'] ?? null;
+
+        $pearDB->executePreparedQuery($stmt, $queryParams);
+    } catch (CentreonDbException $ex) {
+        CentreonLog::create()->error(
+            CentreonLog::LEVEL_ERROR,
+            'Error while updating service notification timeperiod: ' . $ex->getMessage(),
+            ['service_id' => $serviceId, 'ret' => $ret],
+            $ex
+        );
+
+        throw $ex;
     }
-
-    if (isset($ret["timeperiod_tp_id2"])) {
-        $ret = $ret["timeperiod_tp_id2"];
-    } else {
-        $ret = $form->getSubmitValue("timeperiod_tp_id2");
-    }
-
-    $rq = "UPDATE service SET ";
-    $rq .= "timeperiod_tp_id2 = ";
-    isset($ret) && $ret != null ? $rq .= "'" . $ret . "' " : $rq .= "NULL ";
-    $rq .= "WHERE service_id = '" . $service_id . "'";
-    $dbResult = $pearDB->query($rq);
 }
 
 // For massive change. incremental mode
@@ -2286,9 +2324,9 @@ function updateServiceHost($service_id = null, $ret = array(), $from_MC = false)
     /*
      * Get actual config
      */
-    $rq = "SELECT host_host_id FROM escalation_service_relation " .
-        " WHERE service_service_id = :service_id";
-    $statement = $pearDB->prepare($rq);
+    $statement = $pearDB->prepare(
+        'SELECT host_host_id FROM escalation_service_relation WHERE service_service_id = :service_id'
+    );
     $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
     $statement->execute();
     $cacheEsc = array();
@@ -2299,9 +2337,9 @@ function updateServiceHost($service_id = null, $ret = array(), $from_MC = false)
     /*
      * Get actual config
      */
-    $rq = "SELECT host_host_id FROM host_service_relation " .
-        " WHERE service_service_id = :service_id ";
-    $statement = $pearDB->prepare($rq);
+    $statement = $pearDB->prepare(
+        'SELECT host_host_id FROM host_service_relation WHERE service_service_id = :service_id'
+    );
     $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
     $statement->execute();
     $cache = array();
@@ -2312,10 +2350,13 @@ function updateServiceHost($service_id = null, $ret = array(), $from_MC = false)
     if (count($ret1) == 1) {
         foreach ($cache as $host_id => $flag) {
             if (!isset($cacheEsc[$host_id]) && count($cacheEsc)) {
-                $query = "UPDATE escalation_service_relation
-                          SET host_host_id = :host_host_id
-                          WHERE service_service_id = :service_id";
-                $statement = $pearDB->prepare($query);
+                $statement = $pearDB->prepare(
+                    <<<'SQL'
+                        UPDATE escalation_service_relation
+                        SET host_host_id = :host_host_id
+                        WHERE service_service_id = :service_id
+                        SQL
+                );
                 $statement->bindValue(':host_host_id', (int) $ret1[0], \PDO::PARAM_INT);
                 $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
                 $statement->execute();
@@ -2324,9 +2365,13 @@ function updateServiceHost($service_id = null, $ret = array(), $from_MC = false)
     } else {
         foreach ($cache as $host_id) {
             if (!isset($cache[$host_id]) && count($cacheEsc)) {
-                $query = "DELETE FROM escalation_service_relation
-                    WHERE host_host_id = :host_host_id AND service_service_id = :service_id";
-                $statement = $pearDB->prepare($query);
+                $statement = $pearDB->prepare(
+                    <<<'SQL'
+                    DELETE FROM escalation_service_relation
+                    WHERE host_host_id = :host_host_id
+                      AND service_service_id = :service_id
+                    SQL
+                );
                 $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
                 $statement->bindValue(':host_host_id', (int) $ret1[0], \PDO::PARAM_INT);
                 $statement->execute();
@@ -2335,27 +2380,33 @@ function updateServiceHost($service_id = null, $ret = array(), $from_MC = false)
     }
 
     if (!$from_MC) {
-        $rq = "DELETE FROM host_service_relation "
-            . "WHERE service_service_id = :service_id ";
-        $statement = $pearDB->prepare($rq);
+        $statement = $pearDB->prepare(
+            'DELETE FROM host_service_relation WHERE service_service_id = :service_id'
+        );
         $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
         $statement->execute();
     } else {
         # Purge service to host relations
         if (count($ret1)) {
-            $rq = "DELETE FROM host_service_relation "
-                . "WHERE service_service_id = :service_id "
-                . "AND host_host_id IS NOT NULL ";
-            $statement = $pearDB->prepare($rq);
+            $statement = $pearDB->prepare(
+                <<<'SQL'
+                    DELETE FROM host_service_relation
+                    WHERE service_service_id = :service_id
+                    AND host_host_id IS NOT NULL
+                    SQL
+            );
             $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
             $statement->execute();
         }
         # Purge service to hostgroup relations
         if (count($ret2)) {
-            $rq = "DELETE FROM host_service_relation "
-                . "WHERE service_service_id = :service_id "
-                . "AND hostgroup_hg_id IS NOT NULL ";
-            $statement = $pearDB->prepare($rq);
+            $statement = $pearDB->prepare(
+                <<<'SQL'
+                    DELETE FROM host_service_relation
+                    WHERE service_service_id = :service_id
+                    AND hostgroup_hg_id IS NOT NULL
+                    SQL
+            );
             $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
             $statement->execute();
         }
@@ -2363,20 +2414,30 @@ function updateServiceHost($service_id = null, $ret = array(), $from_MC = false)
 
     if (count($ret2)) {
         for ($i = 0; $i < count($ret2); $i++) {
-            $rq = "INSERT INTO host_service_relation ";
-            $rq .= "(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ";
-            $rq .= "VALUES ";
-            $rq .= "('" . $ret2[$i] . "', NULL, NULL, '" . $service_id . "')";
-            $dbResult = $pearDB->query($rq);
+            $statement = $pearDB->prepare(
+                <<<'SQL'
+                    INSERT INTO host_service_relation
+                        (hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id)
+                    VALUES (:host_group_id, NULL, NULL, :service_id)
+                    SQL
+            );
+            $statement->bindValue(':host_group_id', (int) $ret2[$i], \PDO::PARAM_INT);
+            $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
+            $statement->execute();
             setHostChangeFlag($pearDB, null, $ret2[$i]);
         }
     } elseif (count($ret1)) {
         for ($i = 0; $i < count($ret1); $i++) {
-            $rq = "INSERT INTO host_service_relation ";
-            $rq .= "(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ";
-            $rq .= "VALUES ";
-            $rq .= "(NULL, '" . $ret1[$i] . "', NULL, '" . $service_id . "')";
-            $dbResult = $pearDB->query($rq);
+            $statement = $pearDB->prepare(
+                <<<'SQL'
+                    INSERT INTO host_service_relation
+                        (hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id)
+                    VALUES (NULL, :host_id, NULL, :service_id)
+                    SQL
+            );
+            $statement->bindValue(':host_id', (int) $ret1[$i], \PDO::PARAM_INT);
+            $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
+            $statement->execute();
             setHostChangeFlag($pearDB, $ret1[$i], null);
         }
     }
@@ -2391,12 +2452,16 @@ function updateServiceHost_MC($service_id = null)
         return;
     }
 
-    $rq = "SELECT * FROM host_service_relation ";
-    $rq .= "WHERE service_service_id = '" . $service_id . "'";
-    $dbResult = $pearDB->query($rq);
-    $hsvs = array();
-    $hgsvs = array();
-    while ($arr = $dbResult->fetch()) {
+    $statement = $pearDB->prepare(
+        <<<'SQL'
+            SELECT * FROM host_service_relation WHERE service_service_id = :service_id
+        SQL
+    );
+    $statement->bindValue(':service_id', $service_id, \PDO::PARAM_INT);
+    $statement->execute();
+    $hsvs = [];
+    $hgsvs = [];
+    while ($arr = $statement->fetch()) {
         if ($arr["host_host_id"]) {
             $hsvs[$arr["host_host_id"]] = $arr["host_host_id"];
         }
@@ -2404,35 +2469,60 @@ function updateServiceHost_MC($service_id = null)
             $hgsvs[$arr["hostgroup_hg_id"]] = $arr["hostgroup_hg_id"];
         }
     }
-    $ret1 = array();
-    $ret2 = array();
+
     $ret1 = $form->getSubmitValue("service_hPars");
     $ret2 = $form->getSubmitValue("service_hgPars");
     if (is_array($ret2)) {
         for ($i = 0; $i < count($ret2); $i++) {
             if (!isset($hgsvs[$ret2[$i]])) {
-                $rq = "DELETE FROM host_service_relation ";
-                $rq .= "WHERE service_service_id = '" . $service_id . "' AND host_host_id IS NOT NULL";
-                $dbResult = $pearDB->query($rq);
-                $rq = "INSERT INTO host_service_relation ";
-                $rq .= "(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ";
-                $rq .= "VALUES ";
-                $rq .= "('" . $ret2[$i] . "', NULL, NULL, '" . $service_id . "')";
-                $dbResult = $pearDB->query($rq);
+                $statement = $pearDB->prepare(
+                    <<<'SQL'
+                        DELETE FROM host_service_relation
+                        WHERE service_service_id = :service_id
+                        AND host_host_id IS NOT NULL
+                        SQL
+                );
+                $statement->bindValue(':service_id',(int) $service_id, \PDO::PARAM_INT);
+                $statement->execute();
+
+                $statement = $pearDB->prepare(
+                    <<<'SQL'
+                        INSERT INTO host_service_relation
+                        (hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id)
+                        VALUES (:host_group_id, NULL, NULL, :service_id)
+                        SQL
+                );
+                $statement->bindValue(':host_group_id', (int) $ret2[$i], \PDO::PARAM_INT);
+                $statement->bindValue(':service_id', $service_id, \PDO::PARAM_INT);
+                $statement->execute();
+
                 setHostChangeFlag($pearDB, null, $ret2[$i]);
             }
         }
     } elseif (is_array($ret1)) {
         for ($i = 0; $i < count($ret1); $i++) {
             if (!isset($hsvs[$ret1[$i]])) {
-                $rq = "DELETE FROM host_service_relation ";
-                $rq .= "WHERE service_service_id = '" . $service_id . "' AND hostgroup_hg_id IS NOT NULL";
-                $pearDB->query($rq);
-                $rq = "INSERT INTO host_service_relation ";
-                $rq .= "(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ";
-                $rq .= "VALUES ";
-                $rq .= "(NULL, '" . $ret1[$i] . "', NULL, '" . $service_id . "')";
-                $pearDB->query($rq);
+                $statement = $pearDB->prepare(
+                    <<<'SQL'
+                        DELETE FROM host_service_relation
+                        WHERE service_service_id = :service_id
+                        AND hostgroup_hg_id IS NOT NULL
+                        SQL
+                );
+                $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
+                $statement->execute();
+
+                $statement = $pearDB->prepare(
+                    <<<'SQL'
+                        INSERT INTO host_service_relation
+                        (hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id)
+                        VALUES (NULL, :host_id, NULL, :service_id)
+                    SQL
+                );
+                $statement->bindValue(':host_id', (int) $ret1[$i], \PDO::PARAM_INT);
+                $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
+                $statement->execute();
+
                 setHostChangeFlag($pearDB, $ret1[$i], null);
             }
         }

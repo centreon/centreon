@@ -161,6 +161,10 @@ services:
     # Real time monitoring
     sqlRequestTranslator:
         class: Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator
+        shared: false
+
+    Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator:
+        alias: sqlRequestTranslator
 
     Centreon\Domain\Monitoring\Interfaces\MonitoringServiceInterface:
         class: Centreon\Domain\Monitoring\MonitoringService

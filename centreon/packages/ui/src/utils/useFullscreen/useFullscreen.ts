@@ -53,7 +53,7 @@ export const useFullscreen = (): UseFullscreenState => {
   };
 
   const toggleFullscreen = (element: HTMLElement | null): void => {
-    if (isFullscreenActivated) {
+    if (isFullscreenActivated || document.fullscreenElement) {
       exitFullscreen();
 
       return;

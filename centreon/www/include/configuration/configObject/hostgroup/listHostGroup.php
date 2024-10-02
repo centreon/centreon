@@ -65,7 +65,7 @@ if (isset($_POST['searchHg']) || isset($_GET['searchHg'])) {
 }
 
 if ($search) {
-    $mainQueryParameters[':search_string'] = "%{$search}%";
+    $mainQueryParameters[':search_string'] = [\PDO::PARAM_STR => "%{$search}%"];
     $searchFilterQuery = " (hg_name LIKE :search_string OR hg_alias LIKE :search_string) AND ";
 }
 
@@ -87,14 +87,45 @@ $tpl->assign("headerMenu_hostAct", _("Enabled Hosts"));
 $tpl->assign("headerMenu_hostDeact", _("Disabled Hosts"));
 $tpl->assign("headerMenu_options", _("Options"));
 
-// Hostgroup list
-$rq = "SELECT SQL_CALC_FOUND_ROWS hg_id, hg_name, hg_alias, hg_activate, hg_icon_image " .
-    "FROM hostgroup " .
-    "WHERE {$searchFilterQuery} hg_id NOT IN (SELECT hg_child_id FROM hostgroup_hg_relation) " .
-    $acl->queryBuilder('AND', 'hg_id', $hgString) .
-    " ORDER BY hg_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit;
-$dbResult = $pearDB->prepare($rq);
-$dbResult->execute($mainQueryParameters);
+$hostGroupSubRequest = '';
+if (! $centreon->user->admin) {
+    $preparedValueNames = [];
+    foreach ($hostGroupIds as $index => $hostGroupId) {
+        $preparedValueName = ':host_group_id' . $index;
+        $preparedValueNames[] = $preparedValueName;
+        $mainQueryParameters[$preparedValueName] = [\PDO::PARAM_INT => $hostGroupId];
+    }
+
+    $hostGroupSubRequest = sprintf(
+        'AND hg_id IN (%s)',
+        $preparedValueNames !== []
+            ? implode(',', $preparedValueNames)
+            : "''"
+    );
+}
+
+$request = <<<SQL
+    SELECT SQL_CALC_FOUND_ROWS
+        hg_id, hg_name, hg_alias, hg_activate, hg_icon_image
+    FROM hostgroup
+    WHERE $searchFilterQuery
+        hg_id NOT IN (SELECT hg_child_id FROM hostgroup_hg_relation)
+        $hostGroupSubRequest
+    ORDER BY hg_name
+    LIMIT :offset, :limit
+    SQL;
+
+$dbResult = $pearDB->prepare($request);
+
+$mainQueryParameters[':offset'] = [\PDO::PARAM_INT => (int) ($num * $limit)];
+$mainQueryParameters[':limit'] = [\PDO::PARAM_INT => (int) $limit];
+
+foreach ($mainQueryParameters as $parameterName => $data) {
+    $type = key($data);
+    $value = $data[$type];
+    $dbResult->bindValue($parameterName, $value, $type);
+}
+$dbResult->execute();
 
 // Pagination
 $rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
@@ -185,7 +216,7 @@ for ($i = 0; $hg = $dbResult->fetch(); $i++) {
         "RowMenu_link" => "main.php?p=" . $p . "&o=c&hg_id=" . $hg['hg_id'],
         "RowMenu_desc" => ($hg["hg_alias"] == ''
             ? '-'
-            : CentreonUtils::escapeSecure(html_entity_decode($hg["hg_alias"]))),
+            : CentreonUtils::escapeSecure(html_entity_decode($hg["hg_alias"]), CentreonUtils::ESCAPE_ALL)),
         "RowMenu_status" => $hg["hg_activate"] ? _("Enabled") : _("Disabled"),
         "RowMenu_badge" => $hg["hg_activate"] ? "service_ok" : "service_critical",
         "RowMenu_hostAct" => $nbrhostAct,

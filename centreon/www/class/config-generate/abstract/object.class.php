@@ -172,7 +172,9 @@ abstract class AbstractObject
             throw new Exception("Cannot open file (writing permission) '" . $filePath . "'");
         }
 
-        chmod($filePath, 0660);
+        if (posix_getuid() === fileowner($filePath)) {
+            chmod($filePath, 0660);
+        }
 
         if (! $alreadyExists) {
             $this->setHeader();

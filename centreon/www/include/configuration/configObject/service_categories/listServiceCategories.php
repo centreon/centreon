@@ -56,7 +56,7 @@ if (isset($_POST['searchSC']) || isset($_GET['searchSC'])) {
     $search = $centreon->historySearch[$url]["search"] ?? null;
 }
 
-$searchTool = '';
+$searchTool = null;
 if ($search) {
     $searchTool .= "WHERE (sc_name LIKE '%" . $search . "%' " .
     "OR sc_description LIKE '%" . $search . "%') ";

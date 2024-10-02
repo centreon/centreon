@@ -383,7 +383,7 @@ class CentreonConfigPoller
         $apacheUser = $this->getApacheUser();
 
         $setFilesOwner = 1;
-        if ($apacheUser != "") {
+        if (posix_getuid() === 0 && $apacheUser != "") {
             /* Change engine Path mod */
             chown($this->engineCachePath . "/$poller_id", $apacheUser);
             chgrp($this->engineCachePath . "/$poller_id", $apacheUser);
@@ -480,16 +480,20 @@ class CentreonConfigPoller
                     if (strpos($file, '..') !== false) {
                         throw new \Exception('Path traversal found');
                     }
-                    @chown($file, $apacheUser);
-                    @chgrp($file, $apacheUser);
+                    if (posix_getuid() === 0) {
+                        @chown($file, $apacheUser);
+                        @chgrp($file, $apacheUser);
+                    }
                 }
                 foreach (glob($Nagioscfg["cfg_dir"] . "/*.DEBUG") as $file) {
                     //handle path traversal vulnerability
                     if (strpos($file, '..') !== false) {
                         throw new \Exception('Path traversal found');
                     }
-                    @chown($file, $apacheUser);
-                    @chgrp($file, $apacheUser);
+                    if (posix_getuid() === 0) {
+                        @chown($file, $apacheUser);
+                        @chgrp($file, $apacheUser);
+                    }
                 }
             } else {
                 print "Please check that files in the followings directory are writable by apache user : "

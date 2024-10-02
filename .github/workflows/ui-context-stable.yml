@@ -12,7 +12,7 @@ on:
 env:
   directory: "centreon/packages/ui-context"
   package: "ui-context"
-  base_branch: develop
+  base_branch: dev-23.10.x
 
 jobs:
   publish-new-npm-version:

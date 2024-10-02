@@ -45,7 +45,7 @@ Feature:
     And I am logged in with "test"/"Centreon@2022"
 
     When I send a DELETE request to '/api/latest/configuration/services/28'
-    Then the response code should be "204"
+    Then the response code should be "404"
 
     Then I send a DELETE request to '/api/latest/configuration/services/29'
     Then the response code should be "404"

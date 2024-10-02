@@ -22,6 +22,8 @@ const ChildComponent = (): JSX.Element => {
       <Button onClick={() => toggleFullscreen(document.body)}>
         {isFullscreenActivated ? labelExitFullscreen : labelEnterFullscreen}
       </Button>
+      <input id="input" />
+      <textarea id="textarea" />
     </div>
   );
 };
@@ -94,16 +96,37 @@ describe('Fullscreen', () => {
       .should('have.attr', 'data-fullscreenActivated', 'false')
       .should('have.attr', 'data-fullscreenEnabled', 'true');
 
-    cy.get('#test').realPress(['Alt', 'F']);
+    cy.get('#test').realPress(['F']);
 
     cy.get('#test')
       .should('have.attr', 'data-fullscreenActivated', 'true')
       .should('have.attr', 'data-fullscreenEnabled', 'true');
 
-    cy.get('#test').realPress(['Alt', 'F']);
+    cy.get('#test').realPress(['F']);
 
     cy.get('#test')
       .should('have.attr', 'data-fullscreenActivated', 'false')
       .should('have.attr', 'data-fullscreenEnabled', 'true');
+  });
+
+  ['input', 'textarea'].forEach((tag) => {
+    it(`cannot toggle fullscreen feature using the shortcut when ${
+      tag === 'input' ? 'an' : 'a'
+    } ${tag} is focused`, () => {
+      initialize();
+
+      cy.get('#test')
+        .should('have.attr', 'data-fullscreenActivated', 'false')
+        .should('have.attr', 'data-fullscreenEnabled', 'true');
+
+      cy.get(`#${tag}`).focus();
+
+      cy.get('#test').realPress(['F']);
+
+      cy.get('#test')
+        .should('have.attr', 'data-fullscreenActivated', 'false')
+        .should('have.attr', 'data-fullscreenEnabled', 'true');
+      cy.get(`#${tag}`).should('have.value', 'F');
+    });
   });
 });

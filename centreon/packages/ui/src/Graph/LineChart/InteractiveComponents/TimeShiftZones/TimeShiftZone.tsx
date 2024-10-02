@@ -9,7 +9,7 @@ import { alpha, useTheme } from '@mui/material';
 import { GraphInterval, Interval } from '../../models';
 
 import { TimeShiftDirection } from './models';
-import useTimeShiftZones from './useTimeShiftZones';
+import { useTimeShiftZones } from './useTimeShiftZones';
 
 export const timeShiftZoneWidth = 50;
 

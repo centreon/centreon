@@ -160,6 +160,9 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
           padding: 0;
           width: 100%;
         }
+        #root {
+          background-color: ${theme.palette.background.paper};
+        }
         @font-face {
           font-family: 'Roboto';
           font-style: normal;

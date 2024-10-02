@@ -32,6 +32,7 @@ use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\Domain\Common\GeoCoords;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -41,6 +42,7 @@ use Core\Service\Domain\Model\Service;
 use Core\Service\Domain\Model\ServiceInheritance;
 use Core\Service\Domain\Model\ServiceLight;
 use Core\Service\Domain\Model\ServiceNamesByHost;
+use Core\ServiceCategory\Infrastructure\Repository\ServiceCategoryRepositoryTrait;
 use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 use Utility\SqlConcatenator;
 
@@ -96,6 +98,8 @@ use Utility\SqlConcatenator;
 class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServiceRepositoryInterface
 {
     use LoggerTrait;
+    use ServiceCategoryRepositoryTrait;
+    use SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -110,9 +114,18 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
      */
     public function exists(int $serviceId): bool
     {
-        $concatenator = $this->getServiceRequestConcatenator();
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.`service` s
+                WHERE s.`service_id` = :service_id
+                AND s.`service_register` = '1'
+                SQL
+        ));
+        $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
+        $statement->execute();
 
-        return $this->existsService($concatenator, $serviceId);
+        return (bool) $statement->fetchColumn();
     }
 
     /**
@@ -131,9 +144,40 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
             $accessGroups
         );
 
-        $concatenator = $this->getServiceRequestConcatenator($accessGroupIds);
+        $bindValuesArray = [];
+        foreach ($accessGroupIds as $index => $id) {
+            $bindValuesArray[':access_group_id_' . $index] = $id;
+        }
+        $bindParamsAsString = implode(',', array_keys($bindValuesArray));
 
-        return $this->existsService($concatenator, $serviceId);
+        $subRequest = $this->generateServiceCategoryAclSubRequest($accessGroupIds);
+        $categoryAcls = empty($subRequest)
+            ? ''
+            : <<<SQL
+                AND scr.sc_id IN ({$subRequest})
+                SQL;
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT 1
+                FROM `:db`.`service` s
+                INNER JOIN `:db`.`service_categories_relation` scr
+                    ON scr.`service_service_id` = s.`service_id`
+                    {$categoryAcls}
+                JOIN `:dbstg`.`centreon_acl` acl
+                WHERE acl.`group_id` IN ({$bindParamsAsString})
+                AND s.`service_id` = :service_id
+                AND s.`service_register` = '1'
+                SQL
+        ));
+        $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
+        foreach ($bindValuesArray as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
     }
 
     /**
@@ -715,6 +759,48 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         $statement->execute();
 
         return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * Determine if access groups give access to all host groups
+     * true: all host groups are accessible
+     * false: all host groups are NOT accessible.
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasAccessToAllHostGroups(array $accessGroupIds): bool
+    {
+        $concatenator = new SqlConcatenator();
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT res.all_hostgroups
+                    FROM `:db`.acl_resources res
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                SQL
+        );
+
+        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
+            if (true === (bool) $hasAccessToAll) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

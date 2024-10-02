@@ -43,13 +43,9 @@ import {
   labelActionNotPermitted,
   labelAddComment
 } from '../../../translatedLabels';
+import { updatedGraphIntervalAtom } from '../ExportableGraphWithTimeline/atoms';
 import Lines from '../Lines';
-import {
-  AdditionalLines,
-  AdjustTimePeriodProps,
-  Line as LineModel,
-  TimeValue
-} from '../models';
+import { AdditionalLines, Line as LineModel, TimeValue } from '../models';
 import {
   getDates,
   getLeftScale,
@@ -74,10 +70,7 @@ import {
   MousePosition,
   mousePositionAtom
 } from './mouseTimeValueAtoms';
-import TimeShiftZones, {
-  TimeShiftContext,
-  TimeShiftDirection
-} from './TimeShiftZones';
+import TimeShiftZones, { TimeShiftContext } from './TimeShiftZones';
 
 interface BarProps {
   className?: string;
@@ -194,12 +187,12 @@ interface GraphContentProps {
   addCommentTooltipLeft?: number;
   addCommentTooltipOpen: boolean;
   addCommentTooltipTop?: number;
-  applyZoom?: (props: AdjustTimePeriodProps) => void;
   base: number;
   canAdjustTimePeriod: boolean;
   containsMetrics: boolean;
   displayEventAnnotations: boolean;
   displayTimeValues: boolean;
+  end: string;
   format: (parameters) => string;
   height: number;
   hideAddCommentTooltip: () => void;
@@ -210,8 +203,8 @@ interface GraphContentProps {
   onAddComment?: (commentParameters: CommentParameters) => void;
   renderAdditionalLines?: (args: AdditionalLines) => ReactNode;
   resource: Resource | ResourceDetails;
-  shiftTime?: (direction: TimeShiftDirection) => void;
   showAddCommentTooltip: (args) => void;
+  start: string;
   timeSeries: Array<TimeValue>;
   timeline?: Array<TimelineEvent>;
   width: number;
@@ -236,8 +229,6 @@ const GraphContent = ({
   hideAddCommentTooltip,
   showAddCommentTooltip,
   format,
-  applyZoom,
-  shiftTime,
   loading,
   canAdjustTimePeriod,
   displayEventAnnotations,
@@ -245,7 +236,9 @@ const GraphContent = ({
   isInViewport,
   interactWithGraph,
   displayTimeValues,
-  renderAdditionalLines
+  renderAdditionalLines,
+  end,
+  start
 }: GraphContentProps): JSX.Element => {
   const { classes } = useStyles({ onAddComment });
   const { t } = useTranslation();
@@ -270,6 +263,8 @@ const GraphContent = ({
   const changeAnnotationHovered = useSetAtom(
     changeAnnotationHoveredDerivedAtom
   );
+
+  const updatedGraphInterval = useSetAtom(updatedGraphIntervalAtom);
 
   const graphWidth = width > 0 ? width - margin.left - margin.right : 0;
   const graphHeight = height > 0 ? height - margin.top - margin.bottom : 0;
@@ -402,7 +397,7 @@ const GraphContent = ({
     }
 
     if (zoomBoundaries?.start !== zoomBoundaries?.end) {
-      applyZoom?.({
+      updatedGraphInterval?.({
         end: xScale.invert(zoomBoundaries?.end || graphWidth),
         start: xScale.invert(zoomBoundaries?.start || 0)
       });
@@ -594,12 +589,13 @@ const GraphContent = ({
             value={useMemo(
               () => ({
                 canAdjustTimePeriod,
+                end,
                 graphHeight,
                 graphWidth,
                 loading,
                 marginLeft: margin.left,
                 marginTop: margin.top,
-                shiftTime
+                start
               }),
               [
                 canAdjustTimePeriod,
@@ -607,7 +603,8 @@ const GraphContent = ({
                 graphWidth,
                 loading,
                 margin,
-                shiftTime
+                end,
+                start
               ]
             )}
           >

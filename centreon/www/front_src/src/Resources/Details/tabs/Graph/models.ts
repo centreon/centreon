@@ -78,3 +78,9 @@ const getTimePeriodById = (id: TimePeriodId): TimePeriod =>
   find<TimePeriod>(propEq('id', id))(timePeriods) as TimePeriod;
 
 export { timePeriods, getTimePeriodById, lastDayPeriod, last7Days, last31Days };
+
+export interface GraphTimeParameters {
+  end: string;
+  start: string;
+  timelineEventsLimit: number;
+}

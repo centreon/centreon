@@ -44,9 +44,9 @@ import {
 import {
   AutocompleteSuggestionProps,
   CriteriaId,
+  CriteriaValueSuggestionsProps,
   criteriaNameSortOrder,
   criteriaNameToQueryLanguageName,
-  CriteriaValueSuggestionsProps,
   dynamicCriteriaValuesByName,
   getSelectableCriteriasByName,
   searchableFields,
@@ -75,6 +75,14 @@ const isCriteriaPart = pipe(
   isIn(selectableCriteriaNames)
 );
 const isFilledCriteria = pipe(endsWith(':'), not);
+
+const replaceEscapeWithSpace = (text: string): string => {
+  return text.replace(/\\s/g, ' ');
+};
+
+export const replaceMiddleSpace = (text: string): string => {
+  return text.replace(/\b\s+\b/g, '\\s');
+};
 
 interface ParametersParse {
   criteriaName?: Record<string, string>;
@@ -119,8 +127,9 @@ const parse = ({
         }
 
         return {
+          formattedName: value,
           id: 0,
-          name: value
+          name: replaceEscapeWithSpace(value)
         };
       })
     };
@@ -182,7 +191,7 @@ const build = (criterias: Array<Criteria>): string => {
         ? values.map(
             pipe(({ id }) => id as string, getCriteriaQueryLanguageName)
           )
-        : values.map(({ name: valueName }) => `${valueName}`);
+        : values.map(({ name: valueName }) => replaceMiddleSpace(valueName));
 
       const criteriaName = compose(
         getCriteriaQueryLanguageName,
@@ -364,7 +373,7 @@ const getAutocompleteSuggestions = ({
 
 export {
   build,
-  DynamicCriteriaParametersAndValues,
+  type DynamicCriteriaParametersAndValues,
   getAutocompleteSuggestions,
   getDynamicCriteriaParametersAndValue,
   parse,

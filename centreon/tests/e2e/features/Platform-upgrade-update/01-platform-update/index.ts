@@ -114,6 +114,13 @@ Given(
             switch (version_from_expression) {
               case 'last stable':
                 minor_version_index = stable_minor_versions.length - 1;
+                if (
+                  stable_minor_versions[minor_version_index] ===
+                  Cypress.env('lastStableMinorVersion')
+                ) {
+                  cy.log(`Not needed to test ${version_from_expression} version.`);
+                  return cy.wrap('skipped');
+                }
                 break;
               case 'penultimate stable':
                 minor_version_index = stable_minor_versions.length - 2;
@@ -124,7 +131,11 @@ Given(
               default:
                 throw new Error(`${version_from_expression} not managed.`);
             }
-            if (minor_version_index <= 0) {
+            if (
+              minor_version_index <= 0 ||
+              stable_minor_versions[minor_version_index] ===
+                Cypress.env('lastStableMinorVersion')
+            ) {
               cy.log(`Not needed to test ${version_from_expression} version.`);
 
               return cy.wrap('skipped');
@@ -132,15 +143,17 @@ Given(
           }
 
           cy.log(
-            `${version_from_expression} version is ${minor_version_index}`
+            `${version_from_expression} version is ${stable_minor_versions[minor_version_index]}`
           );
 
-          return installCentreon(
-            `${major_version}.${stable_minor_versions[minor_version_index]}`
-          ).then(() => {
-            return checkPlatformVersion(
-              `${major_version}.${stable_minor_versions[minor_version_index]}`
-            ).then(() => cy.visit('/'));
+          const installed_version = `${major_version}.${stable_minor_versions[minor_version_index]}`;
+          Cypress.env('installed_version', installed_version);
+          cy.log('installed_version', installed_version);
+
+          return installCentreon(installed_version).then(() => {
+            return checkPlatformVersion(installed_version).then(() =>
+              cy.visit('/')
+            );
           });
         }
       );

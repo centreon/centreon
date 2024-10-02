@@ -14,7 +14,7 @@ jobs:
 
   synchronize-jira-xray:
     needs: [get-version]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout Code
@@ -22,7 +22,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
           version: 7
           run_install: false
@@ -47,8 +47,8 @@ jobs:
         id: find_changed_files
         run: |
           mapfile -t CHANGED_FILES <<< "$(git show --name-only $LATEST_COMMIT | grep '\.feature$')"
-          echo "CHANGED_FILES=${CHANGED_FILES[@]}" >> $GITHUB_ENV
-          echo "Changed .feature files: ${CHANGED_FILES[@]}"
+          echo "CHANGED_FILES=${CHANGED_FILES[*]}" >> $GITHUB_ENV
+          echo "Changed .feature files: ${CHANGED_FILES[*]}"
 
       - name: Run Script on Changed Feature Files
         if: env.CHANGED_FILES != ''
