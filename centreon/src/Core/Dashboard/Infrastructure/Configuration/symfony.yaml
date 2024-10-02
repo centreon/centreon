@@ -16,8 +16,3 @@ services:
     Core\Dashboard\Application\UseCase\DeleteDashboard\DeleteDashboard:
         arguments:
             $mediaRepository: '@Core\Media\Infrastructure\Repository\FileProxyWriteMediaRepository'
-
-    # Core\Dashboard\Infrastructure\Event\DashboardUpdatedSubscriber:
-    #     arguments:
-    #        $thumbnailCreator: '@Core\Dashboard\Application\UseCase\AddDashboardThumbnail'
-    #        $thumbnailCreatorPresenter: '@Core\Dashboard\Application\UseCase\AddDashboardThumbnailPresenterInterface'
