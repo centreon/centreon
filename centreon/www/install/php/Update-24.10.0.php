@@ -136,9 +136,42 @@ $updateNagiosMacros = function (CentreonDB $pearDB) use (&$errorMessage): void {
             SQL
     );
 
-// Agent configurations
-$insertAgentConfigurations = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to retrieve from topology table';
+// Agent Configuration
+$createAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to create agent_configuration table';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `agent_configuration` (
+                `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                `type` enum('telegraf') NOT NULL,
+                `name` varchar(255) NOT NULL,
+                `configuration` JSON NOT NULL,
+                PRIMARY KEY (`id`),
+                UNIQUE KEY `name_unique` (`name`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            SQL
+    );
+
+    $errorMessage = 'Unable to create ac_poller_relation table';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `ac_poller_relation` (
+                `ac_id` INT UNSIGNED NOT NULL,
+                `poller_id` INT(11) NOT NULL,
+                UNIQUE KEY `rel_unique` (`ac_id`, `poller_id`),
+                CONSTRAINT `ac_id_contraint`
+                    FOREIGN KEY (`ac_id`)
+                    REFERENCES `agent_configuration` (`id`) ON DELETE CASCADE,
+                CONSTRAINT `ac_poller_id_contraint`
+                    FOREIGN KEY (`poller_id`)
+                    REFERENCES `nagios_server` (`id`) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            SQL
+    );
+};
+
+$insertAgentConfigurationTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to retrieve data from topology table';
     $statement = $pearDB->executeQuery(
         <<<'SQL'
             SELECT 1 FROM `topology` WHERE `topology_name` = 'Agent configurations'
@@ -158,6 +191,7 @@ $insertAgentConfigurations = function (CentreonDB $pearDB) use (&$errorMessage):
 
 try {
     $addDisableServiceCheckColumn($pearDB);
+    $createAgentConfiguration($pearDB);
 
     // Transactional queries
     if (! $pearDB->inTransaction()) {
@@ -168,7 +202,7 @@ try {
     $insertWebPageWidget($pearDB);
     $fixNamingAndActivateAccTopology($pearDB);
     $updateNagiosMacros($pearDB);
-    $insertAgentConfigurations($pearDB);
+    $insertAgentConfigurationTopology($pearDB);
 
     $pearDB->commit();
 } catch (Exception $e) {
