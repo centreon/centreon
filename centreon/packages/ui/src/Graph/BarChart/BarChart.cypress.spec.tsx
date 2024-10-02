@@ -4,6 +4,7 @@ import { useAtomValue } from 'jotai';
 
 import { userAtom } from '@centreon/ui-context';
 
+import dataLastWeek from '../mockedData/lastWeek.json';
 import dataPingService from '../mockedData/pingService.json';
 import dataPingServiceMixedStacked from '../mockedData/pingServiceMixedStacked.json';
 import dataPingServiceStacked from '../mockedData/pingServiceStacked.json';
@@ -29,10 +30,10 @@ const initialize = ({
   tooltip,
   axis,
   orientation,
-  barStyle
+  barStyle,
 }: Pick<
   BarChartProps,
-  'data' | 'legend' | 'axis' | 'barStyle' | 'orientation' | 'tooltip'
+  'data' | 'legend' | 'axis' | 'barStyle' | 'orientation' | 'tooltip' | 'start'
 >): void => {
   cy.adjustViewport();
 
@@ -280,4 +281,16 @@ describe('Bar chart', () => {
 
     cy.makeSnapshot();
   });
+
+  it('displays the bottom axis correctly when data starts from several days ago', () => {
+    initialize({
+      data: dataLastWeek,
+      orientation: 'horizontal'
+    });
+
+    cy.contains('05/31/2023').should('be.visible');
+    cy.contains('06/07/2023').should('be.visible');
+
+    cy.makeSnapshot();
+  })
 });
