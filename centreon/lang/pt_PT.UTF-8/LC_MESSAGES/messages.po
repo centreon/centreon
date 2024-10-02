@@ -18156,3 +18156,15 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Clock / Timer"
 # msgstr ""
+
+# msgid "Select a business activity to display the preview."
+# msgstr ""
+
+# msgid "Displays the distribution of current statuses on a BA, as a chronological timeline for a given time period."
+# msgstr ""
+
+# msgid "Business Activity Status Timeline"
+# msgstr ""
+
+# msgid "Reporting period"
+# msgstr ""

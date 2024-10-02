@@ -19468,8 +19468,17 @@ msgstr "Affiche l'heure en fonction du fuseau horaire sélectionné, ou un minut
 msgid "Clock / Timer"
 msgstr "Horloge/Minuteur"
 
-# msgid "Displays the time according to the selected time zone, or a timer."
-# msgstr ""
+msgid "Time periode"
+msgstr "Période de temps"
 
-# msgid "Clock / Timer"
-# msgstr ""
+msgid "Select a business activity to display the preview."
+msgstr "Sélectionnez une activité métier pour afficher l'aperçu."
+
+msgid "Displays the distribution of current statuses on a BA, as a chronological timeline for a given time period."
+msgstr "Affiche la répartition des statuts actuels sur une BA, sous forme de frise chronologique pour une période donnée."
+
+msgid "Business Activity Status Timeline"
+msgstr "Chronologie de statut d'une activité métier"
+
+msgid "Reporting period"
+msgstr "Période de rapport"
