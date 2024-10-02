@@ -247,8 +247,10 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
     /**
      * @inheritDoc
      */
-    public function findAllByRequestParametersAndAccessGroups(RequestParametersInterface $requestParameters, array $accessGroups): array
-    {
+    public function findAllByRequestParametersAndAccessGroups(
+        RequestParametersInterface $requestParameters,
+        array $accessGroups
+    ): array {
         if ($accessGroups === []) {
             return [];
         }
