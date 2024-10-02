@@ -1316,6 +1316,51 @@ function updateConfigFilesWithVaultPath($vaultPaths): void
         updateCentreonConfPmFile($vaultPaths);
         updateDatabaseYamlFile($vaultPaths);
     }
+    if ($featureFlagManager->isEnabled('vault_gorgone')) {
+        updateGorgoneApiFile($vaultPaths);
+    }
+}
+
+/**
+ * Undocumented function
+ *
+ * @param WriteVaultRepositoryInterface $writeVaultRepository
+ *
+ * @return array<string, string>
+ *
+ * @throws \Throwable
+ */
+function migrateGorgoneCredentialsToVault(WriteVaultRepositoryInterface $writeVaultRepository): array
+{
+    $writeVaultRepository->setCustomPath('gorgone');
+    $gorgonePassword = retrieveGorgoneApiCredentialsFromConfigFile();
+    if (str_starts_with($gorgonePassword, VaultConfiguration::VAULT_PATH_PATTERN)) {
+        return [];
+    }
+
+    return $writeVaultRepository->upsert(null, [
+        VaultConfiguration::GORGONE_PASSWORD => $gorgonePassword,
+    ]);
+}
+
+function updateGorgoneApiFile(array $vaultPaths): void
+{
+    $filePath = '/etc/centreon-gorgone/config.d/31-centreon-api.yaml';
+
+    if (
+        ! file_exists($filePath)
+        || ($content = file_get_contents($filePath)) === false
+    ) {
+        throw new Exception('Unable to retrieve content of file: ' . $filePath);
+    }
+
+    $newContentYaml = preg_replace(
+        '/password: (.*)/',
+        'password: "' . $vaultPaths[VaultConfiguration::DATABASE_USERNAME_KEY] . '"',
+        $content
+    );
+
+    file_put_contents($filePath, $newContentYaml) ?: throw new Exception('Unable to update file: ' . $filePath);
 }
 
 /**
