@@ -9,7 +9,6 @@ import { allModes } from './modes';
 import { Decorator, Preview } from "@storybook/react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
-
 initialize();
 
 const withThemeProvider: Decorator = (story, context): JSX.Element => (
