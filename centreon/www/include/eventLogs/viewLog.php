@@ -253,7 +253,7 @@ $attrServicegroup1 = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'avai
 $form->addElement(
     'select2',
     'service_group_filter',
-    _("Services Groups"),
+    _("Service Groups"),
     [],
     $attrServicegroup1
 );
@@ -273,7 +273,7 @@ $attrHostGroup1 = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'availab
 $form->addElement(
     'select2',
     'host_group_filter',
-    _("Hosts Groups"),
+    _("Host Groups"),
     [],
     $attrHostGroup1
 );

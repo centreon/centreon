@@ -80,7 +80,7 @@ if ($o === 'c' || $o === 'w') {
     }
 
     /*
-     * Set Hosts Groups relations
+     * Set Host Groups relations
      */
     $statement = $pearDB->prepare("SELECT hg_hg_id FROM acl_resources_hg_relations WHERE acl_res_id = :aclId");
     $statement->bindValue(':aclId', $aclId, \PDO::PARAM_INT);
@@ -236,7 +236,7 @@ if ($o == "a") {
  * LCA basic information
  */
 $form->addElement('header', 'information', _("General Information"));
-$form->addElement('header', 'hostgroups', _("Hosts Groups Shared"));
+$form->addElement('header', 'hostgroups', _("Host Groups Shared"));
 $form->addElement('header', 'services', _("Filters"));
 $form->addElement('text', 'acl_res_name', _("Access list name"), $attrsText);
 $form->addElement('text', 'acl_res_alias', _("Description"), $attrsText2);
@@ -539,8 +539,8 @@ if ($form->validate()) {
         $tpl->assign('form', $renderer->toArray());
         $tpl->assign('o', $o);
         $tpl->assign("sort1", _("General Information"));
-        $tpl->assign("sort2", _("Hosts Resources"));
-        $tpl->assign("sort3", _("Services Resources"));
+        $tpl->assign("sort2", _("Host Resources"));
+        $tpl->assign("sort3", _("Service Resources"));
         $tpl->assign("sort4", _("Meta Services"));
         $tpl->assign("sort5", _("Filters"));
         $tpl->display("formResourcesAccess.ihtml");

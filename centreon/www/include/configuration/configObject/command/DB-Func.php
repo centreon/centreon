@@ -122,9 +122,9 @@ function multipleCommandInDB($commands = [], $nbrDup = [])
 
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
-                if ($key2 == "command_name") {
-                    $command_name = $value2 . "_" . $i;
-                    $value2 = $value2 . "_" . $i;
+                $key2 == "command_name" ? ($command_name = $value2 = $value2 . "_" . $i) : null;
+                if ($key2 == "command_locked") {
+                    $value2 = "0"; // Duplicate a locked command to edit it
                 }
                 $val ? $val .= ($value2 != null ? (", '" . $pearDB->escape($value2) . "'")
                     : ", NULL") : $val .= ($value2 != null ? ("'" . $pearDB->escape($value2) . "'") : "NULL");
@@ -134,6 +134,7 @@ function multipleCommandInDB($commands = [], $nbrDup = [])
                 if (isset($command_name)) {
                     $fields["command_name"] = $command_name;
                 }
+                $fields["command_locked"] = 0;
             }
 
             if (isset($command_name) && testCmdExistence($command_name)) {
@@ -170,9 +171,17 @@ function updateCommandInDB($cmd_id = null)
     updateCommand($cmd_id);
 }
 
+/**
+ * @param $cmd_id
+ * @param $params
+ *
+ * @return void
+ * @throws PDOException
+ * @throws UnexpectedValueException
+ */
 function updateCommand($cmd_id = null, $params = [])
 {
-    global $form, $pearDB, $centreon;
+    global $form, $pearDB, $centreon, $isCloudPlatform;
 
     if (!$cmd_id) {
         return;
@@ -200,12 +209,21 @@ function updateCommand($cmd_id = null, $params = [])
     $ret["connectors"] = (isset($ret["connectors"]) && !empty($ret["connectors"])) ? $ret["connectors"] : null;
     $ret["command_activate"]["command_activate"] ??= null;
 
+    if (
+        ($isCloudPlatform && !isset($ret['type'])) ||
+        (!$isCloudPlatform && !isset($ret["command_type"]) && !isset($ret["command_type"]["command_type"]))
+    ) {
+        throw new UnexpectedValueException('command type is undefined');
+    }
+
+    $type = $isCloudPlatform ? $ret['type'] : $ret["command_type"]["command_type"];
+
     $sth = $pearDB->prepare($rq);
     $sth->bindParam(':command_name', $ret["command_name"], PDO::PARAM_STR);
     $sth->bindParam(':command_line', $ret["command_line"], PDO::PARAM_STR);
     $sth->bindParam(':enable_shell', $ret["enable_shell"], PDO::PARAM_INT);
     $sth->bindParam(':command_example', $ret["command_example"], PDO::PARAM_STR);
-    $sth->bindParam(':command_type', $ret["command_type"]["command_type"], PDO::PARAM_INT);
+    $sth->bindParam(':command_type', $type, PDO::PARAM_INT);
     $sth->bindParam(':command_comment', $ret["command_comment"], PDO::PARAM_STR);
     $sth->bindParam(':graph_id', $ret["graph_id"], PDO::PARAM_INT);
     $sth->bindParam(':connector_id', $ret["connectors"], PDO::PARAM_INT);

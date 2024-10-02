@@ -598,6 +598,12 @@ $form->addGroup(
     '&nbsp;'
 );
 
+// Disable Service Checks When Host Down option
+$nagTab = [];
+$nagTab[] = $form->createElement('radio', 'host_down_disable_service_checks', null, _("Yes"), '1');
+$nagTab[] = $form->createElement('radio', 'host_down_disable_service_checks', null, _("No"), '0');
+$form->addGroup($nagTab, 'host_down_disable_service_checks', _("Disable Service Checks When Host Down"), '&nbsp;');
+
 /*
  * Cache check horizon.
  */

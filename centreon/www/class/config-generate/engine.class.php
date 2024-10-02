@@ -131,6 +131,7 @@ class Engine extends AbstractObject
         use_true_regexp_matching,
         enable_predictive_host_dependency_checks,
         enable_predictive_service_dependency_checks,
+        host_down_disable_service_checks,
         enable_environment_macros,
         enable_macros_filter,
         macros_filter,
@@ -206,14 +207,49 @@ class Engine extends AbstractObject
         'log_level_runtime',
     ];
     /** @var string[] */
-    protected $attributes_default = ['instance_heartbeat_interval', 'enable_notifications', 'execute_service_checks', 'accept_passive_service_checks', 'execute_host_checks', 'accept_passive_host_checks', 'enable_event_handlers', 'check_external_commands', 'use_retained_program_state', 'use_retained_scheduling_info', 'use_syslog', 'log_notifications', 'log_service_retries', 'log_host_retries', 'log_event_handlers', 'log_external_commands', 'log_passive_checks', 'auto_reschedule_checks', 'soft_state_dependencies', 'check_for_orphaned_services', 'check_for_orphaned_hosts', 'check_service_freshness', 'check_host_freshness', 'enable_flap_detection', 'use_regexp_matching', 'use_true_regexp_matching', 'enable_predictive_host_dependency_checks', 'enable_predictive_service_dependency_checks', 'enable_environment_macros'];
+    protected $attributes_default = array(
+        'instance_heartbeat_interval',
+        'enable_notifications',
+        'execute_service_checks',
+        'accept_passive_service_checks',
+        'execute_host_checks',
+        'accept_passive_host_checks',
+        'enable_event_handlers',
+        'check_external_commands',
+        'use_retained_program_state',
+        'use_retained_scheduling_info',
+        'use_syslog',
+        'log_notifications',
+        'log_service_retries',
+        'log_host_retries',
+        'log_event_handlers',
+        'log_external_commands',
+        'log_passive_checks',
+        'auto_reschedule_checks',
+        'soft_state_dependencies',
+        'check_for_orphaned_services',
+        'check_for_orphaned_hosts',
+        'check_service_freshness',
+        'check_host_freshness',
+        'enable_flap_detection',
+        'use_regexp_matching',
+        'use_true_regexp_matching',
+        'enable_predictive_host_dependency_checks',
+        'enable_predictive_service_dependency_checks',
+        'host_down_disable_service_checks',
+        'enable_environment_macros',
+    );
     /** @var string[] */
-    protected $attributes_array = ['cfg_file', 'broker_module', 'interval_length'];
-    /** @var null */
+    protected $attributes_array = [
+        'cfg_file',
+        'broker_module',
+        'interval_length',
+    ];
+    /** @var CentreonDBStatement|null */
     protected $stmt_engine = null;
-    /** @var null */
+    /** @var CentreonDBStatement|null */
     protected $stmt_broker = null;
-    /** @var null */
+    /** @var CentreonDBStatement|null */
     protected $stmt_interval_length = null;
     /** @var array */
     protected $add_cfg_files = [];

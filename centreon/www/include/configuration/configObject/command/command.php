@@ -80,6 +80,11 @@ if (isset($_POST["o1"]) && isset($_POST["o2"])) {
     }
 }
 
+// For inline action
+if (($o === "m" || $o === "d") && count($select) == 0 && $command_id) {
+    $select[$command_id] = 1;
+}
+
 global $isCloudPlatform;
 
 // In Cloud context we force the type to Check. That is the only possible optio
@@ -115,7 +120,7 @@ if ($min) {
                 purgeCSRFToken();
                 multipleCommandInDB(
                     is_array($select) ? $select : [],
-                    is_array($dupNbr) ? $dupNbr : []
+                    $select
                 );
             } else {
                 unvalidFormMessage();
