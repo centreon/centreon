@@ -44,11 +44,11 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
  */
 class Engine extends AbstractObject
 {
-    /** @var */
+    /** @var array */
     public $cfg_file;
-    /** @var null */
+    /** @var array|null */
     protected $engine = null;
-    /** @var null */
+    /** @var string|null */
     protected $generate_filename = null; # it's in 'cfg_nagios' table
     /** @var string */
     protected string $object_name;
@@ -182,8 +182,7 @@ class Engine extends AbstractObject
         'debug_level',
         'debug_verbosity',
         'max_debug_file_size',
-        'log_pid',
-        // centengine
+        'log_pid', // centengine
         'global_host_event_handler',
         'global_service_event_handler',
         'macros_filter',
@@ -207,7 +206,7 @@ class Engine extends AbstractObject
         'log_level_runtime',
     ];
     /** @var string[] */
-    protected $attributes_default = array(
+    protected $attributes_default = [
         'instance_heartbeat_interval',
         'enable_notifications',
         'execute_service_checks',
@@ -238,7 +237,7 @@ class Engine extends AbstractObject
         'enable_predictive_service_dependency_checks',
         'host_down_disable_service_checks',
         'enable_environment_macros',
-    );
+    ];
     /** @var string[] */
     protected $attributes_array = [
         'cfg_file',
@@ -262,7 +261,18 @@ class Engine extends AbstractObject
     private function buildCfgFile($poller_id): void
     {
         $this->engine['cfg_dir'] = preg_replace('/\/$/', '', $this->engine['cfg_dir']);
-        $this->cfg_file = ['target' => ['cfg_file' => [], 'path' => $this->engine['cfg_dir'], 'resource_file' => $this->engine['cfg_dir'] . '/resource.cfg'], 'debug' => ['cfg_file' => [], 'path' => $this->backend_instance->getEngineGeneratePath() . '/' . $poller_id, 'resource_file' => $this->backend_instance->getEngineGeneratePath() . '/' . $poller_id . '/resource.cfg']];
+        $this->cfg_file = [
+            'target' => [
+                'cfg_file' => [],
+                'path' => $this->engine['cfg_dir'],
+                'resource_file' => $this->engine['cfg_dir'] . '/resource.cfg'
+            ],
+            'debug' => [
+                'cfg_file' => [],
+                'path' => $this->backend_instance->getEngineGeneratePath() . '/' . $poller_id,
+                'resource_file' => $this->backend_instance->getEngineGeneratePath() . '/' . $poller_id . '/resource.cfg'
+            ]
+        ];
 
         foreach ($this->cfg_file as &$value) {
             $value['cfg_file'][] = $value['path'] . '/hostTemplates.cfg';
@@ -412,7 +422,7 @@ class Engine extends AbstractObject
         $timezoneInstance = Timezone::getInstance($this->dependencyInjector);
         $timezone = $timezoneInstance->getTimezoneFromId($object['use_timezone'], true);
         $object['use_timezone'] = null;
-        if (!is_null($timezone)) {
+        if (! is_null($timezone)) {
             $object['use_timezone'] = ':' . $timezone;
         }
 
