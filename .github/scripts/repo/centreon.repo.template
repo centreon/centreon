@@ -32,7 +32,7 @@ module_hotfixes=1
 
 [centreon-@MAJOR_VERSION@-testing]
 name=Centreon open source software repository. (UNSUPPORTED)
-baseurl=https://packages.centreon.com/rpm-standard-internal/@MAJOR_VERSION@/@DISTRIB@/testing/$basearch/
+baseurl=https://packages.centreon.com/rpm-standard-internal/@MAJOR_VERSION@/@DISTRIB@/testing-release/$basearch/
 enabled=0
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
@@ -40,7 +40,7 @@ module_hotfixes=1
 
 [centreon-@MAJOR_VERSION@-testing-noarch]
 name=Centreon open source software repository. (UNSUPPORTED)
-baseurl=https://packages.centreon.com/rpm-standard-internal/@MAJOR_VERSION@/@DISTRIB@/testing/noarch/
+baseurl=https://packages.centreon.com/rpm-standard-internal/@MAJOR_VERSION@/@DISTRIB@/testing-release/noarch/
 enabled=0
 gpgcheck=1
 gpgkey=https://yum-gpg.centreon.com/RPM-GPG-KEY-CES
