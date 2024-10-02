@@ -63,7 +63,7 @@ final class FindAgentConfigurations
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW)) {
                 $this->error(
-                    "User doesn't have sufficient rights to access agent configurations",
+                    "User doesn't have sufficient rights to access poller/agent configurations",
                     ['user_id' => $this->user->getId()]
                 );
                 $presenter->presentResponse(
