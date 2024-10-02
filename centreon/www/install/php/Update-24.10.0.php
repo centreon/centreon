@@ -68,30 +68,7 @@ $insertVaultConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): 
     }
 };
 
-$createDashboardThumbnailTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to add table dashboard_thumbnail_relation';
-    $pearDB->executeQuery(
-        <<<SQL
-            CREATE TABLE IF NOT EXISTS `dashboard_thumbnail_relation` (
-              `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-              `dashboard_id` INT UNSIGNED NOT NULL,
-              `img_id` int(11) NOT NULL,
-              PRIMARY KEY (`id`),
-              UNIQUE KEY `dashboard_thumbnail_relation_unique` (`dashboard_id`,`img_id`),
-              CONSTRAINT `dashboard_thumbnail_relation_dashboard_id`
-                FOREIGN KEY (`dashboard_id`)
-                REFERENCES `dashboard` (`id`) ON DELETE CASCADE,
-              CONSTRAINT `dashboard_thumbnail_relation_img_id`
-                FOREIGN KEY (`img_id`)
-                REFERENCES `view_img` (`img_id`) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-        SQL
-    );
-};
-
 try {
-    $createDashboardThumbnailTable($pearDB);
-
     // Transactional queries
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
