@@ -33,8 +33,6 @@ final class AgentConfigurationDto
 
     public string $name;
 
-    /**
-     * @var PollerDto[]
-     */
+    /** @var PollerDto[] */
     public array $pollers;
 }

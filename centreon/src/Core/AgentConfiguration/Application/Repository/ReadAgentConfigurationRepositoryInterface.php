@@ -89,6 +89,8 @@ interface ReadAgentConfigurationRepositoryInterface
     /**
      * Return all the agent configurations.
      *
+     * @param RequestParametersInterface $requestParameters
+     *
      * @throws \Throwable
      *
      * @return AgentConfiguration[]
