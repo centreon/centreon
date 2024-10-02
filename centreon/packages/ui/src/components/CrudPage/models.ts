@@ -9,8 +9,11 @@ interface CrudPageRootLabels {
     title: string;
     description?: string;
   };
-  actions?: {
+  actions: {
     create: string;
+  };
+  listing: {
+    search: string;
   };
 }
 
@@ -38,15 +41,17 @@ export interface UseGetItemsState<TData> {
   total: number;
 }
 
-export interface ListingProps {
+export interface ListingProps<TData> {
+  rows: Array<TData>;
   total: number;
   isLoading: boolean;
   columns: Array<Column>;
   subItems?: ListingSubItems;
+  filters: JSX.Element;
 }
 
 export interface CrudPageRootProps<TData, TFilters>
   extends UseGetItemsProps<TData, TFilters>,
-    ListingProps {
+    ListingProps<TData> {
   labels: CrudPageRootLabels;
 }

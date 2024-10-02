@@ -20,7 +20,8 @@ export const CrudPageRoot = <
   getSearchParameters,
   baseEndpoint,
   columns,
-  subItems
+  subItems,
+  filters
 }: CrudPageRootProps<TData, TFilters>): JSX.Element => {
   const { isDataEmpty, hasItems, isLoading, items, total } = useGetItems<
     TData,
@@ -71,6 +72,11 @@ export const CrudPageRoot = <
               rows={items}
               columns={columns}
               subItems={subItems}
+              labels={{
+                add: labels.actions.create,
+                search: labels.listing.search
+              }}
+              filters={filters}
             />
           )}
         </DataTable>

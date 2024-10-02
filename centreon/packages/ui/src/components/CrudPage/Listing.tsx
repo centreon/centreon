@@ -1,5 +1,6 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { MemoizedListing } from '../../Listing';
+import Actions from './Actions/Actions';
 import {
   changeSortAtom,
   limitAtom,
@@ -7,13 +8,21 @@ import {
   sortFieldAtom,
   sortOrderAtom
 } from './atoms';
+import { ListingProps } from './models';
 
-const Listing = ({
+const Listing = <TData,>({
   rows,
   total,
   isLoading,
   columns,
-  subItems
+  subItems,
+  labels,
+  filters
+}: ListingProps<TData> & {
+  labels: {
+    search: string;
+    add: string;
+  };
 }): JSX.Element => {
   const [page, setPage] = useAtom(pageAtom);
   const [limit, setLimit] = useAtom(limitAtom);
@@ -23,6 +32,7 @@ const Listing = ({
 
   return (
     <MemoizedListing
+      actions={<Actions labels={labels} filters={filters} />}
       columns={columns}
       subItems={subItems}
       loading={isLoading}
