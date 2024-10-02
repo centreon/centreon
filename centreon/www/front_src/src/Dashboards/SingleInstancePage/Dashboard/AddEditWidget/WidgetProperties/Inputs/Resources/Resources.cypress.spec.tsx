@@ -1,14 +1,13 @@
 /* eslint-disable import/no-unresolved */
 
-import { Formik } from 'formik';
-import { createStore, Provider } from 'jotai';
 import widgetDataProperties from 'centreon-widgets/centreon-widget-data/properties.json';
+import { Formik } from 'formik';
+import { Provider, createStore } from 'jotai';
 import { difference, equals, pluck, reject } from 'ramda';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 
-import { widgetPropertiesAtom } from '../../../atoms';
-import { WidgetResourceType } from '../../../models';
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
   labelAddFilter,
   labelHostCategory,
@@ -18,12 +17,13 @@ import {
   labelServiceCategory,
   labelServiceGroup
 } from '../../../../translatedLabels';
-import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
+import { widgetPropertiesAtom } from '../../../atoms';
+import { WidgetResourceType } from '../../../models';
 
 import Resources from './Resources';
 import { resourceTypeBaseEndpoints, resourceTypeOptions } from './useResources';
 
-import { FederatedWidgetProperties } from 'www/front_src/src/federatedModules/models';
+import type { FederatedWidgetProperties } from 'www/front_src/src/federatedModules/models';
 
 const generateResources = (resourceLabel: string): object => ({
   meta: {
@@ -158,7 +158,7 @@ describe('Resources', () => {
     cy.findAllByTestId(labelSelectAResource).eq(1).click();
     cy.waitForRequest('@getServices').then(({ request }) => {
       expect(request.url.href).contain(
-        'page=1&limit=30&search=%7B%22host.name%22%3A%7B%22%24in%22%3A%5B%22Host%200%22%5D%7D%7D'
+        'page=1&limit=30&search=%7B%22%24and%22%3A%5B%7B%22%24or%22%3A%5B%7B%22host.name%22%3A%7B%22%24in%22%3A%5B%22Host%200%22%5D%7D%7D%5D%7D%5D%7D'
       );
     });
     cy.contains('Service 0').click();
