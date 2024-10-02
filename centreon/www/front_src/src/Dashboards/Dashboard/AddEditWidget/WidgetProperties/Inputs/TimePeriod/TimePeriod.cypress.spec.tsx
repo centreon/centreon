@@ -1,16 +1,26 @@
 import { Formik } from 'formik';
 import { Provider, createStore } from 'jotai';
 
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
   labelCustomize,
   labelFrom,
   labelTimePeriod,
   labelTo
 } from '../../../../translatedLabels';
-import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
 import TimePeriod from './TimePeriod';
 import { options } from './useTimePeriod';
+
+const openCalendar = (label): void => {
+  cy.findByLabelText(label).then(($input) => {
+    if ($input.attr('readonly')) {
+      cy.wrap($input).click();
+    } else {
+      cy.findByLabelText(label).findByRole('button').click({ force: true });
+    }
+  });
+};
 
 const initializeComponent = (canEdit = true): void => {
   const store = createStore();
@@ -80,14 +90,13 @@ describe('Time Period', () => {
 
     cy.contains(labelCustomize).click();
 
-    cy.findByLabelText(labelFrom)
-      .find('input')
-      .click({ force: true })
-      .type('{leftarrow}{leftarrow}10');
-    cy.findByLabelText(labelTo)
-      .find('input')
-      .click({ force: true })
-      .type('{leftarrow}{leftarrow}05');
+    openCalendar(labelFrom);
+
+    cy.findByRole('option', { name: '10 hours' }).click();
+
+    openCalendar(labelTo);
+
+    cy.findAllByRole('option', { name: '5 hours' }).eq(1).click();
 
     cy.get('input').eq(1).should('have.value', '06/05/2023 10:00 AM');
     cy.get('input').eq(2).should('have.value', '06/05/2023 05:00 AM');
