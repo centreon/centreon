@@ -304,6 +304,7 @@ export enum PatternType {
   endsWith = '$',
   startsWith = '^'
 }
+
 interface Dashboard {
   description?: string;
   name: string;
