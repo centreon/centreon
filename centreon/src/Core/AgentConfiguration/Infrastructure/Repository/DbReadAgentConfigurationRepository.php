@@ -181,12 +181,18 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
     /**
      * @param _AgentConfiguration $row
      *
+     * @throws \Throwable
+     *
      * @return AgentConfiguration
      */
     private function createFromArray(array $row): AgentConfiguration
     {
         /** @var array<string,mixed> $configuration */
-        $configuration = json_decode(json: $row['configuration'], associative: true, flags: JSON_OBJECT_AS_ARRAY);
+        $configuration = json_decode(
+            json: $row['configuration'],
+            associative: true,
+            depth: JSON_OBJECT_AS_ARRAY | JSON_THROW_ON_ERROR
+        );
         $type = Type::from($row['type']);
 
         return new AgentConfiguration(

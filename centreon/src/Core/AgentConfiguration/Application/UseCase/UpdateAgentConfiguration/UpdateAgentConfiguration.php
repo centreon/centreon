@@ -87,9 +87,10 @@ final class UpdateAgentConfiguration
 
             $this->validator->validateRequestOrFail($request, $agentConfiguration);
 
-            $updatedAgentConfiguration = AgentConfigurationFactory::updateAgentConfiguration(
-                agentConfiguration: $agentConfiguration,
+            $updatedAgentConfiguration = AgentConfigurationFactory::createAgentConfiguration(
+                id: $agentConfiguration->getId(),
                 name: $request->name,
+                type: $agentConfiguration->getType(),
                 parameters: $request->configuration
             );
 

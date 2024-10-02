@@ -22,10 +22,13 @@
 declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\Factory;
+
+use Assert\AssertionFailedException;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\NewAgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\Type;
+
 /**
  * @phpstan-import-type _TelegrafParameters from TelegrafConfigurationParameters
  */
@@ -35,6 +38,8 @@ class AgentConfigurationFactory
      * @param string $name
      * @param Type $type
      * @param array<string,mixed> $parameters
+     *
+     * @throws AssertionFailedException
      *
      * @return NewAgentConfiguration
      */
@@ -60,6 +65,8 @@ class AgentConfigurationFactory
      * @param Type $type
      * @param array<string,mixed> $parameters
      *
+     * @throws AssertionFailedException
+     *
      * @return AgentConfiguration
      */
     public static function createAgentConfiguration(
@@ -75,30 +82,6 @@ class AgentConfigurationFactory
             type: $type,
             configuration: match ($type->value) {
                 Type::TELEGRAF->value => new TelegrafConfigurationParameters($parameters),
-                default => throw new \Exception('This error should never happen')
-            }
-        );
-    }
-
-    /**
-     * @param AgentConfiguration $agentConfiguration
-     * @param string $name
-     * @param array<string,mixed> $parameters
-     *
-     * @return AgentConfiguration
-     */
-    public static function updateAgentConfiguration(
-        AgentConfiguration $agentConfiguration,
-        string $name,
-        array $parameters,
-    ): AgentConfiguration
-    {
-        return new AgentConfiguration(
-            id: $agentConfiguration->getId(),
-            name: $name,
-            type: $agentConfiguration->getType(),
-            configuration: match ($agentConfiguration->getType()) {
-                Type::TELEGRAF => new TelegrafConfigurationParameters($parameters),
                 default => throw new \Exception('This error should never happen')
             }
         );

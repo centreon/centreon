@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
+use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
@@ -65,7 +65,7 @@ class Validator
      * @param UpdateAgentConfigurationRequest $request
      * @param AgentConfiguration $agentConfiguration
      *
-     * @throws AgentConfigurationException|ValueError|AssertionException
+     * @throws AgentConfigurationException|ValueError|AssertionFailedException
      */
     public function validateRequestOrFail(
         UpdateAgentConfigurationRequest $request,
@@ -181,7 +181,7 @@ class Validator
     /**
      * @param UpdateAgentConfigurationRequest $request
      *
-     * @throws AgentConfigurationException|AssertionException
+     * @throws AgentConfigurationException|AssertionFailedException
      */
     public function validateParametersOrFail(UpdateAgentConfigurationRequest $request): void
     {

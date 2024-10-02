@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\Validation;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
+use Assert\AssertionFailedException;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfigurationRequest;
 use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\UpdateAgentConfigurationRequest;
@@ -41,7 +41,7 @@ interface TypeValidatorInterface
     /**
      * @param AddAgentConfigurationRequest|UpdateAgentConfigurationRequest $request
      *
-     * @throws AgentConfigurationException|AssertionException
+     * @throws AgentConfigurationException|AssertionFailedException
      */
     public function validateParametersOrFail(AddAgentConfigurationRequest|UpdateAgentConfigurationRequest $request): void;
 }

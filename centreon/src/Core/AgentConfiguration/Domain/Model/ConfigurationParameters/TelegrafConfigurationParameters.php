@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Domain\Model\ConfigurationParameters;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
 
 /**
@@ -48,7 +48,7 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
     /**
      * @param array<string,mixed> $parameters
      *
-     * @throws AssertionException
+     * @throws AssertionFailedException
      */
     public function __construct(
         array $parameters
