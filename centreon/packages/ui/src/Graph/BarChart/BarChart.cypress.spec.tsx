@@ -290,7 +290,5 @@ describe('Bar chart', () => {
 
     cy.contains('05/31/2023').should('be.visible');
     cy.contains('06/07/2023').should('be.visible');
-
-    cy.makeSnapshot();
-  })
+  });
 });
