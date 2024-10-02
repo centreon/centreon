@@ -58,6 +58,15 @@ When('the user deletes the additional connector configuration', () => {
   cy.getByLabel({ label: 'Delete', tag: 'button' }).eq(0).click();
 });
 
+When('the user cancel on the pop-up', () => {
+  cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
+});
+
+Then('the additional connector configuration is still displayed in the listing page', () => {
+  cy.get('*[role="rowgroup"]')
+    .should('contain', 'Connector-001');
+});
+
 When('the user confirms on the pop-up', () => {
   cy.getByLabel({ label: 'Delete', tag: 'button' }).eq(1).click();
 });
