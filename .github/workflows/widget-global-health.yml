@@ -37,6 +37,8 @@ jobs:
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      registry_private_username: ${{ secrets.HARBOR_CENTREON_PRIVATE_USERNAME }}
+      registry_private_token: ${{ secrets.HARBOR_CENTREON_PRIVATE_TOKEN }}
 
   delivery:
     needs: [get-version, package]
