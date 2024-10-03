@@ -214,7 +214,7 @@ describe('Actions', () => {
     cy.makeSnapshot();
   });
 
-  it('deactivates the submit status button when a Resource of type anomaly detection', () => {
+  it('deactivates the submit status button when a Resource of type anomaly detection is selected', () => {
     const store = initialize();
     store.set(selectedResourcesAtom, [anomalyDetection]);
 
