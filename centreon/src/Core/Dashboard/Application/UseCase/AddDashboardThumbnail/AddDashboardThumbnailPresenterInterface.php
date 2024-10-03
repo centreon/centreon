@@ -21,19 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request;
+namespace Core\Dashboard\Application\UseCase\AddDashboardThumbnail;
 
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 
-final class ThumbnailRequestDto
+interface AddDashboardThumbnailPresenterInterface
 {
-    public UploadedFile $file;
-
-    public function __construct(
-        public ?int $id,
-        public string $directory,
-        public string $name,
-    ) {
-    }
+    /**
+     * @param NoContentResponse|ResponseStatusInterface $data
+     */
+    public function presentResponse(NoContentResponse|ResponseStatusInterface $data): void;
 }
-

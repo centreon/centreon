@@ -21,19 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request;
+namespace Core\Dashboard\Application\UseCase\AddDashboardThumbnail;
 
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-final class ThumbnailRequestDto
+final class AddDashboardThumbnailRequest
 {
-    public UploadedFile $file;
-
     public function __construct(
-        public ?int $id,
+        public int $dashboardId,
         public string $directory,
-        public string $name,
+        public UploadedFile $thumbnail
     ) {
     }
 }
-

@@ -24,25 +24,204 @@ declare(strict_types=1);
 namespace Core\Dashboard\Application\UseCase\PartialUpdateDashboard;
 
 use Core\Common\Application\Type\NoValue;
+use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\PanelLayoutRequestDto;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\PanelRequestDto;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\RefreshRequestDto;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\ThumbnailRequestDto;
+use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
+use Symfony\Component\Validator\Constraints as Assert;
 
 final class PartialUpdateDashboardRequest
 {
     /**
-     * @param NoValue|string $name
-     * @param NoValue|string $description
-     * @param NoValue|array<PanelRequestDto> $panels
-     * @param NoValue|RefreshRequestDto $refresh
-     * @param NoValue|ThumbnailRequestDto $thumbnail
+     * @param string|null $name
+     * @param string|null $description
+     * @param array{type: string, interval: int} $refresh
+     * @param array{id?: int, name: string, directory: string} $thumbnail
+     * @param array<array{
+     *    id?: ?int,
+     *    name: string,
+     *    layout: array{
+     *        x: int,
+     *        y: int,
+     *        width: int,
+     *        height: int,
+     *        min_width: int,
+     *        min_height: int
+     *    },
+     *    widget_type: string,
+     *    widget_settings: array<mixed>,
+     *}> $panels
      */
     public function __construct(
-        public NoValue|string $name = new NoValue(),
-        public NoValue|string $description = new NoValue(),
-        public NoValue|array $panels = new NoValue(),
-        public NoValue|RefreshRequestDto $refresh = new NoValue(),
-        public NoValue|ThumbnailRequestDto $thumbnail = new NoValue()
+        #[Assert\Type('string')]
+        #[Assert\Length(min: 1, max: 200)]
+        public ?string $name = null,
+        #[Assert\Type('string')]
+        public ?string $description = null,
+        #[Assert\Collection(
+            fields: [
+                'type' => [
+                    new Assert\NotNull(),
+                    new Assert\Type('string'),
+                    new Assert\Choice(['global', 'manual']),
+                ],
+                'interval' => [
+                    new Assert\Type('numeric'),
+                    new Assert\NotNull(),
+                    new Assert\Positive(),
+                ],
+            ]
+        )]
+        public mixed $refresh = null,
+        #[Assert\Collection(
+            fields: [
+                'id' => new Assert\Optional([
+                    new Assert\Type('numeric'),
+                    new Assert\Positive(),
+                ]),
+                'name' => [
+                    new Assert\NotNull(),
+                    new Assert\Type('string'),
+                    new Assert\Length(min: 1, max: 255),
+                ],
+                'directory' => [
+                    new Assert\NotNull(),
+                    new Assert\Type('string'),
+                    new Assert\Length(min: 1, max: 255),
+                ],
+            ],
+        )]
+        public mixed $thumbnail = null,
+        #[Assert\Type('array')]
+        #[Assert\All(
+            new Assert\Collection(
+                fields: [
+                    'id' => new Assert\Optional([
+                        new Assert\Type('numeric'),
+                    ]),
+                    'name' => [
+                        new Assert\NotNull(),
+                        new Assert\Type('string'),
+                    ],
+                    'layout' => new Assert\Collection(
+                        fields: [
+                            'x' => [
+                                new Assert\NotNull(),
+                                new Assert\Type('numeric'),
+                            ],
+                            'y' => [
+                                new Assert\NotNull(),
+                                new Assert\Type('numeric'),
+                            ],
+                            'width' => [
+                                new Assert\NotNull(),
+                                new Assert\Type('numeric'),
+                            ],
+                            'height' => [
+                                new Assert\NotNull(),
+                                new Assert\Type('numeric'),
+                            ],
+                            'min_width' => [
+                                new Assert\NotNull(),
+                                new Assert\Type('numeric'),
+                            ],
+                            'min_height' => [
+                                new Assert\NotNull(),
+                                new Assert\Type('numeric'),
+                            ],
+                        ]
+                    ),
+                    'widget_type' => [
+                        new Assert\NotNull(),
+                        new Assert\Type('string'),
+                    ],
+                    // nothing more can be done here as widget_settings are specific to widgets...
+                    'widget_settings' => new Assert\Required(),
+                ]
+            )
+        )]
+        public mixed $panels = null,
     ) {
+    }
+
+    public function toDto(): PartialUpdateDashboardRequestDto
+    {
+        $name = empty($this->name) ? new NoValue() : $this->name;
+        $description = $this->description === null ? new NoValue() : $this->description;
+
+        return new PartialUpdateDashboardRequestDto(
+            name: $name,
+            description: $description,
+            panels: $this->createPanelDto(),
+            refresh: $this->createRefreshDto(),
+            thumbnail: $this->createThumbnailDto()
+        );
+    }
+
+    /**
+     * @return ThumbnailRequestDto|NoValue
+     */
+    private function createThumbnailDto(): ThumbnailRequestDto|NoValue
+    {
+        if ($this->thumbnail === null) {
+            return new NoValue();
+        }
+
+        return new ThumbnailRequestDto(
+            id: isset($this->thumbnail['id']) ? (int) $this->thumbnail['id'] : null,
+            directory: $this->thumbnail['directory'],
+            name: $this->thumbnail['name']
+        );
+    }
+
+    /**
+     * @return RefreshRequestDto|NoValue
+     */
+    private function createRefreshDto(): RefreshRequestDto|NoValue
+    {
+        if ($this->refresh === null) {
+            return new NoValue();
+        }
+
+        return new RefreshRequestDto(
+            refreshType: RefreshTypeConverter::fromString($this->refresh['type']),
+            refreshInterval: (int) $this->refresh['interval'],
+        );
+    }
+
+    /**
+     * @return PanelRequestDto[]|NoValue
+     */
+    private function createPanelDto(): array|NoValue
+    {
+        if ($this->panels === null) {
+            return new NoValue();
+        }
+
+        $panels = [];
+
+        foreach ($this->panels as $panel) {
+            $layout = $panel['layout'];
+            $panelLayoutRequestDto = new PanelLayoutRequestDto(
+                posX: (int) $layout['x'],
+                posY: (int) $layout['y'],
+                width: (int) $layout['width'],
+                height: (int) $layout['height'],
+                minWidth: (int) $layout['min_width'],
+                minHeight : (int) $layout['min_height'],
+            );
+
+            $panelId = $panel['id'] ?? null;
+            $panels[] = new PanelRequestDto(
+                id: $panelId ? (int) $panelId : $panelId,
+                name: $panel['name'],
+                layout: $panelLayoutRequestDto,
+                widgetType: $panel['widget_type'],
+                widgetSettings: ! \is_array($panel['widget_settings']) ? [] : $panel['widget_settings'],
+            );
+        }
+
+        return $panels;
     }
 }

@@ -9,9 +9,9 @@ services:
     Core\Dashboard\:
         resource: '../../../../Core/Dashboard/*'
 
-    Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboard:
+    Core\Dashboard\Application\UseCase\AddDashboardThumbnail\AddDashboardThumbnail:
         arguments:
-            $mediaRepository: '@Core\Media\Infrastructure\Repository\DbReadMediaRepository'
+            $writeMediaRepository: '@Core\Media\Infrastructure\Repository\FileProxyWriteMediaRepository'
 
     Core\Dashboard\Application\UseCase\DeleteDashboard\DeleteDashboard:
         arguments:

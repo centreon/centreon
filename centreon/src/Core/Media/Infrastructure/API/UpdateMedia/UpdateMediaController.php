@@ -31,6 +31,7 @@ use Core\Media\Application\UseCase\UpdateMedia\UpdateMediaRequest;
 use Core\Media\Infrastructure\API\AddMedia\AddMediaValidator;
 use Core\Media\Infrastructure\API\Exception\MediaException;
 use enshrined\svgSanitize\Sanitizer;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,6 +47,7 @@ final class UpdateMediaController extends AbstractController
     {
     }
 
+    #[IsGranted('update_media', null, 'You are not allowed to update media', Response::HTTP_FORBIDDEN)]
     public function __invoke(int $mediaId, Request $request, UpdateMedia $useCase, UpdateMediaPresenter $presenter): Response
     {
         $uploadedFileName = '';

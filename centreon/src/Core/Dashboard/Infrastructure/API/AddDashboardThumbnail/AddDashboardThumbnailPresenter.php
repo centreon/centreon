@@ -21,19 +21,21 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request;
+namespace Core\Dashboard\Infrastructure\API\AddDashboardThumbnail;
 
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Dashboard\Application\UseCase\AddDashboardThumbnail\AddDashboardThumbnailPresenterInterface;
 
-final class ThumbnailRequestDto
+final class AddDashboardThumbnailPresenter extends AbstractPresenter implements AddDashboardThumbnailPresenterInterface
 {
-    public UploadedFile $file;
-
-    public function __construct(
-        public ?int $id,
-        public string $directory,
-        public string $name,
-    ) {
+    public function presentResponse(NoContentResponse|ResponseStatusInterface $data): void
+    {
+        if ($data instanceof NoContentResponse) {
+            $this->present($data);
+        } else {
+            $this->setResponseStatus($data);
+        }
     }
 }
-
