@@ -12,6 +12,7 @@ properties:
 
       Supported types:
         * telegraf
+        * centreon-agent
     example: telegraf
   poller_ids:
     type: array
