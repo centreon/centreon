@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration;
 
-use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfigurationResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 
 interface FindAgentConfigurationPresenterInterface

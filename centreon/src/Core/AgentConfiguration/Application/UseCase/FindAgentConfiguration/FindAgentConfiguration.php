@@ -40,14 +40,13 @@ final class FindAgentConfiguration
 {
     use LoggerTrait;
 
-
     /**
      * FindAgentConfiguration constructor.
      *
-     * @param ContactInterface $user User requesting the agent configuration.
-     * @param ReadAgentConfigurationRepositoryInterface $readRepository Repository to read agent configurations.
-     * @param ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository Repository to read monitoring servers.
-     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository Repository to read access groups.
+     * @param ContactInterface $user user requesting the agent configuration
+     * @param ReadAgentConfigurationRepositoryInterface $readRepository repository to read agent configurations
+     * @param ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository repository to read monitoring servers
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository repository to read access groups
      */
     public function __construct(
         private readonly ContactInterface $user,
@@ -70,7 +69,7 @@ final class FindAgentConfiguration
         FindAgentConfigurationPresenterInterface $presenter
     ): void {
         $this->info(
-            "Find agent configuration",
+            'Find agent configuration',
             [
                 'user_id' => $this->user->getId(),
                 'agent_configuration_id' => $request->agentConfigurationId,
@@ -92,7 +91,7 @@ final class FindAgentConfiguration
 
             if (null === $agentConfiguration = $this->readRepository->find($request->agentConfigurationId)) {
                 $this->error(
-                    "Agent configuration {agent_configuration_id} not found",
+                    'Agent configuration {agent_configuration_id} not found',
                     ['agent_configuration_id' => $request->agentConfigurationId]
                 );
                 $presenter->presentResponse(
@@ -103,7 +102,7 @@ final class FindAgentConfiguration
             }
 
             $this->info(
-                "Retrieved agent configuration",
+                'Retrieved agent configuration',
                 ['agent_configuration_id' => $request->agentConfigurationId]
             );
 
@@ -121,7 +120,7 @@ final class FindAgentConfiguration
 
                 if ([] !== array_diff($pollerIds, $validPollerIds)) {
                     $this->debug(
-                        "User does not have the correct access groups for pollers",
+                        'User does not have the correct access groups for pollers',
                         [
                             'user_id' => $this->user->getId(),
                             'poller_ids' => array_diff($pollerIds, $validPollerIds),
@@ -158,7 +157,7 @@ final class FindAgentConfiguration
         $response->type = $agentConfiguration->getType();
         $response->configuration = $agentConfiguration->getConfiguration()->getData();
         $response->pollers = array_map(
-            function(Poller $poller) {
+            function (Poller $poller) {
                 $pollerDto = new PollerDto();
                 $pollerDto->id = $poller->getId();
                 $pollerDto->name = $poller->getName();
