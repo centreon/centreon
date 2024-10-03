@@ -115,7 +115,7 @@ When(
 );
 
 When('the user applies the acknowledgement', () => {
-  cy.get('button').contains('Acknowledge').click();
+  cy.get('button[data-testid="Confirm"]').contains('Acknowledge').click();
 });
 
 Then(
@@ -456,7 +456,7 @@ Given(
 
     cy.getByLabel({ label: 'Acknowledge' }).last().click();
 
-    cy.get('button').contains('Acknowledge').click();
+    cy.getByTestId({tag:'button', testId:'Confirm'}).contains('Acknowledge').click();
 
     cy.wait('@postAcknowledgments').then(() => {
       cy.contains('Acknowledge command sent').should('have.length', 1);

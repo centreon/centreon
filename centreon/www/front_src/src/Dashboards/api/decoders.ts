@@ -1,7 +1,7 @@
 /* eslint-disable typescript-sort-keys/interface */
 
-import { JsonDecoder } from 'ts.data.json';
 import { omit } from 'ramda';
+import { JsonDecoder } from 'ts.data.json';
 
 import { buildListingDecoder } from '@centreon/ui';
 
@@ -254,4 +254,9 @@ export const dashboardAccessRightsContactGroupListDecoder = buildListingDecoder(
     entityDecoderName: 'Dashboard AccessRights ContactGroup',
     listingDecoderName: 'Dashboard AccessRights ContactGroup List'
   }
+);
+
+export const playlistsByDashboardDecoder = JsonDecoder.array<NamedEntity>(
+  JsonDecoder.object(namedEntityDecoder, 'playlist'),
+  'playlists by dashboard'
 );

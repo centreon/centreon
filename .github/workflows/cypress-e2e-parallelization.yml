@@ -34,6 +34,10 @@ on:
       package_directory:
         required: false
         type: string
+      test_tags:
+        required: false
+        type: string
+        default: "not @ignore"
       dependencies_lock_file:
         required: true
         type: string
@@ -42,6 +46,11 @@ on:
         description: "The test execution and the test plan keys and ids"
         required: true
         type: string
+      is_cloud:
+        description: "Define if the version is targeting cloud"
+        required: false
+        type: boolean
+        default: false
     secrets:
       registry_username:
         required: true
@@ -51,6 +60,10 @@ on:
         required: true
       xray_client_secret:
         required: true
+      artifactory_internal_repo_username:
+        required: false
+      artifactory_internal_repo_password:
+        required: false
 
 jobs:
   cypress-e2e-test-list:
@@ -60,15 +73,24 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        with:
+          version: 8
+          run_install: false
+          standalone: true
 
       - name: List features
         id: list-features
         run: |
+          pnpm add -g @cucumber/cucumber@10.8.0
           cd ${{ inputs.module_name }}
-          echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]'
+          echo "features=$(cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-e2e-test-run:
+    if: ${{ needs.cypress-e2e-test-list.outputs.features != '' && toJson(fromJson(needs.cypress-e2e-test-list.outputs.features)) != '[]' }}
     needs: [cypress-e2e-test-list]
     runs-on: ubuntu-22.04
     strategy:
@@ -83,7 +105,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Restore packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
@@ -101,7 +123,7 @@ jobs:
         shell: bash
 
       - name: Login to Registry
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.registry_username }}
@@ -139,13 +161,18 @@ jobs:
           name: ${{ inputs.name }}
           database_image: ${{ inputs.database_image }}
           web_image_os: ${{ inputs.os }}
-          web_image_version: ${{ github.head_ref || github.ref_name }}
+          web_image_version: ${{ env.IMAGE_TAG }}
           openid_image_version: ${{ inputs.major_version }}
           saml_image_version: ${{ inputs.major_version }}
           module: centreon
           feature_file_path: ${{ matrix.feature }}
+          test_tags: ${{ inputs.test_tags }}
           dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
           test_execution_key: ${{ steps.get-test-execution-key.outputs.test_execution_key }}
+          stability: ${{ inputs.stability }}
+          is_cloud: ${{ inputs.is_cloud }}
+          artifactory_internal_repo_username: ${{ secrets.artifactory_internal_repo_username }}
+          artifactory_internal_repo_password: ${{ secrets.artifactory_internal_repo_password }}
 
       - name: Replace / with - in the feature path
         id: feature-path
@@ -163,6 +190,26 @@ jobs:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-results-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/
           retention-days: 1
+
+      - name: Check for test retries
+        id: check_retries
+        if: always()
+        run: |
+            retriesFile="${{ inputs.module_name }}/tests/e2e/results/hasRetries.json"
+            if [ -f "$retriesFile" ]; then
+              retries=$(jq '.' $retriesFile)
+              if [ "$retries" != "{}" ]; then
+                echo "Test retries: $retries"
+                retriesHtml="<h2>:warning:The following tests were retried during execution:</h2><table><tr><th>Feature</th><th>Test Scenario</th></tr>"
+                # Generate the HTML rows
+                retriesHtml+=$(jq -r 'to_entries | .[] | "<tr><td>\(.key | split(" > ")[0])</td><td>\(.key | split(" > ")[1])</td></tr>"' $retriesFile)
+                retriesHtml+="</table>"
+                echo "$retriesHtml" >> $GITHUB_STEP_SUMMARY
+                retriesJson=$(echo "$retries" | jq -c '.')
+                echo "retries=$retriesJson" >> $GITHUB_OUTPUT
+              fi
+            fi
+        shell: bash
 
       - name: Upload test reports
         if: failure()
@@ -186,7 +233,7 @@ jobs:
     if: ${{ always() && (inputs.stability == 'testing' || github.event_name == 'schedule') }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
@@ -227,7 +274,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
@@ -261,13 +308,17 @@ jobs:
       matrix:
         type_of_report: [test-results, test-reports, xray-reports]
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
-      - name: Merging Artifacts
-        uses: ./.github/actions/merge-artifacts
+      - name: Merge Artifacts
+        uses: actions/upload-artifact/merge@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         if: ${{ ( contains(needs.cypress-e2e-test-run.result, 'failure') && ( matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'xray-reports' }}
         with:
-          target_name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
-          source_paths: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}/**
-          source_name_pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
+          delete-merged: false # cannot be set to true due to random fails: Failed to DeleteArtifact: Unable to make request: ECONNRESET
+          retention-days: 1
+
+      - name: Delete merged artifacts
+        uses: geekyeggo/delete-artifact@24928e75e6e6590170563b8ddae9fac674508aa1 # v5.0.0
+        with:
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
+          failOnError: false

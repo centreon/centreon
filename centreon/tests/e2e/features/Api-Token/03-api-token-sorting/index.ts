@@ -1,4 +1,5 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+
 import { Contact, Token, columns, durationMap } from '../common';
 
 beforeEach(() => {
@@ -10,8 +11,8 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: 'centreon/api/latest/administration/tokens?*'
-  }).as('getTokens');
+    url: 'centreon/api/latest/administration/tokens?*desc*'
+  }).as('getDescendingOrderedTokens');
 
   cy.fixture('api-token/users.json').then((users: Record<string, Contact>) => {
     Object.values(users).forEach((user) => {
@@ -48,12 +49,12 @@ Given('API tokens with predefined details are created', () => {
         user_id: token.userId
       };
       cy.request({
-        method: 'POST',
-        url: '/centreon/api/latest/administration/tokens',
         body: payload,
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        method: 'POST',
+        url: '/centreon/api/latest/administration/tokens'
       }).then((response) => {
         expect(response.status).to.eq(201);
       });
@@ -62,48 +63,59 @@ Given('API tokens with predefined details are created', () => {
 });
 
 Given('I am on the API tokens page', () => {
-  cy.visit('/centreon/administration/api-token');
-  cy.wait('@getTokens');
-
-  cy.getByLabel({ label: 'Refresh', tag: 'button' }).click();
-  cy.wait('@getTokens');
+  cy.visitApiTokens();
 });
 
 When('I click on the {string} column header', (columnHeader: string) => {
   cy.contains(columnHeader).click();
-  cy.wait('@getTokens');
+  cy.wait('@getDescendingOrderedTokens');
 });
 
 Then(
   'the tokens are sorted by {string} in descending order',
   (orderBy: string) => {
-    let values: string[] = [];
-    let parsedDates: Date[] = [];
-    cy.get('.MuiTableBody-root .MuiTableRow-root')
-      .each((row) => {
-        cy.wrap(row)
-          .find('.MuiTableCell-body')
-          .eq(columns.indexOf(orderBy))
-          .invoke('text')
-          .then((value) => {
-            if (orderBy.toLowerCase().includes('date')) {
-              parsedDates.push(new Date(value.trim()));
-            } else {
-              values.push(value.trim());
-            }
+    let errorMessage = 'Wrong order';
+
+    cy.waitUntil(
+      () => {
+        let previousValue: string | null = null;
+        let isOrdered = true;
+
+        return cy
+          .get('.MuiTableBody-root .MuiTableRow-root')
+          .spread((...rows) => {
+            rows.forEach((row) => {
+              cy.wrap(row)
+                .find('.MuiTableCell-body')
+                .eq(columns.indexOf(orderBy))
+                .invoke('text')
+                .then((value) => {
+                  const nextValue = value.trim();
+
+                  errorMessage = `${nextValue} should be listed before ${previousValue}`;
+
+                  if (previousValue !== null) {
+                    if (orderBy.toLowerCase().includes('date')) {
+                      isOrdered =
+                        new Date(previousValue).getTime() >=
+                        new Date(nextValue).getTime();
+                    } else {
+                      isOrdered =
+                        [previousValue, nextValue].sort().reverse().pop() ===
+                        nextValue;
+                    }
+                  }
+
+                  previousValue = nextValue;
+                });
+            });
+
+            return cy.wrap(isOrdered);
           });
-      })
-      .then(() => {
-        // For Date columns
-        if (orderBy.toLowerCase().includes('date')) {
-          const sortedParsedDates = [...parsedDates].sort(
-            (a, b) => b.getTime() - a.getTime()
-          );
-          expect(parsedDates).to.deep.equal(sortedParsedDates);
-        } else {
-          const sortedValues = [...values].sort().reverse();
-          expect(values).to.deep.equal(sortedValues);
-        }
-      });
+      },
+      {
+        errorMsg: () => errorMessage
+      }
+    );
   }
 );

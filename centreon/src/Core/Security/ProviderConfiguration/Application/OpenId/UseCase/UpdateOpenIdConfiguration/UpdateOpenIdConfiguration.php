@@ -28,6 +28,9 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
@@ -46,13 +49,20 @@ use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 /**
  * @phpstan-import-type _RoleMapping from UpdateOpenIdConfigurationRequest
+ * @phpstan-import-type _GroupMapping from UpdateOpenIdConfigurationRequest
+ * @phpstan-import-type _AuthenticationConditions from UpdateOpenIdConfigurationRequest
+ * @phpstan-import-type _UpdateOpenIdConfigurationRequest from UpdateOpenIdConfigurationRequest
+ *
+ * @phpstan-type _ConfigurationAsArray  array<string, mixed>
  */
 class UpdateOpenIdConfiguration
 {
-    use LoggerTrait;
+    use LoggerTrait, VaultTrait;
 
     /**
      * @param WriteOpenIdConfigurationRepositoryInterface $repository
@@ -60,14 +70,19 @@ class UpdateOpenIdConfiguration
      * @param ReadContactGroupRepositoryInterface $contactGroupRepository
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
      * @param ProviderAuthenticationFactoryInterface $providerAuthenticationFactory
+     * @param ReadVaultConfigurationRepositoryInterface $vaultConfigurationRepository
+     * @param WriteVaultRepositoryInterface $writeVaultRepository
      */
     public function __construct(
         private WriteOpenIdConfigurationRepositoryInterface $repository,
         private ReadContactTemplateRepositoryInterface $contactTemplateRepository,
         private ReadContactGroupRepositoryInterface $contactGroupRepository,
         private ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private ProviderAuthenticationFactoryInterface $providerAuthenticationFactory
+        private ProviderAuthenticationFactoryInterface $providerAuthenticationFactory,
+        private ReadVaultConfigurationRepositoryInterface $vaultConfigurationRepository,
+        private WriteVaultRepositoryInterface $writeVaultRepository,
     ) {
+        $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::OPEN_ID_CREDENTIALS_VAULT_PATH);
     }
 
     /**
@@ -99,6 +114,16 @@ class UpdateOpenIdConfiguration
             );
             $requestArray['groups_mapping'] = $this->createGroupsMapping($request->groupsMapping);
             $requestArray['is_active'] = $request->isActive;
+
+            /**
+             * @var CustomConfiguration $customConfiguration
+             */
+            $customConfiguration = $configuration->getCustomConfiguration();
+
+            /**
+             * @var _ConfigurationAsArray $requestArray
+             */
+            $requestArray = $this->manageClientIdAndClientSecretIntoVault($requestArray, $customConfiguration);
 
             $configuration->setCustomConfiguration(new CustomConfiguration($requestArray));
 
@@ -269,17 +294,7 @@ class UpdateOpenIdConfiguration
     /**
      * Create Authentication Condition from request data.
      *
-     * @param array{
-     *  "is_enabled": bool,
-     *  "attribute_path": string,
-     *  "authorized_values": string[],
-     *  "trusted_client_addresses": string[],
-     *  "blacklist_client_addresses": string[],
-     *  "endpoint": array{
-     *      "type": string,
-     *      "custom_endpoint":string|null
-     *  }
-     * } $authenticationConditionsParameters
+     * @param _AuthenticationConditions $authenticationConditionsParameters
      *
      * @throws AssertionFailedException
      * @throws ConfigurationException
@@ -310,18 +325,7 @@ class UpdateOpenIdConfiguration
     /**
      * Create Groups Mapping from data send to the request.
      *
-     * @param array{
-     *  "is_enabled": bool,
-     *  "attribute_path": string,
-     *  "endpoint": array{
-     *      "type": string,
-     *      "custom_endpoint":string|null
-     *  },
-     *  "relations":array<array{
-     *      "group_value": string,
-     *      "contact_group_id": int
-     *  }>
-     * } $groupsMappingParameters
+     * @param _GroupMapping $groupsMappingParameters
      *
      * @return GroupsMapping
      */
@@ -412,5 +416,66 @@ class UpdateOpenIdConfiguration
         }
 
         return null;
+    }
+
+    /**
+     * Manage the client id and client secret into the vault.
+     * This method will upsert the client id and the client secret if one of those values change and are not already
+     * stored into the vault.
+     *
+     * @param _ConfigurationAsArray $requestArray
+     * @param CustomConfiguration $customConfiguration
+     *
+     * @throws \Throwable
+     *
+     * @return _ConfigurationAsArray
+     */
+    private function manageClientIdAndClientSecretIntoVault(
+        array $requestArray,
+        CustomConfiguration $customConfiguration
+    ): array {
+        // No need to do anything if vault is not configured
+        if (! $this->vaultConfigurationRepository->exists()) {
+            return $requestArray;
+        }
+
+        // Retrieve the uuid from the vault path if the client id or client secret is already stored
+        $uuid = null;
+        $clientId = $customConfiguration->getClientId();
+        $clientSecret = $customConfiguration->getClientSecret();
+
+        if ($clientId !== null && str_starts_with($clientId, VaultConfiguration::VAULT_PATH_PATTERN)) {
+            $uuid = $this->getUuidFromPath($clientId);
+        } elseif ($clientSecret !== null && str_starts_with($clientSecret, VaultConfiguration::VAULT_PATH_PATTERN)) {
+            $uuid = $this->getUuidFromPath($clientSecret);
+        }
+
+        // Update the vault with the new client id and client secret if the value are not a vault path.
+        $data = [];
+        if (
+            $requestArray['client_id'] !== null
+            && ! str_starts_with($requestArray['client_id'], VaultConfiguration::VAULT_PATH_PATTERN)
+        ) {
+            $data[VaultConfiguration::OPENID_CLIENT_ID_KEY] = $requestArray['client_id'];
+        }
+        if (
+            $requestArray['client_secret'] !== null
+            && ! str_starts_with($requestArray['client_secret'], VaultConfiguration::VAULT_PATH_PATTERN)
+        ) {
+            $data[VaultConfiguration::OPENID_CLIENT_SECRET_KEY] = $requestArray['client_secret'];
+        }
+
+        if (! empty($data)) {
+            $vaultPaths = $this->writeVaultRepository->upsert(
+                $uuid,
+                $data
+            );
+
+            // Assign new values to the request array
+            $requestArray['client_id'] = $vaultPaths[VaultConfiguration::OPENID_CLIENT_ID_KEY];
+            $requestArray['client_secret'] = $vaultPaths[VaultConfiguration::OPENID_CLIENT_SECRET_KEY];
+        }
+
+        return $requestArray;
     }
 }

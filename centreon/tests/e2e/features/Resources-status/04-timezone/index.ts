@@ -135,6 +135,8 @@ Given('the platform is configured with at least one resource', () => {
     })
     .applyPollerConfiguration();
 
+  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' });
+
   checkServicesAreMonitored([
     {
       name: serviceInDtName

@@ -1,10 +1,10 @@
-import { Link } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
+import { Link } from 'react-router-dom';
 
 import { Typography } from '@mui/material';
 
-import { Tooltip } from '@centreon/ui/components';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
+import { Tooltip } from '@centreon/ui/components';
 
 import TooltipContent from '../Tooltip/Tooltip';
 import { FormattedResponse, getValueByUnit } from '../utils';

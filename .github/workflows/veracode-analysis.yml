@@ -90,7 +90,7 @@ jobs:
           echo "skip_analysis=$SKIP_ANALYSIS" >> $GITHUB_OUTPUT
           cat $GITHUB_OUTPUT
 
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         if: steps.routing-mode.outputs.skip_analysis == 'false'
 
       - name: Generate binary file
@@ -107,7 +107,7 @@ jobs:
     runs-on: [self-hosted, common]
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Get build binary
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
@@ -134,7 +134,7 @@ jobs:
             TARGETS=( "${{ github.base_ref || github.ref_name }}" "dev-${{ inputs.major_version }}.x" develop )
           fi
 
-          for TARGET in ${TARGETS[@]}; do
+          for TARGET in "${TARGETS[@]}"; do
             RESULT=0
             echo "[INFO] - Searching baseline file for $TARGET's"
             aws s3 ls "$BUCKET/$TARGET/results.json" || RESULT=$( echo $? )
@@ -159,7 +159,7 @@ jobs:
           java-version: 8
 
       - name: Pipeline scan
-        uses: veracode/Veracode-pipeline-scan-action@e4326eb9e6735637c250e725c67d1b5f56d1a97c # v1.0.15
+        uses: veracode/Veracode-pipeline-scan-action@fe0924c134a03ab5a74fcb9722ed8456efa48e17 # v1.0.16
         continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
           vid: "vera01ei-${{ secrets.veracode_api_id }}"
@@ -173,7 +173,6 @@ jobs:
           development_stage: '${{ needs.build.outputs.development_stage }}'
           summary_display: '${{ needs.build.outputs.display_summary }}'
           issue_details: '${{ needs.build.outputs.display_summary }}'
-          use_upgraded_version: 'true'
 
       - name: Backup analysis reports
         # debug step used to investigate support case
@@ -233,7 +232,7 @@ jobs:
 
       - name: Create jira ticket
         # In case of QG failure, a ticket must be created
-        if: needs.build.outputs.enable_qg == 'false' || failure()
+        if: needs.build.outputs.enable_qg == 'false' || ( needs.build.outputs.development_stage == 'Development' && failure() )
         uses: ./.github/actions/veracode-create-jira-ticket
         with:
           jira_base_url: ${{ secrets.jira_base_url }}
@@ -282,11 +281,11 @@ jobs:
           fail-on-cache-miss: true
 
       - name: Sandbox scan
-        uses: veracode/veracode-uploadandscan-action@f7e1fbf02c5c899fba9f12e3f537b62f2f1230e1 # master using 0.2.6
+        uses: veracode/veracode-uploadandscan-action@f7e1fbf02c5c899fba9f12e3f537b62f2f1230e1 # 0.2.7
         continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
           appname: "${{ inputs.module_name }}"
-          version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_runId-${{ github.run_id }}"
+          version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_runId-${{ github.run_id }}_attempt-${{ github.run_attempt }}"
           filepath: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           vid: "vera01ei-${{ secrets.veracode_api_id }}"
           vkey: "vera01es-${{ secrets.veracode_api_key }}"
@@ -324,7 +323,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Removing pnpm dependencies
         run: |

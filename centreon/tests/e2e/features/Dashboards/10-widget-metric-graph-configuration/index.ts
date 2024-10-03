@@ -1,14 +1,58 @@
+/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
-  checkMetricsAreMonitored,
-  checkServicesAreMonitored
+  checkHostsAreMonitored,
+  checkServicesAreMonitored,
+  checkMetricsAreMonitored
 } from '../../../commons';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import metricsGraphWidget from '../../../fixtures/dashboards/creation/widgets/metricsGraphWidget.json';
 import metricsGraphDoubleWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwometricsGraphWidget.json';
+import metricsGraphWithMultipleHosts from '../../../fixtures/dashboards/creation/widgets/metricsGraphWithMultipleHosts.json';
+import metricsGraphWithMultipleMetrics from '../../../fixtures/dashboards/creation/widgets/dashboardWithMetricsGraphWidgetWithMultipleMetrics.json';
+
+const services = {
+  serviceCritical: {
+    host: 'host3',
+    name: 'service3',
+    template: 'SNMP-Linux-Load-Average'
+  },
+  serviceOk: { host: 'host2', name: 'service_test_ok', template: 'Ping-LAN' },
+  serviceWarning: {
+    host: 'host2',
+    name: 'service2',
+    template: 'SNMP-Linux-Memory'
+  }
+};
+const resultsToSubmit = [
+  {
+    host: services.serviceWarning.host,
+    output: 'submit_status_2',
+    service: services.serviceCritical.name,
+    status: 'critical'
+  },
+  {
+    host: services.serviceWarning.host,
+    output: 'submit_status_2',
+    service: services.serviceWarning.name,
+    status: 'warning'
+  },
+  {
+    host: services.serviceWarning.host,
+    output: 'submit_status_2',
+    service: services.serviceOk.name,
+    status: 'ok'
+  },
+  {
+    host: services.serviceCritical.host,
+    output: 'submit_status_2',
+    service: services.serviceOk.name,
+    status: 'ok'
+  }
+];
 
 before(() => {
   cy.startContainers();
@@ -33,13 +77,80 @@ before(() => {
     method: 'GET',
     url: /\/api\/latest\/monitoring\/dashboard\/metrics\/performances\/data\?.*$/
   }).as('performanceData');
+  cy.addHost({
+    hostGroup: 'Linux-Servers',
+    name: services.serviceOk.host,
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: services.serviceOk.name,
+      template: services.serviceOk.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: services.serviceWarning.name,
+      template: services.serviceWarning.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: services.serviceCritical.name,
+      template: services.serviceCritical.template
+    });
+  cy.addHost({
+    hostGroup: 'Linux-Servers',
+    name: services.serviceCritical.host,
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: services.serviceOk.name,
+      template: services.serviceOk.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: services.serviceWarning.name,
+      template: services.serviceWarning.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: services.serviceCritical.name,
+      template: services.serviceCritical.template
+    })
+    .applyPollerConfiguration();
 
-  checkServicesAreMonitored([
-    {
-      name: 'Ping',
-      status: 'ok'
-    }
+  cy.loginByTypeOfUser({
+    jsonName: 'admin'
+  });
+
+  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' });
+
+  checkHostsAreMonitored([
+    { name: services.serviceOk.host },
+    { name: services.serviceCritical.host }
   ]);
+  checkServicesAreMonitored([
+    { name: services.serviceCritical.name },
+    { name: services.serviceOk.name }
+  ]);
+  cy.submitResults(resultsToSubmit);
+  checkServicesAreMonitored([
+    { name: services.serviceCritical.name, status: 'critical' },
+    { name: services.serviceOk.name, status: 'ok' }
+  ]);
+
   checkMetricsAreMonitored([
     {
       host: 'Centreon-Server',
@@ -47,6 +158,16 @@ before(() => {
       service: 'Ping'
     }
   ]);
+
+  checkServicesAreMonitored([
+    {
+      name: 'Ping',
+      status: 'ok'
+    }
+  ]);
+
+  cy.logoutViaAPI();
+  cy.applyAcl();
 });
 
 beforeEach(() => {
@@ -91,8 +212,7 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.visit('/centreon/home/dashboards/library');
-    cy.contains(dashboards.default.name).click();
+    cy.visitDashboard(dashboards.default.name);
   }
 );
 
@@ -175,19 +295,9 @@ Then('the information about the selected metric is displayed', () => {
 
 Given('a dashboard featuring having Metrics Graph widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
-  cy.visit('/centreon/home/dashboards/library');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@performanceData');
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editWidget(1);
 });
 
 When(
@@ -257,14 +367,14 @@ Then(
 
 Given('a dashboard that includes a configured Metrics Graph widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
-  cy.visit('/centreon/home/dashboards/library');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
+  cy.visitDashboard(dashboards.default.name);
 });
 
 When(
   'the dashboard administrator user duplicates the Metrics Graph widget',
   () => {
+    cy.getByTestId({ testId: 'RefreshIcon' }).should('be.visible');
+    cy.getByTestId({ testId: 'RefreshIcon' }).click();
     cy.getByLabel({
       label: 'Edit dashboard',
       tag: 'button'
@@ -288,13 +398,7 @@ Then('the second widget has the same properties as the first widget', () => {
 
 Given('a dashboard featuring two Metrics Graph widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphDoubleWidget);
-  cy.visit('/centreon/home/dashboards/library');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.getByTestId({ testId: 'More actions' }).eq(0).click();
   cy.wait('@performanceData');
 });
@@ -323,18 +427,8 @@ Then(
 
 Given('a dashboard featuring a configured Metrics Graph widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
-  cy.visit('/centreon/home/dashboards/library');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editDashboard(dashboards.default.name);
+  cy.editWidget(1);
   cy.wait('@performanceData');
 });
 
@@ -374,18 +468,8 @@ Then('the thresholds are automatically hidden', () => {
 
 Given('a dashboard with a configured Metrics Graph widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
-  cy.visit('/centreon/home/dashboards/library');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editDashboard(dashboards.default.name);
+  cy.editWidget(1);
   cy.wait('@performanceData');
   cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
 });
@@ -396,14 +480,171 @@ When('the dashboard administrator selects more than two metric units', () => {
 });
 
 Then(
-  'a message should be displayed indicating that the user can only select a maximum of two metric units',
+  'a message should be displayed indicating that thresholds are disabled',
   () => {
-    cy.contains('span', 'You can select a maximum of 2 metric units.').should(
-      'exist'
-    );
     cy.contains(
-      'span',
-      'Thresholds are automatically hidden as soon as you select 2 metric units.'
+      'Thresholds are automatically hidden when you select several metrics with different units.'
     ).should('exist');
   }
 );
+
+Given('a dashboard having Metrics Graph widget with multiple hosts', () => {
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    metricsGraphWithMultipleHosts
+  );
+  cy.editDashboard(dashboards.default.name);
+  cy.editWidget(1);
+  cy.wait('@performanceData');
+});
+
+When('the dashboard administrator opens service list', () => {
+  cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
+  cy.getByLabel({ label: 'RichTextEditor' })
+    .eq(0)
+    .type(genericTextWidgets.default.description);
+  cy.getByLabel({ label: 'Open' }).eq(2).click();
+});
+
+Then(
+  'only the services associated with the selected hosts should be displayed',
+  () => {
+    cy.contains('Ping').should('be.visible');
+  }
+);
+
+Given(
+  'a dashboard featuring a configured Metrics Graph widget with multiple metrics',
+  () => {
+    cy.insertDashboardWithWidget(
+      dashboards.default,
+      metricsGraphWithMultipleMetrics
+    );
+    cy.editDashboard(dashboards.default.name);
+    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByLabel({
+      label: 'Edit widget',
+      tag: 'li'
+    }).realClick();
+    cy.wait('@performanceData');
+  }
+);
+
+When('the dashboard administrator activates the curve points settings', () => {
+  cy.getByTestId({ testId: '-summary' }).eq(2).click();
+  cy.getByLabel({
+    label: 'Display curve points',
+    tag: 'input'
+  }).click();
+});
+
+Then('the curve points should be displayed on the graph', () => {
+  cy.get('circle').should('have.length.greaterThan', 0);
+});
+
+When('the dashboard administrator clicks on the custom button', () => {
+  cy.getByTestId({ testId: '-summary' }).eq(2).click();
+  cy.getByLabel({
+    label: 'Display curve points',
+    tag: 'input'
+  }).realClick();
+  cy.getByLabel({
+    label: 'Custom',
+    tag: 'button'
+  }).click();
+});
+
+When(
+  'the dashboard administrator updates the line width settings using the gauge',
+  () => {
+    cy.get('#sliderinput').eq(0).type('10');
+  }
+);
+
+Then('the line width should be updated in the graph', () => {
+  cy.get('path[stroke-width="10"]').should('exist');
+});
+
+When('the dashboard administrator clicks on the show button', () => {
+  cy.getByTestId({ testId: '-summary' }).eq(2).click();
+  cy.getByTestId({ testId: 'show' }).click();
+});
+
+When('the dashboard administrator updates the opacity using the gauge', () => {
+  cy.get('#sliderinput').eq(0).type('100%');
+});
+
+Then('the opacity should be updated in the graph', () => {
+  cy.get('path[fill^="rgba"][fill$=", 1)"]').should('exist');
+});
+
+When('the dashboard administrator clicks on the Dashed button', () => {
+  cy.getByTestId({ testId: '-summary' }).eq(2).click();
+  cy.getByTestId({ testId: 'dash' }).click();
+});
+
+When(
+  'the dashboard administrator updates the dash and space input values',
+  () => {
+    cy.getByLabel({
+      label: 'Dash width',
+      tag: 'input'
+    })
+      .clear()
+      .type('7');
+    cy.getByLabel({
+      label: 'Space',
+      tag: 'input'
+    })
+      .clear()
+      .type('7');
+  }
+);
+
+Then('the line style should be updated based on the changed values', () => {
+  cy.get('path[stroke-dasharray="7 7"]').should('exist');
+});
+
+When('the dashboard administrator clicks on the zero-centred button', () => {
+  cy.getByTestId({ testId: '-summary' }).eq(2).click();
+  cy.getByLabel({
+    label: 'Zero-centered',
+    tag: 'input'
+  }).click();
+});
+
+Then(
+  'the Metrics Graph widget should be refreshed to center the values around 0',
+  () => {
+    cy.get('text').contains('tspan', '0 ms').should('exist');
+  }
+);
+
+When('the dashboard administrator selects the list display mode', () => {
+  cy.getByTestId({ testId: '-summary' }).eq(2).click();
+  cy.getByTestId({ testId: 'list' }).click();
+});
+
+Then(
+  'the Metrics Graph widget should refresh to display items in a list format',
+  () => {
+    cy.get(
+      'div[class$="-items"][data-as-list="true"][data-mode="normal"]'
+    ).should('exist');
+  }
+);
+
+When(
+  'the dashboard administrator clicks the "Display as Bar Chart" button',
+  () => {
+    cy.getByTestId({ testId: '-summary' }).eq(2).click();
+    cy.getByLabel({
+      label: 'Bar',
+      tag: 'div'
+    }).click();
+  }
+);
+
+Then('the graph should be displayed as a bar chart', () => {
+  cy.get('path[data-testid*="stacked-bar-"]').should('exist');
+});

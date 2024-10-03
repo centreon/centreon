@@ -1,6 +1,6 @@
 import { ChangeEvent, useState } from 'react';
 
-import { T, always, cond, isEmpty, isNil } from 'ramda';
+import { T, always, clamp, cond, isEmpty } from 'ramda';
 
 import TextField, { TextProps } from '../Text';
 
@@ -43,8 +43,9 @@ const NumberField = ({
       [
         T,
         always(
-          Math.max(
-            !isNil(inputProps?.min) ? inputProps?.min : -Infinity,
+          clamp(
+            inputProps?.min || Number.NEGATIVE_INFINITY,
+            inputProps?.max || Number.POSITIVE_INFINITY,
             number
           )
         )

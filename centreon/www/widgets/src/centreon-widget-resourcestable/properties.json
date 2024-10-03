@@ -3,27 +3,6 @@
   "description": "Displays data on resource status and events, centralized in a table.",
   "icon": "<g><path  d=\"M49.2,6H10.8c-2.65,0-4.8,2.15-4.8,4.8v38.4c0,2.65,2.15,4.8,4.8,4.8h38.4c2.65,0,4.8-2.15,4.8-4.8V10.8c0-2.65-2.15-4.8-4.8-4.8ZM52.08,18.48v16.1h-13.47v-16.1h13.47ZM23.63,34.58v-16.1h12.99v16.1h-12.99ZM36.61,36.58v15.5h-12.99v-15.5h12.99ZM21.63,18.48v16.1H7.92v-16.1h13.71ZM7.92,49.2v-12.62h13.71v15.5h-10.83c-1.59,0-2.88-1.29-2.88-2.88ZM49.2,52.08h-10.59v-15.5h13.47v12.62c0,1.59-1.29,2.88-2.88,2.88\"/></g>",
   "options": {
-    "displayType": {
-      "type": "displayType",
-      "options": [
-        {
-          "icon": "<svg viewBox=\"0 0 24 24\"><rect id=\"Rectangle_1650\" data-name=\"Rectangle 1650\" width=\"24\" height=\"24\" fill=\"none\"/><path id=\"Label_menu\" data-name=\"Label menu\" d=\"M6.964-5.178H2.627L1.654-2.443H.246L4.2-12.924H5.393L9.352-2.443h-1.4ZM3.04-6.316H6.558L4.8-11.218Zm9.19,3.873H10.915V-13.5H12.23Zm3.795,0H14.71V-13.5h1.315Z\" transform=\"translate(3.865 19.5)\" fill=\"#A2A2A2\"/></svg>",
-          "label": "All",
-          "id": "all"
-        },
-        {
-          "icon": "<svg viewBox=\"0 0 24 24\"><rect id=\"Rectangle_1650\" data-name=\"Rectangle 1650\" width=\"24\" height=\"24\" fill=\"none\"/><circle id=\"Ellipse_192\" data-name=\"Ellipse 192\" cx=\"3.5\" cy=\"3.5\" r=\"3.5\" transform=\"translate(2 3)\" fill=\"#a2a2a2\"/><line id=\"Ligne_318\" data-name=\"Ligne 318\" x2=\"10\" transform=\"translate(12 20)\" fill=\"none\" stroke=\"#a2a2a2\" stroke-width=\"2\"/><line id=\"Ligne_319\" data-name=\"Ligne 319\" x2=\"10\" transform=\"translate(12 16)\" fill=\"none\" stroke=\"#a2a2a2\" stroke-width=\"2\"/><line id=\"Ligne_320\" data-name=\"Ligne 320\" x2=\"10\" transform=\"translate(12 12)\" fill=\"none\" stroke=\"#a2a2a2\" stroke-width=\"2\"/><path id=\"Tracé_2975\" data-name=\"Tracé 2975\" d=\"M8.829,6.5h3.317V21\" fill=\"none\" stroke=\"#a2a2a2\" stroke-width=\"2\"/></svg>",
-          "label": "View by host",
-          "id": "host"
-        },
-        {
-          "icon": "<svg viewBox=\"0 0 24 24\"><rect id=\"Rectangle_1650\" data-name=\"Rectangle 1650\" width=\"24\" height=\"28\" fill=\"none\"/><g id=\"Groupe_2458\" data-name=\"Groupe 2458\" transform=\"translate(1 2)\"><circle id=\"Ellipse_192\" data-name=\"Ellipse 192\" cx=\"2\" cy=\"2\" r=\"2\" transform=\"translate(2 2)\" fill=\"#a2a2a2\"/><path id=\"Tracé_2976\" data-name=\"Tracé 2976\" d=\"M-2.979,0h16\" transform=\"translate(6.979 4)\" fill=\"none\" stroke=\"#a2a2a2\" stroke-width=\"2\"/></g><g id=\"Groupe_2459\" data-name=\"Groupe 2459\" transform=\"translate(1 2)\"><circle id=\"Ellipse_193\" data-name=\"Ellipse 193\" cx=\"2\" cy=\"2\" r=\"2\" transform=\"translate(2 8)\" fill=\"#a2a2a2\"/><path id=\"Tracé_2977\" data-name=\"Tracé 2977\" d=\"M-2.979,0h16\" transform=\"translate(6.979 10)\" fill=\"none\" stroke=\"#a2a2a2\" stroke-width=\"2\"/></g><g id=\"Groupe_2460\" data-name=\"Groupe 2460\" transform=\"translate(1 3)\"><circle id=\"Ellipse_194\" data-name=\"Ellipse 194\" cx=\"2\" cy=\"2\" r=\"2\" transform=\"translate(2 13)\" fill=\"#a2a2a2\"/><path id=\"Tracé_2978\" data-name=\"Tracé 2978\" d=\"M-2.979,0h16\" transform=\"translate(6.979 15)\" fill=\"none\" stroke=\"#a2a2a2\" stroke-width=\"2\"/></g></svg>",
-          "label": "View by service",
-          "id": "service"
-        }
-      ],
-      "defaultValue": "all"
-    },
     "statuses": {
       "type": "checkbox",
       "label": "Display resources with this status",
@@ -49,10 +28,7 @@
           "name": "Undefined (Unreachable/Unknown)"
         }
       ],
-      "defaultValue": [
-        "warning",
-        "problem"
-      ]
+      "defaultValue": ["warning", "problem"]
     },
     "states": {
       "type": "checkbox",
@@ -71,9 +47,108 @@
           "name": "In downtime"
         }
       ],
-      "defaultValue": [
-        "unhandled_problems"
-      ]
+      "defaultValue": ["unhandled_problems"]
+    },
+    "statusTypes": {
+      "type": "checkbox",
+      "label": "Display resources with these status types",
+      "options": [
+        {
+          "id": "hard",
+          "name": "Hard"
+        },
+        {
+          "id": "soft",
+          "name": "Soft"
+        }
+      ],
+      "defaultValue": []
+    },
+    "hostSeverities": {
+      "type": "connected-autocomplete",
+      "label": "Host severities",
+      "secondaryLabel": "Select host severities",
+      "baseEndpoint": "/monitoring/severities/host",
+      "isSingleAutocomplete": false
+    },
+    "serviceSeverities": {
+      "type": "connected-autocomplete",
+      "label": "Service severities",
+      "secondaryLabel": "Select service severities",
+      "baseEndpoint": "/monitoring/severities/service",
+      "isSingleAutocomplete": false
+    },
+    "isOpenTicketEnabled": {
+      "type": "switch",
+      "label": "Enable Open Tickets",
+      "defaultValue": false,
+      "hiddenCondition": {
+        "target": "featureFlags",
+        "when": "resouresTableOpenTickets",
+        "method": "equals",
+        "matches": false
+      },
+      "hasModule": "centreon-open-tickets"
+    },
+    "provider": {
+      "type": "connected-autocomplete",
+      "label": "Rule (ticket provider)",
+      "secondaryLabel": "Select rule (ticket provider)",
+      "baseEndpoint": "/open-tickets/providers",
+      "isSingleAutocomplete": true,
+      "hiddenCondition": {
+        "target": "options",
+        "when": "options.isOpenTicketEnabled",
+        "method": "equals",
+        "matches": false
+      }
+    },
+    "displayResources": {
+      "type": "radio",
+      "label": "Display resources",
+      "options": [
+        {
+          "id": "all",
+          "name": "All resources"
+        },
+        {
+          "id": "withTicket",
+          "name": "Resources linked to a ticket"
+        },
+        {
+          "id": "withoutTicket",
+          "name": "Resources with no ticket"
+        }
+      ],
+      "defaultValue": "all",
+      "hiddenCondition": {
+        "target": "options",
+        "when": "options.isOpenTicketEnabled",
+        "method": "equals",
+        "matches": false
+      }
+    },
+    "isDownHostHidden": {
+      "type": "switch",
+      "label": "Hide services with Down host",
+      "defaultValue": false,
+      "hiddenCondition": {
+        "target": "options",
+        "when": "options.isOpenTicketEnabled",
+        "method": "equals",
+        "matches": false
+      }
+    },
+    "isUnreachableHostHidden": {
+      "type": "switch",
+      "label": "hide services with Unreachable host",
+      "defaultValue": false,
+      "hiddenCondition": {
+        "target": "options",
+        "when": "options.isOpenTicketEnabled",
+        "method": "equals",
+        "matches": false
+      }
     },
     "refreshInterval": {
       "type": "refresh-interval",

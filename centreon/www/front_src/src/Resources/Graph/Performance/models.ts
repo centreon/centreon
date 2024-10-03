@@ -2,6 +2,8 @@ import { ReactNode } from 'react';
 
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 
+import { LineChartData } from '@centreon/ui';
+
 import { ResourceDetails } from '../../Details/models';
 import { Resource } from '../../models';
 
@@ -96,29 +98,14 @@ export interface GetYScaleProps {
 }
 
 export interface LinesProps {
-  getSortedStackedLines: (lines: Array<Line>) => Array<Line>;
-  getTime: (timeValue: TimeValue) => number;
-  getUnits: (lines: Array<Line>) => Array<string>;
-  getYScale: ({
-    hasMoreThanTwoUnits,
-    unit,
-    secondUnit,
-    leftScale,
-    rightScale,
-    invert
-  }: GetYScaleProps) => ScaleLinear<number, number>;
+  data?: LineChartData;
+  end: string;
   graphHeight: number;
-  graphWidth: number;
   leftScale: ScaleLinear<number, number, never>;
   lines: Array<Line>;
   rightScale: ScaleLinear<number, number, never>;
-  timeSeries: Array<TimeValue>;
+  start: string;
   xScale: ScaleTime<number, number, never>;
-}
-
-export interface AdditionalLines {
-  additionalLinesProps: LinesProps;
-  resource: ResourceDetails | Resource;
 }
 
 export interface FilterLines {

@@ -1,25 +1,37 @@
 import { ChangeEvent, useState } from 'react';
 
-import { equals, filter, find, has, isNil, map, propEq, reduce } from 'ramda';
 import { useFormikContext } from 'formik';
 import { useAtomValue, useSetAtom } from 'jotai';
+import {
+  equals,
+  filter,
+  find,
+  has,
+  isEmpty,
+  isNil,
+  map,
+  propEq,
+  reduce,
+  toPairs
+} from 'ramda';
 
 import { SelectEntry } from '@centreon/ui';
 import { federatedWidgetsAtom } from '@centreon/ui-context';
 
-import {
-  FederatedModule,
-  FederatedWidgetProperties
-} from '../../../../../federatedModules/models';
-import { Widget } from '../models';
 import { federatedWidgetsPropertiesAtom } from '../../../../../federatedModules/atoms';
 import {
+  FederatedModule,
+  FederatedWidgetOption,
+  FederatedWidgetProperties
+} from '../../../../../federatedModules/models';
+import { isGenericText } from '../../utils';
+import {
   customBaseColorAtom,
-  singleResourceSelectionAtom,
   singleMetricSelectionAtom,
+  singleResourceSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
-import { isGenericText } from '../../utils';
+import { Widget } from '../models';
 
 interface UseWidgetSelectionState {
   options: Array<SelectEntry>;
@@ -28,6 +40,40 @@ interface UseWidgetSelectionState {
   selectedWidget: SelectEntry | undefined;
   widgets: Array<FederatedWidgetProperties>;
 }
+
+export const getDefaultValues = (
+  options:
+    | {
+        [key: string]: FederatedWidgetOption;
+      }
+    | undefined
+): object => {
+  if (!options) {
+    return {};
+  }
+
+  return Object.entries(options?.elements ?? options).reduce(
+    (acc, [key, value]) => {
+      if (!has('when', value.defaultValue)) {
+        return {
+          ...acc,
+          [key]: value.defaultValue
+        };
+      }
+
+      return {
+        ...acc,
+        [key]: equals(
+          options[value.defaultValue.when].defaultValue,
+          value.defaultValue.is
+        )
+          ? value.defaultValue.then
+          : value.defaultValue.otherwise
+      };
+    },
+    {}
+  );
+};
 
 const useWidgetSelection = (): UseWidgetSelectionState => {
   const [search, setSearch] = useState('');
@@ -70,8 +116,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
           description: {
             content: null,
             enabled: true
-          },
-          openLinksInNewTab: true
+          }
         },
         panelConfiguration: null
       });
@@ -103,28 +148,17 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       false
     );
 
-    const options = Object.entries(selectedWidgetProperties.options).reduce(
-      (acc, [key, value]) => {
-        if (!has('when', value.defaultValue)) {
-          return {
-            ...acc,
-            [key]: value.defaultValue
-          };
-        }
+    const inputCategories = selectedWidgetProperties?.categories || [];
 
-        return {
-          ...acc,
-          [key]: equals(
-            selectedWidgetProperties.options[value.defaultValue.when]
-              .defaultValue,
-            value.defaultValue.is
-          )
-            ? value.defaultValue.then
-            : value.defaultValue.otherwise
-        };
-      },
-      {}
-    );
+    const options = getDefaultValues(selectedWidgetProperties.options);
+    const properties = toPairs(inputCategories).reduce((acc, [, value]) => {
+      const hasGroups = !isEmpty(value?.groups);
+
+      return {
+        ...acc,
+        ...getDefaultValues(hasGroups ? value.elements : value)
+      };
+    }, {});
 
     const data = Object.entries(selectedWidgetProperties.data || {}).reduce(
       (acc, [key, value]) => ({
@@ -149,6 +183,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       moduleName: selectedWidget.moduleName,
       options: {
         ...options,
+        ...properties,
         description:
           shouldResetDescription || isNil(currentValues.options.description)
             ? {
@@ -156,8 +191,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
                 enabled: true
               }
             : currentValues.options.description,
-        name: currentValues.options.name,
-        openLinksInNewTab: currentValues.options.openLinksInNewTab || true
+        name: currentValues.options.name
       },
       panelConfiguration: selectedWidget.federatedComponentsConfiguration[0]
     }));

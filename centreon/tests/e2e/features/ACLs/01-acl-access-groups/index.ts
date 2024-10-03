@@ -1,20 +1,20 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+
 import data from '../../../fixtures/acls/acl-data.json';
-import '../commands';
 
 const originalACLGroup = {
-  name: 'ACL_group',
   alias: 'ACL group',
-  linkedContactGroups: data.contactGroups.contactGroup1.name
+  linkedContactGroups: data.contactGroups.contactGroup1.name,
+  name: 'ACL_group'
 };
 
 const modifiedACLGroup = {
-  name: 'ACL_group_modified',
-  alias: 'ACL group modified'
+  alias: 'ACL group modified',
+  name: 'ACL_group_modified'
 };
 
 const duplicatedACLGroup = {
-  name: originalACLGroup.name + '_1'
+  name: `${originalACLGroup.name}_1`
 };
 
 beforeEach(() => {
@@ -33,7 +33,7 @@ beforeEach(() => {
   }).as('getTimeZone');
   cy.intercept(
     'HEAD',
-    'https://cdn.eu.pendo.io/agent/static/b06b875d-4a10-4365-7edf-8efeaf53dfdd/pendo.js'
+    'https://guide.centreon.com/agent/static/b06b875d-4a10-4365-7edf-8efeaf53dfdd/pendo.js'
   ).as('pendoRequest');
 });
 
@@ -76,11 +76,9 @@ When('the access group is saved with its properties', () => {
   cy.wait('@getTimeZone');
   cy.getIframeBody()
     .find('input[name="acl_group_name"]')
-    .click()
     .type(originalACLGroup.name);
   cy.getIframeBody()
     .find('input[name="acl_group_alias"]')
-    .click()
     .type(originalACLGroup.alias);
   cy.getIframeBody()
     .find('select[name="cg_contactGroups-f[]"]')
@@ -201,11 +199,9 @@ When('I modify its properties', () => {
 
   cy.getIframeBody()
     .find('input[name="acl_group_name"]')
-    .click()
     .type(modifiedACLGroup.name);
   cy.getIframeBody()
     .find('input[name="acl_group_alias"]')
-    .click()
     .type(modifiedACLGroup.alias);
 
   cy.getIframeBody().find('input[name="submitC"]').eq(1).click();
@@ -236,7 +232,11 @@ When('I duplicate the access group', () => {
     (iframe: JQuery<HTMLIFrameElement>) => {
       const win = iframe[0].contentWindow;
 
-      cy.stub<any>(win, 'confirm').returns(true);
+      if (!win) {
+        throw new Error('Cannot get iframe');
+      }
+
+      cy.stub(win, 'confirm').returns(true);
     }
   );
 
@@ -246,28 +246,28 @@ When('I duplicate the access group', () => {
 Then('a new access group with identical properties is created', () => {
   cy.wait('@getTimeZone');
 
-  const originalACLGroupValues: string[] = [];
+  const originalACLGroupValues: Array<string> = [];
   cy.getIframeBody()
     .contains('tr', originalACLGroup.name)
     .within(() => {
       cy.get('td').each((td, index) => {
-        if (2 <= index && index <= 5)
+        if (index >= 2 && index <= 5)
           originalACLGroupValues.push(td.text().trim());
       });
     });
 
-  const duplicatedACLGroupValues: string[] = [];
+  const duplicatedACLGroupValues: Array<string> = [];
   cy.getIframeBody()
     .contains('tr', duplicatedACLGroup.name)
     .within(() => {
       cy.get('td').each((td, index) => {
-        if (2 <= index && index <= 5)
+        if (index >= 2 && index <= 5)
           duplicatedACLGroupValues.push(td.text().trim());
       });
     });
 
   cy.wrap(duplicatedACLGroupValues).then((duplicatedValues) => {
-    for (let i = 0; i < originalACLGroupValues.length; i++) {
+    for (let i = 0; i < originalACLGroupValues.length; i += 1) {
       expect(duplicatedValues[i]).to.equal(originalACLGroupValues[i]);
     }
   });
@@ -291,7 +291,11 @@ When('I delete the access group', () => {
     (iframe: JQuery<HTMLIFrameElement>) => {
       const win = iframe[0].contentWindow;
 
-      cy.stub<any>(win, 'confirm').returns(true);
+      if (!win) {
+        throw new Error('Cannot get iframe');
+      }
+
+      cy.stub(win, 'confirm').returns(true);
     }
   );
 

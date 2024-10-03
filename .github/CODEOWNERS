@@ -1,54 +1,57 @@
-*.sh                    @centreon/owners-bash
+*.sh                                    @centreon/owners-bash
 
-*.po                    @centreon/owners-doc
-*.md                    @centreon/owners-doc
-*.mdx                   @centreon/owners-doc
+*.po                                    @centreon/owners-doc
+*.md                                    @centreon/owners-doc
+*.mdx                                   @centreon/owners-doc
 
-**/config/              @centreon/owners-php
-**/composer.*           @centreon/owners-php
-**/tests/api/           @centreon/owners-php
-**/tests/php/           @centreon/owners-php
-**/tests/clapi_export/  @centreon/owners-php
-**/www/                 @centreon/owners-php
-**/tmpl/                @centreon/owners-php
-**/bin/                 @centreon/owners-php
-*.xml                   @centreon/owners-php
-**/phpstan.neon         @centreon/owners-php
-*.php                   @centreon/owners-php
-*.xsl                   @centreon/owners-php
+**/config/                              @centreon/owners-php
+**/composer.*                           @centreon/owners-php
+**/tests/api/                           @centreon/owners-php
+**/tests/php/                           @centreon/owners-php
+**/tests/clapi_export/                  @centreon/owners-php
+**/www/                                 @centreon/owners-php
+**/tmpl/                                @centreon/owners-php
+**/bin/                                 @centreon/owners-php
+*.xml                                   @centreon/owners-php
+**/phpstan.neon                         @centreon/owners-php
+*.php                                   @centreon/owners-php
+*.xsl                                   @centreon/owners-php
 
-**/www/front_src/       @centreon/owners-react
-**/www/widgets/         @centreon/owners-react
-**/cypress/**           @centreon/owners-react
-centreon/cypress        @centreon/owners-react
-package.json            @centreon/owners-react
-package-lock.json       @centreon/owners-react
-webpack*                @centreon/owners-react
-babel.config.js         @centreon/owners-react
-tsconfig.json           @centreon/owners-react
-.prettierrc.js          @centreon/owners-react
-.eslint*                @centreon/owners-react
-.csslintrc              @centreon/owners-react
-*.ts                    @centreon/owners-react
-*.tsx                   @centreon/owners-react
-*.jsx                   @centreon/owners-react
-**/cypress/**           @centreon/owners-react
+**/www/front_src/                       @centreon/owners-react
+**/www/widgets/                         @centreon/owners-react
+**/cypress/**                           @centreon/owners-react
+centreon/cypress                        @centreon/owners-react
+package.json                            @centreon/owners-react
+package-lock.json                       @centreon/owners-react
+webpack*                                @centreon/owners-react
+babel.config.js                         @centreon/owners-react
+tsconfig.json                           @centreon/owners-react
+.prettierrc.js                          @centreon/owners-react
+.eslint*                                @centreon/owners-react
+.csslintrc                              @centreon/owners-react
+*.ts                                    @centreon/owners-react
+*.tsx                                   @centreon/owners-react
+*.jsx                                   @centreon/owners-react
+**/cypress/**                           @centreon/owners-react
 
-*.pm                    @centreon/owners-perl
-*.pl                    @centreon/owners-perl
+*.pm                                    @centreon/owners-perl
+*.pl                                    @centreon/owners-perl
 
-**/tests/e2e/**         @centreon/owners-cypress-e2e
-**/cypress/e2e/**       @centreon/owners-cypress-e2e
+**/tests/e2e/**                         @centreon/owners-cypress-e2e
+**/cypress/e2e/**                       @centreon/owners-cypress-e2e
 
-*.feature               @centreon/owners-gherkin
+*.feature                               @centreon/owners-gherkin
 
-*.py                    @centreon/owners-python
+*.py                                    @centreon/owners-python
 
-.github/**              @centreon/owners-pipelines
-**/.project             @centreon/owners-pipelines
-**/selinux/             @centreon/owners-pipelines
-**/project/             @centreon/owners-pipelines
-**/packaging/           @centreon/owners-pipelines
-dependencies/**         @centreon/owners-pipelines
+.github/**                              @centreon/owners-pipelines
+**/.project                             @centreon/owners-pipelines
+**/selinux/                             @centreon/owners-pipelines
+**/project/                             @centreon/owners-pipelines
+**/packaging/                           @centreon/owners-pipelines
+dependencies/**                         @centreon/owners-pipelines
+.coderabbit.yml                         @centreon/owners-pipelines
 
-**/config/features.json @centreon/release-management
+**/config/features.json                 @centreon/release-management
+
+**/tests/rest_api/**                    @centreon/owners-api-testing

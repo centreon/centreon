@@ -1,4 +1,12 @@
-import { equals, flatten, includes, isEmpty, pluck, toUpper } from 'ramda';
+import {
+  equals,
+  flatten,
+  includes,
+  isEmpty,
+  isNil,
+  pluck,
+  toUpper
+} from 'ramda';
 
 import {
   ListingParameters,
@@ -7,9 +15,19 @@ import {
 } from '@centreon/ui';
 
 import { Resource } from '../../../models';
-import { formatStatus } from '../../../utils';
+import { formatBAStatus, formatStatus } from '../../../utils';
 
 export const resourcesEndpoint = '/monitoring/resources';
+export const hostsEndpoint = '/monitoring/resources/hosts';
+
+export const baIndicatorsEndpoint =
+  '/bam/monitoring/business-activities/indicators';
+export const businessActivitiesEndpoint = '/bam/monitoring/business-activities';
+export const getBAEndpoint = (id): string =>
+  `/bam/monitoring/business-activities/${id}`;
+
+export const getBooleanRuleEndpoint = (id): string =>
+  `/bam/monitoring/indicators/boolean-rules/${id}`;
 
 interface BuildResourcesEndpointProps {
   baseEndpoint: string;
@@ -151,5 +169,104 @@ export const buildResourcesEndpoint = ({
       sortBy,
       sortOrder
     })
+  });
+};
+
+export const buildCondensedViewEndpoint = ({
+  type,
+  resources,
+  baseEndpoint,
+  statuses
+}: BuildResourcesEndpointProps): string => {
+  const formattedResources = resources.map((resource) => {
+    if (!equals(type, resource.resourceType)) {
+      return {
+        ...resource,
+        resourceType: `${resource.resourceType.replace('-', '_')}.name`
+      };
+    }
+
+    return { ...resource, resourceType: 'name' };
+  });
+
+  const searchConditions = formattedResources.map(
+    ({ resourceType, resources: resourcesToApply }) => {
+      return resourcesToApply.map((resource) => ({
+        field: resourceType,
+        values: {
+          $rg: `^${resource.name}$`
+        }
+      }));
+    }
+  );
+
+  return buildListingEndpoint({
+    baseEndpoint,
+    customQueryParameters:
+      statuses && !isEmpty(statuses)
+        ? [{ name: 'statuses', value: statuses.map(toUpper) }]
+        : [],
+    parameters: {
+      search: {
+        conditions: flatten(searchConditions)
+      }
+    }
+  });
+};
+
+export const buildBAsEndpoint = ({
+  limit,
+  statuses,
+  type,
+  resources,
+  sortBy
+}): string => {
+  const baseEndpoint = equals(type, 'business-activity')
+    ? baIndicatorsEndpoint
+    : businessActivitiesEndpoint;
+
+  const formattedStatuses = formatBAStatus(statuses || []);
+
+  const sortOrder = equals(sortBy, 'status_severity_code') ? 'DESC' : 'ASC';
+  const sortField = equals(sortBy, 'status_severity_code') ? 'status' : 'name';
+
+  const resourcesSearchValue =
+    isEmpty(resources) || isNil(resources)
+      ? []
+      : [
+          {
+            [`${type.replace('-', '_')}.name`]: {
+              $in: pluck('name', resources)
+            }
+          }
+        ];
+  const statusesSearchValue =
+    isEmpty(statuses) || isNil(statuses)
+      ? []
+      : [
+          {
+            status: {
+              $in: formattedStatuses
+            }
+          }
+        ];
+
+  const search = {
+    name: 'search',
+    value: [...resourcesSearchValue, ...statusesSearchValue]
+  };
+
+  return buildListingEndpoint({
+    baseEndpoint,
+    customQueryParameters: [search],
+    parameters: {
+      limit,
+      sort:
+        sortField && sortOrder
+          ? {
+              [sortField]: sortOrder
+            }
+          : undefined
+    }
   });
 };

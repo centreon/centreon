@@ -1,5 +1,5 @@
+import { animated, to, useTransition } from '@react-spring/web';
 import { PieArcDatum, ProvidedProps } from '@visx/shape/lib/shapes/Pie';
-import { useTransition, to, animated } from '@react-spring/web';
 import { equals, includes, isNil, pluck } from 'ramda';
 
 import { Typography } from '@mui/material';
@@ -85,7 +85,9 @@ const AnimatedPie = <Datum,>({
                   'label',
                   thresholds[thresholdType as 'warning' | 'critical']
                 ).map((label) => (
-                  <Typography key={label}>{label}</Typography>
+                  <Typography key={label} variant="body2">
+                    {label}
+                  </Typography>
                 ))}
               </div>
             ),

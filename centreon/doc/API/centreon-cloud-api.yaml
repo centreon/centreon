@@ -1,0 +1,93 @@
+openapi: 3.0.1
+info:
+  title: Centreon Web RestAPI for Cloud
+  description: |
+    # New features
+    + Added endpoint to deploy services in a host based on associated host template(s)
+    # Updated features
+    +
+    +
+    # Information
+    All dates are in **ISO 8601** format
+    # Authentication
+    There are two modes of authentication:
+    * By token: after identification with your login credentials
+    * By cookie: by reusing a valid session ID
+  x-logo:
+    url: ./centreon-logo.png
+  contact:
+    name: Centreon
+    url: 'https://www.centreon.com'
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+externalDocs:
+  description: You can contact us on our community platform The Watch
+  url: 'https://thewatch.centreon.com/'
+servers:
+  - url: '{protocol}://{server}:{port}/centreon/api/{version}'
+    variables:
+      protocol:
+        enum:
+          - http
+          - https
+        default: http
+        description: "HTTP schema"
+      server:
+        default: localhost
+        description: "IP address or hostname of Centreon server"
+      port:
+        default: '80'
+        description: "Port used by HTTP server"
+      version:
+        default: latest
+        description: "Version of the API"
+tags:
+  - name: Host
+  - name: Host group
+  - name: Host template
+  - name: Notification
+  - name: Resource Access Management
+  - name: Service
+  - name: Service template
+paths:
+  /administration/resource-access/rules:
+    $ref: "./latest/Cloud/Administration/ResourceAccessManagement/AddAndFindRules.yaml"
+  /administration/resource-access/rules/{rule_id}:
+    $ref: "./latest/Cloud/Administration/ResourceAccessManagement/FindUpdatesAndDeleteRule.yaml"
+  /administration/resource-access/rules/_delete:
+    $ref: "./latest/Cloud/Administration/ResourceAccessManagement/DeleteRules.yaml"
+  /configuration/hosts:
+    $ref: './latest/Cloud/Configuration/Host/AddAndFindHosts.yaml'
+  /configuration/hosts/{host_id}:
+    $ref: './latest/Cloud/Configuration/Host/PartialUpdateHost.yaml'
+  /configuration/hosts/groups:
+    $ref: './latest/Cloud/Configuration/HostGroups/AddAndFindHostGroups.yaml'
+  /configuration/hosts/groups/{hostgroup_id}:
+    $ref: './latest/Cloud/Configuration/HostGroups/FindAndUpdateHostGroup.yaml'
+  /configuration/hosts/templates:
+    $ref: './latest/Cloud/Configuration/HostTemplate/AddAndFindHostTemplates.yaml'
+  /configuration/hosts/templates/{host_template_id}:
+    $ref: './latest/Cloud/Configuration/HostTemplate/PartialUpdateHostTemplate.yaml'
+  /configuration/hosts/{host_id}/services/deploy:
+    $ref: './latest/Cloud/Configuration/Service/DeployServices.yaml'
+  /configuration/services:
+    $ref: "./latest/Cloud/Configuration/Service/AddAndFindServices.yaml"
+  /configuration/services/{service_id}:
+    $ref: "./latest/Cloud/Configuration/Service/PartialUpdateService.yaml"
+  /configuration/services/templates:
+    $ref: "./latest/Cloud/Configuration/ServiceTemplate/AddAndFindServiceTemplates.yaml"
+  /configuration/services/templates/{service_template_id}:
+    $ref: "./latest/Cloud/Configuration/ServiceTemplate/PartialUpdateServiceTemplate.yaml"
+  /configuration/notifications:
+    $ref: "./latest/Cloud/Configuration/Notification/Notifications.yaml"
+  /configuration/notifications/_delete:
+    $ref: "./latest/Cloud/Configuration/Notification/DeleteNotifications.yaml"
+  /configuration/notifications/{notification_id}:
+    $ref: "./latest/Cloud/Configuration/Notification/Notification.yaml"
+  /configuration/notifications/resources:
+    $ref: "./latest/Cloud/Configuration/Notification/FindNotifiableResources.yaml"
+  /configuration/notifications/{notification_id}/rules:
+    $ref: "./latest/Cloud/Configuration/Notification/FindNotifiableRule.yaml"
+  /configuration/notifications/contact_groups:
+    $ref: "./latest/Cloud/Configuration/Notification/FindNotifiableContactGroups.yaml"

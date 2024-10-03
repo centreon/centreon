@@ -1,5 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 
+import ResponsiveBarStack from './ResponsiveBarStack';
 import { BarType } from './models';
 
 import { BarStack } from '.';
@@ -26,7 +27,12 @@ const dataWithSmallNumber = [
 ];
 
 const meta: Meta<typeof BarStack> = {
-  component: BarStack
+  component: BarStack,
+  parameters: {
+    chromatic: {
+      delay: 1000
+    }
+  }
 };
 
 export default meta;
@@ -41,11 +47,11 @@ const TooltipContent = ({ label, color, value }: BarType): JSX.Element => {
 };
 
 const Template = (args): JSX.Element => {
-  return (
-    <div style={{ height: '300px', width: '500px' }}>
-      <BarStack {...args} />
-    </div>
-  );
+  return <ResponsiveBarStack height={300} width={500} {...args} />;
+};
+
+const SmallTemplate = (args): JSX.Element => {
+  return <ResponsiveBarStack height={120} width={120} {...args} />;
 };
 
 export const Vertical: Story = {
@@ -120,4 +126,15 @@ export const HorizontalWithoutLegend: Story = {
     variant: 'horizontal'
   },
   render: Template
+};
+
+export const SmallDisplay: Story = {
+  args: {
+    TooltipContent,
+    data,
+    displayValues: true,
+    title: 'hosts',
+    variant: 'horizontal'
+  },
+  render: SmallTemplate
 };

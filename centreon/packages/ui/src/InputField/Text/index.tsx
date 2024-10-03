@@ -4,13 +4,13 @@ import { equals, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import {
-  TextField as MuiTextField,
+  Box,
   InputAdornment,
+  TextField as MuiTextField,
   TextFieldProps,
   Theme,
   Tooltip,
-  Typography,
-  Box
+  Typography
 } from '@mui/material';
 
 import { getNormalizedId } from '../../utils';
@@ -21,6 +21,12 @@ const useStyles = makeStyles()((theme: Theme) => ({
   autoSizeCompact: {
     paddingRight: theme.spacing(1),
     paddingTop: theme.spacing(0.6)
+  },
+  compactLabel: {
+    top: '-10px'
+  },
+  compactLabelShrink: {
+    top: '0px'
   },
   hiddenText: {
     display: 'table',
@@ -164,6 +170,14 @@ const TextField = forwardRef(
             onChange={changeInputValue}
             {...getValueProps()}
             {...rest}
+            InputLabelProps={{
+              classes: {
+                root: cx(equals(size, 'compact') && classes.compactLabel),
+                shrink: cx(
+                  equals(size, 'compact') && classes.compactLabelShrink
+                )
+              }
+            }}
             InputProps={{
               className: cx(
                 classes.inputBase,

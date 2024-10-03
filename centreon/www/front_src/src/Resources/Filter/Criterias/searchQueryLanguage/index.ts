@@ -44,9 +44,9 @@ import {
 import {
   AutocompleteSuggestionProps,
   CriteriaId,
+  CriteriaValueSuggestionsProps,
   criteriaNameSortOrder,
   criteriaNameToQueryLanguageName,
-  CriteriaValueSuggestionsProps,
   dynamicCriteriaValuesByName,
   getSelectableCriteriasByName,
   searchableFields,
@@ -364,7 +364,7 @@ const getAutocompleteSuggestions = ({
 
 export {
   build,
-  DynamicCriteriaParametersAndValues,
+  type DynamicCriteriaParametersAndValues,
   getAutocompleteSuggestions,
   getDynamicCriteriaParametersAndValue,
   parse,

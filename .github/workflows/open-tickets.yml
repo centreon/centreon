@@ -7,6 +7,11 @@ concurrency:
 on:
   workflow_dispatch:
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
     paths:
       - "centreon-open-tickets/**"
       - "!centreon-open-tickets/veracode.json"
@@ -53,10 +58,10 @@ jobs:
     needs: [get-version]
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.29.0
+        uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
         with:
           php-version: 8.1
           coverage: none
@@ -72,8 +77,49 @@ jobs:
         run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.neon
         working-directory: centreon-open-tickets
 
+      - name: Run of phpstan on /src at level max
+        run: vendor/bin/phpstan analyse --no-progress --level=9 --configuration=phpstan.core.neon
+        working-directory: centreon-open-tickets
+
+  backend-unit-test:
+    runs-on: ubuntu-22.04
+    needs: [get-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
+
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
+        with:
+          php-version: 8.1
+          coverage: none
+        env:
+          runner: ubuntu-22.04
+
+      - name: Install dependencies
+        uses: ramsey/composer-install@57532f8be5bda426838819c5ee9afb8af389d51a # v3.0.0
+        with:
+          working-directory: centreon-open-tickets
+          composer-options: "--optimize-autoloader"
+
+      - name: Unit test
+        run: XDEBUG_MODE=coverage composer run-script test:ci
+        working-directory: centreon-open-tickets
+
+      - if: failure()
+        uses: ./.github/actions/publish-report
+        with:
+          path: "centreon/build/phpunit.xml"
+          format: "php-junit"
+
   package:
-    needs: [get-version, backend-lint]
+    needs:
+      [
+        get-version,
+        backend-lint,
+        backend-unit-test
+      ]
     if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     strategy:
@@ -109,7 +155,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Package
         uses: ./.github/actions/package-nfpm
@@ -135,7 +181,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -159,7 +205,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
@@ -173,7 +219,7 @@ jobs:
           release_type: ${{ needs.get-version.outputs.release_type }}
           release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
-  delivery-deb:
+  deliver-deb:
     needs: [get-version, package]
     if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
@@ -184,7 +230,7 @@ jobs:
         distrib: [bullseye, bookworm, jammy]
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Delivery
         uses: ./.github/actions/deb-delivery
@@ -208,7 +254,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable

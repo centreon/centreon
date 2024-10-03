@@ -20,8 +20,8 @@ dnf config-manager --set-enabled crb
 dnf install -y epel-release
 
 if [[ ${RELEASE_CLOUD} -eq 1 ]]; then
-  dnf config-manager --add-repo https://$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal/24.05/el9/centreon-24.05-internal.repo
-  sed -i "s#packages.centreon.com/rpm-standard-internal#$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-24.05-internal.repo
+  dnf config-manager --add-repo https://$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal/24.09/el9/centreon-24.09-internal.repo
+  sed -i "s#packages.centreon.com/rpm-standard-internal#$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-24.09-internal.repo
 else
   dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${VERSION}/el9/centreon-${VERSION}.repo
 fi
@@ -115,8 +115,21 @@ dnf install -y \
 # install and configure mariadb #
 #################################
 
-curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
-  | bash -s -- --os-type=rhel --skip-check-installed --os-version=9 --mariadb-server-version="mariadb-10.5"
+# curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
+#   | bash -s -- --os-type=rhel --skip-check-installed --os-version=9 --mariadb-server-version="mariadb-10.11"
+
+cat <<EOT >> /etc/yum.repos.d/mariadb.repo
+[mariadb-main]
+name = MariaDB Server
+baseurl = https://dlm.mariadb.com/repo/mariadb-server/10.11/yum/rhel/9/x86_64
+gpgkey = file:///etc/pki/rpm-gpg/MariaDB-Server-GPG-KEY
+gpgcheck = 1
+enabled = 1
+module_hotfixes = 1
+EOT
+
+rpm --import https://rpm.mariadb.org/RPM-GPG-KEY-MariaDB
+
 dnf install -y mariadb-server mariadb
 
 echo "[server]

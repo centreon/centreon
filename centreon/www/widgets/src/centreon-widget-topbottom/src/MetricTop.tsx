@@ -4,13 +4,14 @@ import { Link } from 'react-router-dom';
 import { Box, Typography } from '@mui/material';
 
 import { LineChartData, SingleBar } from '@centreon/ui';
+import { Tooltip } from '@centreon/ui/components';
 
-import useThresholds from '../../useThresholds';
 import { FormThreshold } from '../../models';
+import useThresholds from '../../useThresholds';
 import { getResourcesUrlForMetricsWidgets } from '../../utils';
 
-import { Resource } from './models';
 import { useTopBottomStyles } from './TopBottom.styles';
+import { Resource } from './models';
 
 interface MetricTopProps {
   displayAsRaw: boolean;
@@ -64,16 +65,22 @@ const MetricTop = ({
   return (
     <>
       <Typography className={classes.resourceLabel}>
-        <Link
-          className={classes.linkToResourcesStatus}
-          data-testid={`link to ${metricTop?.name}`}
-          target="_blank"
-          to={getResourcesUrlForMetricsWidgets(metricTop)}
+        <Tooltip
+          followCursor={false}
+          label={`${metricTop.parentName}_${metricTop.name}`}
+          placement="top"
         >
-          <strong>
-            #{inc(index)} {`${metricTop.parentName}_${metricTop.name}`}
-          </strong>
-        </Link>
+          <Link
+            className={classes.linkToResourcesStatus}
+            data-testid={`link to ${metricTop?.name}`}
+            target="_blank"
+            to={getResourcesUrlForMetricsWidgets(metricTop)}
+          >
+            <strong>
+              #{inc(index)} {`${metricTop.parentName}_${metricTop.name}`}
+            </strong>
+          </Link>
+        </Tooltip>
       </Typography>
       <Box className={classes.singleBarContainer} style={{ height: 50 }}>
         <Link

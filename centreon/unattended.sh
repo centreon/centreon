@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ### Define all supported constants
-OPTIONS="hst:v:r:l:p:d:"
+OPTIONS="hst:v:r:l:p:d:V:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
 declare -A SUPPORTED_VERSION=([21.10]=1 [22.04]=1 [22.10]=1 [23.04]=1 [23.10]=1 [24.04]=1)
@@ -67,7 +67,8 @@ centreon_admin_password=
 BASE_PACKAGES=
 CENTREON_SELINUX_PACKAGES=
 RELEASE_REPO_FILE=
-OS_SPEC_SERVICES=
+PHP_SERVICE_UNIT=
+HTTP_SERVICE_UNIT=
 PKG_MGR=
 has_systemd=
 CENTREON_REPO=
@@ -84,7 +85,7 @@ function usage() {
 	echo
 	echo "Usage:"
 	echo
-	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.04> (default: 24.04)] [-r <stable|testing|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)]"
+	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.04> (default: 24.04)] [-r <stable|testing|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
 	echo
 	echo Example:
 	echo
@@ -92,6 +93,7 @@ function usage() {
 	echo
 	echo " $script_short_name install -r unstable,testing == install the central to the $version from the unstable & testing repository"
 	echo
+	echo " $script_short_name install -V vault-example.com;8200;my_storage;my-role-id;my-secret-id == configuring a vault to store your application and database credentials"
 	exit 1
 }
 #======== end of function usage()
@@ -203,7 +205,18 @@ function parse_subcommand_options() {
 				dbms=$requested_dbms
 			fi
 			;;
-
+    V)
+      vault=$OPTARG
+      oldIFS=$IFS
+      IFS=';' read -r -a array_vault <<<"$vault"
+      vault_address=${array_vault[0]}
+      vault_port=${array_vault[1]}
+      vault_root_path=${array_vault[2]}
+      vault_role_id=${array_vault[3]}
+      vault_secret_id=${array_vault[4]}
+      use_vault=1
+      IFS=$oldIFS
+      ;;
 		\?)
 			log "ERROR" "Invalid option: -"$OPTARG""
 			usage
@@ -427,22 +440,23 @@ function set_required_prerequisite() {
 
 	get_os_information
 
-    case "$detected_os_release" in
-	redhat-release* | centos-release-* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
+  case "$detected_os_release" in
+	oraclelinux-release* | redhat-release* | centos-release-* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
 		case "$detected_os_version" in
 		8*)
 			log "INFO" "Setting specific part for v8 ($detected_os_version)"
-
 			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el8/centreon-$version.repo"
 			REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-8.rpm"
-			OS_SPEC_SERVICES="php-fpm httpd"
+			PHP_SERVICE_UNIT="php-fpm"
+			HTTP_SERVICE_UNIT="httpd"
 			PKG_MGR="dnf"
 
 			case "$detected_os_release" in
 			redhat-release*)
-				BASE_PACKAGES=(dnf-plugins-core epel-release)
+				BASE_PACKAGES=(dnf-plugins-core)
 				subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
 				$PKG_MGR config-manager --set-enabled codeready-builder-for-rhel-8-rhui-rpms
+				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 				;;
 
 			centos-release-8.[3-9]* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
@@ -483,16 +497,17 @@ function set_required_prerequisite() {
 			fi
 
 			log "INFO" "Setting specific part for v9 ($detected_os_version)"
-
 			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el9/centreon-$version.repo"
-			OS_SPEC_SERVICES="php-fpm httpd"
+			PHP_SERVICE_UNIT="php-fpm"
+			HTTP_SERVICE_UNIT="httpd"
 			PKG_MGR="dnf"
 
 			case "$detected_os_release" in
 			redhat-release*)
-				BASE_PACKAGES=(dnf-plugins-core epel-release)
+				BASE_PACKAGES=(dnf-plugins-core)
 				subscription-manager repos --enable codeready-builder-for-rhel-9-x86_64-rpms
 				$PKG_MGR config-manager --set-enabled codeready-builder-for-rhel-9-rhui-rpms
+				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
 				;;
 
 			centos-release* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
@@ -552,7 +567,8 @@ function set_required_prerequisite() {
 			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 11/12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			;;
 		esac
-		OS_SPEC_SERVICES="php8.1-fpm apache2"
+		PHP_SERVICE_UNIT="php8.1-fpm"
+		HTTP_SERVICE_UNIT="apache2"
 		log "INFO" "Setting specific part for Debian"
 		PKG_MGR="apt -qq"
 		${PKG_MGR} update && ${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
@@ -806,8 +822,8 @@ function enable_new_services() {
 				;;
 			esac
 			log "DEBUG" "On central..."
-			systemctl enable "$DBMS_SERVICE_NAME" "$OS_SPEC_SERVICES" snmpd snmptrapd gorgoned centreontrapd cbd centengine centreon
-			systemctl restart "$DBMS_SERVICE_NAME" "$OS_SPEC_SERVICES" snmpd snmptrapd
+			systemctl enable "$DBMS_SERVICE_NAME" "$PHP_SERVICE_UNIT" "$HTTP_SERVICE_UNIT" snmpd snmptrapd gorgoned centreontrapd cbd centengine centreon
+			systemctl restart "$DBMS_SERVICE_NAME" "$PHP_SERVICE_UNIT" "$HTTP_SERVICE_UNIT" snmpd snmptrapd
 			systemctl start centreontrapd
 			;;
 
@@ -857,6 +873,9 @@ function play_install_wizard() {
 	install_wizard_post ${sessionID} "process_step4.php" 'centreonbroker_etc=%2Fetc%2Fcentreon-broker&centreonbroker_cbmod=%2Fusr%2Flib64%2Fnagios%2Fcbmod.so&centreonbroker_log=%2Fvar%2Flog%2Fcentreon-broker&centreonbroker_varlib=%2Fvar%2Flib%2Fcentreon-broker&centreonbroker_lib=%2Fusr%2Fshare%2Fcentreon%2Flib%2Fcentreon-broker'
 	install_wizard_post ${sessionID} "process_step5.php" "admin_password=${centreon_admin_password}&confirm_password=${centreon_admin_password}&firstname=${centreon_admin_firstname}&lastname=${centreon_admin_lastname}&email=${centreon_admin_email}"
 	install_wizard_post ${sessionID} "process_step6.php" "address=&port=3306&root_user=root&root_password=${db_root_password}&db_configuration=centreon&db_storage=centreon_storage&db_user=centreon&db_password=${db_centreon_password}&db_password_confirm=${db_centreon_password}"
+	if [[ -v use_vault ]]; then
+	  install_wizard_post ${sessionID} "process_step_vault.php" "address=${vault_address}&port=${vault_port}&role_id=${vault_role_id}&secret_id=${vault_secret_id}&root_path=${vault_root_path}"
+	fi
 	install_wizard_post ${sessionID} "configFileSetup.php"
 	install_wizard_post ${sessionID} "installConfigurationDb.php"
 	install_wizard_post ${sessionID} "installStorageDb.php"
@@ -1169,10 +1188,14 @@ function install_central() {
 
 	log "INFO" "Centreon [$topology] installation from [${CENTREON_REPO}]"
 
-	if [[ $dbms == "MariaDB" ]]; then
-		CENTREON_DBMS_PKG="centreon-mariadb"
+	if [[ "$version" =~ ^24\.0[1-9]$ || "$version" =~ ^24\.1[0-2]$ ]]; then
+		if [[ $dbms == "MariaDB" ]]; then
+			CENTREON_DBMS_PKG="centreon-mariadb"
+		else
+			CENTREON_DBMS_PKG="centreon-mysql"
+		fi
 	else
-		CENTREON_DBMS_PKG="centreon-mysql"
+		CENTREON_DBMS_PKG="centreon-database"
 	fi
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
@@ -1391,15 +1414,24 @@ install)
 		setup_before_installation
 	fi
 
+	case $version in
+		"22.10"|"23.04"|"23.10")
+			gorgone_selinux_package_name="centreon-gorgoned-selinux"
+			;;
+		*)
+			gorgone_selinux_package_name="centreon-gorgone-selinux"
+			;;
+	esac
+
 	case $topology in
 	central)
-		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-web-selinux centreon-broker-selinux centreon-engine-selinux centreon-gorgoned-selinux centreon-plugins-selinux)
+		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-web-selinux centreon-broker-selinux centreon-engine-selinux $gorgone_selinux_package_name centreon-plugins-selinux)
 		install_central
 		CENTREON_DOC_URL="https://docs.centreon.com/docs/installation/web-and-post-installation/#web-installation"
 		;;
 
 	poller)
-		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-broker-selinux centreon-engine-selinux centreon-gorgoned-selinux centreon-plugins-selinux)
+		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-broker-selinux centreon-engine-selinux $gorgone_selinux_package_name centreon-plugins-selinux)
 		install_poller
 		CENTREON_DOC_URL="https://docs.centreon.com/docs/monitoring/monitoring-servers/add-a-poller-to-configuration/"
 		;;

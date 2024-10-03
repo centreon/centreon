@@ -25,12 +25,28 @@ inputs:
   feature_file_path:
     description: "feature file"
     required: true
+  test_tags:
+    description: "filter tests by tags"
+    required: false
+    default: "not @ignore"
   dependencies_lock_file:
     description: "The frontend dependencies lock file path"
     required: true
   test_execution_key:
     description: "xray test execution key"
     required: true
+  stability:
+    description: "Branch stability"
+    required: true
+  is_cloud:
+    description: "Define if the version is targeting cloud"
+    required: false
+  artifactory_internal_repo_username:
+    description: "Artifactory internal repository username"
+    required: false
+  artifactory_internal_repo_password:
+    description: "Artifactory internal repository password"
+    required: false
 
 runs:
   using: "composite"
@@ -67,7 +83,7 @@ runs:
     - name: Cypress end-to-end testing
       uses: cypress-io/github-action@1b70233146622b69e789ccdd4f9452adc638d25a # v6.6.1
       with:
-        command: pnpm run cypress:run --browser electron --spec features/**/${{ inputs.feature_file_path }}
+        command: pnpm run cypress:run --browser electron --spec features/**/${{ inputs.feature_file_path }} --env tags="${{ inputs.test_tags }}"
         install: false
         working-directory: ${{ inputs.module }}/tests/e2e
         publish-summary: false
@@ -78,6 +94,14 @@ runs:
         CYPRESS_WEB_IMAGE_VERSION: ${{ inputs.web_image_version }}
         CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}
         CYPRESS_SAML_IMAGE_VERSION: ${{ inputs.saml_image_version }}
+        CYPRESS_STABILITY: ${{ inputs.stability }}
+        CYPRESS_IS_CLOUD: ${{ inputs.is_cloud }}
+        CYPRESS_INTERNAL_REPO_USERNAME: ${{ inputs.artifactory_internal_repo_username }}
+        CYPRESS_INTERNAL_REPO_PASSWORD: ${{ inputs.artifactory_internal_repo_password }}
+
+    - name: Ensure logs directory exists
+      run: mkdir -p ${{ inputs.module }}/tests/e2e/results/cucumber-logs/
+      shell: bash
 
     - name: Rename JSON report
       if: ${{ always() }}
@@ -86,12 +110,16 @@ runs:
         report_path="${{ inputs.module }}/tests/e2e/results/cucumber-logs/report.json"
         report_path_updated="${{ inputs.module }}/tests/e2e/results/cucumber-logs/${feature_name}-report.json"
 
-        jq 'if length > 0 then .[0] |= (.tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end)) | (.[] |= (if has("elements") then .elements[].tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end) else . end)) else . end' "$report_path" > "$report_path_updated"
+        if [ -f "$report_path" ]; then
+          jq 'if length > 0 then .[0] |= (.tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end)) | (.[] |= (if has("elements") then .elements[].tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end) else . end)) else . end' "$report_path" > "$report_path_updated"
+          rm "$report_path"
 
-        rm "$report_path"
-
-        # Show the content of the modified file
-        echo "::group::${feature_name}-report.json"
-        cat "$report_path_updated"
-        echo "::endgroup::"
+          # Show the content of the modified file
+          echo "::group::${feature_name}-report.json"
+          cat "$report_path_updated"
+          echo "::endgroup::"
+        else
+          echo "Report file not found: $report_path"
+          exit 1
+        fi
       shell: bash

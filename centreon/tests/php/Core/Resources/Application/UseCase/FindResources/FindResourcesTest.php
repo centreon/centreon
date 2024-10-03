@@ -40,6 +40,7 @@ beforeEach(function (): void {
         $this->contact = $this->createMock(ContactInterface::class),
         $this->createMock(RequestParametersInterface::class),
         $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        new \ArrayObject([])
     );
 });
 

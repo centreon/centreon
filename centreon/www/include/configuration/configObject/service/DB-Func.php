@@ -38,6 +38,17 @@ if (!isset($centreon)) {
     exit();
 }
 
+use App\Kernel;
+Use Centreon\Domain\Log\Logger;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Utility\Interfaces\UUIDGeneratorInterface;
+
+require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
+
 /**
  * For ACL
  *
@@ -415,9 +426,21 @@ function deleteServiceInDB($services = array())
 {
     global $pearDB, $centreon;
 
+    $serviceIds = array_keys($services);
+    $kernel = Kernel::createForWeb();
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+    $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+    if ($vaultConfiguration !== null) {
+        deleteResourceSecretsInVault($writeVaultRepository, [], $serviceIds);
+    }
+
     $query = 'UPDATE service SET service_template_model_stm_id = NULL WHERE service_id = :service_id';
     $statement = $pearDB->prepare($query);
-    foreach (array_keys($services) as $serviceId) {
+    foreach ($serviceIds as $serviceId) {
         $previousPollerIds = getPollersForConfigChangeFlagFromServiceId($serviceId);
         removeRelationLastServiceDependency((int)$serviceId);
         $query = "SELECT service_id FROM service WHERE service_template_model_stm_id = '" . $serviceId . "'";
@@ -591,6 +614,13 @@ function multipleServiceInDB(
     // Foreach Service
     $maxId["MAX(service_id)"] = null;
 
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
     foreach ($services as $key => $value) {
         // Get all information about it
         $dbResult = $pearDB->query("SELECT * FROM service WHERE service_id = '" . $key . "' LIMIT 1");
@@ -852,6 +882,7 @@ function multipleServiceInDB(
                          */
                         $mTpRq1 = "SELECT * FROM `on_demand_macro_service` WHERE `svc_svc_id` ='" . $key . "'";
                         $dbResult3 = $pearDB->query($mTpRq1);
+                        $macroPasswords = [];
                         while ($sv = $dbResult3->fetch()) {
                             $macName = str_replace("\$", "", $sv["svc_macro_name"]);
                             $macVal = $sv['svc_macro_value'];
@@ -868,6 +899,39 @@ function multipleServiceInDB(
                             $statement->bindValue(':is_password', $sv["is_password"]);
                             $statement->execute();
                             $fields["_" . strtoupper($macName) . "_"] = $sv['svc_macro_value'];
+                            if ($sv['is_password'] === 1) {
+                                $maxIdStatement = $pearDB->query(
+                                    "SELECT MAX(svc_macro_id) from on_demand_macro_service WHERE is_password = 1"
+                                );
+                                $resultMacro = $maxIdStatement->fetch();
+                                $macroPasswords[$resultMacro['MAX(svc_macro_id)']] = [
+                                    'macroName' => $macName,
+                                    'macroValue' => $macVal
+                                ];
+                            }
+                        }
+
+                        if (! empty($macroPasswords) && $vaultConfiguration !== null) {
+                            /** @var ReadVaultRepositoryInterface $readVaultRepository */
+                            $readVaultRepository = $kernel->getContainer()->get(
+                                ReadVaultRepositoryInterface::class
+                            );
+                            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+                            $writeVaultRepository = $kernel->getContainer()->get(
+                                WriteVaultRepositoryInterface::class
+                            );
+                            $writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
+                            try {
+                                duplicateServiceSecretsInVault(
+                                    $readVaultRepository,
+                                    $writeVaultRepository,
+                                    $logger,
+                                    $key,
+                                    $macroPasswords,
+                                );
+                            } catch (\Throwable $ex) {
+                                error_log((string) $ex);
+                            }
                         }
 
                         /*
@@ -941,6 +1005,20 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
         $ret = $parameters;
     } else {
         $ret = $form->getSubmitValues();
+    }
+
+
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    //Retrieve vault path before updating values in database.
+    $vaultPath = null;
+    if ($vaultConfiguration !== null ){
+        $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $service_id);
     }
 
     $ret["service_description"] = $service->checkIllegalChar($ret["service_description"]);
@@ -1035,6 +1113,27 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
         $pearDB->query($query);
     }
 
+    if ($vaultConfiguration !== null) {
+        /** @var ReadVaultRepositoryInterface $readVaultRepository */
+        $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+
+        /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+        $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+        $writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
+        try {
+            updateServiceSecretsInVault(
+                $readVaultRepository,
+                $writeVaultRepository,
+                $logger,
+                $vaultPath,
+                (int) $service_id,
+                $service->getFormattedMacros(),
+            );
+        } catch (\Throwable $ex) {
+            error_log((string) $ex);
+        }
+    }
+
     if (isset($ret['criticality_id'])) {
         setServiceCriticality($serviceId, $ret['criticality_id']);
     }
@@ -1066,6 +1165,21 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
         $ret = $parameters;
     } else {
         $ret = $form->getSubmitValues();
+    }
+
+    $kernel = Kernel::createForWeb();
+    /** @var UUIDGeneratorInterface $uuidGenerator */
+    $uuidGenerator = $kernel->getContainer()->get(UUIDGeneratorInterface::class);
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    //Retrieve UUID for vault path before updating values in database.
+    $uuid = null;
+    if ($vaultConfiguration !== null ){
+        $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $service_id, $vaultConfiguration->getName());
     }
 
     if (isset($ret["sg_name"])) {
@@ -1154,6 +1268,22 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     }
     if (isset($ret['criticality_id']) && $ret['criticality_id']) {
         setServiceCriticality($serviceId, $ret['criticality_id']);
+    }
+
+    //If there is a vault configuration write into vault
+    if ($vaultConfiguration !== null) {
+        try {
+            updateServiceSecretsInVaultFromMC(
+                $vaultConfiguration,
+                $logger,
+                $uuidGenerator,
+                $uuid,
+                (int) $service_id,
+                $service->getFormattedMacros()
+            );
+        } catch (\Throwable $ex) {
+            error_log((string) $ex);
+        }
     }
 
     /* Prepare value for changelog */
@@ -1777,6 +1907,25 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
         );
     }
 
+    $passwordMacros = array_filter($service->getFormattedMacros(), function ($macro) {
+        return $macro['macro_password'] === '1';
+    });
+    $kernel = Kernel::createForWeb();
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    //If there is a vault configuration  and macros write into vault
+    if ($vaultConfiguration !== null && ! empty($passwordMacros)) {
+        try {
+            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+            $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+            insertServiceSecretsInVault($writeVaultRepository, $passwordMacros);
+        } catch (\Throwable $ex) {
+            error_log((string) $ex);
+        }
+    }
+
     if (isset($submittedValues['criticality_id'])) {
         setServiceCriticality($service_id['MAX(service_id)'], $submittedValues['criticality_id']);
     }
@@ -2003,6 +2152,25 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
             $submittedValues["command_command_id"]
         );
     }
+    $passwordMacros = array_filter($service->getFormattedMacros(), function ($macro) {
+        return $macro['macroPassword'] === '1';
+    });
+    $kernel = Kernel::createForWeb();
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    //If there is a vault configuration  and macros write into vault
+    if ($vaultConfiguration !== null && ! empty($passwordMacros)) {
+        try {
+            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+            $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+            $writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
+            insertServiceSecretsInVault($writeVaultRepository, $passwordMacros);
+        } catch (\Throwable $ex) {
+            error_log((string) $ex);
+        }
+    }
 
     if (isset($submittedValues['criticality_id'])) {
         setServiceCriticality($service_id['MAX(service_id)'], $submittedValues['criticality_id']);
@@ -2091,6 +2259,19 @@ function updateService($service_id = null, $from_MC = false, $params = array())
         $ret = $params;
     } else {
         $ret = $form->getSubmitValues();
+    }
+
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    //Retrieve vault path before updating values in database.
+    $vaultPath = null;
+    if ($vaultConfiguration !== null ){
+        $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $service_id);
     }
 
     $ret["service_description"] = $service->checkIllegalChar($ret["service_description"]);
@@ -2283,6 +2464,31 @@ function updateService($service_id = null, $from_MC = false, $params = array())
         $pearDB->query($query);
     }
 
+    if ($vaultConfiguration !== null) {
+        /** @var ReadVaultRepositoryInterface $readVaultRepository */
+        $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+
+        /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+        $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+        $writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
+        $updatedPasswordMacros = array_filter($service->getFormattedMacros(), function ($macro) {
+            return $macro['macroPassword'] === '1'
+                && !str_starts_with($macro['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN);
+        });
+        try {
+            updateServiceSecretsInVault(
+                $readVaultRepository,
+                $writeVaultRepository,
+                $logger,
+                $vaultPath,
+                (int) $service_id,
+                $updatedPasswordMacros,
+            );
+        } catch (\Throwable $ex) {
+            error_log((string) $ex);
+        }
+    }
+
     if (isset($ret['criticality_id'])) {
         setServiceCriticality($service_id, $ret['criticality_id']);
     }
@@ -2314,6 +2520,21 @@ function updateService_MC($service_id = null, $params = array())
         $ret = $params;
     } else {
         $ret = $form->getSubmitValues();
+    }
+
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
+    $isServiceTemplate = isset($ret['service_register']) && $ret['service_register'] === '0';
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+
+    //Retrieve UUID for vault path before updating values in database.
+    $vaultPath = null;
+    if ($vaultConfiguration !== null ){
+        $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $service_id);
     }
 
     if (isset($ret["sg_name"])) {
@@ -2450,9 +2671,13 @@ function updateService_MC($service_id = null, $params = array())
         $rq .= "geo_coords = '" . $ret["geo_coords"] . "', ";
     }
 
-    $rq .= (isset($ret["service_activate"]["service_activate"]) && $ret["service_activate"]["service_activate"] != null)
-        ? "service_activate = '" . $ret["service_activate"]["service_activate"] . "', "
-        : "service_activate = '1', ";
+    if (!$isServiceTemplate) {
+        if (isset($ret["service_activate"]["service_activate"]) && $ret["service_activate"]["service_activate"] != null) {
+            $rq .= "service_activate = '" . $ret["service_activate"]["service_activate"] . "', ";
+        }
+    } else {
+        $rq .= "service_activate = '1', ";
+    }
 
     if (strcmp("UPDATE service SET ", $rq)) {
         // Delete last ',' in request
@@ -2486,6 +2711,33 @@ function updateService_MC($service_id = null, $params = array())
     }
     if (isset($ret['criticality_id']) && $ret['criticality_id']) {
         setServiceCriticality($service_id, $ret['criticality_id']);
+    }
+
+    //If there is a vault configuration write into vault
+    if ($vaultConfiguration !== null) {
+        try {
+            /** @var ReadVaultRepositoryInterface $readVaultRepository */
+            $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+
+            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+            $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+            $writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
+
+            $updatedPasswordMacros = array_filter($service->getFormattedMacros(), function ($macro) {
+                return $macro['macroPassword'] === '1'
+                    && ! str_starts_with($macro['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN);
+            });
+            updateServiceSecretsInVaultFromMC(
+                $readVaultRepository,
+                $writeVaultRepository,
+                $logger,
+                $vaultPath,
+                (int) $service_id,
+                $updatedPasswordMacros
+            );
+        } catch (\Throwable $ex) {
+            error_log((string) $ex);
+        }
     }
 
     /* Prepare value for changelog */
@@ -3131,9 +3383,11 @@ function updateServiceHost_MC($service_id = null)
         SQL
     );
     $statement->bindValue(':service_id', $service_id, \PDO::PARAM_INT);
+
     $statement->execute();
     $hsvs = [];
     $hgsvs = [];
+
     while ($arr = $statement->fetch()) {
         if ($arr["host_host_id"]) {
             $hsvs[$arr["host_host_id"]] = $arr["host_host_id"];

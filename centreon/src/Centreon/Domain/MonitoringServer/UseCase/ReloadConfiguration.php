@@ -22,12 +22,16 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\MonitoringServer\UseCase;
 
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Exception\TimeoutException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
 use Centreon\Domain\MonitoringServer\Exception\ConfigurationMonitoringServerException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * This class is designed to represent a use case to reload a monitoring server configuration.
@@ -38,25 +42,17 @@ class ReloadConfiguration
     use LoggerTrait;
 
     /**
-     * @var MonitoringServerRepositoryInterface
-     */
-    private $monitoringServerRepository;
-
-    /**
-     * @var MonitoringServerConfigurationRepositoryInterface
-     */
-    private $configurationRepository;
-
-    /**
      * @param MonitoringServerRepositoryInterface $monitoringServerRepository
      * @param MonitoringServerConfigurationRepositoryInterface $configurationRepository
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface
+     * @param ContactInterface $contact
      */
     public function __construct(
-        MonitoringServerRepositoryInterface $monitoringServerRepository,
-        MonitoringServerConfigurationRepositoryInterface $configurationRepository
+        private readonly MonitoringServerRepositoryInterface $monitoringServerRepository,
+        private readonly MonitoringServerConfigurationRepositoryInterface $configurationRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
+        private readonly ContactInterface $contact
     ) {
-        $this->monitoringServerRepository = $monitoringServerRepository;
-        $this->configurationRepository = $configurationRepository;
     }
 
     /**
@@ -68,12 +64,33 @@ class ReloadConfiguration
     public function execute(int $monitoringServerId): void
     {
         try {
-            $monitoringServer = $this->monitoringServerRepository->findServer($monitoringServerId);
+            if (
+                ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ)
+                && ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)
+            ) {
+                throw new AccessDeniedException(
+                    'Insufficient rights (required: ROLE_CONFIGURATION_MONITORING_SERVER_READ or ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)'
+                );
+            }
+
+            if (! $this->contact->isAdmin()) {
+                $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->contact);
+
+                $monitoringServer = $this->monitoringServerRepository->findByIdAndAccessGroups(
+                    $monitoringServerId,
+                    $accessGroups
+                );
+            } else {
+                $monitoringServer = $this->monitoringServerRepository->findServer($monitoringServerId);
+            }
+
             if ($monitoringServer === null) {
                 throw ConfigurationMonitoringServerException::notFound($monitoringServerId);
             }
             $this->info('Reload configuration for monitoring server #' . $monitoringServerId);
             $this->configurationRepository->reloadConfiguration($monitoringServerId);
+        } catch(AccessDeniedException $ex) {
+            throw new AccessDeniedException($ex->getMessage());
         } catch (EntityNotFoundException | TimeoutException $ex) {
             if ($ex instanceof TimeoutException) {
                 throw ConfigurationMonitoringServerException::timeout($monitoringServerId, $ex->getMessage());

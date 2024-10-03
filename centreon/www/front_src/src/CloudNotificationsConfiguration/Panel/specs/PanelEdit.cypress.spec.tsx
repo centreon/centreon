@@ -1,49 +1,56 @@
 import { Provider, createStore } from 'jotai';
 
-import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
-import {
-  labelDelete,
-  labelSave,
-  labelDuplicate,
-  labelActiveOrInactive,
-  labelClosePanel,
-  labelReduceInformationPanel,
-  labelExpandInformationPanel,
-  labelChangeName,
-  labelNotificationName,
-  labelRequired,
-  labelSearchHostGroups,
-  labelSearchServiceGroups,
-  labelChooseAtLeastOneResource,
-  labelChooseAtleastOneContact,
-  labelTimePeriod,
-  labelSubject,
-  labelMessageFieldShouldNotBeEmpty,
-  labelSuccessfulEditNotification,
-  labelThisNameAlreadyExists,
-  labelDeleteNotification,
-  labelDeleteNotificationWarning,
-  labelNotificationSuccessfullyDeleted,
-  labelCancel,
-  labelPleaseEnterNameForDuplicatedNotification,
-  labelDiscard,
-  labelNotificationDuplicated,
-  labelSearchBusinessViews,
-  labelBusinessViewsEvents,
-  labelSearchContacts
-} from '../../translatedLabels';
-import { notificationsNamesAtom, panelWidthStorageAtom } from '../../atom';
+import Form from '..';
 import { DeleteConfirmationDialog } from '../../Actions/Delete';
 import { DuplicationForm } from '../../Actions/Duplicate';
-import { notificationEndpoint } from '../api/endpoints';
-import { PanelMode } from '../models';
+import { notificationsNamesAtom, panelWidthStorageAtom } from '../../atom';
+import {
+  labelActiveOrInactive,
+  labelBusinessViewsEvents,
+  labelCancel,
+  labelChangeName,
+  labelChooseAtLeastOneResource,
+  labelChooseAtleastOneContact,
+  labelClosePanel,
+  labelDelete,
+  labelDeleteNotification,
+  labelDeleteNotificationWarning,
+  labelDiscard,
+  labelDuplicate,
+  labelExpandInformationPanel,
+  labelMessageFieldShouldNotBeEmpty,
+  labelNotificationDuplicated,
+  labelNotificationName,
+  labelNotificationSuccessfullyDeleted,
+  labelPleaseEnterNameForDuplicatedNotification,
+  labelReduceInformationPanel,
+  labelRequired,
+  labelSave,
+  labelSearchBusinessViews,
+  labelSearchContacts,
+  labelSearchHostGroups,
+  labelSearchServiceGroups,
+  labelSubject,
+  labelSuccessfulEditNotification,
+  labelThisNameAlreadyExists,
+  labelTimePeriod,
+  labelTimePeriodFieldShouldNotBeEmpty
+} from '../../translatedLabels';
+import {
+  availableTimePeriodsEndpoint,
+  notificationEndpoint
+} from '../api/endpoints';
 import { editedNotificationIdAtom, panelModeAtom } from '../atom';
-import Form from '..';
+import { PanelMode } from '../models';
 
-import { getNotificationResponse, platformVersions } from './testUtils';
-
-import { platformVersionsAtom } from 'www/front_src/src/Main/atoms/platformVersionsAtom';
+import {
+  getNotificationResponse,
+  platformVersions,
+  timePeriodsResponse
+} from './testUtils';
 
 const store = createStore();
 store.set(panelWidthStorageAtom, 800);
@@ -108,6 +115,13 @@ const initialize = ({
     method: Method.POST,
     path: notificationEndpoint({}),
     response: { status: 'ok' }
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getAvailableTimePeriodEndpoint',
+    method: Method.GET,
+    path: `${availableTimePeriodsEndpoint}**`,
+    response: timePeriodsResponse
   });
 
   cy.mount({
@@ -275,8 +289,8 @@ describe('Edit Panel', () => {
     cy.findByTestId('include Services').click();
 
     cy.findByTestId('Extra events services').within(() => {
-      cy.findAllByRole('checkbox').each(($checkbox) => {
-        cy.wrap($checkbox).should('not.be.checked').and('be.disabled');
+      cy.findAllByRole('checkbox').each((checkbox) => {
+        cy.wrap(checkbox).should('not.be.checked').and('be.disabled');
       });
     });
 
@@ -298,8 +312,8 @@ describe('Edit Panel', () => {
       });
 
     cy.findByTestId('Host groups events').within(() => {
-      cy.findAllByRole('checkbox').each(($checkbox) => {
-        cy.wrap($checkbox).should('not.be.checked');
+      cy.findAllByRole('checkbox').each((checkbox) => {
+        cy.wrap(checkbox).should('not.be.checked');
       });
     });
 
@@ -338,8 +352,8 @@ describe('Edit Panel', () => {
     cy.findAllByLabelText('Clear').eq(1).click({ force: true });
 
     cy.findByTestId('Service groups events').within(() => {
-      cy.findAllByRole('checkbox').each(($checkbox) => {
-        cy.wrap($checkbox).should('not.be.checked').and('be.disabled');
+      cy.findAllByRole('checkbox').each((checkbox) => {
+        cy.wrap(checkbox).should('not.be.checked').and('be.disabled');
       });
     });
 
@@ -382,7 +396,7 @@ describe('Edit Panel', () => {
   it('validates that when the Contacts field is empty, the user interface responds by displaying an error message and disabling the Save button', () => {
     cy.waitForRequest('@getNotificationRequest');
 
-    cy.findAllByLabelText('Clear').eq(2).click({ force: true });
+    cy.findAllByLabelText('Clear').eq(3).click({ force: true });
     cy.findByTestId(labelSearchContacts).click();
 
     cy.clickOutside();
@@ -395,12 +409,19 @@ describe('Edit Panel', () => {
     cy.makeSnapshot();
   });
 
-  it('ensures that the time period checkbox is checked and disabled, indicating its pre-selected status', () => {
+  it('validates that when the Time period field is empty, the user interface responds by displaying an error message and disabling the Save button', () => {
     cy.waitForRequest('@getNotificationRequest');
 
-    cy.findByTestId(labelTimePeriod).within(() => {
-      cy.findByRole('checkbox').should('be.checked').and('be.disabled');
-    });
+    cy.findAllByLabelText('Clear').eq(2).click({ force: true });
+    cy.findByTestId(labelTimePeriod).click();
+
+    cy.clickOutside();
+
+    cy.findAllByText(labelTimePeriodFieldShouldNotBeEmpty).should(
+      'have.length',
+      1
+    );
+    cy.findByLabelText(labelSave).should('be.disabled');
 
     cy.get('#panel-content').scrollTo('top');
 
@@ -454,8 +475,7 @@ describe('Edit Panel', () => {
   it('confirms that the Message field is properly rendered with the edited notification message', () => {
     cy.waitForRequest('@getNotificationRequest');
 
-    cy.findByTestId('EmailBody').contains('Bonjour');
-    cy.findByTestId('EmailBody').contains('Cordialement');
+    cy.findByTestId('EmailBody').contains('Hello');
 
     cy.get('#panel-content').scrollTo('bottom');
 
@@ -683,8 +703,8 @@ describe('Edit Panel: Business Views', () => {
     cy.findAllByLabelText('Clear').eq(2).click({ force: true });
 
     cy.findByTestId(labelBusinessViewsEvents).within(() => {
-      cy.findAllByRole('checkbox').each(($checkbox) => {
-        cy.wrap($checkbox).should('be.disabled').and('not.be.checked');
+      cy.findAllByRole('checkbox').each((checkbox) => {
+        cy.wrap(checkbox).should('be.disabled').and('not.be.checked');
       });
     });
 

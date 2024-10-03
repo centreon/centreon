@@ -1,11 +1,5 @@
 import { Method } from '@centreon/ui';
 
-import {
-  platformFeaturesEndpoint,
-  platformInstallationStatusEndpoint,
-  platformVersionsEndpoint,
-  userEndpoint
-} from '../api/endpoint';
 import { externalTranslationEndpoint } from '../App/endpoint';
 import { providersConfigurationEndpoint } from '../Login/api/endpoint';
 import {
@@ -14,13 +8,19 @@ import {
   labelLogin,
   labelPassword
 } from '../Login/translatedLabels';
+import {
+  platformFeaturesEndpoint,
+  platformInstallationStatusEndpoint,
+  platformVersionsEndpoint,
+  userEndpoint
+} from '../api/endpoint';
 
+import Provider from './Provider';
 import {
   retrievedProvidersConfiguration,
   retrievedTranslations,
   retrievedWeb
 } from './testUtils';
-import Provider from './Provider';
 
 const initialize = ({ page = '/' }): void => {
   cy.window().then((window) => window.history.pushState({}, '', page));
@@ -83,17 +83,17 @@ const initialize = ({ page = '/' }): void => {
 };
 
 describe('Main', () => {
-  // it('displays the public page when a public url is entered', () => {
-  //   initialize({ page: '/public/dashboards/playlists/hash' });
+  it('displays the public page when a public url is entered', () => {
+    initialize({ page: '/public/dashboards/playlists/hash' });
 
-  //   cy.waitForRequest('@platformVersions');
-  //   cy.waitForRequest('@translations');
+    cy.waitForRequest('@platformVersions');
+    cy.waitForRequest('@translations');
 
-  //   cy.contains(labelLogin).should('not.exist');
-  //   cy.contains('Cannot load module').should('be.visible');
+    cy.contains(labelLogin).should('not.exist');
+    cy.contains('Cannot load module').should('be.visible');
 
-  //   cy.makeSnapshot();
-  // });
+    cy.makeSnapshot();
+  });
 
   it('displays the login page by default', () => {
     initialize({});

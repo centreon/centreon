@@ -6,7 +6,7 @@ import InputGroup from '../InputGroup';
 
 const MemoizedInputGroup = ({
   changeCriteria,
-  basicData,
+  data,
   sectionType,
   filterName
 }: MemoizedChildSectionWrapper): JSX.Element => {
@@ -14,17 +14,15 @@ const MemoizedInputGroup = ({
     Component: (
       <InputGroup
         changeCriteria={changeCriteria}
-        data={basicData}
+        data={data}
         filterName={filterName}
         resourceType={sectionType}
       />
     ),
-    memoProps: [
-      findData({
-        data: basicData,
-        filterName
-      })?.value
-    ]
+    memoProps: findData({
+      data,
+      filterName
+    })
   });
 };
 

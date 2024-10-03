@@ -1,11 +1,15 @@
-import { useTranslation } from 'react-i18next';
-import * as Yup from 'yup';
-import { useAtomValue } from 'jotai';
 import { TFunction } from 'i18next';
+import { useAtomValue } from 'jotai';
+import { path, isEmpty, keys, toPairs } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
+import {
+  FederatedWidgetOption,
+  FederatedWidgetProperties
+} from '../../../../federatedModules/models';
 import { labelRequired } from '../translatedLabels';
-import { FederatedWidgetProperties } from '../../../../federatedModules/models';
 
+import { type Schema, type StringSchema, boolean, object, string } from 'yup';
 import { buildValidationSchema } from './WidgetProperties/Inputs/utils';
 import { widgetPropertiesAtom } from './atoms';
 
@@ -21,13 +25,17 @@ const getPropertiesValidationSchema = ({
   propertyType
 }: GetPropertiesValidationSchemaProps): Record<
   string,
-  Yup.StringSchema<string | undefined, Yup.AnyObjectSchema, string | undefined>
+  StringSchema<string | undefined, Yup.AnyObjectSchema, string | undefined>
 > => {
-  const filteredProperties = properties
-    ? Object.entries(properties[propertyType] || {})
-    : [];
+  const filteredProperties = (
+    properties ? path(propertyType.split('.'), properties) : []
+  ) as Array<{
+    [key: string]: FederatedWidgetOption & {
+      group?: string;
+    };
+  }>;
 
-  return filteredProperties.reduce(
+  return toPairs(filteredProperties).reduce(
     (acc, [name, inputProp]) => ({
       ...acc,
       [name]: buildValidationSchema({
@@ -40,7 +48,7 @@ const getPropertiesValidationSchema = ({
 };
 
 const useValidationSchema = (): {
-  schema: Yup.SchemaOf<unknown>;
+  schema: Schema<unknown>;
 } => {
   const { t } = useTranslation();
 
@@ -58,18 +66,38 @@ const useValidationSchema = (): {
     t
   });
 
+  const inputCategories = keys(widgetProperties?.categories || {});
+
+  const widgetCategoriesValidationSchema = inputCategories.reduce(
+    (acc, category) => {
+      const hasGroups = !isEmpty(
+        path(['categories', category, 'groups'], widgetProperties)
+      );
+
+      return {
+        ...acc,
+        ...getPropertiesValidationSchema({
+          properties: widgetProperties,
+          propertyType: `categories.${category}${hasGroups ? '.elements' : ''}`,
+          t
+        })
+      };
+    },
+    {}
+  );
+
   const requiredText = t(labelRequired) as string;
 
-  const schema = Yup.object({
-    data: Yup.object(widgetDataValidationSchema).nullable(),
-    options: Yup.object({
-      description: Yup.object().shape({
-        content: Yup.string().nullable(),
-        enabled: Yup.boolean().required(requiredText)
+  const schema = object({
+    data: object(widgetDataValidationSchema).nullable(),
+    options: object({
+      description: object().shape({
+        content: string().nullable(),
+        enabled: boolean().required(requiredText)
       }),
-      name: Yup.string().nullable(),
-      openLinksInNewTab: Yup.boolean().required(requiredText),
-      ...widgetOptionsValidationSchema
+      name: string().nullable(),
+      ...widgetOptionsValidationSchema,
+      ...widgetCategoriesValidationSchema
     })
   });
 

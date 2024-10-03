@@ -1,0 +1,64 @@
+<?php
+
+/*
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations\Factory;
+
+use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderConfigurationDto;
+use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderConfigurationDtoFactoryInterface;
+use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+
+class LocalProviderDtoFactory implements ProviderConfigurationDtoFactoryInterface
+{
+    public function __construct(private readonly UrlGeneratorInterface $urlGenerator)
+    {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function supports(string $type): bool
+    {
+        return $type === Provider::LOCAL;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function createResponse(Configuration $configuration): ProviderConfigurationDto
+    {
+        $dto = new ProviderConfigurationDto();
+        $dto->id = $configuration->getId();
+        $dto->type = $configuration->getType();
+        $dto->name = $configuration->getName();
+        $dto->authenticationUri = $this->urlGenerator->generate(
+            'centreon_security_authentication_login',
+            ['providerName' => Provider::LOCAL]
+        );
+        $dto->isActive = $configuration->isActive();
+        $dto->isForced = $configuration->isForced();
+
+        return $dto;
+    }
+}

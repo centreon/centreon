@@ -1,26 +1,26 @@
 import { useRef } from 'react';
 
-import { BarStack as BarStackVertical, BarStackHorizontal } from '@visx/shape';
 import { Group } from '@visx/group';
-import numeral from 'numeral';
+import { BarStackHorizontal, BarStack as BarStackVertical } from '@visx/shape';
 import { Text } from '@visx/text';
+import numeral from 'numeral';
+import { equals, lt } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { equals } from 'ramda';
 
 import { Tooltip } from '../../components';
-import { LegendProps } from '../Legend/models';
 import { Legend as LegendComponent } from '../Legend';
+import { LegendProps } from '../Legend/models';
 import { getValueByUnit } from '../common/utils';
 
-import { BarStackProps } from './models';
 import { useBarStackStyles } from './BarStack.styles';
+import { BarStackProps } from './models';
 import useResponsiveBarStack from './useResponsiveBarStack';
 
 const DefaultLengd = ({ scale, direction }: LegendProps): JSX.Element => (
   <LegendComponent direction={direction} scale={scale} />
 );
 
-const BarStack = ({
+const ResponsiveBarStack = ({
   title,
   data,
   width,
@@ -33,10 +33,11 @@ const BarStack = ({
   unit = 'number',
   displayValues,
   variant = 'vertical',
-  legendDirection = 'column'
+  legendDirection = 'column',
+  tooltipProps = {}
 }: BarStackProps & { height: number; width: number }): JSX.Element => {
   const { t } = useTranslation();
-  const { classes } = useBarStackStyles();
+  const { classes, cx } = useBarStackStyles();
 
   const titleRef = useRef(null);
   const legendRef = useRef(null);
@@ -50,7 +51,6 @@ const BarStack = ({
     total,
     xScale,
     yScale,
-    svgWrapperWidth,
     svgContainerSize,
     isVerticalBar
   } = useResponsiveBarStack({
@@ -68,24 +68,28 @@ const BarStack = ({
     ? BarStackVertical
     : BarStackHorizontal;
 
+  const isSmallHeight = isVerticalBar ? lt(height, 190) : lt(height, 100);
+  const isSmallWidth = isVerticalBar ? lt(width, 80) : lt(width, 350);
+  const mustDisplayLegend = isSmallWidth ? false : displayLegend;
+
   return (
-    <div className={classes.container} style={{ height, width }}>
-      <div
-        className={classes.svgWrapper}
-        style={{
-          height,
-          width: svgWrapperWidth
-        }}
-      >
+    <div className={classes.container} style={{ width }}>
+      <div className={classes.svgWrapper}>
         {title && (
-          <div className={classes.title} data-testid="Title" ref={titleRef}>
+          <div
+            className={cx(classes.title, isSmallHeight && classes.smallTitle)}
+            data-testid="Title"
+            ref={titleRef}
+          >
             {`${numeral(total).format('0a').toUpperCase()} `} {t(title)}
           </div>
         )}
         <div
           className={classes.svgContainer}
           data-testid="barStack"
-          style={svgContainerSize}
+          style={{
+            width: svgContainerSize.width
+          }}
         >
           <svg
             data-variant={variant}
@@ -140,6 +144,7 @@ const BarStack = ({
                                 title={title}
                                 total={total}
                                 value={barStack.bars[0].bar.data[barStack.key]}
+                                {...tooltipProps}
                               />
                             )
                           }
@@ -147,7 +152,11 @@ const BarStack = ({
                             isVerticalBar ? 'right-start' : 'bottom-start'
                           }
                         >
-                          <g data-testid={bar.key} onClick={onClick}>
+                          <g
+                            data-testid={bar.key}
+                            onClick={onClick}
+                            onKeyUp={() => undefined}
+                          >
                             <rect
                               cursor="pointer"
                               fill={bar.color}
@@ -155,7 +164,7 @@ const BarStack = ({
                                 isVerticalBar ? bar.height - 1 : bar.height
                               }
                               key={`bar-stack-${barStack.index}-${bar.index}`}
-                              ry={10}
+                              ry={4}
                               width={isVerticalBar ? bar.width : bar.width - 1}
                               x={bar.x}
                               y={bar.y}
@@ -190,7 +199,7 @@ const BarStack = ({
           </svg>
         </div>
       </div>
-      {displayLegend && (
+      {mustDisplayLegend && (
         <div data-testid="Legend" ref={legendRef}>
           <Legend
             data={data}
@@ -206,4 +215,4 @@ const BarStack = ({
   );
 };
 
-export default BarStack;
+export default ResponsiveBarStack;

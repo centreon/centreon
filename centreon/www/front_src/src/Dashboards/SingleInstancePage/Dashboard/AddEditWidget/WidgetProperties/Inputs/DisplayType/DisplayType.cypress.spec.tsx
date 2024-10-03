@@ -1,8 +1,8 @@
 import { Formik } from 'formik';
 import { Provider, createStore } from 'jotai';
 
-import { labelDisplayType } from '../../../../translatedLabels';
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
+import { labelDisplayAs } from '../../../../translatedLabels';
 
 import DisplayType from './DisplayType';
 
@@ -55,7 +55,7 @@ describe('Display type', () => {
   });
 
   it('displays the text option as pre-selected', () => {
-    cy.contains(labelDisplayType).should('be.visible');
+    cy.contains(labelDisplayAs).should('be.visible');
 
     cy.get('[data-type="text"]').should('have.attr', 'data-selected', 'true');
     cy.get('[data-type="gauge"]').should('have.attr', 'data-selected', 'false');
@@ -81,7 +81,7 @@ describe('Disabled display type', () => {
   });
 
   it('displays the display types as disabled', () => {
-    cy.contains(labelDisplayType).should('be.visible');
+    cy.contains(labelDisplayAs).should('be.visible');
 
     cy.get('[data-type="text"]').should('have.attr', 'data-disabled', 'true');
     cy.get('[data-type="gauge"]').should('have.attr', 'data-disabled', 'true');

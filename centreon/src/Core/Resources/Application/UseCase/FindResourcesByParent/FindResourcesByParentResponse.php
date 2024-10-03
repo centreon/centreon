@@ -25,13 +25,15 @@ namespace Core\Resources\Application\UseCase\FindResourcesByParent;
 
 use Core\Resources\Application\UseCase\FindResourcesByParent\Response\ResourcesByParentResponseDto;
 
-final class FindResourcesByParentResponse 
+final class FindResourcesByParentResponse
 {
     /**
      * @param ResourcesByParentResponseDto[] $resources
+     * @param array<string, array<mixed, mixed>> $extraData
      */
     public function __construct(
         public array $resources = [],
+        public array $extraData = []
     ) {
     }
 }

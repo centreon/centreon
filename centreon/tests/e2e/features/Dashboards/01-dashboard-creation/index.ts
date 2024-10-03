@@ -45,7 +45,7 @@ afterEach(() => {
 Given(
   'a user with dashboard edition rights on the dashboard listing page',
   () => {
-    cy.visit('/centreon/home/dashboards');
+    cy.visitDashboards();
   }
 );
 
@@ -157,7 +157,7 @@ Then(
 Given(
   'a user with dashboard edition rights who is about to create a dashboard',
   () => {
-    cy.visit('/centreon/home/dashboards');
+    cy.visitDashboards();
     cy.getByLabel({ label: 'create', tag: 'button' }).click();
     cy.getByLabel({ label: 'Name', tag: 'input' }).type(
       `${dashboards.default.name} to be cancelled`
@@ -201,12 +201,12 @@ Given(
       dashboards.fromDashboardCreatorUser,
       textWidget
     );
-    cy.visit('/centreon/home/dashboards');
+    cy.visitDashboards();
   }
 );
 
 When('the dashboard administrator user starts to edit the dashboard', () => {
-  cy.getByLabel({ label: 'view', tag: 'button' }).click();
+  cy.contains(dashboards.fromDashboardCreatorUser.name).click();
   cy.getByTestId({ testId: 'edit_dashboard' }).click();
   cy.location('search').should('include', 'edit=true');
   cy.get('button[type=button]').contains('Add a widget').should('exist');

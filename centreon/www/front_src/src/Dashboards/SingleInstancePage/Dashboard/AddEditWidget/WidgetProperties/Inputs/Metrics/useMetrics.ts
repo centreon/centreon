@@ -1,34 +1,36 @@
-import { useMemo, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
+import { useAtomValue } from 'jotai';
 import {
   equals,
   identity,
-  includes,
   innerJoin,
   isEmpty,
   isNil,
+  map,
   omit,
+  pick,
   pluck,
   propEq,
   reject
 } from 'ramda';
-import { useAtomValue } from 'jotai';
 
 import { SelectEntry, useDeepCompare } from '@centreon/ui';
 
+import {
+  resourcesInputKeyDerivedAtom,
+  widgetPropertiesAtom
+} from '../../../atoms';
 import {
   FormMetric,
   Metric,
   ServiceMetric,
   Widget,
-  WidgetDataResource
+  WidgetDataResource,
+  WidgetResourceType
 } from '../../../models';
 import { getDataProperty } from '../utils';
-import {
-  resourcesInputKeyDerivedAtom,
-  widgetPropertiesAtom
-} from '../../../atoms';
 
 import { useListMetrics } from './useListMetrics';
 import { useRenderOptions } from './useRenderOptions';
@@ -38,11 +40,11 @@ interface UseMetricsOnlyState {
   changeMetrics: (_, newMetrics: Array<SelectEntry> | null) => void;
   deleteMetricItem: (index) => void;
   error?: string;
-  getMetricOptionDisabled: (metricOption) => boolean;
   getOptionLabel: (metric: FormMetric) => string;
   getTagLabel: (metric: FormMetric) => string;
+  hasMetaService: boolean;
+  hasMultipleUnitsSelected: boolean;
   hasNoResources: () => boolean;
-  hasReachedTheLimitOfUnits: boolean;
   hasTooManyMetrics: boolean;
   isLoadingMetrics: boolean;
   isTouched?: boolean;
@@ -69,6 +71,14 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     resourcesInputKey ? values.data?.[resourcesInputKey] : []
   ) as Array<WidgetDataResource>;
 
+  const hasMetaService = useMemo(
+    () =>
+      resources.some(({ resourceType }) =>
+        equals(resourceType, WidgetResourceType.metaService)
+      ),
+    [resources]
+  );
+
   const value = useMemo<Array<FormMetric> | undefined>(
     () => getDataProperty({ obj: values, propertyName }),
     [getDataProperty({ obj: values, propertyName })]
@@ -85,13 +95,12 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
   );
 
   const {
-    hasReachedTheLimitOfUnits,
+    hasMultipleUnitsSelected,
     hasTooManyMetrics,
     isLoadingMetrics,
     metrics,
     metricCount,
-    servicesMetrics,
-    unitsFromSelectedMetrics
+    servicesMetrics
   } = useListMetrics({ resources, selectedMetrics: value });
 
   const getResourcesByMetricName = (
@@ -221,14 +230,6 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     useDeepCompare([servicesMetrics])
   );
 
-  const getMetricOptionDisabled = (metricOption): boolean => {
-    if (!hasReachedTheLimitOfUnits) {
-      return false;
-    }
-
-    return !includes(metricOption.unit, unitsFromSelectedMetrics);
-  };
-
   const metricWithSeveralResources = useMemo(
     () =>
       widgetProperties?.singleResourceSelection &&
@@ -250,7 +251,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
         return;
       }
 
-      if (isEmpty(resources)) {
+      if (isEmpty(resources) || hasMetaService) {
         setFieldValue(`data.${propertyName}`, []);
 
         return;
@@ -300,19 +301,28 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
           : intersectionFilteredExcludedMetrics
       );
     },
-    useDeepCompare([servicesMetrics, resources])
+    useDeepCompare([servicesMetrics, resources, hasMetaService])
   );
+
+  useEffect(() => {
+    const services = map(
+      pick(['uuid', 'id', 'name', 'parentName']),
+      servicesMetrics?.result || []
+    );
+
+    setFieldValue('data.services', services);
+  }, [values?.data?.[propertyName]]);
 
   return {
     changeMetric,
     changeMetrics,
     deleteMetricItem,
     error,
-    getMetricOptionDisabled,
     getOptionLabel,
     getTagLabel,
+    hasMetaService,
+    hasMultipleUnitsSelected,
     hasNoResources,
-    hasReachedTheLimitOfUnits,
     hasTooManyMetrics,
     isLoadingMetrics,
     isTouched,

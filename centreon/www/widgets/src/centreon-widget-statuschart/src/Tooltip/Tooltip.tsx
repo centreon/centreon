@@ -1,23 +1,25 @@
+import dayjs from 'dayjs';
 import { dec, equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
 
 import { Box, CircularProgress, Divider, Typography } from '@mui/material';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
+import { Resource } from '../../../models';
 import {
   labelAreWorkingFine,
   labelStatus,
   lableNoResourceFound
 } from '../translatedLabels';
 
-import { useTooltipContent } from './useTooltip';
 import { useTooltipStyles } from './Tooltip.styles';
+import { useTooltipContent } from './useTooltip';
 
 interface Props {
   color: string;
   label: string;
+  resources: Array<Resource>;
   title: string;
   total: number;
   value: number;
@@ -28,7 +30,8 @@ const TooltipContent = ({
   color,
   value,
   total,
-  title
+  title,
+  resources: resourcesOptions
 }: Props): JSX.Element => {
   const { classes } = useTooltipStyles();
 
@@ -36,6 +39,7 @@ const TooltipContent = ({
   const { format } = useLocaleDateTimeFormat();
 
   const { elementRef, isLoading, resources } = useTooltipContent({
+    resources: resourcesOptions,
     status: label,
     type: title.slice(0, -1)
   });

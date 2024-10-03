@@ -485,7 +485,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             AND topology.topology_name IN ('Viewer','Administrator','Creator')
             AND acltr.access_right IS NOT NULL
                 AND c.contact_oreon = '1')
-            GROUP BY c.contact_id
+            GROUP BY c.contact_id, ag.acl_group_name
             SQL;
 
         $query .= $sqlTranslator->translatePaginationToSql();

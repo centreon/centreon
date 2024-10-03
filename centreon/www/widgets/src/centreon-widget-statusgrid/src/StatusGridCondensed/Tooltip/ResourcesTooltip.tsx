@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
-import { dec, equals, isEmpty } from 'ramda';
 import dayjs from 'dayjs';
+import { dec, equals, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -20,11 +20,12 @@ import {
   usePluralizedTranslation
 } from '@centreon/ui';
 
+import { Resource } from '../../../../models';
 import { useHostTooltipContentStyles } from '../../StatusGridStandard/StatusGrid.styles';
 import { getColor } from '../../StatusGridStandard/utils';
-import { Resource } from '../../../../models';
 import {
   labelAreWorkingFine,
+  labelBusinessActivity,
   labelNoResourceFoundWithThisStatus,
   labelStatus
 } from '../translatedLabels';
@@ -33,6 +34,8 @@ import { useLoadResources } from './useLoadResources';
 
 interface Props {
   count: number;
+  isBAResourceType: boolean;
+  isBVResourceType: boolean;
   resourceType: string;
   resources: Array<Resource>;
   severityCode: SeverityCode;
@@ -46,7 +49,9 @@ const ResourcesTooltip = ({
   status,
   severityCode,
   count,
-  total
+  total,
+  isBVResourceType,
+  isBAResourceType
 }: Props): JSX.Element => {
   const { classes } = useHostTooltipContentStyles();
   const { pluralizedT } = usePluralizedTranslation();
@@ -60,18 +65,35 @@ const ResourcesTooltip = ({
 
   const { elements, elementRef, isLoading } = useLoadResources({
     bypassRequest: isSuccessStatus || hasNoResource,
+    isBAResourceType,
+    isBVResourceType,
     resourceType,
     resources,
     status
   });
 
   const hasElements = !isEmpty(elements);
+
+  const getResourceTypeLabel = (): string => {
+    if (isBVResourceType) {
+      return t(labelBusinessActivity);
+    }
+    if (isBAResourceType) {
+      return 'KPI';
+    }
+
+    return resourceType;
+  };
+
   const { formattedCount, formattedTotal, translatedResourceType } =
     useMemo(() => {
       return {
         formattedCount: formatMetricValue({ unit: '', value: count }),
         formattedTotal: formatMetricValue({ unit: '', value: total || 0 }),
-        translatedResourceType: pluralizedT({ count, label: resourceType })
+        translatedResourceType: pluralizedT({
+          count,
+          label: getResourceTypeLabel()
+        })
       };
     }, [count, total, resourceType]);
 
@@ -85,17 +107,19 @@ const ResourcesTooltip = ({
             color: getColor({ severityCode, theme })
           }}
         >
-          {t(labelStatus)}: {capitalize(status)}
+          {t(labelStatus)}: {t(capitalize(status))}
         </Typography>
       </Box>
       <Box className={classes.body}>
         <Box className={classes.listContainer}>
           {hasNoResource && (
             <Typography color="disabled">
-              {t(labelNoResourceFoundWithThisStatus, { type: resourceType })}
+              {t(labelNoResourceFoundWithThisStatus, {
+                type: getResourceTypeLabel()
+              })}
             </Typography>
           )}
-          {isSuccessStatus && (
+          {!hasNoResource && isSuccessStatus && (
             <Typography color="disabled">
               {`${formattedCount}/${formattedTotal} ${translatedResourceType} `}
               {t(labelAreWorkingFine)}
@@ -106,7 +130,7 @@ const ResourcesTooltip = ({
               <Typography className={classes.listHeader}>
                 <strong>
                   {formatMetricValue({ unit: '', value: count })}{' '}
-                  {pluralizedT({ count, label: resourceType })}
+                  {pluralizedT({ count, label: translatedResourceType })}
                 </strong>
               </Typography>
               {elements.map(({ name, status: elementStatus }, index) => {

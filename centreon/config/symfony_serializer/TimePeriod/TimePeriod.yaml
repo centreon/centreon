@@ -1,0 +1,17 @@
+Core\TimePeriod\Domain\Model\TimePeriod:
+  attributes:
+    id:
+      groups: ['TimePeriod:Read']
+    name:
+      groups: ['TimePeriod:Read']
+    alias:
+      groups: ['TimePeriod:Read']
+    days:
+      groups: ['TimePeriod:Read']
+    templates:
+      groups: ['TimePeriod:Read']
+    extraTimePeriods:
+      serialized_name: 'exceptions'
+      groups: ['TimePeriod:Read']
+
+

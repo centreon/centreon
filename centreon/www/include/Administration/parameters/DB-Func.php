@@ -35,6 +35,13 @@
  */
 
 require_once __DIR__ . '/../../../../bootstrap.php';
+require __DIR__ . '/../../common/vault-functions.php';
+
+use App\Kernel;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 /**
  * Used to update fields in the 'centreon.options' table
@@ -862,11 +869,11 @@ function updateBackupConfigData($db, $form, $centreon)
         $ret[$value] = isset($ret[$value]) && isset($ret[$value][$value]) && $ret[$value][$value] ? 1 : 0;
     }
 
-    $checkbox = array(
+    $checkbox = [
         'backup_configuration_files',
         'backup_database_centreon',
         'backup_database_centreon_storage'
-    );
+    ];
     foreach ($checkbox as $value) {
         $ret[$value] = isset($ret[$value]) && $ret[$value] ? 1 : 0;
     }
@@ -893,11 +900,11 @@ function updateBackupConfigData($db, $form, $centreon)
     $centreon->initOptGen($db);
 }
 
-function updateKnowledgeBaseData($db, $form, $centreon)
+function updateKnowledgeBaseData($db, $form, $centreon, ?string $originalPassword)
 {
     $ret = $form->getSubmitValues();
 
-    if (!isset($ret['kb_wiki_certificate']) || !filter_var($ret["kb_wiki_certificate"], FILTER_VALIDATE_INT)) {
+    if (!isset($ret['kb_wiki_certificate']) || ! filter_var($ret["kb_wiki_certificate"], FILTER_VALIDATE_INT)) {
         $ret['kb_wiki_certificate'] = 0;
     }
 
@@ -905,17 +912,56 @@ function updateKnowledgeBaseData($db, $form, $centreon)
         unset($ret["kb_wiki_password"]);
     }
 
-    if (isset($ret["kb_wiki_url"]) && !filter_var($ret["kb_wiki_url"], FILTER_VALIDATE_URL)) {
+    if (isset($ret["kb_wiki_url"]) && ! filter_var($ret["kb_wiki_url"], FILTER_VALIDATE_URL)) {
         unset($ret["kb_wiki_url"]);
     }
 
     foreach ($ret as $key => $value) {
-        if (preg_match('/^kb_/', $key)) {
+        if ($key === "kb_wiki_password") {
+            $vaultPath = saveKnowledgeBasePasswordInVault($value, $originalPassword);
+            $value = $vaultPath ?? $value;
+            updateOption($db, $key, $value);
+        } elseif (preg_match('/^kb_/', $key)) {
             updateOption($db, $key, $value);
         }
     }
 
     $centreon->initOptGen($db);
+}
+
+/**
+ * @param string $password
+ * @param string $originalPassword
+ *
+ * @return string|null
+ *
+ * @throws Throwable
+ */
+function saveKnowledgeBasePasswordInVault(string $password, ?string $originalPassword): ?string
+{
+    $kernel = Kernel::createForWeb();
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    if ($vaultConfiguration === null) {
+        return null;
+    }
+
+    $uuid = null;
+    if ($originalPassword !== null && str_starts_with($originalPassword, VaultConfiguration::VAULT_PATH_PATTERN)) {
+        $uuid = preg_match(
+            '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
+            $originalPassword,
+            $matches
+        )
+        && isset($matches[2]) ? $matches[2] : null;
+    }
+
+    /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+    $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+    $writeVaultRepository->setCustomPath(AbstractVaultRepository::KNOWLEDGE_BASE_PATH);
+    return upsertKnowledgeBasePasswordInVault($writeVaultRepository, $password, $uuid);
 }
 
 /**

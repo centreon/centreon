@@ -159,4 +159,13 @@ interface ReadHostRepositoryInterface
      * @return HostNamesById
      */
     public function findNames(array $hostIds): HostNamesById;
+
+    /**
+     * Find all hosts.
+     *
+     * @throws \Throwable
+     *
+     * @return Host[]
+     */
+    public function findAll(): array;
 }

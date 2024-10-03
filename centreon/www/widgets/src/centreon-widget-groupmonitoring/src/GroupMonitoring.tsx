@@ -4,9 +4,9 @@ import { MemoizedListing } from '@centreon/ui';
 
 import NoResources from '../../NoResources';
 
+import { useColumns } from './Columns/useColumns';
 import { FormattedGroup, WidgetProps } from './models';
 import { useGroupMonitoring } from './useGroupMonitoring';
-import { useColumns } from './Columns/useColumns';
 
 const GroupMonitoring = ({
   panelData,
@@ -17,14 +17,14 @@ const GroupMonitoring = ({
   setPanelOptions,
   id,
   dashboardId,
-  playlistHash
-}: Omit<WidgetProps, 'store'>): JSX.Element => {
+  playlistHash,
+  widgetPrefixQuery
+}: Omit<WidgetProps, 'store' | 'queryClient'>): JSX.Element => {
   const {
     hasResourceTypeDefined,
     changeLimit,
     changePage,
     changeSort,
-    isLoading,
     limit,
     page,
     sortField,
@@ -41,7 +41,8 @@ const GroupMonitoring = ({
     panelOptions,
     playlistHash,
     refreshCount,
-    setPanelOptions
+    setPanelOptions,
+    widgetPrefixQuery
   });
 
   const columns = useColumns({
@@ -70,7 +71,6 @@ const GroupMonitoring = ({
       columns={columns}
       currentPage={page}
       limit={limit}
-      loading={isLoading}
       rows={listing?.result || []}
       sortField={sortField}
       sortOrder={sortOrder}

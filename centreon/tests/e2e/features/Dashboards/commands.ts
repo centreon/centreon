@@ -11,9 +11,73 @@ import topBottomWidget from '../../fixtures/dashboards/creation/widgets/dashboar
 
 Cypress.Commands.add('enableDashboardFeature', () => {
   cy.execInContainer({
-    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
+    command: `sed -i 's@"dashboard": [0-3]@"dashboard": 3@' /usr/share/centreon/config/features.json`,
     name: 'web'
   });
+});
+
+Cypress.Commands.add('visitDashboards', () => {
+  cy.intercept({
+    method: 'GET',
+    times: 1,
+    url: '/centreon/api/latest/configuration/dashboards*'
+  }).as('listAllDashboards');
+
+  const dashboardsUrl = '/centreon/home/dashboards/library';
+  cy.url().then((url) =>
+    url.includes(dashboardsUrl)
+      ? cy.visit(dashboardsUrl)
+      : cy.navigateTo({ page: 'Dashboards', rootItemNumber: 0 })
+  );
+
+  cy.wait('@listAllDashboards');
+});
+
+Cypress.Commands.add('visitDashboard', (name) => {
+  cy.visitDashboards();
+
+  cy.contains(name).click();
+
+  cy.url().should('match', /\/home\/dashboards\/library\/\d+$/);
+});
+
+Cypress.Commands.add('editDashboard', (name) => {
+  cy.visitDashboard(name);
+
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+
+  cy.url().should('match', /\/home\/dashboards\/library\/\d+\?edit=true/);
+
+  cy.getByLabel({
+    label: 'Save',
+    tag: 'button'
+  }).should('be.visible');
+});
+
+Cypress.Commands.add('editWidget', (nameOrPosition) => {
+  if (typeof nameOrPosition === 'string') {
+    cy.contains('div.react-grid-item', nameOrPosition).as('widgetItem');
+  } else {
+    cy.get('div.react-grid-item')
+      .eq(nameOrPosition - 1)
+      .as('widgetItem');
+  }
+
+  cy.get('@widgetItem').within(() => {
+    cy.getByTestId({ testId: 'More actions' }).should('be.visible').click();
+  });
+
+  cy.getByLabel({
+    label: 'Edit widget',
+    tag: 'li'
+  })
+    .should('exist') // do not check with "be.visible" because it can be hidden by the tooltip of "more actions" button
+    .click();
+
+  cy.contains('Widget properties').should('be.visible');
 });
 
 Cypress.Commands.add(
@@ -83,20 +147,19 @@ Cypress.Commands.add('verifyDuplicatesGraphContainer', () => {
 });
 
 Cypress.Commands.add('waitUntilPingExists', () => {
-  cy.getByTestId({ testId: 'Select resource' }).eq(1).click();
-
   cy.intercept({
     method: 'GET',
-    url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
-  }).as('resourceRequest');
+    url: /\/centreon\/api\/latest\/monitoring\/services\/names.*$/
+  }).as('servicesRequest');
 
   return cy.waitUntil(
     () => {
       cy.getByTestId({ testId: 'Select resource' }).eq(0).realClick();
       cy.contains('Centreon-Server').realClick();
+      cy.wait(60_000);
       cy.getByTestId({ testId: 'Select resource' }).eq(1).realClick();
 
-      return cy.wait('@resourceRequest').then((interception) => {
+      return cy.wait('@servicesRequest').then((interception) => {
         if (interception && interception.response) {
           cy.log('Response Body:', interception.response.body);
           const responseBody = interception.response.body;
@@ -261,6 +324,8 @@ declare global {
   namespace Cypress {
     interface Chainable {
       applyAcl: () => Cypress.Chainable;
+      editDashboard: (name: string) => Cypress.Chainable;
+      editWidget: (nameOrPosition: string | number) => Cypress.Chainable;
       enableDashboardFeature: () => Cypress.Chainable;
       getCellContent: (rowIndex: number, colIndex: number) => Cypress.Chainable;
       insertDashboardWithWidget: (
@@ -274,6 +339,8 @@ declare global {
         expectedColors: Array<string>,
         expectedValue: Array<string>
       ) => Cypress.Chainable;
+      visitDashboard: (name: string) => Cypress.Chainable;
+      visitDashboards: () => Cypress.Chainable;
       waitUntilForDashboardRoles: (
         accessRightsTestId: string,
         expectedElementCount: number

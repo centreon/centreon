@@ -2,7 +2,7 @@ import axios, { AxiosResponse, CancelToken } from 'axios';
 import { equals } from 'ramda';
 
 import { resourcesEndpoint } from '../../../../api/endpoint';
-import { Resource, ResourceType, ResourceCategory } from '../../../../models';
+import { Resource, ResourceCategory, ResourceType } from '../../../../models';
 
 const disacknowledgeEndpoint = `${resourcesEndpoint}/acknowledgements`;
 

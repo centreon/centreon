@@ -1,7 +1,0 @@
-AddBrokerOutput:
-  methods: POST
-  path: /configuration/broker/{brokerId}/outputs
-  requirements:
-    brokerId: '\d+'
-  controller: 'Core\Broker\Infrastructure\API\AddBrokerOutput\AddBrokerOutputController'
-  condition: "request.attributes.get('version') >= 24.04"

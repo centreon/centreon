@@ -9,9 +9,9 @@ import { Resource } from '../models';
 import {
   GraphTabParameters,
   ResourceDetails,
+  ResourceDetailsAtom,
   ServicesTabParameters,
-  TabParameters,
-  ResourceDetailsAtom
+  TabParameters
 } from './models';
 import { detailsTabId } from './tabs';
 import { CustomTimePeriod, TimePeriodId } from './tabs/Graph/models';
@@ -34,7 +34,7 @@ export const defaultSelectedCustomTimePeriodAtom = atom<
 
 export const selectResourceDerivedAtom = atom(
   null,
-  (get, set, resource: ResourceDetails | Resource) => {
+  (_get, set, resource: ResourceDetails | Resource) => {
     set(openDetailsTabIdAtom, detailsTabId);
     set(selectedResourceUuidAtom, resource?.uuid);
     set(selectedResourcesDetailsAtom, {

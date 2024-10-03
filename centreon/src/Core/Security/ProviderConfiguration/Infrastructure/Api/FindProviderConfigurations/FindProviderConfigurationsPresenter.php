@@ -23,55 +23,33 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations;
 
-use Centreon\Infrastructure\Service\Exception\NotFoundException;
 use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Infrastructure\Common\Api\HttpUrlTrait;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\{
-    FindProviderConfigurationsPresenterInterface
-};
-use Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations\ProviderPresenter\{
-    ProviderPresenterInterface
-};
-
+    FindProviderConfigurationsPresenterInterface, FindProviderConfigurationsResponse, ProviderConfigurationDto};
 class FindProviderConfigurationsPresenter extends AbstractPresenter implements FindProviderConfigurationsPresenterInterface
 {
-    use HttpUrlTrait;
-
-    /** @var ProviderPresenterInterface[] */
-    private array $providerPresenters;
-
     /**
-     * @param \Traversable<ProviderPresenterInterface> $presenters
-     * @param PresenterFormatterInterface $presenterFormatter
+     * @inheritDoc
      */
-    public function __construct(
-        \Traversable $presenters,
-        protected PresenterFormatterInterface $presenterFormatter
-    ) {
-        parent::__construct($presenterFormatter);
-        if (iterator_count($presenters) === 0) {
-            throw new NotFoundException(_('No provider presenters could be found'));
-        }
-        $this->providerPresenters = iterator_to_array($presenters);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @param mixed[] $data
-     */
-    public function present(mixed $data): void
+    public function presentResponse(ResponseStatusInterface|FindProviderConfigurationsResponse $data): void
     {
-        $formattedResponse = [];
-
-        foreach ($data as $response) {
-            foreach ($this->providerPresenters as $presenterProvider) {
-                if ($presenterProvider->isValidFor($response)) {
-                    $formattedResponse[] = $presenterProvider->present($response);
-                }
-            }
+        if ($data instanceof ResponseStatusInterface) {
+            $this->setResponseStatus($data);
+        } else {
+            $this->present(array_map(
+                function (ProviderConfigurationDto $dto): array {
+                    return [
+                        'id' => $dto->id,
+                        'type' => $dto->type,
+                        'name' => $dto->name,
+                        'authentication_uri' => $dto->authenticationUri,
+                        'is_active' => $dto->isActive,
+                        'is_forced' => $dto->isForced,
+                    ];
+                },
+                $data->providerConfigurations
+            ));
         }
-        parent::present($formattedResponse);
     }
 }

@@ -132,7 +132,7 @@ it('should present a FindHostGroupsResponse when a non-admin user has read only 
 
     $this->hostCategoryRepository
         ->expects($this->once())
-        ->method('hasAclFilterOnHostCategories')
+        ->method('hasRestrictedAccessToHostCategories')
         ->willReturn(true);
 
     $this->hostCategoryRepository
@@ -170,7 +170,7 @@ it('should present a FindHostGroupsResponse when a non-admin user has read/write
 
     $this->hostCategoryRepository
         ->expects($this->once())
-        ->method('hasAclFilterOnHostCategories')
+        ->method('hasRestrictedAccessToHostCategories')
         ->willReturn(true);
 
     $this->hostCategoryRepository

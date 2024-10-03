@@ -42,7 +42,7 @@ Given('a user with access to the dashboards overview page', () => {
 });
 
 When('the user accesses the dashboard overview page with no dashboards', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.visitDashboards();
 });
 
 Then(
@@ -57,7 +57,7 @@ Then(
 
 Given('a list of dashboards', () => {
   cy.insertDashboardList('dashboards/navigation/dashboards-single-page.json');
-  cy.visit('/centreon/home/dashboards');
+  cy.visitDashboards();
 });
 
 When('the user clicks on the dashboard they want to select', () => {

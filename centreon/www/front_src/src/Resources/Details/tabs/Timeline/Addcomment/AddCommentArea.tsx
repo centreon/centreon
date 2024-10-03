@@ -1,5 +1,6 @@
 import { ChangeEvent, useState } from 'react';
 
+import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -60,18 +61,24 @@ const AddCommentArea = ({
 
   const sendComment = (): void => {
     const date = toIsoString(new Date());
+    const [data] = resources.map(({ type, id, parent }) => {
+      const parentData = !isNil(parent?.id) ? { id: parent?.id } : null;
+
+      return {
+        id,
+        parent: parentData,
+        type
+      };
+    });
 
     const payload = [
       {
-        ...resources.map(({ type, id, parent }) => ({
-          id,
-          parent: { id: parent?.id },
-          type
-        }))[0],
+        ...data,
         comment,
         date
       }
     ];
+
     mutateAsync({
       payload: {
         resources: payload

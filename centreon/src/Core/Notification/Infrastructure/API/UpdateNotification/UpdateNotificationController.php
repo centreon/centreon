@@ -34,7 +34,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @phpstan-type _RequestArray array{
  *     name: string,
- *     timeperiod: int,
+ *     timeperiod_id: int,
  *     users: int[],
  *     contactgroups: int[],
  *     resources: array<array{
@@ -108,6 +108,7 @@ final class UpdateNotificationController extends AbstractController
                     ?? 0,
             ];
         }
+        $request->timeperiodId = $dataSent['timeperiod_id'];
         $request->isActivated = $dataSent['is_activated'] ?? true;
 
         return $request;

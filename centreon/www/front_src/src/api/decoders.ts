@@ -4,10 +4,10 @@ import type { User } from '@centreon/ui-context';
 import {
   DashboardGlobalRole,
   DashboardRolesAndPermissions,
-  ListingVariant,
-  ThemeMode,
   FeatureFlags,
-  PlatformFeatures
+  ListingVariant,
+  PlatformFeatures,
+  ThemeMode
 } from '@centreon/ui-context';
 
 import {
@@ -41,6 +41,7 @@ const dashboardDecoder = JsonDecoder.object<DashboardRolesAndPermissions>(
 export const userDecoder = JsonDecoder.object<User>(
   {
     alias: JsonDecoder.string,
+    canManageApiTokens: JsonDecoder.boolean,
     dashboard: JsonDecoder.failover(
       null,
       JsonDecoder.optional(JsonDecoder.nullable(dashboardDecoder))
@@ -65,6 +66,7 @@ export const userDecoder = JsonDecoder.object<User>(
   },
   'User parameters',
   {
+    canManageApiTokens: 'can_manage_api_tokens',
     isAdmin: 'is_admin',
     isExportButtonEnabled: 'is_export_button_enabled',
     themeMode: 'theme'
@@ -114,18 +116,14 @@ export const platformVersionsDecoder = JsonDecoder.object<PlatformVersions>(
 export const featuresFlagDecoder = JsonDecoder.object<FeatureFlags>(
   {
     adExclusionPeriods: JsonDecoder.optional(JsonDecoder.boolean),
-    dashboard: JsonDecoder.optional(JsonDecoder.boolean),
-    dashboard_playlist: JsonDecoder.optional(JsonDecoder.boolean),
     notification: JsonDecoder.optional(JsonDecoder.boolean),
-    resourceStatusFilterRevamp: JsonDecoder.optional(JsonDecoder.boolean),
-    resourceStatusTreeView: JsonDecoder.optional(JsonDecoder.boolean),
+    resouresTableOpenTickets: JsonDecoder.optional(JsonDecoder.boolean),
     vault: JsonDecoder.optional(JsonDecoder.boolean)
   },
   'Feature flags',
   {
     adExclusionPeriods: 'ad_exclusion_periods',
-    resourceStatusFilterRevamp: 'resource_status_filter_revamp',
-    resourceStatusTreeView: 'resource_status_tree_view'
+    resouresTableOpenTickets: 'resources_table_widget_open_tickets'
   }
 );
 

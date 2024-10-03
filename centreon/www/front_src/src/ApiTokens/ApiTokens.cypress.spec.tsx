@@ -25,20 +25,18 @@ import {
   DefaultParameters,
   Fields
 } from './TokenListing/Actions/Filter/models';
-import {
-  convertToBoolean,
-  translateWhiteSpaceToRegex
-} from './TokenListing/Actions/Search/utils';
+import { translateWhiteSpaceToRegex } from './TokenListing/Actions/Search/utils';
 import { Column } from './TokenListing/ComponentsColumn/models';
 import TokenListing from './TokenListing/TokenListing';
 import {
   buildListEndpoint,
   createTokenEndpoint,
-  deleteTokenEndpoint,
   listConfiguredUser,
-  listTokensEndpoint
+  listTokensEndpoint,
+  tokenEndpoint
 } from './api/endpoints';
 import {
+  labelActiveOrRevoked,
   labelActiveToken,
   labelCancel,
   labelClear,
@@ -64,10 +62,6 @@ dayjs.extend(LocalizedFormat);
 
 const columns = [
   {
-    id: 'status',
-    label: Column.Status
-  },
-  {
     id: 'token_name',
     label: Column.Name
   },
@@ -90,6 +84,10 @@ const columns = [
   {
     id: 'actions',
     label: Column.Actions
+  },
+  {
+    id: 'activate',
+    label: Column.Activate
   }
 ];
 
@@ -231,6 +229,7 @@ const parametersWithAllSearchableFields =
 const parametersWithSelectedFilters =
   '{"$and":[{"$or":[{"creation_date":{"$ge":"2024-02-20T15:16:33Z"}}]},{"$or":[{"expiration_date":{"$le":"2024-03-28T15:16:33Z"}}]},{"$or":[{"user.name":{"$rg":"User"}}]}]}';
 const tokenToDelete = 'a-token';
+const tokenToPatch = 'a-token';
 const msgConfirmationDeletion = 'You are about to delete the token';
 const irreversibleMsg =
   'This action cannot be undone. If you proceed, all requests made using this token will be rejected. Do you want to delete the token?';
@@ -372,6 +371,7 @@ describe('Api-token', () => {
     const store = createStore();
 
     store.set(userAtom, {
+      canManageApiTokens: true,
       isAdmin: true,
       locale: 'en_US',
       timezone: 'Europe/Paris'
@@ -399,8 +399,8 @@ describe('Api-token', () => {
 
     cy.fixture('apiTokens/listing/list.json').then((data) => {
       cy.findByTestId('Listing Pagination').contains(data.meta.limit);
-      cy.findByLabelText(`Previous page`).should('be.disabled');
-      cy.findByLabelText(`Next page`).should('be.enabled');
+      cy.findByLabelText('Previous page').should('be.disabled');
+      cy.findByLabelText('Next page').should('be.enabled');
 
       checkArrowSorting(data.meta);
 
@@ -422,6 +422,8 @@ describe('Api-token', () => {
       );
     });
 
+    cy.clickOutside();
+
     cy.fixture('apiTokens/listing/list.json').then((data) => {
       checkArrowSorting(data.meta);
       checkInformationRow(data.result[0]);
@@ -437,7 +439,7 @@ describe('Api-token', () => {
       parameters: { ...DefaultParameters, page: 2 }
     });
 
-    cy.findByLabelText(`Next page`).should('be.enabled').click();
+    cy.findByLabelText('Next page').should('be.enabled').click();
 
     cy.waitForRequest('@getListTokensPage2');
 
@@ -453,7 +455,7 @@ describe('Api-token', () => {
       parameters: DefaultParameters
     });
 
-    cy.findByLabelText(`Previous page`).should('be.enabled').click();
+    cy.findByLabelText('Previous page').should('be.enabled').click();
 
     cy.waitForRequest('@getListTokens');
     cy.getRequestCalls('@getListTokens').then((calls) => {
@@ -474,7 +476,7 @@ describe('Api-token', () => {
       parameters: { ...DefaultParameters, limit: 20 }
     });
 
-    cy.findByLabelText(`Last page`).should('be.enabled').click();
+    cy.findByLabelText('Last page').should('be.enabled').click();
 
     cy.waitForRequest('@getListTokensPage2');
 
@@ -490,7 +492,7 @@ describe('Api-token', () => {
       parameters: DefaultParameters
     });
 
-    cy.findByLabelText(`First page`).should('be.enabled').click();
+    cy.findByLabelText('First page').should('be.enabled').click();
 
     cy.waitForRequest('@getListTokens');
 
@@ -672,10 +674,57 @@ describe('Api-token', () => {
     cy.makeSnapshot();
   });
 
+  it('revokes an API token when Activate/Revoke token is clicked', () => {
+    cy.waitForRequest('@getListTokens');
+    const patchToken = tokenEndpoint({
+      tokenName: tokenToPatch,
+      userId: 23
+    });
+    interceptListTokens({
+      alias: 'getListTokensAfterRevoke',
+      dataPath: 'apiTokens/listing/listAfterRevoke.json'
+    });
+    cy.interceptAPIRequest({
+      alias: 'patchToken',
+      method: Method.PATCH,
+      path: `./api/latest${patchToken}**`,
+      statusCode: 204
+    });
+    cy.findAllByLabelText(labelActiveOrRevoked).eq(0).click();
+    cy.waitForRequest('@patchToken');
+    cy.findAllByLabelText(labelActiveOrRevoked).eq(0).should('not.be.checked');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays an error message upon failed revoking of a token', () => {
+    cy.waitForRequest('@getListTokens');
+    const patchToken = tokenEndpoint({
+      tokenName: tokenToPatch,
+      userId: 23
+    });
+    cy.interceptAPIRequest({
+      alias: 'patchToken',
+      method: Method.PATCH,
+      path: `./api/latest${patchToken}**`,
+      response: {
+        message: 'internal server error'
+      },
+      statusCode: 500
+    });
+
+    cy.findAllByLabelText(labelActiveOrRevoked).eq(0).click();
+    cy.waitForRequest('@patchToken');
+
+    cy.findByText('internal server error').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
   it('deletes the token when clicking on the Delete button', () => {
     cy.waitForRequest('@getListTokens');
 
-    const deleteToken = deleteTokenEndpoint({
+    const deleteToken = tokenEndpoint({
       tokenName: tokenToDelete,
       userId: 23
     });
@@ -771,11 +820,6 @@ describe('Api-token', () => {
           cy.contains(
             equals(field, Fields.CreationDate) ? '02/20/2024' : '03/28/2024'
           );
-
-          return;
-        }
-        if (equals(type, 'boolean')) {
-          cy.contains(convertToBoolean(value) ? 'Revoked' : 'Active');
 
           return;
         }

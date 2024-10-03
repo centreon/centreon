@@ -1,30 +1,30 @@
 import { useEffect } from 'react';
 
-import { useParams } from 'react-router-dom';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, propOr } from 'ramda';
+import { useParams } from 'react-router-dom';
 
 import { useDeepCompare, useFetchQuery } from '@centreon/ui';
 import { federatedWidgetsAtom } from '@centreon/ui-context';
 
+import { FederatedModule } from '../../../../federatedModules/models';
+import {
+  dashboardDecoder,
+  publicDashboardDecoder
+} from '../../../api/decoders';
 import {
   dashboardsEndpoint,
   getPublicDashboardEndpoint
 } from '../../../api/endpoints';
 import { Dashboard, DashboardPanel, resource } from '../../../api/models';
-import {
-  dashboardDecoder,
-  publicDashboardDecoder
-} from '../../../api/decoders';
-import { FederatedModule } from '../../../../federatedModules/models';
 import { useDashboardUserPermissions } from '../../../components/DashboardLibrary/DashboardUserPermissions/useDashboardUserPermissions';
-import { Panel, PanelConfiguration } from '../models';
 import {
   dashboardAtom,
   dashboardRefreshIntervalAtom,
   hasEditPermissionAtom,
   panelsLengthAtom
 } from '../atoms';
+import { Panel, PanelConfiguration } from '../models';
 
 interface UseDashboardDetailsState {
   dashboard?: Dashboard;
@@ -52,8 +52,10 @@ export const formatPanel = ({
       : panel.widgetSettings.data || null,
     h: panel.layout.height,
     i: `${panel.id}`,
-    minH: panel.layout.minHeight,
-    minW: panel.layout.minWidth,
+    minH:
+      federatedWidget?.federatedComponentsConfiguration[0].panelMinHeight || 2,
+    minW:
+      federatedWidget?.federatedComponentsConfiguration[0].panelMinWidth || 2,
     name: panel.name,
     options: panel.widgetSettings.options,
     panelConfiguration: federatedWidget

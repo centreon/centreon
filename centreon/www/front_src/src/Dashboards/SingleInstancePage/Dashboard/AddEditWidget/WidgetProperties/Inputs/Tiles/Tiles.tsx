@@ -7,14 +7,18 @@ import { Typography } from '@mui/material';
 
 import { NumberField } from '@centreon/ui';
 
-import { getProperty } from '../utils';
-import { Widget, WidgetPropertyProps } from '../../../models';
+import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import { Widget, WidgetPropertyProps } from '../../../models';
+import { getProperty } from '../utils';
 
-import { labelDisplayUpTo, labelTiles } from './translatedLabels';
 import { useTilesStyles } from './Tiles.styles';
+import { labelDisplayUpTo, labelTiles } from './translatedLabels';
 
-const WidgetTiles = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
+const WidgetTiles = ({
+  propertyName,
+  isInGroup
+}: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useTilesStyles();
 
@@ -31,11 +35,11 @@ const WidgetTiles = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     setFieldValue(`options.${propertyName}`, inputValue);
   };
 
+  const Label = useMemo(() => (isInGroup ? Typography : Subtitle), [isInGroup]);
+
   return (
     <div className={classes.container}>
-      <Typography>
-        <strong>{t(labelDisplayUpTo)}</strong>
-      </Typography>
+      <Label>{t(labelDisplayUpTo)}</Label>
       <NumberField
         autoSize
         autoSizeDefaultWidth={10}

@@ -16,7 +16,7 @@ type EventType =
 
 type PointCoords = Pick<Point, 'x' | 'y'>;
 
-const DEFAULT_POINT = { x: 0, y: 0 };
+const defaultPoint = { x: 0, y: 0 };
 
 const isTouchEvent = (event?: EventType): event is TouchEvent =>
   !!event && 'changedTouches' in event;
@@ -25,7 +25,7 @@ export const isMouseEvent = (event?: EventType): event is MouseEvent =>
   !!event && 'clientX' in event;
 
 const getXAndYFromEvent = (event?: EventType): PointCoords => {
-  if (!event) return { ...DEFAULT_POINT };
+  if (!event) return { ...defaultPoint };
 
   if (isTouchEvent(event)) {
     return event.changedTouches.length > 0
@@ -33,7 +33,7 @@ const getXAndYFromEvent = (event?: EventType): PointCoords => {
           x: event.changedTouches[0].clientX,
           y: event.changedTouches[0].clientY
         }
-      : { ...DEFAULT_POINT };
+      : { ...defaultPoint };
   }
 
   if (isMouseEvent(event)) {
@@ -43,7 +43,7 @@ const getXAndYFromEvent = (event?: EventType): PointCoords => {
     };
   }
 
-  return { ...DEFAULT_POINT };
+  return { ...defaultPoint };
 };
 
 export const localPoint = (event: EventType): PointCoords | null => {

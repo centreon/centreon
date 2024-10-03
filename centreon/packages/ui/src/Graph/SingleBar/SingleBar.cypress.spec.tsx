@@ -1,10 +1,10 @@
-import dataLastWeek from '../LineChart/mockedData/lastWeek.json';
 import {
   criticalThresholds,
   rangedThresholds,
   successThresholds,
   warningThresholds
 } from '../common/testUtils';
+import dataLastWeek from '../mockedData/lastWeek.json';
 
 import SingleBar from './SingleBar';
 import { SingleBarProps } from './models';

@@ -6,8 +6,8 @@ import { ComponentColumnProps } from '@centreon/ui';
 
 import { getStatus } from '../../utils';
 
-import useStyles from './SubItem.styles';
 import StatusChip from './StatusChip';
+import useStyles from './SubItem.styles';
 
 const SubItem = ({ row }: ComponentColumnProps): JSX.Element => {
   const { resourceCount } = row;

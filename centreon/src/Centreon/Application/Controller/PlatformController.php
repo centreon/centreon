@@ -101,7 +101,7 @@ class PlatformController extends AbstractController
         try {
             $updatePartiallyPlatformInformation->execute($request);
         } catch (PlatformInformationException $ex) {
-            match ($ex->getCode()) {
+            return match ($ex->getCode()) {
                 PlatformInformationException::CODE_FORBIDDEN => $this->view(null, Response::HTTP_FORBIDDEN),
                 default => $this->view(null, Response::HTTP_BAD_REQUEST),
             };

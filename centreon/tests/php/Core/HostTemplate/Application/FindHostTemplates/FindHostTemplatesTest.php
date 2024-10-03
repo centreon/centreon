@@ -39,15 +39,18 @@ use Core\HostTemplate\Application\UseCase\FindHostTemplates\FindHostTemplates;
 use Core\HostTemplate\Application\UseCase\FindHostTemplates\FindHostTemplatesResponse;
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Tests\Core\HostTemplate\Infrastructure\API\FindHostTemplates\FindHostTemplatesPresenterStub;
 
 beforeEach(function (): void {
     $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class);
+    $this->readAccessGroupsRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
 
     $this->presenter = new FindHostTemplatesPresenterStub($this->createMock(PresenterFormatterInterface::class));
     $this->useCase = new FindHostTemplates(
         $this->readHostTemplateRepository,
+        $this->readAccessGroupsRepository,
         $this->createMock(RequestParametersInterface::class),
         $this->user
     );
@@ -143,9 +146,15 @@ it(
             ->expects($this->atMost(2))
             ->method('hasTopologyRole')
             ->willReturn(true);
+
+        $this->user
+            ->expects($this->once())
+            ->method('isAdmin')
+            ->willReturn(false);
+
         $this->readHostTemplateRepository
             ->expects($this->once())
-            ->method('findByRequestParameter')
+            ->method('findByRequestParametersAndAccessGroups')
             ->willThrowException(new \Exception());
 
         ($this->useCase)($this->presenter);
@@ -186,6 +195,12 @@ it(
                     [Contact::ROLE_CONFIGURATION_HOSTS_TEMPLATES_READ_WRITE, false],
                 ]
             );
+
+        $this->user
+            ->expects($this->once())
+            ->method('isAdmin')
+            ->willReturn(true);
+
         $this->readHostTemplateRepository
             ->expects($this->once())
             ->method('findByRequestParameter')
@@ -212,9 +227,15 @@ it(
                     [Contact::ROLE_CONFIGURATION_HOSTS_TEMPLATES_READ_WRITE, true],
                 ]
             );
+
+        $this->user
+            ->expects($this->once())
+            ->method('isAdmin')
+            ->willReturn(false);
+
         $this->readHostTemplateRepository
             ->expects($this->once())
-            ->method('findByRequestParameter')
+            ->method('findByRequestParametersAndAccessGroups')
             ->willReturn([$this->testedHostTemplate]);
 
         ($this->useCase)($this->presenter);

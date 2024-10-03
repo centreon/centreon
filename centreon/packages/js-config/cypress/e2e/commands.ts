@@ -7,7 +7,10 @@ import './commands/monitoring';
 
 import installLogsCollector from 'cypress-terminal-report/src/installLogsCollector';
 
-installLogsCollector({ enableExtendedCollector: true });
+installLogsCollector({
+  commandTimings: 'seconds',
+  enableExtendedCollector: true
+});
 
 const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
@@ -260,6 +263,7 @@ Cypress.Commands.add(
     return cy.get('.MuiAlert-message').then(($snackbar) => {
       if ($snackbar.text().includes('Login succeeded')) {
         cy.wait('@getNavigationList');
+        cy.get('.MuiAlert-message').should('not.be.visible');
       }
     });
   }
@@ -308,6 +312,10 @@ interface ExecInContainerProps {
   name: string;
 }
 
+interface ExecInContainerOptions {
+  log: boolean;
+}
+
 interface ExecInContainerResult {
   exitCode: number;
   output: string;
@@ -315,7 +323,7 @@ interface ExecInContainerResult {
 
 Cypress.Commands.add(
   'execInContainer',
-  ({ command, name }: ExecInContainerProps): Cypress.Chainable => {
+  ({ command, name }, { log = true } = { log: true }): Cypress.Chainable => {
     const commands =
       typeof command === 'string' || command instanceof String
         ? [command]
@@ -326,19 +334,22 @@ Cypress.Commands.add(
         cy.task<ExecInContainerResult>(
           'execInContainer',
           { command: runCommand, name },
-          { timeout: 600000 }
+          { log, timeout: 600000 }
         ).then((result) => {
+          const displayedOutput = log ? result.output : 'hidden command output';
+          const displayedRunCommand = log ? runCommand : 'hidden run command';
+
           if (result.exitCode) {
-            cy.log(result.output);
+            cy.log(displayedOutput);
 
             // output will not be truncated
             throw new Error(`
-Execution of "${runCommand}" failed
+Execution of "${displayedRunCommand}" failed
 Exit code: ${result.exitCode}
-Output:\n${result.output}`);
+Output:\n${displayedOutput}`);
           }
 
-          acc.output = `${acc.output}${result.output}`;
+          acc.output = `${acc.output}${displayedOutput}`;
         });
 
         return acc;
@@ -518,6 +529,10 @@ Cypress.Commands.add('stopContainers', (): Cypress.Chainable => {
     .createDirectory(logDirectory)
     .getContainersLogs()
     .then((containersLogs: Array<Array<string>>) => {
+      if (!containersLogs) {
+        return;
+      }
+
       Object.entries(containersLogs).forEach(([containerName, logs]) => {
         cy.writeFile(
           `results/logs/${Cypress.spec.name.replace(
@@ -743,7 +758,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add('getTimeFromHeader', (): Cypress.Chainable => {
   return cy
-    .get('header div[data-cy="clock"]', { timeout: 10000 })
+    .get('header div[data-cy="clock"]', { timeout: 20000 })
     .should('be.visible')
     .then(($time) => {
       const headerTime = $time.children()[1].textContent;
@@ -770,10 +785,10 @@ declare global {
         options?: Partial<Cypress.ExecOptions>
       ) => Cypress.Chainable;
       createDirectory: (directoryPath: string) => Cypress.Chainable;
-      execInContainer: ({
-        command,
-        name
-      }: ExecInContainerProps) => Cypress.Chainable;
+      execInContainer: (
+        props: ExecInContainerProps,
+        options?: ExecInContainerOptions
+      ) => Cypress.Chainable;
       getByLabel: ({
         patternType,
         tag,

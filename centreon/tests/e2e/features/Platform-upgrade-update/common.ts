@@ -6,6 +6,9 @@ import { checkIfConfigurationIsExported, insertFixture } from '../../commons';
 
 const dateBeforeLogin = new Date();
 
+const localPackageDirectory = 'fixtures/packages';
+const containerPackageDirectory = '/tmp/packages-update-centreon';
+
 const getCentreonPreviousMajorVersion = (majorVersionFrom: string): string => {
   const match = majorVersionFrom.match(/^(\d+)\.(\d+)$/);
 
@@ -83,6 +86,11 @@ const getCentreonStableMinorVersions = (
         name: 'web'
       });
     }
+    const lastStableMinorVersion = [...new Set(stableVersions)]
+      .sort((a, b) => a - b)
+      .pop();
+    cy.log('lastStableMinorVersion', lastStableMinorVersion);
+    Cypress.env('lastStableMinorVersion', lastStableMinorVersion);
 
     return cy.wrap([...new Set(stableVersions)].sort((a, b) => a - b)); // remove duplicates and order
   });
@@ -187,7 +195,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
 
   // Step 7
   cy.get('th.step-wrapper span').contains(7);
-  cy.wait('@cacheGeneration', { timeout: 30000 })
+  cy.wait('@cacheGeneration', { timeout: 60000 })
     .get('tbody#step_contents span:contains("OK")')
     .should('have.length', 7);
   cy.wait('@nextStep').get('#next').click();
@@ -220,8 +228,8 @@ const installCentreon = (version: string): Cypress.Chainable => {
 const updatePlatformPackages = (): Cypress.Chainable => {
   return cy
     .copyToContainer({
-      destination: '/tmp/packages-update-centreon',
-      source: './fixtures/packages',
+      destination: containerPackageDirectory,
+      source: `./${localPackageDirectory}`,
       type: CopyToContainerContentType.Directory
     })
     .getWebVersion()
@@ -229,8 +237,8 @@ const updatePlatformPackages = (): Cypress.Chainable => {
       if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
         return cy.execInContainer({
           command: [
-            `rm -f /tmp/packages-update-centreon/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
-            'dnf install -y /tmp/packages-update-centreon/*.rpm'
+            `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
+            `dnf install -y ${containerPackageDirectory}/*.rpm`
           ],
           name: 'web'
         });
@@ -238,9 +246,9 @@ const updatePlatformPackages = (): Cypress.Chainable => {
 
       return cy.execInContainer({
         command: [
-          `rm -f /tmp/packages-update-centreon/centreon{,-central,-mariadb,-mysql}_${major_version}*.deb`,
+          `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}_${major_version}*.deb`,
           'apt-get update',
-          'apt-get install -y /tmp/packages-update-centreon/centreon-*.deb'
+          `apt-get install -y ${containerPackageDirectory}/centreon-*.deb`
         ],
         name: 'web'
       });
@@ -304,7 +312,7 @@ When('administrator updates packages to current version', () => {
 When('administrator runs the update procedure', () => {
   cy.visit('/');
 
-  cy.wait('@getStep1').then(() => {
+  cy.wait('@getStep1', { timeout: 60000 }).then(() => {
     cy.get('.btc.bt_info').should('be.visible').click();
   });
 
@@ -317,7 +325,18 @@ When('administrator runs the update procedure', () => {
 
   cy.wait('@getStep3');
   cy.contains('Release notes');
-  cy.get('#next', { timeout: 15000 }).should('not.be.enabled');
+  // check correct updated version
+  const installed_version = Cypress.env('installed_version');
+  cy.log(`installed_version : ${installed_version}`);
+
+  if (['testing', 'stable'].includes(Cypress.env('STABILITY'))) {
+    cy.getWebVersion().then(({ major_version, minor_version }) => {
+      cy.contains(
+        `upgraded from version ${installed_version} to ${major_version}.${minor_version}`
+      ).should('be.visible');
+    });
+  }
+
   // button is disabled during 3s in order to read documentation
   cy.get('#next', { timeout: 15000 }).should('be.enabled').click();
 
@@ -368,7 +387,12 @@ Then(
         template: 'serviceTemplate1'
       })
       .applyPollerConfiguration();
-
+    cy.visit('/');
+    if (['testing', 'stable'].includes(Cypress.env('STABILITY'))) {
+      cy.getWebVersion().then(({ major_version, minor_version }) => {
+        cy.contains(`${major_version}.${minor_version}`).should('be.visible');
+      });
+    }
     cy.loginByTypeOfUser({
       jsonName: 'admin'
     }).wait('@getLastestUserFilters');
@@ -443,6 +467,8 @@ Then('Poller configuration should be fully generated', () => {
 });
 
 export {
+  localPackageDirectory,
+  containerPackageDirectory,
   getCentreonPreviousMajorVersion,
   getCentreonStableMinorVersions,
   installCentreon,

@@ -2,9 +2,9 @@ import { equals, includes } from 'ramda';
 
 import { SeverityCode, useFetchQuery } from '@centreon/ui';
 
-import { ResourceData } from '../models';
 import { metricsDecoder } from '../api/decoders';
-import { getStatusFromThresholds } from '../utils';
+import { ResourceData } from '../models';
+import { getMetricsEndpoint, getStatusFromThresholds } from '../utils';
 
 interface UseServiceTooltipContentState {
   isLoading: boolean;
@@ -21,15 +21,29 @@ const isProblematicMetric = ({ status }): boolean =>
 const useServiceTooltipContent = (
   data: ResourceData
 ): UseServiceTooltipContentState => {
+  const isMetaService = equals(data?.type, 'meta-service');
+
   const isQueryEnabled =
     !!data.metricsEndpoint &&
     (equals(data.status, SeverityCode.High) ||
       equals(data.status, SeverityCode.Medium));
 
+  const getEndpoint = (): string => {
+    if (data.metricsEndpoint) {
+      return data.metricsEndpoint;
+    }
+
+    return getMetricsEndpoint({
+      id: data?.resourceId,
+      parentId: data?.parentId,
+      resouceType: data?.type
+    });
+  };
+
   const { data: metricsData, isLoading } = useFetchQuery({
-    decoder: metricsDecoder,
-    getEndpoint: () => data.metricsEndpoint as string,
-    getQueryKey: () => ['statusgrid', 'metrics', data.metricsEndpoint],
+    decoder: isMetaService ? undefined : metricsDecoder,
+    getEndpoint,
+    getQueryKey: () => ['statusgrid', 'metrics', data.metricsEndpoint, data.id],
     httpCodesBypassErrorSnackbar: [404],
     queryOptions: {
       enabled: isQueryEnabled,
@@ -37,26 +51,35 @@ const useServiceTooltipContent = (
     }
   });
 
-  const problematicMetrics = (metricsData || [])
-    .map(
+  const metrics = isMetaService ? metricsData?.result : metricsData;
+
+  const problematicMetrics = (metrics || [])
+    ?.map(
       ({
         criticalHighThreshold,
         criticalLowThreshold,
         currentValue,
+        value,
         name,
         warningHighThreshold,
-        warningLowThreshold
+        warningLowThreshold,
+        resource,
+        unit
       }) => {
-        const status = getStatusFromThresholds({
-          criticalThresholds: [criticalLowThreshold, criticalHighThreshold],
-          data: currentValue,
-          warningThresholds: [warningLowThreshold, warningHighThreshold]
-        });
+        const status = isMetaService
+          ? undefined
+          : getStatusFromThresholds({
+              criticalThresholds: [criticalLowThreshold, criticalHighThreshold],
+              data: currentValue,
+              warningThresholds: [warningLowThreshold, warningHighThreshold]
+            });
 
         return {
-          name,
+          name: isMetaService
+            ? `${resource?.parent.name}_${resource?.name}: (${name})`
+            : name,
           status,
-          value: currentValue
+          value: `${isMetaService ? value : currentValue} (${unit})`
         };
       }
     )

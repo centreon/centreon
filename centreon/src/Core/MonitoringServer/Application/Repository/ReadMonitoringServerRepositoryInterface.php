@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\MonitoringServer\Application\Repository;
 
 use Core\MonitoringServer\Model\MonitoringServer;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadMonitoringServerRepositoryInterface {
     /**
@@ -36,6 +37,43 @@ interface ReadMonitoringServerRepositoryInterface {
      * @return bool
      */
     public function exists(int $monitoringServerId): bool;
+
+    /**
+     * Determine if a monitoring server exists by its ID and access groups.
+     *
+     * @param int $monitoringServerId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function existsByAccessGroups(int $monitoringServerId, array $accessGroups): bool;
+
+    /**
+     * Determine if monitoring servers exist by their IDs.
+     * Return the ids found.
+     *
+     * @param int[] $monitoringServerIds
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function exist(array $monitoringServerIds): array;
+
+    /**
+     * Determine if monitoring servers exist by their IDs and access groups.
+     * Return the ids found.
+     *
+     * @param int[] $monitoringServerIds
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function existByAccessGroups(array $monitoringServerIds, array $accessGroups): array;
 
     /**
      * Get a monitoring server by its associated host ID.

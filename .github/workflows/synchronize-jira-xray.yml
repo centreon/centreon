@@ -14,11 +14,11 @@ jobs:
 
   synchronize-jira-xray:
     needs: [get-version]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           fetch-depth: 0
 
@@ -28,7 +28,7 @@ jobs:
           run_install: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
         with:
           node-version: 20
 
@@ -47,8 +47,8 @@ jobs:
         id: find_changed_files
         run: |
           mapfile -t CHANGED_FILES <<< "$(git show --name-only $LATEST_COMMIT | grep '\.feature$')"
-          echo "CHANGED_FILES=${CHANGED_FILES[@]}" >> $GITHUB_ENV
-          echo "Changed .feature files: ${CHANGED_FILES[@]}"
+          echo "CHANGED_FILES=${CHANGED_FILES[*]}" >> $GITHUB_ENV
+          echo "Changed .feature files: ${CHANGED_FILES[*]}"
 
       - name: Run Script on Changed Feature Files
         if: env.CHANGED_FILES != ''

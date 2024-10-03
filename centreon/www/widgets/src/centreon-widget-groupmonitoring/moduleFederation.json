@@ -1,11 +1,12 @@
 {
-  "federatedComponentsConfiguration": [{
-    "path": "/widgets/groupmonitoring",
-    "federatedComponents": [
-      "./groupmonitoring"
-    ],
-    "panelMinWidth": 6
-  }],
+  "federatedComponentsConfiguration": [
+    {
+      "path": "/widgets/groupmonitoring",
+      "federatedComponents": ["./groupmonitoring"],
+      "panelMinWidth": 4,
+      "panelMinHeight": 3
+    }
+  ],
   "moduleFederationName": "widgetgroupmonitoring",
   "moduleName": "centreon-widget-groupmonitoring"
 }

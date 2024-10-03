@@ -18,4 +18,7 @@ switch ($action) {
     case 'previousStep':
         echo $information->previousStepContent();
         break;
+    case 'vaultStep':
+        echo $information->vaultStepContent();
+        break;
 }

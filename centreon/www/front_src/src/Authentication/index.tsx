@@ -1,26 +1,26 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Box, Container, Paper, Tab } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
+import { Box, Container, Paper, Tab } from '@mui/material';
 
 import { userAtom } from '@centreon/ui-context';
 
-import { Provider } from './models';
 import LocalAuthentication from './Local';
 import { labelPasswordSecurityPolicy } from './Local/translatedLabels';
-import { labelOpenIDConnectConfiguration } from './Openid/translatedLabels';
 import OpenidConfiguration from './Openid';
-import WebSSOConfigurationForm from './WebSSO';
+import { labelOpenIDConnectConfiguration } from './Openid/translatedLabels';
 import SAMLConfigurationForm from './SAML';
+import { labelSAMLConfiguration } from './SAML/translatedLabels';
+import WebSSOConfigurationForm from './WebSSO';
 import { labelWebSSOConfiguration } from './WebSSO/translatedLabels';
-import { tabAtom, appliedTabAtom } from './tabAtoms';
 import passwordPadlockLogo from './logos/passwordPadlock.svg';
 import providerPadlockLogo from './logos/providerPadlock.svg';
-import { labelSAMLConfiguration } from './SAML/translatedLabels';
+import { Provider } from './models';
+import { appliedTabAtom, tabAtom } from './tabAtoms';
 
 const panels = [
   {

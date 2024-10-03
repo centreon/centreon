@@ -1,6 +1,6 @@
+import dayjs from 'dayjs';
 import { equals, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
 
 import {
   Box,
@@ -12,17 +12,18 @@ import {
 
 import { SeverityCode, useLocaleDateTimeFormat } from '@centreon/ui';
 
-import { ResourceData } from '../models';
 import { useHostTooltipContentStyles } from '../StatusGrid.styles';
-import { getColor } from '../utils';
+import { ResourceData } from '../models';
 import {
   labelAllMetricsAreWorkingFine,
   labelMetricName,
+  labelParent,
   labelValue
 } from '../translatedLabels';
+import { getColor } from '../utils';
 
-import useServiceTooltipContent from './useServiceTooltipContent';
 import States from './States';
+import useServiceTooltipContent from './useServiceTooltipContent';
 
 interface Props {
   data: ResourceData;
@@ -69,6 +70,15 @@ const ServiceTooltipContent = ({ data }: Props): JSX.Element | null => {
         </Box>
       </Box>
       <Box className={classes.body}>
+        {data.businessActivity && (
+          <Box className={classes.baParent}>
+            <Typography className={classes.baParentText} variant="body1">
+              <strong>{t(labelParent)}:</strong> {data.businessActivity}
+            </Typography>
+
+            <Divider variant="fullWidth" />
+          </Box>
+        )}
         {mentionStatus && (
           <Typography className={classes.listContainer}>
             {data.statusName} {data.information}
@@ -88,10 +98,14 @@ const ServiceTooltipContent = ({ data }: Props): JSX.Element | null => {
           )}
           {problematicMetrics.map(({ name, status, value }) => (
             <Box className={classes.metric} key={name}>
-              <Typography variant="body1">{name}</Typography>
+              <Typography className={classes.metricName} variant="body2">
+                {name}
+              </Typography>
               <Typography
-                sx={{ color: getColor({ severityCode: status, theme }) }}
-                variant="body1"
+                sx={
+                  status && { color: getColor({ severityCode: status, theme }) }
+                }
+                variant="body2"
               >
                 {value}
               </Typography>
@@ -104,7 +118,7 @@ const ServiceTooltipContent = ({ data }: Props): JSX.Element | null => {
             </Typography>
           )}
         </Box>
-        <Divider variant="middle" />
+        <Divider variant="fullWidth" />
         <Typography
           className={classes.dateContainer}
           color="text.secondary"

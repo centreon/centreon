@@ -14,3 +14,4 @@ DELETE FROM topology WHERE topology_page = '20320' AND topology_name = 'Ticket L
 DELETE FROM topology_JS WHERE id_page = '20320';
 
 DELETE FROM widget_parameters_field_type WHERE ft_typename = 'openTicketsRule';
+DELETE FROM `topology` WHERE topology_page = 60421;

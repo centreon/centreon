@@ -1,53 +1,51 @@
-import numeral from 'numeral';
 import { Scale } from '@visx/visx';
 import { bisector } from 'd3-array';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
+import numeral from 'numeral';
 import {
-  map,
-  pipe,
-  reduce,
-  filter,
-  addIndex,
-  isNil,
   path,
-  reject,
-  equals,
-  keys,
-  prop,
-  flatten,
-  propEq,
-  uniq,
-  find,
-  sortBy,
-  add,
-  isEmpty,
-  any,
-  not,
-  min,
-  max,
-  lt,
-  identity,
-  head,
-  last,
-  cond,
-  always,
   T,
+  add,
+  addIndex,
+  always,
+  any,
+  cond,
+  equals,
+  filter,
+  find,
+  flatten,
+  head,
+  identity,
   includes,
-  split
+  isEmpty,
+  isNil,
+  isNotNil,
+  keys,
+  last,
+  lt,
+  map,
+  negate,
+  pipe,
+  prop,
+  propEq,
+  reduce,
+  reject,
+  sortBy,
+  split,
+  uniq
 } from 'ramda';
 
-import { margin } from '../../LineChart/common';
+import { margin } from '../../Chart/common';
 import { LineChartData } from '../models';
 
 import {
+  AxeScale,
+  FormatMetricValueProps,
+  Line,
   Metric,
   TimeValue,
-  Line,
-  AxeScale,
-  Xscale,
-  FormatMetricValueProps,
-  YScales,
-  TimeValueProps
+  TimeValueProps,
+  Xscale
 } from './models';
 
 interface TimeTickWithMetrics {
@@ -119,12 +117,14 @@ const toLine = ({
   average_value,
   minimum_value,
   maximum_value,
-  metric_id
+  metric_id,
+  displayAs
 }: Metric): Line => ({
   areaColor: ds_data.ds_color_area,
   average_value,
   color: ds_data.ds_color_line,
   display: true,
+  displayAs,
   filled: ds_data.ds_filled,
   highlight: undefined,
   invert: ds_data.ds_invert,
@@ -135,9 +135,10 @@ const toLine = ({
   metric_id,
   minimum_value,
   name: legend,
-  stackOrder: equals(ds_data.ds_stack, '1')
-    ? parseInt(ds_data.ds_order || '0', 10)
-    : null,
+  stackOrder:
+    equals(ds_data.ds_stack, '1') || equals(ds_data.ds_stack, true)
+      ? Number.parseInt(ds_data.ds_order || '0', 10)
+      : null,
   transparency: ds_data.ds_transparency,
   unit
 });
@@ -219,6 +220,7 @@ export const getLinesForMetrics = ({
   filter(({ metric_id }) => metricIds.includes(metric_id), lines);
 
 interface LinesTimeSeries {
+  invert?: boolean | string | null;
   lines: Array<Line>;
   timeSeries: Array<TimeValue>;
 }
@@ -268,17 +270,13 @@ const getSortedStackedLines = (lines: Array<Line>): Array<Line> =>
 
 const getInvertedStackedLines = (lines: Array<Line>): Array<Line> =>
   pipe(
-    reject(({ invert }: Line): boolean => isNil(invert)) as (
-      lines
-    ) => Array<Line>,
+    filter(({ invert }: Line): boolean => invert) as (lines) => Array<Line>,
     getSortedStackedLines
   )(lines);
 
 const getNotInvertedStackedLines = (lines: Array<Line>): Array<Line> =>
   pipe(
-    filter(({ invert }: Line): boolean => isNil(invert)) as (
-      lines
-    ) => Array<Line>,
+    reject(({ invert }: Line): boolean => invert) as (lines) => Array<Line>,
     getSortedStackedLines
   )(lines);
 
@@ -292,7 +290,8 @@ const hasUnitStackedLines = ({ lines, unit }: HasStackedLines): boolean =>
 
 const getTimeSeriesForLines = ({
   lines,
-  timeSeries
+  timeSeries,
+  invert
 }: LinesTimeSeries): Array<TimeValue> => {
   const metrics = map(prop('metric_id'), lines);
 
@@ -301,7 +300,10 @@ const getTimeSeriesForLines = ({
       ...reduce(
         (acc, metric_id): Omit<TimeValue, 'timePick'> => ({
           ...acc,
-          [metric_id]: metricsValue[metric_id]
+          [metric_id]:
+            invert && metricsValue[metric_id]
+              ? negate(metricsValue[metric_id])
+              : metricsValue[metric_id]
         }),
         {},
         metrics
@@ -313,102 +315,86 @@ const getTimeSeriesForLines = ({
 };
 
 interface GetYScaleProps {
-  hasMoreThanTwoUnits: boolean;
   invert: string | null;
-  leftScale: ScaleLinear<number, number>;
-  rightScale: ScaleLinear<number, number>;
-  secondUnit: string;
+  scale?: 'linear' | 'logarithmic';
+  scaleLogarithmicBase?: number;
   unit: string;
+  yScalesPerUnit: Record<string, ScaleLinear<number, number>>;
 }
 
 const getYScale = ({
-  hasMoreThanTwoUnits,
   unit,
-  secondUnit,
-  leftScale,
-  rightScale,
-  invert
+  invert,
+  yScalesPerUnit,
+  scale = 'linear',
+  scaleLogarithmicBase
 }: GetYScaleProps): ScaleLinear<number, number> => {
-  const isLeftScale = hasMoreThanTwoUnits || unit !== secondUnit;
-  const scale = isLeftScale ? leftScale : rightScale;
+  const yScale = yScalesPerUnit[unit];
 
   return invert
-    ? Scale.scaleLinear<number>({
-        domain: scale.domain().reverse(),
-        nice: true,
-        range: scale.range().reverse()
+    ? getScaleType(scale)({
+        base: scaleLogarithmicBase,
+        domain: yScale.domain().reverse(),
+        range: yScale.range().reverse()
       })
-    : scale;
+    : yScale;
 };
+
+const getScaleType = (
+  scale: 'linear' | 'logarithmic'
+): typeof Scale.scaleLinear | typeof Scale.scaleLog =>
+  equals(scale, 'logarithmic') ? Scale.scaleLog : Scale.scaleLinear;
+
+const hasOnlyZeroesHasValue = (graphValues: Array<number>): boolean =>
+  graphValues.every((value) => equals(value, 0) || equals(value, null));
 
 const getScale = ({
   graphValues,
   height,
   stackedValues,
-  thresholds
+  thresholds,
+  isCenteredZero,
+  scale,
+  scaleLogarithmicBase,
+  isHorizontal,
+  invert,
+  hasDisplayAsBar
 }): ScaleLinear<number, number> => {
+  const isLogScale = equals(scale, 'logarithmic');
   const minValue = Math.min(
-    getMin(graphValues),
+    hasDisplayAsBar && 0,
+    invert ? negate(getMax(graphValues)) : getMin(graphValues),
     getMin(stackedValues),
     Math.min(...thresholds)
   );
   const maxValue = Math.max(
     getMax(graphValues),
     getMax(stackedValues),
+    hasOnlyZeroesHasValue(graphValues) ? 1 : 0,
     Math.max(...thresholds)
   );
 
+  const scaleType = getScaleType(scale);
+
   const upperRangeValue = minValue === maxValue && maxValue === 0 ? height : 0;
+  const range = [height, upperRangeValue];
 
-  return Scale.scaleLinear<number>({
-    domain: [minValue, maxValue],
-    nice: true,
-    range: [height, upperRangeValue]
-  });
-};
+  if (isCenteredZero) {
+    const greatestValue = Math.max(Math.abs(maxValue), Math.abs(minValue));
 
-const getLeftScale = ({
-  dataLines,
-  dataTimeSeries,
-  valueGraphHeight,
-  thresholds,
-  thresholdUnit
-}: AxeScale): ScaleLinear<number, number> => {
-  const [firstUnit, , thirdUnit] = getUnits(dataLines);
+    return scaleType<number>({
+      base: scaleLogarithmicBase || 2,
+      domain: [-greatestValue, greatestValue],
+      range: isHorizontal ? range : range.reverse()
+    });
+  }
 
-  const shouldApplyThresholds =
-    equals(thresholdUnit, firstUnit) ||
-    equals(thresholdUnit, thirdUnit) ||
-    !thresholdUnit;
+  const domain = [isLogScale ? 0.001 : minValue, maxValue];
 
-  const graphValues = isNil(thirdUnit)
-    ? getMetricValuesForUnit({
-        lines: dataLines,
-        timeSeries: dataTimeSeries,
-        unit: firstUnit
-      })
-    : getMetricValuesForLines({
-        lines: dataLines,
-        timeSeries: dataTimeSeries
-      });
-
-  const firstUnitHasStackedLines =
-    isNil(thirdUnit) && not(isNil(firstUnit))
-      ? hasUnitStackedLines({ lines: dataLines, unit: firstUnit })
-      : false;
-
-  const stackedValues = firstUnitHasStackedLines
-    ? getStackedMetricValues({
-        lines: getSortedStackedLines(dataLines),
-        timeSeries: dataTimeSeries
-      })
-    : [0];
-
-  return getScale({
-    graphValues,
-    height: valueGraphHeight,
-    stackedValues,
-    thresholds: shouldApplyThresholds ? thresholds : []
+  return scaleType<number>({
+    base: scaleLogarithmicBase || 2,
+    domain,
+    range: isHorizontal ? range : range.reverse()
   });
 };
 
@@ -422,40 +408,111 @@ const getXScale = ({
   });
 };
 
-const getRightScale = ({
+export const getXScaleBand = ({
+  dataTime,
+  valueWidth
+}: Xscale): ReturnType<typeof Scale.scaleBand<number>> => {
+  return Scale.scaleBand({
+    domain: dataTime.map(getTime),
+    padding: 0.2,
+    range: [0, valueWidth]
+  });
+};
+
+const getYScaleUnit = ({
   dataLines,
   dataTimeSeries,
   valueGraphHeight,
   thresholds,
-  thresholdUnit
-}: AxeScale): ScaleLinear<number, number> => {
-  const [, secondUnit] = getUnits(dataLines);
+  thresholdUnit,
+  isCenteredZero,
+  scale,
+  scaleLogarithmicBase,
+  isHorizontal = true,
+  unit,
+  invert
+}: AxeScale & { invert?: boolean | string | null; unit: string }): ScaleLinear<
+  number,
+  number
+> => {
+  const [firstUnit] = getUnits(dataLines);
+  const shouldApplyThresholds =
+    equals(unit, thresholdUnit) || (!thresholdUnit && equals(firstUnit, unit));
 
   const graphValues = getMetricValuesForUnit({
     lines: dataLines,
     timeSeries: dataTimeSeries,
-    unit: secondUnit
+    unit
   });
 
-  const shouldApplyThresholds = equals(thresholdUnit, secondUnit);
+  const hasStackedLines = hasUnitStackedLines({
+    lines: dataLines,
+    unit
+  });
 
-  const secondUnitHasStackedLines = isNil(secondUnit)
-    ? false
-    : hasUnitStackedLines({ lines: dataLines, unit: secondUnit });
-
-  const stackedValues = secondUnitHasStackedLines
+  const stackedValues = hasStackedLines
     ? getStackedMetricValues({
-        lines: getSortedStackedLines(dataLines),
+        lines: getSortedStackedLines(dataLines).filter(
+          ({ unit: stackedUnit }) => equals(unit, stackedUnit)
+        ),
         timeSeries: dataTimeSeries
       })
     : [0];
 
   return getScale({
     graphValues,
+    hasDisplayAsBar: dataLines.some(
+      ({ displayAs, unit: lineUnit, stackOrder }) =>
+        equals(unit, lineUnit) &&
+        equals(displayAs, 'bar') &&
+        isNotNil(stackOrder)
+    ),
     height: valueGraphHeight,
+    invert,
+    isCenteredZero,
+    isHorizontal,
+    scale,
+    scaleLogarithmicBase,
     stackedValues,
     thresholds: shouldApplyThresholds ? thresholds : []
   });
+};
+
+const getYScalePerUnit = ({
+  dataLines,
+  dataTimeSeries,
+  valueGraphHeight,
+  thresholds,
+  thresholdUnit,
+  isCenteredZero,
+  scale,
+  scaleLogarithmicBase,
+  isHorizontal = true
+}: AxeScale): Record<string, ScaleLinear<number, number>> => {
+  const units = getUnits(dataLines);
+
+  const scalePerUnit = units.reduce((acc, unit) => {
+    return {
+      ...acc,
+      [unit]: getYScaleUnit({
+        dataLines,
+        dataTimeSeries,
+        invert: dataLines.some(
+          ({ unit: lineUnit, invert }) => equals(lineUnit, unit) && invert
+        ),
+        isCenteredZero,
+        isHorizontal,
+        scale,
+        scaleLogarithmicBase,
+        thresholdUnit,
+        thresholds,
+        unit,
+        valueGraphHeight
+      })
+    };
+  }, {});
+
+  return scalePerUnit;
 };
 
 const formatTime = (value: number): string => {
@@ -551,7 +608,7 @@ const formatMetricValueWithUnit = ({
   }
 
   if (equals('%', unit)) {
-    return `${numeral(Math.abs(value)).format('0.[00]')}%`;
+    return `${numeral(value).format('0.[00]')}%`;
   }
 
   const formattedMetricValue = formatMetricValue({ base, unit, value });
@@ -559,29 +616,6 @@ const formatMetricValueWithUnit = ({
   return base1024 || !unit || equals(unit, 'ms')
     ? formattedMetricValue
     : `${formattedMetricValue} ${unit}`;
-};
-
-const getStackedYScale = ({
-  leftScale,
-  rightScale
-}: YScales): ScaleLinear<number, number> => {
-  const minDomain = min(
-    getMin(leftScale.domain()),
-    getMin(rightScale.domain())
-  );
-  const maxDomain = max(
-    getMax(leftScale.domain()),
-    getMax(rightScale.domain())
-  );
-
-  const minRange = min(getMin(leftScale.range()), getMin(rightScale.range()));
-  const maxRange = max(getMax(leftScale.range()), getMax(rightScale.range()));
-
-  return Scale.scaleLinear<number>({
-    domain: [minDomain, maxDomain],
-    nice: true,
-    range: [maxRange, minRange]
-  });
 };
 
 const bisectDate = bisector(identity).center;
@@ -652,13 +686,12 @@ export {
   hasUnitStackedLines,
   getYScale,
   getScale,
-  getLeftScale,
   getXScale,
-  getRightScale,
   formatMetricValue,
-  getStackedYScale,
   getTimeValue,
   bisectDate,
   getMetricWithLatestData,
-  formatMetricValueWithUnit
+  formatMetricValueWithUnit,
+  getYScaleUnit,
+  getYScalePerUnit
 };

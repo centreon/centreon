@@ -3,7 +3,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Badge, Tooltip } from '@mui/material';
 
-import { getStatusColors, SeverityCode } from '@centreon/ui';
+import { SeverityCode, getStatusColors } from '@centreon/ui';
 
 export interface StyleProps {
   severityCode?: SeverityCode | null;
@@ -55,7 +55,7 @@ const StatusCounter = ({
         classes={{
           badge: cx(classes.badge, className)
         }}
-        max={Infinity}
+        max={Number.POSITIVE_INFINITY}
         overlap="circular"
       />
     </Tooltip>

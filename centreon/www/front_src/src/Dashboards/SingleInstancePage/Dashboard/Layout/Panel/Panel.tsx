@@ -1,8 +1,11 @@
+import { useMemo } from 'react';
+
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 
-import { RichTextEditor, useMemoComponent } from '@centreon/ui';
+import { RichTextEditor, client, useMemoComponent } from '@centreon/ui';
 
+import FederatedComponent from '../../../../../components/FederatedComponents';
 import {
   dashboardRefreshIntervalAtom,
   getPanelConfigurationsDerivedAtom,
@@ -11,11 +14,11 @@ import {
   setPanelOptionsAndDataDerivedAtom,
   switchPanelsEditionModeDerivedAtom
 } from '../../atoms';
-import FederatedComponent from '../../../../../components/FederatedComponents';
+import DescriptionWrapper from '../../components/DescriptionWrapper';
 import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
+import useLinkToResourceStatus from '../../hooks/useLinkToResourceStatus';
 import useSaveDashboard from '../../hooks/useSaveDashboard';
 import { isGenericText, isRichTextEditorEmpty } from '../../utils';
-import useLinkToResourceStatus from '../../hooks/useLinkToResourceStatus';
 
 import { usePanelHeaderStyles } from './usePanelStyles';
 
@@ -60,6 +63,11 @@ const Panel = ({
 
   const panelConfigurations = getPanelConfigurations(id);
 
+  const widgetPrefixQuery = useMemo(
+    () => `${panelConfigurations.path}_${id}`,
+    [panelConfigurations.path, id]
+  );
+
   const changePanelOptions = (partialOptions: object): void => {
     switchPanelsEditionMode(true);
     searchParams.set('edit', 'true');
@@ -79,20 +87,44 @@ const Panel = ({
 
   const isGenericTextPanel = isGenericText(panelConfigurations?.path);
 
+  const getDescription = (): JSX.Element | null => {
+    if (!displayDescription) {
+      return null;
+    }
+
+    if (isGenericTextPanel) {
+      return (
+        <RichTextEditor
+          disabled
+          contentClassName={cx(isGenericTextPanel && classes.description)}
+          editable={false}
+          editorState={
+            panelOptionsAndData.options?.description?.content || undefined
+          }
+        />
+      );
+    }
+
+    return (
+      <DescriptionWrapper>
+        <RichTextEditor
+          disabled
+          contentClassName={cx(isGenericTextPanel && classes.description)}
+          editable={false}
+          editorState={
+            panelOptionsAndData.options?.description?.content || undefined
+          }
+          inputClassname={classes.descriptionInput}
+        />
+      </DescriptionWrapper>
+    );
+  };
+
   return useMemoComponent({
     Component: (
       <>
-        {displayDescription && (
-          <RichTextEditor
-            disabled
-            contentClassName={cx(isGenericTextPanel && classes.description)}
-            editable={false}
-            editorState={
-              panelOptionsAndData.options?.description?.content || undefined
-            }
-          />
-        )}
-        {!isGenericText(panelConfigurations.path) && (
+        {getDescription()}
+        {!isGenericTextPanel && (
           <div
             className={cx(
               displayDescription
@@ -106,15 +138,18 @@ const Panel = ({
               changeViewMode={changeViewMode}
               dashboardId={dashboardId}
               globalRefreshInterval={refreshInterval}
+              hasDescription={displayDescription}
               id={id}
               isEditingDashboard={isEditing}
               panelData={panelOptionsAndData?.data}
               panelOptions={panelOptionsAndData?.options}
               path={panelConfigurations.path}
               playlistHash={playlistHash}
+              queryClient={client}
               refreshCount={refreshCount}
               saveDashboard={saveDashboard}
               setPanelOptions={changePanelOptions}
+              widgetPrefixQuery={widgetPrefixQuery}
             />
           </div>
         )}

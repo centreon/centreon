@@ -1,23 +1,23 @@
-import { equals } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
 
 import { Divider } from '@mui/material';
 
-import { BasicCriteria, MemoizedChild, SectionType } from '../../model';
 import { selectedVisualizationAtom } from '../../../../Actions/actionsAtoms';
 import { Visualization } from '../../../../models';
+import { BasicCriteria, MemoizedChild, SectionType } from '../../model';
 
-import { useStyles } from './sections.style';
 import MemoizedInputGroup from './MemoizedInputGroup';
 import MemoizedSelectInput from './MemoizedSelectInput';
 import MemoizedStatus from './MemoizedStatus';
 import Section from './Section';
+import { useStyles } from './sections.style';
 
 const SectionWrapper = ({
-  basicData,
+  data,
   changeCriteria,
   searchData
-}: MemoizedChild): JSX.Element => {
+}: Omit<MemoizedChild, 'filterName'>): JSX.Element => {
   const { classes } = useStyles();
   const selectedVisualization = useAtomValue(selectedVisualizationAtom);
   const sectionsType = Object.values(SectionType);
@@ -33,10 +33,11 @@ const SectionWrapper = ({
       {sectionsType?.map((sectionType) => (
         <>
           <Section
+            key={sectionType}
             inputGroup={
               <MemoizedInputGroup
-                basicData={basicData}
                 changeCriteria={changeCriteria}
+                data={data}
                 filterName={
                   equals(sectionType, SectionType.host)
                     ? BasicCriteria.hostGroups
@@ -47,29 +48,28 @@ const SectionWrapper = ({
             }
             selectInput={
               <MemoizedSelectInput
-                basicData={basicData}
                 changeCriteria={changeCriteria}
+                data={data}
                 filterName={
                   equals(sectionType, SectionType.host)
                     ? BasicCriteria.parentNames
                     : BasicCriteria.names
                 }
-                isDeactivated={deactivateInput(sectionType)}
                 searchData={searchData}
                 sectionType={sectionType}
               />
             }
             status={
               <MemoizedStatus
-                basicData={basicData}
                 changeCriteria={changeCriteria}
+                data={data}
                 filterName={BasicCriteria.statues}
                 isDeactivated={deactivateInput(sectionType)}
                 sectionType={sectionType}
               />
             }
           />
-          <Divider className={classes.divider} />
+          <Divider className={classes.divider} key={`${sectionType}-divider`} />
         </>
       ))}
     </div>

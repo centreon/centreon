@@ -3,9 +3,35 @@ import { ReactElement } from 'react';
 import { Provider, createStore } from 'jotai';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
-import { modalStateAtom } from '../../atom';
 import { AddEditResourceAccessRuleModal } from '..';
+import { modalStateAtom } from '../../atom';
+import { ModalMode } from '../../models';
+import {
+  labelActiveOrInactive,
+  labelAddFilter,
+  labelAddNewDataset,
+  labelAllBusinessViews,
+  labelAllBusinessViewsSelected,
+  labelAllContactGroups,
+  labelAllContacts,
+  labelAllHostGroups,
+  labelAllHostGroupsSelected,
+  labelAllResourcesSelected,
+  labelBusinessView,
+  labelContactGroups,
+  labelContacts,
+  labelDescription,
+  labelDoYouWantToQuitWithoutSaving,
+  labelExit,
+  labelName,
+  labelResourceAccessRuleAddedSuccess,
+  labelSave,
+  labelSelectResource,
+  labelSelectResourceType,
+  labelYourFormHasUnsavedChanges
+} from '../../translatedLabels';
 import {
   findBusinessViewsEndpoint,
   findContactGroupsEndpoint,
@@ -19,31 +45,6 @@ import {
   findServicesEndpoint,
   resourceAccessRuleEndpoint
 } from '../api/endpoints';
-import {
-  labelActiveOrInactive,
-  labelAddNewDataset,
-  labelContactGroups,
-  labelContacts,
-  labelDescription,
-  labelName,
-  labelAddFilter,
-  labelResourceAccessRuleAddedSuccess,
-  labelSave,
-  labelSelectResource,
-  labelSelectResourceType,
-  labelAllResourcesSelected,
-  labelAllHostGroups,
-  labelAllHostGroupsSelected,
-  labelBusinessView,
-  labelAllBusinessViews,
-  labelAllBusinessViewsSelected,
-  labelAllContacts,
-  labelAllContactGroups,
-  labelExit,
-  labelYourFormHasUnsavedChanges,
-  labelDoYouWantToQuitWithoutSaving
-} from '../../translatedLabels';
-import { ModalMode } from '../../models';
 
 import {
   allResourcesFormData,
@@ -59,14 +60,12 @@ import {
   findServicesResponse,
   formData,
   formDataWithAllBusinessViews,
-  formDataWithBusinessViews,
-  platformVersions,
   formDataWithAllContactGroups,
   formDataWithAllContacts,
-  formDataWithAllHostGroups
+  formDataWithAllHostGroups,
+  formDataWithBusinessViews,
+  platformVersions
 } from './testUtils';
-
-import { platformVersionsAtom } from 'www/front_src/src/Main/atoms/platformVersionsAtom';
 
 const store = createStore();
 store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
@@ -298,6 +297,22 @@ describe('Create modal', () => {
     cy.findByTestId(labelSelectResource).click();
     cy.waitForRequest('@findMetaServicesEndpoint');
     cy.findByText('META_SERVICE_MEMORY_PARIS').click();
+
+    cy.findByText(labelAddFilter).should('be.disabled');
+    cy.findByText(labelAddNewDataset).should('not.be.disabled');
+
+    cy.makeSnapshot();
+  });
+
+  it('confirms that the Refine filter button is disabled and the Add new dataset button is enabled when a dataset for a service is selected', () => {
+    cy.findByText(labelAddFilter).should('be.disabled');
+    cy.findByText(labelAddNewDataset).should('be.disabled');
+
+    cy.findByLabelText(labelSelectResourceType).click();
+    cy.findByText('Service').click();
+    cy.findByTestId(labelSelectResource).click();
+    cy.waitForRequest('@findServicesEndpoint');
+    cy.findByText('Ping').click();
 
     cy.findByText(labelAddFilter).should('be.disabled');
     cy.findByText(labelAddNewDataset).should('not.be.disabled');

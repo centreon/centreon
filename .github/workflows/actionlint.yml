@@ -20,35 +20,42 @@ on:
 
 jobs:
   action-lint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Download actionlint
         id: get_actionlint
-        run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+        run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/v1.7.1/scripts/download-actionlint.bash)
         shell: bash
 
       - name: Check workflow files
+        env:
+          SHELLCHECK_OPTS: "--severity=error"
         run: |
           ${{ steps.get_actionlint.outputs.executable }} \
-          -ignore 'label "common" is unknown' \
-          -ignore 'label "veracode" is unknown' \
-          -ignore '"github.head_ref" is potentially untrusted' \
-          -shellcheck= \
-          -pyflakes= \
-          -color
+            -ignore 'label "ubuntu-24.04" is unknown' \
+            -ignore 'label "common" is unknown' \
+            -ignore 'label "veracode" is unknown' \
+            -ignore 'label "infra" is unknown' \
+            -ignore '"github.head_ref" is potentially untrusted' \
+            -pyflakes= \
+            -color
         shell: bash
 
   yaml-lint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - uses: actions/setup-python@39cd14951b08e74b54015e9e001cdefcf80e669f # v5.1.1
+        with:
+          python-version: '3.12'
 
       - name: Install Yaml
-        run: pip install yamllint==1.32.0
+        run: pip install yamllint==1.35.1
 
       - name: Add Yaml Lint Rules
         run: |

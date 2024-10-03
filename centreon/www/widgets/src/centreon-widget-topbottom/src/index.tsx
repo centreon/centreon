@@ -2,8 +2,8 @@ import { Module } from '@centreon/ui';
 
 import { CommonWidgetProps, Data, FormThreshold } from '../../models';
 
-import { ValueFormat, TopBottomSettings } from './models';
 import TopBottom from './TopBottom';
+import { TopBottomSettings, ValueFormat } from './models';
 
 interface Props extends CommonWidgetProps<object> {
   panelData: Data;
@@ -24,8 +24,9 @@ export const TopBottomWrapper = ({
   panelData,
   panelOptions,
   playlistHash,
-  refreshCount
-}: Omit<Props, 'store'>): JSX.Element => (
+  refreshCount,
+  widgetPrefixQuery
+}: Omit<Props, 'store' | 'queryClient'>): JSX.Element => (
   <TopBottom
     dashboardId={dashboardId}
     globalRefreshInterval={globalRefreshInterval}
@@ -40,12 +41,18 @@ export const TopBottomWrapper = ({
     threshold={panelOptions.threshold}
     topBottomSettings={panelOptions.topBottomSettings}
     valueFormat={panelOptions.valueFormat}
+    widgetPrefixQuery={widgetPrefixQuery}
   />
 );
 
-const Widget = ({ store, ...props }: Props): JSX.Element => {
+const Widget = ({ store, queryClient, ...props }: Props): JSX.Element => {
   return (
-    <Module maxSnackbars={1} seedName="topbottom" store={store}>
+    <Module
+      maxSnackbars={1}
+      queryClient={queryClient}
+      seedName="topbottom"
+      store={store}
+    >
       <TopBottomWrapper {...props} />
     </Module>
   );

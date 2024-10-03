@@ -1,34 +1,31 @@
 import { useMemo, useRef } from 'react';
 
-import { Group, Tooltip } from '@visx/visx';
+import { animated, useSpring } from '@react-spring/web';
 import { scaleLinear } from '@visx/scale';
-import { equals, flatten, head, pluck } from 'ramda';
 import { Bar } from '@visx/shape';
-import { useSpring, animated } from '@react-spring/web';
+import { Group, Tooltip } from '@visx/visx';
+import { equals, flatten, head, lt, pluck } from 'ramda';
 
-import { alpha, Box, Fade, useTheme } from '@mui/material';
+import { Box, alpha, useTheme } from '@mui/material';
 
+import { Tooltip as MuiTooltip } from '../../components/Tooltip';
+import { margins } from '../common/margins';
 import {
   formatMetricValueWithUnit,
   getMetricWithLatestData
 } from '../common/timeSeries';
 import { Metric } from '../common/timeSeries/models';
+import { useTooltipStyles } from '../common/useTooltipStyles';
 import { getColorFromDataAndTresholds } from '../common/utils';
-import { margins } from '../common/margins';
 
-import { SingleBarProps } from './models';
-import Thresholds, { groupMargin } from './Thresholds';
 import { barHeights } from './ThresholdLine';
+import Thresholds, { groupMargin } from './Thresholds';
+import { SingleBarProps } from './models';
 
 interface Props extends SingleBarProps {
   height: number;
   width: number;
 }
-
-const baseStyles = {
-  ...Tooltip.defaultStyles,
-  textAlign: 'center'
-};
 
 const ResponsiveSingleBar = ({
   data,
@@ -40,7 +37,10 @@ const ResponsiveSingleBar = ({
   size = 'medium',
   showLabels = true
 }: Props): JSX.Element => {
+  const { classes } = useTooltipStyles();
   const theme = useTheme();
+
+  const isSmallHeight = lt(height, 150);
 
   const metric = getMetricWithLatestData(data) as Metric;
   const latestMetricData = head(metric.data) as number;
@@ -57,14 +57,8 @@ const ResponsiveSingleBar = ({
     head(metric.data) as number
   );
 
-  const {
-    showTooltip,
-    hideTooltip,
-    tooltipOpen,
-    tooltipLeft,
-    tooltipTop,
-    tooltipData
-  } = Tooltip.useTooltip();
+  const { showTooltip, hideTooltip, tooltipOpen, tooltipData } =
+    Tooltip.useTooltip();
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   const barColor = useMemo(
@@ -78,13 +72,11 @@ const ResponsiveSingleBar = ({
     [latestMetricData, thresholds, theme]
   );
 
-  const isSmall = equals(size, 'small');
+  const isSmall = equals(size, 'small') || isSmallHeight;
 
-  const textStyle = isSmall
-    ? {
-        ...theme.typography.h6
-      }
-    : theme.typography.h3;
+  const textStyle = isSmall ? theme.typography.h6 : theme.typography.h4;
+
+  const textHeight = isSmall ? 46 : 27;
 
   const text = showLabels && (
     <text
@@ -126,6 +118,15 @@ const ResponsiveSingleBar = ({
 
   const springStyle = useSpring({ width: metricBarWidth });
 
+  const barHeight = isSmallHeight ? barHeights.small : barHeights[size];
+
+  const barY = groupMargin + (isSmall ? 0 : 2 * margins.top);
+
+  const realBarHeight =
+    !isSmall && textHeight + barHeight > height
+      ? height - textHeight - 2 * margins.top
+      : barHeight;
+
   return (
     <div
       style={{
@@ -141,55 +142,51 @@ const ResponsiveSingleBar = ({
           width: '100%'
         }}
       >
-        <svg height={height} ref={svgRef} width={width}>
-          <Group.Group>
-            {text}
-            <animated.rect
-              data-testid={`${latestMetricData}-bar-${barColor}`}
-              fill={barColor}
-              height={barHeights[size]}
-              rx={4}
-              style={springStyle}
-              x={5}
-              y={groupMargin + (isSmall ? 0 : 2 * margins.top)}
-            />
-            <Bar
-              fill="transparent"
-              height={barHeights[size]}
-              rx={4}
-              ry={4}
-              stroke={alpha(theme.palette.text.primary, 0.3)}
-              width={maxBarWidth}
-              x={5}
-              y={groupMargin + (isSmall ? 0 : 2 * margins.top)}
-            />
-            {thresholds.enabled && (
-              <Thresholds
-                hideTooltip={hideTooltip}
-                showTooltip={showTooltip}
-                size={size}
-                thresholds={thresholds}
-                xScale={xScale}
-              />
-            )}
-          </Group.Group>
-        </svg>
-      </Box>
-      <Fade in={tooltipOpen}>
-        <Tooltip.Tooltip
-          left={tooltipLeft}
-          style={{
-            ...baseStyles,
-            backgroundColor: theme.palette.background.paper,
-            color: theme.palette.text.primary,
-            transform: `translate(-50%, ${isSmall ? -100 : -120}px)`,
-            zIndex: theme.zIndex.tooltip
+        <MuiTooltip
+          classes={{
+            tooltip: classes.tooltip
           }}
-          top={tooltipTop}
+          label={tooltipData}
+          open={tooltipOpen}
+          placement="top"
         >
-          {tooltipData}
-        </Tooltip.Tooltip>
-      </Fade>
+          <svg height={height} ref={svgRef} width={width}>
+            <Group.Group>
+              {text}
+              <animated.rect
+                data-testid={`${latestMetricData}-bar-${barColor}`}
+                fill={barColor}
+                height={realBarHeight}
+                rx={4}
+                style={springStyle}
+                x={5}
+                y={barY}
+              />
+              <Bar
+                fill="transparent"
+                height={realBarHeight}
+                rx={4}
+                ry={4}
+                stroke={alpha(theme.palette.text.primary, 0.3)}
+                width={maxBarWidth}
+                x={5}
+                y={barY}
+              />
+              {thresholds.enabled && (
+                <Thresholds
+                  barHeight={realBarHeight}
+                  hideTooltip={hideTooltip}
+                  isSmall={isSmall}
+                  showTooltip={showTooltip}
+                  size={size}
+                  thresholds={thresholds}
+                  xScale={xScale}
+                />
+              )}
+            </Group.Group>
+          </svg>
+        </MuiTooltip>
+      </Box>
     </div>
   );
 };

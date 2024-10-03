@@ -246,10 +246,10 @@ class PlatformTopologyRepositoryRDB extends AbstractRepositoryDRB implements Pla
     /**
      * @inheritDoc
      */
-    public function findPlatform(int $serverId): ?PlatformInterface
+    public function findPlatform(int $platformId): ?PlatformInterface
     {
-        $statement = $this->db->prepare('SELECT * FROM `platform_topology` WHERE id = :serverId');
-        $statement->bindValue(':serverId', $serverId, \PDO::PARAM_INT);
+        $statement = $this->db->prepare('SELECT * FROM `platform_topology` WHERE id = :platformId');
+        $statement->bindValue(':platformId', $platformId, \PDO::PARAM_INT);
         $statement->execute();
 
         $platform = null;

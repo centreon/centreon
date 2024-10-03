@@ -16,8 +16,8 @@ export type Props = {
   addbuttonDisabled?: boolean;
   children: Array<ReactElement>;
   displayItemsAsLinked?: boolean;
-  labelAdd: string;
-  onAddItem: () => void;
+  labelAdd?: string;
+  onAddItem?: () => void;
   secondaryLabel?: string;
 };
 

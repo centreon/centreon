@@ -1,7 +1,7 @@
 import { ReactElement } from 'react';
 
-import { Chip } from '@mui/material';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutline';
+import { Chip } from '@mui/material';
 
 import { useDeleteDatasetButtonStyles } from '../styles/DeleteDatasetButton.styles';
 

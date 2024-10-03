@@ -1,4 +1,4 @@
-@REQ_MON-16477
+@REQ_MON-16477 @system
 Feature: Creating a Notification Rule
   As a Centreon user with access to the Notification Rules page
   The user needs to create a Notification Rule
@@ -15,6 +15,7 @@ Feature: Creating a Notification Rule
     And the user selects a '<resource_type>' with associated events on which to notify
     And the user selects the '<contact_settings>'
     And the user defines a mail subject
+    And the user defines a time period
     And the user defines a mail body
     And the user clicks on the "Save" button to confirm
     Then a success message is displayed and the created Notification Rule is displayed in the listing
@@ -34,6 +35,7 @@ Feature: Creating a Notification Rule
     And the user selects a host group with its linked services and with associated events on which to notify
     And the user selects the '<contact_settings>'
     And the user defines a mail subject
+    And the user defines a time period
     And the user defines a mail body
     And the user clicks on the "Save" button to confirm
     Then a success message is displayed and the created Notification Rule is displayed in the listing

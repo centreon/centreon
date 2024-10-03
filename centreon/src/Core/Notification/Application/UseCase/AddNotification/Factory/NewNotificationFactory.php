@@ -43,19 +43,20 @@ class NewNotificationFactory
      *
      * @param string $name
      * @param bool $isActivated
+     * @param int $timeperiodId
      *
      * @throws NotificationException
      * @throws \Assert\AssertionFailedException
      *
      * @return NewNotification
      */
-    public function create(string $name, bool $isActivated): NewNotification
+    public function create(string $name, bool $isActivated, int $timeperiodId): NewNotification
     {
         $this->assertNameDoesNotAlreadyExists($name);
 
         return new NewNotification(
             $name,
-            new ConfigurationTimePeriod(1, ''),
+            new ConfigurationTimePeriod($timeperiodId, ''),
             $isActivated
         );
     }

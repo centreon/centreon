@@ -18,7 +18,7 @@ before(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
@@ -39,7 +39,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
@@ -53,11 +53,9 @@ beforeEach(() => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards');
 });
 
 after(() => {
-  cy.logoutViaAPI();
   cy.requestOnDatabase({
     database: 'centreon',
     query: 'DELETE FROM dashboard'
@@ -68,7 +66,7 @@ after(() => {
 Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
-    cy.contains(dashboards.default.name).click();
+    cy.visitDashboard(dashboards.default.name);
   }
 );
 
@@ -134,7 +132,7 @@ Then('its title and description are displayed', () => {
 });
 
 Given('a dashboard featuring a single Generic text widget', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.visitDashboards();
   cy.contains(dashboards.default.name).click();
   cy.get('*[class^="react-grid-layout"]').children().should('have.length', 1);
   cy.contains(genericTextWidget.default.title).should('exist');
@@ -143,8 +141,8 @@ Given('a dashboard featuring a single Generic text widget', () => {
 });
 
 When('the dashboard administrator user duplicates the widget', () => {
-  cy.getByLabel({ label: 'More actions' }).eq(0).trigger('click');
-  cy.getByLabel({ label: 'Duplicate' }).eq(0).trigger('click');
+  cy.getByLabel({ label: 'More actions' }).eq(0).click();
+  cy.getByLabel({ label: 'Duplicate' }).eq(0).click();
   cy.get('*[class^="react-grid-layout"]')
     .should('exist')
     .children()
@@ -171,9 +169,7 @@ Then(
 );
 
 Given('a dashboard featuring two Generic text widgets', () => {
-  cy.visit('/centreon/home/dashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByTestId({ testId: 'edit_dashboard' }).click();
+  cy.editDashboard(dashboards.default.name);
 
   cy.get('*[class^="react-grid-layout"]').children().should('have.length', 2);
 });
@@ -181,15 +177,14 @@ Given('a dashboard featuring two Generic text widgets', () => {
 When(
   'the dashboard administrator user updates the contents of one of these widgets',
   () => {
-    cy.getByLabel({ label: 'More actions' }).eq(1).trigger('click');
-    cy.getByLabel({ label: 'Edit widget' }).trigger('click');
+    cy.editWidget(2);
     cy.getByLabel({ label: 'Title' }).clear();
     cy.getByLabel({ label: 'Title' }).type(
       `${genericTextWidget.default.title}-edited`
     );
     cy.getByTestId({ testId: 'RichTextEditor' })
       .get('[contenteditable="true"]')
-      .trigger('click', { force: true });
+      .click();
     cy.getByTestId({ testId: 'RichTextEditor' })
       .get('[contenteditable="true"]')
       .clear({ force: true });
@@ -227,11 +222,12 @@ Then(
 );
 
 When('the dashboard administrator user deletes one of the widgets', () => {
-  cy.getByLabel({ label: 'More actions' }).eq(1).trigger('click');
-  cy.getByLabel({ label: 'Delete widget' }).trigger('click');
-  cy.getByLabel({ label: 'Delete' }).trigger('click');
+  cy.getByLabel({ label: 'More actions' }).eq(1).click();
+  cy.getByLabel({ label: 'Delete widget' }).click();
+  cy.getByLabel({ label: 'Delete' }).click();
   cy.getByTestId({ testId: 'save_dashboard' }).click();
   cy.wait('@updateDashboard');
+  cy.getByTestId({ testId: 'RefreshIcon' }).click();
 });
 
 Then('only the contents of the other widget are displayed', () => {
@@ -248,8 +244,7 @@ Then('only the contents of the other widget are displayed', () => {
 When(
   'the dashboard administrator user hides the description of the widget',
   () => {
-    cy.getByLabel({ label: 'More actions' }).trigger('click');
-    cy.getByLabel({ label: 'Edit widget' }).trigger('click');
+    cy.editWidget(1);
     cy.getByLabel({ label: 'Show description' }).click({ force: true });
     cy.getByTestId({ testId: 'confirm' }).click();
     cy.getByTestId({ testId: 'save_dashboard' }).click();
@@ -265,8 +260,7 @@ Then('the description is hidden and only the title is displayed', () => {
     .should('not.contain.text', `${genericTextWidget.default.description}`);
 
   cy.getByTestId({ testId: 'edit_dashboard' }).click();
-  cy.getByLabel({ label: 'More actions' }).trigger('click', { force: true });
-  cy.getByLabel({ label: 'Edit widget' }).trigger('click', { force: true });
+  cy.editWidget(1);
   cy.getByLabel({ label: 'Show description' }).click({ force: true });
   cy.getByTestId({ testId: 'confirm' }).click();
   cy.getByTestId({ testId: 'save_dashboard' }).click();
@@ -276,8 +270,7 @@ Then('the description is hidden and only the title is displayed', () => {
 When(
   'the dashboard administrator user adds a clickable link in the contents of the widget',
   () => {
-    cy.getByLabel({ label: 'More actions' }).trigger('click', { force: true });
-    cy.getByLabel({ label: 'Edit widget' }).trigger('click', { force: true });
+    cy.editWidget(1);
     cy.getByTestId({ testId: 'RichTextEditor' })
       .get('[contenteditable="true"]')
       .clear({ force: true });

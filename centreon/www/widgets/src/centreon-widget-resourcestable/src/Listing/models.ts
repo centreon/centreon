@@ -16,7 +16,7 @@ export type ResourceShortType = 'h' | 's' | 'm';
 export interface NamedEntity {
   id: number;
   name: string;
-  uuid: string;
+  uuid?: string;
 }
 
 export interface Icon {
@@ -96,3 +96,15 @@ export interface Resource extends NamedEntity {
 }
 
 export type ResourceListing = ListingModel<Resource>;
+
+export enum ResourceCategory {
+  'anomaly-detection' = 'anomaly-detection',
+  host = 'host',
+  metaservice = 'metaservice',
+  service = 'service'
+}
+
+export interface Ticket {
+  hostID: number;
+  serviceID?: number;
+}

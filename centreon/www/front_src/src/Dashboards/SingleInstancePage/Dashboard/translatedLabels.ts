@@ -37,6 +37,7 @@ export const labelServiceGroup = 'Service Group';
 export const labelServiceCategory = 'Service Category';
 export const labelHost = 'Host';
 export const labelService = 'Service';
+export const labelMetaService = 'Meta service';
 export const labelDelete = 'Delete';
 export const labelResourceType = 'Resource type';
 export const labelSelectAResource = 'Select resource';
@@ -49,12 +50,7 @@ export const labelServiceName = 'Service name';
 export const labelMetric = 'Metric';
 export const labelSelectMetric = 'Select metric';
 export const labelPleaseSelectAMetric = 'Please select a metric';
-export const labelYouCanSelectUpToTwoMetricUnits =
-  'You can select a maximum of 2 metric units.';
 export const labelShowDescription = 'Show description';
-export const labelOpenLinksInNewTab = 'Open links in new tab';
-export const labelOpenLinksInNewTabTooltip =
-  'By turning off this option, all links included in the widget will be opened in the same tab.';
 export const labelAddFilter = 'Add filter';
 export const labelAddMetric = 'Add metric';
 export const labelAvailable = 'available';
@@ -76,13 +72,13 @@ export const labelCriticalThreshold = 'Critical threshold';
 export const labelDefault = 'Default';
 export const labelCustom = 'Custom';
 export const labelThresholdsAreAutomaticallyHidden =
-  'Thresholds are automatically hidden as soon as you select 2 metric units.';
-export const labelDisplayType = 'Display type';
+  'Thresholds are automatically hidden when you select several metrics with different units.';
+export const labelDisplayAs = 'Display as';
 export const labelText = 'Text';
 export const labelGauge = 'Gauge';
 export const labelBar = 'Bar chart';
 export const labelDefaultValueIsDefinedByFirstMetricUsed =
-  'The default value is the value defined for the first metric used.';
+  'The default value is the value defined for the first selected metric.';
 export const labelNone = 'none';
 export const labelValueFormat = 'Value format';
 export const labelRawValue = 'Raw value';
@@ -135,3 +131,8 @@ export const labelDiscard = 'Discard';
 export const labelDoYouWantToSaveChanges = 'Do you want to save the changes?';
 export const labelIfYouClickOnDiscard =
   'If you click on Discard, your changes will not be saved.';
+export const labelSelectTimezone = 'Select time zone';
+export const labelSelectTimeFormat = 'Select time format';
+export const labelBackgroundColor = 'Background color';
+export const label12Hours = '12 hours';
+export const label24Hours = '24 hours';

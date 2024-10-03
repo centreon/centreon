@@ -1,6 +1,6 @@
 import { Typography, TypographyProps } from '@mui/material';
 
-type CustomTypographyProps = Pick<TypographyProps, 'variant'>;
+type CustomTypographyProps = Pick<TypographyProps, 'variant' | 'sx'>;
 export interface FluidTypographyProps extends CustomTypographyProps {
   className?: string;
   containerClassName?: string;
@@ -17,21 +17,23 @@ const FluidTypography = ({
   containerClassName,
   min = '10px',
   max = '1000px',
-  pref = 19
+  pref = 19,
+  sx
 }: FluidTypographyProps): JSX.Element => {
   return (
     <div
       className={containerClassName}
       style={{
         containerType: 'inline-size',
-        height: `100%`,
-        width: `100%`
+        height: '100%',
+        width: '100%'
       }}
     >
       <Typography
         className={className}
         sx={{
-          fontSize: `clamp(${min}, ${pref}cqi, ${max})`
+          fontSize: `clamp(${min}, ${pref}cqi, ${max})`,
+          ...sx
         }}
         variant={variant}
       >

@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
 import { omit } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
   Method,

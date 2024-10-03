@@ -6,9 +6,10 @@ import { useTheme } from '@mui/material';
 
 import { getColorFromDataAndTresholds } from '../common/utils';
 
-import { thresholdThickness } from './Thresholds';
 import AnimatedPie from './AnimatedPie';
+import { thresholdThickness } from './Thresholds';
 import { GaugeProps } from './models';
+import { angles } from './utils';
 
 const dataThickness = 45;
 
@@ -37,15 +38,19 @@ const PieData = ({
     range: [pieColor, 'transparent']
   });
 
+  const dataThicknessFactor = radius / dataThickness / 3;
+  const thresholdThicknessFactor = radius / thresholdThickness / 15;
+
   return (
     <Pie
+      {...angles}
       data={pieData}
-      endAngle={-Math.PI / 2}
-      innerRadius={radius - dataThickness}
-      outerRadius={radius - thresholdThickness * 1.3}
+      innerRadius={radius - dataThickness * dataThicknessFactor}
+      outerRadius={
+        radius - thresholdThickness * thresholdThicknessFactor * 1.25
+      }
       pieSortValues={() => -1}
       pieValue={identity}
-      startAngle={Math.PI / 2}
     >
       {(pie) => (
         <AnimatedPie<number>

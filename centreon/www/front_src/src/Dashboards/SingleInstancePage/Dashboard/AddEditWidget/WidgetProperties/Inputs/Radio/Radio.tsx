@@ -1,19 +1,21 @@
 import { ChangeEvent, useMemo } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { useFormikContext } from 'formik';
+import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import { RadioGroup, FormControlLabel, Radio } from '@mui/material';
+import { FormControlLabel, Radio, RadioGroup, Typography } from '@mui/material';
 
-import { Widget, WidgetPropertyProps } from '../../../models';
-import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import Subtitle from '../../../../components/Subtitle';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import { Widget, WidgetPropertyProps } from '../../../models';
 import { getProperty } from '../utils';
 
 const WidgetRadio = ({
   propertyName,
   options,
-  label
+  label,
+  isInGroup
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
 
@@ -31,12 +33,16 @@ const WidgetRadio = ({
     setFieldValue(`options.${propertyName}`, event.target.value);
   };
 
+  const Label = useMemo(() => (isInGroup ? Typography : Subtitle), [isInGroup]);
+
   return (
     <div>
-      <Subtitle>{t(label)}</Subtitle>
+      <Label>{t(label)}</Label>
       <RadioGroup value={value} onChange={change}>
         {(options || []).map(({ id, name }) => (
           <FormControlLabel
+            aria-label={t(name)}
+            checked={equals(id, value)}
             control={<Radio />}
             disabled={!canEditField}
             key={id}

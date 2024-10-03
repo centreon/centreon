@@ -13,8 +13,9 @@ const ResourceTable = ({
   isFromPreview,
   id,
   dashboardId,
-  playlistHash
-}: Omit<ResourcesTableProps, 'store'>): JSX.Element => {
+  playlistHash,
+  widgetPrefixQuery
+}: Omit<ResourcesTableProps, 'store' | 'queryClient'>): JSX.Element => {
   const { resources } = panelData;
 
   const {
@@ -26,7 +27,15 @@ const ResourceTable = ({
     limit,
     sortField,
     sortOrder,
-    selectedColumnIds
+    selectedColumnIds,
+    statusTypes,
+    hostSeverities,
+    serviceSeverities,
+    isDownHostHidden,
+    isUnreachableHostHidden,
+    displayResources,
+    provider,
+    isOpenTicketEnabled
   } = panelOptions;
 
   const refreshIntervalToUse = useRefreshInterval({
@@ -40,20 +49,29 @@ const ResourceTable = ({
       <Listing
         changeViewMode={changeViewMode}
         dashboardId={dashboardId}
+        displayResources={displayResources}
         displayType={displayType}
+        hostSeverities={hostSeverities}
         id={id}
+        isDownHostHidden={isDownHostHidden}
         isFromPreview={isFromPreview}
+        isOpenTicketEnabled={isOpenTicketEnabled}
+        isUnreachableHostHidden={isUnreachableHostHidden}
         limit={limit}
         playlistHash={playlistHash}
+        provider={provider}
         refreshCount={refreshCount}
         refreshIntervalToUse={refreshIntervalToUse}
         resources={resources}
         selectedColumnIds={selectedColumnIds}
+        serviceSeverities={serviceSeverities}
         setPanelOptions={setPanelOptions}
         sortField={sortField}
         sortOrder={sortOrder}
         states={states}
+        statusTypes={statusTypes}
         statuses={statuses}
+        widgetPrefixQuery={widgetPrefixQuery}
       />
     </div>
   );

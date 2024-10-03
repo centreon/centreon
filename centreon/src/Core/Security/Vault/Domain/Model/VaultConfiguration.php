@@ -31,6 +31,7 @@ use Security\Interfaces\EncryptionInterface;
  */
 class VaultConfiguration
 {
+    /** Validation Constants */
     public const MIN_LENGTH = 1;
     public const MAX_LENGTH = 255;
     public const NAME_MAX_LENGTH = NewVaultConfiguration::NAME_MAX_LENGTH;
@@ -39,15 +40,25 @@ class VaultConfiguration
     public const SALT_LENGTH = 128;
     public const NAME_VALIDATION_REGEX = NewVaultConfiguration::NAME_VALIDATION_REGEX;
 
+    /** Static Vault Key Constants */
+    public const HOST_SNMP_COMMUNITY_KEY = '_HOSTSNMPCOMMUNITY';
+    public const OPENID_CLIENT_ID_KEY = '_OPENID_CLIENT_ID';
+    public const OPENID_CLIENT_SECRET_KEY = '_OPENID_CLIENT_SECRET';
+    public const DATABASE_USERNAME_KEY = '_DBUSERNAME';
+    public const DATABASE_PASSWORD_KEY = '_DBPASSWORD';
+    public const KNOWLEDGE_BASE_KEY = '_KBPASSWORD';
+
+    /** Patterns Constants */
+    public const VAULT_PATH_PATTERN = 'secret::';
+    public const UUID_EXTRACTION_REGEX = '^(.*)\/(.*)::(.*)$';
+
     private ?string $secretId;
 
     private ?string $roleId;
 
     /**
      * @param EncryptionInterface $encryption
-     * @param int $id
      * @param string $name
-     * @param Vault $vault
      * @param string $address
      * @param int $port
      * @param string $rootPath
@@ -59,9 +70,7 @@ class VaultConfiguration
      */
     public function __construct(
         private EncryptionInterface $encryption,
-        private int $id,
         private string $name,
-        private Vault $vault,
         private string $address,
         private int $port,
         private string $rootPath,
@@ -76,27 +85,11 @@ class VaultConfiguration
     }
 
     /**
-     * @return int
-     */
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    /**
      * @return string
      */
     public function getName(): string
     {
         return $this->name;
-    }
-
-    /**
-     * @return Vault
-     */
-    public function getVault(): Vault
-    {
-        return $this->vault;
     }
 
     /**

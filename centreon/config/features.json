@@ -1,11 +1,10 @@
 {
-  "notification" : 2,
-  "dashboard": 3,
+  "notification": 2,
   "map_visx_viewer": 0,
   "vault": 0,
+  "vault_broker": 0,
+  "vault_gorgone": 0,
   "ad_exclusion_periods": 0,
-  "resource_status_tree_view": 3,
-  "resource_status_filter_revamp": 3,
   "resource_access_management": 2,
-  "dashboard_playlist": 3
+  "resources_table_widget_open_tickets": 0
 }

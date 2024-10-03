@@ -1,8 +1,9 @@
 import { ChangeEvent, useMemo } from 'react';
 
-import { useAtom, useAtomValue } from 'jotai';
 import { useFormikContext } from 'formik';
+import { useAtom, useAtomValue } from 'jotai';
 import {
+  path,
   T,
   always,
   cond,
@@ -13,7 +14,6 @@ import {
   isEmpty,
   isNil,
   last,
-  path,
   pluck,
   propEq,
   reject
@@ -24,7 +24,10 @@ import {
   SelectEntry,
   buildListingEndpoint
 } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
+import { baseEndpoint } from '../../../../api/endpoint';
+import { selectedDatasetFiltersAtom } from '../../../atom';
 import { Dataset, ResourceAccessRule, ResourceTypeEnum } from '../../../models';
 import {
   labelAllBusinessViewsSelected,
@@ -40,12 +43,10 @@ import {
   labelMetaService,
   labelPleaseSelectAResource,
   labelSelectResource,
+  labelService,
   labelServiceCategory,
   labelServiceGroup
 } from '../../../translatedLabels';
-import { baseEndpoint } from '../../../../api/endpoint';
-import { selectedDatasetFiltersAtom } from '../../../atom';
-import { platformVersionsAtom } from '../../../../Main/atoms/platformVersionsAtom';
 
 type UseDatasetFilterState = {
   addResource: () => void;
@@ -85,7 +86,8 @@ const resourceTypeOptions = [
   {
     availableResourceTypeOptions: [
       { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup },
-      { id: ResourceTypeEnum.ServiceCategory, name: labelServiceCategory }
+      { id: ResourceTypeEnum.ServiceCategory, name: labelServiceCategory },
+      { id: ResourceTypeEnum.Service, name: labelService }
     ],
     id: ResourceTypeEnum.Host,
     name: labelHost
@@ -95,7 +97,8 @@ const resourceTypeOptions = [
       { id: ResourceTypeEnum.HostGroup, name: labelHostGroup },
       { id: ResourceTypeEnum.Host, name: labelHost },
       { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup },
-      { id: ResourceTypeEnum.ServiceCategory, name: labelServiceCategory }
+      { id: ResourceTypeEnum.ServiceCategory, name: labelServiceCategory },
+      { id: ResourceTypeEnum.Service, name: labelService }
     ],
     id: ResourceTypeEnum.HostCategory,
     name: labelHostCategory
@@ -105,7 +108,8 @@ const resourceTypeOptions = [
       { id: ResourceTypeEnum.HostCategory, name: labelHostCategory },
       { id: ResourceTypeEnum.Host, name: labelHost },
       { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup },
-      { id: ResourceTypeEnum.ServiceCategory, name: labelServiceCategory }
+      { id: ResourceTypeEnum.ServiceCategory, name: labelServiceCategory },
+      { id: ResourceTypeEnum.Service, name: labelService }
     ],
     id: ResourceTypeEnum.HostGroup,
     name: labelHostGroup
@@ -116,15 +120,22 @@ const resourceTypeOptions = [
     name: labelMetaService
   },
   {
+    availableResourceTypeOptions: [],
+    id: ResourceTypeEnum.Service,
+    name: labelService
+  },
+  {
     availableResourceTypeOptions: [
-      { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup }
+      { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup },
+      { id: ResourceTypeEnum.Service, name: labelService }
     ],
     id: ResourceTypeEnum.ServiceCategory,
     name: labelServiceCategory
   },
   {
     availableResourceTypeOptions: [
-      { id: ResourceTypeEnum.ServiceCategory, name: labelServiceCategory }
+      { id: ResourceTypeEnum.ServiceCategory, name: labelServiceCategory },
+      { id: ResourceTypeEnum.Service, name: labelService }
     ],
     id: ResourceTypeEnum.ServiceGroup,
     name: labelServiceGroup
@@ -137,6 +148,7 @@ export const resourceTypeBaseEndpoints = {
   [ResourceTypeEnum.HostCategory]: '/configuration/hosts/categories',
   [ResourceTypeEnum.HostGroup]: '/configuration/hosts/groups',
   [ResourceTypeEnum.MetaService]: '/configuration/metaservices',
+  [ResourceTypeEnum.Service]: '/configuration/services',
   [ResourceTypeEnum.ServiceCategory]: '/configuration/services/categories',
   [ResourceTypeEnum.ServiceGroup]: '/configuration/services/groups'
 };
@@ -156,13 +168,20 @@ const searchParametersBySelectedResourceType = {
     [ResourceTypeEnum.HostGroup]: 'hostgroup.id',
     [ResourceTypeEnum.HostCategory]: 'hostcategory.id',
     [ResourceTypeEnum.Host]: 'host.id',
-    [ResourceTypeEnum.ServiceCategory]: 'servicecategory.id'
+    [ResourceTypeEnum.ServiceCategory]: 'category.id'
   },
   [ResourceTypeEnum.ServiceCategory]: {
     [ResourceTypeEnum.HostGroup]: 'hostgroup.id',
     [ResourceTypeEnum.HostCategory]: 'hostcategory.id',
     [ResourceTypeEnum.Host]: 'host.id',
-    [ResourceTypeEnum.ServiceGroup]: 'servicegroup.id'
+    [ResourceTypeEnum.ServiceGroup]: 'group.id'
+  },
+  [ResourceTypeEnum.Service]: {
+    [ResourceTypeEnum.HostGroup]: 'hostgroup.id',
+    [ResourceTypeEnum.HostCategory]: 'hostcategory.id',
+    [ResourceTypeEnum.Host]: 'host.id',
+    [ResourceTypeEnum.ServiceGroup]: 'group.id',
+    [ResourceTypeEnum.ServiceCategory]: 'category.id'
   }
 };
 
@@ -202,6 +221,7 @@ const useDatasetFilter = (
   const isBamInstalled = has('centreon-bam-server', platform?.modules);
 
   const lowestResourceTypeReached = (): boolean =>
+    equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.Service) ||
     equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.MetaService) ||
     equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.BusinessView);
 

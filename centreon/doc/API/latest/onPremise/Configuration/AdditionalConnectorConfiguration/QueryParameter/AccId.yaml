@@ -1,0 +1,8 @@
+in: path
+name: acc_id
+required: true
+description: "Additional Connector Configuration ID"
+schema:
+  type: integer
+  minimum: 1
+  example: 1

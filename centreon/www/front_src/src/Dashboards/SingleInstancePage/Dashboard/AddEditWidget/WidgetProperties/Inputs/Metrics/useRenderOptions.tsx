@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 
+import { useFormikContext } from 'formik';
 import {
   equals,
   gt,
@@ -10,12 +11,11 @@ import {
   remove,
   update
 } from 'ramda';
-import { useFormikContext } from 'formik';
 
-import { ListItem, Typography, Radio, Checkbox } from '@mui/material';
+import { Checkbox, ListItem, Radio, Typography } from '@mui/material';
 
-import { CollapsibleItem } from '@centreon/ui/components';
 import { useDeepCompare } from '@centreon/ui';
+import { CollapsibleItem } from '@centreon/ui/components';
 
 import { FormMetric, ServiceMetric } from '../../../models';
 

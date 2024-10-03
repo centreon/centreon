@@ -32,26 +32,47 @@ export interface StyleMenuSkeleton {
 }
 
 export enum FederatedWidgetOptionType {
+  autocomplete = 'autocomplete',
+  buttonGroup = 'button-group',
   checkbox = 'checkbox',
+  color = 'color',
+  connectedAutocomplete = 'connected-autocomplete',
+  datePicker = 'date-picker',
   displayType = 'displayType',
+  locale = 'locale',
   metrics = 'metrics',
   radio = 'radio',
   refreshInterval = 'refresh-interval',
   resources = 'resources',
   richText = 'rich-text',
+  select = 'select',
   singleMetricGraphType = 'single-metric-graph-type',
+  slider = 'slider',
   switch = 'switch',
+  text = 'text',
   textfield = 'textfield',
   threshold = 'threshold',
   tiles = 'tiles',
+  timeFormat = 'time-format',
   timePeriod = 'time-period',
+  timezone = 'timezone',
   topBottomSettings = 'top-bottom-settings',
   valueFormat = 'value-format'
 }
 
 interface WidgetHiddenCondition {
   matches: unknown;
+  method: 'equals' | 'includes';
+  property?: string;
+  target: 'options' | 'data' | 'modules' | 'featureFlags';
   when: string;
+}
+
+export interface SubInput {
+  direction?: 'row' | 'column';
+  displayValue: unknown;
+  input: Omit<FederatedWidgetOption, 'group' | 'hiddenCondition' | 'subInputs'>;
+  name: string;
 }
 
 export interface FederatedWidgetOption {
@@ -63,6 +84,8 @@ export interface FederatedWidgetOption {
         then: unknown;
         when: string;
       };
+  group?: string;
+  hasModule?: string;
   hiddenCondition: WidgetHiddenCondition;
   label: string;
   options?:
@@ -75,10 +98,21 @@ export interface FederatedWidgetOption {
       };
   required?: boolean;
   secondaryLabel: string;
+  subInputs?: Array<SubInput>;
   type: FederatedWidgetOptionType;
 }
 
 export interface FederatedWidgetProperties {
+  categories?: {
+    [category: string]: {
+      elements: {
+        [key: string]: FederatedWidgetOption & {
+          group?: string;
+        };
+      };
+      groups: Array<SelectEntry>;
+    };
+  };
   customBaseColor?: boolean;
   data: {
     [key: string]: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;

@@ -1,21 +1,21 @@
-import { useTranslation } from 'react-i18next';
-import { equals, isEmpty, isNil, not, pick } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
 import { useAtomValue } from 'jotai';
+import { equals, isEmpty, isNil, not, pick } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import Divider from '@mui/material/Divider';
 
-import { userAtom, ListingVariant } from '@centreon/ui-context';
+import { ListingVariant, userAtom } from '@centreon/ui-context';
 
-import { ListingProps, IconButton } from '../..';
-import { labelOf, labelRowsPerPage } from '../translatedLabels';
+import { IconButton, ListingProps } from '../..';
 import { useMemoComponent } from '../../utils';
+import { labelOf, labelRowsPerPage } from '../translatedLabels';
 
+import ColumnMultiSelect from './ColumnMultiSelect';
 import StyledPagination from './Pagination';
 import PaginationActions from './PaginationActions';
-import ColumnMultiSelect from './ColumnMultiSelect';
 
 interface StyleProps {
   marginWidthTableListing: number;
@@ -28,6 +28,7 @@ const useStyles = makeStyles<StyleProps>()(
       paddingLeft: theme.spacing(1)
     },
     actions: {
+      flex: 1,
       padding: theme.spacing(1, 0)
     },
     container: {
@@ -106,8 +107,7 @@ const MemoListingActionBar = ({
   widthToMoveTablePagination = 550,
   actionsBarMemoProps = [],
   viewerModeConfiguration,
-  listingVariant,
-  visualizationActions
+  listingVariant
 }: Props): JSX.Element => {
   const marginWidthTableListing = 30;
   const { classes, cx } = useStyles({
@@ -136,7 +136,6 @@ const MemoListingActionBar = ({
         <div className={classes.actions}>
           <div>{actions}</div>
         </div>
-        {visualizationActions && <div>{visualizationActions}</div>}
         <div className={classes.subContainer}>
           {!isEmpty(viewerModeConfiguration) &&
             !isNil(viewerModeConfiguration) && (
@@ -246,8 +245,7 @@ const ListingActionBar = ({
   widthToMoveTablePagination,
   customPaginationClassName,
   listingVariant,
-  viewerModeConfiguration,
-  visualizationActions
+  viewerModeConfiguration
 }: Props): JSX.Element | null => {
   if (
     not(paginated) &&
@@ -271,7 +269,6 @@ const ListingActionBar = ({
       paginated={paginated}
       totalRows={totalRows}
       viewerModeConfiguration={viewerModeConfiguration}
-      visualizationActions={visualizationActions}
       widthToMoveTablePagination={widthToMoveTablePagination}
       onLimitChange={onLimitChange}
       onPaginate={onPaginate}
