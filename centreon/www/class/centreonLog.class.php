@@ -220,6 +220,29 @@ class CentreonLog
     }
 
     /**
+     * @param string $level
+     * @param string $message
+     * @param array $customContext
+     * @param Throwable|null $exception
+     *
+     * @return void
+     */
+    public static function logCentreonWeb(
+        string $level,
+        string $message,
+        array $customContext = [],
+        ?Throwable $exception = null
+    ): void {
+        CentreonLog::create()->log(
+            logTypeId: self::TYPE_BUSINESS_LOG,
+            level: $level,
+            message: $message,
+            customContext: $customContext,
+            exception: $exception
+        );
+    }
+
+    /**
      * @param int $logTypeId TYPE_* constants
      * @param string $level LEVEL_* constants
      * @param string $message

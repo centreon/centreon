@@ -44,14 +44,11 @@ include "./include/common/autoNumLimit.php";
 $centreonGMT = new CentreonGMT($pearDB);
 $centreonGMT->getMyGMTFromSession(session_id(), $pearDB);
 
+$search = $_POST['searchP'] ?? $_GET['searchP'] ?? null;
 
-$search = \HtmlAnalyzer::sanitizeAndRemoveTags(
-    $_POST['searchP'] ?? $_GET['searchP'] ?? null
-);
-
-if (isset($_POST['searchP']) || isset($_GET['searchP'])) {
+if (! is_null($search)) {
     //saving filters values
-    $centreon->historySearch[$url] = array();
+    $centreon->historySearch[$url] = [];
     $centreon->historySearch[$url]['search'] = $search;
 } else {
     //restoring saved values
@@ -59,8 +56,9 @@ if (isset($_POST['searchP']) || isset($_GET['searchP'])) {
 }
 
 $LCASearch = '';
-if ($search) {
-    $LCASearch .= " name LIKE '%" . htmlentities($search, ENT_QUOTES, "UTF-8") . "%'";
+if (! is_null($search)) {
+    $search = HtmlSanitizer::create()->sanitize($search);
+    $LCASearch .= " name LIKE '%{$search}%'";
 }
 
 // Get Authorized Actions
@@ -266,7 +264,7 @@ foreach ($servers as $config) {
     $elemArr[$i] = [
         'MenuClass' => "list_{$style}",
         'RowMenu_select' => $selectedElements->toHtml(),
-        'RowMenu_name' => $config['name'],
+        'RowMenu_name' => HtmlSanitizer::create()->sanitize($config['name']),
         'RowMenu_ip_address' => $config['ns_ip_address'],
         'RowMenu_server_id' => $config['id'],
         'RowMenu_gorgone_protocol' => $config['gorgone_communication_type'],

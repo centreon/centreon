@@ -160,7 +160,7 @@ $result = $oreon->user->access->getPollerAclConf(
     )
 );
 foreach ($result as $ns) {
-    $nagios_server[$ns["id"]] = $ns["name"];
+    $nagios_server[$ns["id"]] = HtmlSanitizer::create()->sanitize($ns["name"]);
 }
 
 $attrsText = array("size" => "30");

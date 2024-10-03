@@ -40,11 +40,10 @@ if (!isset($centreon)) {
 
 include "./include/common/autoNumLimit.php";
 
-$search = \HtmlAnalyzer::sanitizeAndRemoveTags(
-    $_POST['searchN'] ?? $_GET['searchN'] ?? null
-);
+$search = $_POST['searchN'] ?? $_GET['searchN'] ?? null;
 
-if (isset($_POST['searchN']) || isset($_GET['searchN'])) {
+if (! is_null($search)) {
+    $search = HtmlSanitizer::create()->sanitize($search);
     //saving filters values
     $centreon->historySearch[$url] = array();
     $centreon->historySearch[$url]['search'] = $search;
@@ -54,8 +53,8 @@ if (isset($_POST['searchN']) || isset($_GET['searchN'])) {
 }
 
 $SearchTool = '';
-if ($search) {
-    $SearchTool .= " WHERE nagios_name LIKE '%" . htmlentities($search, ENT_QUOTES, "UTF-8") . "%' ";
+if (! is_null($search)) {
+    $SearchTool .= " WHERE nagios_name LIKE '%{$search}%' ";
 }
 
 $aclCond = "";
@@ -74,7 +73,7 @@ if (!$centreon->user->admin && count($allowedMainConf)) {
 $nagios_servers = array(null => "");
 $dbResult = $pearDB->query("SELECT * FROM nagios_server ORDER BY name");
 while ($nagios_server = $dbResult->fetch()) {
-    $nagios_servers[$nagios_server["id"]] = $nagios_server["name"];
+    $nagios_servers[$nagios_server["id"]] = HtmlSanitizer::create()->sanitize($nagios_server["name"]);
 }
 $dbResult->closeCursor();
 
@@ -135,7 +134,7 @@ for ($i = 0; $nagios = $dbResult->fetch(); $i++) {
     $elemArr[$i] = array(
         "MenuClass" => "list_" . $style,
         "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_name" => $nagios["nagios_name"],
+        "RowMenu_name" => HtmlSanitizer::create()->sanitize($nagios["nagios_name"]),
         "RowMenu_instance" => $nagios_servers[$nagios["nagios_server_id"]],
         "RowMenu_link" => "main.php?p=" . $p . "&o=c&nagios_id=" . $nagios['nagios_id'],
         "RowMenu_desc" => substr($nagios["nagios_comment"], 0, 40),
