@@ -58,7 +58,7 @@ jobs:
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
       has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
       trigger_delivery: ${{ steps.changes_trigger_checks.outputs.trigger_delivery }}
-      trigger_api_testing: ${{ steps.changes_trigger.checks.outputs.trigger_api_testing }}
+      trigger_api_testing: ${{ steps.changes_trigger_checks.outputs.trigger_api_testing }}
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
