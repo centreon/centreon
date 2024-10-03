@@ -60,3 +60,22 @@ Feature: Configuring a top-bottom widget
     Given a dashboard with a Top bottom widget
     When the dashboard administrator clicks on a random resource
     Then the user should be redirected to the resource status screen and all the resources must be displayed
+
+  @TEST_MON-24935
+  Scenario: Adding and Filtering Resources in a Top/Bottom Widget on a Dashboard
+    Given a dashboard in the dashboard administrator user's dashboard library
+    When the dashboard administrator user selects the option to add a new widget
+    And selects the widget type "Top Bottom"
+    And enters a search term for a specific host
+    Then only the hosts that match the search input should appear in the search results
+    When the dashboard administrator enters a search term for a specific service
+    Then only services that match the search input should be shown in the search results
+
+  @TEST_MON-24935
+  Scenario: Adding and Filtering metrics in a Top/Bottom Widget on a Dashboard
+    Given a dashboard in the dashboard administrator user's dashboard library
+    When the dashboard administrator user selects the option to add a new widget
+    And selects the widget type "Top Bottom"
+    And  search  for Centreon Server hosts
+    When the dashboard administrator enters a search term for a specific metrics
+    Then only metrics that match the search input should be shown in the search results

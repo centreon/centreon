@@ -392,3 +392,79 @@ Then(
     cy.contains('Centreon-Server').should('exist');
   }
 );
+
+Then('enters a search term for a specific host', () => {
+  cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
+  cy.getByLabel({ label: 'RichTextEditor' })
+    .eq(0)
+    .type(genericTextWidgets.default.description);
+  cy.getByTestId({ testId: 'Resource type' }).realClick();
+  cy.getByLabel({ label: 'Host' }).click();
+  cy.getByTestId({ testId: 'Select resource' }).type('3')
+});
+
+Then('only the hosts that match the search input should appear in the search results', () => {
+  cy.waitUntil(() =>
+    cy.get('.MuiAutocomplete-listbox').invoke('text').then(listboxText => {
+      return listboxText.includes('host3') &&
+             !listboxText.includes('Centreon-Server') &&
+             !listboxText.includes('host2');
+    }),
+    {
+      timeout: 10000,
+      interval: 500,
+    }
+  );
+});
+
+When('the dashboard administrator enters a search term for a specific service', () => {
+  cy.contains('host3').click();
+  cy.getByTestId({ testId: 'Add filter' }).realClick();
+  cy.getByTestId({ testId: 'Resource type' }).eq(1).realClick();
+  cy.getByLabel({ label: 'Service' }).click();
+  cy.getByTestId({ testId: 'Select resource' }).eq(1).type('2')
+});
+
+Then('only services that match the search input should be shown in the search results', () => {
+  cy.waitUntil(() =>
+    cy.get('.MuiAutocomplete-listbox').invoke('text').then(listboxText => {
+      return listboxText.includes('service2') &&
+             !listboxText.includes('service3') &&
+             !listboxText.includes('service_test_ok');
+    }),
+    {
+      timeout: 10000,
+      interval: 500,
+    }
+  );
+});
+
+Then('search  for Centreon Server hosts', () => {
+  cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
+  cy.getByLabel({ label: 'RichTextEditor' })
+    .eq(0)
+    .type(genericTextWidgets.default.description);
+  cy.getByTestId({ testId: 'Resource type' }).realClick();
+  cy.getByLabel({ label: 'Host' }).click();
+  cy.getByTestId({ testId: 'Select resource' }).type('Centreon-Server')
+  cy.contains('Centreon-Server').click()
+});
+
+When('the dashboard administrator enters a search term for a specific metrics', () => {
+  cy.getByTestId({ testId: 'Select metric' }).type('rta')
+});
+
+Then('only metrics that match the search input should be shown in the search results', () => {
+  cy.waitUntil(() =>
+    cy.get('*[class$="-listBox"]').invoke('text').then(listboxText => {
+      return listboxText.includes('rta (ms)') &&
+             !listboxText.includes('pl (%)') &&
+             !listboxText.includes('rtmax (ms)') &&
+             !listboxText.includes('rtmin (ms)');
+    }),
+    {
+      timeout: 10000,
+      interval: 500,
+    }
+  );
+});

@@ -65,89 +65,89 @@ before(() => {
     method: 'GET',
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
-  // cy.startContainers();
-  // cy.enableDashboardFeature();
-  // cy.executeCommandsViaClapi(
-  //   'resources/clapi/config-ACL/dashboard-metrics-graph.json'
-  // );
-  // cy.addHost({
-  //   hostGroup: 'Linux-Servers',
-  //   name: services.serviceOk.host,
-  //   template: 'generic-host'
-  // })
-  //   .addService({
-  //     activeCheckEnabled: false,
-  //     host: services.serviceOk.host,
-  //     maxCheckAttempts: 1,
-  //     name: services.serviceOk.name,
-  //     template: services.serviceOk.template
-  //   })
-  //   .addService({
-  //     activeCheckEnabled: false,
-  //     host: services.serviceOk.host,
-  //     maxCheckAttempts: 1,
-  //     name: 'service2',
-  //     template: services.serviceWarning.template
-  //   })
-  //   .addService({
-  //     activeCheckEnabled: false,
-  //     host: services.serviceOk.host,
-  //     maxCheckAttempts: 1,
-  //     name: services.serviceCritical.name,
-  //     template: services.serviceCritical.template
-  //   })
-  //   .applyPollerConfiguration();
+  cy.startContainers();
+  cy.enableDashboardFeature();
+  cy.executeCommandsViaClapi(
+    'resources/clapi/config-ACL/dashboard-metrics-graph.json'
+  );
+  cy.addHost({
+    hostGroup: 'Linux-Servers',
+    name: services.serviceOk.host,
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: services.serviceOk.name,
+      template: services.serviceOk.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: 'service2',
+      template: services.serviceWarning.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: services.serviceCritical.name,
+      template: services.serviceCritical.template
+    })
+    .applyPollerConfiguration();
 
-  // cy.addHost({
-  //   hostGroup: 'Linux-Servers',
-  //   name: services.serviceCritical.host,
-  //   template: 'generic-host'
-  // })
-  //   .addService({
-  //     activeCheckEnabled: false,
-  //     host: services.serviceCritical.host,
-  //     maxCheckAttempts: 1,
-  //     name: services.serviceOk.name,
-  //     template: services.serviceOk.template
-  //   })
-  //   .addService({
-  //     activeCheckEnabled: false,
-  //     host: services.serviceCritical.host,
-  //     maxCheckAttempts: 1,
-  //     name: 'service2',
-  //     template: services.serviceWarning.template
-  //   })
-  //   .addService({
-  //     activeCheckEnabled: false,
-  //     host: services.serviceCritical.host,
-  //     maxCheckAttempts: 1,
-  //     name: services.serviceCritical.name,
-  //     template: services.serviceCritical.template
-  //   })
-  //   .applyPollerConfiguration();
+  cy.addHost({
+    hostGroup: 'Linux-Servers',
+    name: services.serviceCritical.host,
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: services.serviceOk.name,
+      template: services.serviceOk.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: 'service2',
+      template: services.serviceWarning.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: services.serviceCritical.name,
+      template: services.serviceCritical.template
+    })
+    .applyPollerConfiguration();
 
-  // cy.loginByTypeOfUser({
-  //   jsonName: 'admin'
-  // });
+  cy.loginByTypeOfUser({
+    jsonName: 'admin'
+  });
 
-  // cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' });
+  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' });
 
-  // checkHostsAreMonitored([
-  //   { name: services.serviceOk.host },
-  //   { name: services.serviceCritical.host }
-  // ]);
-  // checkServicesAreMonitored([
-  //   { name: services.serviceCritical.name },
-  //   { name: services.serviceOk.name }
-  // ]);
-  // cy.submitResults(resultsToSubmit);
-  // checkServicesAreMonitored([
-  //   { name: services.serviceCritical.name, status: 'critical' },
-  //   { name: services.serviceOk.name, status: 'ok' }
-  // ]);
+  checkHostsAreMonitored([
+    { name: services.serviceOk.host },
+    { name: services.serviceCritical.host }
+  ]);
+  checkServicesAreMonitored([
+    { name: services.serviceCritical.name },
+    { name: services.serviceOk.name }
+  ]);
+  cy.submitResults(resultsToSubmit);
+  checkServicesAreMonitored([
+    { name: services.serviceCritical.name, status: 'critical' },
+    { name: services.serviceOk.name, status: 'ok' }
+  ]);
 
-  // cy.logoutViaAPI();
-  // cy.applyAcl();
+  cy.logoutViaAPI();
+  cy.applyAcl();
 });
 
 beforeEach(() => {
@@ -474,8 +474,7 @@ Then('the newly added host should appear in the status grid widget', () => {
   cy.getByTestId({ testId: 'link to service_test_ok' }).should('be.visible');
 });
 
-Then('search for a resource type', () => {
-  cy.wait(5000)
+Then('searches for a specific resource type', () => {
   cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
   cy.getByLabel({ label: 'RichTextEditor' })
     .eq(0)
@@ -484,6 +483,9 @@ Then('search for a resource type', () => {
   cy.getByLabel({ label: 'Host' }).eq(1).click();
   cy.getByTestId({ testId: 'Select resource' }).type('3')
   cy.wait('@resourceRequest');
+});
+
+Then('only the matching resource based on the search input should be displayed in the results', () => {
   cy.waitUntil(() =>
     cy.get('.MuiAutocomplete-listbox').invoke('text').then(listboxText => {
       return listboxText.includes('host3') &&
@@ -495,6 +497,4 @@ Then('search for a resource type', () => {
       interval: 500,
     }
   );
-
-
 });
