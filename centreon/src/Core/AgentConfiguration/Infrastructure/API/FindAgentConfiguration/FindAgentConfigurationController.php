@@ -25,7 +25,9 @@ namespace Core\AgentConfiguration\Infrastructure\API\FindAgentConfiguration;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfiguration;
-use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfigurationRequest;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Infrastructure\Common\Api\StandardPresenter;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 final class FindAgentConfigurationController extends AbstractController
@@ -33,19 +35,18 @@ final class FindAgentConfigurationController extends AbstractController
     public function __invoke(
         int $id,
         FindAgentConfiguration $useCase,
-        FindAgentConfigurationPresenter $presenter
+        StandardPresenter $presenter
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
-        $useCase($this->createRequest($id), $presenter);
 
-        return $presenter->show();
-    }
+        $response = $useCase($id, $presenter);
 
-    private function createRequest(int $id): FindAgentConfigurationRequest
-    {
-        $request = new FindAgentConfigurationRequest();
-        $request->agentConfigurationId = $id;
+        if ($response instanceof ResponseStatusInterface) {
+            return $this->createResponse($response);
+        }
 
-        return $request;
+        return JsonResponse::fromJsonString(
+            $presenter->present($response, ['groups' => ['AgentConfiguration:Read']])
+        );
     }
 }

@@ -23,19 +23,18 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration;
 
-use Core\AgentConfiguration\Domain\Model\Type;
+use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
+use Core\Application\Common\UseCase\StandardResponseInterface;
 
-final class FindAgentConfigurationResponse
+final class FindAgentConfigurationResponse implements StandardResponseInterface
 {
-    public int $id = 0;
+    public function __construct(readonly public AgentConfiguration $agentConfiguration)
+    {
+    }
 
-    public string $name = '';
 
-    public Type $type = Type::TELEGRAF;
-
-    /** @var PollerDto[] */
-    public array $pollers = [];
-
-    /** @var array<string,mixed> */
-    public array  $configuration = [];
+    public function getData(): mixed
+    {
+        return $this->agentConfiguration;
+    }
 }

@@ -33,6 +33,7 @@ use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
@@ -59,20 +60,20 @@ final class FindAgentConfiguration
     /**
      * Finds an agent configuration.
      *
-     * @param FindAgentConfigurationRequest $request
+     * @param int $agentConfigurationId
      * @param FindAgentConfigurationPresenterInterface $presenter
      *
      * @throws \Throwable
      */
     public function __invoke(
-        FindAgentConfigurationRequest $request,
+        int $agentConfigurationId,
         FindAgentConfigurationPresenterInterface $presenter
-    ): void {
+    ): FindAgentConfigurationResponse|ResponseStatusInterface {
         $this->info(
             'Find agent configuration',
             [
                 'user_id' => $this->user->getId(),
-                'agent_configuration_id' => $request->agentConfigurationId,
+                'agent_configuration_id' => $agentConfigurationId,
             ]
         );
 
@@ -82,31 +83,28 @@ final class FindAgentConfiguration
                     "User doesn't have sufficient rights to access agent configurations",
                     ['user_id' => $this->user->getId()]
                 );
-                $presenter->presentResponse(
-                    new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
-                );
 
-                return;
+                return new ForbiddenResponse(AgentConfigurationException::accessNotAllowed());
             }
 
-            if (null === $agentConfiguration = $this->readRepository->find($request->agentConfigurationId)) {
+            if (null === $agentConfiguration = $this->readRepository->find($agentConfigurationId)) {
                 $this->error(
                     'Agent configuration not found',
-                    ['agent_configuration_id' => $request->agentConfigurationId]
+                    ['agent_configuration_id' => $agentConfigurationId]
                 );
                 $presenter->presentResponse(
                     new NotFoundResponse('Agent Configuration')
                 );
 
-                return;
+                return new NotFoundResponse('Agent Configuration');
             }
 
             $this->info(
                 'Retrieved agent configuration',
-                ['agent_configuration_id' => $request->agentConfigurationId]
+                ['agent_configuration_id' => $agentConfigurationId]
             );
 
-            $pollers = $this->readRepository->findPollersByAcId($request->agentConfigurationId);
+            $pollers = $this->readRepository->findPollersByAcId($agentConfigurationId);
 
             if (! $this->user->isAdmin()) {
                 $pollerIds = array_map(
@@ -126,18 +124,16 @@ final class FindAgentConfiguration
                             'poller_ids' => array_diff($pollerIds, $validPollerIds),
                         ]
                     );
-                    $presenter->presentResponse(
-                        new NotFoundResponse('Agent Configuration')
-                    );
 
-                    return;
+                    return new NotFoundResponse('Agent Configuration');
                 }
             }
 
             $presenter->presentResponse($this->createResponse($agentConfiguration, $pollers));
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['user_id' => $this->user->getId()]);
-            $presenter->presentResponse(new ErrorResponse(AgentConfigurationException::errorWhileRetrievingObject()));
+
+            return new ErrorResponse(AgentConfigurationException::errorWhileRetrievingObject());
         }
     }
 
