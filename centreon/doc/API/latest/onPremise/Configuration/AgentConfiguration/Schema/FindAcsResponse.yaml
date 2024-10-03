@@ -5,8 +5,8 @@ properties:
     example: 4
   name:
     type: string
-    description: "ACC name"
-    example: "my-acc-name"
+    description: "configuration name"
+    example: "my-cfg-name"
   type:
     type: string
     description: |
