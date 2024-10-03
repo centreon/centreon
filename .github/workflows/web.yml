@@ -395,6 +395,8 @@ jobs:
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      registry_private_username: ${{ secrets.HARBOR_CENTREON_PRIVATE_USERNAME }}
+      registry_private_token: ${{ secrets.HARBOR_CENTREON_PRIVATE_TOKEN }}
 
   dockerize:
     runs-on: ubuntu-22.04
@@ -823,8 +825,12 @@ jobs:
           release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   promote:
-    needs: [get-version]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+    needs: [get-version, deliver-deb, deliver-rpm]
+    if: |
+      (contains(fromJson('["stable", "testing"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch') &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
     runs-on: [self-hosted, common]
     strategy:
       matrix:

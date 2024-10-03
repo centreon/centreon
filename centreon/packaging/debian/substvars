@@ -1,2 +1,3 @@
-centreon:version=
+centreon:majorVersion=
+centreon:minorVersion=
 centreon:versionThreshold=
