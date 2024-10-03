@@ -56,7 +56,9 @@ jobs:
     outputs:
       has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes }}
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
-      has_features_changes: ${{ steps.filter.outputs.has_features_changes }}
+      has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
+      trigger_delivery: ${{ steps.changes_trigger_checks.outputs.trigger_delivery }}
+      trigger_api_testing: ${{ steps.changes_trigger.checks.outputs.trigger_api_testing }}
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
@@ -65,16 +67,15 @@ jobs:
         with:
           filters: |
             has_frontend_changes:
-              - '**/*.[jt]sx?'
+              - '**/!(*tests)/*.[jt]sx?'
               - '**/www/front_src/**'
               - '**/www/widgets/src/**'
-              - '**/tests/e2e/**'
               - '**/package*'
               - '**/lighthouse/**'
               - '**/tsconfig.json'
               - '**/cypress/**|**/pnpm-*'
             has_backend_changes:
-              - '**/*.php'
+              - '**/!(*tests)/*.php'
               - '**/phpstan*.neon'
               - 'centreon/codingstyle.xml'
               - 'centreon/config/**/*.xml'
@@ -87,20 +88,22 @@ jobs:
               - '/centreon/src/**'
               - '**/config/**'
               - '**/composer.*'
-              - '**/tests/api/**'
-              - '**/tests/rest_api/collections/**'
-              - '**/tests/php/**'
-              - '**/tests/clapi_export/**'
               - '**/www/!(front_src)/**'
               - '**/doc/API/**'
-            has_features_changes:
-              - '**/tests/e2e/**/*.feature'
+            has_test_changes:
+              - '**/tests/**'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - uses: ./.github/actions/changes-trigger-actions
+        with:
+          has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes }}
+          has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
+          has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
 
   gherkin-lint:
     runs-on: ubuntu-22.04
     needs: [changes]
-    if: ${{ needs.changes.outputs.has_features_changes == 'true' }}
+    if: ${{ needs.changes.outputs.has_test_changes == 'true' }}
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
@@ -681,7 +684,7 @@ jobs:
 
   newman-test:
     needs: [get-version, changes, create-xray-test-plan-and-test-execution, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_api_testing == 'true' }}
     strategy:
       fail-fast: false
       matrix:
@@ -929,12 +932,13 @@ jobs:
     runs-on: [self-hosted, common]
     needs:
       [
+        changes,
         get-version,
         e2e-test,
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_delivery == 'true' }}
 
     environment: ${{ needs.get-version.outputs.environment }}
 
@@ -962,12 +966,13 @@ jobs:
     runs-on: [self-hosted, common]
     needs:
       [
+        changes,
         get-version,
         e2e-test,
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_delivery == 'true' }}
 
     environment: ${{ needs.get-version.outputs.environment }}
 

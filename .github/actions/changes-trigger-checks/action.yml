@@ -1,0 +1,43 @@
+name: changes-trigger-checks
+description: Trigger checks based on changes
+inputs:
+  has_frontend_changes:
+    description: Whether the PR contains changes on the frontend
+    required: true
+  has_backend_changes:
+    description: Whether the PR contains changes on the backend
+    required: true
+  has_test_changes:
+    description: Whether the PR contains changes on the test suite
+    required: true
+
+outputs:
+  trigger_delivery:
+    description: Validation of the package delivery
+    value: ${{ steps.trigger_delivery.outputs.trigger_delivery }}
+  trigger_api_testing:
+    description: Validation of the API testing
+    value: ${{ steps.trigger_api_testing.outputs.trigger_api_testing }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Validate package delivery trigger
+      id: trigger_delivery
+      run: |
+        TRIGGER_DELIVERY=false
+        if ! [[ ${{ inputs.has_test_changes }} == 'true' && ${{ inputs.has_frontend_changes }} == 'false' && ${{ inputs.has_backend_changes }} == 'false' ]]; then
+          TRIGGER_DELIVERY=true
+        fi
+        echo "trigger_delivery=$TRIGGER_DELIVERY" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Validate API testing trigger
+      id: trigger_testing_api
+      run: |
+        TRIGGER_API_TESTING=false
+        if ! [[ ${{ inputs.frontend_changes }} == 'true' && ${{ inputs.has_backend_changes }} == 'false' && ${{ inputs.has_test_changes }} == 'false' ]]; then
+          TRIGGER_API_TESTING=true
+        fi
+        echo "trigger_api_testing=$TRIGGER_API_TESTING" >> $GITHUB_OUTPUT
+      shell: bash
