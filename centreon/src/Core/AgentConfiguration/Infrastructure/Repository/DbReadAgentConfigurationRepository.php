@@ -285,10 +285,8 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
                 FROM `:db`.`agent_configuration` ac
                 INNER JOIN `:db`.`ac_poller_relation` rel
                     ON ac.id = rel.ac_id
-                INNER JOIN `:db`.`nagios_server` ns
-                    ON rel.poller_id = ns.id
                 INNER JOIN `:db`.acl_resources_poller_relations arpr
-                    ON ns.id = arpr.poller_id
+                    ON  rel.poller_id = arpr.poller_id
                 INNER JOIN `:db`.acl_res_group_relations argr
                     ON argr.acl_res_id = arpr.acl_res_id
                     AND argr.acl_group_id IN ({$accessGroupIdsQuery})
