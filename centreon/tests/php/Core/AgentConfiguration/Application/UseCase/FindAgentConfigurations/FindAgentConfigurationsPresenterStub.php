@@ -21,26 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\AgentConfiguration\Domain\Model;
+namespace Tests\Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations;
 
-/**
- * @immutable
- */
-class Poller
+use Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations\FindAgentConfigurationsPresenterInterface;
+use Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations\FindAgentConfigurationsResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+class FindAgentConfigurationsPresenterStub implements FindAgentConfigurationsPresenterInterface
 {
-    public function __construct(
-        public readonly int $id,
-        public readonly string $name,
-    ) {
-    }
+    public FindAgentConfigurationsResponse|ResponseStatusInterface $data;
 
-    public function getId(): int
+    public function presentResponse(FindAgentConfigurationsResponse|ResponseStatusInterface $data): void
     {
-        return $this->id;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
+        $this->data = $data;
     }
 }
