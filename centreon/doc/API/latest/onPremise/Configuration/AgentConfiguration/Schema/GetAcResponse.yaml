@@ -32,7 +32,7 @@ properties:
   configuration:
     type: object
     description: |
-      Configuration parameters, varies depending on the AC type.
+      Configuration parameters, varies depending on the object type.
     example:
       otel_server_address: '10.10.10.10'
       otel_server_port: 453

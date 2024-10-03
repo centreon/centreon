@@ -70,7 +70,7 @@ it('should present a Forbidden Response when user does not have topology role', 
         ->toBe(AgentConfigurationException::accessNotAllowed()->getMessage());
 });
 
-it('should present a Not Found Response when Agent Configuration does not exist', function () {
+it('should present a Not Found Response when object does not exist', function () {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -92,7 +92,7 @@ it('should present a Not Found Response when Agent Configuration does not exist'
         ->toBe('Agent Configuration not found');
 });
 
-it('should present a Not Found Response when AC got pollers not accessible by the user', function () {
+it('should present a Not Found Response when object got pollers not accessible by the user', function () {
     $configuration = new TelegrafConfigurationParameters([
         'otel_server_address' => '10.10.10.10',
         'otel_server_port' => 453,

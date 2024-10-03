@@ -91,7 +91,7 @@ final class FindAgentConfiguration
 
             if (null === $agentConfiguration = $this->readRepository->find($request->agentConfigurationId)) {
                 $this->error(
-                    'Agent configuration {agent_configuration_id} not found',
+                    'Agent configuration not found',
                     ['agent_configuration_id' => $request->agentConfigurationId]
                 );
                 $presenter->presentResponse(
