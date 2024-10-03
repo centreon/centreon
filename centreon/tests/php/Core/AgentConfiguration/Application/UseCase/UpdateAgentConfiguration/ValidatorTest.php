@@ -76,10 +76,9 @@ it('should throw an exception when the poller list is empty', function (): void 
 })->throws(AgentConfigurationException::arrayCanNotBeEmpty('pollerIds')->getMessage());
 
 it('should throw an exception when the type is changed', function (): void {
-    $this->request->type = '';
+    $this->request->type = 'centreon-agent';
     $this->validator->validateTypeOrFail($this->request, $this->agentConfiguration);
-})->skip(true, 'Cannot be tested as long as there is only one supported type');
-// throws(AgentConfigurationException::typeChangeNotAllowed()->getMessage());
+})->throws(AgentConfigurationException::typeChangeNotAllowed()->getMessage());
 
 it('should throw an exception when a poller ID does not exist', function (): void {
     $this->user
@@ -117,7 +116,7 @@ it('should throw an exception when the object is already associated to one of th
         ->willReturnMap(
             [
                 [Type::TELEGRAF, [$this->poller]],
-                [Type::CENTREON_AGENT, []]
+                [Type::CMA, []],
             ]
         );
 
