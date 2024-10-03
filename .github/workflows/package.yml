@@ -70,6 +70,10 @@ on:
         required: true
       registry_password:
         required: true
+      registry_private_username:
+        required: true
+      registry_private_token:
+        required: true
 
 jobs:
   package:
@@ -116,11 +120,11 @@ jobs:
     needs: [package]
     runs-on: ubuntu-22.04
     container:
-      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/rpm-signing:ubuntu
+      image: docker.centreon.com/centreon-private/rpm-signing:latest
       options: -t
       credentials:
-        username: ${{ secrets.registry_username }}
-        password: ${{ secrets.registry_password }}
+        username: ${{ secrets.registry_private_username }}
+        password: ${{ secrets.registry_private_token }}
 
     steps:
       - run: |
