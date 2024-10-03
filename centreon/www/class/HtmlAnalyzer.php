@@ -20,6 +20,13 @@
  */
 declare(strict_types=1);
 
+/**
+ * Class
+ *
+ * @class HtmlAnalyzer
+ *
+ * @deprecated Instead used {@see HtmlSanitizer}
+ */
 class HtmlAnalyzer
 {
     private int $index;
@@ -30,6 +37,7 @@ class HtmlAnalyzer
      * Sanitize and remove html tags
      *
      * @param mixed $stringToSanitize
+     *
      * @return string
      */
     public static function sanitizeAndRemoveTags($stringToSanitize): string
