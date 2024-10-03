@@ -10,7 +10,7 @@ properties:
   type:
     type: string
     description: |
-      Type of AC
+      Type of configuration
 
       Supported types:
         * telegraf
