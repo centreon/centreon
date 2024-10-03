@@ -1,2 +1,2 @@
 export const labelSelectBAToDisplayPreview =
-  'Select a business activity to display the preview.';
+  'Select a Business Activity to display the preview.';

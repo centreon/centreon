@@ -17379,13 +17379,13 @@ msgstr "Erweiterter Modus"
 # msgid "Clock / Timer"
 # msgstr ""
 
-# msgid "Select a business activity to display the preview."
+# msgid "Select a Business Activity to display the preview."
 # msgstr ""
 
 # msgid "Displays the distribution of current statuses on a BA, as a chronological timeline for a given time period."
 # msgstr ""
 
-# msgid "Business Activity Status Timeline"
+# msgid "Business Activity status timeline"
 # msgstr ""
 
 # msgid "Reporting period"
