@@ -6,7 +6,7 @@ properties:
   name:
     type: string
     description: "configuration name"
-    example: "my-acc-name"
+    example: "my-cfg-name"
   type:
     type: string
     description: |
@@ -14,7 +14,7 @@ properties:
 
       Supported types:
         * telegraf
-    example: vmware_v6
+    example: telegraf
   pollers:
     type: array
     description: "List of pollers that are attached to this object"
@@ -32,8 +32,7 @@ properties:
   configuration:
     type: object
     description: |
-      Configuration parameters, varies depending on the ACC type.
-      Credential values are not readable and will always be null.
+      Configuration parameters, varies depending on the AC type.
     example:
       otel_server_address: '10.10.10.10'
       otel_server_port: 453
