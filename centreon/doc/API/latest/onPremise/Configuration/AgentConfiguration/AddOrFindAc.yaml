@@ -26,3 +26,26 @@ post:
       $ref: '../../Common/Response/Conflict.yaml'
     '500':
       $ref: '../../Common/Response/InternalServerError.yaml'
+get:
+  tags:
+    - Poller/agent configuration
+  summary: "Get all poller/agent configurations"
+  description: "Get all poller/agent configurations"
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              result:
+                type: array
+                items:
+                  $ref: 'Schema/FindAcsResponse.yaml'
+              meta:
+                $ref: '../../Common/Schema/Meta.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'
