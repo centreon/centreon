@@ -49,11 +49,11 @@ Given('an additional connector configuration is already created', () => {
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.contains('Central').click();
-  cy.get('[id="vCenternamevalue"]').clear().type('vCenter-001');
-  cy.get('[id="URLvalue"]').clear().type('https://10.0.0.0/sdk');
-  cy.get('[id="Usernamevalue"]').type('admin');
-  cy.get('[id="Passwordvalue"]').type('Abcde!2021');
-  cy.get('[id="Portvalue"]').should('have.value', '5700');
+  cy.get('#vCenternamevalue').clear().type('vCenter-001');
+  cy.get('#URLvalue').clear().type('https://10.0.0.0/sdk');
+  cy.get('#Usernamevalue').type('admin');
+  cy.get('#Passwordvalue').type('Abcde!2021');
+  cy.get('#Portvalue').should('have.value', '5700');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
   cy.wait('@addAdditionalConnector');
   cy.get('*[role="rowgroup"]')
@@ -73,12 +73,12 @@ Then('all of the informations of the additional connector configuration are corr
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('have.value', 'Connector-001');
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('be.empty');
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
-  cy.get('*[class="MuiChip-label MuiChip-labelMedium css-14vsv3w"]').should('contain', 'Central');
-  cy.get('[id="vCenternamevalue"]').should('have.value', 'vCenter-001');
-  cy.get('[id="URLvalue"]').should('have.value', 'https://10.0.0.0/sdk');
-  cy.get('[id="Usernamevalue"]').should('be.empty');
-  cy.get('[id="Passwordvalue"]').should('be.empty');
-  cy.get('[id="Portvalue"]').should('have.value', '5700');
+  cy.get('*[class^="MuiChip-label MuiChip-labelMedium"]').should('contain', 'Central');
+  cy.get('#vCenternamevalue').should('have.value', 'vCenter-001');
+  cy.get('#URLvalue').should('have.value', 'https://10.0.0.0/sdk');
+  cy.get('#Usernamevalue').should('be.empty');
+  cy.get('#Passwordvalue').should('be.empty');
+  cy.get('#Portvalue').should('have.value', '5700');
 });
 
 When('the user updates some information', () => {
@@ -88,11 +88,11 @@ When('the user updates some information', () => {
   cy.getByTestId({ testId: 'CancelIcon' }).click();
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click().click();
   cy.contains('Poller-1').click();
-  cy.get('[id="vCenternamevalue"]').clear().type('vCenter-002');
-  cy.get('[id="URLvalue"]').clear().type('https://10.3.3.3/sdk');
-  cy.get('[id="Usernamevalue"]').type('admin');
-  cy.get('[id="Passwordvalue"]').type('Abcde!2022');
-  cy.get('[id="Portvalue"]').clear().click().type('6900');
+  cy.get('#vCenternamevalue').clear().type('vCenter-002');
+  cy.get('#URLvalue').clear().type('https://10.3.3.3/sdk');
+  cy.get('#Usernamevalue').type('admin');
+  cy.get('#Passwordvalue').type('Abcde!2022');
+  cy.get('#Portvalue').clear().click().type('6900');
 });
 
 When('the user clicks on Update', () => {
@@ -111,10 +111,10 @@ Then('the informations are successfully saved', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('have.value', 'Connector-002');
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('be.empty');
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
-  cy.get('*[class="MuiChip-label MuiChip-labelMedium css-14vsv3w"]').should('contain', 'Poller-1');
-  cy.get('[id="vCenternamevalue"]').should('have.value', 'vCenter-002');
-  cy.get('[id="URLvalue"]').should('have.value', 'https://10.3.3.3/sdk');
-  cy.get('[id="Usernamevalue"]').should('be.empty');
-  cy.get('[id="Passwordvalue"]').should('be.empty');
-  cy.get('[id="Portvalue"]').should('have.value', '6900');
+  cy.get('*[class^="MuiChip-label MuiChip-labelMedium"]').should('contain', 'Poller-1');
+  cy.get('#vCenternamevalue').should('have.value', 'vCenter-002');
+  cy.get('#URLvalue').should('have.value', 'https://10.3.3.3/sdk');
+  cy.get('#Usernamevalue').should('be.empty');
+  cy.get('#Passwordvalue').should('be.empty');
+  cy.get('#Portvalue').should('have.value', '6900');
 });

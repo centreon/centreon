@@ -10,7 +10,6 @@ Feature: Create a new Additional Connector Configuration
     When the user fills in all the informations
     And the user clicks on Create
     Then the first connector is displayed in the Specific Connector Configuration page
-#    And the parameters should be saved in vault
 
   Scenario: Add an additional connector configuration with mandatory informations
     Given a non-admin user is in the Specific Connector Configuration page
@@ -19,7 +18,6 @@ Feature: Create a new Additional Connector Configuration
     When the user fills in the mandatory informations
     And the user clicks on Create
     Then the second configuration is displayed in the Specific Connector Configuration page
-#    And the parameters should be saved in vault
 
   Scenario: Add an additional connector configuration with multiple parameter groups
     Given a non-admin user is in the Specific Connector Configuration page
@@ -30,7 +28,6 @@ Feature: Create a new Additional Connector Configuration
     When the user fills in the informations of all the parameter groups
     And the user clicks on Create
     Then the third configuration is displayed in the Specific Connector Configuration page
-#    And the parameters should be saved in vault
 
   Scenario: Add an additional connector configuration with missing informations
     Given a non-admin user is in the Specific Connector Configuration page

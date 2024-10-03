@@ -9,7 +9,6 @@ Feature: Delete an Additional Connector Configuration
     When the user deletes the additional connector configuration
     And the user confirms on the pop-up
     Then the additional connector configuration is no longer displayed in the listing page
-#    And its parameters should no longer be saved in vault
 
   Scenario: Cancel a deletion pop-up
     Given a non-admin user is in the Specific Connector Configuration page
@@ -17,4 +16,3 @@ Feature: Delete an Additional Connector Configuration
     When the user deletes the additional connector configuration
     And the user cancel on the pop-up
     Then the additional connector configuration is still displayed in the listing page
-#    And its parameters should no longer be saved in vault

@@ -66,7 +66,7 @@ When('the admin user fills in all the informations', () => {
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Abcde!2021');
-  cy.get('[id="Portvalue"]').should('have.value', '5700');
+  cy.get('#Portvalue').should('have.value', '5700');
 });
 
 When('the admin user clicks on Save', () => {
@@ -98,12 +98,12 @@ Then('a pop up is displayed with all of the additional connector information', (
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('have.value', 'Connector-001');
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('have.value', "I'm the first connector created");
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
-  cy.get('*[class="MuiChip-label MuiChip-labelMedium css-14vsv3w"]').should('contain', 'Central');
+  cy.get('*[class^="MuiChip-label MuiChip-labelMedium"]').should('contain', 'Central');
   cy.getByTestId({ testId: 'vCenter name_value' }).eq(1).should('have.value', 'vCenter-001');
   cy.getByTestId({ testId: 'URL_value' }).eq(1).should('have.value', 'https://10.0.0.0/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(1).should('be.empty');
   cy.getByTestId({ testId: 'Password_value' }).eq(1).should('be.empty');
-  cy.get('[id="Portvalue"]').should('have.value', '5700');
+  cy.get('#Portvalue').should('have.value', '5700');
 });
 
 When('the user modifies the configuration', () => {
@@ -117,7 +117,7 @@ When('the user modifies the configuration', () => {
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.3.3.3/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Abcde!2022');
-  cy.get('[id="Portvalue"]').clear().click().type('6900');
+  cy.get('#Portvalue').clear().click().type('6900');
 });
 
 When('the user clicks on Save', () => {
@@ -181,7 +181,7 @@ Given('an Additional Connector Configuration already created linked with two pol
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Abcde!2021');
-  cy.get('[id="Portvalue"]').should('have.value', '5700');
+  cy.get('#Portvalue').should('have.value', '5700');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
   cy.wait('@addAdditionalConnector');
   cy.get('*[role="rowgroup"]')
@@ -245,12 +245,12 @@ When('a pop up is displayed with all of the additional connector information wit
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('have.value', 'Connector-001');
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('be.empty');
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
-  cy.get('*[class="MuiChip-label MuiChip-labelMedium css-14vsv3w"]').should('contain', 'Poller-1', 'Poller-2');
+  cy.get('*[class^="MuiChip-label MuiChip-labelMedium"]').should('contain', 'Poller-1', 'Poller-2');
   cy.getByTestId({ testId: 'vCenter name_value' }).eq(1).should('have.value', 'vCenter-001');
   cy.getByTestId({ testId: 'URL_value' }).eq(1).should('have.value', 'https://10.0.0.0/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(1).should('be.empty');
   cy.getByTestId({ testId: 'Password_value' }).eq(1).should('be.empty');
-  cy.get('[id="Portvalue"]').should('have.value', '5700');
+  cy.get('#Portvalue').should('have.value', '5700');
 });
 
 Then('the user can update the additional connector configuration', () => {
@@ -289,7 +289,7 @@ When('the non-admin user fills in all the informations', () => {
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.1.1.1/sdk');
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Abcde!2021');
-  cy.get('[id="Portvalue"]').should('have.value', '5700');
+  cy.get('#Portvalue').should('have.value', '5700');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
 });
 

@@ -68,11 +68,11 @@ Given('an already existing additional connector configuration', () => {
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.contains('Central').click();
-  cy.get('[id="vCenternamevalue"]').clear().type('vCenter-001');
-  cy.get('[id="URLvalue"]').clear().type('https://10.0.0.0/sdk');
-  cy.get('[id="Usernamevalue"]').type('admin');
-  cy.get('[id="Passwordvalue"]').type('Abcde!2021');
-  cy.get('[id="Portvalue"]').should('have.value', '5700');
+  cy.get('#vCenternamevalue').clear().type('vCenter-001');
+  cy.get('#URLvalue').clear().type('https://10.0.0.0/sdk');
+  cy.get('#Usernamevalue').type('admin');
+  cy.get('#Passwordvalue').type('Abcde!2021');
+  cy.get('#Portvalue').should('have.value', '5700');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
   cy.wait('@addAdditionalConnector');
   cy.get('*[role="rowgroup"]')
@@ -89,10 +89,10 @@ Then('a pop up is displayed with all of the additional connector informations', 
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('have.value', 'Connector-001');
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('be.empty');
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
-  cy.get('*[class="MuiChip-label MuiChip-labelMedium css-14vsv3w"]').should('contain', 'Central');
-  cy.get('[id="vCenternamevalue"]').should('have.value', 'vCenter-001');
-  cy.get('[id="URLvalue"]').should('have.value', 'https://10.0.0.0/sdk');
-  cy.get('[id="Usernamevalue"]').should('be.empty');
-  cy.get('[id="Passwordvalue"]').should('be.empty');
-  cy.get('[id="Portvalue"]').should('have.value', '5700');
+  cy.get('*[class^="MuiChip-label MuiChip-labelMedium"]').should('contain', 'Central');
+  cy.get('#vCenternamevalue').should('have.value', 'vCenter-001');
+  cy.get('#URLvalue').should('have.value', 'https://10.0.0.0/sdk');
+  cy.get('#Usernamevalue').should('be.empty');
+  cy.get('#Passwordvalue').should('be.empty');
+  cy.get('#Portvalue').should('have.value', '5700');
 });

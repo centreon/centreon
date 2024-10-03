@@ -45,11 +45,11 @@ Given('an additional connector configuration is already created', () => {
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.contains('Central').click();
-  cy.get('[id="vCenternamevalue"]').clear().type('vCenter-001');
-  cy.get('[id="URLvalue"]').clear().type('https://10.0.0.0/sdk');
-  cy.get('[id="Usernamevalue"]').type('admin');
-  cy.get('[id="Passwordvalue"]').type('Abcde!2021');
-  cy.get('[id="Portvalue"]').should('have.value', '5700');
+  cy.get('#vCenternamevalue').clear().type('vCenter-001');
+  cy.get('#URLvalue').clear().type('https://10.0.0.0/sdk');
+  cy.get('#Usernamevalue').type('admin');
+  cy.get('#Passwordvalue').type('Abcde!2021');
+  cy.get('#Portvalue').should('have.value', '5700');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
   cy.wait('@addAdditionalConnector');
 });
