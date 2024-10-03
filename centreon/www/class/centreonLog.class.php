@@ -171,7 +171,6 @@ class CentreonLog
     public const TYPE_LDAP = 3;
     public const TYPE_UPGRADE = 4;
     public const TYPE_PLUGIN_PACK_MANAGER = 5;
-
     public const TYPE_BUSINESS_LOG = 6;
 
     private const DEFAULT_LOG_FILES = [
@@ -217,29 +216,6 @@ class CentreonLog
     public static function create(array $customLogs = [], string $pathLogFile = ''): CentreonLog
     {
         return new CentreonLog($customLogs, $pathLogFile);
-    }
-
-    /**
-     * @param string $level
-     * @param string $message
-     * @param array $customContext
-     * @param Throwable|null $exception
-     *
-     * @return void
-     */
-    public static function logCentreonWeb(
-        string $level,
-        string $message,
-        array $customContext = [],
-        ?Throwable $exception = null
-    ): void {
-        CentreonLog::create()->log(
-            logTypeId: self::TYPE_BUSINESS_LOG,
-            level: $level,
-            message: $message,
-            customContext: $customContext,
-            exception: $exception
-        );
     }
 
     /**
