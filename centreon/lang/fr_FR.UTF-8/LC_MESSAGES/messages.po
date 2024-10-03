@@ -19494,3 +19494,6 @@ msgstr "heure"
 
 msgid "minute"
 msgstr "minute"
+
+msgid "See more on the {{ page }} page"
+msgstr "Voir plus dans la page {{ page }}"

@@ -17390,3 +17390,6 @@ msgstr "Erweiterter Modus"
 
 # msgid "Reporting period"
 # msgstr ""
+
+# msgid "See more on the {{ page }} page"
+# msgstr ""

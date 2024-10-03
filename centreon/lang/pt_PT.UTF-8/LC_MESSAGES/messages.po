@@ -18180,3 +18180,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Reporting period"
 # msgstr ""
+
+# msgid "See more on the {{ page }} page"
+# msgstr ""
