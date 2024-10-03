@@ -116,6 +116,7 @@ class Engine extends AbstractObject
         use_true_regexp_matching,
         enable_predictive_host_dependency_checks,
         enable_predictive_service_dependency_checks,
+        host_down_disable_service_checks,
         enable_environment_macros,
         enable_macros_filter,
         macros_filter,
@@ -217,6 +218,7 @@ class Engine extends AbstractObject
         'use_true_regexp_matching',
         'enable_predictive_host_dependency_checks',
         'enable_predictive_service_dependency_checks',
+        'host_down_disable_service_checks',
         'enable_environment_macros',
     );
     protected $attributes_array = array(
