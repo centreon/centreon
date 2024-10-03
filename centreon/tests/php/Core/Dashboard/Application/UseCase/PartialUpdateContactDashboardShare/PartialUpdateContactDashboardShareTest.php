@@ -35,12 +35,15 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
+use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\PartialUpdateContactDashboardShare\PartialUpdateContactDashboardShare;
 use Core\Dashboard\Application\UseCase\PartialUpdateContactDashboardShare\PartialUpdateContactDashboardShareRequest;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 beforeEach(closure: function (): void {
     $this->presenter = new PartialUpdateContactDashboardSharePresenterStub();
@@ -51,6 +54,8 @@ beforeEach(closure: function (): void {
         $this->contactRepository = $this->createMock(ContactRepositoryInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class),
+        $this->readContactRepository = $this->createMock(ReadContactRepositoryInterface::class),
+        $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class)
     );
 
     $this->testedDashboard = new Dashboard(
@@ -179,6 +184,14 @@ it(
             ->method('findOneByContact')->willReturn($this->testedDashboard);
         $this->contactRepository->expects($this->once())->method('findById')
             ->willReturn($this->testedContact);
+        $this->accessGroupRepository
+            ->expects($this->once())
+            ->method('findByContact')
+            ->willReturn([new AccessGroup(1, 'name', 'alias')]);
+        $this->readContactRepository
+            ->expects($this->once())
+            ->method('existInAccessGroups')
+            ->willReturn(true);
         $this->writeDashboardShareRepository->expects($this->once())->method('updateContactShare')
             ->willReturn(true);
 
