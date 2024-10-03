@@ -26,14 +26,14 @@ runs:
       id: trigger_delivery
       run: |
         TRIGGER_DELIVERY=false
-        if ! [[ ${{ inputs.has_test_changes }} == 'true' && ${{ inputs.has_frontend_changes }} == 'false' && ${{ inputs.has_backend_changes }} == 'false' ]]; then
+        if [[ ${{ inputs.has_frontend_changes }} == 'true' || ${{ inputs.has_backend_changes }} == 'true' ]]; then
           TRIGGER_DELIVERY=true
         fi
         echo "trigger_delivery=$TRIGGER_DELIVERY" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Validate API testing trigger
-      id: trigger_testing_api
+      id: trigger_api_testing
       run: |
         TRIGGER_API_TESTING=false
         if ! [[ ${{ inputs.has_frontend_changes }} == 'true' && ${{ inputs.has_backend_changes }} == 'false' && ${{ inputs.has_test_changes }} == 'false' ]]; then
