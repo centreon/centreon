@@ -1,11 +1,11 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
-  cy.startContainers();
+  // cy.startContainers();
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/acc-acl-user.json');
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/local-authentication-acl-user.json');
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
+  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
+  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
 });
 
 beforeEach(() => {
@@ -36,7 +36,7 @@ beforeEach(() => {
 });
 
 after(() => {
-  cy.stopContainers();
+  // cy.stopContainers();
 });
 
 Given('an admin user is in the Specific Connector Configuration page', () => {
@@ -277,7 +277,8 @@ When('the user adds a second additional connector configuration', () => {
 
 Then('only the free filtered pollers are listed in the Pollers field', () => {
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
-  cy.contains('Poller-1');
+  cy.get('[role="option"]').should('have.length', 1);
+  cy.contains('Poller-1').should('be.visible');
 });
 
 When('the non-admin user fills in all the informations', () => {

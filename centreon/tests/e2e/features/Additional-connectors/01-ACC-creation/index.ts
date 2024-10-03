@@ -1,11 +1,11 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
-  cy.startContainers();
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/acc-acl-user.json');
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-3.json'); 
+  // cy.startContainers();
+  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/acc-acl-user.json');
+  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
+  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
+  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-3.json'); 
 });
 
 beforeEach(() => {
@@ -24,7 +24,7 @@ beforeEach(() => {
 });
 
 after(() => {
-  cy.stopContainers();
+  // cy.stopContainers();
 });
 
 Given('a non-admin user is in the Specific Connector Configuration page', () => {
@@ -47,7 +47,7 @@ Then('a pop-up menu with the form is displayed', () => {
 When('the user fills in all the informations', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('Connector-001');
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).type("I'm the first connector created");
-  cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
+  cy.get('#mui-component-select-type').should('contain', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.contains('Central').click();
   cy.get('#Usernamevalue').type('admin');
@@ -69,7 +69,7 @@ Then('the first connector is displayed in the Specific Connector Configuration p
 
 When('the user fills in the mandatory informations', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('Connector-002');
-  cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
+  cy.get('#mui-component-select-type').should('contain', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.contains('Poller-1').click();
   cy.get('#Usernamevalue').type('admin');
@@ -103,17 +103,17 @@ Then('a second group of parameters is displayed', () => {
 When('the user fills in the informations of all the parameter groups', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('Connector-003');
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).type("I have multiple parameters groups");
-  cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
+  cy.get('#mui-component-select-type').should('contain', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.contains('Poller-2').click();
   cy.get('#Usernamevalue').eq(0).type('admin');
   cy.get('#Passwordvalue').eq(0).type('Abcde!2021');  
   cy.get('#vCenternamevalue').eq(0).clear().type('vCenter-001');
   cy.get('#URLvalue').eq(0).clear().type('https://10.0.0.0/sdk');
-  cy.get('#Usernamevalue').eq(1).type('admin-2');
-  cy.get('#Passwordvalue').eq(1).type('Abcde!2022');
-  cy.get('#vCenternamevalue').eq(1).clear().type('vCenter-002');
-  cy.get('#URLvalue').eq(1).clear().type('https://10.0.0.1/sdk');
+  cy.getByTestId({ testId: 'Username_value' }).eq(3).type('admin-2');
+  cy.getByTestId({ testId: 'Password_value' }).eq(3).type('Abcde!2022');
+  cy.getByTestId({ testId: 'vCenter name_value' }).eq(3).clear().type('vCenter-002');
+  cy.getByTestId({ testId: 'URL_value' }).eq(3).clear().type('https://10.0.0.1/sdk');
   cy.get('#Portvalue').should('have.value', '5700');
 });
 
@@ -159,7 +159,7 @@ Then('the form displayed an error', () => {
 
 When('the user fills in the needed informations', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('Connector-004');
-  cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
+  cy.get('#mui-component-select-type').should('contain', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.contains('Poller-3').click();
   cy.get('#Usernamevalue').type('admin');
