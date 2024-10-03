@@ -1,4 +1,5 @@
 import { PrimitiveAtom } from 'jotai';
+import { ReactElement } from 'react';
 import { JsonDecoder } from 'ts.data.json';
 import { Column, ListingModel, SearchParameter } from '../../..';
 import { ListingSubItems } from '../../Listing/models';
@@ -41,6 +42,24 @@ export interface UseGetItemsState<TData> {
   total: number;
 }
 
+export interface DeleteItem<TData> {
+  enabled: boolean;
+  deleteEndpoint: (item: TData) => string;
+  labels: {
+    successMessage:
+      | ((item: TData) => string | ReactElement)
+      | string
+      | ReactElement;
+    title: ((item: TData) => string | ReactElement) | string | ReactElement;
+    description:
+      | ((item: TData) => string | ReactElement)
+      | string
+      | ReactElement;
+    cancel: string;
+    confirm: string;
+  };
+}
+
 export interface ListingProps<TData> {
   rows: Array<TData>;
   total: number;
@@ -50,8 +69,15 @@ export interface ListingProps<TData> {
   filters: JSX.Element;
 }
 
+export interface ItemToDelete {
+  id: number;
+  name: string;
+  parent?: { id: number; name: string };
+}
+
 export interface CrudPageRootProps<TData, TFilters>
   extends UseGetItemsProps<TData, TFilters>,
     ListingProps<TData> {
   labels: CrudPageRootLabels;
+  deleteItem: DeleteItem<TData>;
 }

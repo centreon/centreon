@@ -1,16 +1,19 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { ColumnType } from '../../../';
 import { MemoizedListing } from '../../Listing';
 import Actions from './Actions/Actions';
 import {
   changeSortAtom,
+  isDeleteEnabledAtom,
   limitAtom,
   pageAtom,
   sortFieldAtom,
   sortOrderAtom
 } from './atoms';
+import ColumnActions from './Columns/Actions';
 import { ListingProps } from './models';
 
-const Listing = <TData,>({
+const Listing = <TData extends { id: number; name: string }>({
   rows,
   total,
   isLoading,
@@ -28,12 +31,24 @@ const Listing = <TData,>({
   const [limit, setLimit] = useAtom(limitAtom);
   const sortOrder = useAtomValue(sortOrderAtom);
   const sortField = useAtomValue(sortFieldAtom);
+  const isDeleteEnabled = useAtomValue(isDeleteEnabledAtom);
   const changeSort = useSetAtom(changeSortAtom);
+
+  const listingColumns = isDeleteEnabled
+    ? columns.concat({
+        type: ColumnType.component,
+        id: 'actions',
+        label: '',
+        Component: ColumnActions,
+        width: 'min-content',
+        clickable: true
+      })
+    : columns;
 
   return (
     <MemoizedListing
       actions={<Actions labels={labels} filters={filters} />}
-      columns={columns}
+      columns={listingColumns}
       subItems={subItems}
       loading={isLoading}
       rows={rows}

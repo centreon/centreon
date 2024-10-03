@@ -1,10 +1,11 @@
-import { FormControlLabel, Switch } from '@mui/material';
+import { FormControlLabel, Switch, Typography } from '@mui/material';
 import { Meta, StoryObj } from '@storybook/react';
 import { atom, useAtom } from 'jotai';
 import { http, HttpResponse } from 'msw';
-import { prop } from 'ramda';
+import { isNil, prop } from 'ramda';
 import { ChangeEvent } from 'react';
 import { CrudPage } from '.';
+import { SnackbarProvider } from '../../';
 import { Column, ColumnType } from '../../Listing/models';
 
 interface Item {
@@ -128,7 +129,33 @@ const args = {
   getSearchParameters,
   labels,
   columns,
-  filters: <Filters />
+  filters: <Filters />,
+  deleteItem: {
+    enabled: true,
+    deleteEndpoint: (item) =>
+      !isNil(item?.parent)
+        ? `/delete/${item?.parent?.id}/subItems/${item?.id}`
+        : `/delete/${item?.id}`,
+    labels: {
+      successMessage: (item) =>
+        !isNil(item?.parent) ? 'Sub item deleted' : 'Item deleted',
+      confirm: 'Delete',
+      cancel: 'Cancel',
+      title: (item) =>
+        !isNil(item?.parent) ? 'Delete sub item' : 'Delete item',
+      description: (item) =>
+        !isNil(item?.parent) ? (
+          <Typography>
+            The sub item <strong>{item?.name}</strong> from the item{' '}
+            <strong>{item?.parent?.name}</strong> will be deleted
+          </Typography>
+        ) : (
+          <Typography>
+            The item <strong>{item?.name}</strong> will be deleted
+          </Typography>
+        )
+    }
+  }
 };
 
 const meta: Meta<typeof CrudPage<Item, Filters>> = {
@@ -139,15 +166,20 @@ const meta: Meta<typeof CrudPage<Item, Filters>> = {
       handlers: [
         http.get('**/listing**', () => {
           return HttpResponse.json(mockedListing);
+        }),
+        http.delete('**/delete**', () => {
+          return HttpResponse.json({});
         })
       ]
     }
   },
   render: (args) => {
     return (
-      <div style={{ height: '90vh' }}>
-        <CrudPage<Item, Filters> {...args} />
-      </div>
+      <SnackbarProvider>
+        <div style={{ height: '90vh' }}>
+          <CrudPage<Item, Filters> {...args} />
+        </div>
+      </SnackbarProvider>
     );
   }
 };

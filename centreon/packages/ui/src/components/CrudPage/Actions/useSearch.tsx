@@ -4,7 +4,7 @@ import { searchAtom } from '../atoms';
 
 interface UseSearchState {
   search: string;
-  change: (event: ChangeEvent) => void;
+  change: (event: ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const useSearch = (): UseSearchState => {
@@ -12,7 +12,7 @@ export const useSearch = (): UseSearchState => {
 
   const [search, setSearch] = useAtom(searchAtom);
 
-  const change = useCallback((event: ChangeEvent): void => {
+  const change = useCallback((event: ChangeEvent<HTMLInputElement>): void => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
