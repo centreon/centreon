@@ -19482,3 +19482,15 @@ msgstr "Chronologie de statut d'une activité métier"
 
 msgid "Reporting period"
 msgstr "Période de rapport"
+
+msgid "year"
+msgstr "année"
+
+msgid "month"
+msgstr "mois"
+
+msgid "hour"
+msgstr "heure"
+
+msgid "minute"
+msgstr "minute"
