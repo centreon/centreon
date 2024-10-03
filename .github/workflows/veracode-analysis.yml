@@ -71,7 +71,7 @@ jobs:
             DEVELOPMENT_STAGE="Development"
             DISPLAY_SUMMARY="false"
           else
-            # e.g. all other pull-request
+            # e.g. all the other pull-requests
             FAIL_BUILD="$ENABLE_QG"
             DEVELOPMENT_STAGE="Development"
             DISPLAY_SUMMARY="$ENABLE_QG"
