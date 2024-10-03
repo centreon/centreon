@@ -98,7 +98,10 @@ final class PartialUpdateDashboardRequest
             new Assert\Collection(
                 fields: [
                     'id' => new Assert\Optional([
-                        new Assert\Type('numeric'),
+                        new Assert\When(
+                            expression: 'value !== "null"',
+                            constraints: [new Assert\Type('numeric'), new Assert\Positive()]
+                        ),
                     ]),
                     'name' => [
                         new Assert\NotNull(),
@@ -122,8 +125,7 @@ final class PartialUpdateDashboardRequest
                                 new Assert\NotNull(),
                                 new Assert\Type('numeric'),
                             ],
-                            'min_width' => [
-                                new Assert\NotNull(),
+                            'min_width' => [ new Assert\NotNull(),
                                 new Assert\Type('numeric'),
                             ],
                             'min_height' => [
