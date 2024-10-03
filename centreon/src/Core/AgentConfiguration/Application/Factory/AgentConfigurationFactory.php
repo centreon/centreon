@@ -25,13 +25,11 @@ namespace Core\AgentConfiguration\Application\Factory;
 
 use Assert\AssertionFailedException;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
+use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\NewAgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\Type;
 
-/**
- * @phpstan-import-type _TelegrafParameters from TelegrafConfigurationParameters
- */
 class AgentConfigurationFactory
 {
     /**
@@ -54,7 +52,7 @@ class AgentConfigurationFactory
             type: $type,
             configuration: match ($type) {
                 Type::TELEGRAF => new TelegrafConfigurationParameters($parameters),
-                default => throw new \Exception('This error should never happen')
+                Type::CMA => new CmaConfigurationParameters($parameters)
             }
         );
     }
@@ -80,9 +78,9 @@ class AgentConfigurationFactory
             id: $id,
             name: $name,
             type: $type,
-            configuration: match ($type->value) {
-                Type::TELEGRAF->value => new TelegrafConfigurationParameters($parameters),
-                default => throw new \Exception('This error should never happen')
+            configuration: match ($type) {
+                Type::TELEGRAF => new TelegrafConfigurationParameters($parameters),
+                Type::CMA => new CmaConfigurationParameters($parameters)
             }
         );
     }

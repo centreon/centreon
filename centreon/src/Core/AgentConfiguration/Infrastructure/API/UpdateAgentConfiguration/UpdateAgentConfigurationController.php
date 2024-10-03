@@ -81,6 +81,7 @@ final class UpdateAgentConfigurationController extends AbstractController
 
         $schemaFile = match ($data['type']) {
             'telegraf' => 'TelegrafConfigurationSchema.json',
+            'centreon-agent' => 'CmaConfigurationSchema.json',
             default => throw new \InvalidArgumentException(sprintf("Unknown parameter type with value '%s'", $data['type']))
         };
 
