@@ -408,6 +408,48 @@ class CentreonStatistics
     }
 
     /**
+     * Get poller/agent configuration data.
+     *
+     * @return array
+     */
+    public function getAgentConfigurationData(): array
+    {
+        $data = ['total' => 0];
+
+        $statement = $this->dbConfig->executeQuery(
+            <<<'SQL'
+                SELECT count(id)
+                FROM agent_configuration ac
+                SQL
+        );
+
+        $total = $statement->fetchColumn();
+
+        if ($total === false) {
+            return $data;
+        }
+
+        $data['total'] = $total;
+
+        $statement = $this->dbConfig->executeQuery(
+            <<<'SQL'
+                SELECT type, count(id) as nb_ac_per_type, count(rel.poller_id) as nb_poller_per_type
+                FROM agent_configuration ac
+                JOIN ac_poller_relation rel
+                    ON ac.id = rel.ac_id
+                GROUP BY type
+                SQL
+        );
+
+        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $row) {
+            $data[$row['type']]['configuration'] = $row['nb_ac_per_type'];
+            $data[$row['type']]['pollers'] = $row['nb_poller_per_type'];
+        }
+
+        return $data;
+    }
+
+    /**
      * @return array{
      *     total: int,
      *     avg_hg_notification?: float,
