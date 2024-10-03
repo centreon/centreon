@@ -173,8 +173,6 @@ class CentreonLog
     public const TYPE_PLUGIN_PACK_MANAGER = 5;
     public const TYPE_BUSINESS_LOG = 6;
 
-    public const TYPE_BUSINESS_LOG = 6;
-
     private const DEFAULT_LOG_FILES = [
         self::TYPE_LOGIN => 'login.log',
         self::TYPE_SQL => 'sql-error.log',
