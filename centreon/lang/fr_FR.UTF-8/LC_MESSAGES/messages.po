@@ -19578,3 +19578,6 @@ msgstr "Le nom de fichier '%s' (%s) est invalide"
 
 msgid "Poller ID #%d is the only one linked to poller/agent configuration ID #%d"
 msgstr "L'ID de collecteur #%d est le seul lié à l'ID de configuration collecteur/agent #%d"
+
+msgid "Error while retrieving multiple poller/agent configurations"
+msgstr "Erreur durant la récupération de multiple configurations collecteur/agent"

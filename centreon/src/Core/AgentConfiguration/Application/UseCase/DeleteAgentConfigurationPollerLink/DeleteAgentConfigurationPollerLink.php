@@ -59,7 +59,7 @@ final class DeleteAgentConfigurationPollerLink
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW)) {
                 $this->error(
-                    "User doesn't have sufficient rights to access agent configurations",
+                    "User doesn't have sufficient rights to access poller/agent configurations",
                     ['user_id' => $this->user->getId()]
                 );
                 $presenter->setResponseStatus(
@@ -70,7 +70,7 @@ final class DeleteAgentConfigurationPollerLink
             }
 
             if (null === $this->readAcRepository->find($acId)) {
-                $presenter->setResponseStatus(new NotFoundResponse('Agent Configuration'));
+                $presenter->setResponseStatus(new NotFoundResponse('Poller/agent Configuration'));
 
                 return;
             }

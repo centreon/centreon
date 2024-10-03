@@ -65,7 +65,7 @@ final class UpdateAgentConfiguration
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW)) {
                 $this->error(
-                    "User doesn't have sufficient rights to access agent configurations",
+                    "User doesn't have sufficient rights to access poller/agent configurations",
                     ['user_id' => $this->user->getId()]
                 );
                 $presenter->setResponseStatus(
@@ -77,7 +77,7 @@ final class UpdateAgentConfiguration
 
             if (null === $agentConfiguration = $this->getAgentConfiguration($request->id)) {
                 $presenter->setResponseStatus(
-                    new NotFoundResponse('Agent Configuration')
+                    new NotFoundResponse('Poller/agent Configuration')
                 );
 
                 return;

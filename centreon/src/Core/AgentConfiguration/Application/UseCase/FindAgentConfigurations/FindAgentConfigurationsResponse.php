@@ -21,26 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\AgentConfiguration\Domain\Model;
+namespace Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations;
 
-/**
- * @immutable
- */
-class Poller
+final class FindAgentConfigurationsResponse
 {
-    public function __construct(
-        public readonly int $id,
-        public readonly string $name,
-    ) {
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
+    /** @var AgentConfigurationDto[] */
+    public array $agentConfigurations = [];
 }

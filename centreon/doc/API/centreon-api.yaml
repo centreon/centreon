@@ -257,7 +257,7 @@ paths:
   /configuration/additional-connector-configurations/pollers/{type}:
     $ref: "./latest/onPremise/Configuration/AdditionalConnectorConfiguration/FindPollers.yaml"
   /configuration/agent-configurations:
-    $ref: "./latest/onPremise/Configuration/AgentConfiguration/AddAc.yaml"
+    $ref: "./latest/onPremise/Configuration/AgentConfiguration/AddOrFindAc.yaml"
   /configuration/agent-configurations/{ac_id}:
     $ref: "./latest/onPremise/Configuration/AgentConfiguration/DeleteAndUpdateAc.yaml"
   /configuration/agent-configurations/{ac_id}/pollers/{poller_id}:

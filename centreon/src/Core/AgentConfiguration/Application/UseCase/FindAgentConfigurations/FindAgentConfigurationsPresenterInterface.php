@@ -21,26 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\AgentConfiguration\Domain\Model;
+namespace Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations;
 
-/**
- * @immutable
- */
-class Poller
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+interface FindAgentConfigurationsPresenterInterface
 {
-    public function __construct(
-        public readonly int $id,
-        public readonly string $name,
-    ) {
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
+    public function presentResponse(FindAgentConfigurationsResponse|ResponseStatusInterface $data): void;
 }

@@ -110,7 +110,7 @@ it('should present a NotFoundResponse when the object does not exist', function 
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(NotFoundResponse::class)
         ->and($this->presenter->getResponseStatus()->getMessage())
-        ->toBe('Agent Configuration not found');
+        ->toBe('Poller/agent Configuration not found');
 });
 
 it('should present an ErrorResponse when the poller is the only one linked to the object', function (): void {

@@ -106,7 +106,7 @@ it('should present a NotFoundResponse when the host template does not exist', fu
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(NotFoundResponse::class)
         ->and($this->presenter->getResponseStatus()->getMessage())
-        ->toBe('Agent Configuration not found');
+        ->toBe('Poller/agent Configuration not found');
 });
 
 it('should present a NoContentResponse on success', function (): void {
