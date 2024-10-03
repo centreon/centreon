@@ -91,34 +91,52 @@ const emptyListData = {
 };
 
 const linuxServersHostGroup = {
+  formattedName: 'Linux-servers',
   id: 0,
   name: 'Linux-servers'
 };
 
 const webAccessServiceGroup = {
+  formattedName: 'Web-access',
   id: 0,
   name: 'Web-access'
 };
+
+const parameters = [
+  { name: 'search', object_type: null, type: 'text', value: '' },
+  { name: 'sort', value: [defaultSortField, defaultSortOrder] }
+];
 
 const filter = {
   criterias: [
     {
       name: 'resource_types',
-      value: [{ id: 'host', name: labelHost }]
+      object_type: null,
+      type: 'multi_select',
+      value: [{ formattedName: labelHost, id: 'host', name: labelHost }]
     },
     {
       name: 'states',
+      object_type: null,
+      type: 'multi_select',
       value: [{ id: 'acknowledged', name: labelAcknowledged }]
     },
-    { name: 'statuses', value: [{ id: 'OK', name: labelOk }] },
+    {
+      name: 'statuses',
+      object_type: null,
+      type: 'multi_select',
+      value: [{ id: 'OK', name: labelOk }]
+    },
     {
       name: 'host_groups',
       object_type: 'host_groups',
+      type: 'multi_select',
       value: [linuxServersHostGroup]
     },
     {
       name: 'service_groups',
       object_type: 'service_groups',
+      type: 'multi_select',
       value: [webAccessServiceGroup]
     },
     { name: 'search', value: 'Search me' },
@@ -126,6 +144,166 @@ const filter = {
   ],
   id: 0,
   name: 'My filter'
+};
+
+const expectedFilter = {
+  criterias: [
+    {
+      name: 'resource_types',
+      object_type: null,
+      type: 'multi_select',
+      value: [
+        {
+          id: 'host',
+          name: 'Host'
+        }
+      ]
+    },
+    {
+      name: 'states',
+      object_type: null,
+      type: 'multi_select',
+      value: []
+    },
+    {
+      name: 'statuses',
+      object_type: null,
+      type: 'multi_select',
+      value: [
+        {
+          id: 'UP',
+          name: 'Up'
+        },
+        {
+          id: 'DOWN',
+          name: 'Down'
+        }
+      ]
+    },
+    {
+      name: 'status_types',
+      object_type: null,
+      type: 'multi_select',
+      value: []
+    },
+    {
+      name: 'host_groups',
+      object_type: 'host_groups',
+      type: 'multi_select',
+      value: [
+        {
+          formattedName: 'HG',
+          id: 0,
+          name: 'HG'
+        }
+      ]
+    },
+    {
+      name: 'service_groups',
+      object_type: 'service_groups',
+      type: 'multi_select',
+      value: []
+    },
+    {
+      name: 'monitoring_servers',
+      object_type: 'monitoring_servers',
+      type: 'multi_select',
+      value: [
+        {
+          formattedName: 'Poller\\stest',
+          id: 0,
+          name: 'Poller test'
+        }
+      ]
+    },
+    {
+      name: 'host_categories',
+      object_type: 'host_categories',
+      type: 'multi_select',
+      value: []
+    },
+    {
+      name: 'service_categories',
+      object_type: 'service_categories',
+      type: 'multi_select',
+      value: []
+    },
+    {
+      name: 'host_severities',
+      object_type: 'host_severities',
+      type: 'multi_select',
+      value: []
+    },
+    {
+      name: 'host_severity_levels',
+      object_type: 'host_severity_levels',
+      type: 'multi_select',
+      value: []
+    },
+    {
+      name: 'service_severities',
+      object_type: 'service_severities',
+      type: 'multi_select',
+      value: []
+    },
+    {
+      name: 'service_severity_levels',
+      object_type: 'service_severity_levels',
+      type: 'multi_select',
+      value: []
+    },
+    {
+      name: 'parent_names',
+      object_type: 'parent_names',
+      type: 'multi_select',
+      value: [
+        {
+          formattedName: 'Server',
+          id: 0,
+          name: 'Server'
+        }
+      ]
+    },
+    {
+      name: 'names',
+      object_type: 'names',
+      type: 'multi_select',
+      value: [
+        {
+          formattedName: 'Service',
+          id: 0,
+          name: 'Service'
+        }
+      ]
+    },
+    ...parameters
+  ],
+  id: 0,
+  name: 'My filter'
+};
+
+const initializeResourcesByHost = (): void => {
+  const endpointByHostType = getListingEndpoint({
+    limit: 10,
+    resourceTypes: ['host'],
+    sort: {},
+    states: [],
+    statusTypes: [],
+    statuses: []
+  });
+  cy.interceptAPIRequest({
+    alias: 'getResourcesByHostType',
+    method: Method.GET,
+    path: endpointByHostType,
+    query: {
+      name: 'types',
+      value: '["host"]'
+    },
+    response: {
+      meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 1 },
+      result: [resourcesByHostType]
+    }
+  });
 };
 
 const FilterWithLoading = (): JSX.Element => {
@@ -156,28 +334,6 @@ before(() => {
 
 describe('Filter storage', () => {
   beforeEach(() => {
-    const endpointByHostType = getListingEndpoint({
-      limit: 10,
-      resourceTypes: ['host'],
-      sort: {},
-      states: [],
-      statusTypes: [],
-      statuses: []
-    });
-    cy.interceptAPIRequest({
-      alias: 'getResourcesByHostType',
-      method: Method.GET,
-      path: endpointByHostType,
-      query: {
-        name: 'types',
-        value: '["host"]'
-      },
-      response: {
-        meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 1 },
-        result: [resourcesByHostType]
-      }
-    });
-
     cy.interceptAPIRequest({
       alias: 'filterRequest',
       method: Method.GET,
@@ -205,6 +361,20 @@ describe('Filter storage', () => {
       }
     });
 
+    cy.interceptAPIRequest({
+      alias: 'pollers',
+      method: Method.GET,
+      path: '**/monitoring/servers?*',
+      response: emptyListData
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'resources',
+      method: Method.GET,
+      path: '**/resources*',
+      response: emptyListData
+    });
+
     cy.mount({
       Component: <FilterWithProvider />
     });
@@ -218,22 +388,24 @@ describe('Filter storage', () => {
 
     cy.findByPlaceholderText(labelSearch).clear();
     cy.findByPlaceholderText(labelSearch).type(
-      'type:host parent_name:Server name:Service host_group:HG status:up,down'
+      'type:host parent_name:Server name:Service host_group:HG monitoring_server:Poller\\stest status:up,down'
     );
 
     cy.getAllLocalStorage().should('deep.equal', {
       'http://localhost:9092': {
         MSW_COOKIE_STORE: '[]',
-        'centreon-resource-status-23.10-filter':
-          '{"criterias":[{"name":"resource_types","object_type":null,"type":"multi_select","value":[{"id":"host","name":"Host"}]},{"name":"states","object_type":null,"type":"multi_select","value":[]},{"name":"statuses","object_type":null,"type":"multi_select","value":[{"id":"UP","name":"Up"},{"id":"DOWN","name":"Down"}]},{"name":"status_types","object_type":null,"type":"multi_select","value":[]},{"name":"host_groups","object_type":"host_groups","type":"multi_select","value":[{"id":0,"name":"HG"}]},{"name":"service_groups","object_type":"service_groups","type":"multi_select","value":[]},{"name":"monitoring_servers","object_type":"monitoring_servers","type":"multi_select","value":[]},{"name":"host_categories","object_type":"host_categories","type":"multi_select","value":[]},{"name":"service_categories","object_type":"service_categories","type":"multi_select","value":[]},{"name":"host_severities","object_type":"host_severities","type":"multi_select","value":[]},{"name":"host_severity_levels","object_type":"host_severity_levels","type":"multi_select","value":[]},{"name":"service_severities","object_type":"service_severities","type":"multi_select","value":[]},{"name":"service_severity_levels","object_type":"service_severity_levels","type":"multi_select","value":[]},{"name":"parent_names","object_type":"parent_names","type":"multi_select","value":[{"id":0,"name":"Server"}]},{"name":"names","object_type":"names","type":"multi_select","value":[{"id":0,"name":"Service"}]},{"name":"search","object_type":null,"type":"text","value":""},{"name":"sort","value":["status_severity_code","desc"]}],"id":0,"name":"My filter"}'
+        'centreon-resource-status-23.10-filter': JSON.stringify(expectedFilter)
       }
     });
 
     cy.makeSnapshot();
+
+    cy.findByPlaceholderText(labelSearch).clear();
   });
 
   it('populates filter with values from localStorage if available', () => {
     cy.waitForRequest('@filterRequest');
+    initializeResourcesByHost();
 
     cy.findByLabelText(labelUnhandledAlerts).should('not.exist');
 
@@ -247,7 +419,7 @@ describe('Filter storage', () => {
     cy.findByLabelText(labelSearchOptions).click();
 
     cy.findByTestId(labelHost).click();
-    cy.waitForRequest('@getResourcesByHostType');
+
     const hostName = cy.findByText(resourcesByHostType.name);
     hostName.should('exist');
 

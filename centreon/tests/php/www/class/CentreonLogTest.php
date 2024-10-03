@@ -53,7 +53,7 @@ it('test changing the path of an existing log', function () {
         ->pushLogFileHandler(CentreonLog::TYPE_LDAP, 'ldap.log')
         ->pushLogFileHandler(CentreonLog::TYPE_UPGRADE, 'upgrade.log')
         ->pushLogFileHandler(CentreonLog::TYPE_PLUGIN_PACK_MANAGER, 'plugin.log')
-    ->pushLogFileHandler(CentreonLog::TYPE_BUSINESS_LOG, 'centreon-web.log');
+        ->pushLogFileHandler(CentreonLog::TYPE_BUSINESS_LOG, 'centreon-web.log');
     expect($loggerTest->getLogFileHandler())->toEqual(
         [
             CentreonLog::TYPE_LOGIN => '/user/test/login.log',
@@ -107,6 +107,7 @@ it('test log file handler is correct', function () {
             CentreonLog::TYPE_LDAP => __DIR__ . '/log/ldap.log',
             CentreonLog::TYPE_UPGRADE => __DIR__ . '/log/upgrade.log',
             CentreonLog::TYPE_PLUGIN_PACK_MANAGER => __DIR__ . '/log/plugin-pack-manager.log',
+            CentreonLog::TYPE_BUSINESS_LOG => __DIR__ . '/log/centreon-web.log',
             99 => __DIR__ . '/log/custom.log',
             CentreonLog::TYPE_BUSINESS_LOG => __DIR__ . '/log/centreon-web.log',
         ]
