@@ -31,7 +31,14 @@
           "name": "Service"
         }
       ],
-      "defaultValue": "host"
+      "defaultValue": "host",
+      "hiddenCondition": {
+        "target": "data",
+        "when": "data.resources",
+        "property": "resourceType",
+        "method": "includes",
+        "matches": ["business-view", "business-activity"]
+      }
     },
     "statuses": {
       "type": "checkbox",
@@ -58,10 +65,7 @@
           "name": "Undefined (Unreachable/Unknown)"
         }
       ],
-      "defaultValue": [
-        "warning",
-        "problem"
-      ]
+      "defaultValue": ["warning", "problem"]
     },
     "sortBy": {
       "type": "radio",
@@ -78,7 +82,9 @@
       ],
       "defaultValue": "status_severity_code",
       "hiddenCondition": {
+        "target": "options",
         "when": "options.viewMode",
+        "method": "equals",
         "matches": "condensed"
       }
     },
@@ -86,7 +92,9 @@
       "type": "tiles",
       "defaultValue": 100,
       "hiddenCondition": {
+        "target": "options",
         "when": "options.viewMode",
+        "method": "equals",
         "matches": "condensed"
       }
     },
@@ -101,9 +109,8 @@
       "type": "resources",
       "defaultValue": [],
       "required": false,
-      "excludedResourceTypes": [
-        "meta-service"
-      ]
+      "useAdditionalResources": true,
+      "excludedResourceTypes": ["meta-service"]
     }
   },
   "moduleName": "centreon-widget-statusgrid"

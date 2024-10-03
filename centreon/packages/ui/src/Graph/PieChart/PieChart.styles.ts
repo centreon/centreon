@@ -1,8 +1,8 @@
 import { lt } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-export const usePieStyles = makeStyles<{ svgSize: number }>()(
-  (theme, { svgSize }) => ({
+export const usePieStyles = makeStyles<{ reverse: boolean; svgSize: number }>()(
+  (theme, { reverse, svgSize }) => ({
     container: {
       alignItems: 'center',
       display: 'flex',
@@ -25,7 +25,7 @@ export const usePieStyles = makeStyles<{ svgSize: number }>()(
     svgWrapper: {
       alignItems: 'center',
       display: 'flex',
-      flexDirection: 'column',
+      flexDirection: reverse ? 'column-reverse' : 'column',
       gap: theme.spacing(1),
       justifyContent: 'center'
     },

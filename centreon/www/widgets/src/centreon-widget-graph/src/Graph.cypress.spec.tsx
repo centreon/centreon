@@ -1,4 +1,4 @@
-import { createStore, Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
@@ -6,9 +6,9 @@ import { isOnPublicPageAtom } from '@centreon/ui-context';
 import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 import { getPublicWidgetEndpoint } from '../../utils';
 
-import { Data, FormThreshold, FormTimePeriod, PanelOptions } from './models';
-import { graphEndpoint } from './api/endpoints';
 import WidgetLineChart from './LineChart';
+import { graphEndpoint } from './api/endpoints';
+import { Data, FormThreshold, FormTimePeriod, PanelOptions } from './models';
 
 const serviceMetrics: Data = {
   metrics: [
@@ -329,7 +329,7 @@ describe('Graph Widget', () => {
     cy.contains('cpu (%)').should('be.visible');
     cy.contains('cpu AVG (%)').should('be.visible');
 
-    cy.findByTestId('single-bar-1-0-40').should('have.attr', 'y');
+    cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
 
     cy.makeSnapshot();
   });
@@ -346,7 +346,7 @@ describe('Graph Widget', () => {
     cy.contains('cpu (%)').should('be.visible');
     cy.contains('cpu AVG (%)').should('be.visible');
 
-    cy.findByTestId('single-bar-1-0-40').should('have.attr', 'y');
+    cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
 
     cy.makeSnapshot();
   });
@@ -361,7 +361,7 @@ describe('Graph Widget', () => {
     cy.contains('cpu (%)').should('be.visible');
     cy.contains('cpu AVG (%)').should('be.visible');
 
-    cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'y');
+    cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
 
     cy.makeSnapshot();
   });
@@ -377,7 +377,7 @@ describe('Graph Widget', () => {
     cy.contains('cpu (%)').should('be.visible');
     cy.contains('cpu AVG (%)').should('be.visible');
 
-    cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'y');
+    cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
 
     cy.makeSnapshot();
   });

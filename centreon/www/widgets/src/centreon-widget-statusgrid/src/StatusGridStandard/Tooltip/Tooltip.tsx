@@ -2,6 +2,8 @@ import { equals } from 'ramda';
 
 import { ResourceData } from '../models';
 
+import BATooltipContent from './BATooltipContent';
+import BooleanTooltipContent from './BooleanTooltipContent';
 import HostTooltipContent from './HostTooltipContent';
 import ServiceTooltipContent from './ServiceTooltipContent';
 
@@ -11,14 +13,22 @@ interface Props {
 }
 
 export const StatusTooltip = ({ resourceType, data }: Props): JSX.Element => {
-  return equals(resourceType, 'host') ? (
-    <HostTooltipContent data={data} />
-  ) : (
-    <ServiceTooltipContent data={data} />
-  );
+  if (equals(resourceType, 'host')) {
+    return <HostTooltipContent data={data} />;
+  }
+
+  if (equals(resourceType, 'business-activity')) {
+    return <BATooltipContent data={data} />;
+  }
+
+  if (equals(resourceType, 'boolean-rule')) {
+    return <BooleanTooltipContent data={data} />;
+  }
+
+  return <ServiceTooltipContent data={data} />;
 };
 
-export default (resourceType: string) =>
+export default () =>
   ({ data }: Pick<Props, 'data'>) => (
-    <StatusTooltip data={data} resourceType={resourceType} />
+    <StatusTooltip data={data} resourceType={data?.type} />
   );

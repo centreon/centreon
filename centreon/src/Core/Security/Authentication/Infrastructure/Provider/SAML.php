@@ -122,7 +122,7 @@ class SAML implements ProviderAuthenticationInterface
         $errors = $auth->getErrors();
         if (! empty($errors)) {
             $ex = ProcessAuthenticationResponseException::create();
-            $this->loginLogger->error(Provider::SAML, $ex->getMessage(), ['context' => (string) json_encode($errors)]);
+            $this->loginLogger->error(Provider::SAML, $ex->getMessage(), ['context' => (string) json_encode($errors), 'error' => $this->auth->getLastErrorReason()]);
 
             throw $ex;
         }
@@ -449,13 +449,11 @@ class SAML implements ProviderAuthenticationInterface
             $requestID = null;
         }
 
-        $auth->processSLO(true, $requestID);
+        $auth->processSLO(true, $requestID, false, null, true);
 
         // Avoid 'Open Redirect' attacks
         if (isset($_GET['RelayState']) && Utils::getSelfURL() !== $_GET['RelayState']) {
             $auth->redirectTo($_GET['RelayState']);
-
-            exit;
         }
     }
 

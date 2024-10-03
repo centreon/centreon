@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-import { dec, equals, isEmpty } from 'ramda';
 import dayjs from 'dayjs';
+import { dec, equals, isEmpty } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
   Box,
@@ -12,16 +12,16 @@ import {
 
 import { SeverityCode, useLocaleDateTimeFormat } from '@centreon/ui';
 
-import { ResourceData } from '../models';
 import { useHostTooltipContentStyles } from '../StatusGrid.styles';
-import { getColor } from '../utils';
+import { ResourceData } from '../models';
 import {
   labelAllServicesAreWorkingFine,
   labelServiceName
 } from '../translatedLabels';
+import { getColor } from '../utils';
 
-import { useHostTooltipContent } from './useHostTooltipContent';
 import States from './States';
+import { useHostTooltipContent } from './useHostTooltipContent';
 
 interface Props {
   data: ResourceData;
@@ -99,7 +99,7 @@ const HostTooltipContent = ({ data }: Props): JSX.Element => {
           )}
           {isLoading && <CircularProgress size={24} />}
         </Box>
-        <Divider variant="middle" />
+        <Divider variant="fullWidth" />
         <Typography
           className={classes.dateContainer}
           color="text.secondary"

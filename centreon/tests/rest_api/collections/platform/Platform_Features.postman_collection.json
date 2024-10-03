@@ -1,0 +1,114 @@
+{
+	"info": {
+		"_postman_id": "31e81819-df9b-4488-9e92-c448cc665b84",
+		"name": "Platform_Features",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16182525",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-31e81819-df9b-4488-9e92-c448cc665b84?action=share&source=collection_link&creator=16182525"
+	},
+	"item": [
+		{
+			"name": "Get platform features (successful)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"pm.test(\"The platform versions has been successfully listed.\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"\r",
+							"    pm.expect(responseJson.is_cloud_platform).to.eql(false);\r",
+							"    pm.expect(responseJson.feature_flags).to.eql({\r",
+							"        \"notification\": false,\r",
+							"        \"map_visx_viewer\": false,\r",
+							"        \"vault\": false,\r",
+							"        \"vault_broker\": false,\r",
+							"        \"vault_gorgone\": false,\r",
+							"        \"ad_exclusion_periods\": false,\r",
+							"        \"resource_access_management\": false,\r",
+							"        \"resources_table_widget_open_tickets\": false,\r",
+							"    });\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableCookies": true,
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/platform/features",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"platform",
+						"features"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "{{token}}",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "X-AUTH-TOKEN",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

@@ -25,6 +25,7 @@ namespace Core\Resources\Application\UseCase\FindResourcesByParent;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -32,7 +33,7 @@ use Core\Resources\Application\Exception\ResourceException;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Resources\Application\UseCase\FindResources\FindResourcesFactory;
 use Core\Resources\Application\UseCase\FindResources\FindResourcesResponse;
-use Core\Resources\Application\UseCase\FindResources\Response\ResourceResponseDto;
+use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -52,12 +53,14 @@ final class FindResourcesByParent
      * @param ContactInterface $contact
      * @param RequestParametersInterface $requestParameters
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
+     * @param \Traversable<ExtraDataProviderInterface> $extraDataProviders
      */
     public function __construct(
         private readonly ReadResourceRepositoryInterface $repository,
         private readonly ContactInterface $contact,
         private readonly RequestParametersInterface $requestParameters,
-        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
+        private readonly \Traversable $extraDataProviders
     ) {
     }
 
@@ -85,43 +88,55 @@ final class FindResourcesByParent
 
             $this->requestParameters->setSort(json_encode($servicesSort) ?: '');
 
+            $resources = [];
+            $parentResources = [];
+
             if ($this->contact->isAdmin()) {
-                $children = $this->findResourcesAsAdmin($filter);
+                $resources = $this->findResourcesAsAdmin($filter);
                 // Save total children found
                 $totalChildrenFound = $this->requestParameters->getTotal();
 
-                if (count($children->resources) !== 0) {
+                if ($resources !== []) {
                     // prepare special ResourceFilter for parent search
-                    $parentFilter->setHostIds($this->extractParentIdsFromResources($children));
+                    $parentFilter->setHostIds($this->extractParentIdsFromResources($resources));
 
                     // unset search provided in order to find parents linked to the resources found and restore sort
                     $this->prepareRequestParametersForParentSearch();
-                    $parents = $this->findParentResources($parentFilter);
+                    $parentResources = $this->findParentResources($parentFilter);
                 }
             } else {
-                $children = $this->findResourcesAsUser($filter);
+                $resources = $this->findResourcesAsUser($filter);
 
                 // Save total children found
                 $totalChildrenFound = $this->requestParameters->getTotal();
 
-                if (count($children->resources) !== 0) {
+                if ($resources !== []) {
                     // prepare special ResourceFilter for parent search
-                    $parentFilter->setHostIds($this->extractParentIdsFromResources($children));
+                    $parentFilter->setHostIds($this->extractParentIdsFromResources($resources));
 
                     // unset search provided in order to find parents linked to the resources found and restore sort
                     $this->prepareRequestParametersForParentSearch();
-                    $parents = $this->findParentResources($parentFilter);
+                    $parentResources = $this->findParentResources($parentFilter);
                 }
             }
 
-            // Set total to the number of children found 
+            // Only get extra data for services
+            $extraData = [];
+            foreach (iterator_to_array($this->extraDataProviders) as $provider) {
+                $extraData[$provider->getExtraDataSourceName()] = $provider->getExtraDataForResources($filter, $resources);
+            }
+
+            // Set total to the number of children found
             $this->requestParameters->setTotal($totalChildrenFound);
 
             // Restore search and sort from initial request (for accurate meta in presenter).
             $this->restoreProvidedSearchParameters();
 
+            $children = FindResourcesFactory::createResponse($resources);
+            $parents = FindResourcesFactory::createResponse($parentResources);
+
             $presenter->presentResponse(
-                FindResourcesByParentFactory::createResponse($parents->resources, $children->resources)
+                FindResourcesByParentFactory::createResponse($parents->resources, $children->resources, $extraData)
             );
         } catch (\Throwable $ex) {
             $presenter->presentResponse(new ErrorResponse(ResourceException::errorWhileSearching()));
@@ -143,15 +158,15 @@ final class FindResourcesByParent
     }
 
     /**
-     * @param FindResourcesResponse $response
+     * @param ResourceEntity[] $resources
      *
      * @return int[]
      */
-    private function extractParentIdsFromResources(FindResourcesResponse $response): array
+    private function extractParentIdsFromResources(array $resources): array
     {
         $hostIds = array_map(
-            static fn (ResourceResponseDto $resource) => (int) $resource->parent?->id,
-            $response->resources
+            static fn (ResourceEntity $resource) => (int) $resource->getParent()?->getId(),
+            $resources
         );
 
         return array_unique($hostIds);
@@ -160,25 +175,21 @@ final class FindResourcesByParent
     /**
      * @param ResourceFilter $filter
      *
-     * @return FindResourcesResponse
+     * @return ResourceEntity[]
      */
-    private function findResourcesAsAdmin(ResourceFilter $filter): FindResourcesResponse
+    private function findResourcesAsAdmin(ResourceFilter $filter): array
     {
-        return FindResourcesFactory::createResponse(
-            $this->repository->findResources($filter)
-        );
+        return $this->repository->findResources($filter);
     }
 
     /**
      * @param ResourceFilter $filter
      *
-     * @return FindResourcesResponse
+     * @return ResourceEntity[]
      */
-    private function findParentResources(ResourceFilter $filter): FindResourcesResponse
+    private function findParentResources(ResourceFilter $filter): array
     {
-        return FindResourcesFactory::createResponse(
-            $this->repository->findParentResourcesById($filter)
-        );
+        return $this->repository->findParentResourcesById($filter);
     }
 
     /**
@@ -186,17 +197,15 @@ final class FindResourcesByParent
      *
      * @throws \Throwable
      *
-     * @return FindResourcesResponse
+     * @return ResourceEntity[]
      */
-    private function findResourcesAsUser(ResourceFilter $filter): FindResourcesResponse
+    private function findResourcesAsUser(ResourceFilter $filter): array
     {
         $accessGroupIds = array_map(
             static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $this->accessGroupRepository->findByContact($this->contact)
         );
 
-        return FindResourcesFactory::createResponse(
-            $this->repository->findResourcesByAccessGroupIds($filter, $accessGroupIds)
-        );
+        return $this->repository->findResourcesByAccessGroupIds($filter, $accessGroupIds);
     }
 }

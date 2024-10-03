@@ -2,9 +2,7 @@
   "federatedComponentsConfiguration": [
     {
       "path": "/widgets/batree",
-      "federatedComponents": [
-        "./batree"
-      ],
+      "federatedComponents": ["./batree"],
       "panelMinHeight": 5,
       "panelMinWidth": 6
     }

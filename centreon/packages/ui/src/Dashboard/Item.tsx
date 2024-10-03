@@ -1,20 +1,20 @@
 import {
   CSSProperties,
   ForwardedRef,
-  forwardRef,
   MouseEvent,
   ReactElement,
+  forwardRef,
   useEffect,
   useMemo
 } from 'react';
 
-import { equals, isNil, prop } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { equals, isNil, prop } from 'ramda';
 
 import { Card, useTheme } from '@mui/material';
 
-import { useMemoComponent, useViewportIntersection } from '../utils';
 import LoadingSkeleton from '../LoadingSkeleton';
+import { useMemoComponent, useViewportIntersection } from '../utils';
 
 import { useDashboardItemStyles } from './Dashboard.styles';
 import { isResizingItemAtom } from './atoms';

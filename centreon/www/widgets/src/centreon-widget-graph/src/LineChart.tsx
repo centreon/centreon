@@ -1,5 +1,16 @@
-import { always, cond, equals, F, head, lensPath, pluck, set, T } from 'ramda';
 import { useAtomValue } from 'jotai';
+import {
+  F,
+  T,
+  always,
+  cond,
+  equals,
+  head,
+  identity,
+  lensPath,
+  pluck,
+  set
+} from 'ramda';
 
 import {
   BarChart,
@@ -10,13 +21,13 @@ import {
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import useThresholds from '../../useThresholds';
-import { CommonWidgetProps, Data } from '../../models';
 import NoResources from '../../NoResources';
+import { CommonWidgetProps, Data } from '../../models';
+import useThresholds from '../../useThresholds';
 import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
 
-import { PanelOptions } from './models';
 import { graphEndpoint } from './api/endpoints';
+import { PanelOptions } from './models';
 
 const forceStackedMetrics = (data?: LineChartData): LineChartData | undefined =>
   data && {
@@ -158,14 +169,20 @@ const WidgetLineChart = ({
     );
   }
 
+  const barChartOrientation = cond([
+    [equals('horizontal'), always('vertical')],
+    [equals('vertical'), always('horizontal')],
+    [T, identity]
+  ])(panelOptions.orientation) as 'auto' | 'horizontal' | 'vertical';
+
   return (
     <BarChart
       {...commonProperties}
       barStyle={{
-        opacity: panelOptions.barOpacity / 100,
-        radius: panelOptions.barRadius / 200
+        opacity: (panelOptions.barOpacity ?? 100) / 100,
+        radius: (panelOptions.barRadius ?? 20) / 200
       }}
-      orientation={panelOptions.orientation}
+      orientation={barChartOrientation}
     />
   );
 };

@@ -50,6 +50,7 @@ const resultsToSubmit = [
     status: 'ok'
   }
 ];
+
 before(() => {
   cy.intercept({
     method: 'GET',
@@ -127,6 +128,8 @@ before(() => {
   cy.loginByTypeOfUser({
     jsonName: 'admin'
   });
+
+  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' });
 
   checkHostsAreMonitored([
     { name: services.serviceOk.host },
@@ -262,6 +265,12 @@ When('the dashboard administrator user deletes one of the widgets', () => {
 });
 
 Then('only the contents of the other widget are displayed', () => {
+  cy.get('[class*="resourceName"]')
+    .eq(0)
+    .parent()
+    .parent()
+    .invoke('removeAttr', 'target')
+    .click({ force: true });
   cy.get('[class*="resourceName"]').contains('Centreon-Server').should('exist');
   cy.get('[class*="resourceName"]').contains('host2').should('exist');
   cy.get('[class*="resourceName"]').contains('host3').should('exist');
@@ -357,6 +366,14 @@ Then('the Status Grid widget displays up to that number of tiles', () => {
   cy.getByTestId({
     testId: 'DvrIcon'
   }).should('be.visible');
+  cy.getByTestId({ tag: 'svg', testId: 'HostIcon' })
+    .eq(2)
+    .parent()
+    .parent()
+    .should(($a) => {
+      $a.attr('target', '_self');
+    })
+    .click({ force: true });
   cy.get('[class*="resourceName"]').contains('Centreon-Server').should('exist');
 });
 
@@ -387,12 +404,18 @@ Then('a second Status Grid widget is displayed on the dashboard', () => {
 });
 
 Then('the second widget has the same properties as the first widget', () => {
+  cy.getByTestId({ tag: 'svg', testId: 'HostIcon' })
+    .eq(0)
+    .parent()
+    .parent()
+    .invoke('removeAttr', 'target')
+    .click({ force: true });
   cy.get('[class*="resourceName"]')
     .eq(3)
     .contains('Centreon-Server')
     .should('exist');
-  cy.get('[class*="resourceName"]').eq(4).contains('host2').should('exist');
-  cy.get('[class*="resourceName"]').eq(5).contains('host3').should('exist');
+  cy.get('[class*="resourceName"]').contains('host2').should('exist');
+  cy.get('[class*="resourceName"]').contains('host3').should('exist');
 });
 
 Given('a dashboard with a Status Grid widget', () => {
@@ -402,12 +425,12 @@ Given('a dashboard with a Status Grid widget', () => {
 });
 
 When('the dashboard administrator clicks on a random resource', () => {
-  cy.get('[data-testid="link to host2"]')
-    .invoke('attr', 'href')
-    .then((href) => {
-      expect(href).to.exist;
-      cy.visit(href);
-    });
+  cy.getByTestId({ tag: 'svg', testId: 'HostIcon' })
+    .eq(0)
+    .parent()
+    .parent()
+    .invoke('removeAttr', 'target')
+    .click({ force: true });
 });
 
 Then(

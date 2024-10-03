@@ -1,32 +1,32 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-import { useTranslation } from 'react-i18next';
-import { useSetAtom, useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { pick } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import { Typography, FormControlLabel, Checkbox } from '@mui/material';
+import { Checkbox, FormControlLabel, Typography } from '@mui/material';
 
 import {
-  postData,
-  useRequest,
   MultiAutocompleteField,
   SelectField,
-  centreonBaseURL
+  centreonBaseURL,
+  postData,
+  useRequest
 } from '@centreon/ui';
 import type { SelectEntry } from '@centreon/ui';
 
-import { pollerAtom, setWizardDerivedAtom, PollerData } from '../pollerAtoms';
-import { useStyles } from '../../styles/partials/form/PollerWizardStyle';
 import routeMap from '../../reactRoutes/routeMap';
+import { useStyles } from '../../styles/partials/form/PollerWizardStyle';
+import { remoteServersEndpoint, wizardFormEndpoint } from '../api/endpoints';
+import WizardButtons from '../forms/wizardButtons';
+import { PollerRemoteList, Props, WizardButtonsTypes } from '../models';
+import { PollerData, pollerAtom, setWizardDerivedAtom } from '../pollerAtoms';
 import {
   labelAdvancedServerConfiguration,
   labelLinkedRemoteMaster,
   labelLinkedadditionalRemote,
   labelOpenBrokerFlow
 } from '../translatedLabels';
-import { Props, PollerRemoteList, WizardButtonsTypes } from '../models';
-import WizardButtons from '../forms/wizardButtons';
-import { remoteServersEndpoint, wizardFormEndpoint } from '../api/endpoints';
 
 interface StepTwoFormData {
   linked_remote_master: string;

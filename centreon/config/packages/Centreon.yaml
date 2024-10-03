@@ -38,16 +38,21 @@ services:
             - '../../src/Core/Media/*'
             - '../../src/Core/Command/*'
             - '../../src/Core/ResourceAccess/*'
+            - '../../src/Core/TimePeriod/*'
             - '../../src/Core/Service/*'
             - '../../src/Core/HostGroup/*'
             - '../../src/Core/ServiceGroup/*'
             - '../../src/Core/Host/*'
             - '../../src/Core/Broker/*'
+            - '../../src/Core/AdditionalConnectorConfiguration/*'
+            - '../../src/Core/Security/Vault/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
     Logger:
         class: Centreon\Domain\Log\Logger
+
+
 
     Core\Common\Infrastructure\FeatureFlags:
         arguments: ['%env(bool:IS_CLOUD_PLATFORM)%', '%env(file:resolve:FILE_FEATURE_FLAGS)%']
@@ -89,11 +94,14 @@ services:
               arguments: ['%env(APP_SECRET)%']
         public: true
 
-    Core\Security\Vault\Application\Repository\WriteVaultConfigurationRepositoryInterface:
-        class: Core\Security\Vault\Infrastructure\Repository\FsWriteVaultConfigurationRepository
+
+    Core\Common\Application\Repository\WriteVaultRepositoryInterface:
+        class: Core\Common\Infrastructure\Repository\WriteVaultRepository
         public: true
-        arguments:
-            $configurationFile: '%vault_conf_path%'
+
+    Core\Common\Application\Repository\ReadVaultRepositoryInterface:
+        class: Core\Common\Infrastructure\Repository\ReadVaultRepository
+        public: true
 
     # JSON Validator
     Centreon\Domain\Service\JsonValidator\Interfaces\JsonValidatorInterface:
@@ -303,11 +311,6 @@ services:
         arguments: ['%centreon_var_lib%', '%centreon_install_path%']
         public: true
 
-    Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface:
-        class: Core\Security\Vault\Infrastructure\Repository\FsReadVaultConfigurationRepository
-        public: true
-        arguments:
-            $configurationFile: '%vault_conf_path%'
 
 
     # Monitoring resources
@@ -334,6 +337,10 @@ services:
             tags: ['dashboard.playlist.widget.data.providers']
         Symfony\Component\Console\Command\Command:
             tags: ['script.command']
+        Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface:
+            tags: ['monitoring.resource.extra.providers']
+        Core\Resources\Infrastructure\API\ExtraDataNormalizer\ExtraDataNormalizerInterface:
+            tags: ['monitoring.resource.extra.normalizers']
 
     Core\Common\Infrastructure\CommandInitializer:
         class: Core\Common\Infrastructure\CommandInitializer

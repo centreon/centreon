@@ -51,6 +51,7 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Service\Application\Exception\ServiceException;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
+use Core\Service\Application\Repository\WriteRealTimeServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 use Core\Service\Domain\Model\NewService;
 use Core\Service\Domain\Model\Service;
@@ -68,7 +69,7 @@ final class AddService
     use LoggerTrait,VaultTrait;
 
     /** @var AccessGroup[] */
-    private array $accessGroups;
+    private array $accessGroups = [];
 
     public function __construct(
         private readonly ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository,
@@ -90,6 +91,7 @@ final class AddService
         private readonly bool $isCloudPlatform,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly WriteRealTimeServiceRepositoryInterface $writeRealTimeServiceRepository,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
@@ -120,6 +122,14 @@ final class AddService
 
             $this->assertParameters($request);
             $newServiceId = $this->createService($request);
+
+            if ($this->accessGroups !== []) {
+                $this->writeRealTimeServiceRepository->addServiceToResourceAcls(
+                    $request->hostId,
+                    $newServiceId,
+                    $this->accessGroups
+                );
+            }
 
             $this->info('New service created', ['service_id' => $newServiceId]);
             $service = $this->readServiceRepository->findById($newServiceId);
@@ -201,10 +211,12 @@ final class AddService
             $this->info('Add the macro ' . $macro->getName());
 
             if ($this->writeVaultRepository->isVaultConfigured() === true && $macro->isPassword() === true) {
-                $vaultPath = $this->writeVaultRepository->upsert(
+                $vaultPaths = $this->writeVaultRepository->upsert(
                     $this->uuid ?? null,
                     ['_SERVICE' . $macro->getName() => $macro->getValue()],
                 );
+                $vaultPath = $vaultPaths['_SERVICE' . $macro->getName()];
+
                 $this->uuid ??= $this->getUuidFromPath($vaultPath);
 
                 $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPath);

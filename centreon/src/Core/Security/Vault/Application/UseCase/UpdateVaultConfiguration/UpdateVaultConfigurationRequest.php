@@ -32,6 +32,9 @@ final class UpdateVaultConfigurationRequest
     public int $port = 0;
 
     /** @var string */
+    public string $rootPath = '';
+
+    /** @var string */
     public string $roleId = '';
 
     /** @var string */

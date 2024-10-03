@@ -37,6 +37,9 @@ abstract class AbstractVaultRepository
     public const KNOWLEDGE_BASE_PATH = 'configuration/knowledge_base';
     public const POLLER_MACRO_VAULT_PATH = 'monitoring/pollerMacros';
     public const OPEN_ID_CREDENTIALS_VAULT_PATH = 'configuration/openid';
+    public const DATABASE_VAULT_PATH = 'database';
+    public const BROKER_VAULT_PATH = 'configuration/broker';
+    public const ACC_VAULT_PATH = 'configuration/additionalConnectorConfigurations';
     protected const DEFAULT_SCHEME = 'https';
 
     /** @var string[] */
@@ -46,6 +49,9 @@ abstract class AbstractVaultRepository
         self::KNOWLEDGE_BASE_PATH,
         self::POLLER_MACRO_VAULT_PATH,
         self::OPEN_ID_CREDENTIALS_VAULT_PATH,
+        self::DATABASE_VAULT_PATH,
+        self::BROKER_VAULT_PATH,
+        self::ACC_VAULT_PATH,
     ];
 
     protected ?VaultConfiguration $vaultConfiguration;
@@ -136,7 +142,7 @@ abstract class AbstractVaultRepository
         return sprintf('%s://%s', self::DEFAULT_SCHEME, $url);
     }
 
-    protected function buildPath(string $uuid): string
+    protected function buildPath(string $uuid, string $credentialName): string
     {
         if (! $this->vaultConfiguration) {
             $this->error('VaultConfiguration is not defined');
@@ -145,7 +151,7 @@ abstract class AbstractVaultRepository
         }
 
         return 'secret::'. $this->vaultConfiguration->getName() . '::' . $this->vaultConfiguration->getRootPath()
-            . '/data/' . $this->customPath . '/' . $uuid;
+            . '/data/' . $this->customPath . '/' . $uuid . '::' . $credentialName;
     }
 
     /**

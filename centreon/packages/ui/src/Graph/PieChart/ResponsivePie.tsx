@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 
-import { Pie } from '@visx/shape';
 import { Group } from '@visx/group';
+import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
 import numeral from 'numeral';
 import { always, equals, gt, ifElse, lt } from 'ramda';
@@ -14,11 +14,11 @@ import { Legend as LegendComponent } from '../Legend';
 import { LegendProps } from '../Legend/models';
 import { getValueByUnit } from '../common/utils';
 
-import { PieProps } from './models';
 import { usePieStyles } from './PieChart.styles';
+import { PieProps } from './models';
 import { useResponsivePie } from './useResponsivePie';
 
-const DefaultLengd = ({ scale, direction }: LegendProps): JSX.Element => (
+const DefaultLegend = ({ scale, direction }: LegendProps): JSX.Element => (
   <LegendComponent direction={direction} scale={scale} />
 );
 
@@ -42,18 +42,25 @@ const getTooltipPlacement = ({ radianX, radianY }): Placement => {
 
 const ResponsivePie = ({
   title,
+  titlePosition,
+  displayTitle = true,
   variant = 'pie',
   width,
   height,
   data,
   unit = 'number',
-  Legend = DefaultLengd,
+  Legend = DefaultLegend,
   displayLegend = true,
+  displayTotal = true,
   innerRadius: defaultInnerRadius = 40,
+  innerRadiusNoLimit = false,
   onArcClick,
+  padAngle = 0,
   displayValues,
   TooltipContent,
-  legendDirection = 'column'
+  legendDirection = 'column',
+  tooltipProps = {},
+  opacity = 1
 }: PieProps & { height: number; width: number }): JSX.Element => {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -73,6 +80,7 @@ const ResponsivePie = ({
     data,
     defaultInnerRadius,
     height,
+    innerRadiusNoLimit,
     legendRef,
     titleRef,
     unit,
@@ -84,7 +92,10 @@ const ResponsivePie = ({
   const isSmall = lt(width, 130);
   const mustDisplayLegend = isTooSmallForLegend ? false : displayLegend;
 
-  const { classes } = usePieStyles({ svgSize });
+  const { classes } = usePieStyles({
+    reverse: equals(titlePosition, 'bottom'),
+    svgSize
+  });
 
   return (
     <div
@@ -99,11 +110,16 @@ const ResponsivePie = ({
           minHeight: equals(variant, 'donut') && isSmall ? 'auto' : height
         }}
       >
-        {(equals(variant, 'pie') || isSmall) && title && (
-          <div className={classes.title} data-testid="Title" ref={titleRef}>
-            {`${numeral(total).format('0a').toUpperCase()} `} {t(title)}
-          </div>
-        )}
+        {(equals(variant, 'pie') ||
+          isSmall ||
+          (equals(variant, 'donut') && equals(titlePosition, 'bottom'))) &&
+          title &&
+          displayTitle && (
+            <div className={classes.title} data-testid="Title" ref={titleRef}>
+              {`${displayTotal ? numeral(total).format('0a').toUpperCase() : ''} `}
+              {t(title)}
+            </div>
+          )}
         <div
           className={classes.svgContainer}
           data-testid="pieChart"
@@ -122,9 +138,14 @@ const ResponsivePie = ({
                 cornerRadius={4}
                 data={data}
                 innerRadius={() => {
-                  return equals(variant, 'pie') ? 0 : half - innerRadius;
+                  const iRadius = innerRadiusNoLimit
+                    ? innerRadius
+                    : half - innerRadius;
+
+                  return equals(variant, 'pie') ? 0 : iRadius;
                 }}
                 outerRadius={half}
+                padAngle={padAngle}
                 pieValue={(items) => items.value}
               >
                 {(pie) => {
@@ -163,6 +184,7 @@ const ResponsivePie = ({
                               title={title}
                               total={total}
                               value={arc.data.value}
+                              {...tooltipProps}
                             />
                           )
                         }
@@ -172,7 +194,11 @@ const ResponsivePie = ({
                           radianY: Math.sin(midAngle)
                         })}
                       >
-                        <g data-testid={arc.data.label} onClick={onClick}>
+                        <g
+                          data-testid={arc.data.label}
+                          onClick={onClick}
+                          onKeyUp={() => undefined}
+                        >
                           <path
                             cursor="pointer"
                             d={pie.path(arc) as string}
@@ -185,6 +211,7 @@ const ResponsivePie = ({
                                 data-testid="value"
                                 dy=".33em"
                                 fill="#000"
+                                fillOpacity={opacity}
                                 fontSize={12}
                                 fontWeight={600}
                                 pointerEvents="none"
@@ -205,27 +232,31 @@ const ResponsivePie = ({
                   });
                 }}
               </Pie>
-              {equals(variant, 'donut') && !isSmall && title && (
-                <>
-                  <Text
-                    className={classes.title}
-                    dy={lt(svgSize, 150) ? -10 : -15}
-                    fill={theme.palette.text.primary}
-                    textAnchor="middle"
-                  >
-                    {numeral(total).format('0a').toUpperCase()}
-                  </Text>
-                  <Text
-                    className={classes.title}
-                    data-testid="Title"
-                    dy={lt(svgSize, 150) ? 10 : 15}
-                    fill={theme.palette.text.primary}
-                    textAnchor="middle"
-                  >
-                    {t(title)}
-                  </Text>
-                </>
-              )}
+              {equals(variant, 'donut') &&
+                !isSmall &&
+                title &&
+                displayTitle &&
+                !equals(titlePosition, 'bottom') && (
+                  <>
+                    <Text
+                      className={classes.title}
+                      dy={lt(svgSize, 150) ? -10 : -15}
+                      fill={theme.palette.text.primary}
+                      textAnchor="middle"
+                    >
+                      {numeral(total).format('0a').toUpperCase()}
+                    </Text>
+                    <Text
+                      className={classes.title}
+                      data-testid="Title"
+                      dy={lt(svgSize, 150) ? 10 : 15}
+                      fill={theme.palette.text.primary}
+                      textAnchor="middle"
+                    >
+                      {t(title)}
+                    </Text>
+                  </>
+                )}
             </Group>
           </svg>
         </div>

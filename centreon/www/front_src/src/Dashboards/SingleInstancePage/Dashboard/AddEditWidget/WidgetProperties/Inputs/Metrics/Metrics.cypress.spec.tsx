@@ -1,27 +1,26 @@
 /* eslint-disable import/no-unresolved */
 
-import { Provider, createStore } from 'jotai';
+import widgetDataProperties from 'centreon-widgets/centreon-widget-data/properties.json';
 import { Formik } from 'formik';
 import i18next from 'i18next';
-import { initReactI18next } from 'react-i18next';
+import { Provider, createStore } from 'jotai';
 import { T, always, cond } from 'ramda';
-import widgetDataProperties from 'centreon-widgets/centreon-widget-data/properties.json';
+import { initReactI18next } from 'react-i18next';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 
-import { metricsEndpoint } from '../../../api/endpoints';
-import { WidgetDataResource } from '../../../models';
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
   labelAvailable,
   labelIsTheSelectedResource,
   labelMetrics,
   labelSelectMetric,
   labelThresholdsAreAutomaticallyHidden,
-  labelYouCanSelectUpToTwoMetricUnits,
   labelYouHaveTooManyMetrics
 } from '../../../../translatedLabels';
-import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
+import { metricsEndpoint } from '../../../api/endpoints';
 import { widgetPropertiesAtom } from '../../../atoms';
+import { WidgetDataResource } from '../../../models';
 
 import Metrics from './Metrics';
 
@@ -421,15 +420,7 @@ describe('Metrics', () => {
       cy.findByTestId('rtmax').click();
       cy.findByTestId('pl').click();
 
-      cy.findByTestId('rtmin').should('have.attr', 'data-checked', 'false');
-      cy.findByTestId('rtmin').find('input').should('be.disabled');
-      cy.contains(labelYouCanSelectUpToTwoMetricUnits).should('exist');
       cy.contains(labelThresholdsAreAutomaticallyHidden).should('exist');
-
-      cy.findByTestId('rtmin-summary').click();
-      cy.findByTestId('rtmin_Centreon-1:Ping')
-        .find('input')
-        .should('be.disabled');
 
       cy.makeSnapshot();
     });

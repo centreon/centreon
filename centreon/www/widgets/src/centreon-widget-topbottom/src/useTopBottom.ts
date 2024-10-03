@@ -1,5 +1,5 @@
-import { equals, isNil, pluck } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { equals, isNil, pluck } from 'ramda';
 
 import {
   buildListingEndpoint,
@@ -17,9 +17,9 @@ import {
 } from '../../models';
 import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
 
+import { metricsTopDecoder } from './api/decoder';
 import { metricsTopEndpoint } from './api/endpoint';
 import { MetricsTop, TopBottomSettings } from './models';
-import { metricsTopDecoder } from './api/decoder';
 
 interface UseTopBottomProps
   extends Pick<
@@ -87,7 +87,7 @@ const useTopBottom = ({
                 : 'ASC'
             }
           }
-        })}&metric_name=${metricName}`,
+        })}&metric_name=${encodeURIComponent(metricName)}`,
         isOnPublicPage,
         playlistHash,
         widgetId: id

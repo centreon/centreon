@@ -2,6 +2,11 @@ openapi: 3.0.1
 info:
   title: Centreon Web RestAPI for Cloud
   description: |
+    # New features
+    + Added endpoint to deploy services in a host based on associated host template(s)
+    # Updated features
+    +
+    +
     # Information
     All dates are in **ISO 8601** format
     # Authentication
@@ -16,10 +21,9 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: "latest"
 externalDocs:
-  description: You can contact us on our community Slack
-  url: 'https://centreon.slack.com/messages/CCRGLQSE5'
+  description: You can contact us on our community platform The Watch
+  url: 'https://thewatch.centreon.com/'
 servers:
   - url: '{protocol}://{server}:{port}/centreon/api/{version}'
     variables:

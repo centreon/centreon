@@ -50,7 +50,7 @@ use Utility\SqlConcatenator;
  */
 class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements ReadHostCategoryRepositoryInterface
 {
-    use LoggerTrait, SqlMultipleBindTrait, HostGroupRepositoryTrait;
+    use LoggerTrait, SqlMultipleBindTrait, HostGroupRepositoryTrait, HostCategoryRepositoryTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -309,7 +309,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
         );
 
         // if host categories are not filtered in ACLs, then user has access to ALL host categories
-        if (! $this->hasAclFilterOnHostCategories($accessGroupIds)) {
+        if (! $this->hasRestrictedAccessToHostCategories($accessGroupIds)) {
             $this->info('Host categories access not filtered');
 
             return $this->exists($hostCategoryId);
@@ -399,7 +399,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
         );
 
         // if host categories are not filtered in ACLs, then user has access to ALL host categories
-        if (! $this->hasAclFilterOnHostCategories($accessGroupIds)) {
+        if (! $this->hasRestrictedAccessToHostCategories($accessGroupIds)) {
             $this->info('Host categories access not filtered');
 
             return $this->exist($hostCategoryIds);
@@ -567,7 +567,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
         );
 
         // if host categories are not filtered in ACLs, then user has access to ALL host categories
-        if (! $this->hasAclFilterOnHostCategories($accessGroupIds)) {
+        if (! $this->hasRestrictedAccessToHostCategories($accessGroupIds)) {
             $this->info('Host categories access not filtered');
 
             return $this->findByHost($hostId);
@@ -600,70 +600,10 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
     }
 
     /**
-     * @inheritDoc
-     */
-    public function hasAclFilterOnHostCategories(array $accessGroupIds): bool
-    {
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
-
-        $request = <<<SQL
-            SELECT 1
-            FROM `:db`.acl_resources_hc_relations arhr
-            INNER JOIN `:db`.acl_resources res
-                ON arhr.acl_res_id = res.acl_res_id
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON res.acl_res_id = argr.acl_res_id
-            INNER JOIN `:db`.acl_groups ag
-                ON argr.acl_group_id = ag.acl_group_id
-            WHERE ag.acl_group_id IN ({$bindQuery})
-            SQL;
-
-        $statement = $this->db->prepare($this->translateDbName($request));
-
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
-
-        return (bool) $statement->fetchColumn();
-    }
-
-    /**
-     * @param int[] $accessGroupIds
-     *
-     * @return bool
-     */
-    private function hasAccessToAllHostGroups(array $accessGroupIds): bool
-    {
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
-
-        $request = <<<SQL
-                SELECT res.all_hostgroups
-                FROM `:db`.acl_resources res
-                INNER JOIN `:db`.acl_res_group_relations argr
-                    ON argr.acl_res_id = res.acl_res_id
-                INNER JOIN `:db`.acl_groups ag
-                    ON ag.acl_group_id = argr.acl_group_id
-                WHERE ag.acl_group_id IN ({$bindQuery})
-            SQL;
-
-        $statement = $this->db->prepare($this->translateDbName($request));
-
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
-
-        return (bool) $statement->fetchColumn();
-    }
-
-    /**
      * @param SqlConcatenator $concatenator
      * @param RequestParametersInterface|null $requestParameters
+     *
+     * @throws AssertionFailedException
      *
      * @return HostCategory[]
      */
@@ -705,6 +645,8 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
 
     /**
      * @param _Category $result
+     *
+     * @throws AssertionFailedException
      *
      * @return HostCategory
      */

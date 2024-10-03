@@ -86,11 +86,8 @@ export interface Downtime {
 
 export interface FeatureFlags {
   adExclusionPeriods?: boolean;
-  dashboard?: boolean;
-  dashboardPlayList?: boolean;
   notification?: boolean;
-  resourceStatusFilterRevamp?: boolean;
-  resourceStatusTreeView?: boolean;
+  resouresTableOpenTickets: boolean;
   vault?: boolean;
 }
 
@@ -129,4 +126,17 @@ export interface FederatedModule {
   preloadScript?: string;
   remoteEntry: string;
   remoteUrl?: string;
+}
+
+interface Version {
+  fix: string;
+  major: string;
+  minor: string;
+  version: string;
+}
+
+export interface PlatformVersions {
+  modules: Record<string, Version>;
+  web: Version;
+  widgets: Record<string, Version | null>;
 }

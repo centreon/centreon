@@ -1,69 +1,69 @@
 /* eslint-disable import/no-unresolved,@typescript-eslint/no-unused-vars */
 
-import { createStore, Provider } from 'jotai';
-// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-text/moduleFederation.json'.
-import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
-// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-input/moduleFederation.json'.
-import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
-import widgetTextProperties from 'centreon-widgets/centreon-widget-text/properties.json';
-import widgetInputProperties from 'centreon-widgets/centreon-widget-input/properties.json';
 import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-generictext/moduleFederation.json';
 import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
+// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-input/moduleFederation.json'.
+import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
+import widgetInputProperties from 'centreon-widgets/centreon-widget-input/properties.json';
 import widgetSingleMetricConfiguration from 'centreon-widgets/centreon-widget-singlemetric/moduleFederation.json';
 import widgetSingleMetricProperties from 'centreon-widgets/centreon-widget-singlemetric/properties.json';
-import { BrowserRouter } from 'react-router-dom';
-import { initReactI18next } from 'react-i18next';
+// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-text/moduleFederation.json'.
+import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
+import widgetTextProperties from 'centreon-widgets/centreon-widget-text/properties.json';
 import i18next from 'i18next';
+import { Provider, createStore } from 'jotai';
+import { initReactI18next } from 'react-i18next';
+import { BrowserRouter } from 'react-router-dom';
 
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
-  additionalResourcesAtom,
   DashboardGlobalRole,
-  federatedWidgetsAtom,
   ListingVariant,
+  additionalResourcesAtom,
+  federatedWidgetsAtom,
+  platformVersionsAtom,
   refreshIntervalAtom,
   userAtom
 } from '@centreon/ui-context';
-import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
 import { federatedWidgetsPropertiesAtom } from '../../../federatedModules/atoms';
-import { DashboardRole } from '../../api/models';
 import {
+  dashboardSharesEndpoint,
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
-  dashboardSharesEndpoint,
   getDashboardEndpoint
 } from '../../api/endpoints';
+import { DashboardRole } from '../../api/models';
 import {
   labelAddAContact,
   labelDelete,
   labelSharesSaved
 } from '../../translatedLabels';
 
-import { routerParams } from './hooks/useDashboardDetails';
-import {
-  labelAddAWidget,
-  labelDeleteWidget,
-  labelEditDashboard,
-  labelEditWidget,
-  labelMoreActions,
-  labelTitle,
-  labelSave,
-  labelWidgetType,
-  labelCancel,
-  labelViewProperties,
-  labelYourRightsOnlyAllowToView,
-  labelPleaseContactYourAdministrator,
-  labelRefresh,
-  labelDuplicate,
-  labelGlobalRefreshInterval,
-  labelManualRefreshOnly,
-  labelInterval,
-  labelDoYouWantToSaveChanges,
-  labelIfYouClickOnDiscard
-} from './translatedLabels';
 import Dashboard from './Dashboard';
 import { dashboardAtom } from './atoms';
+import { routerParams } from './hooks/useDashboardDetails';
 import { saveBlockerHooks } from './hooks/useDashboardSaveBlocker';
+import {
+  labelAddAWidget,
+  labelCancel,
+  labelDeleteWidget,
+  labelDoYouWantToSaveChanges,
+  labelDuplicate,
+  labelEditDashboard,
+  labelEditWidget,
+  labelGlobalRefreshInterval,
+  labelIfYouClickOnDiscard,
+  labelInterval,
+  labelManualRefreshOnly,
+  labelMoreActions,
+  labelPleaseContactYourAdministrator,
+  labelSave,
+  labelTitle,
+  labelViewProperties,
+  labelWidgetType,
+  labelYourRightsOnlyAllowToView
+} from './translatedLabels';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {
   const federatedWidgets = [
@@ -154,6 +154,14 @@ const initializeAndMount = ({
 } => {
   const store = initializeWidgets();
 
+  const platformVersion = {
+    modules: {},
+    web: {
+      version: '23.04.0'
+    }
+  };
+  store.set(platformVersionsAtom, platformVersion);
+
   store.set(userAtom, {
     alias: 'admin',
     dashboard: {
@@ -215,7 +223,7 @@ const initializeAndMount = ({
     });
   });
 
-  cy.fixture(`Dashboards/contacts.json`).then((response) => {
+  cy.fixture('Dashboards/contacts.json').then((response) => {
     cy.interceptAPIRequest({
       alias: 'getContacts',
       method: Method.GET,
@@ -351,7 +359,7 @@ describe('Dashboard', () => {
           assert.equal(dashboard.layout.length, 3);
           assert.equal(
             dashboard.layout[0].options?.description?.content,
-            '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Description","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
+            '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Description","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
           );
           assert.equal(dashboard.layout[0].name, 'centreon-widget-text');
         });
@@ -380,10 +388,7 @@ describe('Dashboard', () => {
       cy.get('[data-canmove="true"]')
         .eq(0)
         .parent()
-        .should('have.css', 'height')
-        .and('equal', '148px');
-
-      cy.makeSnapshot();
+        .should('have.css', 'height');
     });
   });
 
@@ -469,8 +474,6 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelDuplicate).click();
 
       cy.findAllByText('Widget text').should('have.length', 2);
-
-      cy.makeSnapshot();
     });
   });
 

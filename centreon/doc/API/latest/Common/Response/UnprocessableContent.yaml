@@ -1,0 +1,16 @@
+description: |
+    Unprocessable Content
+  
+    The server understands the content type of the request entity, and the syntax of the request entity is correct, but it was unable to process the contained instructions.
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int64
+          example: 422
+        message:
+          type: string
+          example: "id: This value should be of type integer\n"

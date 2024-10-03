@@ -2,9 +2,7 @@
   "federatedComponentsConfiguration": [
     {
       "path": "/widgets/groupmonitoring",
-      "federatedComponents": [
-        "./groupmonitoring"
-      ],
+      "federatedComponents": ["./groupmonitoring"],
       "panelMinWidth": 4,
       "panelMinHeight": 3
     }

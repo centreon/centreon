@@ -111,11 +111,12 @@ final class DeleteHost
         $this->debug('Start transaction');
 
         $this->storageEngine->startTransaction();
+        $isVaultActive = $this->writeVaultRepository->isVaultConfigured();
         try {
             $serviceIds = $this->readServiceRepository->findServiceIdsLinkedToHostId($host->getId());
             if ($serviceIds !== []) {
                 $this->info('Services to delete', ['user_id' => $this->contact->getId(), 'services' => $serviceIds]);
-                if ($this->writeVaultRepository->isVaultConfigured()) {
+                if ($isVaultActive) {
                     $serviceUuids = $this->retrieveServiceUuidsFromVault($serviceIds);
                     $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
                     foreach ($serviceUuids as $serviceUuid) {
@@ -129,7 +130,7 @@ final class DeleteHost
             }
             $this->info('Host to delete', ['user_id' => $this->contact->getId(), 'host_id' => $host->getId()]);
 
-            if ($this->writeVaultRepository->isVaultConfigured()) {
+            if ($isVaultActive) {
                 $this->retrieveHostUuidFromVault($host);
                 if ($this->uuid !== null) {
                     $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);

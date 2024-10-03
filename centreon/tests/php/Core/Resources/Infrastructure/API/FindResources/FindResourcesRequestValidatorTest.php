@@ -90,6 +90,8 @@ $dataset = [
     [Validator::PARAM_STATUS_TYPES, Validator::ERROR_NOT_AN_ARRAY_OF_STRING, [123]],
     [Validator::PARAM_STATUS_TYPES, Validator::ERROR_NOT_AN_ARRAY, 'bar'],
     [Validator::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY, Validator::ERROR_NOT_A_BOOLEAN, 42],
+    [Validator::PARAM_OPEN_TICKET_RULE_ID, Validator::ERROR_NOT_A_INT, true],
+    [Validator::PARAM_RESOURCES_WITH_OPENED_TICKETS, Validator::ERROR_NOT_A_BOOLEAN, 42],
 ];
 
 foreach ($dataset as [$field, $expectedCode, $value]) {
@@ -153,6 +155,9 @@ $datasetGenerator = function () use ($fakeProviderName): \Generator {
         [Validator::PARAM_STATUS_TYPES, []],
         [Validator::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY, true],
         [Validator::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY, false],
+        [Validator::PARAM_RESOURCES_WITH_OPENED_TICKETS, true],
+        [Validator::PARAM_RESOURCES_WITH_OPENED_TICKETS, false],
+        [Validator::PARAM_OPEN_TICKET_RULE_ID, 42],
     ];
     foreach ($dataset as $args) {
         [$field, $expected, $value] = [$args[0], $args[1], $args[2] ?? $args[1]];

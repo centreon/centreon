@@ -1,0 +1,44 @@
+type: object
+properties:
+  id:
+    type: integer
+    description: "Time period ID"
+    example: 1
+  name:
+    type: string
+    description: "Name of the time period"
+    example: 24x7
+  alias:
+    type: string
+    description: "Alias of the time period"
+    example: Always
+  days:
+    type: array
+    items:
+      $ref: "Day.yaml"
+  templates:
+    type: array
+    description: "IDs of the time periods used as a template"
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "ID of the time periods used as a template"
+          example: 1
+        alias:
+          type: string
+          description: "Alias of the time period"
+          example: "Always"
+  exceptions:
+    type: array
+    description: "List of exceptions to the standard schedule"
+    items:
+      allOf:
+      - type: object
+        properties:
+          id:
+            type: integer
+            description: "ID of the extra period."
+            example: 1
+      - $ref: "ExtraTimePeriod.yaml"

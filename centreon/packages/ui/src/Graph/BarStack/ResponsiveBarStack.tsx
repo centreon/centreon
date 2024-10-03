@@ -1,19 +1,19 @@
 import { useRef } from 'react';
 
-import { BarStack as BarStackVertical, BarStackHorizontal } from '@visx/shape';
 import { Group } from '@visx/group';
-import numeral from 'numeral';
+import { BarStackHorizontal, BarStack as BarStackVertical } from '@visx/shape';
 import { Text } from '@visx/text';
-import { useTranslation } from 'react-i18next';
+import numeral from 'numeral';
 import { equals, lt } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Tooltip } from '../../components';
-import { LegendProps } from '../Legend/models';
 import { Legend as LegendComponent } from '../Legend';
+import { LegendProps } from '../Legend/models';
 import { getValueByUnit } from '../common/utils';
 
-import { BarStackProps } from './models';
 import { useBarStackStyles } from './BarStack.styles';
+import { BarStackProps } from './models';
 import useResponsiveBarStack from './useResponsiveBarStack';
 
 const DefaultLengd = ({ scale, direction }: LegendProps): JSX.Element => (
@@ -33,7 +33,8 @@ const ResponsiveBarStack = ({
   unit = 'number',
   displayValues,
   variant = 'vertical',
-  legendDirection = 'column'
+  legendDirection = 'column',
+  tooltipProps = {}
 }: BarStackProps & { height: number; width: number }): JSX.Element => {
   const { t } = useTranslation();
   const { classes, cx } = useBarStackStyles();
@@ -143,6 +144,7 @@ const ResponsiveBarStack = ({
                                 title={title}
                                 total={total}
                                 value={barStack.bars[0].bar.data[barStack.key]}
+                                {...tooltipProps}
                               />
                             )
                           }
@@ -150,7 +152,11 @@ const ResponsiveBarStack = ({
                             isVerticalBar ? 'right-start' : 'bottom-start'
                           }
                         >
-                          <g data-testid={bar.key} onClick={onClick}>
+                          <g
+                            data-testid={bar.key}
+                            onClick={onClick}
+                            onKeyUp={() => undefined}
+                          >
                             <rect
                               cursor="pointer"
                               fill={bar.color}

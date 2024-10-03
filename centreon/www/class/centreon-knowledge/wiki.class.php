@@ -38,6 +38,11 @@ require_once realpath(__DIR__ . "/../../../config/centreon.config.php");
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . '/../../include/common/vault-functions.php';
 
+use App\Kernel;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Centreon\Domain\Log\Logger;
+
 class Wiki
 {
     private $db;
@@ -80,19 +85,18 @@ class Wiki
         }
 
         if (isset($options['kb_wiki_password']) && str_starts_with($options['kb_wiki_password'], 'secret::')) {
-            $kernel = \App\Kernel::createForWeb();
+            $kernel = Kernel::createForWeb();
             $readVaultConfigurationRepository = $kernel->getContainer()->get(
-                Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+                ReadVaultConfigurationRepositoryInterface::class
             );
             $vaultConfiguration = $readVaultConfigurationRepository->find();
             if ($vaultConfiguration !== null) {
-                /**
-                 * @var \Centreon\Domain\Log\Logger $logger
-                 */
-                $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
-                $vaultPathPart = explode('::', $options['kb_wiki_password']);
-                $knowledgeBasePasswordPath = end($vaultPathPart);
-                $options['kb_wiki_password'] = findKnowledgeBasePasswordFromVault($logger, $knowledgeBasePasswordPath, $vaultConfiguration);
+                /** @var ReadVaultRepositoryInterface $readVaultRepository */
+                $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+                $options['kb_wiki_password'] = findKnowledgeBasePasswordFromVault(
+                    $readVaultRepository,
+                    $options['kb_wiki_password']
+                );
             }
         }
 

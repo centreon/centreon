@@ -29,9 +29,9 @@ import { makeStyles } from 'tss-react/mui';
 import { Skeleton, Typography } from '@mui/material';
 
 import {
-  getData,
   LineChartData,
   ParentSize,
+  getData,
   timeFormat,
   useLocaleDateTimeFormat,
   useRequest

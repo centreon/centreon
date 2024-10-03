@@ -52,7 +52,7 @@ Feature: Configuring metrics graph widget
   Scenario: Adding Metrics graph widget with more than two metric units
     Given a dashboard with a configured Metrics Graph widget
     When the dashboard administrator selects more than two metric units
-    Then a message should be displayed indicating that the user can only select a maximum of two metric units
+    Then a message should be displayed indicating that thresholds are disabled
 
   @TEST_MON-119753
   Scenario: Filtering service list by selected host
@@ -99,7 +99,7 @@ Feature: Configuring metrics graph widget
     When the dashboard administrator selects the list display mode
     Then the Metrics Graph widget should refresh to display items in a list format
 
-  @TEST_MON-119934
+  @TEST_MON-143621
   Scenario: Update Metrics Graph display to bar chart
     Given a dashboard featuring a configured Metrics Graph widget with multiple metrics
     When the dashboard administrator clicks the "Display as Bar Chart" button

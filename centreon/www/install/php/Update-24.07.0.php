@@ -54,9 +54,31 @@ $updateCfgResourceTable = function (CentreonDB $pearDB) use(&$errorMessage): voi
     );
 };
 
+$updateBrokerCfgFieldTable = function (CentreonDB $pearDB) use(&$errorMessage): void {
+    $errorMessage = 'Unable to update table cb_field';
+    $pearDB->query(
+        <<<'SQL'
+            UPDATE `cb_field` SET cb_fieldgroup_id = 1 WHERE fieldname = 'category' AND fieldtype = 'multiselect'
+            SQL
+    );
+};
+
 try {
     $deleteVaultTables($pearDB);
+    $updateCfgResourceTable($pearDB);
+
+    // Tansactional queries
+    if (! $pearDB->inTransaction()) {
+        $pearDB->beginTransaction();
+    }
+    $updateBrokerCfgFieldTable($pearDB);
+
+    $pearDB->commit();
 } catch (\Exception $e) {
+
+    if ($pearDB->inTransaction()) {
+        $pearDB->rollBack();
+    }
 
     $centreonLog->insertLog(
         4,

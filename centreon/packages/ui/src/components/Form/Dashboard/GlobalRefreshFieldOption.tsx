@@ -1,10 +1,10 @@
 import { ChangeEvent } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { useTranslation } from 'react-i18next';
-import { isEmpty } from 'ramda';
-import pluralize from 'pluralize';
 import { useAtomValue } from 'jotai';
+import pluralize from 'pluralize';
+import { isEmpty } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 
@@ -12,12 +12,12 @@ import { refreshIntervalAtom } from '@centreon/ui-context';
 
 import { TextField } from '../../..';
 
+import { useGlobalRefreshIntervalStyles } from './DashboardForm.styles';
 import {
   labelGlobalRefreshInterval,
   labelInterval,
   labelSeconds
 } from './translatedLabels';
-import { useGlobalRefreshIntervalStyles } from './DashboardForm.styles';
 
 const GlobalRefreshFieldOption = (): JSX.Element => {
   const { classes } = useGlobalRefreshIntervalStyles();

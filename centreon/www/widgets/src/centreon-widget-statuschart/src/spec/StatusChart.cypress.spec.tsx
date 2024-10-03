@@ -1,23 +1,23 @@
-import { createStore, Provider } from 'jotai';
-import { BrowserRouter } from 'react-router-dom';
+import { Provider, createStore } from 'jotai';
 import { equals, last } from 'ramda';
+import { BrowserRouter } from 'react-router-dom';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import { Data, DisplayType, PanelOptions } from '../models';
+import { getPublicWidgetEndpoint } from '../../../utils';
+import StatusChart from '../StatusChart';
 import {
   hostStatusesEndpoint,
   resourcesEndpoint,
   serviceStatusesEndpoint
 } from '../api/endpoint';
-import StatusChart from '../StatusChart';
-import { getPublicWidgetEndpoint } from '../../../utils';
+import { Data, DisplayType, PanelOptions } from '../models';
 
 import {
-  options as resourcesOptions,
-  resources,
   hostStatus,
+  resources,
+  options as resourcesOptions,
   serviceStatus,
   totalHosts,
   totalServices

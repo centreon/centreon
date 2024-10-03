@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 
-import { Listing } from '../../../api/models';
 import { SelectEntry } from '../../..';
+import { Listing } from '../../../api/models';
 
 import { AccessRightInitialValues, Labels } from './models';
 

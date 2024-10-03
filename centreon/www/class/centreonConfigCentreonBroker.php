@@ -41,6 +41,7 @@
  */
 
 require_once _CENTREON_PATH_ . "www/class/centreon-config/centreonMainCfg.class.php";
+require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
 class CentreonConfigCentreonBroker
 {
@@ -850,7 +851,15 @@ class CentreonConfigCentreonBroker
         } catch (\PDOException $e) {
             return false;
         }
-        $this->updateCentreonBrokerInfos($id, $values);
+
+        try {
+            $this->updateCentreonBrokerInfosByAPI($id, $values);
+        } catch (\Throwable $th) {
+            error_log((string) $th);
+            echo "<div class='msg' align='center'>" . _($th->getMessage()) . "</div>";
+
+            return false;
+        }
         return true;
     }
 
@@ -950,7 +959,16 @@ class CentreonConfigCentreonBroker
         } catch (\PDOException $e) {
             return false;
         }
-        $this->updateCentreonBrokerInfos($id, $values);
+
+        try {
+            $this->updateCentreonBrokerInfosByAPI($id, $values);
+        } catch (\Throwable $th) {
+            error_log((string) $th);
+            echo "<div class='msg' align='center'>" . _($th->getMessage()) . "</div>";
+
+            return false;
+        }
+
         return true;
     }
 
@@ -1047,174 +1065,6 @@ class CentreonConfigCentreonBroker
                 }
             }
         }
-    }
-
-    /**
-     * Update the information for a configuration
-     *
-     * @param int $id The configuration id
-     * @param array $values The post array
-     * @return bool
-     */
-    public function updateCentreonBrokerInfos($id, $values)
-    {
-        // exclude multiple parameters load with broker js hook
-        $keepLuaParameters = false;
-        if (isset($values['output'])) {
-            foreach ($values['output'] as $key => $output) {
-                if ($output['type'] === 'lua') {
-                    if ($this->removeUnindexedLuaParameters($values, $key)) {
-                        $keepLuaParameters = true;
-                    }
-                    $this->removeEmptyLuaParameters($values, $key);
-                }
-            }
-        }
-
-        $this->revealLuaPasswords($id, $values);
-        $this->revealPasswords($id, $values);
-
-        // Clean the informations for this id
-        $query = 'DELETE FROM cfg_centreonbroker_info WHERE config_id = '
-            . (int) $id
-            . ($keepLuaParameters ? ' AND config_key NOT LIKE "lua\_parameter\_%"' : '');
-        $this->db->query($query);
-
-        $groups_infos = array();
-        $groups_infos_multiple = array();
-        foreach ($this->getTags() as $group) {
-            // Resort array
-            if (isset($values[$group])) {
-                foreach ($values[$group] as $infos) {
-                    if (!isset($groups_infos[$group])) {
-                        $groups_infos[$group] = array();
-                    }
-                    $newArray = array();
-                    foreach ($infos as $key => $info) {
-                        $is_multiple = preg_match('/(.+?)_(\d+)$/', $key, $result);
-                        if ($is_multiple) {
-                            if (!isset($newArray[$result[2]])) {
-                                $newArray[$result[2]] = array();
-                            }
-                            $newArray[$result[2]][$result[1]] = $infos[$key];
-
-                            unset($infos[$key]);
-                        }
-                    }
-                    if (!empty($newArray)) {
-                        $groups_infos_multiple[] = $newArray;
-                        $infos['multiple_fields'] = $newArray;
-                    }
-                    $groups_infos[$group][] = $infos;
-                }
-            }
-        }
-
-        foreach ($groups_infos as $group => $groups) {
-            foreach ($groups as $gid => $infos) {
-                if (isset($infos['blockId'])) {
-                    list($tagId, $typeId) = explode('_', $infos['blockId']);
-                    $fieldtype = $this->getFieldtypes((int) $typeId);
-                    foreach ($infos as $fieldname => $fieldvalue) {
-                        $lvl = 0;
-                        $grp_id = null;
-                        $parent_id = null;
-
-                        if ($fieldname == 'multiple_fields' && is_array($fieldvalue)) {
-                            $index = 0;
-                            foreach ($fieldvalue as $key => $value) {
-                                if (isset($fieldtype[$fieldname]) && $fieldtype[$fieldname] == 'radio') {
-                                    $value = $value[$fieldname];
-                                }
-                                if (false === is_array($value)) {
-                                    $value = array($value);
-                                }
-                                foreach ($value as $fieldname2 => $value2) {
-                                    if (is_array($value2)) {
-                                        $explodedFieldname2 = explode('__', $fieldname2);
-                                        if (
-                                            isset($fieldtype[$explodedFieldname2[1]]) &&
-                                            $fieldtype[$explodedFieldname2[1]] === 'radio'
-                                        ) {
-                                            $value2 = $value2[$explodedFieldname2[1]];
-                                        }
-                                    }
-                                    $query = "INSERT INTO cfg_centreonbroker_info "
-                                        . "(config_id, config_key, config_value, config_group, config_group_id, "
-                                        . "grp_level, subgrp_id, parent_grp_id, fieldIndex) "
-                                        . "VALUES (:config_id, :config_key, :config_value, :config_group, "
-                                        . ":config_group_id, :grp_level, :subgrp_id, :parent_grp_id, :fieldIndex) ";
-                                    $stmt = $this->db->prepare($query);
-                                    $stmt->bindValue(':config_id', $id, \PDO::PARAM_INT);
-                                    $stmt->bindValue(':config_key', $fieldname2, \PDO::PARAM_STR);
-                                    $stmt->bindValue(':config_value', $value2, \PDO::PARAM_STR);
-                                    $stmt->bindValue(':config_group', $group, \PDO::PARAM_STR);
-                                    $stmt->bindValue(':config_group_id', $gid, \PDO::PARAM_INT);
-                                    $stmt->bindValue(':grp_level', $lvl, \PDO::PARAM_INT);
-                                    $stmt->bindValue(':subgrp_id', $grp_id, \PDO::PARAM_INT);
-                                    $stmt->bindValue(':parent_grp_id', $parent_id, \PDO::PARAM_INT);
-                                    $stmt->bindValue(':fieldIndex', $index, \PDO::PARAM_INT);
-                                    $stmt->execute();
-                                }
-                                $index++;
-                            }
-                            continue;
-                        }
-
-                        if (isset($fieldtype[$fieldname]) && $fieldtype[$fieldname] == 'radio') {
-                            $fieldvalue = $fieldvalue[$fieldname];
-                        }
-                        if (false === is_array($fieldvalue)) {
-                            $fieldvalue = array($fieldvalue);
-                        }
-                        // Construct xml tree
-                        while (preg_match('/.+__\d+__.+/', $fieldname)) {
-                            $info = explode('__', $fieldname, 3);
-                            $grp_name = $info[0];
-                            $grp_id = $info[1];
-                            $query = 'INSERT INTO cfg_centreonbroker_info (config_id, config_key, config_value,'
-                                . 'config_group, config_group_id, grp_level, subgrp_id, parent_grp_id)  VALUES ('
-                                . ':config_id, :config_key, :config_value, :config_group, :config_group_id, '
-                                . ':grp_level, :subgrp_id, :parent_grp_id)';
-
-                            $stmt = $this->db->prepare($query);
-                            $stmt->bindValue(':config_id', $id, \PDO::PARAM_INT);
-                            $stmt->bindValue(':config_key', $grp_name, \PDO::PARAM_STR);
-                            $stmt->bindValue(':config_value', "", \PDO::PARAM_STR);
-                            $stmt->bindValue(':config_group', $group, \PDO::PARAM_STR);
-                            $stmt->bindValue(':config_group_id', $gid, \PDO::PARAM_INT);
-                            $stmt->bindValue(':grp_level', $lvl, \PDO::PARAM_INT);
-                            $stmt->bindValue(':subgrp_id', $grp_id, \PDO::PARAM_INT);
-                            $stmt->bindValue(':parent_grp_id', $parent_id, \PDO::PARAM_INT);
-                            $stmt->execute();
-
-                            $lvl++;
-                            $parent_id = $grp_id;
-                            $fieldname = $info[2];
-                        }
-                        $grp_id = null;
-                        foreach ($fieldvalue as $value) {
-                            $query = 'INSERT INTO cfg_centreonbroker_info (config_id, config_key, config_value, '
-                                . 'config_group, config_group_id, grp_level, subgrp_id, parent_grp_id) VALUES ('
-                                . ':config_id, :config_key, :config_value, :config_group, '
-                                . ':config_group_id, :grp_level, :subgrp_id, :parent_grp_id) ';
-                            $stmt = $this->db->prepare($query);
-                            $stmt->bindValue(':config_id', $id, \PDO::PARAM_INT);
-                            $stmt->bindValue(':config_key', $fieldname, \PDO::PARAM_STR);
-                            $stmt->bindValue(':config_value', $value, \PDO::PARAM_STR);
-                            $stmt->bindValue(':config_group', $group, \PDO::PARAM_STR);
-                            $stmt->bindValue(':config_group_id', $gid, \PDO::PARAM_INT);
-                            $stmt->bindValue(':grp_level', $lvl, \PDO::PARAM_INT);
-                            $stmt->bindValue(':subgrp_id', $grp_id, \PDO::PARAM_INT);
-                            $stmt->bindValue(':parent_grp_id', $parent_id, \PDO::PARAM_INT);
-                            $stmt->execute();
-                        }
-                    }
-                }
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -1844,4 +1694,258 @@ class CentreonConfigCentreonBroker
         }
         return $bExist;
     }
+
+    /**
+     * Replace a Broker config inputs and outputs configurations.
+     *
+     * @param int $configId
+     * @param array<string|int|array> $values
+     *
+     * @throws \LogicException
+     * @throws \Exception
+     */
+    public function updateCentreonBrokerInfosByAPI(int $configId, array $values): void
+    {
+        global $basePath;
+
+        // exclude multiple parameters load with broker js hook
+        $keepLuaParameters = false;
+        if (isset($values['output'])) {
+            foreach ($values['output'] as $key => $output) {
+                if ($output['type'] === 'lua') {
+                    if ($this->removeUnindexedLuaParameters($values, $key)) {
+                        $keepLuaParameters = true;
+                    }
+                    $this->removeEmptyLuaParameters($values, $key);
+                }
+            }
+        }
+
+        $this->revealLuaPasswords($configId, $values);
+        $this->revealPasswords($configId, $values);
+
+        // Clean the informations for this id
+         $kernel = \App\Kernel::createForWeb();
+        /** @var \Centreon\Domain\Log\Logger $logger */
+        $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+        /** @var \Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository */
+        $readVaultConfigurationRepository = $kernel->getContainer()->get(
+            Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        );
+        /** @var \Core\Common\Infrastructure\FeatureFlags $featureFlagManager */
+        $featureFlagManager = $kernel->getContainer()->get(Core\Common\Infrastructure\FeatureFlags::class);
+
+        $vaultConfiguration = $readVaultConfigurationRepository->find();
+        if ($featureFlagManager->isEnabled('vault_broker') && $vaultConfiguration !== null) {
+            /** @var \Core\Common\Application\Repository\WriteVaultRepositoryInterface $writeVaultRepository */
+            $writeVaultRepository = $kernel->getContainer()->get(\Core\Common\Application\Repository\WriteVaultRepositoryInterface::class);
+            $writeVaultRepository->setCustomPath(\Core\Common\Infrastructure\Repository\AbstractVaultRepository::BROKER_VAULT_PATH);
+            deleteBrokerConfigsFromVault($writeVaultRepository, [$configId]);
+        }
+
+        $query = 'DELETE FROM cfg_centreonbroker_info WHERE config_id = '
+            . $configId
+            . ($keepLuaParameters ? ' AND config_key NOT LIKE "lua\_parameter\_%"' : '');
+        $this->db->query($query);
+
+        [$groups_infos, ] = $this->getGroupsInfos($values);
+
+        /** @var Core\Infrastructure\Common\Api\Router $router */
+        $router = $kernel->getContainer()->get(Core\Infrastructure\Common\Api\Router::class)
+        ?? throw new LogicException('Router not found in container');
+        $client = new Symfony\Component\HttpClient\CurlHttpClient();
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
+        ];
+        $parameters = ['brokerId' => $configId];
+        $basePath ? $parameters['base_uri'] = $basePath : null;
+
+        foreach($groups_infos as $tag => $groups) {
+            $parameters['tag'] = $tag === 'input' ? 'inputs' : 'outputs';
+            $url = $router->generate(
+                'AddBrokerInputOutput',
+                $parameters,
+                Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL,
+            );
+
+            foreach($groups as $group) {
+                $payload = $this->buildPayload($group);
+                $response = $client->request(
+                    'POST',
+                    $url,
+                    [
+                        'headers' => $headers,
+                        'body' => json_encode($payload),
+                    ],
+                );
+                if ($response->getStatusCode() !== 201) {
+                    $content = json_decode($response->getContent(false));
+                    throw new \Exception($content->message ?? 'Unexpected return status');
+                }
+            }
+        }
+    }
+
+    /**
+     * @param array<string|int|null|array<string|int|null|array<string|int|null>>> $inputOutput
+     *
+     * @return array
+     */
+    private function buildPayload(array $inputOutput): array
+    {
+        /** @var string $blockId */
+        $blockId = $inputOutput['blockId'];
+        [, $typeId] = explode('_', $blockId);
+        $fieldTypes = $this->getFieldtypesWithGroup((int) $typeId);
+
+        $payload = [
+            'name' => $inputOutput['name'],
+            'type' => (int) $typeId,
+            'parameters' => [],
+        ];
+
+        foreach($inputOutput as $fieldName => $fieldValue) {
+            if ($fieldName === 'multiple_fields') {
+                foreach($fieldValue as $index => $groups) {
+                    foreach($groups as $subName => $subValue) {
+                        [$groupName, $name] = explode('__', $subName);
+
+                        $fieldType = $fieldTypes[$groupName][$name];
+                        $payload['parameters'][$groupName][$index] ??= [];
+                        $this->addToPayload($payload['parameters'][$groupName][$index], $fieldType, $name, $subValue);
+                    }
+                }
+            } else {
+                if (is_array($fieldValue)) {
+                    if (str_contains($fieldName, '__')) {
+                        [, , $name] = explode('__', $fieldName);
+                    } else {
+                        $name = $fieldName;
+                    }
+                    $fieldType = $fieldTypes[$name] ?? null;
+                } else {
+                    $fieldType = $fieldTypes[$fieldName] ?? null;
+                }
+                if ($fieldType !== null) {
+                    $this->addToPayload($payload['parameters'], $fieldType, $fieldName, $fieldValue);
+                }
+            }
+        }
+
+        foreach($fieldTypes as $name => $type) {
+            if ($type == 'multiselect') {
+                $name = "filters_{$name}";
+            } elseif (is_array($type)) {
+                $type = 'grouped';
+            }
+            if (! array_key_exists($name, $payload['parameters'])) {
+                $payload['parameters'][$name] = match ($type) {
+                    'select', 'text', 'password', 'int', 'radio' => null,
+                    'multiselect', 'grouped' => [],
+                };
+            }
+        }
+
+        return $payload;
+    }
+
+    /**
+     * Summary of addToPayload
+     * @param array<mixed> $payload
+     * @param string $fieldType
+     * @param string $fieldName
+     * @param string|array<mixed> $fieldValue
+     *
+     * @return void
+     */
+    private function addToPayload(
+        array &$payload,
+        string $fieldType,
+        string $fieldName,
+        string|array $fieldValue
+    ): void {
+        switch ($fieldType) {
+            case 'select':
+            case 'text':
+                $payload[$fieldName] = $fieldValue === "" ? null : $fieldValue;
+                break;
+            case 'int':
+                $payload[$fieldName] = $fieldValue === "" ? null : (int) $fieldValue;
+                break;
+            case 'radio':
+                $payload[$fieldName] = $fieldValue[$fieldName];
+                break;
+            case 'multiselect':
+                [$category, , $name] = explode('__', $fieldName);
+                $payload["{$category}_{$name}"] = $fieldValue;
+                break;
+            case 'password':
+                $payload[$fieldName] = $fieldValue;
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * @param array<mixed> $values
+     *
+     * @return array{array<mixed>,array<mixed>}
+     */
+    private function getGroupsInfos(array $values): array
+    {
+        $groups_infos = [];
+        $groups_infos_multiple = [];
+        foreach ($this->getTags() as $group) {
+            // Resort array
+            if (isset($values[$group])) {
+                foreach ($values[$group] as $infos) {
+                    if (!isset($groups_infos[$group])) {
+                        $groups_infos[$group] = [];
+                    }
+                    $newArray = [];
+                    foreach ($infos as $key => $info) {
+                        $is_multiple = preg_match('/(.+?)_(\d+)$/', $key, $result);
+                        if ($is_multiple) {
+                            if (!isset($newArray[$result[2]])) {
+                                $newArray[$result[2]] = [];
+                            }
+                            $newArray[$result[2]][$result[1]] = $info;
+
+                            unset($infos[$key]);
+                        }
+                    }
+                    if (!empty($newArray)) {
+                        $groups_infos_multiple[] = $newArray;
+                        $infos['multiple_fields'] = $newArray;
+                    }
+                    $groups_infos[$group][] = $infos;
+                }
+            }
+        }
+
+        return [$groups_infos, $groups_infos_multiple];
+    }
+
+    /**
+     * Generate fieldtype array.
+     *
+     * @param int $typeId The type id
+     * @return array
+     */
+    public function getFieldtypesWithGroup($typeId)
+    {
+        $fieldTypes = [];
+        $block = $this->getBlockInfos($typeId);
+        foreach ($block as $fieldInfos) {
+            if ($fieldInfos['group_name'] !== null) {
+                $fieldTypes[$fieldInfos['group_name']][$fieldInfos['fieldname']] = $fieldInfos['fieldtype'];
+            } else {
+                $fieldTypes[$fieldInfos['fieldname']] = $fieldInfos['fieldtype'];
+            }
+        }
+        return $fieldTypes;
+    }
+
 }

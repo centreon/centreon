@@ -37,6 +37,12 @@
 require_once __DIR__ . '/../../../../bootstrap.php';
 require __DIR__ . '/../../common/vault-functions.php';
 
+use App\Kernel;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
+
 /**
  * Used to update fields in the 'centreon.options' table
  *
@@ -933,9 +939,9 @@ function updateKnowledgeBaseData($db, $form, $centreon, ?string $originalPasswor
  */
 function saveKnowledgeBasePasswordInVault(string $password, ?string $originalPassword): ?string
 {
-    $kernel = \App\Kernel::createForWeb();
+    $kernel = Kernel::createForWeb();
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     if ($vaultConfiguration === null) {
@@ -943,18 +949,19 @@ function saveKnowledgeBasePasswordInVault(string $password, ?string $originalPas
     }
 
     $uuid = null;
-    if ($originalPassword !== null && str_starts_with($originalPassword, "secret::")) {
-        $vaultPathPart = explode("/", $originalPassword);
-        $uuid = end($vaultPathPart);
+    if ($originalPassword !== null && str_starts_with($originalPassword, VaultConfiguration::VAULT_PATH_PATTERN)) {
+        $uuid = preg_match(
+            '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
+            $originalPassword,
+            $matches
+        )
+        && isset($matches[2]) ? $matches[2] : null;
     }
 
-    /**
-     * @var \Centreon\Domain\Log\Logger $logger
-     */
-    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
-    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
-    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    return upsertKnowledgeBasePasswordInVault($password, $vaultConfiguration, $logger, $uuid, $uuidGenerator);
+    /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+    $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+    $writeVaultRepository->setCustomPath(AbstractVaultRepository::KNOWLEDGE_BASE_PATH);
+    return upsertKnowledgeBasePasswordInVault($writeVaultRepository, $password, $uuid);
 }
 
 /**

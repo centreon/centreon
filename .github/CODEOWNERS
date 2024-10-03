@@ -34,11 +34,6 @@ tsconfig.json                           @centreon/owners-react
 *.jsx                                   @centreon/owners-react
 **/cypress/**                           @centreon/owners-react
 
-centreon-gorgone/                       @centreon/owners-perl
-centreon-gorgone/docs/                  @centreon/owners-doc
-centreon-gorgone/tests/                 @centreon/owners-robot-e2e
-
-centreon-gorgone/tests/robot/config/    @centreon/owners-perl
 *.pm                                    @centreon/owners-perl
 *.pl                                    @centreon/owners-perl
 
@@ -55,5 +50,8 @@ centreon-gorgone/tests/robot/config/    @centreon/owners-perl
 **/project/                             @centreon/owners-pipelines
 **/packaging/                           @centreon/owners-pipelines
 dependencies/**                         @centreon/owners-pipelines
+.coderabbit.yml                         @centreon/owners-pipelines
 
-**/config/features.json @centreon/release-management
+**/config/features.json                 @centreon/release-management
+
+**/tests/rest_api/**                    @centreon/owners-api-testing

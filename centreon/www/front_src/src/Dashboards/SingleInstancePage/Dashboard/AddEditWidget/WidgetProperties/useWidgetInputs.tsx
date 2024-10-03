@@ -1,43 +1,65 @@
 import { useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { propEq, find, path, equals, type } from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
+import {
+  path,
+  difference,
+  equals,
+  find,
+  has,
+  includes,
+  isEmpty,
+  pluck,
+  propEq,
+  reject,
+  type
+} from 'ramda';
 
 import { useDeepCompare } from '@centreon/ui';
+import {
+  featureFlagsDerivedAtom,
+  platformVersionsAtom
+} from '@centreon/ui-context';
 
-import { Widget, WidgetPropertyProps } from '../models';
+import { federatedWidgetsPropertiesAtom } from '../../../../../federatedModules/atoms';
 import {
   FederatedWidgetOption,
   FederatedWidgetOptionType
 } from '../../../../../federatedModules/models';
 import {
   customBaseColorAtom,
-  singleResourceSelectionAtom,
   singleMetricSelectionAtom,
+  singleResourceSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
-import { federatedWidgetsPropertiesAtom } from '../../../../../federatedModules/atoms';
+import { Widget, WidgetPropertyProps } from '../models';
 
 import {
+  WidgetButtonGroup,
+  WidgetCheckboxes,
+  WidgetColorSelector,
+  WidgetConnectedAutocomplete,
+  WidgetDatePicker,
+  WidgetDisplayType,
+  WidgetLocale,
   WidgetMetrics,
+  WidgetRadio,
   WidgetRefreshInterval,
   WidgetResources,
   WidgetRichTextEditor,
+  WidgetSelect,
+  WidgetSlider,
+  WidgetSwitch,
+  WidgetText,
   WidgetTextField,
   WidgetThreshold,
-  WidgetValueFormat,
-  WidgetTimePeriod,
-  WidgetTopBottomSettings,
-  WidgetRadio,
-  WidgetCheckboxes,
   WidgetTiles,
-  WidgetDisplayType,
-  WidgetSwitch,
-  WidgetSelect,
-  WidgetButtonGroup,
-  WidgetSlider,
-  WidgetText
+  WidgetTimeFormat,
+  WidgetTimePeriod,
+  WidgetTimezone,
+  WidgetTopBottomSettings,
+  WidgetValueFormat
 } from './Inputs';
 
 export interface WidgetPropertiesRenderer {
@@ -64,7 +86,14 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.select]: WidgetSelect,
   [FederatedWidgetOptionType.buttonGroup]: WidgetButtonGroup,
   [FederatedWidgetOptionType.slider]: WidgetSlider,
-  [FederatedWidgetOptionType.text]: WidgetText
+  [FederatedWidgetOptionType.text]: WidgetText,
+  [FederatedWidgetOptionType.connectedAutocomplete]:
+    WidgetConnectedAutocomplete,
+  [FederatedWidgetOptionType.timezone]: WidgetTimezone,
+  [FederatedWidgetOptionType.locale]: WidgetLocale,
+  [FederatedWidgetOptionType.color]: WidgetColorSelector,
+  [FederatedWidgetOptionType.timeFormat]: WidgetTimeFormat,
+  [FederatedWidgetOptionType.datePicker]: WidgetDatePicker
 };
 
 export const DefaultComponent = (): JSX.Element => (
@@ -80,6 +109,8 @@ export const useWidgetInputs = (
   const federatedWidgetsProperties = useAtomValue(
     federatedWidgetsPropertiesAtom
   );
+  const { modules } = useAtomValue(platformVersionsAtom);
+  const featureFlags = useAtomValue(featureFlagsDerivedAtom);
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
   const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
@@ -99,21 +130,43 @@ export const useWidgetInputs = (
       selectedWidgetProperties
         ? Object.entries(selectedWidgetProperties)
             .filter(([, value]) => {
+              const hasModule = value.hasModule
+                ? has(value.hasModule, modules)
+                : true;
+
               if (!value.hiddenCondition) {
                 return true;
               }
-              const formattedValue = path(
-                value.hiddenCondition.when.split('.'),
-                values
-              );
 
-              if (equals(type(value.hiddenCondition.matches), 'Array')) {
-                return !(
-                  value.hiddenCondition.matches as Array<unknown>
-                ).includes(formattedValue);
+              const { target, method, when, matches } = value.hiddenCondition;
+
+              if (equals(target, 'featureFlags')) {
+                return (
+                  hasModule &&
+                  !equals(featureFlags?.[value.hiddenCondition.when], matches)
+                );
               }
 
-              return !equals(formattedValue, value.hiddenCondition.matches);
+              if (equals(method, 'includes')) {
+                const formValue = path(when.split('.'), values);
+                const property = value.hiddenCondition?.property;
+                const items = property ? pluck(property, formValue) : formValue;
+                const areItemsString = equals(type(items), 'String');
+
+                return (
+                  hasModule &&
+                  (isEmpty(reject(equals(''), items)) ||
+                    (areItemsString
+                      ? !includes(items, matches)
+                      : !isEmpty(
+                          difference(reject(equals(''), items), matches)
+                        )))
+                );
+              }
+
+              return (
+                hasModule && !equals(path(when.split('.'), values), matches)
+              );
             })
             .map(([key, value]) => {
               const Component =

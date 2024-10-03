@@ -1,25 +1,27 @@
 /* eslint-disable import/no-unresolved */
 
-import { Formik } from 'formik';
-import { createStore, Provider } from 'jotai';
 import widgetDataProperties from 'centreon-widgets/centreon-widget-data/properties.json';
-import { difference, includes, omit, pluck, reject } from 'ramda';
+import { Formik } from 'formik';
+import { Provider, createStore } from 'jotai';
+import { difference, includes, pluck, reject } from 'ramda';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 
-import { widgetPropertiesAtom } from '../../../atoms';
-import { WidgetResourceType } from '../../../models';
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
   labelAddFilter,
   labelDelete,
+  labelHost,
   labelHostCategory,
   labelHostGroup,
   labelResourceType,
   labelSelectAResource,
+  labelService,
   labelServiceCategory,
   labelServiceGroup
 } from '../../../../translatedLabels';
-import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
+import { widgetPropertiesAtom } from '../../../atoms';
+import { WidgetResourceType } from '../../../models';
 
 import Resources from './Resources';
 import { resourceTypeBaseEndpoints, resourceTypeOptions } from './useResources';
@@ -159,30 +161,12 @@ const initialize = ({
 };
 
 describe('Resources', () => {
-  it('does not request services only with performance data when the widget input is not defined', () => {
-    const widgetPropertiesWithoutMetrics = {
-      ...widgetDataProperties,
-      data: omit(['metrics'], widgetDataProperties.data)
-    };
-    initialize({
-      properties: widgetPropertiesWithoutMetrics,
-      singleMetricSelection: true,
-      singleResourceSelection: true
-    });
-
-    cy.findAllByTestId(labelSelectAResource).eq(1).click();
-    cy.waitForRequest('@getServices').then(({ request }) => {
-      expect(request.url.href).contain(
-        'page=1&limit=30&search=%7B%22host.name%22%3A%7B%22%24in%22%3A%5B%5D%7D%7D'
-      );
-    });
-  });
-
   it('displays host and service type when the corresponding atom is set to true', () => {
     initialize({ singleMetricSelection: true, singleResourceSelection: true });
 
     cy.findAllByTestId(labelResourceType).eq(0).should('have.value', 'host');
     cy.findAllByTestId(labelResourceType).eq(1).should('have.value', 'service');
+    cy.findAllByTestId(labelSelectAResource).eq(1).should('be.disabled');
 
     cy.findAllByTestId(labelSelectAResource).eq(0).click();
     cy.waitForRequest('@getHosts');
@@ -191,7 +175,7 @@ describe('Resources', () => {
     cy.findAllByTestId(labelSelectAResource).eq(1).click();
     cy.waitForRequest('@getServices').then(({ request }) => {
       expect(request.url.href).contain(
-        'page=1&limit=30&search=%7B%22host.name%22%3A%7B%22%24in%22%3A%5B%22Host%200%22%5D%7D%7D'
+        'page=1&limit=30&search=%7B%22%24and%22%3A%5B%7B%22%24or%22%3A%5B%7B%22host.name%22%3A%7B%22%24in%22%3A%5B%22Host%200%22%5D%7D%7D%5D%7D%5D%7D'
       );
     });
     cy.contains('Service 0').click();
@@ -250,7 +234,7 @@ describe('Resources', () => {
     cy.makeSnapshot();
   });
 
-  it('deletes a resource when the corresponding is clicked', () => {
+  it('deletes a resource when the corresponding icon is clicked', () => {
     initialize({});
 
     cy.findByTestId(labelResourceType).parent().click();
@@ -259,22 +243,6 @@ describe('Resources', () => {
     cy.waitForRequest('@getHosts');
     cy.contains('Host 0').click();
     cy.findByTestId('CancelIcon').click();
-
-    cy.contains('Host 0').should('not.exist');
-
-    cy.makeSnapshot();
-  });
-
-  it('deletes a resource when the corresponding is clicked and corresponding prop are set', () => {
-    initialize({ singleMetricSelection: true, singleResourceSelection: true });
-
-    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
-    cy.contains(/^Host$/).click();
-    cy.findAllByTestId(labelSelectAResource).eq(0).click();
-    cy.waitForRequest('@getHosts');
-    cy.contains('Host 0').click();
-    cy.findAllByTestId(labelSelectAResource).eq(0).focus();
-    cy.findAllByTestId('CloseIcon').eq(0).click();
 
     cy.contains('Host 0').should('not.exist');
 
@@ -437,5 +405,37 @@ describe('Resources tree', () => {
     cy.contains(labelAddFilter).should('be.disabled');
 
     cy.makeSnapshot();
+  });
+
+  it('revalidates subsequent resources when a resource is changed', () => {
+    initialize({});
+
+    cy.findByTestId(labelResourceType).parent().click();
+    cy.contains(labelHostGroup).click();
+    cy.findByTestId(labelSelectAResource).click();
+    cy.contains('Host Group 0').click();
+    cy.contains(labelAddFilter).click();
+    cy.findAllByTestId(labelResourceType).eq(1).parent().click();
+    cy.findByLabelText(labelHost).click();
+    cy.findAllByTestId(labelSelectAResource).eq(1).click();
+    cy.contains('Host 0').click();
+    cy.contains(labelAddFilter).click();
+    cy.findAllByTestId(labelResourceType).eq(2).parent().click();
+    cy.findByLabelText(labelService).click();
+    cy.findAllByTestId(labelSelectAResource).eq(2).click();
+    cy.contains('Service 0').click();
+    cy.findAllByTestId(labelSelectAResource).eq(0).click();
+    cy.contains('Host Group 1').click();
+
+    cy.waitForRequest('@getHosts').then(() => {
+      cy.getRequestCalls('@getHosts').then((calls) => {
+        expect(calls).to.have.length(2);
+      });
+    });
+    cy.waitForRequest('@getServices').then(() => {
+      cy.getRequestCalls('@getServices').then((calls) => {
+        expect(calls).to.have.length(2);
+      });
+    });
   });
 });

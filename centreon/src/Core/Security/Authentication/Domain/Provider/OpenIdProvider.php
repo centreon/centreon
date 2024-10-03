@@ -46,6 +46,7 @@ use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\Attr
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\Conditions;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\GroupsMapping as GroupsMappingSecurityAccess;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\RolesMapping;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use DateInterval;
 use Exception;
 use Pimple\Container;
@@ -285,7 +286,7 @@ class OpenIdProvider implements OpenIdProviderInterface
             throw ConfigurationException::missingInformationEndpoint();
         }
 
-        $this->sendRequestForConnectionTokenOrFail($authorizationCode);
+        $this->sendRequestForConnectionTokenOrFail($authorizationCode, $customConfiguration->getRedirectUrl());
         $this->createAuthenticationTokens();
         if (array_key_exists('id_token', $this->connectionTokenResponseContent)) {
             $this->idTokenPayload = $this->extractTokenPayload($this->connectionTokenResponseContent['id_token']);
@@ -464,19 +465,26 @@ class OpenIdProvider implements OpenIdProviderInterface
      * Get Connection Token from OpenId Provider.
      *
      * @param string $authorizationCode
+     * @param string|null $redirectUrl
      *
      * @throws SSOAuthenticationException
      */
-    private function sendRequestForConnectionTokenOrFail(string $authorizationCode): void
+    private function sendRequestForConnectionTokenOrFail(string $authorizationCode, ?string $redirectUrl): void
     {
         $this->info('Send request to external provider for connection token...');
 
         // Define parameters for the request
-        $redirectUri = $this->router->generate(
-            'centreon_security_authentication_login_openid',
-            [],
-            UrlGeneratorInterface::ABSOLUTE_URL
-        );
+        $redirectUri = $redirectUrl !== null
+            ? $redirectUrl . $this->router->generate(
+                'centreon_security_authentication_login_openid',
+                [],
+                UrlGeneratorInterface::ABSOLUTE_PATH
+            )
+            : $this->router->generate(
+                'centreon_security_authentication_login_openid',
+                [],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            );
         $data = [
             'grant_type' => 'authorization_code',
             'code' => $authorizationCode,
@@ -565,24 +573,28 @@ class OpenIdProvider implements OpenIdProviderInterface
 
         if (
             $customConfiguration->getClientId() !== null
-            && str_starts_with($customConfiguration->getClientId(), 'secret::')
+            && str_starts_with($customConfiguration->getClientId(), VaultConfiguration::VAULT_PATH_PATTERN)
         ) {
             $vaultData = $this->readVaultRepository->findFromPath($customConfiguration->getClientId());
-            if (! array_key_exists('_OPENID_CLIENT_ID', $vaultData)) {
-                throw OpenIdConfigurationException::unableToRetrieveCredentialFromVault('_OPENID_CLIENT_ID');
+            if (! array_key_exists(VaultConfiguration::OPENID_CLIENT_ID_KEY, $vaultData)) {
+                throw OpenIdConfigurationException::unableToRetrieveCredentialFromVault(
+                    VaultConfiguration::OPENID_CLIENT_ID_KEY
+                );
             }
-            $customConfiguration->setClientId($vaultData['_OPENID_CLIENT_ID']);
+            $customConfiguration->setClientId($vaultData[VaultConfiguration::OPENID_CLIENT_ID_KEY]);
         }
 
         if (
             $customConfiguration->getClientSecret() !== null
-            && str_starts_with($customConfiguration->getClientSecret(), 'secret::')
+            && str_starts_with($customConfiguration->getClientSecret(), VaultConfiguration::VAULT_PATH_PATTERN)
         ) {
             $vaultData = $this->readVaultRepository->findFromPath($customConfiguration->getClientSecret());
-            if (! array_key_exists('_OPENID_CLIENT_SECRET', $vaultData)) {
-                throw OpenIdConfigurationException::unableToRetrieveCredentialFromVault('_OPENID_CLIENT_SECRET');
+            if (! array_key_exists(VaultConfiguration::OPENID_CLIENT_SECRET_KEY, $vaultData)) {
+                throw OpenIdConfigurationException::unableToRetrieveCredentialFromVault(
+                    VaultConfiguration::OPENID_CLIENT_SECRET_KEY
+                );
             }
-            $customConfiguration->setClientSecret($vaultData['_OPENID_CLIENT_SECRET']);
+            $customConfiguration->setClientSecret($vaultData[VaultConfiguration::OPENID_CLIENT_SECRET_KEY]);
         }
 
         // Define parameters for the request
@@ -856,24 +868,28 @@ class OpenIdProvider implements OpenIdProviderInterface
         $customConfiguration = $this->configuration->getCustomConfiguration();
         if (
             $customConfiguration->getClientId() !== null
-            && str_starts_with($customConfiguration->getClientId(), 'secret::')
+            && str_starts_with($customConfiguration->getClientId(), VaultConfiguration::VAULT_PATH_PATTERN)
         ) {
             $vaultData = $this->readVaultRepository->findFromPath($customConfiguration->getClientId());
-            if (! array_key_exists('_OPENID_CLIENT_ID', $vaultData)) {
-                throw OpenIdConfigurationException::unableToRetrieveCredentialFromVault('_OPENID_CLIENT_ID');
+            if (! array_key_exists(VaultConfiguration::OPENID_CLIENT_ID_KEY, $vaultData)) {
+                throw OpenIdConfigurationException::unableToRetrieveCredentialFromVault(
+                    VaultConfiguration::OPENID_CLIENT_ID_KEY
+                );
             }
-            $customConfiguration->setClientId($vaultData['_OPENID_CLIENT_ID']);
+            $customConfiguration->setClientId($vaultData[VaultConfiguration::OPENID_CLIENT_ID_KEY]);
         }
 
         if (
             $customConfiguration->getClientSecret() !== null
-            && str_starts_with($customConfiguration->getClientSecret(), 'secret::')
+            && str_starts_with($customConfiguration->getClientSecret(), VaultConfiguration::VAULT_PATH_PATTERN)
         ) {
             $vaultData = $this->readVaultRepository->findFromPath($customConfiguration->getClientSecret());
-            if (! array_key_exists('_OPENID_CLIENT_SECRET', $vaultData)) {
-                throw OpenIdConfigurationException::unableToRetrieveCredentialFromVault('_OPENID_CLIENT_SECRET');
+            if (! array_key_exists(VaultConfiguration::OPENID_CLIENT_SECRET_KEY, $vaultData)) {
+                throw OpenIdConfigurationException::unableToRetrieveCredentialFromVault(
+                    VaultConfiguration::OPENID_CLIENT_SECRET_KEY
+                );
             }
-            $customConfiguration->setClientSecret($vaultData['_OPENID_CLIENT_SECRET']);
+            $customConfiguration->setClientSecret($vaultData[VaultConfiguration::OPENID_CLIENT_SECRET_KEY]);
         }
         if ($customConfiguration->getAuthenticationType() === CustomConfiguration::AUTHENTICATION_BASIC) {
             $headers['Authorization'] = 'Basic ' . base64_encode(

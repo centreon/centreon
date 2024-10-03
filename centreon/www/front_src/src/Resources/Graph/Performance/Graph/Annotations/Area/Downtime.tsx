@@ -2,9 +2,10 @@ import { useTranslation } from 'react-i18next';
 
 import { useTheme } from '@mui/material';
 
-import { labelDowntime } from '../../../../../translatedLabels';
-import IconDowntime from '../../../../../icons/Downtime';
+import { DowntimeIcon } from '@centreon/ui';
+
 import { Props } from '..';
+import { labelDowntime } from '../../../../../translatedLabels';
 import EventAnnotations from '../EventAnnotations';
 
 const DowntimeAnnotations = (props: Props): JSX.Element => {
@@ -15,7 +16,7 @@ const DowntimeAnnotations = (props: Props): JSX.Element => {
 
   return (
     <EventAnnotations
-      Icon={IconDowntime}
+      Icon={DowntimeIcon}
       ariaLabel={t(labelDowntime)}
       color={color}
       type="downtime"

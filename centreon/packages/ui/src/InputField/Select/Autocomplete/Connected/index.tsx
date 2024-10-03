@@ -1,34 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   equals,
-  prop,
-  last,
-  isEmpty,
-  map,
-  isNil,
-  pipe,
-  not,
   has,
+  isEmpty,
+  isNil,
+  last,
+  map,
+  not,
   omit,
+  pipe,
+  prop,
   uniqBy
 } from 'ramda';
 
 import { CircularProgress, useTheme } from '@mui/material';
 
 import { Props as AutocompleteFieldProps } from '..';
-import {
-  useDebounce,
-  useIntersectionObserver,
-  useDeepCompare
-} from '../../../../utils';
 import { ListingModel, SelectEntry } from '../../../..';
-import Option from '../../Option';
 import {
   ConditionsSearchParameter,
   SearchParameter
 } from '../../../../api/buildListingEndpoint/models';
 import useFetchQuery from '../../../../api/useFetchQuery';
+import {
+  useDebounce,
+  useDeepCompare,
+  useIntersectionObserver
+} from '../../../../utils';
+import Option from '../../Option';
 
 export interface ConnectedAutoCompleteFieldProps<TData> {
   allowUniqOption?: boolean;

@@ -1,0 +1,9 @@
+type: object
+properties:
+  id:
+    type: integer
+    example: 4
+  name:
+    type: string
+    description: "Poller name"
+    example: "my-poller-name"

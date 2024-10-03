@@ -1,18 +1,17 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-import { isNil, path } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { path, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Paper, Stack, Typography } from '@mui/material';
-import NotificationIconOff from '@mui/icons-material/NotificationsOff';
-import NotificationIconActive from '@mui/icons-material/NotificationsActive';
-import PersonIcon from '@mui/icons-material/Person';
 import GroupIcon from '@mui/icons-material/Group';
+import NotificationIconActive from '@mui/icons-material/NotificationsActive';
+import NotificationIconOff from '@mui/icons-material/NotificationsOff';
+import PersonIcon from '@mui/icons-material/Person';
+import { Paper, Stack, Typography } from '@mui/material';
 
 import { getData, useRequest } from '@centreon/ui';
 
-import { detailsAtom } from '../../detailsAtoms';
 import {
   labelAlias,
   labelContactGroups,
@@ -23,11 +22,12 @@ import {
   labelNoContactIsConfiguredForThisResource,
   labelNotificationStatus
 } from '../../../translatedLabels';
+import { detailsAtom } from '../../detailsAtoms';
 
-import { Contact, ContactGroup, NotificationContacts } from './models';
+import ContactCell from './ContactCell';
 import Contacts from './Contacts';
 import ContactsLoadingSkeleton from './ContactsLoadingSkeleton';
-import ContactCell from './ContactCell';
+import { Contact, ContactGroup, NotificationContacts } from './models';
 
 const Notifications = (): JSX.Element => {
   const { t } = useTranslation();

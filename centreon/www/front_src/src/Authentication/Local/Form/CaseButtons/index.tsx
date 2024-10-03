@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { FormikValues, useFormikContext } from 'formik';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import {
@@ -14,22 +14,22 @@ import {
 
 import { useMemoComponent } from '@centreon/ui';
 
+import StrengthProgress from '../../StrengthProgress';
 import {
   labelChooseLetterCases,
-  labelPasswordMustContainLowerCase,
-  labelPasswordMustContainNumbers,
-  labelPasswordMustContainSpecialCharacters,
-  labelPasswordMustContainUpperCase,
   labelGood,
   labelLowerCase,
   labelNumber,
   labelPasswordExpiresAfter,
+  labelPasswordMustContainLowerCase,
+  labelPasswordMustContainNumbers,
+  labelPasswordMustContainSpecialCharacters,
+  labelPasswordMustContainUpperCase,
   labelSpecialCharacters,
   labelStrong,
   labelUpperCase,
   labelWeak
 } from '../../translatedLabels';
-import StrengthProgress from '../../StrengthProgress';
 import { getFields } from '../utils';
 
 import LabelWithTooltip from './LabelWithTooltip';

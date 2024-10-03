@@ -1,18 +1,19 @@
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 import { useAtomValue } from 'jotai';
-import { makeStyles } from 'tss-react/mui';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
+import { makeStyles } from 'tss-react/mui';
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Typography } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import { userAtom } from '@centreon/ui-context';
 
 import DateTimePickerInput from '../../DateTimePickerInput';
+import { isInvalidDate } from '../../helpers';
 import {
   CustomTimePeriodProperty,
   DateTimePickerInputModel
@@ -20,8 +21,10 @@ import {
 import { errorTimePeriodAtom } from '../../timePeriodsAtoms';
 
 import ErrorText from './ErrorText';
-import { PickersData, PickersStartEndDateDirection } from './models';
-import { PickersStartEndDateModel } from './usePickersStartEndDate';
+import {
+  PickersStartEndDateDirection,
+  PickersStartEndDateProps
+} from './models';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -36,9 +39,6 @@ const useStyles = makeStyles()((theme) => ({
     gap: theme.spacing(1),
     justifyItems: 'center',
     padding: 0
-  },
-  horizontalError: {
-    textAlign: 'left'
   },
   row: {
     alignItems: 'center',
@@ -89,17 +89,6 @@ const PickerDateWithLabel = ({
   );
 };
 
-interface DisabledPicker {
-  isDisabledEndPicker?: boolean;
-  isDisabledStartPicker?: boolean;
-}
-type PickersDate = Pick<PickersData, 'rangeEndDate' | 'rangeStartDate'>;
-
-interface Props extends PickersDate, PickersStartEndDateModel {
-  direction?: PickersStartEndDateDirection;
-  disabled?: DisabledPicker;
-}
-
 const PickersStartEndDate = ({
   startDate,
   endDate,
@@ -108,11 +97,12 @@ const PickersStartEndDate = ({
   rangeStartDate,
   rangeEndDate,
   direction = PickersStartEndDateDirection.column
-}: Props): JSX.Element => {
-  const { classes, cx } = useStyles();
+}: PickersStartEndDateProps): JSX.Element => {
+  const { classes } = useStyles();
 
   const { locale } = useAtomValue(userAtom);
   const error = useAtomValue(errorTimePeriodAtom);
+  const isError = error || isInvalidDate({ endDate, startDate });
 
   const maxStart = rangeStartDate?.max || endDate;
   const minStart = rangeStartDate?.min;
@@ -122,11 +112,6 @@ const PickersStartEndDate = ({
   const styleContainer = equals(direction, PickersStartEndDateDirection.column)
     ? classes.verticalDirection
     : classes.horizontalDirection;
-
-  const isHorizontalDirection = equals(
-    direction,
-    PickersStartEndDateDirection.row
-  );
 
   return (
     <LocalizationProvider
@@ -156,12 +141,10 @@ const PickersStartEndDate = ({
         />
       </div>
 
-      {error && (
+      {isError && (
         <ErrorText
           message="The end date must be greater than the start date"
-          style={cx(classes.error, {
-            [classes.horizontalError]: isHorizontalDirection
-          })}
+          style={classes.error}
         />
       )}
     </LocalizationProvider>
