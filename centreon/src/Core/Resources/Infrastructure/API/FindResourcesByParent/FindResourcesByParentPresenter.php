@@ -212,7 +212,7 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
             'tries' => $response->tries,
             'information' => $response->information,
             'performance_data' => null,
-            'is_notification_enabled' => false,
+            'is_notification_enabled' => $response->areNotificationsEnabled(),
             'severity' => $severity,
             'links' => $links,
         ];
