@@ -17,7 +17,7 @@ properties:
     example: telegraf
   pollers:
     type: array
-    description: "List of pollers that are attached to this ACC"
+    description: "List of pollers that are attached to this object"
     items:
       type: object
       properties:
