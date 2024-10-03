@@ -134,7 +134,7 @@ for ($i = 0; $nagios = $dbResult->fetch(); $i++) {
     $elemArr[$i] = array(
         "MenuClass" => "list_" . $style,
         "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_name" => HtmlSanitizer::create()->sanitize($nagios["nagios_name"]),
+        "RowMenu_name" => $nagios["nagios_name"],
         "RowMenu_instance" => $nagios_servers[$nagios["nagios_server_id"]],
         "RowMenu_link" => "main.php?p=" . $p . "&o=c&nagios_id=" . $nagios['nagios_id'],
         "RowMenu_desc" => substr($nagios["nagios_comment"], 0, 40),
