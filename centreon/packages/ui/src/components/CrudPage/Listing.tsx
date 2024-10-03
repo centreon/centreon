@@ -4,7 +4,6 @@ import { MemoizedListing } from '../../Listing';
 import Actions from './Actions/Actions';
 import {
   changeSortAtom,
-  isDeleteEnabledAtom,
   limitAtom,
   pageAtom,
   sortFieldAtom,
@@ -31,19 +30,16 @@ const Listing = <TData extends { id: number; name: string }>({
   const [limit, setLimit] = useAtom(limitAtom);
   const sortOrder = useAtomValue(sortOrderAtom);
   const sortField = useAtomValue(sortFieldAtom);
-  const isDeleteEnabled = useAtomValue(isDeleteEnabledAtom);
   const changeSort = useSetAtom(changeSortAtom);
 
-  const listingColumns = isDeleteEnabled
-    ? columns.concat({
-        type: ColumnType.component,
-        id: 'actions',
-        label: '',
-        Component: ColumnActions,
-        width: 'min-content',
-        clickable: true
-      })
-    : columns;
+  const listingColumns = columns.concat({
+    type: ColumnType.component,
+    id: 'actions',
+    label: '',
+    Component: ColumnActions,
+    width: 'min-content',
+    clickable: true
+  });
 
   return (
     <MemoizedListing

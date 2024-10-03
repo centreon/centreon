@@ -60,6 +60,34 @@ export interface DeleteItem<TData> {
   };
 }
 
+export interface GetItem<TItem, TItemForm> {
+  baseEndpoint: (id: number) => string;
+  decoder?: JsonDecoder.Decoder<TItem>;
+  adapter: (item: TItem) => TItemForm;
+  itemQueryKey: string;
+}
+
+export interface Form<TItem, TItemForm> {
+  Form: (props: {
+    Buttons: () => JSX.Element;
+    initialValues?: TItemForm;
+    isLoading?: boolean;
+  }) => JSX.Element;
+  getItem: GetItem<TItem, TItemForm>;
+  labels: {
+    add: {
+      title: string;
+      cancel: string;
+      confirm: string;
+    };
+    update: {
+      title: string;
+      cancel: string;
+      confirm: string;
+    };
+  };
+}
+
 export interface ListingProps<TData> {
   rows: Array<TData>;
   total: number;
@@ -75,9 +103,10 @@ export interface ItemToDelete {
   parent?: { id: number; name: string };
 }
 
-export interface CrudPageRootProps<TData, TFilters>
+export interface CrudPageRootProps<TData, TFilters, TItem, TItemForm>
   extends UseGetItemsProps<TData, TFilters>,
     ListingProps<TData> {
+  form: Form<TItem, TItemForm>;
   labels: CrudPageRootLabels;
   deleteItem: DeleteItem<TData>;
 }

@@ -1,10 +1,16 @@
+import { EditOutlined } from '@mui/icons-material';
 import DeleteOutline from '@mui/icons-material/DeleteOutline';
 import { Box } from '@mui/material';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { isNil } from 'ramda';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconButton } from '../../Button';
-import { isDeleteEnabledAtom, itemToDeleteAtom } from '../atoms';
+import {
+  isDeleteEnabledAtom,
+  itemToDeleteAtom,
+  openFormModalAtom
+} from '../atoms';
 
 interface Props<TData> {
   row: TData & {
@@ -14,6 +20,7 @@ interface Props<TData> {
 }
 
 const labelDelete = 'Delete';
+const labelUpdate = 'Update';
 
 const Actions = <TData extends { id: number; name: string }>({
   row
@@ -21,6 +28,7 @@ const Actions = <TData extends { id: number; name: string }>({
   const { t } = useTranslation();
   const isDeleteEnabled = useAtomValue(isDeleteEnabledAtom);
   const setItemToDelete = useSetAtom(itemToDeleteAtom);
+  const setOpenFormModal = useSetAtom(openFormModalAtom);
 
   const askBeforeDelete = (): void => {
     setItemToDelete({
@@ -35,8 +43,26 @@ const Actions = <TData extends { id: number; name: string }>({
     });
   };
 
+  const updateRow = useCallback(() => setOpenFormModal(row.id), [row.id]);
+
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 1,
+        width: '100%',
+        justifyContent: 'flex-end'
+      }}
+    >
+      {isNil(row.internalListingParentRow) && (
+        <IconButton
+          size="small"
+          icon={<EditOutlined fontSize="small" color="primary" />}
+          onClick={updateRow}
+          title={t(labelUpdate)}
+        />
+      )}
       {isDeleteEnabled && (
         <IconButton
           size="small"

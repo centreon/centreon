@@ -1,9 +1,9 @@
 import { FormControlLabel, Switch, Typography } from '@mui/material';
 import { Meta, StoryObj } from '@storybook/react';
-import { atom, useAtom } from 'jotai';
+import { atom, useAtom, useSetAtom } from 'jotai';
 import { http, HttpResponse } from 'msw';
-import { isNil, prop } from 'ramda';
-import { ChangeEvent } from 'react';
+import { identity, isNil, prop } from 'ramda';
+import { ChangeEvent, useEffect } from 'react';
 import { CrudPage } from '.';
 import { SnackbarProvider } from '../../';
 import { Column, ColumnType } from '../../Listing/models';
@@ -130,6 +130,48 @@ const args = {
   labels,
   columns,
   filters: <Filters />,
+  form: {
+    getItem: {
+      baseEndpoint: (id) => `/item/${id}`,
+      adapter: identity,
+      itemQueryKey: 'item'
+    },
+    Form: ({ initialValues }) => {
+      const [askBeforeCloseForm, setAskBeforeCloseFormModal] = useAtom(
+        CrudPage.askBeforeCloseFormModalAtom
+      );
+      const setOpenFormModal = useSetAtom(CrudPage.openFormModalAtom);
+
+      useEffect(() => {
+        if (!askBeforeCloseForm) {
+          return;
+        }
+
+        setOpenFormModal(null);
+        setAskBeforeCloseFormModal(false);
+      }, [askBeforeCloseForm]);
+
+      return (
+        <Typography>
+          This is a placeholder for the form
+          <br />
+          Initial values: {JSON.stringify(initialValues)}
+        </Typography>
+      );
+    },
+    labels: {
+      add: {
+        title: 'Add item',
+        cancel: 'Cancel',
+        confirm: 'Add'
+      },
+      update: {
+        title: 'Update item',
+        cancel: 'Cancel',
+        confirm: 'Update'
+      }
+    }
+  },
   deleteItem: {
     enabled: true,
     deleteEndpoint: (item) =>
@@ -158,14 +200,22 @@ const args = {
   }
 };
 
-const meta: Meta<typeof CrudPage<Item, Filters>> = {
+const meta: Meta<typeof CrudPage<Item, Filters, Item, Item>> = {
   args,
-  component: CrudPage<Item, Filters>,
+  component: CrudPage<Item, Filters, Item, Item>,
   parameters: {
     msw: {
       handlers: [
         http.get('**/listing**', () => {
           return HttpResponse.json(mockedListing);
+        }),
+        http.get('**/item**', () => {
+          return HttpResponse.json({
+            id: 0,
+            name: 'Item 0',
+            description: 'Description 0',
+            subItems: [{ id: 1, name: 'SubItem' }]
+          });
         }),
         http.delete('**/delete**', () => {
           return HttpResponse.json({});
@@ -177,7 +227,7 @@ const meta: Meta<typeof CrudPage<Item, Filters>> = {
     return (
       <SnackbarProvider>
         <div style={{ height: '90vh' }}>
-          <CrudPage<Item, Filters> {...args} />
+          <CrudPage<Item, Filters, Item, Item> {...args} />
         </div>
       </SnackbarProvider>
     );

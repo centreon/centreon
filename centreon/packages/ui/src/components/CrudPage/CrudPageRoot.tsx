@@ -5,15 +5,23 @@ import PageSkeleton from '../../PageSkeleton';
 import { DataTable } from '../DataTable';
 import { PageHeader } from '../Header';
 import { PageLayout } from '../Layout';
-import DeleteModal from './DeletEModal';
+import DeleteModal from './DeleteModal';
+import AddModal from './Form/AddModal';
+import UpdateModal from './Form/UpdateModal';
 import Listing from './Listing';
-import { isDeleteEnabledAtom, openFormModalAtom } from './atoms';
+import {
+  formLabelButtonsAtom,
+  isDeleteEnabledAtom,
+  openFormModalAtom
+} from './atoms';
 import { useGetItems } from './hooks/useGetItems';
 import type { CrudPageRootProps } from './models';
 
 export const CrudPageRoot = <
   TData extends { id: number; name: string },
-  TFilters
+  TFilters,
+  TItem extends { id: number; name: string },
+  TItemForm
 >({
   labels,
   decoder,
@@ -24,9 +32,11 @@ export const CrudPageRoot = <
   columns,
   subItems,
   filters,
-  deleteItem
-}: CrudPageRootProps<TData, TFilters>): JSX.Element => {
+  deleteItem,
+  form
+}: CrudPageRootProps<TData, TFilters, TItem, TItemForm>): JSX.Element => {
   const previousIsDeleteEnabledRef = useRef(false);
+  const previousFormLabelButtonsRef = useRef<unknown | null>(null);
   const { isDataEmpty, hasItems, isLoading, items, total } = useGetItems<
     TData,
     TFilters
@@ -40,10 +50,25 @@ export const CrudPageRoot = <
 
   const setOpenFormModal = useSetAtom(openFormModalAtom);
   const setIsDeleteEnabled = useSetAtom(isDeleteEnabledAtom);
+  const setFormLabelButton = useSetAtom(formLabelButtonsAtom);
 
   if (!equals(previousIsDeleteEnabledRef.current, deleteItem.enabled)) {
     setIsDeleteEnabled(deleteItem.enabled);
     previousIsDeleteEnabledRef.current = deleteItem.enabled;
+  }
+
+  if (!equals(previousFormLabelButtonsRef.current, form.labels)) {
+    setFormLabelButton({
+      add: {
+        cancel: form.labels.add.cancel,
+        confirm: form.labels.add.confirm
+      },
+      update: {
+        cancel: form.labels.update.cancel,
+        confirm: form.labels.update.confirm
+      }
+    });
+    previousFormLabelButtonsRef.current = form.labels;
   }
 
   const add = useCallback(() => setOpenFormModal('add'), []);
@@ -98,6 +123,12 @@ export const CrudPageRoot = <
               labels={deleteItem.labels}
             />
           )}
+          <AddModal title={form.labels.add.title} Form={form.Form} />
+          <UpdateModal<TItem, TItemForm>
+            title={form.labels.update.title}
+            Form={form.Form}
+            {...form.getItem}
+          />
         </>
       </PageLayout.Body>
     </PageLayout>
