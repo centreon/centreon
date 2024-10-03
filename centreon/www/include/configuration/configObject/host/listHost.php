@@ -165,7 +165,7 @@ $dbResult = $pearDB->query(
 );
 
 while ($relation = $dbResult->fetch()) {
-    $nagios_server[$relation['id']] = $relation['name'];
+    $nagios_server[$relation['id']] = HtmlSanitizer::create()->sanitize($relation['name']);
 }
 $dbResult->closeCursor();
 unset($relation);

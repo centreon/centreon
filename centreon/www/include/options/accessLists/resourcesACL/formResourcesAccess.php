@@ -157,7 +157,7 @@ $DBRESULT->closeCursor();
 $pollers = array();
 $DBRESULT = $pearDB->query("SELECT id, name FROM nagios_server ORDER BY name");
 while ($poller = $DBRESULT->fetch()) {
-    $pollers[$poller["id"]] = $poller["name"];
+    $pollers[$poller["id"]] = HtmlSanitizer::create()->sanitize($poller["name"]);
 }
 $DBRESULT->closeCursor();
 
