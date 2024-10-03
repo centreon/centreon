@@ -19473,3 +19473,15 @@ msgstr "Horloge/Minuteur"
 
 # msgid "Clock / Timer"
 # msgstr ""
+
+msgid "year"
+msgstr "année"
+
+msgid "month"
+msgstr "mois"
+
+msgid "hour"
+msgstr "heure"
+
+msgid "minute"
+msgstr "minute"

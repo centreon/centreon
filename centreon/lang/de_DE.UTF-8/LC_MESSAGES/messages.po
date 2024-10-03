@@ -17358,6 +17358,18 @@ msgstr "Erweiterter Modus"
 #  msgid "If ticket management is enabled, only the “by service” view is available."
 #  msgstr ""
 
+#  msgid "year"
+#  msgstr ""
+
+#  msgid "month"
+#  msgstr ""
+
+#  msgid "hour"
+#  msgstr ""
+
+#  msgid "minute"
+#  msgstr ""
+
 #  msgid "Ticket management"
 #  msgstr ""
 
