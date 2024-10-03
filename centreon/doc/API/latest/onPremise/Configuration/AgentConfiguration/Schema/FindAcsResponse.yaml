@@ -12,7 +12,7 @@ properties:
     description: |
       Type of AC
 
-      Supported ACC types:
+      Supported types:
         * telegraf
     example: telegraf
   pollers:
