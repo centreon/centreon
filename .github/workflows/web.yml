@@ -94,7 +94,8 @@ jobs:
               - '**/tests/**'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-      - uses: ./.github/actions/changes-trigger-actions
+      - uses: ./.github/actions/changes-trigger-checks
+        id: changes_trigger_checks
         with:
           has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes }}
           has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
