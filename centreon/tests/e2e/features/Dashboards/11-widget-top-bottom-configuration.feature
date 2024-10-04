@@ -72,10 +72,10 @@ Feature: Configuring a top-bottom widget
     Then only services that match the search input should be shown in the search results
 
   @TEST_MON-149856
-  Scenario: Adding and Filtering metrics in a Top/Bottom Widget on a Dashboard
+  Scenario: Filtering metrics in a Top/Bottom Widget on a Dashboard
     Given a dashboard in the dashboard administrator user's dashboard library
     When the dashboard administrator user selects the option to add a new widget
     And selects the widget type "Top Bottom"
-    And  search  for Centreon Server hosts
+    And searches for Centreon Server hosts
     When the dashboard administrator enters a search term for a specific metrics
     Then only metrics that match the search input should be shown in the search results

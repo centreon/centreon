@@ -557,7 +557,7 @@ Then('only services that match the search input should be shown in the search re
   );
 });
 
-Then('search  for Centreon Server hosts', () => {
+Then('searches for Centreon Server hosts', () => {
   cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
   cy.getByLabel({ label: 'RichTextEditor' })
     .eq(0)
