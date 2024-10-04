@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-import { all, head, pathEq } from 'ramda';
+import { all, find, head, pathEq, propEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
 
@@ -29,7 +29,7 @@ import {
   labelMoreActions,
 } from '../../translatedLabels';
 import { checkResources } from '../api';
-import { Resource } from '../../models';
+import { Resource, ResourceType } from '../../models';
 import AddCommentForm from '../../Graph/Performance/Graph/AddCommentForm';
 import {
   resourcesToAcknowledgeAtom,
@@ -181,11 +181,16 @@ const ResourceActions = (): JSX.Element => {
 
   const hasSelectedResources = selectedResources.length > 0;
   const hasOneResourceSelected = selectedResources.length === 1;
+  const hasADResource = find(
+    propEq('type', ResourceType.anomalyDetection),
+    selectedResources,
+  );
 
   const disableSubmitStatus =
     !hasOneResourceSelected ||
     !canSubmitStatus(selectedResources) ||
-    !head(selectedResources)?.passive_checks;
+    !head(selectedResources)?.passive_checks ||
+    hasADResource;
 
   const disableAddComment =
     !hasOneResourceSelected || !canComment(selectedResources);
