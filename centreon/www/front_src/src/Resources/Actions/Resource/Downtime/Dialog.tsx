@@ -1,50 +1,50 @@
-import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
+import type { FormikErrors, FormikHandlers, FormikValues } from 'formik';
 import { useAtomValue } from 'jotai';
-import { FormikErrors, FormikHandlers, FormikValues } from 'formik';
 import { isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
-  LocalizationProvider,
-  DesktopDateTimePicker
-} from '@mui/x-date-pickers';
-import {
+  Alert,
   Checkbox,
   FormControlLabel,
   FormHelperText,
-  Alert,
   Stack
 } from '@mui/material';
 import { Box } from '@mui/system';
+import {
+  DesktopDateTimePicker,
+  LocalizationProvider
+} from '@mui/x-date-pickers';
 
 import {
   Dialog,
-  TextField,
   SelectField,
+  TextField,
   useDateTimePickerAdapter
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
+import type { Resource } from '../../../models';
 import {
   labelCancel,
   labelComment,
   labelDowntime,
   labelDuration,
+  labelEndTime,
   labelFixed,
   labelHours,
   labelMinutes,
   labelSeconds,
   labelSetDowntime,
   labelSetDowntimeOnServices,
-  labelTo,
-  labelUnit,
   labelStartTime,
-  labelEndTime
+  labelTo,
+  labelUnit
 } from '../../../translatedLabels';
-import { Resource } from '../../../models';
 import useAclQuery from '../aclQuery';
 
-import { DowntimeFormValues } from '.';
+import type { DowntimeFormValues } from '.';
 
 const maxEndDate = new Date('2100-01-01');
 
@@ -161,9 +161,11 @@ const DialogDowntime = ({
           <Stack>
             <FormHelperText>{t(labelDuration)}</FormHelperText>
 
-            <Stack alignItems="center" direction="row" spacing={1}>
+            <Stack alignItems="center" direction="row" spacing={0.5}>
               <TextField
+                autoSize
                 ariaLabel={t(labelDuration) as string}
+                autoSizeDefaultWidth={168}
                 dataTestId={labelDuration}
                 disabled={values.fixed}
                 error={errors?.duration?.value}
@@ -171,38 +173,46 @@ const DialogDowntime = ({
                 value={values.duration.value}
                 onChange={handleChange('duration.value')}
               />
-              <SelectField
-                dataTestId={labelUnit}
-                disabled={values.fixed}
-                options={[
-                  {
-                    id: 'seconds',
-                    name: t(labelSeconds)
-                  },
-                  {
-                    id: 'minutes',
-                    name: t(labelMinutes)
-                  },
-                  {
-                    id: 'hours',
-                    name: t(labelHours)
+
+              <Stack
+                direction="row"
+                justifyContent="flex-end"
+                spacing={1}
+                width="100%"
+              >
+                <SelectField
+                  dataTestId={labelUnit}
+                  disabled={values.fixed}
+                  options={[
+                    {
+                      id: 'seconds',
+                      name: t(labelSeconds)
+                    },
+                    {
+                      id: 'minutes',
+                      name: t(labelMinutes)
+                    },
+                    {
+                      id: 'hours',
+                      name: t(labelHours)
+                    }
+                  ]}
+                  selectedOptionId={values.duration.unit}
+                  onChange={handleChange('duration.unit')}
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={values.fixed}
+                      color="primary"
+                      inputProps={{ 'aria-label': t(labelFixed) as string }}
+                      size="small"
+                      onChange={handleChange('fixed')}
+                    />
                   }
-                ]}
-                selectedOptionId={values.duration.unit}
-                onChange={handleChange('duration.unit')}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={values.fixed}
-                    color="primary"
-                    inputProps={{ 'aria-label': t(labelFixed) as string }}
-                    size="small"
-                    onChange={handleChange('fixed')}
-                  />
-                }
-                label={t(labelFixed) as string}
-              />
+                  label={t(labelFixed) as string}
+                />
+              </Stack>
             </Stack>
           </Stack>
           <TextField
