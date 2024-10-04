@@ -183,9 +183,9 @@ const ResourceActions = (): JSX.Element => {
   const hasOneResourceSelected = selectedResources.length === 1;
   const hasADResource = find(
     propEq('type', ResourceType.anomalyDetection),
-    selectedResources
+    selectedResources,
   );
-  
+
   const disableSubmitStatus =
     !hasOneResourceSelected ||
     !canSubmitStatus(selectedResources) ||

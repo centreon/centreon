@@ -151,9 +151,9 @@ const anomalyDetection = {
   id: 0,
   parent: {
     id: 1,
-    name: 'Host'
+    name: 'Host',
   },
-  type: 'anomaly-detection'
+  type: 'anomaly-detection',
 } as Resource;
 
 const ActionsWithContext = (): JSX.Element => {
@@ -721,7 +721,7 @@ describe(Actions, () => {
     });
   });
 
-   it('deactivates the submit status button when a Resource of type anomaly detection is selected', async () => {
+  it('deactivates the submit status button when a Resource of type anomaly detection is selected', async () => {
     mockedAxios.post.mockResolvedValueOnce({});
 
     const { getByLabelText, getByTestId } = renderActions();
@@ -732,16 +732,16 @@ describe(Actions, () => {
 
     await waitFor(() => {
       expect(
-        getByLabelText(labelMoreActions).firstElementChild as HTMLElement
+        getByLabelText(labelMoreActions).firstElementChild as HTMLElement,
       ).toBeInTheDocument();
     });
 
     fireEvent.click(
-      getByLabelText(labelMoreActions).firstElementChild as HTMLElement
+      getByLabelText(labelMoreActions).firstElementChild as HTMLElement,
     );
 
     expect(getByTestId(labelSubmitStatus).hasAttribute('aria-disabled')).toBe(
-      true
+      true,
     );
   });
 
