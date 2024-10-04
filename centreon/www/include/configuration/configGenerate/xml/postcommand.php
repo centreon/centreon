@@ -37,7 +37,7 @@ if (!isset($_POST['poller'])) {
     exit();
 }
 
-require_once realpath(dirname(__FILE__) . "/../../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonXML.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonInstance.class.php';
@@ -95,11 +95,7 @@ while ($row = $res->fetch(\PDO::FETCH_ASSOC)) {
         }
     }
 }
-if ($ok === false) {
-    $statusStr = "<b><font color='red'>NOK</font></b>";
-} else {
-    $statusStr = "<b><font color='green'>OK</font></b>";
-}
+$statusStr = $ok === false ? "<b><font color='red'>NOK</font></b>" : "<b><font color='green'>OK</font></b>";
 
 $xml->writeElement('result', $str);
 $xml->writeElement('status', $statusStr);

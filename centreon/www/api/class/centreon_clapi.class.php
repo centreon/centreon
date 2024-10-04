@@ -33,17 +33,18 @@
  *
  */
 
+use CentreonClapi\CentreonAPI;
+use CentreonClapi\CentreonClapiException;
+use CentreonClapi\CentreonObject;
+use Pimple\Container;
+
 require_once __DIR__ . '/../../include/common/csvFunctions.php';
-require_once dirname(__FILE__) . "/webService.class.php";
+require_once __DIR__ . "/webService.class.php";
 
 define('_CLAPI_LIB_', _CENTREON_PATH_ . '/lib');
 define('_CLAPI_CLASS_', _CENTREON_PATH_ . '/www/class/centreon-clapi');
 
-set_include_path(implode(PATH_SEPARATOR, array(
-    _CENTREON_PATH_ . '/lib',
-    _CENTREON_PATH_ . '/www/class/centreon-clapi',
-    get_include_path()
-)));
+set_include_path(implode(PATH_SEPARATOR, [_CENTREON_PATH_ . '/lib', _CENTREON_PATH_ . '/www/class/centreon-clapi', get_include_path()]));
 
 require_once _CENTREON_PATH_ . '/www/class/centreon-clapi/centreonAPI.class.php';
 
@@ -53,14 +54,16 @@ require_once _CENTREON_PATH_ . '/www/class/centreon-clapi/centreonAPI.class.php'
 class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiInterface
 {
     /**
-     * @var \Pimple\Container
+     * @var Container
      */
     private $dependencyInjector;
 
     /**
-     * {@inheritdoc}
+     * @param Container $dependencyInjector
+     *
+     * @return void
      */
-    public function finalConstruct(\Pimple\Container $dependencyInjector)
+    public function finalConstruct(Container $dependencyInjector): void
     {
         $this->dependencyInjector = $dependencyInjector;
     }
@@ -68,13 +71,13 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
     /**
      * Post
      *
-     * @global \Centreon $centreon
+     * @global Centreon $centreon
      * @global array $conf_centreon
      * @return array
-     * @throws \RestBadRequestException
-     * @throws \RestNotFoundException
-     * @throws \RestConflictException
-     * @throws \RestInternalServerErrorException
+     * @throws RestBadRequestException
+     * @throws RestNotFoundException
+     * @throws RestConflictException
+     * @throws RestInternalServerErrorException
      */
     public function postAction()
     {
@@ -107,7 +110,7 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
         /* Prepare options table */
         $action = $this->arguments['action'];
 
-        $options = array();
+        $options = [];
         if (isset($this->arguments['object'])) {
             $options['o'] = $this->arguments['object'];
         }
@@ -122,7 +125,7 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
 
         /* Load and execute clapi option */
         try {
-            $clapi = new \CentreonClapi\CentreonAPI(
+            $clapi = new CentreonAPI(
                 $username,
                 '',
                 $action,
@@ -134,33 +137,33 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
             $retCode = $clapi->launchAction(false);
             $contents = ob_get_contents();
             ob_end_clean();
-        } catch (\CentreonClapi\CentreonClapiException $e) {
+        } catch (CentreonClapiException $e) {
             $message = $e->getMessage();
-            if (strpos($message, \CentreonClapi\CentreonObject::UNKNOWN_METHOD) === 0) {
+            if (str_starts_with($message, CentreonObject::UNKNOWN_METHOD)) {
                 throw new RestNotFoundException($message);
             }
-            if (strpos($message, \CentreonClapi\CentreonObject::MISSINGPARAMETER) === 0) {
+            if (str_starts_with($message, CentreonObject::MISSINGPARAMETER)) {
                 throw new RestBadRequestException($message);
             }
-            if (strpos($message, \CentreonClapi\CentreonObject::MISSINGNAMEPARAMETER) === 0) {
+            if (str_starts_with($message, CentreonObject::MISSINGNAMEPARAMETER)) {
                 throw new RestBadRequestException($message);
             }
-            if (strpos($message, \CentreonClapi\CentreonObject::OBJECTALREADYEXISTS) === 0) {
+            if (str_starts_with($message, CentreonObject::OBJECTALREADYEXISTS)) {
                 throw new RestConflictException($message);
             }
-            if (strpos($message, \CentreonClapi\CentreonObject::OBJECT_NOT_FOUND) === 0) {
+            if (str_starts_with($message, CentreonObject::OBJECT_NOT_FOUND)) {
                 throw new RestNotFoundException($message);
             }
-            if (strpos($message, \CentreonClapi\CentreonObject::NAMEALREADYINUSE) === 0) {
+            if (str_starts_with($message, CentreonObject::NAMEALREADYINUSE)) {
                 throw new RestConflictException($message);
             }
-            if (strpos($message, \CentreonClapi\CentreonObject::UNKNOWNPARAMETER) === 0) {
+            if (str_starts_with($message, CentreonObject::UNKNOWNPARAMETER)) {
                 throw new RestBadRequestException($message);
             }
-            if (strpos($message, \CentreonClapi\CentreonObject::OBJECTALREADYLINKED) === 0) {
+            if (str_starts_with($message, CentreonObject::OBJECTALREADYLINKED)) {
                 throw new RestConflictException($message);
             }
-            if (strpos($message, \CentreonClapi\CentreonObject::OBJECTNOTLINKED) === 0) {
+            if (str_starts_with($message, CentreonObject::OBJECTNOTLINKED)) {
                 throw new RestBadRequestException($message);
             }
             throw new RestInternalServerErrorException($message);
@@ -181,7 +184,7 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
             }
 
             $lastRecord = end($result);
-            if ($lastRecord && strpos($lastRecord[0], 'Return code end :') === 0) {
+            if ($lastRecord && str_starts_with($lastRecord[0], 'Return code end :')) {
                 array_pop($result);
             }
 
@@ -196,15 +199,15 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
             csvToAssociativeArray($result);
 
         } else {
-            $result = array();
+            $result = [];
             foreach (explode("\n", $contents) as &$line) {
-                if (trim($line) !== '' && strpos($line, 'Return code end :') !== 0) {
+                if (trim($line) !== '' && !str_starts_with($line, 'Return code end :')) {
                     $result[] = $line;
                 }
             }
         }
 
-        $return = array();
+        $return = [];
         $return['result'] = $result;
 
         return $return;
@@ -214,9 +217,9 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
      * Authorize to access to the action
      *
      * @param string $action The action name
-     * @param \CentreonUser $user The current user
-     * @param boolean $isInternal If the api is call in internal
-     * @return boolean If the user has access to the action
+     * @param CentreonUser $user The current user
+     * @param bool $isInternal If the api is call in internal
+     * @return bool If the user has access to the action
      */
     public function authorize($action, $user, $isInternal = false)
     {
@@ -232,10 +235,13 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
 
     /**
      * Removes carriage returns from $item if string
-     * @param $item variable to check
+     *
+     * @param $item
+     *
+     * @return void
      */
-    private function clearCarriageReturns(&$item)
+    private function clearCarriageReturns(&$item): void
     {
-        $item = (is_string($item)) ? str_replace(array("\n", "\t", "\r", "<br/>"), '', $item) : $item;
+        $item = (is_string($item)) ? str_replace(["\n", "\t", "\r", "<br/>"], '', $item) : $item;
     }
 }

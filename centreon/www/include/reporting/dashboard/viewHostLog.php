@@ -58,16 +58,10 @@ $formHost = new HTML_QuickFormCustom('formHost', 'post', "?p=" . $p);
 $redirect = $formHost->addElement('hidden', 'o');
 $redirect->setValue($o);
 
-$hostsRoute = array(
-    'datasourceOrigin' => 'ajax',
-    'multiple' => false,
-    'linkedObject' => 'centreonHost',
-    'availableDatasetRoute' =>
-        './api/internal.php?object=centreon_configuration_host&action=list',
-    'defaultDatasetRoute' =>
-        './api/internal.php?object=centreon_configuration_host
-        &action=defaultValues&target=host&field=host_id&id=' . $id,
-);
+$hostsRoute = ['datasourceOrigin' => 'ajax', 'multiple' => false, 'linkedObject' => 'centreonHost', 'availableDatasetRoute' =>
+    './api/internal.php?object=centreon_configuration_host&action=list', 'defaultDatasetRoute' =>
+    './api/internal.php?object=centreon_configuration_host
+        &action=defaultValues&target=host&field=host_id&id=' . $id];
 
 $selHost = $formPeriod->addElement(
     'select2',

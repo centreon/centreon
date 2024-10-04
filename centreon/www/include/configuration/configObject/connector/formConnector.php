@@ -32,24 +32,20 @@
  * For more information : contact@centreon.com
  *
  */
-require_once dirname(__FILE__) . "/formConnectorFunction.php";
+require_once __DIR__ . "/formConnectorFunction.php";
 
 try {
     $tpl = new Smarty();
     $tpl = initSmartyTpl($path, $tpl);
     
-    $cnt = array();
+    $cnt = [];
     if (($o == "c" || $o == "w") && isset($connector_id)) {
         $cnt = $connectorObj->read((int)$connector_id);
         $cnt['connector_name'] = $cnt['name'];
         $cnt['connector_description'] = $cnt['description'];
         $cnt['command_line'] = $cnt['command_line'];
 
-        if ($cnt['enabled']) {
-            $cnt['connector_status'] = '1';
-        } else {
-            $cnt['connector_status'] = '0';
-        }
+        $cnt['connector_status'] = $cnt['enabled'] ? '1' : '0';
         $cnt['connector_id'] = $cnt['id'];
 
         unset($cnt['name']);
@@ -61,7 +57,7 @@ try {
     /*
      * Resource Macro
      */
-    $resource = array();
+    $resource = [];
     $DBRESULT = $pearDB->query("SELECT DISTINCT `resource_name`, `resource_comment`
                                 FROM `cfg_resource`
                                 ORDER BY `resource_name`");
@@ -77,7 +73,7 @@ try {
     /*
      * Nagios Macro
      */
-    $macros = array();
+    $macros = [];
     $DBRESULT = $pearDB->query("SELECT `macro_name` FROM `nagios_macro` ORDER BY `macro_name`");
     while ($row = $DBRESULT->fetchRow()) {
         $macros[$row["macro_name"]] = $row["macro_name"];
@@ -85,7 +81,7 @@ try {
     unset($row);
     $DBRESULT->closeCursor();
 
-    $availableConnectors_list = return_plugin((isset($oreon->optGen["cengine_path_connectors"]) ? $oreon->optGen["cengine_path_connectors"] : null));
+    $availableConnectors_list = return_plugin(($oreon->optGen["cengine_path_connectors"] ?? null));
 
     $form = new HTML_QuickFormCustom('Form', 'post', "?p=".$p);
 
@@ -98,19 +94,13 @@ try {
         $form->addElement('header', 'title', _("View a Connector"));
     }
 
-    $attrsText        = array("size"=>"35");
-    $attrsTextarea    = array("rows"=>"9", "cols"=>"65", "id"=>"command_line");
-    $attrsAdvSelect = array("style" => "width: 300px; height: 100px;");
-    $attrCommands = array(
-        'datasourceOrigin' => 'ajax',
-        'multiple' => true,
-        'defaultDatasetRoute' => './include/common/webServices/rest/internal.php?'
-        . 'object=centreon_configuration_command&action=defaultValues&target=connector&field=command_id&id='
-        . (isset($connector_id) ? $connector_id : ''),
-        'availableDatasetRoute' => './include/common/webServices/rest/internal.php?'
-        . 'object=centreon_configuration_command&action=list',
-        'linkedObject' => 'centreonCommand'
-    );
+    $attrsText        = ["size"=>"35"];
+    $attrsTextarea    = ["rows"=>"9", "cols"=>"65", "id"=>"command_line"];
+    $attrsAdvSelect = ["style" => "width: 300px; height: 100px;"];
+    $attrCommands = ['datasourceOrigin' => 'ajax', 'multiple' => true, 'defaultDatasetRoute' => './include/common/webServices/rest/internal.php?'
+    . 'object=centreon_configuration_command&action=defaultValues&target=connector&field=command_id&id='
+    . ($connector_id ?? ''), 'availableDatasetRoute' => './include/common/webServices/rest/internal.php?'
+    . 'object=centreon_configuration_command&action=list', 'linkedObject' => 'centreonCommand'];
 
     $form->addElement('text', 'connector_name', _("Connector Name"), $attrsText);
     $form->addElement('text', 'connector_description', _("Connector Description"), $attrsText);
@@ -121,17 +111,17 @@ try {
     ksort($availableConnectors_list);
     $form->addElement('select', 'plugins', null, $availableConnectors_list);
 
-    $form->addElement('select2', 'command_id', _("Used by command"), array(), $attrCommands);
+    $form->addElement('select2', 'command_id', _("Used by command"), [], $attrCommands);
 
-    $cntStatus = array();
+    $cntStatus = [];
     $cntStatus[] = $form->createElement('radio', 'connector_status', null, _("Enabled"), '1');
     $cntStatus[] = $form->createElement('radio', 'connector_status', null, _("Disabled"), '0');
     $form->addGroup($cntStatus, 'connector_status', _("Connector Status"), '&nbsp;&nbsp;');
 
     if (isset($cnt['connector_status']) && is_numeric($cnt['connector_status'])) {
-        $form->setDefaults(array('connector_status' => $cnt['connector_status']));
+        $form->setDefaults(['connector_status' => $cnt['connector_status']]);
     } else {
-        $form->setDefaults(array('connector_status' => '0'));
+        $form->setDefaults(['connector_status' => '0']);
     }
 
     if ($o == "w") {
@@ -140,21 +130,19 @@ try {
                 "button",
                 "change",
                 _("Modify"),
-                array(
-                    "onClick"=>"javascript:window.location.href='?p="
-                        .$p."&o=c&connector_id=".$connector_id."&status=".$status."'"
-                )
+                ["onClick"=>"javascript:window.location.href='?p="
+                    .$p."&o=c&connector_id=".$connector_id."&status=".$status."'"]
             );
         }
         $form->setDefaults($cnt);
         $form->freeze();
     } elseif ($o == "c") {
-        $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-        $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+        $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+        $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
         $form->setDefaults($cnt);
     } elseif ($o == "a") {
-        $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-        $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+        $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+        $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     }
     
     $form->addRule('connector_name', _("Name"), 'required');
@@ -170,11 +158,11 @@ try {
     if ($form->validate()) {
         $cntObj = new CentreonConnector($pearDB);
         $tab = $form->getSubmitValues();
-        $connectorValues = array();
+        $connectorValues = [];
         $connectorValues['name'] = \HtmlAnalyzer::sanitizeAndRemoveTags($tab['connector_name']);
         $connectorValues['description'] = \HtmlAnalyzer::sanitizeAndRemoveTags($tab['connector_description']);
         $connectorValues['enabled'] = $tab['connector_status']['connector_status'] === '0' ? 0 : 1;
-        $connectorValues['command_id'] = isset($tab['command_id']) ? $tab['command_id'] : null;
+        $connectorValues['command_id'] = $tab['command_id'] ?? null;
         $connectorValues['command_line'] = $tab['command_line'];
         $connectorId = (int) $tab['connector_id'];
 

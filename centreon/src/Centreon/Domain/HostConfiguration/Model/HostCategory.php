@@ -31,11 +31,11 @@ use Centreon\Domain\Common\Assertion\Assertion;
  */
 class HostCategory
 {
-    public const MAX_NAME_LENGTH = 200,
-                 MIN_NAME_LENGTH = 1,
-                 MAX_ALIAS_LENGTH = 200,
-                 MIN_ALIAS_LENGTH = 1,
-                 MAX_COMMENTS_LENGTH = 65535;
+    public const MAX_NAME_LENGTH = 200;
+    public const MIN_NAME_LENGTH = 1;
+    public const MAX_ALIAS_LENGTH = 200;
+    public const MIN_ALIAS_LENGTH = 1;
+    public const MAX_COMMENTS_LENGTH = 65535;
 
     /**
      * @var int|null
