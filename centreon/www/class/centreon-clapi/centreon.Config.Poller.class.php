@@ -677,10 +677,9 @@ class CentreonConfigPoller
                     }
                 }
             }
-        } else {
-            return "";
         }
-    } // fixme possible no return
+        return "";
+    }
 
     /**
      * Send Trap configuration files to poller
