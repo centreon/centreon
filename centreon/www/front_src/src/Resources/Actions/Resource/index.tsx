@@ -152,7 +152,8 @@ const ResourceActions = (): JSX.Element => {
   const disableSubmitStatus =
     !hasOneResourceSelected ||
     !canSubmitStatus(selectedResources) ||
-    !head(selectedResources)?.passive_checks;
+    !head(selectedResources)?.passive_checks ||
+    hasADResource;
 
   const disableAddComment =
     !hasOneResourceSelected || !canComment(selectedResources);
