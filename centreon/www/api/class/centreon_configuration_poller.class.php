@@ -37,15 +37,18 @@
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationPoller
+ */
 class CentreonConfigurationPoller extends CentreonConfigurationObjects
 {
-    /**
-     * @var CentreonDB
-     */
+    /** @var CentreonDB */
     protected $pearDB;
 
     /**
-     * CentreonConfigurationPoller constructor.
+     * CentreonConfigurationPoller constructor
      */
     public function __construct()
     {
@@ -55,6 +58,7 @@ class CentreonConfigurationPoller extends CentreonConfigurationObjects
 
     /**
      * @return array
+     * @throws PDOException
      * @throws RestBadRequestException
      */
     public function getList()
@@ -63,7 +67,7 @@ class CentreonConfigurationPoller extends CentreonConfigurationObjects
 
         $userId = $centreon->user->user_id;
         $isAdmin = $centreon->user->admin;
-        $queryValues = array();
+        $queryValues = [];
 
         /* Get ACL if user is not admin */
         if (!$isAdmin) {
@@ -71,11 +75,7 @@ class CentreonConfigurationPoller extends CentreonConfigurationObjects
         }
 
         // Check for select2 'q' argument
-        if (isset($this->arguments['q'])) {
-            $queryValues['name'] = '%' . (string)$this->arguments['q'] . '%';
-        } else {
-            $queryValues['name'] = '%%';
-        }
+        $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
 
         $queryPoller = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT ns.id, ns.name FROM nagios_server ns ';
 
@@ -137,16 +137,10 @@ class CentreonConfigurationPoller extends CentreonConfigurationObjects
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $pollerList = array();
+        $pollerList = [];
         while ($data = $stmt->fetch()) {
-            $pollerList[] = array(
-                'id' => $data['id'],
-                'text' => $data['name']
-            );
+            $pollerList[] = ['id' => $data['id'], 'text' => $data['name']];
         }
-        return array(
-            'items' => $pollerList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $pollerList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

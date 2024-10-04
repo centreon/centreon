@@ -13,7 +13,7 @@ class CentreonDBManagerService
     /**
      * @var string
      */
-    private $defaultManager;
+    private $defaultManager = 'configuration_db';
 
     /**
      * @var array<string,mixed>
@@ -31,15 +31,11 @@ class CentreonDBManagerService
             'configuration_db' => new CentreonDBAdapter($services->get('configuration_db'), $this),
             'realtime_db' => new CentreonDBAdapter($services->get('realtime_db'), $this),
         ];
-
-        $this->defaultManager = 'configuration_db';
     }
 
     public function getAdapter(string $alias): CentreonDBAdapter
     {
-        $manager = array_key_exists($alias, $this->manager) ?
-            $this->manager[$alias] :
-            null;
+        $manager = $this->manager[$alias] ?? null;
 
         return $manager;
     }

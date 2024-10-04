@@ -3129,6 +3129,7 @@ msgstr "Accueil"
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:294
 #: centreon-web/www/include/options/accessLists/define/formLCA.php:244
 #: centreon-web/www/include/monitoring/objectDetails/serviceDetails.php:587
+#: centreon-web/www/include/eventLogs/viewLog.php:247
 msgid "Host Groups"
 msgstr "Groupes d'hôtes"
 
@@ -3331,6 +3332,7 @@ msgstr "État du serveur"
 #: centreon-web/www/install/menu_translation.php:133
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:330
 #: centreon-web/www/include/options/accessLists/define/formLCA.php:275
+#: centreon-web/www/include/eventLogs/viewLog.php:229
 msgid "Service Groups"
 msgstr "Groupes de services"
 
@@ -3851,7 +3853,7 @@ msgstr "Le dernier mois"
 
 #: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:94
 msgid "Last year"
-msgstr "La dernière année"
+msgstr "Les 12 derniers mois"
 
 #: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:147
 #: centreon-web/www/include/configuration/configDowntime/formDowntime.php:233
@@ -5365,10 +5367,6 @@ msgstr "Propriétés d'authentification"
 msgid "Support Information"
 msgstr "Centre de services"
 
-#: centreon-web/www/include/Administration/parameters/engine/form.php:73
-msgid "Monitoring Engine information"
-msgstr "Informations sur le moteur de supervision"
-
 #: centreon-web/www/include/Administration/parameters/engine/form.php:74
 msgid "Images Directory"
 msgstr "Répertoire des images"
@@ -5402,11 +5400,6 @@ msgid "Page refresh interval"
 msgstr "Intervalle de rafraîchissement de la page"
 
 #: centreon-web/www/include/Administration/parameters/engine/form.php:98
-#: centreon-web/www/include/monitoring/acknowlegement/hostAcknowledge.php:92
-#: centreon-web/www/include/monitoring/acknowlegement/xml/broker/makeXMLForAck.php:85
-#: centreon-web/www/include/monitoring/external_cmd/popup/massive_ack.php:114
-msgid "Sticky"
-msgstr "Persistant (non-OK)"
 
 #: centreon-web/www/include/Administration/parameters/engine/form.php:99
 #: centreon-web/www/include/monitoring/acknowlegement/hostAcknowledge.php:77
@@ -6147,7 +6140,7 @@ msgid "View an ACL"
 msgstr "Visualiser une ACL"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:230
-msgid "Hosts Groups Shared"
+msgid "Host Groups Shared"
 msgstr "Groupes d'hôtes partagés"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:232
@@ -6272,11 +6265,11 @@ msgid "Required field"
 msgstr "Champ requis"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:429
-msgid "Hosts Resources"
+msgid "Host Resources"
 msgstr "Gestion des hôtes"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:430
-msgid "Services Resources"
+msgid "Service Resources"
 msgstr "Gestion des services"
 
 msgid "Centreon Users"
@@ -7072,18 +7065,12 @@ msgstr "Choisissez la source à grapher"
 #: centreon-web/www/include/views/graphs/graphs.php:177
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:106
 #: centreon-web/www/include/eventLogs/viewLog.php:172
-msgid "Last 2 Days"
-msgstr "Les 2 précédents jours"
+msgid "Last 2 days"
+msgstr "Les 2 derniers jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:178
-msgid "Last 3 Days"
+msgid "Last 3 days"
 msgstr "Les 3 derniers jours"
-
-#: centreon-web/www/include/views/graphs/graphs.php:179
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:107
-#: centreon-web/www/include/eventLogs/viewLog.php:173
-msgid "Last 4 Days"
-msgstr "Les 4 précédents jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:180
 msgid "Last 5 days"
@@ -7092,8 +7079,8 @@ msgstr "Les 5 derniers jours"
 #: centreon-web/www/include/views/graphs/graphs.php:182
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:109
 #: centreon-web/www/include/eventLogs/viewLog.php:175
-msgid "Last 14 Days"
-msgstr "Les 14 précédents jours"
+msgid "Last 14 days"
+msgstr "Les 14 derniers jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:183
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:110
@@ -7104,27 +7091,20 @@ msgstr "Les 28 derniers jours"
 #: centreon-web/www/include/views/graphs/graphs.php:185
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:112
 #: centreon-web/www/include/eventLogs/viewLog.php:178
-msgid "Last 31 Days"
-msgstr "Les 31 précédents jours"
+msgid "Last 31 days"
+msgstr "Les 31 derniers jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:186
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:113
 #: centreon-web/www/include/eventLogs/viewLog.php:179
-msgid "Last 2 Months"
-msgstr "Les 2 précédents mois"
+msgid "Last 2 months"
+msgstr "Les 2 derniers mois"
 
 #: centreon-web/www/include/views/graphs/graphs.php:187
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:114
 #: centreon-web/www/include/eventLogs/viewLog.php:180
-msgid "Last 4 Months"
-msgstr "Les 4 précédents mois"
-
-#: centreon-web/www/include/views/graphs/graphs.php:189
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:116
-#: centreon-web/www/include/reporting/dashboard/common-Func.php:260
-#: centreon-web/www/include/eventLogs/viewLog.php:182
-msgid "Last Year"
-msgstr "L'année précédente"
+msgid "Last 4 months"
+msgstr "Les 4 derniers mois"
 
 #: centreon-web/www/include/views/graphs/graphs.php:191
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:118
@@ -7604,10 +7584,6 @@ msgstr "Cette Semaine"
 #: centreon-web/www/include/reporting/dashboard/common-Func.php:256
 msgid "This Month"
 msgstr "Ce mois ci"
-
-#: centreon-web/www/include/reporting/dashboard/common-Func.php:258
-msgid "Last Month"
-msgstr "Le mois dernier"
 
 #: centreon-web/www/include/reporting/dashboard/common-Func.php:259
 msgid "This Year"
@@ -11657,10 +11633,6 @@ msgstr "Informations sur le serveur"
 msgid "Gorgone Information"
 msgstr "Informations Gorgone"
 
-#: centreon-web/www/include/configuration/configServers/formServers.php:103
-msgid "Monitoring Engine Information"
-msgstr "Information sur le moteur de supervision"
-
 #: centreon-web/www/include/configuration/configServers/formServers.php:105
 msgid "Centreon Trap Collector"
 msgstr "Colleteur de traps SNMP Centreon"
@@ -12120,14 +12092,6 @@ msgstr "Etat validés (Hard) seulement"
 #: centreon-web/www/include/eventLogs/viewLog.php:200
 msgid "Log Period"
 msgstr "Période de visualisation"
-
-#: centreon-web/www/include/eventLogs/viewLog.php:229
-msgid "Services Groups"
-msgstr "Groupes de services"
-
-#: centreon-web/www/include/eventLogs/viewLog.php:247
-msgid "Hosts Groups"
-msgstr "Groupes d'hôtes"
 
 #: centreon-web/www/include/eventLogs/xml/data.php:715
 msgid "Y/m/d"
@@ -15223,9 +15187,6 @@ msgstr "31 jours"
 
 msgid "Last day"
 msgstr "Dernier jour"
-
-msgid "Last 31 days"
-msgstr "Derniers 31 jours"
 
 msgid "Set downtime on"
 msgstr "Programmer une plage de maintenance sur"
@@ -19164,8 +19125,8 @@ msgstr "Sélectionner les sévérités des services"
 msgid "Select host severities"
 msgstr "Sélectionner les sévérités des hôtes"
 
-msgid "Enable Open Tickets"
-msgstr "Activer Open Tickets"
+msgid "Enable ticket management"
+msgstr "Activer la gestion des tickets"
 
 msgid "Ticket provider"
 msgstr "Fournisseur de tickets"
@@ -19195,10 +19156,22 @@ msgid "Ticket subject"
 msgstr "Sujet du ticket"
 
 msgid "Opened on"
-msgstr "Date d'ouverture"
+msgstr "Ouvert le"
 
 msgid "Create a ticket"
 msgstr "Créer un ticket"
+
+msgid "Close a ticket"
+msgstr "Fermer un ticket"
+
+msgid "Ticket created"
+msgstr "Ticket créé"
+
+msgid "Ticket closed"
+msgstr "Ticket fermé"
+
+msgid "The ticket with ID #{{id}} will be closed for the selected ticket provider."
+msgstr "Le ticket avec l'ID #{{id}} sera fermé pour le fournisseur de tickets sélectionné."
 
 msgid "Rule (ticket provider)"
 msgstr "Règle (fournisseur de tickets)"
@@ -19419,3 +19392,84 @@ msgstr "Afficher la date"
 
 msgid "The ticket will be closed for the selected ticket provider"
 msgstr "Le ticket sera fermé pour le fournisseur de tickets sélectionné"
+
+msgid "Vault configuration"
+msgstr "Configuration du Vault"
+
+msgid "The address is invalid"
+msgstr "L'addresse est invalide"
+
+msgid "Vault address"
+msgstr "Addresse du Vault"
+
+msgid "Root path"
+msgstr "Chemin de la racine"
+
+msgid "Role ID"
+msgstr "Role ID"
+
+msgid "Secret ID"
+msgstr "Secret ID"
+
+msgid "Reset configuration"
+msgstr "Réinitialiser la configuration"
+
+msgid "The form will be cleared and all data will be lost. Do you want to proceed?"
+msgstr "Le formulaire sera réinitialisé et les données modifiées seront perdues. Souhaitez-vous continuer ?"
+
+msgid "Port expected at most 65535"
+msgstr "Le numéro de port maximum attendu est 65535"
+
+msgid "Vault configuration updated"
+msgstr "La configuration du Vault a été mise à jour"
+
+msgid "Post must start from 1"
+msgstr "Le numéro de port doit être au moins 1"
+
+msgid "Migrate"
+msgstr "Migrer"
+
+msgid "Migration script"
+msgstr "Script de migration"
+
+msgid "Execute this script as root on the central."
+msgstr "Exécuter ce script en tant que root sur le serveur central."
+
+msgid "The following script will migrate all your credentials from Centreon, Auto-discovery and the database."
+msgstr "Le script suivant migrera vos identifiants de Centreon, d'Auto-discovery ainsi que de la base de données."
+
+msgid "By executing this script, your platform will be in a locked mode and you will not be able to do <strong>anything</strong> during the migration process (example: deploying your configuration, updating administration parameters, etc...)."
+msgstr "En exécutant ce script, votre plateforme sera verrouillée and vous ne pourrez plus <strong>rien modifier</strong> durant le processus de migration (exemple: déployer la configuration, modifier les paramètres d'administration, etc...)."
+
+msgid "The migration process can take several minutes depending on your configuration."
+msgstr "Le processus de migration peut prendre plusieurs minutes selon votre configuration."
+
+msgid "Web page"
+msgstr "Page web"
+
+msgid "Displays a web page"
+msgstr "Affiche une page web"
+
+msgid "Please note that domains outside your organization must be authorized in your Apache configuration."
+msgstr "Attention, les domaines en dehors de votre organisation doivent être autorisés dans votre configuration Apache."
+
+msgid "Web page preview"
+msgstr "Aperçu de la page web"
+
+msgid "If ticket management is enabled, only the “by service” view is available."
+msgstr "Si la gestion des tickets est activé, seule la vue par service est disponible."
+
+msgid "Ticket management"
+msgstr "gestion des tickets"
+
+msgid "Displays the time according to the selected time zone, or a timer."
+msgstr "Affiche l'heure en fonction du fuseau horaire sélectionné, ou un minuteur."
+
+msgid "Clock / Timer"
+msgstr "Horloge/Minuteur"
+
+# msgid "Displays the time according to the selected time zone, or a timer."
+# msgstr ""
+
+# msgid "Clock / Timer"
+# msgstr ""

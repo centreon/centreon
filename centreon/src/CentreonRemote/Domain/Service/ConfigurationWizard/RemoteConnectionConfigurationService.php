@@ -70,8 +70,11 @@ class RemoteConnectionConfigurationService extends ServerConnectionConfiguration
             )
         );
 
+        $brokerInfoConfiguration['central-broker'] = $this->saveCredentialInVault($brokerInfoConfiguration['central-broker']);
         $this->insertBrokerInfo($this->brokerID, $brokerInfoConfiguration['central-broker']);
+        $brokerInfoConfiguration['central-module'] = $this->saveCredentialInVault($brokerInfoConfiguration['central-module']);
         $this->insertBrokerInfo($moduleID, $brokerInfoConfiguration['central-module']);
+        $brokerInfoConfiguration['central-rrd'] = $this->saveCredentialInVault($brokerInfoConfiguration['central-rrd']);
         $this->insertBrokerInfo($rrdID, $brokerInfoConfiguration['central-rrd']);
     }
 

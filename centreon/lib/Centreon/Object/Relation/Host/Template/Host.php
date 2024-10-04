@@ -35,12 +35,29 @@
 
 require_once "Centreon/Object/Relation/Relation.php";
 
+/**
+ * Class
+ *
+ * @class Centreon_Object_Relation_Host_Template_Host
+ */
 class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relation
 {
+    /** @var Centreon_Object_Host */
+    public $firstObject;
+    /** @var Centreon_Object_Host */
+    public $secondObject;
+    /** @var string */
     protected $relationTable = "host_template_relation";
+    /** @var string */
     protected $firstKey = "host_tpl_id";
+    /** @var string */
     protected $secondKey = "host_host_id";
 
+    /**
+     * Centreon_Object_Relation_Host_Template_Host constructor
+     *
+     * @param \Pimple\Container $dependencyInjector
+     */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
@@ -56,10 +73,10 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
      * @param int $skey
      * @return void
      */
-    public function insert($fkey, $skey = null)
+    public function insert($fkey, $skey = null): void
     {
         $sql = "SELECT MAX(`order`) as maxorder FROM " . $this->relationTable . " WHERE " . $this->secondKey . " = ?";
-        $res = $this->db->query($sql, array($skey));
+        $res = $this->db->query($sql, [$skey]);
         $row = $res->fetch();
         $order = 1;
         if (isset($row['maxorder'])) {
@@ -67,7 +84,7 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
         }
         unset($res);
         $sql = "INSERT INTO $this->relationTable ($this->firstKey, $this->secondKey, `order`) VALUES (?, ?, ?)";
-        $this->db->query($sql, array($fkey, $skey, $order));
+        $this->db->query($sql, [$fkey, $skey, $order]);
     }
 
     /**
@@ -86,7 +103,7 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
             $pearDB = $this->db;
             $centreon = true; // Needed so we can include file below
             require_once _CENTREON_PATH_ . "/www/include/configuration/configObject/host/DB-Func.php";
-            deleteHostServiceMultiTemplate($skey, $fkey, array(), null);
+            deleteHostServiceMultiTemplate($skey, $fkey, [], null);
             $this->db->commit();
         } catch (\PDOException $e) {
             $this->db->rollBack();
@@ -105,11 +122,11 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
     public function getTargetIdFromSourceId($targetKey, $sourceKey, $sourceId)
     {
         if (!is_array($sourceId)) {
-            $sourceId = array($sourceId);
+            $sourceId = [$sourceId];
         }
         $sql = "SELECT $targetKey FROM $this->relationTable WHERE $sourceKey = ? ORDER BY `order`";
         $result = $this->getResult($sql, $sourceId);
-        $tab = array();
+        $tab = [];
         foreach ($result as $rez) {
             $tab[] = $rez[$targetKey];
         }
@@ -126,16 +143,18 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
      * @param string $sort
      * @param array $filters
      * @param string $filterType
+     *
      * @return array
+     * @throws Exception
      */
     public function getMergedParameters(
-        $firstTableParams = array(),
-        $secondTableParams = array(),
+        $firstTableParams = [],
+        $secondTableParams = [],
         $count = -1,
         $offset = 0,
         $order = null,
         $sort = "ASC",
-        $filters = array(),
+        $filters = [],
         $filterType = "OR"
     ) {
         if (!isset($this->firstObject) || !isset($this->secondObject)) {
@@ -159,7 +178,7 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
         		FROM " . $this->firstObject->getTableName() . " h," . $this->relationTable . "
         		JOIN " . $this->secondObject->getTableName() . " h2 ON " . $this->relationTable . "." . $this->firstKey . " = h2." . $this->secondObject->getPrimaryKey() . "
         		WHERE h." . $this->firstObject->getPrimaryKey() . " = " . $this->relationTable . "." . $this->secondKey;
-        $filterTab = array();
+        $filterTab = [];
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
                 $sql .= " $filterType $key LIKE ? ";

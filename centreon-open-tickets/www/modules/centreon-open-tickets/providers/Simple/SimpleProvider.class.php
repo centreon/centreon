@@ -69,28 +69,19 @@ class SimpleProvider extends AbstractProvider
 
     public function validateFormatPopup()
     {
-        $result = array('code' => 0, 'message' => 'ok');
+        $result = ['code' => 0, 'message' => 'ok'];
         $this->validateFormatPopupLists($result);
         return $result;
     }
 
     protected function doSubmit($db_storage, $contact, $host_problems, $service_problems)
     {
-        $result = array(
-            'ticket_id' => null,
-            'ticket_error_message' => null,
-            'ticket_is_ok' => 0,
-            'ticket_time' => time()
-        );
+        $result = ['ticket_id' => null, 'ticket_error_message' => null, 'ticket_is_ok' => 0, 'ticket_time' => time()];
 
         $this->saveHistory(
             $db_storage,
             $result,
-            array(
-                'contact' => $contact,
-                'host_problems' => $host_problems,
-                'service_problems' => $service_problems
-            )
+            ['contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems]
         );
         return $result;
     }

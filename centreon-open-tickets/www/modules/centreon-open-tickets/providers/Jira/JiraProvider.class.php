@@ -36,14 +36,7 @@ class JiraProvider extends AbstractProvider
     public const ARG_PRIORITY = 6;
 
     /** @var array<int, string> */
-    protected $internal_arg_name = array(
-        self::ARG_PROJECT => 'Project',
-        self::ARG_SUMMARY => 'Summary',
-        self::ARG_DESCRIPTION => 'Description',
-        self::ARG_ASSIGNEE => 'Assignee',
-        self::ARG_PRIORITY => 'Priority',
-        self::ARG_ISSUETYPE => 'IssueType',
-    );
+    protected $internal_arg_name = [self::ARG_PROJECT => 'Project', self::ARG_SUMMARY => 'Summary', self::ARG_DESCRIPTION => 'Description', self::ARG_ASSIGNEE => 'Assignee', self::ARG_PRIORITY => 'Priority', self::ARG_ISSUETYPE => 'IssueType'];
     /** @var string */
     protected $ws_error;
     /** @var null|array */
@@ -62,18 +55,8 @@ class JiraProvider extends AbstractProvider
         $this->default_data['rest_api_resource'] = '/rest/api/latest/';
         $this->default_data['timeout'] = 60;
 
-        $this->default_data['clones']['mappingTicket'] = array(
-            array(
-                'Arg' => self::ARG_SUMMARY,
-                'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers/' .
-                    'Abstract/templates/display_title.ihtml"}'
-            ),
-            array('Arg' => self::ARG_DESCRIPTION, 'Value' => '{$body}'),
-            array('Arg' => self::ARG_PROJECT, 'Value' => '{$select.jira_project.id}'),
-            array('Arg' => self::ARG_ASSIGNEE, 'Value' => '{$select.jira_assignee.id}'),
-            array('Arg' => self::ARG_PRIORITY, 'Value' => '{$select.jira_priority.id}'),
-            array('Arg' => self::ARG_ISSUETYPE, 'Value' => '{$select.jira_issuetype.id}'),
-        );
+        $this->default_data['clones']['mappingTicket'] = [['Arg' => self::ARG_SUMMARY, 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers/' .
+            'Abstract/templates/display_title.ihtml"}'], ['Arg' => self::ARG_DESCRIPTION, 'Value' => '{$body}'], ['Arg' => self::ARG_PROJECT, 'Value' => '{$select.jira_project.id}'], ['Arg' => self::ARG_ASSIGNEE, 'Value' => '{$select.jira_assignee.id}'], ['Arg' => self::ARG_PRIORITY, 'Value' => '{$select.jira_priority.id}'], ['Arg' => self::ARG_ISSUETYPE, 'Value' => '{$select.jira_issuetype.id}']];
     }
 
     protected function setDefaultValueMain($body_html = 0)
@@ -81,36 +64,7 @@ class JiraProvider extends AbstractProvider
         parent::setDefaultValueMain($body_html);
 
         #$this->default_data['url'] = 'http://{$address}/index.pl?Action=AgentTicketZoom;TicketNumber={$ticket_id}';
-        $this->default_data['clones']['groupList'] = array(
-            array(
-                'Id' => 'jira_project',
-                'Label' => _('Jira project'),
-                'Type' => self::JIRA_PROJECT,
-                'Filter' => '',
-                'Mandatory' => '1'
-            ),
-            array(
-                'Id' => 'jira_priority',
-                'Label' => _('Jira priority'),
-                'Type' => self::JIRA_PRIORITY,
-                'Filter' => '',
-                'Mandatory' => ''
-            ),
-            array(
-                'Id' => 'jira_assignee',
-                'Label' => _('Jira assignee'),
-                'Type' => self::JIRA_ASSIGNEE,
-                'Filter' => '',
-                'Mandatory' => ''
-            ),
-            array(
-                'Id' => 'jira_issuetype',
-                'Label' => _('Jira issue type'),
-                'Type' => self::JIRA_ISSUETYPE,
-                'Filter' => '',
-                'Mandatory' => '1'
-            ),
-        );
+        $this->default_data['clones']['groupList'] = [['Id' => 'jira_project', 'Label' => _('Jira project'), 'Type' => self::JIRA_PROJECT, 'Filter' => '', 'Mandatory' => '1'], ['Id' => 'jira_priority', 'Label' => _('Jira priority'), 'Type' => self::JIRA_PRIORITY, 'Filter' => '', 'Mandatory' => ''], ['Id' => 'jira_assignee', 'Label' => _('Jira assignee'), 'Type' => self::JIRA_ASSIGNEE, 'Filter' => '', 'Mandatory' => ''], ['Id' => 'jira_issuetype', 'Label' => _('Jira issue type'), 'Type' => self::JIRA_ISSUETYPE, 'Filter' => '', 'Mandatory' => '1']];
     }
 
     /**
@@ -146,7 +100,7 @@ class JiraProvider extends AbstractProvider
 
         $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
         $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
-        $tpl->assign("header", array("jira" => _("Jira")));
+        $tpl->assign("header", ["jira" => _("Jira")]);
 
         // Form
         $address_html = '<input size="50" name="address" type="text" value="' .
@@ -160,26 +114,7 @@ class JiraProvider extends AbstractProvider
         $timeout_html = '<input size="2" name="timeout" type="text" value="' .
             $this->getFormValue('timeout') . '" />';
 
-        $array_form = array(
-            'address' => array(
-                'label' => _("Address") . $this->required_field,
-                'html' => $address_html
-            ),
-            'rest_api_resource' => array(
-                'label' => _("Rest Api Resource") . $this->required_field,
-                'html' => $rest_api_resource_html
-            ),
-            'username' => array(
-                'label' => _("Username") . $this->required_field,
-                'html' => $username_html
-            ),
-            'user_token' => array(
-                'label' => _("User Token") . $this->required_field,
-                'html' => $user_token_html
-            ),
-            'timeout' => array('label' => _("Timeout"), 'html' => $timeout_html),
-            'mappingticket' => array('label' => _("Mapping ticket arguments")),
-        );
+        $array_form = ['address' => ['label' => _("Address") . $this->required_field, 'html' => $address_html], 'rest_api_resource' => ['label' => _("Rest Api Resource") . $this->required_field, 'html' => $rest_api_resource_html], 'username' => ['label' => _("Username") . $this->required_field, 'html' => $username_html], 'user_token' => ['label' => _("User Token") . $this->required_field, 'html' => $user_token_html], 'timeout' => ['label' => _("Timeout"), 'html' => $timeout_html], 'mappingticket' => ['label' => _("Mapping ticket arguments")]];
 
         // mapping Ticket clone
         $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" name="mappingTicketValue[#index#]" ' .
@@ -193,10 +128,7 @@ class JiraProvider extends AbstractProvider
         '<option value="' . self::ARG_PRIORITY . '">' . _('Priority') . '</options>' .
         '<option value="' . self::ARG_ISSUETYPE . '">' . _('Issue Type') . '</options>' .
         '</select>';
-        $array_form['mappingTicket'] = array(
-            array('label' => _("Argument"), 'html' => $mappingTicketArg_html),
-            array('label' => _("Value"), 'html' => $mappingTicketValue_html),
-        );
+        $array_form['mappingTicket'] = [['label' => _("Argument"), 'html' => $mappingTicketArg_html], ['label' => _("Value"), 'html' => $mappingTicketValue_html]];
 
         $tpl->assign('form', $array_form);
 
@@ -222,7 +154,7 @@ class JiraProvider extends AbstractProvider
 
         $this->save_config['clones']['mappingTicket'] = $this->getCloneSubmitted(
             'mappingTicket',
-            array('Arg', 'Value')
+            ['Arg', 'Value']
         );
     }
 
@@ -240,12 +172,9 @@ class JiraProvider extends AbstractProvider
         // no filter $entry['Filter']. preg_match used
         $code = $this->listProjectJira();
 
-        $groups[$entry['Id']] = array(
-            'label' => _($entry['Label']) . (
-                isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
-            ),
-            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        $groups[$entry['Id']] = ['label' => _($entry['Label']) . (
+            isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
+        ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         $groups_order[] = $entry['Id'];
 
         if ($code == -1) {
@@ -254,7 +183,7 @@ class JiraProvider extends AbstractProvider
             return 0;
         }
 
-        $result = array();
+        $result = [];
         foreach ($this->jira_call_response as $row) {
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
@@ -275,12 +204,9 @@ class JiraProvider extends AbstractProvider
         // no filter $entry['Filter']. preg_match used
         $code = $this->listPriorityJira();
 
-        $groups[$entry['Id']] = array(
-            'label' => _($entry['Label']) . (
-                isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
-            ),
-            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        $groups[$entry['Id']] = ['label' => _($entry['Label']) . (
+            isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
+        ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         $groups_order[] = $entry['Id'];
 
         if ($code == -1) {
@@ -289,7 +215,7 @@ class JiraProvider extends AbstractProvider
             return 0;
         }
 
-        $result = array();
+        $result = [];
         foreach ($this->jira_call_response as $row) {
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
@@ -310,12 +236,9 @@ class JiraProvider extends AbstractProvider
         // no filter $entry['Filter']. preg_match used
         $code = $this->listIssuetypeJira();
 
-        $groups[$entry['Id']] = array(
-            'label' => _($entry['Label']) .  (
-                isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
-            ),
-            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        $groups[$entry['Id']] = ['label' => _($entry['Label']) .  (
+            isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
+        ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         $groups_order[] = $entry['Id'];
 
         if ($code == -1) {
@@ -324,7 +247,7 @@ class JiraProvider extends AbstractProvider
             return 0;
         }
 
-        $result = array();
+        $result = [];
         foreach ($this->jira_call_response as $row) {
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
@@ -344,12 +267,9 @@ class JiraProvider extends AbstractProvider
     {
         $code = $this->listUserJira($entry['Filter']);
 
-        $groups[$entry['Id']] = array(
-            'label' => _($entry['Label']) . (
-                isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
-            ),
-            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        $groups[$entry['Id']] = ['label' => _($entry['Label']) . (
+            isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
+        ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         $groups_order[] = $entry['Id'];
 
         if ($code == -1) {
@@ -358,7 +278,7 @@ class JiraProvider extends AbstractProvider
             return 0;
         }
 
-        $result = array();
+        $result = [];
         foreach ($this->jira_call_response as $row) {
             $result[$row['accountId']] = $this->to_utf8($row['displayName']);
         }
@@ -382,7 +302,7 @@ class JiraProvider extends AbstractProvider
 
     public function validateFormatPopup()
     {
-        $result = array('code' => 0, 'message' => 'ok');
+        $result = ['code' => 0, 'message' => 'ok'];
 
         $this->validateFormatPopupLists($result);
 
@@ -430,8 +350,7 @@ class JiraProvider extends AbstractProvider
 
     protected function doSubmit($db_storage, $contact, $host_problems, $service_problems)
     {
-        $result = array('ticket_id' => null, 'ticket_error_message' => null,
-                        'ticket_is_ok' => 0, 'ticket_time' => time());
+        $result = ['ticket_id' => null, 'ticket_error_message' => null, 'ticket_is_ok' => 0, 'ticket_time' => time()];
 
         $tpl = $this->initSmartyTemplate();
 
@@ -442,7 +361,7 @@ class JiraProvider extends AbstractProvider
 
         $this->assignSubmittedValues($tpl);
 
-        $ticket_arguments = array();
+        $ticket_arguments = [];
         if (isset($this->rule_data['clones']['mappingTicket'])) {
             foreach ($this->rule_data['clones']['mappingTicket'] as $value) {
                 $tpl->assign('string', $value['Value']);
@@ -466,17 +385,9 @@ class JiraProvider extends AbstractProvider
         $this->saveHistory(
             $db_storage,
             $result,
-            array(
-                'contact' => $contact,
-                'host_problems' => $host_problems,
-                'service_problems' => $service_problems,
-                'ticket_value' => $this->jira_call_response['key'],
-                'subject' => $ticket_arguments[$this->internal_arg_name[self::ARG_SUMMARY]],
-                'data_type' => self::DATA_TYPE_JSON,
-                'data' => json_encode(
-                    array('ticket_key' => $this->jira_call_response['key'], 'arguments' => $ticket_arguments)
-                )
-            )
+            ['contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems, 'ticket_value' => $this->jira_call_response['key'], 'subject' => $ticket_arguments[$this->internal_arg_name[self::ARG_SUMMARY]], 'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode(
+                ['ticket_key' => $this->jira_call_response['key'], 'arguments' => $ticket_arguments]
+            )]
         );
 
         return $result;
@@ -536,37 +447,25 @@ class JiraProvider extends AbstractProvider
 
     protected function createTicketJira($ticket_arguments)
     {
-        $argument = array(
-            'fields' => array(
-                'project'     => array ('id' => $ticket_arguments[$this->internal_arg_name[self::ARG_PROJECT]]),
-                'summary'     => $ticket_arguments[$this->internal_arg_name[self::ARG_SUMMARY]],
-                'description' => $ticket_arguments[$this->internal_arg_name[self::ARG_DESCRIPTION]],
-            ),
-        );
+        $argument = ['fields' => ['project'     => ['id' => $ticket_arguments[$this->internal_arg_name[self::ARG_PROJECT]]], 'summary'     => $ticket_arguments[$this->internal_arg_name[self::ARG_SUMMARY]], 'description' => $ticket_arguments[$this->internal_arg_name[self::ARG_DESCRIPTION]]]];
 
         if (
             isset($ticket_arguments[$this->internal_arg_name[self::ARG_ASSIGNEE]])
             && $ticket_arguments[$this->internal_arg_name[self::ARG_ASSIGNEE]] != ''
         ) {
-            $argument['fields']['assignee'] = array(
-                'accountId' => $ticket_arguments[$this->internal_arg_name[self::ARG_ASSIGNEE]]
-            );
+            $argument['fields']['assignee'] = ['accountId' => $ticket_arguments[$this->internal_arg_name[self::ARG_ASSIGNEE]]];
         }
         if (
             isset($ticket_arguments[$this->internal_arg_name[self::ARG_PRIORITY]])
             && $ticket_arguments[$this->internal_arg_name[self::ARG_PRIORITY]] != ''
         ) {
-            $argument['fields']['priority'] = array(
-                'id' => $ticket_arguments[$this->internal_arg_name[self::ARG_PRIORITY]]
-            );
+            $argument['fields']['priority'] = ['id' => $ticket_arguments[$this->internal_arg_name[self::ARG_PRIORITY]]];
         }
         if (
             isset($ticket_arguments[$this->internal_arg_name[self::ARG_ISSUETYPE]])
             && $ticket_arguments[$this->internal_arg_name[self::ARG_ISSUETYPE]] != ''
         ) {
-            $argument['fields']['issuetype'] = array(
-                'id' => $ticket_arguments[$this->internal_arg_name[self::ARG_ISSUETYPE]]
-            );
+            $argument['fields']['issuetype'] = ['id' => $ticket_arguments[$this->internal_arg_name[self::ARG_ISSUETYPE]]];
         }
 
         if ($this->callRest('issue', $argument) == 1) {
@@ -591,7 +490,7 @@ class JiraProvider extends AbstractProvider
         }
 
         $method = 'GET';
-        $headers = array('Content-Type: application/json', 'Accept: application/json');
+        $headers = ['Content-Type: application/json', 'Accept: application/json'];
         if (!is_null($argument)) {
             $argument_json = json_encode($argument);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $argument_json);
@@ -610,12 +509,7 @@ class JiraProvider extends AbstractProvider
         );
         self::setProxy(
             $ch,
-            array(
-                'proxy_address' => $this->getFormValue('proxy_address', false),
-                'proxy_port' => $this->getFormValue('proxy_port', false),
-                'proxy_username' => $this->getFormValue('proxy_username', false),
-                'proxy_password' => $this->getFormValue('proxy_password', false),
-            )
+            ['proxy_address' => $this->getFormValue('proxy_address', false), 'proxy_port' => $this->getFormValue('proxy_port', false), 'proxy_username' => $this->getFormValue('proxy_username', false), 'proxy_password' => $this->getFormValue('proxy_password', false)]
         );
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         $result = curl_exec($ch);

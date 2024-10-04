@@ -39,7 +39,7 @@
  */
 ini_set('max_execution_time', 0);
 
-require_once(realpath(dirname(__FILE__) . '/../config/centreon.config.php'));
+require_once(realpath(__DIR__ . '/../config/centreon.config.php'));
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 
 define('TEMP_DIRECTORY', '/tmp/');
@@ -71,7 +71,7 @@ function checkTemporaryDirectory(&$temporaryPath)
             'This path for temporary files (' . $temporaryPath . ') does not exist'
         );
     }
-    if (substr($temporaryPath, -1, 1) != '/') {
+    if (!str_ends_with($temporaryPath, '/')) {
         $temporaryPath .= '/';
     }
 }
@@ -123,7 +123,7 @@ function askQuestion($question, $hidden = false)
  * @param string $message Message to show
  * @param bool $showStep Set to true if you want showing steps
  */
-$logs = function ($message, $showStep = true) use (&$currentStep, &$partitionName)
+$logs = function ($message, $showStep = true) use (&$currentStep, &$partitionName): void
 {
     if ($showStep && $currentStep) {
         if (! empty($partitionName)) {
@@ -205,7 +205,7 @@ function getNotEmptyPartitions($db, $isMigrationRecovery = false)
         "SELECT PARTITION_NAME FROM INFORMATION_SCHEMA.PARTITIONS "
         . "WHERE TABLE_NAME='{$tableName}'"
     );
-    $partitions = array();
+    $partitions = [];
     while (($row = $result->fetch(\PDO::FETCH_ASSOC))) {
         $partitions[] = $row['PARTITION_NAME'];
     }
@@ -242,8 +242,8 @@ function isInCompatibleMode(\PDO $db)
 {
     $statement = $db->query("SELECT VERSION() AS version");
     $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
-    list($version, $dbType) = explode('-', $result[0]['version']);
-    list($majorVersion, $minorVersion, $revision) = explode('.', $version);
+    [$version, $dbType] = explode('-', $result[0]['version']);
+    [$majorVersion, $minorVersion, $revision] = explode('.', $version);
     if ($dbType === 'MariaDB' && $majorVersion >= 10) {
         return false;
     } elseif ($dbType === 'standard' && $majorVersion >= 5 && $minorVersion >= 6) {
@@ -286,20 +286,20 @@ try {
     // We load start parameters
     if ($argc > 1) {
         foreach ($argv as $parameter) {
-            if (substr($parameter, 0, 11) === '--password=') {
-                list(, $dbPassword) = explode('=', $parameter);
+            if (str_starts_with($parameter, '--password=')) {
+                [, $dbPassword] = explode('=', $parameter);
             } elseif ($parameter === '--no-keep') {
                 $shouldDeleteOldData = true;
             } elseif ($parameter === '--keep') {
                 $shouldDeleteOldData = false;
-            } elseif (substr($parameter, 0, 10) === '--continue') {
+            } elseif (str_starts_with($parameter, '--continue')) {
                 $firstRecoveryPartitionName = '';
-                if (strpos($parameter, '=', 0) !== false) {
-                    list(, $firstRecoveryPartitionName) = explode('=', $parameter);
+                if (str_contains($parameter, '=')) {
+                    [, $firstRecoveryPartitionName] = explode('=', $parameter);
                 }
                 $isMigrationRecovery = true;
-            } elseif (substr($parameter, 0, 17) === '--temporary-path=') {
-                list(, $temporaryPath) = explode('=', $parameter);
+            } elseif (str_starts_with($parameter, '--temporary-path=')) {
+                [, $temporaryPath] = explode('=', $parameter);
             }
         }
     }
@@ -394,11 +394,9 @@ try {
         $statement->execute();
         $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
         $shouldBeContinue = $result[0]['is_present'] == '1';
-
         if (! $shouldBeContinue) {
             throw new Exception("The current log table does not have the log_id column");
         }
-
         // For consistency consideration, we stop broker before creating the new table
         if ($isBrokerAlreadyStarted) {
             $logs("For consistency consideration, we stop broker before creating the new table");
@@ -409,28 +407,22 @@ try {
             $logs("Broker is not started, no need to stop it");
         }
         $currentStep++;
-
-
         // We create the new logs table and rename the older
         $logs("We create the new logs table and rename the older");
         $db->query("CREATE TABLE logs_new LIKE logs");
         $currentStep++;
-
         // Next we change the column log_id from the new logs table into BIGINT
         $logs("Next we modify the log_id column of the new logs table with the type BIGINT");
         $db->query("ALTER TABLE logs_new MODIFY log_id BIGINT(20) NOT NULL AUTO_INCREMENT");
         $currentStep++;
-
         // Finally we rename the current table 'logs' to 'logs_old'
         $logs("Finally we rename the current table 'logs' to 'logs_old'");
         $db->query("ALTER TABLE logs RENAME TO logs_old");
         $currentStep++;
-
         // And we rename the new table 'logs_new' to 'logs'
         $logs("And we rename the new table 'logs_new' to 'logs'");
         $db->query("ALTER TABLE logs_new RENAME TO logs");
         $currentStep++;
-
         // We start Broker if it was previously started
         if ($isBrokerAlreadyStarted) {
             // Now we can restart Broker
@@ -442,14 +434,12 @@ try {
             $logs("Broker was not started at the beginning of this script, we do not start it");
         }
         $currentStep++;
-    } else {
+    } elseif (!empty($partitions) && empty($firstRecoveryPartitionName)) {
         /**
          * Migration recovery mode
          */
         // If the partition name is not defined, we get the first not empty partition name
-        if (!empty($partitions) && empty($firstRecoveryPartitionName)) {
-            $firstRecoveryPartitionName = array_slice($partitions, 0, 1)[0];
-        }
+        $firstRecoveryPartitionName = array_slice($partitions, 0, 1)[0];
     }
 
     $isInCompatibleMode = isInCompatibleMode($db);
@@ -540,11 +530,11 @@ try {
         $logs("We do not delete the old log table");
     }
 } catch (Exception $ex) {
-    mySysLog("ERROR: {$ex->getMessage()}", false);
+    mySysLog("ERROR: {$ex->getMessage()}");
 }
 
 if (file_exists($lockFileName)) {
     unlink($lockFileName);
 }
 
-mySysLog(sprintf("End of %s", __FILE__), false);
+mySysLog(sprintf("End of %s", __FILE__));

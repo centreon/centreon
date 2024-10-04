@@ -312,7 +312,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
         with:
-          php-version: 8.1
+          php-version: 8.2
           coverage: none
         env:
           runner: ubuntu-22.04
@@ -344,7 +344,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
         with:
-          php-version: 8.1
+          php-version: 8.2
           coverage: none
         env:
           runner: ubuntu-22.04
@@ -402,9 +402,6 @@ jobs:
           - package_extension: rpm
             image: packaging-nfpm-alma9
             distrib: el9
-          - package_extension: deb
-            image: packaging-nfpm-bullseye
-            distrib: bullseye
           - package_extension: deb
             image: packaging-nfpm-bookworm
             distrib: bookworm
@@ -556,9 +553,6 @@ jobs:
           elif [ "${{ matrix.operating_system }}" = "alma9" ]; then
             DISTRIB=el9
             PACKAGE_EXTENSION=rpm
-          elif [ "${{ matrix.operating_system }}" = "bullseye" ]; then
-            DISTRIB=bullseye
-            PACKAGE_EXTENSION=deb
           elif [ "${{ matrix.operating_system }}" = "bookworm" ]; then
             DISTRIB=bookworm
             PACKAGE_EXTENSION=deb
@@ -585,13 +579,17 @@ jobs:
         id: from_image_version
         run: |
           FROM_IMAGE_VERSION="${{ needs.get-version.outputs.major_version }}"
-
           FROM_IMAGE="centreon-web-dependencies-${{ matrix.operating_system }}"
           IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.head_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
-
           if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
             FROM_IMAGE_VERSION="${{ github.head_ref || github.ref_name }}"
             echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
+          else
+            IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.base_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
+            if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
+              FROM_IMAGE_VERSION="${{ github.base_ref || github.ref_name }}"
+              echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
+            fi
           fi
 
           echo "from_image_version=$FROM_IMAGE_VERSION" >> $GITHUB_OUTPUT
@@ -629,6 +627,10 @@ jobs:
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "VERSION=${{ needs.get-version.outputs.major_version }}"
+<<<<<<< HEAD
+=======
+            "MYDUMPER_VERSION=0.16.3-5"
+>>>>>>> develop
             "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
           pull: true
           push: true
@@ -973,7 +975,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bullseye, bookworm, jammy]
+        distrib: [bookworm, jammy]
 
     steps:
       - name: Checkout sources
@@ -992,12 +994,16 @@ jobs:
           release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   promote:
-    needs: [get-version]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+    needs: [get-version, deliver-deb, deliver-rpm]
+    if: |
+      (contains(fromJson('["stable", "testing"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch') &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye, bookworm]
+        distrib: [el8, el9, bookworm]
 
     steps:
       - name: Checkout sources

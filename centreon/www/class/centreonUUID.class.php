@@ -34,15 +34,18 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class CentreonUUID
+ */
 class CentreonUUID
 {
-    /**
-     * @var CentreonDB
-     */
+    /** @var CentreonDB */
     private $db;
 
     /**
-     * Constructor
+     * CentreonUUID constructor
      *
      * @param CentreonDB $db
      */
@@ -69,6 +72,7 @@ class CentreonUUID
      * Get Centreon UUID previously stored in database
      *
      * @return false|string
+     * @throws PDOException
      */
     private function getUUIDFromDatabase(): bool|string
     {
@@ -88,6 +92,7 @@ class CentreonUUID
      * Generate UUID v4
      *
      * @return string
+     * @throws CentreonDbException
      */
     private function generateUUID()
     {
@@ -112,7 +117,7 @@ class CentreonUUID
         );
 
         $query = "INSERT INTO informations VALUES ('uuid', ?) ";
-        $queryValues = array($uuid);
+        $queryValues = [$uuid];
         $stmt = $this->db->prepare($query);
         $this->db->execute($stmt, $queryValues);
 

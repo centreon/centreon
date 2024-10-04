@@ -58,7 +58,7 @@ if (preg_match('/([0-9]+)_([0-9]+)/', $chartId, $matches)) {
     throw new \InvalidArgumentException('chartId must be a combination of integers');
 }
 
-$metrics = array();
+$metrics = [];
 
 /* Get list metrics */
 $query = 'SELECT m.metric_id, m.metric_name, i.host_name, i.service_description
@@ -73,23 +73,12 @@ $stmt->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
 $stmt->execute();
 
 while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-    $metrics[] = array(
-        'id' => $chartId . '_' . $row['metric_id'],
-        'title' => $row['host_name'] . ' - ' . $row['service_description'] . ' : ' . $row['metric_name']
-    );
+    $metrics[] = ['id' => $chartId . '_' . $row['metric_id'], 'title' => $row['host_name'] . ' - ' . $row['service_description'] . ' : ' . $row['metric_name']];
 }
 
-if (isset($_GET['start'])) {
-    $period_start = filter_var($_GET['start'], FILTER_VALIDATE_INT);
-} else {
-    $period_start = 'undefined';
-}
+$period_start = isset($_GET['start']) ? filter_var($_GET['start'], FILTER_VALIDATE_INT) : 'undefined';
 
-if (isset($_GET['end'])) {
-    $period_end = filter_var($_GET['end'], FILTER_VALIDATE_INT);
-} else {
-    $period_end = 'undefined';
-}
+$period_end = isset($_GET['end']) ? filter_var($_GET['end'], FILTER_VALIDATE_INT) : 'undefined';
 
 if ($period_start === false) {
     $period_start = 'undefined';
@@ -106,23 +95,23 @@ $form = new HTML_QuickFormCustom('FormPeriod', 'get', '?p=' . $p);
 
 $periods = [
     '' => '',
-    '3h' => _('Last 3 Hours'),
-    '6h' => _('Last 6 Hours'),
-    '12h' => _('Last 12 Hours'),
-    '1d' => _('Last 24 Hours'),
-    '2d' => _('Last 2 Days'),
-    '3d' => _('Last 3 Days'),
-    '4d' => _('Last 4 Days'),
-    '5d' => _('Last 5 Days'),
-    '7d' => _('Last 7 Days'),
-    '14d' => _('Last 14 Days'),
-    '28d' => _('Last 28 Days'),
-    '30d' => _('Last 30 Days'),
-    '31d' => _('Last 31 Days'),
-    '2M' => _('Last 2 Months'),
-    '4M' => _('Last 4 Months'),
-    '6M' => _('Last 6 Months'),
-    '1y' => _('Last Year')
+    '3h' => _('Last 3 hours'),
+    '6h' => _('Last 6 hours'),
+    '12h' => _('Last 12 hours'),
+    '1d' => _('Last 24 hours'),
+    '2d' => _('Last 2 days'),
+    '3d' => _('Last 3 days'),
+    '4d' => _('Last 4 days'),
+    '5d' => _('Last 5 days'),
+    '7d' => _('Last 7 days'),
+    '14d' => _('Last 14 days'),
+    '28d' => _('Last 28 days'),
+    '30d' => _('Last 30 days'),
+    '31d' => _('Last 31 days'),
+    '2M' => _('Last 2 months'),
+    '4M' => _('Last 4 months'),
+    '6M' => _('Last 6 months'),
+    '1y' => _('Last year')
 ];
 $sel = $form->addElement(
     'select',

@@ -1,3 +1,4 @@
+import { alpha } from '@mui/system';
 import { makeStyles } from 'tss-react/mui';
 
 export const useResourceStyles = makeStyles()((theme) => ({
@@ -82,5 +83,24 @@ export const useThresholdStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing(1)
+  }
+}));
+
+export const useTextFieldStyles = makeStyles<{ hasMarginBottom: boolean }>()(
+  (theme, { hasMarginBottom }) => ({
+    container: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: theme.spacing(0.5),
+      marginBottom: hasMarginBottom ? theme.spacing(0.5) : 0
+    }
+  })
+);
+
+export const useWarningStyles = makeStyles()((theme) => ({
+  warningBox: {
+    backgroundColor: alpha(theme.palette.warning.main, 0.3),
+    borderRadius: theme.shape.borderRadius,
+    padding: theme.spacing(1.5)
   }
 }));

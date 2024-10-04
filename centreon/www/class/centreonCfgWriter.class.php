@@ -33,18 +33,25 @@
  *
  */
 
-/*
- *  Class that allows to write Nagios configuration files
+/**
+ * Class
+ *
+ * @class CentreonCfgWriter
+ * @description Class that allows to write Nagios configuration files
  */
 class CentreonCfgWriter
 {
-    private $buffer;
+    /** @var string */
+    private $buffer = "";
+    /** @var CentreonXML */
     private $xmlBuffer;
+    /** @var Centreon */
     private $centreon;
+    /** @var string */
     private $file_path;
 
     /**
-     *  Constructor
+     *  CentreonCfgWriter constructor
      *
      *  @param Centreon $centreon
      *  @param string $file_full_path
@@ -53,7 +60,6 @@ class CentreonCfgWriter
     public function __construct($centreon, $file_full_path)
     {
         $this->centreon = $centreon;
-        $this->buffer = "";
         $this->xmlBuffer = new CentreonXML();
         $this->file_path = $file_full_path;
     }
@@ -73,7 +79,8 @@ class CentreonCfgWriter
      *  Returns the length of written text
      *
      *  @param string $text
-     *  @return string
+     *
+     *  @return int
      */
     protected function writeText($text)
     {
@@ -129,7 +136,7 @@ class CentreonCfgWriter
      *  @param string $type
      *  @return void
      */
-    public function startCfg($type)
+    public function startCfg($type): void
     {
         $this->writeText("define " . $type . "{\n");
         $this->xmlBuffer->startElement($type);
@@ -140,7 +147,7 @@ class CentreonCfgWriter
      *
      *  @return void
      */
-    public function endCfg()
+    public function endCfg(): void
     {
         $this->writeText("\t}\n\n");
         $this->xmlBuffer->endElement();
@@ -153,7 +160,7 @@ class CentreonCfgWriter
      * @param string $value
      * @return void
      */
-    public function attribute($key, $value)
+    public function attribute($key, $value): void
     {
         $len = strlen($key);
         if ($len <= 9) {
@@ -173,7 +180,7 @@ class CentreonCfgWriter
      *
      * @return void
      */
-    public function createCfgFile()
+    public function createCfgFile(): void
     {
         file_put_contents($this->file_path, $this->buffer);
     }

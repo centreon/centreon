@@ -161,7 +161,7 @@ class CommentControllerTest extends TestCase
     /**
      * Testing wrongly formatted JSON POST data for addResourcesComment
      */
-    public function testaddResourcesCommentBadJsonFormat()
+    public function testaddResourcesCommentBadJsonFormat(): void
     {
         $commentController = new CommentController(
             $this->commentService,
@@ -181,7 +181,7 @@ class CommentControllerTest extends TestCase
     /**
      * Testing with wrong property added to the POST JSON for addResourcesComment
      */
-    public function testCommentResourcesBadJsonProperties()
+    public function testCommentResourcesBadJsonProperties(): void
     {
         $commentController = new CommentController(
             $this->commentService,
@@ -200,7 +200,7 @@ class CommentControllerTest extends TestCase
     /**
      * Testing with a correct JSON POST data and successfully adding a comment to a resource
      */
-    public function testAddResourcesCommentSuccess()
+    public function testAddResourcesCommentSuccess(): void
     {
         $this->commentService->expects($this->any())
             ->method('filterByContact')
@@ -224,7 +224,7 @@ class CommentControllerTest extends TestCase
     /**
      * Testing with wrongly formatted JSON POST data for addHostComment
      */
-    public function testAddHostCommentBadJsonFormat()
+    public function testAddHostCommentBadJsonFormat(): void
     {
         $commentController = new CommentController(
             $this->commentService,
@@ -243,7 +243,7 @@ class CommentControllerTest extends TestCase
     /**
      * Testing with wrong property added to the POST JSON for addHostComment
      */
-    public function testAddHostCommentBadJsonProperties()
+    public function testAddHostCommentBadJsonProperties(): void
     {
         $commentController = new CommentController(
             $this->commentService,
@@ -261,7 +261,7 @@ class CommentControllerTest extends TestCase
     /**
      * Testing with a correct JSON POST data and successfully adding a comment for a host resource
      */
-    public function testAddHostCommentSuccess()
+    public function testAddHostCommentSuccess(): void
     {
         $this->commentService->expects($this->any())
             ->method('filterByContact')
@@ -286,7 +286,7 @@ class CommentControllerTest extends TestCase
     /**
      * Testing with wrongly formatted JSON POST data for addServiceComment
      */
-    public function testAddServiceCommentBadJsonFormat()
+    public function testAddServiceCommentBadJsonFormat(): void
     {
         $commentController = new CommentController(
             $this->commentService,
@@ -309,7 +309,7 @@ class CommentControllerTest extends TestCase
     /**
      * Testing with wrong property added to the POST JSON for addServiceComment
      */
-    public function testAddServiceCommentBadJsonProperties()
+    public function testAddServiceCommentBadJsonProperties(): void
     {
         $commentController = new CommentController(
             $this->commentService,
@@ -331,7 +331,7 @@ class CommentControllerTest extends TestCase
     /**
      * Testing with a correct JSON POST data and successfully adding comment for a service resource
      */
-    public function testAddServiceCommentSuccess()
+    public function testAddServiceCommentSuccess(): void
     {
         $this->commentService->expects($this->any())
         ->method('filterByContact')

@@ -94,7 +94,7 @@ $style = "one";
 /*
  * Fill a tab with a mutlidimensionnal Array we put in $tpl
  */
-$elemArr = array();
+$elemArr = [];
 $centreonToken = createCSRFToken();
 
 for ($i = 0; $topo = $dbResult->fetchRow(); $i++) {
@@ -116,24 +116,15 @@ for ($i = 0; $topo = $dbResult->fetchRow(); $i++) {
         "return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" .
         $topo['acl_topo_id'] . "]' />";
     /* Contacts */
-    $elemArr[$i] = array(
-        "MenuClass" => "list_" . $style,
-        "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_name" => CentreonUtils::escapeSecure(
-            $topo["acl_topo_name"],
-            CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-        ),
-        "RowMenu_link" => "main.php?p=" . $p . "&o=c&acl_topo_id=" . $topo['acl_topo_id'],
-        "RowMenu_alias" => CentreonUtils::escapeSecure(
-            $topo["acl_topo_alias"],
-            CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-        ),
-        "RowMenu_status" => $topo["acl_topo_activate"] ? _("Enabled") : _("Disabled"),
-        "RowMenu_badge" => $topo["acl_topo_activate"] ? "service_ok" : "service_critical",
-        "RowMenu_options" => $moptions
-    );
+    $elemArr[$i] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => CentreonUtils::escapeSecure(
+        $topo["acl_topo_name"],
+        CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
+    ), "RowMenu_link" => "main.php?p=" . $p . "&o=c&acl_topo_id=" . $topo['acl_topo_id'], "RowMenu_alias" => CentreonUtils::escapeSecure(
+        $topo["acl_topo_alias"],
+        CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
+    ), "RowMenu_status" => $topo["acl_topo_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $topo["acl_topo_activate"] ? "service_ok" : "service_critical", "RowMenu_options" => $moptions];
 
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 
@@ -142,7 +133,7 @@ $tpl->assign("elemArr", $elemArr);
  */
 $tpl->assign(
     'msg',
-    array("addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?"))
+    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
 );
 
 ?>
@@ -152,28 +143,20 @@ $tpl->assign(
         }
     </script>
 <?php
-foreach (array('o1', 'o2') as $option) {
-    $attrs1 = array(
-        'onchange' => "javascript: "
-            . "if (this.form.elements['$option'].selectedIndex == 1 && confirm('"
-            . _("Do you confirm the duplication ?") . "')) {"
-            . "setO(this.form.elements['$option'].value); submit();} "
-            . "else if (this.form.elements['$option'].selectedIndex == 2 && confirm('"
-            . _("Do you confirm the deletion ?") . "')) {"
-            . "setO(this.form.elements['$option'].value); submit();} "
-            . "else if (this.form.elements['$option'].selectedIndex == 3 || "
-            . "this.form.elements['$option'].selectedIndex == 4) {"
-            . "setO(this.form.elements['$option'].value); submit();}"
-    );
-    $form->addElement('select', $option, null, array(
-        null => _("More actions..."),
-        "m" => _("Duplicate"),
-        "d" => _("Delete"),
-        "ms" => _("Enable"),
-        "mu" => _("Disable")
-    ), $attrs1);
+foreach (['o1', 'o2'] as $option) {
+    $attrs1 = ['onchange' => "javascript: "
+        . "if (this.form.elements['$option'].selectedIndex == 1 && confirm('"
+        . _("Do you confirm the duplication ?") . "')) {"
+        . "setO(this.form.elements['$option'].value); submit();} "
+        . "else if (this.form.elements['$option'].selectedIndex == 2 && confirm('"
+        . _("Do you confirm the deletion ?") . "')) {"
+        . "setO(this.form.elements['$option'].value); submit();} "
+        . "else if (this.form.elements['$option'].selectedIndex == 3 || "
+        . "this.form.elements['$option'].selectedIndex == 4) {"
+        . "setO(this.form.elements['$option'].value); submit();}"];
+    $form->addElement('select', $option, null, [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete"), "ms" => _("Enable"), "mu" => _("Disable")], $attrs1);
 
-    $form->setDefaults(array($option => null));
+    $form->setDefaults([$option => null]);
     $o1 = $form->getElement($option);
     $o1->setValue(null);
 }

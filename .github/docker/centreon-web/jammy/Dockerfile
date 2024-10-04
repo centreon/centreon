@@ -20,16 +20,16 @@ apt-get update
 
 apt-get install -y /tmp/packages-centreon/centreon-*.deb
 
-echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini
+echo "date.timezone = Europe/Paris" >> /etc/php/8.2/mods-available/centreon.ini
 
-touch /var/log/php8.1-fpm-centreon-error.log
-chown www-data:www-data /var/log/php8.1-fpm-centreon-error.log
+touch /var/log/php8.2-fpm-centreon-error.log
+chown www-data:www-data /var/log/php8.2-fpm-centreon-error.log
 
 systemctl stop gorgoned
 systemctl stop centengine
 systemctl stop cbd
 systemctl stop apache2
-systemctl stop php8.1-fpm
+systemctl stop php8.2-fpm
 
 apt-get clean
 

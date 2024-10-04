@@ -17,7 +17,7 @@ import {
   resourcesEndpoint,
   viewByHostEndpoint
 } from '../api/endpoints';
-import { Data, PanelOptions } from '../models';
+import type { Data, PanelOptions } from '../models';
 
 import {
   labelCloseATicket,
@@ -42,7 +42,6 @@ interface Props {
 }
 const platformFeatures = {
   featureFlags: {
-    resouresTableOpenTickets: true
   },
   isCloudPlatform: false
 };
@@ -486,7 +485,7 @@ describe('Open tickets', () => {
       data: { resources },
       options: {
         ...resourcesOptions,
-        displayResources: 'all',
+        displayResources: 'withoutTicket',
         isOpenTicketEnabled: true,
         provider: { id: 1, name: 'Rule 1' },
         selectedColumnIds: [...selectedColumnIds, 'open_ticket']
@@ -495,7 +494,7 @@ describe('Open tickets', () => {
 
     cy.waitForRequest('@getResources');
 
-    cy.contains('Open ticket');
+    cy.contains('Ticket').should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -595,7 +594,7 @@ describe('Open tickets', () => {
 
     cy.contains('Action').should('be.visible');
 
-    cy.findAllByLabelText(labelCloseTicket).eq(1).click();
+    cy.findAllByLabelText(labelCloseTicket).eq(2).click();
 
     cy.contains(labelCloseATicket).should('be.visible');
     cy.contains(labelTicketWillBeClosedInTheProvider).should('be.visible');

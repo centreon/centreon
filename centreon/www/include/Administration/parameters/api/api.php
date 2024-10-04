@@ -43,8 +43,8 @@ while ($opt = $DBRESULT->fetchRow()) {
 }
 $DBRESULT->closeCursor();
 
-$attrsText = array("size" => "40");
-$attrsText2 = array("size" => "5");
+$attrsText = ["size" => "40"];
+$attrsText2 = ["size" => "5"];
 $attrsAdvSelect = null;
 
 /*
@@ -59,20 +59,15 @@ $form->addElement('header', 'title', _("Modify Centcore options"));
 $form->addElement('checkbox', 'enable_broker_stats', _("Enable Broker Statistics Collection"));
 $form->addElement('text', 'gorgone_cmd_timeout', _("Timeout value for Gorgone commands"), $attrsText2);
 
-$attrContacts = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => './include/common/webServices/rest/internal.php?'
-        . 'object=centreon_configuration_contact&action=list',
-    'multiple' => true,
-    'linkedObject' => 'centreonContact'
-);
+$attrContacts = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => './include/common/webServices/rest/internal.php?'
+    . 'object=centreon_configuration_contact&action=list', 'multiple' => true, 'linkedObject' => 'centreonContact'];
 $attrContact1 = array_merge(
     $attrContacts,
-    array('defaultDatasetRoute' => './include/common/webServices/rest/internal.php?'
+    ['defaultDatasetRoute' => './include/common/webServices/rest/internal.php?'
         . 'object=centreon_configuration_contact&action=defaultValues&target=contactgroup&field=cg_contacts&id='
-        . $cg_id)
+        . $cg_id]
 );
-$form->addElement('select2', 'cg_contacts', _("Linked Contacts"), array(), $attrContact1);
+$form->addElement('select2', 'cg_contacts', _("Linked Contacts"), [], $attrContact1);
 
 
 $form->addElement('hidden', 'gopt_id');
@@ -89,8 +84,8 @@ $tpl = initSmartyTpl($path . "/api", $tpl);
 
 $form->setDefaults($gopt);
 
-$subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-$DBRESULT = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+$subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+$DBRESULT = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 
 // prepare help texts
 $helptext = "";
@@ -119,7 +114,7 @@ $form->addElement(
     "button",
     "change",
     _("Modify"),
-    array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=centcore'", 'class' => 'btc bt_info')
+    ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=centcore'", 'class' => 'btc bt_info']
 );
 
 /*
