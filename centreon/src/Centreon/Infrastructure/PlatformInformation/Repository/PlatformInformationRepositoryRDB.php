@@ -89,7 +89,7 @@ class PlatformInformationRepositoryRDB extends AbstractRepositoryDRB implements 
 
                 $result[$row['key']] = $row['value'];
             }
-            if (!empty($result)) {
+            if ($result !== []) {
                 /**
                  * @var PlatformInformation $platformInformation
                  */

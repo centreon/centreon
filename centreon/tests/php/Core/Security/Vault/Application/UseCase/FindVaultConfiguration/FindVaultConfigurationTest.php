@@ -39,13 +39,13 @@ use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\{
 use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
 use Security\Encryption;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
 });
 
-it('should present Forbidden Response when user is not admin', function () {
+it('should present Forbidden Response when user is not admin', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -64,7 +64,7 @@ it('should present Forbidden Response when user is not admin', function () {
         ->toBe(VaultConfigurationException::onlyForAdmin()->getMessage());
 });
 
-it('should present NotFound Response when vault configuration does not exist for a given id', function () {
+it('should present NotFound Response when vault configuration does not exist for a given id', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -89,7 +89,7 @@ it('should present NotFound Response when vault configuration does not exist for
     );
 });
 
-it('should present ErrorResponse when an unhandled error occurs', function () {
+it('should present ErrorResponse when an unhandled error occurs', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -114,7 +114,7 @@ it('should present ErrorResponse when an unhandled error occurs', function () {
     );
 });
 
-it('should present FindVaultConfigurationResponse', function () {
+it('should present FindVaultConfigurationResponse', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')

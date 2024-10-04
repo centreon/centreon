@@ -60,7 +60,7 @@ beforeEach(function (): void {
     );
 });
 
-it('should present a Forbidden Response when the user has insufficient rights', function () {
+it('should present a Forbidden Response when the user has insufficient rights', function (): void {
     $this->contact
         ->expects($this->any())
         ->method('hasTopologyRole')
@@ -75,7 +75,7 @@ it('should present a Forbidden Response when the user has insufficient rights', 
         ->toBe('User does not have sufficient rights');
 });
 
-it('should present a Not Found Response when provided host ID does not exist for a non-admin user', function () {
+it('should present a Not Found Response when provided host ID does not exist for a non-admin user', function (): void {
     $this->contact
         ->expects($this->any())
         ->method('hasTopologyRole')
@@ -111,7 +111,7 @@ it('should present a Not Found Response when provided host ID does not exist for
         ->toBe('Host not found');
 });
 
-it('should present a Not Found Response when provided host ID does not exist for a admin user', function () {
+it('should present a Not Found Response when provided host ID does not exist for a admin user', function (): void {
     $this->contact
         ->expects($this->any())
         ->method('hasTopologyRole')
@@ -143,7 +143,7 @@ it('should present a Not Found Response when provided host ID does not exist for
 
 it(
     'should present a No Content Response when provided host ID does not have associated host templates',
-    function () {
+    function (): void {
         $this->contact
             ->expects($this->any())
             ->method('hasTopologyRole')
@@ -183,7 +183,7 @@ it(
     }
 );
 
-it('should present a No Content Response when threre are no services to deploy', function () {
+it('should present a No Content Response when threre are no services to deploy', function (): void {
     $this->contact
         ->expects($this->any())
         ->method('hasTopologyRole')
@@ -236,7 +236,7 @@ it('should present a No Content Response when threre are no services to deploy',
         ->toBeInstanceOf(NoContentResponse::class);
 });
 
-it('should present an Error Response when an unhandled error occurs', function () {
+it('should present an Error Response when an unhandled error occurs', function (): void {
     $this->contact
         ->expects($this->any())
         ->method('hasTopologyRole')
@@ -264,7 +264,7 @@ it('should present an Error Response when an unhandled error occurs', function (
         ->toBeInstanceOf(ErrorResponse::class);
 });
 
-it('should present a Created Response when services were successfully deployed', function () {
+it('should present a Created Response when services were successfully deployed', function (): void {
     $this->contact
         ->expects($this->any())
         ->method('hasTopologyRole')

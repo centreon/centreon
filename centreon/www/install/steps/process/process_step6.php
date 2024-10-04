@@ -108,7 +108,7 @@ try {
     }
 }
 
-if (!count($err['required']) && $err['password'] && trim($err['connection']) == '') {
+if ($err['required'] === [] && $err['password'] && trim($err['connection']) == '') {
     $step = new Step6($dependencyInjector);
     $step->setDatabaseConfiguration($parameters);
 }

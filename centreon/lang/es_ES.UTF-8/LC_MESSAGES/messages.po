@@ -2903,6 +2903,7 @@ msgstr "bienvenida"
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:294
 #: centreon-web/www/include/options/accessLists/define/formLCA.php:244
 #: centreon-web/www/include/monitoring/objectDetails/serviceDetails.php:587
+#: centreon-web/www/include/eventLogs/viewLog.php:247
 msgid "Host Groups"
 msgstr "Grupos de anfitriones"
 
@@ -3105,6 +3106,7 @@ msgstr "Estado del servidor"
 #: centreon-web/www/install/menu_translation.php:133
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:330
 #: centreon-web/www/include/options/accessLists/define/formLCA.php:275
+#: centreon-web/www/include/eventLogs/viewLog.php:229
 msgid "Service Groups"
 msgstr "Grupos de servicio"
 
@@ -5784,7 +5786,7 @@ msgid "View an ACL"
 msgstr "Ver un ACL"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:230
-msgid "Hosts Groups Shared"
+msgid "Host Groups Shared"
 msgstr "Grupos compartidos de hosts"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:232
@@ -5898,11 +5900,11 @@ msgid "Required field"
 msgstr "Campo obligatorio"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:429
-msgid "Hosts Resources"
+msgid "Host Resources"
 msgstr "Gestión de host"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:430
-msgid "Services Resources"
+msgid "Service Resources"
 msgstr "Gestión de servicios"
 
 msgid "Centreon Users"
@@ -11663,14 +11665,6 @@ msgstr "Estado validado (duro) solamente"
 msgid "Log Period"
 msgstr "Período de visualización"
 
-#: centreon-web/www/include/eventLogs/viewLog.php:229
-msgid "Services Groups"
-msgstr "Grupos de servicio"
-
-#: centreon-web/www/include/eventLogs/viewLog.php:247
-msgid "Hosts Groups"
-msgstr "Grupos de anfitriones"
-
 #: centreon-web/www/include/eventLogs/xml/data.php:715
 msgid "Y/m/d"
 msgstr "d/m/Y"
@@ -17367,7 +17361,7 @@ msgstr "Modo avanzado"
 # msgid "Select host severities"
 # msgstr ""
 
-# msgid "Enable tickets"
+# msgid "Enable ticket management"
 # msgstr ""
 
 # msgid "Ticket provider"
@@ -17401,6 +17395,18 @@ msgstr "Modo avanzado"
 # msgstr ""
 
 # msgid "Create a ticket"
+# msgstr ""
+
+# msgid "Close a ticket"
+# msgstr ""
+
+# msgid "Ticket created"
+# msgstr ""
+
+# msgid "Ticket closed"
+# msgstr ""
+
+# msgid "The ticket with ID #{{id}} will be closed for the selected ticket provider."
 # msgstr ""
 
 # msgid "Rule (ticket provider)"
@@ -17704,5 +17710,14 @@ msgstr "Modo avanzado"
 # msgid "Save your dashboard to generate a thumbnail"
 # msgstr ""
 
-#  msgid "If tickets are enabled, only the “by service” view is available."
+#  msgid "If ticket management is enabled, only the “by service” view is available."
 #  msgstr ""
+
+#  msgid "Ticket management"
+#  msgstr ""
+
+# msgid "Displays the time according to the selected time zone, or a timer."
+# msgstr ""
+
+# msgid "Clock / Timer"
+# msgstr ""

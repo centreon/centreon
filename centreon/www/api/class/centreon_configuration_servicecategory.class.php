@@ -38,10 +38,15 @@
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationServicecategory
+ */
 class CentreonConfigurationServicecategory extends CentreonConfigurationObjects
 {
     /**
-     * CentreonConfigurationServicecategory constructor.
+     * CentreonConfigurationServicecategory constructor
      */
     public function __construct()
     {
@@ -54,14 +59,10 @@ class CentreonConfigurationServicecategory extends CentreonConfigurationObjects
      */
     public function getList()
     {
-        $queryValues = array();
+        $queryValues = [];
 
         // Check for select2 'q' argument
-        if (false !== isset($this->arguments['q'])) {
-            $queryValues['name'] = '%' . (string)$this->arguments['q'] . '%';
-        } else {
-            $queryValues['name'] = '%%';
-        }
+        $queryValues['name'] = false !== isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
 
         /*
 		 * Check for select2 't' argument
@@ -70,7 +71,7 @@ class CentreonConfigurationServicecategory extends CentreonConfigurationObjects
 		 * 's' = severity only
 		 */
         if (isset($this->arguments['t'])) {
-            $selectList = array('a', 'c', 's');
+            $selectList = ['a', 'c', 's'];
             if (in_array(strtolower($this->arguments['t']), $selectList)) {
                 $t = $this->arguments['t'];
             } else {
@@ -110,13 +111,10 @@ class CentreonConfigurationServicecategory extends CentreonConfigurationObjects
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $serviceList = array();
+        $serviceList = [];
         while ($data = $stmt->fetch()) {
-            $serviceList[] = array('id' => $data['sc_id'], 'text' => $data['sc_name']);
+            $serviceList[] = ['id' => $data['sc_id'], 'text' => $data['sc_name']];
         }
-        return array(
-            'items' => $serviceList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $serviceList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

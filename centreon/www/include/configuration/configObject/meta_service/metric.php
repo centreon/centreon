@@ -41,7 +41,7 @@ require_once("./class/centreonDB.class.php");
 
 $pearDBO = new CentreonDB("centstorage");
 
-$metric = array();
+$metric = [];
 if (($o == 'cs') && $msr_id) {
     # Set base value
     $DBRESULT = $pearDB->prepare("SELECT * FROM meta_service_relation WHERE msr_id = :msr_id");
@@ -73,30 +73,20 @@ if (($o == 'cs') && $msr_id) {
  * Host comes from DB -> Store in $hosts Array
  */
 $hosts =
-    array(null => null) + $acl->getHostAclConf(
+    [null => null] + $acl->getHostAclConf(
         null,
         'broker',
-        array(
-            'fields' => array('host.host_id', 'host.host_name'),
-            'keys' => array('host_id'),
-            'get_row' => 'host_name',
-            'order' => array('host.host_name')
-        )
+        ['fields' => ['host.host_id', 'host.host_name'], 'keys' => ['host_id'], 'get_row' => 'host_name', 'order' => ['host.host_name']]
     );
 
-$services1 = array(null => null);
-$services2 = array(null => null);
+$services1 = [null => null];
+$services2 = [null => null];
 if ($host_id !== false) {
     $services =
-        array(null => null) + $acl->getHostServiceAclConf(
+        [null => null] + $acl->getHostServiceAclConf(
             $host_id,
             'broker',
-            array(
-                'fields' => array('s.service_id', 's.service_description'),
-                'keys' => array('service_id'),
-                'get_row' => 'service_description',
-                'order' => array('service_description')
-            )
+            ['fields' => ['s.service_id', 's.service_description'], 'keys' => ['service_id'], 'get_row' => 'service_description', 'order' => ['service_description']]
         );
 
     foreach ($services as $key => $value) {
@@ -118,9 +108,9 @@ if ($host_id !== false) {
 }
 
 $debug = 0;
-$attrsTextI = array("size" => "3");
-$attrsText = array("size" => "30");
-$attrsTextarea = array("rows" => "5", "cols" => "40");
+$attrsTextI = ["size" => "3"];
+$attrsText = ["size" => "30"];
+$attrsTextarea = ["rows" => "5", "cols" => "40"];
 
 /*
  * Form begin
@@ -144,15 +134,15 @@ $formMetaId->setValue($meta_id);
 $formMetricId = $form->addElement('hidden', 'metric_id');
 $formMetricId->setValue($metric_id);
 
-$hn = $form->addElement('select', 'host_id', _("Host"), $hosts, array("onChange" => "this.form.submit()"));
+$hn = $form->addElement('select', 'host_id', _("Host"), $hosts, ["onChange" => "this.form.submit()"]);
 $sel = $form->addElement('hierselect', 'metric_sel', _("Service"));
-$sel->setOptions(array($services1, $services2));
+$sel->setOptions([$services1, $services2]);
 
-$tab = array();
+$tab = [];
 $tab[] = $form->createElement('radio', 'activate', null, _("Enabled"), '1');
 $tab[] = $form->createElement('radio', 'activate', null, _("Disabled"), '0');
 $form->addGroup($tab, 'activate', _("Status"), '&nbsp;');
-$form->setDefaults(array('activate' => '1'));
+$form->setDefaults(['activate' => '1']);
 $form->addElement('textarea', 'msr_comment', _("Comments"), $attrsTextarea);
 
 $form->addRule('host_id', _("Compulsory Field"), 'required');
@@ -176,12 +166,12 @@ $form->addRule('metric_sel', _("Compulsory Field"), 'checkMetric');
  */
 
 if ($o == "cs") {
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $form->setDefaults($metric);
 } elseif ($o == "as") {
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 }
 
 $valid = false;

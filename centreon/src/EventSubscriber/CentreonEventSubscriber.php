@@ -377,7 +377,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                     'code' => $errorCode,
                     'message' => $event->getThrowable()->getMessage(),
                 ]);
-            } elseif (get_class($event->getThrowable()) === \Exception::class) {
+            } elseif ($event->getThrowable()::class === \Exception::class) {
                 $errorMessage = json_encode([
                     'code' => $errorCode,
                     'message' => 'Internal error',

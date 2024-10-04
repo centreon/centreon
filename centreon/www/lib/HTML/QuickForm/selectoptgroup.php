@@ -76,13 +76,13 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
      *
      * @var string
      */
-    public $_defaultDataset;
+    public $_defaultDataset = null;
 
     /**
      *
      * @var boolean
      */
-    public $_ajaxSource;
+    public $_ajaxSource = false;
 
     /**
      *
@@ -94,25 +94,25 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
      *
      * @var string
      */
-    public $_multipleHtml;
+    public $_multipleHtml = '';
 
     /**
      *
      * @var string
      */
-    public $_defaultSelectedOptions;
+    public $_defaultSelectedOptions = '';
 
     /**
      *
      * @var string
      */
-    public $_jsCallback;
+    public $_jsCallback = '';
 
     /**
      *
      * @var boolean
      */
-    public $_allowClear;
+    public $_allowClear = true;
 
     /**
      *
@@ -124,7 +124,7 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
      *
      * @var type
      */
-    public $_defaultDatasetOptions;
+    public $_defaultDatasetOptions = [];
 
     /**
      * @var int The number of element in the pagination
@@ -152,16 +152,9 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
         $sort = null
     ) {
         global $centreon;
-        $this->_ajaxSource = false;
-        $this->_defaultSelectedOptions = '';
-        $this->_multipleHtml = '';
-        $this->_allowClear = true;
         $this->realOptionsArray = $options;
         parent::__construct($elementName, $elementLabel, $options, $attributes);
         $this->_elementHtmlName = $this->getName();
-        $this->_defaultDataset = null;
-        $this->_defaultDatasetOptions = array();
-        $this->_jsCallback = '';
         $this->parseCustomAttributes($attributes);
 
         $this->_pagination = $centreon->optGen['selectPaginationSize'];
@@ -171,7 +164,7 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
      *
      * @param array $attributes
      */
-    public function parseCustomAttributes(&$attributes)
+    public function parseCustomAttributes(&$attributes): void
     {
         // Check for
         if (isset($attributes['datasourceOrigin']) && ($attributes['datasourceOrigin'] == 'ajax')) {
@@ -363,7 +356,7 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
         return $datas;
     }
 
-    public $_memOptions = array();
+    public $_memOptions = [];
 
     /**
      * obsolete
@@ -378,7 +371,7 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
      * @param string $event
      * @param string $callback
      */
-    public function addJsCallback($event, $callback)
+    public function addJsCallback($event, $callback): void
     {
         $this->_jsCallback .= ' jQuery("#' . $this->getName() . '").on("' . $event . '", function(){ '
             . $callback
@@ -445,11 +438,7 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
             $value = $this->_findValue($caller->_constantValues);
 
             if (null === $value) {
-                if (is_null($this->_defaultDataset)) {
-                    $value = $this->_findValue($caller->_submitValues);
-                } else {
-                    $value = $this->_defaultDataset;
-                }
+                $value = is_null($this->_defaultDataset) ? $this->_findValue($caller->_submitValues) : $this->_defaultDataset;
 
                 // Fix for bug #4465 & #5269
                 // XXX: should we push this to element::onQuickFormEvent()?
@@ -460,7 +449,7 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
 
             if (null !== $value) {
                 if (!is_array($value)) {
-                    $value = array($value);
+                    $value = [$value];
                 }
                 $this->_defaultDataset = $value;
                 $this->setDefaultFixedDatas();

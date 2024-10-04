@@ -48,7 +48,7 @@ use Core\Domain\Configuration\Notification\Model\HostNotification;
 use Core\Domain\Configuration\Notification\Model\ServiceNotification;
 use Core\Domain\Configuration\TimePeriod\Model\TimePeriod;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->readServiceNotificationRepository = $this->createMock(ReadServiceNotificationRepositoryInterface::class);
     $this->hostRepository = $this->createMock(HostConfigurationRepositoryInterface::class);
     $this->serviceRepository = $this->createMock(ServiceConfigurationRepositoryInterface::class);
@@ -99,7 +99,7 @@ beforeEach(function () {
     );
 });
 
-it('does not find service notification policy when host is not found by admin user', function () {
+it('does not find service notification policy when host is not found by admin user', function (): void {
     $this->contact
         ->expects($this->once())
         ->method('isAdmin')
@@ -118,7 +118,7 @@ it('does not find service notification policy when host is not found by admin us
     ($this->useCase)(1, 1, $this->findNotificationPolicyPresenter);
 });
 
-it('does not find service notification policy when acl user does not have access to host', function () {
+it('does not find service notification policy when acl user does not have access to host', function (): void {
     $this->contact
         ->expects($this->once())
         ->method('isAdmin')
@@ -138,7 +138,7 @@ it('does not find service notification policy when acl user does not have access
 });
 
 
-it('does not find service notification policy when acl user does not have access to service', function () {
+it('does not find service notification policy when acl user does not have access to service', function (): void {
     $this->contact
         ->expects($this->exactly(2))
         ->method('isAdmin')
@@ -167,7 +167,7 @@ it('does not find service notification policy when acl user does not have access
     ($this->useCase)(1, 1, $this->findNotificationPolicyPresenter);
 });
 
-it('does not find service notification policy when service is not found by admin user', function () {
+it('does not find service notification policy when service is not found by admin user', function (): void {
     $this->contact
         ->expects($this->exactly(2))
         ->method('isAdmin')
@@ -191,7 +191,7 @@ it('does not find service notification policy when service is not found by admin
     ($this->useCase)(1, 1, $this->findNotificationPolicyPresenter);
 });
 
-it('returns users, user groups and notification status', function () {
+it('returns users, user groups and notification status', function (): void {
     $this->contact
         ->expects($this->exactly(3))
         ->method('isAdmin')

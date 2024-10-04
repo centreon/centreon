@@ -29,7 +29,7 @@ class StringConverterTest extends TestCase
     /**
      * test convertCamelCaseToSnakeCase
      */
-    public function testConvertCamelCaseToSnakeCase()
+    public function testConvertCamelCaseToSnakeCase(): void
     {
         $camelCaseName = 'myCurrentProperty1';
         $snakeCaseName = StringConverter::convertCamelCaseToSnakeCase($camelCaseName);
@@ -40,7 +40,7 @@ class StringConverterTest extends TestCase
     /**
      * test convertSnakeCaseToCamelCase
      */
-    public function testConvertSnakeCaseToCamelCase()
+    public function testConvertSnakeCaseToCamelCase(): void
     {
         $snakeCaseName = 'my_current_property1';
         $camelCaseName = StringConverter::convertSnakeCaseToCamelCase($snakeCaseName);

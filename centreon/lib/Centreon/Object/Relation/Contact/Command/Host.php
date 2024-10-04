@@ -35,10 +35,22 @@
 
 require_once "Centreon/Object/Relation/Relation.php";
 
+/**
+ * Class
+ *
+ * @class Centreon_Object_Relation_Contact_Command_Host
+ */
 class Centreon_Object_Relation_Contact_Command_Host extends Centreon_Object_Relation
 {
+    /** @var Centreon_Object_Contact */
+    public $firstObject;
+    /** @var Centreon_Object_Command */
+    public $secondObject;
+    /** @var string */
     protected $relationTable = "contact_hostcommands_relation";
+    /** @var string */
     protected $firstKey = "contact_contact_id";
+    /** @var string */
     protected $secondKey = "command_command_id";
 
     /**

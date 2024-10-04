@@ -36,13 +36,16 @@
 require_once __DIR__ . "/../Object.php";
 
 /**
- * Used for interacting with Acl Groups
+ * Class
  *
- * @author sylvestre
+ * @class Centreon_Object_Acl_Group
  */
 class Centreon_Object_Acl_Group extends Centreon_Object
 {
+    /** @var string */
     protected $table = "acl_groups";
+    /** @var string */
     protected $primaryKey = "acl_group_id";
+    /** @var string */
     protected $uniqueLabelField = "acl_group_name";
 }

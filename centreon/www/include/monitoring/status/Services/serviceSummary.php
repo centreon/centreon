@@ -39,13 +39,13 @@ if (!isset($oreon)) {
 
 include("./include/common/autoNumLimit.php");
 
-!isset($_GET["sort_types"]) ? $sort_types = 0 : $sort_types = $_GET["sort_types"];
-!isset($_GET["order"]) ? $order = 'ASC' : $order = $_GET["order"];
-!isset($_GET["num"]) ? $num = 0 : $num = $_GET["num"];
-!isset($_GET["host_search"]) ? $host_search = 0 : $host_search = $_GET["host_search"];
-!isset($_GET["search_type_host"]) ? $search_type_host = 1 : $search_type_host = $_GET["search_type_host"];
-!isset($_GET["search_type_service"]) ? $search_type_service = 1 : $search_type_service = $_GET["search_type_service"];
-!isset($_GET["sort_type"]) ? $sort_type = "host_name" : $sort_type = $_GET["sort_type"];
+$sort_types = !isset($_GET["sort_types"]) ? 0 : $_GET["sort_types"];
+$order = !isset($_GET["order"]) ? 'ASC' : $_GET["order"];
+$num = !isset($_GET["num"]) ? 0 : $_GET["num"];
+$host_search = !isset($_GET["host_search"]) ? 0 : $_GET["host_search"];
+$search_type_host = !isset($_GET["search_type_host"]) ? 1 : $_GET["search_type_host"];
+$search_type_service = !isset($_GET["search_type_service"]) ? 1 : $_GET["search_type_service"];
+$sort_type = !isset($_GET["sort_type"]) ? "host_name" : $_GET["sort_type"];
 
 /*
  * Check search value in Host search field
@@ -54,7 +54,7 @@ if (isset($_GET["host_search"])) {
     $centreon->historySearch[$url] = $_GET["host_search"];
 }
 
-$tab_class = array("0" => "list_one", "1" => "list_two");
+$tab_class = ["0" => "list_one", "1" => "list_two"];
 $rows = 10;
 
 include_once("./include/monitoring/status/Common/default_poller.php");
@@ -82,19 +82,12 @@ $tpl->assign("mon_status_information", _("Status information"));
 $form = new HTML_QuickFormCustom('select_form', 'GET', "?p=" . $p);
 
 $tpl->assign("order", strtolower($order));
-$tab_order = array("sort_asc" => "sort_desc", "sort_desc" => "sort_asc");
+$tab_order = ["sort_asc" => "sort_desc", "sort_desc" => "sort_asc"];
 $tpl->assign("tab_order", $tab_order);
 
-$aTypeAffichageLevel1 = array(
-    "svcOV" => _("Details"),
-    "svcSum" => _("Summary")
-);
+$aTypeAffichageLevel1 = ["svcOV" => _("Details"), "svcSum" => _("Summary")];
 
-$aTypeAffichageLevel2 = array(
-    "pb" => _("Problems"),
-    "ack_1" => _("Acknowledge"),
-    "ack_0" => _("Not Acknowledged"),
-);
+$aTypeAffichageLevel2 = ["pb" => _("Problems"), "ack_1" => _("Acknowledge"), "ack_0" => _("Not Acknowledged")];
 
 ##Toolbar select $lang["lgd_more_actions"]
 ?>
@@ -141,42 +134,26 @@ $form->addElement(
     'typeDisplay',
     _('Display'),
     $aTypeAffichageLevel1,
-    array('id' => 'typeDisplay', 'onChange' => "displayingLevel1(this.value);")
+    ['id' => 'typeDisplay', 'onChange' => "displayingLevel1(this.value);"]
 );
 $form->addElement(
     'select',
     'typeDisplay2',
     _('Display '),
     $aTypeAffichageLevel2,
-    array('id' => 'typeDisplay2', 'onChange' => "displayingLevel2(this.value);")
+    ['id' => 'typeDisplay2', 'onChange' => "displayingLevel2(this.value);"]
 );
 
-foreach (array('o1', 'o2') as $option) {
-    $attrs = array('onchange' => "javascript: setO(this.form.elements['$option'].value); submit();");
+foreach (['o1', 'o2'] as $option) {
+    $attrs = ['onchange' => "javascript: setO(this.form.elements['$option'].value); submit();"];
     $form->addElement(
         'select',
         'o1',
         null,
-        array(
-            null => _("More actions..."),
-            "3" => _("Verification Check"),
-            "4" => _("Verification Check (Forced)"),
-            "70" => _("Services : Acknowledge"),
-            "71" => _("Services : Disacknowledge"),
-            "80" => _("Services : Enable Notification"),
-            "81" => _("Services : Disable Notification"),
-            "90" => _("Services : Enable Check"),
-            "91" => _("Services : Disable Check"),
-            "72" => _("Hosts : Acknowledge"),
-            "73" => _("Hosts : Disacknowledge"),
-            "82" => _("Hosts : Enable Notification"),
-            "83" => _("Hosts : Disable Notification"),
-            "92" => _("Hosts : Enable Check"),
-            "93" => _("Hosts : Disable Check")
-        ),
+        [null => _("More actions..."), "3" => _("Verification Check"), "4" => _("Verification Check (Forced)"), "70" => _("Services : Acknowledge"), "71" => _("Services : Disacknowledge"), "80" => _("Services : Enable Notification"), "81" => _("Services : Disable Notification"), "90" => _("Services : Enable Check"), "91" => _("Services : Disable Check"), "72" => _("Hosts : Acknowledge"), "73" => _("Hosts : Disacknowledge"), "82" => _("Hosts : Enable Notification"), "83" => _("Hosts : Disable Notification"), "92" => _("Hosts : Enable Check"), "93" => _("Hosts : Disable Check")],
         $attrs
     );
-    $form->setDefaults(array($option => null));
+    $form->setDefaults([$option => null]);
     $o1 = $form->getElement($option);
     $o1->setValue(null);
 }

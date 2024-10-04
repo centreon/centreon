@@ -32,8 +32,17 @@ use ConfigGenerateRemote\Trap;
 use ConfigGenerateRemote\Relations\ContactServiceRelation;
 use ConfigGenerateRemote\Relations\ContactGroupServiceRelation;
 
+/**
+ * Class
+ *
+ * @class AbstractService
+ * @package ConfigGenerateRemote\Abstracts
+ */
 abstract class AbstractService extends AbstractObject
 {
+    /** @var array */
+    protected $serviceCache;
+    /** @var string */
     protected $attributesSelect = '
         service_id,
         service_template_model_stm_id,
@@ -65,35 +74,17 @@ abstract class AbstractService extends AbstractObject
         graph_id,
         service_acknowledgement_timeout
     ';
-    protected $attributesWrite = array(
-        'service_id',
-        'service_template_model_stm_id',
-        'command_command_id',
-        'command_command_id_arg',
-        'timeperiod_tp_id',
-        'timeperiod_tp_id2',
-        'command_command_id2',
-        'command_command_id_arg2',
-        'service_description',
-        'service_alias',
-        'display_name',
-        'service_is_volatile',
-        'service_max_check_attempts',
-        'service_normal_check_interval',
-        'service_retry_check_interval',
-        'service_active_checks_enabled',
-        'service_passive_checks_enabled',
-        'service_event_handler_enabled',
-        'service_notification_interval',
-        'service_notification_options',
-        'service_notifications_enabled',
-        'service_register',
-        'service_acknowledgement_timeout',
-    );
+    /** @var string[] */
+    protected $attributesWrite = ['service_id', 'service_template_model_stm_id', 'command_command_id', 'command_command_id_arg', 'timeperiod_tp_id', 'timeperiod_tp_id2', 'command_command_id2', 'command_command_id_arg2', 'service_description', 'service_alias', 'display_name', 'service_is_volatile', 'service_max_check_attempts', 'service_normal_check_interval', 'service_retry_check_interval', 'service_active_checks_enabled', 'service_passive_checks_enabled', 'service_event_handler_enabled', 'service_notification_interval', 'service_notification_options', 'service_notifications_enabled', 'service_register', 'service_acknowledgement_timeout'];
+    /** @var array */
     protected $loopStpl = []; // To be reset
+    /** @var null */
     protected $stmtMacro = null;
+    /** @var null */
     protected $stmtStpl = null;
+    /** @var null */
     protected $stmtContact = null;
+    /** @var null */
     protected $stmtService = null;
 
     /**
@@ -154,6 +145,11 @@ abstract class AbstractService extends AbstractObject
         return 0;
     }
 
+    /**
+     * @param array $service
+     *
+     * @return void
+     */
     protected function getTraps(array &$service): void
     {
         Trap::getInstance($this->dependencyInjector)
@@ -254,9 +250,6 @@ abstract class AbstractService extends AbstractObject
      */
     public function getString(int $serviceId, string $attr): ?string
     {
-        if (isset($this->serviceCache[$serviceId][$attr])) {
-            return $this->serviceCache[$serviceId][$attr];
-        }
-        return null;
+        return $this->serviceCache[$serviceId][$attr] ?? null;
     }
 }

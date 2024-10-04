@@ -66,8 +66,8 @@ function testHostGroupDependencyCycle($childs = null)
 {
     global $pearDB;
     global $form;
-    $parents = array();
-    $childs = array();
+    $parents = [];
+    $childs = [];
     if (isset($form)) {
         $parents = $form->getSubmitValue('dep_hgParents');
         $childs = $form->getSubmitValue('dep_hgChilds');
@@ -81,7 +81,7 @@ function testHostGroupDependencyCycle($childs = null)
     return true;
 }
 
-function deleteHostGroupDependencyInDB($dependencies = array())
+function deleteHostGroupDependencyInDB($dependencies = [])
 {
     global $pearDB, $centreon;
     foreach ($dependencies as $key => $value) {
@@ -93,7 +93,7 @@ function deleteHostGroupDependencyInDB($dependencies = array())
     }
 }
 
-function multipleHostGroupDependencyInDB($dependencies = array(), $nbrDup = array())
+function multipleHostGroupDependencyInDB($dependencies = [], $nbrDup = [])
 {
     foreach ($dependencies as $key => $value) {
         global $pearDB, $centreon;
@@ -104,7 +104,10 @@ function multipleHostGroupDependencyInDB($dependencies = array(), $nbrDup = arra
             $val = null;
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
-                $key2 == "dep_name" ? ($dep_name = $value2 = $value2 . "_" . $i) : null;
+                if ($key2 == "dep_name") {
+                    $dep_name = $value2 . "_" . $i;
+                    $value2 = $value2 . "_" . $i;
+                }
                 $val
                     ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")
                     : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
@@ -116,7 +119,7 @@ function multipleHostGroupDependencyInDB($dependencies = array(), $nbrDup = arra
                 }
             }
             if (isset($dep_name) && testHostGroupDependencyExistence($dep_name)) {
-                $val ? $rq = "INSERT INTO dependency VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO dependency VALUES (" . $val . ")" : null;
                 $pearDB->query($rq);
                 $dbResult = $pearDB->query("SELECT MAX(dep_id) FROM dependency");
                 $maxId = $dbResult->fetch();
@@ -172,7 +175,7 @@ function updateHostGroupDependencyInDB($dep_id = null)
     updateHostGroupDependencyHostGroupChilds($dep_id);
 }
 
-function insertHostGroupDependencyInDB($ret = array())
+function insertHostGroupDependencyInDB($ret = [])
 {
     $dep_id = insertHostGroupDependency($ret);
     updateHostGroupDependencyHostGroupParents($dep_id, $ret);
@@ -186,7 +189,7 @@ function insertHostGroupDependencyInDB($ret = array())
  * @param array<string, mixed> $ret
  * @return int
  */
-function insertHostGroupDependency($ret = array()): int
+function insertHostGroupDependency($ret = []): int
 {
     global $form, $pearDB, $centreon;
     if (!count($ret)) {
@@ -333,7 +336,7 @@ function sanitizeResourceParameters(array $resources): array
     return $sanitizedParameters;
 }
 
-function updateHostGroupDependencyHostGroupParents($dep_id = null, $ret = array())
+function updateHostGroupDependencyHostGroupParents($dep_id = null, $ret = [])
 {
     if (!$dep_id) {
         exit();
@@ -348,7 +351,8 @@ function updateHostGroupDependencyHostGroupParents($dep_id = null, $ret = array(
     } else {
         $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_hgParents');
     }
-    for ($i = 0; $i < count($ret); $i++) {
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         $rq = "INSERT INTO dependency_hostgroupParent_relation ";
         $rq .= "(dependency_dep_id, hostgroup_hg_id) ";
         $rq .= "VALUES ";
@@ -357,7 +361,7 @@ function updateHostGroupDependencyHostGroupParents($dep_id = null, $ret = array(
     }
 }
 
-function updateHostGroupDependencyHostGroupChilds($dep_id = null, $ret = array())
+function updateHostGroupDependencyHostGroupChilds($dep_id = null, $ret = [])
 {
     if (!$dep_id) {
         exit();
@@ -372,7 +376,8 @@ function updateHostGroupDependencyHostGroupChilds($dep_id = null, $ret = array()
     } else {
         $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_hgChilds');
     }
-    for ($i = 0; $i < count($ret); $i++) {
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         $rq = "INSERT INTO dependency_hostgroupChild_relation ";
         $rq .= "(dependency_dep_id, hostgroup_hg_id) ";
         $rq .= "VALUES ";

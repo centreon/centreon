@@ -81,7 +81,7 @@ try {
     $viewId = $viewObj->getCurrentView();
     $views = $viewObj->getCustomViews();
 
-    $contactParameters = $centreon->user->getContactParameters($db, array('widget_view_rotation'));
+    $contactParameters = $centreon->user->getContactParameters($db, ['widget_view_rotation']);
 
     $rotationTimer = 0;
     if (isset($contactParameters['widget_view_rotation'])) {
@@ -89,16 +89,12 @@ try {
     }
 
     $i = 1;
-    $indexTab = array(0 => -1);
+    $indexTab = [0 => -1];
 
     foreach ($views as $key => $val) {
         $indexTab[$key] = $i;
         $i++;
-        if (!$viewObj->checkPermission($key)) {
-            $views[$key]['icon'] = "locked";
-        } else {
-            $views[$key]['icon'] = "unlocked";
-        }
+        $views[$key]['icon'] = !$viewObj->checkPermission($key) ? "locked" : "unlocked";
         $views[$key]['default'] = "";
         if ($viewObj->getDefaultViewId() == $key) {
             $views[$key]['default'] = sprintf(" (%s)", _('default'));
@@ -113,26 +109,22 @@ try {
         'post',
         "?p=103",
         '_selft',
-        array('onSubmit' => 'submitAddView(); return false;')
+        ['onSubmit' => 'submitAddView(); return false;']
     );
 
     // List of shared views
-    $arrayView = array(
-        'datasourceOrigin' => 'ajax',
-        'availableDatasetRoute' => './api/internal.php?object=centreon_home_customview&action=listSharedViews',
-        'multiple' => false
-    );
-    $formAddView->addElement('select2', 'viewLoad', _("Views"), array(), $arrayView);
+    $arrayView = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => './api/internal.php?object=centreon_home_customview&action=listSharedViews', 'multiple' => false];
+    $formAddView->addElement('select2', 'viewLoad', _("Views"), [], $arrayView);
 
     // New view name
-    $attrsText = array("size" => "30");
+    $attrsText = ["size" => "30"];
     $formAddView->addElement('text', 'name', _("Name"), $attrsText);
 
-    $createLoad = array();
+    $createLoad = [];
     $createLoad[] = $formAddView->createElement('radio', 'create_load', null, _("Create new view "), 'create');
     $createLoad[] = $formAddView->createElement('radio', 'create_load', null, _("Load from existing view"), 'load');
     $formAddView->addGroup($createLoad, 'create_load', _("create or load"), '&nbsp;');
-    $formAddView->setDefaults(array('create_load[create_load]' => 'create'));
+    $formAddView->setDefaults(['create_load[create_load]' => 'create']);
 
     /**
      * Layout
@@ -141,17 +133,17 @@ try {
     $layouts[] = $formAddView->createElement('radio', 'layout', null, _("2 Columns"), 'column_2');
     $layouts[] = $formAddView->createElement('radio', 'layout', null, _("3 Columns"), 'column_3');
     $formAddView->addGroup($layouts, 'layout', _("Layout"), '&nbsp;');
-    $formAddView->setDefaults(array('layout[layout]' => 'column_1'));
+    $formAddView->setDefaults(['layout[layout]' => 'column_1']);
 
     $formAddView->addElement('checkbox', 'public', '', _("Public"));
 
     /**
      * Submit button
      */
-    $formAddView->addElement('submit', 'submit', _("Submit"), array("class" => "btc bt_success"));
-    $formAddView->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $formAddView->addElement('submit', 'submit', _("Submit"), ["class" => "btc bt_success"]);
+    $formAddView->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $formAddView->addElement('hidden', 'action');
-    $formAddView->setDefaults(array('action' => 'add'));
+    $formAddView->setDefaults(['action' => 'add']);
 
     /**
      * Renderer
@@ -170,7 +162,7 @@ try {
         'post',
         "?p=103",
         '',
-        array('onSubmit' => 'submitEditView(); return false;')
+        ['onSubmit' => 'submitEditView(); return false;']
     );
 
     /**
@@ -181,22 +173,22 @@ try {
     /**
      * Layout
      */
-    $layouts = array();
+    $layouts = [];
     $layouts[] = $formAddView->createElement('radio', 'layout', null, _("1 Column"), 'column_1');
     $layouts[] = $formAddView->createElement('radio', 'layout', null, _("2 Columns"), 'column_2');
     $layouts[] = $formAddView->createElement('radio', 'layout', null, _("3 Columns"), 'column_3');
     $formEditView->addGroup($layouts, 'layout', _("Layout"), '&nbsp;');
-    $formEditView->setDefaults(array('layout[layout]' => 'column_1'));
+    $formEditView->setDefaults(['layout[layout]' => 'column_1']);
 
     $formEditView->addElement('checkbox', 'public', '', _("Public"));
     /**
      * Submit button
      */
-    $formEditView->addElement('submit', 'submit', _("Submit"), array("class" => "btc bt_success"));
-    $formEditView->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $formEditView->addElement('submit', 'submit', _("Submit"), ["class" => "btc bt_success"]);
+    $formEditView->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $formEditView->addElement('hidden', 'action');
     $formEditView->addElement('hidden', 'custom_view_id');
-    $formEditView->setDefaults(array('action' => 'edit'));
+    $formEditView->setDefaults(['action' => 'edit']);
 
     /**
      * Renderer
@@ -215,76 +207,59 @@ try {
         'post',
         "?p=103",
         '',
-        array('onSubmit' => 'submitShareView(); return false;')
+        ['onSubmit' => 'submitShareView(); return false;']
     );
 
     /**
      * Users
      */
-    $attrContacts = array(
-        'datasourceOrigin' => 'ajax',
-        'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_contact&action=list',
-        'multiple' => true,
-        'allowClear' => true,
-        'defaultDataset' => array()
-    );
+    $attrContacts = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_contact&action=list', 'multiple' => true, 'allowClear' => true, 'defaultDataset' => []];
     $formShareView->addElement(
         'select2',
         'unlocked_user_id',
         _("Unlocked users"),
-        array(),
+        [],
         $attrContacts
     );
     $formShareView->addElement(
         'select2',
         'locked_user_id',
         _("Locked users"),
-        array(),
+        [],
         $attrContacts
     );
 
     /**
      * User groups
      */
-    $attrContactgroups = array(
-        'datasourceOrigin' => 'ajax',
-        'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_contactgroup&action=list',
-        'multiple' => true,
-        'allowClear' => true,
-        'defaultDataset' => array()
-    );
+    $attrContactgroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_contactgroup&action=list', 'multiple' => true, 'allowClear' => true, 'defaultDataset' => []];
     $formShareView->addElement(
         'select2',
         'unlocked_usergroup_id',
         _("Unlocked user groups"),
-        array(),
+        [],
         $attrContactgroups
     );
     $formShareView->addElement(
         'select2',
         'locked_usergroup_id',
         _("Locked user groups"),
-        array(),
+        [],
         $attrContactgroups
     );
 
     /*
      * Widgets
      */
-    $attrWidgets = array(
-        'datasourceOrigin' => 'ajax',
-        'multiple' => false,
-        'availableDatasetRoute' => './api/internal.php?object=centreon_administration_widget&action=listInstalled',
-        'allowClear' => false
-    );
+    $attrWidgets = ['datasourceOrigin' => 'ajax', 'multiple' => false, 'availableDatasetRoute' => './api/internal.php?object=centreon_administration_widget&action=listInstalled', 'allowClear' => false];
 
     /**
      * Submit button
      */
-    $formShareView->addElement('submit', 'submit', _("Share"), array("class" => "btc bt_info"));
-    $formShareView->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $formShareView->addElement('submit', 'submit', _("Share"), ["class" => "btc bt_info"]);
+    $formShareView->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $formShareView->addElement('hidden', 'action');
-    $formShareView->setDefaults(array('action' => 'share'));
+    $formShareView->setDefaults(['action' => 'share']);
     $formShareView->addElement('hidden', 'custom_view_id');
     $rendererShareView = new HTML_QuickForm_Renderer_ArraySmarty($template, true);
     $rendererShareView->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
@@ -301,23 +276,23 @@ try {
         'post',
         "?p=103",
         '',
-        array('onSubmit' => 'submitAddWidget(); return false;')
+        ['onSubmit' => 'submitAddWidget(); return false;']
     );
 
     /**
      * Name
      */
     $formAddWidget->addElement('text', 'widget_title', _("Title"), $attrsText);
-    $formAddWidget->addElement('select2', 'widget_model_id', _("Widget"), array(), $attrWidgets);
+    $formAddWidget->addElement('select2', 'widget_model_id', _("Widget"), [], $attrWidgets);
 
     /**
      * Submit button
      */
-    $formAddWidget->addElement('submit', 'submit', _("Submit"), array("class" => "btc bt_success"));
-    $formAddWidget->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $formAddWidget->addElement('submit', 'submit', _("Submit"), ["class" => "btc bt_success"]);
+    $formAddWidget->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $formAddWidget->addElement('hidden', 'action');
     $formAddWidget->addElement('hidden', 'custom_view_id');
-    $formAddWidget->setDefaults(array('action' => 'addWidget'));
+    $formAddWidget->setDefaults(['action' => 'addWidget']);
 
     /**
      * Renderer

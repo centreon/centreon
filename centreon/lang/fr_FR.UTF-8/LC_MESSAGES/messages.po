@@ -3129,6 +3129,7 @@ msgstr "Accueil"
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:294
 #: centreon-web/www/include/options/accessLists/define/formLCA.php:244
 #: centreon-web/www/include/monitoring/objectDetails/serviceDetails.php:587
+#: centreon-web/www/include/eventLogs/viewLog.php:247
 msgid "Host Groups"
 msgstr "Groupes d'hôtes"
 
@@ -3331,6 +3332,7 @@ msgstr "État du serveur"
 #: centreon-web/www/install/menu_translation.php:133
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:330
 #: centreon-web/www/include/options/accessLists/define/formLCA.php:275
+#: centreon-web/www/include/eventLogs/viewLog.php:229
 msgid "Service Groups"
 msgstr "Groupes de services"
 
@@ -6138,7 +6140,7 @@ msgid "View an ACL"
 msgstr "Visualiser une ACL"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:230
-msgid "Hosts Groups Shared"
+msgid "Host Groups Shared"
 msgstr "Groupes d'hôtes partagés"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:232
@@ -6263,11 +6265,11 @@ msgid "Required field"
 msgstr "Champ requis"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:429
-msgid "Hosts Resources"
+msgid "Host Resources"
 msgstr "Gestion des hôtes"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:430
-msgid "Services Resources"
+msgid "Service Resources"
 msgstr "Gestion des services"
 
 msgid "Centreon Users"
@@ -12090,14 +12092,6 @@ msgstr "Etat validés (Hard) seulement"
 #: centreon-web/www/include/eventLogs/viewLog.php:200
 msgid "Log Period"
 msgstr "Période de visualisation"
-
-#: centreon-web/www/include/eventLogs/viewLog.php:229
-msgid "Services Groups"
-msgstr "Groupes de services"
-
-#: centreon-web/www/include/eventLogs/viewLog.php:247
-msgid "Hosts Groups"
-msgstr "Groupes d'hôtes"
 
 #: centreon-web/www/include/eventLogs/xml/data.php:715
 msgid "Y/m/d"
@@ -19131,8 +19125,8 @@ msgstr "Sélectionner les sévérités des services"
 msgid "Select host severities"
 msgstr "Sélectionner les sévérités des hôtes"
 
-msgid "Enable tickets"
-msgstr "Activer les tickets"
+msgid "Enable ticket management"
+msgstr "Activer la gestion des tickets"
 
 msgid "Ticket provider"
 msgstr "Fournisseur de tickets"
@@ -19166,6 +19160,18 @@ msgstr "Ouvert le"
 
 msgid "Create a ticket"
 msgstr "Créer un ticket"
+
+msgid "Close a ticket"
+msgstr "Fermer un ticket"
+
+msgid "Ticket created"
+msgstr "Ticket créé"
+
+msgid "Ticket closed"
+msgstr "Ticket fermé"
+
+msgid "The ticket with ID #{{id}} will be closed for the selected ticket provider."
+msgstr "Le ticket avec l'ID #{{id}} sera fermé pour le fournisseur de tickets sélectionné."
 
 msgid "Rule (ticket provider)"
 msgstr "Règle (fournisseur de tickets)"
@@ -19453,5 +19459,20 @@ msgstr "Aperçu de la page web"
 msgid "Save your dashboard to generate a thumbnail"
 msgstr "Sauvegardez votre tableau de bord pour générer une vignette"
 
-msgid "If tickets are enabled, only the “by service” view is available."
-msgstr "Si les tickets sont activés, seule la vue par service est disponible."
+msgid "If ticket management is enabled, only the “by service” view is available."
+msgstr "Si la gestion des tickets est activé, seule la vue par service est disponible."
+
+msgid "Ticket management"
+msgstr "gestion des tickets"
+
+msgid "Displays the time according to the selected time zone, or a timer."
+msgstr "Affiche l'heure en fonction du fuseau horaire sélectionné, ou un minuteur."
+
+msgid "Clock / Timer"
+msgstr "Horloge/Minuteur"
+
+# msgid "Displays the time according to the selected time zone, or a timer."
+# msgstr ""
+
+# msgid "Clock / Timer"
+# msgstr ""

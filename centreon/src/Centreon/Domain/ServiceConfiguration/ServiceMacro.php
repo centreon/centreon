@@ -97,7 +97,7 @@ class ServiceMacro implements MacroInterface
     {
         $patternToBeFound = '$_SERVICE';
         if ($name !== null) {
-            if (strpos($name, $patternToBeFound) !== 0) {
+            if (!str_starts_with($name, $patternToBeFound)) {
                 $name = $patternToBeFound . $name;
                 if ($name[-1] !== '$') {
                     $name .= '$';

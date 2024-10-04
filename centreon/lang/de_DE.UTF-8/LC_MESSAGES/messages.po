@@ -2736,6 +2736,7 @@ msgstr "Startseite"
 #: centreon/www/install/menu_translation.php:92
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:363
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php:791
+#: centreon/www/include/eventLogs/viewLog.php:363
 msgid "Host Groups"
 msgstr "Hostgruppen"
 
@@ -2974,6 +2975,7 @@ msgstr "Serverstatus"
 
 #: centreon/www/install/menu_translation.php:133
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:427
+#: centreon/www/include/eventLogs/viewLog.php:331
 msgid "Service Groups"
 msgstr "Servicegruppen"
 
@@ -3901,7 +3903,7 @@ msgid "View an ACL"
 msgstr "Zugriffssteuerungsliste (ACL) anzeigen"
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:239
-msgid "Hosts Groups Shared"
+msgid "Host Groups Shared"
 msgstr "Geteilte Hostgruppen"
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:241
@@ -4347,11 +4349,11 @@ msgid "Modify"
 msgstr "Bearbeiten"
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:549
-msgid "Hosts Resources"
+msgid "Host Resources"
 msgstr "Hostressourcen"
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:550
-msgid "Services Resources"
+msgid "Service Resources"
 msgstr "Serviceressourcen"
 
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php:90
@@ -12913,14 +12915,6 @@ msgstr "Nur HARD"
 msgid "Log Period"
 msgstr "Protokollzeitraum"
 
-#: centreon/www/include/eventLogs/viewLog.php:331
-msgid "Services Groups"
-msgstr "Servicegruppen"
-
-#: centreon/www/include/eventLogs/viewLog.php:363
-msgid "Hosts Groups"
-msgstr "Hostgruppen"
-
 #: centreon/www/include/eventLogs/xml/data.php:949
 msgid "Object name"
 msgstr "Objektname"
@@ -17014,7 +17008,7 @@ msgstr "Erweiterter Modus"
 # msgid "Select host severities"
 # msgstr ""
 
-# msgid "Enable tickets"
+# msgid "Enable ticket management"
 # msgstr ""
 
 # msgid "Ticket provider"
@@ -17049,6 +17043,18 @@ msgstr "Erweiterter Modus"
 
 
 # msgid "Create a ticket"
+# msgstr ""
+
+# msgid "Close a ticket"
+# msgstr ""
+
+# msgid "Ticket created"
+# msgstr ""
+
+# msgid "Ticket closed"
+# msgstr ""
+
+# msgid "The ticket with ID #{{id}} will be closed for the selected ticket provider."
 # msgstr ""
 
 # msgid "Rule (ticket provider)"
@@ -17352,5 +17358,14 @@ msgstr "Erweiterter Modus"
 # msgid "Save your dashboard to generate a thumbnail"
 # msgstr ""
 
-#  msgid "If tickets are enabled, only the “by service” view is available."
+#  msgid "If ticket management is enabled, only the “by service” view is available."
 #  msgstr ""
+
+#  msgid "Ticket management"
+#  msgstr ""
+
+# msgid "Displays the time according to the selected time zone, or a timer."
+# msgstr ""
+
+# msgid "Clock / Timer"
+# msgstr ""
