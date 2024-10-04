@@ -763,7 +763,7 @@ describe(Actions, () => {
     });
   });
 
-    it('deactivates the submit status button when a Resource of type anomaly detection is selected', async () => {
+  it('deactivates the submit status button when a Resource of type anomaly detection is selected', async () => {
     mockedAxios.post.mockResolvedValueOnce({});
 
     const { getByLabelText, getByTestId } = renderActions();

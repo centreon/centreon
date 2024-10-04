@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { useAtom } from 'jotai';
-import { all, head, pathEq } from 'ramda';
+import { all, find, head, pathEq, propEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
