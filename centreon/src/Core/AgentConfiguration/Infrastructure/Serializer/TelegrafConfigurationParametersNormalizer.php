@@ -23,21 +23,14 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Infrastructure\Serializer;
 
-use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfigurationResponse;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
+/**
+ * @phpstan-import-type _TelegrafParameters from TelegrafConfigurationParameters
+ */
 class TelegrafConfigurationParametersNormalizer implements NormalizerInterface
 {
-    /**
-     * @param ObjectNormalizer $normalizer
-     */
-    public function __construct(
-        private readonly ObjectNormalizer $normalizer,
-    ) {
-    }
-
     /**
      * {@inheritDoc}
      *
@@ -45,14 +38,16 @@ class TelegrafConfigurationParametersNormalizer implements NormalizerInterface
      * @param string|null $format
      * @param array<string, mixed> $context
      *
-     * @return array<string, int|string>
+     * @return _TelegrafParameters|null
      */
     public function normalize(
         mixed $object,
         ?string $format = null,
         array $context = []
     ): float|int|bool|array|string|null {
+        /** @var array{groups: string[]} $context */
         if (in_array('AgentConfiguration:Read', $context['groups'], true)) {
+            /** @var _TelegrafParameters $data */
             $data = $object->getData();
         }
 

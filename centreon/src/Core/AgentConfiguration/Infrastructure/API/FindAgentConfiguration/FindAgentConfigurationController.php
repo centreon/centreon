@@ -46,7 +46,7 @@ final class FindAgentConfigurationController extends AbstractController
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
-        $response = $useCase($id, $presenter);
+        $response = $useCase($id);
 
         if ($response instanceof ResponseStatusInterface) {
             return $this->createResponse($response);

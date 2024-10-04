@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\AgentConfiguration\Infrastructure\Serializer;
+namespace Core\AgentConfiguration\Infrastructure\API\FindAgentConfiguration;
 
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfigurationResponse;
 use Core\AgentConfiguration\Domain\Model\Poller;
@@ -43,7 +43,7 @@ class FindAgentConfigurationResponseNormalizer implements NormalizerInterface
      * @param string|null $format
      * @param array<string, mixed> $context
      *
-     * @throws ExceptionInterface
+     * @throws \Throwable
      *
      * @return array<string, mixed>|bool|float|int|string|null
      */
@@ -55,6 +55,7 @@ class FindAgentConfigurationResponseNormalizer implements NormalizerInterface
         /** @var array<string, bool|float|int|string> $data */
         $data = $this->normalizer->normalize($object->agentConfiguration, $format, $context);
 
+        /** @var array{groups: string[]} $context */
         if (in_array('AgentConfiguration:Read', $context['groups'], true)) {
             $data['pollers'] = array_map(
                 fn (Poller $poller) => $this->normalizer->normalize($poller, $format, $context),

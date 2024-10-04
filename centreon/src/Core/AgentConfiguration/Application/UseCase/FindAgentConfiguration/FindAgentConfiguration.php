@@ -30,10 +30,8 @@ use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Application\Common\UseCase\StandardPresenterInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
@@ -57,13 +55,13 @@ final class FindAgentConfiguration
     ) {
     }
 
+
     /**
-     * Finds an agent configuration.
+     * Retrieves an agent configuration with associated pollers.
      *
      * @param int $agentConfigurationId
-     * @param FindAgentConfigurationResponse|ResponseStatusInterface $presenter
      *
-     * @throws \Throwable
+     * @return FindAgentConfigurationResponse|ResponseStatusInterface
      */
     public function __invoke(int $agentConfigurationId): FindAgentConfigurationResponse|ResponseStatusInterface {
         $this->info(
@@ -91,6 +89,10 @@ final class FindAgentConfiguration
 
             $pollers = $this->readRepository->findPollersByAcId($agentConfigurationId);
 
+            /**
+             * Check if the non-admin user has access to all the pollers in the agent configuration.
+             * If not, return a NotFoundResponse.
+             */
             if (! $this->user->isAdmin()) {
                 $pollerIds = array_map(
                     static fn(Poller $poller): int => $poller->id,

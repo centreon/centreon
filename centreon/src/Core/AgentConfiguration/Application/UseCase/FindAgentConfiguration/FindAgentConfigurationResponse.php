@@ -24,15 +24,25 @@ declare(strict_types=1);
 namespace Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration;
 
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
+use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\Application\Common\UseCase\StandardResponseInterface;
 
 final class FindAgentConfigurationResponse implements StandardResponseInterface
 {
+
+    /**
+     * FindAgentConfigurationResponse constructor.
+     *
+     * @param AgentConfiguration $agentConfiguration
+     * @param Poller[] $pollers
+     */
     public function __construct(readonly public AgentConfiguration $agentConfiguration, readonly public array $pollers)
     {
     }
 
-
+    /**
+     * @inheritDoc
+     */
     public function getData(): mixed
     {
         return $this;
