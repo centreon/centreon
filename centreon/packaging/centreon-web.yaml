@@ -453,10 +453,10 @@ overrides:
       - perl-DBD-MySQL
       - perl-DBI
       - perl-HTML-Parser
+      - perl(Net::SNMP)
       - rrdtool
       - rrdtool-perl
       - net-snmp
-      - net-snmp-perl
       - net-snmp-utils
       - rsync
       - brotli
