@@ -88,13 +88,13 @@ function serviceMacHandler()
     global $pearDB;
 
     $macArray = $_POST;
-    $macTab = array();
+    $macTab = [];
     foreach ($macArray as $key => $value) {
         if (isset($value) && is_string($value) && preg_match('/^macroInput/', $key, $matches)) {
             $macTab[] = "'\$_SERVICE" . strtoupper($value) . "\$'";
         }
     }
-    if (count($macTab)) {
+    if ($macTab !== []) {
         $sql = "SELECT count(*) as nb FROM nagios_macro WHERE macro_name IN (" . implode(',', $macTab) . ")";
         $res = $pearDB->query($sql);
         $row = $res->fetch();
@@ -113,7 +113,7 @@ function serviceMacHandler()
 function argHandler()
 {
     $argArray = $_POST;
-    $argTab = array();
+    $argTab = [];
     foreach ($argArray as $key => $value) {
         if (preg_match('/^ARG(\d+)/', $key, $matches)) {
             $argTab[$matches[1]] = $value;
@@ -140,12 +140,12 @@ function argHandler()
  * @param $argArray
  * @return string
  */
-function getCommandArgs($argArray = array(), $conf = array())
+function getCommandArgs($argArray = [], $conf = [])
 {
     if (isset($conf['command_command_id_arg'])) {
         return $conf['command_command_id_arg'];
     }
-    $argTab = array();
+    $argTab = [];
     foreach ($argArray as $key => $value) {
         if (preg_match('/^ARG(\d+)/', $key, $matches)) {
             $argTab[$matches[1]] = $value;
@@ -234,12 +234,10 @@ function testServiceTemplateExistence($name = null, $returnId = false)
         } else {
             return true;
         }
+    } elseif ($nbRows >= 1) {
+        return false;
     } else {
-        if ($nbRows >= 1) {
-            return false;
-        } else {
-            return true;
-        }
+        return true;
     }
 }
 
@@ -253,34 +251,22 @@ function testServiceTemplateExistence($name = null, $returnId = false)
  * @param array $params
  * @return mixed
  */
-function testServiceExistence($name = null, $hPars = array(), $hgPars = array(), $returnId = false, $params = array())
+function testServiceExistence($name = null, $hPars = [], $hgPars = [], $returnId = false, $params = [])
 {
     global $pearDB, $centreon;
     global $form;
 
     $id = null;
-    $hPars = (is_array($hPars) || $hPars instanceof Countable) ? $hPars : [];
-    $hgPars = (is_array($hgPars) || $hgPars instanceof Countable) ? $hgPars : [];
+    $hPars = (is_countable($hPars)) ? $hPars : [];
+    $hgPars = (is_countable($hgPars)) ? $hgPars : [];
 
     if (isset($form) && !count($hPars) && !count($hgPars)) {
-        if (count($params)) {
-            $arr = $params;
-        } else {
-            $arr = $form->getSubmitValues();
-        }
+        $arr = count($params) ? $params : $form->getSubmitValues();
         if (isset($arr["service_id"])) {
             $id = $arr["service_id"];
         }
-        if (isset($arr["service_hPars"])) {
-            $hPars = $arr["service_hPars"];
-        } else {
-            $hPars = array();
-        }
-        if (isset($arr["service_hgPars"])) {
-            $hgPars = $arr["service_hgPars"];
-        } else {
-            $hgPars = array();
-        }
+        $hPars = $arr["service_hPars"] ?? [];
+        $hgPars = $arr["service_hgPars"] ?? [];
     }
 
     $escapeName = CentreonDB::escape($centreon->checkIllegalChar($name));
@@ -338,7 +324,7 @@ function testServiceExistence($name = null, $hPars = array(), $hgPars = array(),
  * @param array $hgPars
  * @return int
  */
-function getServiceIdByCombination($serviceDescription, $hPars = array(), $hgPars = array(), $params = array())
+function getServiceIdByCombination($serviceDescription, $hPars = [], $hgPars = [], $params = [])
 {
     if (!count($hPars) && !count($hgPars)) {
         return testServiceTemplateExistence($serviceDescription, true);
@@ -346,14 +332,14 @@ function getServiceIdByCombination($serviceDescription, $hPars = array(), $hgPar
     return testServiceExistence($serviceDescription, $hPars, $hgPars, true, $params);
 }
 
-function enableServiceInDB($service_id = null, $service_arr = array())
+function enableServiceInDB($service_id = null, $service_arr = [])
 {
     if (!$service_id && !count($service_arr)) {
         return;
     }
     global $pearDB, $centreon;
     if ($service_id) {
-        $service_arr = array($service_id => "1");
+        $service_arr = [$service_id => "1"];
     }
 
     $updateStatement = $pearDB->prepare("UPDATE service SET service_activate = '1' WHERE service_id = :serviceId");
@@ -373,14 +359,14 @@ function enableServiceInDB($service_id = null, $service_arr = array())
     }
 }
 
-function disableServiceInDB($service_id = null, $service_arr = array())
+function disableServiceInDB($service_id = null, $service_arr = [])
 {
     if (!$service_id && !count($service_arr)) {
         return;
     }
     global $pearDB, $centreon;
     if ($service_id) {
-        $service_arr = array($service_id => "1");
+        $service_arr = [$service_id => "1"];
     }
     foreach (array_keys($service_arr) as $serviceId) {
         $pearDB->query("UPDATE service SET service_activate = '0' WHERE service_id = '" . $serviceId . "'");
@@ -422,7 +408,7 @@ function removeRelationLastServiceDependency(int $serviceId): void
     }
 }
 
-function deleteServiceInDB($services = array())
+function deleteServiceInDB($services = [])
 {
     global $pearDB, $centreon;
 
@@ -459,10 +445,10 @@ function deleteServiceInDB($services = array())
 
         signalConfigurationChange('service', (int) $serviceId, $previousPollerIds);
     }
-    $centreon->user->access->updateACL(array("type" => 'SERVICE', 'id' => $serviceId, "action" => "DELETE"));
+    $centreon->user->access->updateACL(["type" => 'SERVICE', 'id' => $serviceId, "action" => "DELETE"]);
 }
 
-function divideGroupedServiceInDB($service_id = null, $service_arr = array(), $toHost = null)
+function divideGroupedServiceInDB($service_id = null, $service_arr = [], $toHost = null)
 {
     global $pearDB, $pearDBO;
 
@@ -471,7 +457,7 @@ function divideGroupedServiceInDB($service_id = null, $service_arr = array(), $t
     }
 
     if ($service_id) {
-        $service_arr = array($service_id => "1");
+        $service_arr = [$service_id => "1"];
     }
 
 
@@ -483,12 +469,10 @@ function divideGroupedServiceInDB($service_id = null, $service_arr = array(), $t
 
         if ($res["nbHost"] != 0 && $res["nbHG"] == 0) {
             divideHostsToHost($key);
+        } elseif ($toHost) {
+            divideHostGroupsToHost($key);
         } else {
-            if ($toHost) {
-                divideHostGroupsToHost($key);
-            } else {
-                divideHostGroupsToHostGroup($key);
-            }
+            divideHostGroupsToHostGroup($key);
         }
 
         /*
@@ -520,13 +504,13 @@ function divideHostGroupsToHostGroup($service_id)
     $statement = $pearDBO->prepare($query);
     while ($data = $dbResult3->fetch()) {
         $sv_id = multipleServiceInDB(
-            array($service_id => "1"),
-            array($service_id => "1"),
+            [$service_id => "1"],
+            [$service_id => "1"],
             null,
             0,
             $data["hostgroup_hg_id"],
-            array(),
-            array()
+            [],
+            []
         );
         $hosts = getMyHostGroupHosts($data["hostgroup_hg_id"]);
         foreach ($hosts as $host_id) {
@@ -554,13 +538,13 @@ function divideHostGroupsToHost($service_id)
 
         foreach ($hosts as $host_id) {
             $sv_id = multipleServiceInDB(
-                array($service_id => "1"),
-                array($service_id => "1"),
+                [$service_id => "1"],
+                [$service_id => "1"],
                 $host_id,
                 0,
                 null,
-                array(),
-                array($relation["hostgroup_hg_id"] => null)
+                [],
+                [$relation["hostgroup_hg_id"] => null]
             );
             $statement->bindValue(':sv_id', (int) $sv_id, \PDO::PARAM_INT);
             $statement->bindValue(':host_id', (int) $host_id, \PDO::PARAM_INT);
@@ -581,13 +565,13 @@ function divideHostsToHost($service_id)
     $statement = $pearDBO->prepare($query);
     while ($relation = $dbResult->fetch()) {
         $sv_id = multipleServiceInDB(
-            array($service_id => "1"),
-            array($service_id => "1"),
+            [$service_id => "1"],
+            [$service_id => "1"],
             $relation["host_host_id"],
             0,
             null,
-            array(),
-            array($relation["hostgroup_hg_id"] => null)
+            [],
+            [$relation["hostgroup_hg_id"] => null]
         );
         $statement->bindValue(':sv_id', (int) $sv_id, \PDO::PARAM_INT);
         $statement->bindValue(':host_id', (int) $relation["host_host_id"], \PDO::PARAM_INT);
@@ -598,14 +582,14 @@ function divideHostsToHost($service_id)
 }
 
 function multipleServiceInDB(
-    $services = array(),
-    $nbrDup = array(),
+    $services = [],
+    $nbrDup = [],
     $host = null,
     $descKey = 1,
     $hostgroup = null,
-    $hPars = array(),
-    $hgPars = array(),
-    $params = array()
+    $hPars = [],
+    $hgPars = [],
+    $params = []
 ) {
     global $pearDB, $centreon;
 
@@ -635,7 +619,8 @@ function multipleServiceInDB(
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
                 if ($key2 == "service_description" && $descKey) {
-                    $service_description = $value2 = $value2 . "_" . $i;
+                    $service_description = $value2 . "_" . $i;
+                    $value2 = $value2 . "_" . $i;
                 } elseif ($key2 == "service_description") {
                     $service_description = null;
                 }
@@ -661,11 +646,11 @@ function multipleServiceInDB(
                 ($row["service_register"] && testServiceExistence($service_description, $hPars, $hgPars, $params))
                 || (!$row["service_register"] && testServiceTemplateExistence($service_description))
             ) {
-                $hPars = array();
-                $hgPars = array();
-                (isset($val) && $val != "NULL" && $val)
-                    ? $rq = "INSERT INTO service VALUES (" . $val . ")"
-                    : $rq = null;
+                $hPars = [];
+                $hgPars = [];
+                $rq = (isset($val) && $val != "NULL" && $val)
+                    ? "INSERT INTO service VALUES (" . $val . ")"
+                    : null;
                 if (isset($rq)) {
                     $dbResult = $pearDB->query($rq);
                     $dbResult = $pearDB->query("SELECT MAX(service_id) FROM service");
@@ -796,16 +781,8 @@ function multipleServiceInDB(
                                  VALUES (:host_host_id,:hostgroup_hg_id,:service_service_id,:servicegroup_sg_id)";
                         $statement = $pearDB->prepare($query);
                         while ($Sg = $dbResult->fetch()) {
-                            if (isset($host) && $host) {
-                                $host_id = $host;
-                            } else {
-                                $host_id = $Sg["host_host_id"] ?? null;
-                            }
-                            if (isset($hostgroup) && $hostgroup) {
-                                $hg_id = $hostgroup;
-                            } else {
-                                $hg_id = $Sg["hostgroup_hg_id"] ?? null;
-                            }
+                            $host_id = isset($host) && $host ? $host : $Sg["host_host_id"] ?? null;
+                            $hg_id = isset($hostgroup) && $hostgroup ? $hostgroup : $Sg["hostgroup_hg_id"] ?? null;
                             $statement->bindValue(
                                 ':host_host_id',
                                 $host_id,
@@ -870,7 +847,7 @@ function multipleServiceInDB(
                                         : ", NULL"
                                     ) : $val .= ($value2 != null ? ("'" . $pearDB->escape($value2) . "'") : "NULL");
                             }
-                            $val ? $rq = "INSERT INTO extended_service_information VALUES (" . $val . ")" : $rq = null;
+                            $rq = $val ? "INSERT INTO extended_service_information VALUES (" . $val . ")" : null;
                             $pearDB->query($rq);
                             if ($key2 != "esi_id") {
                                 $fields[$key2] = $value2;
@@ -911,7 +888,7 @@ function multipleServiceInDB(
                             }
                         }
 
-                        if (! empty($macroPasswords) && $vaultConfiguration !== null) {
+                        if ($macroPasswords !== [] && $vaultConfiguration !== null) {
                             /** @var ReadVaultRepositoryInterface $readVaultRepository */
                             $readVaultRepository = $kernel->getContainer()->get(
                                 ReadVaultRepositoryInterface::class
@@ -978,12 +955,7 @@ function multipleServiceInDB(
                 }
             }
             $centreon->user->access->updateACL(
-                array(
-                    "type" => 'SERVICE',
-                    'id' => $maxId["MAX(service_id)"],
-                    "action" => "DUP",
-                    "duplicate_service" => $key
-                )
+                ["type" => 'SERVICE', 'id' => $maxId["MAX(service_id)"], "action" => "DUP", "duplicate_service" => $key]
             );
         }
     }
@@ -1000,12 +972,8 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
 
     $service = new CentreonService($pearDB);
 
-    $ret = array();
-    if (count($parameters)) {
-        $ret = $parameters;
-    } else {
-        $ret = $form->getSubmitValues();
-    }
+    $ret = [];
+    $ret = count($parameters) ? $parameters : $form->getSubmitValues();
 
 
     $kernel = Kernel::createForWeb();
@@ -1092,7 +1060,7 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
      * Update demand macros
      */
     if (isset($_REQUEST['macroInput']) && isset($_REQUEST['macroValue'])) {
-        $macroDescription = array();
+        $macroDescription = [];
         foreach ($_REQUEST as $nam => $ele) {
             if (preg_match_all("/^macroDescription_(\w+)$/", $nam, $matches, PREG_SET_ORDER)) {
                 foreach ($matches as $match) {
@@ -1138,7 +1106,7 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
         setServiceCriticality($serviceId, $ret['criticality_id']);
     }
 
-    $centreon->user->access->updateACL(array("type" => 'SERVICE', 'id' => $serviceId, "action" => "UPDATE"));
+    $centreon->user->access->updateACL(["type" => 'SERVICE', 'id' => $serviceId, "action" => "UPDATE"]);
 
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
@@ -1160,12 +1128,8 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
 
     $service = new CentreonService($pearDB);
 
-    $ret = array();
-    if (count($parameters)) {
-        $ret = $parameters;
-    } else {
-        $ret = $form->getSubmitValues();
-    }
+    $ret = [];
+    $ret = count($parameters) ? $parameters : $form->getSubmitValues();
 
     $kernel = Kernel::createForWeb();
     /** @var UUIDGeneratorInterface $uuidGenerator */
@@ -1179,7 +1143,7 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     //Retrieve UUID for vault path before updating values in database.
     $uuid = null;
     if ($vaultConfiguration !== null ){
-        $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $service_id, $vaultConfiguration->getName());
+        $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $service_id);
     }
 
     if (isset($ret["sg_name"])) {
@@ -1246,7 +1210,7 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     /*
      *  Update on demand macros
      */
-    $macroDescription = array();
+    $macroDescription = [];
     foreach ($_REQUEST as $nam => $ele) {
         if (preg_match_all("/^macroDescription_(\w+)$/", $nam, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $match) {
@@ -1305,8 +1269,8 @@ function updateServiceHostForCloud($serviceId = null, $submittedValues = [], $is
         return;
     }
 
-    $ret1 = array();
-    $ret2 = array();
+    $ret1 = [];
+    $ret2 = [];
     if (isset($submittedValues["service_hPars"])) {
         $ret1 = $submittedValues["service_hPars"];
     } else {
@@ -1326,7 +1290,7 @@ function updateServiceHostForCloud($serviceId = null, $submittedValues = [], $is
     $statement = $pearDB->prepare($rq);
     $statement->bindValue(':service_id', (int) $serviceId, \PDO::PARAM_INT);
     $statement->execute();
-    $cacheEsc = array();
+    $cacheEsc = [];
     while ($data = $statement->fetch(PDO::FETCH_ASSOC)) {
         $cacheEsc[$data['host_host_id']] = 1;
     }
@@ -1339,7 +1303,7 @@ function updateServiceHostForCloud($serviceId = null, $submittedValues = [], $is
     $statement = $pearDB->prepare($rq);
     $statement->bindValue(':service_id', (int) $serviceId, \PDO::PARAM_INT);
     $statement->execute();
-    $cache = array();
+    $cache = [];
     while ($data = $statement->fetch(PDO::FETCH_ASSOC)) {
         $cache[$data['host_host_id']] = 1;
     }
@@ -1397,7 +1361,8 @@ function updateServiceHostForCloud($serviceId = null, $submittedValues = [], $is
     }
 
     if (count($ret2)) {
-        for ($i = 0; $i < count($ret2); $i++) {
+        $counter = count($ret2);
+        for ($i = 0; $i < $counter; $i++) {
             $rq = "INSERT INTO host_service_relation ";
             $rq .= "(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ";
             $rq .= "VALUES ";
@@ -1406,7 +1371,8 @@ function updateServiceHostForCloud($serviceId = null, $submittedValues = [], $is
             setHostChangeFlag($pearDB, null, $ret2[$i]);
         }
     } elseif (count($ret1)) {
-        for ($i = 0; $i < count($ret1); $i++) {
+        $counter = count($ret1);
+        for ($i = 0; $i < $counter; $i++) {
             $rq = "INSERT INTO host_service_relation ";
             $rq .= "(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ";
             $rq .= "VALUES ";
@@ -1428,8 +1394,8 @@ function updateServiceHost_MCForCloud($serviceId = null)
     $rq = "SELECT * FROM host_service_relation ";
     $rq .= "WHERE service_service_id = '" . $serviceId . "'";
     $dbResult = $pearDB->query($rq);
-    $hsvs = array();
-    $hgsvs = array();
+    $hsvs = [];
+    $hgsvs = [];
     while ($arr = $dbResult->fetch()) {
         if ($arr["host_host_id"]) {
             $hsvs[$arr["host_host_id"]] = $arr["host_host_id"];
@@ -1438,12 +1404,13 @@ function updateServiceHost_MCForCloud($serviceId = null)
             $hgsvs[$arr["hostgroup_hg_id"]] = $arr["hostgroup_hg_id"];
         }
     }
-    $ret1 = array();
-    $ret2 = array();
+    $ret1 = [];
+    $ret2 = [];
     $ret1 = $form->getSubmitValue("service_hPars");
     $ret2 = $form->getSubmitValue("service_hgPars");
     if (is_array($ret2)) {
-        for ($i = 0; $i < count($ret2); $i++) {
+        $counter = count($ret2);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($hgsvs[$ret2[$i]])) {
                 $rq = "DELETE FROM host_service_relation ";
                 $rq .= "WHERE service_service_id = '" . $serviceId . "' AND host_host_id IS NOT NULL";
@@ -1457,7 +1424,8 @@ function updateServiceHost_MCForCloud($serviceId = null)
             }
         }
     } elseif (is_array($ret1)) {
-        for ($i = 0; $i < count($ret1); $i++) {
+        $counter = count($ret1);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($hsvs[$ret1[$i]])) {
                 $rq = "DELETE FROM host_service_relation ";
                 $rq .= "WHERE service_service_id = '" . $serviceId . "' AND hostgroup_hg_id IS NOT NULL";
@@ -1490,11 +1458,7 @@ function updateServiceInDBForCloud($serviceId = null, $massiveChange = false, $p
         return;
     }
 
-    if (count($parameters)) {
-        $ret = $parameters;
-    } else {
-        $ret = $form->getSubmitValues();
-    }
+    $ret = count($parameters) ? $parameters : $form->getSubmitValues();
 
     $isServiceTemplate = isset($ret['service_register']) && $ret['service_register'] === '0';
 
@@ -1544,11 +1508,7 @@ function updateServiceInDBForOnPrem($serviceId = null, $massiveChange = false, $
         return;
     }
 
-    if (count($parameters)) {
-        $ret = $parameters;
-    } else {
-        $ret = $form->getSubmitValues();
-    }
+    $ret = count($parameters) ? $parameters : $form->getSubmitValues();
 
     $isServiceTemplate = isset($ret['service_register']) && $ret['service_register'] === '0';
 
@@ -1567,8 +1527,8 @@ function updateServiceInDBForOnPrem($serviceId = null, $massiveChange = false, $
         updateServiceContactGroup($serviceId, $parameters);
         updateServiceContact($serviceId, $parameters);
     } elseif (isset($ret["mc_mod_cgs"]["mc_mod_cgs"]) && !$ret["mc_mod_cgs"]["mc_mod_cgs"]) {
-        updateServiceContactGroup_MC($serviceId, $parameters);
-        updateServiceContact_MC($serviceId, $parameters);
+        updateServiceContactGroup_MC($serviceId);
+        updateServiceContact_MC($serviceId);
     } else {
         updateServiceContactGroup($serviceId, $parameters);
         updateServiceContact($serviceId, $parameters);
@@ -1871,7 +1831,7 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     if (isset($onDemandMacro)) {
         $my_tab = $onDemandMacro;
         if (isset($my_tab['nbOfMacro'])) {
-            $already_stored = array();
+            $already_stored = [];
             for ($i = 0; $i <= $my_tab['nbOfMacro']; $i++) {
                 $macInput = "macroInput_" . $i;
                 $macValue = "macroValue_" . $i;
@@ -1897,7 +1857,7 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
             }
         }
     } elseif (isset($_REQUEST['macroInput']) && isset($_REQUEST['macroValue'])) {
-        $macroDescription = array();
+        $macroDescription = [];
         foreach ($_REQUEST as $nam => $ele) {
             if (preg_match_all("/^macroDescription_(\w+)$/", $nam, $matches, PREG_SET_ORDER)) {
                 foreach ($matches as $match) {
@@ -1909,7 +1869,7 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
             $service_id["MAX(service_id)"],
             $_REQUEST['macroInput'],
             $_REQUEST['macroValue'],
-            isset($_REQUEST['macroPassword']) ? $_REQUEST['macroPassword'] : null,
+            $_REQUEST['macroPassword'] ?? null,
             $macroDescription,
             false
         );
@@ -1924,7 +1884,7 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     //If there is a vault configuration  and macros write into vault
-    if ($vaultConfiguration !== null && ! empty($passwordMacros)) {
+    if ($vaultConfiguration !== null && $passwordMacros !== []) {
         try {
             /** @var WriteVaultRepositoryInterface $writeVaultRepository */
             $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
@@ -1948,7 +1908,7 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
         $fields
     );
 
-    return (array("service_id" => $service_id["MAX(service_id)"], "fields" => $fields));
+    return (["service_id" => $service_id["MAX(service_id)"], "fields" => $fields]);
 }
 
 function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
@@ -2116,7 +2076,7 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
     if (isset($onDemandMacro)) {
         $my_tab = $onDemandMacro;
         if (isset($my_tab['nbOfMacro'])) {
-            $already_stored = array();
+            $already_stored = [];
             for ($i = 0; $i <= $my_tab['nbOfMacro']; $i++) {
                 $macInput = "macroInput_" . $i;
                 $macValue = "macroValue_" . $i;
@@ -2142,7 +2102,7 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
             }
         }
     } elseif (isset($_REQUEST['macroInput']) && isset($_REQUEST['macroValue'])) {
-        $macroDescription = array();
+        $macroDescription = [];
         foreach ($_REQUEST as $nam => $ele) {
             if (preg_match_all("/^macroDescription_(\w+)$/", $nam, $matches, PREG_SET_ORDER)) {
                 foreach ($matches as $match) {
@@ -2154,7 +2114,7 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
             $service_id["MAX(service_id)"],
             $_REQUEST['macroInput'],
             $_REQUEST['macroValue'],
-            isset($_REQUEST['macroPassword']) ? $_REQUEST['macroPassword'] : null,
+            $_REQUEST['macroPassword'] ?? null,
             $macroDescription,
             false,
             $submittedValues["command_command_id"]
@@ -2169,7 +2129,7 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     //If there is a vault configuration  and macros write into vault
-    if ($vaultConfiguration !== null && ! empty($passwordMacros)) {
+    if ($vaultConfiguration !== null && $passwordMacros !== []) {
         try {
             /** @var WriteVaultRepositoryInterface $writeVaultRepository */
             $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
@@ -2194,7 +2154,7 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
         $fields
     );
 
-    return (array("service_id" => $service_id["MAX(service_id)"], "fields" => $fields));
+    return (["service_id" => $service_id["MAX(service_id)"], "fields" => $fields]);
 }
 
 function insertServiceExtInfos($serviceId = null, $submittedValues = [])
@@ -2210,7 +2170,7 @@ function insertServiceExtInfos($serviceId = null, $submittedValues = [])
     /*
      * Check if image selected isn't a directory
      */
-    if (isset($submittedValues["esi_icon_image"]) && strrchr("REP_", $submittedValues["esi_icon_image"])) {
+    if (isset($submittedValues["esi_icon_image"]) && strrchr("REP_", (string) $submittedValues["esi_icon_image"])) {
         $submittedValues["esi_icon_image"] = null;
     }
     /*
@@ -2252,7 +2212,7 @@ function insertServiceExtInfos($serviceId = null, $submittedValues = [])
  * @param $from_MC
  * @param array $params
  */
-function updateService($service_id = null, $from_MC = false, $params = array())
+function updateService($service_id = null, $from_MC = false, $params = [])
 {
     global $form, $pearDB, $centreon;
 
@@ -2262,12 +2222,8 @@ function updateService($service_id = null, $from_MC = false, $params = array())
 
     $service = new CentreonService($pearDB);
 
-    $ret = array();
-    if (count($params)) {
-        $ret = $params;
-    } else {
-        $ret = $form->getSubmitValues();
-    }
+    $ret = [];
+    $ret = count($params) ? $params : $form->getSubmitValues();
 
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
@@ -2450,7 +2406,7 @@ function updateService($service_id = null, $from_MC = false, $params = array())
      * Update demand macros
      */
     if (isset($_REQUEST['macroInput']) && isset($_REQUEST['macroValue'])) {
-        $macroDescription = array();
+        $macroDescription = [];
         foreach ($_REQUEST as $nam => $ele) {
             if (preg_match_all("/^macroDescription_(\w+)$/", $nam, $matches, PREG_SET_ORDER)) {
                 foreach ($matches as $match) {
@@ -2501,7 +2457,7 @@ function updateService($service_id = null, $from_MC = false, $params = array())
         setServiceCriticality($service_id, $ret['criticality_id']);
     }
 
-    $centreon->user->access->updateACL(array("type" => 'SERVICE', 'id' => $service_id, "action" => "UPDATE"));
+    $centreon->user->access->updateACL(["type" => 'SERVICE', 'id' => $service_id, "action" => "UPDATE"]);
 
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
@@ -2514,7 +2470,7 @@ function updateService($service_id = null, $from_MC = false, $params = array())
     );
 }
 
-function updateService_MC($service_id = null, $params = array())
+function updateService_MC($service_id = null, $params = [])
 {
     if (!$service_id) {
         return;
@@ -2523,12 +2479,8 @@ function updateService_MC($service_id = null, $params = array())
 
     $service = new CentreonService($pearDB);
 
-    $ret = array();
-    if (count($params)) {
-        $ret = $params;
-    } else {
-        $ret = $form->getSubmitValues();
-    }
+    $ret = [];
+    $ret = count($params) ? $params : $form->getSubmitValues();
 
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
@@ -2644,14 +2596,14 @@ function updateService_MC($service_id = null, $params = array())
     }
     if (
         isset($ret["mc_contact_additive_inheritance"]["mc_contact_additive_inheritance"])
-        && in_array($ret["mc_contact_additive_inheritance"]["mc_contact_additive_inheritance"], array('0', '1'))
+        && in_array($ret["mc_contact_additive_inheritance"]["mc_contact_additive_inheritance"], ['0', '1'])
     ) {
         $rq .= "contact_additive_inheritance = '" .
             $ret["mc_contact_additive_inheritance"]["mc_contact_additive_inheritance"] . "', ";
     }
     if (
         isset($ret["mc_cg_additive_inheritance"]["mc_cg_additive_inheritance"])
-        && in_array($ret["mc_cg_additive_inheritance"]["mc_cg_additive_inheritance"], array('0', '1'))
+        && in_array($ret["mc_cg_additive_inheritance"]["mc_cg_additive_inheritance"], ['0', '1'])
     ) {
         $rq .= "cg_additive_inheritance = '" . $ret["mc_cg_additive_inheritance"]["mc_cg_additive_inheritance"] . "', ";
     }
@@ -2697,7 +2649,7 @@ function updateService_MC($service_id = null, $params = array())
     /*
      *  Update on demand macros
      */
-    $macroDescription = array();
+    $macroDescription = [];
     foreach ($_REQUEST as $nam => $ele) {
         if (preg_match_all("/^macroDescription_(\w+)$/", $nam, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $match) {
@@ -2762,7 +2714,7 @@ function updateService_MC($service_id = null, $params = array())
 /*
  *  For Nagios 3
  */
-function updateServiceContact($service_id = null, $ret = array())
+function updateServiceContact($service_id = null, $ret = [])
 {
     if (!$service_id) {
         return;
@@ -2772,13 +2724,9 @@ function updateServiceContact($service_id = null, $ret = array())
     $rq = "DELETE FROM contact_service_relation ";
     $rq .= "WHERE service_service_id = '" . $service_id . "'";
     $dbResult = $pearDB->query($rq);
-    if (isset($ret["service_cs"])) {
-        $ret = $ret["service_cs"];
-    } else {
-        $ret = $form->getSubmitValue("service_cs");
-    }
+    $ret = $ret["service_cs"] ?? $form->getSubmitValue("service_cs");
 
-    $loopCount = (is_array($ret) || $ret instanceof Countable) ? count($ret) : 0;
+    $loopCount = (is_countable($ret)) ? count($ret) : 0;
 
     for ($i = 0; $i < $loopCount; $i++) {
         $rq = "INSERT INTO contact_service_relation ";
@@ -2789,7 +2737,7 @@ function updateServiceContact($service_id = null, $ret = array())
     }
 }
 
-function updateServiceContactGroup($service_id = null, $ret = array())
+function updateServiceContactGroup($service_id = null, $ret = [])
 {
     if (!$service_id) {
         return;
@@ -2800,16 +2748,13 @@ function updateServiceContactGroup($service_id = null, $ret = array())
     $rq .= "WHERE service_service_id = '" . $service_id . "'";
     $dbResult = $pearDB->query($rq);
 
-    if (isset($ret["service_cgs"])) {
-        $ret = $ret["service_cgs"];
-    } else {
-        $ret = $form->getSubmitValue("service_cgs");
-    }
+    $ret = $ret["service_cgs"] ?? $form->getSubmitValue("service_cgs");
 
     $cg = new CentreonContactgroup($pearDB);
 
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if (!is_numeric($ret[$i])) {
                 $res = $cg->insertLdapGroup($ret[$i]);
                 if ($res != 0) {
@@ -2830,7 +2775,7 @@ function updateServiceContactGroup($service_id = null, $ret = array())
 }
 
 
-function updateServiceNotifs($service_id = null, $ret = array())
+function updateServiceNotifs($service_id = null, $ret = [])
 {
     if (!$service_id) {
         return;
@@ -2838,11 +2783,7 @@ function updateServiceNotifs($service_id = null, $ret = array())
     global $form;
     global $pearDB;
 
-    if (isset($ret["service_notifOpts"])) {
-        $ret = $ret["service_notifOpts"];
-    } else {
-        $ret = $form->getSubmitValue("service_notifOpts");
-    }
+    $ret = $ret["service_notifOpts"] ?? $form->getSubmitValue("service_notifOpts");
 
     $rq = "UPDATE service SET ";
     $rq .= "service_notification_options = ";
@@ -2863,7 +2804,7 @@ function updateServiceNotifs_MC($service_id = null)
     $rq = "SELECT * FROM service ";
     $rq .= "WHERE service_id = '" . $service_id . "' LIMIT 1";
     $dbResult = $pearDB->query($rq);
-    $service = array();
+    $service = [];
     $service = array_map("db2str", $dbResult->fetch());
     $service = array_map("myDecode", $service);
 
@@ -2885,7 +2826,7 @@ function updateServiceNotifs_MC($service_id = null)
     }
 }
 
-function updateServiceNotifOptionInterval($service_id = null, $ret = array())
+function updateServiceNotifOptionInterval($service_id = null, $ret = [])
 {
     global $form, $pearDB;
 
@@ -2979,7 +2920,7 @@ function updateServiceNotifOptionTimeperiod_MC($service_id = null)
     }
 }
 
-function updateServiceNotifOptionFirstNotificationDelay($service_id = null, $ret = array())
+function updateServiceNotifOptionFirstNotificationDelay($service_id = null, $ret = [])
 {
     global $form, $pearDB;
 
@@ -3031,14 +2972,15 @@ function updateServiceContactGroup_MC($service_id = null)
     $rq = "SELECT * FROM contactgroup_service_relation ";
     $rq .= "WHERE service_service_id = '" . $service_id . "'";
     $dbResult = $pearDB->query($rq);
-    $cgs = array();
+    $cgs = [];
     while ($arr = $dbResult->fetch()) {
         $cgs[$arr["contactgroup_cg_id"]] = $arr["contactgroup_cg_id"];
     }
     $ret = $form->getSubmitValue("service_cgs");
     $cg = new CentreonContactgroup($pearDB);
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($cgs[$ret[$i]])) {
                 if (!is_numeric($ret[$i])) {
                     $res = $cg->insertLdapGroup($ret[$i]);
@@ -3072,13 +3014,14 @@ function updateServiceContact_MC($service_id = null)
     $rq = "SELECT * FROM contact_service_relation ";
     $rq .= "WHERE service_service_id = '" . $service_id . "'";
     $dbResult = $pearDB->query($rq);
-    $cgs = array();
+    $cgs = [];
     while ($arr = $dbResult->fetch()) {
         $cs[$arr["contact_id"]] = $arr["contact_id"];
     }
     $ret = $form->getSubmitValue("service_cs");
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($cs[$ret[$i]])) {
                 $rq = "INSERT INTO contact_service_relation ";
                 $rq .= "(contact_id, service_service_id) ";
@@ -3090,7 +3033,7 @@ function updateServiceContact_MC($service_id = null)
     }
 }
 
-function updateServiceServiceGroup($service_id = null, $ret = array())
+function updateServiceServiceGroup($service_id = null, $ret = [])
 {
     global $form, $pearDB;
 
@@ -3102,12 +3045,9 @@ function updateServiceServiceGroup($service_id = null, $ret = array())
     $rq .= "WHERE service_service_id = '" . $service_id . "'";
     $pearDB->query($rq);
 
-    if (isset($ret["service_sgs"])) {
-        $ret = $ret["service_sgs"];
-    } else {
-        $ret = CentreonUtils::mergeWithInitialValues($form, 'service_sgs');
-    }
-    for ($i = 0; $i < count($ret); $i++) {
+    $ret = $ret["service_sgs"] ?? CentreonUtils::mergeWithInitialValues($form, 'service_sgs');
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         /* We need to record each relation for host / hostgroup selected */
         if (isset($ret["service_hPars"])) {
             $ret1 = CentreonUtils::mergeWithInitialValues($form, 'service_hPars');
@@ -3148,8 +3088,8 @@ function updateServiceServiceGroup_MC($service_id = null)
     }
     $rq = "SELECT * FROM servicegroup_relation WHERE service_service_id = '" . $service_id . "'";
     $dbResult = $pearDB->query($rq);
-    $hsgs = array();
-    $hgsgs = array();
+    $hsgs = [];
+    $hgsgs = [];
     while ($arr = $dbResult->fetch()) {
         if ($arr["host_host_id"]) {
             $hsgs[$arr["host_host_id"]][] = $arr["servicegroup_sg_id"];
@@ -3160,7 +3100,8 @@ function updateServiceServiceGroup_MC($service_id = null)
     }
     $ret = $form->getSubmitValue("service_sgs");
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             /* We need to record each relation for host / hostgroup selected */
             $ret1 = getMyServiceHosts($service_id);
             $ret2 = getMyServiceHostGroups($service_id);
@@ -3189,7 +3130,7 @@ function updateServiceServiceGroup_MC($service_id = null)
     }
 }
 
-function updateServiceTrap($service_id = null, $ret = array())
+function updateServiceTrap($service_id = null, $ret = [])
 {
     global $form, $pearDB;
 
@@ -3200,14 +3141,11 @@ function updateServiceTrap($service_id = null, $ret = array())
     $rq = "DELETE FROM traps_service_relation ";
     $rq .= "WHERE service_id = '" . $service_id . "'";
     $dbResult = $pearDB->query($rq);
-    if (isset($ret["service_traps"])) {
-        $ret = $ret["service_traps"];
-    } else {
-        $ret = $form->getSubmitValue("service_traps");
-    }
+    $ret = $ret["service_traps"] ?? $form->getSubmitValue("service_traps");
 
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             $rq = "INSERT INTO traps_service_relation ";
             $rq .= "(traps_id, service_id) ";
             $rq .= "VALUES ";
@@ -3229,13 +3167,14 @@ function updateServiceTrap_MC($service_id = null)
     $rq = "SELECT * FROM traps_service_relation ";
     $rq .= "WHERE service_id = '" . $service_id . "'";
     $dbResult = $pearDB->query($rq);
-    $traps = array();
+    $traps = [];
     while ($arr = $dbResult->fetch()) {
         $traps[$arr["traps_id"]] = $arr["traps_id"];
     }
     $ret = $form->getSubmitValue("service_traps");
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($traps[$ret[$i]])) {
                 $rq = "INSERT INTO traps_service_relation ";
                 $rq .= "(traps_id, service_id) ";
@@ -3247,7 +3186,7 @@ function updateServiceTrap_MC($service_id = null)
     }
 }
 
-function updateServiceHost($service_id = null, $ret = array(), $from_MC = false)
+function updateServiceHost($service_id = null, $ret = [], $from_MC = false)
 {
     global $form, $pearDB;
 
@@ -3255,8 +3194,8 @@ function updateServiceHost($service_id = null, $ret = array(), $from_MC = false)
         return;
     }
 
-    $ret1 = array();
-    $ret2 = array();
+    $ret1 = [];
+    $ret2 = [];
     if (isset($ret["service_hPars"])) {
         $ret1 = $ret["service_hPars"];
     } else {
@@ -3276,7 +3215,7 @@ function updateServiceHost($service_id = null, $ret = array(), $from_MC = false)
     );
     $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
     $statement->execute();
-    $cacheEsc = array();
+    $cacheEsc = [];
     while ($data = $statement->fetch(PDO::FETCH_ASSOC)) {
         $cacheEsc[$data['host_host_id']] = 1;
     }
@@ -3289,7 +3228,7 @@ function updateServiceHost($service_id = null, $ret = array(), $from_MC = false)
     );
     $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
     $statement->execute();
-    $cache = array();
+    $cache = [];
     while ($data = $statement->fetch(PDO::FETCH_ASSOC)) {
         $cache[$data['host_host_id']] = 1;
     }
@@ -3360,7 +3299,8 @@ function updateServiceHost($service_id = null, $ret = array(), $from_MC = false)
     }
 
     if (count($ret2)) {
-        for ($i = 0; $i < count($ret2); $i++) {
+        $counter = count($ret2);
+        for ($i = 0; $i < $counter; $i++) {
             $statement = $pearDB->prepare(
                 <<<'SQL'
                     INSERT INTO host_service_relation
@@ -3374,7 +3314,8 @@ function updateServiceHost($service_id = null, $ret = array(), $from_MC = false)
             setHostChangeFlag($pearDB, null, $ret2[$i]);
         }
     } elseif (count($ret1)) {
-        for ($i = 0; $i < count($ret1); $i++) {
+        $counter = count($ret1);
+        for ($i = 0; $i < $counter; $i++) {
             $statement = $pearDB->prepare(
                 <<<'SQL'
                     INSERT INTO host_service_relation
@@ -3422,7 +3363,8 @@ function updateServiceHost_MC($service_id = null)
     $ret1 = $form->getSubmitValue("service_hPars");
     $ret2 = $form->getSubmitValue("service_hgPars");
     if (is_array($ret2)) {
-        for ($i = 0; $i < count($ret2); $i++) {
+        $counter = count($ret2);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($hgsvs[$ret2[$i]])) {
                 $statement = $pearDB->prepare(
                     <<<'SQL'
@@ -3449,7 +3391,8 @@ function updateServiceHost_MC($service_id = null)
             }
         }
     } elseif (is_array($ret1)) {
-        for ($i = 0; $i < count($ret1); $i++) {
+        $counter = count($ret1);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($hsvs[$ret1[$i]])) {
                 $statement = $pearDB->prepare(
                     <<<'SQL'
@@ -3492,7 +3435,7 @@ function updateServiceExtInfos($serviceId = null, $submittedValues = [])
     /*
      * Check if image selected isn't a directory
      */
-    if (isset($submittedValues["esi_icon_image"]) && strrchr("REP_", $submittedValues["esi_icon_image"])) {
+    if (isset($submittedValues["esi_icon_image"]) && strrchr("REP_", (string) $submittedValues["esi_icon_image"])) {
         $submittedValues["esi_icon_image"] = null;
     }
 
@@ -3514,7 +3457,7 @@ function updateServiceExtInfos($serviceId = null, $submittedValues = [])
         ? $rq .= "'" . CentreonDB::escape($submittedValues["esi_icon_image"]) . "' "
         : $rq .= "NULL ";
 
-    if (! $isCloudPlatform) { 
+    if (! $isCloudPlatform) {
         $rq .= ", esi_icon_image_alt = ";
         isset($submittedValues["esi_icon_image_alt"]) && $submittedValues["esi_icon_image_alt"] != null
             ? $rq .= "'" . CentreonDB::escape($submittedValues["esi_icon_image_alt"]) . "', "
@@ -3536,11 +3479,7 @@ function updateServiceExtInfos_MC($serviceId = null, $parameters = [])
         return;
     }
 
-    if (count($parameters)) {
-        $ret = $parameters;
-    } else {
-        $ret = $form->getSubmitValues();
-    }
+    $ret = count($parameters) ? $parameters : $form->getSubmitValues();
     $rq = "UPDATE extended_service_information SET ";
     if (isset($ret["esi_notes"]) && $ret["esi_notes"] != null) {
         $rq .= "esi_notes = '" . CentreonDB::escape($ret["esi_notes"]) . "', ";
@@ -3574,7 +3513,7 @@ function updateServiceExtInfos_MC($serviceId = null, $parameters = [])
     }
 }
 
-function updateServiceTemplateUsed($useTpls = array())
+function updateServiceTemplateUsed($useTpls = [])
 {
     if (!count($useTpls)) {
         return;
@@ -3588,7 +3527,7 @@ function updateServiceTemplateUsed($useTpls = array())
     }
 }
 
-function updateServiceCategories_MC($service_id = null, $ret = array())
+function updateServiceCategories_MC($service_id = null, $ret = [])
 {
     global $form, $pearDB;
 
@@ -3596,13 +3535,10 @@ function updateServiceCategories_MC($service_id = null, $ret = array())
         return;
     }
 
-    if (isset($ret["service_categories"])) {
-        $ret = $ret["service_categories"];
-    } else {
-        $ret = $form->getSubmitValue("service_categories");
-    }
+    $ret = $ret["service_categories"] ?? $form->getSubmitValue("service_categories");
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             $rq = "INSERT INTO service_categories_relation ";
             $rq .= "(sc_id, service_service_id) ";
             $rq .= "VALUES ";
@@ -3612,7 +3548,7 @@ function updateServiceCategories_MC($service_id = null, $ret = array())
     }
 }
 
-function updateServiceCategories($service_id = null, $ret = array())
+function updateServiceCategories($service_id = null, $ret = [])
 {
     global $form, $pearDB;
     if (!$service_id) {
@@ -3636,7 +3572,8 @@ function updateServiceCategories($service_id = null, $ret = array())
     } else {
         $ret = CentreonUtils::mergeWithInitialValues($form, 'service_categories');
     }
-    for ($i = 0; $i < count($ret); $i++) {
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         $rq = "INSERT INTO service_categories_relation ";
         $rq .= "(sc_id, service_service_id) ";
         $rq .= "VALUES ";

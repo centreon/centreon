@@ -34,7 +34,7 @@
  *
  */
 
-require_once realpath(dirname(__FILE__) . "/../../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
 
 require_once _CENTREON_PATH_ . "/www/class/centreonSession.class.php";
 require_once _CENTREON_PATH_ . "/www/class/centreon.class.php";
@@ -58,9 +58,9 @@ if (!isset($pearDB) || is_null($pearDB)) {
     global $pearDB;
 }
 
-$macros = array();
-$macrosServiceDesc = array();
-$macrosHostDesc = array();
+$macros = [];
+$macrosServiceDesc = [];
+$macrosHostDesc = [];
 
 $nb_arg = 0;
 
@@ -81,10 +81,10 @@ if (isset($_GET['cmd_line']) && $_GET['cmd_line']) {
 /* FORM */
 $path = _CENTREON_PATH_ . "/www/include/configuration/configObject/command/";
 
-$attrsText = array("size" => "30");
-$attrsText2 = array("size" => "60");
-$attrsAdvSelect = array("style" => "width: 200px; height: 100px;");
-$attrsTextarea = array("rows" => "5", "cols" => "40");
+$attrsText = ["size" => "30"];
+$attrsText2 = ["size" => "60"];
+$attrsAdvSelect = ["style" => "width: 200px; height: 100px;"];
+$attrsTextarea = ["rows" => "5", "cols" => "40"];
 
 /* Basic info */
 $form = new HTML_QuickFormCustom('Form', 'post');
@@ -96,13 +96,13 @@ $subS = $form->addElement(
     'button',
     'submitSaveAdd',
     _("Save"),
-    array("onClick" => "setMacrosDescriptions();", "class" => "btc bt_success")
+    ["onClick" => "setMacrosDescriptions();", "class" => "btc bt_success"]
 );
 $subS = $form->addElement(
     'button',
     'close',
     _("Close"),
-    array("onClick" => "closeBox();", "class" => "btc bt_default")
+    ["onClick" => "closeBox();", "class" => "btc bt_default"]
 );
 
 /*

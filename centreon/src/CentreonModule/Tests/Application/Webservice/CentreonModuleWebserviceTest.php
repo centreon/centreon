@@ -55,7 +55,7 @@ class CentreonModuleWebserviceTest extends TestCase
                     $funcArgs = func_get_args();
 
                     // prepare filters
-                    $funcArgs[0] = $funcArgs[0] === null ? '-' : $funcArgs[0];
+                    $funcArgs[0] ??= '-';
                     $funcArgs[1] = $funcArgs[1] === true ? '1' : ($funcArgs[1] !== false ? '-' : '0');
                     $funcArgs[2] = $funcArgs[2] === true ? '1' : ($funcArgs[2] !== false ? '-' : '0');
                     $funcArgs[3] = $funcArgs[3] ? implode('|', $funcArgs[3]) : '-';
@@ -80,8 +80,8 @@ class CentreonModuleWebserviceTest extends TestCase
                     $funcArgs = func_get_args();
 
                     // prepare filters
-                    $funcArgs[0] = $funcArgs[0] === null ? '-' : $funcArgs[0];
-                    $funcArgs[1] = $funcArgs[1] === null ? '-' : $funcArgs[1];
+                    $funcArgs[0] ??= '-';
+                    $funcArgs[1] ??= '-';
 
                 if ($funcArgs[0] === ModuleSourceTest::$moduleNameMissing) {
                     return;
@@ -156,7 +156,7 @@ class CentreonModuleWebserviceTest extends TestCase
             }));
         $container[ServiceProvider::CENTREON_MODULE]
             ->method('remove')
-            ->will($this->returnCallback(function () {
+            ->will($this->returnCallback(function (): void {
                     $funcArgs = func_get_args();
 
                 if ($funcArgs[0] === '' && $funcArgs[1] === '') {

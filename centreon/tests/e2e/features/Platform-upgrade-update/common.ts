@@ -116,12 +116,28 @@ const installCentreon = (version: string): Cypress.Chainable => {
       name: 'web'
     });
   } else {
+    const versionMatches = version.match(/(\d+)\.\d+\.\d+/);
+    if (!versionMatches) {
+      throw new Error('Cannot parse version number.');
+    }
+
+    const distribPrefix = Number(versionMatches[1]) >= 24 ? '-1~' : '-';
+    const packageVersionSuffix = `${version}${distribPrefix}${Cypress.env('WEB_IMAGE_OS')}`;
+    const packagesToInstall = [
+      `centreon-poller=${packageVersionSuffix}`,
+      `centreon-web=${packageVersionSuffix}`,
+      `centreon-common=${packageVersionSuffix}`
+    ];
+    if (Number(versionMatches[1]) < 24) {
+      packagesToInstall.push(`centreon-web-apache=${packageVersionSuffix}`);
+    }
+
     cy.execInContainer({
       command: [
         `mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak`,
         `mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak`,
         `apt-get update`,
-        `apt-get install -y centreon-poller=${version}-${Cypress.env('WEB_IMAGE_OS')} centreon-web-apache=${version}-${Cypress.env('WEB_IMAGE_OS')} centreon-web=${version}-${Cypress.env('WEB_IMAGE_OS')} centreon-common=${version}-${Cypress.env('WEB_IMAGE_OS')}`,
+        `apt-get install -y ${packagesToInstall.join(' ')}`,
         `mkdir -p /usr/lib/centreon-connector`,
         `echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini`,
         `sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql`,
@@ -234,22 +250,35 @@ const updatePlatformPackages = (): Cypress.Chainable => {
     })
     .getWebVersion()
     .then(({ major_version }) => {
-      if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-        return cy.execInContainer({
-          command: [
+      let installCommands: string[] = [];
+
+      switch (Cypress.env('WEB_IMAGE_OS')) {
+        case 'alma8':
+          installCommands = [
             `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
+            `dnf module reset -y php`,
+            `dnf module install -y php:remi-8.2`,
             `dnf install -y ${containerPackageDirectory}/*.rpm`
-          ],
-          name: 'web'
-        });
+          ];
+          break;
+        case 'alma9':
+          installCommands = [
+            `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
+            `dnf module reset -y php`,
+            `dnf module enable -y php:8.2`,
+            `dnf install -y ${containerPackageDirectory}/*.rpm`
+          ];
+          break;
+        default:
+          installCommands = [
+            `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}_${major_version}*.deb`,
+            `apt-get update`,
+            `apt-get install -y ${containerPackageDirectory}/centreon-*.deb`
+          ];
       }
 
       return cy.execInContainer({
-        command: [
-          `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}_${major_version}*.deb`,
-          'apt-get update',
-          `apt-get install -y ${containerPackageDirectory}/centreon-*.deb`
-        ],
+        command: installCommands,
         name: 'web'
       });
     })

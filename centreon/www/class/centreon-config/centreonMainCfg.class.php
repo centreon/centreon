@@ -34,17 +34,17 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class CentreonMainCfg
+ */
 class CentreonMainCfg
 {
-    private $aDefaultBrokerDirective;
-
-    private $aInstanceDefaultValues;
-
-    private $DB;
 
     // List of broker options Centreon Engine
     // (https://documentation.centreon.com/docs/centreon-engine/en/latest/user/configuration/basics/main_configuration_file_options.html#event-broker-options)
-    const EVENT_BROKER_OPTIONS = [
+    public const EVENT_BROKER_OPTIONS = [
         -1 => 'All',
         0 => 'None',
         1 => 'Program state',
@@ -75,6 +75,15 @@ class CentreonMainCfg
         33554432 => 'Command data'
     ];
 
+    /** @var array */
+    private $aDefaultBrokerDirective;
+
+    /** @var array */
+    private $aInstanceDefaultValues;
+
+    /** @var CentreonDB */
+    private $DB;
+
     /** @var array<string,string> */
     private $loggerDefaultCfg = [
         'log_v2_logger' => 'file',
@@ -93,6 +102,9 @@ class CentreonMainCfg
         'log_level_runtime' => 'err',
     ];
 
+    /**
+     * CentreonMainCfg constructor
+     */
     public function __construct()
     {
         $this->DB = new CentreonDB();
@@ -100,15 +112,18 @@ class CentreonMainCfg
         $this->setEngineOptions();
     }
 
-    private function setBrokerOptions()
+    /**
+     * @return void
+     */
+    private function setBrokerOptions(): void
     {
-        $this->aDefaultBrokerDirective = array(
-            'ui' => '/usr/lib64/centreon-engine/externalcmd.so',
-            'wizard' => '/usr/lib64/nagios/cbmod.so /etc/centreon-broker/poller-module.json'
-        );
+        $this->aDefaultBrokerDirective = ['ui' => '/usr/lib64/centreon-engine/externalcmd.so', 'wizard' => '/usr/lib64/nagios/cbmod.so /etc/centreon-broker/poller-module.json'];
     }
 
-    private function setEngineOptions()
+    /**
+     * @return void
+     */
+    private function setEngineOptions(): void
     {
         $this->aInstanceDefaultValues = [
             'log_file' => '/var/log/centreon-engine/centengine.log',
@@ -192,6 +207,7 @@ class CentreonMainCfg
     /**
      * Get Default values
      *
+     * @return array
      */
     public function getDefaultMainCfg()
     {
@@ -201,7 +217,7 @@ class CentreonMainCfg
     /**
      * Get default engine logger values
      *
-     * @param array<string,string>
+     * @return array
      */
     public function getDefaultLoggerCfg(): array
     {
@@ -211,6 +227,7 @@ class CentreonMainCfg
     /**
      * Get Default values
      *
+     * @return array
      */
     public function getDefaultBrokerOptions()
     {
@@ -220,13 +237,15 @@ class CentreonMainCfg
     /**
      * Insert the broker modules in cfg_nagios
      *
-     * @param string $sName
-     * @param ? $source
      * @param int $iId
+     * @param ? $source
+     *
+     * @return false|void
+     * @throws PDOException
      */
     public function insertBrokerDefaultDirectives($iId, $source)
     {
-        if (empty($iId) || !in_array($source, array('ui', 'wizard'))) {
+        if (empty($iId) || !in_array($source, ['ui', 'wizard'])) {
             return false;
         }
 
@@ -245,6 +264,8 @@ class CentreonMainCfg
 
     /**
      * @param int $nagiosId
+     *
+     * @throws PDOException
      */
     public function insertDefaultCfgNagiosLogger(int $nagiosId): void
     {
@@ -256,6 +277,8 @@ class CentreonMainCfg
     /**
      * @param int $nagiosId
      * @param int $serverId
+     *
+     * @throws PDOException
      */
     public function insertCfgNagiosLogger(int $nagiosId, int $serverId): void
     {
@@ -289,13 +312,15 @@ class CentreonMainCfg
         $stmt->execute();
     }
 
-
     /**
      * Insert the instance in cfg_nagios
      *
      * @param int $source The poller id
-     * @param string $sName
      * @param int $iId
+     * @param string $sName
+     *
+     * @return false|mixed
+     * @throws PDOException
      */
     public function insertServerInCfgNagios($source, $iId, $sName)
     {
@@ -307,11 +332,7 @@ class CentreonMainCfg
         }
 
         $res = $this->DB->query("SELECT * FROM cfg_nagios WHERE  nagios_server_id = " . $source);
-        if ($res->rowCount() == 0) {
-            $baseValues = $this->aInstanceDefaultValues;
-        } else {
-            $baseValues = $res->fetch();
-        }
+        $baseValues = $res->rowCount() == 0 ? $this->aInstanceDefaultValues : $res->fetch();
 
         $rq = "INSERT INTO `cfg_nagios` (
             `nagios_name`, `nagios_server_id`, `log_file`, `cfg_dir`,
@@ -360,7 +381,7 @@ class CentreonMainCfg
             :debug_level, :debug_level_opt, :debug_verbosity, :max_debug_file_size, :cfg_file
             )";
 
-        $params = array(
+        $params = [
             ':nagios_name' => 'Centreon Engine ' . $sName,
             ':nagios_server_id' => $iId,
             ':log_file' => $baseValues['log_file'],
@@ -434,7 +455,7 @@ class CentreonMainCfg
             ':debug_verbosity' => $baseValues['debug_verbosity'],
             ':max_debug_file_size' => $baseValues['max_debug_file_size'],
             ':cfg_file' => $baseValues['cfg_file']
-        );
+        ];
 
         try {
             $stmt = $this->DB->prepare($rq);
@@ -462,6 +483,7 @@ class CentreonMainCfg
      * @param int $id
      *
      * @return array $entries
+     * @throws PDOException
      */
     public function getBrokerModules($id)
     {

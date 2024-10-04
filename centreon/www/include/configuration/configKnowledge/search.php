@@ -89,12 +89,12 @@ if ($currentPage  == "hosts") {
     $searchOptions['templatesWithNoProcedure'] = 1;
 }
 
-$tpl->assign('searchHost', isset($postHost) ? $postHost : "");
-$tpl->assign('searchService', isset($postService) ? $postService : "");
-$tpl->assign('searchHostTemplate', isset($postHostTemplate) ? $postHostTemplate : "");
+$tpl->assign('searchHost', $postHost ?? "");
+$tpl->assign('searchService', $postService ?? "");
+$tpl->assign('searchHostTemplate', $postHostTemplate ?? "");
 $tpl->assign(
     'searchServiceTemplate',
-    isset($postServiceTemplate) ? $postServiceTemplate : ""
+    $postServiceTemplate ?? ""
 );
 
 $checked = "";

@@ -20,7 +20,11 @@
 
 namespace ConfigGenerateRemote;
 
+use CentreonDB;
 use Exception;
+use PDOException;
+use PDOStatement;
+use Pimple\Container;
 
 // file centreon.config.php may not exist in test environment
 $configFile = realpath(__DIR__ . "/../../../config/centreon.config.php");
@@ -28,36 +32,65 @@ if ($configFile !== false) {
     require_once $configFile;
 }
 
+/**
+ * Class
+ *
+ * @class Backend
+ * @package ConfigGenerateRemote
+ */
 class Backend
 {
+    /** @var Backend|null */
     private static $instance = null;
+
+    /** @var string */
+    public $generatePath;
+    /** @var string */
+    public $engine_sub;
+    /** @var PDOStatement */
+    public $stmtCentralPoller;
+    /** @var CentreonDB|null */
     public $db = null;
+    /** @var CentreonDB|null */
     public $dbCs = null;
 
+    /** @var string[] */
     private $subdirs = ['configuration', 'media'];
 
+    /** @var string */
     private $fieldSeparatorInfile = '~~~';
+    /** @var string */
     private $lineSeparatorInfile = '######';
 
+    /** @var string */
     private $tmpDirPrefix = 'tmpdir_';
 
+    /** @var string|null */
     private $tmpFile = null;
+    /** @var string|null */
     private $tmpDir = null;
+    /** @var string */
     private $tmpDirSuffix = '.d';
+    /** @var string|null */
     private $fullPath = null;
+    /** @var string */
     private $whoaim = 'unknown';
 
+    /** @var bool */
     private $exportContact = false;
 
+    /** @var int|null */
     private $pollerId = null;
+    /** @var int|null */
     private $centralPollerId = null;
 
+
     /**
-     * Constructor
+     * Backend constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
-    private function __construct(\Pimple\Container $dependencyInjector)
+    private function __construct(Container $dependencyInjector)
     {
         $this->generatePath = _CENTREON_CACHEDIR_ . '/config/export';
         $this->db = $dependencyInjector['configuration_db'];
@@ -67,10 +100,11 @@ class Backend
     /**
      * Get backend singleton
      *
-     * @param \Pimple\Container $dependencyInjector
-     * @return void
+     * @param Container $dependencyInjector
+     *
+     * @return Backend|null
      */
-    public static function getInstance(\Pimple\Container $dependencyInjector)
+    public static function getInstance(Container $dependencyInjector)
     {
         if (is_null(self::$instance)) {
             self::$instance = new Backend($dependencyInjector);
@@ -110,7 +144,9 @@ class Backend
      * Create multiple directories
      *
      * @param array $paths
+     *
      * @return string created directory path
+     * @throws Exception
      */
     public function createDirectories(array $paths): string
     {
@@ -127,10 +163,8 @@ class Backend
                 if (posix_getuid() === fileowner($dir)) {
                     chmod($dir, 0770);
                 }
-            } else {
-                if (!mkdir($dir, 0770, true)) {
-                    throw new Exception("Cannot create directory '" . $dir . "'");
-                }
+            } elseif (!mkdir($dir, 0770, true)) {
+                throw new Exception("Cannot create directory '" . $dir . "'");
             }
         }
 
@@ -151,7 +185,9 @@ class Backend
      * Create directories to generation configuration
      *
      * @param int $pollerId
+     *
      * @return void
+     * @throws Exception
      */
     public function initPath(int $pollerId): void
     {
@@ -179,7 +215,7 @@ class Backend
     /**
      * fieldSeparatorInfile getter
      *
-     * @return void
+     * @return string
      */
     public function getFieldSeparatorInfile()
     {
@@ -189,7 +225,7 @@ class Backend
     /**
      * lineSeparatorInfile getter
      *
-     * @return void
+     * @return string
      */
     public function getLineSeparatorInfile()
     {
@@ -199,7 +235,7 @@ class Backend
     /**
      * exportContact getter
      *
-     * @return boolean
+     * @return bool
      */
     public function isExportContact()
     {
@@ -209,7 +245,7 @@ class Backend
     /**
      * fullPath getter
      *
-     * @return void
+     * @return string|null
      */
     public function getPath()
     {
@@ -219,10 +255,10 @@ class Backend
     /**
      * Move poller directory
      *
-     * @param integer $pollerId
+     * @param int $pollerId
      * @return void
      */
-    public function movePath(int $pollerId)
+    public function movePath(int $pollerId): void
     {
         $subdir = dirname($this->fullPath);
         $this->deleteDir($subdir . '/' . $pollerId);
@@ -269,7 +305,7 @@ class Backend
     /**
      * poller id setter
      *
-     * @param integer $pollerId
+     * @param int $pollerId
      * @return void
      */
     public function setPollerId(int $pollerId): void
@@ -291,6 +327,7 @@ class Backend
      * Get id of central server
      *
      * @return int
+     * @throws PDOException
      */
     public function getCentralPollerId(): int
     {

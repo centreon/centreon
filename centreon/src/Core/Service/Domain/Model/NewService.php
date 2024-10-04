@@ -32,12 +32,12 @@ use Core\MonitoringServer\Model\MonitoringServer;
 
 class NewService
 {
-    public const MAX_NAME_LENGTH = 255,
-                 MAX_COMMENT_LENGTH = 65535,
-                 MAX_NOTES_LENGTH = 65535,
-                 MAX_NOTES_URL_LENGTH = 65535,
-                 MAX_ACTION_URL_LENGTH = 65535,
-                 MAX_ICON_ALT_LENGTH = 200;
+    public const MAX_NAME_LENGTH = 255;
+    public const MAX_COMMENT_LENGTH = 65535;
+    public const MAX_NOTES_LENGTH = 65535;
+    public const MAX_NOTES_URL_LENGTH = 65535;
+    public const MAX_ACTION_URL_LENGTH = 65535;
+    public const MAX_ICON_ALT_LENGTH = 200;
 
     private string $name;
 
@@ -894,7 +894,7 @@ class NewService
     /**
      * @param GeoCoords|null $geoCoords
      */
-    public function setGeoCoords(?GeoCoords $geoCoords):void {
+    public function setGeoCoords(?GeoCoords $geoCoords): void {
         $this->geoCoords = $geoCoords;
     }
 

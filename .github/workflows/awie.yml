@@ -67,7 +67,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
         with:
-          php-version: 8.1
+          php-version: 8.2
           coverage: none
         env:
           runner: ubuntu-22.04
@@ -88,7 +88,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el8, el9, bullseye, bookworm]
+        distrib: [el8, el9, bookworm]
         include:
           - package_extension: rpm
             image: packaging-nfpm-alma8
@@ -96,9 +96,6 @@ jobs:
           - package_extension: rpm
             image: packaging-nfpm-alma9
             distrib: el9
-          - package_extension: deb
-            image: packaging-nfpm-bullseye
-            distrib: bullseye
           - package_extension: deb
             image: packaging-nfpm-bookworm
             distrib: bookworm
@@ -187,7 +184,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bullseye, bookworm]
+        distrib: [bookworm]
 
     steps:
       - name: Checkout sources
@@ -215,7 +212,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye, bookworm]
+        distrib: [el8, el9, bookworm]
 
     steps:
       - name: Checkout sources

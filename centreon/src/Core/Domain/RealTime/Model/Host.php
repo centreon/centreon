@@ -112,7 +112,7 @@ class Host
     private array $categories = [];
 
     /** @var Severity|null */
-    private ?Severity $severity;
+    private ?Severity $severity = null;
 
     /**
      * Host constructor.

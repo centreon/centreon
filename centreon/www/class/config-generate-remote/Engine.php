@@ -24,12 +24,23 @@ namespace ConfigGenerateRemote;
 use Exception;
 use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use PDOStatement;
 
+/**
+ * Class
+ *
+ * @class Engine
+ * @package ConfigGenerateRemote
+ */
 class Engine extends AbstractObject
 {
+    /** @var array|null */
     protected $engine = null;
+    /** @var string */
     protected $table = 'cfg_nagios';
+    /** @var string */
     protected $generateFilename = 'cfg_nagios.infile';
+    /** @var string */
     protected $attributesSelect = '
         nagios_server_id,
         nagios_id,
@@ -113,6 +124,7 @@ class Engine extends AbstractObject
         macros_filter,
         nagios_activate
     ';
+    /** @var string[] */
     protected $attributesWrite = [
         'nagios_server_id',
         'nagios_id',
@@ -166,15 +178,18 @@ class Engine extends AbstractObject
         'cfg_dir',
         'cfg_file'
     ];
+    /** @var PDOStatement|null */
     protected $stmtEngine = null;
 
     /**
      * Generate engine configuration from poller id
      *
-     * @param int $poller
+     * @param int $pollerId
+     *
      * @return void
+     * @throws Exception
      */
-    private function generate(int $pollerId)
+    private function generate(int $pollerId): void
     {
         if (is_null($this->stmtEngine)) {
             $this->stmtEngine = $this->backendInstance->db->prepare(
@@ -203,9 +218,11 @@ class Engine extends AbstractObject
      * Generate engine configuration from poller
      *
      * @param array $poller
+     *
      * @return void
+     * @throws Exception
      */
-    public function generateFromPoller(array $poller)
+    public function generateFromPoller(array $poller): void
     {
         Resource::getInstance($this->dependencyInjector)->generateFromPollerId($poller['id']);
         $this->generate($poller['id']);
