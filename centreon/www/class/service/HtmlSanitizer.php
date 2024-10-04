@@ -29,31 +29,47 @@ declare(strict_types=1);
 final class HtmlSanitizer {
 
     /**
+     * HtmlSanitizer constructor
+     *
+     * @param string $string
+     */
+    private function __construct(private string $string) {}
+
+    /**
+     * @param string $string
+     *
      * @return HtmlSanitizer
      */
-    public static function create(): HtmlSanitizer
+    public static function createFromString(string $string): HtmlSanitizer
     {
-        return new HtmlSanitizer();
+        return new HtmlSanitizer($string);
     }
 
     /**
-     * @param string $string
-     *
-     * @return string
+     * @return HtmlSanitizer
      */
-    public function sanitize(string $string): string {
-        return htmlspecialchars($string, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    public function sanitize(): HtmlSanitizer {
+        $this->string = htmlspecialchars($this->string, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        return $this;
     }
 
     /**
-     * @param string $string
      * @param array|null $allowedTags
      *
+     * @return HtmlSanitizer
+     */
+    public function removeTags(array $allowedTags = null): HtmlSanitizer
+    {
+        $this->string = strip_tags($this->string, $allowedTags);
+        return $this;
+    }
+
+    /**
      * @return string
      */
-    public function removeTags(string $string, array $allowedTags = null): string
+    public function getString(): string
     {
-        return strip_tags($string, $allowedTags);
+        return $this->string;
     }
 
 }

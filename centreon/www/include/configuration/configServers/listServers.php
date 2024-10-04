@@ -57,7 +57,7 @@ if (! is_null($search)) {
 
 $LCASearch = '';
 if (! is_null($search)) {
-    $search = HtmlSanitizer::create()->sanitize($search);
+    $search = HtmlSanitizer::createFromString($search)->sanitize()->getString();
     $LCASearch .= " name LIKE '%{$search}%'";
 }
 
@@ -264,7 +264,7 @@ foreach ($servers as $config) {
     $elemArr[$i] = [
         'MenuClass' => "list_{$style}",
         'RowMenu_select' => $selectedElements->toHtml(),
-        'RowMenu_name' => HtmlSanitizer::create()->sanitize($config['name']),
+        'RowMenu_name' => HtmlSanitizer::createFromString($config['name'])->sanitize()->getString(),
         'RowMenu_ip_address' => $config['ns_ip_address'],
         'RowMenu_server_id' => $config['id'],
         'RowMenu_gorgone_protocol' => $config['gorgone_communication_type'],

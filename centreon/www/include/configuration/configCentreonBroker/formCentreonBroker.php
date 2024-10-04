@@ -93,7 +93,7 @@ if (!$centreon->user->admin && $serverString != "''") {
 }
 $DBRESULT = $pearDB->query("SELECT * FROM nagios_server $serverAcl ORDER BY name");
 while ($nagios_server = $DBRESULT->fetchRow()) {
-    $nagios_servers[$nagios_server["id"]] = HtmlSanitizer::create()->sanitize($nagios_server["name"]);
+    $nagios_servers[$nagios_server["id"]] = HtmlSanitizer::createFromString($nagios_server["name"])->sanitize()->getString();
 }
 $DBRESULT->closeCursor();
 

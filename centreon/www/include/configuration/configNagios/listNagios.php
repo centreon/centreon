@@ -43,7 +43,7 @@ include "./include/common/autoNumLimit.php";
 $search = $_POST['searchN'] ?? $_GET['searchN'] ?? null;
 
 if (! is_null($search)) {
-    $search = HtmlSanitizer::create()->sanitize($search);
+    $search = HtmlSanitizer::createFromString($search)->sanitize()->getString();
     //saving filters values
     $centreon->historySearch[$url] = array();
     $centreon->historySearch[$url]['search'] = $search;
@@ -73,7 +73,7 @@ if (!$centreon->user->admin && count($allowedMainConf)) {
 $nagios_servers = array(null => "");
 $dbResult = $pearDB->query("SELECT * FROM nagios_server ORDER BY name");
 while ($nagios_server = $dbResult->fetch()) {
-    $nagios_servers[$nagios_server["id"]] = HtmlSanitizer::create()->sanitize($nagios_server["name"]);
+    $nagios_servers[$nagios_server["id"]] = HtmlSanitizer::createFromString($nagios_server["name"])->sanitize()->getString();
 }
 $dbResult->closeCursor();
 
