@@ -225,7 +225,7 @@ class CentreonUtils
             $initForm = $form->getElement('initialValues');
             $initForm = HtmlAnalyzer::sanitizeAndRemoveTags($initForm->getValue());
 
-            if (empty($initForm)) {
+            if ($initForm === "") {
                 throw new InvalidArgumentException('Invalid Parameters');
             }
 
