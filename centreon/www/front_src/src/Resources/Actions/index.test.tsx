@@ -1,6 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
-import { createStore, Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import mockDate from 'mockdate';
 import { equals, head, last, map, pick } from 'ramda';
 
@@ -13,12 +13,12 @@ import {
   userAtom
 } from '@centreon/ui-context';
 import {
+  type RenderResult,
   act,
   fireEvent,
   getFetchCall,
   mockResponse,
   render,
-  RenderResult,
   resetMocks,
   screen,
   waitFor
@@ -27,15 +27,15 @@ import {
 import useDetails from '../Details/useDetails';
 import useListing from '../Listing/useListing';
 import useLoadResources from '../Listing/useLoadResources';
-import { Resource } from '../models';
-import Context, { ResourceContext } from '../testUtils/Context';
+import type { Resource } from '../models';
+import Context, { type ResourceContext } from '../testUtils/Context';
 import useActions from '../testUtils/useActions';
 import useFilter from '../testUtils/useFilter';
 import useLoadDetails from '../testUtils/useLoadDetails';
 import {
   labelAcknowledge,
-  labelAcknowledgedBy,
   labelAcknowledgeServices,
+  labelAcknowledgedBy,
   labelAddComment,
   labelCheck,
   labelCritical,
@@ -67,9 +67,9 @@ import {
   labelWarning
 } from '../translatedLabels';
 
-import { acknowledgeEndpoint, checkEndpoint } from './api/endpoint';
 import { disacknowledgeEndpoint } from './Resource/Disacknowledge/api';
 import { submitStatusEndpoint } from './Resource/SubmitStatus/api';
+import { acknowledgeEndpoint, checkEndpoint } from './api/endpoint';
 
 import Actions from '.';
 
@@ -167,6 +167,16 @@ const service = {
     id: 1
   },
   type: 'service'
+} as Resource;
+
+const anomalyDetection = {
+  has_passive_checks_enabled: true,
+  id: 0,
+  parent: {
+    id: 1,
+    name: 'Host'
+  },
+  type: 'anomaly-detection'
 } as Resource;
 
 const ActionsWithContext = (): JSX.Element => {
@@ -679,6 +689,28 @@ describe(Actions, () => {
       expect(getByText(labelDown)).toBeInTheDocument();
       expect(getByText(labelUnreachable)).toBeInTheDocument();
     });
+  });
+
+  it('deactivates the submit status button when a Resource of type anomaly detection is selected', () => {
+    mockedAxios.post.mockResolvedValueOnce({});
+
+    const { getByLabelText, getByTestId } = renderActions();
+
+    act(() => {
+      context.setSelectedResources?.([anomalyDetection]);
+    });
+
+    await waitFor(() => {
+      expect(
+        getByLabelText(labelMoreActions).firstElementChild as HTMLElement
+      ).toBeInTheDocument();
+    });
+
+    fireEvent.click(
+      getByLabelText(labelMoreActions).firstElementChild as HTMLElement
+    );
+
+    getByTestId(labelSubmitStatus).should('have.attr', 'aria-disabled');
   });
 
   it('cannot execute an action when associated ACL are not sufficient', async () => {
