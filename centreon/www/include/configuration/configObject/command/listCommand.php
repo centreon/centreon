@@ -151,22 +151,14 @@ $form = new HTML_QuickFormCustom('form', 'POST', "?p=" . $p);
 $style = "one";
 
 $addrType = $type ? "&type=" . $type : "";
-$attrBtnSuccess = array(
-    "class" => "btc bt_success",
-    "onClick" => "window.history.replaceState('', '', '?p=" . $p . $addrType . "');"
-);
+$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . $addrType . "');"];
 $form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
 
 // Define command Type table
-$commandType = array(
-    "1" => _("Notification"),
-    "2" => _("Check"),
-    "3" => _("Miscellaneous"),
-    "4" => _("Discovery")
-);
+$commandType = ["1" => _("Notification"), "2" => _("Check"), "3" => _("Miscellaneous"), "4" => _("Discovery")];
 
 // Fill a tab with a multidimensional Array we put in $tpl
-$elemArr = array();
+$elemArr = [];
 $centreonToken = createCSRFToken();
 
 for ($i = 0; $cmd = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
@@ -184,7 +176,7 @@ for ($i = 0; $cmd = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
     $state = "<button style='cursor: pointer; background-color: transparent; border: 0; height: 16px; width: 16px;' " .
     "onclick=\"javascript: setO('" . $optionO . "'); setCmdId(" . $cmd['command_id'] . "); submit();\">" .
     "<img src='img/icons/" . $iconValue . "' " . "class='ico-16 margin_right' alt='" . $altText . "'></button>";
-    
+
     $duplicate = "<button style='cursor: pointer; background-color: transparent; border: 0; height: 16px; width: 16px;' " .
     "onclick=\"javascript: setO('m'); setCmdId(" . $cmd['command_id'] . "); submit();\">" .
     "<img src='img/icons/content_copy.png' " . "class='ico-16 margin_right' alt='" . _("Duplicate") . "'></button>";
@@ -199,7 +191,7 @@ for ($i = 0; $cmd = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
     }
 
     $decodedCommand = myDecodeCommand($cmd["command_line"]);
-    $elemArr[$i] = array(
+    $elemArr[$i] = [
         "MenuClass" => "list_" . $style,
         "RowMenu_select" => $selectedElements->toHtml(),
         "RowMenu_name" => $cmd["command_name"],
@@ -216,7 +208,7 @@ for ($i = 0; $cmd = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
         "RowMenu_state" => $state,
         "RowMenu_duplicate" => $duplicate,
         "RowMenu_delete" => $delete,
-    );
+    ];
     $style != "two" ? $style = "two" : $style = "one";
 }
 $tpl->assign("elemArr", $elemArr);
@@ -230,10 +222,10 @@ if (isset($_GET['type']) && $_GET['type'] != "") {
 
 $tpl->assign(
     'msg',
-    array(
+    [
         "addL" => "main.php?p=" . $p . "&o=a&type=" . $type,
         "addT" => "+ " . _("ADD")
-    )
+    ]
 );
 
 $redirectType = $form->addElement('hidden', 'type');

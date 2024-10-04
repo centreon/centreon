@@ -70,7 +70,7 @@ final class FindNotifications
 
         try {
             $notifications = $this->notificationRepository->findAll($this->requestParameters);
-            if (empty($notifications)) {
+            if ($notifications === []) {
                 $presenter->presentResponse(new FindNotificationsResponse());
 
                 return;

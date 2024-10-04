@@ -173,7 +173,7 @@ class Utils
                 $arrData[$index] = $value;
             }
         }
-        if (! count($arrData)) {
+        if ($arrData === []) {
             $arrData = '';
         }
 

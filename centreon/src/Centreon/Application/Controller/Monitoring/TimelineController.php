@@ -206,7 +206,7 @@ class TimelineController extends AbstractController
     private function streamTimeLines(iterable $timeLines): StreamedResponse
     {
         $response = new StreamedResponse();
-        $response->setCallback(function () use ($timeLines) {
+        $response->setCallback(function () use ($timeLines): void {
             $handle = fopen('php://output', 'r+');
             if ($handle === false) {
                 throw new \RuntimeException('Unable to generate file');

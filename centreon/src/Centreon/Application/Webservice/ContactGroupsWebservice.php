@@ -148,8 +148,8 @@ class ContactGroupsWebservice extends Webservice\WebServiceAbstract implements
 
         $limit = isset($request['limit']) ? (int) $request['limit'] : null;
         $offset = isset($request['offset']) ? (int) $request['offset'] : null;
-        $sortField = isset($request['sortf']) ? $request['sortf'] : null;
-        $sortOrder = isset($request['sorto']) ? $request['sorto'] : 'ASC';
+        $sortField = $request['sortf'] ?? null;
+        $sortOrder = $request['sorto'] ?? 'ASC';
 
         $filters = [];
 

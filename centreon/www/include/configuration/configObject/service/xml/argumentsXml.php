@@ -33,9 +33,9 @@
  *
  */
 
-require_once realpath(dirname(__FILE__) . "/../../../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . "/../../../../../../config/centreon.config.php");
 
-require_once dirname(__FILE__) . "/argumentsXmlFunction.php";
+require_once __DIR__ . "/argumentsXmlFunction.php";
 
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once _CENTREON_PATH_ . "/www/class/centreonXML.class.php";
@@ -87,7 +87,7 @@ if (isset($_GET['cmdId']) && isset($_GET['svcId']) && isset($_GET['svcTplId']) &
     $svcTplId = CentreonDB::escape($_GET['svcTplId']);
     $o = CentreonDB::escape($_GET['o']);
 
-    $tab = array();
+    $tab = [];
     if (!$cmdId && $svcTplId) {
         while (1) {
             $query4 = "SELECT service_template_model_stm_id, command_command_id, command_command_id_arg 
@@ -110,7 +110,7 @@ if (isset($_GET['cmdId']) && isset($_GET['svcId']) && isset($_GET['svcTplId']) &
         }
     }
 
-    $argTab = array();
+    $argTab = [];
     $exampleTab = [];
 
     $query2 = "SELECT command_line, command_example FROM command WHERE command_id = :cmd_id LIMIT 1";
@@ -148,7 +148,7 @@ if (isset($_GET['cmdId']) && isset($_GET['svcId']) && isset($_GET['svcTplId']) &
                 unset($valueTab[$key]);
             }
         } else {
-            $exampleTab = array();
+            $exampleTab = [];
         }
     }
 
@@ -169,14 +169,14 @@ if (isset($_GET['cmdId']) && isset($_GET['svcId']) && isset($_GET['svcTplId']) &
     $disabled = 0;
     $nbArg = 0;
     foreach ($argTab as $name => $description) {
-        $style == 'list_one' ? $style = 'list_two' : $style = 'list_one';
+        $style = $style == 'list_one' ? 'list_two' : 'list_one';
         if ($o == "w") {
             $disabled = 1;
         }
         $xml->startElement('arg');
         $xml->writeElement('name', $name, false);
         $xml->writeElement('description', $description, false);
-        $xml->writeElement('value', isset($valueTab[$name]) ? $valueTab[$name] : "", false);
+        $xml->writeElement('value', $valueTab[$name] ?? "", false);
         $xml->writeElement('example', isset($exampleTab[$name]) ? myDecodeValue($exampleTab[$name]) : "", false);
         $xml->writeElement('style', $style);
         $xml->writeElement('disabled', $disabled);

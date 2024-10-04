@@ -90,8 +90,8 @@ switch ($o) {
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
             multipleServiceGroupDependencyInDB(
-                is_array($select) ? $select : array(),
-                is_array($dupNbr) ? $dupNbr : array()
+                is_array($select) ? $select : [],
+                is_array($dupNbr) ? $dupNbr : []
             );
         } else {
             unvalidFormMessage();
@@ -102,7 +102,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteServiceGroupDependencyInDB(is_array($select) ? $select : array());
+            deleteServiceGroupDependencyInDB(is_array($select) ? $select : []);
         } else {
             unvalidFormMessage();
         }

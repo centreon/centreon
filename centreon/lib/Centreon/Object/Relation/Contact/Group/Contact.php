@@ -35,16 +35,29 @@
 
 require_once __DIR__ . "/../../Relation.php";
 
+/**
+ * Class
+ *
+ * @class Centreon_Object_Relation_Contact_Group_Contact
+ */
 class Centreon_Object_Relation_Contact_Group_Contact extends Centreon_Object_Relation
 {
+
+    /** @var Centreon_Object_Contact_Group */
+    public $firstObject;
+    /** @var Centreon_Object_Contact */
+    public $secondObject;
+    /** @var string */
     protected $relationTable = "contactgroup_contact_relation";
+    /** @var string */
     protected $firstKey = "contactgroup_cg_id";
+    /** @var string */
     protected $secondKey = "contact_contact_id";
 
     /**
-     * Constructor
+     * Centreon_Object_Relation_Contact_Group_Contact constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {

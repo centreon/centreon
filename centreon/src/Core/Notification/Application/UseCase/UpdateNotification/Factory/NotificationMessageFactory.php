@@ -70,7 +70,7 @@ class NotificationMessageFactory
      */
     public static function createMultipleMessage(array $messages): array
     {
-        if (empty($messages)) {
+        if ($messages === []) {
             throw NotificationException::emptyArrayNotAllowed('message');
         }
 

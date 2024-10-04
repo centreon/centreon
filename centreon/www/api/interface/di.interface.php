@@ -35,11 +35,15 @@
 
 use Pimple\Container;
 
+/**
+ * Interface
+ *
+ * @class CentreonWebServiceDiInterface
+ */
 interface CentreonWebServiceDiInterface
 {
     /**
-     *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
     public function finalConstruct(Container $dependencyInjector);
 }
