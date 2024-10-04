@@ -176,6 +176,16 @@ const service = {
   type: 'service'
 } as Resource;
 
+const anomalyDetection = {
+  has_passive_checks_enabled: true,
+  id: 0,
+  parent: {
+    id: 1,
+    name: 'Host'
+  },
+  type: 'anomaly-detection'
+} as Resource;
+
 const ActionsWithContext = (): JSX.Element => {
   const detailsState = useLoadDetails();
   const listingState = useListing();
@@ -751,6 +761,30 @@ describe(Actions, () => {
       expect(getByText(labelDown)).toBeInTheDocument();
       expect(getByText(labelUnreachable)).toBeInTheDocument();
     });
+  });
+
+  it('deactivates the submit status button when a Resource of type anomaly detection is selected', async () => {
+    mockedAxios.post.mockResolvedValueOnce({});
+
+    const { getByLabelText, getByTestId } = renderActions();
+
+    act(() => {
+      context.setSelectedResources?.([anomalyDetection]);
+    });
+
+    await waitFor(() => {
+      expect(
+        getByLabelText(labelMoreActions).firstElementChild as HTMLElement
+      ).toBeInTheDocument();
+    });
+
+    fireEvent.click(
+      getByLabelText(labelMoreActions).firstElementChild as HTMLElement
+    );
+
+    expect(getByTestId(labelSubmitStatus).hasAttribute('aria-disabled')).toBe(
+      true
+    );
   });
 
   it('cannot execute an action when associated ACL are not sufficient', async () => {
