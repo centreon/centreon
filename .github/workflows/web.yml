@@ -627,10 +627,6 @@ jobs:
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "VERSION=${{ needs.get-version.outputs.major_version }}"
-<<<<<<< HEAD
-=======
-            "MYDUMPER_VERSION=0.16.3-5"
->>>>>>> develop
             "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
           pull: true
           push: true
