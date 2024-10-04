@@ -61,7 +61,7 @@ Feature: Configuring a top-bottom widget
     When the dashboard administrator clicks on a random resource
     Then the user should be redirected to the resource status screen and all the resources must be displayed
 
-  @TEST_MON-24935
+  @TEST_MON-149855
   Scenario: Adding and Filtering Resources in a Top/Bottom Widget on a Dashboard
     Given a dashboard in the dashboard administrator user's dashboard library
     When the dashboard administrator user selects the option to add a new widget
@@ -71,7 +71,7 @@ Feature: Configuring a top-bottom widget
     When the dashboard administrator enters a search term for a specific service
     Then only services that match the search input should be shown in the search results
 
-  @TEST_MON-24935
+  @TEST_MON-149856
   Scenario: Adding and Filtering metrics in a Top/Bottom Widget on a Dashboard
     Given a dashboard in the dashboard administrator user's dashboard library
     When the dashboard administrator user selects the option to add a new widget
