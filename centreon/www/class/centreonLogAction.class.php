@@ -403,7 +403,7 @@ class CentreonLogAction
                     $list_modifications[$i]["action_log_id"] = $field["action_log_id"];
                     $list_modifications[$i]["field_name"] = $field["field_name"];
                     $list_modifications[$i]["field_value_before"] = "";
-                    $list_modifications[$i]["field_value_after"] = HtmlSanitizer::createFromString($field["field_value"])->sanitize()->getString();;
+                    $list_modifications[$i]["field_value_after"] = HtmlSanitizer::createFromString($field["field_value"])->sanitize()->getString();
                     foreach ($macroPasswordRef as $macroPasswordId) {
                         // handle the display modification for the fields macroOldValue_n while nothing was set before
                         if (str_contains($field["field_name"], 'macroOldValue_' . $macroPasswordId)) {
