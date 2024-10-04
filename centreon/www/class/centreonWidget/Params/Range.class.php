@@ -35,14 +35,38 @@
 
 require_once __DIR__ . "/../Params.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonWidgetParamsRange
+ */
 class CentreonWidgetParamsRange extends CentreonWidgetParams
 {
+    /** @var HTML_QuickForm_Element */
+    public $element;
+
+    /**
+     * CentreonWidgetParamsRange Constructor
+     *
+     * @param CentreonDB $db
+     * @param HTML_Quickform $quickform
+     * @param int $userId
+     *
+     * @throws PDOException
+     */
     public function __construct($db, $quickform, $userId)
     {
         parent::__construct($db, $quickform, $userId);
     }
 
-    public function init($params)
+    /**
+     * @param $params
+     *
+     * @return void
+     * @throws HTML_QuickForm_Error
+     * @throws PDOException
+     */
+    public function init($params): void
     {
         parent::init($params);
         if (isset($this->quickform)) {
@@ -54,7 +78,7 @@ class CentreonWidgetParamsRange extends CentreonWidgetParams
             $min = $row['min_range'];
             $max = $row['max_range'];
             $step = $row['step'];
-            $tab = array();
+            $tab = [];
             for ($i = $min; $i <= $max; $i += $step) {
                 $tab[$i] = $i;
             }

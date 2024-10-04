@@ -37,37 +37,11 @@ class InformationTest extends \PHPUnit\Framework\TestCase
 
         $this->db = new CentreonDB();
 
-        $this->utils = $this->getMockBuilder('CentreonLegacy\Core\Utils\Utils')
+        $this->utils = $this->getMockBuilder(\CentreonLegacy\Core\Utils\Utils::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->configuration = array(
-            'title' => 'My Widget',
-            'author' => 'Centreon',
-            'email' => 'contact@centreon.com',
-            'website' => 'http://www.centreon.com',
-            'description' => 'Widget for displaying host monitoring information',
-            'version' => '1.0.0',
-            'keywords' => 'centreon, widget, host, monitoring',
-            'screenshot' => '',
-            'thumbnail' => './widgets/host-monitoring/resources/centreon-logo.png',
-            'url' => './widgets/host-monitoring/index.php',
-            'directory' => 'my-widget',
-            'preferences' => array(
-                'preference' => array(
-                    array(
-                        '@attributes' => array(
-                            'label' => 'Host Name',
-                            'name' => 'host_name_search',
-                            'defaultValue' => '',
-                            'type' => 'compare',
-                            'header' => 'Filters'
-                        )
-
-                    )
-                )
-            )
-        );
+        $this->configuration = ['title' => 'My Widget', 'author' => 'Centreon', 'email' => 'contact@centreon.com', 'website' => 'http://www.centreon.com', 'description' => 'Widget for displaying host monitoring information', 'version' => '1.0.0', 'keywords' => 'centreon, widget, host, monitoring', 'screenshot' => '', 'thumbnail' => './widgets/host-monitoring/resources/centreon-logo.png', 'url' => './widgets/host-monitoring/index.php', 'directory' => 'my-widget', 'preferences' => ['preference' => [['@attributes' => ['label' => 'Host Name', 'name' => 'host_name_search', 'defaultValue' => '', 'type' => 'compare', 'header' => 'Filters']]]]];
     }
 
     public function tearDown(): void
@@ -76,14 +50,14 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $this->container = null;
     }
 
-    public function testGetConfiguration()
+    public function testGetConfiguration(): void
     {
         $expectedResult = $this->configuration;
         $expectedResult['autoRefresh'] = 0;
 
-        $filesystem = $this->getMockBuilder('\Symfony\Component\Filesystem\Filesystem')
+        $filesystem = $this->getMockBuilder(\Symfony\Component\Filesystem\Filesystem::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(array('exists'))
+            ->onlyMethods(['exists'])
             ->getMock();
         $filesystem->expects($this->any())
             ->method('exists')
@@ -103,25 +77,15 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($configuration, $expectedResult);
     }
 
-    public function testGetTypes()
+    public function testGetTypes(): void
     {
-        $expectedResult = array(
-            'type1' => array(
-                'id' => 1,
-                'name' => 'type1'
-            )
-        );
+        $expectedResult = ['type1' => ['id' => 1, 'name' => 'type1']];
 
         $query = 'SELECT ft_typename, field_type_id ' .
             'FROM widget_parameters_field_type ';
         $this->db->addResultSet(
             $query,
-            array(
-                array(
-                    'ft_typename' => 'type1',
-                    'field_type_id' => 1
-                )
-            )
+            [['ft_typename' => 'type1', 'field_type_id' => 1]]
         );
 
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
@@ -132,16 +96,14 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($types, $expectedResult);
     }
 
-    public function testGetParameterIdByName()
+    public function testGetParameterIdByName(): void
     {
         $query = 'SELECT parameter_id ' .
             'FROM widget_parameters ' .
             'WHERE parameter_code_name = :name ';
         $this->db->addResultSet(
             $query,
-            array(
-                array('parameter_id' => 1)
-            )
+            [['parameter_id' => 1]]
         );
 
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
@@ -152,40 +114,16 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($id, 1);
     }
 
-    public function testGetParameters()
+    public function testGetParameters(): void
     {
-        $expectedResult = array(
-            'parameter1' => array(
-                'parameter_id' => 1,
-                'parameter_name' => 'parameter 1',
-                'parameter_code_name' => 'parameter1',
-                'default_value' => '',
-                'parameter_order' => 1,
-                'header_title' => 'title',
-                'require_permission' => null,
-                'widget_model_id' => 1,
-                'field_type_id' => 1
-            )
-        );
+        $expectedResult = ['parameter1' => ['parameter_id' => 1, 'parameter_name' => 'parameter 1', 'parameter_code_name' => 'parameter1', 'default_value' => '', 'parameter_order' => 1, 'header_title' => 'title', 'require_permission' => null, 'widget_model_id' => 1, 'field_type_id' => 1]];
 
         $query = 'SELECT * ' .
             'FROM widget_parameters ' .
             'WHERE widget_model_id = :id ';
         $this->db->addResultSet(
             $query,
-            array(
-                array(
-                    'parameter_id' => 1,
-                    'parameter_name' => 'parameter 1',
-                    'parameter_code_name' => 'parameter1',
-                    'default_value' => '',
-                    'parameter_order' => 1,
-                    'header_title' => 'title',
-                    'require_permission' => null,
-                    'widget_model_id' => 1,
-                    'field_type_id' => 1
-                )
-            )
+            [['parameter_id' => 1, 'parameter_name' => 'parameter 1', 'parameter_code_name' => 'parameter1', 'default_value' => '', 'parameter_order' => 1, 'header_title' => 'title', 'require_permission' => null, 'widget_model_id' => 1, 'field_type_id' => 1]]
         );
 
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
@@ -196,16 +134,14 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($parameters, $expectedResult);
     }
 
-    public function testGetIdByName()
+    public function testGetIdByName(): void
     {
         $query = 'SELECT widget_model_id ' .
             'FROM widget_models ' .
             'WHERE directory = :directory';
         $this->db->addResultSet(
             $query,
-            array(
-                array('widget_model_id' => 1)
-            )
+            [['widget_model_id' => 1]]
         );
 
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
@@ -216,17 +152,15 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($id, 1);
     }
 
-    public function testGetAvailableList()
+    public function testGetAvailableList(): void
     {
         $configuration = $this->configuration;
         $configuration['autoRefresh'] = 0;
-        $expectedResult = array(
-            'my-widget' => $configuration
-        );
+        $expectedResult = ['my-widget' => $configuration];
 
-        $finder = $this->getMockBuilder('\Symfony\Component\Finder\Finder')
+        $finder = $this->getMockBuilder(\Symfony\Component\Finder\Finder::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(array('directories', 'depth', 'in', 'getIterator'))
+            ->onlyMethods(['directories', 'depth', 'in', 'getIterator'])
             ->getMock();
         $finder->expects($this->any())
             ->method('directories')
@@ -242,9 +176,9 @@ class InformationTest extends \PHPUnit\Framework\TestCase
             ->willReturn(new \ArrayIterator([new \SplFileInfo('my-widget')]));
         $this->container->registerProvider(new FinderProvider($finder));
 
-        $filesystem = $this->getMockBuilder('\Symfony\Component\Filesystem\Filesystem')
+        $filesystem = $this->getMockBuilder(\Symfony\Component\Filesystem\Filesystem::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(array('exists'))
+            ->onlyMethods(['exists'])
             ->getMock();
         $filesystem->expects($this->any())
             ->method('exists')
@@ -264,7 +198,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($list, $expectedResult);
     }
 
-    public function testGetList()
+    public function testGetList(): void
     {
         $configuration = $this->configuration;
         $configuration['autoRefresh'] = 0;
@@ -276,30 +210,11 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $configuration['id'] = 1;
         unset($configuration['version']);
 
-        $expectedResult = array(
-            'my-widget' => $configuration
-        );
+        $expectedResult = ['my-widget' => $configuration];
 
         $this->db->addResultSet(
             'SELECT * FROM widget_models ',
-            array(
-                array(
-                    'widget_model_id' => 1,
-                    'title' => 'my title',
-                    'description' => 'my description',
-                    'url' => '',
-                    'version' => '1.0.0',
-                    'is_internal' => 0,
-                    'directory' => 'my-widget',
-                    'author' => 'phpunit',
-                    'email' => 'root@localhost',
-                    'website' => 'centreon.com',
-                    'keywords' => 'centreon',
-                    'screenshot' => null,
-                    'thumbnail' => '',
-                    'autoRefresh' => 0
-                )
-            )
+            [['widget_model_id' => 1, 'title' => 'my title', 'description' => 'my description', 'url' => '', 'version' => '1.0.0', 'is_internal' => 0, 'directory' => 'my-widget', 'author' => 'phpunit', 'email' => 'root@localhost', 'website' => 'centreon.com', 'keywords' => 'centreon', 'screenshot' => null, 'thumbnail' => '', 'autoRefresh' => 0]]
         );
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
 
@@ -307,9 +222,9 @@ class InformationTest extends \PHPUnit\Framework\TestCase
             ->method('buildPath')
             ->willReturn('MyWidget');
 
-        $finder = $this->getMockBuilder('\Symfony\Component\Finder\Finder')
+        $finder = $this->getMockBuilder(\Symfony\Component\Finder\Finder::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(array('directories', 'depth', 'in', 'getIterator'))
+            ->onlyMethods(['directories', 'depth', 'in', 'getIterator'])
             ->getMock();
         $finder->expects($this->any())
             ->method('directories')
@@ -325,9 +240,9 @@ class InformationTest extends \PHPUnit\Framework\TestCase
             ->willReturn(new \ArrayIterator([new \SplFileInfo('my-widget')]));
         $this->container->registerProvider(new FinderProvider($finder));
 
-        $filesystem = $this->getMockBuilder('\Symfony\Component\Filesystem\Filesystem')
+        $filesystem = $this->getMockBuilder(\Symfony\Component\Filesystem\Filesystem::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(array('exists'))
+            ->onlyMethods(['exists'])
             ->getMock();
         $filesystem->expects($this->any())
             ->method('exists')

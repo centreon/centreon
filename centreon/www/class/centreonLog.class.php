@@ -50,7 +50,7 @@ class CentreonUserLog
     /** @var CentreonUserLog */
     private static $instance;
     /** @var array */
-    private $errorType;
+    private $errorType = [];
     /** @var int */
     private $uid;
     /** @var string */
@@ -61,11 +61,12 @@ class CentreonUserLog
      *
      * @param int $uid
      * @param CentreonDB $pearDB
+     *
+     * @throws PDOException
      */
     public function __construct($uid, $pearDB)
     {
         $this->uid = $uid;
-        $this->errorType = array();
 
         // Get Log directory path
         $DBRESULT = $pearDB->query("SELECT * FROM `options` WHERE `key` = 'debug_path'");
@@ -407,8 +408,8 @@ class CentreonLog
             $context = [
                 'context' => [
                     'default' => $defaultContext,
-                    'exception' => ! empty($exceptionContext) ? $exceptionContext : null,
-                    'custom' => ! empty($customContext) ? $customContext : null,
+                    'exception' => $exceptionContext !== [] ? $exceptionContext : null,
+                    'custom' => $customContext !== [] ? $customContext : null,
                 ]
             ];
 
@@ -431,14 +432,14 @@ class CentreonLog
     private function getExceptionInfos(Throwable $exception): array
     {
         $exceptionInfos = [
-            'exception_type' => get_class($exception),
+            'exception_type' => $exception::class,
             'file' => $exception->getFile(),
             'line' => $exception->getLine(),
             'code' => $exception->getCode(),
             'message' => $exception->getMessage()
         ];
         $additonalOptions = $this->getExceptionOptions($exception);
-        if (! empty($additonalOptions)) {
+        if ($additonalOptions !== []) {
             $exceptionInfos['options'] = $additonalOptions;
         }
         return $exceptionInfos;
@@ -461,7 +462,7 @@ class CentreonLog
     {
         $excludeFunctions = ['log', 'debug', 'info', 'warning', 'error', 'critical', 'alert', 'emergency', 'insertLog'];
         $backTrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5);
-        if (empty($backTrace)) {
+        if ($backTrace === []) {
             return null;
         }
         // get the last trace excluding the centreonlog trace
@@ -475,7 +476,7 @@ class CentreonLog
             )
         );
 
-        if (empty($lastTraceCleaned)) {
+        if ($lastTraceCleaned === []) {
             return null;
         }
 

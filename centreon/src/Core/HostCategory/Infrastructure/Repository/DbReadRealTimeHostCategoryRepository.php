@@ -102,9 +102,7 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
 
         $sortRequest = $sqlTranslator?->translateSortParameterToSql();
 
-        $request .= $sortRequest !== null
-            ? $sortRequest
-            : ' ORDER BY host_categories.name ASC';
+        $request .= $sortRequest ?? ' ORDER BY host_categories.name ASC';
 
         // handle pagination
         $request .= $sqlTranslator?->translatePaginationToSql();
@@ -194,9 +192,7 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
 
         $sortRequest = $sqlTranslator?->translateSortParameterToSql();
 
-        $request .= $sortRequest !== null
-            ? $sortRequest
-            : ' ORDER BY host_categories.name ASC';
+        $request .= $sortRequest ?? ' ORDER BY host_categories.name ASC';
 
         // handle pagination
         $request .= $sqlTranslator?->translatePaginationToSql();

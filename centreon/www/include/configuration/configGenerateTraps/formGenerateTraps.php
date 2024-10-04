@@ -45,20 +45,13 @@ if (!$centreon->user->admin && $centreon->user->access->checkAction('generate_tr
 /*
  * Init Centcore Pipe
  */
-if (defined('_CENTREON_VARLIB_')) {
-    $centcore_pipe = _CENTREON_VARLIB_ . "/centcore.cmd";
-} else {
-    $centcore_pipe = "/var/lib/centreon/centcore.cmd";
-}
+$centcore_pipe = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ . "/centcore.cmd" : "/var/lib/centreon/centcore.cmd";
 
 /*
  *  Get Poller List
  */
 $acl = $centreon->user->access;
-$tab_nagios_server = $acl->getPollerAclConf(array('get_row'    => 'name',
-                                                  'order'      => array('name'),
-                                                  'keys'       => array('id'),
-                                                  'conditions' => array('ns_activate' => 1)));
+$tab_nagios_server = $acl->getPollerAclConf(['get_row'    => 'name', 'order'      => ['name'], 'keys'       => ['id'], 'conditions' => ['ns_activate' => 1]]);
 
 /* Sort the list of poller server */
 $pollersId = isset($_GET['poller']) ? explode(',', $_GET['poller']) : [];
@@ -78,13 +71,13 @@ if ($n > 1) {
     foreach ($tab_nagios_server as $key => $name) {
         $tab_nagios_server[$key] = HtmlSanitizer::createFromString($name)->sanitize()->getString();
     }
-    $tab_nagios_server = array(0 => _("All Pollers")) + $tab_nagios_server;
+    $tab_nagios_server = [0 => _("All Pollers")] + $tab_nagios_server;
 }
 
 /*
  * Form begin
  */
-$attrSelect = array("style" => "width: 220px;");
+$attrSelect = ["style" => "width: 220px;"];
 
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
 /*
@@ -102,17 +95,13 @@ $form->addElement('select', 'host', _("Poller"), $tab_nagios_server, $attrSelect
 $form->addElement('checkbox', 'generate', _("Generate trap database "));
 $form->addElement('checkbox', 'apply', _("Apply configurations"));
 
-$options = array(
-    null => null,
-    'RELOADCENTREONTRAPD' => _('Reload'),
-    'RESTARTCENTREONTRAPD' => _('Restart')
-);
+$options = [null => null, 'RELOADCENTREONTRAPD' => _('Reload'), 'RESTARTCENTREONTRAPD' => _('Restart')];
 $form->addElement('select', 'signal', _('Send signal'), $options);
 
 /*
  * Set checkbox checked.
  */
-$form->setDefaults(array('generate' => '1', 'generate' => '1', 'opt' => '1'));
+$form->setDefaults(['generate' => '1', 'generate' => '1', 'opt' => '1']);
 
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
@@ -123,7 +112,7 @@ $redirect->setValue($o);
 $tpl = new Smarty();
 $tpl = initSmartyTpl($path, $tpl);
 
-$sub = $form->addElement('submit', 'submit', _("Generate"), array("class" => "btc bt_success"));
+$sub = $form->addElement('submit', 'submit', _("Generate"), ["class" => "btc bt_success"]);
 $msg = null;
 $stdout = null;
 $msg_generate = "";
@@ -131,7 +120,7 @@ $trapdPath = "/etc/snmp/centreon_traps/";
 
 if ($form->validate()) {
     $ret = $form->getSubmitValues();
-    $host_list = array();
+    $host_list = [];
     foreach ($tab_nagios_server as $key => $value) {
         if ($key && ($ret["host"] == 0 || $ret["host"] == $key)) {
             $host_list[$key] = $value;
@@ -141,22 +130,18 @@ if ($form->validate()) {
         /*
          * Create Server List to snmptt generation file
          */
-        $tab_server = array();
+        $tab_server = [];
         $query = "SELECT `name`, `id`, `snmp_trapd_path_conf`, `localhost` FROM `nagios_server` " .
             "WHERE `ns_activate` = '1' ORDER BY `localhost` DESC";
         $DBRESULT_Servers = $pearDB->query($query);
         while ($tab = $DBRESULT_Servers->fetchRow()) {
             if (isset($ret["host"]) && ($ret["host"] == 0 || $ret["host"] == $tab['id'])) {
-                $tab_server[$tab["id"]] = array(
-                    "id" => $tab["id"],
-                    "name" => $tab["name"],
-                    "localhost" => $tab["localhost"]
-                );
+                $tab_server[$tab["id"]] = ["id" => $tab["id"], "name" => $tab["name"], "localhost" => $tab["localhost"]];
             }
             if ($tab['localhost'] && $tab['snmp_trapd_path_conf']) {
                 $trapdPath = $tab['snmp_trapd_path_conf'];
                 //handle path traversal vulnerability
-                if (strpos($trapdPath, '..') !== false) {
+                if (str_contains($trapdPath, '..')) {
                     throw new Exception('Path traversal found');
                 }
             }
@@ -169,7 +154,7 @@ if ($form->validate()) {
                     mkdir("{$trapdPath}/{$host['id']}");
                 }
                 $filename = "{$trapdPath}/{$host['id']}/centreontrapd.sdb";
-                $output = array();
+                $output = [];
                 $returnVal = 0;
                 exec(
                     escapeshellcmd(_CENTREON_PATH_ . "/bin/generateSqlLite '{$host['id']}' '{$filename}'") . ' 2>&1',
@@ -197,7 +182,7 @@ if ($form->validate()) {
                 }
             }
         }
-        if (isset($ret['signal']) && in_array($ret['signal'], array('RELOADCENTREONTRAPD', 'RESTARTCENTREONTRAPD'))) {
+        if (isset($ret['signal']) && in_array($ret['signal'], ['RELOADCENTREONTRAPD', 'RESTARTCENTREONTRAPD'])) {
             foreach ($tab_server as $host) {
                 passthru(
                     escapeshellcmd("echo '{$ret['signal']}:{$host['id']}'") . ' >> ' . escapeshellcmd($centcore_pipe),

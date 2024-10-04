@@ -73,14 +73,14 @@ class ServicegroupMonitoring
         }
         $query .= " ORDER BY h.name ";
         $res = $this->dbb->query($query);
-        $tab = array();
-        $detailTab = array();
+        $tab = [];
+        $detailTab = [];
         while ($row = $res->fetch()) {
             if (!isset($tab[$row['state']])) {
                 $tab[$row['state']] = 0;
             }
             if (!isset($detailTab[$row['name']])) {
-                $detailTab[$row['name']] = array();
+                $detailTab[$row['name']] = [];
             }
             foreach ($row as $key => $val) {
                 $detailTab[$row['name']][$key] = $val;
@@ -124,17 +124,17 @@ class ServicegroupMonitoring
         }
         $query .= " ORDER BY h.name ";
         $res = $this->dbb->query($query);
-        $tab = array();
-        $detailTab = array();
+        $tab = [];
+        $detailTab = [];
         while ($row = $res->fetch()) {
             if (!isset($tab[$row['state']])) {
                 $tab[$row['state']] = 0;
             }
             if (!isset($detailTab[$row['host_id']])) {
-                $detailTab[$row['host_id']] = array();
+                $detailTab[$row['host_id']] = [];
             }
             if (isset($detailTab[$row['name']]) && !isset($detailTab[$row['name']][$row['service_id']])) {
-                $detailTab[$row['host_id']][$row['service_id']] = array();
+                $detailTab[$row['host_id']][$row['service_id']] = [];
             }
             foreach ($row as $key => $val) {
                 $detailTab[$row['host_id']][$row['service_id']][$key] = $val;

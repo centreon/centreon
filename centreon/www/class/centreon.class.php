@@ -42,56 +42,82 @@ require_once __DIR__ . '/centreonHostgroups.class.php';
 require_once __DIR__ . '/centreonDBInstance.class.php';
 
 /**
- * Class for load application Centreon
+ * Class
+ *
+ * @class Centreon
+ * @description Class for load application Centreon
  */
 class Centreon
 {
+    /** @var */
     public $Nagioscfg;
+    /** @var */
     public $optGen;
+    /** @var */
     public $informations;
+    /** @var */
     public $redirectTo;
+    /** @var */
     public $modules;
+    /** @var */
     public $hooks;
 
     /*
      * @var array : saved user's pagination filter value
      */
+    /** @var */
     public $historyPage;
 
     /*
      * @var string : saved last page's file name
      */
+    /** @var */
     public $historyLastUrl;
 
     /*
      * @var array : saved user's filters
      */
+    /** @var */
     public $historySearch;
 
+    /** @var */
     public $historySearchService;
+    /** @var */
     public $historySearchOutput;
+    /** @var */
     public $historyLimit;
+    /** @var */
     public $search_type_service;
+    /** @var */
     public $search_type_host;
-    public $poller;
+    /** @var int */
+    public $poller = 0;
+    /** @var */
     public $template;
+    /** @var */
     public $hostgroup;
+    /** @var */
     public $host_id;
+    /** @var */
     public $host_group_search;
+    /** @var */
     public $host_list_search;
 
-    /**
-     * @var \CentreonUser
-     */
+    /** @var CentreonUser */
     public $user;
+    /** @var CentreonGMT */
     public $CentreonGMT;
+    /** @var CentreonLogAction */
     public $CentreonLogAction;
+    /** @var CentreonExternalCommand */
     public $extCmd;
 
     /**
-     * Class constructor
+     * Centreon constructor
      *
-     * @param object $user User objects
+     * @param array $userInfos User objects
+     *
+     * @throws PDOException
      */
     public function __construct($userInfos)
     {
@@ -138,11 +164,6 @@ class Centreon
         $this->CentreonLogAction = new CentreonLogAction($this->user);
 
         /*
-         * Init Poller id
-         */
-        $this->poller = 0;
-
-        /*
          * Init External CMD object
          */
         $this->extCmd = new CentreonExternalCommand();
@@ -151,19 +172,15 @@ class Centreon
     /**
      * Create a list of all module installed into Centreon
      *
-     * @param $pearDB The database connection to centreon database
+     * @throws PDOException
      */
-    public function creatModuleList()
+    public function creatModuleList(): void
     {
-        $this->modules = array();
+        $this->modules = [];
         $query = "SELECT `name` FROM `modules_informations`";
-        $dbResult = CentreonDBInstance::getConfInstance()->query($query);
+        $dbResult = CentreonDBInstance::getDbCentreonInstance()->query($query);
         while ($result = $dbResult->fetch()) {
-            $this->modules[$result["name"]] = array(
-                "name" => $result["name"],
-                "gen" => false,
-                "license" => false
-            );
+            $this->modules[$result["name"]] = ["name" => $result["name"], "gen" => false, "license" => false];
 
             if (is_dir("./modules/" . $result["name"] . "/generate_files/")) {
                 $this->modules[$result["name"]]["gen"] = true;
@@ -172,9 +189,12 @@ class Centreon
         $dbResult = null;
     }
 
-    public function initHooks()
+    /**
+     * @return void
+     */
+    public function initHooks(): void
     {
-        $this->hooks = array();
+        $this->hooks = [];
 
         foreach ($this->modules as $name => $parameters) {
             $hookPaths = glob(_CENTREON_PATH_ . '/www/modules/' . $name . '/hooks/*.class.php');
@@ -188,15 +208,13 @@ class Centreon
                     }
                     if (class_exists($className)) {
                         $hookName = '';
-                        for ($i = 1; $i < count($explodedClassName); $i++) {
+                        $counter = count($explodedClassName);
+                        for ($i = 1; $i < $counter; $i++) {
                             $hookName .= ucfirst(strtolower($explodedClassName[$i]));
                         }
                         $hookMethods = get_class_methods($className);
                         foreach ($hookMethods as $hookMethod) {
-                            $this->hooks[$hookName][$hookMethod][] = array(
-                                'path' => $hookPath,
-                                'class' => $className
-                            );
+                            $this->hooks[$hookName][$hookMethod][] = ['path' => $hookPath, 'class' => $className];
                         }
                     }
                 }
@@ -207,14 +225,14 @@ class Centreon
     /**
      * Create history list
      */
-    public function createHistory()
+    public function createHistory(): void
     {
-        $this->historyPage = array();
+        $this->historyPage = [];
         $this->historyLastUrl = '';
-        $this->historySearch = array();
-        $this->historySearchService = array();
-        $this->historySearchOutput = array();
-        $this->historyLimit = array();
+        $this->historySearch = [];
+        $this->historySearchService = [];
+        $this->historySearchOutput = [];
+        $this->historyLimit = [];
         $this->search_type_service = 1;
         $this->search_type_host = 1;
     }
@@ -222,16 +240,16 @@ class Centreon
     /**
      * Initiate nagios option list
      *
-     * @param $pearDB The database connection to centreon database
+     * @throws PDOException
      */
-    public function initNagiosCFG()
+    public function initNagiosCFG(): void
     {
-        $this->Nagioscfg = array();
+        $this->Nagioscfg = [];
         /*
          * We don't check activate because we can a server without a engine on localhost running
          * (but we order to get if we have one)
          */
-        $DBRESULT = CentreonDBInstance::getConfInstance()->query(
+        $DBRESULT = CentreonDBInstance::getDbCentreonInstance()->query(
             "SELECT illegal_object_name_chars, cfg_dir FROM cfg_nagios, nagios_server
             WHERE nagios_server.id = cfg_nagios.nagios_server_id
             AND nagios_server.localhost = '1'
@@ -245,12 +263,12 @@ class Centreon
     /**
      * Initiate general option list
      *
-     * @param $pearDB The database connection to centreon database
+     * @throws PDOException
      */
-    public function initOptGen()
+    public function initOptGen(): void
     {
-        $this->optGen = array();
-        $DBRESULT = CentreonDBInstance::getConfInstance()->query("SELECT * FROM `options`");
+        $this->optGen = [];
+        $DBRESULT = CentreonDBInstance::getDbCentreonInstance()->query("SELECT * FROM `options`");
         while ($opt = $DBRESULT->fetch()) {
             $this->optGen[$opt["key"]] = $opt["value"];
         }
@@ -262,11 +280,12 @@ class Centreon
      * Store centreon informations in session
      *
      * @return void
+     * @throws PDOException
      */
     public function initInformations(): void
     {
         $this->informations = [];
-        $result = CentreonDBInstance::getConfInstance()->query("SELECT * FROM `informations`");
+        $result = CentreonDBInstance::getDbCentreonInstance()->query("SELECT * FROM `informations`");
         while ($row = $result->fetch()) {
             $this->informations[$row["key"]] = $row["value"];
         }
@@ -276,11 +295,13 @@ class Centreon
      * Check illegal char defined into nagios.cfg file
      *
      * @param string $name The string to sanitize
+     *
      * @return string The string sanitized
+     * @throws PDOException
      */
     public function checkIllegalChar($name)
     {
-        $DBRESULT = CentreonDBInstance::getConfInstance()->query("SELECT illegal_object_name_chars FROM cfg_nagios");
+        $DBRESULT = CentreonDBInstance::getDbCentreonInstance()->query("SELECT illegal_object_name_chars FROM cfg_nagios");
         while ($data = $DBRESULT->fetchColumn()) {
             $name = str_replace(str_split($data), '', $name);
         }

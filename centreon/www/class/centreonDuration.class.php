@@ -34,8 +34,19 @@
  * 
  */
 
+/**
+ * Class
+ *
+ * @class CentreonDuration
+ */
 class CentreonDuration
 {
+    /**
+     * @param $duration
+     * @param $periods
+     *
+     * @return false|string
+     */
     public static function toString($duration, $periods = null)
     {
         if (!is_array($duration)) {
@@ -44,19 +55,17 @@ class CentreonDuration
         return CentreonDuration::array2string($duration);
     }
 
+    /**
+     * @param $seconds
+     * @param $periods
+     *
+     * @return array|null
+     */
     public static function int2array($seconds, $periods = null)
     {
         // Define time periods
         if (!is_array($periods)) {
-            $periods = array(
-                'y' => 31556926,
-                'M' => 2629743,
-                'w' => 604800,
-                'd' => 86400,
-                'h' => 3600,
-                'm' => 60,
-                's' => 1
-            );
+            $periods = ['y' => 31556926, 'M' => 2629743, 'w' => 604800, 'd' => 86400, 'h' => 3600, 'm' => 60, 's' => 1];
         }
 
         // Loop
@@ -79,6 +88,11 @@ class CentreonDuration
         return $values;
     }
 
+    /**
+     * @param $duration
+     *
+     * @return false|string
+     */
     public static function array2string($duration)
     {
         if (!is_array($duration)) {
@@ -98,8 +112,19 @@ class CentreonDuration
     }
 }
 
+/**
+ * Class
+ *
+ * @class DurationHoursMinutes
+ */
 class DurationHoursMinutes
 {
+    /**
+     * @param $duration
+     * @param $periods
+     *
+     * @return false|string
+     */
     public static function toString($duration, $periods = null)
     {
         if (!is_array($duration)) {
@@ -108,15 +133,17 @@ class DurationHoursMinutes
         return DurationHoursMinutes::array2string($duration);
     }
 
+    /**
+     * @param $seconds
+     * @param $periods
+     *
+     * @return array|null
+     */
     public static function int2array($seconds, $periods = null)
     {
         // Define time periods
         if (!is_array($periods)) {
-            $periods = array(
-                'h' => 3600,
-                'm' => 60,
-                's' => 1
-            );
+            $periods = ['h' => 3600, 'm' => 60, 's' => 1];
         }
 
         // Loop
@@ -139,6 +166,11 @@ class DurationHoursMinutes
         return $values;
     }
 
+    /**
+     * @param $duration
+     *
+     * @return false|string
+     */
     public static function array2string($duration)
     {
         if (!is_array($duration)) {

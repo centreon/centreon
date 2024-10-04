@@ -25,13 +25,13 @@ namespace Core\Domain\RealTime\Model;
 
 class HostStatus extends Status
 {
-    public const STATUS_NAME_UP = 'UP',
-                 STATUS_NAME_DOWN = 'DOWN',
-                 STATUS_NAME_UNREACHABLE = 'UNREACHABLE';
-    public const STATUS_CODE_UP = 0,
-                 STATUS_CODE_DOWN = 1,
-                 STATUS_CODE_UNREACHABLE = 2;
-    public const STATUS_ORDER_UP = parent::STATUS_ORDER_OK,
-                 STATUS_ORDER_UNREACHABLE = parent::STATUS_ORDER_LOW,
-                 STATUS_ORDER_DOWN = parent::STATUS_ORDER_HIGH;
+    public const STATUS_NAME_UP = 'UP';
+    public const STATUS_NAME_DOWN = 'DOWN';
+    public const STATUS_NAME_UNREACHABLE = 'UNREACHABLE';
+    public const STATUS_CODE_UP = 0;
+    public const STATUS_CODE_DOWN = 1;
+    public const STATUS_CODE_UNREACHABLE = 2;
+    public const STATUS_ORDER_UP = parent::STATUS_ORDER_OK;
+    public const STATUS_ORDER_UNREACHABLE = parent::STATUS_ORDER_LOW;
+    public const STATUS_ORDER_DOWN = parent::STATUS_ORDER_HIGH;
 }

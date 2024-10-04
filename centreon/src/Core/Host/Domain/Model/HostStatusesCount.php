@@ -25,10 +25,10 @@ namespace Core\Host\Domain\Model;
 
 class HostStatusesCount
 {
-    public const STATUS_UP = 0,
-                 STATUS_DOWN = 1,
-                 STATUS_UNREACHABLE = 2,
-                 STATUS_PENDING = 4;
+    public const STATUS_UP = 0;
+    public const STATUS_DOWN = 1;
+    public const STATUS_UNREACHABLE = 2;
+    public const STATUS_PENDING = 4;
 
     public function __construct(
         private readonly int $totalUp,

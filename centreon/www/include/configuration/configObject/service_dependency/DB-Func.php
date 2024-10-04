@@ -70,8 +70,8 @@ function testCycleH($childs = null)
 {
     global $pearDB;
     global $form;
-    $parents = array();
-    $childs = array();
+    $parents = [];
+    $childs = [];
     if (isset($form)) {
         $parents = $form->getSubmitValue('dep_hSvPar');
         $childs = $form->getSubmitValue('dep_hSvChi');
@@ -85,7 +85,7 @@ function testCycleH($childs = null)
     return true;
 }
 
-function deleteServiceDependencyInDB($dependencies = array())
+function deleteServiceDependencyInDB($dependencies = [])
 {
     global $pearDB, $oreon;
     foreach ($dependencies as $key => $value) {
@@ -97,7 +97,7 @@ function deleteServiceDependencyInDB($dependencies = array())
     }
 }
 
-function multipleServiceDependencyInDB($dependencies = array(), $nbrDup = array())
+function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
 {
     foreach ($dependencies as $key => $value) {
         global $pearDB, $oreon;
@@ -108,7 +108,10 @@ function multipleServiceDependencyInDB($dependencies = array(), $nbrDup = array(
             $val = null;
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
-                $key2 == "dep_name" ? ($dep_name = $value2 = $value2 . "_" . $i) : null;
+                if ($key2 == "dep_name") {
+                    $dep_name = $value2 . "_" . $i;
+                    $value2 = $value2 . "_" . $i;
+                }
                 $val
                     ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")
                     : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
@@ -120,7 +123,7 @@ function multipleServiceDependencyInDB($dependencies = array(), $nbrDup = array(
                 }
             }
             if (isset($dep_name) && testServiceDependencyExistence($dep_name)) {
-                $val ? $rq = "INSERT INTO dependency VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO dependency VALUES (" . $val . ")" : null;
                 $pearDB->query($rq);
                 $dbResult = $pearDB->query("SELECT MAX(dep_id) FROM dependency");
                 $maxId = $dbResult->fetch();
@@ -198,7 +201,7 @@ function updateServiceDependencyInDB($dep_id = null)
     updateServiceDependencyHostChildren($dep_id);
 }
 
-function insertServiceDependencyInDB($ret = array())
+function insertServiceDependencyInDB($ret = [])
 {
     $dep_id = insertServiceDependency($ret);
     updateServiceDependencyServiceParents($dep_id, $ret);
@@ -213,7 +216,7 @@ function insertServiceDependencyInDB($ret = array())
  * @param array<string, mixed> $ret
  * @return int
  */
-function insertServiceDependency($ret = array()): int
+function insertServiceDependency($ret = []): int
 {
     global $form, $pearDB, $centreon;
     if (!count($ret)) {
@@ -354,7 +357,7 @@ function sanitizeResourceParameters(array $resources): array
     return $sanitizedParameters;
 }
 
-function updateServiceDependencyServiceParents($dep_id = null, $ret = array())
+function updateServiceDependencyServiceParents($dep_id = null, $ret = [])
 {
     if (!$dep_id) {
         exit();
@@ -367,12 +370,9 @@ function updateServiceDependencyServiceParents($dep_id = null, $ret = array())
     $rq = "DELETE FROM dependency_serviceParent_relation ";
     $rq .= "WHERE dependency_dep_id = '" . $dep_id . "'";
     $dbResult = $pearDB->query($rq);
-    if (isset($ret["dep_hSvPar"])) {
-        $ret1 = $ret["dep_hSvPar"];
-    } else {
-        $ret1 = CentreonUtils::mergeWithInitialValues($form, "dep_hSvPar");
-    }
-    for ($i = 0; $i < count($ret1); $i++) {
+    $ret1 = $ret["dep_hSvPar"] ?? CentreonUtils::mergeWithInitialValues($form, "dep_hSvPar");
+    $counter = count($ret1);
+    for ($i = 0; $i < $counter; $i++) {
         $exp = explode("-", $ret1[$i]);
         if (count($exp) == 2) {
             $rq = "INSERT INTO dependency_serviceParent_relation ";
@@ -384,7 +384,7 @@ function updateServiceDependencyServiceParents($dep_id = null, $ret = array())
     }
 }
 
-function updateServiceDependencyServiceChilds($dep_id = null, $ret = array())
+function updateServiceDependencyServiceChilds($dep_id = null, $ret = [])
 {
     if (!$dep_id) {
         exit();
@@ -397,12 +397,9 @@ function updateServiceDependencyServiceChilds($dep_id = null, $ret = array())
     $rq = "DELETE FROM dependency_serviceChild_relation ";
     $rq .= "WHERE dependency_dep_id = '" . $dep_id . "'";
     $dbResult = $pearDB->query($rq);
-    if (isset($ret["dep_hSvChi"])) {
-        $ret1 = $ret["dep_hSvChi"];
-    } else {
-        $ret1 = CentreonUtils::mergeWithInitialValues($form, "dep_hSvChi");
-    }
-    for ($i = 0; $i < count($ret1); $i++) {
+    $ret1 = $ret["dep_hSvChi"] ?? CentreonUtils::mergeWithInitialValues($form, "dep_hSvChi");
+    $counter = count($ret1);
+    for ($i = 0; $i < $counter; $i++) {
         $exp = explode("-", $ret1[$i]);
         if (count($exp) == 2) {
             $rq = "INSERT INTO dependency_serviceChild_relation ";
@@ -417,7 +414,7 @@ function updateServiceDependencyServiceChilds($dep_id = null, $ret = array())
 /**
  * Update Service Dependency Host Children
  */
-function updateServiceDependencyHostChildren($dep_id = null, $ret = array())
+function updateServiceDependencyHostChildren($dep_id = null, $ret = [])
 {
     if (!$dep_id) {
         exit();
@@ -435,7 +432,8 @@ function updateServiceDependencyHostChildren($dep_id = null, $ret = array())
     } else {
         $ret1 = CentreonUtils::mergeWithInitialValues($form, "dep_hHostChi");
     }
-    for ($i = 0; $i < count($ret1); $i++) {
+    $counter = count($ret1);
+    for ($i = 0; $i < $counter; $i++) {
         $rq = "INSERT INTO dependency_hostChild_relation ";
         $rq .= "(dependency_dep_id, host_host_id) ";
         $rq .= "VALUES ";

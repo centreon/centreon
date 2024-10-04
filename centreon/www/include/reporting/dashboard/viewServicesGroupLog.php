@@ -55,16 +55,10 @@ $serviceGroupForm = new HTML_QuickFormCustom('formServiceGroup', 'post', "?p=" .
 $redirect = $serviceGroupForm->addElement('hidden', 'o');
 $redirect->setValue($o);
 
-$serviceGroupRoute = array(
-    'datasourceOrigin' => 'ajax',
-    'multiple' => false,
-    'linkedObject' => 'centreonServicegroups',
-    'availableDatasetRoute' =>
-        './api/internal.php?object=centreon_configuration_servicegroup&action=list',
-    'defaultDatasetRoute' =>
-        './api/internal.php?object=centreon_configuration_servicegroup'
-        . '&action=defaultValues&target=service&field=service_sgs&id=' . $id,
-);
+$serviceGroupRoute = ['datasourceOrigin' => 'ajax', 'multiple' => false, 'linkedObject' => 'centreonServicegroups', 'availableDatasetRoute' =>
+    './api/internal.php?object=centreon_configuration_servicegroup&action=list', 'defaultDatasetRoute' =>
+    './api/internal.php?object=centreon_configuration_servicegroup'
+    . '&action=defaultValues&target=service&field=service_sgs&id=' . $id];
 $serviceGroupSelectBox = $formPeriod->addElement(
     'select2',
     'itemElement',
@@ -138,7 +132,7 @@ if ($id !== false) {
     /*
      * Removing average infos from table
      */
-    $servicesgroupFinalStats = array();
+    $servicesgroupFinalStats = [];
     foreach ($servicesgroupStats as $key => $value) {
         if ($key != "average") {
             $servicesgroupFinalStats[$key] = $value;
@@ -151,7 +145,7 @@ if ($id !== false) {
     $tpl->assign('to', _("to"));
     $tpl->assign('date_end', $endDate);
     $tpl->assign('period', $period);
-    $formPeriod->setDefaults(array('period' => $period));
+    $formPeriod->setDefaults(['period' => $period]);
     $tpl->assign('servicegroup_id', $id);
     $tpl->assign('Alert', _("Alert"));
 

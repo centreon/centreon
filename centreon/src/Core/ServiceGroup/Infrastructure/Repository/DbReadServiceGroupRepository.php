@@ -137,9 +137,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         // handle sort
         $sortRequest = $sqlTranslator?->translateSortParameterToSql();
 
-        $request .= $sortRequest !== null
-            ? $sortRequest
-            : ' ORDER BY sg.sg_name ASC';
+        $request .= $sortRequest ?? ' ORDER BY sg.sg_name ASC';
 
         // handle pagination
         $request .= $sqlTranslator?->translatePaginationToSql();
@@ -258,9 +256,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         // handle sort
         $sortRequest = $sqlTranslator?->translateSortParameterToSql();
 
-        $request .= $sortRequest !== null
-            ? $sortRequest
-            : ' ORDER BY sg.sg_name ASC';
+        $request .= $sortRequest ?? ' ORDER BY sg.sg_name ASC';
 
         // handle pagination
         $request .= $sqlTranslator?->translatePaginationToSql();

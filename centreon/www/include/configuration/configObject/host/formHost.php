@@ -257,7 +257,7 @@ if (
     $statement = $pearDB->prepare('SELECT `nagios_server_id` FROM `ns_host_relation` WHERE `host_host_id` = :host_id');
     $statement->bindValue(':host_id', $host_id, \PDO::PARAM_INT);
     $statement->execute();
-    for (($o !== HOST_MASSIVE_CHANGE) ? $i = 0 : $i = 1; $ns = $statement->fetch(); $i++) {
+    for ($i = ($o !== HOST_MASSIVE_CHANGE) ? 0 : 1; $ns = $statement->fetch(); $i++) {
         $host['nagios_server_id'][$i] = $ns['nagios_server_id'];
     }
     unset($ns);
@@ -346,7 +346,7 @@ $cdata->addJsData('clone-values-macro', htmlspecialchars(
 $cdata->addJsData('clone-count-macro', count($aMacros));
 
 // Preset values of host templates
-$tplArray = $hostObj->getTemplates(isset($host_id) ? $host_id : null);
+$tplArray = $hostObj->getTemplates($host_id ?? null);
 $cdata->addJsData('clone-values-template', htmlspecialchars(
     json_encode($tplArray),
     ENT_QUOTES
@@ -1038,11 +1038,7 @@ if ($o !== HOST_MASSIVE_CHANGE) {
         );
     }
 } elseif ($o === HOST_MASSIVE_CHANGE) {
-    if ($form->getSubmitValue('submitMC')) {
-        $from_list_menu = false;
-    } else {
-        $from_list_menu = true;
-    }
+    $from_list_menu = $form->getSubmitValue('submitMC') ? false : true;
 }
 
 $form->setRequiredNote("<i style='color: red;'>*</i>&nbsp;" . _('Required fields'));

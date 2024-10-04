@@ -28,16 +28,20 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 
 class SecurityPolicy
 {
-    public const SPECIAL_CHARACTERS_LIST = '@$!%*?&',
-                 MIN_PASSWORD_LENGTH = 8,
-                 MAX_PASSWORD_LENGTH = 128,
-                 MIN_ATTEMPTS = 1,
-                 MAX_ATTEMPTS = 10,
-                 MIN_BLOCKING_DURATION = 1,
-                 MAX_BLOCKING_DURATION = 604800, // 7 days in seconds.
-                 MIN_PASSWORD_EXPIRATION_DELAY = 604800, // 7 days in seconds.
-                 MAX_PASSWORD_EXPIRATION_DELAY = 31536000, // 12 months in seconds.
-                 MIN_NEW_PASSWORD_DELAY = 3600, // 1 hour in seconds.
+    public const SPECIAL_CHARACTERS_LIST = '@$!%*?&';
+    public const MIN_PASSWORD_LENGTH = 8;
+    public const MAX_PASSWORD_LENGTH = 128;
+    public const MIN_ATTEMPTS = 1;
+    public const MAX_ATTEMPTS = 10;
+    public const MIN_BLOCKING_DURATION = 1;
+    public const MAX_BLOCKING_DURATION = 604800;
+    public const // 7 days in seconds.
+                 MIN_PASSWORD_EXPIRATION_DELAY = 604800;
+    public const // 7 days in seconds.
+                 MAX_PASSWORD_EXPIRATION_DELAY = 31536000;
+    public const // 12 months in seconds.
+                 MIN_NEW_PASSWORD_DELAY = 3600;
+    public const // 1 hour in seconds.
                  MAX_NEW_PASSWORD_DELAY = 604800; // 7 days in seconds.
 
     /**

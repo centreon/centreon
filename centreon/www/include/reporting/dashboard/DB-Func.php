@@ -38,7 +38,7 @@
  */
 function getReportDaysStr($reportTimePeriod)
 {
-    $tab = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+    $tab = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     $str = "";
     foreach ($tab as $key => $value) {
         if (isset($reportTimePeriod["report_" . $value]) && $reportTimePeriod["report_" . $value]) {
@@ -166,7 +166,7 @@ function getLogInDbForHostGroup($hostgroup_id, $start_date, $end_date, $reportTi
     /* get availability stats for each host */
     $count = 0;
     foreach ($hosts_id as $hostId => $host_name) {
-        $host_stats = array();
+        $host_stats = [];
         $host_stats = getLogInDbForHost($hostId, $start_date, $end_date, $reportTimePeriod);
         $hostgroupStats[$hostId] = $host_stats;
         $hostgroupStats[$hostId]["NAME"] = $host_name;
@@ -237,8 +237,8 @@ function getLogInDbForHostSVC($host_id, $start_date, $end_date, $reportTimePerio
 {
     global $centreon, $pearDBO;
 
-    $hostServiceStats = array();
-    $services_ids = array();
+    $hostServiceStats = [];
+    $services_ids = [];
 
     /*
      * Getting authorized services
@@ -424,11 +424,11 @@ function getServicesLogs(array $services, $startDate, $endDate, $reportTimePerio
 {
     global $pearDBO, $centreon;
 
-    if (count($services) === 0) {
+    if ($services === []) {
         return [];
     }
 
-    $status = array("OK", "WARNING", "CRITICAL", "UNKNOWN", "UNDETERMINED", "MAINTENANCE");
+    $status = ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UNDETERMINED", "MAINTENANCE"];
 
     foreach (getServicesStatsValueName() as $name) {
         $serviceStats[$name] = 0;
@@ -471,7 +471,7 @@ function getServicesLogs(array $services, $startDate, $endDate, $reportTimePerio
     $statement = $pearDBO->prepare($rq);
 
     foreach ($bindValues as $bindName => $bindParams) {
-        list($bindType, $bindValue) = $bindParams;
+        [$bindType, $bindValue] = $bindParams;
         $statement->bindValue($bindName, $bindValue, $bindType);
     }
 
@@ -549,7 +549,7 @@ function getServicesLogs(array $services, $startDate, $endDate, $reportTimePerio
 function getLogInDbForServicesGroup($servicegroupId, $startDate, $endDate, $reportTimePeriod)
 {
     $serviceStatsLabels = getServicesStatsValueName();
-    $status = array("OK", "WARNING", "CRITICAL", "UNKNOWN", "UNDETERMINED", "MAINTENANCE");
+    $status = ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UNDETERMINED", "MAINTENANCE"];
 
     /* Initialising servicegroup stats to 0 */
     foreach ($serviceStatsLabels as $name) {
@@ -708,7 +708,7 @@ function getreportingTimePeriod()
 {
     global $pearDB;
 
-    $reportingTimePeriod = array();
+    $reportingTimePeriod = [];
     $query = "SELECT * FROM `contact_param` WHERE cp_contact_id is null";
     $dbResult = $pearDB->query($query);
     while ($res = $dbResult->fetch()) {

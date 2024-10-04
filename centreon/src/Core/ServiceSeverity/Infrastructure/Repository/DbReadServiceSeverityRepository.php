@@ -144,7 +144,7 @@ class DbReadServiceSeverityRepository extends AbstractRepositoryRDB implements R
             ['id' => $serviceSeverityId, 'accessgroups' => $accessGroups]
         );
 
-        if (empty($accessGroups)) {
+        if ($accessGroups === []) {
             $this->debug('Access groups array empty');
 
             return false;
