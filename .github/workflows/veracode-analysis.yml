@@ -47,11 +47,13 @@ jobs:
       - name: Set routing mode
         id: routing-mode
         run: |
+          # Quality gate settings
           ENABLE_QG="true"
           if [[ "${{ vars.VERACODE_QUALITY_GATE }}" == "false" ]] || [[ -n "${{ vars.VERACODE_EXCEPTION_ON_PR }}" && "${{ vars.VERACODE_EXCEPTION_ON_PR }}" == "${{ github.event.pull_request.number }}" ]]; then
             ENABLE_QG="false"
           fi
 
+          # Setting run options
           CHECK_BRANCH=`echo "${{ github.ref_name }}" | cut -d'/' -f2`
           if [[ $CHECK_BRANCH != "merge" && '${{ github.event_name }}' != 'pull_request' && '${{ inputs.stability }}' == 'stable' ]]; then
             # e.g master
@@ -69,14 +71,29 @@ jobs:
             DEVELOPMENT_STAGE="Development"
             DISPLAY_SUMMARY="false"
           else
+            # e.g. all the other pull-requests
             FAIL_BUILD="$ENABLE_QG"
             DEVELOPMENT_STAGE="Development"
             DISPLAY_SUMMARY="$ENABLE_QG"
           fi
 
-          # skip analysis of draft PR and analysis on development branches using workflow dispatch
+          # PR related exceptions
           SKIP_ANALYSIS="true"
-          if [[ "${{ github.event_name }}" == "pull_request" && -n "${{ github.event.pull_request.number }}" && -n "${{ github.event.pull_request.draft }}" && "${{ github.event.pull_request.draft }}" == "false" ]] || [[ "$DEVELOPMENT_STAGE" != "Development" ]]; then
+          # list of head branch targets to analyse
+          HEAD_BRANCHES=(develop master dev-${{ inputs.major_version }}.x ${{ inputs.major_version }}.x)
+
+          # skip draft pull-request
+          if [[ "${{ github.event_name }}" == "pull_request" && -n "${{ github.event.pull_request.number }}" && -n "${{ github.event.pull_request.draft }}" && "${{ github.event.pull_request.draft }}" == "false" ]]; then
+            # skip pull-request "ready-to-review" and not targeting a (un)stable branch
+            for HEAD_BRANCH in "${HEAD_BRANCHES[@]}"; do
+              if [[ "$HEAD_BRANCH" == "${{ github.base_ref }}" ]]; then
+                SKIP_ANALYSIS="false"
+                break
+              fi
+            done
+            [ "$SKIP_ANALYSIS" == "true" ] && echo "::notice::PR targets a feature branch. Skipping"
+          elif [[ "$DEVELOPMENT_STAGE" != "Development" ]]; then
+            # skip development branches using workflow dispatch
             SKIP_ANALYSIS="false"
           fi
 
