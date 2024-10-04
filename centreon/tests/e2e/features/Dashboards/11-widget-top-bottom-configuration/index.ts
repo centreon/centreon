@@ -1,6 +1,7 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
+  checkHostsAreMonitored,
   checkMetricsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
@@ -13,13 +14,52 @@ import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/ge
 const hostName = 'Centreon-Server';
 const hostGroupName = 'Linux-Servers';
 
+const services = {
+  serviceCritical: {
+    host: 'host3',
+    name: 'service3',
+    template: 'SNMP-Linux-Load-Average'
+  },
+  serviceOk: { host: 'host2', name: 'service_test_ok', template: 'Ping-LAN' },
+  serviceWarning: {
+    host: 'host2',
+    name: 'service2',
+    template: 'SNMP-Linux-Memory'
+  }
+};
+const resultsToSubmit = [
+  {
+    host: services.serviceWarning.host,
+    output: 'submit_status_2',
+    service: services.serviceCritical.name,
+    status: 'critical'
+  },
+  {
+    host: services.serviceWarning.host,
+    output: 'submit_status_2',
+    service: services.serviceWarning.name,
+    status: 'warning'
+  },
+  {
+    host: services.serviceWarning.host,
+    output: 'submit_status_2',
+    service: services.serviceOk.name,
+    status: 'ok'
+  },
+  {
+    host: services.serviceCritical.host,
+    output: 'submit_status_2',
+    service: services.serviceOk.name,
+    status: 'ok'
+  }
+];
+
 before(() => {
   cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-widget-metrics.json'
   );
-  cy.applyAcl();
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -40,11 +80,82 @@ before(() => {
     method: 'POST',
     url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
   }).as('addContactToDashboardShareList');
+  cy.addHost({
+    hostGroup: 'Linux-Servers',
+    name: services.serviceOk.host,
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: services.serviceOk.name,
+      template: services.serviceOk.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: 'service2',
+      template: services.serviceWarning.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: services.serviceCritical.name,
+      template: services.serviceCritical.template
+    })
+    .applyPollerConfiguration();
 
-  cy.loginAsAdminViaApiV2()
-    .scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' })
-    .logoutViaAPI();
+  cy.addHost({
+    hostGroup: 'Linux-Servers',
+    name: services.serviceCritical.host,
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: services.serviceOk.name,
+      template: services.serviceOk.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: 'service2',
+      template: services.serviceWarning.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: services.serviceCritical.name,
+      template: services.serviceCritical.template
+    })
+    .applyPollerConfiguration();
 
+  cy.loginByTypeOfUser({
+    jsonName: 'admin'
+  });
+
+  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' });
+
+  checkHostsAreMonitored([
+    { name: services.serviceOk.host },
+    { name: services.serviceCritical.host }
+  ]);
+  checkServicesAreMonitored([
+    { name: services.serviceCritical.name },
+    { name: services.serviceOk.name }
+  ]);
+  cy.submitResults(resultsToSubmit);
+  checkServicesAreMonitored([
+    { name: services.serviceCritical.name, status: 'critical' },
+    { name: services.serviceOk.name, status: 'ok' }
+  ]);
+  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' })
   checkServicesAreMonitored([
     {
       name: 'Ping',
@@ -58,6 +169,8 @@ before(() => {
       service: 'Ping'
     }
   ]);
+  cy.logoutViaAPI();
+  cy.applyAcl();
 });
 
 beforeEach(() => {
