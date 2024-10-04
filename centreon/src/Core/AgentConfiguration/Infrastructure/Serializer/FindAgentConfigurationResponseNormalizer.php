@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\AgentConfiguration\Infrastructure\API\FindAgentConfiguration;
+namespace Core\AgentConfiguration\Infrastructure\Serializer;
 
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfigurationResponse;
 use Core\AgentConfiguration\Domain\Model\Poller;

@@ -29,7 +29,6 @@ use Core\Application\Common\UseCase\StandardResponseInterface;
 
 final class FindAgentConfigurationResponse implements StandardResponseInterface
 {
-
     /**
      * FindAgentConfigurationResponse constructor.
      *

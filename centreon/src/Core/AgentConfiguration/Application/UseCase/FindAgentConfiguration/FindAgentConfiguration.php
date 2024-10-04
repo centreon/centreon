@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration;
 
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
@@ -54,7 +53,6 @@ final class FindAgentConfiguration
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
     ) {
     }
-
 
     /**
      * Retrieves an agent configuration with associated pollers.

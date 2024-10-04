@@ -35,7 +35,6 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 final class AgentConfigurationVoter extends Voter
 {
     use LoggerTrait;
-
     public const READ_AC = 'read_agent_configuration';
 
     /**

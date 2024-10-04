@@ -85,7 +85,6 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
         return $this->parameters;
     }
 
-
     public function getBrokerDirective(): ?string
     {
         return self::BROKER_DIRECTIVE;
