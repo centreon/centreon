@@ -75,15 +75,6 @@ final class FindAgentConfiguration
         );
 
         try {
-            if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW)) {
-                $this->error(
-                    "User doesn't have sufficient rights to access agent configurations",
-                    ['user_id' => $this->user->getId()]
-                );
-
-                return new ForbiddenResponse(AgentConfigurationException::accessNotAllowed());
-            }
-
             if (null === $agentConfiguration = $this->readRepository->find($agentConfigurationId)) {
                 $this->error(
                     'Agent configuration not found',

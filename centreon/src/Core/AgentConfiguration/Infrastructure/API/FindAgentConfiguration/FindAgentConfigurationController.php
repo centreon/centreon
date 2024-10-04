@@ -29,7 +29,14 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Api\StandardPresenter;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted(
+    'read_agent_configuration',
+    null,
+    'You are not allowed to access poller/agent configurations',
+    Response::HTTP_FORBIDDEN
+)]
 final class FindAgentConfigurationController extends AbstractController
 {
     public function __invoke(
