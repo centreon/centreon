@@ -76,7 +76,7 @@ final class DeployServiceDto
 
     public ?int $recoveryNotificationDelay = null;
 
-    public ?int $acknowledgementTimeout;
+    public ?int $acknowledgementTimeout = null;
 
     public YesNoDefault $checkFreshness = YesNoDefault::Default;
 
@@ -101,7 +101,7 @@ final class DeployServiceDto
 
     public ?string $noteUrl = null;
 
-    public ?string $actionUrl;
+    public ?string $actionUrl = null;
 
     public ?int $iconId = null;
 

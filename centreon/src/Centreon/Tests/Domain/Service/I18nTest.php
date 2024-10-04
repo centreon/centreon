@@ -44,12 +44,35 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\SplFileInfo;
 
+/**
+ * Class
+ *
+ * @class I18nTest
+ * @package Centreon\Tests\Domain\Service
+ */
 class I18nTest extends TestCase
 {
+    /** @var I18nService */
+    public $translation;
+    /** @var array[] */
     private $installedList = [
         'centreon-license-manager' => []
     ];
 
+    /**
+     * @return void
+     * @throws \PHPUnit\Framework\InvalidArgumentException
+     * @throws \PHPUnit\Framework\MockObject\ClassAlreadyExistsException
+     * @throws \PHPUnit\Framework\MockObject\ClassIsFinalException
+     * @throws \PHPUnit\Framework\MockObject\ClassIsReadonlyException
+     * @throws \PHPUnit\Framework\MockObject\DuplicateMethodException
+     * @throws \PHPUnit\Framework\MockObject\IncompatibleReturnValueException
+     * @throws \PHPUnit\Framework\MockObject\InvalidMethodNameException
+     * @throws \PHPUnit\Framework\MockObject\OriginalConstructorInvocationRequiredException
+     * @throws \PHPUnit\Framework\MockObject\ReflectionException
+     * @throws \PHPUnit\Framework\MockObject\RuntimeException
+     * @throws \PHPUnit\Framework\MockObject\UnknownTypeException
+     */
     protected function setUp(): void
     {
         $moduleInformationMock = $this->getMockBuilder(Information::class)
@@ -81,10 +104,19 @@ class I18nTest extends TestCase
         $this->translation = new I18nService($moduleInformationMock, $finderMock, $filesystemMock);
     }
 
+    /**
+     * @return void
+     */
     public function tearDown(): void
     {
     }
 
+    /**
+     * @return void
+     * @throws \PHPUnit\Framework\Exception
+     * @throws \PHPUnit\Framework\ExpectationFailedException
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     */
     public function testGetTranslation(): void
     {
         $result = $this->translation->getTranslation();

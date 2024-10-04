@@ -1,7 +1,7 @@
 ARG REGISTRY_URL
-ARG VERSION
+ARG FROM_IMAGE_VERSION=develop
 
-FROM ${REGISTRY_URL}/centreon-web-dependencies-alma8:${VERSION} AS web_fresh
+FROM ${REGISTRY_URL}/centreon-web-dependencies-alma8:${FROM_IMAGE_VERSION}
 
 ARG VERSION
 ARG MYDUMPER_VERSION

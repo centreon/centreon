@@ -34,17 +34,19 @@
  */
 
 /**
+ * Class
  *
- * Enter description here ...
- * @author jmathis
- *
+ * @class CentreonServicecategories
  */
 class CentreonServicecategories
 {
+    /** @var CentreonDB */
     protected $db;
 
-    /*
-     * constructor
+    /**
+     * CentreonServicecategories constructor
+     *
+     * @param CentreonDB $pearDB
      */
     public function __construct($pearDB)
     {
@@ -52,13 +54,13 @@ class CentreonServicecategories
     }
 
     /**
+     * @param int $field
      *
-     * @param integer $field
      * @return array
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'service_categories';
         $parameters['currentObject']['id'] = 'sc_id';
         $parameters['currentObject']['name'] = 'sc_name';
@@ -80,12 +82,14 @@ class CentreonServicecategories
     /**
      * @param array $values
      * @param array $options
+     *
      * @return array
+     * @throws PDOException
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
         global $centreon;
-        $items = array();
+        $items = [];
 
         # get list of authorized service categories
         if (!$centreon->user->access->admin) {
@@ -109,7 +113,7 @@ class CentreonServicecategories
             . ') ORDER BY sc_name ';
 
         $stmt = $this->db->prepare($query);
-        if (!empty($queryValues)) {
+        if ($queryValues !== []) {
             foreach ($queryValues as $key => $id) {
                 $stmt->bindValue($key, $id, PDO::PARAM_INT);
             }
@@ -123,11 +127,7 @@ class CentreonServicecategories
                 $hide = true;
             }
 
-            $items[] = array(
-                'id' => $row['sc_id'],
-                'text' => $row['sc_name'],
-                'hide' => $hide
-            );
+            $items[] = ['id' => $row['sc_id'], 'text' => $row['sc_name'], 'hide' => $hide];
         }
 
         return $items;

@@ -44,7 +44,7 @@
  * Add paths
  */
 
-$centreon_path = realpath(dirname(__FILE__) . '/../../../../');
+$centreon_path = realpath(__DIR__ . '/../../../../');
 require_once $centreon_path . "/config/centreon.config.php";
 
 set_include_path(

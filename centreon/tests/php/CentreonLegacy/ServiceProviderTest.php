@@ -51,7 +51,7 @@ class ServiceProviderTest extends TestCase
      * @covers \CentreonLegacy\ServiceProvider::registerModule
      * @covers \CentreonLegacy\ServiceProvider::registerWidget
      */
-    public function testCheckServicesByList()
+    public function testCheckServicesByList(): void
     {
         $checkList = [
             ServiceProvider::CONFIGURATION => Core\Configuration\Configuration::class,
@@ -76,7 +76,7 @@ class ServiceProviderTest extends TestCase
     /**
      * Check CentreonRestHttp service
      */
-    public function testRegisterRestHttp()
+    public function testRegisterRestHttp(): void
     {
         $this->assertTrue($this->container->offsetExists(ServiceProvider::CENTREON_REST_HTTP));
         $service = $this->container->offsetGet(ServiceProvider::CENTREON_REST_HTTP);
@@ -88,7 +88,7 @@ class ServiceProviderTest extends TestCase
      * @covers \CentreonLegacy\ServiceProvider::registerModule
      * @covers \CentreonLegacy\ServiceProvider::registerWidget
      */
-    public function testCheckServicesByModuleList()
+    public function testCheckServicesByModuleList(): void
     {
         // mock some of services
         $this->container[ServiceProvider::CENTREON_LEGACY_UTILS] = $this->createMock(Core\Utils\Utils::class);
@@ -155,7 +155,7 @@ class ServiceProviderTest extends TestCase
     /**
      * @covers \CentreonLegacy\ServiceProvider::order
      */
-    public function testOrder()
+    public function testOrder(): void
     {
         $this->assertEquals(0, $this->provider::order());
     }

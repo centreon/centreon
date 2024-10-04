@@ -41,7 +41,7 @@ use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanc
 use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsDataRequest;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsDataResponse;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->adminUser = (new Contact())->setAdmin(true)->setId(1);
     $this->nonAdminUser = (new Contact())->setAdmin(false)->setId(1);
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
@@ -52,7 +52,7 @@ beforeEach(function () {
     $this->isCloudPlatform = false;
 });
 
-it('should present a ForbiddenResponse when the user does not has sufficient rights', function () {
+it('should present a ForbiddenResponse when the user does not has sufficient rights', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
     $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
     $request->metricNames = ["rta"];
@@ -79,7 +79,7 @@ it('should present a ForbiddenResponse when the user does not has sufficient rig
 
 });
 
-it('should present an ErrorResponse when an error occurs', function () {
+it('should present an ErrorResponse when an error occurs', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
     $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
     $request->metricNames = ["rta","pl"];
@@ -110,7 +110,7 @@ it('should present an ErrorResponse when an error occurs', function () {
         ->and($presenter->data->getMessage())->toBe('An error occurred while retrieving metrics data');
 });
 
-it('should get the metrics with access group management when the user is not admin', function () {
+it('should get the metrics with access group management when the user is not admin', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
     $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
     $request->metricNames = ["rta","pl"];
@@ -136,7 +136,7 @@ it('should get the metrics with access group management when the user is not adm
     $useCase($presenter, $request);
 });
 
-it('should get the metrics without access group management when the user is admin', function () {
+it('should get the metrics without access group management when the user is admin', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
     $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
     $request->metricNames = ["rta","pl"];
@@ -162,7 +162,7 @@ it('should get the metrics without access group management when the user is admi
     $useCase($presenter, $request);
 });
 
-it('should take account of access groups to retrieve metrics when the user is not admin', function () {
+it('should take account of access groups to retrieve metrics when the user is not admin', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
     $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
     $request->metricNames = ["rta","pl"];
@@ -188,7 +188,7 @@ it('should take account of access groups to retrieve metrics when the user is no
     $useCase($presenter, $request);
 });
 
-it('should present a FindPerformanceMetricsDataResponse when metrics are correctly retrieve', function () {
+it('should present a FindPerformanceMetricsDataResponse when metrics are correctly retrieve', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
     $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
     $request->metricNames = ["pl"];

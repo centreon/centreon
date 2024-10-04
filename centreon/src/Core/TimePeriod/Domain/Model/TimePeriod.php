@@ -29,10 +29,10 @@ use Core\TimePeriod\Domain\Rules\TimePeriodRuleStrategyInterface;
 
 class TimePeriod
 {
-    public const MIN_ALIAS_LENGTH = 1,
-                 MAX_ALIAS_LENGTH = 200,
-                 MIN_NAME_LENGTH = 1,
-                 MAX_NAME_LENGTH = 200;
+    public const MIN_ALIAS_LENGTH = 1;
+    public const MAX_ALIAS_LENGTH = 200;
+    public const MIN_NAME_LENGTH = 1;
+    public const MAX_NAME_LENGTH = 200;
 
     private string $name;
 

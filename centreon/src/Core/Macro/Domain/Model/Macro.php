@@ -28,9 +28,9 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class Macro
 {
-    public const MAX_NAME_LENGTH = 255,
-                 MAX_VALUE_LENGTH = 4096,
-                 MAX_DESCRIPTION_LENGTH = 65535;
+    public const MAX_NAME_LENGTH = 255;
+    public const MAX_VALUE_LENGTH = 4096;
+    public const MAX_DESCRIPTION_LENGTH = 65535;
 
     private string $shortName;
 

@@ -26,13 +26,13 @@ use Core\Domain\RealTime\Model\Icon;
 use Core\Severity\RealTime\Domain\Model\Severity;
 use Centreon\Domain\Common\Assertion\AssertionException;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->icon = (new Icon())
         ->setName('icon-name')
         ->setUrl('ppm/icon-name.png');
 });
 
-it('should throw an exception when severity name is empty', function () {
+it('should throw an exception when severity name is empty', function (): void {
     new Severity(1, '', 50, Severity::HOST_SEVERITY_TYPE_ID, $this->icon);
 })->throws(
     \Assert\InvalidArgumentException::class,
@@ -40,7 +40,7 @@ it('should throw an exception when severity name is empty', function () {
         ->getMessage()
 );
 
-it('should throw an exception when severity name is too long', function () {
+it('should throw an exception when severity name is too long', function (): void {
     new Severity(1, str_repeat('a', Severity::MAX_NAME_LENGTH + 1), 50, Severity::HOST_SEVERITY_TYPE_ID, $this->icon);
 })->throws(
     \Assert\InvalidArgumentException::class,
@@ -52,15 +52,15 @@ it('should throw an exception when severity name is too long', function () {
     )->getMessage()
 );
 
-it('should throw an exception when severity level is lower than 0', function () {
+it('should throw an exception when severity level is lower than 0', function (): void {
     new Severity(1, 'name', -1, Severity::HOST_SEVERITY_TYPE_ID, $this->icon);
 })->throws(\Assert\InvalidArgumentException::class, AssertionException::min(-1, 0, 'Severity::level')->getMessage());
 
-it('should throw an exception when severity level is greater than 100', function () {
+it('should throw an exception when severity level is greater than 100', function (): void {
     new Severity(1, 'name', 200, Severity::HOST_SEVERITY_TYPE_ID, $this->icon);
 })->throws(\Assert\InvalidArgumentException::class, AssertionException::max(200, 100, 'Severity::level')->getMessage());
 
-it('should throw an exception when severity type is not handled', function () {
+it('should throw an exception when severity type is not handled', function (): void {
     new Severity(1, 'name', 60, 2, $this->icon);
 })->throws(
     \Assert\InvalidArgumentException::class,

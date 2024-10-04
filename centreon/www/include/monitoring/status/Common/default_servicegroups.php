@@ -33,8 +33,4 @@
  * 
  */
  
-if (isset($_SESSION['monitoring_default_servicegroups'])) {
-    $default_sg = $_SESSION['monitoring_default_servicegroups'];
-} else {
-    $default_sg = "0";
-}
+$default_sg = $_SESSION['monitoring_default_servicegroups'] ?? "0";

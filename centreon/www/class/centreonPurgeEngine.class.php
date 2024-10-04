@@ -33,27 +33,32 @@
  *
  */
 
-require_once(realpath(dirname(__FILE__) . "/../../config/centreon.config.php"));
-require_once(realpath(dirname(__FILE__) . "/centreonDB.class.php"));
+require_once(realpath(__DIR__ . "/../../config/centreon.config.php"));
+require_once(realpath(__DIR__ . "/centreonDB.class.php"));
 
 /**
+ * Class
  *
- * Class that handles MySQL table partitions
- * @author msugumaran
- *
+ * @class CentreonPurgeEngine
+ * @description Class that handles MySQL table partitions
  */
 class CentreonPurgeEngine
 {
+    /** @var string */
+    public $purgeAuditLogQuery = 'DELETE FROM log_action WHERE action_log_date < __RETENTION__';
+    /** @var CentreonDB */
     private $dbCentstorage;
-
+    /** @var string */
     private $purgeCommentsQuery;
+    /** @var string */
     private $purgeDowntimesQuery;
-
+    /** @var array[] */
     private $tablesToPurge;
 
     /**
+     * CentreonPurgeEngine constructor
      *
-     * Class constructor
+     * @throws Exception
      */
     public function __construct()
     {
@@ -61,52 +66,8 @@ class CentreonPurgeEngine
             '< __RETENTION__) OR (expire_time < __RETENTION__ AND expire_time <> 0)';
         $this->purgeDowntimesQuery = 'DELETE FROM downtimes WHERE (actual_end_time is not null and actual_end_time ' .
             '< __RETENTION__) OR (deletion_time is not null and deletion_time < __RETENTION__)';
-        $this->purgeAuditLogQuery = 'DELETE FROM log_action WHERE action_log_date < __RETENTION__';
 
-        $this->tablesToPurge = array(
-            'data_bin' => array(
-                'retention_field' => 'len_storage_mysql',
-                'retention' => 0,
-                'is_partitioned' => false,
-                'ctime_field' => 'ctime'
-            ),
-            'logs' => array(
-                'retention_field' => 'archive_retention',
-                'retention' => 0,
-                'is_partitioned' => false,
-                'ctime_field' => 'ctime'
-            ),
-            'log_archive_host' => array(
-                'retention_field' => 'reporting_retention',
-                'retention' => 0,
-                'is_partitioned' => false,
-                'ctime_field' => 'date_end'
-            ),
-            'log_archive_service' => array(
-                'retention_field' => 'reporting_retention',
-                'retention' => 0,
-                'is_partitioned' => false,
-                'ctime_field' => 'date_end'
-            ),
-            'comments' => array(
-                'retention_field' => 'len_storage_comments',
-                'retention' => 0,
-                'is_partitioned' => false,
-                'custom_query' => $this->purgeCommentsQuery
-            ),
-            'downtimes' => array(
-                'retention_field' => 'len_storage_downtimes',
-                'retention' => 0,
-                'is_partitioned' => false,
-                'custom_query' => $this->purgeDowntimesQuery
-            ),
-            'log_action' => array(
-                'retention_field' => 'audit_log_retention',
-                'retention' => 0,
-                'is_partitioned' => false,
-                'custom_query' => $this->purgeAuditLogQuery,
-            ),
-        );
+        $this->tablesToPurge = ['data_bin' => ['retention_field' => 'len_storage_mysql', 'retention' => 0, 'is_partitioned' => false, 'ctime_field' => 'ctime'], 'logs' => ['retention_field' => 'archive_retention', 'retention' => 0, 'is_partitioned' => false, 'ctime_field' => 'ctime'], 'log_archive_host' => ['retention_field' => 'reporting_retention', 'retention' => 0, 'is_partitioned' => false, 'ctime_field' => 'date_end'], 'log_archive_service' => ['retention_field' => 'reporting_retention', 'retention' => 0, 'is_partitioned' => false, 'ctime_field' => 'date_end'], 'comments' => ['retention_field' => 'len_storage_comments', 'retention' => 0, 'is_partitioned' => false, 'custom_query' => $this->purgeCommentsQuery], 'downtimes' => ['retention_field' => 'len_storage_downtimes', 'retention' => 0, 'is_partitioned' => false, 'custom_query' => $this->purgeDowntimesQuery], 'log_action' => ['retention_field' => 'audit_log_retention', 'retention' => 0, 'is_partitioned' => false, 'custom_query' => $this->purgeAuditLogQuery]];
 
         $this->dbCentstorage = new \CentreonDB('centstorage');
 
@@ -115,7 +76,11 @@ class CentreonPurgeEngine
         $this->checkTablesPartitioned();
     }
 
-    private function readConfig()
+    /**
+     * @return void
+     * @throws Exception
+     */
+    private function readConfig(): void
     {
         $query = 'SELECT len_storage_mysql,archive_retention,reporting_retention, ' .
             'len_storage_downtimes, len_storage_comments, audit_log_retention FROM config';
@@ -144,7 +109,11 @@ class CentreonPurgeEngine
         }
     }
 
-    private function checkTablesPartitioned()
+    /**
+     * @return void
+     * @throws Exception
+     */
+    private function checkTablesPartitioned(): void
     {
         foreach ($this->tablesToPurge as $name => $value) {
             try {
@@ -166,7 +135,11 @@ class CentreonPurgeEngine
         }
     }
 
-    public function purge()
+    /**
+     * @return void
+     * @throws Exception
+     */
+    public function purge(): void
     {
         foreach ($this->tablesToPurge as $table => $parameters) {
             if ($parameters['retention'] > 0) {
@@ -221,7 +194,13 @@ class CentreonPurgeEngine
         return 0;
     }
 
-    private function purgeOldData($table)
+    /**
+     * @param $table
+     *
+     * @return void
+     * @throws Exception
+     */
+    private function purgeOldData($table): void
     {
         if (isset($this->tablesToPurge[$table]['custom_query'])) {
             $request = str_replace(
@@ -242,7 +221,11 @@ class CentreonPurgeEngine
         }
     }
 
-    private function purgeIndexData()
+    /**
+     * @return void
+     * @throws Exception
+     */
+    private function purgeIndexData(): void
     {
         $request = "UPDATE index_data SET to_delete = '1' WHERE ";
         $request .= "NOT EXISTS(SELECT 1 FROM " . db . ".service WHERE service.service_id = index_data.service_id)";
@@ -253,8 +236,12 @@ class CentreonPurgeEngine
             throw new Exception("Error : Cannot purge index_data, " . $e->getMessage() . "\n");
         }
     }
-    
-    private function purgeLogActionModification()
+
+    /**
+     * @return void
+     * @throws Exception
+     */
+    private function purgeLogActionModification(): void
     {
         $request = "DELETE FROM log_action_modification WHERE action_log_id " .
             "NOT IN (SELECT action_log_id FROM log_action)";
