@@ -28,13 +28,13 @@ use Core\Application\Common\UseCase\StandardResponseInterface;
 
 final class FindAgentConfigurationResponse implements StandardResponseInterface
 {
-    public function __construct(readonly public AgentConfiguration $agentConfiguration)
+    public function __construct(readonly public AgentConfiguration $agentConfiguration, readonly public array $pollers)
     {
     }
 
 
     public function getData(): mixed
     {
-        return $this->agentConfiguration;
+        return $this;
     }
 }
