@@ -109,6 +109,7 @@ it('test log file handler is correct', function () {
             CentreonLog::TYPE_PLUGIN_PACK_MANAGER => __DIR__ . '/log/plugin-pack-manager.log',
             CentreonLog::TYPE_BUSINESS_LOG => __DIR__ . '/log/centreon-web.log',
             99 => __DIR__ . '/log/custom.log',
+            CentreonLog::TYPE_BUSINESS_LOG => __DIR__ . '/log/centreon-web.log',
         ]
     );
 });
