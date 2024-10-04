@@ -133,6 +133,13 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
 
   const displayCsvExport = !isNil(timelineDownloadEndpoint);
   const enableCommentArea = !isNil(details) && displayCommentArea;
+  const onDelete = (_, option): void => {
+    const updatedTypeIds = selectedTypes.filter(
+      ({ id }) => !equals(id, option.id)
+    );
+
+    setSelectedTypes(updatedTypeIds);
+  };
 
   return (
     <InfiniteScroll
@@ -142,6 +149,7 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
           <Paper className={classes.filterHeader}>
             <TimePeriodButtonGroup disableGraphOptions disablePaper />
             <MultiAutocompleteField
+              chipProps={{ onDelete }}
               label={t(labelEvent)}
               limitTags={3}
               options={translatedTypes}
