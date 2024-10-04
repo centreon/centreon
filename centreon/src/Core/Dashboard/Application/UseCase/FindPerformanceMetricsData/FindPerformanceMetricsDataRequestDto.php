@@ -21,19 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindMetricsTop;
+namespace Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 
-use Symfony\Component\Validator\Constraints as Assert;
-
-final class FindMetricsTopRequest
+final class FindPerformanceMetricsDataRequestDto
 {
     /**
-     * @param string $metricName
+     * @param \DateTimeInterface $startDate
+     * @param \DateTimeInterface $endDate
+     * @param string[] $metricNames
      */
     public function __construct(
-        #[Assert\NotBlank]
-        #[Assert\Type('string')]
-        public readonly string $metricName
+        public readonly \DateTimeInterface $startDate,
+        public readonly \DateTimeInterface $endDate,
+        public readonly array $metricNames = []
     ) {
     }
 }

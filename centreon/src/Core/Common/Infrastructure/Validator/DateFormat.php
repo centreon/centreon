@@ -21,19 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindMetricsTop;
+namespace Core\Common\Infrastructure\Validator;
 
-use Symfony\Component\Validator\Constraints as Assert;
-
-final class FindMetricsTopRequest
+final class DateFormat
 {
     /**
-     * @param string $metricName
+     * This is not the DateTime:ISO8601 PHP format. This represents the format sent by the frontend to Centreon APIs
      */
-    public function __construct(
-        #[Assert\NotBlank]
-        #[Assert\Type('string')]
-        public readonly string $metricName
-    ) {
-    }
+    public const ISO8601 = 'Y-m-d\TH:i:s.u\Z';
+    public const INVALID_DATE_MESSAGE = 'this field does not match expected date format. Expected :' . self::ISO8601;
 }
