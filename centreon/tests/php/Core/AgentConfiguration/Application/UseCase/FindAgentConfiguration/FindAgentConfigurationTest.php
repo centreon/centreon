@@ -27,7 +27,6 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\AgentConfiguration\Domain\Model\Type;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
-use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\AgentConfigurationDto;
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfiguration;
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfigurationRequest;
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfigurationResponse;
@@ -40,11 +39,8 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use Respect\Validation\Rules\No;
 
 beforeEach(function (): void {
-    $this->presenter = new FindAgentConfigurationPresenterStub();
     $this->useCase = new FindAgentConfiguration(
         user: $this->user = $this->createMock(ContactInterface::class),
         readRepository: $this->readRepository = $this->createMock(ReadAgentConfigurationRepositoryInterface::class),
@@ -53,42 +49,17 @@ beforeEach(function (): void {
     );
 });
 
-it('should present a Forbidden Response when user does not have topology role', function () {
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(false);
-
-    $request = new FindAgentConfigurationRequest();
-    $request->agentConfigurationId = 1;
-
-    ($this->useCase)($request, $this->presenter);
-
-    expect($this->presenter->data)
-        ->toBeInstanceOf(ForbiddenResponse::class)
-        ->and($this->presenter->data->getMessage())
-        ->toBe(AgentConfigurationException::accessNotAllowed()->getMessage());
-});
-
 it('should present a Not Found Response when object does not exist', function () {
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(true);
-
     $this->readRepository
         ->expects($this->once())
         ->method('find')
         ->willReturn(null);
 
-    $request = new FindAgentConfigurationRequest();
-    $request->agentConfigurationId = 1;
+    $response = ($this->useCase)(1);
 
-    ($this->useCase)($request, $this->presenter);
-
-    expect($this->presenter->data)
+    expect($response)
         ->toBeInstanceOf(NotFoundResponse::class)
-        ->and($this->presenter->data->getMessage())
+        ->and($response->getMessage())
         ->toBe('Agent Configuration not found');
 });
 
@@ -111,11 +82,6 @@ it('should present a Not Found Response when object got pollers not accessible b
 
     $this->user
         ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(true);
-
-    $this->user
-        ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
 
@@ -134,36 +100,25 @@ it('should present a Not Found Response when object got pollers not accessible b
         ->method('existByAccessGroups')
         ->willReturn([1]);
 
-    $request = new FindAgentConfigurationRequest();
-    $request->agentConfigurationId = 1;
+    $response = ($this->useCase)(1);
 
-    ($this->useCase)($request, $this->presenter);
-
-    expect($this->presenter->data)
+    expect($response)
         ->toBeInstanceOf(NotFoundResponse::class)
-        ->and($this->presenter->data->getMessage())
+        ->and($response->getMessage())
         ->toBe('Agent Configuration not found');
 });
 
 it('should present an Error Response when an unexpected error occurs', function () {
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(true);
-
     $this->readRepository
         ->expects($this->once())
         ->method('find')
         ->willThrowException(new \Exception());
 
-    $request = new FindAgentConfigurationRequest();
-    $request->agentConfigurationId = 1;
+    $response = ($this->useCase)(1);
 
-    ($this->useCase)($request, $this->presenter);
-
-    expect($this->presenter->data)
+    expect($response)
         ->toBeInstanceOf(ErrorResponse::class)
-        ->and($this->presenter->data->getMessage())
+        ->and($response->getMessage())
         ->toBe(AgentConfigurationException::errorWhileRetrievingObject()->getMessage());
 });
 
@@ -186,11 +141,6 @@ it('should present a FindConfigurationResponse when everything is ok', function 
 
     $this->user
         ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(true);
-
-    $this->user
-        ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
 
@@ -204,10 +154,7 @@ it('should present a FindConfigurationResponse when everything is ok', function 
         ->method('findPollersByAcId')
         ->willReturn($pollers);
 
-    $request = new FindAgentConfigurationRequest();
-    $request->agentConfigurationId = 1;
-
-    ($this->useCase)($request, $this->presenter);
+    $response = ($this->useCase)(1);
 
     $pollerDtoOne = new PollerDto();
     $pollerDtoOne->id = 1;
@@ -216,13 +163,12 @@ it('should present a FindConfigurationResponse when everything is ok', function 
     $pollerDtoTwo->id = 2;
     $pollerDtoTwo->name = 'pollerTwo';
 
-    $response = $this->presenter->data;
     expect($response)
         ->toBeInstanceOf(FindAgentConfigurationResponse::class)
-        ->and($response->id)->toBe(1)
-        ->and($response->name)->toBe('acOne')
-        ->and($response->type)->toBe(Type::TELEGRAF)
-        ->and($response->configuration)->toBe([
+        ->and($response->agentConfiguration->getId())->toBe(1)
+        ->and($response->agentConfiguration->getName())->toBe('acOne')
+        ->and($response->agentConfiguration->getType())->toBe(Type::TELEGRAF)
+        ->and($response->agentConfiguration->getConfiguration()->getData())->toBe([
             'otel_server_address' => '10.10.10.10',
             'otel_server_port' => 453,
             'otel_public_certificate' => 'public_certif',
@@ -232,8 +178,8 @@ it('should present a FindConfigurationResponse when everything is ok', function 
             'conf_certificate' => 'conf-certif',
             'conf_private_key' => 'conf-key'
         ])
-        ->and($response->pollers[0]->id)->toBe(1)
-        ->and($response->pollers[0]->name)->toBe('pollerOne')
-        ->and($response->pollers[1]->id)->toBe(2)
-        ->and($response->pollers[1]->name)->toBe('pollerTwo');
+        ->and($response->pollers[0]->getId())->toBe(1)
+        ->and($response->pollers[0]->getName())->toBe('pollerOne')
+        ->and($response->pollers[1]->getId())->toBe(2)
+        ->and($response->pollers[1]->getName())->toBe('pollerTwo');
 });
