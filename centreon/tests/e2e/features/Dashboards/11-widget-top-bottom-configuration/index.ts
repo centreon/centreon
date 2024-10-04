@@ -85,6 +85,10 @@ beforeEach(() => {
     method: 'PATCH',
     url: `/centreon/api/latest/configuration/dashboards/*`
   }).as('updateDashboard');
+  cy.intercept({
+    method: 'GET',
+    url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
+  }).as('resourceRequest');
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
@@ -401,6 +405,7 @@ Then('enters a search term for a specific host', () => {
   cy.getByTestId({ testId: 'Resource type' }).realClick();
   cy.getByLabel({ label: 'Host' }).click();
   cy.getByTestId({ testId: 'Select resource' }).type('3')
+  cy.wait('@resourceRequest');
 });
 
 Then('only the hosts that match the search input should appear in the search results', () => {
