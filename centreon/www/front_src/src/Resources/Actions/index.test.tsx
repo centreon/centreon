@@ -691,7 +691,7 @@ describe(Actions, () => {
     });
   });
 
-  it('deactivates the submit status button when a Resource of type anomaly detection is selected', () => {
+  it('deactivates the submit status button when a Resource of type anomaly detection is selected', async () => {
     mockedAxios.post.mockResolvedValueOnce({});
 
     const { getByLabelText, getByTestId } = renderActions();
@@ -710,7 +710,9 @@ describe(Actions, () => {
       getByLabelText(labelMoreActions).firstElementChild as HTMLElement
     );
 
-    getByTestId(labelSubmitStatus).should('have.attr', 'aria-disabled');
+    expect(getByTestId(labelSubmitStatus).hasAttribute('aria-disabled')).toBe(
+      true
+    );
   });
 
   it('cannot execute an action when associated ACL are not sufficient', async () => {
