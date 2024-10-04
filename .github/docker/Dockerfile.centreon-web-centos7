@@ -82,10 +82,10 @@ yum clean all --enablerepo=*
 
 EOF
 
-COPY --chmod=+x ./.github/scripts/entrypoint/container.sh /usr/share/centreon/container.sh
+COPY --chmod=0755 ./.github/scripts/entrypoint/container.sh /usr/share/centreon/container.sh
 COPY ./.github/scripts/entrypoint/container.d /usr/share/centreon/container.d
 COPY ./.github/scripts/init/* /etc/init.d/
-COPY --chmod=+x ./.github/scripts/autoinstall.php /usr/share/centreon/
+COPY --chmod=0755 ./.github/scripts/autoinstall.php /usr/share/centreon/
 COPY --chown=apache:apache ./.github/scripts/configuration /usr/share/centreon/www/install/tmp/
 
 RUN <<EOF
