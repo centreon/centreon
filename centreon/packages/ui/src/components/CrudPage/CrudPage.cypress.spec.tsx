@@ -349,6 +349,8 @@ describe('CrudPage', () => {
 
     cy.findByLabelText('Has description').should('not.exist');
 
+    cy.wait(500);
+
     cy.waitForRequest('@getListing').then(({ request }) => {
       const { searchParams } = request.url;
 
