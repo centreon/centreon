@@ -7,7 +7,7 @@ import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconButton } from '../../Button';
 import {
-  isDeleteEnabledAtom,
+  canDeleteSubItemsAtom,
   itemToDeleteAtom,
   openFormModalAtom
 } from '../atoms';
@@ -26,7 +26,7 @@ const Actions = <TData extends { id: number; name: string }>({
   row
 }: Props<TData>): JSX.Element => {
   const { t } = useTranslation();
-  const isDeleteEnabled = useAtomValue(isDeleteEnabledAtom);
+  const canDeleteSubItems = useAtomValue(canDeleteSubItemsAtom);
   const setItemToDelete = useSetAtom(itemToDeleteAtom);
   const setOpenFormModal = useSetAtom(openFormModalAtom);
 
@@ -61,14 +61,24 @@ const Actions = <TData extends { id: number; name: string }>({
           icon={<EditOutlined fontSize="small" color="primary" />}
           onClick={updateRow}
           title={t(labelUpdate)}
+          data-testid={
+            row.internalListingParentRow
+              ? `edit-${row.internalListingParentRow.id}-${row.id}`
+              : `edit-${row.id}`
+          }
         />
       )}
-      {isDeleteEnabled && (
+      {(canDeleteSubItems || isNil(row.internalListingParentRow)) && (
         <IconButton
           size="small"
           icon={<DeleteOutline fontSize="small" color="error" />}
           onClick={askBeforeDelete}
           title={t(labelDelete)}
+          data-testid={
+            row.internalListingParentRow
+              ? `delete-${row.internalListingParentRow.id}-${row.id}`
+              : `delete-${row.id}`
+          }
         />
       )}
     </Box>

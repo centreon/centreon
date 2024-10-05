@@ -5,7 +5,7 @@ import { Modal } from '../../Modal';
 import { askBeforeCloseFormModalAtom, openFormModalAtom } from '../atoms';
 import Buttons from './Buttons';
 
-const AddModal = ({ title, Form }): JSX.Element => {
+const AddModal = ({ title, Form, modalSize = 'medium' }): JSX.Element => {
   const setAskBeforeCloseFormModal = useSetAtom(askBeforeCloseFormModalAtom);
 
   const openFormModal = useAtomValue(openFormModalAtom);
@@ -22,7 +22,7 @@ const AddModal = ({ title, Form }): JSX.Element => {
 
   return (
     <>
-      <Modal open={isModalOpen} onClose={openAskBeforeClose} size="xlarge">
+      <Modal open={isModalOpen} onClose={openAskBeforeClose} size={modalSize}>
         <Modal.Header>{title}</Modal.Header>
         <Modal.Body>
           <Form Buttons={Buttons} />

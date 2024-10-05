@@ -173,7 +173,6 @@ const args = {
     }
   },
   deleteItem: {
-    enabled: true,
     deleteEndpoint: (item) =>
       !isNil(item?.parent)
         ? `/delete/${item?.parent?.id}/subItems/${item?.id}`

@@ -42,17 +42,20 @@ export interface UseGetItemsState<TData> {
   total: number;
 }
 
-export interface DeleteItem<TData> {
-  enabled: boolean;
-  deleteEndpoint: (item: TData) => string;
+export interface DeleteItem {
+  deleteEndpoint: (item: ItemToDelete) => string;
+  modalSize?: 'small' | 'medium' | 'large' | 'xlarge';
   labels: {
     successMessage:
-      | ((item: TData) => string | ReactElement)
+      | ((item: ItemToDelete) => string | ReactElement)
       | string
       | ReactElement;
-    title: ((item: TData) => string | ReactElement) | string | ReactElement;
+    title:
+      | ((item: ItemToDelete) => string | ReactElement)
+      | string
+      | ReactElement;
     description:
-      | ((item: TData) => string | ReactElement)
+      | ((item: ItemToDelete) => string | ReactElement)
       | string
       | ReactElement;
     cancel: string;
@@ -74,6 +77,7 @@ export interface Form<TItem, TItemForm> {
     isLoading?: boolean;
   }) => JSX.Element;
   getItem: GetItem<TItem, TItemForm>;
+  modalSize?: 'small' | 'medium' | 'large' | 'xlarge';
   labels: {
     add: {
       title: string;
@@ -93,7 +97,9 @@ export interface ListingProps<TData> {
   total: number;
   isLoading: boolean;
   columns: Array<Column>;
-  subItems?: ListingSubItems;
+  subItems?: ListingSubItems & {
+    canDeleteSubItems?: boolean;
+  };
   filters: JSX.Element;
 }
 
@@ -105,8 +111,8 @@ export interface ItemToDelete {
 
 export interface CrudPageRootProps<TData, TFilters, TItem, TItemForm>
   extends UseGetItemsProps<TData, TFilters>,
-    ListingProps<TData> {
+    Omit<ListingProps<TData>, 'rows' | 'total' | 'isLoading'> {
   form: Form<TItem, TItemForm>;
   labels: CrudPageRootLabels;
-  deleteItem: DeleteItem<TData>;
+  deleteItem: DeleteItem;
 }

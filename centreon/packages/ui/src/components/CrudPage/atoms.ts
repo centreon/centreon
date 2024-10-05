@@ -8,7 +8,7 @@ export const sortOrderAtom = atom('asc');
 export const sortFieldAtom = atom('name');
 export const openFormModalAtom = atom<number | 'add' | null>(null);
 export const itemToDeleteAtom = atom<ItemToDelete | null>(null);
-export const isDeleteEnabledAtom = atom<boolean>(false);
+export const canDeleteSubItemsAtom = atom<boolean | undefined>(true);
 export const formLabelButtonsAtom = atom({
   add: {
     cancel: 'Cancel',

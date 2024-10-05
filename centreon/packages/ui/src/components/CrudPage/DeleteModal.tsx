@@ -5,17 +5,18 @@ import { Button } from '../Button';
 import { Modal } from '../Modal';
 import { itemToDeleteAtom } from './atoms';
 import { useDeleteItem } from './hooks/useDeleteItem';
-import { DeleteItem } from './models';
+import { DeleteItem, ItemToDelete } from './models';
 import { isAFunction } from './utils';
 
 const DeleteModal = <TData extends { id: number; name: string }>({
   labels,
   deleteEndpoint,
-  listingQueryKey
-}: Omit<DeleteItem<TData>, 'enabled'> & {
+  listingQueryKey,
+  modalSize = 'medium'
+}: DeleteItem & {
   listingQueryKey: string;
 }): JSX.Element => {
-  const itemToDeleteRef = useRef<TData | null>(null);
+  const itemToDeleteRef = useRef<ItemToDelete | null>(null);
 
   const [itemToDelete, setItemToDelete] = useAtom(itemToDeleteAtom);
 
@@ -32,15 +33,15 @@ const DeleteModal = <TData extends { id: number; name: string }>({
   }, []);
 
   const confirm = useCallback(() => {
-    deleteItem(itemToDeleteRef.current as TData).then(close);
+    deleteItem(itemToDeleteRef.current).then(close);
   }, [itemToDeleteRef.current]);
 
   if (isOpen) {
-    itemToDeleteRef.current = itemToDelete as TData;
+    itemToDeleteRef.current = itemToDelete;
   }
 
   return (
-    <Modal open={isOpen} onClose={close} size="large">
+    <Modal open={isOpen} onClose={close} size={modalSize}>
       <Modal.Header>
         {isAFunction(labels.title)
           ? labels.title(itemToDeleteRef.current as TData)

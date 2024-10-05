@@ -13,9 +13,10 @@ const UpdateModal = <TItem extends { id: number; name: string }, TItemForm>({
   itemQueryKey,
   adapter,
   Form,
-  title
+  title,
+  modalSize = 'medium'
 }: GetItem<TItem, TItemForm> &
-  Pick<FormModel<TItem, TItemForm>, 'Form'> & {
+  Pick<FormModel<TItem, TItemForm>, 'Form' | 'modalSize'> & {
     title: string;
   }) => {
   const setAskBeforeCloseFormModal = useSetAtom(askBeforeCloseFormModalAtom);
@@ -42,7 +43,7 @@ const UpdateModal = <TItem extends { id: number; name: string }, TItemForm>({
 
   return (
     <>
-      <Modal open={isModalOpen} onClose={openAskBeforeClose} size="xlarge">
+      <Modal open={isModalOpen} onClose={openAskBeforeClose} size={modalSize}>
         <Modal.Header>{title}</Modal.Header>
         <Modal.Body>
           <Form

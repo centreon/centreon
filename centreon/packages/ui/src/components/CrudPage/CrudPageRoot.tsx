@@ -10,8 +10,8 @@ import AddModal from './Form/AddModal';
 import UpdateModal from './Form/UpdateModal';
 import Listing from './Listing';
 import {
+  canDeleteSubItemsAtom,
   formLabelButtonsAtom,
-  isDeleteEnabledAtom,
   openFormModalAtom
 } from './atoms';
 import { useGetItems } from './hooks/useGetItems';
@@ -35,7 +35,7 @@ export const CrudPageRoot = <
   deleteItem,
   form
 }: CrudPageRootProps<TData, TFilters, TItem, TItemForm>): JSX.Element => {
-  const previousIsDeleteEnabledRef = useRef(false);
+  const previousCanDeleteSubItemRef = useRef<boolean | undefined>();
   const previousFormLabelButtonsRef = useRef<unknown | null>(null);
   const { isDataEmpty, hasItems, isLoading, items, total } = useGetItems<
     TData,
@@ -49,12 +49,14 @@ export const CrudPageRoot = <
   });
 
   const setOpenFormModal = useSetAtom(openFormModalAtom);
-  const setIsDeleteEnabled = useSetAtom(isDeleteEnabledAtom);
+  const setCanDeleteSubItem = useSetAtom(canDeleteSubItemsAtom);
   const setFormLabelButton = useSetAtom(formLabelButtonsAtom);
 
-  if (!equals(previousIsDeleteEnabledRef.current, deleteItem.enabled)) {
-    setIsDeleteEnabled(deleteItem.enabled);
-    previousIsDeleteEnabledRef.current = deleteItem.enabled;
+  if (
+    !equals(previousCanDeleteSubItemRef.current, subItems?.canDeleteSubItems)
+  ) {
+    setCanDeleteSubItem(subItems?.canDeleteSubItems ?? true);
+    previousCanDeleteSubItemRef.current = subItems?.canDeleteSubItems;
   }
 
   if (!equals(previousFormLabelButtonsRef.current, form.labels)) {
@@ -116,17 +118,21 @@ export const CrudPageRoot = <
               />
             )}
           </DataTable>
-          {deleteItem.enabled && (
-            <DeleteModal<TData>
-              listingQueryKey={queryKeyName}
-              deleteEndpoint={deleteItem.deleteEndpoint}
-              labels={deleteItem.labels}
-            />
-          )}
-          <AddModal title={form.labels.add.title} Form={form.Form} />
+          <DeleteModal<TData>
+            listingQueryKey={queryKeyName}
+            deleteEndpoint={deleteItem.deleteEndpoint}
+            labels={deleteItem.labels}
+            modalSize={deleteItem.modalSize}
+          />
+          <AddModal
+            title={form.labels.add.title}
+            Form={form.Form}
+            modalSize={form.modalSize}
+          />
           <UpdateModal<TItem, TItemForm>
             title={form.labels.update.title}
             Form={form.Form}
+            modalSize={form.modalSize}
             {...form.getItem}
           />
         </>
