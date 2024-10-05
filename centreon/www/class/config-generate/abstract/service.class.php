@@ -34,11 +34,22 @@
  *
  */
 
-require_once dirname(__FILE__) . '/object.class.php';
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
+require_once __DIR__ . '/object.class.php';
+
+/**
+ * Class
+ *
+ * @class AbstractService
+ */
 abstract class AbstractService extends AbstractObject
 {
+    /** @var array */
+    protected $service_cache;
     // no flap_detection_options attribute
+    /** @var string */
     protected $attributes_select = '
         service_id,
         service_template_model_stm_id,
@@ -85,65 +96,35 @@ abstract class AbstractService extends AbstractObject
         esi_icon_image_alt as icon_image_alt,
         service_acknowledgement_timeout as acknowledgement_timeout
     ';
-    protected $attributes_write = array(
-        'host_name',
-        'service_description',
-        'display_name',
-        'contacts',
-        'contact_groups',
-        'check_command',
-        'check_period',
-        'notification_period',
-        'event_handler',
-        'max_check_attempts',
-        'check_interval',
-        'retry_interval',
-        'initial_state',
-        'freshness_threshold',
-        'low_flap_threshold',
-        'high_flap_threshold',
-        'flap_detection_options',
-        'notification_interval',
-        'notification_options',
-        'first_notification_delay',
-        'recovery_notification_delay',
-        'stalking_options',
-        'register',
-        'notes',
-        'notes_url',
-        'action_url',
-        'icon_image',
-        'icon_id',
-        'icon_image_alt',
-        'acknowledgement_timeout'
-    );
-    protected $attributes_default = array(
-        'is_volatile',
-        'active_checks_enabled',
-        'passive_checks_enabled',
-        'event_handler_enabled',
-        'flap_detection_enabled',
-        'notifications_enabled',
-        'obsess_over_service',
-        'check_freshness',
-        'process_perf_data',
-        'retain_status_information',
-        'retain_nonstatus_information',
-    );
+    /** @var string[] */
+    protected $attributes_write = ['host_name', 'service_description', 'display_name', 'contacts', 'contact_groups', 'check_command', 'check_period', 'notification_period', 'event_handler', 'max_check_attempts', 'check_interval', 'retry_interval', 'initial_state', 'freshness_threshold', 'low_flap_threshold', 'high_flap_threshold', 'flap_detection_options', 'notification_interval', 'notification_options', 'first_notification_delay', 'recovery_notification_delay', 'stalking_options', 'register', 'notes', 'notes_url', 'action_url', 'icon_image', 'icon_id', 'icon_image_alt', 'acknowledgement_timeout'];
+    /** @var string[] */
+    protected $attributes_default = ['is_volatile', 'active_checks_enabled', 'passive_checks_enabled', 'event_handler_enabled', 'flap_detection_enabled', 'notifications_enabled', 'obsess_over_service', 'check_freshness', 'process_perf_data', 'retain_status_information', 'retain_nonstatus_information'];
+    /** @var string[] */
     protected $attributes_array = [
         'use',
         'category_tags',
         'group_tags',
     ];
-    protected $attributes_hash = array(
-        'macros'
-    );
-    protected $loop_stpl = array(); # To be reset
+    /** @var string[] */
+    protected $attributes_hash = ['macros'];
+    /** @var array */
+    protected $loop_stpl = []; # To be reset
+    /** @var CentreonDBStatement|null */
     protected $stmt_macro = null;
+    /** @var CentreonDBStatement|null */
     protected $stmt_stpl = null;
+    /** @var CentreonDBStatement|null */
     protected $stmt_contact = null;
+    /** @var CentreonDBStatement|null */
     protected $stmt_service = null;
 
+    /**
+     * @param $service
+     *
+     * @return void
+     * @throws PDOException
+     */
     protected function getImages(&$service)
     {
         $media = Media::getInstance($this->dependencyInjector);
@@ -153,6 +134,11 @@ abstract class AbstractService extends AbstractObject
         }
     }
 
+    /**
+     * @param $service
+     *
+     * @return int
+     */
     protected function getMacros(&$service)
     {
         if (isset($service['macros'])) {
@@ -164,16 +150,22 @@ abstract class AbstractService extends AbstractObject
         return 0;
     }
 
+    /**
+     * @param $service
+     *
+     * @return void
+     * @throws PDOException
+     */
     protected function getServiceTemplates(&$service)
     {
-        $service['use'] = array(
-            ServiceTemplate::getInstance($this->dependencyInjector)
-                ->generateFromServiceId($service['service_template_model_stm_id'])
-        );
+        $service['use'] = [ServiceTemplate::getInstance($this->dependencyInjector)
+            ->generateFromServiceId($service['service_template_model_stm_id'])];
     }
 
     /**
      * @param array $service (passing by Reference)
+     *
+     * @throws PDOException
      */
     protected function getContacts(array &$service): void
     {
@@ -184,7 +176,9 @@ abstract class AbstractService extends AbstractObject
     }
 
     /**
-      * @param array $service (passing by Reference)
+     * @param array $service (passing by Reference)
+     *
+     * @throws PDOException
      */
     protected function getContactGroups(array &$service): void
     {
@@ -194,14 +188,18 @@ abstract class AbstractService extends AbstractObject
         }
     }
 
+    /**
+     * @param $service_id
+     * @param $command_label
+     *
+     * @return mixed|null
+     */
     protected function findCommandName($service_id, $command_label)
     {
-        $loop = array();
+        $loop = [];
 
         $services_tpl = ServiceTemplate::getInstance($this->dependencyInjector)->service_cache;
-        $service_id = isset($this->service_cache[$service_id]['service_template_model_stm_id'])
-            ? $this->service_cache[$service_id]['service_template_model_stm_id']
-            : null;
+        $service_id = $this->service_cache[$service_id]['service_template_model_stm_id'] ?? null;
         while (!is_null($service_id)) {
             if (isset($loop[$service_id])) {
                 break;
@@ -212,14 +210,24 @@ abstract class AbstractService extends AbstractObject
             ) {
                 return $services_tpl[$service_id][$command_label];
             }
-            $service_id = isset($services_tpl[$service_id]['service_template_model_stm_id'])
-                ? $services_tpl[$service_id]['service_template_model_stm_id']
-                : null;
+            $service_id = $services_tpl[$service_id]['service_template_model_stm_id'] ?? null;
         }
 
         return null;
     }
 
+    /**
+     * @param $service
+     * @param $result_name
+     * @param $command_id_label
+     * @param $command_arg_label
+     *
+     * @return int
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
     protected function getServiceCommand(&$service, $result_name, $command_id_label, $command_arg_label)
     {
         $command_name = Command::getInstance($this->dependencyInjector)
@@ -251,12 +259,27 @@ abstract class AbstractService extends AbstractObject
         return 0;
     }
 
+    /**
+     * @param $service
+     *
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
     protected function getServiceCommands(&$service)
     {
         $this->getServiceCommand($service, 'check_command', 'check_command_id', 'check_command_arg');
         $this->getServiceCommand($service, 'event_handler', 'event_handler_id', 'event_handler_arg');
     }
 
+    /**
+     * @param $service
+     *
+     * @return void
+     * @throws PDOException
+     */
     protected function getServicePeriods(&$service)
     {
         $period = Timeperiod::getInstance($this->dependencyInjector);
@@ -266,17 +289,22 @@ abstract class AbstractService extends AbstractObject
         $service['notification_period'] = $period->generateFromTimeperiodId($service['notification_period_id']);
     }
 
+    /**
+     * @param $service_id
+     * @param $attr
+     *
+     * @return mixed|null
+     */
     public function getString($service_id, $attr)
     {
-        if (isset($this->service_cache[$service_id][$attr])) {
-            return $this->service_cache[$service_id][$attr];
-        }
-        return null;
+        return $this->service_cache[$service_id][$attr] ?? null;
     }
 
     /**
      * @param ServiceCategory $serviceCategory
      * @param int $serviceId
+     *
+     * @throws PDOException
      */
     protected function insertServiceInServiceCategoryMembers(ServiceCategory $serviceCategory, int $serviceId): void
     {

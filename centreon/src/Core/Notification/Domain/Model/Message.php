@@ -27,8 +27,8 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class Message
 {
-    public const MAX_SUBJECT_LENGTH = 255,
-                 MAX_MESSAGE_LENGTH = 65535;
+    public const MAX_SUBJECT_LENGTH = 255;
+    public const MAX_MESSAGE_LENGTH = 65535;
 
     /**
      * @param Channel $channel

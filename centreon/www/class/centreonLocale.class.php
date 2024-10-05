@@ -33,16 +33,18 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class CentreonLocale
+ */
 class CentreonLocale
 {
-    /**
-     *
-     * @var \CentreonDB
-     */
+    /** @var \CentreonDB */
     protected $db;
     
     /**
-     * Constructor
+     * CentreonLocale constructor
      *
      * @param CentreonDB $db
      */
@@ -55,6 +57,7 @@ class CentreonLocale
      * GetLocaleList
      *
      * @return array
+     * @throws PDOException
      */
     public function getLocaleList()
     {
@@ -62,13 +65,9 @@ class CentreonLocale
             "SELECT locale_id, locale_short_name, locale_long_name, locale_img "
             . "FROM locale ORDER BY locale_short_name <> 'en', locale_short_name"
         );
-        $list = array();
+        $list = [];
         while ($row = $res->fetchRow()) {
-            $list[$row['locale_id']] = array(
-                'locale_short_name' => _($row['locale_short_name']),
-                'locale_long_name' => _($row['locale_long_name']),
-                'locale_img' => _($row['locale_img'])
-            );
+            $list[$row['locale_id']] = ['locale_short_name' => _($row['locale_short_name']), 'locale_long_name' => _($row['locale_long_name']), 'locale_img' => _($row['locale_img'])];
         }
         return $list;
     }

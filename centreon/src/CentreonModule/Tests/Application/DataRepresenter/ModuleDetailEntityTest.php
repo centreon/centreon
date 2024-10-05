@@ -63,7 +63,7 @@ class ModuleDetailEntityTest extends TestCase
         $entity->setLastUpdate($data['last_update']);
         $entity->setReleaseNote($data['release_note']);
 
-        $check = function () use ($entity) {
+        $check = function () use ($entity): void {
             $outdated = $entity->isInstalled() && ! $entity->isUpdated()
                 ? true
                 : false;

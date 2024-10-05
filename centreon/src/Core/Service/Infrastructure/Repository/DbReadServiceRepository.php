@@ -175,7 +175,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
      */
     public function existsByAccessGroups(int $serviceId, array $accessGroups): bool
     {
-        if (empty($accessGroups)) {
+        if ($accessGroups === []) {
             $this->debug('Access groups array empty');
 
             return false;

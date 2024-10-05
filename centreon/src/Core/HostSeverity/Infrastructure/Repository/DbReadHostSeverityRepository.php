@@ -145,7 +145,7 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
             ['id' => $hostSeverityId, 'accessgroups' => $accessGroups]
         );
 
-        if (empty($accessGroups)) {
+        if ($accessGroups === []) {
             $this->debug('Access groups array empty');
 
             return false;

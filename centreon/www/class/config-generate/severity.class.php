@@ -34,37 +34,61 @@
  *
  */
 
+use Pimple\Container;
+
+/**
+ * Class
+ *
+ * @class Severity
+ */
 class Severity extends AbstractObject
 {
+    /** @var int */
     private $use_cache = 1;
+    /** @var int */
     private $done_cache = 0;
 
-    private $service_severity_cache = array();
-    private $service_severity_by_name_cache = array();
-    private $service_linked_cache = array();
+    /** @var array */
+    private $service_severity_cache = [];
+    /** @var array */
+    private $service_severity_by_name_cache = [];
+    /** @var array */
+    private $service_linked_cache = [];
 
-    private $host_severity_cache = array();
-    private $host_linked_cache = array();
+    /** @var array */
+    private $host_severity_cache = [];
+    /** @var array */
+    private $host_linked_cache = [];
+    /** @var array */
     private $host_severities = [];
+    /** @var array */
     private $service_severities = [];
 
+    /** @var null */
     protected $stmt_host = null;
+    /** @var null */
     protected $stmt_service = null;
+    /** @var null */
     protected $stmt_hc_name = null;
+    /** @var string */
     protected $generate_filename =  'severities.cfg';
-    protected $object_name = 'severity';
+    /** @var string */
+    protected string $object_name = 'severity';
+    /** @var string[] */
     protected $attributesSelectHost = [
         'hc_id' => 'id',
         'hc_name' => 'severity_name',
         'level' => 'level',
         'icon_id' => 'icon_id',
     ];
+    /** @var string[] */
     protected $attributesSelectService = [
         'sc_id' => 'id',
         'sc_name' => 'severity_name',
         'level' => 'level',
         'icon_id' => 'icon_id',
     ];
+    /** @var string[] */
     protected $attributes_write = [
         'id',
         'severity_name',
@@ -73,13 +97,24 @@ class Severity extends AbstractObject
         'type',
     ];
 
-    public function __construct(\Pimple\Container $dependencyInjector)
+    /**
+     * Severity constructor
+     *
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
+     */
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->buildCache();
     }
 
-    private function cacheHostSeverity()
+    /**
+     * @return void
+     * @throws PDOException
+     */
+    private function cacheHostSeverity(): void
     {
         $stmt = $this->backend_instance->db->prepare(
             "SELECT hc_name, hc_id, level, icon_id
@@ -94,7 +129,11 @@ class Severity extends AbstractObject
         }
     }
 
-    private function cacheHostSeverityLinked()
+    /**
+     * @return void
+     * @throws PDOException
+     */
+    private function cacheHostSeverityLinked(): void
     {
         $stmt = $this->backend_instance->db->prepare(
             'SELECT hc_id, host_host_id ' .
@@ -119,6 +158,12 @@ class Severity extends AbstractObject
         }
     }
 
+    /**
+     * @param $host_id
+     *
+     * @return mixed|string|null
+     * @throws PDOException
+     */
     public function getHostSeverityByHostId($host_id)
     {
         # Get from the cache
@@ -144,7 +189,8 @@ class Severity extends AbstractObject
 
         $this->stmt_host->bindParam(':host_id', $host_id, PDO::PARAM_INT);
         $this->stmt_host->execute();
-        $severity = array_pop($this->stmt_host->fetchAll(PDO::FETCH_ASSOC));
+        $hostsCategories = $this->stmt_host->fetchAll(PDO::FETCH_ASSOC);
+        $severity = array_pop($hostsCategories);
         if (is_null($severity)) {
             $this->host_linked_cache[$host_id] = null;
             return null;
@@ -154,6 +200,11 @@ class Severity extends AbstractObject
         return $severity['hc_id'];
     }
 
+    /**
+     * @param $hc_id
+     *
+     * @return mixed|null
+     */
     public function getHostSeverityById($hc_id)
     {
         if (is_null($hc_id)) {
@@ -167,7 +218,11 @@ class Severity extends AbstractObject
         return $this->host_severity_cache[$hc_id];
     }
 
-    private function cacheServiceSeverity()
+    /**
+     * @return void
+     * @throws PDOException
+     */
+    private function cacheServiceSeverity(): void
     {
         $stmt = $this->backend_instance->db->prepare(
             "SELECT sc_name, sc_id, level, icon_id
@@ -183,7 +238,11 @@ class Severity extends AbstractObject
         }
     }
 
-    private function cacheServiceSeverityLinked()
+    /**
+     * @return void
+     * @throws PDOException
+     */
+    private function cacheServiceSeverityLinked(): void
     {
         $stmt = $this->backend_instance->db->prepare(
             'SELECT service_categories.sc_id, service_service_id ' .
@@ -208,6 +267,10 @@ class Severity extends AbstractObject
         }
     }
 
+    /**
+     * @return int|void
+     * @throws PDOException
+     */
     private function buildCache()
     {
         if ($this->done_cache == 1) {
@@ -221,6 +284,12 @@ class Severity extends AbstractObject
         $this->done_cache = 1;
     }
 
+    /**
+     * @param $service_id
+     *
+     * @return mixed|string|null
+     * @throws PDOException
+     */
     public function getServiceSeverityByServiceId($service_id)
     {
         # Get from the cache
@@ -246,7 +315,8 @@ class Severity extends AbstractObject
 
         $this->stmt_service->bindParam(':service_id', $service_id, PDO::PARAM_INT);
         $this->stmt_service->execute();
-        $severity = array_pop($this->stmt_service->fetchAll(PDO::FETCH_ASSOC));
+        $serviceCategories = $this->stmt_service->fetchAll(PDO::FETCH_ASSOC);
+        $severity = array_pop($serviceCategories);
         if (is_null($severity)) {
             $this->service_linked_cache[$service_id] = null;
             return null;
@@ -258,6 +328,11 @@ class Severity extends AbstractObject
         return $severity['sc_id'];
     }
 
+    /**
+     * @param $sc_id
+     *
+     * @return mixed|null
+     */
     public function getServiceSeverityById($sc_id)
     {
         if (is_null($sc_id)) {
@@ -271,6 +346,12 @@ class Severity extends AbstractObject
         return $this->service_severity_cache[$sc_id];
     }
 
+    /**
+     * @param $hc_name
+     *
+     * @return mixed|null
+     * @throws PDOException
+     */
     public function getServiceSeverityMappingHostSeverityByName($hc_name)
     {
         if (isset($this->service_severity_by_name_cache[$hc_name])) {
@@ -292,7 +373,8 @@ class Severity extends AbstractObject
 
         $this->stmt_hc_name->bindParam(':sc_name', $hc_name, PDO::PARAM_STR);
         $this->stmt_hc_name->execute();
-        $severity = array_pop($this->stmt_hc_name->fetchAll(PDO::FETCH_ASSOC));
+        $serviceCategories = $this->stmt_hc_name->fetchAll(PDO::FETCH_ASSOC);
+        $severity = array_pop($serviceCategories);
         if (is_null($severity)) {
             $this->service_severity_by_name_cache[$hc_name] = null;
             return null;

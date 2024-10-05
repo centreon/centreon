@@ -133,9 +133,9 @@ class PerformanceMetricsDataFactory
             $times[] = $metricData['times'];
         }
 
-        $base = ! empty($metricBases) ? $this->getHighestBase($metricBases) : PerformanceMetricsData::DEFAULT_BASE;
-        $metricsInfo = ! empty($metrics) ? $this->createMetricInformations($metrics, $metricNames) : [];
-        $times = ! empty($times) ? $this->getTimes($times) : [];
+        $base = $metricBases !== [] ? $this->getHighestBase($metricBases) : PerformanceMetricsData::DEFAULT_BASE;
+        $metricsInfo = $metrics !== [] ? $this->createMetricInformations($metrics, $metricNames) : [];
+        $times = $times !== [] ? $this->getTimes($times) : [];
 
         return new PerformanceMetricsData($base, $metricsInfo, $times);
     }
@@ -176,7 +176,9 @@ class PerformanceMetricsDataFactory
         $metrics = [];
         foreach ($metricsData as $hostName => $metricData) {
             \preg_match('/^index:\d+;host_name:([[:ascii:]]+)$/', $hostName, $matches);
-            $hostName = $matches[1];
+            if ($matches !== []) {
+                $hostName = $matches[1];
+            }
             foreach ($metricData as $metric) {
                 if (in_array($metric['metric'], $metricNames, true)) {
                     $metric['metric'] = $hostName . ': ' . $metric['metric'];

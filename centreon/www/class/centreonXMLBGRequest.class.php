@@ -34,82 +34,123 @@
  *
  */
 
-/*
- * Need Centreon Configuration file
- */
+use Pimple\Container;
+
 require_once realpath(__DIR__ . "/../../config/centreon.config.php");
 require_once realpath(__DIR__ . "/../../bootstrap.php");
 
-/** * ****************************
- * Class for XML/Ajax request
+/**
+ * Class
  *
+ * @class CentreonXMLBGRequest
+ * @description Class for XML/Ajax request
  */
 class CentreonXMLBGRequest
 {
+    /** @var string */
+    public $classLine;
+
     /*
      * Objects
      */
 
+    /** @var CentreonDB */
     public CentreonDB $DB;
+    /** @var CentreonDB */
     public CentreonDB $DBC;
+    /** @var CentreonXML */
     public $XML;
+    /** @var CentreonGMT */
     public $GMT;
+    /** @var CentreonHost */
     public $hostObj;
+    /** @var CentreonService */
     public $serviceObj;
+    /** @var CentreonMonitoring */
     public $monObj;
+    /** @var CentreonACL */
     public $access;
+    /** @var string */
     public $session_id;
+    /** @var */
     public $broker;
 
     /*
      * Variables
      */
+    /** @var */
     public $buffer;
+    /** @var int */
     public $debug;
+    /** @var int|mixed */
     public $compress;
+    /** @var int */
     public $header;
+    /** @var */
     public $is_admin;
+    /** @var */
     public $user_id;
+    /** @var array */
     public $grouplist;
+    /** @var string */
     public $grouplistStr;
+    /** @var */
     public $general_opt;
+    /** @var */
     public $class;
+    /** @var string[] */
     public $stateType;
+    /** @var string[] */
     public $statusHost;
+    /** @var string[] */
     public $statusService;
+    /** @var string[] */
     public $colorHost;
+    /** @var string[] */
     public $colorHostInService;
+    /** @var string[] */
     public $colorService;
+    /** @var array */
     public $en;
+    /** @var string[] */
     public $stateTypeFull;
 
+    /** @var string[] */
     public $backgroundHost;
+    /** @var string[] */
     public $backgroundService;
 
     /*
      * Filters
      */
+    /** @var */
     public $defaultPoller;
+    /** @var */
     public $defaultHostgroups;
+    /** @var */
     public $defaultServicegroups;
+    /** @var int */
     public $defaultCriticality = 0;
 
-    /*
-     * Class constructor
+    /**
+     * CentreonXMLBGRequest constructor
      *
      * <code>
-     * $obj = new CentreonBGRequest($_GET["session_id"], 1, 1, 0, 1);
+     *  $obj = new CentreonBGRequest($_GET["session_id"], 1, 1, 0, 1);
      * </code>
      *
-     * $session_id 	char 	session id
-     * $dbneeds		bool 	flag for enable ndo connexion
-     * $headType	bool 	send XML header
-     * $debug		bool 	debug flag.
-     * $compress	bool 	compress enable.
+     * @param Container $dependencyInjector
+     * @param string $session_id
+     * @param bool $dbNeeds
+     * @param bool $headerType
+     * @param bool $debug
+     * @param bool $compress
+     * @param $fullVersion
+     *
+     * @throws PDOException
      */
-
     public function __construct(
-        \Pimple\Container $dependencyInjector,
+        Container $dependencyInjector,
         $session_id,
         $dbNeeds,
         $headerType,
@@ -153,7 +194,7 @@ class CentreonXMLBGRequest
              * Timezone management
              */
             $this->GMT = new CentreonGMT($this->DB);
-            $this->GMT->getMyGMTFromSession($this->session_id, $this->DB);
+            $this->GMT->getMyGMTFromSession($this->session_id);
         }
 
         /*
@@ -183,61 +224,40 @@ class CentreonXMLBGRequest
         /*
          * Init Tables
          */
-        $this->en = array("0" => _("No"), "1" => _("Yes"));
-        $this->stateType = array("1" => "H", "0" => "S");
-        $this->stateTypeFull = array("1" => "HARD", "0" => "SOFT");
-        $this->statusHost = array("0" => "UP", "1" => "DOWN", "2" => "UNREACHABLE", "4" => "PENDING");
-        $this->statusService = array(
-            "0" => "OK",
-            "1" => "WARNING",
-            "2" => "CRITICAL",
-            "3" => "UNKNOWN",
-            "4" => "PENDING"
-        );
-        $this->colorHost = array(0 => 'host_up', 1 => 'host_down', 2 => 'host_unreachable', 4 => 'pending');
-        $this->colorService = array(
-            0 => 'service_ok',
-            1 => 'service_warning',
-            2 => 'service_critical',
-            3 => 'service_unknown',
-            4 => 'pending'
-        );
+        $this->en = ["0" => _("No"), "1" => _("Yes")];
+        $this->stateType = ["1" => "H", "0" => "S"];
+        $this->stateTypeFull = ["1" => "HARD", "0" => "SOFT"];
+        $this->statusHost = ["0" => "UP", "1" => "DOWN", "2" => "UNREACHABLE", "4" => "PENDING"];
+        $this->statusService = ["0" => "OK", "1" => "WARNING", "2" => "CRITICAL", "3" => "UNKNOWN", "4" => "PENDING"];
+        $this->colorHost = [0 => 'host_up', 1 => 'host_down', 2 => 'host_unreachable', 4 => 'pending'];
+        $this->colorService = [0 => 'service_ok', 1 => 'service_warning', 2 => 'service_critical', 3 => 'service_unknown', 4 => 'pending'];
 
-        $this->backgroundHost = array(0 => '#88b917', 1 => '#e00b3d', 2 => '#818185', 4 => '#2ad1d4');
-        $this->backgroundService = array(
-            0 => '#88b917',
-            1 => '#ff9a13',
-            2 => '#e00b3d',
-            3 => '#bcbdc0',
-            4 => '#2ad1d4'
-        );
+        $this->backgroundHost = [0 => '#88b917', 1 => '#e00b3d', 2 => '#818185', 4 => '#2ad1d4'];
+        $this->backgroundService = [0 => '#88b917', 1 => '#ff9a13', 2 => '#e00b3d', 3 => '#bcbdc0', 4 => '#2ad1d4'];
 
-        $this->colorHostInService = array(0 => "normal", 1 => "#FD8B46", 2 => "normal", 4 => "normal");
+        $this->colorHostInService = [0 => "normal", 1 => "#FD8B46", 2 => "normal", 4 => "normal"];
     }
 
-    /*
-     * Check if user is admin
+    /**
+     * @return void
      */
-
-    private function isUserAdmin()
+    private function isUserAdmin(): void
     {
         $statement = $this->DB->prepare("SELECT contact_admin, contact_id FROM contact " .
             "WHERE contact.contact_id = :userId LIMIT 1");
-        $statement->bindValue(":userId", (int) $this->user_id, \PDO::PARAM_INT);
+        $statement->bindValue(":userId", (int) $this->user_id, PDO::PARAM_INT);
         $statement->execute();
         $admin = $statement->fetchRow();
         $statement->closeCursor();
-        if ($admin !== false && $admin["contact_admin"]) {
-            $this->is_admin = 1;
-        } else {
-            $this->is_admin = 0;
-        }
+        $this->is_admin = $admin !== false && $admin["contact_admin"] ? 1 : 0;
     }
 
-    /*
+    /**
      * Get user id from session_id
+     *
+     * @return void
+     * @throws PDOException
      */
-
     protected function getUserIdFromSID()
     {
         $query = "SELECT user_id FROM session " .
@@ -252,19 +272,25 @@ class CentreonXMLBGRequest
 
     /**
      * Decode Function
+     *
+     * @param string $arg
+     *
+     * @return string
      */
     private function myDecode($arg)
     {
         return html_entity_decode($arg ?? '', ENT_QUOTES, "UTF-8");
     }
 
-    /*
+    /**
      * Get Status Color
+     *
+     * @return void
+     * @throws PDOException
      */
-
     protected function getStatusColor()
     {
-        $this->general_opt = array();
+        $this->general_opt = [];
         $DBRESULT = $this->DB->query("SELECT * FROM `options` WHERE `key` LIKE 'color%'");
         while ($c = $DBRESULT->fetchRow()) {
             $this->general_opt[$c["key"]] = $this->myDecode($c["value"]);
@@ -273,10 +299,12 @@ class CentreonXMLBGRequest
         unset($c);
     }
 
-    /*
+    /**
      * Send headers information for web server
+     *
+     * @return void
      */
-    public function header()
+    public function header(): void
     {
         /* Force no encoding compress */
         $encoding = false;
@@ -290,17 +318,19 @@ class CentreonXMLBGRequest
         }
     }
 
+    /**
+     * @return string
+     */
     public function getNextLineClass()
     {
-        if ($this->classLine == "list_one") {
-            $this->classLine = "list_two";
-        } else {
-            $this->classLine = "list_one";
-        }
+        $this->classLine = $this->classLine == "list_one" ? "list_two" : "list_one";
         return $this->classLine;
     }
 
-    public function getDefaultFilters()
+    /**
+     * @return void
+     */
+    public function getDefaultFilters(): void
     {
         $this->defaultPoller = -1;
         $this->defaultHostgroups = null;
@@ -319,26 +349,53 @@ class CentreonXMLBGRequest
         }
     }
 
-    public function setInstanceHistory($instance)
+    /**
+     * @param $instance
+     *
+     * @return void
+     */
+    public function setInstanceHistory($instance): void
     {
         $_SESSION['monitoring_default_poller'] = $instance;
     }
 
-    public function setHostGroupsHistory($hg)
+    /**
+     * @param $hg
+     *
+     * @return void
+     */
+    public function setHostGroupsHistory($hg): void
     {
         $_SESSION['monitoring_default_hostgroups'] = $hg;
     }
 
-    public function setServiceGroupsHistory($sg)
+    /**
+     * @param $sg
+     *
+     * @return void
+     */
+    public function setServiceGroupsHistory($sg): void
     {
         $_SESSION['monitoring_default_servicegroups'] = $sg;
     }
 
-    public function setCriticality($criticality)
+    /**
+     * @param $criticality
+     *
+     * @return void
+     */
+    public function setCriticality($criticality): void
     {
         $_SESSION['criticality_id'] = $criticality;
     }
 
+    /**
+     * @param $name
+     * @param $tab
+     * @param $defaultValue
+     *
+     * @return string
+     */
     public function checkArgument($name, $tab, $defaultValue)
     {
         if (isset($name) && isset($tab)) {
@@ -352,8 +409,13 @@ class CentreonXMLBGRequest
                 return CentreonDB::escape($defaultValue);
             }
         }
-    }
+    }// FIXME no return
 
+    /**
+     * @param string $name
+     *
+     * @return array|string|string[]
+     */
     public function prepareObjectName($name)
     {
         $name = str_replace("/", "#S#", $name);
