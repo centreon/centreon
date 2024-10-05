@@ -1,5 +1,5 @@
 import { FormControlLabel, Switch, Typography } from '@mui/material';
-import { atom, createStore, Provider, useAtom, useSetAtom } from 'jotai';
+import { Provider, atom, createStore, useAtom, useSetAtom } from 'jotai';
 import { identity, isNil, prop } from 'ramda';
 import { ChangeEvent, useEffect } from 'react';
 import { CrudPage } from '.';

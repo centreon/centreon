@@ -2,6 +2,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { ColumnType } from '../../../';
 import { MemoizedListing } from '../../Listing';
 import Actions from './Actions/Actions';
+import ColumnActions from './Columns/Actions';
 import {
   changeSortAtom,
   limitAtom,
@@ -9,7 +10,6 @@ import {
   sortFieldAtom,
   sortOrderAtom
 } from './atoms';
-import ColumnActions from './Columns/Actions';
 import { ListingProps } from './models';
 
 const Listing = <TData extends { id: number; name: string }>({
