@@ -34,14 +34,19 @@
  */
 
 /**
+ * Class
  *
+ * @class CentreonHostcategories
  */
 class CentreonHostcategories
 {
+    /** @var CentreonDB */
     protected $db;
 
-    /*
-     * constructor
+    /**
+     * CentreonHostcategories constructor
+     *
+     * @param CentreonDB $pearDB
      */
     public function __construct($pearDB)
     {
@@ -49,13 +54,12 @@ class CentreonHostcategories
     }
 
     /**
-     *
-     * @param integer $field
+     * @param int $field
      * @return array
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'hostcategories';
         $parameters['currentObject']['id'] = 'hc_id';
         $parameters['currentObject']['name'] = 'hc_name';
@@ -84,12 +88,14 @@ class CentreonHostcategories
     /**
      * @param array $values
      * @param array $options
+     *
      * @return array
+     * @throws PDOException
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
         global $centreon;
-        $items = array();
+        $items = [];
 
         # get list of authorized host categories
         if (!$centreon->user->access->admin) {
@@ -97,7 +103,7 @@ class CentreonHostcategories
         }
 
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if (!empty($values)) {
             foreach ($values as $v) {
                 // As it happens that $v could be like "X,Y" when two hostgroups are selected, we added a second foreach
@@ -118,7 +124,7 @@ class CentreonHostcategories
 
         $stmt = $this->db->prepare($query);
 
-        if (!empty($queryValues)) {
+        if ($queryValues !== []) {
             foreach ($queryValues as $key => $id) {
                 $stmt->bindValue(':' . $key, $id, PDO::PARAM_INT);
             }
@@ -132,11 +138,7 @@ class CentreonHostcategories
                 $hide = true;
             }
 
-            $items[] = array(
-                'id' => $row['hc_id'],
-                'text' => $row['hc_name'],
-                'hide' => $hide
-            );
+            $items[] = ['id' => $row['hc_id'], 'text' => $row['hc_name'], 'hide' => $hide];
         }
 
         return $items;

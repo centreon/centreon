@@ -112,7 +112,7 @@ class CentreonDBAdapterTest extends TestCase
                     ],
                 ],
                 null,
-                function ($params) use ($id, $checkPoint) {
+                function ($params) use ($id, $checkPoint): void {
                     $checkPoint->mark('select');
 
                     $this->assertEquals([
@@ -206,7 +206,7 @@ class CentreonDBAdapterTest extends TestCase
                 'INSERT INTO some_table (`name`) VALUES (:name)',
                 [],
                 null,
-                function ($params) use ($name, $checkPoint) {
+                function ($params) use ($name, $checkPoint): void {
                     $checkPoint->mark('insert');
 
                     $this->assertEquals([
@@ -268,7 +268,7 @@ class CentreonDBAdapterTest extends TestCase
                 'UPDATE some_table SET name= :name WHERE id = :id',
                 [],
                 null,
-                function ($params) use ($id, $name, $checkPoint) {
+                function ($params) use ($id, $name, $checkPoint): void {
                     $checkPoint->mark('update');
 
                     $this->assertEquals([

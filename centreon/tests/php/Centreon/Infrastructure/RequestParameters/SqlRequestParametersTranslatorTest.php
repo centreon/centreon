@@ -40,7 +40,7 @@ class SqlRequestParametersTranslatorTest extends TestCase
     /**
      * test translatePaginationToSql first page
      */
-    public function testTranslatePaginationToSqlFirstPage()
+    public function testTranslatePaginationToSqlFirstPage(): void
     {
         $this->requestParameters->expects($this->once())
             ->method('getPage')
@@ -58,7 +58,7 @@ class SqlRequestParametersTranslatorTest extends TestCase
     /**
      * test translatePaginationToSql second page
      */
-    public function testTranslatePaginationToSqlSecondPage()
+    public function testTranslatePaginationToSqlSecondPage(): void
     {
         $this->requestParameters->expects($this->once())
             ->method('getPage')
@@ -77,7 +77,7 @@ class SqlRequestParametersTranslatorTest extends TestCase
     /**
      * test translateSearchParameterToSql with matching concordance array
      */
-    public function testTranslateSearchParameterToSqlWithMatchingConcordanceArray()
+    public function testTranslateSearchParameterToSqlWithMatchingConcordanceArray(): void
     {
         $this->requestParameters->expects($this->once())
             ->method('getSearch')
@@ -105,7 +105,7 @@ class SqlRequestParametersTranslatorTest extends TestCase
     /**
      * test translateSearchParameterToSql with wrong concordance array and strict mode with exception
      */
-    public function testTranslateSearchParameterToSqlWithWrongConcordanceArrayAndStrictModeException()
+    public function testTranslateSearchParameterToSqlWithWrongConcordanceArrayAndStrictModeException(): void
     {
         $this->requestParameters->expects($this->once())
             ->method('getSearch')
@@ -137,7 +137,7 @@ class SqlRequestParametersTranslatorTest extends TestCase
     /**
      * test translateSearchParameterToSql with wrong concordance array and strict mode in silent mode
      */
-    public function testTranslateSearchParameterToSqlWithWrongConcordanceArrayAndStrictModeSilent()
+    public function testTranslateSearchParameterToSqlWithWrongConcordanceArrayAndStrictModeSilent(): void
     {
         $this->requestParameters->expects($this->once())
             ->method('getSearch')
@@ -171,7 +171,7 @@ class SqlRequestParametersTranslatorTest extends TestCase
     /**
      * test translateSearchParameterToSql with normalizers
      */
-    public function testTranslateSearchParametersWithNormalizers()
+    public function testTranslateSearchParametersWithNormalizers(): void
     {
         $this->requestParameters->expects($this->once())
             ->method('getSearch')
@@ -217,7 +217,7 @@ class SqlRequestParametersTranslatorTest extends TestCase
     /**
      * test translateSortParameterToSql
      */
-    public function testTranslateSortParameterToSql()
+    public function testTranslateSortParameterToSql(): void
     {
         $this->requestParameters->expects($this->once())
             ->method('getSort')

@@ -39,7 +39,7 @@ if (!isset($oreon)) {
 
 include("./include/common/autoNumLimit.php");
 
-$queryValues = $queryValues ?? [];
+$queryValues ??= [];
 $SearchTool = '';
 $search = null;
 
@@ -100,16 +100,13 @@ $form = new HTML_QuickFormCustom('select_form', 'POST', "?p=" . $p);
 // Different style between each lines
 $style = "one";
 
-$attrBtnSuccess = array(
-    "class" => "btc bt_success",
-    "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"
-);
+$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
 
 // Fill a tab with a multidimensionnal Array we put in $tpl
-$deftype = array(0 => "CDEF", 1 => "VDEF");
-$yesOrNo = array(null => "No", 0 => "No", 1 => "Yes");
-$elemArr = array();
+$deftype = [0 => "CDEF", 1 => "VDEF"];
+$yesOrNo = [null => "No", 0 => "No", 1 => "Yes"];
+$elemArr = [];
 $centreonToken = createCSRFToken();
 
 for ($i = 0; $vmetric = $stmt->fetch(); $i++) {
@@ -166,22 +163,8 @@ for ($i = 0; $vmetric = $stmt->fetch(); $i++) {
     }
 
 ### TODO : data_count
-    $elemArr[$i] = array(
-        "MenuClass" => "list_" . $style,
-        "title" => $hsrname["full_name"] ?? null,
-        "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_ckstate" => $vmetric["ck_state"],
-        "RowMenu_name" => $vmetric["vmetric_name"],
-        "RowMenu_link" => "main.php?p=" . $p . "&o=c&vmetric_id=" . $vmetric['vmetric_id'],
-        "RowMenu_unit" => $vmetric["unit_name"],
-        "RowMenu_rpnfunc" => htmlentities($vmetric["rpn_function"]),
-        "RowMenu_count" => "-",
-        "RowMenu_dtype" => $deftype[$vmetric["def_type"]],
-        "RowMenu_hidden" => $yesOrNo[$vmetric["hidden"]],
-        "RowMenu_status" => $vmetric["vmetric_activate"] ? _("Enabled") : _("Disabled"),
-        "RowMenu_options" => $moptions
-    );
-    $style != "two" ? $style = "two" : $style = "one";
+    $elemArr[$i] = ["MenuClass" => "list_" . $style, "title" => $hsrname["full_name"] ?? null, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_ckstate" => $vmetric["ck_state"], "RowMenu_name" => $vmetric["vmetric_name"], "RowMenu_link" => "main.php?p=" . $p . "&o=c&vmetric_id=" . $vmetric['vmetric_id'], "RowMenu_unit" => $vmetric["unit_name"], "RowMenu_rpnfunc" => htmlentities($vmetric["rpn_function"]), "RowMenu_count" => "-", "RowMenu_dtype" => $deftype[$vmetric["def_type"]], "RowMenu_hidden" => $yesOrNo[$vmetric["hidden"]], "RowMenu_status" => $vmetric["vmetric_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_options" => $moptions];
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 
@@ -191,7 +174,7 @@ $tpl->assign("elemArr", $elemArr);
  */
 $tpl->assign(
     'msg',
-    array("addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?"))
+    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
 );
 
 /*
@@ -204,52 +187,48 @@ $tpl->assign(
         }
     </script>
 <?php
-$attrs1 = array(
-    'onchange' => "javascript: " .
-        "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" .
-        _("Do you confirm the duplication ?") . "')) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('" .
-        _("Do you confirm the deletion ?") . "')) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 3) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        ""
-);
+$attrs1 = ['onchange' => "javascript: " .
+    "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" .
+    _("Do you confirm the duplication ?") . "')) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('" .
+    _("Do you confirm the deletion ?") . "')) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 3) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    ""];
 
 $form->addElement(
     'select',
     'o1',
     null,
-    array(null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")),
+    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
     $attrs1
 );
 
 
-$form->setDefaults(array('o1' => null));
+$form->setDefaults(['o1' => null]);
 $o1 = $form->getElement('o1');
 $o1->setValue(null);
 
-$attrs = array(
-    'onchange' => "javascript: " .
-        "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" .
-        _("Do you confirm the duplication ?") . "')) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('" .
-        _("Do you confirm the deletion ?") . "')) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 3) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        ""
-);
+$attrs = ['onchange' => "javascript: " .
+    "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" .
+    _("Do you confirm the duplication ?") . "')) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('" .
+    _("Do you confirm the deletion ?") . "')) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 3) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    ""];
 $form->addElement(
     'select',
     'o2',
     null,
-    array(null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")),
+    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
     $attrs
 );
-$form->setDefaults(array('o2' => null));
+$form->setDefaults(['o2' => null]);
 
 $o2 = $form->getElement('o2');
 $o2->setValue(null);

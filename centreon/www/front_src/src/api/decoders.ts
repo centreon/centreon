@@ -117,13 +117,11 @@ export const featuresFlagDecoder = JsonDecoder.object<FeatureFlags>(
   {
     adExclusionPeriods: JsonDecoder.optional(JsonDecoder.boolean),
     notification: JsonDecoder.optional(JsonDecoder.boolean),
-    resouresTableOpenTickets: JsonDecoder.optional(JsonDecoder.boolean),
     vault: JsonDecoder.optional(JsonDecoder.boolean)
   },
   'Feature flags',
   {
     adExclusionPeriods: 'ad_exclusion_periods',
-    resouresTableOpenTickets: 'resources_table_widget_open_tickets'
   }
 );
 

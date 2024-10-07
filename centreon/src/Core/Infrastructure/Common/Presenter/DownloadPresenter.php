@@ -53,7 +53,7 @@ class DownloadPresenter implements PresenterFormatterInterface
      */
     private function generateDownloadFileExtension(): string
     {
-        return match (get_class($this->formatter)) {
+        return match ($this->formatter::class) {
             CsvFormatter::class => self::CSV_FILE_EXTENSION,
             JsonFormatter::class => self::JSON_FILE_EXTENSION,
             default => '',

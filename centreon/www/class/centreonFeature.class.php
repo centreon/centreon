@@ -34,6 +34,8 @@
  */
 
 /**
+ * Class
+ *
  * Manage new feature
  *
  * Format:
@@ -43,14 +45,17 @@
  * 'description' => 'New header design user experience',
  * 'visible' => true))
  *
+ * @class CentreonFeature
  */
 class CentreonFeature
 {
+    /** @var CentreonDB */
     protected $db;
-    protected static $availableFeatures = array();
+    /** @var array */
+    protected static $availableFeatures = [];
 
     /**
-     * Constructor
+     * CentreonFeature constructor
      *
      * @param CentreonDB $db - The centreon database
      */
@@ -63,18 +68,20 @@ class CentreonFeature
      * Return the list of new feature to test
      *
      * @param int $userId - The user id
+     *
      * @return array - The list of new feature to ask at the user
+     * @throws PDOException
      */
     public function toAsk($userId)
     {
         if (!is_numeric($userId)) {
             throw new Exception('The user id is not numeric.');
         }
-        $result = array();
+        $result = [];
         if (count(self::$availableFeatures) != 0) {
             $query = 'SELECT feature, feature_version FROM contact_feature WHERE contact_id = ' . $userId;
             $res = $this->db->query($query);
-            $toAsk = array();
+            $toAsk = [];
             foreach (self::$availableFeatures as $feature) {
                 if ($feature['visible']) {
                     $version = $feature['name'] . '__' . $feature['version'];
@@ -99,7 +106,7 @@ class CentreonFeature
      */
     public function getFeatures()
     {
-        $result = array();
+        $result = [];
         foreach (self::$availableFeatures as $feature) {
             if ($feature['visible']) {
                 $result[] = $feature;
@@ -113,7 +120,9 @@ class CentreonFeature
      * Return the list of feature for an user and the activated value
      *
      * @param int $userId - The user id
+     *
      * @return array
+     * @throws PDOException
      */
     public function userFeaturesValue($userId)
     {
@@ -122,13 +131,9 @@ class CentreonFeature
         }
         $query = 'SELECT feature, feature_version, feature_enabled FROM contact_feature WHERE contact_id = ' . $userId;
         $res = $this->db->query($query);
-        $result = array();
+        $result = [];
         while ($row = $res->fetchRow()) {
-            $result[] = array(
-                'name' => $row['feature'],
-                'version' => $row['feature_version'],
-                'enabled' => $row['feature_enabled']
-            );
+            $result[] = ['name' => $row['feature'], 'version' => $row['feature_version'], 'enabled' => $row['feature_enabled']];
         }
         return $result;
     }
@@ -138,8 +143,10 @@ class CentreonFeature
      *
      * @param int $userId - The user id
      * @param array $features - The list of features
+     *
+     * @throws PDOException
      */
-    public function saveUserFeaturesValue($userId, $features)
+    public function saveUserFeaturesValue($userId, $features): void
     {
         if (!is_numeric($userId)) {
             throw new Exception('The user id is not numeric.');
@@ -161,8 +168,10 @@ class CentreonFeature
      *
      * @param string $name - The feature name
      * @param string $version - The feature version
-     * @param int|null $userId - The user id if check for an user
+     * @param null $userId - The user id if check for an user
+     *
      * @return bool
+     * @throws Exception
      */
     public function featureActive($name, $version, $userId = null)
     {

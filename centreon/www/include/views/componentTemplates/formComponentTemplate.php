@@ -169,11 +169,7 @@ $l_dsColorList = [
 ];
 
 foreach ($l_dsColorList as $l_dsColor => $l_dCData) {
-    if (isset($compo[$l_dsColor]) && !empty($compo[$l_dsColor])) {
-        $l_hxColor = $compo[$l_dsColor];
-    } else {
-        $l_hxColor = $l_dCData['color'];
-    }
+    $l_hxColor = isset($compo[$l_dsColor]) && !empty($compo[$l_dsColor]) ? $compo[$l_dsColor] : $l_dCData['color'];
     $attColText = [
         'value' => $l_hxColor,
         'size' => 7,

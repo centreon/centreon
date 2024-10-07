@@ -147,10 +147,7 @@ $dbResult->execute();
 
 while ($data = $dbResult->fetch()) {
     if (!isset($stats[$data["alias"]])) {
-        $stats[$data["alias"]] = array(
-            "h" => array(0 => 0, 1 => 0, 2 => 0, 3 => 0),
-            "s" => array(0 => 0, 1 => 0, 2 => 0, 3 => 0, 3 => 0, 4 => 0)
-        );
+        $stats[$data["alias"]] = ["h" => [0 => 0, 1 => 0, 2 => 0, 3 => 0], "s" => [0 => 0, 1 => 0, 2 => 0, 3 => 0, 3 => 0, 4 => 0]];
     }
     $stats[$data["alias"]]["h"][$data["state"]] = $data["nb"];
 }
@@ -201,10 +198,7 @@ $dbResult->execute();
 
 while ($data = $dbResult->fetch()) {
     if (!isset($stats[$data["alias"]])) {
-        $stats[$data["alias"]] = array(
-            "h" => array(0 => 0, 1 => 0, 2 => 0, 3 => 0),
-            "s" => array(0 => 0, 1 => 0, 2 => 0, 3 => 0, 3 => 0, 4 => 0)
-        );
+        $stats[$data["alias"]] = ["h" => [0 => 0, 1 => 0, 2 => 0, 3 => 0], "s" => [0 => 0, 1 => 0, 2 => 0, 3 => 0, 3 => 0, 4 => 0]];
     }
     if ($stats[$data["alias"]]) {
         $stats[$data["alias"]]["s"][$data["state"]] = $data["nb"];
@@ -214,7 +208,7 @@ while ($data = $dbResult->fetch()) {
 /*
  * Get Pagination Rows
  */
-$stats = $stats ?? [];
+$stats ??= [];
 $numRows = count($stats);
 
 $obj->XML->startElement("reponse");

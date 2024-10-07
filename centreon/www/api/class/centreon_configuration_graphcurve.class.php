@@ -37,10 +37,15 @@
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationGraphcurve
+ */
 class CentreonConfigurationGraphcurve extends CentreonConfigurationObjects
 {
     /**
-     * CentreonConfigurationGraphcurve constructor.
+     * CentreonConfigurationGraphcurve constructor
      */
     public function __construct()
     {
@@ -49,17 +54,13 @@ class CentreonConfigurationGraphcurve extends CentreonConfigurationObjects
 
     /**
      * @return array
-     * @throws RestBadRequestException
+     * @throws RestBadRequestException|PDOException
      */
     public function getList()
     {
-        $queryValues = array();
+        $queryValues = [];
         // Check for select2 'q' argument
-        if (false === isset($this->arguments['q'])) {
-            $queryValues['name'] = '%%';
-        } else {
-            $queryValues['name'] = '%' . (string)$this->arguments['q'] . '%';
-        }
+        $queryValues['name'] = false === isset($this->arguments['q']) ? '%%' : '%' . (string)$this->arguments['q'] . '%';
 
         $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT compo_id, name ' .
             'FROM giv_components_template ' .
@@ -87,16 +88,10 @@ class CentreonConfigurationGraphcurve extends CentreonConfigurationObjects
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $graphCurveList = array();
+        $graphCurveList = [];
         while ($data = $stmt->fetch()) {
-            $graphCurveList[] = array(
-                'id' => $data['compo_id'],
-                'text' => $data['name']
-            );
+            $graphCurveList[] = ['id' => $data['compo_id'], 'text' => $data['name']];
         }
-        return array(
-            'items' => $graphCurveList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $graphCurveList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

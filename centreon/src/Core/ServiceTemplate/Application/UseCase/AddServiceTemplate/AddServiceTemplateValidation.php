@@ -206,7 +206,7 @@ class AddServiceTemplateValidation
      */
     public function assertIsValidHostTemplates(array $hostTemplateIds): void
     {
-        if (! empty($hostTemplateIds)) {
+        if ($hostTemplateIds !== []) {
             $hostTemplateIds = array_unique($hostTemplateIds);
             $hostTemplateIdsFound = $this->readHostTemplateRepository->findAllExistingIds($hostTemplateIds);
             if ([] !== ($diff = array_diff($hostTemplateIds, $hostTemplateIdsFound))) {
@@ -223,7 +223,7 @@ class AddServiceTemplateValidation
      */
     public function assertIsValidServiceCategories(array $serviceCategoriesIds): void
     {
-        if (empty($serviceCategoriesIds)) {
+        if ($serviceCategoriesIds === []) {
 
             return;
         }
@@ -253,7 +253,7 @@ class AddServiceTemplateValidation
      */
     public function assertIsValidServiceGroups(array $serviceGroups, array $hostTemplateIds): void
     {
-        if (empty($serviceGroups)) {
+        if ($serviceGroups === []) {
 
             return;
         }

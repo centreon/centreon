@@ -48,17 +48,17 @@ const DELETE_BROKER_CONFIGURATIONS = 'd';
 const LISTING_FILE = '/listCentreonBroker.php';
 const FORM_FILE = '/formCentreonBroker.php';
 
-isset($_GET["id"]) ? $cG = $_GET["id"] : $cG = null;
-isset($_POST["id"]) ? $cP = $_POST["id"] : $cP = null;
-$cG ? $id = $cG : $id = $cP;
+$cG = $_GET["id"] ?? null;
+$cP = $_POST["id"] ?? null;
+$id = $cG ?: $cP;
 
-isset($_GET["select"]) ? $cG = $_GET["select"] : $cG = null;
-isset($_POST["select"]) ? $cP = $_POST["select"] : $cP = null;
-$cG ? $select = $cG : $select = $cP;
+$cG = $_GET["select"] ?? null;
+$cP = $_POST["select"] ?? null;
+$select = $cG ?: $cP;
 
-isset($_GET["dupNbr"]) ? $cG = $_GET["dupNbr"] : $cG = null;
-isset($_POST["dupNbr"]) ? $cP = $_POST["dupNbr"] : $cP = null;
-$cG ? $dupNbr = $cG : $dupNbr = $cP;
+$cG = $_GET["dupNbr"] ?? null;
+$cP = $_POST["dupNbr"] ?? null;
+$dupNbr = $cG ?: $cP;
 
 require_once './class/centreonConfigCentreonBroker.php';
 
@@ -87,7 +87,7 @@ if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['
 
 $acl = $centreon->user->access;
 $serverString = trim($acl->getPollerString());
-$allowedBrokerConf = array();
+$allowedBrokerConf = [];
 
 if ($serverString != "''" && !empty($serverString)) {
     $sql = "SELECT config_id FROM cfg_centreonbroker WHERE ns_nagios_server IN (" . $serverString . ")";
@@ -128,7 +128,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            multipleCentreonBrokerInDB(isset($select) ? $select : array(), $dupNbr);
+            multipleCentreonBrokerInDB($select ?? [], $dupNbr);
         } else {
             unvalidFormMessage();
         }
@@ -139,7 +139,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteCentreonBrokerInDB(isset($select) ? $select : array());
+            deleteCentreonBrokerInDB($select ?? []);
         } else {
             unvalidFormMessage();
         }

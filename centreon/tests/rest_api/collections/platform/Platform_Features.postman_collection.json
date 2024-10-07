@@ -27,7 +27,6 @@
 							"        \"vault_gorgone\": false,\r",
 							"        \"ad_exclusion_periods\": false,\r",
 							"        \"resource_access_management\": false,\r",
-							"        \"resources_table_widget_open_tickets\": false,\r",
 							"    });\r",
 							"});"
 						],
