@@ -254,11 +254,6 @@ jobs:
               "database": "mysql:8.3",
               "test_tags": "not @ignore"
             };
-            const bullseye_mysql = {
-              "operating_system": "bullseye",
-              "database": "mysql:8.3",
-              "test_tags": "not @ignore and @system"
-            };
 
             let matrix = {
               "main": [alma9_mariadb],
@@ -269,7 +264,7 @@ jobs:
             if (context.eventName === 'schedule') {
               matrix = {
                 "main": [alma9_mariadb],
-                "operating_systems": [alma9_mariadb, alma8_mariadb, bookworm_mysql, bullseye_mysql],
+                "operating_systems": [alma9_mariadb, alma8_mariadb, bookworm_mysql],
                 "databases": [alma9_mariadb, bookworm_mysql],
               };
             }
