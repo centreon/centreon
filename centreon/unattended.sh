@@ -4,7 +4,7 @@
 OPTIONS="hst:v:r:l:p:d:V:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
-declare -A SUPPORTED_VERSION=([21.10]=1 [22.04]=1 [22.10]=1 [23.04]=1 [23.10]=1 [24.04]=1)
+declare -A SUPPORTED_VERSION=([21.10]=1 [22.04]=1 [22.10]=1 [23.04]=1 [23.10]=1 [24.04]=1 [24.10]=1)
 declare -A SUPPORTED_REPOSITORY=([testing]=1 [unstable]=1 [stable]=1)
 declare -A SUPPORTED_DBMS=([MariaDB]=1 [MySQL]=1)
 default_timeout_in_sec=5
@@ -18,7 +18,7 @@ passwords_file=/etc/centreon/generated.tobesecured         #File where the gener
 tmp_passwords_file=$(mktemp /tmp/generated.XXXXXXXXXXXXXX) #Random tmp file as the /etc/centreon does not exist yet
 
 topology=${ENV_CENTREON_TOPOLOGY:-"central"}    #Default topology to be installed
-version=${ENV_CENTREON_VERSION:-"24.04"}        #Default version to be installed
+version=${ENV_CENTREON_VERSION:-"24.10"}        #Default version to be installed
 repo=${ENV_CENTREON_REPO:-"stable"}             #Default repository to be used
 dbms=${ENV_CENTREON_DBMS:-"MariaDB"}            #Default database system to be used
 operation=${ENV_CENTREON_OPERATION:-"install"}  #Default operation to be executed
@@ -85,7 +85,7 @@ function usage() {
 	echo
 	echo "Usage:"
 	echo
-	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.04> (default: 24.04)] [-r <stable|testing|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
+	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.10> (default: 24.10)] [-r <stable|testing|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
 	echo
 	echo Example:
 	echo
@@ -384,7 +384,7 @@ function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
 
 	case $version in
-	"24.04")
+	"24.04" | "24.10")
 		detected_mariadb_version="10.11"
 	;;
 	*)
@@ -484,22 +484,40 @@ function set_required_prerequisite() {
 			esac
 
 			if [ "$topology" == "central" ]; then
-				install_remi_repo
+				case "$version" in
+					"21.10" | "22.04")
+						install_remi_repo
+						log "INFO" "Installing PHP 8.0 and enable it"
+						$PKG_MGR module reset php -y -q
+						$PKG_MGR module install php:remi-8.0 -y -q
+						;;
+					"22.10" | "23.04" | "23.10" | "24.04")
+						install_remi_repo
+						log "INFO" "Installing PHP 8.1 and enable it"
+						$PKG_MGR module install php:remi-8.1 -y -q
+						$PKG_MGR module enable php:remi-8.1 -y -q
+						;;
+					*)
+						log "INFO" "Installing PHP 8.2 from OS official repositories"
+						;;
+				esac
 
-				if [[ "$version" == "21.10" || "$version" == "22.04" ]]; then
-					log "INFO" "Installing PHP 8.0 and enable it"
-					$PKG_MGR module reset php -y -q
-					$PKG_MGR module install php:remi-8.0 -y -q
-				else
-					log "INFO" "Installing PHP 8.1 and enable it"
-					$PKG_MGR module install php:remi-8.1 -y -q
-					$PKG_MGR module enable php:remi-8.1 -y -q
-				fi
+				# install_remi_repo
+
+				# if [[ "$version" == "21.10" || "$version" == "22.04" ]]; then
+				# 	log "INFO" "Installing PHP 8.0 and enable it"
+				# 	$PKG_MGR module reset php -y -q
+				# 	$PKG_MGR module install php:remi-8.0 -y -q
+				# else
+				# 	log "INFO" "Installing PHP 8.1 and enable it"
+				# 	$PKG_MGR module install php:remi-8.1 -y -q
+				# 	$PKG_MGR module enable php:remi-8.1 -y -q
+				# fi
 			fi
 			;;
 
 		9*)
-			if ! [[ "$version" == "23.04" || "$version" == "23.10" || "$version" == "24.04" ]]; then
+			if ! [[ "$version" == "23.04" || "$version" == "23.10" || "$version" == "24.04" || "$version" == "24.10" ]]; then
 				error_and_exit "Only Centreon version >=23.04 is compatible with EL9, you chose $version"
 			fi
 
@@ -530,9 +548,29 @@ function set_required_prerequisite() {
 			esac
 
 			if [ "$topology" == "central" ]; then
-				log "INFO" "Installing PHP 8.1 and enable it"
-				$PKG_MGR module install php:8.1 -y -q
-				$PKG_MGR module enable php:8.1 -y -q
+				log "INFO" "Installing PHP 8.2 from OS official repositories"
+				# Lines below are for pre testing, remove before merging
+				$PKG_MGR module reset php
+				$PKG_MGR module install php:8.2
+				dnf install \
+					php-common \
+					php-cli\
+					php-pdo \
+					php-mysqlnd \
+					php-gd \
+					php-xml \
+					php-mbstring \
+					php-ldap \
+					php-snmp \
+					php-intl \
+					php-fpm \
+					php-curl \
+					php-zip \
+					php-pear \
+					php-json
+				# log "INFO" "Installing PHP 8.1 and enable it"
+				# $PKG_MGR module install php:8.1 -y -q
+				# $PKG_MGR module enable php:8.1 -y -q
 			fi
 			;;
 
@@ -560,7 +598,8 @@ function set_required_prerequisite() {
 		;;
 	debian-release* | ubuntu-release*)
 		log "INFO" "Setting specific part for $detected_os_release"
-		PHP_SERVICE_UNIT="php8.1-fpm"
+		# Remove me, used for pre testing only
+		#PHP_SERVICE_UNIT="php8.1-fpm"
 		HTTP_SERVICE_UNIT="apache2"
 		PKG_MGR="apt -qq"
 		case "$detected_os_release" in
@@ -570,11 +609,13 @@ function set_required_prerequisite() {
 				if ! [[ "$version" == "22.04" || "$version" == "22.10" || "$version" == "23.04" || "$version" == "23.10" || "$version" == "24.04" ]]; then
 					error_and_exit "For Debian $detected_os_version, only Centreon versions >= 22.04 are compatible. You chose $version"
 				fi
+				PHP_SERVICE_UNIT="php8.1-fpm"
 				;;
 			12)
-				if ! [[ "$version" == "24.04" ]]; then
+				if ! [[ "$version" == "24.04" || "$version" == "24.10" ]]; then
 					error_and_exit "For Debian $detected_os_version, only Centreon versions >= 24.04 are compatible. You chose $version"
 				fi
+				PHP_SERVICE_UNIT="php8.2-fpm"
 				;;
 			*)
 				error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9), Debian 11/12 and Ubuntu 22.04. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
@@ -588,15 +629,16 @@ function set_required_prerequisite() {
 			ARCH=""
 			if [[ "$VENDORID" == "ARM" ]]; then
 				ARCH="[ arch=all,arm64 ]"
-				if ! [[ "$version" == "23.10" || "$version" == "24.04" || "$topology" == "poller" ]]; then
+				if ! [[ "$version" == "23.10" || "$version" == "24.04" || "$version" == "24.10" || "$topology" == "poller" ]]; then
 					error_and_exit "For Debian on Raspberry, only Centreon versions (poller mode) >=23.10 are compatible. You chose $version to install $topology server"
 				fi
 			fi
 			;;
 		ubuntu-release*)
 			if ! [[ "$version" == "24.04" ]]; then
-				error_and_exit "For Ubuntu, only Centreon versions >= 24.04 are compatible. You chose $version"
+				error_and_exit "For Ubuntu, only Centreon versions = 24.04 are compatible. You chose $version"
 			fi
+			PHP_SERVICE_UNIT="php8.1-fpm"
 			${PKG_MGR} update && ${PKG_MGR} install -y apt-transport-https gnupg2
 			repo_prefix="ubuntu"
 			;;
@@ -615,8 +657,18 @@ function set_required_prerequisite() {
 
 		if [ "$topology" == "central" ]; then
 			# Add PHP repo
-			echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
-			wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
+			# if OLD VERSIONS => PHP 8.1(install remi repos), else PHP 8.2 (do not install remi repos)
+			case "$version" in
+				"22.10" | "23.04" | "23.10" | "24.04")
+					echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
+					wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
+					;;
+				"24.10")
+					echo "Installing php from official os repositories."
+					;;
+			esac
+			# echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
+			# wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1			if [[ "$dbms" == "MariaDB" ]]; then
 			if [[ "$dbms" == "MariaDB" ]]; then
 				set_mariadb_repos
 			else
