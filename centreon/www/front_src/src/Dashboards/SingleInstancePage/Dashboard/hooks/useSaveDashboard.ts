@@ -22,6 +22,11 @@ import { labelYourDashboardHasBeenSaved } from '../translatedLabels';
 
 import { routerParams } from './useDashboardDetails';
 
+interface UseSaveDashboardState {
+  saveDashboard: () => void;
+}
+
+
 const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
   layout.map(
     ({
@@ -55,9 +60,6 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
     })
   );
 
-interface UseSaveDashboardState {
-  saveDashboard: () => void;
-}
 
 const useSaveDashboard = (): UseSaveDashboardState => {
   const { t } = useTranslation();
