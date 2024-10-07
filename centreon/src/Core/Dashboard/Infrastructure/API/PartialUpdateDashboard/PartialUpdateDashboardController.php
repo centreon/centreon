@@ -73,13 +73,13 @@ final class PartialUpdateDashboardController extends AbstractController
         try {
             $partialUpdateDashboardRequest = $mappedRequest->toDto();
 
-            if ($request->files->get('thumbnail_data') !== null && ! $partialUpdateDashboardRequest->thumbnail instanceof NoValue) {
+            $this->assertThumbnailDataSent($request, $mappedRequest);
+
+            if ($request->files->get('thumbnail_data') !== null && ! $mappedRequest->thumbnail instanceof novalue) {
                 /** @var UploadedFile $thumbnail */
                 $thumbnail = $request->files->get('thumbnail_data');
                 $this->validateThumbnailContent($thumbnail);
                 $partialUpdateDashboardRequest->thumbnail->file = $thumbnail;
-            } else {
-                throw new \InvalidArgumentException('Thumbnail definition and content are both required');
             }
 
             $useCase($dashboardId, $partialUpdateDashboardRequest, $presenter);
@@ -92,6 +92,24 @@ final class PartialUpdateDashboardController extends AbstractController
         }
 
         return $presenter->show();
+    }
+
+    /**
+     *
+     * Assert that if at least one data for thumbnail is sent then both are required
+     *
+     * @param Request $request
+     * @param PartialUpdateDashboardRequest $dashboardRequest
+     * @throws \InvalidArgumentException
+     */
+    private function assertThumbnailDataSent(Request $request, PartialUpdateDashboardRequest $dashboardRequest): void
+    {
+        if (
+            ($request->files->get('thumbnail_data') && $dashboardRequest->thumbnail instanceof NoValue)
+            || (! $request->files->get('thumbnail_data') && ! $dashboardRequest->thumbnail instanceof NoValue)
+        ) {
+            throw new \InvalidArgumentException('Thumbnail definition and content are both required');
+        }
     }
 
     /**
