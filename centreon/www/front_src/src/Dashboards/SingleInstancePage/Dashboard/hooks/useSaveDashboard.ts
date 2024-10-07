@@ -14,6 +14,7 @@ import {
   getDashboardEndpoint,
   mediasEndpoint
 } from '../../../api/endpoints';
+
 import { resource } from '../../../api/models';
 import { dashboardAtom, switchPanelsEditionModeDerivedAtom, thumbnailAtom } from '../atoms';
 import { Panel, PanelDetailsToAPI } from '../models';
