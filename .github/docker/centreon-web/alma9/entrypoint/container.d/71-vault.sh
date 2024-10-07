@@ -1,7 +1,6 @@
 #!/bin/sh
 
 . /tmp/shared-volume/docker_compose.env
-apt -y install jq
 
 RESPONSE=$(curl -s -w "%{http_code}" -H 'Content-Type:application/json' -H 'Accept:application/json' -d '{"security":{"credentials":{"login":"admin","password":"Centreon!2021"}}}' -L "http://localhost:8080/centreon/api/latest/login")
 TOKEN=$(echo "$RESPONSE" | head -c -4 | jq -r '.security.token')

@@ -2,6 +2,8 @@ services:
   web:
     env_file:
       - .env
+    volumes:
+      - shared-volume:/tmp/shared-volume
     image: "${WEB_IMAGE}"
     ports: ["4000:80"]
     depends_on:
@@ -14,8 +16,6 @@ services:
       interval: 1s
       retries: 120
       timeout: 5s
-    volumes:
-      - shared-volume:/tmp/shared-volume
 
   db:
     env_file:
