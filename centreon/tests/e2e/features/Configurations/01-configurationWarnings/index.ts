@@ -3,7 +3,7 @@ import { Given, When, Then } from "@badeball/cypress-cucumber-preprocessor";
 import data from "../../../fixtures/notifications/data-for-notification.json";
 
 beforeEach(() => {
-//   cy.startContainers();
+  cy.startContainers();
   cy.intercept({
     method: "GET",
     url: "/centreon/include/common/userTimezone.php",
