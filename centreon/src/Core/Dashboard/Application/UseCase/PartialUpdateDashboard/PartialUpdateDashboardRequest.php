@@ -125,7 +125,7 @@ final class PartialUpdateDashboardRequest
                                 new Assert\NotNull(),
                                 new Assert\Type('numeric'),
                             ],
-                            'min_width' => [ new Assert\NotNull(),
+                            'min_width' => [new Assert\NotNull(),
                                 new Assert\Type('numeric'),
                             ],
                             'min_height' => [
