@@ -15,7 +15,7 @@ services:
       retries: 120
       timeout: 5s
     volumes:
-      - shared-volume:/tmp
+      - shared-volume:/tmp/shared-volume
 
   db:
     env_file:
