@@ -8,6 +8,10 @@ beforeEach(() => {
     method: "GET",
     url: "/centreon/include/common/userTimezone.php",
   }).as("getUserTimezone");
+  cy.intercept({
+    method: "GET",
+    url: "/centreon/api/internal.php?object=centreon_topology&action=navigationList",
+  }).as("getNavigationList");
 });
 
 Given("An admin user is logged in Centreon", () => {
@@ -15,7 +19,6 @@ Given("An admin user is logged in Centreon", () => {
 });
 
 Given("a service with notifications enabled", () => {
-    cy.setUserTokenApiV1();
      cy.addHostGroup({
        name: data.hostGroups.hostGroup1.name,
      });
