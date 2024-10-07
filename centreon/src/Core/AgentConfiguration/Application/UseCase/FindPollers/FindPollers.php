@@ -23,16 +23,14 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\UseCase\FindPollers;
 
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\AgentConfiguration\Application\UseCase\FindPollers\FindPollersPresenterInterface;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 final class FindPollers
@@ -53,24 +51,9 @@ final class FindPollers
     ) {
     }
 
-    /**
-     * @param FindPollersPresenterInterface $presenter
-     */
-    public function __invoke(FindPollersPresenterInterface $presenter): void
+    public function __invoke(): FindPollersResponse|ResponseStatusInterface
     {
         try {
-            if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW)) {
-                $this->error(
-                    "User doesn't have sufficient rights to access agent configurations",
-                    ['user_id' => $this->user->getId()]
-                );
-                $presenter->presentResponse(
-                    new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
-                );
-
-                return;
-            }
-
             $pollers =  $this->user->isAdmin()
                 ? $this->readRepository->findAvailablePollersByRequestParameters($this->requestParameters)
                 : $this->readRepository->findAvailablePollersByRequestParametersAndAccessGroups(
@@ -78,33 +61,11 @@ final class FindPollers
                     $this->requestParameters
                 );
 
-            $presenter->presentResponse($this->createResponse($pollers));
+            return new FindPollersResponse($pollers, $this->requestParameters);
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->presentResponse(new ErrorResponse(AgentConfigurationException::findPollers()));
+
+            return new ErrorResponse(AgentConfigurationException::findPollers());
         }
-    }
-
-    /**
-     * Create a FindPollersResponse from an array of Pollers.
-     *
-     * @param Poller[] $pollers The pollers to map to the response.
-     *
-     * @return FindPollersResponse The response containing the pollers as PollerDtos.
-     */
-    private function createResponse(array $pollers): FindPollersResponse
-    {
-        $response = new FindPollersResponse();
-        $response->pollers = array_map(
-            function(Poller $poller) {
-                $pollerDto = new PollerDto();
-                $pollerDto->id = $poller->getId();
-                $pollerDto->name = $poller->getName();
-
-                return $pollerDto;
-            }
-            ,$pollers);
-
-        return $response;
     }
 }

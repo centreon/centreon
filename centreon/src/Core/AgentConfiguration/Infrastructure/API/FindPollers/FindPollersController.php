@@ -25,15 +25,30 @@ namespace Core\AgentConfiguration\Infrastructure\API\FindPollers;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\AgentConfiguration\Application\UseCase\FindPollers\FindPollers;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Infrastructure\Common\Api\StandardPresenter;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted(
+    'read_agent_configuration_available_pollers',
+    null,
+    'You are not allowed to access poller/agent configurations',
+    Response::HTTP_FORBIDDEN
+)]
 final class FindPollersController extends AbstractController
 {
-    public function __invoke(FindPollers $useCase, FindPollersPresenter $presenter): Response
+    public function __invoke(FindPollers $useCase, StandardPresenter $presenter): Response
     {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
-        $useCase($presenter);
+        $response = $useCase();
 
-        return $presenter->show();
+        if ($response instanceof ResponseStatusInterface) {
+            return $this->createResponse($response);
+        }
+
+        return JsonResponse::fromJsonString(
+            $presenter->present($response, ['groups' => ['AgentConfiguration:Read']])
+        );
     }
 }

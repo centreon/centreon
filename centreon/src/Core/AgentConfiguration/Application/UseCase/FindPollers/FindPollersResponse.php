@@ -23,8 +23,27 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\UseCase\FindPollers;
 
-final class FindPollersResponse
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Application\Common\UseCase\StandardResponseInterface;
+
+final class FindPollersResponse implements StandardResponseInterface
 {
-    /** @var PollerDto[] $pollers */
-    public array $pollers = [];
+    /**
+     * FindAgentConfigurationResponse constructor.
+     *
+     * @param Poller[] $pollers
+     */
+    public function __construct(
+        public readonly array $pollers,
+        public readonly RequestParametersInterface $requestParameters
+    ) {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getData(): mixed
+    {
+        return $this;
+    }
 }
