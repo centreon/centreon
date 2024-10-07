@@ -27,7 +27,7 @@ after(() => {
   cy.stopContainers();
 });
 
-Given('a non-admin user is in the Specific Connector Configuration page', () => {
+Given('a non-admin user is in the Additional Connector Configuration page', () => {
   cy.loginByTypeOfUser({
     jsonName: 'user-non-admin-for-ACC',
     loginViaApi: false
@@ -61,7 +61,7 @@ When('the user clicks on Create', () => {
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
 });
 
-Then('the first connector is displayed in the Specific Connector Configuration page', () => {
+Then('the first connector is displayed in the Additional Connector Configuration page', () => {
   cy.wait('@addAdditionalConnector');
   cy.get('*[role="rowgroup"]')
     .should('contain', 'Connector-001');
@@ -79,13 +79,13 @@ When('the user fills in the mandatory informations', () => {
   cy.get('#Portvalue').should('have.value', '5700');
 });
 
-Then('the second configuration is displayed in the Specific Connector Configuration page', () => {
+Then('the second configuration is displayed in the Additional Connector Configuration page', () => {
   cy.wait('@addAdditionalConnector');
   cy.get('*[role="rowgroup"]')
     .should('contain', 'Connector-002');
 });
 
-Then('the third configuration is displayed in the Specific Connector Configuration page', () => {
+Then('the third configuration is displayed in the Additional Connector Configuration page', () => {
   cy.wait('@addAdditionalConnector');
   cy.get('*[role="rowgroup"]')
     .should('contain', 'Connector-003');

@@ -39,7 +39,7 @@ after(() => {
   cy.stopContainers();
 });
 
-Given('an admin user is in the Specific Connector Configuration page', () => {
+Given('an admin user is in the Additional Connector Configuration page', () => {
   cy.loginByTypeOfUser({
     jsonName: 'admin',
     loginViaApi: false
@@ -78,7 +78,7 @@ Then('the creation form is closed', () => {
   cy.get('Create additional connector configuration').should('not.exist');
 });
 
-Then('the first configuration is displayed in the Specific Connector Configuration page', () => {
+Then('the first configuration is displayed in the Additional Connector Configuration page', () => {
   cy.get('*[role="rowgroup"]')
     .should('contain', 'Connector-001');
 });
@@ -129,7 +129,7 @@ Then('the update form is closed', () => {
   cy.get('Update additional connector configuration').should('not.exist');
 });
 
-Then('the updated configuration is displayed correctly in the Specific Connector Configuration page', () => {
+Then('the updated configuration is displayed correctly in the Additional Connector Configuration page', () => {
   cy.get('*[role="rowgroup"]')
     .should('contain', 'Connector-002');
 });
@@ -152,11 +152,11 @@ Given('a non-admin user without topology rights is logged in', () => {
   });
 });
 
-When('the user tries to access the Specific Connector Configuration page', () => {
+When('the user tries to access the Additional Connector Configuration page', () => {
   cy.visit('/centreon/configuration/additional-connector-configurations');
 });
 
-Then('the user cannot access the Specific Connector Configuration page', () => {
+Then('the user cannot access the Additional Connector Configuration page', () => {
   cy.getByTestId({ testId: 'You are not allowed to see this page' }).should('be.visible');
 });
 
@@ -205,7 +205,7 @@ Given('the user has a filter on one of the pollers', () => {
   });
 });
 
-When('the user accesses the Specific Connector Configuration page', () => {
+When('the user accesses the Additional Connector Configuration page', () => {
   cy.visit('/centreon/configuration/additional-connector-configurations');
   cy.wait('@getConnectorPage');
 });
@@ -262,7 +262,7 @@ Then('the user can update the additional connector configuration', () => {
   cy.get('Update additional connector configuration').should('not.exist');
 });
 
-Given('a non-admin user is in the Specific Connector Configuration page', () => {
+Given('a non-admin user is in the Additional Connector Configuration page', () => {
   cy.loginByTypeOfUser({
     jsonName: 'user-non-admin-for-ACC',
     loginViaApi: false
@@ -294,7 +294,7 @@ When('the non-admin user fills in all the informations', () => {
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
 });
 
-Then('the new configuration is displayed in the Specific Connector Configuration page', () => {
+Then('the new configuration is displayed in the Additional Connector Configuration page', () => {
   cy.get('*[role="rowgroup"]')
     .should('contain', 'Connector-002');
 });

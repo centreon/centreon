@@ -37,14 +37,14 @@ Given('a non-admin user is logged in', () => {
   });
 });
 
-When('the user clicks on the Specific Connector Configuration page', () => {
+When('the user clicks on the Additional Connector Configuration page', () => {
   cy.navigateTo({
     page: 'Additional Connector Configurations',
     rootItemNumber: 0
   });
 });
 
-Then('the user sees the Specific Connector Configuration page', () => {
+Then('the user sees the Additional Connector Configuration page', () => {
   cy.wait('@getConnectorPage');
 });
 
@@ -53,7 +53,7 @@ Then('there is no additional connector configuration listed', () => {
     .should('contain', 'No result found');
 });
 
-Given('a non-admin user is in the Specific Connector Configuration page', () => {
+Given('a non-admin user is in the Additional Connector Configuration page', () => {
   cy.loginByTypeOfUser({
     jsonName: 'user-non-admin-for-ACC',
     loginViaApi: false

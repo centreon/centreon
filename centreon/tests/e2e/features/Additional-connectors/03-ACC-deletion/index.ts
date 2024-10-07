@@ -30,7 +30,7 @@ after(() => {
   cy.stopContainers();
 });
 
-Given('a non-admin user is in the Specific Connector Configuration page', () => {
+Given('a non-admin user is in the Additional Connector Configuration page', () => {
   cy.loginByTypeOfUser({
     jsonName: 'user-non-admin-for-ACC',
     loginViaApi: false
