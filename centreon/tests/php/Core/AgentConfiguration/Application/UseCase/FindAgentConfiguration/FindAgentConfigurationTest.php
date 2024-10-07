@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\AgentConfiguration\Domain\Model\Type;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
@@ -37,7 +36,6 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 
 beforeEach(function (): void {
     $this->useCase = new FindAgentConfiguration(
-        user: $this->user = $this->createMock(ContactInterface::class),
         readRepository: $this->readRepository = $this->createMock(ReadAgentConfigurationRepositoryInterface::class),
     );
 });

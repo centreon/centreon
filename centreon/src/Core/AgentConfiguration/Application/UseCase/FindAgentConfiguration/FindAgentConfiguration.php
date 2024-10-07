@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
@@ -38,13 +37,10 @@ final class FindAgentConfiguration
     /**
      * FindAgentConfiguration constructor.
      *
-     * @param ContactInterface $user user requesting the agent configuration
      * @param ReadAgentConfigurationRepositoryInterface $readRepository repository to read agent configurations
      */
-    public function __construct(
-        private readonly ContactInterface $user,
-        private readonly ReadAgentConfigurationRepositoryInterface $readRepository,
-    ) {
+    public function __construct(private readonly ReadAgentConfigurationRepositoryInterface $readRepository)
+    {
     }
 
     /**
@@ -56,20 +52,11 @@ final class FindAgentConfiguration
      */
     public function __invoke(int $agentConfigurationId): FindAgentConfigurationResponse|ResponseStatusInterface
     {
-        $this->info(
-            'Find agent configuration',
-            [
-                'user_id' => $this->user->getId(),
-                'agent_configuration_id' => $agentConfigurationId,
-            ]
-        );
+        $this->info('Find agent configuration', ['agent_configuration_id' => $agentConfigurationId]);
 
         try {
             if (null === $agentConfiguration = $this->readRepository->find($agentConfigurationId)) {
-                $this->error(
-                    'Agent configuration not found',
-                    ['agent_configuration_id' => $agentConfigurationId]
-                );
+                $this->error('Agent configuration not found', ['agent_configuration_id' => $agentConfigurationId]);
 
                 return new NotFoundResponse('Agent Configuration');
             }
@@ -83,7 +70,7 @@ final class FindAgentConfiguration
 
             return new FindAgentConfigurationResponse($agentConfiguration, $pollers);
         } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['user_id' => $this->user->getId()]);
+            $this->error($ex->getMessage(), ['trace' => (string) $ex]);
 
             return new ErrorResponse(AgentConfigurationException::errorWhileRetrievingObject());
         }
