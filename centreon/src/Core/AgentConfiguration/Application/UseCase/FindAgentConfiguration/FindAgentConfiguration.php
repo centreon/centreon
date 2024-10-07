@@ -27,12 +27,9 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
-use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 final class FindAgentConfiguration
 {
@@ -43,14 +40,10 @@ final class FindAgentConfiguration
      *
      * @param ContactInterface $user user requesting the agent configuration
      * @param ReadAgentConfigurationRepositoryInterface $readRepository repository to read agent configurations
-     * @param ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository repository to read monitoring servers
-     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository repository to read access groups
      */
     public function __construct(
         private readonly ContactInterface $user,
         private readonly ReadAgentConfigurationRepositoryInterface $readRepository,
-        private readonly ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository,
-        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
     ) {
     }
 
@@ -86,33 +79,6 @@ final class FindAgentConfiguration
             );
 
             $pollers = $this->readRepository->findPollersByAcId($agentConfigurationId);
-
-            /**
-             * Check if the non-admin user has access to all the pollers in the agent configuration.
-             * If not, return a NotFoundResponse.
-             */
-            if (! $this->user->isAdmin()) {
-                $pollerIds = array_map(
-                    static fn(Poller $poller): int => $poller->id,
-                    $pollers
-                );
-                $validPollerIds = $this->readMonitoringServerRepository->existByAccessGroups(
-                    $pollerIds,
-                    $this->readAccessGroupRepository->findByContact($this->user)
-                );
-
-                if ([] !== array_diff($pollerIds, $validPollerIds)) {
-                    $this->debug(
-                        'User does not have the correct access groups for pollers',
-                        [
-                            'user_id' => $this->user->getId(),
-                            'poller_ids' => array_diff($pollerIds, $validPollerIds),
-                        ]
-                    );
-
-                    return new NotFoundResponse('Agent Configuration');
-                }
-            }
 
             return new FindAgentConfigurationResponse($agentConfiguration, $pollers);
         } catch (\Throwable $ex) {

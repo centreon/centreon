@@ -26,6 +26,10 @@ namespace Core\AgentConfiguration\Infrastructure\Voters;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
+use Core\AgentConfiguration\Domain\Model\Poller;
+use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -36,17 +40,35 @@ final class AgentConfigurationVoter extends Voter
 {
     use LoggerTrait;
     public const READ_AC = 'read_agent_configuration';
+    public const READ_AC_POLLERS = 'read_agent_configuration_pollers';
+
+    public function __construct(
+        private readonly ReadAgentConfigurationRepositoryInterface $readRepository,
+        private readonly ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+    ) {
+    }
 
     /**
      * {@inheritDoc}
      */
     protected function supports(string $attribute, $subject): bool
     {
-        return in_array($attribute, [self::READ_AC], true);
+        if ($attribute === self::READ_AC) {
+            return $subject === null;
+        }
+
+        if ($attribute === self::READ_AC_POLLERS) {
+            return is_numeric($subject);
+        }
+
+        return false;
     }
 
     /**
      * {@inheritDoc}
+     *
+     * @param numeric-string|null $subject
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
@@ -58,10 +80,18 @@ final class AgentConfigurationVoter extends Voter
 
         return match ($attribute) {
             self::READ_AC => $this->checkTopologyRole($user),
+            self::READ_AC_POLLERS => $this->checkAgentConfigurationPollers($user, (int) $subject),
             default => throw new \LogicException('Action on agent configuration not handled')
         };
     }
 
+    /**
+     * Checks if the user has sufficient rights to access agent configurations.
+     *
+     * @param ContactInterface $user
+     *
+     * @return bool
+     */
     private function checkTopologyRole(ContactInterface $user): bool
     {
         if ($user->hasTopologyRole(Contact::ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW)) {
@@ -71,6 +101,44 @@ final class AgentConfigurationVoter extends Voter
         $this->error(
             "User doesn't have sufficient rights to access agent configurations",
             ['user_id' => $user->getId()]
+        );
+
+        return false;
+    }
+
+    /**
+     * Checks if the user has the correct access groups for the pollers associated with the given agent configuration.
+     *
+     * @param ContactInterface $user The user to check
+     * @param int $agentConfigurationId The ID of the agent configuration
+     *
+     * @return bool True if the user has the correct access groups, false otherwise
+     */
+    private function checkAgentConfigurationPollers(ContactInterface $user, int $agentConfigurationId): bool
+    {
+        if ($user->isAdmin()) {
+            return true;
+        }
+        $pollers = $this->readRepository->findPollersByAcId($agentConfigurationId);
+
+        $pollerIds = array_map(
+            static fn(Poller $poller): int => $poller->id,
+            $pollers
+        );
+        $validPollerIds = $this->readMonitoringServerRepository->existByAccessGroups(
+            $pollerIds,
+            $this->readAccessGroupRepository->findByContact($user)
+        );
+        if ([] === array_diff($pollerIds, $validPollerIds)) {
+            return true;
+        }
+
+        $this->debug(
+            'User does not have the correct access groups for pollers',
+            [
+                'user_id' => $user->getId(),
+                'poller_ids' => array_diff($pollerIds, $validPollerIds),
+            ]
         );
 
         return false;

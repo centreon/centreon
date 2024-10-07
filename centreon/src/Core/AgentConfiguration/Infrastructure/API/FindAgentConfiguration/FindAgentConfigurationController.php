@@ -37,6 +37,12 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
     'You are not allowed to access poller/agent configurations',
     Response::HTTP_FORBIDDEN
 )]
+#[IsGranted(
+    'read_agent_configuration_pollers',
+    'id',
+    'poller/agent configuration could not be found',
+    Response::HTTP_NOT_FOUND
+)]
 final class FindAgentConfigurationController extends AbstractController
 {
     public function __invoke(
