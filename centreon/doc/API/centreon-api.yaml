@@ -259,7 +259,7 @@ paths:
   /configuration/agent-configurations:
     $ref: "./latest/onPremise/Configuration/AgentConfiguration/AddOrFindAc.yaml"
   /configuration/agent-configurations/{ac_id}:
-    $ref: "./latest/onPremise/Configuration/AgentConfiguration/DeleteAndUpdateAc.yaml"
+    $ref: "./latest/onPremise/Configuration/AgentConfiguration/DeleteAndUpdateAndFindDetailAc.yaml"
   /configuration/agent-configurations/{ac_id}/pollers/{poller_id}:
     $ref: "./latest/onPremise/Configuration/AgentConfiguration/DeleteAcPollerLink.yaml"
   /configuration/broker/{brokerId}/{tag}:

@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration;
+namespace Tests\Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
@@ -39,7 +39,6 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use Tests\Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations\FindAgentConfigurationsPresenterStub;
 
 beforeEach(function (): void {
     $this->presenter = new FindAgentConfigurationsPresenterStub();
