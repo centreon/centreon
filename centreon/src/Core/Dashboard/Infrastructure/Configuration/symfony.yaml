@@ -12,6 +12,7 @@ services:
     Core\Dashboard\Application\UseCase\AddDashboardThumbnail\AddDashboardThumbnail:
         arguments:
             $writeMediaRepository: '@Core\Media\Infrastructure\Repository\FileProxyWriteMediaRepository'
+            $dataStorageEngine: '@Core\Common\Infrastructure\Repository\DataStorageObserver'
 
     Core\Dashboard\Application\UseCase\DeleteDashboard\DeleteDashboard:
         arguments:

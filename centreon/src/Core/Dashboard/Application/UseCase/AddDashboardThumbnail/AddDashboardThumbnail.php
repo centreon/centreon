@@ -72,6 +72,7 @@ final class AddDashboardThumbnail
             }
 
             $media = $this->createMediaFromRequest($request);
+
             $mediaId = $this->addThumbnail($media);
 
             $this->writeDashboardRepository->addThumbnailRelation($dashboard->getId(), $mediaId);
@@ -90,7 +91,7 @@ final class AddDashboardThumbnail
      */
     private function createMediaFromRequest(AddDashboardThumbnailRequest $request): NewMedia
     {
-        return new NewMedia($request->thumbnail->getFilename(), $request->directory, $request->thumbnail->getContent());
+        return new NewMedia($request->thumbnail->getClientOriginalName(), $request->directory, $request->thumbnail->getContent());
     }
 
     /**
