@@ -28,24 +28,18 @@ use Core\AgentConfiguration\Domain\Model\Type;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfiguration;
-use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfigurationRequest;
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfigurationResponse;
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\PollerDto;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
     $this->useCase = new FindAgentConfiguration(
         user: $this->user = $this->createMock(ContactInterface::class),
         readRepository: $this->readRepository = $this->createMock(ReadAgentConfigurationRepositoryInterface::class),
-        readMonitoringServerRepository: $this->readMonitoringServerRepository = $this->createMock(ReadMonitoringServerRepositoryInterface::class),
-        readAccessGroupRepository: $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
     );
 });
 
@@ -54,51 +48,6 @@ it('should present a Not Found Response when object does not exist', function ()
         ->expects($this->once())
         ->method('find')
         ->willReturn(null);
-
-    $response = ($this->useCase)(1);
-
-    expect($response)
-        ->toBeInstanceOf(NotFoundResponse::class)
-        ->and($response->getMessage())
-        ->toBe('Agent Configuration not found');
-});
-
-it('should present a Not Found Response when object got pollers not accessible by the user', function () {
-    $configuration = new TelegrafConfigurationParameters([
-        'otel_server_address' => '10.10.10.10',
-        'otel_server_port' => 453,
-        'otel_public_certificate' => 'public_certif',
-        'otel_ca_certificate' => 'ca_certif',
-        'otel_private_key' => 'otel-key',
-        'conf_server_port' => 454,
-        'conf_certificate' => 'conf-certif',
-        'conf_private_key' => 'conf-key'
-    ]);
-
-    $pollers = [
-        new Poller(2, 'pollerOne'),
-        new Poller(2, 'pollerTwo')
-    ];
-
-    $this->user
-        ->expects($this->once())
-        ->method('isAdmin')
-        ->willReturn(false);
-
-    $this->readRepository
-        ->expects($this->once())
-        ->method('find')
-        ->willReturn(new AgentConfiguration(1, 'acOne', Type::TELEGRAF, $configuration));
-
-    $this->readRepository
-        ->expects($this->once())
-        ->method('findPollersByAcId')
-        ->willReturn($pollers);
-
-    $this->readMonitoringServerRepository
-        ->expects($this->once())
-        ->method('existByAccessGroups')
-        ->willReturn([1]);
 
     $response = ($this->useCase)(1);
 
@@ -139,11 +88,6 @@ it('should present a FindConfigurationResponse when everything is ok', function 
         new Poller(2, 'pollerTwo')
     ];
 
-    $this->user
-        ->expects($this->once())
-        ->method('isAdmin')
-        ->willReturn(true);
-
     $this->readRepository
         ->expects($this->once())
         ->method('find')
@@ -155,13 +99,6 @@ it('should present a FindConfigurationResponse when everything is ok', function 
         ->willReturn($pollers);
 
     $response = ($this->useCase)(1);
-
-    $pollerDtoOne = new PollerDto();
-    $pollerDtoOne->id = 1;
-    $pollerDtoOne->name = 'pollerOne';
-    $pollerDtoTwo = new PollerDto();
-    $pollerDtoTwo->id = 2;
-    $pollerDtoTwo->name = 'pollerTwo';
 
     expect($response)
         ->toBeInstanceOf(FindAgentConfigurationResponse::class)
