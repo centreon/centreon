@@ -144,7 +144,7 @@ if ($centreon->user->access->page($p)) {
 
     if (isset($_GET["host_id"])) {
         echo '<span class="pathWayBracket" > &nbsp;&#62;&nbsp; </span>';
-        echo getMyHostName(htmlentities($_GET["host_id"], ENT_QUOTES, "UTF-8"));
+        echo htmlentities(getMyHostName((int) $_GET["host_id"]));
     }
 }
 ?>
