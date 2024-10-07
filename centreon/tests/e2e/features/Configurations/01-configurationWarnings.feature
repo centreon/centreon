@@ -1,9 +1,9 @@
 Feature: Print configuration warnings
-	As a Centreon user
-	A user wants to know configuration issues
-	So that the user can fix them
+  As a Centreon user
+  A user wants to know configuration issues
+  So that the user can fix them
 
-	Background:
+  Background:
 		Given An admin user is logged in Centreon
 
 	Scenario: Notifications enabled on service without notification period
