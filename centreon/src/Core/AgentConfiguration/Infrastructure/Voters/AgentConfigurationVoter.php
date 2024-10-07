@@ -119,6 +119,7 @@ final class AgentConfigurationVoter extends Voter
         if ($user->isAdmin()) {
             return true;
         }
+
         $pollers = $this->readRepository->findPollersByAcId($agentConfigurationId);
 
         $pollerIds = array_map(

@@ -54,7 +54,8 @@ final class FindAgentConfiguration
      *
      * @return FindAgentConfigurationResponse|ResponseStatusInterface
      */
-    public function __invoke(int $agentConfigurationId): FindAgentConfigurationResponse|ResponseStatusInterface {
+    public function __invoke(int $agentConfigurationId): FindAgentConfigurationResponse|ResponseStatusInterface
+    {
         $this->info(
             'Find agent configuration',
             [
