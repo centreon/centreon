@@ -19,6 +19,7 @@ module.exports = ({ webpackConfig, cypressFolder, specPattern, env }) => {
 
         on('before:browser:launch', (browser, launchOptions) => {
           if (browser.name === 'chrome' && browser.isHeadless) {
+            launchOptions.args.push('--window-size=1400,1200');
             launchOptions.args = launchOptions.args.map((arg) => {
               if (arg === '--headless') {
                 return '--headless=new';
