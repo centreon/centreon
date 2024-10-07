@@ -40,3 +40,23 @@ put:
       $ref: '../../Common/Response/NotFound.yaml'
     '500':
       $ref: '../../Common/Response/InternalServerError.yaml'
+get:
+  tags:
+    - Poller/agent configuration
+  summary: "Get a poller/agent configuration"
+  description: "Get a poller/agent configuration"
+  parameters:
+    - $ref: 'QueryParameter/AgentConfigurationId.yaml'
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/GetAcResponse.yaml'
+    '400':
+      $ref: '../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '500':
