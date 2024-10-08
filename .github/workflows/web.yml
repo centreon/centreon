@@ -116,7 +116,7 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - run: |
-          NIGHTLY_TARGETS=("dev-22.10.x" "dev-23.04.x" "dev-23.10.x" "dev-24.04.x")
+          NIGHTLY_TARGETS=("dev-23.04.x" "dev-23.10.x" "dev-24.04.x")
           for target in "${NIGHTLY_TARGETS[@]}"; do
             echo "[INFO] - Dispatching nightly run to $target branch."
             gh workflow run web.yml -r "$target" -f is_nightly=true
