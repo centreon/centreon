@@ -832,7 +832,7 @@ describe('downtime picker', () => {
       waitForAnimations: false
     });
 
-    cy.findByRole('button', { name: 'OK' }).click();
+    cy.findByRole('button', { name: 'OK' }).click({ waitForAnimations: false });
 
     cy.findByLabelText(labelStartTime)
       .find('input')
