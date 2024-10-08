@@ -41,7 +41,7 @@ final class AgentConfigurationVoter extends Voter
     use LoggerTrait;
     public const READ_AC = 'read_agent_configuration';
     public const READ_AC_POLLERS = 'read_agent_configuration_pollers';
-    public const READ_AVAILABLE_POLLERS = 'read_agent_configuration_available_pollers';
+    public const REAC_AC_AVAILABLE_POLLERS = 'read_agent_configuration_available_pollers';
 
     public function __construct(
         private readonly ReadAgentConfigurationRepositoryInterface $readRepository,
