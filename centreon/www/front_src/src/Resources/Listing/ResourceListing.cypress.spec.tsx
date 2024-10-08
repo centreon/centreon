@@ -851,6 +851,6 @@ describe('downtime picker', () => {
       'date'
     );
     cy.makeSnapshot();
-    cy.findByRole('button', { name: 'OK' }).click();
+    cy.findByRole('button', { name: 'OK' }).click({ waitForAnimations: false });
   });
 });
