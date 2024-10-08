@@ -57,7 +57,7 @@ if (isset($_REQUEST['options'])) {
 }
 
 /* Access level */
-($centreon->user->access->page($p) == 1) ? $lvl_access = 'w' : $lvl_access = 'r';
+$lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 
 switch ($o) {
     case "a":

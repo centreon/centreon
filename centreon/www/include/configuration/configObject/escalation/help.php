@@ -1,5 +1,5 @@
 <?php
-$help = array();
+$help = [];
 
 $help["name"] = dgettext("help", "Enter a short name for the escalation to identify it.");
 $help["alias"] = dgettext("help", "The alias is used to define a longer name or description for the escalation.");

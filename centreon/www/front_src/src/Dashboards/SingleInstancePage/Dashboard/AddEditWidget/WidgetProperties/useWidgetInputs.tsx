@@ -10,6 +10,7 @@ import {
   has,
   includes,
   isEmpty,
+  isNil,
   pluck,
   propEq,
   reject,
@@ -59,7 +60,8 @@ import {
   WidgetTimePeriod,
   WidgetTimezone,
   WidgetTopBottomSettings,
-  WidgetValueFormat
+  WidgetValueFormat,
+  WidgetWarning
 } from './Inputs';
 
 export interface WidgetPropertiesRenderer {
@@ -93,7 +95,8 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.locale]: WidgetLocale,
   [FederatedWidgetOptionType.color]: WidgetColorSelector,
   [FederatedWidgetOptionType.timeFormat]: WidgetTimeFormat,
-  [FederatedWidgetOptionType.datePicker]: WidgetDatePicker
+  [FederatedWidgetOptionType.datePicker]: WidgetDatePicker,
+  [FederatedWidgetOptionType.warning]: WidgetWarning
 };
 
 export const DefaultComponent = (): JSX.Element => (
@@ -162,6 +165,12 @@ export const useWidgetInputs = (
                           difference(reject(equals(''), items), matches)
                         )))
                 );
+              }
+
+              if (equals(method, 'isNil')) {
+                const formValue = path(when.split('.'), values);
+
+                return hasModule && !isEmpty(formValue) && !isNil(formValue);
               }
 
               return (

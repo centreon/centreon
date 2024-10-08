@@ -242,7 +242,7 @@ if ($o === HOST_GROUP_WATCH) {
     }
 
     $result = array_diff($hostArray, $accessHost);
-    if (! empty($result) && (! $centreon->user->admin)) {
+    if ($result !== [] && (! $centreon->user->admin)) {
         $form->addElement('text', 'msgacl', _('error'), 'error');
         $form->freeze();
     }

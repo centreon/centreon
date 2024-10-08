@@ -55,7 +55,7 @@ $centreon->historyLastUrl = $url;
 
 $num = addslashes($num);
 
-$tab_order = array("sort_asc" => "sort_desc", "sort_desc" => "sort_asc");
+$tab_order = ["sort_asc" => "sort_desc", "sort_desc" => "sort_asc"];
 
 if (isset($_GET["search_type_service"])) {
     $search_type_service = $_GET["search_type_service"];
@@ -168,7 +168,7 @@ if ($num >= $page_max && $rows) {
     $num = $page_max - 1;
 }
 
-$pageArr = array();
+$pageArr = [];
 $iStart = 0;
 for ($i = 5, $iStart = $num; $iStart && $i > 0; $i--) {
     $iStart--;
@@ -180,11 +180,7 @@ for ($i2 = 0, $iEnd = $num; ($iEnd < ($rows / $limit - 1)) && ($i2 < (5 + $i)); 
 if ($rows != 0) {
     for ($i = $iStart; $i <= $iEnd; $i++) {
         $urlPage = "main.php?p=" . $p . "&num=" . $i . $type;
-        $pageArr[$i] = array(
-            "url_page" => $urlPage,
-            "label_page" => "<b>" . ($i + 1) . "</b>",
-            "num" => $i
-        );
+        $pageArr[$i] = ["url_page" => $urlPage, "label_page" => "<b>" . ($i + 1) . "</b>", "num" => $i];
     }
 
     if ($i > 1) {
@@ -269,7 +265,7 @@ $selLim = $form->addElement(
     'l',
     _("Rows"),
     $select,
-    array("onChange" => "setL(this.value);  this.form.submit()")
+    ["onChange" => "setL(this.value);  this.form.submit()"]
 );
 $selLim->setSelected($limit);
 
@@ -280,7 +276,7 @@ $form->addElement('hidden', 'num');
 $form->addElement('hidden', 'order');
 $form->addElement('hidden', 'type');
 $form->addElement('hidden', 'sort_types');
-$form->setDefaults(array("p" => $p, "search" => $search, "num" => $num));
+$form->setDefaults(["p" => $p, "search" => $search, "num" => $num]);
 
 // Init QuickForm
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
@@ -292,7 +288,7 @@ isset($order) ? true : $order = null;
 
 $tpl->assign("host_name", $host_name);
 $tpl->assign("status", $status);
-$tpl->assign("limite", isset($limite) ? $limite : null);
+$tpl->assign("limite", $limite ?? null);
 $tpl->assign("begin", $num);
 $tpl->assign("end", $limit);
 $tpl->assign("pagin_page", _("Page"));
@@ -301,10 +297,20 @@ $tpl->assign("tab_order", $tab_order);
 $tpl->assign('form', $renderer->toArray());
 
 
-!$tpl->get_template_vars('firstPage') ? $tpl->assign('firstPage', null) : null;
-!$tpl->get_template_vars('pagePrev') ? $tpl->assign('pagePrev', null) : null;
-!$tpl->get_template_vars('pageArr') ? $tpl->assign('pageArr', null) : null;
-!$tpl->get_template_vars('pageNext') ? $tpl->assign('pageNext', null) : null;
-!$tpl->get_template_vars('lastPage') ? $tpl->assign('lastPage', null) : null;
+if (!$tpl->get_template_vars('firstPage')) {
+    $tpl->assign('firstPage', null);
+}
+if (!$tpl->get_template_vars('pagePrev')) {
+    $tpl->assign('pagePrev', null);
+}
+if (!$tpl->get_template_vars('pageArr')) {
+    $tpl->assign('pageArr', null);
+}
+if (!$tpl->get_template_vars('pageNext')) {
+    $tpl->assign('pageNext', null);
+}
+if (!$tpl->get_template_vars('lastPage')) {
+    $tpl->assign('lastPage', null);
+}
 
 $tpl->display("pagination.ihtml");

@@ -312,7 +312,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
         with:
-          php-version: 8.1
+          php-version: 8.2
           coverage: none
         env:
           runner: ubuntu-22.04
@@ -344,7 +344,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
         with:
-          php-version: 8.1
+          php-version: 8.2
           coverage: none
         env:
           runner: ubuntu-22.04
@@ -403,16 +403,13 @@ jobs:
             image: packaging-nfpm-alma9
             distrib: el9
           - package_extension: deb
-            image: packaging-nfpm-bullseye
-            distrib: bullseye
-          - package_extension: deb
             image: packaging-nfpm-bookworm
             distrib: bookworm
           - package_extension: deb
             image: packaging-nfpm-jammy
             distrib: jammy
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
@@ -530,7 +527,7 @@ jobs:
           stability: ${{ needs.get-version.outputs.stability }}
 
   dockerize:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [get-version, package]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
@@ -556,9 +553,6 @@ jobs:
           elif [ "${{ matrix.operating_system }}" = "alma9" ]; then
             DISTRIB=el9
             PACKAGE_EXTENSION=rpm
-          elif [ "${{ matrix.operating_system }}" = "bullseye" ]; then
-            DISTRIB=bullseye
-            PACKAGE_EXTENSION=deb
           elif [ "${{ matrix.operating_system }}" = "bookworm" ]; then
             DISTRIB=bookworm
             PACKAGE_EXTENSION=deb
@@ -581,6 +575,26 @@ jobs:
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
+      - name: Get FROM image tag
+        id: from_image_version
+        run: |
+          FROM_IMAGE_VERSION="${{ needs.get-version.outputs.major_version }}"
+          FROM_IMAGE="centreon-web-dependencies-${{ matrix.operating_system }}"
+          IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.head_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
+          if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
+            FROM_IMAGE_VERSION="${{ github.head_ref || github.ref_name }}"
+            echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
+          else
+            IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.base_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
+            if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
+              FROM_IMAGE_VERSION="${{ github.base_ref || github.ref_name }}"
+              echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
+            fi
+          fi
+
+          echo "from_image_version=$FROM_IMAGE_VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
@@ -588,10 +602,21 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
           fail-on-cache-miss: true
 
+      - run: |
+          if [ "${{ steps.matrix_include.outputs.package_extension }}" = "rpm" ]; then
+            rm -f centreon{,-central,-mariadb,-mysql}-${{ needs.get-version.outputs.major_version }}*.rpm
+          else
+            rm -f centreon{,-central,-mariadb,-mysql}_${{ needs.get-version.outputs.major_version }}*.deb
+          fi
+
+          mkdir packages-centreon
+          mv *.${{ steps.matrix_include.outputs.package_extension }} packages-centreon/
+        shell: bash
+
       - uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # v3.6.1
 
       - name: Build and push web image
-        uses: docker/build-push-action@16ebe778df0e7752d2cfcbd924afdbbd89c1a755 # v6.6.1
+        uses: docker/build-push-action@5cd11c3a4ced054e52742c5fd54dca954e0edd85 # v6.7.0
         env:
           DOCKER_BUILD_CHECKS_ANNOTATIONS: false
           DOCKER_BUILD_SUMMARY: false
@@ -602,44 +627,17 @@ jobs:
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "VERSION=${{ needs.get-version.outputs.major_version }}"
-            "MYDUMPER_VERSION=0.16.3-5"
+            "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
           pull: true
           push: true
           load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
-
-      - name: Setup docker slim
-        run: curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -s -- 1.40.11
-        shell: bash
-
-      - name: Build slim image
-        run: |
-          export WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}"
-          sed -i '/openid:/,$d' .github/docker/docker-compose.yml # remove all services after openid
-          docker compose -f .github/docker/docker-compose.yml pull db
-          slim build \
-            --compose-file .github/docker/docker-compose.yml \
-            --compose-env-file .github/docker/.env \
-            --target-compose-svc web \
-            --show-clogs \
-            --show-blogs \
-            --include-shell \
-            --include-new=false \
-            --http-probe-off \
-            --exec-file .github/docker/centreon-web/${{ matrix.operating_system }}/slim-configuration/exec.txt \
-            --include-path-file .github/docker/centreon-web/${{ matrix.operating_system }}/slim-configuration/include-path.txt \
-            --include-bin-file .github/docker/centreon-web/${{ matrix.operating_system }}/slim-configuration/include-bin.txt \
-            --path-perms-file .github/docker/centreon-web/${{ matrix.operating_system }}/slim-configuration/path-perms.txt \
-            --tag ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
-          docker tag ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
-        shell: bash
-
-      - name: Push slim image
-        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
-        shell: bash
+          tags: |
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
 
       - name: Store slim image in local archive
         run: |
+          docker tag ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }} ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
           mkdir -p /tmp/cache/docker-image
           docker save --output /tmp/cache/docker-image/${{ env.project }}-slim-${{ matrix.operating_system }}.tar ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
         shell: bash
@@ -753,7 +751,7 @@ jobs:
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       stability: ${{ needs.get-version.outputs.stability }}
-      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma8' && 'rpm-el8' || matrix.operating_system == 'alma9' && 'rpm-el9' || matrix.operating_system == 'bullseye' && 'deb-bullseye' || 'deb-bookworm' ) }}
+      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma8' && 'rpm-el8' || matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-bookworm' ) }}
       package_directory: centreon/tests/e2e/fixtures/packages
       test_tags: ${{ matrix.test_tags }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
@@ -973,7 +971,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bullseye, bookworm, jammy]
+        distrib: [bookworm, jammy]
 
     steps:
       - name: Checkout sources
@@ -1001,7 +999,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye, bookworm]
+        distrib: [el8, el9, bookworm]
 
     steps:
       - name: Checkout sources

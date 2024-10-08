@@ -21,11 +21,21 @@
 namespace ConfigGenerateRemote\Relations;
 
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use Exception;
 
+/**
+ * Class
+ *
+ * @class NagiosServer
+ * @package ConfigGenerateRemote\Relations
+ */
 class NagiosServer extends AbstractObject
 {
+    /** @var string */
     protected $table = 'nagios_server';
+    /** @var string */
     protected $generateFilename = 'nagios_server.infile';
+    /** @var string[] */
     protected $attributesWrite = [
         'id',
         'name',
@@ -62,8 +72,10 @@ class NagiosServer extends AbstractObject
      * Add relation
      *
      * @param array $object
-     * @param integer $id
+     * @param int $id
+     *
      * @return void
+     * @throws Exception
      */
     public function add(array $object, int $id)
     {

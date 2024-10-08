@@ -2553,7 +2553,7 @@ msgid "The selected user is not enable."
 msgstr "O usuário selecionado não esta ativo."
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:239
-msgid "Hosts Groups Shared"
+msgid "Host Groups Shared"
 msgstr "Grupos de Hosts compartilhados"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:240
@@ -2733,8 +2733,9 @@ msgstr "Hosts"
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:363
 #: centreon-web/www/include/monitoring/objectDetails/serviceDetails.php:704
 #: centreon-web/www/install/menu_translation.php:92
+#: centreon-web/www/include/eventLogs/viewLog.php:358
 msgid "Host Groups"
-msgstr "Grupo de Hosts"
+msgstr "Grupos de Hosts"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:378
 msgid "Exclude hosts from selected host groups"
@@ -2750,6 +2751,7 @@ msgstr "Filtro de Categoria de Host"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:427
 #: centreon-web/www/install/menu_translation.php:133
+#: centreon-web/www/include/eventLogs/viewLog.php:326
 msgid "Service Groups"
 msgstr "Grupos de Serviço"
 
@@ -2761,11 +2763,11 @@ msgid "Meta Services"
 msgstr "Meta Serviços"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:549
-msgid "Hosts Resources"
+msgid "Host Resources"
 msgstr "Recursos de Hosts"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:550
-msgid "Services Resources"
+msgid "Service Resources"
 msgstr "Recursos de Serviços"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php:82
@@ -5982,14 +5984,6 @@ msgstr "Período de Registro"
 #: centreon-web/www/include/reporting/dashboard/initReport.php:275
 msgid "Apply period"
 msgstr "Aplicar período"
-
-#: centreon-web/www/include/eventLogs/viewLog.php:326
-msgid "Services Groups"
-msgstr "Grupos de Serviços"
-
-#: centreon-web/www/include/eventLogs/viewLog.php:358
-msgid "Hosts Groups"
-msgstr "Grupos de Hosts"
 
 #: centreon-web/www/include/eventLogs/xml/data.php:811
 msgid "Object name"
@@ -17805,7 +17799,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Select host severities"
 # msgstr ""
 
-# msgid "Enable Open Tickets"
+# msgid "Enable ticket management"
 # msgstr ""
 
 # msgid "Ticket provider"
@@ -17826,7 +17820,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Hide services with Down host"
 # msgstr ""
 
-# msgstr "hide services with Unreachable host"
+# msgstr "Hide services with Unreachable host"
 # msgstr ""
 
 # msgstr "Ticket ID"
@@ -17839,6 +17833,18 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 # msgid "Create a ticket"
+# msgstr ""
+
+# msgid "Close a ticket"
+# msgstr ""
+
+# msgid "Ticket created"
+# msgstr ""
+
+# msgid "Ticket closed"
+# msgstr ""
+
+# msgid "The ticket with ID #{{id}} will be closed for the selected ticket provider."
 # msgstr ""
 
 # msgid "Rule (ticket provider)"
@@ -18138,3 +18144,15 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Web page preview"
 #  msgstr ""
+
+#  msgid "If ticket management is enabled, only the “by service” view is available."
+#  msgstr ""
+
+#  msgid "Ticket management"
+#  msgstr ""
+
+# msgid "Displays the time according to the selected time zone, or a timer."
+# msgstr ""
+
+# msgid "Clock / Timer"
+# msgstr ""

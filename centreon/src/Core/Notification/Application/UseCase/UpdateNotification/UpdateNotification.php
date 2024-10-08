@@ -230,7 +230,7 @@ final class UpdateNotification
             $this->user,
             $accessGroups
         );
-        if (! empty($contactGroups)) {
+        if ($contactGroups !== []) {
             $contactGroupsIds = array_map(
                 fn (ContactGroup $contactGroup): int => $contactGroup->getId(), $contactGroups
             );

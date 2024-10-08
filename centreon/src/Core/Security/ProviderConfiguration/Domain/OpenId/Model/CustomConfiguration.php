@@ -104,7 +104,7 @@ class CustomConfiguration implements CustomConfigurationInterface, OpenIdCustomC
     /** @var GroupsMapping */
     private GroupsMapping $groupsMapping;
 
-    private ?string $redirectUrl;
+    private ?string $redirectUrl = null;
 
     /**
      * @param array<string,mixed> $json
@@ -666,7 +666,7 @@ class CustomConfiguration implements CustomConfigurationInterface, OpenIdCustomC
             }
         }
 
-        if (! empty($emptyParameters)) {
+        if ($emptyParameters !== []) {
             throw ConfigurationException::missingMandatoryParameters($emptyParameters);
         }
 

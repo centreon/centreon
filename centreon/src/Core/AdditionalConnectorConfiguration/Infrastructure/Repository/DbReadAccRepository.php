@@ -173,7 +173,7 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
 
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
 
-        $request = <<<'SQL'
+        $request = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS
                 ng.`id`,
                 ng.`name`
@@ -182,7 +182,7 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
                 ON rel.poller_id = ng.id
             LEFT JOIN `:db`.`additional_connector_configuration` acc
                 ON rel.acc_id = acc.id
-            SQL;
+            SQL_WRAP;
 
         // Search
         $request .= $search = $sqlTranslator?->translateSearchParameterToSql();
@@ -371,7 +371,7 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
             'poller.name' => 'ns.name',
         ]);
 
-        $request = <<<'SQL'
+        $request = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS
                 acc.*
             FROM `:db`.`additional_connector_configuration` acc
@@ -379,7 +379,7 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
                 ON  acc.id = rel.acc_id
             INNER JOIN `:db`.`nagios_server` ns
                 ON rel.poller_id = ns.id
-            SQL;
+            SQL_WRAP;
 
         // Search
         $request .= $sqlTranslator->translateSearchParameterToSql();

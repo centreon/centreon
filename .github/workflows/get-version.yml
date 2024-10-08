@@ -46,10 +46,23 @@ jobs:
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          ref: develop
+          path: centreon-develop
+          sparse-checkout: .version
+
+      - name: store latest major version
+        id: latest_major_version
+        run: |
+          . centreon-develop/.version
+          echo "latest_major_version=$MAJOR" >> $GITHUB_OUTPUT
+        shell: bash
+
       - uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
         if: ${{ endsWith(inputs.version_file, '.php') }}
         with:
-          php-version: 8.1
+          php-version: 8.2
           extensions: none
           tools: none
 
@@ -117,25 +130,28 @@ jobs:
           GITHUB_RELEASE_CLOUD=0
           GITHUB_RELEASE_TYPE=$(echo $BRANCHNAME |cut -d '-' -f 1)
 
+          # if current branch major version is greater or equal than the develop branch major version ==> cloud version
+          if [[ "$(printf '%s\n' "${{ steps.latest_major_version.outputs.latest_major_version }}" "$MAJOR" | sort -V | head -n1)" == "${{ steps.latest_major_version.outputs.latest_major_version }}" ]]; then
+            GITHUB_RELEASE_CLOUD=1
+          fi
+
           case "$BRANCHNAME" in
             master)
               echo "release=1" >> $GITHUB_OUTPUT
-              echo "release_cloud=1" >> $GITHUB_OUTPUT
+              GITHUB_RELEASE_CLOUD=1
               echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               ;;
             [2-9][0-9].[0-9][0-9].x)
               echo "release=1" >> $GITHUB_OUTPUT
-              echo "release_cloud=0" >> $GITHUB_OUTPUT
               echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               ;;
             develop)
               echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
-              echo "release_cloud=1" >> $GITHUB_OUTPUT
+              GITHUB_RELEASE_CLOUD=1
               echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               ;;
             dev-[2-9][0-9].[0-9][0-9].x)
               echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
-              echo "release_cloud=0" >> $GITHUB_OUTPUT
               echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               ;;
             release* | hotfix*)
@@ -158,10 +174,8 @@ jobs:
                 # Github ouputs
                 echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
                 echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
-                echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
               else
                 echo "release=1" >> $GITHUB_OUTPUT
-                echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
                 echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               fi
               ;;
@@ -174,7 +188,6 @@ jobs:
               # Github ouputs
               echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
               echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
-              echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
               ;;
             *)
               # Any branch name
@@ -184,14 +197,15 @@ jobs:
 
               # Check if pull request branch targeting develop
               if [[ "$GITHUB_BRANCH_BASE_REF_NAME" == "develop" ]] && [[ "$GITHUB_BRANCH_PR_STATE" == "OPEN" ]]; then
-                echo "release_cloud=1" >> $GITHUB_OUTPUT
+                GITHUB_RELEASE_CLOUD=1
                 echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               else
-                echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
                 echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               fi
               ;;
           esac
+
+          echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
 
           case "$BRANCHNAME" in
             develop | dev-[2-9][0-9].[0-9][0-9].x |prepare-release-cloud*)
@@ -240,11 +254,6 @@ jobs:
               "database": "mysql:8.3",
               "test_tags": "not @ignore"
             };
-            const bullseye_mysql = {
-              "operating_system": "bullseye",
-              "database": "mysql:8.3",
-              "test_tags": "not @ignore and @system"
-            };
 
             let matrix = {
               "main": [alma9_mariadb],
@@ -255,7 +264,7 @@ jobs:
             if (context.eventName === 'schedule') {
               matrix = {
                 "main": [alma9_mariadb],
-                "operating_systems": [alma9_mariadb, alma8_mariadb, bookworm_mysql, bullseye_mysql],
+                "operating_systems": [alma9_mariadb, alma8_mariadb, bookworm_mysql],
                 "databases": [alma9_mariadb, bookworm_mysql],
               };
             }

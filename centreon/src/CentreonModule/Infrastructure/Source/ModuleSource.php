@@ -413,7 +413,7 @@ class ModuleSource extends SourceAbstract
             }
         }
 
-        if (! empty($dependenciesToRemove)) {
+        if ($dependenciesToRemove !== []) {
             throw ModuleException::modulesNeedToBeRemovedFirst($dependenciesToRemove);
         }
     }

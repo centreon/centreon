@@ -37,7 +37,7 @@ use Core\Security\ProviderConfiguration\Application\OpenId\UseCase\UpdateOpenIdC
 };
 use Symfony\Component\HttpFoundation\Request;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->presenter = $this->createMock(UpdateOpenIdConfigurationPresenterInterface::class);
     $this->useCase = $this->createMock(UpdateOpenIdConfiguration::class);
     $this->request = $this->createMock(Request::class);
@@ -86,7 +86,7 @@ beforeEach(function () {
         );
 });
 
-it('should thrown an exception when the request body is invalid', function () {
+it('should thrown an exception when the request body is invalid', function (): void {
         $controller = new UpdateOpenIdConfigurationController();
         $controller->setContainer($this->container);
 
@@ -100,7 +100,7 @@ it('should thrown an exception when the request body is invalid', function () {
         $controller($this->useCase, $this->request, $this->presenter);
 });
 
-it('should execute the usecase properly', function () {
+it('should execute the usecase properly', function (): void {
         $controller = new UpdateOpenIdConfigurationController();
         $controller->setContainer($this->container);
 

@@ -249,7 +249,7 @@ class CentreonDB extends PDO
             // here we don't want to use CentreonDbStatement, instead used PDOStatement
             $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class]);
 
-            if (empty($bindParams)) {
+            if ($bindParams === []) {
                 throw new CentreonDbException(
                     "Binding parameters are empty",
                     ['bind_params' => $bindParams]
@@ -261,7 +261,7 @@ class CentreonDB extends PDO
             }
 
             foreach ($bindParams as $paramName => $bindParam) {
-                if (is_array($bindParam) && ! empty($bindParam) && count($bindParam) === 2) {
+                if (is_array($bindParam) && $bindParam !== [] && count($bindParam) === 2) {
                     $paramValue = $bindParam[0];
                     $paramType = $bindParam[1];
                     if (
@@ -462,7 +462,7 @@ class CentreonDB extends PDO
     public function execute(PDOStatement $pdoStatement, ?array $bindParams = null)
     {
         try {
-            if (is_array($bindParams) && empty($bindParams)) {
+            if ($bindParams === []) {
                 throw new CentreonDbException(
                     "To execute the query, bindParams must to be an array filled or null, empty array given",
                     ['bind_params' => $bindParams]
@@ -941,14 +941,12 @@ class CentreonDB extends PDO
      * @return void
      * @deprecated No longer used by internal code and not recommended
      */
-    public function autoCommit($val)
+    public function autoCommit($val): void
     {
         /* Deprecated */
     }
 
     /**
-     *
-     *
      * Escapes a string for query
      *
      * @access public
@@ -1029,7 +1027,7 @@ class CentreonDB extends PDO
      * @param string $query_string query
      * @param array<mixed> $placeHolders
      *
-     * @return mixed[]|false  getAll result
+     * @return array|false  getAll result
      *
      * @throws PDOException
      *

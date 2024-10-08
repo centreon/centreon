@@ -33,16 +33,20 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class CentreonTopology
+ */
 class CentreonTopology
 {
-    /**
-     * @var
-     */
+    /** @var CentreonDB */
     protected $db;
 
     /**
-     * CentreonTopology constructor.
-     * @param $db
+     * CentreonTopology constructor
+     *
+     * @param CentreonDB $db
      */
     public function __construct($db)
     {
@@ -50,7 +54,7 @@ class CentreonTopology
     }
 
     /**
-     * @param $key
+     * @param string $key
      * @param $value
      * @return mixed
      * @throws Exception
@@ -67,9 +71,11 @@ class CentreonTopology
 
     /**
      * @param $topologyPage
-     * @param $topologyName
+     * @param string $topologyName
      * @param string $breadCrumbDelimiter
+     *
      * @return string
+     * @throws Exception
      */
     public function getBreadCrumbFromTopology($topologyPage, $topologyName, $breadCrumbDelimiter = ' > ')
     {

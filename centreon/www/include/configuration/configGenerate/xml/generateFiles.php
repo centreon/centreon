@@ -118,7 +118,7 @@ if (!isset($_POST['poller']) || !isset($_POST['debug'])) {
 
 // List of error from php
 global $generatePhpErrors;
-$generatePhpErrors = array();
+$generatePhpErrors = [];
 
 $path = _CENTREON_PATH_ . "www/include/configuration/configGenerate/";
 $nagiosCFGPath = _CENTREON_CACHEDIR_ . "/config/engine/";
@@ -135,7 +135,7 @@ $pollers = explode(',', $_POST['poller']);
 $debug = ($_POST['debug'] == "true") ? 1 : 0;
 $generate = ($_POST['generate'] == "true") ? 1 : 0;
 
-$ret = array();
+$ret = [];
 $ret['host'] = $pollers;
 $ret['debug'] = $debug;
 
@@ -154,12 +154,12 @@ $log_error = function ($errno, $errstr, $errfile, $errline) {
         case E_ERROR:
         case E_USER_ERROR:
         case E_CORE_ERROR:
-            $generatePhpErrors[] = array('error', $errstr);
+            $generatePhpErrors[] = ['error', $errstr];
             break;
         case E_WARNING:
         case E_USER_WARNING:
         case E_CORE_WARNING:
-            $generatePhpErrors[] = array('warning', $errstr);
+            $generatePhpErrors[] = ['warning', $errstr];
             break;
     }
     return true;
@@ -170,14 +170,9 @@ set_error_handler($log_error);
 
 $xml->startElement("response");
 try {
-    $tabs = array();
+    $tabs = [];
     if ($generate) {
-        $tabs = $centreon->user->access->getPollerAclConf(array(
-            'fields' => array('id', 'name', 'localhost'),
-            'order' => array('name'),
-            'keys' => array('id'),
-            'conditions' => array('ns_activate' => '1')
-        ));
+        $tabs = $centreon->user->access->getPollerAclConf(['fields' => ['id', 'name', 'localhost'], 'order' => ['name'], 'keys' => ['id'], 'conditions' => ['ns_activate' => '1']]);
     }
 
     // Sync contactgroups to ldap

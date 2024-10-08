@@ -22,7 +22,7 @@ interface ListingProps
     'dashboardId' | 'id' | 'playlistHash'
   > {
   changeViewMode?: (displayType) => void;
-  displayResources: 'all' | 'withTicket' | 'withoutTicket';
+  displayResources: 'withTicket' | 'withoutTicket';
   displayType?: DisplayTypeEnum;
   hostSeverities: Array<NamedEntity>;
   isDownHostHidden: boolean;
@@ -133,9 +133,10 @@ const Listing = ({
             displayType={displayType}
             hasMetaService={hasMetaService}
             setPanelOptions={setPanelOptions}
+            isOpenTicketEnabled={isOpenTicketEnabled}
           />
         }
-        actionsBarMemoProps={[displayType, hasMetaService]}
+        actionsBarMemoProps={[displayType, hasMetaService,isOpenTicketEnabled]}
         columnConfiguration={{
           selectedColumnIds: selectedColumnIds || defaultSelectedColumnIds,
           sortable: true

@@ -214,7 +214,7 @@ class AuthenticationConditions
             if (empty($attributePath)) {
                 $mandatoryParameters[] = 'attribute_path';
             }
-            if (empty($authorizedValues)) {
+            if ($authorizedValues === []) {
                 $mandatoryParameters[] = 'authorized_values';
             }
             if (! empty($mandatoryParameters)) {

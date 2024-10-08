@@ -101,7 +101,7 @@ $path = $centreon_path . "www/widgets/live-top10-cpu-usage/src/";
 $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
-$data = array();
+$data = [];
 
 $query = "SELECT
         1 AS REALTIME,

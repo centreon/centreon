@@ -33,7 +33,7 @@
  *
  */
 $stateType = 'service';
-require_once realpath(dirname(__FILE__) . "/initXmlFeed.php");
+require_once realpath(__DIR__ . "/initXmlFeed.php");
 
 $color = array_filter($_GET['color'] ?? [], function ($oneColor) {
     return filter_var($oneColor, FILTER_VALIDATE_REGEXP, [
@@ -53,8 +53,8 @@ if (empty($color) || count($_GET['color']) !== count($color)) {
 if (($id = filter_var($_GET['id'] ?? false, FILTER_VALIDATE_INT)) !== false) {
     $services = getServiceGroupActivateServices($id);
     if (count($services) > 0) {
-        $host_ids = array();
-        $service_ids = array();
+        $host_ids = [];
+        $service_ids = [];
         foreach ($services as $host_service_id => $host_service_name) {
             $res = explode("_", $host_service_id);
             $host_ids[$res[0]] = 1;

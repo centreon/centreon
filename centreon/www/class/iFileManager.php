@@ -32,13 +32,12 @@
  * For more information : contact@centreon.com
  *
  */
-/**
- * Created by PhpStorm.
- * User: loic
- * Date: 31/10/17
- * Time: 11:53
- */
 
+/**
+ * Interface
+ *
+ * @class iFileManager
+ */
 interface iFileManager
 {
     /**

@@ -21,7 +21,14 @@
 namespace ConfigGenerateRemote\Relations;
 
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use Exception;
 
+/**
+ * Class
+ *
+ * @class HostServiceRelation
+ * @package ConfigGenerateRemote\Relations
+ */
 class HostServiceRelation extends AbstractObject
 {
     protected $table = 'host_service_relation';
@@ -35,11 +42,13 @@ class HostServiceRelation extends AbstractObject
     /**
      * Add relation between host and service
      *
-     * @param integer $hostId
-     * @param integer $serviceId
+     * @param int $hostId
+     * @param int $serviceId
+     *
      * @return void
+     * @throws Exception
      */
-    public function addRelationHostService(int $hostId, int $serviceId)
+    public function addRelationHostService(int $hostId, int $serviceId): void
     {
         $relation = [
             'host_host_id' => $hostId,
@@ -51,8 +60,8 @@ class HostServiceRelation extends AbstractObject
     /**
      * Add relation between hostgroup and service
      *
-     * @param integer $hgId
-     * @param integer $serviceId
+     * @param int $hgId
+     * @param int $serviceId
      * @return void
      */
     public function addRelationHgService(int $hgId, int $serviceId)

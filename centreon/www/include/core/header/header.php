@@ -43,7 +43,7 @@ if (!defined('SMARTY_DIR')) {
  */
 function microtime_float(): bool
 {
-    list($usec, $sec) = explode(" ", microtime());
+    [$usec, $sec] = explode(" ", microtime());
     return ((float)$usec + (float)$sec);
 }
 
@@ -55,7 +55,7 @@ $advanced_search = 0;
 /*
  * Include
  */
-include_once(realpath(dirname(__FILE__) . "/../../../../bootstrap.php"));
+include_once(realpath(__DIR__ . "/../../../../bootstrap.php"));
 
 require_once "$classdir/centreonDB.class.php";
 require_once "$classdir/centreonLang.class.php";
@@ -100,7 +100,8 @@ if (!isset($_SESSION["centreon"])) {
  * Define Oreon var alias
  */
 if (isset($_SESSION["centreon"])) {
-    $oreon = $centreon = $_SESSION["centreon"];
+    $oreon = $_SESSION["centreon"];
+    $centreon = $_SESSION["centreon"];
 }
 if (!isset($centreon) || !is_object($centreon)) {
     exit();

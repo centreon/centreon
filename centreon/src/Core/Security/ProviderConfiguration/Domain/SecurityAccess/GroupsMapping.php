@@ -178,7 +178,7 @@ class GroupsMapping implements SecurityAccessInterface
                 }
             }
         }
-        if (empty($groupsMatches)) {
+        if ($groupsMatches === []) {
             $this->error(
                 'Configured attribute value not found in groups mapping endpoint',
                 [

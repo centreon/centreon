@@ -41,27 +41,17 @@ if (isset($_SESSION['centreon'])) {
 
 require_once $centreon_path . 'www/include/common/common-Func.php';
 
-$resultat = array("code" => 0, "msg" => "");
-$actions = array(
-    "get-form-config" => __DIR__ . "/actions/getFormConfig.php",
-    "save-form-config" => __DIR__ . "/actions/saveFormConfig.php",
-    "validate-format-popup" => __DIR__ . "/actions/validateFormatPopup.php",
-    "submit-ticket" => __DIR__ . "/actions/submitTicket.php",
-    "close-ticket" => __DIR__ . "/actions/closeTicket.php",
-    "service-ack" => __DIR__ . "/actions/serviceAck.php",
-    "upload-file" => __DIR__ . "/actions/uploadFile.php",
-    "remove-file" => __DIR__ . "/actions/removeFile.php",
-    "schedule-check" => __DIR__ . "/actions/scheduleCheck.php"
-);
+$resultat = ["code" => 0, "msg" => ""];
+$actions = ["get-form-config" => __DIR__ . "/actions/getFormConfig.php", "save-form-config" => __DIR__ . "/actions/saveFormConfig.php", "validate-format-popup" => __DIR__ . "/actions/validateFormatPopup.php", "submit-ticket" => __DIR__ . "/actions/submitTicket.php", "close-ticket" => __DIR__ . "/actions/closeTicket.php", "service-ack" => __DIR__ . "/actions/serviceAck.php", "upload-file" => __DIR__ . "/actions/uploadFile.php", "remove-file" => __DIR__ . "/actions/removeFile.php", "schedule-check" => __DIR__ . "/actions/scheduleCheck.php"];
 
 if (!isset($_POST['data']) && !isset($_REQUEST['action'])) {
-    $resultat = array("code" => 1, "msg" => "POST 'data' needed.");
+    $resultat = ["code" => 1, "msg" => "POST 'data' needed."];
 } else {
     $get_information = isset($_POST['data']) ? json_decode($_POST['data'], true): null;
     $action = !is_null($get_information) && isset($get_information['action']) ?
-        $get_information['action'] : (isset($_REQUEST['action']) ? $_REQUEST['action'] : 'none');
+        $get_information['action'] : ($_REQUEST['action'] ?? 'none');
     if (!isset($actions[$action])) {
-        $resultat = array("code" => 1, "msg" => "Action not good.");
+        $resultat = ["code" => 1, "msg" => "Action not good."];
     } else {
         include($actions[$action]);
     }

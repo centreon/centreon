@@ -37,10 +37,7 @@ if (!isset($oreon)) {
     exit();
 }
 
-$checkboxGroup = array(
-    'backup_database_full',
-    'backup_database_partial'
-);
+$checkboxGroup = ['backup_database_full', 'backup_database_partial'];
 $DBRESULT = $pearDB->query("SELECT * FROM `options` WHERE options.key LIKE 'backup_%'");
 while ($opt = $DBRESULT->fetchRow()) {
     if (in_array($opt["key"], $checkboxGroup)) {
@@ -54,8 +51,8 @@ while ($opt = $DBRESULT->fetchRow()) {
 }
 $DBRESULT->closeCursor();
 
-$attrsText = array("size" => "40");
-$attrsText2 = array("size" => "3");
+$attrsText = ["size" => "40"];
+$attrsText2 = ["size" => "3"];
 
 /*
  * Form begin
@@ -65,11 +62,11 @@ $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
 /*
  * General Options
  */
-$backupEnabled = array();
+$backupEnabled = [];
 $backupEnabled[] = $form->createElement('radio', 'backup_enabled', null, _("Yes"), '1');
 $backupEnabled[] = $form->createElement('radio', 'backup_enabled', null, _("No"), '0');
 $form->addGroup($backupEnabled, 'backup_enabled', _("Backup enabled"), '&nbsp;');
-$form->setDefaults(array('backup_enabled'=>'0'));
+$form->setDefaults(['backup_enabled'=>'0']);
 $form->addElement('text', 'backup_backup_directory', _("Backup directory"), $attrsText);
 $form->addRule('backup_backup_directory', _("Mandatory field"), 'required');
 $form->addElement('text', 'backup_tmp_directory', _("Temporary directory"), $attrsText);
@@ -81,11 +78,11 @@ $form->addRule('backup_tmp_directory', _("Mandatory field"), 'required');
  */
 $form->addElement('checkbox', 'backup_database_centreon', _("Backup database centreon"));
 $form->addElement('checkbox', 'backup_database_centreon_storage', _("Backup database centreon_storage"));
-$backupDatabaseType = array();
+$backupDatabaseType = [];
 $backupDatabaseType[] = $form->createElement('radio', 'backup_database_type', null, _("Dump"), '0');
 $backupDatabaseType[] = $form->createElement('radio', 'backup_database_type', null, _("LVM Snapshot"), '1');
 $form->addGroup($backupDatabaseType, 'backup_database_type', _("Backup type"), '&nbsp;');
-$form->setDefaults(array('backup_database_type'=>'1'));
+$form->setDefaults(['backup_database_type'=>'1']);
 $backupDatabasePeriodFull[] = $form->createElement('checkbox', '1', '&nbsp;', _("Monday"));
 $backupDatabasePeriodFull[] = $form->createElement('checkbox', '2', '&nbsp;', _("Tuesday"));
 $backupDatabasePeriodFull[] = $form->createElement('checkbox', '3', '&nbsp;', _("Wednesday"));
@@ -115,11 +112,11 @@ $form->addElement('text', 'backup_mysql_conf', _("MySQL configuration file path"
 /*
  * Export Options
  */
-$scpEnabled = array();
+$scpEnabled = [];
 $scpEnabled[] = $form->createElement('radio', 'backup_export_scp_enabled', null, _("Yes"), '1');
 $scpEnabled[] = $form->createElement('radio', 'backup_export_scp_enabled', null, _("No"), '0');
 $form->addGroup($scpEnabled, 'backup_export_scp_enabled', _("SCP export enabled"), '&nbsp;');
-$form->setDefaults(array('backup_export_scp_enabled'=>'0'));
+$form->setDefaults(['backup_export_scp_enabled'=>'0']);
 $form->addElement('text', 'backup_export_scp_user', _("Remote user"), $attrsText);
 $form->addElement('text', 'backup_export_scp_host', _("Remote host"), $attrsText);
 $form->addElement('text', 'backup_export_scp_directory', _("Remote directory"), $attrsText);
@@ -131,8 +128,8 @@ $form->applyFilter('__ALL__', 'myTrim');
 
 $form->setDefaults($gopt);
 
-$form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-$form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+$form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+$form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 
 /*
  * Smarty template Init
@@ -167,7 +164,7 @@ $form->addElement(
     "button",
     "change",
     _("Modify"),
-    array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=backup'", 'class' => 'btc bt_info')
+    ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=backup'", 'class' => 'btc bt_info']
 );
 
 /*

@@ -36,13 +36,16 @@
 require_once "Centreon/Object/Object.php";
 
 /**
- * Used for interacting with downtime objects
+ * Class
  *
- * @author sylvestre
+ * @class Centreon_Object_Downtime
  */
 class Centreon_Object_Downtime extends Centreon_Object
 {
+    /** @var string */
     protected $table = "downtime";
+    /** @var string */
     protected $primaryKey = "dt_id";
+    /** @var string */
     protected $uniqueLabelField = "dt_name";
 }

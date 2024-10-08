@@ -41,11 +41,20 @@ use Centreon\Infrastructure\CentreonLegacyDB\Mapping\ClassMetadata;
 use Centreon\Tests\Resources\Mock\EntityMock;
 use PDO;
 
+/**
+ * Class
+ *
+ * @class ClassMetadataTest
+ * @package Centreon\Tests\Infrastructure\CentreonLegacyDB\Mapping
+ */
 class ClassMetadataTest extends TestCase
 {
+    /** @var ClassMetadata */
+    public $metadata;
+
     public function setUp(): void
     {
-        $this->metadata = new ClassMetadata;
+        $this->metadata = new ClassMetadata();
         EntityMock::loadMetadata($this->metadata);
     }
 
@@ -61,7 +70,7 @@ class ClassMetadataTest extends TestCase
 
     public function testGetPrimaryKeyColumn(): void
     {
-        $this->assertEquals('id_column', $this->metadata->getPrimaryKeyColumn('id'));
+        $this->assertEquals('id_column', $this->metadata->getPrimaryKeyColumn());
     }
 
     public function testGetType(): void

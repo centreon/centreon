@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useSnackbar } from '@centreon/ui';
 import { Modal } from '@centreon/ui/components';
 
-import { Ticket } from '../../models';
+import type { Ticket } from '../../models';
 import { labelCreateticket, labelTicketCreated } from '../../translatedLabels';
 
 interface Props {
@@ -63,7 +63,7 @@ const OpenTicketModal = ({
           id="open-ticket"
           name="open-ticket"
           src={src}
-          style={{ minHeight: '30vh', width: '100%' }}
+          style={{ minHeight: '60vh', width: '100%' }}
           title="Main Content"
         />
       </Modal.Body>

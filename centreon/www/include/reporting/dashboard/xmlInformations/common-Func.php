@@ -57,7 +57,7 @@ function fillBuffer($statesTab, $row, $color)
 {
     global $buffer;
 
-    $statTab = array();
+    $statTab = [];
     $totalTime = 0;
     $sumTime = 0;
     foreach ($statesTab as $key => $value) {
@@ -67,20 +67,12 @@ function fillBuffer($statesTab, $row, $color)
         } else {
             $statTab[$value . "_T"] = 0;
         }
-        if (isset($row[$value."nbEvent"])) {
-            $statTab[$value . "_A"] = $row[$value."nbEvent"];
-        } else {
-            $statTab[$value . "_A"] = 0;
-        }
+        $statTab[$value . "_A"] = $row[$value."nbEvent"] ?? 0;
     }
     $date_start = $row["date_start"];
     $date_end = $row["date_end"];
     foreach ($statesTab as $key => $value) {
-        if ($totalTime) {
-            $statTab[$value . "_MP"] = round(($statTab[$value."_T"] / ($totalTime) * 100), 2);
-        } else {
-            $statTab[$value . "_MP"] = 0;
-        }
+        $statTab[$value . "_MP"] = $totalTime ? round(($statTab[$value."_T"] / ($totalTime) * 100), 2) : 0;
     }
 
     /*

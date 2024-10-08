@@ -1,6 +1,6 @@
 import { Axis } from '@visx/visx';
 import { ScaleLinear } from 'd3-scale';
-import { equals, isNil } from 'ramda';
+import { equals, head, isNil, last } from 'ramda';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
@@ -48,7 +48,10 @@ const Axes = ({
 
   const xTickCount = Math.min(Math.ceil(width / 82), 12);
 
-  const [start, end] = xScale.domain();
+  const domain = xScale.domain();
+
+  const start = head(domain);
+  const end = last(domain);
 
   const tickFormat =
     data?.axisX?.xAxisTickFormat ?? getXAxisTickFormat({ end, start });

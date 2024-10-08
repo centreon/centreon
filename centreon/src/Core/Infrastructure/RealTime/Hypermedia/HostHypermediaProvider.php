@@ -28,18 +28,18 @@ use Core\Domain\RealTime\Model\ResourceTypes\HostResourceType;
 
 class HostHypermediaProvider extends AbstractHypermediaProvider implements HypermediaProviderInterface
 {
-    public const URI_CONFIGURATION = '/main.php?p=60101&o=c&host_id={hostId}',
-                 URI_EVENT_LOGS = '/main.php?p=20301&h={hostId}',
-                 URI_REPORTING = '/main.php?p=307&host={hostId}',
-                 URI_HOSTGROUP_CONFIGURATION = '/main.php?p=60102&o=c&hg_id={hostgroupId}',
-                 URI_HOST_CATEGORY_CONFIGURATION = '/main.php?p=60104&o=c&hc_id={hostCategoryId}',
-                 ENDPOINT_HOST_ACKNOWLEDGEMENT = 'centreon_application_acknowledgement_addhostacknowledgement',
-                 ENDPOINT_DETAILS = 'centreon_application_monitoring_resource_details_host',
-                 ENDPOINT_HOST_CHECK = 'centreon_application_check_checkHost',
-                 ENDPOINT_SERVICE_DOWNTIME = 'monitoring.downtime.addHostDowntime',
-                 ENDPOINT_HOST_NOTIFICATION_POLICY = 'configuration.host.notification-policy',
-                 ENDPOINT_HOST_TIMELINE = 'centreon_application_monitoring_gettimelinebyhost',
-                 ENDPOINT_HOST_TIMELINE_DOWNLOAD = 'centreon_application_monitoring_download_timeline_by_host';
+    public const URI_CONFIGURATION = '/main.php?p=60101&o=c&host_id={hostId}';
+    public const URI_EVENT_LOGS = '/main.php?p=20301&h={hostId}';
+    public const URI_REPORTING = '/main.php?p=307&host={hostId}';
+    public const URI_HOSTGROUP_CONFIGURATION = '/main.php?p=60102&o=c&hg_id={hostgroupId}';
+    public const URI_HOST_CATEGORY_CONFIGURATION = '/main.php?p=60104&o=c&hc_id={hostCategoryId}';
+    public const ENDPOINT_HOST_ACKNOWLEDGEMENT = 'centreon_application_acknowledgement_addhostacknowledgement';
+    public const ENDPOINT_DETAILS = 'centreon_application_monitoring_resource_details_host';
+    public const ENDPOINT_HOST_CHECK = 'centreon_application_check_checkHost';
+    public const ENDPOINT_SERVICE_DOWNTIME = 'monitoring.downtime.addHostDowntime';
+    public const ENDPOINT_HOST_NOTIFICATION_POLICY = 'configuration.host.notification-policy';
+    public const ENDPOINT_HOST_TIMELINE = 'centreon_application_monitoring_gettimelinebyhost';
+    public const ENDPOINT_HOST_TIMELINE_DOWNLOAD = 'centreon_application_monitoring_download_timeline_by_host';
 
     /**
      * @inheritDoc

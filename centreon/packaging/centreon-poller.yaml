@@ -88,6 +88,9 @@ overrides:
       - centreon-gorgone-centreon-config < ${NEXT_MAJOR_VERSION}
       - perl-DBD-MySQL
       - perl-DBD-SQLite
+      - nagios-plugins-dhcp >= 2.0.0
+      - nagios-plugins-icmp >= 2.0.0
+    suggests:
       - centreon-plugin-Applications-Databases-Mysql
       - centreon-plugin-Applications-Monitoring-Centreon-Central
       - centreon-plugin-Applications-Monitoring-Centreon-Database
@@ -103,8 +106,6 @@ overrides:
       - centreon-plugin-Network-Cisco-Standard-Snmp
       - centreon-plugin-Operatingsystems-Linux-Snmp
       - centreon-plugin-Operatingsystems-Windows-Snmp
-      - nagios-plugins-dhcp >= 2.0.0
-      - nagios-plugins-icmp >= 2.0.0
     provides:
       - centreon-poller
       - centreon-poller-centreon-engine
@@ -127,6 +128,8 @@ overrides:
       - "centreon-gorgone-centreon-config (<< ${NEXT_MAJOR_VERSION}~)"
       - libdbd-mysql-perl
       - libdbd-sqlite3-perl
+      - monitoring-plugins-basic
+    suggests:
       - centreon-plugin-applications-databases-mysql
       - centreon-plugin-applications-monitoring-centreon-central
       - centreon-plugin-applications-monitoring-centreon-database
@@ -142,7 +145,6 @@ overrides:
       - centreon-plugin-network-cisco-standard-snmp
       - centreon-plugin-operatingsystems-linux-snmp
       - centreon-plugin-operatingsystems-windows-snmp
-      - monitoring-plugins-basic
     provides:
       - centreon-poller-centreon-engine
     replaces:

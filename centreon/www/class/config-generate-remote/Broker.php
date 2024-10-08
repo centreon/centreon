@@ -21,14 +21,27 @@
 
 namespace ConfigGenerateRemote;
 
+use Exception;
 use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use PDOStatement;
 
+/**
+ * Class
+ *
+ * @class Broker
+ * @package ConfigGenerateRemote
+ */
 class Broker extends AbstractObject
 {
+    /** @var PDOStatement|null */
+    public $stmtEngine;
+    /** @var string */
     protected $table = 'cfg_centreonbroker';
+    /** @var string */
     protected $generateFilename = 'cfg_centreonbroker.infile';
 
+    /** @var string */
     protected $attributesSelect = '
         config_id,
         config_name,
@@ -45,6 +58,7 @@ class Broker extends AbstractObject
         daemon,
         pool_size
     ';
+    /** @var string[] */
     protected $attributesWrite = [
         'config_id',
         'config_name',
@@ -61,15 +75,18 @@ class Broker extends AbstractObject
         'daemon',
         'pool_size',
     ];
+    /** @var PDOStatement|null */
     protected $stmtBroker = null;
 
     /**
      * Generate broker configuration from poller id
      *
-     * @param int $poller
+     * @param int $pollerId
+     *
      * @return void
+     * @throws Exception
      */
-    private function generate(int $pollerId)
+    private function generate(int $pollerId): void
     {
         if (is_null($this->stmtEngine)) {
             $this->stmtBroker = $this->backendInstance->db->prepare(
@@ -94,9 +111,11 @@ class Broker extends AbstractObject
      * Generate engine configuration from poller
      *
      * @param array $poller
+     *
      * @return void
+     * @throws Exception
      */
-    public function generateFromPoller(array $poller)
+    public function generateFromPoller(array $poller): void
     {
         Resource::getInstance($this->dependencyInjector)->generateFromPollerId($poller['id']);
         $this->generate($poller['id']);

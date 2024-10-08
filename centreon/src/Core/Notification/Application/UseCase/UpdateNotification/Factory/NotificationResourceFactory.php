@@ -112,14 +112,14 @@ class NotificationResourceFactory
      */
     public function createMultipleResource(array $resources): array
     {
-        if (empty($resources)) {
+        if ($resources === []) {
             throw NotificationException::emptyArrayNotAllowed('resource');
         }
 
         $newResources = [];
         foreach ($resources as $resourceData) {
             $resourceIds = array_unique($resourceData['ids']);
-            if (count($resourceIds) === 0) {
+            if ($resourceIds === []) {
                 continue;
             }
 

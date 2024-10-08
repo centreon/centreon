@@ -38,12 +38,7 @@ if (!isset($centreon)) {
 }
 
 if (!$centreon->user->admin && $cg_id) {
-    $aclOptions = array(
-        'fields' => array('cg_id', 'cg_name'),
-        'keys' => array('cg_id'),
-        'get_row' => 'cg_name',
-        'conditions' => array('cg_id' => $cg_id)
-    );
+    $aclOptions = ['fields' => ['cg_id', 'cg_name'], 'keys' => ['cg_id'], 'get_row' => 'cg_name', 'conditions' => ['cg_id' => $cg_id]];
     $cgs = $acl->getContactGroupAclConf($aclOptions);
     if (!count($cgs)) {
         $msg = new CentreonMsg();
@@ -54,12 +49,12 @@ if (!$centreon->user->admin && $cg_id) {
     }
 }
 
-$initialValues = array();
+$initialValues = [];
 
 /*
  * Database retrieve information for Contact
  */
-$cg = array();
+$cg = [];
 if (($o == "c" || $o == "w") && $cg_id) {
     /*
      * Get host Group information
@@ -74,25 +69,15 @@ if (($o == "c" || $o == "w") && $cg_id) {
     $cg = array_map("myDecode", $statement->fetch(\PDO::FETCH_ASSOC));
 }
 
-$attrsText = array("size" => "30");
-$attrsAdvSelect = array("style" => "width: 300px; height: 100px;");
-$attrsTextarea = array("rows" => "5", "cols" => "60");
+$attrsText = ["size" => "30"];
+$attrsAdvSelect = ["style" => "width: 300px; height: 100px;"];
+$attrsTextarea = ["rows" => "5", "cols" => "60"];
 $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />'
     . '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 $contactRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_contact&action=list';
-$attrContacts = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $contactRoute,
-    'multiple' => true,
-    'linkedObject' => 'centreonContact'
-);
+$attrContacts = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $contactRoute, 'multiple' => true, 'linkedObject' => 'centreonContact'];
 $aclgRoute = './include/common/webServices/rest/internal.php?object=centreon_administration_aclgroup&action=list';
-$attrAclgroups = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $aclgRoute,
-    'multiple' => true,
-    'linkedObject' => 'centreonAclGroup'
-);
+$attrAclgroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $aclgRoute, 'multiple' => true, 'linkedObject' => 'centreonAclGroup'];
 
 /*
  * form begin
@@ -121,9 +106,9 @@ $contactRoute = './include/common/webServices/rest/internal.php?object=centreon_
     . '&action=defaultValues&target=contactgroup&field=cg_contacts&id=' . $cg_id;
 $attrContact1 = array_merge(
     $attrContacts,
-    array('defaultDatasetRoute' => $contactRoute)
+    ['defaultDatasetRoute' => $contactRoute]
 );
-$form->addElement('select2', 'cg_contacts', _("Linked Contacts"), array(), $attrContact1);
+$form->addElement('select2', 'cg_contacts', _("Linked Contacts"), [], $attrContact1);
 
 
 /*
@@ -133,9 +118,9 @@ $aclRoute = './include/common/webServices/rest/internal.php?object=centreon_admi
     . '&action=defaultValues&target=contactgroup&field=cg_acl_groups&id=' . $cg_id;
 $attrAclgroup1 = array_merge(
     $attrAclgroups,
-    array('defaultDatasetRoute' => $aclRoute)
+    ['defaultDatasetRoute' => $aclRoute]
 );
-$form->addElement('select2', 'cg_acl_groups', _("Linked ACL groups"), array(), $attrAclgroup1);
+$form->addElement('select2', 'cg_acl_groups', _("Linked ACL groups"), [], $attrAclgroup1);
 
 /*
  * Further informations
@@ -144,7 +129,7 @@ $form->addElement('header', 'furtherInfos', _("Additional Information"));
 $cgActivation[] = $form->createElement('radio', 'cg_activate', null, _("Enabled"), '1');
 $cgActivation[] = $form->createElement('radio', 'cg_activate', null, _("Disabled"), '0');
 $form->addGroup($cgActivation, 'cg_activate', _("Status"), '&nbsp;');
-$form->setDefaults(array('cg_activate' => '1'));
+$form->setDefaults(['cg_activate' => '1']);
 $form->addElement('textarea', 'cg_comment', _("Comments"), $attrsTextarea);
 
 $form->addElement('hidden', 'cg_id');
@@ -197,7 +182,7 @@ if ($o == "w") {
             "button",
             "change",
             _("Modify"),
-            array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&cg_id=" . $cg_id . "'")
+            ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&cg_id=" . $cg_id . "'"]
         );
     }
     $form->setDefaults($cg);
@@ -206,15 +191,15 @@ if ($o == "w") {
     /*
      * Modify a Contact Group information
      */
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $form->setDefaults($cg);
 } elseif ($o == "a") {
     /*
      * Add a Contact Group information
      */
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 }
 
 $valid = false;

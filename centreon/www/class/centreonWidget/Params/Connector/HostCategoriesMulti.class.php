@@ -35,21 +35,33 @@
 
 require_once __DIR__ . "/../Select2.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonWidgetParamsConnectorHostCategoriesMulti
+ */
 class CentreonWidgetParamsConnectorHostCategoriesMulti extends CentreonWidgetParamsSelect2
 {
+    /**
+     * CentreonWidgetParamsConnectorHostCategoriesMulti constructor
+     *
+     * @param $db
+     * @param $quickform
+     * @param $userId
+     *
+     * @throws PDOException
+     */
     public function __construct($db, $quickform, $userId)
     {
         parent::__construct($db, $quickform, $userId);
     }
 
+    /**
+     * @return array
+     */
     public function getParameters()
     {
         $path = './include/common/webServices/rest/internal.php?object=centreon_configuration_hostcategory&action=list';
-        return array(
-            'datasourceOrigin' => 'ajax',
-            'availableDatasetRoute' => $path,
-            'multiple' => true,
-            'linkedObject' => 'centreonHostcategories'
-        );
+        return ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $path, 'multiple' => true, 'linkedObject' => 'centreonHostcategories'];
     }
 }

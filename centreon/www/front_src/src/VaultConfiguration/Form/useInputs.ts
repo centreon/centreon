@@ -61,7 +61,7 @@ export const useInputs = (): Array<InputProps> => {
       group: ''
     },
     {
-      type: InputType.Text,
+      type: InputType.Password,
       label: t(labelRoleID),
       required: true,
       fieldName: 'roleId',

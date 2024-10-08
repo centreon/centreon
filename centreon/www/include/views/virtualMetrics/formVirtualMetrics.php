@@ -43,7 +43,7 @@ if (!isset($oreon)) {
 /*
  * Database retrieve information
  */
-$vmetric = array();
+$vmetric = [];
 
 if (($o == METRIC_MODIFY || $o == METRIC_WATCH)
     && is_int($vmetricId)
@@ -59,7 +59,7 @@ if (($o == METRIC_MODIFY || $o == METRIC_WATCH)
  *
  * Existing Data Index List comes from DBO -> Store in $indds Array
  */
-$indds = array("" => sprintf("%s%s", _("Host list"), "&nbsp;&nbsp;&nbsp;"));
+$indds = ["" => sprintf("%s%s", _("Host list"), "&nbsp;&nbsp;&nbsp;")];
 $mx_l = strlen($indds[""]);
 
 try {
@@ -84,20 +84,15 @@ $dbindd->closeCursor();
  * Var information to format the element
  */
 
-$attrsText = array("size" => "30");
-$attrsText2 = array("size" => "10");
-$attrsAdvSelect = array("style" => "width: 200px; height: 100px;");
-$attrsTextarea = array("rows" => "4", "cols" => "60");
+$attrsText = ["size" => "30"];
+$attrsText2 = ["size" => "10"];
+$attrsAdvSelect = ["style" => "width: 200px; height: 100px;"];
+$attrsTextarea = ["rows" => "4", "cols" => "60"];
 
 
 $availableRoute = './api/internal.php?object=centreon_configuration_service&action=list';
 
-$attrServices = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $availableRoute,
-    'linkedObject' => 'centreonService',
-    'multiple' => false
-);
+$attrServices = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $availableRoute, 'linkedObject' => 'centreonService', 'multiple' => false];
 
 if ($o !== METRIC_ADD) {
     $defaultRoute = './api/internal.php?object=centreon_configuration_graphvirtualmetric' .
@@ -131,13 +126,13 @@ $form->addElement('header', 'options', _("Options"));
 $form->addElement('text', 'vmetric_name', _("Metric Name"), $attrsText);
 #$form->addElement('text', 'hs_relation', _("Host / Service Data Source"), $attrsText);
 $form->addElement('static', 'hsr_text', _("Choose a service if you want a specific virtual metric for it."));
-$form->addElement('select2', 'host_id', _("Linked Host Services"), array(), $attrServices);
+$form->addElement('select2', 'host_id', _("Linked Host Services"), [], $attrServices);
 
 $form->addElement(
     'select',
     'def_type',
     _("DEF Type"),
-    array(0 => "CDEF&nbsp;&nbsp;&nbsp;", 1 => "VDEF&nbsp;&nbsp;&nbsp;"),
+    [0 => "CDEF&nbsp;&nbsp;&nbsp;", 1 => "VDEF&nbsp;&nbsp;&nbsp;"],
     "onChange=manageVDEF();"
 );
 // RPN Function
@@ -205,27 +200,24 @@ if ($o == METRIC_WATCH) {
         "button",
         "change",
         _("Modify"),
-        array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&vmetric_id=" . $vmetricId . "'")
+        ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&vmetric_id=" . $vmetricId . "'"]
     );
     $form->setDefaults($vmetric);
     $form->freeze();
 } elseif ($o == METRIC_MODIFY) {
     // Modify
     $hostId = $vmetric["host_id"] ?? null;
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array(
-        "onClick" => "javascript:resetLists($hostId,{$vmetric["index_id"]});",
-        "class" => "btc bt_default"
-    ));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["onClick" => "javascript:resetLists($hostId,{$vmetric["index_id"]});", "class" => "btc bt_default"]);
     $form->setDefaults($vmetric);
 } elseif ($o == METRIC_ADD) {
     // Add
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
     $res = $form->addElement(
         'reset',
         'reset',
         _("Reset"),
-        array("onClick" => "javascript:resetLists(0,0)", "class" => "btc bt_default")
+        ["onClick" => "javascript:resetLists(0,0)", "class" => "btc bt_default"]
     );
 }
 
@@ -270,7 +262,7 @@ if ($o == METRIC_MODIFY || $o == METRIC_ADD) {
     </script>
     <?php
 }
-$tpl->assign('msg', array("changeL" => "main.php?p=" . $p . "&o=c&vmetric_id=" . $vmetricId, "changeT" => _("Modify")));
+$tpl->assign('msg', ["changeL" => "main.php?p=" . $p . "&o=c&vmetric_id=" . $vmetricId, "changeT" => _("Modify")]);
 
 $tpl->assign("sort1", _("Properties"));
 $tpl->assign("sort2", _("Graphs"));
@@ -306,7 +298,7 @@ if ($form->validate()) {
             "button",
             "change",
             _("Modify"),
-            array("onClick" => "javascript:window.location.href='?p=$p&o=c&vmetric_id=" . $vmetricObj->getValue() . "'")
+            ["onClick" => "javascript:window.location.href='?p=$p&o=c&vmetric_id=" . $vmetricObj->getValue() . "'"]
         );
         $form->freeze();
         $valid = true;
@@ -331,13 +323,13 @@ if ($valid) {
 $vdef = 1; /* Display VDEF too */
 
 if ($o == METRIC_MODIFY || $o == METRIC_WATCH) {
-    isset($_POST["host_id"]) && $_POST["host_id"] != null
-        ? $host_service_id = $_POST["host_id"]
-        : $host_service_id = $vmetric["host_id"];
+    $host_service_id = isset($_POST["host_id"]) && $_POST["host_id"] != null
+        ? $_POST["host_id"]
+        : $vmetric["host_id"];
 } elseif ($o == METRIC_ADD) {
-    isset($_POST["host_id"]) && $_POST["host_id"] != null
-        ? $host_service_id = $_POST["host_id"]
-        : $host_service_id = 0;
+    $host_service_id = isset($_POST["host_id"]) && $_POST["host_id"] != null
+        ? $_POST["host_id"]
+        : 0;
 }
 ?>
 <script type="text/javascript">

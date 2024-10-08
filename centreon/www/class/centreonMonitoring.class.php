@@ -36,27 +36,31 @@
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 
 /**
+ * Class
  *
- * Enter description here ...
- * @author jmathis
- *
+ * @class CentreonMonitoring
  */
 class CentreonMonitoring
 {
     use SqlMultipleBindTrait;
+
     public const SERVICE_STATUS_OK = 0;
     public const SERVICE_STATUS_WARNING = 1;
     public const SERVICE_STATUS_CRITICAL = 2;
     public const SERVICE_STATUS_UNKNOWN = 3;
     public const SERVICE_STATUS_PENDING = 4;
 
+    /** @var string */
     protected $poller;
+    /** @var CentreonDB */
     protected $DB;
+    /** @var */
     protected $objBroker;
 
     /**
+     * CentreonMonitoring constructor
      *
-     * Enter description here ...
+     * @param CentreonDB $DB
      */
     public function __construct($DB)
     {
@@ -64,18 +68,17 @@ class CentreonMonitoring
     }
 
     /**
+     * @param string $pollerId
      *
-     * Enter description here ...
-     * @param unknown_type $pollerId
+     * @return void
      */
-    public function setPoller($pollerId)
+    public function setPoller($pollerId): void
     {
         $this->poller = $pollerId;
     }
 
     /**
-     *
-     * Enter description here ...
+     * @return string
      */
     public function getPoller()
     {
@@ -83,6 +86,11 @@ class CentreonMonitoring
     }
 
     /**
+     * @param $host_name
+     * @param $objXMLBG
+     * @param $o
+     * @param $status
+     * @param $obj
      *
      * Proxy function
      *

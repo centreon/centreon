@@ -168,11 +168,11 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
      */
     public function findAll(?RequestParametersInterface $requestParameters = null): array
     {
-        $request = <<<'SQL'
+        $request = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS
                 cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
             FROM `:db`.contactgroup
-            SQL;
+            SQL_WRAP;
 
         $sqlTranslator = $requestParameters !== null
             ? new SqlRequestParametersTranslator($requestParameters)
@@ -227,13 +227,13 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
      */
     public function findAllByUserId(int $userId): array
     {
-        $request = <<<'SQL'
+        $request = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS
                 cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
             FROM `:db`.contactgroup cg
             INNER JOIN `:db`.contactgroup_contact_relation ccr
                 ON ccr.contactgroup_cg_id = cg.cg_id
-            SQL;
+            SQL_WRAP;
 
         // Search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
@@ -245,7 +245,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY cg_id ASC';
+        $request .= $sortRequest ?? ' ORDER BY cg_id ASC';
 
         // Pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();
@@ -324,7 +324,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
             $queryBindValues[':contact_group_' . $contactGroupId] = $contactGroupId;
         }
 
-        if (empty($queryBindValues)) {
+        if ($queryBindValues === []) {
             return [];
         }
         $contactGroups = [];
@@ -412,9 +412,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         $request .= ' GROUP BY cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type';
         // Sort
         $sortRequest = $sqlTranslator?->translateSortParameterToSql();
-        $request .= $sortRequest !== null
-            ? $sortRequest
-            : ' ORDER BY cg_id ASC';
+        $request .= $sortRequest ?? ' ORDER BY cg_id ASC';
 
         // Pagination
         $request .= $sqlTranslator?->translatePaginationToSql();

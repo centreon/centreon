@@ -37,7 +37,7 @@ use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->writeHostCategoryRepository = $this->createMock(WriteHostCategoryRepositoryInterface::class);
     $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class);
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
@@ -48,7 +48,7 @@ beforeEach(function () {
     $this->hostCategoryId = 1;
 });
 
-it('should present an ErrorResponse when an exception is thrown', function () {
+it('should present an ErrorResponse when an exception is thrown', function (): void {
     $useCase = new DeleteHostCategory(
         $this->writeHostCategoryRepository,
         $this->readHostCategoryRepository,
@@ -102,7 +102,7 @@ it('should present a ForbiddenResponse when a non-admin user has insufficient ri
         ->toBe(HostCategoryException::deleteNotAllowed()->getMessage());
 });
 
-it('should present a NotFoundResponse when the host category does not exist (with admin user)', function () {
+it('should present a NotFoundResponse when the host category does not exist (with admin user)', function (): void {
     $useCase = new DeleteHostCategory(
         $this->writeHostCategoryRepository,
         $this->readHostCategoryRepository,
@@ -127,7 +127,7 @@ it('should present a NotFoundResponse when the host category does not exist (wit
         ->toBe('Host category not found');
 });
 
-it('should present a NotFoundResponse when the host category does not exist (with non-admin user)', function () {
+it('should present a NotFoundResponse when the host category does not exist (with non-admin user)', function (): void {
     $useCase = new DeleteHostCategory(
         $this->writeHostCategoryRepository,
         $this->readHostCategoryRepository,
@@ -156,7 +156,7 @@ it('should present a NotFoundResponse when the host category does not exist (wit
         ->toBe('Host category not found');
 });
 
-it('should present a NoContentResponse on success (with admin user)', function () {
+it('should present a NoContentResponse on success (with admin user)', function (): void {
     $useCase = new DeleteHostCategory(
         $this->writeHostCategoryRepository,
         $this->readHostCategoryRepository,
@@ -182,7 +182,7 @@ it('should present a NoContentResponse on success (with admin user)', function (
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
 });
 
-it('should present a NoContentResponse on success (with non-admin user)', function () {
+it('should present a NoContentResponse on success (with non-admin user)', function (): void {
     $useCase = new DeleteHostCategory(
         $this->writeHostCategoryRepository,
         $this->readHostCategoryRepository,

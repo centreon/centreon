@@ -40,12 +40,9 @@ const initialize = (): void => {
     path: `./api/latest${vaultConfigurationEndpoint}`,
     alias: 'getVaultConfiguration',
     response: {
-      id: 1,
-      vault_id: 1,
       address: 'localhost',
       port: 1024,
       root_path: '/path',
-      role_id: 'role'
     }
   });
 
@@ -143,7 +140,7 @@ describe('Vault configuration', () => {
     cy.findByLabelText(labelVaultAddress).should('have.value', 'localhost');
     cy.findByLabelText(labelPort).should('have.value', '1024');
     cy.findByLabelText(labelRootPath).should('have.value', '/path');
-    cy.findByLabelText(labelRoleID).should('have.value', 'role');
+    cy.findByLabelText(labelRoleID).should('have.value', '');
     cy.findByLabelText(labelSecretID).should('have.value', '');
 
     cy.contains(labelReset).should('be.disabled');
@@ -164,6 +161,7 @@ describe('Vault configuration', () => {
 
     cy.findByLabelText(labelVaultAddress).should('have.value', 'example.com');
 
+    cy.findByLabelText(labelRoleID).type('role')
     cy.findByLabelText(labelSecretID).type('Secret');
 
     cy.contains(labelSave).click();
@@ -197,6 +195,7 @@ describe('Vault configuration', () => {
 
     cy.findByLabelText(labelVaultAddress).should('have.value', 'example.com');
 
+    cy.findByLabelText(labelRoleID).type('role');
     cy.findByLabelText(labelSecretID).type('Secret');
 
     cy.contains(labelReset).click();
@@ -206,6 +205,7 @@ describe('Vault configuration', () => {
 
     cy.findByLabelText(labelReset).click();
 
+    cy.findByLabelText(labelRoleID).should('have.value', '');
     cy.findByLabelText(labelSecretID).should('have.value', '');
     cy.findByLabelText(labelVaultAddress).should('have.value', 'localhost');
 

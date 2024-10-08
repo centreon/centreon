@@ -173,7 +173,7 @@ class SubmitResultController extends AbstractController
         */
         $payload = $this->validateAndRetrieveDataSent($request, self::SUBMIT_SINGLE_RESULT_PAYLOAD_VALIDATION_FILE);
 
-        if (!empty($payload)) {
+        if ($payload !== []) {
             /**
              * At this point we made sure that the mapping will work since we validate
              * the JSON sent with the JSON validator.
@@ -220,7 +220,7 @@ class SubmitResultController extends AbstractController
         */
         $payload = $this->validateAndRetrieveDataSent($request, self::SUBMIT_SINGLE_RESULT_PAYLOAD_VALIDATION_FILE);
 
-        if (!empty($payload)) {
+        if ($payload !== []) {
             $result = (new SubmitResult($serviceId, $payload['status']))
                 ->setOutput($payload['output'])
                 ->setPerformanceData($payload['performance_data'])

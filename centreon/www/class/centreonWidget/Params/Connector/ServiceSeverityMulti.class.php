@@ -33,9 +33,16 @@
  *
  */
 require_once __DIR__ . "/../Select2.class.php";
+
 /**
  * Creation of a new connector for the host severity that use the centreonHostcategories object 
  * with configuration from centreon_configuration_host_severity file
+ */
+
+/**
+ * Class
+ *
+ * @class CentreonWidgetParamsConnectorServiceSeverityMulti
  */
 class CentreonWidgetParamsConnectorServiceSeverityMulti extends CentreonWidgetParamsSelect2
 {
@@ -45,7 +52,8 @@ class CentreonWidgetParamsConnectorServiceSeverityMulti extends CentreonWidgetPa
      * @param CentreonDB $db
      * @param HTML_Quickform $quickform
      * @param int $userId
-     * @return void
+     *
+     * @throws PDOException
      */
     public function __construct($db, $quickform, $userId)
     {
@@ -58,11 +66,6 @@ class CentreonWidgetParamsConnectorServiceSeverityMulti extends CentreonWidgetPa
     public function getParameters()
     {
         $path = './api/internal.php?object=centreon_configuration_service_severity&action=list';
-        return array(
-            'datasourceOrigin' => 'ajax',
-            'availableDatasetRoute' => $path,
-            'multiple' => true,
-            'linkedObject' => 'centreonServicecategories'
-        );
+        return ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $path, 'multiple' => true, 'linkedObject' => 'centreonServicecategories'];
     }
 }

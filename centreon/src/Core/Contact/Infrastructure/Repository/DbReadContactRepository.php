@@ -231,14 +231,14 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
         $sqlTranslator->setConcordanceArray([
             'name' => 'c.contact_name',
         ]);
-        $query = <<<'SQL'
+        $query = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS
                 c.contact_id,
                 c.contact_name,
                 c.contact_email,
                 c.contact_admin
             FROM `:db`.contact c
-            SQL;
+            SQL_WRAP;
 
         $searchRequest = $sqlTranslator->translateSearchParameterToSql();
         $query .= $searchRequest !== null

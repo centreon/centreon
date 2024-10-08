@@ -56,7 +56,7 @@ function AddHostComment($host, $comment, $persistant)
 {
     global $centreon, $pearDB;
 
-    if (!isset($persistant) || !in_array($persistant, array('0', '1'))) {
+    if (!isset($persistant) || !in_array($persistant, ['0', '1'])) {
         $persistant = '0';
     }
     write_command(" ADD_HOST_COMMENT;" . getMyHostName($host) . ";" . $persistant . ";" .
@@ -67,7 +67,7 @@ function AddSvcComment($host, $service, $comment, $persistant)
 {
     global $centreon, $pearDB;
 
-    if (!isset($persistant) || !in_array($persistant, array('0', '1'))) {
+    if (!isset($persistant) || !in_array($persistant, ['0', '1'])) {
         $persistant = '0';
     }
     write_command(" ADD_SVC_COMMENT;" . getMyHostName($host) . ";" . getMyServiceName($service) . ";" . $persistant .

@@ -33,33 +33,50 @@
  *
  */
 
+use LDAP\Connection;
+
 require_once __DIR__ . '/centreonAuth.class.php';
 require_once __DIR__ . '/centreonLDAP.class.php';
 
+
 /**
- * Class for Ldap authentication
+ * Class
+ *
+ * @class CentreonAuthLDAP
+ * @description Class for Ldap authentication
  */
 class CentreonAuthLDAP
 {
+    /** @var Connection|resource */
+    public $ds;
+    /** @var CentreonDB */
     protected $pearDB;
+    /** @var CentreonLDAP */
     protected $ldap;
+    /** @var CentreonUserLog */
     protected $CentreonLog;
+    /** @var mixed[] */
     protected $contactInfos;
+    /** @var string */
     protected $typePassword;
+    /** @var int */
     protected $debug;
+    /** @var bool */
     protected $firstCheck = true;
+    /** @var int */
     protected $arId;
 
     /**
-     * Constructor
+     * CentreonAuthLDAP constructor
      *
      * @param CentreonDB $pearDB Connection to centreon database
      * @param CentreonUserLog $CentreonLog Log event
      * @param string $login The username
      * @param string $password The user password
-     * @param mixed[] $contactInfos
+     * @param array $contactInfos
      * @param int $arId | Auth Ressource ID
-     * @return void
+     *
+     * @throws PDOException
      */
     public function __construct($pearDB, $CentreonLog, $login, $password, $contactInfos, $arId)
     {
@@ -92,15 +109,13 @@ class CentreonAuthLDAP
      * Is loging enable ?
      *
      * @return int 1 enable 0 disable
+     * @throws PDOException
      */
     private function getLogFlag()
     {
         $res = $this->pearDB->query("SELECT value FROM options WHERE `key` = 'debug_ldap_import'");
         $data = $res->fetch();
-        if (isset($data["value"])) {
-            return $data["value"];
-        }
-        return 0;
+        return $data["value"] ?? 0;
     }
 
     /**
@@ -183,6 +198,7 @@ class CentreonAuthLDAP
      * Search and update the user dn at login
      *
      * @return bool If the DN is modified
+     * @throws exception
      */
     public function updateUserDn()
     {
@@ -203,9 +219,9 @@ class CentreonAuthLDAP
                 $userDisplay = $userDisplay[0];
             }
             // Replace space by underscore
-            $userDisplay = str_replace(array(' ', ','), '_', $userDisplay);
+            $userDisplay = str_replace([' ', ','], '_', $userDisplay);
             // Delete parenthesis
-            $userDisplay = str_replace(array('(', ')'), '', $userDisplay);
+            $userDisplay = str_replace(['(', ')'], '', $userDisplay);
 
             //getting user's email
             $userEmail = $this->contactInfos['contact_email'];
@@ -265,19 +281,19 @@ class CentreonAuthLDAP
                         WHERE contact_id = :contactId
                         SQL
                     );
-                    $stmt->bindValue(':userDn', $userDn, \PDO::PARAM_STR);
-                    $stmt->bindValue(':userDisplay', $userDisplay, \PDO::PARAM_STR);
-                    $stmt->bindValue(':userEmail', $userEmail, \PDO::PARAM_STR);
-                    $stmt->bindValue(':userPager', $userPager, \PDO::PARAM_STR);
+                    $stmt->bindValue(':userDn', $userDn, PDO::PARAM_STR);
+                    $stmt->bindValue(':userDisplay', $userDisplay, PDO::PARAM_STR);
+                    $stmt->bindValue(':userEmail', $userEmail, PDO::PARAM_STR);
+                    $stmt->bindValue(':userPager', $userPager, PDO::PARAM_STR);
                     $stmt->bindValue(
                         ':reachApiRt',
                         $this->contactInfos['contact_oreon'] === '1' ? 1 : 0,
-                        \PDO::PARAM_INT
+                        PDO::PARAM_INT
                     );
-                    $stmt->bindValue(':arId', $this->arId, \PDO::PARAM_INT);
-                    $stmt->bindValue(':contactId', $this->contactInfos['contact_id'], \PDO::PARAM_INT);
+                    $stmt->bindValue(':arId', $this->arId, PDO::PARAM_INT);
+                    $stmt->bindValue(':contactId', $this->contactInfos['contact_id'], PDO::PARAM_INT);
                     $stmt->execute();
-                } catch (\PDOException $e) {
+                } catch (PDOException $e) {
                     $this->CentreonLog->insertLog(
                         3,
                         'LDAP AUTH - Error : when trying to update user : ' . $userDisplay
@@ -291,7 +307,7 @@ class CentreonAuthLDAP
                     include_once(realpath(__DIR__ .  '/centreonContactgroup.class.php'));
                     $cgs = new CentreonContactgroup($this->pearDB);
                     $cgs->syncWithLdap();
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->CentreonLog->insertLog(
                         3,
                         'LDAP AUTH - Error : when updating ' . $userDisplay . '\'s ldap contactgroups'
@@ -316,7 +332,7 @@ class CentreonAuthLDAP
                     AND a.ari_value = c.contact_id"
                 );
                 try {
-                    $res->bindValue(':arId', $this->arId, \PDO::PARAM_INT);
+                    $res->bindValue(':arId', $this->arId, PDO::PARAM_INT);
                     $res->execute();
 
                     $row = $res->fetch();
@@ -325,7 +341,7 @@ class CentreonAuthLDAP
                         return false;
                     }
                     $tmplId = $row['ari_value'];
-                } catch (\PDOException $e) {
+                } catch (PDOException $e) {
                     $this->CentreonLog->insertLog(
                         3,
                         'LDAP AUTH - Error : when trying to get LDAP data for : ' . $userDisplay
@@ -346,13 +362,13 @@ class CentreonAuthLDAP
                     SQL
                 );
                 try {
-                    $stmt->bindValue(':templateId', $tmplId, \PDO::PARAM_INT);
-                    $stmt->bindValue(':contactAlias', $contactAlias, \PDO::PARAM_STR);
-                    $stmt->bindValue(':userDisplay', $userDisplay, \PDO::PARAM_STR);
-                    $stmt->bindValue(':userDn', $userDn, \PDO::PARAM_STR);
-                    $stmt->bindValue(':arId', $this->arId, \PDO::PARAM_INT);
-                    $stmt->bindValue(':userEmail', $userEmail, \PDO::PARAM_STR);
-                    $stmt->bindValue(':userPager', $userPager, \PDO::PARAM_STR);
+                    $stmt->bindValue(':templateId', $tmplId, PDO::PARAM_INT);
+                    $stmt->bindValue(':contactAlias', $contactAlias, PDO::PARAM_STR);
+                    $stmt->bindValue(':userDisplay', $userDisplay, PDO::PARAM_STR);
+                    $stmt->bindValue(':userDn', $userDn, PDO::PARAM_STR);
+                    $stmt->bindValue(':arId', $this->arId, PDO::PARAM_INT);
+                    $stmt->bindValue(':userEmail', $userEmail, PDO::PARAM_STR);
+                    $stmt->bindValue(':userPager', $userPager, PDO::PARAM_STR);
                     $stmt->execute();
 
                     // Retrieving the created contact_id
@@ -360,7 +376,7 @@ class CentreonAuthLDAP
                         "SELECT contact_id FROM contact
                         WHERE contact_ldap_dn = :userDn"
                     );
-                    $res->bindValue(':userDn', $userDn, \PDO::PARAM_STR);
+                    $res->bindValue(':userDn', $userDn, PDO::PARAM_STR);
                     $res->execute();
                     $row = $res->fetch();
                     $this->contactInfos['contact_id'] = $row['contact_id'];
@@ -392,7 +408,7 @@ class CentreonAuthLDAP
                     );
                     while ($row2 = $res2->fetch()) {
                         $stmt->bindValue(':ldapCg', $row2['cg_id'], PDO::PARAM_INT);
-                        $stmt->bindValue(':contactId', $this->contactInfos['contact_id'], \PDO::PARAM_INT);
+                        $stmt->bindValue(':contactId', $this->contactInfos['contact_id'], PDO::PARAM_INT);
                         $stmt->execute();
                     }
                     $this->ldap->setUserCurrentSyncTime($this->contactInfos);
@@ -405,7 +421,7 @@ class CentreonAuthLDAP
                         $this->arId,
                         $this->contactInfos['contact_id']
                     );
-                } catch (\PDOException $e) {
+                } catch (PDOException $e) {
                     $this->CentreonLog->insertLog(
                         3,
                         'LDAP AUTH - Error : processing new user ' . $userDisplay . ' from ldap id : ' . $this->arId

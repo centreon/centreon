@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "7db37a35-c0bd-42d9-81e8-267a6a9693f7",
+		"_postman_id": "dc81c73f-bc2d-4198-8d97-1e5f93bf4d03",
 		"name": "Acknowledgement",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-7db37a35-c0bd-42d9-81e8-267a6a9693f7?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "1366693"
 	},
 	"item": [
 		{
@@ -587,7 +586,7 @@
 					"response": []
 				},
 				{
-					"name": "Schedule a check on a host",
+					"name": "Check the host is monitored",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -604,9 +603,83 @@
 							"script": {
 								"exec": [
 									"pm.collectionVariables.set(\"expectedHttpStatus\", 200);\r",
-									"pm.collectionVariables.set(\"maxNumberOfTries\", 20);\r",
-									"pm.collectionVariables.set(\"sleepBetweenTries\", 2000);\r",
+									"pm.collectionVariables.set(\"maxNumberOfTries\", 60);\r",
+									"pm.collectionVariables.set(\"sleepBetweenTries\", 1000);\r",
 									"\r",
+									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\") && responseJson.result.length == 0) || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the host is monitored\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"The host is successfully listed\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.result.length).to.eql(1);\r",
+									"        pm.expect(responseJson.result[0].name).to.eql(pm.collectionVariables.get(\"Host1Name\"));\r",
+									"    });\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/hosts?search={\"host.name\":{\"$rg\":\"{{Host1Name}}\"}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"hosts"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "{\"host.name\":{\"$rg\":\"{{Host1Name}}\"}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Schedule a check on a host",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
 									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
@@ -723,7 +796,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -734,7 +808,10 @@
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\")) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
+									"\r",
+									"if ((pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\") || responseJson.state_type != 0 || responseJson.state != 2) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
@@ -744,13 +821,13 @@
 									"\r",
 									"    pm.test(\"The service is in Hard state\", function () {\r",
 									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
-									"        const responseJson = pm.response.json();\r",
 									"        pm.expect(responseJson.state_type).not.to.eql(0);\r",
-									"        pm.expect(responseJson.state).not.to.eql(0);\r",
+									"        pm.expect(responseJson.state).eql(2);\r",
 									"    });\r",
 									"}"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -789,7 +866,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -800,7 +878,10 @@
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((pm.response.code != 200) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
+									"\r",
+									"if ((pm.response.code != 200 || responseJson.state_type != 0 || responseJson.state != 1) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
@@ -810,13 +891,13 @@
 									"\r",
 									"    pm.test(\"The host is in Hard state\", function () {\r",
 									"        pm.response.to.have.status(200);\r",
-									"        const responseJson = pm.response.json();\r",
 									"        pm.expect(responseJson.state_type).not.to.eql(0);\r",
-									"        pm.expect(responseJson.state).not.to.eql(0);\r",
+									"        pm.expect(responseJson.state).eql(1);\r",
 									"    });\r",
 									"}"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -916,7 +997,7 @@
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((responseJson.result.length != 1) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"if ((responseJson.result.length != 2) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
 									"    console.log(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
@@ -961,7 +1042,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/acknowledgements?sort_by={\"id\":\"DESC\"}",
+							"raw": "{{baseUrl}}/monitoring/acknowledgements?sort_by={\"id\":\"ASC\"}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -972,7 +1053,7 @@
 							"query": [
 								{
 									"key": "sort_by",
-									"value": "{\"id\":\"DESC\"}"
+									"value": "{\"id\":\"ASC\"}"
 								}
 							]
 						}
@@ -1048,7 +1129,7 @@
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (responseJson.result[0].deletion_time == null)) {\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (responseJson.result.length != 2 || responseJson.result[0].deletion_time == null || responseJson.result[1].deletion_time == null)) {\r",
 									"    console.log(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
@@ -1093,7 +1174,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/acknowledgements?sort_by={\"id\":\"DESC\"}",
+							"raw": "{{baseUrl}}/monitoring/acknowledgements?sort_by={\"id\":\"ASC\"}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -1104,7 +1185,7 @@
 							"query": [
 								{
 									"key": "sort_by",
-									"value": "{\"id\":\"DESC\"}"
+									"value": "{\"id\":\"ASC\"}"
 								}
 							]
 						}
@@ -3398,7 +3479,7 @@
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((responseJson.result.length != 3) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"if ((responseJson.result.length != 4) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
@@ -3423,7 +3504,7 @@
 									"        });\r",
 									"        pm.expect(responseJson.result[0].deletion_time).not.to.equal(null);\r",
 									"\r",
-									"        pm.expect(responseJson.result[1]).to.include({\r",
+									"        pm.expect(responseJson.result[2]).to.include({\r",
 									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
 									"            \"service_id\": 0,\r",
 									"            \"author_id\": parseInt(pm.collectionVariables.get('user_Id')),\r",
@@ -3437,7 +3518,7 @@
 									"            \"type\": 0\r",
 									"        });\r",
 									"\r",
-									"        pm.expect(responseJson.result[2]).to.include({\r",
+									"        pm.expect(responseJson.result[3]).to.include({\r",
 									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
 									"            \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
 									"            \"author_id\": parseInt(pm.collectionVariables.get('user_Id')),\r",
@@ -3557,7 +3638,7 @@
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if (((responseJson.result[1].deletion_time == null) || (responseJson.result[2].deletion_time == null)) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"if (((responseJson.result[2].deletion_time == null) || (responseJson.result[3].deletion_time == null)) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
@@ -3582,7 +3663,7 @@
 									"        });\r",
 									"        pm.expect(responseJson.result[0].deletion_time).not.to.equal(null);\r",
 									"\r",
-									"        pm.expect(responseJson.result[1]).to.include({\r",
+									"        pm.expect(responseJson.result[2]).to.include({\r",
 									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
 									"            \"service_id\": 0,\r",
 									"            \"author_id\": parseInt(pm.collectionVariables.get('user_Id')),\r",
@@ -3594,9 +3675,9 @@
 									"            \"state\": 1,\r",
 									"            \"type\": 0\r",
 									"        });\r",
-									"        pm.expect(responseJson.result[1].deletion_time).not.to.equal(null);\r",
+									"        pm.expect(responseJson.result[2].deletion_time).not.to.equal(null);\r",
 									"\r",
-									"        pm.expect(responseJson.result[2]).to.include({\r",
+									"        pm.expect(responseJson.result[3]).to.include({\r",
 									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
 									"            \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
 									"            \"author_id\": parseInt(pm.collectionVariables.get('user_Id')),\r",
@@ -3608,7 +3689,7 @@
 									"            \"state\": 2,\r",
 									"            \"type\": 1\r",
 									"        });\r",
-									"        pm.expect(responseJson.result[2].deletion_time).not.to.equal(null);\r",
+									"        pm.expect(responseJson.result[3].deletion_time).not.to.equal(null);\r",
 									"\r",
 									"    });\r",
 									"}"
