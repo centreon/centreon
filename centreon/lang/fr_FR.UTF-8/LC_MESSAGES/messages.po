@@ -8880,7 +8880,7 @@ msgstr "octets"
 msgid "Warning: this value can be dangerous, use -1 if you have any doubt."
 msgstr ""
 "Attention : le changement de cette valeur peut avoir des conséquences "
-"importantes. Utiliser '-1' si vous avez le moindre doute"
+"importantes. Utilisez -1 si vous avez le moindre doute"
 
 #: centreon-web/www/include/configuration/configNagios/formNagios.php:905
 msgid "This option must be enabled for Centreon Dashboard module."
