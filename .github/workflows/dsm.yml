@@ -36,23 +36,6 @@ jobs:
     with:
       version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
 
-  veracode-analysis:
-    needs: [get-version]
-    uses: ./.github/workflows/veracode-analysis.yml
-    with:
-      module_directory: centreon-dsm
-      module_name: centreon-dsm
-      major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ needs.get-version.outputs.minor_version }}
-      stability: ${{ needs.get-version.outputs.stability }}
-    secrets:
-      veracode_api_id: ${{ secrets.VERACODE_API_ID }}
-      veracode_api_key: ${{ secrets.VERACODE_API_KEY }}
-      veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
-      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-
   package:
     needs: [get-version]
     if: ${{ needs.get-version.outputs.stability != 'stable' }}
