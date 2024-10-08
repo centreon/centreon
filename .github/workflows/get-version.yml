@@ -205,14 +205,7 @@ jobs:
               GITHUB_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
               GITHUB_BRANCH_PR_STATE="$(gh pr view $BRANCHNAME -q .state --json headRefName,baseRefName,state)"
               echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
-
-              # Check if pull request branch targeting develop
-              if [[ "$GITHUB_BRANCH_BASE_REF_NAME" == "develop" ]] && [[ "$GITHUB_BRANCH_PR_STATE" == "OPEN" ]]; then
-                GITHUB_RELEASE_CLOUD=1
-                echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
-              else
-                echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
-              fi
+              echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               ;;
           esac
 
