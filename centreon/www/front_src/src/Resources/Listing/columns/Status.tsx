@@ -8,21 +8,21 @@ import IconAcknowledge from '@mui/icons-material/Person';
 
 import type { ComponentColumnProps } from '@centreon/ui';
 import {
-    DowntimeIcon,
-    IconButton,
-    SeverityCode,
-    StatusChip,
-    useStyleTable
+  DowntimeIcon,
+  IconButton,
+  SeverityCode,
+  StatusChip,
+  useStyleTable
 } from '@centreon/ui';
 
 import { forcedCheckInlineEndpointAtom } from '../../Actions/Resource/Check/checkAtoms';
 import useAclQuery from '../../Actions/Resource/aclQuery';
 import {
-    labelAcknowledge,
-    labelActionNotPermitted,
-    labelForcedCheck,
-    labelSetDowntime,
-    labelSetDowntimeOn
+  labelAcknowledge,
+  labelActionNotPermitted,
+  labelForcedCheck,
+  labelSetDowntime,
+  labelSetDowntimeOn
 } from '../../translatedLabels';
 
 import { ColumnProps } from '.';
