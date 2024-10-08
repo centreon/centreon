@@ -21,7 +21,7 @@ apt-get update
 apt-get install -y /tmp/packages-centreon/centreon-*.deb
 
 sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php/8.2/mods-available/timezone.ini
-ln -s /etc/php/8.2/mods-available/timezone.ini /etc/php/8.2/fpm/conf.d/50-timezone.ini
+ln -sf /etc/php/8.2/mods-available/timezone.ini /etc/php/8.2/fpm/conf.d/50-timezone.ini
 
 touch /var/log/php8.2-fpm-centreon-error.log
 chown www-data:www-data /var/log/php8.2-fpm-centreon-error.log
