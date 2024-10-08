@@ -80,7 +80,7 @@ class MonitoringResourceController extends AbstractController
     /**
      * Generates a resource details endpoints
      *
-     * @param array<string, integer> $parameters
+     * @param array<string, integer> $urlParameters
      * @param string $resourceType
      * @return string
      */
