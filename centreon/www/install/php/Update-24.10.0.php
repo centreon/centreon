@@ -88,7 +88,8 @@ $fixNamingAndActivateAccTopology = function (CentreonDB $pearDB) use (&$errorMes
         <<<'SQL'
             UPDATE `topology`
             SET `topology_show` = '1',
-                `topology_name` = 'Additional Connector Configurations'
+                `topology_name` = 'Additional Connector Configurations',
+                `topology_order` = 91
             WHERE `topology_url` = '/configuration/additional-connector-configurations'
             SQL
     );
