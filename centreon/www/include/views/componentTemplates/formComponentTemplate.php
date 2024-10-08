@@ -74,7 +74,7 @@ $stmt->closeCursor();
  */
 $dataSources = [];
 $stmt = $pearDBO->query(
-    'SELECT 1 AS REALTIME, `metric_name`, `unit_name` FROM `metrics` GROUP BY `metric_name` ORDER BY `metric_name`'
+    'SELECT 1 AS REALTIME, `metric_name`, `unit_name` FROM `metrics` GROUP BY `metric_name`, `unit_name` ORDER BY `metric_name`'
 );
 while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
     $dataSources[$row['metric_name']] = $row['metric_name'];
