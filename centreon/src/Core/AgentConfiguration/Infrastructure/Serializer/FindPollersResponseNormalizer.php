@@ -50,6 +50,7 @@ class FindPollersResponseNormalizer implements NormalizerInterface
         ?string $format = null,
         array $context = []
     ): float|int|bool|array|string|null {
+        /** @var array{groups: string[], request_parameters: RequestParametersInterface} $context */
         $data = ['result' => [], 'meta' => $context['request_parameters']->toArray()];
         foreach ($object->pollers as $poller) {
             $data['result'][] = $this->normalizer->normalize($poller, $format, $context);

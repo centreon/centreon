@@ -28,7 +28,6 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
-use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -38,10 +37,10 @@ final class FindPollers
     use LoggerTrait;
 
     /**
-     * @param ContactInterface $user The user which requested the pollers.
-     * @param RequestParametersInterface $requestParameters The request parameters to filter the pollers.
-     * @param ReadAgentConfigurationRepositoryInterface $readRepository The repository to read the agent configurations.
-     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository The repository to read the access groups.
+     * @param ContactInterface $user the user which requested the pollers
+     * @param RequestParametersInterface $requestParameters the request parameters to filter the pollers
+     * @param ReadAgentConfigurationRepositoryInterface $readRepository the repository to read the agent configurations
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository the repository to read the access groups
      */
     public function __construct(
         private readonly ContactInterface $user,
@@ -54,7 +53,7 @@ final class FindPollers
     public function __invoke(): FindPollersResponse|ResponseStatusInterface
     {
         try {
-            $pollers =  $this->user->isAdmin()
+            $pollers = $this->user->isAdmin()
                 ? $this->readRepository->findAvailablePollersByRequestParameters($this->requestParameters)
                 : $this->readRepository->findAvailablePollersByRequestParametersAndAccessGroups(
                     $this->readAccessGroupRepository->findByContact($this->user),

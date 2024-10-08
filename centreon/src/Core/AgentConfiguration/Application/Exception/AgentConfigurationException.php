@@ -152,6 +152,6 @@ class AgentConfigurationException extends \Exception
 
     public static function findPollers(): self
     {
-        return new self(sprintf(_("Error while searching for available pollers")));
+        return new self(_('Error while searching for available pollers'));
     }
 }

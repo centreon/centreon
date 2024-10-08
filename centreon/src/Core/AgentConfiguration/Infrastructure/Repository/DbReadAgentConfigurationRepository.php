@@ -436,7 +436,6 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
             'poller.id' => 'rel.poller_id',
         ]);
 
-
         $request = <<<SQL
                 SELECT
                     ac.id,

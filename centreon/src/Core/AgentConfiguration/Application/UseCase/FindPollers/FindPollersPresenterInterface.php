@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\UseCase\FindPollers;
 
-use Core\AgentConfiguration\Application\UseCase\FindPollers\FindPollersResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 
 interface FindPollersPresenterInterface
