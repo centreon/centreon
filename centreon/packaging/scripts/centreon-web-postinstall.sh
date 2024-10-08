@@ -31,10 +31,11 @@ updateConfigurationFiles() {
 setPhpTimezone() {
   if [ "$1" = "rpm" ]; then
     PHP_CONFIG_DIR="/etc/php.d"
-    PHP_CONFIG_FILE="50-centreon.ini"
+    PHP_CONFIG_FILE="50-timezone.ini"
   else
     PHP_CONFIG_DIR="/etc/php/8.2/mods-available"
-    PHP_CONFIG_FILE="centreon.ini"
+    PHP_CONFIG_FILE="timezone.ini"
+    PHP_SYMLINK_TARGET="/etc/php/8.2/fpm/conf.d/50-timezone.ini"
   fi
 
   if grep -REq "^date.timezone" $PHP_CONFIG_DIR; then
@@ -63,6 +64,9 @@ setPhpTimezone() {
 
     echo "Setting php timezone to ${PHP_TIMEZONE} ..."
     echo "date.timezone = ${PHP_TIMEZONE}" >> $PHP_CONFIG_DIR/$PHP_CONFIG_FILE
+    if [ "$1" = "deb" ]; then
+      ln -s $PHP_CONFIG_DIR/$PHP_CONFIG_FILE $PHP_SYMLINK_TARGET
+    fi
   fi
 }
 
@@ -70,12 +74,14 @@ migratePhpTimezone() {
   if [ "$1" = "deb" ]; then
     OLD_PHP_CONFIG_DIR="/etc/php/8.1/mods-available"
     PHP_CONFIG_DIR="/etc/php/8.2/mods-available"
-    PHP_CONFIG_FILE="centreon.ini"
+    PHP_CONFIG_FILE="timezone.ini"
+    PHP_SYMLINK_TARGET="/etc/php/8.2/fpm/conf.d/50-timezone.ini"
 
     if ! grep -REq "^date.timezone" $PHP_CONFIG_DIR && test -d $OLD_PHP_CONFIG_DIR && PHP_TIMEZONE=$(grep -RE "^date.timezone\s*=\s*.+" $OLD_PHP_CONFIG_DIR 2>/dev/null | head -n 1 | cut -d "=" -f2 | tr -d '[:space:]'); then
       if [ -n "${PHP_TIMEZONE}" ]; then
         echo "Setting php timezone to ${PHP_TIMEZONE} ..."
         echo "date.timezone = ${PHP_TIMEZONE}" >> $PHP_CONFIG_DIR/$PHP_CONFIG_FILE
+        ln -s $PHP_CONFIG_DIR/$PHP_CONFIG_FILE $PHP_SYMLINK_TARGET
       fi
     fi
   fi
