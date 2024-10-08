@@ -61,7 +61,7 @@ final class FindPollers
                     $this->requestParameters
                 );
 
-            return new FindPollersResponse($pollers, $this->requestParameters);
+            return new FindPollersResponse($pollers);
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
 
