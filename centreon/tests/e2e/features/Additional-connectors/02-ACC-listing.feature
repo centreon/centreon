@@ -1,14 +1,17 @@
+@REQ_MON-144628
 Feature: Access to Additional Connector Configuration
   As a Centreon user
   I want to be able to visit the Additional Connector Configuration page
   To list Additional Connector Configuration
 
+  @TEST_MON-150324
   Scenario: Access to Additional Connector Configuration page
     Given a non-admin user is logged in
     When the user clicks on the Additional Connector Configuration page
     Then the user sees the Additional Connector Configuration page
     And there is no additional connector configuration listed
 
+  @TEST_MON-150325
   Scenario: Select an additional connector configuration
     Given a non-admin user is in the Additional Connector Configuration page
     And an already existing additional connector configuration

@@ -1,8 +1,10 @@
+@REQ_MON-144628
 Feature: Additional Connector Configuration
   As a Centreon user
   I want to visit the Additional Connector Configuration page
   To update additional connector configuration
 
+  @TEST_MON-150328
   Scenario: Update an additional connector configuration
     Given a non-admin user is in the Additional Connector Configuration page
     And an additional connector configuration is already created
