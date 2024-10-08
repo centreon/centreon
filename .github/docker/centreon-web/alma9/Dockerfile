@@ -14,7 +14,7 @@ RUN --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <
 
 dnf install -y /tmp/packages-centreon/centreon-*.rpm
 
-sed -i -E 's#date\.timezone.+$#date.timezone = Europe/Paris#g' /etc/php.d/centreon.ini
+sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php.d/centreon.ini
 
 touch /var/log/php-fpm/centreon-error.log
 chown apache:apache /var/log/php-fpm/centreon-error.log
