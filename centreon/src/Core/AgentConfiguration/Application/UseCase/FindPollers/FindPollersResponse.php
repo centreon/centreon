@@ -32,9 +32,7 @@ final class FindPollersResponse implements StandardResponseInterface
      *
      * @param Poller[] $pollers
      */
-    public function __construct(
-        public readonly array $pollers,
-    ) {
+    public function __construct(public readonly array $pollers) {
     }
 
     /**

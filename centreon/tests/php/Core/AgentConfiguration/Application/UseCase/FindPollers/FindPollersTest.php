@@ -29,7 +29,6 @@ use Core\AgentConfiguration\Application\UseCase\FindPollers\FindPollersResponse;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\UseCase\FindPollers\FindPollers;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
-use Core\AgentConfiguration\Application\UseCase\FindPollers\PollerDto;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -41,7 +40,6 @@ beforeEach(function (): void {
         readRepository: $this->readRepository = $this->createMock(ReadAgentConfigurationRepositoryInterface::class),
         readAccessGroupRepository: $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
     );
-    $this->presenter = new FindPollersPresenterStub();
 });
 
 it('should present an ErrorResponse when an exception is thrown', function () {
@@ -55,7 +53,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->method('findAvailablePollersByRequestParametersAndAccessGroups')
         ->willThrowException(new \Exception());
 
-    $response = ($this->useCase)($this->presenter);
+    $response = ($this->useCase)();
 
     expect($response)
         ->toBeInstanceOf(ErrorResponse::class)
@@ -73,7 +71,7 @@ it('should retrieve poller with no ACLs calculation for an admin user', function
         ->expects($this->once())
         ->method('findAvailablePollersByRequestParameters');
 
-    ($this->useCase)($this->presenter);
+    ($this->useCase)();
 });
 
 it('should retrieve poller with ACLs calculation for a non admin user', function () {
@@ -86,7 +84,7 @@ it('should retrieve poller with ACLs calculation for a non admin user', function
         ->expects($this->once())
         ->method('findAvailablePollersByRequestParametersAndAccessGroups');
 
-    ($this->useCase)($this->presenter);
+    ($this->useCase)();
 });
 
 it('should present a FindPollersResponse when no errors occurred', function () {
@@ -104,7 +102,7 @@ it('should present a FindPollersResponse when no errors occurred', function () {
         ->method('findAvailablePollersByRequestParametersAndAccessGroups')
         ->willReturn([$pollerOne, $pollerTwo]);
 
-    $response = ($this->useCase)($this->presenter);
+    $response = ($this->useCase)();
 
     expect($response)
         ->toBeInstanceOf(FindPollersResponse::class)
