@@ -77,9 +77,11 @@ try {
         if (! empty($databaseVaultPaths)) {
             updateConfigFilesWithVaultPath($databaseVaultPaths);
         }
-        $gorgoneVaultPaths = migrateGorgoneCredentialsToVault($writeVaultRepository);
-        if (! empty($gorgoneVaultPath)) {
-            updateGorgoneApiFile($gorgoneVaultPath);
+        if ($featureFlagManager->isEnabled('vault_gorgone')) {
+            $gorgoneVaultPaths = migrateGorgoneCredentialsToVault($writeVaultRepository);
+            if (! empty($gorgoneVaultPath)) {
+                updateGorgoneApiFile($gorgoneVaultPath);
+            }
         }
     }
 

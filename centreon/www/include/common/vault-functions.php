@@ -40,6 +40,7 @@ use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Symfony\Component\Yaml\Yaml;
 use Utility\Interfaces\UUIDGeneratorInterface;
 
 const DEFAULT_SCHEME = 'https';
@@ -1316,9 +1317,6 @@ function updateConfigFilesWithVaultPath($vaultPaths): void
         updateCentreonConfPmFile($vaultPaths);
         updateDatabaseYamlFile($vaultPaths);
     }
-    if ($featureFlagManager->isEnabled('vault_gorgone')) {
-        updateGorgoneApiFile($vaultPaths);
-    }
 }
 
 /**
@@ -1332,7 +1330,7 @@ function updateConfigFilesWithVaultPath($vaultPaths): void
  */
 function migrateGorgoneCredentialsToVault(WriteVaultRepositoryInterface $writeVaultRepository): array
 {
-    $writeVaultRepository->setCustomPath('gorgone');
+    $writeVaultRepository->setCustomPath(AbstractVaultRepository::GORGONE_VAULT_PATH);
     $gorgonePassword = retrieveGorgoneApiCredentialsFromConfigFile();
     if (str_starts_with($gorgonePassword, VaultConfiguration::VAULT_PATH_PATTERN)) {
         return [];
@@ -1341,6 +1339,22 @@ function migrateGorgoneCredentialsToVault(WriteVaultRepositoryInterface $writeVa
     return $writeVaultRepository->upsert(null, [
         VaultConfiguration::GORGONE_PASSWORD => $gorgonePassword,
     ]);
+}
+
+function retrieveGorgoneApiCredentialsFromConfigFile(): string
+{
+    $filePath = '/etc/centreon-gorgone/config.d/31-centreon-api.yaml';
+
+    if (
+        ! file_exists($filePath)
+        || ($content = file_get_contents($filePath)) === false
+    ) {
+        throw new Exception('Unable to retrieve content of file: ' . $filePath);
+    }
+
+    $content = Yaml::parse($content);
+
+    return $content['gorgone']['tpapi'][0]['password'];
 }
 
 function updateGorgoneApiFile(array $vaultPaths): void
@@ -1356,7 +1370,7 @@ function updateGorgoneApiFile(array $vaultPaths): void
 
     $newContentYaml = preg_replace(
         '/password: (.*)/',
-        'password: "' . $vaultPaths[VaultConfiguration::DATABASE_USERNAME_KEY] . '"',
+        'password: "' . $vaultPaths[VaultConfiguration::GORGONE_PASSWORD] . '"',
         $content
     );
 
