@@ -32,7 +32,6 @@ use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationReposit
 use Core\AgentConfiguration\Application\UseCase\FindPollers\PollerDto;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
@@ -45,26 +44,7 @@ beforeEach(function (): void {
     $this->presenter = new FindPollersPresenterStub();
 });
 
-it('should present a Forbidden Response when user does not have topology role', function () {
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(false);
-
-    ($this->useCase)($this->presenter);
-
-    expect($this->presenter->data)
-        ->toBeInstanceOf(ForbiddenResponse::class)
-        ->and($this->presenter->data->getMessage())
-        ->toBe(AgentConfigurationException::accessNotAllowed()->getMessage());
-});
-
 it('should present an ErrorResponse when an exception is thrown', function () {
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(true);
-
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -75,20 +55,15 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->method('findAvailablePollersByRequestParametersAndAccessGroups')
         ->willThrowException(new \Exception());
 
-    ($this->useCase)($this->presenter);
+    $response = ($this->useCase)($this->presenter);
 
-    expect($this->presenter->data)
+    expect($response)
         ->toBeInstanceOf(ErrorResponse::class)
-        ->and($this->presenter->data->getMessage())
+        ->and($response->getMessage())
         ->toBe(AgentConfigurationException::findPollers()->getMessage());
 });
 
 it('should retrieve poller with no ACLs calculation for an admin user', function () {
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(true);
-
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -102,11 +77,6 @@ it('should retrieve poller with no ACLs calculation for an admin user', function
 });
 
 it('should retrieve poller with ACLs calculation for a non admin user', function () {
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(true);
-
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -126,11 +96,6 @@ it('should present a FindPollersResponse when no errors occurred', function () {
 
     $this->user
         ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(true);
-
-    $this->user
-        ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
 
@@ -139,22 +104,22 @@ it('should present a FindPollersResponse when no errors occurred', function () {
         ->method('findAvailablePollersByRequestParametersAndAccessGroups')
         ->willReturn([$pollerOne, $pollerTwo]);
 
-    ($this->useCase)($this->presenter);
+    $response = ($this->useCase)($this->presenter);
 
-    expect($this->presenter->data)
+    expect($response)
         ->toBeInstanceOf(FindPollersResponse::class)
-        ->and($this->presenter->data->pollers)
+        ->and($response->pollers)
         ->toBeArray()
-        ->and($this->presenter->data->pollers[0])
-        ->toBeInstanceOf(PollerDto::class)
-        ->and($this->presenter->data->pollers[0]->id)
+        ->and($response->pollers[0])
+        ->toBeInstanceOf(Poller::class)
+        ->and($response->pollers[0]->id)
         ->toBe($pollerOne->getId())
-        ->and($this->presenter->data->pollers[0]->name)
+        ->and($response->pollers[0]->name)
         ->toBe($pollerOne->getName())
-        ->and($this->presenter->data->pollers[1])
-        ->toBeInstanceOf(PollerDto::class)
-        ->and($this->presenter->data->pollers[1]->id)
+        ->and($response->pollers[1])
+        ->toBeInstanceOf(Poller::class)
+        ->and($response->pollers[1]->id)
         ->toBe($pollerTwo->getId())
-        ->and($this->presenter->data->pollers[1]->name)
+        ->and($response->pollers[1]->name)
         ->toBe($pollerTwo->getName());
 });

@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Infrastructure\Serializer;
 
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\AgentConfiguration\Application\UseCase\FindPollers\FindPollersResponse;
-use Core\AgentConfiguration\Domain\Model\Poller;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
@@ -33,9 +33,7 @@ class FindPollersResponseNormalizer implements NormalizerInterface
     /**
      * @param ObjectNormalizer $normalizer
      */
-    public function __construct(
-        private readonly ObjectNormalizer $normalizer,
-    ) {
+    public function __construct(private readonly ObjectNormalizer $normalizer) {
     }
 
     /**
@@ -52,11 +50,10 @@ class FindPollersResponseNormalizer implements NormalizerInterface
         ?string $format = null,
         array $context = []
     ): float|int|bool|array|string|null {
-        $data = ['result' => [], 'meta' => []];
+        $data = ['result' => [], 'meta' => $context['request_parameters']->toArray()];
         foreach ($object->pollers as $poller) {
             $data['result'][] = $this->normalizer->normalize($poller, $format, $context);
         }
-        $data['meta'] =  $object->requestParameters->toArray();
 
         return $data;
     }

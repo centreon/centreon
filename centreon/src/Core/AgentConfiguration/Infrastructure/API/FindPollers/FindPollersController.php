@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\AgentConfiguration\Infrastructure\API\FindPollers;
 
 use Centreon\Application\Controller\AbstractController;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\AgentConfiguration\Application\UseCase\FindPollers\FindPollers;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Api\StandardPresenter;
@@ -39,6 +40,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 )]
 final class FindPollersController extends AbstractController
 {
+    public function __construct(private readonly RequestParametersInterface $requestParameters)
+    {
+    }
+
     public function __invoke(FindPollers $useCase, StandardPresenter $presenter): Response
     {
         $response = $useCase();
@@ -48,7 +53,10 @@ final class FindPollersController extends AbstractController
         }
 
         return JsonResponse::fromJsonString(
-            $presenter->present($response, ['groups' => ['AgentConfiguration:Read']])
+            $presenter->present(
+                $response,
+                ['groups' => ['AgentConfiguration:Read'], 'request_parameters' => $this->requestParameters]
+            )
         );
     }
 }
