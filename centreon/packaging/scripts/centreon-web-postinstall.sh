@@ -72,9 +72,7 @@ migratePhpTimezone() {
     PHP_CONFIG_DIR="/etc/php/8.2/mods-available"
     PHP_CONFIG_FILE="centreon.ini"
 
-    if grep -REq "^date.timezone" $PHP_CONFIG_DIR; then
-      # php timezone already set, nothing to do.
-    elif test -d $OLD_PHP_CONFIG_DIR && PHP_TIMEZONE=$(grep -RE "^date.timezone\s*=\s*.+" $OLD_PHP_CONFIG_DIR 2>/dev/null | head -n 1 | cut -d "=" -f2 | tr -d '[:space:]'); then
+    if ! grep -REq "^date.timezone" $PHP_CONFIG_DIR && test -d $OLD_PHP_CONFIG_DIR && PHP_TIMEZONE=$(grep -RE "^date.timezone\s*=\s*.+" $OLD_PHP_CONFIG_DIR 2>/dev/null | head -n 1 | cut -d "=" -f2 | tr -d '[:space:]'); then
       if [ -n "${PHP_TIMEZONE}" ]; then
         echo "Setting php timezone to ${PHP_TIMEZONE} ..."
         echo "date.timezone = ${PHP_TIMEZONE}" >> $PHP_CONFIG_DIR/$PHP_CONFIG_FILE
