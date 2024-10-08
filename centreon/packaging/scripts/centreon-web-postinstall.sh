@@ -65,7 +65,8 @@ setPhpTimezone() {
     echo "Setting php timezone to ${PHP_TIMEZONE} ..."
     echo "date.timezone = ${PHP_TIMEZONE}" >> $PHP_CONFIG_DIR/$PHP_CONFIG_FILE
     if [ "$1" = "deb" ]; then
-      ln -sf $PHP_CONFIG_DIR/$PHP_CONFIG_FILE $PHP_SYMLINK_TARGET
+      # ln -sf $PHP_CONFIG_DIR/$PHP_CONFIG_FILE $PHP_SYMLINK_TARGET
+      phpenmod timezone
     fi
   fi
 }
@@ -81,7 +82,8 @@ migratePhpTimezone() {
       if [ -n "${PHP_TIMEZONE}" ]; then
         echo "Setting php timezone to ${PHP_TIMEZONE} ..."
         echo "date.timezone = ${PHP_TIMEZONE}" >> $PHP_CONFIG_DIR/$PHP_CONFIG_FILE
-        ln -s $PHP_CONFIG_DIR/$PHP_CONFIG_FILE $PHP_SYMLINK_TARGET
+        # ln -s $PHP_CONFIG_DIR/$PHP_CONFIG_FILE $PHP_SYMLINK_TARGET
+        phpenmod timezone
       fi
     fi
   fi
