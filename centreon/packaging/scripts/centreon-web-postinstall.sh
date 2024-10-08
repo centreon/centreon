@@ -42,7 +42,7 @@ setPhpTimezone() {
   else
     PHP_TIMEZONE=$(php -r '
       function getMachineTimezone() {
-        foreach (["cat /etc/timezone", "date \"+%Z\""] as $shellCommand) {
+        foreach (["cat /etc/timezone 2> /dev/null", "date \"+%Z\""] as $shellCommand) {
           $timezoneName = trim(shell_exec($shellCommand));
           if (!empty($timezoneName)) {
             if (date_default_timezone_set($timezoneName) === false) {
