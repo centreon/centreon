@@ -64,7 +64,6 @@ class MonitoringResourceController extends AbstractController
         $this->hyperMediaProviders = iterator_to_array($hyperMediaProviders);
     }
 
-
     /**
      * @param \Traversable<mixed> $providers
      * @return void
