@@ -64,7 +64,7 @@ final class FindPollers
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
 
-            return new ErrorResponse(AgentConfigurationException::findPollers());
+            return new ErrorResponse(AgentConfigurationException::errorWhileRetrievingPollers());
         }
     }
 }

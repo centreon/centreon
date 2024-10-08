@@ -58,7 +58,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
     expect($response)
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($response->getMessage())
-        ->toBe(AgentConfigurationException::findPollers()->getMessage());
+        ->toBe(AgentConfigurationException::errorWhileRetrievingPollers()->getMessage());
 });
 
 it('should retrieve poller with no ACLs calculation for an admin user', function () {

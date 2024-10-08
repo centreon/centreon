@@ -150,7 +150,7 @@ class AgentConfigurationException extends \Exception
         );
     }
 
-    public static function findPollers(): self
+    public static function errorWhileRetrievingPollers(): self
     {
         return new self(_('Error while searching for available pollers'));
     }
