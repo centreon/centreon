@@ -67,7 +67,7 @@ const openCalendar = (label): void => {
       if ($input.attr('readonly')) {
         cy.wrap($input).click();
       } else {
-        cy.findByLabelText(label).findByRole('button').click({ force: true });
+        cy.findByLabelText(label).findByRole('button').click();
       }
     });
 };
@@ -828,7 +828,9 @@ describe('downtime picker', () => {
       'true'
     );
 
-    cy.findByRole('gridcell', { name: '20' }).click();
+    cy.findByRole('gridcell', { name: '20' }).click({
+      waitForAnimations: false
+    });
 
     cy.findByRole('button', { name: 'OK' }).click();
 
