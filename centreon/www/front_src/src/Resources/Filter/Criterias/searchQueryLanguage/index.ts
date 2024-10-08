@@ -361,11 +361,14 @@ const getAutocompleteSuggestions = ({
     const isLastValueInSuggestions = getCriteriaValueSuggestions({
       criterias: allCriterias,
       selectedValues: []
-    }).includes(lastCriteriaValue);
+    }).includes(lastCriteriaValue.toLocaleLowerCase());
 
     return isLastValueInSuggestions
       ? map(concat(','), criteriaValueSuggestions)
-      : filter(startsWith(lastCriteriaValue), criteriaValueSuggestions);
+      : filter(
+          startsWith(lastCriteriaValue.toLocaleLowerCase()),
+          criteriaValueSuggestions
+        );
   }
 
   return reject(includes(__, search), getCriteriaNameSuggestions(criteriaName));
