@@ -135,6 +135,16 @@ jobs:
             GITHUB_RELEASE_CLOUD=1
           fi
 
+          # Detect cloud context + handle PRs that do not directly target dev branches
+          #GIT_BRANCH_EXISTS=$(git ls-remote -h https://github.com/centreon/${{ github.repository }}.git | grep -E "refs/heads/dev-$MAJOR.x$" >/dev/null 2>&1 && echo yes || echo no)
+          # if current branch major vrsion has a matching dev-$MAJOR branch => onprem version
+          if [[ git ls-remote -q | grep -E "refs/heads/$MAJOR.x" >/dev/null 2>&1 ]]; then
+            GITHUB_RELEASE_CLOUD=0
+          # if current branch major version is greater or equal than the develop branch major version ==> cloud version
+          elif [[ "$(printf '%s\n' "${{ steps.latest_major_version.outputs.latest_major_version }}" "$MAJOR" | sort -V | head -n1)" == "${{ steps.latest_major_version.outputs.latest_major_version }}" ]]; then
+            GITHUB_RELEASE_CLOUD=1
+          fi
+
           case "$BRANCHNAME" in
             master)
               echo "release=1" >> $GITHUB_OUTPUT
