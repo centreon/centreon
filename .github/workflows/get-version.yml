@@ -261,13 +261,13 @@ jobs:
               "databases": [alma9_mariadb],
             };
 
-            if (context.eventName === 'schedule') {
+            // if (context.eventName === 'schedule') {
               matrix = {
                 "main": [alma9_mariadb],
                 "operating_systems": [alma9_mariadb, alma8_mariadb, bookworm_mysql],
                 "databases": [alma9_mariadb, bookworm_mysql],
               };
-            }
+            // }
 
             console.log(matrix);
 
