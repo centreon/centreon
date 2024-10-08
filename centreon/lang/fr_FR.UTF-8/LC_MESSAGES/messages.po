@@ -19581,3 +19581,6 @@ msgstr "L'ID de collecteur #%d est le seul lié à l'ID de configuration collect
 
 msgid "Error while retrieving multiple poller/agent configurations"
 msgstr "Erreur durant la récupération de multiple configurations collecteur/agent"
+
+msgid "Error while searching for available pollers"
+msgstr "Error pendant la recherche de collecteurs disponibles"
