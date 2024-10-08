@@ -67,7 +67,7 @@ const openCalendar = (label): void => {
       if ($input.attr('readonly')) {
         cy.wrap($input).click();
       } else {
-        cy.findByLabelText(label).findByRole('button').click();
+        cy.findByLabelText(label).findByRole('button').click({ force: true });
       }
     });
 };
