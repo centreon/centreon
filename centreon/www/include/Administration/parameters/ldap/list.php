@@ -37,13 +37,7 @@
 include "./include/common/autoNumLimit.php";
 require_once __DIR__ . "/listFunction.php";
 
-$labels = array(
-    'name' => _('Name'),
-    'description' => _('Description'),
-    'status' => _('Status'),
-    'enabled' => _('Enabled'),
-    'disabled' => _('Disabled')
-);
+$labels = ['name' => _('Name'), 'description' => _('Description'), 'status' => _('Status'), 'enabled' => _('Enabled'), 'disabled' => _('Disabled')];
 
 $searchLdap = \HtmlAnalyzer::sanitizeAndRemoveTags(
     $_POST['searchLdap'] ?? $_GET['searchLdap'] ?? null
@@ -51,7 +45,7 @@ $searchLdap = \HtmlAnalyzer::sanitizeAndRemoveTags(
 
 $ldapConf = new CentreonLdapAdmin($pearDB);
 if (isset($_POST['searchLdap']) || isset($_GET['searchLdap'])) {
-    $centreon->historySearch = array();
+    $centreon->historySearch = [];
     $centreon->historySearch[$url]['searchLdap'] = $searchLdap;
 } else {
     $searchLdap = $centreon->historySearch[$url]['searchLdap'] ?? null;
@@ -76,39 +70,32 @@ $tpl = initSmartyTpl($path . 'ldap/', $tpl);
 
 $form = new HTML_QuickFormCustom('select_form', 'POST', "?o=ldap&p=" . $p);
 
-$attrBtnSuccess = array(
-    "class" => "btc bt_success",
-    "onClick" => "window.history.replaceState('', '', '?p=" . $p . "&o=ldap');"
-);
+$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "&o=ldap');"];
 $form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
 
 $tpl->assign('list', $list);
 $tpl->assign(
     'msg',
-    array(
-        "addL" => "main.php?p=" . $p . "&o=ldap&new=1",
-        "addT" => _("Add"),
-        "delConfirm" => _("Do you confirm the deletion ?")
-    )
+    ["addL" => "main.php?p=" . $p . "&o=ldap&new=1", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
 );
 
 $form->addElement(
     'select',
     'o1',
     null,
-    array(null => _("More actions..."), "d" => _("Delete"), "ms" => _("Enable"), "mu" => _("Disable")),
+    [null => _("More actions..."), "d" => _("Delete"), "ms" => _("Enable"), "mu" => _("Disable")],
     getActionList('o1')
 );
-$form->setDefaults(array('o1' => null));
+$form->setDefaults(['o1' => null]);
 
 $form->addElement(
     'select',
     'o2',
     null,
-    array(null => _("More actions..."), "d" => _("Delete"), "ms" => _("Enable"), "mu" => _("Disable")),
+    [null => _("More actions..."), "d" => _("Delete"), "ms" => _("Enable"), "mu" => _("Disable")],
     getActionList('o2')
 );
-$form->setDefaults(array('o2' => null));
+$form->setDefaults(['o2' => null]);
 
 $o1 = $form->getElement('o1');
 $o1->setValue(null);

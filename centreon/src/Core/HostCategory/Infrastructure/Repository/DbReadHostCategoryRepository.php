@@ -101,7 +101,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
      */
     public function findAll(?RequestParametersInterface $requestParameters): array
     {
-        $request = <<<'SQL'
+        $request = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS DISTINCT
                 hc.hc_id,
                 hc.hc_name,
@@ -109,7 +109,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
                 hc.hc_activate,
                 hc.hc_comment
             FROM `:db`.hostcategories hc
-            SQL;
+            SQL_WRAP;
 
         // Setup for search, pagination and order
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
@@ -180,7 +180,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
 
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
 
-        $request = <<<'SQL'
+        $request = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS DISTINCT
                 hc.hc_id,
                 hc.hc_name,
@@ -196,7 +196,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
                 ON res.acl_res_id = argr.acl_res_id
             INNER JOIN `:db`.acl_groups ag
                 ON argr.acl_group_id = ag.acl_group_id
-            SQL;
+            SQL_WRAP;
 
         // Setup for search, pagination and order
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
@@ -295,7 +295,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
             ['id' => $hostCategoryId, 'accessgroups' => $accessGroups]
         );
 
-        if (empty($accessGroups)) {
+        if ($accessGroups === []) {
             $this->debug('Access groups array empty');
 
             return false;
@@ -387,7 +387,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
             return [];
         }
 
-        if (empty($accessGroups)) {
+        if ($accessGroups === []) {
             $this->debug('Access groups array empty');
 
             return [];

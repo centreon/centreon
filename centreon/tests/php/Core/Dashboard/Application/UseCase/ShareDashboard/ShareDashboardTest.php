@@ -40,7 +40,7 @@ use Core\Dashboard\Application\UseCase\ShareDashboard\ShareDashboardValidator;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->rights = $this->createMock(DashboardRights::class);
     $this->validator = $this->createMock(ShareDashboardValidator::class);
     $this->writeDashboardShareRepository = $this->createMock(WriteDashboardShareRepositoryInterface::class);
@@ -63,7 +63,7 @@ beforeEach(function () {
 
 });
 
-it('should present a Forbidden response when the user has no rights on dashboards', function () {
+it('should present a Forbidden response when the user has no rights on dashboards', function (): void {
     $request = new ShareDashboardRequest();
     $presenter = new ShareDashboardPresenterStub();
 
@@ -79,7 +79,7 @@ it('should present a Forbidden response when the user has no rights on dashboard
         ->toBe(DashboardException::accessNotAllowedForWriting()->getMessage());
 });
 
-it('should present a Not Found Response when the dashboard does not exist', function () {
+it('should present a Not Found Response when the dashboard does not exist', function (): void {
     $request = new ShareDashboardRequest();
     $request->dashboardId = 1;
     $presenter = new ShareDashboardPresenterStub();
@@ -101,7 +101,7 @@ it('should present a Not Found Response when the dashboard does not exist', func
         ->toBe(DashboardException::theDashboardDoesNotExist($request->dashboardId)->getMessage());
 });
 
-it('should present a Forbidden Response when the dashboard is not shared with the user', function () {
+it('should present a Forbidden Response when the dashboard is not shared with the user', function (): void {
     $request = new ShareDashboardRequest();
     $request->dashboardId = 1;
     $presenter = new ShareDashboardPresenterStub();
@@ -123,7 +123,7 @@ it('should present a Forbidden Response when the dashboard is not shared with th
         ->toBe(DashboardException::dashboardAccessRightsNotAllowedForWriting($request->dashboardId)->getMessage());
 });
 
-it('should present an Invalid Argument Response when the edited contacts do not exist', function () {
+it('should present an Invalid Argument Response when the edited contacts do not exist', function (): void {
     $request = new ShareDashboardRequest();
     $request->dashboardId = 1;
     $request->contacts = [
@@ -151,7 +151,7 @@ it('should present an Invalid Argument Response when the edited contacts do not 
         ->toBe(DashboardException::theContactsDoNotExist([1])->getMessage());
 });
 
-it('should present an Invalid Argument Response when the contacts are duplicated', function () {
+it('should present an Invalid Argument Response when the contacts are duplicated', function (): void {
     $request = new ShareDashboardRequest();
     $request->dashboardId = 1;
     $request->contacts = [
@@ -183,7 +183,7 @@ it('should present an Invalid Argument Response when the contacts are duplicated
         ->toBe(DashboardException::contactForShareShouldBeUnique()->getMessage());
 });
 
-it('should present an Invalid Argument Response when the users have insufficient ACLs', function () {
+it('should present an Invalid Argument Response when the users have insufficient ACLs', function (): void {
     $request = new ShareDashboardRequest();
     $request->dashboardId = 1;
     $request->contacts = [
@@ -218,7 +218,7 @@ it('should present an Invalid Argument Response when the users have insufficient
 it(
     'should present an Invalid Argument Response when the user is not admin '
     . 'and the request users are not members of his access groups',
-    function () {
+    function (): void {
         $request = new ShareDashboardRequest();
         $request->dashboardId = 1;
         $request->contacts = [
@@ -251,7 +251,7 @@ it(
     }
 );
 
-it('should present an Invalid Argument Response when the edited contact groups do not exist', function () {
+it('should present an Invalid Argument Response when the edited contact groups do not exist', function (): void {
     $request = new ShareDashboardRequest();
     $request->dashboardId = 1;
     $request->contactGroups = [
@@ -279,7 +279,7 @@ it('should present an Invalid Argument Response when the edited contact groups d
         ->toBe(DashboardException::theContactGroupsDoNotExist([1])->getMessage());
 });
 
-it('should present an Invalid Argument Response when the contact groups are duplicated', function () {
+it('should present an Invalid Argument Response when the contact groups are duplicated', function (): void {
     $request = new ShareDashboardRequest();
     $request->dashboardId = 1;
     $request->contactGroups = [
@@ -311,7 +311,7 @@ it('should present an Invalid Argument Response when the contact groups are dupl
         ->toBe(DashboardException::contactGroupForShareShouldBeUnique()->getMessage());
 });
 
-it('should present an Invalid Argument Response when the contact groups have insufficient ACLs', function () {
+it('should present an Invalid Argument Response when the contact groups have insufficient ACLs', function (): void {
     $request = new ShareDashboardRequest();
     $request->dashboardId = 1;
     $request->contactGroups = [
@@ -345,7 +345,7 @@ it('should present an Invalid Argument Response when the contact groups have ins
 
 it('should present an Invalid Argument Response when the user is not admin '
     . 'and the request contact groups are not members of his contact groups',
-    function () {
+    function (): void {
         $request = new ShareDashboardRequest();
         $request->dashboardId = 1;
         $request->contactGroups = [
@@ -377,7 +377,7 @@ it('should present an Invalid Argument Response when the user is not admin '
             ->toBe(DashboardException::contactGroupIsNotInUserContactGroups([2])->getMessage());
 });
 
-it ('should present an Error Response when an unhandled error occurs', function () {
+it ('should present an Error Response when an unhandled error occurs', function (): void {
     $request = new ShareDashboardRequest();
     $request->dashboardId = 1;
     $request->contactGroups = [
@@ -414,7 +414,7 @@ it ('should present an Error Response when an unhandled error occurs', function 
         ->toBe(DashboardException::errorWhileUpdating()->getMessage());
 });
 
-it('should present a No Content Response when no error occurs', function () {
+it('should present a No Content Response when no error occurs', function (): void {
     $request = new ShareDashboardRequest();
     $request->dashboardId = 1;
     $request->contactGroups = [

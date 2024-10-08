@@ -33,7 +33,7 @@
  *
  */
 
-require_once realpath(dirname(__FILE__) . "/../../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
 require_once realpath(__DIR__ . "/../../../../../bootstrap.php");
 require_once _CENTREON_PATH_ . "www/class/centreonXMLBGRequest.class.php";
 
@@ -89,10 +89,10 @@ if ($notificationEnabled === false) {
     return;
 }
 
-$serviceStateLabel = array(0 => "OK", 1 => "Warning", 2 => "Critical", 3 => "Unknown");
-$serviceClassLabel = array(0 => "success", 1 => "warning", 2 => "error", 3 => "alert");
-$hostStateLabel = array(0 => "Up", 1 => "Down", 2 => "Unreachable");
-$hostClassLabel = array(0 => "success", 1 => "error", 2 => "alert");
+$serviceStateLabel = [0 => "OK", 1 => "Warning", 2 => "Critical", 3 => "Unknown"];
+$serviceClassLabel = [0 => "success", 1 => "warning", 2 => "error", 3 => "alert"];
+$hostStateLabel = [0 => "Up", 1 => "Down", 2 => "Unreachable"];
+$hostClassLabel = [0 => "success", 1 => "error", 2 => "alert"];
 
 $sql = "SELECT name, description, s.state
         FROM services s, hosts h %s

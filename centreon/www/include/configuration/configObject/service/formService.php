@@ -796,7 +796,7 @@ if ($form_service_type === 'BYHOST') {
         $defaultDataset = [];
         if ($service_id !== false) {
             $hostsBounded = findHostsOfService($service_id);
-            $defaultDataset = (! empty($hostsBounded))
+            $defaultDataset = ($hostsBounded !== [])
                 ? ['0' => $hostsBounded[0]]
                 : [];
         };
@@ -1072,11 +1072,7 @@ if ($o !== SERVICE_MASSIVE_CHANGE) {
 
     $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required fields'));
 } elseif ($o === SERVICE_MASSIVE_CHANGE) {
-    if ($form->getSubmitValue('submitMC')) {
-        $from_list_menu = false;
-    } else {
-        $from_list_menu = true;
-    }
+    $from_list_menu = $form->getSubmitValue('submitMC') ? false : true;
 }
 
 if (isset($service['service_template_model_stm_id']) && ($service['service_template_model_stm_id'] === '')) {

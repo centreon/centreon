@@ -65,7 +65,7 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
     {
         $concatenator = new SqlConcatenator();
         $concatenator->defineSelect(
-            <<<'SQL'
+            <<<'SQL_WRAP'
                 SELECT DISTINCT SQL_CALC_FOUND_ROWS
                     contact_id,
                     contact_alias,
@@ -76,7 +76,7 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
                     user_interface_density,
                     contact_oreon AS `user_can_reach_frontend`
                 FROM `:db`.contact
-                SQL
+                SQL_WRAP
         );
         $concatenator->defineWhere(
             <<<'SQL'

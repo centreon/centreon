@@ -478,6 +478,14 @@ jobs:
           echo "::group::sql-error.log"
           docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -c "cat /var/log/centreon/sql-error.log 2>/dev/null || echo 'sql-error.log does not exist'"
           echo "::endgroup::"
+
+          echo "::group::centengine.log"
+          docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -c "cat /var/log/centreon-engine/centengine.log 2>/dev/null || echo 'centengine.log does not exist'"
+          echo "::endgroup::"
+
+          echo "::group::gorgoned.log"
+          docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -c "cat /var/log/centreon-gorgone/gorgoned.log 2>/dev/null || echo 'gorgoned.log does not exist'"
+          echo "::endgroup::"
         shell: bash
 
       - name: Replace / with - in the feature path
