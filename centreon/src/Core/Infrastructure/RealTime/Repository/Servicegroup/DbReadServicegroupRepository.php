@@ -56,7 +56,7 @@ class DbReadServicegroupRepository extends AbstractRepositoryDRB implements Read
     ): array {
         $servicegroups = [];
 
-        if (empty($accessGroupIds)) {
+        if ($accessGroupIds === []) {
             return $servicegroups;
         }
 

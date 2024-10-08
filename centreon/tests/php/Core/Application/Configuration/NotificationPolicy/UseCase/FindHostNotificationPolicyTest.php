@@ -42,7 +42,7 @@ use Core\Domain\Configuration\Notification\Model\HostNotification;
 use Core\Domain\Configuration\Notification\Model\ServiceNotification;
 use Core\Domain\Configuration\TimePeriod\Model\TimePeriod;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->readHostNotificationRepository = $this->createMock(ReadHostNotificationRepositoryInterface::class);
     $this->hostRepository = $this->createMock(HostConfigurationRepositoryInterface::class);
     $this->engineService = $this->createMock(EngineConfigurationServiceInterface::class);
@@ -88,7 +88,7 @@ beforeEach(function () {
     );
 });
 
-it('does not find host notification policy when host is not found by admin user', function () {
+it('does not find host notification policy when host is not found by admin user', function (): void {
     $this->contact
         ->expects($this->once())
         ->method('isAdmin')
@@ -107,7 +107,7 @@ it('does not find host notification policy when host is not found by admin user'
     ($this->useCase)(1, $this->findNotificationPolicyPresenter);
 });
 
-it('does not find host notification policy when host is not found by acl user', function () {
+it('does not find host notification policy when host is not found by acl user', function (): void {
     $this->contact
         ->expects($this->once())
         ->method('isAdmin')
@@ -132,7 +132,7 @@ it('does not find host notification policy when host is not found by acl user', 
     ($this->useCase)(1, $this->findNotificationPolicyPresenter);
 });
 
-it('returns users, user groups and notification status', function () {
+it('returns users, user groups and notification status', function (): void {
     $this->contact
         ->expects($this->any())
         ->method('isAdmin')

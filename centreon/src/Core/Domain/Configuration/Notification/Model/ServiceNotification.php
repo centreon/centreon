@@ -28,12 +28,12 @@ use Core\Domain\Configuration\TimePeriod\Model\TimePeriod;
 
 class ServiceNotification implements NotificationInterface
 {
-    public const EVENT_SERVICE_RECOVERY = 'RECOVERY',
-                 EVENT_SERVICE_SCHEDULED_DOWNTIME = 'SCHEDULED_DOWNTIME',
-                 EVENT_SERVICE_FLAPPING = 'FLAPPING',
-                 EVENT_SERVICE_WARNING = 'WARNING',
-                 EVENT_SERVICE_UNKNOWN = 'UNKNOWN',
-                 EVENT_SERVICE_CRITICAL = 'CRITICAL';
+    public const EVENT_SERVICE_RECOVERY = 'RECOVERY';
+    public const EVENT_SERVICE_SCHEDULED_DOWNTIME = 'SCHEDULED_DOWNTIME';
+    public const EVENT_SERVICE_FLAPPING = 'FLAPPING';
+    public const EVENT_SERVICE_WARNING = 'WARNING';
+    public const EVENT_SERVICE_UNKNOWN = 'UNKNOWN';
+    public const EVENT_SERVICE_CRITICAL = 'CRITICAL';
     public const SERVICE_EVENTS = [
         self::EVENT_SERVICE_RECOVERY,
         self::EVENT_SERVICE_SCHEDULED_DOWNTIME,

@@ -41,7 +41,7 @@ setTimezone() {
   if [ "$1" = "rpm" ]; then
     sed -i "s#^date.timezone = .*#date.timezone = ${PHP_TIMEZONE}#" /etc/php.d/50-centreon.ini
   else
-    sed -i "s#^date.timezone = .*#date.timezone = ${PHP_TIMEZONE}#" /etc/php/8.1/mods-available/centreon.ini
+    sed -i "s#^date.timezone = .*#date.timezone = ${PHP_TIMEZONE}#" /etc/php/8.2/mods-available/centreon.ini
   fi
 }
 
@@ -74,12 +74,12 @@ manageApacheAndPhpFpm() {
     systemctl restart php-fpm || :
     systemctl restart httpd || :
   else
-    update-alternatives --set php /usr/bin/php8.1 > /dev/null 2>&1 || :
+    update-alternatives --set php /usr/bin/php8.2 > /dev/null 2>&1 || :
     a2enmod headers proxy_fcgi setenvif proxy rewrite alias proxy proxy_fcgi > /dev/null 2>&1 || :
-    a2enconf php8.1-fpm > /dev/null 2>&1 || :
+    a2enconf php8.2-fpm > /dev/null 2>&1 || :
     a2dissite 000-default > /dev/null 2>&1 || :
     a2ensite centreon > /dev/null 2>&1 || :
-    systemctl restart php8.1-fpm || :
+    systemctl restart php8.2-fpm || :
     systemctl restart apache2 || :
   fi
 }
@@ -140,6 +140,7 @@ case "$action" in
     manageLocales $package_type
     manageApacheAndPhpFpm $package_type
     fixSymfonyCacheRights $package_type
+    fixCentreonCronPermissions
     ;;
   "2" | "upgrade")
     manageUsersAndGroups $package_type

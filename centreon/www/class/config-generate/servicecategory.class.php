@@ -34,6 +34,13 @@
  *
  */
 
+use Pimple\Container;
+
+/**
+ * Class
+ *
+ * @class ServiceCategory
+ */
 final class ServiceCategory extends AbstractObject
 {
     private const TAG_TYPE = 'servicecategory';
@@ -46,9 +53,9 @@ final class ServiceCategory extends AbstractObject
     protected string $object_name = 'tag';
 
     /**
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
-    protected function __construct(\Pimple\Container $dependencyInjector)
+    protected function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->generate_filename = 'tags.cfg';
@@ -97,7 +104,9 @@ final class ServiceCategory extends AbstractObject
      * Retrieve a categorie from its id
      *
      * @param int $serviceCategoryId
+     *
      * @return self
+     * @throws PDOException
      */
     private function addServiceCategoryToList(int $serviceCategoryId): self
     {
@@ -122,6 +131,8 @@ final class ServiceCategory extends AbstractObject
      * @param int $serviceCategoryId
      * @param int $serviceId
      * @param string $serviceDescription
+     *
+     * @throws PDOException
      */
     public function insertServiceToServiceCategoryMembers(
         int $serviceCategoryId,

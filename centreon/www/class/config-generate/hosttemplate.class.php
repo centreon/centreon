@@ -34,13 +34,25 @@
  *
  */
 
-require_once dirname(__FILE__) . '/abstract/host.class.php';
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
+require_once __DIR__ . '/abstract/host.class.php';
+
+/**
+ * Class
+ *
+ * @class HostTemplate
+ */
 class HostTemplate extends AbstractHost
 {
+    /** @var array|null */
     public $hosts = null;
+    /** @var string */
     protected $generate_filename = 'hostTemplates.cfg';
-    protected $object_name = 'host';
+    /** @var string */
+    protected string $object_name = 'host';
+    /** @var string */
     protected $attributes_select = '
         host_id,
         command_command_id as check_command_id,
@@ -91,42 +103,9 @@ class HostTemplate extends AbstractHost
         ehi_3d_coords as 3d_coords,
         host_acknowledgement_timeout as acknowledgement_timeout
     ';
-    protected $attributes_write = array(
-        'name',
-        'alias',
-        'display_name',
-        'timezone',
-        'contacts',
-        'contact_groups',
-        'check_command',
-        'check_period',
-        'notification_period',
-        'event_handler',
-        'max_check_attempts',
-        'check_interval',
-        'retry_interval',
-        'initial_state',
-        'freshness_threshold',
-        'low_flap_threshold',
-        'high_flap_threshold',
-        'flap_detection_options',
-        'notification_interval',
-        'notification_options',
-        'first_notification_delay',
-        'recovery_notification_delay',
-        'stalking_options',
-        'register',
-        'notes',
-        'notes_url',
-        'action_url',
-        'icon_image',
-        'icon_id',
-        'icon_image_alt',
-        'statusmap_image',
-        '2d_coords',
-        '3d_coords',
-        'acknowledgement_timeout'
-    );
+    /** @var string[] */
+    protected $attributes_write = ['name', 'alias', 'display_name', 'timezone', 'contacts', 'contact_groups', 'check_command', 'check_period', 'notification_period', 'event_handler', 'max_check_attempts', 'check_interval', 'retry_interval', 'initial_state', 'freshness_threshold', 'low_flap_threshold', 'high_flap_threshold', 'flap_detection_options', 'notification_interval', 'notification_options', 'first_notification_delay', 'recovery_notification_delay', 'stalking_options', 'register', 'notes', 'notes_url', 'action_url', 'icon_image', 'icon_id', 'icon_image_alt', 'statusmap_image', '2d_coords', '3d_coords', 'acknowledgement_timeout'];
+    /** @var string[] */
     protected $attributes_array = [
         'use',
         'category_tags',
@@ -134,6 +113,8 @@ class HostTemplate extends AbstractHost
 
     /**
      * @param int $hostId
+     *
+     * @throws PDOException
      */
     public function addCacheHostTpl(int $hostId): void
     {
@@ -153,7 +134,11 @@ class HostTemplate extends AbstractHost
         }
     }
 
-    private function getHosts()
+    /**
+     * @return void
+     * @throws PDOException
+     */
+    private function getHosts(): void
     {
         $stmt = $this->backend_instance->db->prepare(
             "SELECT {$this->attributes_select}
@@ -165,6 +150,12 @@ class HostTemplate extends AbstractHost
         $this->hosts = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
     }
 
+    /**
+     * @param $host_id
+     *
+     * @return int|void
+     * @throws PDOException
+     */
     private function getSeverity($host_id)
     {
         if (isset($this->hosts[$host_id]['severity_id'])) {
@@ -187,6 +178,15 @@ class HostTemplate extends AbstractHost
         }
     }
 
+    /**
+     * @param $host_id
+     *
+     * @return mixed|null
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
     public function generateFromHostId($host_id)
     {
         if (is_null($this->hosts)) {
@@ -227,9 +227,13 @@ class HostTemplate extends AbstractHost
         return $this->hosts[$host_id]['name'];
     }
 
-    public function reset()
+    /**
+     * @return void
+     * @throws Exception
+     */
+    public function reset(): void
     {
-        $this->loop_htpl = array();
+        $this->loop_htpl = [];
         parent::reset();
     }
 }

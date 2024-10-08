@@ -421,7 +421,7 @@ When(
   'the dashboard administrator user duplicates the Status Chart widget',
   () => {
     cy.editDashboard(dashboards.default.name);
-    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click({ force: true });
   }
 );

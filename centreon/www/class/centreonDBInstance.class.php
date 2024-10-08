@@ -34,47 +34,66 @@
  */
 
 // file centreon.config.php may not exist in test environment
-$configFile = realpath(dirname(__FILE__) . "/../../config/centreon.config.php");
+$configFile = realpath(__DIR__ . "/../../config/centreon.config.php");
 if ($configFile !== false) {
     include_once $configFile;
 }
 
-require_once realpath(dirname(__FILE__) . "/centreonDB.class.php");
+require_once realpath(__DIR__ . "/centreonDB.class.php");
 
+/**
+ * Class
+ *
+ * @class CentreonDBInstance
+ */
 class CentreonDBInstance
 {
-    private static $confInstance;
-    private static $monInstance;
-
+    /** @var CentreonDBInstance */
+    private static $dbCentreonInstance;
+    /** @var CentreonDBInstance */
+    private static $dbCentreonStorageInstance;
+    /** @var CentreonDB */
     private $instance;
 
     /**
      * CentreonDBInstance constructor.
+     *
      * @param string $db
+     *
+     * @throws Exception
      */
     private function __construct($db = "centreon")
     {
         $this->instance = new \CentreonDB($db);
     }
 
+    /**
+     * @return CentreonDB
+     */
     public function getInstance()
     {
         return $this->instance;
     }
 
-    public static function getConfInstance()
+    /**
+     * @return CentreonDB
+     */
+    public static function getDbCentreonInstance()
     {
-        if (is_null(self::$confInstance)) {
-            self::$confInstance = new \CentreonDBInstance('centreon');
+        if (is_null(self::$dbCentreonInstance)) {
+            self::$dbCentreonInstance = new \CentreonDBInstance('centreon');
         }
-        return self::$confInstance->getInstance();
+        return self::$dbCentreonInstance->getInstance();
     }
 
-    public static function getMonInstance()
+    /**
+     * @return CentreonDB
+     */
+    public static function getDbCentreonStorageInstance()
     {
-        if (is_null(self::$monInstance)) {
-            self::$monInstance = new \CentreonDBInstance('centstorage');
+        if (is_null(self::$dbCentreonStorageInstance)) {
+            self::$dbCentreonStorageInstance = new \CentreonDBInstance('centstorage');
         }
-        return self::$monInstance->getInstance();
+        return self::$dbCentreonStorageInstance->getInstance();
     }
 }

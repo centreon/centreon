@@ -36,18 +36,17 @@
 require_once _CENTREON_PATH_ . "/www/class/centreonLog.class.php";
 
 /**
- * Webservice to request LDAP data synchronization for a selected contact.
+ * Class
+ *
+ * @class CentreonLdapSynchro
+ * @description Webservice to request LDAP data synchronization for a selected contact.
  */
 class CentreonLdapSynchro extends CentreonWebService
 {
-    /**
-     * @var CentreonDB
-     */
+    /** @var CentreonDB */
     protected $pearDB;
 
-    /**
-     * @var CentreonLog
-     */
+    /** @var CentreonLog */
     protected $centreonLog;
 
     /**
@@ -68,7 +67,8 @@ class CentreonLdapSynchro extends CentreonWebService
      *
      * Method POST
      *
-     * @return boolean
+     * @return bool
+     * @throws PDOException
      */
     public function postRequestLdapSynchro(): bool
     {
@@ -144,7 +144,8 @@ class CentreonLdapSynchro extends CentreonWebService
     /**
      * Checking if LDAP is enabled
      *
-     * @return boolean
+     * @return bool
+     * @throws PDOException
      */
     private function isLdapEnabled()
     {
