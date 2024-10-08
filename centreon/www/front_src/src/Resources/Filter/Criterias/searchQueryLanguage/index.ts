@@ -27,6 +27,7 @@ import {
   sortBy,
   split,
   startsWith,
+  toLower,
   trim,
   without
 } from 'ramda';
@@ -357,9 +358,7 @@ const getAutocompleteSuggestions = ({
 
     const criteriaValueSuggestions = getCriteriaValueSuggestions({
       criterias: allCriterias,
-      selectedValues: expressionCriteriaValues.map((item) =>
-        item.toLocaleLowerCase()
-      )
+      selectedValues: map(toLower, expressionCriteriaValues)
     });
 
     const isLastValueInSuggestions = getCriteriaValueSuggestions({
