@@ -1,0 +1,23 @@
+get:
+  tags:
+    - Poller/agent configuration
+  summary: "Get available pollers"
+  description: "Get pollers not linked to an agent configuration"
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              result:
+                type: array
+                items:
+                  $ref: 'Schema/FindPollersResponse.yaml'
+              meta:
+                $ref: '../../Common/Schema/Meta.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'
