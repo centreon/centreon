@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\UseCase\FindPollers;
 
+use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\Application\Common\UseCase\StandardResponseInterface;
 
 final class FindPollersResponse implements StandardResponseInterface
