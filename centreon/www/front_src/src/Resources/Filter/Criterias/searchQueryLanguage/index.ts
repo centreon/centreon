@@ -119,9 +119,7 @@ const parse = ({
         const isStaticCriteria = isNil(objectType);
 
         if (isStaticCriteria) {
-          const id = getCriteriaNameFromQueryLanguageName(
-            value.toLocaleLowerCase()
-          );
+          const id = getCriteriaNameFromQueryLanguageName(toLower(value));
 
           return {
             id,
@@ -364,12 +362,12 @@ const getAutocompleteSuggestions = ({
     const isLastValueInSuggestions = getCriteriaValueSuggestions({
       criterias: allCriterias,
       selectedValues: []
-    }).includes(lastCriteriaValue.toLocaleLowerCase());
+    }).includes(toLower(lastCriteriaValue));
 
     return isLastValueInSuggestions
       ? map(concat(','), criteriaValueSuggestions)
       : filter(
-          startsWith(lastCriteriaValue.toLocaleLowerCase()),
+          startsWith(toLower(lastCriteriaValue)),
           criteriaValueSuggestions
         );
   }
