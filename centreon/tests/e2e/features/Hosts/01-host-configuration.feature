@@ -1,20 +1,20 @@
 Feature: HostConfiguration
   As a Centreon admin
-  I want to modify an host
+  I want to modify a host
   To see if the modification is saved on the Host Page
 
   Background:
-    Given I am logged in a Centreon server
-    And an host is configured
+    Given an admin user is logged in a Centreon server
+    And a host is configured
 
-  Scenario: Edit the name of an host
-    When I change the properties of a host
-    Then its properties are updated
+  Scenario: Edit the name of a host
+    When the user changes the name of a host to "New Host Name"
+    Then the host name is updated to "New Host Name" on the Host Page
 
   Scenario: Duplicate one existing host
-    When I duplicate a host
-    Then a new host is created with identical properties
+    When the user duplicates a host
+    Then a new host is created with identical fields
 
   Scenario: Delete one existing host
-    When I delete the host
-    Then the host is not visible anymore
+    When the user deletes the host
+    Then the host is not visible in the host list
