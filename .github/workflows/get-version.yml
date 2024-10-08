@@ -131,7 +131,6 @@ jobs:
           GITHUB_RELEASE_TYPE=$(echo $BRANCHNAME |cut -d '-' -f 1)
 
           # Detect cloud context + handle PRs that do not directly target dev branches
-          #GIT_BRANCH_EXISTS=$(git ls-remote -h https://github.com/centreon/${{ github.repository }}.git | grep -E "refs/heads/dev-$MAJOR.x$" >/dev/null 2>&1 && echo yes || echo no)
           # if current branch major version has a matching dev-$MAJOR branch => onprem version
           if git ls-remote -q | grep -E "refs/heads/dev-$MAJOR.x" >/dev/null 2>&1; then
             GITHUB_RELEASE_CLOUD=0
