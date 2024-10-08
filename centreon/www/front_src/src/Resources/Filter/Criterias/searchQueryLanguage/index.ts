@@ -98,8 +98,6 @@ const parse = ({
     search.split(' ')
   );
 
-  console.log('paaaaaaaaarse');
-
   const criterias: Array<Criteria> = criteriaParts.map((criteria) => {
     const [key, values] = criteria.split(':');
     const unmappedCriteriaKey = getCriteriaNameFromQueryLanguageName(key);
@@ -359,17 +357,15 @@ const getAutocompleteSuggestions = ({
 
     const criteriaValueSuggestions = getCriteriaValueSuggestions({
       criterias: allCriterias,
-      selectedValues: expressionCriteriaValues
+      selectedValues: expressionCriteriaValues.map((item) =>
+        item.toLocaleLowerCase()
+      )
     });
-
-    // console.log({ criteriaValueSuggestions, expressionCriteriaValues });
 
     const isLastValueInSuggestions = getCriteriaValueSuggestions({
       criterias: allCriterias,
       selectedValues: []
     }).includes(lastCriteriaValue.toLocaleLowerCase());
-
-    console.log({ res: map(concat(','), criteriaValueSuggestions) });
 
     return isLastValueInSuggestions
       ? map(concat(','), criteriaValueSuggestions)
