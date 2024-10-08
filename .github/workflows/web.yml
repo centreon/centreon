@@ -971,7 +971,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bookworm, jammy]
+        distrib: [bookworm]
 
     steps:
       - name: Checkout sources
