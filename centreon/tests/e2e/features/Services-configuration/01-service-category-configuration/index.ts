@@ -157,8 +157,8 @@ Then("the deleted service category is not displayed in the list", () => {
     cy.get("iframe#main-content")
       .its("0.contentDocument.body")
       .find("table tbody")
-      .contains("test")
-      .should("not.exist");
+      .children()
+      .should("have.length", 4);
 });
 
 afterEach(() => {
