@@ -1,7 +1,5 @@
 #!/bin/sh
 
-apk update & apk add jq
-
 export VAULT_TOKEN=$(vault login ${VAULT_DEV_ROOT_TOKEN_ID} -format=json | jq -r '.auth.client_token')
 
 export VAULT_ADDR='https://127.0.0.1:8200'
