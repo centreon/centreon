@@ -33,7 +33,7 @@
  *
  */
 
-require_once realpath(dirname(__FILE__) . "/../../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
 require_once _CENTREON_PATH_ . '/www/include/common/common-Func.php';
@@ -59,5 +59,5 @@ try {
 
 $macros = (new CentreonService($db))->ajaxMacroControl($_POST);
 header('Content-Type: application/json');
-echo json_encode(array('macros' => $macros, 'count' => count($macros)));
+echo json_encode(['macros' => $macros, 'count' => count($macros)]);
 die;

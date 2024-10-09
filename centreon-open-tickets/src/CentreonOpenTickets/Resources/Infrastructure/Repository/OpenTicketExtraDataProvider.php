@@ -29,7 +29,6 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface;
-use PDOException;
 
 /**
  * @phpstan-type _TicketData array{
@@ -42,7 +41,6 @@ use PDOException;
 final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements ExtraDataProviderInterface
 {
     use SqlMultipleBindTrait;
-
     private const DATA_PROVIDER_SOURCE_NAME = 'open_tickets';
 
     /**
@@ -128,30 +126,6 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
     }
 
     /**
-     * @param Resource[] $resources
-     * @return Resource[]
-     */
-    private function getServiceResources(array $resources): array
-    {
-        return array_filter(
-            $resources,
-            static fn (Resource $resource) => $resource->getType() === Resource::TYPE_SERVICE
-        );
-    }
-
-    /**
-     * @param Resource[] $resources
-     * @return Resource[]
-     */
-    private function getHostResources(array $resources): array
-    {
-        return array_filter(
-            $resources,
-            static fn (Resource $resource) => $resource->getType() === Resource::TYPE_HOST
-        );
-    }
-
-    /**
      * @inheritDoc
      */
     public function getExtraDataForResources(ResourceFilter $filter, array $resources): array
@@ -176,7 +150,7 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
         foreach ($this->getServiceResources($resources) as $resource) {
             if (
                 $resource->getResourceId() !== null
-                && ! in_array($resource->getResourceId(), $parentResourceIds)
+                && ! in_array($resource->getResourceId(), $parentResourceIds, true)
             ) {
                 $resourceIds[] = $resource->getResourceId();
             }
@@ -184,7 +158,7 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
             if (
                 $resource->getParent() !== null
                 && $resource->getParent()->getResourceId() !== null
-                && ! in_array($resource->getParent()->getResourceId(), $parentResourceIds)
+                && ! in_array($resource->getParent()->getResourceId(), $parentResourceIds, true)
             ) {
                 $parentResourceIds[] = $resource->getParent()->getResourceId();
             }
@@ -194,7 +168,7 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
         foreach ($this->getHostResources($resources) as $resource) {
             if (
                 $resource->getResourceId() !== null
-                && ! in_array($resource->getResourceId(), $parentResourceIds)
+                && ! in_array($resource->getResourceId(), $parentResourceIds, true)
             ) {
                 $parentResourceIds[] = $resource->getResourceId();
             }
@@ -206,6 +180,30 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
     }
 
     /**
+     * @param resource[] $resources
+     * @return resource[]
+     */
+    private function getServiceResources(array $resources): array
+    {
+        return array_filter(
+            $resources,
+            static fn (Resource $resource) => $resource->getType() === Resource::TYPE_SERVICE
+        );
+    }
+
+    /**
+     * @param resource[] $resources
+     * @return resource[]
+     */
+    private function getHostResources(array $resources): array
+    {
+        return array_filter(
+            $resources,
+            static fn (Resource $resource) => $resource->getType() === Resource::TYPE_HOST
+        );
+    }
+
+    /**
      * @param int[] $resources
      * @param string $macroName
      * @return array<int, array{
@@ -213,7 +211,6 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
      *  subject:string,
      *  created_at:\DateTimeInterface
      * }>|array{}
-
      */
     private function getResourceTickets(array $resources, string $macroName): array
     {
@@ -224,28 +221,28 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery(array_values($resources), ':resource_id');
 
         $request = <<<SQL
-            SELECT
-                r.resource_id,
-                tickets.ticket_value,
-                tickets.timestamp,
-                tickets.user,
-                tickets_data.subject
-            FROM `:dbstg`.resources r
-            LEFT JOIN `:dbstg`.services s
-                ON s.service_id = r.id
-                AND s.host_id = r.parent_id
-            LEFT JOIN `:dbstg`.customvariables cv
-                ON cv.service_id = s.service_id
-                AND cv.host_id = s.host_id
-                AND cv.name = :macroName
-            LEFT JOIN `:dbstg`.mod_open_tickets tickets
-                ON tickets.ticket_value = cv.value
-                AND (tickets.timestamp > s.last_time_ok OR s.last_time_ok IS NULL)
-            LEFT JOIN `:dbstg`.mod_open_tickets_data tickets_data
-                ON tickets_data.ticket_id = tickets.ticket_id
-            WHERE r.resource_id IN ({$bindQuery})
-                AND tickets.timestamp IS NOT NULL;
-        SQL;
+                SELECT
+                    r.resource_id,
+                    tickets.ticket_value,
+                    tickets.timestamp,
+                    tickets.user,
+                    tickets_data.subject
+                FROM `:dbstg`.resources r
+                LEFT JOIN `:dbstg`.services s
+                    ON s.service_id = r.id
+                    AND s.host_id = r.parent_id
+                LEFT JOIN `:dbstg`.customvariables cv
+                    ON cv.service_id = s.service_id
+                    AND cv.host_id = s.host_id
+                    AND cv.name = :macroName
+                LEFT JOIN `:dbstg`.mod_open_tickets tickets
+                    ON tickets.ticket_value = cv.value
+                    AND (tickets.timestamp > s.last_time_ok OR s.last_time_ok IS NULL)
+                LEFT JOIN `:dbstg`.mod_open_tickets_data tickets_data
+                    ON tickets_data.ticket_id = tickets.ticket_id
+                WHERE r.resource_id IN ({$bindQuery})
+                    AND tickets.timestamp IS NOT NULL;
+            SQL;
 
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement->bindValue(':macroName', $macroName, \PDO::PARAM_STR);
@@ -266,7 +263,7 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
             $tickets[(int) $record['resource_id']] = [
                 'id' => (int) $record['ticket_value'],
                 'subject' => $record['subject'],
-                'created_at' => (new \DateTimeImmutable())->setTimestamp((int) $record['timestamp'])
+                'created_at' => (new \DateTimeImmutable())->setTimestamp((int) $record['timestamp']),
             ];
         }
 
@@ -291,27 +288,27 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery(array_values($parentResources), ':resource_id');
 
         $request = <<<SQL
-            SELECT
-                r.resource_id,
-                tickets.ticket_value,
-                tickets.timestamp,
-                tickets.user,
-                tickets_data.subject
-            FROM `:dbstg`.resources r
-            LEFT JOIN `:dbstg`.hosts h
-                ON h.host_id = r.id
-            LEFT JOIN `:dbstg`.customvariables cv
-                ON cv.host_id = h.host_id
-                AND (cv.service_id IS NULL OR cv.service_id = 0)
-                AND cv.name = :macroName
-            LEFT JOIN `:dbstg`.mod_open_tickets tickets
-                ON tickets.ticket_value = cv.value
-                AND (tickets.timestamp > h.last_time_up OR h.last_time_up IS NULL)
-            LEFT JOIN `:dbstg`.mod_open_tickets_data tickets_data
-                ON tickets_data.ticket_id = tickets.ticket_id
-            WHERE r.resource_id IN ({$bindQuery})
-                AND tickets.timestamp IS NOT NULL;
-        SQL;
+                SELECT
+                    r.resource_id,
+                    tickets.ticket_value,
+                    tickets.timestamp,
+                    tickets.user,
+                    tickets_data.subject
+                FROM `:dbstg`.resources r
+                LEFT JOIN `:dbstg`.hosts h
+                    ON h.host_id = r.id
+                LEFT JOIN `:dbstg`.customvariables cv
+                    ON cv.host_id = h.host_id
+                    AND (cv.service_id IS NULL OR cv.service_id = 0)
+                    AND cv.name = :macroName
+                LEFT JOIN `:dbstg`.mod_open_tickets tickets
+                    ON tickets.ticket_value = cv.value
+                    AND (tickets.timestamp > h.last_time_up OR h.last_time_up IS NULL)
+                LEFT JOIN `:dbstg`.mod_open_tickets_data tickets_data
+                    ON tickets_data.ticket_id = tickets.ticket_id
+                WHERE r.resource_id IN ({$bindQuery})
+                    AND tickets.timestamp IS NOT NULL;
+            SQL;
 
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement->bindValue(':macroName', $macroName, \PDO::PARAM_STR);
@@ -331,7 +328,7 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
             $tickets[(int) $record['resource_id']] = [
                 'id' => (int) $record['ticket_value'],
                 'subject' => $record['subject'],
-                'created_at' => (new \DateTimeImmutable())->setTimestamp((int) $record['timestamp'])
+                'created_at' => (new \DateTimeImmutable())->setTimestamp((int) $record['timestamp']),
             ];
         }
 

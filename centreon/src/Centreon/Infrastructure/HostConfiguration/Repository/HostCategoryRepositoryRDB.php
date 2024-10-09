@@ -157,7 +157,7 @@ class HostCategoryRepositoryRDB extends AbstractRepositoryDRB implements
     public function findByNames(array $categoriesName): array
     {
         $hostCategories = [];
-        if ((empty($categoriesName))) {
+        if (($categoriesName === [])) {
             return $hostCategories;
         }
         $statement = $this->db->prepare(

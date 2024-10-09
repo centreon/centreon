@@ -51,8 +51,8 @@ if (!isset($gopt["interval_length"])) {
     $gopt["interval_length"] = 60;
 }
 
-$attrsText = array("size" => "40");
-$attrsText2 = array("size" => "5");
+$attrsText = ["size" => "40"];
+$attrsText2 = ["size" => "5"];
 $attrsAdvSelect = null;
 
 // Form begin
@@ -66,7 +66,7 @@ $form->addElement('text', 'interval_length', _("Interval Length"), $attrsText2);
 $form->addElement('text', 'mailer_path_bin', _("Directory + Mailer Binary"), $attrsText);
 
 // Tactical Overview form
-$limitArray = array();
+$limitArray = [];
 for ($i = 10; $i <= 100; $i += 10) {
     $limitArray[$i] = $i;
 }
@@ -86,12 +86,7 @@ $form->addElement('checkbox', 'monitoring_dwt_fixed', _("Fixed"));
 $form->addElement('checkbox', 'monitoring_dwt_svc', _("Set downtimes on services attached to hosts"));
 $form->addElement('text', 'monitoring_dwt_duration', _("Duration"), $attrsText2);
 
-$scaleChoices = array(
-    "s" => _("seconds"),
-    "m" => _("minutes"),
-    "h" => _("hours"),
-    "d" => _("days")
-);
+$scaleChoices = ["s" => _("seconds"), "m" => _("minutes"), "h" => _("hours"), "d" => _("days")];
 $form->addElement('select', 'monitoring_dwt_duration_scale', _("Scale of time"), $scaleChoices);
 
 $form->addElement('hidden', 'gopt_id');
@@ -123,8 +118,8 @@ $tpl = initSmartyTpl($path . "/engine", $tpl);
 
 $form->setDefaults($gopt);
 
-$subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-$dbResult = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+$subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+$dbResult = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 
 // prepare help texts
 $helptext = "";
@@ -156,7 +151,7 @@ if ($form->validate()) {
             "button",
             "change",
             _("Modify"),
-            array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=engine'", 'class' => 'btc bt_info')
+            ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=engine'", 'class' => 'btc bt_info']
         );
         $_SESSION[$sessionKeyFreeze] = true;
         echo '<script>parent.location.href = "main.php?p=' . $p . '&o=engine";</script>';
@@ -171,7 +166,7 @@ if ($form->validate()) {
         "button",
         "change",
         _("Modify"),
-        array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=engine'", 'class' => 'btc bt_info')
+        ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=engine'", 'class' => 'btc bt_info']
     );
     $form->freeze();
     $valid = true;

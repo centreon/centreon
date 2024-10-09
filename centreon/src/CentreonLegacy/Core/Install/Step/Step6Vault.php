@@ -38,7 +38,7 @@ class Step6Vault extends AbstractStep
         return $template->fetch('content.tpl');
     }
 
-    public function setVaultConfiguration(array $configuration)
+    public function setVaultConfiguration(array $configuration): void
     {
         $configurationFile = __DIR__ . '/../../../../../www/install/tmp/vault.json';
         file_put_contents($configurationFile, json_encode($configuration));

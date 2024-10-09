@@ -70,7 +70,7 @@ $widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' 
  * Sanitize and concatenate selected resources for the query
  */
 // Check returned list and make an array of it
-if (false !== strpos($_GET['list'], ',')) {
+if (str_contains($_GET['list'], ',')) {
     $exportList = explode(',', $_GET['list']);
 } else {
     $exportList[] = $_GET['list'];
@@ -168,7 +168,7 @@ if (isset($preferences['host_down']) && $preferences['host_down']) {
 if (isset($preferences['host_unreachable']) && $preferences['host_unreachable']) {
     $stateTab[] = 2;
 }
-if (count($stateTab)) {
+if ($stateTab !== []) {
     $query = CentreonUtils::conditionBuilder($query, ' state IN (' . implode(',', $stateTab) . ')');
 }
 
@@ -279,7 +279,7 @@ $outputLength = $preferences['output_length'] ?? 50;
 $commentLength = $preferences['comment_length'] ?? 50;
 $hostObj = new CentreonHost($db);
 $gmt = new CentreonGMT($db);
-$gmt->getMyGMTFromSession(session_id(), $db);
+$gmt->getMyGMTFromSession(session_id());
 
 while ($row = $res->fetch()) {
     foreach ($row as $key => $value) {
@@ -321,11 +321,7 @@ while ($row = $res->fetch()) {
         );
         $res2->bindValue(':hostId', $row['host_id'], \PDO::PARAM_INT);
         $res2->execute();
-        if ($row2 = $res2->fetch()) {
-            $data[$row['host_id']]['comment'] = substr($row2['data'], 0, $commentLength);
-        } else {
-            $data[$row['host_id']]['comment'] = '-';
-        }
+        $data[$row['host_id']]['comment'] = ($row2 = $res2->fetch()) ? substr($row2['data'], 0, $commentLength) : '-';
     }
 }
 

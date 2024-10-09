@@ -23,6 +23,16 @@ declare(strict_types=1);
 
 namespace CentreonClapi;
 
+use Centreon_Object_Configuration_Ldap;
+use Centreon_Object_Contact;
+use Centreon_Object_Contact_Group;
+use Centreon_Object_Ldap;
+use Centreon_Object_Server_Ldap;
+use Exception;
+use PDO;
+use PDOException;
+use Pimple\Container;
+
 require_once 'centreonObject.class.php';
 require_once 'centreonContact.class.php';
 require_once 'Centreon/Object/Ldap/ConfigurationLdap.php';
@@ -30,22 +40,22 @@ require_once 'Centreon/Object/Ldap/ObjectLdap.php';
 require_once 'Centreon/Object/Ldap/ServerLdap.php';
 
 /**
- * Class for managing ldap servers.
+ * Class
+ *
+ * @class CentreonLDAP
+ * @package CentreonClapi
+ * @description Class for managing ldap servers
  */
 class CentreonLDAP extends CentreonObject
 {
     public const NB_ADD_PARAM = 2;
     public const AR_NOT_EXIST = 'LDAP configuration ID not found';
 
+    /** @var array|string[] */
     public array $aDepends = [
         'CG',
         'CONTACTTPL',
     ];
-
-    /** @var \CentreonDB */
-    protected $db;
-
-    protected string $action;
 
     /** @var array<string,string> */
     protected array $baseParams = [
@@ -85,12 +95,14 @@ class CentreonLDAP extends CentreonObject
     /**
      * CentreonLDAP constructor.
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
-        $this->object = new \Centreon_Object_Ldap($dependencyInjector);
+        $this->object = new Centreon_Object_Ldap($dependencyInjector);
         $this->action = 'LDAP';
     }
 
@@ -99,9 +111,8 @@ class CentreonLDAP extends CentreonObject
      *
      * @param string $name
      *
-     * @throws CentreonClapiException
-     *
      * @return mixed returns null if no ldap id is found
+     * @throws PDOException
      */
     public function getLdapId($name)
     {
@@ -112,7 +123,7 @@ class CentreonLDAP extends CentreonObject
                 WHERE ar_name = :name
                 SQL
         );
-        $res->bindValue(':name', $name, \PDO::PARAM_STR);
+        $res->bindValue(':name', $name, PDO::PARAM_STR);
         $res->execute();
 
         $row = $res->fetch();
@@ -128,7 +139,8 @@ class CentreonLDAP extends CentreonObject
     /**
      * @param $id
      *
-     * @return mixed
+     * @return array
+     * @throws PDOException
      */
     public function getLdapServers($id)
     {
@@ -139,7 +151,7 @@ class CentreonLDAP extends CentreonObject
                 WHERE auth_ressource_id = :id
                 SQL
         );
-        $res->bindValue(':id', $id, \PDO::PARAM_INT);
+        $res->bindValue(':id', $id, PDO::PARAM_INT);
         $res->execute();
 
         return $res->fetchAll();
@@ -148,6 +160,8 @@ class CentreonLDAP extends CentreonObject
     /**
      * @param array $params
      * @param array $filters
+     *
+     * @throws PDOException
      */
     public function show($params = [], $filters = []): void
     {
@@ -169,6 +183,7 @@ class CentreonLDAP extends CentreonObject
      * @param string|null $arName
      *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function showserver($arName = null): void
     {
@@ -184,9 +199,9 @@ class CentreonLDAP extends CentreonObject
                 WHERE auth_ressource_id = :auth_ressource_id
                 ORDER BY host_order';
         $statement = $this->db->prepare($sql);
-        $statement->bindValue(':auth_ressource_id', (int) $arId, \PDO::PARAM_INT);
+        $statement->bindValue(':auth_ressource_id', (int) $arId, PDO::PARAM_INT);
         $statement->execute();
-        $row = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        $row = $statement->fetchAll(PDO::FETCH_ASSOC);
         echo "id;address;port;ssl;tls;order\n";
         foreach ($row as $srv) {
             echo $srv['ldap_host_id'] . $this->delim
@@ -204,6 +219,7 @@ class CentreonLDAP extends CentreonObject
      * @param string $parameters
      *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function add($parameters): void
     {
@@ -222,8 +238,8 @@ class CentreonLDAP extends CentreonObject
             "INSERT INTO auth_ressource (ar_name, ar_description, ar_enable, ar_type)
             VALUES (:arName, :description, '1', 'ldap')"
         );
-        $stmt->bindValue(':arName', $name, \PDO::PARAM_STR);
-        $stmt->bindValue(':description', $description, \PDO::PARAM_STR);
+        $stmt->bindValue(':arName', $name, PDO::PARAM_STR);
+        $stmt->bindValue(':description', $description, PDO::PARAM_STR);
         $stmt->execute();
     }
 
@@ -233,6 +249,7 @@ class CentreonLDAP extends CentreonObject
      * @param string $parameters
      *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function addserver($parameters): void
     {
@@ -273,21 +290,21 @@ class CentreonLDAP extends CentreonObject
                 SQL
         );
 
-        $statement->bindValue(':arId', $arId, \PDO::PARAM_INT);
-        $statement->bindValue(':address', $address, \PDO::PARAM_STR);
-        $statement->bindValue(':port', $port, \PDO::PARAM_INT);
-        $statement->bindValue(':ssl', $ssl, \PDO::PARAM_INT);
-        $statement->bindValue(':tls', $tls, \PDO::PARAM_INT);
+        $statement->bindValue(':arId', $arId, PDO::PARAM_INT);
+        $statement->bindValue(':address', $address, PDO::PARAM_STR);
+        $statement->bindValue(':port', $port, PDO::PARAM_INT);
+        $statement->bindValue(':ssl', $ssl, PDO::PARAM_INT);
+        $statement->bindValue(':tls', $tls, PDO::PARAM_INT);
         $statement->execute();
     }
 
     /**
      * Delete configuration.
      *
-     * @param int $parameters
      * @param null|mixed $arName
      *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function del($arName = null): void
     {
@@ -305,7 +322,7 @@ class CentreonLDAP extends CentreonObject
                 WHERE ar_id = :arId
                 SQL
         );
-        $statement->bindValue(':arId', $arId, \PDO::PARAM_INT);
+        $statement->bindValue(':arId', $arId, PDO::PARAM_INT);
         $statement->execute();
     }
 
@@ -313,6 +330,7 @@ class CentreonLDAP extends CentreonObject
      * @param $serverId
      *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function delserver($serverId): void
     {
@@ -329,16 +347,17 @@ class CentreonLDAP extends CentreonObject
                 WHERE ldap_host_id = :serverId
                 SQL
         );
-        $statement->bindValue(':serverId', $serverId, \PDO::PARAM_INT);
+        $statement->bindValue(':serverId', $serverId, PDO::PARAM_INT);
         $statement->execute();
     }
 
     /**
      * Set parameters.
      *
-     * @param string $parameters
+     * @param array $parameters
      *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function setparam($parameters = []): void
     {
@@ -366,8 +385,8 @@ class CentreonLDAP extends CentreonObject
                     WHERE ar_id = :arId
                     SQL
             );
-            $statement->bindValue(':param', $params[2], \PDO::PARAM_STR);
-            $statement->bindValue(':arId', $arId, \PDO::PARAM_INT);
+            $statement->bindValue(':param', $params[2], PDO::PARAM_STR);
+            $statement->bindValue(':arId', $arId, PDO::PARAM_INT);
             $statement->execute();
         } elseif (isset($this->baseParams[mb_strtolower($params[1])])) {
             if (mb_strtolower($params[1]) === 'ldap_contact_tmpl') {
@@ -387,8 +406,8 @@ class CentreonLDAP extends CentreonObject
                     WHERE ari_name = :name AND ar_id = :arId
                     SQL
             );
-            $statement->bindValue(':name', $params[1], \PDO::PARAM_STR);
-            $statement->bindValue(':arId', $arId, \PDO::PARAM_INT);
+            $statement->bindValue(':name', $params[1], PDO::PARAM_STR);
+            $statement->bindValue(':arId', $arId, PDO::PARAM_INT);
             $statement->execute();
 
             $statement = $this->db->prepare(
@@ -397,9 +416,9 @@ class CentreonLDAP extends CentreonObject
                     VALUES (:value, :name, :arId)
                     SQL
             );
-            $statement->bindValue(':value', $params[2], \PDO::PARAM_STR);
-            $statement->bindValue(':name', $params[1], \PDO::PARAM_STR);
-            $statement->bindValue(':arId', $arId, \PDO::PARAM_INT);
+            $statement->bindValue(':value', $params[2], PDO::PARAM_STR);
+            $statement->bindValue(':name', $params[1], PDO::PARAM_STR);
+            $statement->bindValue(':arId', $arId, PDO::PARAM_INT);
             $statement->execute();
 
         } else {
@@ -413,6 +432,7 @@ class CentreonLDAP extends CentreonObject
      * @param null|mixed $parameters
      *
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function setparamserver($parameters = null): void
     {
@@ -434,15 +454,16 @@ class CentreonLDAP extends CentreonObject
                 SET {$key} = :value WHERE ldap_host_id = :id
                 SQL
         );
-        $statement->bindValue(':value', $value, is_int($value) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
-        $statement->bindValue(':id', $serverId, \PDO::PARAM_INT);
+        $statement->bindValue(':value', $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
+        $statement->bindValue(':id', $serverId, PDO::PARAM_INT);
         $statement->execute();
     }
 
     /**
      * @param mixed|null $filterName
      *
-     * @return bool|int|void
+     * @return int|void
+     * @throws Exception
      */
     public function export($filterName = null)
     {
@@ -456,8 +477,8 @@ class CentreonLDAP extends CentreonObject
             $filters[$labelField] = $filterName;
         }
 
-        $configurationLdapObj = new \Centreon_Object_Configuration_Ldap($this->dependencyInjector);
-        $serverLdapObj = new \Centreon_Object_Server_Ldap($this->dependencyInjector);
+        $configurationLdapObj = new Centreon_Object_Configuration_Ldap($this->dependencyInjector);
+        $serverLdapObj = new Centreon_Object_Server_Ldap($this->dependencyInjector);
         $ldapList = $this->object->getList(
             '*',
             -1,
@@ -515,12 +536,12 @@ class CentreonLDAP extends CentreonObject
                     && $configuration['ari_name'] !== 'ldap_dns_use_tls'
                 ) {
                     if ($configuration['ari_name'] === 'ldap_contact_tmpl') {
-                        $contactObj = new \Centreon_Object_Contact($this->dependencyInjector);
+                        $contactObj = new Centreon_Object_Contact($this->dependencyInjector);
                         $contactName = $contactObj->getParameters($configuration['ari_value'], 'contact_name');
                         $configuration['ari_value'] = $contactName['contact_name'];
                     }
                     if ($configuration['ari_name'] === 'ldap_default_cg') {
-                        $contactGroupObj = new \Centreon_Object_Contact_Group($this->dependencyInjector);
+                        $contactGroupObj = new Centreon_Object_Contact_Group($this->dependencyInjector);
                         $contactGroupName = $contactGroupObj->getParameters($configuration['ari_value'], 'cg_name');
                         $configuration['ari_value'] = ! empty($contactGroupName['cg_name'])
                             ? $contactGroupName['cg_name']
@@ -542,6 +563,7 @@ class CentreonLDAP extends CentreonObject
      * @param int $arId
      *
      * @return bool
+     * @throws PDOException
      */
     protected function isUnique($name = '', $arId = 0)
     {
@@ -552,8 +574,8 @@ class CentreonLDAP extends CentreonObject
                 WHERE ar_name = :name AND ar_id != :id
                 SQL
         );
-        $stmt->bindValue(':name', $name, \PDO::PARAM_STR);
-        $stmt->bindValue(':id', $arId, \PDO::PARAM_INT);
+        $stmt->bindValue(':name', $name, PDO::PARAM_STR);
+        $stmt->bindValue(':id', $arId, PDO::PARAM_INT);
         $stmt->execute();
 
         $res = $stmt->fetchAll();

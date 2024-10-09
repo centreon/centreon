@@ -43,7 +43,7 @@ class WebSSO implements ProviderAuthenticationInterface
 {
     use Centreon\Domain\Log\LoggerTrait;
 
-    private ?ContactInterface $authenticatedUser;
+    private ?ContactInterface $authenticatedUser = null;
 
     /**
      * @param Container $dependencyInjector
