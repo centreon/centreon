@@ -20,17 +20,30 @@
 
 namespace ConfigGenerateRemote;
 
-use \PDO;
+use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractService;
 
+/**
+ * Class
+ *
+ * @class Service
+ * @package ConfigGenerateRemote
+ */
 class Service extends AbstractService
 {
+    /** @var int */
     private $useCache = 0;
+    /** @var int */
     private $useCachePoller = 1;
+    /** @var int */
     private $doneCache = 0;
+    /** @var array|null */
     protected $serviceCache = null;
+    /** @var string */
     protected $table = 'service';
+    /** @var string */
     protected $generateFilename = 'services.infile';
+    /** @var int|null */
     public $pollerId = null; // for by poller cache
 
     /**
@@ -38,7 +51,7 @@ class Service extends AbstractService
      *
      * @return void
      */
-    public function useCache()
+    public function useCache(): void
     {
         $this->useCache = 1;
     }
@@ -46,12 +59,12 @@ class Service extends AbstractService
     /**
      * Get servicegroups
      *
-     * @param integer $serviceId
-     * @param integer $hostId
+     * @param int $serviceId
+     * @param int $hostId
      * @param string $hostName
      * @return void
      */
-    private function getServiceGroups(int $serviceId, int $hostId, string $hostName)
+    private function getServiceGroups(int $serviceId, int $hostId, string $hostName): void
     {
         $servicegroup = ServiceGroup::getInstance($this->dependencyInjector);
         $this->serviceCache[$serviceId]['sg'] = $servicegroup->getServiceGroupsForService($hostId, $serviceId);
@@ -78,7 +91,7 @@ class Service extends AbstractService
      *
      * @return void
      */
-    private function getServiceByPollerCache()
+    private function getServiceByPollerCache(): void
     {
         $query = "SELECT $this->attributesSelect FROM ns_host_relation, host_service_relation, service " .
             "LEFT JOIN extended_service_information ON extended_service_information.service_service_id = " .
@@ -97,7 +110,7 @@ class Service extends AbstractService
     /**
      * Build cache of services
      */
-    private function getServiceCache()
+    private function getServiceCache(): void
     {
         $query = "SELECT $this->attributesSelect FROM service " .
             "LEFT JOIN extended_service_information ON extended_service_information.service_service_id = " .
@@ -110,11 +123,11 @@ class Service extends AbstractService
     /**
      * Add service in cache
      *
-     * @param integer $serviceId
+     * @param int $serviceId
      * @param array $attr
      * @return void
      */
-    public function addServiceCache(int $serviceId, array $attr = [])
+    public function addServiceCache(int $serviceId, array $attr = []): void
     {
         $this->serviceCache[$serviceId] = $attr;
     }
@@ -122,10 +135,10 @@ class Service extends AbstractService
     /**
      * Get service from service id
      *
-     * @param integer $serviceId
+     * @param int $serviceId
      * @return void
      */
-    private function getServiceFromId(int $serviceId)
+    private function getServiceFromId(int $serviceId): void
     {
         if (is_null($this->stmtService)) {
             $query = "SELECT $this->attributesSelect FROM service " .
@@ -142,8 +155,8 @@ class Service extends AbstractService
     /**
      * Get severity from service id
      *
-     * @param integer $hostId
-     * @param integer $serviceId
+     * @param int $hostId
+     * @param int $serviceId
      * @return void
      */
     protected function getSeverity($hostId, int $serviceId)
@@ -192,10 +205,10 @@ class Service extends AbstractService
     /**
      * Generate service object from service id
      *
-     * @param integer $hostId
+     * @param int $hostId
      * @param string $hostName
-     * @param null|integer $serviceId
-     * @param integer $by_hg
+     * @param null|int $serviceId
+     * @param int $by_hg
      * @return void
      */
     public function generateFromServiceId(int $hostId, string $hostName, ?int $serviceId, $by_hg = 0)
@@ -259,10 +272,10 @@ class Service extends AbstractService
     /**
      * Set poller
      *
-     * @param integer $pollerId
+     * @param int $pollerId
      * @return void
      */
-    public function setPoller(int $pollerId)
+    public function setPoller(int $pollerId): void
     {
         $this->pollerId = $pollerId;
     }
@@ -270,8 +283,8 @@ class Service extends AbstractService
     /**
      * Reset object
      *
-     * @param boolean $resetParent
-     * @param boolean $createfile
+     * @param bool $resetParent
+     * @param bool $createfile
      * @return void
      */
     public function reset($resetParent = false, $createfile = false): void

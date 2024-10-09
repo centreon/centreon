@@ -33,7 +33,7 @@ use Core\Metric\Application\UseCase\FindMetricsByService\FindMetricsByServiceRes
 use Core\Metric\Domain\Model\Metric;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->metricRepository = $this->createMock(ReadMetricRepositoryInterface::class);
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->adminUser = (new Contact())->setAdmin(true)->setId(1);
@@ -59,7 +59,7 @@ beforeEach(function () {
     ];
 });
 
-it('should present a NotFoundResponse when no metrics could be found as admin', function () {
+it('should present a NotFoundResponse when no metrics could be found as admin', function (): void {
     $this->metricRepository
         ->expects($this->once())
         ->method('findByHostIdAndServiceId')
@@ -77,7 +77,7 @@ it('should present a NotFoundResponse when no metrics could be found as admin', 
     expect($presenter->data)->toBeInstanceOf(NotFoundResponse::class)->and($presenter->data->getMessage())->toBe('metrics not found');
 });
 
-it('should present a NotFoundResponse when no metrics could be found as non-admin', function () {
+it('should present a NotFoundResponse when no metrics could be found as non-admin', function (): void {
     $this->metricRepository
         ->expects($this->once())
         ->method('findByHostIdAndServiceIdAndAccessGroups')
@@ -95,7 +95,7 @@ it('should present a NotFoundResponse when no metrics could be found as non-admi
     expect($presenter->data)->toBeInstanceOf(NotFoundResponse::class)->and($presenter->data->getMessage())->toBe('metrics not found');
 });
 
-it('should present an ErrorResponse when an error occured as admin', function () {
+it('should present an ErrorResponse when an error occured as admin', function (): void {
     $this->metricRepository
         ->expects($this->once())
         ->method('findByHostIdAndServiceId')
@@ -113,7 +113,7 @@ it('should present an ErrorResponse when an error occured as admin', function ()
     expect($presenter->data)->toBeInstanceOf(ErrorResponse::class)->and($presenter->data->getMessage())->toBe('An error occured while finding metrics');
 });
 
-it('should present an ErrorResponse when an error occured as non-admin', function () {
+it('should present an ErrorResponse when an error occured as non-admin', function (): void {
     $this->metricRepository
         ->expects($this->once())
         ->method('findByHostIdAndServiceIdAndAccessGroups')
@@ -131,7 +131,7 @@ it('should present an ErrorResponse when an error occured as non-admin', functio
     expect($presenter->data)->toBeInstanceOf(ErrorResponse::class)->and($presenter->data->getMessage())->toBe('An error occured while finding metrics');
 });
 
-it('should present an FindMetricsByServiceResponse when metrics are correctly found as admin', function () {
+it('should present an FindMetricsByServiceResponse when metrics are correctly found as admin', function (): void {
     $this->metricRepository
         ->expects($this->once())
         ->method('findByHostIdAndServiceId')
@@ -165,7 +165,7 @@ it('should present an FindMetricsByServiceResponse when metrics are correctly fo
         ->and($presenter->data->metricsDto[1]->criticalLowThreshold)->toBe(50.0);
 });
 
-it('should present an FindMetricsByServiceResponse when metrics are correctly found as non-admin', function () {
+it('should present an FindMetricsByServiceResponse when metrics are correctly found as non-admin', function (): void {
     $this->metricRepository
         ->expects($this->once())
         ->method('findByHostIdAndServiceIdAndAccessGroups')

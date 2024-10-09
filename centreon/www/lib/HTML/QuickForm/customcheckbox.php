@@ -43,18 +43,12 @@ class HTML_QuickForm_customcheckbox extends HTML_QuickForm_checkbox
     public function toHtml()
     {
         $oldHtml = parent::toHtml();
-        $matches = array(
-            '{element}',
-            '{id}'
-        );
-        $replacements = array(
-            $oldHtml,
-            $this->getAttribute('id')
-        );
+        $matches = ['{element}', '{id}'];
+        $replacements = [$oldHtml, $this->getAttribute('id')];
         return str_replace($matches, $replacements, $this->checkboxTemplate);
     }
 
-    public function setCheckboxTemplate($checkboxTemplate)
+    public function setCheckboxTemplate($checkboxTemplate): void
     {
         $this->checkboxTemplate = $checkboxTemplate;
     }

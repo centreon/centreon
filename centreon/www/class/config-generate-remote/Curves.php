@@ -23,11 +23,21 @@ namespace ConfigGenerateRemote;
 use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
 
+/**
+ * Class
+ *
+ * @class Curves
+ * @package ConfigGenerateRemote
+ */
 class Curves extends AbstractObject
 {
+    /** @var array|null */
     private $curves = null;
+    /** @var string */
     protected $table = 'giv_components_template';
+    /** @var string */
     protected $generateFilename = 'giv_components_template.infile';
+    /** @var string */
     protected $attributesSelect = '
         compo_id,
         host_id,
@@ -57,6 +67,7 @@ class Curves extends AbstractObject
         default_tpl1,
         comment
     ';
+    /** @var string[] */
     protected $attributesWrite = [
         'compo_id',
         'host_id',
@@ -92,7 +103,7 @@ class Curves extends AbstractObject
      *
      * @return void
      */
-    private function getCurves()
+    private function getCurves(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT $this->attributesSelect
@@ -106,8 +117,9 @@ class Curves extends AbstractObject
      * Generate curves
      *
      * @return void
+     * @throws \Exception
      */
-    public function generateObjects()
+    public function generateObjects(): void
     {
         if (is_null($this->curves)) {
             $this->getCurves();

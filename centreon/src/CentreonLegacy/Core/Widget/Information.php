@@ -300,7 +300,7 @@ class Information
 
     public function getUpgradeableList()
     {
-        $list = empty($this->cachedWidgetsList) ? $this->getList() : $this->cachedWidgetsList;
+        $list = $this->cachedWidgetsList === [] ? $this->getList() : $this->cachedWidgetsList;
 
         return array_filter($list, function ($widget) {
             return $widget['upgradeable'];
@@ -314,7 +314,7 @@ class Information
 
     public function getInstallableList()
     {
-        $list = empty($this->cachedWidgetsList) ? $this->getList() : $this->cachedWidgetsList;
+        $list = $this->cachedWidgetsList === [] ? $this->getList() : $this->cachedWidgetsList;
 
         return array_filter($list, function ($widget) {
             return ! $widget['is_installed'];

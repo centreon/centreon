@@ -131,7 +131,7 @@ $stringUndetermined = _("Undetermined");
 
 // Getting service group start
 $reportingTimePeriod = getreportingTimePeriod();
-$stats = array();
+$stats = [];
 $stats = getLogInDbForServicesGroup(
     $servicegroupId,
     $startDate,
@@ -264,7 +264,7 @@ $res->bindValue(':startDate', $startDate, PDO::PARAM_INT);
 $res->bindValue(':endDate', $endDate, PDO::PARAM_INT);
 $res->execute();
 
-$statesTab = array("OK", "WARNING", "CRITICAL", "UNKNOWN");
+$statesTab = ["OK", "WARNING", "CRITICAL", "UNKNOWN"];
 while ($row = $res->fetch()) {
     $duration = $row["date_end"] - $row["date_start"];
 

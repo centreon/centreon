@@ -94,7 +94,7 @@ function testCmdExistence($name = null)
     }
 }
 
-function deleteCommandInDB($commands = array())
+function deleteCommandInDB($commands = [])
 {
     global $pearDB, $centreon;
 
@@ -107,7 +107,7 @@ function deleteCommandInDB($commands = array())
     }
 }
 
-function multipleCommandInDB($commands = array(), $nbrDup = array())
+function multipleCommandInDB($commands = [], $nbrDup = [])
 {
     global $pearDB, $centreon;
 
@@ -123,6 +123,9 @@ function multipleCommandInDB($commands = array(), $nbrDup = array())
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
                 $key2 == "command_name" ? ($command_name = $value2 = $value2 . "_" . $i) : null;
+                if ($key2 == "command_locked") {
+                    $value2 = "0"; // Duplicate a locked command to edit it
+                }
                 $val ? $val .= ($value2 != null ? (", '" . $pearDB->escape($value2) . "'")
                     : ", NULL") : $val .= ($value2 != null ? ("'" . $pearDB->escape($value2) . "'") : "NULL");
                 if ($key2 != "command_id") {
@@ -131,10 +134,11 @@ function multipleCommandInDB($commands = array(), $nbrDup = array())
                 if (isset($command_name)) {
                     $fields["command_name"] = $command_name;
                 }
+                $fields["command_locked"] = 0;
             }
 
             if (isset($command_name) && testCmdExistence($command_name)) {
-                $val ? $rq = "INSERT INTO `command` VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO `command` VALUES (" . $val . ")" : null;
                 $dbResult = $pearDB->query($rq);
 
                 /*
@@ -175,7 +179,7 @@ function updateCommandInDB($cmd_id = null)
  * @throws PDOException
  * @throws UnexpectedValueException
  */
-function updateCommand($cmd_id = null, $params = array())
+function updateCommand($cmd_id = null, $params = [])
 {
     global $form, $pearDB, $centreon, $isCloudPlatform;
 
@@ -183,12 +187,8 @@ function updateCommand($cmd_id = null, $params = array())
         return;
     }
 
-    $ret = array();
-    if (count($params)) {
-        $ret = $params;
-    } else {
-        $ret = $form->getSubmitValues();
-    }
+    $ret = [];
+    $ret = count($params) ? $params : $form->getSubmitValues();
 
     $ret["command_name"] = $centreon->checkIllegalChar($ret["command_name"]);
     if (!isset($ret['enable_shell'])) {
@@ -207,9 +207,7 @@ function updateCommand($cmd_id = null, $params = array())
         "WHERE `command_id` = :command_id";
 
     $ret["connectors"] = (isset($ret["connectors"]) && !empty($ret["connectors"])) ? $ret["connectors"] : null;
-    $ret["command_activate"]["command_activate"] = (isset($ret["command_activate"]["command_activate"]))
-            ? $ret["command_activate"]["command_activate"]
-            : null;
+    $ret["command_activate"]["command_activate"] ??= null;
 
     if (
         ($isCloudPlatform && !isset($ret['type'])) ||
@@ -242,13 +240,13 @@ function updateCommand($cmd_id = null, $params = array())
     $centreon->CentreonLogAction->insertLog("command", $cmd_id, $pearDB->escape($ret["command_name"]), "c", $fields);
 }
 
-function insertCommandInDB($ret = array())
+function insertCommandInDB($ret = [])
 {
     $cmd_id = insertCommand($ret);
     return ($cmd_id);
 }
 
-function insertCommand($ret = array())
+function insertCommand($ret = [])
 {
     global $form, $pearDB, $centreon, $isCloudPlatform;
 
@@ -310,27 +308,18 @@ function return_plugin($rep)
 {
     global $centreon;
 
-    $plugins = array();
-    $is_not_a_plugin = array(
-        "." => 1,
-        ".." => 1,
-        "oreon.conf" => 1,
-        "oreon.pm" => 1,
-        "utils.pm" => 1,
-        "negate" => 1,
-        "centreon.conf" => 1,
-        "centreon.pm" => 1
-    );
+    $plugins = [];
+    $is_not_a_plugin = ["." => 1, ".." => 1, "oreon.conf" => 1, "oreon.pm" => 1, "utils.pm" => 1, "negate" => 1, "centreon.conf" => 1, "centreon.pm" => 1];
     $handle[$rep] = opendir($rep);
     while (false != ($filename = readdir($handle[$rep]))) {
         if ($filename != "." && $filename != "..") {
             if (is_dir($rep . $filename)) {
-                $plg_tmp = return_plugin($rep . "/" . $filename, $handle[$rep]);
+                $plg_tmp = return_plugin($rep . "/" . $filename);
                 $plugins = array_merge($plugins, $plg_tmp);
                 unset($plg_tmp);
             } elseif (!isset($is_not_a_plugin[$filename]) &&
-                substr($filename, -1) != "~" &&
-                substr($filename, -1) != "#"
+                !str_ends_with($filename, "~") &&
+                !str_ends_with($filename, "#")
             ) {
                 $key = substr($rep . "/" . $filename, strlen($centreon->optGen["nagios_path_plugins"]));
                 $plugins[$key] = $key;
@@ -478,7 +467,7 @@ function insertMacrosDesc($cmd, $ret)
 {
     global $pearDB;
 
-    $arr = array("HOST" => "1", "SERVICE" => "2");
+    $arr = ["HOST" => "1", "SERVICE" => "2"];
     if (!count($ret)) {
         $ret = $form->getSubmitValues();
     }

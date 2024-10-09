@@ -40,7 +40,7 @@ use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
-use Utility\Interfaces\UUIDGeneratorInterface;
+use Symfony\Component\Yaml\Yaml;
 
 const DEFAULT_SCHEME = 'https';
 
@@ -164,7 +164,7 @@ function duplicateHostSecretsInVault(
         }
 
     // Get UUID from macro password if they match the vault path regex
-    } elseif (! empty($macroPasswords)) {
+    } elseif ($macroPasswords !== []) {
         foreach ($macroPasswords as $macroInfo) {
             if (str_starts_with($macroInfo['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN)) {
                 $vaultPath = $macroInfo['macroValue'];
@@ -183,7 +183,7 @@ function duplicateHostSecretsInVault(
         );
     }
 
-    if (! empty($hostSecretsFromVault)) {
+    if ($hostSecretsFromVault !== []) {
         $vaultPaths = $writeVaultRepository->upsert(null, $hostSecretsFromVault);
 
         // Store vault path for SNMP Community
@@ -192,7 +192,7 @@ function duplicateHostSecretsInVault(
         }
 
         // Store vault path for macros
-        if (! empty($macroPasswords)) {
+        if ($macroPasswords !== []) {
             foreach ($macroPasswords as  $macroId => $macroInfo) {
                 $macroPasswords[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
             }
@@ -246,7 +246,7 @@ function deleteResourceSecretsInVault(
     array $hostIds,
     array $serviceIds
 ): void {
-    if (! empty($hostIds)) {
+    if ($hostIds !== []) {
         $uuids = retrieveMultipleHostUuidsFromDatabase($hostIds);
         if (array_key_exists('host', $uuids)) {
             foreach ($uuids['host'] as $uuid) {
@@ -264,7 +264,7 @@ function deleteResourceSecretsInVault(
         }
     }
 
-    if (! empty($serviceIds)) {
+    if ($serviceIds !== []) {
         $uuids = retrieveMultipleServiceUuidsFromDatabase($serviceIds);
         foreach ($uuids as $uuid) {
             $writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
@@ -512,7 +512,7 @@ function updateHostSecretsInVaultFromMC(
         $hostSecretsFromVault
     );
 
-    if (! empty($updateHostPayload)) {
+    if ($updateHostPayload !== []) {
         $vaultPaths = $writeVaultRepository->upsert($uuid, $updateHostPayload);
         foreach ($macros as  $macroId => $macroInfo) {
             $macros[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
@@ -524,7 +524,7 @@ function updateHostSecretsInVaultFromMC(
         }
 
         // Store vault path for macros
-        if (! empty($macros)) {
+        if ($macros !== []) {
             updateOnDemandMacroHostTableWithVaultPath($pearDB, $macros);
         }
     }
@@ -622,7 +622,7 @@ function updateHostSecretsInVault(
         }
 
         // Store vault path for macros
-        if (! empty($macros)) {
+        if ($macros !== []) {
             updateOnDemandMacroHostTableWithVaultPath($pearDB, $macros);
         }
     }
@@ -739,11 +739,11 @@ function duplicateServiceSecretsInVault(
         );
     }
 
-    if (! empty($serviceSecretsFromVault)) {
+    if ($serviceSecretsFromVault !== []) {
         $vaultPaths = $writeVaultRepository->upsert(null, $serviceSecretsFromVault);
 
         // Store vault path for macros
-        if (! empty($macroPasswords)) {
+        if ($macroPasswords !== []) {
             foreach ($macroPasswords as  $macroId => $macroInfo) {
                 $macroPasswords[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
             }
@@ -908,7 +908,7 @@ function updateServiceSecretsInVaultFromMC(
         }
 
         // Store vault path for macros
-        if (! empty($macros)) {
+        if ($macros !== []) {
             updateOnDemandMacroServiceTableWithVaultPath($pearDB, $macros);
         }
     }
@@ -998,7 +998,7 @@ function updateServiceSecretsInVault(
             $macros[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
         }
         // Store vault path for macros
-        if (! empty($macros)) {
+        if ($macros !== []) {
             updateOnDemandMacroServiceTableWithVaultPath($pearDB, $macros);
         }
     }
@@ -1316,6 +1316,79 @@ function updateConfigFilesWithVaultPath($vaultPaths): void
         updateCentreonConfPmFile($vaultPaths);
         updateDatabaseYamlFile($vaultPaths);
     }
+}
+
+
+/**
+ * Migrate Gorgone API credentials to Vault and return the vault path.
+ *
+ * @param WriteVaultRepositoryInterface $writeVaultRepository
+ *
+ * @return array<string,string>
+ */
+function migrateGorgoneCredentialsToVault(WriteVaultRepositoryInterface $writeVaultRepository): array
+{
+    $writeVaultRepository->setCustomPath(AbstractVaultRepository::GORGONE_VAULT_PATH);
+    $gorgonePassword = retrieveGorgoneApiCredentialsFromConfigFile();
+    if (str_starts_with($gorgonePassword, VaultConfiguration::VAULT_PATH_PATTERN)) {
+        return [];
+    }
+
+    return $writeVaultRepository->upsert(null, [
+        VaultConfiguration::GORGONE_PASSWORD => $gorgonePassword,
+    ]);
+}
+
+/**
+ * Retrieve Gorgone API credentials from the configuration file.
+ *
+ * @return string
+ *
+ * @throws Exception
+ */
+function retrieveGorgoneApiCredentialsFromConfigFile(): string
+{
+    $filePath = '/etc/centreon-gorgone/config.d/31-centreon-api.yaml';
+
+    if (
+        ! file_exists($filePath)
+        || ($content = file_get_contents($filePath)) === false
+    ) {
+        throw new Exception('Unable to retrieve content of file: ' . $filePath);
+    }
+
+    $content = Yaml::parse($content);
+
+    return $content['gorgone']['tpapi'][0]['password']
+        ?? throw new Exception('Unable to retrieve Gorgone API password');
+}
+
+
+/**
+ * Update the Gorgone API configuration file with the Vault path.
+ *
+ * @param array<string,string> $vaultPaths the Vault paths of the Gorgone API credentials
+ *
+ * @throws Exception if the file cannot be read or updated
+ */
+function updateGorgoneApiFile(array $vaultPaths): void
+{
+    $filePath = '/etc/centreon-gorgone/config.d/31-centreon-api.yaml';
+
+    if (
+        ! file_exists($filePath)
+        || ($content = file_get_contents($filePath)) === false
+    ) {
+        throw new Exception('Unable to retrieve content of file: ' . $filePath);
+    }
+
+    $newContentYaml = preg_replace(
+        '/password: (.*)/',
+        'password: "' . $vaultPaths[VaultConfiguration::GORGONE_PASSWORD] . '"',
+        $content
+    );
+
+    file_put_contents($filePath, $newContentYaml) ?: throw new Exception('Unable to update file: ' . $filePath);
 }
 
 /**

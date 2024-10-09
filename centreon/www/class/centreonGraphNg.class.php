@@ -43,21 +43,20 @@ require_once __DIR__ . '/centreonSession.class.php';
 require_once __DIR__ . '/../include/common/common-Func.php';
 
 /**
- * Singleton Class for topological sorting
+ * Class
  *
- **/
+ * @class MetricUtils
+ * @description Singleton Class for topological sorting
+ */
 class MetricUtils
 {
+    /** @var MetricUtils|null */
     private static $instance = null;
 
     /**
-     * Constructor
-     *
-     * @return void
+     * MetricUtils constructor
      */
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     /**
      * Singleton create method
@@ -115,8 +114,8 @@ class MetricUtils
      */
     public function topologicalSort($data, $dependency)
     {
-        $order = array();
-        $preProcessing = array();
+        $order = [];
+        $preProcessing = [];
         $order = array_diff_key($data, $dependency);
         $data = array_diff_key($data, $order);
         foreach ($data as $i => $v) {
@@ -128,40 +127,76 @@ class MetricUtils
     }
 }
 
+/**
+ * Class
+ *
+ * @class CentreonGraphNg
+ */
 class CentreonGraphNg
 {
+    /** @var array */
+    public $listMetricsId = [];
+    /** @var array */
+    public $vmetrics = [];
+    /** @var false */
+    public $multipleServices = false;
+    /** @var */
     protected $db;
+    /** @var */
     protected $dbCs;
+    /** @var MetricUtils|null */
     protected $metricUtils;
 
+    /** @var */
     protected $rrdOptions;
-    protected $arguments;
+    /** @var array */
+    protected $arguments = [];
 
+    /** @var */
     protected $debug;
+    /** @var int */
     protected $userId;
+    /** @var */
     protected $generalOpt;
+    /** @var mixed */
     protected $dbPath;
+    /** @var mixed */
     protected $dbStatusPath;
+    /** @var null[] */
     protected $indexData = [
         'host_id' => null,
         'host_name' => null,
         'service_id' => null,
         'service_description' => null,
     ];
+    /** @var */
     protected $templateId;
-    protected $templateInformations;
-    protected $metrics;
-    protected $indexIds;
+    /** @var array */
+    protected $templateInformations = [];
+    /** @var array */
+    protected $metrics = [];
+    /** @var array */
+    protected $indexIds = [];
 
-    protected $dsDefault;
-    protected $colorCache;
-    protected $componentsDsCache;
-    protected $extraDatas;
-    protected $cacheAllMetrics;
-    protected $vnodes;
-    protected $vnodesDependencies;
-    protected $vmetricsOrder;
+    /** @var null */
+    protected $dsDefault = null;
+    /** @var null */
+    protected $colorCache = null;
+    /** @var null */
+    protected $componentsDsCache = null;
+    /** @var array */
+    protected $extraDatas = [];
+    /** @var array */
+    protected $cacheAllMetrics = [];
+    /** @var array */
+    protected $vnodes = [];
+    /** @var array */
+    protected $vnodesDependencies = [];
+    /** @var array */
+    protected $vmetricsOrder = [];
+    /** @var */
     protected $graphData;
+    /** @var */
     protected $rrdCachedOptions;
 
     /**
@@ -169,41 +204,22 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function initDatabase()
+    private function initDatabase(): void
     {
         $this->db = new CentreonDB(CentreonDB::LABEL_DB_CONFIGURATION);
         $this->dbCs = new CentreonDB(CentreonDB::LABEL_DB_REALTIME);
     }
 
     /**
-     * Constructor
+     * CentreonGraphNg constructor
      *
      * @param int $userId
-     *
-     * @return void
      */
     public function __construct($userId)
     {
         $this->initDatabase();
         $this->metricUtils = MetricUtils::getInstance();
-
-        $this->cacheAllMetrics = array();
-        $this->vnodes = array();
-        $this->vnodesDependencies = array();
-        $this->vmetricsOrder = array();
-
-        $this->arguments = array();
-        $this->indexIds = array();
-        $this->dsDefault = null;
-        $this->colorCache = null;
         $this->userId = $userId;
-        $this->componentsDsCache = null;
-        $this->listMetricsId = array();
-        $this->metrics = array();
-        $this->vmetrics = array();
-        $this->templateInformations = array();
-        $this->extraDatas = array();
-        $this->multipleServices = false;
 
         $stmt = $this->dbCs->prepare("SELECT RRDdatabase_path, RRDdatabase_status_path FROM config");
         $stmt->execute();
@@ -237,7 +253,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    public function setMultipleServices($multiple)
+    public function setMultipleServices($multiple): void
     {
         $this->multipleServices = $multiple;
     }
@@ -274,7 +290,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    public function init()
+    public function init(): void
     {
         $this->setRRDOption("imgformat", "JSONTIME");
         if (isset($this->templateInformations["vertical_label"])) {
@@ -395,7 +411,7 @@ class CentreonGraphNg
             if (!isset($metric['ds_data']['ds_name']) || !preg_match('/DS/', $metric['ds_data']['ds_name'], $matches)) {
                 $legend = $this->cleanupDsNameForLegend($metric['metric']);
             } else {
-                $legend = (isset($metric['ds_data']['ds_name']) ? $metric['ds_data']['ds_name'] : "");
+                $legend = ($metric['ds_data']['ds_name'] ?? "");
             }
             $legend = str_replace(":", "\:", $legend);
         }
@@ -406,11 +422,11 @@ class CentreonGraphNg
     /**
      * Manage Virtual Metrics
      *
-     * @return void
+     * @return int|void
      */
     private function manageMetrics()
     {
-        $this->vmetricsOrder = array();
+        $this->vmetricsOrder = [];
 
         if (count($this->vmetrics) == 0) {
             return 0;
@@ -443,7 +459,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function addRealMetric($metric, $hidden = null)
+    private function addRealMetric($metric, $hidden = null): void
     {
         if (!$this->CheckDBAvailability($metric["metric_id"])) {
             return ;
@@ -459,17 +475,7 @@ class CentreonGraphNg
          */
         $this->listMetricsId[] = $metric['metric_id'];
 
-        $this->metrics[$metric['metric_id']] = array(
-            'index_id' => $metric['index_id'],
-            'metric_id' => $metric['metric_id'],
-            'metric' => $metric['metric_name'],
-            'metric_legend' => $this->cleanupDsNameForLegend($metric['metric_name']),
-            'unit' => $metric['unit_name'],
-            'hidden' => 0,
-            'min' => $metric['min'],
-            'max' => $metric['max'],
-            'virtual' => 0,
-        );
+        $this->metrics[$metric['metric_id']] = ['index_id' => $metric['index_id'], 'metric_id' => $metric['metric_id'], 'metric' => $metric['metric_name'], 'metric_legend' => $this->cleanupDsNameForLegend($metric['metric_name']), 'unit' => $metric['unit_name'], 'hidden' => 0, 'min' => $metric['min'], 'max' => $metric['max'], 'virtual' => 0];
 
         $this->cacheAllMetrics['r:' . $metric["metric_name"]] = $metric["metric_id"];
 
@@ -521,26 +527,14 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function addVirtualMetric($vmetric, $hidden = null)
+    private function addVirtualMetric($vmetric, $hidden = null): void
     {
         if (isset($this->vmetrics[$vmetric['vmetric_id']])) {
             return ;
         }
 
         $this->log("found vmetric " . $vmetric["vmetric_id"]);
-        $this->vmetrics[$vmetric['vmetric_id']] = array(
-            'index_id' => $vmetric['index_id'],
-            'vmetric_id' => $vmetric['vmetric_id'],
-            'metric' => $vmetric['vmetric_name'],
-            'metric_legend' => $vmetric['vmetric_name'],
-            'unit' => $vmetric['unit_name'],
-            'hidden' => isset($vmetric['hidden']) && $vmetric['hidden'] == 1 ? 1 : 0,
-            'warn' => $vmetric['warn'],
-            'crit' => $vmetric['crit'],
-            'def_type' => $vmetric['def_type'] == 1 ? 'VDEF' : 'CDEF',
-            'rpn_function' => $vmetric['rpn_function'],
-            'virtual' => 1,
-        );
+        $this->vmetrics[$vmetric['vmetric_id']] = ['index_id' => $vmetric['index_id'], 'vmetric_id' => $vmetric['vmetric_id'], 'metric' => $vmetric['vmetric_name'], 'metric_legend' => $vmetric['vmetric_name'], 'unit' => $vmetric['unit_name'], 'hidden' => isset($vmetric['hidden']) && $vmetric['hidden'] == 1 ? 1 : 0, 'warn' => $vmetric['warn'], 'crit' => $vmetric['crit'], 'def_type' => $vmetric['def_type'] == 1 ? 'VDEF' : 'CDEF', 'rpn_function' => $vmetric['rpn_function'], 'virtual' => 1];
 
         if (!is_null($hidden)) {
             $this->vmetrics[$vmetric['vmetric_id']]['hidden'] = $hidden;
@@ -570,7 +564,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    public function addServiceMetrics($hostId, $serviceId)
+    public function addServiceMetrics($hostId, $serviceId): void
     {
         $indexId = null;
         $stmt = $this->dbCs->prepare(
@@ -668,7 +662,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    public function addMetric($metricId, $isVirtual = 0)
+    public function addMetric($metricId, $isVirtual = 0): void
     {
         if ($isVirtual == 0) {
             $stmt = $this->dbCs->prepare(
@@ -728,9 +722,9 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function initCurveList()
+    private function initCurveList(): void
     {
-        uasort($this->metrics, array("CentreonGraphNg", "cmpmultiple"));
+        uasort($this->metrics, ["CentreonGraphNg", "cmpmultiple"]);
 
         foreach ($this->metrics as $metricId => &$tm) {
             if (isset($tm['ds_data']['ds_invert']) && $tm['ds_data']['ds_invert']) {
@@ -757,7 +751,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function switchRRDLimitOption($lower = null, $upper = null)
+    private function switchRRDLimitOption($lower = null, $upper = null): void
     {
         if (is_null($lower)) {
             unset($this->rrdOptions["upper-limit"]);
@@ -784,7 +778,7 @@ class CentreonGraphNg
      */
     protected function cleanupDsNameForLegend($dsname)
     {
-        $newDsName = str_replace(array("'", "\\"), array(" ", "\\\\"), $dsname);
+        $newDsName = str_replace(["'", "\\"], [" ", "\\\\"], $dsname);
         return $newDsName;
     }
 
@@ -797,7 +791,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function legendAddPrint($metric, $metricId, $isVirtual = 0)
+    private function legendAddPrint($metric, $metricId, $isVirtual = 0): void
     {
         $vdefs = "";
         $prints = "";
@@ -807,8 +801,7 @@ class CentreonGraphNg
         }
 
         foreach (
-            array("last" => "LAST", "min" => "MINIMUM", "max" => "MAXIMUM",
-                       "average" => "AVERAGE", "total" => "TOTAL") as $name => $cf
+            ["last" => "LAST", "min" => "MINIMUM", "max" => "MAXIMUM", "average" => "AVERAGE", "total" => "TOTAL"] as $name => $cf
         ) {
             if (!$metric['ds_data']['ds_' . $name]) {
                 continue;
@@ -848,7 +841,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    public function createLegend()
+    public function createLegend(): void
     {
         foreach ($this->metrics as $metricId => $tm) {
             if ($tm['hidden'] == 1) {
@@ -875,7 +868,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function getDefaultGraphTemplate()
+    private function getDefaultGraphTemplate(): void
     {
         $templateId = $this->getServiceGraphID();
         if (!is_null($templateId) && $templateId != "") {
@@ -913,7 +906,7 @@ class CentreonGraphNg
             LEFT JOIN extended_service_information esi
                 ON esi.service_service_id = service_id
                 WHERE service_id = :service_id");
-        $tab = array();
+        $tab = [];
         while (1) {
             $stmt->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
             $stmt->execute();
@@ -942,7 +935,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function getIndexData()
+    private function getIndexData(): void
     {
         if ($this->multipleServices) {
             return ;
@@ -993,7 +986,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    public function setTemplate($templateId = null)
+    public function setTemplate($templateId = null): void
     {
         if ($this->multipleServices) {
             return ;
@@ -1026,7 +1019,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    public function addArgument($arg)
+    public function addArgument($arg): void
     {
         $this->arguments[] = $arg;
     }
@@ -1039,9 +1032,9 @@ class CentreonGraphNg
      *
      * @return void
      */
-    public function setRRDOption($name, $value = null)
+    public function setRRDOption($name, $value = null): void
     {
-        if ($value !== null && strpos($value, " ") !== false) {
+        if ($value !== null && str_contains($value, " ")) {
             $value = "'" . $value . "'";
         }
         $this->rrdOptions[$name] = $value;
@@ -1054,16 +1047,16 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function formatByMetrics($rrdData)
+    private function formatByMetrics($rrdData): void
     {
         $this->graphData['times'] = [];
 
-        $size = isset($rrdData['data']) && (is_array($rrdData['data']) || $rrdData['data'] instanceof \Countable)
+        $size = isset($rrdData['data']) && (is_countable($rrdData['data']))
             ? count($rrdData['data'])
             : 0;
 
         $gprintsSize = isset($rrdData['meta']['gprints'])
-            && (is_array($rrdData['meta']['gprints']) || $rrdData['meta']['gprints'] instanceof \Countable)
+            && (is_countable($rrdData['meta']['gprints']))
             ? count($rrdData['meta']['gprints'])
             : 0;
 
@@ -1075,15 +1068,11 @@ class CentreonGraphNg
         $gprintsPos = 0;
 
         foreach ($this->graphData['metrics'] as &$metric) {
-            $metric['data'] = array();
-            $metric['prints'] = array();
+            $metric['data'] = [];
+            $metric['prints'] = [];
 
             $insert = 0;
-            if ($metric['virtual'] == 0) {
-                $metricFullname = 'v' . $metric['metric_id'];
-            } else {
-                $metricFullname = 'vv' . $metric['vmetric_id'];
-            }
+            $metricFullname = $metric['virtual'] == 0 ? 'v' . $metric['metric_id'] : 'vv' . $metric['vmetric_id'];
 
             $metric['last_value'] = null;
             $metric['minimum_value'] = null;
@@ -1178,15 +1167,11 @@ class CentreonGraphNg
         $this->log($commandLine);
 
         if (is_writable($this->generalOpt['debug_path']['value'])) {
-            $stderr = array('file', $this->generalOpt['debug_path']['value'] . '/rrdtool.log', 'a');
+            $stderr = ['file', $this->generalOpt['debug_path']['value'] . '/rrdtool.log', 'a'];
         } else {
-            $stderr = array('pipe', 'a');
+            $stderr = ['pipe', 'a'];
         }
-        $descriptorspec = array(
-            0 => array("pipe", "r"),
-            1 => array("pipe", "w"),
-            2 => $stderr
-        );
+        $descriptorspec = [0 => ["pipe", "r"], 1 => ["pipe", "w"], 2 => $stderr];
 
         $process = proc_open(
             $this->generalOpt['rrdtool_path_bin']['value'] . " - ",
@@ -1196,10 +1181,7 @@ class CentreonGraphNg
             null
         );
         $this->extraDatas['multiple_services'] = $this->multipleServices;
-        $this->graphData = array(
-            'global' => $this->extraDatas,
-            'metrics' => []
-        );
+        $this->graphData = ['global' => $this->extraDatas, 'metrics' => []];
         foreach ($this->metrics as $metric) {
             if ($metric['hidden'] == 1) {
                 continue;
@@ -1247,7 +1229,7 @@ class CentreonGraphNg
                 return htmlentities($defaultValue, ENT_QUOTES, "UTF-8");
             }
         }
-    }
+    } // FIXME return '' ??
 
     /**
      * Get curve color
@@ -1295,43 +1277,7 @@ class CentreonGraphNg
      */
     public function getRandomWebColor()
     {
-        $webSafeColors = array('#000033', '#000066', '#000099', '#0000cc',
-            '#0000ff', '#003300', '#003333', '#003366', '#003399', '#0033cc',
-            '#0033ff', '#006600', '#006633', '#006666', '#006699', '#0066cc',
-            '#0066ff', '#009900', '#009933', '#009966', '#009999', '#0099cc',
-            '#0099ff', '#00cc00', '#00cc33', '#00cc66', '#00cc99', '#00cccc',
-            '#00ccff', '#00ff00', '#00ff33', '#00ff66', '#00ff99', '#00ffcc',
-            '#00ffff', '#330000', '#330033', '#330066', '#330099', '#3300cc',
-            '#3300ff', '#333300', '#333333', '#333366', '#333399', '#3333cc',
-            '#3333ff', '#336600', '#336633', '#336666', '#336699', '#3366cc',
-            '#3366ff', '#339900', '#339933', '#339966', '#339999', '#3399cc',
-            '#3399ff', '#33cc00', '#33cc33', '#33cc66', '#33cc99', '#33cccc',
-            '#33ccff', '#33ff00', '#33ff33', '#33ff66', '#33ff99', '#33ffcc',
-            '#33ffff', '#660000', '#660033', '#660066', '#660099', '#6600cc',
-            '#6600ff', '#663300', '#663333', '#663366', '#663399', '#6633cc',
-            '#6633ff', '#666600', '#666633', '#666666', '#666699', '#6666cc',
-            '#6666ff', '#669900', '#669933', '#669966', '#669999', '#6699cc',
-            '#6699ff', '#66cc00', '#66cc33', '#66cc66', '#66cc99', '#66cccc',
-            '#66ccff', '#66ff00', '#66ff33', '#66ff66', '#66ff99', '#66ffcc',
-            '#66ffff', '#990000', '#990033', '#990066', '#990099', '#9900cc',
-            '#9900ff', '#993300', '#993333', '#993366', '#993399', '#9933cc',
-            '#9933ff', '#996600', '#996633', '#996666', '#996699', '#9966cc',
-            '#9966ff', '#999900', '#999933', '#999966', '#999999', '#9999cc',
-            '#9999ff', '#99cc00', '#99cc33', '#99cc66', '#99cc99', '#99cccc',
-            '#99ccff', '#99ff00', '#99ff33', '#99ff66', '#99ff99', '#99ffcc',
-            '#99ffff', '#cc0000', '#cc0033', '#cc0066', '#cc0099', '#cc00cc',
-            '#cc00ff', '#cc3300', '#cc3333', '#cc3366', '#cc3399', '#cc33cc',
-            '#cc33ff', '#cc6600', '#cc6633', '#cc6666', '#cc6699', '#cc66cc',
-            '#cc66ff', '#cc9900', '#cc9933', '#cc9966', '#cc9999', '#cc99cc',
-            '#cc99ff', '#cccc00', '#cccc33', '#cccc66', '#cccc99', '#cccccc',
-            '#ccccff', '#ccff00', '#ccff33', '#ccff66', '#ccff99', '#ccffcc',
-            '#ccffff', '#ff0000', '#ff0033', '#ff0066', '#ff0099', '#ff00cc',
-            '#ff00ff', '#ff3300', '#ff3333', '#ff3366', '#ff3399', '#ff33cc',
-            '#ff33ff', '#ff6600', '#ff6633', '#ff6666', '#ff6699', '#ff66cc',
-            '#ff66ff', '#ff9900', '#ff9933', '#ff9966', '#ff9999', '#ff99cc',
-            '#ff99ff', '#ffcc00', '#ffcc33', '#ffcc66', '#ffcc99', '#ffcccc',
-            '#ffccff'
-        );
+        $webSafeColors = ['#000033', '#000066', '#000099', '#0000cc', '#0000ff', '#003300', '#003333', '#003366', '#003399', '#0033cc', '#0033ff', '#006600', '#006633', '#006666', '#006699', '#0066cc', '#0066ff', '#009900', '#009933', '#009966', '#009999', '#0099cc', '#0099ff', '#00cc00', '#00cc33', '#00cc66', '#00cc99', '#00cccc', '#00ccff', '#00ff00', '#00ff33', '#00ff66', '#00ff99', '#00ffcc', '#00ffff', '#330000', '#330033', '#330066', '#330099', '#3300cc', '#3300ff', '#333300', '#333333', '#333366', '#333399', '#3333cc', '#3333ff', '#336600', '#336633', '#336666', '#336699', '#3366cc', '#3366ff', '#339900', '#339933', '#339966', '#339999', '#3399cc', '#3399ff', '#33cc00', '#33cc33', '#33cc66', '#33cc99', '#33cccc', '#33ccff', '#33ff00', '#33ff33', '#33ff66', '#33ff99', '#33ffcc', '#33ffff', '#660000', '#660033', '#660066', '#660099', '#6600cc', '#6600ff', '#663300', '#663333', '#663366', '#663399', '#6633cc', '#6633ff', '#666600', '#666633', '#666666', '#666699', '#6666cc', '#6666ff', '#669900', '#669933', '#669966', '#669999', '#6699cc', '#6699ff', '#66cc00', '#66cc33', '#66cc66', '#66cc99', '#66cccc', '#66ccff', '#66ff00', '#66ff33', '#66ff66', '#66ff99', '#66ffcc', '#66ffff', '#990000', '#990033', '#990066', '#990099', '#9900cc', '#9900ff', '#993300', '#993333', '#993366', '#993399', '#9933cc', '#9933ff', '#996600', '#996633', '#996666', '#996699', '#9966cc', '#9966ff', '#999900', '#999933', '#999966', '#999999', '#9999cc', '#9999ff', '#99cc00', '#99cc33', '#99cc66', '#99cc99', '#99cccc', '#99ccff', '#99ff00', '#99ff33', '#99ff66', '#99ff99', '#99ffcc', '#99ffff', '#cc0000', '#cc0033', '#cc0066', '#cc0099', '#cc00cc', '#cc00ff', '#cc3300', '#cc3333', '#cc3366', '#cc3399', '#cc33cc', '#cc33ff', '#cc6600', '#cc6633', '#cc6666', '#cc6699', '#cc66cc', '#cc66ff', '#cc9900', '#cc9933', '#cc9966', '#cc9999', '#cc99cc', '#cc99ff', '#cccc00', '#cccc33', '#cccc66', '#cccc99', '#cccccc', '#ccccff', '#ccff00', '#ccff33', '#ccff66', '#ccff99', '#ccffcc', '#ccffff', '#ff0000', '#ff0033', '#ff0066', '#ff0099', '#ff00cc', '#ff00ff', '#ff3300', '#ff3333', '#ff3366', '#ff3399', '#ff33cc', '#ff33ff', '#ff6600', '#ff6633', '#ff6666', '#ff6699', '#ff66cc', '#ff66ff', '#ff9900', '#ff9933', '#ff9966', '#ff9999', '#ff99cc', '#ff99ff', '#ffcc00', '#ffcc33', '#ffcc66', '#ffcc99', '#ffcccc', '#ffccff'];
         return $webSafeColors[rand(0, sizeof($webSafeColors) - 1)];
     }
 
@@ -1365,7 +1311,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function log($message)
+    private function log($message): void
     {
         if (
             $this->generalOpt['debug_rrdtool']['value'] &&
@@ -1501,7 +1447,7 @@ class CentreonGraphNg
      *
      * @return void
      */
-    private function addIndexId($indexId)
+    private function addIndexId($indexId): void
     {
         if (!isset($this->indexIds[$indexId])) {
             $this->indexIds[$indexId] = 1;

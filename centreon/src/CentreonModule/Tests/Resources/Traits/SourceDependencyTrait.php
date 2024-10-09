@@ -74,7 +74,7 @@ trait SourceDependencyTrait
                 // mock remove to dump moduleName and moduleId
                 $service
                     ->method('remove')
-                    ->will($this->returnCallback(function () use ($moduleName, $moduleId) {
+                    ->will($this->returnCallback(function () use ($moduleName, $moduleId): void {
                         if ($moduleName !== ModuleSourceTest::$moduleName) {
                             throw new \Exception($moduleName, (int) $moduleId);
                         }

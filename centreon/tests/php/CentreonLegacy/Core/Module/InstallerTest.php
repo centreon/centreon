@@ -36,26 +36,17 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
 
         $this->db = new CentreonDB();
 
-        $configuration = array(
-            'name' => 'MyModule',
-            'rname' => 'MyModule',
-            'mod_release' => '1.0.0',
-            'is_removeable' => 1,
-            'infos' => 'my module for unit test',
-            'author' => 'unit test',
-            'svc_tools' => null,
-            'host_tools' => null
-        );
-        $this->information = $this->getMockBuilder('CentreonLegacy\Core\Module\Information')
+        $configuration = ['name' => 'MyModule', 'rname' => 'MyModule', 'mod_release' => '1.0.0', 'is_removeable' => 1, 'infos' => 'my module for unit test', 'author' => 'unit test', 'svc_tools' => null, 'host_tools' => null];
+        $this->information = $this->getMockBuilder(\CentreonLegacy\Core\Module\Information::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(array('getConfiguration'))
+            ->onlyMethods(['getConfiguration'])
             ->getMock();
 
         $this->information->expects($this->any())
             ->method('getConfiguration')
             ->willReturn($configuration);
 
-        $this->utils = $this->getMockBuilder('CentreonLegacy\Core\Utils\Utils')
+        $this->utils = $this->getMockBuilder(\CentreonLegacy\Core\Utils\Utils::class)
             ->disableOriginalConstructor()
             ->getMock();
     }
@@ -66,11 +57,11 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
         $this->container = null;
     }
 
-    public function testInstall()
+    public function testInstall(): void
     {
-        $filesystem = $this->getMockBuilder('\Symfony\Component\Filesystem\Filesystem')
+        $filesystem = $this->getMockBuilder(\Symfony\Component\Filesystem\Filesystem::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(array('exists'))
+            ->onlyMethods(['exists'])
             ->getMock();
         $filesystem->expects($this->any())
             ->method('exists')
@@ -84,11 +75,11 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
             ':svc_tools , :host_tools )';
         $this->db->addResultSet(
             $query,
-            array()
+            []
         );
         $this->db->addResultSet(
             'SELECT MAX(id) as id FROM modules_informations',
-            array(array('id' => 1))
+            [['id' => 1]]
         );
 
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
