@@ -1303,7 +1303,11 @@ function install_central() {
 		echo $timezoneName;
 	' 2>/dev/null)
 	if [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
-		echo "date.timezone = $timezone" >> /etc/php/8.1/mods-available/centreon.ini
+		if [[ "$version" =~ ^24\.1[0-2]$ ]]; then
+			echo "date.timezone = $timezone" >> /etc/php/8.1/mods-available/centreon.ini
+		else
+			echo "date.timezone = $timezone" >> /etc/php/8.2/mods-available/centreon.ini
+		fi
 	else
 		echo "date.timezone = $timezone" >> $PHP_ETC/50-centreon.ini
 	fi
