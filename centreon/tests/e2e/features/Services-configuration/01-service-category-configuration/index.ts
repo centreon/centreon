@@ -86,7 +86,6 @@ When("the user duplicate a service category", () => {
        rootItemNumber: 3,
        subMenu: "Services",
   });
-  cy.on("window:confirm", () => true);
   cy.get("iframe#main-content")
     .its("0.contentDocument.body")
     .find("table tbody")
