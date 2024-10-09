@@ -213,7 +213,8 @@ describe('Graph Widget', () => {
     initializeComponent({});
 
     cy.waitForRequest('@getLineChart').then(({ request }) => {
-      expect(request.url.search).to.include('metric_names=[cpu,cpu%20AVG]');
+      expect(request.url.search).to.include('metric_names[]=cpu');
+      expect(request.url.search).to.include('metric_names[]=cpu%20AVG');
       expect(request.url.search).to.include(
         'search=%7B%22%24and%22%3A%5B%7B%22hostgroup.id%22%3A%7B%22%24in%22%3A%5B1%5D%7D%7D%5D%7D'
       );
