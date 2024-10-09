@@ -8,6 +8,7 @@ import { searchAtom } from '../atom';
 import { labelClearFilter, labelSearch } from '../translatedLabels';
 import { useActionsStyles } from './useActionsStyles';
 
+
 export const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
   const { t } = useTranslation();
 
