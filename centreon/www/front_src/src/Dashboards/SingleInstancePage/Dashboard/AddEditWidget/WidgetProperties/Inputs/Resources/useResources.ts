@@ -175,7 +175,7 @@ const getAdditionalQueryParameters = (
     name: 'only_with_performance_data',
     value: equals(resourceType, WidgetResourceType.host)
       ? false
-      : false
+      : onlyWithPerformanceData
   },
   {
     name: 'limit',
