@@ -20,7 +20,8 @@ apt-get update
 
 apt-get install -y /tmp/packages-centreon/centreon-*.deb
 
-echo "date.timezone = Europe/Paris" >> /etc/php/8.2/mods-available/centreon.ini
+sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php/8.2/mods-available/timezone.ini
+phpenmod -v 8.2 timezone
 
 touch /var/log/php8.2-fpm-centreon-error.log
 chown www-data:www-data /var/log/php8.2-fpm-centreon-error.log
