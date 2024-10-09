@@ -16,13 +16,9 @@ import {
   DesktopDateTimePicker,
   LocalizationProvider
 } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
-import {
-  Dialog,
-  SelectField,
-  TextField,
-  useDateTimePickerAdapter
-} from '@centreon/ui';
+import { Dialog, SelectField, TextField } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import type { Resource } from '../../../models';
@@ -75,9 +71,7 @@ const DialogDowntime = ({
 
   const { getDowntimeDeniedTypeAlert, canDowntimeServices } = useAclQuery();
 
-  const { locale } = useAtomValue(userAtom);
-
-  const { Adapter } = useDateTimePickerAdapter();
+  const { locale, timezone } = useAtomValue(userAtom);
 
   const open = resources.length > 0;
 
@@ -113,7 +107,7 @@ const DialogDowntime = ({
     >
       <LocalizationProvider
         adapterLocale={locale.substring(0, 2)}
-        dateAdapter={Adapter}
+        dateAdapter={AdapterDayjs}
       >
         {deniedTypeAlert && <Alert severity="warning">{deniedTypeAlert}</Alert>}
         <Stack spacing={2}>
@@ -130,6 +124,7 @@ const DialogDowntime = ({
                   'aria-label': t(labelStartTime) as string
                 }
               }}
+              timezone={timezone}
               value={dayjs(values.startTime)}
               onChange={changeTime('startTime')}
             />
@@ -140,9 +135,11 @@ const DialogDowntime = ({
                   'aria-label': t(labelEndTime) as string
                 }
               }}
+              timezone={timezone}
               value={dayjs(values.endTime)}
               onChange={changeTime('endTime')}
             />
+
             {isNil(errors?.startTime) ? (
               <div />
             ) : (

@@ -1,49 +1,86 @@
+import { renderHook } from '@testing-library/react-hooks/dom';
+import { Provider, createStore, useAtomValue } from 'jotai';
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import * as Ramda from 'ramda';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { renderHook } from '@testing-library/react-hooks/dom';
-import { useAtomValue, Provider, createStore } from 'jotai';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import {
   ListingVariant,
-  userAtom,
-  platformFeaturesAtom
+  aclAtom,
+  platformFeaturesAtom,
+  userAtom
 } from '@centreon/ui-context';
 
+import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
+import useDetails from '../Details/useDetails';
+import useFilter from '../Filter/useFilter';
 import { Visualization } from '../models';
 import {
-  labelInDowntime,
   labelAcknowledged,
-  labelViewByService,
   labelAll,
-  labelViewByHost,
+  labelCancel,
   labelChecksDisabled,
-  labelOnlyPassiveChecksEnabled
+  labelDowntime,
+  labelInDowntime,
+  labelOnlyPassiveChecksEnabled,
+  labelStartTime,
+  labelViewByHost,
+  labelViewByService
 } from '../translatedLabels';
-import useDetails from '../Details/useDetails';
-import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
-import useFilter from '../Filter/useFilter';
 
 import {
   defaultSelectedColumnIds,
   defaultSelectedColumnIdsforViewByHost
 } from './columns';
-import useLoadDetails from './useLoadResources/useLoadDetails';
-import {
-  columnToSort,
-  getPlatformFeatures,
-  fakeData,
-  retrievedListingWithCriticalResources,
-  retrievedListingByHosts,
-  retrievedListing,
-  entities,
-  columns
-} from './testUtils';
 import { selectedColumnIdsAtom } from './listingAtoms';
+import {
+  acls,
+  columnToSort,
+  columns,
+  entities,
+  fakeData,
+  getPlatformFeatures,
+  retrievedListing,
+  retrievedListingByHosts,
+  retrievedListingWithCriticalResources
+} from './testUtils';
+import useLoadDetails from './useLoadResources/useLoadDetails';
 
 import Listing from '.';
+
+const configureUserAtomViewMode = (
+  listingVariant: ListingVariant = ListingVariant.compact
+): void => {
+  const userData = renderHook(() => useAtomValue(userAtom));
+
+  userData.result.current.timezone = 'Europe/Paris';
+  userData.result.current.locale = 'en_US';
+  userData.result.current.user_interface_density = listingVariant;
+};
+
+const openCalendar = (label): void => {
+  cy.findByLabelText(label)
+    .find('input')
+    .then(($input) => {
+      if ($input.attr('readonly')) {
+        cy.wrap($input).click();
+      } else {
+        cy.findByLabelText(label).findByRole('button').click();
+      }
+    });
+};
+
+before(() => {
+  configureUserAtomViewMode();
+});
+
+const store = createStore();
+
+store.set(selectedVisualizationAtom, Visualization.All);
+store.set(platformFeaturesAtom, getPlatformFeatures({}));
+store.set(aclAtom, acls);
 
 const ListingTest = (): JSX.Element => {
   useFilter();
@@ -57,11 +94,6 @@ const ListingTest = (): JSX.Element => {
   );
 };
 
-const store = createStore();
-
-store.set(selectedVisualizationAtom, Visualization.All);
-store.set(platformFeaturesAtom, getPlatformFeatures({}));
-
 const ListingTestWithJotai = (): JSX.Element => (
   <Provider store={store}>
     <TestQueryProvider>
@@ -69,20 +101,6 @@ const ListingTestWithJotai = (): JSX.Element => (
     </TestQueryProvider>
   </Provider>
 );
-
-const configureUserAtomViewMode = (
-  listingVariant: ListingVariant = ListingVariant.compact
-): void => {
-  const userData = renderHook(() => useAtomValue(userAtom));
-
-  userData.result.current.timezone = 'Europe/Paris';
-  userData.result.current.locale = 'en_US';
-  userData.result.current.user_interface_density = listingVariant;
-};
-
-before(() => {
-  configureUserAtomViewMode();
-});
 
 const interceptRequestsAndMountBeforeEach = (
   interceptCriticalResources = false
@@ -770,5 +788,69 @@ describe('Checks icon', () => {
       cy.findByTestId(testId).should('be.visible');
       cy.makeSnapshot(`displays the check icon ${iconTitle} when ${condition}`);
     });
+  });
+});
+
+describe('downtime picker', () => {
+  const now = new Date(Date.UTC(2024, 6, 27, 4, 4, 33));
+  const timezone = 'UTC';
+  const expectedInitialInputValue = '07/27/2024 04:04 AM';
+  const expectedFinalInputValue = '07/20/2024 04:04 AM';
+
+  beforeEach(() => {
+    interceptRequestsAndMountBeforeEach();
+
+    cy.waitFiltersAndListingRequests();
+    cy.clock(now);
+  });
+
+  it('checks the datepicker in downtime when selecting a date', () => {
+    const userData = renderHook(() => useAtomValue(userAtom));
+
+    userData.result.current.timezone = timezone;
+
+    cy.findByLabelText('Select row 4').trigger('mouseover');
+    cy.findByTestId('Set downtime on E4').click();
+
+    cy.contains('Downtime set by');
+    cy.contains(labelCancel);
+    cy.contains(labelDowntime);
+
+    cy.findByLabelText(labelStartTime)
+      .find('input')
+      .should('have.value', expectedInitialInputValue);
+
+    openCalendar(labelStartTime);
+
+    cy.findByRole('gridcell', { name: '27' }).should(
+      'have.attr',
+      'aria-selected',
+      'true'
+    );
+
+    cy.findByRole('gridcell', { name: '20' }).click({
+      waitForAnimations: false
+    });
+
+    cy.findByRole('button', { name: 'OK' }).click({ waitForAnimations: false });
+
+    cy.findByLabelText(labelStartTime)
+      .find('input')
+      .should('have.value', expectedFinalInputValue);
+
+    openCalendar(labelStartTime);
+
+    cy.findByRole('gridcell', { name: '20' }).should(
+      'have.attr',
+      'aria-selected',
+      'true'
+    );
+    cy.findByRole('gridcell', { name: '27' }).should(
+      'have.attr',
+      'aria-current',
+      'date'
+    );
+    cy.makeSnapshot();
+    cy.findByRole('button', { name: 'OK' }).click({ waitForAnimations: false });
   });
 });
