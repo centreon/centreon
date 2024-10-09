@@ -71,7 +71,7 @@ services:
       dockerfile: vault/Dockerfile
     volumes:
       - shared-volume:/tmp/shared-volume
-    image: hashicorp/vault:latest
+    image: myvault:latest
     env_file:
       - .env
     ports: ["8200"]
