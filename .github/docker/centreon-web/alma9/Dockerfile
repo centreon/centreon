@@ -1,7 +1,7 @@
-ARG REGISTRY_URL
-ARG VERSION
+ARG REGISTRY_URL=docker.centreon.com/centreon
+ARG FROM_IMAGE_VERSION=ARG FROM_IMAGE_VERSION=MON-16387-create-hashicorp-vault-container-dev-24.04.x
 
-FROM ${REGISTRY_URL}/centreon-web-dependencies-alma9:${VERSION}
+FROM ${REGISTRY_URL}/centreon-web-dependencies-alma9:${FROM_IMAGE_VERSION}
 
 ARG VERSION
 ARG MYDUMPER_VERSION

@@ -3,10 +3,13 @@ services:
   web:
     env_file:
       - .env
+    volumes:
+      - shared-volume:/tmp/shared-volume
     image: "${WEB_IMAGE}"
     ports: ["4000:80"]
     depends_on:
       - db
+      - vault
     environment:
       MYSQL_HOST: db
     healthcheck:
@@ -62,3 +65,18 @@ services:
     image: docker.centreon.com/centreon/mon-mediawiki-22.10:latest
     ports: ["80"]
     profiles: ["mediawiki"]
+
+  vault:
+    build:
+      context: .
+      dockerfile: vault/Dockerfile
+    volumes:
+      - shared-volume:/tmp/shared-volume
+    image: hashicorp/vault:latest
+    env_file:
+      - .env
+    ports: ["8200"]
+
+volumes:
+  shared-volume:
+    driver: "local"
