@@ -66,15 +66,13 @@ services:
     profiles: ["mediawiki"]
 
   vault:
-    build:
-      context: .
-      dockerfile: vault/Dockerfile
     volumes:
       - shared-volume:/tmp/shared-volume
-    image: myvault:latest
+    image: docker.centreon.com/centreon/vault:latest
     env_file:
       - .env
     ports: ["8200"]
 
 volumes:
   shared-volume:
+    driver: "local"
