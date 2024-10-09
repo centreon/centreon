@@ -1,6 +1,7 @@
 import { Provider, createStore } from 'jotai';
 import { searchAtom } from '../atom';
 import Filter from './Filter';
+import { labelClearFilter } from '../translatedLabels';
 
 const store = createStore();
 
@@ -26,10 +27,10 @@ describe('Filter Component', () => {
   it('should clear the filter when clicking the clear button', () => {
     const typedText = 'Dashboard 1';
 
-    cy.get('input').clear().type(typedText);
+    cy.get('input').type(typedText);
     cy.get('input').should('have.value', typedText);
 
-    cy.get('[data-testid="Clear Filter"]').click();
+    cy.findByTestId(labelClearFilter).click();
 
     cy.get('input').should('have.value', '');
   });
