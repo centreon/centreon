@@ -115,7 +115,7 @@ final class DashboardUpdatedSubscriber implements EventSubscriberInterface
         /** @var UploadedFile $thumbnail */
         $thumbnail = $event->getThumbnail();
 
-        return new AddDashboardThumbnailRequest($event->getDashboardId(), $event->getDirectory(), $thumbnail);
+        return new AddDashboardThumbnailRequest($event->getDashboardId(), $event->getDirectory(), $event->getFilename(), $thumbnail);
     }
 
     /**

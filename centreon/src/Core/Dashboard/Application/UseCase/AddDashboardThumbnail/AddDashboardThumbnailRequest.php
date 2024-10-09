@@ -30,6 +30,7 @@ final class AddDashboardThumbnailRequest
     public function __construct(
         public int $dashboardId,
         public string $directory,
+        public string $filename,
         public UploadedFile $thumbnail
     ) {
     }

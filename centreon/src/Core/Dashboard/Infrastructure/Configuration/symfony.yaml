@@ -1,3 +1,7 @@
+parameters:
+    max_filesize: 2M
+    max_file: 20
+    post_max: 8M
 services:
     _defaults:
         public: false
@@ -5,9 +9,20 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
+            $maxFilesize: '%max_filesize%'
+            $maxFile: '%max_file%'
+            $postMax: '%post_max%'
 
     Core\Dashboard\:
         resource: '../../../../Core/Dashboard/*'
+
+    Core\Media\Application\Repository\WriteMediaRepositoryInterface:
+        class: Core\Media\Infrastructure\Repository\FileProxyWriteMediaRepository
+
+    Core\Media\InfrastructureRepository\FileProxyReadMediaRepository:
+        class: Core\Media\Infrastructure\Repository\FileProxyReadMediaRepository
+        arguments:
+            $absoluteMediaPath: '%media_full_path%'
 
     Core\Dashboard\Application\UseCase\AddDashboardThumbnail\AddDashboardThumbnail:
         arguments:
