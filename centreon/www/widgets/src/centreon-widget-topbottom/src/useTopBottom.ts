@@ -66,9 +66,11 @@ const useTopBottom = ({
     refreshIntervalCustom
   });
 
+  const isMetaServiceSelected = getIsMetaServiceSelected(resources);
+  
   const metricName = metrics?.[0]?.name;
 
-  const isMetaServiceSelected = getIsMetaServiceSelected(resources);
+  const formattedMetricName = isMetaServiceSelected ?  "value" :  encodeURIComponent(metricName) ; 
 
   const { data: metricsTop, isFetching } = useFetchQuery<MetricsTop>({
     decoder: metricsTopDecoder,
@@ -93,7 +95,7 @@ const useTopBottom = ({
                 : 'ASC'
             }
           }
-        })}${isMetaServiceSelected ? '' : `&metric_name=${encodeURIComponent(metricName)}`}`,
+        })}${`&metric_name=${formattedMetricName}`}`,
         isOnPublicPage,
         playlistHash,
         widgetId: id
