@@ -86,7 +86,7 @@ it('should throw an exception when the type is not valid', function (): void {
 })->throws((new ValueError('"" is not a valid backing value for enum Core\AgentConfiguration\Domain\Model\Type'))->getMessage());
 
 it('should throw an exception when the object is already associated to one of the pollers', function (): void {
-     $this->user
+    $this->user
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -102,7 +102,7 @@ it('should throw an exception when the object is already associated to one of th
         ->willReturnMap(
             [
                 [Type::TELEGRAF, [$this->poller]],
-                [Type::CENTREON_AGENT, []]
+                [Type::CMA, []],
             ]
         );
 
