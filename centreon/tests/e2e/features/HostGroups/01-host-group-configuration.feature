@@ -9,11 +9,12 @@ Feature: HostGroupConfiguration
 
   Scenario: Edit some properties of a host group
     When the user changes some properties of the configured host group "name, alias, comments"
-    Then the properties are updated
+    Then these properties "name, alias, comments" are updated
+
 
   Scenario: Duplicate one existing host group
     When the user duplicates the configured host group
-    Then a new host group is created with identical properties
+    Then a new host group is created with identical properties "name, alias, memebers, enabled disable resource"
 
   Scenario: Delete one existing host group
     When the user deletes the configured host group
