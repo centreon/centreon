@@ -160,3 +160,7 @@ Then("the deleted service category is not displayed in the list", () => {
       .contains("test")
       .should("not.exist");
 });
+
+afterEach(() => {
+  cy.stopContainers();
+});
