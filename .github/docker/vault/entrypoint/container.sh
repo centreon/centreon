@@ -2,6 +2,8 @@
 
 vault login ${VAULT_DEV_ROOT_TOKEN_ID}
 
+apk install jq
+
 export VAULT_ADDR='https://127.0.0.1:8200'
 vault secrets enable -path=centreon kv
 vault auth enable approle
