@@ -4,7 +4,6 @@ import Filter from './Filter';
 import { labelClearFilter } from '../translatedLabels';
 
 const store = createStore();
-
 describe('Filter Component', () => {
   store.set(searchAtom, '');
 
