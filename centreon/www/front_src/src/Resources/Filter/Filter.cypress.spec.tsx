@@ -688,7 +688,7 @@ describe('search bar:ignores case sensitivity when searching static filters', ()
     mount({ store: updatedStore });
   });
 
-  for (const data of staticFilters) {
+  staticFilters.forEach((data) => {
     const {
       criteriaName,
       criteriaInitialValue,
@@ -738,7 +738,7 @@ describe('search bar:ignores case sensitivity when searching static filters', ()
         'exist'
       );
     });
-  }
+  });
 });
 
 describe('Keyboard actions', () => {
