@@ -68,7 +68,7 @@ services:
   vault:
     volumes:
       - shared-volume:/tmp/shared-volume
-    image: docker.centreon.com/centreon/vault:latest
+    image: docker.centreon.com/centreon/vault:24.10
     env_file:
       - .env
     ports: ["8200"]
