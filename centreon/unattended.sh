@@ -614,8 +614,11 @@ function set_required_prerequisite() {
 			12)
 				if ! [[ "$version" == "24.04" || "$version" == "24.10" ]]; then
 					error_and_exit "For Debian $detected_os_version, only Centreon versions >= 24.04 are compatible. You chose $version"
+				elif [[ "$version" == "24.04" ]];then
+					PHP_SERVICE_UNIT="php8.1-fpm"
+				else
+					PHP_SERVICE_UNIT="php8.2-fpm"
 				fi
-				PHP_SERVICE_UNIT="php8.2-fpm"
 				;;
 			*)
 				error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9), Debian 11/12 and Ubuntu 22.04. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
