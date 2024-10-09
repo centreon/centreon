@@ -1359,7 +1359,8 @@ function retrieveGorgoneApiCredentialsFromConfigFile(): string
 
     $content = Yaml::parse($content);
 
-    return $content['gorgone']['tpapi'][0]['password'];
+    return $content['gorgone']['tpapi'][0]['password']
+        ?? throw new Exception('Unable to retrieve Gorgone API password');
 }
 
 
