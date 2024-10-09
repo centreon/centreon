@@ -73,7 +73,7 @@ final class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements Host
     {
         $hostGroups = [];
 
-        if ($this->hasNotEnoughRightsToContinue() || empty($hostGroupNames)) {
+        if ($this->hasNotEnoughRightsToContinue() || $hostGroupNames === []) {
             return $hostGroups;
         }
 
@@ -148,7 +148,7 @@ final class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements Host
     {
         $hostGroups = [];
 
-        if ($this->hasNotEnoughRightsToContinue() || empty($hostGroupIds)) {
+        if ($this->hasNotEnoughRightsToContinue() || $hostGroupIds === []) {
             return $hostGroups;
         }
 

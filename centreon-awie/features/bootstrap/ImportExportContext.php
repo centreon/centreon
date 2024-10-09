@@ -1,14 +1,16 @@
 <?php
 
 /**
- * Class ImportExportContext
+ * Class
+ *
+ * @class ImportExportContext
  */
 class ImportExportContext extends CentreonAwieContext
 {
     /**
      * @When I export an object
      */
-    public function iExportAnObject()
+    public function iExportAnObject(): void
     {
         $this->iAmOnTheExportPage();
         $this->assertFind('css', '#contact')->click();
@@ -18,17 +20,17 @@ class ImportExportContext extends CentreonAwieContext
     /**
      * @Then I have a file
      */
-    public function iHaveAFile()
+    public function iHaveAFile(): void
     {
         $mythis = $this;
 
         $this->spin(
-            function ($context) use ($mythis) {
+            function ($context) {
                 if ($context->getSession()->getPage()->has('css', '.loadingWrapper')) {
-                    return !$context->assertFind('css', '.loadingWrapper')->isVisible();
-                } else {
-                    return true;
+                    return ! $context->assertFind('css', '.loadingWrapper')->isVisible();
                 }
+
+                    return true;
             }
         );
 
@@ -40,13 +42,13 @@ class ImportExportContext extends CentreonAwieContext
         $output = explode("\n", $output['output']);
         $fileCreate = false;
         foreach ($output as $file) {
-            if (substr("$file", -3) == 'zip') {
+            if (str_ends_with("{$file}", 'zip')) {
                 $fileCreate = true;
             }
         }
 
-        if (!$fileCreate) {
-            throw new \Exception('File not create');
+        if (! $fileCreate) {
+            throw new Exception('File not create');
         }
     }
 }

@@ -34,7 +34,10 @@
  */
 
 /**
- * Webservice that allow to load the datepicker library from user's language if the file exists.
+ * Class
+ *
+ * @class CentreonDatepickerI18n
+ * @description Webservice that allow to load the datepicker library from user's language if the file exists.
  */
 class CentreonDatepickerI18n extends CentreonWebService
 {

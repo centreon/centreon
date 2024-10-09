@@ -236,12 +236,10 @@ if (
             } else {
                 $url = "./include/core/errors/alt_error.php";
             }
+        } elseif ($url && file_exists($url) && $ret['topology_page']) {
+            reset_search_page($url);
         } else {
-            if ($url && file_exists($url) && $ret['topology_page']) {
-                reset_search_page($url);
-            } else {
-                $url = "./include/core/errors/alt_error.php";
-            }
+            $url = "./include/core/errors/alt_error.php";
         }
     }
     if (isset($o) && $acl_page == CentreonACL::ACL_ACCESS_READ_ONLY) {
@@ -311,10 +309,7 @@ if (!isset($centreon->historyPage)) {
 /*
  * Keep in memory all informations about pagination, keyword for search...
  */
-$inputArguments = array(
-    'num' => FILTER_SANITIZE_NUMBER_INT,
-    'limit' => FILTER_SANITIZE_NUMBER_INT
-);
+$inputArguments = ['num' => FILTER_SANITIZE_NUMBER_INT, 'limit' => FILTER_SANITIZE_NUMBER_INT];
 $inputGet = filter_input_array(
     INPUT_GET,
     $inputArguments

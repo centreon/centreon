@@ -38,7 +38,7 @@ if (!isset($centreon)) {
     exit();
 }
 
-$tp = array();
+$tp = [];
 if (($o == "c" || $o == "w") && $tp_id) {
     $dbResult = $pearDB->prepare('SELECT * FROM timeperiod WHERE tp_id = :tp_id LIMIT 1');
     $dbResult->bindValue(':tp_id', $tp_id, PDO::PARAM_INT);
@@ -48,7 +48,7 @@ if (($o == "c" || $o == "w") && $tp_id) {
      * Set base value
      */
     $tp = array_map("myDecode", $dbResult->fetchRow());
-    $tp["contact_exclude"] = array();
+    $tp["contact_exclude"] = [];
 }
 
 $j = 0;
@@ -74,21 +74,16 @@ $dbResult->closeCursor();
 /*
  * Var information to format the element
  */
-$attrsText = array("size" => "35");
-$attrsTextLong = array("size" => "55", "maxlength" => "200");
-$attrsAdvSelect = array("style" => "width: 300px; height: 130px;");
+$attrsText = ["size" => "35"];
+$attrsTextLong = ["size" => "55", "maxlength" => "200"];
+$attrsAdvSelect = ["style" => "width: 300px; height: 130px;"];
 $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />'
     . '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
 $timeAvRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_timeperiod&action=list' .
     ($tp_id ? "&exclude={$tp_id}" : '') // exclude this timeperiod from list
 ;
-$attrTimeperiods = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $timeAvRoute,
-    'multiple' => true,
-    'linkedObject' => 'centreonTimeperiod'
-);
+$attrTimeperiods = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $timeAvRoute, 'multiple' => true, 'linkedObject' => 'centreonTimeperiod'];
 
 /*
  * Form begin
@@ -135,14 +130,14 @@ $timeDeRoute = './include/common/webServices/rest/internal.php?object=centreon_c
     . '&action=defaultValues&target=timeperiodRenderer&field=tp_include&id=' . $tp_id;
 $attrTimeperiod1 = array_merge(
     $attrTimeperiods,
-    array('defaultDatasetRoute' => $timeDeRoute)
+    ['defaultDatasetRoute' => $timeDeRoute]
 );
-$form->addElement('select2', 'tp_include', _("Timeperiod templates"), array(), $attrTimeperiod1);
+$form->addElement('select2', 'tp_include', _("Timeperiod templates"), [], $attrTimeperiod1);
 
 /*
  *  Multiple exceptions relations stored in DB
  */
-$mTp = array();
+$mTp = [];
 $k = 0;
 
 $DBRESULT = $pearDB->prepare('SELECT exception_id FROM timeperiod_exceptions WHERE timeperiod_id = :tp_id');
@@ -244,7 +239,7 @@ if ($o == "w") {
             "button",
             "change",
             _("Modify"),
-            array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&tp_id=" . $tp_id . "'")
+            ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&tp_id=" . $tp_id . "'"]
         );
     }
     $form->setDefaults($tp);
@@ -253,15 +248,15 @@ if ($o == "w") {
     /*
      * Modify a Time Period information
      */
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $form->setDefaults($tp);
 } elseif ($o == "a") {
     /*
      * Add a Time Period information
      */
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 }
 
 /*

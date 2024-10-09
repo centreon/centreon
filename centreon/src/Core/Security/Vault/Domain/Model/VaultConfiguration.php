@@ -53,9 +53,9 @@ class VaultConfiguration
     public const VAULT_PATH_PATTERN = 'secret::';
     public const UUID_EXTRACTION_REGEX = '^(.*)\/(.*)::(.*)$';
 
-    private ?string $secretId;
+    private ?string $secretId = null;
 
-    private ?string $roleId;
+    private ?string $roleId = null;
 
     /**
      * @param EncryptionInterface $encryption

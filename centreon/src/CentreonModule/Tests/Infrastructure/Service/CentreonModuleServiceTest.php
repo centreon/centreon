@@ -115,7 +115,7 @@ class CentreonModuleServiceTest extends TestCase
                 }));
             $sources[$type]
                 ->method('remove')
-                ->will($this->returnCallback(function ($id) {
+                ->will($this->returnCallback(function ($id): void {
                     if ($id === ModuleSourceTest::$moduleName) {
                         throw new \Exception('Removed');
                     }
@@ -128,21 +128,21 @@ class CentreonModuleServiceTest extends TestCase
 
     public function testGetList(): void
     {
-        (function () {
+        (function (): void {
             $result = $this->service->getList();
 
             $this->assertArrayHasKey(Source\ModuleSource::TYPE, $result);
             $this->assertArrayHasKey(Source\WidgetSource::TYPE, $result);
         })();
 
-        (function () {
+        (function (): void {
             $result = $this->service->getList(null, null, null, [Source\ModuleSource::TYPE]);
 
             $this->assertArrayHasKey(Source\ModuleSource::TYPE, $result);
             $this->assertArrayNotHasKey(Source\WidgetSource::TYPE, $result);
         })();
 
-        (function () {
+        (function (): void {
             $result = $this->service->getList(null, null, null, ['missing-type']);
 
             $this->assertArrayNotHasKey(Source\ModuleSource::TYPE, $result);
@@ -152,14 +152,14 @@ class CentreonModuleServiceTest extends TestCase
 
     public function testGetDetails(): void
     {
-        (function () {
+        (function (): void {
             $result = $this->service->getDetail('test-module', Source\ModuleSource::TYPE);
 
             $this->assertInstanceOf(Module::class, $result);
             $this->assertEquals(Source\ModuleSource::TYPE, $result->getType());
         })();
 
-        (function () {
+        (function (): void {
             $result = $this->service->getDetail('test-module', 'missing-type');
 
             $this->assertEquals(null, $result);
@@ -205,7 +205,7 @@ class CentreonModuleServiceTest extends TestCase
      */
     public function testRemove(): void
     {
-        (function () {
+        (function (): void {
             $result = null;
 
             try {

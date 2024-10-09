@@ -300,7 +300,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
      */
     public function findHostsByHostsGroups(array $hostsGroupsIds): array
     {
-        if ($this->hasNotEnoughRightsToContinue() || empty($hostsGroupsIds)) {
+        if ($this->hasNotEnoughRightsToContinue() || $hostsGroupsIds === []) {
             return [];
         }
 
@@ -363,7 +363,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
      */
     public function findHostsByServiceGroups(array $servicesGroupsIds): array
     {
-        if ($this->hasNotEnoughRightsToContinue() || empty($servicesGroupsIds)) {
+        if ($this->hasNotEnoughRightsToContinue() || $servicesGroupsIds === []) {
             return [];
         }
 
@@ -461,19 +461,19 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $searchParameters = $this->sqlRequestTranslator->getRequestParameters()->extractSearchNames();
 
         $shouldJoinHost = false;
-        if (count(array_intersect($searchParameters, array_keys($hostConcordanceArray))) > 0) {
+        if (array_intersect($searchParameters, array_keys($hostConcordanceArray)) !== []) {
             $shouldJoinHost = true;
             $hostGroupConcordanceArray = array_merge($hostGroupConcordanceArray, $hostConcordanceArray);
         }
 
         $shouldJoinService = false;
-        if (count(array_intersect($searchParameters, array_keys($serviceConcordanceArray))) > 0) {
+        if (array_intersect($searchParameters, array_keys($serviceConcordanceArray)) !== []) {
             $shouldJoinService = true;
             $hostGroupConcordanceArray = array_merge($hostGroupConcordanceArray, $serviceConcordanceArray);
         }
 
         $shouldJoinHostCategory = false;
-        if (count(array_intersect($searchParameters, array_keys($hostCategoryConcordanceArray))) > 0) {
+        if (array_intersect($searchParameters, array_keys($hostCategoryConcordanceArray)) !== []) {
             $shouldJoinHostCategory = true;
             $hostGroupConcordanceArray = array_merge($hostGroupConcordanceArray, $hostCategoryConcordanceArray);
         }
@@ -682,7 +682,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                 //get active acknowledgment for host
                 if ($host->getAcknowledged()) {
                     $acknowledgements = $this->findAcknowledgements($hostId, 0);
-                    if (!empty($acknowledgements)) {
+                    if ($acknowledgements !== []) {
                         $host->setAcknowledgement($acknowledgements[0]);
                     }
                 }
@@ -705,7 +705,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         $collector = new StatementCollector();
 
-        if (empty($serviceIds)) {
+        if ($serviceIds === []) {
             return $services;
         }
 
@@ -773,7 +773,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
     {
         $hosts = [];
 
-        if (empty($hostIds)) {
+        if ($hostIds === []) {
             return $hosts;
         }
 
@@ -821,7 +821,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
     {
         $hosts = [];
 
-        if (empty($hostIds)) {
+        if ($hostIds === []) {
             return $hosts;
         }
 
@@ -962,7 +962,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         if ($service->isAcknowledged()) {
             $acknowledgements = $this->findAcknowledgements($hostId, $serviceId);
 
-            if (!empty($acknowledgements)) {
+            if ($acknowledgements !== []) {
                 $service->setAcknowledgement($acknowledgements[0]);
             }
         }
@@ -1055,7 +1055,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         if ($service->isAcknowledged()) {
             $acknowledgements = $this->findAcknowledgements($service->getHost()->getId(), $service->getId());
 
-            if (!empty($acknowledgements)) {
+            if ($acknowledgements !== []) {
                 $service->setAcknowledgement($acknowledgements[0]);
             }
         }
@@ -1072,7 +1072,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         $collector = new StatementCollector();
 
-        if (empty($serviceIds)) {
+        if ($serviceIds === []) {
             return $services;
         }
 
@@ -1498,25 +1498,25 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $searchParameters = $this->sqlRequestTranslator->getRequestParameters()->extractSearchNames();
 
         $shouldJoinHost = false;
-        if (count(array_intersect($searchParameters, array_keys($hostConcordanceArray))) > 0) {
+        if (array_intersect($searchParameters, array_keys($hostConcordanceArray)) !== []) {
             $shouldJoinHost = true;
             $serviceGroupConcordanceArray = array_merge($serviceGroupConcordanceArray, $hostConcordanceArray);
         }
 
         $shouldJoinService = false;
-        if (count(array_intersect($searchParameters, array_keys($serviceConcordanceArray))) > 0) {
+        if (array_intersect($searchParameters, array_keys($serviceConcordanceArray)) !== []) {
             $shouldJoinService = true;
             $serviceGroupConcordanceArray = array_merge($serviceGroupConcordanceArray, $serviceConcordanceArray);
         }
 
         $shouldJoinHostGroup = false;
-        if (count(array_intersect($searchParameters, array_keys($hostGroupConcordanceArray))) > 0) {
+        if (array_intersect($searchParameters, array_keys($hostGroupConcordanceArray)) !== []) {
             $shouldJoinHostGroup = true;
             $serviceGroupConcordanceArray = array_merge($serviceGroupConcordanceArray, $hostGroupConcordanceArray);
         }
 
         $shouldJoinHostCategory = false;
-        if (count(array_intersect($searchParameters, array_keys($hostCategoryConcordanceArray))) > 0) {
+        if (array_intersect($searchParameters, array_keys($hostCategoryConcordanceArray)) !== []) {
             $shouldJoinHostCategory = true;
             $serviceGroupConcordanceArray = array_merge($serviceGroupConcordanceArray, $hostCategoryConcordanceArray);
         }
@@ -1672,7 +1672,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             return $services;
         }
 
-        if (empty($serviceIds)) {
+        if ($serviceIds === []) {
             return $services;
         }
         $serviceIds = array_map(
@@ -1737,7 +1737,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
     {
         $services = [];
 
-        if ($this->hasNotEnoughRightsToContinue() || empty($hostIds)) {
+        if ($this->hasNotEnoughRightsToContinue() || $hostIds === []) {
             return $services;
         }
 
@@ -1797,7 +1797,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
     {
         $servicesByServiceGroupId = [];
 
-        if ($this->hasNotEnoughRightsToContinue() || empty($serviceGroupIds)) {
+        if ($this->hasNotEnoughRightsToContinue() || $serviceGroupIds === []) {
             return $servicesByServiceGroupId;
         }
 

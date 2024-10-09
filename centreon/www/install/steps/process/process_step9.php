@@ -106,7 +106,4 @@ try {
     $message = $e->getMessage();
 }
 
-echo json_encode(array(
-    'result' => $result,
-    'message' => $message
-));
+echo json_encode(['result' => $result, 'message' => $message]);

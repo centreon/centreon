@@ -56,7 +56,7 @@ function testMnftrExistence($name = null)
     }
 }
 
-function deleteMnftrInDB($mnftr = array())
+function deleteMnftrInDB($mnftr = [])
 {
     global $pearDB, $oreon;
     foreach ($mnftr as $key => $value) {
@@ -68,7 +68,7 @@ function deleteMnftrInDB($mnftr = array())
     }
 }
 
-function multipleMnftrInDB($mnftr = array(), $nbrDup = array())
+function multipleMnftrInDB($mnftr = [], $nbrDup = [])
 {
     foreach ($mnftr as $key => $value) {
         global $pearDB, $oreon;
@@ -81,7 +81,10 @@ function multipleMnftrInDB($mnftr = array(), $nbrDup = array())
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
                 $name = "";
-                $key2 == "name" ? ($name = $value2 = $value2 . "_" . $i) : null;
+                if ($key2 == "name") {
+                    $name = $value2 . "_" . $i;
+                    $value2 = $value2 . "_" . $i;
+                }
                 $val
                     ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")
                     : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
@@ -91,7 +94,7 @@ function multipleMnftrInDB($mnftr = array(), $nbrDup = array())
                 $fields["name"] = $name;
             }
             if (testMnftrExistence($name)) {
-                $val ? $rq = "INSERT INTO traps_vendor VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO traps_vendor VALUES (" . $val . ")" : null;
                 $pearDB->query($rq);
                 $oreon->CentreonLogAction->insertLog(
                     "manufacturer",
@@ -121,7 +124,7 @@ function updateMnftr($id = null)
         return;
     }
 
-    $ret = array();
+    $ret = [];
     $ret = $form->getSubmitValues();
     $rq = "UPDATE traps_vendor ";
     $rq .= "SET name = '" . htmlentities($ret["name"], ENT_QUOTES, "UTF-8") . "', ";
@@ -135,13 +138,13 @@ function updateMnftr($id = null)
     $oreon->CentreonLogAction->insertLog("manufacturer", $id, $fields["name"], "c", $fields);
 }
 
-function insertMnftrInDB($ret = array())
+function insertMnftrInDB($ret = [])
 {
     $id = insertMnftr($ret);
     return ($id);
 }
 
-function insertMnftr($ret = array())
+function insertMnftr($ret = [])
 {
     global $form, $pearDB, $oreon;
 

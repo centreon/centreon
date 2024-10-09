@@ -34,35 +34,23 @@
  */
 
 /**
+ * Class
  *
- * Hostgroups objects
- * @author jmathis
- *
+ * @class CentreonHostgroups
  */
 class CentreonHostgroups
 {
-    /**
-     *
-     * @var \CentreonDB
-     */
+    /** @var CentreonDB */
     private $DB;
-
-    /**
-     *
-     * @var array
-     */
+    /** @var array */
     private $relationCache = [];
-
-    /**
-     *
-     * @var type
-     */
+    /** @var array */
     private $dataTree;
 
     /**
+     * CentreonHostgroups constructor
      *
-     * Constructor
-     * @param $pearDB
+     * @param CentreonDB $pearDB
      */
     public function __construct($pearDB)
     {
@@ -83,11 +71,10 @@ class CentreonHostgroups
     }
 
     /**
+     * @param string|int|null $hg_id
      *
-     * Enter description here ...
-     * @param unknown_type $hg_id
-     * @param unknown_type $searchHost
-     * @param unknown_type $level
+     * @return array|void
+     * @throws PDOException
      */
     public function getHostGroupHosts($hg_id = null)
     {
@@ -99,13 +86,13 @@ class CentreonHostgroups
             $this->setHgHgCache();
         }
 
-        $hosts = array();
+        $hosts = [];
         $statement = $this->DB->prepare("SELECT hgr.host_host_id " .
             "FROM hostgroup_relation hgr, host h " .
             "WHERE hgr.hostgroup_hg_id = :hgId " .
             "AND h.host_id = hgr.host_host_id " .
             "ORDER by h.host_name");
-        $statement->bindValue(':hgId', (int) $hg_id, \PDO::PARAM_INT);
+        $statement->bindValue(':hgId', (int) $hg_id, PDO::PARAM_INT);
         $statement->execute();
 
         while ($elem = $statement->fetchRow()) {
@@ -117,8 +104,8 @@ class CentreonHostgroups
 
         if (isset($hostgroups) && count($hostgroups)) {
             foreach ($hostgroups as $hg_id2) {
-                $ref[$hg_id2] = array();
-                $tmp = $this->getHostGroupHosts($hg_id2, "", 1);
+                $ref[$hg_id2] = [];
+                $tmp = $this->getHostGroupHosts($hg_id2);
                 foreach ($tmp as $id) {
                     print "     host: $id<br>";
                 }
@@ -132,11 +119,13 @@ class CentreonHostgroups
      * Get Hostgroup Name
      *
      * @param int $hg_id
+     *
      * @return string
+     * @throws PDOException
      */
     public function getHostgroupName($hg_id)
     {
-        static $names = array();
+        static $names = [];
 
         if (!isset($names[$hg_id])) {
             $query = "SELECT hg_name FROM hostgroup WHERE hg_id = " . $this->DB->escape($hg_id);
@@ -146,10 +135,7 @@ class CentreonHostgroups
                 $names[$hg_id] = $row['hg_name'];
             }
         }
-        if (isset($names[$hg_id])) {
-            return $names[$hg_id];
-        }
-        return "";
+        return $names[$hg_id] ?? "";
     }
 
 
@@ -157,7 +143,9 @@ class CentreonHostgroups
      * Get Hostgroups ids and names from ids
      *
      * @param int[] $hostGroupsIds
+     *
      * @return array $hostsGroups [['id' => integer, 'name' => string],...]
+     * @throws PDOException
      */
     public function getHostsgroups($hostGroupsIds = []): array
     {
@@ -166,7 +154,7 @@ class CentreonHostgroups
         if (!empty($hostGroupsIds)) {
             $filteredHgIds = $this->filteredArrayId($hostGroupsIds);
             $hgParams = [];
-            if (count($filteredHgIds) > 0) {
+            if ($filteredHgIds !== []) {
                 /*
                  * Building the hgParams hash table in order to correctly
                  * bind ids as ints for the request.
@@ -181,12 +169,12 @@ class CentreonHostgroups
                 );
 
                 foreach ($hgParams as $index => $value) {
-                    $stmt->bindValue($index, $value, \PDO::PARAM_INT);
+                    $stmt->bindValue($index, $value, PDO::PARAM_INT);
                 }
 
                 $stmt->execute();
 
-                while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $hostsGroups[] = [
                         'id' => $row['hg_id'],
                         'name' => $row['hg_name']
@@ -198,16 +186,17 @@ class CentreonHostgroups
         return $hostsGroups;
     }
 
-
     /**
      * Get Hostgroup Id
      *
      * @param string $hg_name
+     *
      * @return int
+     * @throws PDOException
      */
     public function getHostgroupId($hg_name)
     {
-        static $ids = array();
+        static $ids = [];
 
         if (!isset($ids[$hg_name])) {
             $query = "SELECT hg_id FROM hostgroup WHERE hg_name = '" . $this->DB->escape($hg_name) . "'";
@@ -217,15 +206,14 @@ class CentreonHostgroups
                 $ids[$hg_name] = $row['hg_id'];
             }
         }
-        if (isset($ids[$hg_name])) {
-            return $ids[$hg_name];
-        }
-        return 0;
+        return $ids[$hg_name] ?? 0;
     }
 
     /**
      * @param null $hg_id
+     *
      * @return array|void
+     * @throws PDOException
      */
     public function getHostGroupHostGroups($hg_id = null)
     {
@@ -233,7 +221,7 @@ class CentreonHostgroups
             return;
         }
 
-        $hosts = array();
+        $hosts = [];
         $DBRESULT = $this->DB->query(
             "SELECT hg_child_id " .
             "FROM hostgroup_hg_relation, hostgroup " .
@@ -250,16 +238,16 @@ class CentreonHostgroups
     }
 
     /**
-     *
-     * Enter description here ...
+     * @return void
+     * @throws PDOException
      */
-    private function setHgHgCache()
+    private function setHgHgCache(): void
     {
-        $this->relationCache = array();
+        $this->relationCache = [];
         $DBRESULT = $this->DB->query("SELECT /* SQL_CACHE */ hg_parent_id, hg_child_id FROM hostgroup_hg_relation");
         while ($data = $DBRESULT->fetchRow()) {
             if (!isset($this->relationCache[$data["hg_parent_id"]])) {
-                $this->relationCache[$data["hg_parent_id"]] = array();
+                $this->relationCache[$data["hg_parent_id"]] = [];
             }
             $this->relationCache[$data["hg_parent_id"]][$data["hg_child_id"]] = 1;
         }
@@ -267,9 +255,15 @@ class CentreonHostgroups
         unset($data);
     }
 
+    /**
+     * @param $DB
+     *
+     * @return array
+     * @throws PDOException
+     */
     public function getAllHostgroupsInCache($DB)
     {
-        $hostgroups = array();
+        $hostgroups = [];
 
         $this->unsetCache();
 
@@ -277,28 +271,27 @@ class CentreonHostgroups
             "SELECT * FROM hostgroup WHERE hg_id NOT IN (SELECT hg_child_id FROM hostgroup_hg_relation)"
         );
         while ($data = $DBRESULT->fetchRow()) {
-            $this->dataTree[$data['hg_id']] = $this->getHostGroupHosts($data['hg_id'], $this->dataTree);
+            $this->dataTree[$data['hg_id']] = $this->getHostGroupHosts($data['hg_id']);
         }
         $DBRESULT->closeCursor();
         return $hostgroups;
     }
 
     /**
-     *
+     * @return void
      */
-    private function unsetCache()
+    private function unsetCache(): void
     {
-        $this->dataTree = array();
+        $this->dataTree = [];
     }
 
     /**
-     *
-     * @param integer $field
+     * @param int $field
      * @return array
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'hostgroup';
         $parameters['currentObject']['id'] = 'hg_id';
         $parameters['currentObject']['name'] = 'hg_name';
@@ -324,12 +317,14 @@ class CentreonHostgroups
     /**
      * @param array $values
      * @param array $options
+     *
      * @return array
+     * @throws PDOException
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
         global $centreon;
-        $items = array();
+        $items = [];
 
         if (empty($values)) {
             return $items;
@@ -348,25 +343,14 @@ class CentreonHostgroups
             $hgAcl = $centreon->user->access->getHostGroupAclConf(
                 null,
                 'broker',
-                array(
-                    'distinct' => true,
-                    'fields' => array('hostgroup.hg_id'),
-                    'get_row' => 'hg_id',
-                    'keys' => array('hg_id'),
-                    'conditions' => array(
-                        'hostgroup.hg_id' => array(
-                            'IN',
-                            $hostgroups
-                        )
-                    )
-                ),
+                ['distinct' => true, 'fields' => ['hostgroup.hg_id'], 'get_row' => 'hg_id', 'keys' => ['hg_id'], 'conditions' => ['hostgroup.hg_id' => ['IN', $hostgroups]]],
                 true
             );
         }
 
         // get list of selected hostgroups
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
 
         foreach ($hostgroups as $item) {
             // the below explode may not be useful
@@ -394,22 +378,20 @@ class CentreonHostgroups
                 $hide = true;
             }
 
-            $items[] = array(
-                'id' => $row['hg_id'],
-                'text' => $row['hg_name'],
-                'hide' => $hide
-            );
+            $items[] = ['id' => $row['hg_id'], 'text' => $row['hg_name'], 'hide' => $hide];
         }
         return $items;
     }
 
     /**
      * @param $hgName
+     *
      * @return array
+     * @throws PDOException
      */
     public function getHostsByHostgroupName($hgName)
     {
-        $hostList = array();
+        $hostList = [];
         $query = "SELECT host_name, host_id  " .
             "FROM hostgroup_relation hgr, host h, hostgroup hg " .
             "WHERE hgr.host_host_id = h.host_id " .
@@ -418,11 +400,7 @@ class CentreonHostgroups
             "AND hg.hg_name = '" . $this->DB->escape($hgName) . "'";
         $result = $this->DB->query($query);
         while ($elem = $result->fetchrow()) {
-            $hostList[] = array(
-                'host' => $elem['host_name'],
-                'host_id' => $elem['host_id'],
-                'hg_name' => $hgName
-            );
+            $hostList[] = ['host' => $elem['host_name'], 'host_id' => $elem['host_id'], 'hg_name' => $hgName];
         }
         return $hostList;
     }
