@@ -30,6 +30,21 @@ const resultsToSubmit = [
     },
 ];
 
+const navigateAndSetOnChange = () => {
+    cy.navigateTo({
+        page: "Host Groups",
+        rootItemNumber: 3,
+        subMenu: "Hosts",
+    });
+    
+    cy.wait('@getTimeZone');
+    
+    cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(2).click();
+    
+    cy.getIframeBody().find('select').eq(0)
+        .invoke('attr', 'onchange', "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }");
+};
+
 beforeEach(() => {
     cy.startContainers();
     cy.intercept({
@@ -142,15 +157,7 @@ Then('the properties are updated',
 
 When('the user duplicates the configured host group',
     () => {
-        cy.navigateTo({
-            page: "Host Groups",
-            rootItemNumber: 3,
-            subMenu: "Hosts",
-        });
-        cy.wait('@getTimeZone');
-        cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(2).click();
-        cy.getIframeBody().find('select').eq(0)
-            .invoke('attr', 'onchange', "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }");
+        navigateAndSetOnChange();
         cy.getIframeBody().find('select').eq(0).select('Duplicate');
         cy.wait('@getTimeZone');
         cy.exportConfig();
@@ -165,22 +172,14 @@ Then('a new host group is created with identical properties',
 
 When('the user deletes the configured host group',
     () => {
-        cy.navigateTo({
-            page: "Host Groups",
-            rootItemNumber: 3,
-            subMenu: "Hosts",
-        });
-        cy.wait('@getTimeZone');
-        cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(2).click();
-        cy.getIframeBody().find('select').eq(0)
-            .invoke('attr', 'onchange', "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }");
+        navigateAndSetOnChange();
         cy.getIframeBody().find('select').eq(0).select('Delete');
         cy.wait('@getTimeZone');
         cy.exportConfig();
     }
 );
 
-Then('the configured host group is not visible anymore on host group page',
+Then('the configured host group is not visible anymore on the host group page',
     () => {
         cy.getIframeBody().contains(hostGroup + '_1').should('not.exist');
     }

@@ -17,4 +17,4 @@ Feature: HostGroupConfiguration
 
   Scenario: Delete one existing host group
     When the user deletes the configured host group
-    Then the configured host group is not visible anymore on host group page
+    Then the configured host group is not visible anymore on the host group page
