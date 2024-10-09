@@ -41,7 +41,6 @@ use Core\Common\Infrastructure\FeatureFlags;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Symfony\Component\Yaml\Yaml;
-use Utility\Interfaces\UUIDGeneratorInterface;
 
 const DEFAULT_SCHEME = 'https';
 
@@ -1319,14 +1318,13 @@ function updateConfigFilesWithVaultPath($vaultPaths): void
     }
 }
 
+
 /**
- * Undocumented function
+ * Migrate Gorgone API credentials to Vault and return the vault path.
  *
  * @param WriteVaultRepositoryInterface $writeVaultRepository
  *
- * @return array<string, string>
- *
- * @throws \Throwable
+ * @return array<string,string>
  */
 function migrateGorgoneCredentialsToVault(WriteVaultRepositoryInterface $writeVaultRepository): array
 {
@@ -1341,6 +1339,13 @@ function migrateGorgoneCredentialsToVault(WriteVaultRepositoryInterface $writeVa
     ]);
 }
 
+/**
+ * Retrieve Gorgone API credentials from the configuration file.
+ *
+ * @return string
+ *
+ * @throws Exception
+ */
 function retrieveGorgoneApiCredentialsFromConfigFile(): string
 {
     $filePath = '/etc/centreon-gorgone/config.d/31-centreon-api.yaml';
@@ -1357,6 +1362,14 @@ function retrieveGorgoneApiCredentialsFromConfigFile(): string
     return $content['gorgone']['tpapi'][0]['password'];
 }
 
+
+/**
+ * Update the Gorgone API configuration file with the Vault path.
+ *
+ * @param array<string,string> $vaultPaths the Vault paths of the Gorgone API credentials
+ *
+ * @throws Exception if the file cannot be read or updated
+ */
 function updateGorgoneApiFile(array $vaultPaths): void
 {
     $filePath = '/etc/centreon-gorgone/config.d/31-centreon-api.yaml';

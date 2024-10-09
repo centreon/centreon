@@ -79,8 +79,8 @@ try {
         }
         if ($featureFlagManager->isEnabled('vault_gorgone')) {
             $gorgoneVaultPaths = migrateGorgoneCredentialsToVault($writeVaultRepository);
-            if (! empty($gorgoneVaultPath)) {
-                updateGorgoneApiFile($gorgoneVaultPath);
+            if (! empty($gorgoneVaultPaths)) {
+                updateGorgoneApiFile($gorgoneVaultPaths);
             }
         }
     }
