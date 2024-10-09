@@ -108,7 +108,23 @@ When('the user changes some properties of the configured host group "name, alias
         cy.getIframeBody().contains(hostGroup).click({
             force: true,
         });
-        cy.waitForElementInIframe('#main-content', 'input[name="hg_name"]');
+
+        cy.waitUntil(
+            () => {
+                return cy
+                    .getByLabel({ label: 'Up status hosts', tag: 'a' })
+                    .invoke('text')
+                    .then((text) => {
+                        if (text !== '2') {
+                            cy.exportConfig();
+                        }
+
+                        return text === '2';
+                    });
+            },
+            { interval: 20000, timeout: 100000 }
+        );
+
         cy.getIframeBody().find('input[name="hg_name"]').clear().type(hostGroup + '_new');
         cy.getIframeBody().find('input[name="hg_alias"]').clear().type(hostGroup + '_new');
         cy.getIframeBody().find('textarea[name="hg_comment"]').clear().type('Host group updated for test!');
