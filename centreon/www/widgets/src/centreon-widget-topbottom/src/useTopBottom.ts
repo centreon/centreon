@@ -67,10 +67,12 @@ const useTopBottom = ({
   });
 
   const isMetaServiceSelected = getIsMetaServiceSelected(resources);
-  
+
   const metricName = metrics?.[0]?.name;
 
-  const formattedMetricName = isMetaServiceSelected ?  "value" :  encodeURIComponent(metricName) ; 
+  const formattedMetricName = isMetaServiceSelected
+    ? 'value'
+    : encodeURIComponent(metricName);
 
   const { data: metricsTop, isFetching } = useFetchQuery<MetricsTop>({
     decoder: metricsTopDecoder,

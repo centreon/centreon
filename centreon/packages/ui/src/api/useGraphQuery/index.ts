@@ -98,8 +98,8 @@ const useGraphQuery = ({
   prefix
 }: UseMetricsQueryProps): UseMetricsQueryState => {
   const isMetaServiceSelected =
-  equals(resources.length, 1) &&
-  equals(resources[0].resourceType, WidgetResourceType.metaService);
+    equals(resources.length, 1) &&
+    equals(resources[0].resourceType, WidgetResourceType.metaService);
 
   const timePeriodToUse = equals(timePeriod?.timePeriodType, -1)
     ? {
@@ -112,11 +112,12 @@ const useGraphQuery = ({
     ? (timePeriodToUse as CustomTimePeriod)
     : getStartEndFromTimePeriod(timePeriodToUse as number);
 
-
   const definedMetrics = metrics.filter((metric) => metric);
-  const formattedDefinedMetrics = isMetaServiceSelected ? "metric_names[]=value" :  definedMetrics.map((metric) =>
-    'metric_names[]=' +  encodeURIComponent(metric.name)
-  ).join('&')
+  const formattedDefinedMetrics = isMetaServiceSelected
+    ? 'metric_names[]=value'
+    : definedMetrics
+        .map((metric) => `metric_names[]=${encodeURIComponent(metric.name)}`)
+        .join('&');
 
   const prefixQuery = prefix ? [prefix] : [];
 
