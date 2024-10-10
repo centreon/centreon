@@ -1,9 +1,9 @@
 #!/bin/sh
 
-sleep 5
-ps aux | grep vault
-
 export VAULT_ADDR='http://127.0.0.1:8200'
+
+vault server -dev -dev-listen-address="0.0.0.0:8200" &
+sleep 5
 
 vault operator init -format=json > init-output.json
 cat init-output.json
