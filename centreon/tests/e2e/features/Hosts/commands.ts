@@ -33,19 +33,19 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('isEnableOrDisableResourceOnHostGroupChecked', (label: string) => {
+Cypress.Commands.add('checkLegacyRadioButton', (label: string) => {
   cy.getIframeBody().contains('label', label)
     .should('exist')
     .then(($label) => {
       const radioId = $label.attr('for');
       cy.getIframeBody().find(`input[type="radio"][id="${radioId}"]`)
-        .should('be.checked');;
+        .should('be.checked');
     });
 });
 
 Cypress.Commands.add('updateHostGroupViaApi', (body: HostGroup, hostGroup_name: string) => {
   let query =
-    `SELECT h.hg_id  from hostgroup as h WHERE h.hg_name='${hostGroup_name}'`;
+    `SELECT h.hg_id from hostgroup as h WHERE h.hg_name='${hostGroup_name}'`;
   cy.requestOnDatabase({
     database: 'centreon',
     query
@@ -82,7 +82,7 @@ declare global {
         iframeSelector: string,
         elementSelector: string
       ) => Cypress.Chainable;
-      isEnableOrDisableResourceOnHostGroupChecked: (label: string) => Cypress.Chainable;
+      checkLegacyRadioButton: (label: string) => Cypress.Chainable;
       updateHostGroupViaApi: (body: HostGroup, name: string) => Cypress.Chainable;
     }
   }
