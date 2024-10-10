@@ -72,10 +72,6 @@ const TopBottom = ({
     return <NoResources />;
   }
 
-  if(equals(topBottomSettings.numberOfValues, 0)){
-    return <div/>
-  }
-  
   if (isLoading && !metricsTop) {
     return (
       <div className={classes.loader}>
