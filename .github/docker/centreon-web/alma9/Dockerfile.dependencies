@@ -98,16 +98,6 @@ dnf install -y \
   php-pear \
   php-json
 
-################################
-# install collect dependencies #
-################################
-
-dnf install -y \
-  centreon-engine \
-  nagios-plugins \
-  nagios-plugins-dhcp \
-  nagios-plugins-icmp
-
 dnf clean all --enablerepo=*
 
 EOF
