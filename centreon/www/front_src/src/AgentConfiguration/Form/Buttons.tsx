@@ -30,8 +30,6 @@ const Buttons = (): JSX.Element => {
     [dirty, isValid, isSubmitting]
   );
 
-  console.log(errors);
-
   const discard = useCallback(() => {
     setAskBeforeCloseFormModal(false);
     setOpenFormModal(null);
