@@ -126,7 +126,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
     if (Number(versionMatches[1]) < 24) {
       packageDistribPrefix = '-';
       packageDistribName = Cypress.env('WEB_IMAGE_OS');
-    } else if (Number(versionMatches[1]) === 24 && Number(versionMatches[1]) < 10) {
+    } else if (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10) {
       packageDistribPrefix = '-1~';
       packageDistribName = Cypress.env('WEB_IMAGE_OS');
     } else if (Cypress.env('WEB_IMAGE_OS') === 'bookworm') {
