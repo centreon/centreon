@@ -11,7 +11,11 @@ import { isOnPublicPageAtom } from '@centreon/ui-context';
 import NoResources from '../../NoResources';
 import { GlobalRefreshInterval, Metric, Resource } from '../../models';
 import useThresholds from '../../useThresholds';
-import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
+import {
+  areResourcesFullfilled,
+  getIsMetaServiceSelected,
+  getWidgetEndpoint
+} from '../../utils';
 
 import SingleMetricRenderer from './SingleMetricRenderer';
 import { graphEndpoint } from './api/endpoints';
@@ -90,9 +94,11 @@ const Graph = ({
 
   const areResourcesOk = areResourcesFullfilled(resources);
 
+  const isMetaServiceSelected = getIsMetaServiceSelected(resources);
+
   if (
     !areResourcesOk ||
-    isMetricsEmpty ||
+    (!isMetaServiceSelected && isMetricsEmpty) ||
     (isFromPreview && isGraphLoading && isNil(graphData))
   ) {
     return <NoResources />;
@@ -117,7 +123,7 @@ const Graph = ({
   return (
     <ContentWithCircularLoading
       alignCenter
-      loading={isFromPreview && isGraphLoading}
+      loading={(isFromPreview && isGraphLoading) || false}
     >
       <SingleMetricRenderer
         graphProps={props}

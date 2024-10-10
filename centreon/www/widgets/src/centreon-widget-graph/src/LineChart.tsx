@@ -24,7 +24,11 @@ import { isOnPublicPageAtom } from '@centreon/ui-context';
 import NoResources from '../../NoResources';
 import { CommonWidgetProps, Data } from '../../models';
 import useThresholds from '../../useThresholds';
-import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
+import {
+  areResourcesFullfilled,
+  getIsMetaServiceSelected,
+  getWidgetEndpoint
+} from '../../utils';
 
 import { graphEndpoint } from './api/endpoints';
 import { PanelOptions } from './models';
@@ -95,7 +99,9 @@ const WidgetLineChart = ({
     thresholds: panelOptions.threshold
   });
 
-  if (!areResourcesOk || isMetricsEmpty) {
+  const isMetaServiceSelected = getIsMetaServiceSelected(panelData.resources);
+
+  if (!areResourcesOk || (!isMetaServiceSelected && isMetricsEmpty)) {
     return <NoResources />;
   }
 
