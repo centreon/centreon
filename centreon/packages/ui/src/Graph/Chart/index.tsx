@@ -34,6 +34,10 @@ interface Props extends Partial<LineChartProps> {
   thresholds?: Thresholds;
   getRef?: (ref: MutableRefObject<HTMLDivElement | null>) => void;
   containerStyle?: string;
+  useTransformMatrix?: {
+    fx: (pointX: number) => number;
+    fy: (pointY: number) => number;
+  };
 }
 
 const WrapperChart = ({
@@ -65,6 +69,7 @@ const WrapperChart = ({
   thresholdUnit,
   limitLegend,
   getRef,
+  useTransformMatrix,
   ...rest
 }: Props): JSX.Element | null => {
   const { classes, cx } = useChartStyles();
@@ -120,6 +125,7 @@ const WrapperChart = ({
               tooltip={tooltip}
               width={width ?? responsiveWidth}
               zoomPreview={zoomPreview}
+              useTransformMatrix={useTransformMatrix}
             />
           );
         }}
