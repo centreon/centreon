@@ -1,7 +1,7 @@
 #!/bin/sh
 
 export VAULT_TOKEN=${VAULT_DEV_ROOT_TOKEN_ID}
-export VAULT_ADDR='https://vault:8200'
+export VAULT_ADDR='http://vault:8200'
 vault secrets enable -path=centreon kv
 vault auth enable approle
 
