@@ -38,6 +38,7 @@
 
 use App\Kernel;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
+use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Pimple\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -78,6 +79,7 @@ require_once __DIR__ . '/timeperiod.class.php';
 require_once __DIR__ . '/timezone.class.php';
 require_once __DIR__ . '/vault.class.php';
 require_once __DIR__ . '/AdditionalConnectorVmWareV6.class.php';
+require_once __DIR__ . '/AgentConfiguration.class.php';
 
 /**
  * Class
@@ -303,6 +305,14 @@ class Generate
             Backend::getInstance($this->dependencyInjector),
             $readAdditionalConnectorRepository
         ))->reset();
+        $readAgentConfigurationRepository = $kernel->getContainer()->get(
+            ReadAgentConfigurationRepositoryInterface::class
+        )
+            ?? throw new \Exception('ReadAgentConfigurationRepositoryInterface not found');
+        (new AgentConfiguration(
+            Backend::getInstance($this->dependencyInjector),
+            $readAgentConfigurationRepository
+        ))->reset();
         $this->resetModuleObjects();
     }
 
@@ -327,6 +337,14 @@ class Generate
         (new AdditionalConnectorVmWareV6(
             Backend::getInstance($this->dependencyInjector),
             $readAdditionalConnectorRepository
+        ))->generateFromPollerId($this->current_poller['id']);
+        $readAgentConfigurationRepository = $kernel->getContainer()->get(
+            ReadAgentConfigurationRepositoryInterface::class
+        )
+            ?? throw new \Exception('ReadAgentConfigurationRepositoryInterface not found');
+        (new AgentConfiguration(
+            Backend::getInstance($this->dependencyInjector),
+            $readAgentConfigurationRepository
         ))->generateFromPollerId($this->current_poller['id']);
 
         Vault::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);

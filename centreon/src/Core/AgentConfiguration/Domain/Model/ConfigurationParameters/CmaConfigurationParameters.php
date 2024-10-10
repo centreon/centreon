@@ -45,6 +45,8 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
 {
     public const BROKER_MODULE_DIRECTIVE = '/usr/lib64/centreon-engine/libopentelemetry.so /etc/centreon-engine/otl_server.json';
     public const MAX_LENGTH = 255;
+    public const DEFAULT_CHECK_INTERVAL = 60;
+    public const DEFAULT_EXPORT_PERIOD = 60;
 
     /** @var _CmaParameters */
     private array $parameters;
