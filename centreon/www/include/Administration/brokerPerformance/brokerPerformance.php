@@ -222,7 +222,7 @@ while ($data = $DBRESULT->fetchRow()) {
     if ($data['localhost']) {
         $defaultPoller = $data['id'];
     }
-    $pollerList[$data["id"]] = $data["name"];
+    $pollerList[$data["id"]] = HtmlSanitizer::createFromString($data["name"])->sanitize()->getString();
 }
 $DBRESULT->closeCursor();
 

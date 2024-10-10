@@ -68,6 +68,9 @@ $n = count($tab_nagios_server);
  * Display all server options
  */
 if ($n > 1) {
+    foreach ($tab_nagios_server as $key => $name) {
+        $tab_nagios_server[$key] = HtmlSanitizer::createFromString($name)->sanitize()->getString();
+    }
     $tab_nagios_server = [0 => _("All Pollers")] + $tab_nagios_server;
 }
 
