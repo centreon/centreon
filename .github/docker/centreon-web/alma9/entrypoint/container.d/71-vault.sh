@@ -1,7 +1,6 @@
 #!/bin/sh
 
-cat /tmp/shared-volume/vault_ids
-while [[ -z $VAULT_ROLE_ID ]] && [[ -z $VAULT_SECRET_ID ]]; do
+while [ ! -f /tmp/shared-volume/vault_ids ]; do
   . /tmp/shared-volume/vault_ids
   sleep 5
 done
