@@ -32,12 +32,13 @@ final class DashboardUpdatedEvent
      * @param int $dashboardId
      * @param string $directory
      * @param Media|UploadedFile $thumbnail
+     * @param string $filename
      */
     public function __construct(
         private readonly int $dashboardId,
         private readonly string $directory,
         private readonly Media|UploadedFile $thumbnail,
-        private readonly ?string $filename = null
+        private readonly string $filename
     ) {
     }
 
@@ -59,7 +60,7 @@ final class DashboardUpdatedEvent
         return $this->directory;
     }
 
-    public function getFilename(): ?string
+    public function getFilename(): string
     {
         return $this->filename;
     }
