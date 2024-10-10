@@ -22,7 +22,7 @@ const Buttons = (): JSX.Element => {
   const setOpenFormModal = useSetAtom(openFormModalAtom);
   const setAgentTypeForm = useSetAtom(agentTypeFormAtom);
 
-  const { isValid, dirty, isSubmitting, submitForm, errors } =
+  const { isValid, dirty, isSubmitting, submitForm } =
     useFormikContext();
 
   const isSubmitDisabled = useMemo(
