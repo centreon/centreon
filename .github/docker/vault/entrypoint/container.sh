@@ -1,6 +1,7 @@
 #!/bin/sh
 
 sleep 5
+ps aux | grep vault
 
 vault operator init -format=json > init-output.json
 cat init-output.json
