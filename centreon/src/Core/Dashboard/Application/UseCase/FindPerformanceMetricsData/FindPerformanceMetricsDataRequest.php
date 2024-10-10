@@ -23,14 +23,58 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 
+use Core\Common\Infrastructure\Validator\DateFormat;
+use Symfony\Component\Validator\Constraints as Assert;
+
 final class FindPerformanceMetricsDataRequest
 {
-    /** @var string[] */
-    public array $metricNames = [];
-
+    /**
+     * @param string $start
+     * @param string $end
+     * @param string[] $metricNames
+     */
     public function __construct(
-        public \DateTimeInterface $startDate,
-        public \DateTimeInterface $endDate,
+        #[Assert\NotBlank]
+        #[Assert\DateTime(
+            format: DateFormat::ISO8601,
+            message: DateFormat::INVALID_DATE_MESSAGE
+        )]
+        public readonly string $start,
+        #[Assert\NotBlank]
+        #[Assert\DateTime(
+            format: DateFormat::ISO8601,
+            message: DateFormat::INVALID_DATE_MESSAGE
+        )]
+        public readonly string $end,
+        #[Assert\NotNull]
+        #[Assert\Type('array')]
+        #[Assert\All(
+            new Assert\Type('string'),
+        )]
+        public readonly array $metricNames,
     ) {
+    }
+
+    /**
+     * @return FindPerformanceMetricsDataRequestDto
+     */
+    public function toDto(): FindPerformanceMetricsDataRequestDto
+    {
+        return new FindPerformanceMetricsDataRequestDto(
+            startDate: new \DateTimeImmutable($this->start),
+            endDate: new \DateTimeImmutable($this->end),
+            metricNames: $this->sanitizeMetricNames()
+        );
+    }
+
+    /**
+     * @return string[]
+     */
+    private function sanitizeMetricNames(): array
+    {
+        return array_map(
+            static fn (string $metricName): string => \trim($metricName, '"'),
+            $this->metricNames
+        );
     }
 }

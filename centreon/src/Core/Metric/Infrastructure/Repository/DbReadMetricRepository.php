@@ -257,6 +257,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
 
         if ([] !== $this->subRequestsInformation) {
             $request .= $this->subRequestsInformation['service']['request'] ?? '';
+            $request .= $this->subRequestsInformation['metaservice']['request'] ?? '';
             $request .= $this->subRequestsInformation['host']['request'] ?? '';
         }
 
@@ -363,6 +364,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
      *      '$and': array<
      *          array{
      *                    'service.name'?: array{'$in': non-empty-array<string>},
+     *                    'metaservice.id'?: array{'$in': non-empty-array<int>},
      *                         'host.id'?: array{'$in': non-empty-array<int>},
      *                    'hostgroup.id'?: array{'$in': non-empty-array<int>},
      *                 'servicegroup.id'?: array{'$in': non-empty-array<int>},
@@ -392,6 +394,14 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
             ) {
                 $subRequestsInformation['service'] = $this->buildSubRequestForServiceFilter(
                     $searchParameter['service.name']['$in']
+                );
+            }
+            if (
+                \array_key_exists('metaservice.id', $searchParameter)
+                && \array_key_exists('$in', $searchParameter['metaservice.id'])
+            ) {
+                $subRequestsInformation['metaservice'] = $this->buildSubRequestForMetaserviceFilter(
+                    $searchParameter['metaservice.id']['$in']
                 );
             }
             if (
@@ -462,6 +472,32 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
                     AND id.`service_description` IN ({$bindTokens})
                 SQL,
             'bindValues' => $bindServiceNames,
+        ];
+    }
+
+    /**
+     * Build the sub request for metaservice filter.
+     *
+     * @param non-empty-array<string> $metaserviceIds
+     *
+     * @return array{
+     *  request: string,
+     *  bindValues: array<mixed>
+     * }
+     */
+    private function buildSubRequestForMetaserviceFilter(array $metaserviceIds): array
+    {
+        foreach ($metaserviceIds as $key => $metaserviceId) {
+            $bindMetaserviceNames[':metaservice_name' . $key] = ['meta_'. $metaserviceId => \PDO::PARAM_STR];
+        }
+
+        $bindTokens = implode(', ', array_keys($bindMetaserviceNames));
+
+        return [
+            'request' => <<<SQL
+                    AND id.`service_description` IN ({$bindTokens})
+                SQL,
+            'bindValues' => $bindMetaserviceNames,
         ];
     }
 
@@ -638,7 +674,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         $subRequestForTags = \array_reduce(\array_keys($subRequestInformation), function ($acc, $item) use (
             $subRequestInformation
         ) {
-            if ($item !== 'host' && $item !== 'service' && $item !== 'metric') {
+            if ($item !== 'host' && $item !== 'service' && $item !== 'metric' && $item !== 'metaservice') {
                 $acc[] = $subRequestInformation[$item];
             }
 
