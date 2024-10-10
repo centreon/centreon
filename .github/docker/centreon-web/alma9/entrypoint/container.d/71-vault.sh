@@ -1,9 +1,12 @@
 #!/bin/sh
 
-while [ ! -f /tmp/shared-volume/vault_ids ]; do
+echo "Current User: $(whoami)"
+
+while ! [ -f "/tmp/shared-volume/vault_ids" ]; do
   sleep 5
   ls -lah /tmp/shared-volume
 done
+
 . /tmp/shared-volume/vault_ids
 
 RESPONSE=$(curl -s -w "%{http_code}" -H 'Content-Type:application/json' -H 'Accept:application/json' -d '{"security":{"credentials":{"login":"admin","password":"Centreon!2021"}}}' -L "http://localhost:8080/centreon/api/latest/login")
