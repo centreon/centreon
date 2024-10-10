@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 class ZipAndDownload
 {
     /**
@@ -29,9 +28,9 @@ class ZipAndDownload
         $archivePath = $filePath . '/' . $fileNames . '.zip';
         $filePath .= '/' . $fileNames . $fileExtension;
         $zip = new ZipArchive();
-        //create the file and throw the error if unsuccessful
+        // create the file and throw the error if unsuccessful
         if ($zip->open($archivePath, ZIPARCHIVE::CREATE) !== true) {
-            exit("cannot open <$archivePath>\n");
+            exit("cannot open <{$archivePath}>\n");
         }
 
         $zip->addFile($filePath, basename($filePath));

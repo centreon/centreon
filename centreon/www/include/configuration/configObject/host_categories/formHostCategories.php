@@ -38,7 +38,7 @@ if (!isset($centreon)) {
 }
 
 if (!$oreon->user->admin) {
-    if ($hc_id && $hcString != "''" && false === strpos($hcString, "'" . $hc_id . "'")) {
+    if ($hc_id && $hcString != "''" && !str_contains($hcString, "'" . $hc_id . "'")) {
         $msg = new CentreonMsg();
         $msg->setImage("./img/icons/warning.png");
         $msg->setTextStyle("bold");
@@ -47,12 +47,12 @@ if (!$oreon->user->admin) {
     }
 }
 
-$initialValues = array();
+$initialValues = [];
 
 /*
  * Database retrieve information for HostCategories
  */
-$hc = array();
+$hc = [];
 if (($o == "c" || $o == "w") && $hc_id) {
     $DBRESULT = $pearDB->query("SELECT * FROM hostcategories WHERE hc_id = '" . $hc_id . "' LIMIT 1");
     /*
@@ -66,34 +66,24 @@ if (($o == "c" || $o == "w") && $hc_id) {
 /*
  * IMG comes from DB -> Store in $extImg Array
  */
-$extImg = array();
+$extImg = [];
 $extImg = return_image_list(1);
-$extImgStatusmap = array();
+$extImgStatusmap = [];
 $extImgStatusmap = return_image_list(2);
 
 /*
  * Define Templatse
  */
-$attrsText = array("size" => "30");
-$attrsTextLong = array("size" => "50");
-$attrsAdvSelect = array("style" => "width: 220px; height: 220px;");
-$attrsTextarea = array("rows" => "4", "cols" => "60");
+$attrsText = ["size" => "30"];
+$attrsTextLong = ["size" => "50"];
+$attrsAdvSelect = ["style" => "width: 220px; height: 220px;"];
+$attrsTextarea = ["rows" => "4", "cols" => "60"];
 $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />'
     . '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 $hostRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_host&action=list';
-$attrHosts = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $hostRoute,
-    'multiple' => true,
-    'linkedObject' => 'centreonHost'
-);
+$attrHosts = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $hostRoute, 'multiple' => true, 'linkedObject' => 'centreonHost'];
 $hostTplRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_hosttemplate&action=list';
-$attrHosttemplates = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $hostTplRoute,
-    'multiple' => true,
-    'linkedObject' => 'centreonHosttemplates'
-);
+$attrHosttemplates = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $hostTplRoute, 'multiple' => true, 'linkedObject' => 'centreonHosttemplates'];
 
 /*
  * Create formulary
@@ -118,37 +108,33 @@ $form->addElement('text', 'hc_alias', _("Alias"), $attrsText);
  * Severity
  */
 $form->addElement('header', 'relation', _("Relation"));
-$hctype = $form->addElement('checkbox', 'hc_type', _('Severity type'), null, array('id' => 'hc_type'));
+$hctype = $form->addElement('checkbox', 'hc_type', _('Severity type'), null, ['id' => 'hc_type']);
 if (isset($hc_id) && isset($hc['level']) && $hc['level'] != "") {
     $hctype->setValue('1');
 }
-$form->addElement('text', 'hc_severity_level', _("Level"), array("size" => "10"));
+$form->addElement('text', 'hc_severity_level', _("Level"), ["size" => "10"]);
 $iconImgs = return_image_list(1);
 $form->addElement(
     'select',
     'hc_severity_icon',
     _("Icon"),
     $iconImgs,
-    array(
-        "id" => "icon_id",
-        "onChange" => "showLogo('icon_id_ctn', this.value)",
-        "onkeyup" => "this.blur(); this.focus();"
-    )
+    ["id" => "icon_id", "onChange" => "showLogo('icon_id_ctn', this.value)", "onkeyup" => "this.blur(); this.focus();"]
 );
 $host1DeRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_host'
     . '&action=defaultValues&target=hostcategories&field=hc_hosts&id=' . $hc_id;
 $attrHost1 = array_merge(
     $attrHosts,
-    array('defaultDatasetRoute' => $host1DeRoute)
+    ['defaultDatasetRoute' => $host1DeRoute]
 );
-$form->addElement('select2', 'hc_hosts', _("Linked Hosts"), array(), $attrHost1);
+$form->addElement('select2', 'hc_hosts', _("Linked Hosts"), [], $attrHost1);
 $host2DeRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_hosttemplate'
     . '&action=defaultValues&target=hostcategories&field=hc_hostsTemplate&id=' . $hc_id;
 $attrHost2 = array_merge(
     $attrHosttemplates,
-    array('defaultDatasetRoute' => $host2DeRoute)
+    ['defaultDatasetRoute' => $host2DeRoute]
 );
-$ams1 = $form->addElement('select2', 'hc_hostsTemplate', _("Linked Host Template"), array(), $attrHost2);
+$ams1 = $form->addElement('select2', 'hc_hostsTemplate', _("Linked Host Template"), [], $attrHost2);
 if (!$oreon->user->admin) {
     $ams1->setPersistantFreeze(true);
     $ams1->freeze();
@@ -162,7 +148,7 @@ $form->addElement('textarea', 'hc_comment', _("Comments"), $attrsTextarea);
 $hcActivation[] = $form->createElement('radio', 'hc_activate', null, _("Enabled"), '1');
 $hcActivation[] = $form->createElement('radio', 'hc_activate', null, _("Disabled"), '0');
 $form->addGroup($hcActivation, 'hc_activate', _("Status"), '&nbsp;');
-$form->setDefaults(array('hc_activate' => '1'));
+$form->setDefaults(['hc_activate' => '1']);
 
 $form->addElement('hidden', 'hc_id');
 $redirect = $form->addElement('hidden', 'o');
@@ -227,7 +213,7 @@ if ($o == "w") {
             "button",
             "change",
             _("Modify"),
-            array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&hc_id=" . $hc_id . "'")
+            ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&hc_id=" . $hc_id . "'"]
         );
     }
     $form->setDefaults($hc);
@@ -236,15 +222,15 @@ if ($o == "w") {
     /*
      * Modify a HostCategorie information
      */
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $form->setDefaults($hc);
 } elseif ($o == "a") {
     /*
      * Add a HostCategorie information
      */
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 }
 
 $tpl->assign('p', $p);

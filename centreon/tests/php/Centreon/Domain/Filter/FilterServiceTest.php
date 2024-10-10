@@ -109,7 +109,7 @@ class FilterServiceTest extends TestCase
     /**
      * test checkCriterias with renamed objects
      */
-    public function testCheckCriteriasRenamedObjects()
+    public function testCheckCriteriasRenamedObjects(): void
     {
         $renamedHostGroup = (new HostGroup())
             ->setId(1)
@@ -146,7 +146,7 @@ class FilterServiceTest extends TestCase
     /**
      * test checkCriterias with deleted objects
      */
-    public function testCheckCriteriasDeletedObjects()
+    public function testCheckCriteriasDeletedObjects(): void
     {
         $this->serviceGroupService->expects($this->once())
             ->method('filterByContact')

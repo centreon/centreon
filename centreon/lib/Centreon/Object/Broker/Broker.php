@@ -36,13 +36,17 @@
 require_once "Centreon/Object/Object.php";
 
 /**
- * Used for interacting with Centreon Broker configuration
+ * Class
  *
- * @author sylvestre
+ * @class Centreon_Object_Broker
+ * @descriptionUsed for interacting with Centreon Broker configuration
  */
 class Centreon_Object_Broker extends Centreon_Object
 {
+    /** @var string */
     protected $table = "cfg_centreonbroker";
+    /** @var string */
     protected $primaryKey = "config_id";
+    /** @var string */
     protected $uniqueLabelField = "config_name";
 }

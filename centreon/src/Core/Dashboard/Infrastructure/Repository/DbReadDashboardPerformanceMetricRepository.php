@@ -422,14 +422,14 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         bool $hasMetricName = false): string
     {
         $request
-            = <<<'SQL'
+            = <<<'SQL_WRAP'
                     SELECT SQL_CALC_FOUND_ROWS DISTINCT
                     m.metric_id, m.metric_name, m.unit_name, m.warn, m.crit, m.current_value, m.warn_low, m.crit_low, m.min,
                     m.max, r.parent_name, r.name, r.id as service_id, r.parent_id
                     FROM `:dbstg`.`metrics` AS m
                     INNER JOIN `:dbstg`.`index_data` AS id ON id.id = m.index_id
                     INNER JOIN `:dbstg`.`resources` AS r ON r.id = id.service_id
-                SQL;
+                SQL_WRAP;
 
         $accessGroupIds = array_map(
             fn ($accessGroup) => $accessGroup->getId(),
@@ -444,7 +444,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         }
 
         $search = $requestParameters->getSearch();
-        if (! empty($search) && array_key_exists('$and', $search)) {
+        if ($search !== [] && array_key_exists('$and', $search)) {
             $this->subRequestsInformation = $this->getSubRequestsInformation($search);
             $request .= $this->buildSubRequestForTags($this->subRequestsInformation);
         }
@@ -453,7 +453,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 WHERE r.enabled = 1
             SQL;
 
-        if (! empty($this->subRequestsInformation)) {
+        if ($this->subRequestsInformation !== []) {
             $request .= $this->subRequestsInformation['service']['request'] ?? '';
             $request .= $this->subRequestsInformation['host']['request'] ?? '';
         }
@@ -465,7 +465,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         }
 
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY m.metric_id ASC';
+        $request .= $sortRequest ?? ' ORDER BY m.metric_id ASC';
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();
 
         return $request;
@@ -489,7 +489,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 ':metricName' => [$metricName => \PDO::PARAM_STR],
             ];
         }
-        if (! empty($this->subRequestsInformation)) {
+        if ($this->subRequestsInformation !== []) {
             foreach ($this->subRequestsInformation as $subRequestInformation) {
                 $boundValues[] = $subRequestInformation['bindValues'];
             }

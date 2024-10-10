@@ -52,10 +52,14 @@ class AcknowledgementController extends AbstractController
         = __DIR__ . '/../../../../config/json_validator/latest/Centreon/Acknowledgement/DisacknowledgeResources.json';
 
     private const
-        DEFAULT_ACKNOWLEDGEMENT_STICKY = 'monitoring_ack_sticky',
-        DEFAULT_ACKNOWLEDGEMENT_PERSISTENT = 'monitoring_ack_persistent',
-        DEFAULT_ACKNOWLEDGEMENT_NOTIFY = 'monitoring_ack_notify',
-        DEFAULT_ACKNOWLEDGEMENT_WITH_SERVICES = 'monitoring_ack_svc',
+        DEFAULT_ACKNOWLEDGEMENT_STICKY = 'monitoring_ack_sticky';
+    private const
+        DEFAULT_ACKNOWLEDGEMENT_PERSISTENT = 'monitoring_ack_persistent';
+    private const
+        DEFAULT_ACKNOWLEDGEMENT_NOTIFY = 'monitoring_ack_notify';
+    private const
+        DEFAULT_ACKNOWLEDGEMENT_WITH_SERVICES = 'monitoring_ack_svc';
+    private const
         DEFAULT_ACKNOWLEDGEMENT_FORCE_ACTIVE_CHECKS = 'monitoring_ack_active_checks';
 
     public function __construct(

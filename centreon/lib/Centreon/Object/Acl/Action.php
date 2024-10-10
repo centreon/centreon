@@ -36,13 +36,16 @@
 require_once __DIR__ . "/../Object.php";
 
 /**
- * Used for interacting with Acl Actions
+ * Class
  *
- * @author sylvestre
+ * @class Centreon_Object_Acl_Action
  */
 class Centreon_Object_Acl_Action extends Centreon_Object
 {
+    /** @var string */
     protected $table = "acl_actions";
+    /** @var string */
     protected $primaryKey = "acl_action_id";
+    /** @var string */
     protected $uniqueLabelField = "acl_action_name";
 }

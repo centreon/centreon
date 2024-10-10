@@ -34,13 +34,23 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class Command
+ */
 class Command extends AbstractObject
 {
+    /** @var null */
     private $commands = null;
 
+    /** @var null */
     private $mail_bin = null;
+    /** @var string */
     protected $generate_filename = 'commands.cfg';
-    protected $object_name = 'command';
+    /** @var string */
+    protected string $object_name = 'command';
+    /** @var string */
     protected $attributes_select = '
         command_id,
         command_name,
@@ -48,11 +58,8 @@ class Command extends AbstractObject
         connector.name as connector,
         enable_shell
     ';
-    protected $attributes_write = array(
-        'command_name',
-        'command_line',
-        'connector',
-    );
+    /** @var string[] */
+    protected $attributes_write = ['command_name', 'command_line', 'connector'];
 
     /**
      * Create the cache of commands.
@@ -67,7 +74,11 @@ class Command extends AbstractObject
         $this->commands = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
     }
 
-    private function getMailBin()
+    /**
+     * @return void
+     * @throws PDOException
+     */
+    private function getMailBin(): void
     {
         $stmt = $this->backend_instance->db->prepare("SELECT
               options.value
@@ -75,13 +86,18 @@ class Command extends AbstractObject
                 WHERE options.key = 'mailer_path_bin'
             ");
         $stmt->execute();
-        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $this->mail_bin = $row['value'];
-        } else {
-            $this->mail_bin = '';
-        }
+        $this->mail_bin = ($row = $stmt->fetch(PDO::FETCH_ASSOC)) ? $row['value'] : '';
     }
 
+    /**
+     * @param $command_id
+     *
+     * @return mixed|null
+     * @throws LogicException
+     * @throws PDOException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     */
     public function generateFromCommandId($command_id)
     {
         $name = null;
@@ -127,7 +143,7 @@ class Command extends AbstractObject
         }
 
         $this->generateObjectInFile(
-            array_merge($this->commands[$command_id], array('command_line' => $command_line)),
+            array_merge($this->commands[$command_id], ['command_line' => $command_line]),
             $command_id
         );
         return $this->commands[$command_id]['command_name'];

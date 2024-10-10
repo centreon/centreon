@@ -23,22 +23,31 @@ declare(strict_types=1);
 
 namespace Core\Contact\Domain\Model;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
-use Centreon\Domain\Common\Assertion\AssertionException;
 
 class ContactGroup
 {
     /**
      * @param int $id
      * @param string $name
+     * @param string $alias
+     * @param string $comments
+     * @param bool $isActivated
+     * @param ContactGroupType $type
      *
-     * @throws AssertionException
+     * @throws AssertionFailedException
      */
     public function __construct(
-        private int $id,
-        private string $name
+        private readonly int $id,
+        private readonly string $name,
+        private readonly string $alias,
+        private readonly string $comments = '',
+        private readonly bool $isActivated = true,
+        private readonly ContactGroupType $type = ContactGroupType::Local,
     ) {
         Assertion::notEmpty($name, 'ContactGroup::name');
+        Assertion::notEmpty($alias, 'ContactGroup::alias');
     }
 
     /**
@@ -55,5 +64,25 @@ class ContactGroup
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getAlias(): string
+    {
+        return $this->alias;
+    }
+
+    public function getComments(): string
+    {
+        return $this->comments;
+    }
+
+    public function isActivated(): bool
+    {
+        return $this->isActivated;
+    }
+
+    public function getType(): ContactGroupType
+    {
+        return $this->type;
     }
 }

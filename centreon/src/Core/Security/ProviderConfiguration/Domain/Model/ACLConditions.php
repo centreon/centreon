@@ -131,7 +131,7 @@ class ACLConditions
                 $missing[] = 'attribute_path';
             }
 
-            if ($this->applyOnlyFirstRole && empty($this->relations)) {
+            if ($this->applyOnlyFirstRole && $this->relations === []) {
                 $missing[] = 'relations';
             }
 

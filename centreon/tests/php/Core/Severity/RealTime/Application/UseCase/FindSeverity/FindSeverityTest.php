@@ -33,7 +33,7 @@ use Core\Severity\RealTime\Application\UseCase\FindSeverity\FindSeverity;
 use Core\Severity\RealTime\Application\UseCase\FindSeverity\FindSeverityResponse;
 use Core\Severity\RealTime\Domain\Model\Severity;
 
-beforeEach(function () {
+beforeEach(function (): void {
 
     $this->user = $this->createMock(ContactInterface::class);
     $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
@@ -50,7 +50,7 @@ beforeEach(function () {
 
 });
 
-it('should present an ErrorResponse when an exception is thrown', function () {
+it('should present an ErrorResponse when an exception is thrown', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -69,7 +69,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
             ->toBe('An error occured while retrieving severities');
 });
 
-it('should present a FindSeverityResponse as admin', function () {
+it('should present a FindSeverityResponse as admin', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -100,7 +100,7 @@ it('should present a FindSeverityResponse as admin', function () {
         );
 });
 
-it('should present a FindSeverityResponse as non-admin', function () {
+it('should present a FindSeverityResponse as non-admin', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')

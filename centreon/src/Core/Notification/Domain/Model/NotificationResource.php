@@ -25,24 +25,22 @@ namespace Core\Notification\Domain\Model;
 
 class NotificationResource
 {
-    public const HOSTGROUP_RESOURCE_TYPE = 'hostgroup';
-    public const SERVICEGROUP_RESOURCE_TYPE = 'servicegroup';
+    public const TYPE_HOST_GROUP = 'hostgroup';
+    public const TYPE_SERVICE_GROUP = 'servicegroup';
 
     /**
-     * @template T of NotificationHostEvent|NotificationServiceEvent
-     *
-     * @param self::*_RESOURCE_TYPE $type
-     * @param class-string<T> $eventEnum
+     * @param self::TYPE_* $type
+     * @param class-string<HostEvent|ServiceEvent> $eventEnum
      * @param ConfigurationResource[] $resources
-     * @param array<T> $events
-     * @param NotificationServiceEvent[] $serviceEvents
+     * @param array<HostEvent|ServiceEvent> $events
+     * @param ServiceEvent[] $serviceEvents
      *
      * @throws \ValueError
      */
     public function __construct(
         private readonly string $type,
         private readonly string $eventEnum,
-        private array $resources,
+        private readonly array $resources,
         private array $events,
         private array $serviceEvents = [],
     ) {
@@ -51,7 +49,7 @@ class NotificationResource
     }
 
     /**
-     * @return self::*_RESOURCE_TYPE
+     * @return self::TYPE_*
      */
     public function getType(): string
     {
@@ -75,7 +73,7 @@ class NotificationResource
     }
 
     /**
-     * @return array<NotificationHostEvent>|array<NotificationServiceEvent>
+     * @return array<HostEvent>|array<ServiceEvent>
      */
     public function getEvents(): array
     {
@@ -83,24 +81,11 @@ class NotificationResource
     }
 
     /**
-     * @param array<NotificationHostEvent>|array<NotificationServiceEvent> $events
+     * @param HostEvent|ServiceEvent $event
      *
      * @throws \ValueError
      */
-    public function setEvents(array $events): void
-    {
-        $this->events = [];
-        foreach ($events as $event) {
-            $this->addEvent($event);
-        }
-    }
-
-    /**
-     * @param NotificationHostEvent|NotificationServiceEvent $event
-     *
-     * @throws \ValueError
-     */
-    public function addEvent(NotificationHostEvent|NotificationServiceEvent $event): void
+    public function addEvent(HostEvent|ServiceEvent $event): void
     {
         if ($event instanceof $this->eventEnum) {
             $this->events[] = $event;
@@ -110,9 +95,9 @@ class NotificationResource
     }
 
     /**
-     * Should only be used for Notification of type hostgroup.
+     * Should only be used for Notification of type host group.
      *
-     * @return NotificationServiceEvent[]
+     * @return ServiceEvent[]
      */
     public function getServiceEvents(): array
     {
@@ -120,25 +105,38 @@ class NotificationResource
     }
 
     /**
-     * Should only be used for Notification of type hostgroup.
+     * Should only be used for Notification of type host group.
      *
-     * @param NotificationServiceEvent[] $serviceEvents
+     * @param ServiceEvent $serviceEvent
      */
-    public function setServiceEvents(array $serviceEvents): void
+    public function addServiceEvent(ServiceEvent $serviceEvent): void
     {
-        $this->serviceEvents = [];
-        foreach ($serviceEvents as $serviceEvent) {
-            $this->addServiceEvent($serviceEvent);
+        $this->serviceEvents[] = $serviceEvent;
+    }
+
+    /**
+     * @param array<HostEvent>|array<ServiceEvent> $events
+     *
+     * @throws \ValueError
+     */
+    private function setEvents(array $events): void
+    {
+        $this->events = [];
+        foreach ($events as $event) {
+            $this->addEvent($event);
         }
     }
 
     /**
      * Should only be used for Notification of type hostgroup.
      *
-     * @param NotificationServiceEvent $serviceEvent
+     * @param ServiceEvent[] $serviceEvents
      */
-    public function addServiceEvent(NotificationServiceEvent $serviceEvent): void
+    private function setServiceEvents(array $serviceEvents): void
     {
-        $this->serviceEvents[] = $serviceEvent;
+        $this->serviceEvents = [];
+        foreach ($serviceEvents as $serviceEvent) {
+            $this->addServiceEvent($serviceEvent);
+        }
     }
 }

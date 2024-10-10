@@ -34,9 +34,16 @@
  *
  */
 
+use Pimple\Container;
+
 require_once __DIR__ . '/centreonContact.class.php';
 require_once __DIR__ . '/centreonAuth.LDAP.class.php';
 
+/**
+ * Class
+ *
+ * @class CentreonAuth
+ */
 class CentreonAuth
 {
     /**
@@ -61,39 +68,55 @@ class CentreonAuth
     public const AUTH_TYPE_LDAP = 'ldap';
 
     // Declare Values
+    /** @var array */
     public $userInfos;
+    /** @var string */
     protected $login;
+    /** @var string */
     protected $password;
+    /** @var */
     protected $enable;
+    /** @var */
     protected $userExists;
+    /** @var int */
     protected $cryptEngine;
+    /** @var int */
     protected $autologin;
-    protected $cryptPossibilities;
+    /** @var string[] */
+    protected $cryptPossibilities = ['MD5', 'SHA1'];
 
-    /**
-     * @var CentreonDB
-     */
+    /** @var CentreonDB */
     protected $pearDB;
 
+    /** @var int */
     protected $debug;
+    /** @var Container */
     protected $dependencyInjector;
 
     // Flags
+    /** @var */
     public $passwdOk;
+    /** @var */
     protected $authType;
-    protected $ldap_auto_import;
-    protected $ldap_store_password;
-    protected $default_page;
+    /** @var array */
+    protected $ldap_auto_import = [];
+    /** @var array */
+    protected $ldap_store_password = [];
+    /** @var int */
+    protected $default_page = self::DEFAULT_PAGE;
 
     // keep log class
+    /** @var CentreonUserLog */
     protected $CentreonLog;
 
     // Error Message
+    /** @var */
     protected $error;
 
     /**
-     * Constructor
+     * CentreonAuth constructor
      *
+     * @param Container $dependencyInjector
      * @param string $username
      * @param string $password
      * @param int $autologin
@@ -101,7 +124,8 @@ class CentreonAuth
      * @param CentreonUserLog $CentreonLog
      * @param int $encryptType
      * @param string $token | for autologin
-     * @return void
+     *
+     * @throws PDOException
      */
     public function __construct(
         $dependencyInjector,
@@ -114,7 +138,6 @@ class CentreonAuth
         $token = ""
     ) {
         $this->dependencyInjector = $dependencyInjector;
-        $this->cryptPossibilities = array('MD5', 'SHA1');
         $this->CentreonLog = $CentreonLog;
         $this->login = $username;
         $this->password = $password;
@@ -122,9 +145,6 @@ class CentreonAuth
         $this->autologin = $autologin;
         $this->cryptEngine = $encryptType;
         $this->debug = $this->getLogFlag();
-        $this->ldap_auto_import = array();
-        $this->ldap_store_password = array();
-        $this->default_page = self::DEFAULT_PAGE;
 
         $res = $pearDB->query(
             "SELECT ar.ar_id, ari.ari_value, ari.ari_name " .
@@ -147,15 +167,13 @@ class CentreonAuth
      * Log enabled
      *
      * @return int
+     * @throws PDOException
      */
     protected function getLogFlag()
     {
         $res = $this->pearDB->query("SELECT value FROM options WHERE `key` = 'debug_auth'");
         $data = $res->fetch();
-        if (isset($data["value"])) {
-            return $data["value"];
-        }
-        return 0;
+        return $data["value"] ?? 0;
     }
 
     /**
@@ -163,8 +181,10 @@ class CentreonAuth
      *
      * @param string $password
      * @param string $token
-     * @param boolean $autoImport
+     * @param bool $autoImport
+     *
      * @return void
+     * @throws PDOException
      */
     protected function checkPassword($password, $token = "", $autoImport = false)
     {
@@ -230,6 +250,8 @@ class CentreonAuth
      *
      * @param string $password
      * @param bool $autoImport
+     *
+     * @throws PDOException
      */
     private function checkLdapPassword($password, $autoImport): void
     {
@@ -264,7 +286,7 @@ class CentreonAuth
                 if (isset($this->ldap_store_password[$arId]) && $this->ldap_store_password[$arId]) {
                     if (!isset($this->userInfos["contact_passwd"])) {
                         $hashedPassword = password_hash($this->password, self::PASSWORD_HASH_ALGORITHM);
-                        $contact = new \CentreonContact($this->pearDB);
+                        $contact = new CentreonContact($this->pearDB);
                         $contactId = $contact->findContactIdByAlias($this->login);
                         if ($contactId !== null) {
                             $contact->addPasswordByContactId($contactId, $hashedPassword);
@@ -272,7 +294,7 @@ class CentreonAuth
                     // Update password if LDAP authentication is valid but password not up to date in Centreon.
                     } elseif (!password_verify($this->password, $this->userInfos["contact_passwd"])) {
                         $hashedPassword = password_hash($this->password, self::PASSWORD_HASH_ALGORITHM);
-                        $contact = new \CentreonContact($this->pearDB);
+                        $contact = new CentreonContact($this->pearDB);
                         $contactId = $contact->findContactIdByAlias($this->login);
                         if ($contactId !== null) {
                             $contact->replacePasswordByContactId(
@@ -304,8 +326,10 @@ class CentreonAuth
      * Check local user password
      *
      * @param string $password
+     *
+     * @throws PDOException
      */
-    private function checkLocalPassword($password)
+    private function checkLocalPassword($password): void
     {
         if (empty($password)) {
             $this->passwdOk = self::PASSWORD_INVALID;
@@ -329,9 +353,9 @@ class CentreonAuth
                 "UPDATE `contact_password` SET password = :newPassword
                 WHERE password = :oldPassword AND contact_id = :contactId"
             );
-            $statement->bindValue(':newPassword', $newPassword, \PDO::PARAM_STR);
-            $statement->bindValue(':oldPassword', $this->userInfos["contact_passwd"], \PDO::PARAM_STR);
-            $statement->bindValue(':contactId', $this->userInfos["contact_id"], \PDO::PARAM_INT);
+            $statement->bindValue(':newPassword', $newPassword, PDO::PARAM_STR);
+            $statement->bindValue(':oldPassword', $this->userInfos["contact_passwd"], PDO::PARAM_STR);
+            $statement->bindValue(':contactId', $this->userInfos["contact_id"], PDO::PARAM_INT);
             $statement->execute();
             $this->passwdOk = self::PASSWORD_VALID;
             return;
@@ -346,7 +370,9 @@ class CentreonAuth
      * @param string $username
      * @param string $password
      * @param string $token
+     *
      * @return void
+     * @throws PDOException
      */
     protected function checkUser($username, $password, $token)
     {
@@ -358,7 +384,7 @@ class CentreonAuth
                 AND `contact_activate` = '1' AND `contact_register` = '1'
                 ORDER BY contact_password.creation_date DESC LIMIT 1"
             );
-            $dbResult->bindValue(':contactAlias', $username, \PDO::PARAM_STR);
+            $dbResult->bindValue(':contactAlias', $username, PDO::PARAM_STR);
             $dbResult->execute();
         } else {
             $dbResult = $this->pearDB->query(
@@ -373,10 +399,10 @@ class CentreonAuth
                 $statement = $this->pearDB->prepare(
                     "SELECT topology_url_opt FROM topology WHERE topology_page = :topology_page"
                 );
-                $statement->bindValue(':topology_page', (int) $this->userInfos["default_page"], \PDO::PARAM_INT);
+                $statement->bindValue(':topology_page', (int) $this->userInfos["default_page"], PDO::PARAM_INT);
                 $statement->execute();
                 if ($statement->rowCount()) {
-                    $data = $statement->fetch(\PDO::FETCH_ASSOC);
+                    $data = $statement->fetch(PDO::FETCH_ASSOC);
                     $this->userInfos["default_page"] .= $data["topology_url_opt"];
                 }
             }
@@ -384,7 +410,7 @@ class CentreonAuth
             /*
              * Check password matching
              */
-            $this->getCryptFunction();
+            $this->getCryptFunction(); // FIXME expression not used
             $this->checkPassword($password, $token);
             if ($this->passwdOk == self::PASSWORD_VALID) {
                 $this->CentreonLog->setUID($this->userInfos["contact_id"]);
@@ -417,18 +443,18 @@ class CentreonAuth
                 "WHERE `contact_alias` = :contact_alias " .
                 "AND `contact_activate` = '1' AND `contact_register` = '1' LIMIT 1"
             );
-            $statement->bindValue(':contact_alias', $this->pearDB->escape($username, true), \PDO::PARAM_STR);
+            $statement->bindValue(':contact_alias', $this->pearDB->escape($username, true), PDO::PARAM_STR);
             $statement->execute();
             if ($statement->rowCount()) {
-                $this->userInfos = $statement->fetch(\PDO::FETCH_ASSOC);
+                $this->userInfos = $statement->fetch(PDO::FETCH_ASSOC);
                 if ($this->userInfos["default_page"]) {
                     $statement = $this->pearDB->prepare(
                         "SELECT topology_url_opt FROM topology WHERE topology_page = :topology_page"
                     );
-                    $statement->bindValue(':topology_page', (int) $this->userInfos["default_page"], \PDO::PARAM_INT);
+                    $statement->bindValue(':topology_page', (int) $this->userInfos["default_page"], PDO::PARAM_INT);
                     $statement->execute();
                     if ($statement->rowCount()) {
-                        $data = $statement->fetch(\PDO::FETCH_ASSOC);
+                        $data = $statement->fetch(PDO::FETCH_ASSOC);
                         $this->userInfos["default_page"] .= $data["topology_url_opt"];
                     }
                 }
@@ -440,30 +466,29 @@ class CentreonAuth
         }
     }
 
-    /*
+    /**
      * Check crypt system
+     * @return string
      */
     protected function getCryptFunction()
     {
         if (isset($this->cryptEngine)) {
             switch ($this->cryptEngine) {
-                case self::ENCRYPT_MD5:
-                    return "MD5";
-                    break;
                 case self::ENCRYPT_SHA1:
                     return "SHA1";
-                    break;
                 default:
                     return "MD5";
-                    break;
             }
         } else {
             return "MD5";
         }
     }
 
-    /*
+    /**
      * Crypt String
+     * @param $str
+     *
+     * @return mixed
      */
     protected function myCrypt($str)
     {
@@ -472,39 +497,51 @@ class CentreonAuth
             switch ($this->cryptEngine) {
                 case 1:
                     return $this->dependencyInjector['utils']->encodePass($str, 'md5');
-                    break;
                 case 2:
                     return $this->dependencyInjector['utils']->encodePass($str, 'sha1');
-                    break;
                 default:
                     return $this->dependencyInjector['utils']->encodePass($str, 'md5');
-                    break;
             }
         } else {
             return $str;
         }
     }
 
+    /**
+     * @return int
+     */
     protected function getCryptEngine()
     {
         return $this->cryptEngine;
     }
 
+    /**
+     * @return mixed
+     */
     protected function userExists()
     {
         return $this->userExists;
     }
 
+    /**
+     * @return mixed
+     */
     protected function userIsEnable()
     {
         return $this->enable;
     }
 
+    /**
+     * @return mixed
+     */
     protected function passwordIsOk()
     {
         return $this->passwdOk;
     }
 
+    /**
+     * @return mixed
+     */
     protected function getAuthType()
     {
         return $this->authType;
@@ -516,6 +553,8 @@ class CentreonAuth
      * @param string $authenticationType
      * @param string|bool $username
      * @param string $reason
+     *
+     * @return void
      */
     private function setAuthenticationError(string $authenticationType, $username, string $reason): void
     {

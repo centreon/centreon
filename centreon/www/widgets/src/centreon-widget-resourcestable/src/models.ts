@@ -1,11 +1,11 @@
-import {
+import type {
   CommonWidgetProps,
   NamedEntity,
   Resource,
   SortOrder
 } from '../../models';
 
-import { DisplayType } from './Listing/models';
+import type { DisplayType } from './Listing/models';
 
 export interface Data {
   resources: Array<Resource>;

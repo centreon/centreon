@@ -43,32 +43,21 @@ require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 
 /* Get the list of contact */
 /* notification contacts */
-$notifCs = $acl->getContactAclConf(array(
-    'fields' => array('contact_id', 'contact_name'),
-    'get_row' => 'contact_name',
-    'keys' => array('contact_id'),
-    'conditions' => array('contact_register' => '1'),
-    'order' => array('contact_name')
-));
+$notifCs = $acl->getContactAclConf(['fields' => ['contact_id', 'contact_name'], 'get_row' => 'contact_name', 'keys' => ['contact_id'], 'conditions' => ['contact_register' => '1'], 'order' => ['contact_name']]);
 
 /* notification contact groups */
-$notifCgs = array();
+$notifCgs = [];
 $cg = new CentreonContactgroup($pearDB);
 if ($oreon->user->admin) {
     $notifCgs = $cg->getListContactgroup(true);
 } else {
-    $cgAcl = $acl->getContactGroupAclConf(array(
-        'fields' => array('cg_id', 'cg_name'),
-        'get_row' => 'cg_name',
-        'keys' => array('cg_id'),
-        'order' => array('cg_name')
-    ));
+    $cgAcl = $acl->getContactGroupAclConf(['fields' => ['cg_id', 'cg_name'], 'get_row' => 'cg_name', 'keys' => ['cg_id'], 'order' => ['cg_name']]);
     $cgLdap = $cg->getListContactgroup(true, true);
     $notifCgs = array_intersect_key($cgLdap, $cgAcl);
 }
 
-$initialValues = array();
-$ms = array();
+$initialValues = [];
+$ms = [];
 if (($o == "c" || $o == "w") && $meta_id) {
     $DBRESULT = $pearDB->query("SELECT * FROM meta_service WHERE meta_id = '" . $meta_id . "' LIMIT 1");
     // Set base value
@@ -85,17 +74,17 @@ if (($o == "c" || $o == "w") && $meta_id) {
 /*
  * Calc Type
  */
-$calType = array("AVE" => _("Average"), "SOM" => _("Sum"), "MIN" => _("Min"), "MAX" => _("Max"));
+$calType = ["AVE" => _("Average"), "SOM" => _("Sum"), "MIN" => _("Min"), "MAX" => _("Max")];
 
 /*
  * Data source type
  */
-$dsType = array(0 => "GAUGE", 1 => "COUNTER", 2 => "DERIVE", 3 => "ABSOLUTE");
+$dsType = [0 => "GAUGE", 1 => "COUNTER", 2 => "DERIVE", 3 => "ABSOLUTE"];
 
 /*
  * Graphs Template comes from DB -> Store in $graphTpls Array
  */
-$graphTpls = array(null => null);
+$graphTpls = [null => null];
 $DBRESULT = $pearDB->query("SELECT graph_id, name FROM giv_graphs_template ORDER BY name");
 while ($graphTpl = $DBRESULT->fetchRow()) {
     $graphTpls[$graphTpl["graph_id"]] = $graphTpl["name"];
@@ -105,39 +94,24 @@ $DBRESULT->closeCursor();
 /*
  * Init Styles
  */
-$attrsText = array("size" => "30");
-$attrsText2 = array("size" => "6");
-$attrsAdvSelect = array("style" => "width: 200px; height: 100px;");
-$attrsTextarea = array("rows" => "5", "cols" => "40");
+$attrsText = ["size" => "30"];
+$attrsText2 = ["size" => "6"];
+$attrsAdvSelect = ["style" => "width: 200px; height: 100px;"];
+$attrsTextarea = ["rows" => "5", "cols" => "40"];
 $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />'
     . '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 $timeAvRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_timeperiod&action=list';
-$attrTimeperiods = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $timeAvRoute,
-    'multiple' => false,
-    'linkedObject' => 'centreonTimeperiod'
-);
+$attrTimeperiods = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $timeAvRoute, 'multiple' => false, 'linkedObject' => 'centreonTimeperiod'];
 $attrMetric = [
     'datasourceOrigin' => 'ajax',
     'availableDatasetRoute' => './api/internal.php?object=centreon_monitoring_metric&action=list',
     'multiple' => false
 ];
 $contactAvRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_contact&action=list';
-$attrContacts = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $contactAvRoute,
-    'multiple' => true,
-    'linkedObject' => 'centreonContact'
-);
+$attrContacts = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $contactAvRoute, 'multiple' => true, 'linkedObject' => 'centreonContact'];
 $contactGrAvRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_contactgroup'
     . '&action=list';
-$attrContactgroups = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $contactGrAvRoute,
-    'multiple' => true,
-    'linkedObject' => 'centreonContactgroup'
-);
+$attrContactgroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $contactGrAvRoute, 'multiple' => true, 'linkedObject' => 'centreonContactgroup'];
 
 #
 ## Form begin
@@ -163,11 +137,11 @@ $form->addElement('text', 'critical', _("Critical Level"), $attrsText2);
 $form->addElement('select', 'calcul_type', _("Calculation Type"), $calType);
 $form->addElement('select', 'data_source_type', _('Data Source Type'), $dsType);
 
-$tab = array();
+$tab = [];
 $tab[] = $form->createElement('radio', 'meta_select_mode', null, _("Service List"), '1');
 $tab[] = $form->createElement('radio', 'meta_select_mode', null, _("SQL matching"), '2');
 $form->addGroup($tab, 'meta_select_mode', _("Selection Mode"), '<br />');
-$form->setDefaults(array('meta_select_mode' => array('meta_select_mode' => '1')));
+$form->setDefaults(['meta_select_mode' => ['meta_select_mode' => '1']]);
 
 $form->addElement('text', 'regexp_str', _("SQL LIKE-clause expression"), $attrsText);
 $form->addElement('select2', 'metric', _("Metric"), [], $attrMetric);
@@ -181,9 +155,9 @@ $timeDeRoute = './include/common/webServices/rest/internal.php?object=centreon_c
     . '&action=defaultValues&target=meta&field=check_period&id=' . $meta_id;
 $attrTimeperiod1 = array_merge(
     $attrTimeperiods,
-    array('defaultDatasetRoute' => $timeDeRoute)
+    ['defaultDatasetRoute' => $timeDeRoute]
 );
-$form->addElement('select2', 'check_period', _("Check Period"), array(), $attrTimeperiod1);
+$form->addElement('select2', 'check_period', _("Check Period"), [], $attrTimeperiod1);
 
 $form->addElement('text', 'max_check_attempts', _("Max Check Attempts"), $attrsText2);
 $form->addElement('text', 'normal_check_interval', _("Normal Check Interval"), $attrsText2);
@@ -193,12 +167,12 @@ $form->addElement('text', 'retry_check_interval', _("Retry Check Interval"), $at
  * Notification informations
  */
 $form->addElement('header', 'notification', _("Notification"));
-$tab = array();
+$tab = [];
 $tab[] = $form->createElement('radio', 'notifications_enabled', null, _("Yes"), '1');
 $tab[] = $form->createElement('radio', 'notifications_enabled', null, _("No"), '0');
 $tab[] = $form->createElement('radio', 'notifications_enabled', null, _("Default"), '2');
 $form->addGroup($tab, 'notifications_enabled', _("Notification Enabled"), '&nbsp;');
-$form->setDefaults(array('notifications_enabled' => '2'));
+$form->setDefaults(['notifications_enabled' => '2']);
 
 /*
  *  Contacts
@@ -207,17 +181,17 @@ $contactDeRoute = './include/common/webServices/rest/internal.php?object=centreo
     . '&action=defaultValues&target=meta&field=ms_cs&id=' . $meta_id;
 $attrContact1 = array_merge(
     $attrContacts,
-    array('defaultDatasetRoute' => $contactDeRoute)
+    ['defaultDatasetRoute' => $contactDeRoute]
 );
-$form->addElement('select2', 'ms_cs', _("Implied Contacts"), array(), $attrContact1);
+$form->addElement('select2', 'ms_cs', _("Implied Contacts"), [], $attrContact1);
 
 $contactGrDeRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_contactgroup'
     . '&action=defaultValues&target=meta&field=ms_cgs&id=' . $meta_id;
 $attrContactgroup1 = array_merge(
     $attrContactgroups,
-    array('defaultDatasetRoute' => $contactGrDeRoute)
+    ['defaultDatasetRoute' => $contactGrDeRoute]
 );
-$form->addElement('select2', 'ms_cgs', _("Linked Contact Groups"), array(), $attrContactgroup1);
+$form->addElement('select2', 'ms_cgs', _("Linked Contact Groups"), [], $attrContactgroup1);
 
 $form->addElement('text', 'notification_interval', _("Notification Interval"), $attrsText2);
 
@@ -225,9 +199,9 @@ $timeDeRoute = './include/common/webServices/rest/internal.php?object=centreon_c
     . '&action=defaultValues&target=meta&field=notification_period&id=' . $meta_id;
 $attrTimeperiod2 = array_merge(
     $attrTimeperiods,
-    array('defaultDatasetRoute' => $timeDeRoute)
+    ['defaultDatasetRoute' => $timeDeRoute]
 );
-$form->addElement('select2', 'notification_period', _("Notification Period"), array(), $attrTimeperiod2);
+$form->addElement('select2', 'notification_period', _("Notification Period"), [], $attrTimeperiod2);
 
 $msNotifOpt[] = $form->createElement('checkbox', 'w', '&nbsp;', _("Warning"));
 $msNotifOpt[] = $form->createElement('checkbox', 'u', '&nbsp;', _("Unknown"));
@@ -245,7 +219,7 @@ $form->addElement('select', 'graph_id', _("Graph Template"), $graphTpls);
 $msActivation[] = $form->createElement('radio', 'meta_activate', null, _("Enabled"), '1');
 $msActivation[] = $form->createElement('radio', 'meta_activate', null, _("Disabled"), '0');
 $form->addGroup($msActivation, 'meta_activate', _("Status"), '&nbsp;');
-$form->setDefaults(array('meta_activate' => '1'));
+$form->setDefaults(['meta_activate' => '1']);
 $form->addElement('textarea', 'meta_comment', _("Comments"), $attrsTextarea);
 
 $form->registerRule('validate_geo_coords', 'function', 'validateGeoCoords');
@@ -307,7 +281,7 @@ if ($o == "w") {
             "button",
             "change",
             _("Modify"),
-            array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&meta_id=" . $meta_id . "'")
+            ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&meta_id=" . $meta_id . "'"]
         );
     }
     $form->setDefaults($ms);
@@ -316,18 +290,18 @@ if ($o == "w") {
     /*
 	 * Modify a service information
 	 */
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $form->setDefaults($ms);
 } elseif ($o == "a") {
     /*
 	 * Add a service information
 	 */
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 }
 
-$tpl->assign('msg', array("nagios" => $oreon->user->get_version()));
+$tpl->assign('msg', ["nagios" => $oreon->user->get_version()]);
 $tpl->assign('time_unit', " * " . $oreon->optGen["interval_length"] . " " . _("seconds"));
 
 $valid = false;

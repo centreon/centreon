@@ -25,11 +25,11 @@ namespace Core\Service\Domain\Model;
 
 class ServiceStatusesCount
 {
-    public const STATUS_OK = 0,
-                 STATUS_WARNING = 1,
-                 STATUS_CRITICAL = 2,
-                 STATUS_UNKNOWN = 3,
-                 STATUS_PENDING = 4;
+    public const STATUS_OK = 0;
+    public const STATUS_WARNING = 1;
+    public const STATUS_CRITICAL = 2;
+    public const STATUS_UNKNOWN = 3;
+    public const STATUS_PENDING = 4;
 
     public function __construct(
         private readonly int $totalOk,

@@ -27,10 +27,10 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class Tag
 {
-    public const SERVICE_GROUP_TYPE_ID = 0,
-        HOST_GROUP_TYPE_ID = 1,
-        SERVICE_CATEGORY_TYPE_ID = 2,
-        HOST_CATEGORY_TYPE_ID = 3;
+    public const SERVICE_GROUP_TYPE_ID = 0;
+    public const HOST_GROUP_TYPE_ID = 1;
+    public const SERVICE_CATEGORY_TYPE_ID = 2;
+    public const HOST_CATEGORY_TYPE_ID = 3;
 
     private int $type;
 

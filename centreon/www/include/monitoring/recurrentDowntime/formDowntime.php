@@ -121,49 +121,25 @@ if (($o == 'c' || $o == 'w') && isset($_GET['dt_id'])) {
 /*
  * Var information to format the element
  */
-$attrsText = array("size" => "30");
-$attrsText2 = array("size" => "6");
-$attrsTextLong = array("size" => "70");
-$attrsAdvSelect_small = array("style" => "width: 270px; height: 70px;");
-$attrsAdvSelect = array("style" => "width: 270px; height: 100px;");
-$attrsAdvSelect_big = array("style" => "width: 270px; height: 200px;");
-$attrsTextarea = array("rows" => "5", "cols" => "40");
+$attrsText = ["size" => "30"];
+$attrsText2 = ["size" => "6"];
+$attrsTextLong = ["size" => "70"];
+$attrsAdvSelect_small = ["style" => "width: 270px; height: 70px;"];
+$attrsAdvSelect = ["style" => "width: 270px; height: 100px;"];
+$attrsAdvSelect_big = ["style" => "width: 270px; height: 200px;"];
+$attrsTextarea = ["rows" => "5", "cols" => "40"];
 $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br />' .
     '<br /><br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
 $hostsRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_host&action=list';
-$attrHosts = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $hostsRoute,
-    'multiple' => true,
-    'linkedObject' => 'centreonHost',
-    'showDisabled' => true
-);
+$attrHosts = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $hostsRoute, 'multiple' => true, 'linkedObject' => 'centreonHost', 'showDisabled' => true];
 $hostgroupsRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_hostgroup&action=list';
-$attrHostgroups = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $hostgroupsRoute,
-    'multiple' => true,
-    'linkedObject' => 'centreonHostgroups',
-    'showDisabled' => true
-);
+$attrHostgroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $hostgroupsRoute, 'multiple' => true, 'linkedObject' => 'centreonHostgroups', 'showDisabled' => true];
 $servicesRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_service&action=list';
-$attrServices = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $servicesRoute,
-    'multiple' => true,
-    'linkedObject' => 'centreonService',
-    'showDisabled' => true
-);
+$attrServices = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $servicesRoute, 'multiple' => true, 'linkedObject' => 'centreonService', 'showDisabled' => true];
 $servicegroupsRoute = './include/common/webServices/rest/internal.php' .
     '?object=centreon_configuration_servicegroup&action=list';
-$attrServicegroups = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $servicegroupsRoute,
-    'multiple' => true,
-    'linkedObject' => 'centreonServicegroups',
-    'showDisabled' => true
-);
+$attrServicegroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $servicegroupsRoute, 'multiple' => true, 'linkedObject' => 'centreonServicegroups', 'showDisabled' => true];
 
 /*
  * Init QuickFrom
@@ -191,7 +167,7 @@ $form->addElement('text', 'downtime_description', _("Alias"), $attrsTextLong);
 $donwtime_activate[] = $form->createElement('radio', 'downtime_activate', null, _("Yes"), '1');
 $donwtime_activate[] = $form->createElement('radio', 'downtime_activate', null, _("No"), '0');
 $form->addGroup($donwtime_activate, 'downtime_activate', _("Enable"), '&nbsp;');
-$form->setDefaults(array('downtime_activate' => '1'));
+$form->setDefaults(['downtime_activate' => '1']);
 
 $page = $form->addElement('hidden', 'p');
 $page->setValue($p);
@@ -207,10 +183,10 @@ $routeAttrHosts = './include/common/webServices/rest/internal.php?object=centreo
     '&action=defaultValues&target=downtime&field=host_relation&id=' . $downtime_id;
 $attrHost1 = array_merge(
     $attrHosts,
-    array('defaultDatasetRoute' => $routeAttrHosts)
+    ['defaultDatasetRoute' => $routeAttrHosts]
 );
 
-$form->addElement('select2', 'host_relation', _("Linked with Hosts"), array(), $attrHost1);
+$form->addElement('select2', 'host_relation', _("Linked with Hosts"), [], $attrHost1);
 
 /*
  * Hostgroups
@@ -219,9 +195,9 @@ $routeAttrHostgroup = './include/common/webServices/rest/internal.php?object=cen
     '&action=defaultValues&target=downtime&field=hostgroup_relation&id=' . $downtime_id;
 $attrHostgroup1 = array_merge(
     $attrHostgroups,
-    array('defaultDatasetRoute' => $routeAttrHostgroup),
+    ['defaultDatasetRoute' => $routeAttrHostgroup],
 );
-$form->addElement('select2', 'hostgroup_relation', _("Linked with Host Groups"), array(), $attrHostgroup1);
+$form->addElement('select2', 'hostgroup_relation', _("Linked with Host Groups"), [], $attrHostgroup1);
 
 /*
  * Service
@@ -230,9 +206,9 @@ $routeAttrService = './include/common/webServices/rest/internal.php?object=centr
     '&action=defaultValues&target=downtime&field=svc_relation&id=' . $downtime_id;
 $attrService1 = array_merge(
     $attrServices,
-    array('defaultDatasetRoute' => $routeAttrService)
+    ['defaultDatasetRoute' => $routeAttrService]
 );
-$form->addElement('select2', 'svc_relation', _("Linked with Services"), array(), $attrService1);
+$form->addElement('select2', 'svc_relation', _("Linked with Services"), [], $attrService1);
 
 /*
  * Servicegroups
@@ -241,9 +217,9 @@ $routeAttrServicegroup = './include/common/webServices/rest/internal.php?object=
     '&action=defaultValues&target=downtime&field=svcgroup_relation&id=' . $downtime_id;
 $attrServicegroup1 = array_merge(
     $attrServicegroups,
-    array('defaultDatasetRoute' => $routeAttrServicegroup)
+    ['defaultDatasetRoute' => $routeAttrServicegroup]
 );
-$form->addElement('select2', 'svcgroup_relation', _("Linked with Service Groups"), array(), $attrServicegroup1);
+$form->addElement('select2', 'svcgroup_relation', _("Linked with Service Groups"), [], $attrServicegroup1);
 
 $form->addRule('downtime_name', _("Name"), 'required');
 $form->registerRule('exist', 'callback', 'testDowntimeNameExistence');
@@ -283,10 +259,7 @@ $tpl = initSmartyTpl($path, $tpl);
  */
 if ($o == "w") {
     if (!$min && $centreon->user->access->page($p) != 2) {
-        $form->addElement("button", "change", _("Modify"), array(
-            "onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&dt_id=" . $id . "'",
-            "class" => "btc bt_default"
-        ));
+        $form->addElement("button", "change", _("Modify"), ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&dt_id=" . $id . "'", "class" => "btc bt_default"]);
     }
     $form->setDefaults($default_dt);
     $form->freeze();
@@ -315,13 +288,13 @@ if ($o == "w") {
         'button',
         'submitC',
         _("Save"),
-        array("onClick" => "validForm();", "class" => "btc bt_success")
+        ["onClick" => "validForm();", "class" => "btc bt_success"]
     );
     $res = $form->addElement(
         'button',
         'reset',
         _("Reset"),
-        array("onClick" => "history.go(0);", "class" => "btc bt_default")
+        ["onClick" => "history.go(0);", "class" => "btc bt_default"]
     );
     $form->setDefaults($default_dt);
 } elseif ($o == "a") {
@@ -329,9 +302,9 @@ if ($o == "w") {
         'button',
         'submitA',
         _("Save"),
-        array("onClick" => "validForm();", "class" => "btc bt_success")
+        ["onClick" => "validForm();", "class" => "btc bt_success"]
     );
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 }
 
 $tpl->assign("sort1", _("Downtime Configuration"));
@@ -400,7 +373,7 @@ if ($form->validate()) {
                     "button",
                     "change",
                     _("Modify"),
-                    array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&dt_id=" . $id . "'")
+                    ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&dt_id=" . $id . "'"]
                 );
                 $form->freeze();
                 $valid = true;
@@ -431,7 +404,7 @@ if ($form->validate()) {
                 "button",
                 "change",
                 _("Modify"),
-                array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&dt_id=" . $id . "'")
+                ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&dt_id=" . $id . "'"]
             );
             $form->freeze();
             $valid = true;
@@ -460,15 +433,7 @@ if (!$valid) {
         $tpl->assign("weekly_basis", _("Weekly basis"));
         $tpl->assign("monthly_basis", _("Monthly basis"));
         $tpl->assign("specific_date", _("Specific date"));
-        $tpl->assign("week_days", array(
-            1 => _("Monday"),
-            2 => _("Tuesday"),
-            3 => _("Wednesday"),
-            4 => _("Thursday"),
-            5 => _("Friday"),
-            6 => _("Saturday"),
-            7 => _("Sunday")
-        ));
+        $tpl->assign("week_days", [1 => _("Monday"), 2 => _("Tuesday"), 3 => _("Wednesday"), 4 => _("Thursday"), 5 => _("Friday"), 6 => _("Saturday"), 7 => _("Sunday")]);
         $tpl->assign('periods_tab', $downtime->getPeriods($id));
     }
 

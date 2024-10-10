@@ -29,7 +29,7 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Notification\Application\UseCase\FindNotifications\FindNotificationsPresenterInterface;
 use Core\Notification\Application\UseCase\FindNotifications\FindNotificationsResponse;
-use Core\Notification\Domain\Model\NotificationChannel;
+use Core\Notification\Domain\Model\Channel;
 
 class FindNotificationsPresenter extends AbstractPresenter implements FindNotificationsPresenterInterface
 {
@@ -75,7 +75,7 @@ class FindNotificationsPresenter extends AbstractPresenter implements FindNotifi
     /**
      * Convert NotificationChannel Enum values to string values.
      *
-     * @param NotificationChannel[] $notificationChannels
+     * @param Channel[] $notificationChannels
      *
      * @return string[]
      */

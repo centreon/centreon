@@ -33,7 +33,7 @@
  *
  */
 
-$help = array();
+$help = [];
 
 $help["command_name"] = dgettext(
     "help",

@@ -33,7 +33,7 @@
  * 
  */
 
-require_once realpath(dirname(__FILE__) . "/../../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
 
 require_once _CENTREON_PATH_."www/class/centreon.class.php";
 require_once _CENTREON_PATH_."www/class/centreonUser.class.php";
@@ -69,8 +69,8 @@ if (!$DBRESULT->rowCount()) {
 /*
  * Definition of status
  */
-$state = array();
-$statesTab = array();
+$state = [];
+$statesTab = [];
 if ($stateType == 'host') {
     $state["UP"] = _("UP");
     $state["DOWN"] = _("DOWN");

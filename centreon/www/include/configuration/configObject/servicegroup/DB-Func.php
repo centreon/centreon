@@ -174,7 +174,8 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
                 switch ($key2) {
                     case 'sg_name':
                         $value2 = \HtmlAnalyzer::sanitizeAndRemoveTags($value2);
-                        $sgName = $value2 = $value2 . "_" . $i;
+                        $sgName = $value2 . "_" . $i;
+                        $value2 = $value2 . "_" . $i;
                         $bindParams[':sg_name'] = [\PDO::PARAM_STR => $value2];
                         break;
                     case 'sg_alias':
@@ -316,12 +317,9 @@ function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = [])
         if ($serviceGroupDatasetFilters === []) {
             // get the dataset with the highest ID (last one added) which is the first element of the datasets array
             $lastDatasetAdded = $datasets[0];
-
             preg_match('/dataset_for_rule_\d+_(\d+)/', $lastDatasetAdded['dataset_name'], $matches);
-
             // calculate the new dataset_name
-            $newDatasetName = 'dataset_for_rule_' . $ruleId . '_' . (int) $matches[1] + 1;
-
+            $newDatasetName = 'dataset_for_rule_' . $ruleId . '_' . ((int) $matches[1] + 1);
             if ($pearDB->beginTransaction()) {
                 try {
                     $datasetId = createNewDataset(datasetName: $newDatasetName);
@@ -334,22 +332,20 @@ function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = [])
                     throw $exception;
                 }
             }
-        } else {
-            if ($pearDB->beginTransaction()) {
-                try {
-                    linkServiceGroupToDataset(datasetId: $serviceGroupDatasetFilters[0]['dataset_id'], serviceGroupId: $serviceGroupId);
-                    // Expend the existing hostgroup dataset_filter
-                    $expendedResourceIds = $serviceGroupDatasetFilters[0]['dataset_filter_resources'] . ', ' . $serviceGroupId;
+        } elseif ($pearDB->beginTransaction()) {
+            try {
+                linkServiceGroupToDataset(datasetId: $serviceGroupDatasetFilters[0]['dataset_id'], serviceGroupId: $serviceGroupId);
+                // Expend the existing hostgroup dataset_filter
+                $expendedResourceIds = $serviceGroupDatasetFilters[0]['dataset_filter_resources'] . ', ' . $serviceGroupId;
 
-                    updateDatasetFiltersResourceIds(
-                        datasetFilterId: $serviceGroupDatasetFilters[0]['dataset_filter_id'],
-                        resourceIds: $expendedResourceIds
-                    );
-                    $pearDB->commit();
-                } catch (\Throwable $exception) {
-                    $pearDB->rollBack();
-                    throw $exception;
-                }
+                updateDatasetFiltersResourceIds(
+                    datasetFilterId: $serviceGroupDatasetFilters[0]['dataset_filter_id'],
+                    resourceIds: $expendedResourceIds
+                );
+                $pearDB->commit();
+            } catch (\Throwable $exception) {
+                $pearDB->rollBack();
+                throw $exception;
             }
         }
     }
@@ -703,7 +699,7 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
     }
 
     /* service templates */
-    $retTmp = isset($ret["sg_tServices"]) ? $ret["sg_tServices"] : $form->getSubmitValue("sg_tServices");
+    $retTmp = $ret["sg_tServices"] ?? $form->getSubmitValue("sg_tServices");
     if ($retTmp) {
         $statement = $pearDB->prepare("
             SELECT servicegroup_sg_id service FROM servicegroup_relation
@@ -715,7 +711,8 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
             INSERT INTO servicegroup_relation (host_host_id, service_service_id, servicegroup_sg_id)
             VALUES (:host_host_id, :service_service_id, :servicegroup_sg_id)
         ");
-        for ($i = 0; $i < count($retTmp); $i++) {
+        $counter = count($retTmp);
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($retTmp[$i]) && $retTmp[$i]) {
                 $t = preg_split("/\-/", $retTmp[$i]);
                 $hostHostId = filter_var($t[0], FILTER_VALIDATE_INT);
@@ -735,9 +732,7 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
     }
 
     /* regular services */
-    $retTmp = isset($ret["sg_hServices"])
-        ? $ret["sg_hServices"]
-        : CentreonUtils::mergeWithInitialValues($form, 'sg_hServices');
+    $retTmp = $ret["sg_hServices"] ?? CentreonUtils::mergeWithInitialValues($form, 'sg_hServices');
 
     $statement = $pearDB->prepare("
         SELECT servicegroup_sg_id service FROM servicegroup_relation
@@ -749,7 +744,8 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
         INSERT INTO servicegroup_relation (host_host_id, service_service_id, servicegroup_sg_id)
         VALUES (:host_host_id, :service_service_id, :servicegroup_sg_id)
     ");
-    for ($i = 0; $i < count($retTmp); $i++) {
+    $counter = count($retTmp);
+    for ($i = 0; $i < $counter; $i++) {
         if (isset($retTmp[$i]) && $retTmp[$i]) {
             $t = preg_split("/\-/", $retTmp[$i]);
             $hostHostId = filter_var($t[0], FILTER_VALIDATE_INT);
@@ -768,9 +764,7 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
     }
 
     /* hostgroup services */
-    $retTmp = isset($ret["sg_hgServices"])
-        ? $ret["sg_hgServices"]
-        : CentreonUtils::mergeWithInitialValues($form, 'sg_hgServices');
+    $retTmp = $ret["sg_hgServices"] ?? CentreonUtils::mergeWithInitialValues($form, 'sg_hgServices');
 
     $statement = $pearDB->prepare("
         SELECT servicegroup_sg_id service FROM servicegroup_relation
@@ -782,7 +776,8 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
         INSERT INTO servicegroup_relation (hostgroup_hg_id, service_service_id, servicegroup_sg_id)
         VALUES (:hostgroup_hg_id, :service_service_id, :servicegroup_sg_id)
     ");
-    for ($i = 0; $i < count($retTmp); $i++) {
+    $counter = count($retTmp);
+    for ($i = 0; $i < $counter; $i++) {
         $t = preg_split("/\-/", $retTmp[$i]);
         $hostGroupId = filter_var($t[0], FILTER_VALIDATE_INT);
         $serviceServiceId = filter_var($t[1], FILTER_VALIDATE_INT);

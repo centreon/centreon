@@ -34,7 +34,7 @@
  */
 
 $stateType = 'host';
-require_once realpath(dirname(__FILE__) . "/initXmlFeed.php");
+require_once realpath(__DIR__ . "/initXmlFeed.php");
 
 if (isset($_SESSION['centreon'])) {
     $centreon = $_SESSION['centreon'];

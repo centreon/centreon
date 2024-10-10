@@ -20,29 +20,50 @@
 
 namespace ConfigGenerateRemote;
 
-use \PDO;
+use Exception;
+use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractHost;
+use PDOException;
+use PDOStatement;
 
+/**
+ * Class
+ *
+ * @class Host
+ * @package ConfigGenerateRemote
+ */
 class Host extends AbstractHost
 {
+    /** @var array */
     protected $hostsByName = [];
+    /** @var array|null */
     protected $hosts = null;
+    /** @var string */
     protected $table = 'host';
+    /** @var string */
     protected $generateFilename = 'hosts.infile';
+    /** @var PDOStatement|null */
     protected $stmtHg = null;
+    /** @var PDOStatement|null */
     protected $stmtParent = null;
+    /** @var PDOStatement|null */
     protected $stmtService = null;
+    /** @var PDOStatement|null */
     protected $stmtServiceSg = null;
+    /** @var array */
     protected $generatedParentship = [];
+    /** @var array */
     protected $generatedHosts = [];
 
     /**
      * Get linked host groups
      *
      * @param array $host
+     *
      * @return void
+     * @throws PDOException
      */
-    private function getHostGroups(array &$host)
+    private function getHostGroups(array &$host): void
     {
         if (!isset($host['hg'])) {
             if (is_null($this->stmtHg)) {
@@ -73,9 +94,11 @@ class Host extends AbstractHost
      * Get linked services
      *
      * @param array $host
+     *
      * @return void
+     * @throws PDOException
      */
-    private function getServices(array &$host)
+    private function getServices(array &$host): void
     {
         if (is_null($this->stmtService)) {
             $this->stmtService = $this->backendInstance->db->prepare("SELECT
@@ -100,7 +123,9 @@ class Host extends AbstractHost
      * Get linked services by host group
      *
      * @param array $host
+     *
      * @return void
+     * @throws PDOException
      */
     private function getServicesByHg(array &$host)
     {
@@ -146,7 +171,7 @@ class Host extends AbstractHost
      * @param array $attr
      * @return void
      */
-    public function addHost(int $hostId, array $attr = [])
+    public function addHost(int $hostId, array $attr = []): void
     {
         $this->hosts[$hostId] = $attr;
     }
@@ -154,10 +179,10 @@ class Host extends AbstractHost
     /**
      * Get linked hosts to poller id
      *
-     * @param integer $pollerId
+     * @param int $pollerId
      * @return void
      */
-    private function getHosts(int $pollerId)
+    private function getHosts(int $pollerId): void
     {
         // We use host_register = 1 because we don't want _Module_* hosts
         $stmt = $this->backendInstance->db->prepare(
@@ -180,7 +205,7 @@ class Host extends AbstractHost
      * @param array $host
      * @return void
      */
-    public function generateFromHostId(array &$host)
+    public function generateFromHostId(array &$host): void
     {
         $this->getImages($host);
         $this->getMacros($host);
@@ -230,11 +255,11 @@ class Host extends AbstractHost
     /**
      * Generate from poller id
      *
-     * @param integer $pollerId
-     * @param integer $localhost
+     * @param int $pollerId
+     * @param int $localhost
      * @return void
      */
-    public function generateFromPollerId(int $pollerId, int $localhost = 0)
+    public function generateFromPollerId(int $pollerId, int $localhost = 0): void
     {
         if (is_null($this->hosts)) {
             $this->getHosts($pollerId);
@@ -270,10 +295,7 @@ class Host extends AbstractHost
      */
     public function getHostIdByHostName(string $hostName)
     {
-        if (isset($this->hostsByName[$hostName])) {
-            return $this->hostsByName[$hostName];
-        }
-        return null;
+        return $this->hostsByName[$hostName] ?? null;
     }
 
     /**
@@ -289,10 +311,10 @@ class Host extends AbstractHost
     /**
      * Add generated host
      *
-     * @param integer $hostId
+     * @param int $hostId
      * @return void
      */
-    public function addGeneratedHost(int $hostId)
+    public function addGeneratedHost(int $hostId): void
     {
         $this->generatedHosts[] = $hostId;
     }
@@ -310,9 +332,11 @@ class Host extends AbstractHost
     /**
      * Reset object
      *
-     * @param boolean $resetParent
-     * @param boolean $createfile
+     * @param bool $resetParent
+     * @param bool $createfile
+     *
      * @return void
+     * @throws Exception
      */
     public function reset($resetParent = false, $createfile = false): void
     {

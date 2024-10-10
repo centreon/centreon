@@ -48,7 +48,6 @@ trait VaultTrait
                 $value,
                 $matches
             )
-            && isset($matches[2])
         ) {
             return $matches[2];
         }

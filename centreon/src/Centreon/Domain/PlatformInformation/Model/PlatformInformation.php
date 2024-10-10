@@ -276,11 +276,7 @@ class PlatformInformation
      */
     public function setApiPort(?int $port): self
     {
-        if ($port !== null) {
-            $this->apiPort = $this->checkPortConsistency($port);
-        } else {
-            $this->apiPort = $port;
-        }
+        $this->apiPort = $port !== null ? $this->checkPortConsistency($port) : $port;
 
         return $this;
     }

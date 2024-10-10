@@ -51,16 +51,12 @@ function printDebug($xml, array $tabs): int
     );
     $nagios_bin = $DBRESULT_Servers->fetch();
     $DBRESULT_Servers->closeCursor();
-    $msg_debug = array();
+    $msg_debug = [];
 
-    $tab_server = array();
+    $tab_server = [];
     foreach ($tabs as $tab) {
         if (isset($ret["host"]) && ($ret["host"] == 0 || in_array($tab['id'], $ret["host"]))) {
-            $tab_server[$tab["id"]] = array(
-                "id" => $tab["id"],
-                "name" => $tab["name"],
-                "localhost" => $tab["localhost"]
-            );
+            $tab_server[$tab["id"]] = ["id" => $tab["id"], "name" => $tab["name"], "localhost" => $tab["localhost"]];
         }
     }
 

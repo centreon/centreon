@@ -42,9 +42,9 @@ require_once _CENTREON_PATH_ . 'www/class/centreonLDAP.class.php';
 require_once _CENTREON_PATH_ . 'www/class/CentreonLDAPAdmin.class.php';
 require_once __DIR__ . '/DB-Func.php';
 
-$attrsText = array("size" => "40");
-$attrsText2 = array("size" => "5");
-$attrsTextarea = array("rows" => "4", "cols" => "60");
+$attrsText = ["size" => "40"];
+$attrsText2 = ["size" => "5"];
+$attrsTextarea = ["rows" => "4", "cols" => "60"];
 $attrsAdvSelect = null;
 
 $arId = filter_var(
@@ -84,7 +84,7 @@ $ldapUseDns[] = $form->createElement(
     null,
     _("Yes"),
     '1',
-    array('id' => 'ldap_srv_dns_y', 'onclick' => "toggleParams(false);")
+    ['id' => 'ldap_srv_dns_y', 'onclick' => "toggleParams(false);"]
 );
 $ldapUseDns[] = $form->createElement(
     'radio',
@@ -92,7 +92,7 @@ $ldapUseDns[] = $form->createElement(
     null,
     _("No"),
     '0',
-    array('id' => 'ldap_srv_dns_n', 'onclick' => "toggleParams(true);")
+    ['id' => 'ldap_srv_dns_n', 'onclick' => "toggleParams(true);"]
 );
 $form->addGroup($ldapUseDns, 'ldap_srv_dns', _("Use service DNS"), '&nbsp;');
 
@@ -113,7 +113,7 @@ $ldapAutoScan[] = $form->createElement(
     null,
     _("Yes"),
     '1',
-    array('id' => 'ldap_auto_sync_y', 'onclick' => "toggleParamSync(false);")
+    ['id' => 'ldap_auto_sync_y', 'onclick' => "toggleParamSync(false);"]
 );
 $ldapAutoScan[] = $form->createElement(
     'radio',
@@ -121,7 +121,7 @@ $ldapAutoScan[] = $form->createElement(
     null,
     _("No"),
     '0',
-    array('id' => 'ldap_auto_sync_n', 'onclick' => "toggleParamSync(true);")
+    ['id' => 'ldap_auto_sync_n', 'onclick' => "toggleParamSync(true);"]
 );
 $form->addGroup($ldapAutoScan, 'ldap_auto_sync', _("Enable LDAP synchronization on login"), '&nbsp;');
 // default interval before re-scanning the whole LDAP. By default, a duration of one hour is set
@@ -137,7 +137,7 @@ $form->addRule('ldap_sync_interval', _("An integer with a minimum value of 1 is 
 $res = $pearDB->query(
     "SELECT contact_id, contact_name FROM contact WHERE contact_register = '0'"
 );
-$LdapContactTplList = array();
+$LdapContactTplList = [];
 while ($row = $res->fetch()) {
     $LdapContactTplList[$row['contact_id']] = $row['contact_name'];
 }
@@ -147,7 +147,7 @@ $form->addElement(
     'ldap_contact_tmpl',
     _('Contact template'),
     $LdapContactTplList,
-    array('id' => 'ldap_contact_tmpl')
+    ['id' => 'ldap_contact_tmpl']
 );
 $form->addRule('ldap_contact_tmpl', _("Compulsory Field"), 'required');
 
@@ -157,26 +157,20 @@ $form->addRule('ldap_contact_tmpl', _("Compulsory Field"), 'required');
 $cgAvRoute = './api/internal.php?object=centreon_configuration_contactgroup&action=list';
 $cgDeRoute = './api/internal.php?object=centreon_configuration_contactgroup'
     . '&action=defaultValues&target=contact&field=ldap_default_cg&id=' . $arId;
-$attrContactGroup = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $cgAvRoute,
-    'defaultDatasetRoute' => $cgDeRoute,
-    'multiple' => false,
-    'linkedObject' => 'centreonContactgroup'
-);
-$form->addElement('select2', 'ldap_default_cg', _('Default contactgroup'), array(), $attrContactGroup);
+$attrContactGroup = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $cgAvRoute, 'defaultDatasetRoute' => $cgDeRoute, 'multiple' => false, 'linkedObject' => 'centreonContactgroup'];
+$form->addElement('select2', 'ldap_default_cg', _('Default contactgroup'), [], $attrContactGroup);
 
 $form->addElement('header', 'ldapinfo', _("LDAP Information"));
 $form->addElement('header', 'ldapserver', _('LDAP Servers'));
-$form->addElement('text', 'bind_dn', _("Bind user"), array("size" => "40", "autocomplete" => "off"));
-$form->addElement('password', 'bind_pass', _("Bind password"), array("size" => "40", "autocomplete" => "new-password"));
-$form->addElement('select', 'protocol_version', _("Protocol version"), array('3' => 3, '2' => 2));
+$form->addElement('text', 'bind_dn', _("Bind user"), ["size" => "40", "autocomplete" => "off"]);
+$form->addElement('password', 'bind_pass', _("Bind password"), ["size" => "40", "autocomplete" => "new-password"]);
+$form->addElement('select', 'protocol_version', _("Protocol version"), ['3' => 3, '2' => 2]);
 $form->addElement(
     'select',
     'ldap_template',
     _("Template"),
-    array('0' => "", 'Active Directory' => _("Active Directory"), 'Okta' => _("Okta"), 'Posix' => _("Posix")),
-    array('id' => 'ldap_template', 'onchange' => 'applyTemplate(this.value);')
+    ['0' => "", 'Active Directory' => _("Active Directory"), 'Okta' => _("Okta"), 'Posix' => _("Posix")],
+    ['id' => 'ldap_template', 'onchange' => 'applyTemplate(this.value);']
 );
 $form->registerRule('checkLdapFilter', 'callback', 'checkLdapFilterSyntax');
 $form->addElement('text', 'user_base_search', _("Search user base DN"), $attrsText);
@@ -210,7 +204,7 @@ $tpl = initSmartyTpl($path . 'ldap/', $tpl);
 
 $ldapAdmin = new CentreonLdapAdmin($pearDB);
 
-$defaultOpt = array(
+$defaultOpt = [
     'ldap_auth_enable' => '0',
     'ldap_store_password' => '1',
     'ldap_auto_import' => '0',
@@ -223,12 +217,14 @@ $defaultOpt = array(
     'ldap_default_cg' => '0',
     'ldap_connection_timeout' => '5',
     'ldap_search_limit' => '60',
-    'ldap_auto_sync' => '1', // synchronization on user's login is enabled by default
-    'ldap_sync_interval' => '1', // minimal value of the interval between two LDAP synchronizations
-    'ldap_search_timeout' => '60'
-);
+    'ldap_auto_sync' => '1',
+    // synchronization on user's login is enabled by default
+    'ldap_sync_interval' => '1',
+    // minimal value of the interval between two LDAP synchronizations
+    'ldap_search_timeout' => '60',
+];
 
-$gopt = array();
+$gopt = [];
 if ($arId) {
     $gopt = $ldapAdmin->getGeneralOptions($arId);
     $res = $pearDB->prepare(
@@ -259,31 +255,25 @@ if ($arId) {
 /*
  * LDAP servers
  */
-$cloneSet = array();
+$cloneSet = [];
 $cloneSet[] = $form->addElement(
     'text',
     'address[#index#]',
     _("Host address"),
-    array(
-        "size" => "30",
-        "id" => "address_#index#"
-    )
+    ["size" => "30", "id" => "address_#index#"]
 );
 $cloneSet[] = $form->addElement(
     'text',
     'port[#index#]',
     _("Port"),
-    array(
-        "size" => "10",
-        "id" => "port_#index#"
-    )
+    ["size" => "10", "id" => "port_#index#"]
 );
 $cbssl = $form->addElement(
     'checkbox',
     'ssl[#index#]',
     _("SSL"),
     "",
-    array("id" => "ssl_#index#")
+    ["id" => "ssl_#index#"]
 );
 $cbssl->setText('');
 $cloneSet[] = $cbssl;
@@ -293,7 +283,7 @@ $cbtls = $form->addElement(
     'tls[#index#]',
     _("TLS"),
     "",
-    array("id" => "tls_#index#")
+    ["id" => "tls_#index#"]
 );
 $cbtls->setText('');
 $cloneSet[] = $cbtls;
@@ -304,8 +294,8 @@ $form->setDefaults($gopt);
 $ar = $form->addElement('hidden', 'ar_id');
 $ar->setValue($arId);
 
-$subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-$DBRESULT = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+$subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+$DBRESULT = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 
 $nbOfInitialRows = 0;
 $maxHostId = 1;
@@ -427,7 +417,7 @@ $form->addElement(
     "button",
     "change",
     _("Modify"),
-    array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=ldap&ar_id=" . $arId . "'")
+    ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=ldap&ar_id=" . $arId . "'"]
 );
 
 /*

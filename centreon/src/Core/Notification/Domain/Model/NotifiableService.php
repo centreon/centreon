@@ -29,7 +29,7 @@ class NotifiableService
      * @param int $id
      * @param string $name
      * @param string|null $alias
-     * @param array<NotificationServiceEvent> $events
+     * @param array<ServiceEvent> $events
      */
     public function __construct(
         private readonly int $id,
@@ -64,7 +64,7 @@ class NotifiableService
     }
 
     /**
-     * @return array<NotificationServiceEvent>
+     * @return array<ServiceEvent>
      */
     public function getEvents(): array
     {

@@ -34,15 +34,35 @@
  *
  */
 
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
+/**
+ * Class
+ *
+ * @class Contact
+ */
 class Contact extends AbstractObject
 {
+    public const ENABLE_NOTIFICATIONS = '1';
+    public const DEFAULT_NOTIFICATIONS = '2';
+    public const CONTACT_OBJECT = '1';
+
+    /** @var int */
     protected $use_cache = 1;
+    /** @var int */
     private $done_cache = 0;
-    private $contacts_service_linked_cache = array();
-    protected $contacts_cache = array();
-    protected $contacts = array();
+    /** @var array */
+    private $contacts_service_linked_cache = [];
+    /** @var array */
+    protected $contacts_cache = [];
+    /** @var array */
+    protected $contacts = [];
+    /** @var string */
     protected $generate_filename = 'contacts.cfg';
-    protected $object_name = 'contact';
+    /** @var string */
+    protected string $object_name = 'contact';
+    /** @var string */
     protected $attributes_select = '
         contact_id,
         contact_template_id,
@@ -64,43 +84,24 @@ class Contact extends AbstractObject
         contact_register as register,
         contact_location
     ';
-    protected $attributes_write = array(
-        'name',
-        'contact_name',
-        'alias',
-        'email',
-        'pager',
-        'address1',
-        'address2',
-        'address3',
-        'address4',
-        'address5',
-        'address6',
-        'host_notification_period',
-        'service_notification_period',
-        'host_notification_options',
-        'service_notification_options',
-        'register',
-        'timezone'
-    );
-    protected $attributes_default = array(
-        'host_notifications_enabled',
-        'service_notifications_enabled',
-    );
-    protected $attributes_array = array(
-        'host_notification_commands',
-        'service_notification_commands',
-        'use',
-    );
+    /** @var string[] */
+    protected $attributes_write = ['name', 'contact_name', 'alias', 'email', 'pager', 'address1', 'address2', 'address3', 'address4', 'address5', 'address6', 'host_notification_period', 'service_notification_period', 'host_notification_options', 'service_notification_options', 'register', 'timezone'];
+    /** @var string[] */
+    protected $attributes_default = ['host_notifications_enabled', 'service_notifications_enabled'];
+    /** @var string[] */
+    protected $attributes_array = ['host_notification_commands', 'service_notification_commands', 'use'];
+    /** @var null */
     protected $stmt_contact = null;
-    protected $stmt_commands = array('host' => null, 'service' => null);
+    /** @var null[] */
+    protected $stmt_commands = ['host' => null, 'service' => null];
+    /** @var null */
     protected $stmt_contact_service = null;
 
-    public const ENABLE_NOTIFICATIONS = '1';
-    public const DEFAULT_NOTIFICATIONS = '2';
-    public const CONTACT_OBJECT = '1';
-
-    private function getContactCache()
+    /**
+     * @return void
+     * @throws PDOException
+     */
+    private function getContactCache(): void
     {
         $stmt = $this->backend_instance->db->prepare("SELECT
                     $this->attributes_select
@@ -127,14 +128,16 @@ class Contact extends AbstractObject
             if (isset($this->contacts_service_linked_cache[$value['service_service_id']])) {
                 $this->contacts_service_linked_cache[$value['service_service_id']][] = $value['contact_id'];
             } else {
-                $this->contacts_service_linked_cache[$value['service_service_id']] = array($value['contact_id']);
+                $this->contacts_service_linked_cache[$value['service_service_id']] = [$value['contact_id']];
             }
         }
     }
 
     /**
      * @param int $serviceId
+     *
      * @return array
+     * @throws PDOException
      */
     public function getContactForService(int $serviceId): array
     {
@@ -144,7 +147,7 @@ class Contact extends AbstractObject
             return $this->contacts_service_linked_cache[$serviceId];
         }
         if ($this->done_cache == 1) {
-            return array();
+            return [];
         }
 
         if (is_null($this->stmt_contact_service)) {
@@ -165,6 +168,8 @@ class Contact extends AbstractObject
 
     /**
      * @param int $contactId
+     *
+     * @throws PDOException
      */
     protected function getContactFromId(int $contactId): void
     {
@@ -187,6 +192,16 @@ class Contact extends AbstractObject
         }
     }
 
+    /**
+     * @param $contact_id
+     * @param $label
+     *
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
     protected function getContactNotificationCommands($contact_id, $label)
     {
         if (!isset($this->contacts[$contact_id][$label . '_commands_cache'])) {
@@ -204,7 +219,7 @@ class Contact extends AbstractObject
         }
 
         $command = Command::getInstance($this->dependencyInjector);
-        $this->contacts[$contact_id][$label . '_notification_commands'] = array();
+        $this->contacts[$contact_id][$label . '_notification_commands'] = [];
         foreach ($this->contacts[$contact_id][$label . '_commands_cache'] as $command_id) {
             $this->contacts[$contact_id][$label . '_notification_commands'][] =
                 $command->generateFromCommandId($command_id);
@@ -212,8 +227,8 @@ class Contact extends AbstractObject
     }
 
     /**
-     * @param integer $contactId
-     * @return boolean
+     * @param int $contactId
+     * @return bool
      */
     protected function shouldContactBeNotified(int $contactId): bool
     {
@@ -242,6 +257,15 @@ class Contact extends AbstractObject
         $this->done_cache = 1;
     }
 
+    /**
+     * @param $contact_id
+     *
+     * @return mixed|null
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
     public function generateFromContactId($contact_id)
     {
         if (is_null($contact_id)) {
@@ -306,6 +330,11 @@ class Contact extends AbstractObject
             : $this->contacts[$contact_id]['name'];
     }
 
+    /**
+     * @param $contact_id
+     *
+     * @return int
+     */
     public function isTemplate($contact_id)
     {
         if ($this->contacts[$contact_id]['register'] == 0) {

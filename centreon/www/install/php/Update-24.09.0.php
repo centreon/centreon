@@ -77,7 +77,7 @@ $insertIntoTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to insert data into table topology';
     $statement = $pearDB->executeQuery(
         <<<'SQL'
-            SELECT 1 FROM `topology` WHERE `topology_name` = 'Additional Connector Configuration'
+            SELECT 1 FROM `topology` WHERE `topology_name` = 'Additional Connector Configurations'
             SQL
     );
 
@@ -85,7 +85,7 @@ $insertIntoTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
         $pearDB->executeQuery(
             <<<'SQL'
                 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_show`)
-                VALUES ( 'Additional Connector Configuration', '/configuration/additional-connector-configurations', '1', '1', 6, 618, 1, 1, '0')
+                VALUES ( 'Additional Connector Configurations', '/configuration/additional-connector-configurations', '1', '1', 6, 618, 1, 1, '0')
                 SQL
         );
     }
@@ -142,9 +142,9 @@ $addCentreonBrokerForeignKeyOnBrokerLogTable = function (CentreonDB $pearDB) use
         $pearDB->executeQuery(
             <<<'SQL'
             ALTER TABLE `cfg_centreonbroker_log`
-            ADD CONSTRAINT `cfg_centreonbroker_log_ibfk_01` 
-            FOREIGN KEY (`id_centreonbroker`) 
-            REFERENCES `cfg_centreonbroker` (`config_id`) 
+            ADD CONSTRAINT `cfg_centreonbroker_log_ibfk_01`
+            FOREIGN KEY (`id_centreonbroker`)
+            REFERENCES `cfg_centreonbroker` (`config_id`)
             ON DELETE CASCADE
             SQL
         );
@@ -212,7 +212,7 @@ try {
     $createAcc($pearDB);
     $addCentreonBrokerForeignKeyOnBrokerLogTable($pearDB);
 
-    // Tansactional queries
+    // Transactional queries
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }

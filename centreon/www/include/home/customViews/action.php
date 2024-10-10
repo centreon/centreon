@@ -293,7 +293,7 @@ try {
             break;
         case 'setRotate':
             if ($postInputs['timer'] >= 0) {
-                $centreon->user->setContactParameters($db, array('widget_view_rotation' => $postInputs['timer']));
+                $centreon->user->setContactParameters($db, ['widget_view_rotation' => $postInputs['timer']]);
             }
             break;
         case 'defaultEditMode':
@@ -330,9 +330,7 @@ try {
             throw new CentreonCustomViewException('Unsupported action provided.');
     }
     $xml->writeElement('custom_view_id', $postInputs['custom_view_id']);
-} catch (CentreonCustomViewException $e) {
-    $xml->writeElement('error', $e->getMessage());
-} catch (CentreonWidgetException $e) {
+} catch (CentreonCustomViewException|CentreonWidgetException $e) {
     $xml->writeElement('error', $e->getMessage());
 }
 $xml->endElement();
