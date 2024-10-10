@@ -41,8 +41,8 @@ if (!isset($centreon)) {
 #
 ## Database retrieve information for Dependency
 #
-$dep = array();
-$initialValues = array();
+$dep = [];
+$initialValues = [];
 if (($o == MODIFY_DEPENDENCY || $o == WATCH_DEPENDENCY) && $depId) {
     $DBRESULT = $pearDB->query("SELECT * FROM dependency WHERE dep_id = '" . $depId . "' LIMIT 1");
 
@@ -67,20 +67,15 @@ if (($o == MODIFY_DEPENDENCY || $o == WATCH_DEPENDENCY) && $depId) {
 /*
  * Var information to format the element
  */
-$attrsText = array("size" => "30");
-$attrsText2 = array("size" => "10");
-$attrsAdvSelect = array("style" => "width: 300px; height: 150px;");
-$attrsTextarea = array("rows" => "3", "cols" => "30");
+$attrsText = ["size" => "30"];
+$attrsText2 = ["size" => "10"];
+$attrsAdvSelect = ["style" => "width: 300px; height: 150px;"];
+$attrsTextarea = ["rows" => "3", "cols" => "30"];
 $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />' .
     '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
 $route = './include/common/webServices/rest/internal.php?object=centreon_configuration_hostgroup&action=list';
-$attrHostgroups = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $route,
-    'multiple' => true,
-    'linkedObject' => 'centreonHostgroups'
-);
+$attrHostgroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $route, 'multiple' => true, 'linkedObject' => 'centreonHostgroups'];
 
 
 /*
@@ -102,51 +97,51 @@ if ($o == ADD_DEPENDENCY) {
 $form->addElement('header', 'information', _("Information"));
 $form->addElement('text', 'dep_name', _("Name"), $attrsText);
 $form->addElement('text', 'dep_description', _("Description"), $attrsText);
-$tab = array();
+$tab = [];
 $tab[] = $form->createElement('radio', 'inherits_parent', null, _("Yes"), '1');
 $tab[] = $form->createElement('radio', 'inherits_parent', null, _("No"), '0');
 $form->addGroup($tab, 'inherits_parent', _("Parent relationship"), '&nbsp;');
-$form->setDefaults(array('inherits_parent' => '1'));
+$form->setDefaults(['inherits_parent' => '1']);
 
-$tab = array();
+$tab = [];
 $tab[] = $form->createElement(
     'checkbox',
     'o',
     '&nbsp;',
     _("Ok/Up"),
-    array('id' => 'nUp', 'onClick' => 'applyNotificationRules(this);')
+    ['id' => 'nUp', 'onClick' => 'applyNotificationRules(this);']
 );
 $tab[] = $form->createElement(
     'checkbox',
     'd',
     '&nbsp;',
     _("Down"),
-    array('id' => 'nDown', 'onClick' => 'applyNotificationRules(this);')
+    ['id' => 'nDown', 'onClick' => 'applyNotificationRules(this);']
 );
 $tab[] = $form->createElement(
     'checkbox',
     'u',
     '&nbsp;',
     _("Unreachable"),
-    array('id' => 'nUnreachable', 'onClick' => 'applyNotificationRules(this);')
+    ['id' => 'nUnreachable', 'onClick' => 'applyNotificationRules(this);']
 );
 $tab[] = $form->createElement(
     'checkbox',
     'p',
     '&nbsp;',
     _("Pending"),
-    array('id' => 'nPending', 'onClick' => 'applyNotificationRules(this);')
+    ['id' => 'nPending', 'onClick' => 'applyNotificationRules(this);']
 );
 $tab[] = $form->createElement(
     'checkbox',
     'n',
     '&nbsp;',
     _("None"),
-    array('id' => 'nNone', 'onClick' => 'applyNotificationRules(this);')
+    ['id' => 'nNone', 'onClick' => 'applyNotificationRules(this);']
 );
 $form->addGroup($tab, 'notification_failure_criteria', _("Notification Failure Criteria"), '&nbsp;&nbsp;');
 
-$tab = array();
+$tab = [];
 $tab[] = $form->createElement(
     'checkbox',
     'o',
@@ -188,17 +183,17 @@ $route = './include/common/webServices/rest/internal.php?object=centreon_configu
     '&action=defaultValues&target=dependency&field=dep_hgParents&id=' . $depId;
 $attrHostgroup1 = array_merge(
     $attrHostgroups,
-    array('defaultDatasetRoute' => $route)
+    ['defaultDatasetRoute' => $route]
 );
-$form->addElement('select2', 'dep_hgParents', _("Host Groups Name"), array(), $attrHostgroup1);
+$form->addElement('select2', 'dep_hgParents', _("Host Groups Name"), [], $attrHostgroup1);
 
 $route = './include/common/webServices/rest/internal.php?object=centreon_configuration_hostgroup' .
     '&action=defaultValues&target=dependency&field=dep_hgChilds&id=' . $depId;
 $attrHostgroup2 = array_merge(
     $attrHostgroups,
-    array('defaultDatasetRoute' => $route)
+    ['defaultDatasetRoute' => $route]
 );
-$form->addElement('select2', 'dep_hgChilds', _("Dependent Host Groups Name"), array(), $attrHostgroup2);
+$form->addElement('select2', 'dep_hgChilds', _("Dependent Host Groups Name"), [], $attrHostgroup2);
 
 $form->addElement('textarea', 'dep_comment', _("Comments"), $attrsTextarea);
 
@@ -242,19 +237,19 @@ if ($o == WATCH_DEPENDENCY) {
             "button",
             "change",
             _("Modify"),
-            array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&dep_id=" . $depId . "'")
+            ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&dep_id=" . $depId . "'"]
         );
     }
     $form->setDefaults($dep);
     $form->freeze();
 } elseif ($o == MODIFY_DEPENDENCY) {
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $form->setDefaults($dep);
 } elseif ($o == ADD_DEPENDENCY) {
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
-    $form->setDefaults(array('inherits_parent', '0'));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
+    $form->setDefaults(['inherits_parent', '0']);
 }
 
 $tpl->assign(

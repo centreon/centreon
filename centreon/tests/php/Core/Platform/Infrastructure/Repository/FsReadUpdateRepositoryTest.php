@@ -27,12 +27,12 @@ use Core\Platform\Infrastructure\Repository\FsReadUpdateRepository;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->filesystem = $this->createMock(Filesystem::class);
     $this->finder = $this->createMock(Finder::class);
 });
 
-it('should return an empty array when install directory does not exist', function () {
+it('should return an empty array when install directory does not exist', function (): void {
     $repository = new FsReadUpdateRepository(sys_get_temp_dir(), $this->filesystem, $this->finder);
 
     $this->filesystem
@@ -44,7 +44,7 @@ it('should return an empty array when install directory does not exist', functio
     expect($availableUpdates)->toEqual([]);
 });
 
-it('should order found updates', function () {
+it('should order found updates', function (): void {
     $repository = new FsReadUpdateRepository(sys_get_temp_dir(), $this->filesystem, $this->finder);
 
     $this->filesystem

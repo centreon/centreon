@@ -33,7 +33,7 @@
  *
  */
 
-require_once realpath(dirname(__FILE__) . "/../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . "/../../../../config/centreon.config.php");
 require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonSession.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonCustomView.class.php';
@@ -73,7 +73,7 @@ try {
     $viewId = $viewObj->getCurrentView();
     $permission = $viewObj->checkPermission($viewId) ? 1 : 0;
     $ownership = $viewObj->checkOwnership($viewId) ? 1 : 0;
-    $widgets = array();
+    $widgets = [];
     $columnClass = "column_0";
     $widgetNumber = 0;
     if ($viewId) {
@@ -109,10 +109,6 @@ try {
         returnSvg("www/img/icons/question_2.svg", "var(--help-tool-tip-icon-fill-color)", 18, 18)
     );
     $template->display($columnClass . ".ihtml");
-} catch (CentreonWidgetException $e) {
-    echo $e->getMessage() . "<br/>";
-} catch (CentreonCustomViewException $e) {
-    echo $e->getMessage() . "<br/>";
-} catch (Exception $e) {
+} catch (CentreonWidgetException|CentreonCustomViewException|Exception $e) {
     echo $e->getMessage() . "<br/>";
 }

@@ -37,7 +37,7 @@ use Core\Security\ProviderConfiguration\Infrastructure\WebSSO\Api\FindWebSSOConf
     FindWebSSOConfigurationController
 };
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->useCase = $this->createMock(FindWebSSOConfiguration::class);
     $this->presenter = $this->createMock(FindWebSSOConfigurationPresenterInterface::class);
 
@@ -85,7 +85,7 @@ beforeEach(function () {
     $this->request = $this->createMock(Request::class);
 });
 
-it('should call the use case', function () {
+it('should call the use case', function (): void {
     $controller = new FindWebSSOConfigurationController();
     $controller->setContainer($this->container);
 

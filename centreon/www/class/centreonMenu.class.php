@@ -33,23 +33,23 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class CentreonMenu
+ */
 class CentreonMenu
 {
-    /**
-     * @var CentreonLang
-     */
+    /** @var CentreonLang */
     protected $centreonLang;
 
-    /**
-     * @var
-     */
+    /** @var CentreonDB */
     protected $db;
 
     /**
-     * Constructor
+     * CentreonMenu constructor
      *
      * @param CentreonLang $centreonLang
-     * @return void
      */
     public function __construct($centreonLang)
     {
@@ -62,6 +62,7 @@ class CentreonMenu
      * @param int $isModule
      * @param string $url
      * @param string $menuName
+     *
      * @return string
      */
     public function translate($isModule, $url, $menuName)

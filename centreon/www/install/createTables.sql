@@ -573,6 +573,7 @@ CREATE TABLE `cfg_nagios` (
   `nagios_server_id` int(11) DEFAULT NULL,
   `enable_predictive_host_dependency_checks` enum('0','1') DEFAULT NULL,
   `enable_predictive_service_dependency_checks` enum('0','1') DEFAULT NULL,
+  `host_down_disable_service_checks` enum('0','1') DEFAULT '0',
   `cached_host_check_horizon` int(11) DEFAULT NULL,
   `cached_service_check_horizon` int(11) DEFAULT NULL,
   `passive_host_checks_are_soft` int(11) DEFAULT NULL,
@@ -2659,6 +2660,27 @@ CREATE TABLE IF NOT EXISTS `acc_poller_relation` (
     FOREIGN KEY (`acc_id`)
     REFERENCES `additional_connector_configuration` (`id`) ON DELETE CASCADE,
   CONSTRAINT `poller_id_contraint`
+    FOREIGN KEY (`poller_id`)
+    REFERENCES `nagios_server` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `agent_configuration` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `type` enum('telegraf', 'centreon-agent') NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `configuration` JSON NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name_unique` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `ac_poller_relation` (
+  `ac_id` INT UNSIGNED NOT NULL,
+  `poller_id` INT(11) NOT NULL,
+  UNIQUE KEY `rel_unique` (`ac_id`, `poller_id`),
+  CONSTRAINT `ac_id_contraint`
+    FOREIGN KEY (`ac_id`)
+    REFERENCES `agent_configuration` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `ac_poller_id_contraint`
     FOREIGN KEY (`poller_id`)
     REFERENCES `nagios_server` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

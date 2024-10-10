@@ -34,6 +34,11 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class CentreonSession
+ */
 class CentreonSession
 {
     /**
@@ -47,6 +52,9 @@ class CentreonSession
         }
     }
 
+    /**
+     * @return void
+     */
     public static function stop(): void
     {
         // destroy the session
@@ -54,6 +62,9 @@ class CentreonSession
         session_destroy();
     }
 
+    /**
+     * @return void
+     */
     public static function restart(): void
     {
         static::stop();
@@ -107,16 +118,18 @@ class CentreonSession
             return false;
         }
         $prepare = $db->prepare('SELECT `session_id` FROM session WHERE `session_id` = :session_id');
-        $prepare->bindValue(':session_id', $sessionId, \PDO::PARAM_STR);
+        $prepare->bindValue(':session_id', $sessionId, PDO::PARAM_STR);
         $prepare->execute();
-        return $prepare->fetch(\PDO::FETCH_ASSOC) !== false;
+        return $prepare->fetch(PDO::FETCH_ASSOC) !== false;
     }
 
     /**
      * Update session to keep alive
      *
-     * @param \CentreonDB $pearDB
+     * @param CentreonDB $pearDB
+     *
      * @return bool If the session is updated or not
+     * @throws PDOException
      */
     public function updateSession($pearDB): bool
     {
@@ -132,9 +145,9 @@ class CentreonSession
                     SET `last_reload` = :lastReload, `ip_address` = :ipAddress
                     WHERE `session_id` = :sessionId"
                 );
-                $sessionStatement->bindValue(':lastReload', time(), \PDO::PARAM_INT);
-                $sessionStatement->bindValue(':ipAddress', $_SERVER["REMOTE_ADDR"], \PDO::PARAM_STR);
-                $sessionStatement->bindValue(':sessionId', $sessionId, \PDO::PARAM_STR);
+                $sessionStatement->bindValue(':lastReload', time(), PDO::PARAM_INT);
+                $sessionStatement->bindValue(':ipAddress', $_SERVER["REMOTE_ADDR"], PDO::PARAM_STR);
+                $sessionStatement->bindValue(':sessionId', $sessionId, PDO::PARAM_STR);
                 $sessionStatement->execute();
 
                 $sessionExpire = 120;
@@ -147,7 +160,7 @@ class CentreonSession
                     $sessionExpire = (int) $option['value'];
                 }
 
-                $expirationDate = (new \Datetime())
+                $expirationDate = (new Datetime())
                     ->add(new DateInterval('PT' . $sessionExpire . 'M'))
                     ->getTimestamp();
                 $tokenStatement = $pearDB->prepare(
@@ -155,12 +168,12 @@ class CentreonSession
                     SET `expiration_date` = :expirationDate
                     WHERE `token` = :sessionId"
                 );
-                $tokenStatement->bindValue(':expirationDate', $expirationDate, \PDO::PARAM_INT);
-                $tokenStatement->bindValue(':sessionId', $sessionId, \PDO::PARAM_STR);
+                $tokenStatement->bindValue(':expirationDate', $expirationDate, PDO::PARAM_INT);
+                $tokenStatement->bindValue(':sessionId', $sessionId, PDO::PARAM_STR);
                 $tokenStatement->execute();
 
                 $sessionUpdated = true; // return true if session is properly updated
-            } catch (\PDOException $e) {
+            } catch (PDOException $e) {
                 $sessionUpdated = false; // return false if session is not properly updated in database
             }
         } else {
@@ -172,12 +185,14 @@ class CentreonSession
 
     /**
      * @param string $sessionId
-     * @param \CentreonDB $pearDB
+     * @param CentreonDB $pearDB
+     *
      * @return int|string
+     * @throws PDOException
      */
     public static function getUser($sessionId, $pearDB)
     {
-        $sessionId = str_replace(array('_', '%'), array('', ''), $sessionId);
+        $sessionId = str_replace(['_', '%'], ['', ''], $sessionId);
         $DBRESULT = $pearDB->query(
             "SELECT user_id FROM session
                 WHERE `session_id` = '" . htmlentities(trim($sessionId), ENT_QUOTES, "UTF-8") . "'"

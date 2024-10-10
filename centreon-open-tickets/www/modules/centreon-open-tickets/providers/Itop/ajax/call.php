@@ -18,7 +18,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-require_once dirname(__FILE__) . '/../../../centreon-open-tickets.conf.php';
+require_once __DIR__ . '/../../../centreon-open-tickets.conf.php';
 require_once $centreon_path . 'www/modules/centreon-open-tickets/providers/register.php';
 require_once $centreon_path . 'www/modules/centreon-open-tickets/class/rule.php';
 require_once $centreon_path . 'www/modules/centreon-open-tickets/class/centreonDBManager.class.php';
@@ -42,10 +42,10 @@ require_once $centreon_path . 'www/include/common/common-Func.php';
 
 // check if there is data in POST
 if (!isset($_POST['data'])) {
-    $result = array("code" => 1, "msg" => "POST 'data' is required.");
+    $result = ["code" => 1, "msg" => "POST 'data' is required."];
 } else {
     $getInformation = isset($_POST['data']) ? json_decode($_POST['data'], true): null;
-    $result = array('code' => 0, 'msg' => 'ok');
+    $result = ['code' => 0, 'msg' => 'ok'];
 
     // check if there is the provider id in the data
     if (is_null($getInformation['provider_id'])) {
@@ -94,7 +94,7 @@ if (!isset($_POST['data'])) {
     }
 
     try {
-        $data = array();
+        $data = [];
         if (array_key_exists('provider_data', $getInformation)) {
             $data = $getInformation['provider_data'];
         }

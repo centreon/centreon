@@ -101,7 +101,7 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
     public function findHosts(bool $withServices = false): array
     {
         $hosts = $this->monitoringRepository->findHosts();
-        if ($withServices && !empty($hosts)) {
+        if ($withServices && $hosts !== []) {
             $hosts = $this->completeHostsWithTheirServices($hosts);
         }
         return $hosts;
@@ -115,7 +115,7 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
         // Find hosts groups only
         $hostGroups = $this->monitoringRepository->findHostGroups($hostId);
 
-        if (!empty($hostGroups)) {
+        if ($hostGroups !== []) {
             $hostIds = [];
             if ($withHosts || $withServices) {
                 // We will find hosts linked to hosts groups found
@@ -195,7 +195,7 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
         // Find hosts groups only
         $serviceGroups = $this->monitoringRepository->findServiceGroups();
 
-        if (!empty($serviceGroups) && ($withHosts || $withServices)) {
+        if ($serviceGroups !== [] && ($withHosts || $withServices)) {
             // We will find hosts linked to hosts groups found
             $serviceGroupIds = [];
             foreach ($serviceGroups as $serviceGroup) {

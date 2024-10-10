@@ -3129,6 +3129,7 @@ msgstr "Accueil"
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:294
 #: centreon-web/www/include/options/accessLists/define/formLCA.php:244
 #: centreon-web/www/include/monitoring/objectDetails/serviceDetails.php:587
+#: centreon-web/www/include/eventLogs/viewLog.php:247
 msgid "Host Groups"
 msgstr "Groupes d'hôtes"
 
@@ -3331,6 +3332,7 @@ msgstr "État du serveur"
 #: centreon-web/www/install/menu_translation.php:133
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:330
 #: centreon-web/www/include/options/accessLists/define/formLCA.php:275
+#: centreon-web/www/include/eventLogs/viewLog.php:229
 msgid "Service Groups"
 msgstr "Groupes de services"
 
@@ -6138,7 +6140,7 @@ msgid "View an ACL"
 msgstr "Visualiser une ACL"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:230
-msgid "Hosts Groups Shared"
+msgid "Host Groups Shared"
 msgstr "Groupes d'hôtes partagés"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:232
@@ -6263,11 +6265,11 @@ msgid "Required field"
 msgstr "Champ requis"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:429
-msgid "Hosts Resources"
+msgid "Host Resources"
 msgstr "Gestion des hôtes"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:430
-msgid "Services Resources"
+msgid "Service Resources"
 msgstr "Gestion des services"
 
 msgid "Centreon Users"
@@ -8878,7 +8880,7 @@ msgstr "octets"
 msgid "Warning: this value can be dangerous, use -1 if you have any doubt."
 msgstr ""
 "Attention : le changement de cette valeur peut avoir des conséquences "
-"importantes. Utiliser '-1' si vous avez le moindre doute"
+"importantes. Utilisez -1 si vous avez le moindre doute"
 
 #: centreon-web/www/include/configuration/configNagios/formNagios.php:905
 msgid "This option must be enabled for Centreon Dashboard module."
@@ -12090,14 +12092,6 @@ msgstr "Etat validés (Hard) seulement"
 #: centreon-web/www/include/eventLogs/viewLog.php:200
 msgid "Log Period"
 msgstr "Période de visualisation"
-
-#: centreon-web/www/include/eventLogs/viewLog.php:229
-msgid "Services Groups"
-msgstr "Groupes de services"
-
-#: centreon-web/www/include/eventLogs/viewLog.php:247
-msgid "Hosts Groups"
-msgstr "Groupes d'hôtes"
 
 #: centreon-web/www/include/eventLogs/xml/data.php:715
 msgid "Y/m/d"
@@ -19131,8 +19125,8 @@ msgstr "Sélectionner les sévérités des services"
 msgid "Select host severities"
 msgstr "Sélectionner les sévérités des hôtes"
 
-msgid "Enable Open Tickets"
-msgstr "Activer Open Tickets"
+msgid "Enable ticket management"
+msgstr "Activer la gestion des tickets"
 
 msgid "Ticket provider"
 msgstr "Fournisseur de tickets"
@@ -19162,10 +19156,22 @@ msgid "Ticket subject"
 msgstr "Sujet du ticket"
 
 msgid "Opened on"
-msgstr "Date d'ouverture"
+msgstr "Ouvert le"
 
 msgid "Create a ticket"
 msgstr "Créer un ticket"
+
+msgid "Close a ticket"
+msgstr "Fermer un ticket"
+
+msgid "Ticket created"
+msgstr "Ticket créé"
+
+msgid "Ticket closed"
+msgstr "Ticket fermé"
+
+msgid "The ticket with ID #{{id}} will be closed for the selected ticket provider."
+msgstr "Le ticket avec l'ID #{{id}} sera fermé pour le fournisseur de tickets sélectionné."
 
 msgid "Rule (ticket provider)"
 msgstr "Règle (fournisseur de tickets)"
@@ -19450,6 +19456,18 @@ msgstr "Attention, les domaines en dehors de votre organisation doivent être au
 msgid "Web page preview"
 msgstr "Aperçu de la page web"
 
+msgid "If ticket management is enabled, only the “by service” view is available."
+msgstr "Si la gestion des tickets est activé, seule la vue par service est disponible."
+
+msgid "Ticket management"
+msgstr "gestion des tickets"
+
+msgid "Displays the time according to the selected time zone, or a timer."
+msgstr "Affiche l'heure en fonction du fuseau horaire sélectionné, ou un minuteur."
+
+msgid "Clock / Timer"
+msgstr "Horloge/Minuteur"
+
 msgid "Poller/agent configuration"
 msgstr "Configuration collecteur/agent"
 
@@ -19530,3 +19548,36 @@ msgstr "Mettre à jour la configuration collecteur/agent"
 
 msgid "An agent is a piece of software you install on the host you want to monitor, that executes the checks."
 msgstr "Un agent est une partie d'un logiciel que vous installez sur l'hôte que vous souhaitez superviser qui exécutes les vérifications."
+
+msgid "Error while adding a poller/agent configuration"
+msgstr "Erreur lors de l'ajout de la configuration collecteur/agent"
+
+msgid "Error while updating a poller/agent configuration"
+msgstr "Erreur lors de la mise à jour de la configuration collecteur/agent"
+
+msgid "Error while deleting a poller/agent configuration"
+msgstr "Erreur lors de la suppression de la configuration collecteur/agent"
+
+msgid "You are not allowed to access poller/agent configurations"
+msgstr "Vous n'êtes pas autorisé à accéder aux configurations collecteur/agent"
+
+msgid "A poller/agent configuration is already associated with poller ID(s) '%s'"
+msgstr "Une configuration collecteur/agent est déjà associée au(x) ID(s) de collecteur(s) '%s'"
+
+msgid "Error while retrieving a poller/agent configuration"
+msgstr "Erreur durant la récupération d'une configuration collecteur/agent"
+
+msgid "The poller/agent configuration name '%s' already exists"
+msgstr "La configuration collecteur/agent '%s' existe déjà"
+
+msgid "Changing the type of an existing poller/agent configuration is not allowed"
+msgstr "Changer le type d'une configuration collecteur/agent existante n'est pas autorisé"
+
+msgid "Filename '%s' (%s) is invalid"
+msgstr "Le nom de fichier '%s' (%s) est invalide"
+
+msgid "Poller ID #%d is the only one linked to poller/agent configuration ID #%d"
+msgstr "L'ID de collecteur #%d est le seul lié à l'ID de configuration collecteur/agent #%d"
+
+msgid "Error while retrieving multiple poller/agent configurations"
+msgstr "Erreur durant la récupération de multiple configurations collecteur/agent"
