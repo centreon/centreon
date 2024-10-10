@@ -6,7 +6,6 @@ import IconForcedCheck from '@mui/icons-material/FlipCameraAndroidOutlined';
 import IconAcknowledge from '@mui/icons-material/Person';
 
 import type { ComponentColumnProps } from '@centreon/ui';
-
 import {
   IconButton,
   Method,
