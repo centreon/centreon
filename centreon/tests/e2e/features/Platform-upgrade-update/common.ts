@@ -116,7 +116,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
       name: 'web'
     });
   } else {
-    const versionMatches = version.match(/(\d+)\.\d+\.\d+/);
+    const versionMatches = version.match(/(\d+)\.(\d+)\.\d+/);
     if (!versionMatches) {
       throw new Error('Cannot parse version number.');
     }
@@ -131,6 +131,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
     if (Number(versionMatches[1]) < 24) {
       packagesToInstall.push(`centreon-web-apache=${packageVersionSuffix}`);
     }
+    const phpVersion = Number(versionMatches[1]) <= 24 && Number(versionMatches[2]) < 10 ? '8.1' : '8.2';
 
     cy.execInContainer({
       command: [
@@ -139,11 +140,12 @@ const installCentreon = (version: string): Cypress.Chainable => {
         `apt-get update`,
         `apt-get install -y ${packagesToInstall.join(' ')}`,
         `mkdir -p /usr/lib/centreon-connector`,
-        `echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini`,
+        `echo "date.timezone = Europe/Paris" > /etc/php/${phpVersion}/mods-available/timezone.ini`,
+        `phpenmod -v ${phpVersion} timezone`,
         `sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql`,
         `service mysql start`,
         `mkdir -p /run/php`,
-        `systemctl start php8.1-fpm`,
+        `systemctl start php${phpVersion}-fpm`,
         `systemctl start apache2`,
         `mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"`,
         `mv /etc/apt/sources.list.d/centreon-unstable.list.bak /etc/apt/sources.list.d/centreon-unstable.list`,
