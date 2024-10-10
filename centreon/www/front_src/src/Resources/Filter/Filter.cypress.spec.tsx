@@ -644,6 +644,103 @@ describe('Replaces whitespace with the \\s regex pattern', () => {
   });
 });
 
+const staticFilters = [
+  {
+    containerId: 'status_types',
+    criteriaInitialValue: 'HARD',
+    criteriaName: 'status_type',
+    expectedCriteriaValue: 'hard',
+    expectedSuggestedCriteria: ',soft',
+    id: 'Hard'
+  },
+  {
+    containerId: 'resource_types',
+    criteriaInitialValue: 'HOST',
+    criteriaName: 'type',
+    expectedCriteriaValue: 'host',
+    expectedSuggestedCriteria: ',service',
+    id: 'Host'
+  },
+  {
+    containerId: 'states',
+    criteriaInitialValue: 'UNHANDLED',
+    criteriaName: 'state',
+    expectedCriteriaValue: 'unhandled',
+    expectedSuggestedCriteria: ',acknowledged',
+    id: 'Unhandled '
+  },
+  {
+    containerId: 'statuses-host',
+    criteriaInitialValue: 'UP',
+    criteriaName: 'status',
+    expectedCriteriaValue: 'up',
+    expectedSuggestedCriteria: ',down',
+    id: 'Up'
+  }
+];
+
+describe('search bar:ignores case sensitivity when searching static filters', () => {
+  beforeEach(() => {
+    const updatedStore = setView({
+      name: Visualization.All,
+      store: getStore()
+    });
+    mount({ store: updatedStore });
+  });
+
+  staticFilters.forEach((data) => {
+    const {
+      criteriaName,
+      criteriaInitialValue,
+      expectedCriteriaValue,
+      id,
+      containerId,
+      expectedSuggestedCriteria
+    } = data;
+
+    it('ignores case sensitivity when searching static filters', () => {
+      const getSearch = ({ value, name }): string => `${name}:${value}`;
+
+      cy.findByPlaceholderText(labelSearch).type(
+        `${getSearch({ name: criteriaName, value: criteriaInitialValue })}{esc}{enter}`
+      );
+
+      cy.findByPlaceholderText(labelSearch)
+        .invoke('val')
+        .should(
+          'equal',
+          `${getSearch({ name: criteriaName, value: expectedCriteriaValue })} `
+        );
+
+      cy.findByLabelText(labelSearchOptions).click();
+
+      cy.findByText(labelShowMoreFilters).click();
+
+      cy.findByTestId(containerId).find(`#${id}`).should('be.checked');
+    });
+
+    it('displays the corresponding suggestoins when searching static filters', () => {
+      cy.findByPlaceholderText(labelSearch).type(
+        `${criteriaName}:${criteriaInitialValue.substring(0, 1)}`
+      );
+      cy.findByRole('menuitem', { name: expectedCriteriaValue });
+
+      cy.makeSnapshot(`suggestion for ${criteriaName} static filter`);
+
+      cy.findByPlaceholderText(labelSearch).clear();
+      cy.findByPlaceholderText(labelSearch).type(
+        `${criteriaName}:${criteriaInitialValue}`
+      );
+      cy.findByRole('menuitem', { name: expectedCriteriaValue }).should(
+        'not.exist'
+      );
+      cy.findByRole('menuitem', { name: expectedSuggestedCriteria }).should(
+        'exist'
+      );
+    });
+  });
+});
+
 describe('Keyboard actions', () => {
   beforeEach(() => {
     initializeRequests();
