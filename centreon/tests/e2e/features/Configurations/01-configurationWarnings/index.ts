@@ -19,6 +19,7 @@ Given("An admin user is logged in Centreon", () => {
 });
 
 Given("a service with notifications enabled", () => {
+  // cy.setUserTokenApiV1();
      cy.addHostGroup({
        name: data.hostGroups.hostGroup1.name,
      });
@@ -29,13 +30,57 @@ Given("a service with notifications enabled", () => {
        hostGroup: data.hostGroups.hostGroup1.name,
        name: data.hosts.host1.name,
        template: "generic-host",
-     }).addService({
-       activeCheckEnabled: false,
-         host: data.hosts.host1.name,
-       maxCheckAttempts: 1,
-       name: data.services.service1.name,
-      //  template: "Ping-LAN",
-     });
+     })
+  // .addService({
+  //      activeCheckEnabled: false,
+  //        host: data.hosts.host1.name,
+  //      maxCheckAttempts: 1,
+  //      name: data.services.service1.name,
+  //      template: "Ping-LAN",
+  //    });
+  cy.navigateTo({
+    page: "Services by host",
+    rootItemNumber: 3,
+    subMenu: "Services",
+  });
+  cy.getIframeBody()
+    .find("tr.ToolbarTR")
+    .find(".btc.bt_success")
+    .contains("Add")
+    .click();
+  cy.get("iframe#main-content")
+    .its("0.contentDocument.body")
+    .find("table.formTable")
+    .find("td.FormRowValue")
+    .find('input[name="service_description"]')
+    .type("service");
+  cy.get("iframe#main-content")
+    .its("0.contentDocument.body")
+    .find("table.formTable")
+    .find("td.FormRowValue")
+    .find("p.oreonbutton")
+    .find("span.selection")
+    .find('input[placeholder="Hosts"]')
+    .click();
+  cy.get("iframe#main-content")
+    .its("0.contentDocument.body")
+    .find("button.btc.bt_info")
+    .click();
+  cy.get("iframe#main-content")
+    .its("0.contentDocument.body")
+    .find("button.btc.bt_success")
+    .click();
+  cy.get("iframe#main-content")
+    .its("0.contentDocument.body")
+    .find('span[aria-labelledby="select2-command_command_id-container"]')
+    .click();
+  cy.getIframeBody().contains("check_centreon_ping").click();
+  cy.getIframeBody()
+    .find("div#validForm")
+    .find("p.oreonbutton")
+    .find('.btc.bt_success[name="submitA"]')
+    .click();
+  cy.setUserTokenApiV1();
   cy.setServiceParameters({
     name: data.hosts.host1.name,
     paramName: "notifications_enabled",
@@ -71,7 +116,6 @@ When("the configuration is exported", () => {
       cy.getIframeBody().find('input[name="move"]').parent().click();
       cy.getIframeBody().find('input[name="restart"]').parent().click();
       cy.getIframeBody().find('input[id="exportBtn"]').click();
-
 });
 
 Then("a warning message is printed", () => {
