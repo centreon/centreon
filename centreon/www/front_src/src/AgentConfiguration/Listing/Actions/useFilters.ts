@@ -8,11 +8,16 @@ import {
   filtersAtom
 } from '../../atoms';
 import { AgentType } from '../../models';
+import { labelCMA } from '../../translatedLabels';
 
 export const agentTypeOptions = [
   {
     id: AgentType.Telegraf,
     name: capitalize(AgentType.Telegraf)
+  },
+  {
+    id: AgentType.CMA,
+    name: labelCMA
   }
 ];
 

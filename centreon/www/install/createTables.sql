@@ -2666,7 +2666,7 @@ CREATE TABLE IF NOT EXISTS `acc_poller_relation` (
 
 CREATE TABLE IF NOT EXISTS `agent_configuration` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `type` enum('telegraf') NOT NULL,
+  `type` enum('telegraf', 'centreon-agent') NOT NULL,
   `name` varchar(255) NOT NULL,
   `configuration` JSON NOT NULL,
   PRIMARY KEY (`id`),

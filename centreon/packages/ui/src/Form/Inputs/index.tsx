@@ -115,7 +115,8 @@ const useStyles = makeStyles<StylesProps>()((theme, { groupDirection }) => ({
     display: 'flex',
     flexDirection: 'column',
     marginTop: theme.spacing(1),
-    rowGap: theme.spacing(2)
+    rowGap: theme.spacing(2),
+    marginBottom: theme.spacing(1)
   }
 }));
 
@@ -167,7 +168,7 @@ const Inputs = ({
     );
 
     return pluck('name', usedGroups);
-  }, []);
+  }, [inputsByGroup, groups]);
 
   const sortedInputsByGroup = useMemo(
     () =>

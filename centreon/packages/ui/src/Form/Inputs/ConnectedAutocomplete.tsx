@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { path, equals, isEmpty, propEq, reject, split } from 'ramda';
+import { equals, isEmpty, path, propEq, reject, split } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -30,8 +30,15 @@ const ConnectedAutocomplete = ({
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
 
-  const { values, touched, errors, setFieldValue, setFieldTouched } =
-    useFormikContext<FormikValues>();
+  const {
+    values,
+    touched,
+    errors,
+    setFieldValue,
+    setFieldTouched,
+    setValues,
+    setTouched
+  } = useFormikContext<FormikValues>();
 
   const filterKey = connectedAutocomplete?.filterKey || defaultFilterKey;
 
@@ -58,7 +65,14 @@ const ConnectedAutocomplete = ({
   const changeAutocomplete = useCallback(
     (_, value): void => {
       if (change) {
-        change({ setFieldValue, value, setFieldTouched });
+        change({
+          setFieldValue,
+          value,
+          setFieldTouched,
+          setValues,
+          values,
+          setTouched
+        });
 
         return;
       }

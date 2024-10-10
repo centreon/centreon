@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { path, equals, isNil, map, not, prop, type } from 'ramda';
+import { equals, isNil, map, not, path, prop, type } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { FormHelperText, Stack } from '@mui/material';
@@ -53,8 +53,15 @@ const Autocomplete = ({
 
   const [inputText, setInputText] = useState('');
 
-  const { values, setFieldValue, setFieldTouched, errors, touched } =
-    useFormikContext<FormikValues>();
+  const {
+    values,
+    setFieldValue,
+    setFieldTouched,
+    errors,
+    touched,
+    setValues,
+    setTouched
+  } = useFormikContext<FormikValues>();
 
   const isMultiple = equals(inputType, InputType.MultiAutocomplete);
 
@@ -69,7 +76,14 @@ const Autocomplete = ({
 
     if (change) {
       setFieldTouched(fieldName, true, false);
-      change({ setFieldValue, value: normalizedNewValues, setFieldTouched });
+      change({
+        setFieldValue,
+        value: normalizedNewValues,
+        setFieldTouched,
+        setValues,
+        values,
+        setTouched
+      });
 
       return;
     }
@@ -188,6 +202,7 @@ const Autocomplete = ({
       </div>
     ),
     memoProps: [
+      values,
       getValues(),
       inputErrors,
       additionalLabel,

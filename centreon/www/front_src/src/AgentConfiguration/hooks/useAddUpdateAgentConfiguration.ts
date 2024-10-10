@@ -13,30 +13,60 @@ import {
   getAgentConfigurationEndpoint,
   getAgentConfigurationsEndpoint
 } from '../api/endpoints';
-import { openFormModalAtom } from '../atoms';
-import { AgentConfiguration, AgentConfigurationAPI } from '../models';
+import { agentTypeFormAtom, openFormModalAtom } from '../atoms';
+import {
+  AgentConfiguration,
+  AgentConfigurationAPI,
+  AgentType,
+  CMAConfiguration,
+  TelegrafConfiguration
+} from '../models';
 import {
   labelAgentConfigurationCreated,
   labelAgentConfigurationUpdated
 } from '../translatedLabels';
 
-const adaptAgentConfigurationToAPI = (
+const adaptTelegrafConfigurationToAPI = (
   agentConfiguration: AgentConfiguration
-): AgentConfigurationAPI => ({
-  ...agentConfiguration,
-  pollers: pluck('id', agentConfiguration.pollers),
-  type: (agentConfiguration.type as SelectEntry).id,
-  configuration: {
-    otel_private_key: agentConfiguration.configuration.otelPrivateKey,
-    otel_ca_certificate:
-      agentConfiguration.configuration.otelCaCertificate || null,
-    otel_public_certificate:
-      agentConfiguration.configuration.otelPublicCertificate,
-    conf_certificate: agentConfiguration.configuration.confCertificate,
-    conf_private_key: agentConfiguration.configuration.confPrivateKey,
-    conf_server_port: agentConfiguration.configuration.confServerPort
-  }
-});
+): AgentConfigurationAPI => {
+  const configuration =
+    agentConfiguration.configuration as TelegrafConfiguration;
+
+  return {
+    ...agentConfiguration,
+    pollers: pluck('id', agentConfiguration.pollers),
+    type: (agentConfiguration.type as SelectEntry).id,
+    configuration: {
+      otel_private_key: configuration.otelPrivateKey,
+      otel_ca_certificate: configuration.otelCaCertificate,
+      otel_public_certificate: configuration.otelPublicCertificate,
+      conf_certificate: configuration.confCertificate,
+      conf_private_key: configuration.confPrivateKey,
+      conf_server_port: configuration.confServerPort
+    }
+  };
+};
+
+const adaptCMAConfigurationToAPI = (
+  agentConfiguration: AgentConfiguration
+): AgentConfigurationAPI => {
+  const configuration = agentConfiguration.configuration as CMAConfiguration;
+
+  return {
+    ...agentConfiguration,
+    pollers: pluck('id', agentConfiguration.pollers),
+    type: (agentConfiguration.type as SelectEntry).id,
+    configuration: {
+      is_reverse: configuration.isReverse,
+      otlp_ca_certificate: configuration.otlpCaCertificate,
+      otlp_certificate: configuration.otlpCertificate,
+      otlp_private_key: configuration.otlpPrivateKey,
+      poller_ca_name: configuration.pollerCaName || null,
+      poller_ca_certificate: configuration.pollerCaCertificate || null,
+      hosts: configuration.hosts
+    }
+  };
+};
 
 interface UseAddUpdateAgentConfigurationState {
   submit: (
@@ -53,11 +83,13 @@ export const useAddUpdateAgentConfiguration =
     const queryClient = useQueryClient();
 
     const [openFormModal, setOpenFormModal] = useAtom(openFormModalAtom);
+    const [agentTypeForm, setAgentTypeForm] = useAtom(agentTypeFormAtom);
 
     const { mutateAsync } = useMutationQuery<
       AgentConfigurationAPI,
       { id; setSubmitting }
     >({
+      baseEndpoint: 'http://localhost:3001/centreon/api/latest',
       getEndpoint: ({ id }) =>
         id ? getAgentConfigurationEndpoint(id) : getAgentConfigurationsEndpoint,
       method: equals(openFormModal, 'add') ? Method.POST : Method.PUT,
@@ -77,6 +109,7 @@ export const useAddUpdateAgentConfiguration =
         );
         queryClient.invalidateQueries({ queryKey: ['agent-configurations'] });
         setOpenFormModal(null);
+        setAgentTypeForm(null);
       }
     });
 
@@ -85,7 +118,9 @@ export const useAddUpdateAgentConfiguration =
       { setSubmitting }: FormikHelpers<AgentConfigurationAPI>
     ) => {
       mutateAsync({
-        payload: adaptAgentConfigurationToAPI(values),
+        payload: equals(agentTypeForm, AgentType.Telegraf)
+          ? adaptTelegrafConfigurationToAPI(values)
+          : adaptCMAConfigurationToAPI(values),
         _meta: {
           setSubmitting,
           id: equals(openFormModal, 'add') ? null : openFormModal
