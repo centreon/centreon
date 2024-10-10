@@ -1,9 +1,9 @@
 #!/bin/sh
 
 while [ ! -f /tmp/shared-volume/vault_ids ]; do
-  . /tmp/shared-volume/vault_ids
   sleep 5
 done
+. /tmp/shared-volume/vault_ids
 
 RESPONSE=$(curl -s -w "%{http_code}" -H 'Content-Type:application/json' -H 'Accept:application/json' -d '{"security":{"credentials":{"login":"admin","password":"Centreon!2021"}}}' -L "http://localhost:8080/centreon/api/latest/login")
 TOKEN=$(echo "$RESPONSE" | head -c -4 | jq -r '.security.token')
