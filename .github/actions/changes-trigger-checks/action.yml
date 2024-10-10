@@ -36,7 +36,7 @@ runs:
       id: trigger_api_testing
       run: |
         TRIGGER_API_TESTING=false
-        if ! [[ ${{ inputs.has_frontend_changes }} == 'true' && ${{ inputs.has_backend_changes }} == 'false' && ${{ inputs.has_test_changes }} == 'false' ]]; then
+        if [[ ${{ inputs.has_backend_changes }} == 'true' || ${{ inputs.has_test_changes }} == 'true' ]]; then
           TRIGGER_API_TESTING=true
         fi
         echo "trigger_api_testing=$TRIGGER_API_TESTING" >> $GITHUB_OUTPUT
