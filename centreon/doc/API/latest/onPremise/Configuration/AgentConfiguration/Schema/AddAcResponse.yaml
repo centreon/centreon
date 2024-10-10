@@ -1,0 +1,38 @@
+type: object
+properties:
+  id:
+    type: integer
+    example: 4
+  name:
+    type: string
+    description: "configuration name"
+    example: "my-cfg-name"
+  type:
+    type: string
+    description: Type of configuration
+    example: telegraf
+  pollers:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "Poller ID"
+          example: 1
+        name:
+          type: string
+          description: "Poller name"
+          example: "my-poller-name"
+    description: Poller(s) associated with the configuration
+  configuration:
+    type: object
+    description: |
+      Configuration parameters, varies depending on the configuration type.
+    example:
+      otel_public_certificate: "my-otel-certificate-name"
+      otel_ca_certificate: null
+      otel_private_key: "my-otel-private-key-name"
+      conf_server_port: 1443
+      conf_certificate: "my-certificate-name"
+      conf_private_key: "my-private-key-name"
