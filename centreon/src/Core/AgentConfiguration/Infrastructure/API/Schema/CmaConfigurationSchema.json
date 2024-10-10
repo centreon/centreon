@@ -12,31 +12,26 @@
             "additionalProperties": false,
             "required": [
                 "is_reverse",
-                "otlp_certificate",
-                "otlp_ca_certificate",
-                "otlp_private_key",
-                "poller_ca_certificate",
-                "poller_ca_name",
+                "otel_public_certificate",
+                "otel_ca_certificate",
+                "otel_private_key",
                 "hosts"
             ],
             "properties": {
                 "is_reverse": {
                     "type": "boolean"
                 },
-                "otlp_certificate": {
+                "otel_public_certificate": {
                     "type": "string"
                 },
-                "otlp_ca_certificate": {
+                "otel_ca_certificate": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "otel_private_key": {
                     "type": "string"
-                },
-                "otlp_private_key": {
-                    "type": "string"
-                },
-                "poller_ca_certificate": {
-                    "type": ["null", "string"]
-                },
-                "poller_ca_name": {
-                    "type": ["null", "string"]
                 },
                 "hosts": {
                     "type": "array",
@@ -44,8 +39,8 @@
                         "required": [
                             "address",
                             "port",
-                            "certificate",
-                            "key"
+                            "poller_ca_certificate",
+                            "poller_ca_name"
                         ],
                         "properties": {
                             "address": {
@@ -54,11 +49,17 @@
                             "port": {
                                 "type": "integer"
                             },
-                            "certificate": {
-                                "type": "string"
+                            "poller_ca_certificate": {
+                                "type": [
+                                    "null",
+                                    "string"
+                                ]
                             },
-                            "key": {
-                                "type": "string"
+                            "poller_ca_name": {
+                                "type": [
+                                    "null",
+                                    "string"
+                                ]
                             }
                         }
                     }
