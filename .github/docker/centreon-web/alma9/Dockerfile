@@ -14,7 +14,7 @@ RUN --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <
 
 if [[ "$STABILITY" == "testing" ]]; then
   dnf config-manager --set-disabled 'centreon*unstable'
-elif [[ "$STABILITY" == "stable" ]];
+elif [[ "$STABILITY" == "stable" ]]; then
   dnf config-manager --set-disabled 'centreon*unstable' --set-disabled 'centreon*testing'
 fi
 

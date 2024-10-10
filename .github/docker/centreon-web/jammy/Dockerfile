@@ -18,7 +18,7 @@ RUN --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <
 
 if [[ "$STABILITY" == "testing" ]]; then
   for i in $( ls /etc/apt/sources.list.d/centreon*unstable* ); do mv $i $i.disabled; done
-elif [[ "$STABILITY" == "stable" ]];
+elif [[ "$STABILITY" == "stable" ]]; then
   for i in $( ls /etc/apt/sources.list.d/centreon*{unstable,testing}* ); do mv $i $i.disabled; done
 fi
 
