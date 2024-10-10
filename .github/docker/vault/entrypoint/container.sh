@@ -1,5 +1,7 @@
 #!/bin/sh
 
+sleep 5
+
 export VAULT_TOKEN=${VAULT_DEV_ROOT_TOKEN_ID}
 export VAULT_ADDR='http://localhost:8200'
 vault secrets enable -path=centreon kv
