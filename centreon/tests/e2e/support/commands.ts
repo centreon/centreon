@@ -65,6 +65,26 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
   });
 });
 
+interface Serviceparams {
+  name: string;
+  paramName: string;
+  paramValue: string;
+}
+
+Cypress.Commands.add(
+  "setServiceParameters",
+  ({ name, paramName, paramValue }: Serviceparams): Cypress.Chainable => {
+    return cy.executeActionViaClapi({
+      bodyContent: {
+        action: "SETPARAM",
+        object: "HOST",
+        values: `${name};${paramName};${paramValue}`,
+      },
+    });
+  }
+);
+
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -76,6 +96,11 @@ declare global {
       removeResourceData: () => Cypress.Chainable;
       startOpenIdProviderContainer: () => Cypress.Chainable;
       stopOpenIdProviderContainer: () => Cypress.Chainable;
+      setServiceParameters: ({
+        name,
+        paramName,
+        paramValue,
+      }: Serviceparams) => Cypress.Chainable;
     }
   }
 }
