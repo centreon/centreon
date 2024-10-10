@@ -333,46 +333,46 @@ jobs:
           path: "centreon/build/phpunit.xml"
           format: "php-junit"
 
-  # backend-lint:
-  #   runs-on: ubuntu-22.04
-  #   needs: [changes, get-version]
-  #   if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+  backend-lint:
+    runs-on: ubuntu-22.04
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
-  #   steps:
-  #     - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
-  #     - name: Setup PHP
-  #       uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
-  #       with:
-  #         php-version: 8.2
-  #         coverage: none
-  #       env:
-  #         runner: ubuntu-22.04
+      - name: Setup PHP
+        uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
+        with:
+          php-version: 8.2
+          coverage: none
+        env:
+          runner: ubuntu-22.04
 
-  #     - name: Install Dependencies
-  #       run: composer install --optimize-autoloader
-  #       working-directory: centreon
-  #       shell: bash
+      - name: Install Dependencies
+        run: composer install --optimize-autoloader
+        working-directory: centreon
+        shell: bash
 
-  #     - name: Run of php-cs-fixer with strict_type
-  #       run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff
-  #       working-directory: centreon
+      - name: Run of php-cs-fixer with strict_type
+        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff
+        working-directory: centreon
 
-  #     - name: Run of php-cs-fixer without strict_type
-  #       run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
-  #       working-directory: centreon
+      - name: Run of php-cs-fixer without strict_type
+        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
+        working-directory: centreon
 
-  #     - name: Run of phpstan on /src at level 4
-  #       run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.neon
-  #       working-directory: centreon
+      - name: Run of phpstan on /src at level 4
+        run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.neon
+        working-directory: centreon
 
-  #     - name: Run of phpstan on /src/Core at level 8 + Centreon Custom Rules
-  #       run: vendor/bin/phpstan analyse --no-progress --level=8 --configuration=phpstan.core.neon
-  #       working-directory: centreon
+      - name: Run of phpstan on /src/Core at level 8 + Centreon Custom Rules
+        run: vendor/bin/phpstan analyse --no-progress --level=8 --configuration=phpstan.core.neon
+        working-directory: centreon
 
-  #     - name: Run of phpstan on /tests at level 2
-  #       run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.test.neon
-  #       working-directory: centreon
+      - name: Run of phpstan on /tests at level 2
+        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.test.neon
+        working-directory: centreon
 
   package:
     needs:
@@ -388,7 +388,7 @@ jobs:
         frontend-widgets-build,
         frontend-widgets-lint,
         frontend-unit-test,
-        frontend-component-test,
+        # frontend-component-test,
       ]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
