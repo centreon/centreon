@@ -1,17 +1,18 @@
+import { equals } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Schema, array, mixed, number, object, string } from 'yup';
+import { Schema, array, boolean, mixed, number, object, string } from 'yup';
+import { AgentConfigurationForm, AgentType } from '../models';
 import {
-  AgentConfigurationConfiguration,
-  AgentConfigurationForm
-} from '../models';
-import {
+  labelAddressInvalid,
   labelInvalidFilename,
   labelPortExpectedAtMost,
   labelPortMustStartFrom1,
   labelRequired
 } from '../translatedLabels';
 
+const ipAddressRegex = /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/;
+const urlRegex = /^[a-zA-Z0-9_-]+\.?[a-zA-Z0-9-_.]+\.?[a-zA-Z0-9-_]+$/;
 export const portRegex = /:[0-9]+$/;
 export const certificateFilenameRegexp = /^[a-zA-Z0-9-_.]+(?<!\.crt|cert|cer)$/;
 export const keyFilenameRegexp = /^[a-zA-Z0-9-_.]+(?<!\.key)$/;
@@ -20,15 +21,69 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
   const { t } = useTranslation();
 
   const requiredString = useMemo(() => string().required(t(labelRequired)), []);
-  const certificateValidation = string()
-    .matches(certificateFilenameRegexp, t(labelInvalidFilename))
-    .required(t(labelRequired));
-  const keyValidation = string()
-    .matches(keyFilenameRegexp, t(labelInvalidFilename))
+  const certificateValidation = useMemo(
+    () =>
+      string()
+        .matches(certificateFilenameRegexp, t(labelInvalidFilename))
+        .required(t(labelRequired)),
+    []
+  );
+  const keyValidation = useMemo(
+    () =>
+      string()
+        .matches(keyFilenameRegexp, t(labelInvalidFilename))
+        .required(t(labelRequired)),
+    []
+  );
+  const portValidation = number()
+    .min(1, t(labelPortMustStartFrom1))
+    .max(65535, t(labelPortExpectedAtMost))
     .required(t(labelRequired));
   const certificateNullableValidation = string()
     .matches(certificateFilenameRegexp, t(labelInvalidFilename))
     .nullable();
+
+  const telegrafConfigurationSchema = {
+    confServerPort: portValidation,
+    otelPublicCertificate: certificateValidation,
+    otelCaCertificate: certificateNullableValidation,
+    otelPrivateKey: keyValidation,
+    confCertificate: certificateValidation,
+    confPrivateKey: keyValidation
+  };
+
+  const CMAConfigurationSchema = {
+    isReverse: boolean(),
+    otlpCertificate: certificateValidation,
+    otlpCaCertificate: certificateValidation,
+    otlpPrivateKey: keyValidation,
+    pollerCaCertificate: certificateNullableValidation,
+    pollerCaName: string().nullable(),
+    hosts: array().when('isReverse', {
+      is: true,
+      // biome-ignore lint/suspicious/noThenProperty: <explanation>
+      then: (schema) =>
+        schema
+          .of(
+            object({
+              address: string()
+                .test({
+                  name: 'is-dns-ip-valid',
+                  exclusive: true,
+                  message: t(labelAddressInvalid),
+                  test: (address) =>
+                    address?.match(ipAddressRegex) || address?.match(urlRegex)
+                })
+                .required(t(labelRequired)),
+              port: portValidation,
+              certificate: certificateValidation,
+              key: keyValidation
+            })
+          )
+          .min(1),
+      otherwise: (schema) => schema.min(0)
+    })
+  };
 
   return object<AgentConfigurationForm>({
     name: requiredString,
@@ -41,16 +96,11 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
         })
       )
       .min(1, t(labelRequired)),
-    configuration: object<AgentConfigurationConfiguration>({
-      confServerPort: number()
-        .min(1, t(labelPortMustStartFrom1))
-        .max(65535, t(labelPortExpectedAtMost))
-        .required(t(labelRequired)),
-      otelPublicCertificate: certificateValidation,
-      otelCaCertificate: certificateNullableValidation,
-      otelPrivateKey: keyValidation,
-      confCertificate: certificateValidation,
-      confPrivateKey: keyValidation
+    configuration: object().when('type', {
+      is: (type) => equals(type?.id, AgentType.Telegraf),
+      // biome-ignore lint/suspicious/noThenProperty: <explanation>
+      then: (schema) => schema.shape(telegrafConfigurationSchema),
+      otherwise: (schema) => schema.shape(CMAConfigurationSchema)
     })
   });
 };

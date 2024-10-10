@@ -6,7 +6,11 @@ import { useFormikContext } from 'formik';
 import { useAtom, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { askBeforeCloseFormModalAtom, openFormModalAtom } from '../atoms';
+import {
+  agentTypeFormAtom,
+  askBeforeCloseFormModalAtom,
+  openFormModalAtom
+} from '../atoms';
 import { labelCancel, labelSave } from '../translatedLabels';
 
 const Buttons = (): JSX.Element => {
@@ -16,8 +20,10 @@ const Buttons = (): JSX.Element => {
     askBeforeCloseFormModalAtom
   );
   const setOpenFormModal = useSetAtom(openFormModalAtom);
+  const setAgentTypeForm = useSetAtom(agentTypeFormAtom);
 
-  const { isValid, dirty, isSubmitting, submitForm } = useFormikContext();
+  const { isValid, dirty, isSubmitting, submitForm } =
+    useFormikContext();
 
   const isSubmitDisabled = useMemo(
     () => !dirty || !isValid || isSubmitting,
@@ -27,6 +33,7 @@ const Buttons = (): JSX.Element => {
   const discard = useCallback(() => {
     setAskBeforeCloseFormModal(false);
     setOpenFormModal(null);
+    setAgentTypeForm(null);
   }, []);
 
   const close = useCallback(() => {
@@ -35,6 +42,7 @@ const Buttons = (): JSX.Element => {
       return;
     }
     setOpenFormModal(null);
+    setAgentTypeForm(null);
     setAskBeforeCloseFormModal(false);
   }, [dirty]);
 
