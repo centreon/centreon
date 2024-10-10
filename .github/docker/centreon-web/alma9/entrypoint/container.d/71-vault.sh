@@ -1,7 +1,9 @@
 #!/bin/sh
 
 cat /tmp/shared-volume/vault_ids
-. /tmp/shared-volume/vault_ids
+while [[ -z $VAULT_ROLE_ID ]] && [[ -z $VAULT_SECRET_ID ]]; do
+  . /tmp/shared-volume/vault_ids
+done
 
 RESPONSE=$(curl -s -w "%{http_code}" -H 'Content-Type:application/json' -H 'Accept:application/json' -d '{"security":{"credentials":{"login":"admin","password":"Centreon!2021"}}}' -L "http://localhost:8080/centreon/api/latest/login")
 TOKEN=$(echo "$RESPONSE" | head -c -4 | jq -r '.security.token')
