@@ -18,7 +18,6 @@ const Actions = ({
   hasMetaService,
   isOpenTicketEnabled
 }: Props): JSX.Element => {
-
   return (
     <Grid container>
       <Grid item flex={1}>
