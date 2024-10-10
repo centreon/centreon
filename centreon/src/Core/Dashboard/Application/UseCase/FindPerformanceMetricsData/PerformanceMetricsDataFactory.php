@@ -51,6 +51,8 @@ use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
  *        ds_minmax_int: ?string,
  *        ds_last: ?string,
  *        ds_average: ?string,
+ *        ds_color_area_warn?: string,
+ *        ds_color_area_crit?: string,
  *        ds_total: ?string,
  *        ds_tickness: int,
  *        ds_color_line_mode: string,
@@ -60,8 +62,8 @@ use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
  *      warn_low: ?float,
  *      crit: ?float,
  *      crit_low: ?float,
- *      ds_color_area_warn: string,
- *      ds_color_area_crit: string,
+ *      ds_color_area_warn?: string,
+ *      ds_color_area_crit?: string,
  *      data: array<float|null>,
  *      prints: array<array<string>>,
  *      min: ?float,
@@ -90,6 +92,8 @@ use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
  *     ds_tickness: int,
  *     ds_color_line_mode: int,
  *     ds_color_line: string,
+ *     ds_color_area_warn?: string,
+ *     ds_color_area_crit?: string,
  *     ds_transparency: ?float,
  *     ds_color_area: ?string,
  *     legend: ?string,
@@ -221,8 +225,8 @@ class PerformanceMetricsDataFactory
                     $metric['warn_low'] !== null ? (float) $metric['warn_low'] : null,
                     $metric['crit'] !== null ? (float) $metric['crit'] : null,
                     $metric['crit_low'] !== null ? (float) $metric['crit_low'] : null,
-                    $metric['ds_color_area_warn'],
-                    $metric['ds_color_area_crit']
+                    $metric['ds_color_area_warn'] ?? $metric['ds_data']['ds_color_area_warn'] ?? '',
+                    $metric['ds_color_area_crit'] ?? $metric['ds_data']['ds_color_area_crit'] ?? ''
                 );
                 $realTimeDataInformation = new RealTimeDataInformation(
                     $metric['data'],
