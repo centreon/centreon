@@ -2,6 +2,9 @@
 
 sleep 5
 
+vault operator init -format=json > init-output.json
+cat init-output.json
+
 export VAULT_TOKEN=${VAULT_DEV_ROOT_TOKEN_ID}
 export VAULT_ADDR='http://localhost:8200'
 vault secrets enable -path=centreon kv
