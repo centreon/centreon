@@ -470,7 +470,7 @@ When('the dashboard administrator adds a status grid widget', () => {
   cy.wait('@resourceRequest');
 });
 
-Then('the newly added host should appear in the status grid widget', () => {
+Then('the newly added host is displayed in the status grid widget', () => {
   cy.getByTestId({ testId: 'link to service_test_ok' }).should('be.visible');
 });
 
@@ -485,7 +485,7 @@ Then('searches for a specific resource type', () => {
   cy.wait('@resourceRequest');
 });
 
-Then('only the matching resource based on the search input should be displayed in the results', () => {
+Then('only the resource that matches the search input is displayed in the results', () => {
   cy.waitUntil(() =>
     cy.get('.MuiAutocomplete-listbox').invoke('text').then(listboxText => {
       return listboxText.includes('host3') &&

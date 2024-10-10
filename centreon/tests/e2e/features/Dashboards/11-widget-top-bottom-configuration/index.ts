@@ -521,7 +521,7 @@ Then('enters a search term for a specific host', () => {
   cy.wait('@resourceRequest');
 });
 
-Then('only the hosts that match the search input should appear in the search results', () => {
+Then('only the hosts that match the search input are displayed in the search results', () => {
   cy.waitUntil(() =>
     cy.get('.MuiAutocomplete-listbox').invoke('text').then(listboxText => {
       return listboxText.includes('host3') &&
@@ -543,7 +543,7 @@ When('the dashboard administrator enters a search term for a specific service', 
   cy.getByTestId({ testId: 'Select resource' }).eq(1).type('2')
 });
 
-Then('only services that match the search input should be shown in the search results', () => {
+Then('only the services that match the search input are displayed in the search results', () => {
   cy.waitUntil(() =>
     cy.get('.MuiAutocomplete-listbox').invoke('text').then(listboxText => {
       return listboxText.includes('service2') &&
@@ -572,7 +572,7 @@ When('the dashboard administrator enters a search term for a specific metrics', 
   cy.getByTestId({ testId: 'Select metric' }).type('rta')
 });
 
-Then('only metrics that match the search input should be shown in the search results', () => {
+Then('only the metrics that match the search input are displayed in the search results', () => {
   cy.waitUntil(() =>
     cy.get('*[class$="-listBox"]').invoke('text').then(listboxText => {
       return listboxText.includes('rta (ms)') &&

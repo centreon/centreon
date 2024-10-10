@@ -57,7 +57,7 @@ Feature: Configuring status grid widget
   Scenario: Adding a new host and verifying widget behavior
     Given a new host is successfully added and configured
     When the dashboard administrator adds a status grid widget
-    Then the newly added host should appear in the status grid widget
+    Then the newly added host is displayed in the status grid widget
 
   @TEST_MON-149365
   Scenario: Adding and Filtering Resources in a Status Grid Widget on a Dashboard
@@ -65,4 +65,4 @@ Feature: Configuring status grid widget
     When the dashboard administrator user selects the option to add a new widget
     And selects the widget type "Status Grid"
     And searches for a specific resource type
-    Then only the matching resource based on the search input should be displayed in the results
+    Then only the resource that matches the search input is displayed in the results
