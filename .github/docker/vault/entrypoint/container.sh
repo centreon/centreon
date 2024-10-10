@@ -4,7 +4,7 @@ export VAULT_ADDR='http://127.0.0.1:8200'
 
 vault server -dev -dev-listen-address="0.0.0.0:8200" &
 sleep 5
-
+k
 export VAULT_TOKEN=${VAULT_DEV_ROOT_TOKEN_ID}
 vault secrets enable -path=centreon kv
 vault auth enable approle
@@ -26,3 +26,4 @@ vault write auth/approle/login role_id=$VAULT_ROLE_ID secret_id=$VAULT_SECRET_ID
 
 echo "VAULT_ROLE_ID=$VAULT_ROLE_ID" >> /tmp/shared-volume/vault-ids
 echo "VAULT_SECRET_ID=$VAULT_SECRET_ID" >> /tmp/shared-volume/vault-ids
+cat /tmp/shared-volume/vault-ids
