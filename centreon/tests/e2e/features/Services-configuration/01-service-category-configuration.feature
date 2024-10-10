@@ -15,6 +15,6 @@ Feature: Edit a service category
     When the user duplicate a service category
     Then the new service category has the same properties
 
-  Scenario: Delete one existing service
+  Scenario: Delete one existing service category
     When the user delete a service category
     Then the deleted service category is not displayed in the list
