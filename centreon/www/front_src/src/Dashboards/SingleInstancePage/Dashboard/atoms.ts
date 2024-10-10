@@ -309,5 +309,3 @@ export const resetDashboardDerivedAtom = atom(null, (_, setAtom) => {
   setAtom(dashboardRefreshIntervalAtom, undefined);
   setAtom(panelsLengthAtom, 0);
 });
-
-export const thumbnailAtom = atom<Thumbnail | null>(null);

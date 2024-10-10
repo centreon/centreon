@@ -14,12 +14,18 @@ import {
   getDashboardEndpoint,
   mediasEndpoint
 } from '../../../api/endpoints';
+
 import { resource } from '../../../api/models';
 import { dashboardAtom, switchPanelsEditionModeDerivedAtom, thumbnailAtom } from '../atoms';
 import { Panel, PanelDetailsToAPI } from '../models';
 import { labelYourDashboardHasBeenSaved } from '../translatedLabels';
 
 import { routerParams } from './useDashboardDetails';
+
+interface UseSaveDashboardState {
+  saveDashboard: () => void;
+}
+
 
 const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
   layout.map(
@@ -54,9 +60,6 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
     })
   );
 
-interface UseSaveDashboardState {
-  saveDashboard: () => void;
-}
 
 const useSaveDashboard = (): UseSaveDashboardState => {
   const { t } = useTranslation();
