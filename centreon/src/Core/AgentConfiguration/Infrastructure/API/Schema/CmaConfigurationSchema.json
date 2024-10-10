@@ -1,0 +1,69 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "CMA configuration parameters schema",
+    "type": "object",
+    "required": [
+        "configuration"
+    ],
+    "additionalProperties": true,
+    "properties": {
+        "configuration": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "is_reverse",
+                "otlp_certificate",
+                "otlp_ca_certificate",
+                "otlp_private_key",
+                "poller_ca_certificate",
+                "poller_ca_name",
+                "hosts"
+            ],
+            "properties": {
+                "is_reverse": {
+                    "type": "boolean"
+                },
+                "otlp_certificate": {
+                    "type": "string"
+                },
+                "otlp_ca_certificate": {
+                    "type": "string"
+                },
+                "otlp_private_key": {
+                    "type": "string"
+                },
+                "poller_ca_certificate": {
+                    "type": ["null", "string"]
+                },
+                "poller_ca_name": {
+                    "type": ["null", "string"]
+                },
+                "hosts": {
+                    "type": "array",
+                    "items": {
+                        "required": [
+                            "address",
+                            "port",
+                            "certificate",
+                            "key"
+                        ],
+                        "properties": {
+                            "address": {
+                                "type": "string"
+                            },
+                            "port": {
+                                "type": "integer"
+                            },
+                            "certificate": {
+                                "type": "string"
+                            },
+                            "key": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

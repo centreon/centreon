@@ -32,6 +32,16 @@ export const labelPublicCertificate = 'Public certificate file name';
 export const labelCaCertificate = 'CA file name';
 export const labelPrivateKey = 'Private key file name';
 export const labelCertificate = 'Certificate file name';
+export const labelOTLPReceiver = 'OTLP Receiver';
+export const labelAddressInvalid = 'Address invalid';
+export const labelHostConfigurations = 'Host configurations';
+export const labelAddAHost = 'Add a host';
+export const labelParameters = 'Parameters';
+export const labelDNSIP = 'DNS/IP';
+export const labelAddHost = 'Add host';
+export const labelConnectionInitiatedByPoller =
+  'Connection initiated by poller';
+export const labelAgent = 'Agent';
 export const labelConfigurationServer = 'Configuration provider';
 export const labelAgentConfigurationCreated =
   'Poller/agent configuration created';
@@ -42,3 +52,7 @@ export const labelUpdateAgentConfiguration =
 export const labelInvalidFilename = 'Invalid filename';
 export const labelWelcomeDescription =
   'An agent is a piece of software you install on the host you want to monitor, that executes the checks.';
+export const labelCMA = 'Centreon Monitoring Agent';
+export const labelPollerCaCertificateFileName =
+  'Poller CA certificate file name';
+export const labelPollerCaName = 'Poller CA name';

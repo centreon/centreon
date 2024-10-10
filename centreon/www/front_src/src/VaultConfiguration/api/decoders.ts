@@ -6,10 +6,10 @@ export const getVaultConfigurationDecoder =
     {
       address: JsonDecoder.string,
       port: JsonDecoder.number,
-      rootPath: JsonDecoder.string,
+      rootPath: JsonDecoder.string
     },
     'Vault configuration',
     {
-      rootPath: 'root_path',
+      rootPath: 'root_path'
     }
   );

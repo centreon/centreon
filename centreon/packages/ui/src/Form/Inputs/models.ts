@@ -40,7 +40,14 @@ export interface InputProps {
     options: Array<SelectEntry>;
     fullWidth?: boolean;
   };
-  change?: ({ setFieldValue, value, setFieldTouched }) => void;
+  change?: ({
+    setFieldValue,
+    value,
+    setFieldTouched,
+    setValues,
+    values,
+    setTouched
+  }) => void;
   checkbox?: {
     direction?: 'horizontal' | 'vertical';
     labelPlacement?: LabelPlacement;

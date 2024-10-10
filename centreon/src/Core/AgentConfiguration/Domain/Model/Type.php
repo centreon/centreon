@@ -25,5 +25,5 @@ namespace Core\AgentConfiguration\Domain\Model;
 
 enum Type: string {
     case TELEGRAF = 'telegraf';
-    case CENTREON_AGENT = 'centreon-agent';
+    case CMA = 'centreon-agent';
 }

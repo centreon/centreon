@@ -9,27 +9,38 @@ import {
   getAgentConfigurationEndpoint,
   getAgentConfigurationsEndpoint,
   getPollerAgentEndpoint,
+  hostsConfigurationEndpoint,
   pollersEndpoint
 } from './api/endpoints';
 import {
   labelAction,
+  labelAddAHost,
   labelAddAgentConfiguration,
+  labelAddHost,
   labelAddNewAgent,
   labelAgentConfigurationCreated,
   labelAgentConfigurationUpdated,
   labelAgentType,
   labelAgentTypes,
   labelAgentsConfigurations,
+  labelCMA,
   labelCaCertificate,
   labelCancel,
   labelCertificate,
   labelClear,
+  labelConfigurationServer,
+  labelConnectionInitiatedByPoller,
+  labelDNSIP,
   labelDelete,
   labelDeleteAgent,
   labelDeletePoller,
+  labelHostConfigurations,
   labelInvalidFilename,
   labelName,
+  labelOTLPReceiver,
   labelPoller,
+  labelPollerCaCertificateFileName,
+  labelPollerCaName,
   labelPollers,
   labelPort,
   labelPrivateKey,
@@ -135,6 +146,16 @@ const initialize = ({ isListingEmpty = false }) => {
         conf_certificate: 'coucou',
         conf_private_key: 'coucou'
       }
+    }
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getHosts',
+    path: `./api/latest${hostsConfigurationEndpoint}**`,
+    method: Method.GET,
+    response: {
+      result: [{ id: 1, name: 'central', address: '127.0.0.2' }],
+      meta: { limit: 10, page: 1, total: 1 }
     }
   });
 
@@ -409,6 +430,8 @@ describe('Agent configurations modal', () => {
 
     cy.contains(labelAddAgentConfiguration).should('be.visible');
 
+    cy.findByLabelText(labelAgentType).click();
+    cy.contains('Telegraf').click();
     cy.findByLabelText(labelName).focus();
     cy.findByLabelText(labelName).blur();
     cy.findByLabelText(labelPollers).focus();
@@ -466,6 +489,8 @@ describe('Agent configurations modal', () => {
 
     cy.contains(labelAddNewAgent).click();
 
+    cy.findByLabelText(labelAgentType).click();
+    cy.contains('Telegraf').click();
     cy.findByLabelText(labelName).type('agent');
     cy.findByLabelText(labelPollers).click();
     cy.contains('poller1').click();
@@ -525,6 +550,194 @@ describe('Agent configurations modal', () => {
     });
 
     cy.contains(labelAgentConfigurationUpdated).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the CMA form when the CMA agent type is selected', () => {
+    initialize({});
+
+    cy.contains(labelAddNewAgent).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.contains(labelCMA).click();
+
+    cy.findByLabelText(labelConnectionInitiatedByPoller).should('be.checked');
+    cy.contains(labelOTLPReceiver).should('be.visible');
+    cy.contains(labelHostConfigurations).should('be.visible');
+    cy.findByLabelText(labelPublicCertificate).should('have.value', '');
+    cy.findByLabelText(labelCaCertificate).should('have.value', '');
+    cy.findAllByLabelText(labelPrivateKey).eq(0).should('have.value', '');
+    cy.findAllByLabelText(labelPrivateKey).eq(1).should('have.value', '');
+    cy.findByLabelText(labelAddHost).should('be.visible');
+    cy.findByLabelText(labelDNSIP).should('have.value', '');
+    cy.findByTestId(labelPort).should('have.value', '');
+    cy.findByTestId(labelCertificate).should('have.value', '');
+    cy.contains(labelAddAHost).should('exist');
+    cy.findByLabelText(labelPollerCaCertificateFileName).should(
+      'have.value',
+      ''
+    );
+    cy.findByLabelText(labelPollerCaName).should('have.value', '');
+    cy.findByTestId('delete-host-configuration-0').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('resets the form a different agent type is selected', () => {
+    initialize({});
+
+    cy.contains(labelAddNewAgent).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.contains(labelCMA).click();
+    cy.findByLabelText(labelName).type('My agent');
+    cy.findByLabelText(labelCertificate).type('something').clear();
+    cy.findByLabelText(labelCertificate).blur();
+    cy.findAllByLabelText(labelPrivateKey).eq(0).type('filename.key').blur();
+
+    cy.contains(labelRequired).should('be.visible');
+    cy.contains(labelInvalidFilename).should('be.visible');
+
+    cy.findByLabelText(labelAgentType).click();
+    cy.contains('Telegraf').click();
+
+    cy.contains(labelHostConfigurations).should('not.exist');
+    cy.contains(labelRequired).should('not.exist');
+    cy.contains(labelInvalidFilename).should('not.exist');
+    cy.findByLabelText(labelName).should('have.value', 'My agent');
+    cy.contains(labelConfigurationServer).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('does not validate the form when there is no host configuration', () => {
+    initialize({});
+
+    cy.contains(labelAddNewAgent).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.contains(labelCMA).click();
+    cy.findByTestId('delete-host-configuration-0').click();
+    cy.findByLabelText(labelName).type('My agent');
+    cy.findByLabelText(labelPublicCertificate).type('test');
+    cy.findByLabelText(labelCaCertificate).type('test');
+    cy.findByLabelText(labelPrivateKey).type('key');
+    cy.findByLabelText(labelPollers).click();
+    cy.contains('poller1').click();
+
+    cy.contains(labelSave).should('be.disabled');
+
+    cy.makeSnapshot();
+  });
+
+  it('validates the form when fields are filled and the reverse switch is unchecked', () => {
+    initialize({});
+
+    cy.contains(labelAddNewAgent).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.contains(labelCMA).click();
+    cy.findByLabelText(labelName).type('My agent');
+    cy.contains(labelConnectionInitiatedByPoller).click();
+    cy.findByLabelText(labelPollers).click();
+    cy.contains('poller1').click();
+    cy.findByLabelText(labelPublicCertificate).type('test');
+    cy.findByLabelText(labelCaCertificate).type('test');
+    cy.findByLabelText(labelPrivateKey).type('key');
+    cy.contains(labelSave).click();
+
+    cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
+      expect(request.body).equal(
+        '{"name":"My agent","type":"centreon_agent","pollers":[1],"configuration":{"is_reverse":false,"otlp_ca_certificate":"test","otlp_certificate":"test","otlp_private_key":"key","poller_ca_name":null,"poller_ca_certificate":null,"hosts":[{"address":"","port":"","certificate":"","key":""}]}}'
+      );
+    });
+
+    cy.makeSnapshot();
+  });
+
+  it('configures the host address and port when a host is selected', () => {
+    initialize({});
+
+    cy.contains(labelAddNewAgent).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.contains(labelCMA).click();
+    cy.findByLabelText(labelAddHost).click();
+
+    cy.waitForRequest('@getHosts');
+
+    cy.contains('central').click();
+
+    cy.findByLabelText(labelDNSIP).should('have.value', '127.0.0.2');
+    cy.findByTestId(labelPort).find('input').should('have.value', '4317');
+
+    cy.makeSnapshot();
+  });
+
+  it('splits the address and the port when a full address is pasted in the address field', () => {
+    initialize({});
+
+    cy.contains(labelAddNewAgent).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.contains(labelCMA).click();
+    cy.findByLabelText(labelDNSIP).type('127.0.0.1:8');
+    cy.findByLabelText(labelDNSIP).should('have.value', '127.0.0.1');
+    cy.findByTestId(labelPort).find('input').should('have.value', '8');
+
+    cy.makeSnapshot();
+  });
+
+  it('adds a new host configuration when the corresponding button is clicked', () => {
+    initialize({});
+
+    cy.contains(labelAddNewAgent).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.contains(labelCMA).click();
+
+    cy.contains(labelAddAHost).click();
+
+    cy.findByTestId('delete-host-configuration-1').should('exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('removes a host configuration when the corresponding button is clicked', () => {
+    initialize({});
+
+    cy.contains(labelAddNewAgent).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.contains(labelCMA).click();
+
+    cy.contains(labelAddAHost).click();
+
+    cy.findByTestId('delete-host-configuration-1').click();
+
+    cy.findByTestId('delete-host-configuration-1').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends the CMA agent type when the form is valid and the save button is clicked', () => {
+    initialize({});
+
+    cy.contains(labelAddNewAgent).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.contains(labelCMA).click();
+    cy.findByLabelText(labelName).type('My agent');
+    cy.findByLabelText(labelPollers).click();
+    cy.contains('poller1').click();
+    cy.findByLabelText(labelPublicCertificate).type('test');
+    cy.findByLabelText(labelCaCertificate).type('test');
+    cy.findAllByLabelText(labelPrivateKey).eq(0).type('key');
+    cy.findByLabelText(labelAddHost).click();
+    cy.contains('central').click();
+    cy.findByLabelText(labelCertificate).type('test');
+    cy.findAllByLabelText(labelPrivateKey).eq(1).type('key2');
+    cy.contains(labelSave).click();
+
+    cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
+      expect(request.body).equal(
+        '{"name":"My agent","type":"centreon_agent","pollers":[1],"configuration":{"is_reverse":true,"otlp_ca_certificate":"test","otlp_certificate":"test","otlp_private_key":"key","poller_ca_name":null,"poller_ca_certificate":null,"hosts":[{"address":"127.0.0.2","port":4317,"certificate":"test","key":"key2"}]}}'
+      );
+    });
+
+    cy.contains(labelAgentConfigurationCreated).should('be.visible');
 
     cy.makeSnapshot();
   });

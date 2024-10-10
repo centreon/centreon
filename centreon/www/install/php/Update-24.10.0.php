@@ -144,7 +144,7 @@ $createAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): 
         <<<'SQL'
             CREATE TABLE IF NOT EXISTS `agent_configuration` (
                 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-                `type` enum('telegraf') NOT NULL,
+                `type` enum('telegraf', 'centreon-agent') NOT NULL,
                 `name` varchar(255) NOT NULL,
                 `configuration` JSON NOT NULL,
                 PRIMARY KEY (`id`),
@@ -184,7 +184,7 @@ $insertAgentConfigurationTopology = function (CentreonDB $pearDB) use (&$errorMe
         $pearDB->executeQuery(
             <<<'SQL'
                 INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_show`, `is_react`)
-                VALUES (92,'Agent configurations',609,60905,50,1,'/configuration/pollers/agent-configurations', '1', '1');
+                VALUES (92,'Agent configurations',609,60905,50,1,'/configuration/pollers/agent-configurations', '1', '1')
                 SQL
         );
     }

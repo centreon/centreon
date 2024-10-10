@@ -23,22 +23,25 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Infrastructure\Serializer;
 
+use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
+use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
  * @phpstan-import-type _TelegrafParameters from TelegrafConfigurationParameters
+ * @phpstan-import-type _CmaParameters from CmaConfigurationParameters
  */
-class TelegrafConfigurationParametersNormalizer implements NormalizerInterface
+class ConfigurationParametersInterfaceNormalizer implements NormalizerInterface
 {
     /**
      * {@inheritDoc}
      *
-     * @param TelegrafConfigurationParameters $object
+     * @param ConfigurationParametersInterface $object
      * @param string|null $format
      * @param array<string, mixed> $context
      *
-     * @return _TelegrafParameters|null
+     * @return _TelegrafParameters|_CmaParameters|null
      */
     public function normalize(
         mixed $object,
@@ -47,7 +50,7 @@ class TelegrafConfigurationParametersNormalizer implements NormalizerInterface
     ): float|int|bool|array|string|null {
         /** @var array{groups: string[]} $context */
         if (in_array('AgentConfiguration:Read', $context['groups'], true)) {
-            /** @var _TelegrafParameters $data */
+            /** @var _TelegrafParameters|_CmaParameters $data */
             $data = $object->getData();
         }
 
@@ -59,6 +62,6 @@ class TelegrafConfigurationParametersNormalizer implements NormalizerInterface
      */
     public function supportsNormalization(mixed $data, ?string $format = null): bool
     {
-        return $data instanceof TelegrafConfigurationParameters;
+        return $data instanceof ConfigurationParametersInterface;
     }
 }

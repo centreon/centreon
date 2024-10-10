@@ -25,3 +25,5 @@ export const getPollerAgentEndpoint = ({
 
 export const getAgentConfigurationEndpoint = (id: number) =>
   `${getAgentConfigurationsEndpoint}/${id}`;
+
+export const hostsConfigurationEndpoint = '/configuration/hosts';

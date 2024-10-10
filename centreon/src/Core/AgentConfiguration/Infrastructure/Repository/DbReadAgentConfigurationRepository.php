@@ -28,6 +28,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
+use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\AgentConfiguration\Domain\Model\Type;
@@ -368,8 +369,8 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
             name: $row['name'],
             type: $type,
             configuration: match ($type->value) {
-                Type::TELEGRAF->value => (new TelegrafConfigurationParameters($configuration)),
-                default => throw new \Exception('This error should never happen')
+                Type::TELEGRAF->value => new TelegrafConfigurationParameters($configuration),
+                Type::CMA->value => new CmaConfigurationParameters($configuration)
             }
         );
     }

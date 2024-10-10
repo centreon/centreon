@@ -13,7 +13,8 @@
         "type": {
             "type": "string",
             "enum": [
-                "telegraf"
+                "telegraf",
+                "centreon-agent"
             ]
         },
         "name": {
