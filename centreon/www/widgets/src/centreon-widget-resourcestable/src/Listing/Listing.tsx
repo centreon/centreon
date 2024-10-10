@@ -8,6 +8,7 @@ import { isOnPublicPageAtom } from '@centreon/ui-context';
 import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { PanelOptions } from '../models';
 
+import { useAtomValue } from 'jotai';
 import Actions from './Actions';
 import AcknowledgeForm from './Actions/Acknowledge';
 import DowntimeForm from './Actions/Downtime';
@@ -16,7 +17,6 @@ import OpenTicketModal from './Columns/OpenTicket/Modal';
 import { rowColorConditions } from './colors';
 import { DisplayType as DisplayTypeEnum, NamedEntity } from './models';
 import useListing from './useListing';
-import { useAtomValue } from 'jotai';
 
 interface ListingProps
   extends Pick<
@@ -131,7 +131,7 @@ const Listing = ({
   return (
     <>
       <MemoizedListing
-        isActionBarVisible = {!isOnPublicPage}
+        isActionBarVisible={!isOnPublicPage}
         checkable
         actions={
           <Actions
@@ -141,7 +141,7 @@ const Listing = ({
             isOpenTicketEnabled={isOpenTicketEnabled}
           />
         }
-        actionsBarMemoProps={[displayType, hasMetaService,isOpenTicketEnabled]}
+        actionsBarMemoProps={[displayType, hasMetaService, isOpenTicketEnabled]}
         columnConfiguration={{
           selectedColumnIds: selectedColumnIds || defaultSelectedColumnIds,
           sortable: true
