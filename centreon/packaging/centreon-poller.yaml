@@ -90,7 +90,7 @@ overrides:
       - perl-DBD-SQLite
       - nagios-plugins-dhcp >= 2.0.0
       - nagios-plugins-icmp >= 2.0.0
-    suggests:
+    recommends:
       - centreon-plugin-Applications-Databases-Mysql
       - centreon-plugin-Applications-Monitoring-Centreon-Central
       - centreon-plugin-Applications-Monitoring-Centreon-Database
@@ -129,7 +129,7 @@ overrides:
       - libdbd-mysql-perl
       - libdbd-sqlite3-perl
       - monitoring-plugins-basic
-    suggests:
+    recommends:
       - centreon-plugin-applications-databases-mysql
       - centreon-plugin-applications-monitoring-centreon-central
       - centreon-plugin-applications-monitoring-centreon-database

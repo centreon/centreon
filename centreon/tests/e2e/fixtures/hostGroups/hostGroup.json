@@ -1,0 +1,19 @@
+{
+    "default": {
+        "name": "host_group",
+        "alias": "host_group"
+    },
+    "forTest":  {
+        "name": "host_group_changed",
+        "alias": "host_group_changed",
+        "notes": "notes changed",
+        "notes_url": "notes url changed",
+        "action_url": "action url changed",
+        "icon_id": 1,
+        "icon_map_id": 1,
+        "geo_coords": "2.3522219,48.856614",
+        "rrd": 2,
+        "comment": "comment!",
+        "is_activated": true
+    }
+  }

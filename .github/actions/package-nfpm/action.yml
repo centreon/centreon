@@ -73,11 +73,7 @@ runs:
           export APACHE_GROUP="apache"
         else
           export DIST=""
-          if [ "${{ inputs.stability }}" == "unstable" ] || [ "${{ inputs.stability }}" == "canary" ]; then
-            export RELEASE="$RELEASE${{ steps.parse-distrib.outputs.package_distrib_separator }}${{ steps.parse-distrib.outputs.package_distrib_name }}"
-          else
-            export RELEASE="1${{ steps.parse-distrib.outputs.package_distrib_separator }}${{ steps.parse-distrib.outputs.package_distrib_name }}"
-          fi
+          export RELEASE="$RELEASE${{ steps.parse-distrib.outputs.package_distrib_separator }}${{ steps.parse-distrib.outputs.package_distrib_name }}"
           export APACHE_USER="www-data"
           export APACHE_GROUP="www-data"
         fi
