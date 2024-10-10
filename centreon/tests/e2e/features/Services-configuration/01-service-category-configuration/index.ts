@@ -158,7 +158,7 @@ Then("the deleted service category is not displayed in the list", () => {
       .its("0.contentDocument.body")
       .find("table.ListTable tbody")
       .children()
-      .should("have.length", 4);
+      .should("have.length", 5);
 });
 
 afterEach(() => {
