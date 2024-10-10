@@ -20,13 +20,13 @@ vault policy write central /etc/vault.d/central_policy.hcl
 vault write auth/approle/role/central token_policies="central" \
   token_ttl=1h token_max_ttl=4h
 
-while [[ -z $VAULT_ROLE_ID ]] && [[ -z $VAULT_SECRET_ID ]]; do
+while [[ -z $VAULT_ROLE_ID ]] || [[ -z $VAULT_SECRET_ID ]]; do
   export VAULT_ROLE_ID=$(vault read auth/approle/role/central/role-id -format=json | jq -r '.data.role_id')
   export VAULT_SECRET_ID=$(vault write -force auth/approle/role/central/secret-id -format=json | jq -r '.data.secret_id')
   sleep 5
 done
 
-if [ ! -f /tmp/shared-volume/vault-ids ]; then
+if [ ! -f /tmp/shared-volume/vault-ids ] && [[ -n $VAULT_ROLE_ID ]] && [[ -n $VAULT_SECRET_ID ]]; then
   echo "VAULT_ROLE_ID=$VAULT_ROLE_ID" >> /tmp/shared-volume/vault-ids
   echo "VAULT_SECRET_ID=$VAULT_SECRET_ID" >> /tmp/shared-volume/vault-ids
 fi

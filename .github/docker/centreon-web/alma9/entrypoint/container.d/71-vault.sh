@@ -1,7 +1,5 @@
 #!/bin/sh
 
-echo "Current User: $(whoami)"
-
 while ! [ -f "/tmp/shared-volume/vault_ids" ]; do
   sleep 5
   ls -lah /tmp/shared-volume
