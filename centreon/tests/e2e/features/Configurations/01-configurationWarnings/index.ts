@@ -34,7 +34,7 @@ Given("a service with notifications enabled", () => {
          host: data.hosts.host1.name,
        maxCheckAttempts: 1,
        name: data.services.service1.name,
-       template: "Ping-LAN",
+      //  template: "Ping-LAN",
      });
   cy.setServiceParameters({
     name: data.hosts.host1.name,
@@ -79,7 +79,7 @@ Then("a warning message is printed", () => {
      cy.waitUntil(
        () => {
          cy.getIframeBody().find('div[id="console"]').should("be.visible");
-         cy.getIframeBody().contains('Warning').should("be.visible");
+         cy.getIframeBody().find('div#debug_1').contains('Warning').should("be.visible");
          return cy
            .getIframeBody()
            .find('label[id="progressPct"]')
@@ -88,4 +88,8 @@ Then("a warning message is printed", () => {
        },
        { interval: 6000, timeout: 10000 }
      );
+});
+
+afterEach(() => {
+  cy.stopContainers();
 });
