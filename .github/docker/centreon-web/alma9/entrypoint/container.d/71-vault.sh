@@ -1,6 +1,6 @@
 #!/bin/sh
 
-while ! [ -f "/tmp/shared-volume/vault_ids" ]; do
+while [ ! -f "/tmp/shared-volume/vault_ids" ]; do
   sleep 5
   ls -lah /tmp/shared-volume
 done
