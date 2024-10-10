@@ -90,14 +90,10 @@ class CentreonAPI
     public $object;
     /** @var array */
     public $options;
-    /** @var */ // FIXME not use ?
-    public $args;
     /** @var CentreonDB */
     public $DB;
     /** @var CentreonDB */
     public $DBC;
-    /** @var */ // FIXME not use ?
-    public $DBN;
     /** @var string */
     public $format;
     /** @var CentreonXML */

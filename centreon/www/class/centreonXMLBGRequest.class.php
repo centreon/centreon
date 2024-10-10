@@ -409,7 +409,9 @@ class CentreonXMLBGRequest
                 return CentreonDB::escape($defaultValue);
             }
         }
-    }// FIXME no return
+
+        return '';
+    }
 
     /**
      * @param string $name

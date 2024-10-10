@@ -80,8 +80,6 @@
 class CentreonConnector
 {
 
-    /** @var */
-    public $db;
     /** @var CentreonDB */
     protected $dbConnection;
 
@@ -580,43 +578,4 @@ class CentreonConnector
         return $parameters;
     }
 
-    /**
-     * @param array $values
-     * @param array $options
-     * @return array
-     */
-    public function getObjectForSelect2($values = [], $options = [])
-    {
-        $items = [];
-        $listValues = '';
-        $queryValues = [];
-        if (!empty($values)) {
-            foreach ($values as $k => $v) {
-                $listValues .= ':id' . $v . ',';
-                $queryValues['id' . $v] = (int)$v;
-            }
-            $listValues = rtrim($listValues, ',');
-        } else {
-            $listValues .= '""';
-        }
-
-        # get list of selected connectors
-        $query = "SELECT id, name FROM connector " .
-            "WHERE id IN (" . $listValues . ") ORDER BY name ";
-
-        $stmt = $this->db->prepare($query); // FIXME to ckeck because not initialised no ?
-
-        if ($queryValues !== []) {
-            foreach ($queryValues as $key => $id) {
-                $stmt->bindValue(':' . $key, $id, PDO::PARAM_INT);
-            }
-        }
-        $stmt->execute();
-
-        while ($row = $stmt->fetch()) {
-            $items[] = ['id' => $row['id'], 'text' => $row['name']];
-        }
-
-        return $items;
-    }
 }

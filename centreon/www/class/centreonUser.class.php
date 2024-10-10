@@ -62,18 +62,10 @@ class CentreonUser
     public $version = 3;
     /** @var int|string|null */
     public $admin;
-    /** @var */
-    public $limit; //FIXME not in this class
-    /** @var */
-    public $num; //FIXME not in this class
     /** @var mixed|null */
     public $gmt;
     /** @var bool|null */
     public $is_admin = null;
-    /** @var */
-    public $groupList; //FIXME not in this class
-    /** @var */
-    public $groupListStr; //FIXME not in this class
     /** @var CentreonACL */
     public $access;
     /** @var CentreonUserLog */
@@ -216,14 +208,14 @@ class CentreonUser
         $admin2 = $statement->fetch(PDO::FETCH_ASSOC);
         $statement->closeCursor();
 
+        $this->is_admin = 0;
         if ($admin["contact_admin"]) {
             unset($admin);
-            $this->is_admin = 1;// FIXME property overwritten
+            $this->is_admin = 1;
         } elseif (!$admin2["count(*)"]) {
             unset($admin2);
-            $this->is_admin = 1;// FIXME property overwritten
+            $this->is_admin = 1;
         }
-        $this->is_admin = 0;
     }
 
     // Get
@@ -488,7 +480,7 @@ class CentreonUser
      * @param CentreonDB $db
      * @param array $parameters
      *
-     * @return null
+     * @return void
      * @throws PDOException
      */
     public function setContactParameters($db, $parameters = [])
@@ -519,7 +511,7 @@ class CentreonUser
             $sth->bindParam(':cp_contact_id', $this->user_id, PDO::PARAM_INT);
             $sth->execute();
         }
-    }// FIXME no return
+    }
 
     /**
      * Get current Page
