@@ -17,5 +17,4 @@ export const labelListView = 'View as list';
 export const labelCardsView = 'View as cards';
 export const labelMoreActions = 'More actions';
 export const labelShareWithContacts = 'Share with contacts';
-
 export const labelClearFilter = 'Clear';
