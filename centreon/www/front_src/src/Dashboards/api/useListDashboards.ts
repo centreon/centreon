@@ -28,6 +28,7 @@ const useListDashboards = (): UseListDashboards => {
   const searchValue = useAtomValue(searchAtom);
 
   const sort = { [sortField]: sortOrder };
+
   const search = {
     regex: {
       fields: ['name'],

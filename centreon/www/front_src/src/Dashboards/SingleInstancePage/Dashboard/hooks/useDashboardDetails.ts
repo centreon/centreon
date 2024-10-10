@@ -22,7 +22,8 @@ import {
   dashboardAtom,
   dashboardRefreshIntervalAtom,
   hasEditPermissionAtom,
-  panelsLengthAtom
+  panelsLengthAtom,
+  thumbnailAtom
 } from '../atoms';
 import { Panel, PanelConfiguration } from '../models';
 
@@ -93,6 +94,7 @@ const useDashboardDetails = ({
   const setPanelsLength = useSetAtom(panelsLengthAtom);
   const setHasEditPermission = useSetAtom(hasEditPermissionAtom);
   const setDashboardRefreshInterval = useSetAtom(dashboardRefreshIntervalAtom);
+  const setThumbnailAtom = useSetAtom(thumbnailAtom)
 
   const decoder = isOnPublicPage ? publicDashboardDecoder : dashboardDecoder;
   const endpoint =
@@ -120,6 +122,7 @@ const useDashboardDetails = ({
           panels.map((panel) => formatPanel({ federatedWidgets, panel })) || []
       });
       setPanelsLength(panels.length);
+      setThumbnailAtom(dashboard?.thumbnail)
     },
     useDeepCompare([panels, federatedWidgets])
   );

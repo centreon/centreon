@@ -104,6 +104,10 @@ final class FindDashboard
             return new NotFoundResponse('Dashboard');
         }
 
+        $dashboard->setThumbnail(
+            $this->readDashboardRepository->findThumbnailByDashboardId($dashboard->getId()),
+        );
+
         return $this->createResponse($dashboard, DashboardSharingRole::Editor);
     }
 
@@ -121,6 +125,10 @@ final class FindDashboard
         if (null === $dashboard) {
             return new NotFoundResponse('Dashboard');
         }
+
+        $dashboard->setThumbnail(
+            $this->readDashboardRepository->findThumbnailByDashboardId($dashboard->getId()),
+        );
 
         return $this->createResponseAsNonAdmin($dashboard, DashboardSharingRole::Viewer);
     }

@@ -54,4 +54,13 @@ interface ReadMediaRepositoryInterface
      * @return \Traversable<int, Media>
      */
     public function findByRequestParameters(RequestParametersInterface $requestParameters): \Traversable;
+
+    /**
+     * @param int $mediaId
+     *
+     * @throws \Throwable
+     *
+     * @return Media|null
+     */
+    public function findById(int $mediaId): ?Media;
 }

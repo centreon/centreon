@@ -48,12 +48,15 @@ import {
   labelDuplicateDashboard,
   labelName,
   labelSave,
+  labelSaveYourDashboardForThumbnail,
   labelShareWithContacts,
   labelSharesSaved,
   labelUpdate,
   labelUserDeleted,
   labelWelcomeToDashboardInterface
 } from './translatedLabels';
+import { viewModeAtom } from './components/DashboardLibrary/DashboardListing/atom';
+import { ViewMode } from './components/DashboardLibrary/DashboardListing/models';
 
 interface InitializeAndMountProps {
   canAdministrateDashboard?: boolean;
@@ -77,6 +80,8 @@ const initializeAndMount = ({
   store;
 } => {
   const store = createStore();
+
+  store.set(viewModeAtom , ViewMode.List);
 
   store.set(userAtom, {
     alias: 'admin',
@@ -327,7 +332,17 @@ describe('Dashboards', () => {
       );
 
       cy.contains('My Dashboard').should('be.visible');
+      cy.findByTestId('thumbnail-My Dashboard-my description').should(
+        'be.visible'
+      );
       cy.contains('My Dashboard 2').should('be.visible');
+      cy.findByTestId('thumbnail-My Dashboard 2-undefined').should(
+        'be.visible'
+      );
+
+      cy.findAllByTestId('thumbnail-fallback').first().trigger('mouseover');
+
+      cy.contains(labelSaveYourDashboardForThumbnail).should('be.visible');
 
       cy.makeSnapshot();
     });
