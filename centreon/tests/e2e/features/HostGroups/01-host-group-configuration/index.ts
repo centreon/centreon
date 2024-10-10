@@ -1,13 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
-
-const hostGroup = {
-    name: 'host_group_for_test',
-    alias: 'host_group_for_test',
-    comment: 'Host group updated for test!',
-    updatedName: 'host_group_for_test_new',
-    duplicatedName: 'host_group_for_test_1'
-};
+import hostGroups from '../../../fixtures/hostGroups/hostGroup.json';
 
 const services = {
     serviceCritical: {
@@ -46,27 +39,7 @@ const navigateAndSetOnChange = () => {
     cy.wait('@getTimeZone');
     cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(2).click();
     cy.getIframeBody().find('select').eq(0)
-      .invoke('attr', 'onchange', "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }");
-};
-
-const checkIfEnableResourceIsCheckedOrDisable = (option, value, shouldBe) => {
-    cy.getIframeBody().find('select[name="hg_hosts[]"]')
-       .find('option')
-        .then(options => {
-            expect(options.length).to.eq(2);
-            const host2Option = options.filter((index, option) => {
-                return Cypress.$(option).text() === services.serviceOk.host;
-            });
-            expect(host2Option.length).to.eq(1);
-        });
-    cy.getIframeBody().contains('label', option)
-        .should('exist')
-        .then(($label) => {
-            const radioId = $label.attr('for');
-            cy.getIframeBody().find(`input[type="radio"][id="${radioId}"]`)
-                .should(shouldBe)
-                .and('have.value', value);
-        });
+        .invoke('attr', 'onchange', "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }");
 };
 
 beforeEach(() => {
@@ -96,11 +69,11 @@ Given('an admin user is logged in a Centreon server',
 When('a host group is configured',
     () => {
         cy.addHostGroup({
-            name: hostGroup.name
+            name: hostGroups.default.name
         });
 
         cy.addHost({
-            hostGroup: hostGroup.name,
+            hostGroup: hostGroups.default.name,
             name: services.serviceOk.host,
             template: 'generic-host'
         })
@@ -136,7 +109,7 @@ When('a host group is configured',
         cy.submitResults(resultsToSubmit);
     });
 
-When('the user changes some properties of the configured host group "name, alias, comments"',
+When('the user changes some properties of the configured host group',
     () => {
         cy.navigateTo({
             page: "Host Groups",
@@ -144,7 +117,7 @@ When('the user changes some properties of the configured host group "name, alias
             subMenu: "Hosts",
         });
         cy.wait('@getTimeZone');
-        cy.getIframeBody().contains(hostGroup.name).click({
+        cy.getIframeBody().contains(hostGroups.default.name).click({
             force: true,
         });
 
@@ -164,42 +137,64 @@ When('the user changes some properties of the configured host group "name, alias
             { interval: 20000, timeout: 100000 }
         );
 
-        cy.getIframeBody().find('input[name="hg_name"]').clear().type(hostGroup.updatedName);
-        cy.getIframeBody().find('input[name="hg_alias"]').clear().type(hostGroup.updatedName);
-        cy.getIframeBody().find('textarea[name="hg_comment"]').clear().type(hostGroup.comment);
+        cy.getIframeBody().find('input[name="hg_name"]').clear().type(hostGroups.forTest.name);
+        cy.getIframeBody().find('input[name="hg_alias"]').clear().type(hostGroups.forTest.alias);
+        cy.getIframeBody().find('input[name="hg_notes"]').clear().type(hostGroups.forTest.notes);
+        cy.getIframeBody().find('input[name="hg_notes_url"]').clear().type(hostGroups.forTest.notes_url);
+        cy.getIframeBody().find('input[name="hg_action_url"]').clear().type(hostGroups.forTest.action_url);
+        cy.getIframeBody().find('select[name="hg_icon_image"]').select('1');
+        cy.getIframeBody().find('select[name="hg_map_icon_image"]').select('1');
+        cy.getIframeBody().find('input[name="geo_coords"]').clear().type(hostGroups.forTest.geo_coords);
+        cy.getIframeBody().find('input[name="hg_rrd_retention"]').clear().type(hostGroups.forTest.rrd);
+        cy.getIframeBody().find('textarea[name="hg_comment"]').clear().type(hostGroups.forTest.comment);
+        cy.getIframeBody().contains('label', 'Disabled').click();
+
         cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
         cy.wait('@getTimeZone');
+        cy.exportConfig();
     }
 );
 
-Then('these properties "name, alias, comments" are updated',
+Then('these properties are updated',
     () => {
-        cy.exportConfig();
-        cy.getIframeBody().contains(hostGroup.updatedName).should('exist');
-        cy.getIframeBody().contains(hostGroup.updatedName).click();
+        cy.getIframeBody().contains(hostGroups.forTest.name).should('exist');
+        cy.getIframeBody().contains(hostGroups.forTest.name).click();
+
         cy.waitForElementInIframe('#main-content', 'input[name="hg_name"]');
-        cy.getIframeBody().find('input[name="hg_name"]').should('have.value', hostGroup.updatedName);
-        cy.getIframeBody().find('input[name="hg_alias"]').should('have.value', hostGroup.updatedName);
-        cy.getIframeBody().find('textarea[name="hg_comment"]').should('have.value', hostGroup.comment);
+        cy.getIframeBody().find('input[name="hg_name"]').should('have.value', hostGroups.forTest.name);
+        cy.getIframeBody().find('input[name="hg_alias"]').should('have.value', hostGroups.forTest.alias);
+        cy.getIframeBody().find('input[name="hg_notes"]').should('have.value', hostGroups.forTest.notes);
+        cy.getIframeBody().find('input[name="hg_notes_url"]').should('have.value', hostGroups.forTest.notes_url);
+        cy.getIframeBody().find('input[name="hg_action_url"]').should('have.value', hostGroups.forTest.action_url);
+        cy.getIframeBody().find('select[name="hg_icon_image"]').should('have.value', '1');
+        cy.getIframeBody().find('select[name="hg_map_icon_image"]').should('have.value', '1');
+        cy.getIframeBody().find('input[name="geo_coords"]').should('have.value', hostGroups.forTest.geo_coords);
+        cy.getIframeBody().find('input[name="hg_rrd_retention"]').should('have.value', hostGroups.forTest.rrd);
+        cy.getIframeBody().find('textarea[name="hg_comment"]').should('have.value', hostGroups.forTest.comment);
+        cy.isEnableOrDisableResourceOnHostGroupChecked('Disabled');
     }
 );
 
 When('the user duplicates the configured host group',
     () => {
+        cy.updateHostGroupViaApi(hostGroups.forTest, hostGroups.default.name);
         navigateAndSetOnChange();
+
         cy.getIframeBody().find('select').eq(0).select('Duplicate');
         cy.wait('@getTimeZone');
         cy.exportConfig();
     }
 );
 
-Then('a new host group is created with identical properties "name, alias, memebers, enabled disable resource"',
+Then('a new host group is created with identical properties',
     () => {
-        cy.getIframeBody().contains(hostGroup.duplicatedName).should('exist');
-        cy.getIframeBody().contains(hostGroup.duplicatedName).click();
+        cy.getIframeBody().contains(hostGroups.forTest.name).should('exist');
+        cy.getIframeBody().contains(hostGroups.forTest.name).click();
+
         cy.waitForElementInIframe('#main-content', 'input[name="hg_name"]');
-        cy.getIframeBody().find('input[name="hg_name"]').should('have.value', hostGroup.duplicatedName);
-        cy.getIframeBody().find('input[name="hg_alias"]').should('have.value', hostGroup.name);
+        cy.getIframeBody().find('input[name="hg_name"]').should('have.value', hostGroups.forTest.name);
+        cy.getIframeBody().find('input[name="hg_alias"]').should('have.value', hostGroups.forTest.alias);
+
         cy.getIframeBody().find('select[name="hg_hosts[]"]')
             .find('option')
             .then(options => {
@@ -209,8 +204,16 @@ Then('a new host group is created with identical properties "name, alias, memebe
                 });
                 expect(host2Option.length).to.eq(1);
             });
-        checkIfEnableResourceIsCheckedOrDisable('Enabled', 1, 'be.checked');
-        checkIfEnableResourceIsCheckedOrDisable('Disabled', 0, 'not.be.checked');
+
+        cy.getIframeBody().find('input[name="hg_notes"]').should('have.value', hostGroups.forTest.notes);
+        cy.getIframeBody().find('input[name="hg_notes_url"]').should('have.value', hostGroups.forTest.notes_url);
+        cy.getIframeBody().find('input[name="hg_action_url"]').should('have.value', hostGroups.forTest.action_url);
+        cy.getIframeBody().find('select[name="hg_icon_image"]').should('have.value', '1');
+        cy.getIframeBody().find('select[name="hg_map_icon_image"]').should('have.value', '1');
+        cy.getIframeBody().find('input[name="geo_coords"]').should('have.value', hostGroups.forTest.geo_coords);
+        cy.getIframeBody().find('input[name="hg_rrd_retention"]').should('have.value', hostGroups.forTest.rrd);
+        cy.getIframeBody().find('textarea[name="hg_comment"]').should('have.value', hostGroups.forTest.comment);
+        cy.isEnableOrDisableResourceOnHostGroupChecked('Enabled');
     }
 );
 
@@ -225,6 +228,6 @@ When('the user deletes the configured host group',
 
 Then('the configured host group is not visible anymore on the host group page',
     () => {
-        cy.getIframeBody().contains(hostGroup + '_1').should('not.exist');
+        cy.getIframeBody().contains(hostGroups.default.name).should('not.exist');
     }
 );
