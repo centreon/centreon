@@ -126,14 +126,13 @@ When("the user delete a service category", () => {
       rootItemNumber: 3,
       subMenu: "Services",
     });
-    cy.on("window:confirm", () => true);
     cy.get("iframe#main-content")
       .its("0.contentDocument.body")
       .find("table tbody")
-      .find("tr.list_one")
+      .find("tr.list_two")
       .find("td.ListColPicker")
       .find("div.md-checkbox")
-      .eq(2)
+      .eq(1)
       .click();
     cy.get("iframe#main-content")
       .its("0.contentDocument.body")
@@ -154,11 +153,16 @@ When("the user delete a service category", () => {
 });
 
 Then("the deleted service category is not displayed in the list", () => {
-    cy.get("iframe#main-content")
-      .its("0.contentDocument.body")
-      .find("table.ListTable tbody")
-      .children()
-      .should("have.length", 5);
+  cy.get("iframe#main-content")
+    .its("0.contentDocument.body")
+    .find("table.ListTable tbody")
+    .children()
+    .should("have.length", 5);
+  cy.get("iframe#main-content")
+    .its("0.contentDocument.body")
+    .find("table.ListTable tbody")
+    .contains('test')
+    .should('not.exist');
 });
 
 afterEach(() => {
