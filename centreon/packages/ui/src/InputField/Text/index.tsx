@@ -77,7 +77,7 @@ const OptionalLabelInputAdornment = ({
 type SizeVariant = 'large' | 'medium' | 'small' | 'compact';
 
 export type TextProps = {
-  EndAdornment?: React.FC;
+  EndAdornment?: React.FC | JSX.Element;
   StartAdornment?: React.FC;
   ariaLabel?: string;
   autoSize?: boolean;

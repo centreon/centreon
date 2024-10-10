@@ -18,12 +18,16 @@
     "cypress:run": "cypress run --component --browser=chrome",
     "tokens:transform": "TS_NODE_PROJECT=tsconfig.node.json ts-node style-dictionary.transform.ts"
   },
+  "type": "module",
   "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/centreon/centreon.git"
   },
-  "keywords": ["centreon", "react"],
+  "keywords": [
+    "centreon",
+    "react"
+  ],
   "author": {
     "name": "centreon@centreon.com"
   },
@@ -39,14 +43,17 @@
     "./fonts/*": "./src/fonts/*",
     "./test/testRenderer": "./test/testRenderer.tsx"
   },
-  "files": ["package.json", "src/*", "public/*", "test/*"],
+  "files": [
+    "package.json",
+    "src/*",
+    "public/*",
+    "test/*"
+  ],
   "devDependencies": {
     "@cypress/react": "^8.0.2",
     "@cypress/webpack-dev-server": "^3.10.1",
     "@faker-js/faker": "^8.4.1",
     "@mdx-js/react": "^3.0.1",
-    "@modern-js/prod-server": "^2.58.1",
-    "@modern-js/storybook": "^2.58.1",
     "@simonsmith/cypress-image-snapshot": "^9.1.0",
     "@storybook/addon-a11y": "^8.2.9",
     "@storybook/addon-docs": "^8.2.9",
@@ -145,6 +152,8 @@
     "output": "./junit.xml"
   },
   "msw": {
-    "workerDirectory": ["public"]
+    "workerDirectory": [
+      "public"
+    ]
   }
 }
