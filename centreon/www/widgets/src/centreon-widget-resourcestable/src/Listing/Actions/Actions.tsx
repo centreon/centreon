@@ -5,9 +5,6 @@ import { DisplayType as DisplayTypeEnum } from '../models';
 import DisplayType from './DisplayType';
 import ResourceActions from './ResourceActions';
 
-import { isOnPublicPageAtom } from '@centreon/ui-context';
-import { useAtomValue } from 'jotai';
-
 interface Props {
   displayType: DisplayTypeEnum;
   hasMetaService: boolean;
@@ -21,12 +18,11 @@ const Actions = ({
   hasMetaService,
   isOpenTicketEnabled
 }: Props): JSX.Element => {
-  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
   return (
     <Grid container>
       <Grid item flex={1}>
-        {!isOnPublicPage && <ResourceActions />}
+        <ResourceActions />
       </Grid>
       <Grid item flex={1}>
         <DisplayType

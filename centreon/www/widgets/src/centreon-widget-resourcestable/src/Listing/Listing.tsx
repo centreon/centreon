@@ -3,6 +3,7 @@ import { equals } from 'ramda';
 import { useTheme } from '@mui/material';
 
 import { MemoizedListing, SeverityCode } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { PanelOptions } from '../models';
@@ -15,6 +16,7 @@ import OpenTicketModal from './Columns/OpenTicket/Modal';
 import { rowColorConditions } from './colors';
 import { DisplayType as DisplayTypeEnum, NamedEntity } from './models';
 import useListing from './useListing';
+import { useAtomValue } from 'jotai';
 
 interface ListingProps
   extends Pick<
@@ -124,9 +126,12 @@ const Listing = ({
     widgetPrefixQuery
   });
 
+  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+
   return (
     <>
       <MemoizedListing
+        isActionBarVisible = {!isOnPublicPage}
         checkable
         actions={
           <Actions
