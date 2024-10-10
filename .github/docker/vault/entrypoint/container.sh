@@ -5,9 +5,6 @@ export VAULT_ADDR='http://127.0.0.1:8200'
 vault server -dev -dev-listen-address="0.0.0.0:8200" &
 sleep 5
 
-vault operator init -format=json > init-output.json
-cat init-output.json
-
 export VAULT_TOKEN=${VAULT_DEV_ROOT_TOKEN_ID}
 vault secrets enable -path=centreon kv
 vault auth enable approle
