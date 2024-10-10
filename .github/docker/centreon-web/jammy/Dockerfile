@@ -42,7 +42,7 @@ apt-get clean
 
 EOF
 
-EXPOSE 80 3306
+EXPOSE 80
 
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
 

@@ -115,7 +115,7 @@ runs:
         key: ${{ inputs.cache_key }}
 
     # Update if condition to true to get packages as artifacts
-    - if: ${{ true }}
+    - if: ${{ false }}
       name: Upload package artifacts
       uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
       with:
