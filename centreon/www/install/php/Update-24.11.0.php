@@ -25,7 +25,7 @@ require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = CentreonLog::create();
 
 // error specific content
-$versionOfTheUpgrade = 'UPGRADE - 24.10.1: ';
+$versionOfTheUpgrade = 'UPGRADE - 24.11: ';
 $errorMessage = '';
 
 // Agent Configuration
@@ -35,7 +35,7 @@ $createAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): 
         <<<'SQL'
             CREATE TABLE IF NOT EXISTS `agent_configuration` (
                 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-                `type` enum('telegraf') NOT NULL,
+                `type` enum('telegraf', 'centreon-agent') NOT NULL,
                 `name` varchar(255) NOT NULL,
                 `configuration` JSON NOT NULL,
                 PRIMARY KEY (`id`),
