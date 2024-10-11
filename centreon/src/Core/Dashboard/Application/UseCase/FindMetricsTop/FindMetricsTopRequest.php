@@ -32,7 +32,6 @@ final class FindMetricsTopRequest
      */
     public function __construct(
         #[Assert\NotBlank]
-        #[Assert\Type('string')]
         public readonly string $metricName
     ) {
     }

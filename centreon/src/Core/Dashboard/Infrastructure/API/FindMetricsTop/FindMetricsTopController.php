@@ -41,7 +41,7 @@ final class FindMetricsTopController extends AbstractController
     public function __invoke(
         FindMetricsTop $useCase,
         FindMetricsTopPresenter $presenter,
-        #[MapQueryString] FindMetricsTopRequest $request
+        #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)] FindMetricsTopRequest $request
     ): Response {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
