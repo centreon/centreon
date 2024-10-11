@@ -131,19 +131,28 @@ const Listing = ({
   return (
     <>
       <MemoizedListing
-        isActionBarVisible={!isOnPublicPage}
+        paginated={!isOnPublicPage}
         checkable
         actions={
-          <Actions
-            displayType={displayType}
-            hasMetaService={hasMetaService}
-            setPanelOptions={setPanelOptions}
-            isOpenTicketEnabled={isOpenTicketEnabled}
-          />
+          isOnPublicPage ? undefined : (
+            <Actions
+              displayType={displayType}
+              hasMetaService={hasMetaService}
+              setPanelOptions={setPanelOptions}
+              isOpenTicketEnabled={isOpenTicketEnabled}
+            />
+          )
         }
-        actionsBarMemoProps={[displayType, hasMetaService, isOpenTicketEnabled]}
+        actionsBarMemoProps={[
+          displayType,
+          hasMetaService,
+          isOpenTicketEnabled,
+          isOnPublicPage
+        ]}
         columnConfiguration={{
-          selectedColumnIds: selectedColumnIds || defaultSelectedColumnIds,
+          selectedColumnIds: isOnPublicPage
+            ? undefined
+            : selectedColumnIds || defaultSelectedColumnIds,
           sortable: true
         }}
         columns={columns}
