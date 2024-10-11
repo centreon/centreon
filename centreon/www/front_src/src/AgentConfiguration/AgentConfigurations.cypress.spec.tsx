@@ -39,8 +39,6 @@ import {
   labelName,
   labelOTLPReceiver,
   labelPoller,
-  labelPollerCaCertificateFileName,
-  labelPollerCaName,
   labelPollers,
   labelPort,
   labelPrivateKey,
@@ -565,19 +563,14 @@ describe('Agent configurations modal', () => {
     cy.contains(labelOTLPReceiver).should('be.visible');
     cy.contains(labelHostConfigurations).should('be.visible');
     cy.findByLabelText(labelPublicCertificate).should('have.value', '');
-    cy.findByLabelText(labelCaCertificate).should('have.value', '');
-    cy.findAllByLabelText(labelPrivateKey).eq(0).should('have.value', '');
-    cy.findAllByLabelText(labelPrivateKey).eq(1).should('have.value', '');
+    cy.findAllByLabelText(labelCaCertificate).eq(0).should('have.value', '');
+    cy.findAllByLabelText(labelCaCertificate).eq(1).should('have.value', '');
+    cy.findByLabelText(labelPrivateKey).should('have.value', '');
     cy.findByLabelText(labelAddHost).should('be.visible');
     cy.findByLabelText(labelDNSIP).should('have.value', '');
     cy.findByTestId(labelPort).should('have.value', '');
-    cy.findByTestId(labelCertificate).should('have.value', '');
     cy.contains(labelAddAHost).should('exist');
-    cy.findByLabelText(labelPollerCaCertificateFileName).should(
-      'have.value',
-      ''
-    );
-    cy.findByLabelText(labelPollerCaName).should('have.value', '');
+    cy.findByLabelText(labelCertificate).should('have.value', '');
     cy.findByTestId('delete-host-configuration-0').should('be.visible');
 
     cy.makeSnapshot();
@@ -590,8 +583,8 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelAgentType).click();
     cy.contains(labelCMA).click();
     cy.findByLabelText(labelName).type('My agent');
-    cy.findByLabelText(labelCertificate).type('something').clear();
-    cy.findByLabelText(labelCertificate).blur();
+    cy.findByLabelText(labelPublicCertificate).type('something').clear();
+    cy.findByLabelText(labelPublicCertificate).blur();
     cy.findAllByLabelText(labelPrivateKey).eq(0).type('filename.key').blur();
 
     cy.contains(labelRequired).should('be.visible');
@@ -644,9 +637,25 @@ describe('Agent configurations modal', () => {
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
-      expect(request.body).equal(
-        '{"name":"My agent","type":"centreon_agent","pollers":[1],"configuration":{"is_reverse":false,"otlp_ca_certificate":"test","otlp_certificate":"test","otlp_private_key":"key","poller_ca_name":null,"poller_ca_certificate":null,"hosts":[{"address":"","port":"","certificate":"","key":""}]}}'
-      );
+      expect(JSON.parse(request.body)).deep.equal({
+        name: 'My agent',
+        type: 'centreon_agent',
+        pollers: [1],
+        configuration: {
+          is_reverse: false,
+          otel_ca_certificate: 'test',
+          otel_public_certificate: 'test',
+          otel_private_key: 'key',
+          hosts: [
+            {
+              address: '',
+              port: '',
+              poller_ca_certificate: '',
+              poller_ca_name: ''
+            }
+          ]
+        }
+      });
     });
 
     cy.makeSnapshot();
@@ -723,18 +732,34 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelPollers).click();
     cy.contains('poller1').click();
     cy.findByLabelText(labelPublicCertificate).type('test');
-    cy.findByLabelText(labelCaCertificate).type('test');
+    cy.findAllByLabelText(labelCaCertificate).eq(0).type('test');
+    cy.findAllByLabelText(labelCaCertificate).eq(1).type('test');
     cy.findAllByLabelText(labelPrivateKey).eq(0).type('key');
     cy.findByLabelText(labelAddHost).click();
     cy.contains('central').click();
     cy.findByLabelText(labelCertificate).type('test');
-    cy.findAllByLabelText(labelPrivateKey).eq(1).type('key2');
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
-      expect(request.body).equal(
-        '{"name":"My agent","type":"centreon_agent","pollers":[1],"configuration":{"is_reverse":true,"otlp_ca_certificate":"test","otlp_certificate":"test","otlp_private_key":"key","poller_ca_name":null,"poller_ca_certificate":null,"hosts":[{"address":"127.0.0.2","port":4317,"certificate":"test","key":"key2"}]}}'
-      );
+      expect(JSON.parse(request.body)).deep.equal({
+        name: 'My agent',
+        type: 'centreon_agent',
+        pollers: [1],
+        configuration: {
+          is_reverse: true,
+          otel_ca_certificate: 'test',
+          otel_public_certificate: 'test',
+          otel_private_key: 'key',
+          hosts: [
+            {
+              address: '127.0.0.2',
+              port: 4317,
+              poller_ca_name: 'test',
+              poller_ca_certificate: 'test'
+            }
+          ]
+        }
+      });
     });
 
     cy.contains(labelAgentConfigurationCreated).should('be.visible');
