@@ -29,5 +29,5 @@ final class DateFormat
      * This is not the DateTime:ISO8601 PHP format. This represents the format sent by the frontend to Centreon APIs
      */
     public const ISO8601 = 'Y-m-d\TH:i:s.u\Z';
-    public const INVALID_DATE_MESSAGE = 'this field does not match expected date format. Expected :' . self::ISO8601;
+    public const INVALID_DATE_MESSAGE = 'this field does not match expected date format. Expected : 2024-09-10T12:45:00.000Z';
 }

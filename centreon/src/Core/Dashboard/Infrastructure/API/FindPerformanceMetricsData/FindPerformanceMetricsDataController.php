@@ -37,7 +37,7 @@ final class FindPerformanceMetricsDataController extends AbstractController
     public function __invoke(
         FindPerformanceMetricsData $useCase,
         FindPerformanceMetricsDataPresenter $presenter,
-        #[MapQueryString] FindPerformanceMetricsDataRequest $request
+        #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)] FindPerformanceMetricsDataRequest $request,
     ): Response {
         $this->denyAccessUnlessGrantedForApiRealtime();
         $useCase($presenter, $request->toDto());

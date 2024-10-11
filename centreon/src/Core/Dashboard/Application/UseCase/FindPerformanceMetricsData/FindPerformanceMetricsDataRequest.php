@@ -39,19 +39,21 @@ final class FindPerformanceMetricsDataRequest
             format: DateFormat::ISO8601,
             message: DateFormat::INVALID_DATE_MESSAGE
         )]
-        public readonly string $start,
+        public readonly mixed $start,
         #[Assert\NotBlank]
         #[Assert\DateTime(
             format: DateFormat::ISO8601,
             message: DateFormat::INVALID_DATE_MESSAGE
         )]
-        public readonly string $end,
+        public readonly mixed $end,
         #[Assert\NotNull]
-        #[Assert\Type('array')]
-        #[Assert\All(
-            new Assert\Type('string'),
-        )]
-        public readonly array $metricNames,
+        #[Assert\Sequentially([
+            new Assert\Type('array'),
+            new Assert\All(
+                [new Assert\Type('string')]
+            ),
+        ])]
+        public readonly mixed $metricNames,
     ) {
     }
 
