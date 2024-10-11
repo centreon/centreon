@@ -56,9 +56,9 @@ final class PartialUpdateDashboardRequest
     public function __construct(
         #[Assert\Type('string')]
         #[Assert\Length(min: 1, max: 200)]
-        public ?string $name = null,
+        public mixed $name = null,
         #[Assert\Type('string')]
-        public ?string $description = null,
+        public mixed $description = null,
         #[Assert\Collection(
             fields: [
                 'type' => [
