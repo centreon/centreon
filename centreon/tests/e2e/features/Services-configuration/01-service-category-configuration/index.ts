@@ -132,8 +132,8 @@ Then("the new service category has the same properties", () => {
     .find("table tr.list_two td.FormRowValue")
     .find('input[value="ping"]')
     .should("exist");
-  cy.getIframeBody().contains("Ping-LAN").should("exist");;
-  cy.getIframeBody().contains("Ping-WAN").should("exist");;
+  cy.getIframeBody().contains("Ping-LAN").should("exist");
+  cy.getIframeBody().contains("Ping-WAN").should("exist");
 });
 
 When("the user delete a service category", () => {
