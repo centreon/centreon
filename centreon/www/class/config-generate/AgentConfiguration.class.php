@@ -19,6 +19,7 @@
  *
  */
 
+use ConfigGenerateRemote\Backend as BackendRemote;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration as ModelAgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
@@ -31,7 +32,7 @@ use Core\AgentConfiguration\Domain\Model\Type;
 class AgentConfiguration extends AbstractObjectJSON
 {
     public function __construct(
-        private readonly Backend $backend,
+        private readonly Backend|BackendRemote $backend,
         private readonly ReadAgentConfigurationRepositoryInterface $readAgentConfigurationRepository,
     ) {
         $this->generate_filename = 'otl_server.json';
@@ -68,10 +69,10 @@ class AgentConfiguration extends AbstractObjectJSON
      * The configuration is based on the data from the AgentConfiguration table.
      * It returns an array with the configuration for the OpenTelemetry HTTP server.
      *
-     * @param _TelegrafParameters $data The data from the AgentConfiguration table.
+     * @param _TelegrafParameters|_CmaParameters $data The data from the AgentConfiguration table.
      * @return array<string, array<string, string>> The configuration for the OpenTelemetry HTTP server.
      */
-    private function formatOtelFromTelegrafConfiguration(array $data): array
+    private function formatOtelConfiguration(array $data): array
     {
         return [
             'host' => ModelAgentConfiguration::DEFAULT_HOST,
@@ -79,19 +80,9 @@ class AgentConfiguration extends AbstractObjectJSON
             'encryption' => true,
             'public_cert' => '/etc/pki/' . $data['otel_public_certificate'] . '.crt',
             'private_key' => '/etc/pki/' . $data['otel_private_key'] . '.key',
-            'ca_certificate' => '/etc/pki/' . $data['otel_ca_certificate'] . '.crt',
-        ];
-    }
-
-    private function formatOtelFromCmaConfiguration(array $data): array
-    {
-        return [
-            'host' => ModelAgentConfiguration::DEFAULT_HOST,
-            'port' => ModelAgentConfiguration::DEFAULT_PORT,
-            'encryption' => true,
-            'public_cert' => '/etc/pki/' . $data['otlp_certificate'] . '.crt',
-            'private_key' => '/etc/pki/' . $data['otlp_private_key'] . '.key',
-            'ca_certificate' => '/etc/pki/' . $data['otlp_ca_certificate'] . '.crt',
+            'ca_certificate' => $data['otel_ca_certificate'] !== null
+                ? '/etc/pki/' . $data['otel_ca_certificate'] . '.crt'
+                : null,
         ];
     }
 
@@ -105,7 +96,7 @@ class AgentConfiguration extends AbstractObjectJSON
     private function formatCmaConfiguration(array $data): array
     {
         $configuration = [
-            'otel_server' => $this->formatOtelFromCmaConfiguration($data),
+            'otel_server' => $this->formatOtelConfiguration($data),
             'centreon_agent' => [
                 'check_interval' => CmaConfigurationParameters::DEFAULT_CHECK_INTERVAL,
                 'export_period' => CmaConfigurationParameters::DEFAULT_EXPORT_PERIOD,
@@ -117,8 +108,10 @@ class AgentConfiguration extends AbstractObjectJSON
                     'host' => $host['address'],
                     'port' => $host['port'],
                     'encryption' => true,
-                    'ca_certificate' => '/etc/pki/' . $host['certificate'] . '.crt',
-                    'ca_name' => $host['key'],
+                    'ca_certificate' => $host['poller_ca_certificate'] !== null
+                        ? '/etc/pki/' . $host['poller_ca_certificate'] . '.crt'
+                        : null,
+                    'ca_name' => $host['poller_ca_name'],
                 ],
                 $data['hosts']
             );
@@ -139,7 +132,7 @@ class AgentConfiguration extends AbstractObjectJSON
     private function formatTelegraphConfiguration(array $data): array
     {
         return [
-            'otel_server' => $this->formatOtelFromTelegrafConfiguration($data),
+            'otel_server' => $this->formatOtelConfiguration($data),
             'telegraf_conf_server' => [
                 'http_server' => [
                     'port' => $data['conf_server_port'],
