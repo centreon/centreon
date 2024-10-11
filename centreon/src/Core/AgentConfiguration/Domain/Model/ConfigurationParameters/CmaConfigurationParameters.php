@@ -30,16 +30,14 @@ use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
 /**
  * @phpstan-type _CmaParameters array{
  *	    is_reverse: bool,
- *		otlp_certificate: string,
- *		otlp_ca_certificate: string,
- *		otlp_private_key: string,
- *		poller_ca_certificate: ?string,
- *		poller_ca_name: ?string,
+ *		otel_public_certificate: string,
+ *		otel_private_key: string,
+ *		otel_ca_certificate: ?string,
  *		hosts: array<array{
  *			address: string,
  *			port: int,
- *			certificate: string,
- *			key: string
+ *			poller_ca_certificate: ?string,
+ *			poller_ca_name: ?string,
  *		}>
  *  }
  */
@@ -60,24 +58,13 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
         array $parameters
     ){
         /** @var _CmaParameters $parameters */
-        Assertion::notEmptyString($parameters['otlp_certificate'], 'configuration.otlp_certificate');
-        Assertion::notEmptyString($parameters['otlp_ca_certificate'], 'configuration.otlp_ca_certificate');
-        Assertion::notEmptyString($parameters['otlp_private_key'], 'configuration.otlp_private_key');
-        if ($parameters['poller_ca_certificate'] !== null) {
-            Assertion::notEmptyString($parameters['poller_ca_certificate'], 'configuration.poller_ca_certificate');
-        }
-        if ($parameters['poller_ca_name'] !== null) {
-            Assertion::notEmptyString($parameters['poller_ca_name'], 'configuration.poller_ca_name');
-        }
-
-        Assertion::maxLength($parameters['otlp_certificate'], self::MAX_LENGTH, 'configuration.otlp_certificate');
-        Assertion::maxLength($parameters['otlp_ca_certificate'], self::MAX_LENGTH, 'configuration.otlp_ca_certificate');
-        Assertion::maxLength($parameters['otlp_private_key'], self::MAX_LENGTH, 'configuration.otlp_private_key');
-        if ($parameters['poller_ca_certificate'] !== null) {
-            Assertion::maxLength($parameters['poller_ca_certificate'], self::MAX_LENGTH, 'configuration.poller_ca_certificate');
-        }
-        if ($parameters['poller_ca_name'] !== null) {
-            Assertion::maxLength($parameters['poller_ca_name'], self::MAX_LENGTH, 'configuration.poller_ca_name');
+        Assertion::notEmptyString($parameters['otel_public_certificate'], 'configuration.otel_public_certificate');
+        Assertion::maxLength($parameters['otel_public_certificate'], self::MAX_LENGTH, 'configuration.otel_public_certificate');
+        Assertion::notEmptyString($parameters['otel_private_key'], 'configuration.otel_private_key');
+        Assertion::maxLength($parameters['otel_private_key'], self::MAX_LENGTH, 'configuration.otel_private_key');
+        if ($parameters['otel_ca_certificate'] !== null) {
+            Assertion::notEmptyString($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
+            Assertion::maxLength($parameters['otel_ca_certificate'], self::MAX_LENGTH, 'configuration.otel_ca_certificate');
         }
 
         if ($parameters['is_reverse'] === false && $parameters['hosts'] !== []) {
@@ -87,6 +74,14 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
         foreach ($parameters['hosts'] as $host) {
             Assertion::ipOrDomain($host['address'], 'configuration.hosts[].address');
             Assertion::range($host['port'], 0, 65535, 'configuration.hosts[].port');
+            if ($host['poller_ca_certificate'] !== null) {
+                Assertion::notEmptyString($host['poller_ca_certificate'], 'configurationhosts[].poller_ca_certificate');
+                Assertion::maxLength($host['poller_ca_certificate'], self::MAX_LENGTH, 'configuration.hosts[].poller_ca_certificate');
+            }
+            if ($host['poller_ca_name'] !== null) {
+                Assertion::notEmptyString($host['poller_ca_name'], 'configuration.hosts[].poller_ca_name');
+                Assertion::maxLength($host['poller_ca_name'], self::MAX_LENGTH, 'configuration.hosts[].poller_ca_name');
+            }
         }
 
         $this->parameters = $parameters;
