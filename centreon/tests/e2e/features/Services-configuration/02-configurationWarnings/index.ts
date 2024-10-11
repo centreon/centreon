@@ -19,17 +19,17 @@ Given("An admin user is logged in Centreon", () => {
 });
 
 Given("a service with notifications enabled", () => {
-     cy.addHostGroup({
-       name: data.hostGroups.hostGroup1.name,
-     });
+  cy.addHostGroup({
+    name: data.hostGroups.hostGroup1.name,
+  });
 
-     cy.addHost({
-       activeCheckEnabled: false,
-       checkCommand: "check_centreon_cpu",
-       hostGroup: data.hostGroups.hostGroup1.name,
-       name: data.hosts.host1.name,
-       template: "generic-host",
-     })
+  cy.addHost({
+    activeCheckEnabled: false,
+    checkCommand: "check_centreon_cpu",
+    hostGroup: data.hostGroups.hostGroup1.name,
+    name: data.hosts.host1.name,
+    template: "generic-host",
+  });
   cy.navigateTo({
     page: "Services by host",
     rootItemNumber: 3,
@@ -81,53 +81,55 @@ Given("a service with notifications enabled", () => {
 });
 
 Given("the service has no notification period", () => {
-cy.setServiceParameters({
-  name: data.hosts.host1.name,
-  paramName: "notification_period",
-  paramValue: "none",
-});
+  cy.setServiceParameters({
+    name: data.hosts.host1.name,
+    paramName: "notification_period",
+    paramValue: "none",
+  });
 });
 
 When("the configuration is exported", () => {
-      cy.navigateTo({ page: "Pollers", rootItemNumber: 3, subMenu: "Pollers" });
-      cy.wait("@getUserTimezone");
+  cy.navigateTo({ page: "Pollers", rootItemNumber: 3, subMenu: "Pollers" });
+  cy.wait("@getUserTimezone");
 
-      cy.get("iframe#main-content")
-        .its("0.contentDocument.body")
-        .find("h4")
-        .contains("Poller")
-        .should("exist");
-      cy.getIframeBody()
-        .find('button[name="apply_configuration"]')
-        .should("be.visible");
-      cy.getIframeBody().find('button[name="apply_configuration"]').click();
+  cy.get("iframe#main-content")
+    .its("0.contentDocument.body")
+    .find("h4")
+    .contains("Poller")
+    .should("exist");
+  cy.getIframeBody()
+    .find('button[name="apply_configuration"]')
+    .should("be.visible");
+  cy.getIframeBody().find('button[name="apply_configuration"]').click();
 
-      cy.url().should("include", "poller=");
-      cy.wait("@getUserTimezone");
-      cy.getIframeBody()
-        .find('input.select2-search__field[placeholder="Pollers"]')
-        .click();
-      cy.getIframeBody().contains("Central").click();
+  cy.url().should("include", "poller=");
+  cy.wait("@getUserTimezone");
+  cy.getIframeBody()
+    .find('input.select2-search__field[placeholder="Pollers"]')
+    .click();
+  cy.getIframeBody().contains("Central").click();
 
-      cy.getIframeBody().find('input[name="move"]').parent().click();
-      cy.getIframeBody().find('input[name="restart"]').parent().click();
-      cy.getIframeBody().find('input[id="exportBtn"]').click();
+  cy.getIframeBody().find('input[name="move"]').parent().click();
+  cy.getIframeBody().find('input[name="restart"]').parent().click();
+  cy.getIframeBody().find('input[id="exportBtn"]').click();
 });
 
 Then("a warning message is printed", () => {
-
-     cy.waitUntil(
-       () => {
-         cy.getIframeBody().find('div[id="console"]').should("be.visible");
-         cy.getIframeBody().find('div#debug_1').contains('Warning').should("be.visible");
-         return cy
-           .getIframeBody()
-           .find('label[id="progressPct"]')
-           .invoke("text")
-           .then((text) => text === "100%");
-       },
-       { interval: 6000, timeout: 10000 }
-     );
+  cy.waitUntil(
+    () => {
+      cy.getIframeBody().find('div[id="console"]').should("be.visible");
+      return cy
+        .getIframeBody()
+        .find('label[id="progressPct"]')
+        .invoke("text")
+        .then((text) => text === "100%");
+    },
+    { interval: 6000, timeout: 10000 }
+  );
+  cy.getIframeBody()
+    .find("div#debug_1")
+    .contains("Warning")
+    .should("be.visible");
 });
 
 afterEach(() => {

@@ -11,10 +11,6 @@ default:
   gherkin:
     cache: ~
   suites:
-    # configuration_warnings:
-    #   paths: [ "%paths.base%/features/ConfigurationWarnings.feature" ]
-    #   contexts: [ ConfigurationWarningsContext ]
-
     generate_service_contact_configuration:
       paths: [ "%paths.base%/features/GenerateServiceContact.feature" ]
       contexts: [ GenerateServiceContactContext ]
