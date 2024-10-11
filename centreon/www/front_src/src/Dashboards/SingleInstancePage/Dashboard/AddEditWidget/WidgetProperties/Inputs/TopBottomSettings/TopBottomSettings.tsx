@@ -49,7 +49,7 @@ const TopBottomSettings = ({
           inputProps={{
             'aria-label': t(labelNumberOfValues) as string,
             max: 50,
-            min: 1
+            min: 3
           }}
           size="compact"
           type="number"

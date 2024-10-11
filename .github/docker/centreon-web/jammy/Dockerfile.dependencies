@@ -92,6 +92,14 @@ apt-get install -y \
   php8.2-curl \
   php8.2-zip
 
+################################
+# install collect dependencies #
+################################
+
+apt-get install -y \
+  centreon-engine \
+  monitoring-plugins-basic
+
 apt-get clean
 
 EOF

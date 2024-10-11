@@ -108,49 +108,29 @@ const installCentreon = (version: string): Cypress.Chainable => {
         `echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini`,
         `/etc/init.d/mysql start`,
         `mkdir -p /run/php-fpm`,
-        `systemctl restart php-fpm`,
-        `systemctl restart httpd`,
+        `systemctl start php-fpm || systemctl restart php-fpm`,
+        `systemctl start httpd || systemctl restart httpd`,
         `mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"`,
         `dnf config-manager --set-enabled 'centreon-*'`
       ],
       name: 'web'
     });
   } else {
-    const versionMatches = version.match(/(\d+)\.(\d+)\.\d+/);
+    const versionMatches = version.match(/(\d+)\.\d+\.\d+/);
     if (!versionMatches) {
       throw new Error('Cannot parse version number.');
     }
 
-    let packageDistribPrefix;
-    let packageDistribName;
-    if (Number(versionMatches[1]) < 24) {
-      packageDistribPrefix = '-';
-      packageDistribName = Cypress.env('WEB_IMAGE_OS');
-    } else if (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10) {
-      packageDistribPrefix = '-1~';
-      packageDistribName = Cypress.env('WEB_IMAGE_OS');
-    } else if (Cypress.env('WEB_IMAGE_OS') === 'bookworm') {
-      packageDistribPrefix = '+';
-      packageDistribName = 'deb12u1';
-    } else if (Cypress.env('WEB_IMAGE_OS') === 'jammy') {
-      packageDistribPrefix = '-';
-      packageDistribName = '0ubuntu.22.04';
-    } else {
-      throw new Error(`Distrib ${Cypress.env('WEB_IMAGE_OS')} not managed in update/upgrade tests.`);
-    }
-
-    const packageVersionSuffix = `${version}${packageDistribPrefix}${packageDistribName}`;
+    const distribPrefix = Number(versionMatches[1]) >= 24 ? '-1~' : '-';
+    const packageVersionSuffix = `${version}${distribPrefix}${Cypress.env('WEB_IMAGE_OS')}`;
     const packagesToInstall = [
       `centreon-poller=${packageVersionSuffix}`,
       `centreon-web=${packageVersionSuffix}`,
-      `centreon-common=${packageVersionSuffix}`,
-      `centreon-trap=${packageVersionSuffix}`,
-      `centreon-perl-libs=${packageVersionSuffix}`
+      `centreon-common=${packageVersionSuffix}`
     ];
     if (Number(versionMatches[1]) < 24) {
       packagesToInstall.push(`centreon-web-apache=${packageVersionSuffix}`);
     }
-    const phpVersion = Number(versionMatches[1]) <= 24 && Number(versionMatches[2]) < 10 ? '8.1' : '8.2';
 
     cy.execInContainer({
       command: [
@@ -159,13 +139,12 @@ const installCentreon = (version: string): Cypress.Chainable => {
         `apt-get update`,
         `apt-get install -y ${packagesToInstall.join(' ')}`,
         `mkdir -p /usr/lib/centreon-connector`,
-        `echo "date.timezone = Europe/Paris" > /etc/php/${phpVersion}/mods-available/timezone.ini`,
-        `phpenmod -v ${phpVersion} timezone`,
+        `echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini`,
         `sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql`,
         `service mysql start`,
         `mkdir -p /run/php`,
-        `systemctl restart php${phpVersion}-fpm`,
-        `systemctl restart apache2`,
+        `systemctl start php8.1-fpm`,
+        `systemctl start apache2`,
         `mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"`,
         `mv /etc/apt/sources.list.d/centreon-unstable.list.bak /etc/apt/sources.list.d/centreon-unstable.list`,
         `mv /etc/apt/sources.list.d/centreon-testing.list.bak /etc/apt/sources.list.d/centreon-testing.list`,

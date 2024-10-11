@@ -102,6 +102,16 @@ dnf install -y \
 
 sed -i "s#apache,nginx#apache#g" /etc/php-fpm.d/www.conf
 
+################################
+# install collect dependencies #
+################################
+
+dnf install -y \
+  centreon-engine \
+  nagios-plugins \
+  nagios-plugins-dhcp \
+  nagios-plugins-icmp
+
 dnf clean all --enablerepo=*
 
 EOF

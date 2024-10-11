@@ -102,10 +102,7 @@ const useTopBottom = ({
       refreshCount
     ],
     queryOptions: {
-      enabled:
-        areResourcesFullfilled(resources) &&
-        !!metricName &&
-        topBottomSettings.numberOfValues > 0,
+      enabled: areResourcesFullfilled(resources) && !!metricName,
       refetchInterval: refreshIntervalToUse,
       suspense: false
     }

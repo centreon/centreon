@@ -35,37 +35,6 @@ env:
   module: awie
 
 jobs:
-  changes:
-    runs-on: ubuntu-22.04
-    outputs:
-      has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
-      has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
-      trigger_delivery: ${{ steps.changes_trigger_checks.outputs.trigger_delivery }}
-      trigger_api_testing: ${{ steps.changes_trigger_checks.outputs.trigger_api_testing }}
-    steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-
-      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
-        id: filter
-        with:
-          filters: |
-            has_backend_changes:
-              - 'centreon-awie/*.php'
-              - 'centreon-awie/!(features)/*.php'
-              - 'centreon-awie/phpstan*'
-              - 'centreon-awie/ruleset.xml'
-              - 'centreon-awie/libinstall/**'
-              - 'centreon-awie/www/modules/centreon-awie/**'
-            has_test_changes:
-              - 'centreon-awie/features/**'
-
-      - uses: ./.github/actions/changes-trigger-checks
-        id: changes_trigger_checks
-        with:
-          has_frontend_changes: 'false'
-          has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
-          has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
-
   get-version:
     uses: ./.github/workflows/get-version.yml
     with:
@@ -90,8 +59,8 @@ jobs:
 
   backend-lint:
     runs-on: ubuntu-22.04
-    needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
+    needs: [get-version]
+
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
@@ -182,8 +151,8 @@ jobs:
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
   deliver-rpm:
-    needs: [changes, get-version, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) && needs.changes.outputs.trigger_delivery == 'true' }}
+    needs: [get-version, package]
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     environment: ${{ needs.get-version.outputs.environment }}
 
@@ -208,8 +177,8 @@ jobs:
           release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   deliver-deb:
-    needs: [changes, get-version, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) && needs.changes.outputs.trigger_delivery == 'true' }}
+    needs: [get-version, package]
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     environment: ${{ needs.get-version.outputs.environment }}
 

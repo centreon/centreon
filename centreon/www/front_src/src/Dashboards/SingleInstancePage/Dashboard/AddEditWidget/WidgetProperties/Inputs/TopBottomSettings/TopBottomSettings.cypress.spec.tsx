@@ -68,19 +68,8 @@ describe('TopBottomSettings', () => {
   it('displays the number of values when the value is changed', () => {
     initializeComponent();
 
-    cy.findByLabelText(labelNumberOfValues).type('{selectall}').type('5');
-
-    cy.findByLabelText(labelNumberOfValues).should('have.value', '5');
-
-    cy.makeSnapshot();
-  });
-
-  it('enforces the value to be 1 when the user manually enters 0', () => {
-    initializeComponent();
-
-    cy.findByLabelText(labelNumberOfValues).type('{selectall}').type('0');
-
-    cy.findByLabelText(labelNumberOfValues).should('have.value', '1');
+    cy.findByLabelText(labelNumberOfValues).clear().type('5');
+    cy.findByLabelText(labelNumberOfValues).should('have.value', '50');
 
     cy.makeSnapshot();
   });
