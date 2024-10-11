@@ -65,12 +65,11 @@ class CmaValidator implements TypeValidatorInterface
                     /** @var array{
                      *		address: string,
                      *		port: int,
-                     *		certificate: string,
-                     *		key: string
+                     *		poller_ca_certificate: ?string,
+                     *		poller_ca_name: ?string
                      *	} $host
                      */
-                    $this->validateFilename('configuration.hosts[].key', $host['key']);
-                    $this->validateFilename('configuration.hosts[].certificate', $host['certificate']);
+                    $this->validateFilename('configuration.hosts[].poller_ca_certificate', $host['poller_ca_certificate']);
                 }
             }
         }
@@ -88,7 +87,7 @@ class CmaValidator implements TypeValidatorInterface
             $value !== null
             && 1 === preg_match('/\.\/|\.\.\/|\.cert$|\.crt$|\.key$/', $value)
         ) {
-            throw AgentConfigurationException::invalidFilename("configuration.{$name}", (string) $value);
+            throw AgentConfigurationException::invalidFilename($name, (string) $value);
         }
     }
 }
