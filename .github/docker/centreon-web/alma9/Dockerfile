@@ -3,7 +3,7 @@ ARG FROM_IMAGE_VERSION=MON-16387-create-hashicorp-vault-container
 
 FROM ${REGISTRY_URL}/centreon-web-dependencies-alma9:${FROM_IMAGE_VERSION}
 
-ARG VERSION
+ARG STABILITY
 
 COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint /usr/share/centreon
 COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /usr/share/centreon/www/install/tmp
@@ -11,6 +11,12 @@ COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /us
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 
 RUN --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <<EOF
+
+if [[ "$STABILITY" == "testing" ]]; then
+  dnf config-manager --set-disabled 'centreon*unstable'
+elif [[ "$STABILITY" == "stable" ]]; then
+  dnf config-manager --set-disabled 'centreon*unstable' --set-disabled 'centreon*testing'
+fi
 
 dnf install -y /tmp/packages-centreon/centreon-*.rpm
 
@@ -29,7 +35,7 @@ dnf clean all
 
 EOF
 
-EXPOSE 80 3306
+EXPOSE 80
 
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
