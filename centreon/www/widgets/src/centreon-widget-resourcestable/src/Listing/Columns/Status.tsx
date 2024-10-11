@@ -1,4 +1,4 @@
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { path, equals, isNil, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
@@ -6,7 +6,6 @@ import IconForcedCheck from '@mui/icons-material/FlipCameraAndroidOutlined';
 import IconAcknowledge from '@mui/icons-material/Person';
 
 import type { ComponentColumnProps } from '@centreon/ui';
-
 import {
   IconButton,
   Method,
@@ -32,7 +31,6 @@ import {
   labelSetDowntimeOn
 } from '../translatedLabels';
 
-import { isOnPublicPageAtom } from '@centreon/ui-context';
 import IconDowntime from './Icons/Downtime';
 import { useStyles } from './Status.styles';
 
@@ -148,8 +146,6 @@ const StatusColumnOnHover = ({
 const StatusColumn =
   ({ displayType, classes, t }) =>
   ({ row, isHovered }: ComponentColumnProps): JSX.Element => {
-    const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
-
     const statusName = row.status.name;
 
     const isNestedRow =
@@ -167,7 +163,7 @@ const StatusColumn =
 
     return (
       <div className={classes.statusColumn}>
-        {isHovered && !isOnPublicPage ? (
+        {isHovered ? (
           <StatusColumnOnHover row={row} />
         ) : (
           <StatusChip

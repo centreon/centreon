@@ -27,7 +27,6 @@ import {
   sortBy,
   split,
   startsWith,
-  toLower,
   trim,
   without
 } from 'ramda';
@@ -119,7 +118,7 @@ const parse = ({
         const isStaticCriteria = isNil(objectType);
 
         if (isStaticCriteria) {
-          const id = getCriteriaNameFromQueryLanguageName(toLower(value));
+          const id = getCriteriaNameFromQueryLanguageName(value);
 
           return {
             id,
@@ -356,20 +355,17 @@ const getAutocompleteSuggestions = ({
 
     const criteriaValueSuggestions = getCriteriaValueSuggestions({
       criterias: allCriterias,
-      selectedValues: map(toLower, expressionCriteriaValues)
+      selectedValues: expressionCriteriaValues
     });
 
     const isLastValueInSuggestions = getCriteriaValueSuggestions({
       criterias: allCriterias,
       selectedValues: []
-    }).includes(toLower(lastCriteriaValue));
+    }).includes(lastCriteriaValue);
 
     return isLastValueInSuggestions
       ? map(concat(','), criteriaValueSuggestions)
-      : filter(
-          startsWith(toLower(lastCriteriaValue)),
-          criteriaValueSuggestions
-        );
+      : filter(startsWith(lastCriteriaValue), criteriaValueSuggestions);
   }
 
   return reject(includes(__, search), getCriteriaNameSuggestions(criteriaName));

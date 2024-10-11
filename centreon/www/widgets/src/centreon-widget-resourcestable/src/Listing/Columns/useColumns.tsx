@@ -12,9 +12,6 @@ import {
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { isOnPublicPageAtom } from '@centreon/ui-context';
-import { useAtomValue } from 'jotai';
-
 import {
   ColumnType,
   useLocaleDateTimeFormat,
@@ -83,8 +80,6 @@ const useColumns = ({
   const { classes: statusClasses } = useStatusStyles({
     data: dataStyle.statusColumnChip
   });
-
-  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
   const { format } = useLocaleDateTimeFormat();
   const { t } = useTranslation();
@@ -163,7 +158,7 @@ const useColumns = ({
       sortable: true,
       type: ColumnType.component
     },
-    ...(isOpenTicketActionColumnVisible && !isOnPublicPage
+    ...(isOpenTicketActionColumnVisible
       ? [
           {
             Component: OpenTicket,
@@ -259,7 +254,7 @@ const useColumns = ({
       sortable: false,
       type: ColumnType.component
     },
-    ...(areTicketColumnsVisible && !isOnPublicPage
+    ...(areTicketColumnsVisible
       ? [
           {
             Component: CloseTicket,

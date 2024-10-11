@@ -58,7 +58,7 @@ jobs:
     needs: [get-version]
 
     steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
@@ -111,7 +111,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Change macro
         run: |
@@ -142,7 +142,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -166,7 +166,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
@@ -191,7 +191,7 @@ jobs:
         distrib: [bookworm]
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Delivery
         uses: ./.github/actions/deb-delivery
@@ -219,7 +219,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable

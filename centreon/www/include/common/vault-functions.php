@@ -40,7 +40,7 @@ use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
-use Symfony\Component\Yaml\Yaml;
+use Utility\Interfaces\UUIDGeneratorInterface;
 
 const DEFAULT_SCHEME = 'https';
 
@@ -1316,79 +1316,6 @@ function updateConfigFilesWithVaultPath($vaultPaths): void
         updateCentreonConfPmFile($vaultPaths);
         updateDatabaseYamlFile($vaultPaths);
     }
-}
-
-
-/**
- * Migrate Gorgone API credentials to Vault and return the vault path.
- *
- * @param WriteVaultRepositoryInterface $writeVaultRepository
- *
- * @return array<string,string>
- */
-function migrateGorgoneCredentialsToVault(WriteVaultRepositoryInterface $writeVaultRepository): array
-{
-    $writeVaultRepository->setCustomPath(AbstractVaultRepository::GORGONE_VAULT_PATH);
-    $gorgonePassword = retrieveGorgoneApiCredentialsFromConfigFile();
-    if (str_starts_with($gorgonePassword, VaultConfiguration::VAULT_PATH_PATTERN)) {
-        return [];
-    }
-
-    return $writeVaultRepository->upsert(null, [
-        VaultConfiguration::GORGONE_PASSWORD => $gorgonePassword,
-    ]);
-}
-
-/**
- * Retrieve Gorgone API credentials from the configuration file.
- *
- * @return string
- *
- * @throws Exception
- */
-function retrieveGorgoneApiCredentialsFromConfigFile(): string
-{
-    $filePath = '/etc/centreon-gorgone/config.d/31-centreon-api.yaml';
-
-    if (
-        ! file_exists($filePath)
-        || ($content = file_get_contents($filePath)) === false
-    ) {
-        throw new Exception('Unable to retrieve content of file: ' . $filePath);
-    }
-
-    $content = Yaml::parse($content);
-
-    return $content['gorgone']['tpapi'][0]['password']
-        ?? throw new Exception('Unable to retrieve Gorgone API password');
-}
-
-
-/**
- * Update the Gorgone API configuration file with the Vault path.
- *
- * @param array<string,string> $vaultPaths the Vault paths of the Gorgone API credentials
- *
- * @throws Exception if the file cannot be read or updated
- */
-function updateGorgoneApiFile(array $vaultPaths): void
-{
-    $filePath = '/etc/centreon-gorgone/config.d/31-centreon-api.yaml';
-
-    if (
-        ! file_exists($filePath)
-        || ($content = file_get_contents($filePath)) === false
-    ) {
-        throw new Exception('Unable to retrieve content of file: ' . $filePath);
-    }
-
-    $newContentYaml = preg_replace(
-        '/password: (.*)/',
-        'password: "' . $vaultPaths[VaultConfiguration::GORGONE_PASSWORD] . '"',
-        $content
-    );
-
-    file_put_contents($filePath, $newContentYaml) ?: throw new Exception('Unable to update file: ' . $filePath);
 }
 
 /**

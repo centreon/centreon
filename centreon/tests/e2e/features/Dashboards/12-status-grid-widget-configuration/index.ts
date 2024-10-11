@@ -470,31 +470,6 @@ When('the dashboard administrator adds a status grid widget', () => {
   cy.wait('@resourceRequest');
 });
 
-Then('the newly added host is displayed in the status grid widget', () => {
+Then('the newly added host should appear in the status grid widget', () => {
   cy.getByTestId({ testId: 'link to service_test_ok' }).should('be.visible');
-});
-
-Then('searches for a specific resource type', () => {
-  cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
-  cy.getByLabel({ label: 'RichTextEditor' })
-    .eq(0)
-    .type(genericTextWidgets.default.description);
-  cy.getByTestId({ testId: 'Resource type' }).realClick();
-  cy.getByLabel({ label: 'Host' }).eq(1).click();
-  cy.getByTestId({ testId: 'Select resource' }).type('3')
-  cy.wait('@resourceRequest');
-});
-
-Then('only the resource that matches the search input is displayed in the results', () => {
-  cy.waitUntil(() =>
-    cy.get('.MuiAutocomplete-listbox').invoke('text').then(listboxText => {
-      return listboxText.includes('host3') &&
-             !listboxText.includes('Centreon-Server') &&
-             !listboxText.includes('host2');
-    }),
-    {
-      timeout: 10000,
-      interval: 500,
-    }
-  );
 });

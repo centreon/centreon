@@ -47,7 +47,6 @@ class VaultConfiguration
     public const DATABASE_USERNAME_KEY = '_DBUSERNAME';
     public const DATABASE_PASSWORD_KEY = '_DBPASSWORD';
     public const KNOWLEDGE_BASE_KEY = '_KBPASSWORD';
-    public const GORGONE_PASSWORD = '_GORGONE_PASSWORD';
 
     /** Patterns Constants */
     public const VAULT_PATH_PATTERN = 'secret::';

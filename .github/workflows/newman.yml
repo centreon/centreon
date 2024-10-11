@@ -57,7 +57,7 @@ jobs:
       collections: ${{ steps.set_collections.outputs.collections }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: List Postman Collections and Environments
         id: set_collections
@@ -83,7 +83,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Test Execution and test plan Keys
         id: get-test-ids
@@ -378,14 +378,14 @@ jobs:
       DATABASE_IMAGE: ${{ inputs.database_image }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
           version: 8
           run_install: false
 
-      - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
+      - uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
         with:
           node-version: 20
           cache: pnpm
@@ -517,7 +517,7 @@ jobs:
     if: always()
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Generate Xray Token
         id: generate-xray-token
@@ -786,7 +786,7 @@ jobs:
           retention-days: 1
 
       - name: Delete merged artifacts
-        uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
+        uses: geekyeggo/delete-artifact@24928e75e6e6590170563b8ddae9fac674508aa1 # v5.0.0
         with:
           name: newman-${{ inputs.os }}-html-reports-*
           failOnError: false

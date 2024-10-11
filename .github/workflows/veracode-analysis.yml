@@ -104,7 +104,7 @@ jobs:
           echo "skip_analysis=$SKIP_ANALYSIS" >> $GITHUB_OUTPUT
           cat $GITHUB_OUTPUT
 
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         if: steps.routing-mode.outputs.skip_analysis == 'false'
 
       - name: Generate binary file
@@ -121,7 +121,7 @@ jobs:
     runs-on: [self-hosted, common]
 
     steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Get build binary
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
@@ -167,7 +167,7 @@ jobs:
           echo "create_baseline_from=$create_baseline_from" >> $GITHUB_ENV
           cat $GITHUB_ENV
 
-      - uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73 # v4.4.0
+      - uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 # v4.2.1
         with:
           distribution: 'zulu'
           java-version: 8
@@ -275,7 +275,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
+      - uses: geekyeggo/delete-artifact@24928e75e6e6590170563b8ddae9fac674508aa1 # v5.0.0
         with:
           name: "Veracode Pipeline-Scan Results"
 
@@ -337,7 +337,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Prepare analysis
         run: |
