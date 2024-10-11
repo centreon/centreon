@@ -24,11 +24,6 @@ const Grid = ({
 }: Props): ReactElement => {
   const theme = useTheme();
 
-  const containerHeight = useMemo(
-    () => containerRef.current?.clientHeight || height,
-    [containerRef.current, height]
-  );
-
   const xScale = useMemo(
     () =>
       scaleLinear({
@@ -38,15 +33,15 @@ const Grid = ({
     [width]
   );
 
-  const numberOfRows = Math.floor(containerHeight / (rowHeight + 16));
+  const numberOfRows = Math.floor(height / (rowHeight + 16));
 
   const yScale = useMemo(
     () =>
       scaleLinear({
         domain: [0, numberOfRows],
-        range: [0, containerHeight]
+        range: [0, height]
       }),
-    [containerHeight]
+    [height]
   );
 
   const tick = maxColumns / columns;
@@ -61,7 +56,7 @@ const Grid = ({
 
   return useMemoComponent({
     Component: (
-      <svg style={{ height: '100%', position: 'absolute', width }}>
+      <svg style={{ height, position: 'absolute', width }}>
         <VisxGrid.Grid
           columnTickValues={xTickValues}
           rowTickValues={yTickValues}

@@ -4,20 +4,20 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 
 import {
-  LoadingSkeleton,
-  RichTextEditor,
-  client,
-  useMemoComponent
+    LoadingSkeleton,
+    RichTextEditor,
+    client,
+    useMemoComponent
 } from '@centreon/ui';
 
 import FederatedComponent from '../../../../../components/FederatedComponents';
 import {
-  dashboardRefreshIntervalAtom,
-  getPanelConfigurationsDerivedAtom,
-  getPanelOptionsAndDataDerivedAtom,
-  isEditingAtom,
-  setPanelOptionsAndDataDerivedAtom,
-  switchPanelsEditionModeDerivedAtom
+    dashboardRefreshIntervalAtom,
+    getPanelConfigurationsDerivedAtom,
+    getPanelOptionsAndDataDerivedAtom,
+    isEditingAtom,
+    setPanelOptionsAndDataDerivedAtom,
+    switchPanelsEditionModeDerivedAtom
 } from '../../atoms';
 import DescriptionWrapper from '../../components/DescriptionWrapper';
 import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
@@ -166,6 +166,7 @@ const Panel = ({
                 panelData={panelOptionsAndData?.data}
                 panelOptions={panelOptionsAndData?.options}
                 path={panelConfigurations.path}
+                id={id}
                 playlistHash={playlistHash}
                 queryClient={client}
                 refreshCount={refreshCount}

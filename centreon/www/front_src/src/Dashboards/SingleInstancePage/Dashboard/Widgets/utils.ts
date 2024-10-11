@@ -1,17 +1,17 @@
 import {
-  T,
-  always,
-  cond,
-  equals,
-  flatten,
-  groupBy,
-  identity,
-  includes,
-  isEmpty,
-  map,
-  pipe,
-  pluck,
-  toPairs
+    T,
+    always,
+    cond,
+    equals,
+    flatten,
+    groupBy,
+    identity,
+    includes,
+    isEmpty,
+    map,
+    pipe,
+    pluck,
+    toPairs
 } from 'ramda';
 
 import { SeverityCode, centreonBaseURL } from '@centreon/ui';
