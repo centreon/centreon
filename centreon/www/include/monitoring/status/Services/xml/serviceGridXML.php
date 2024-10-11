@@ -95,11 +95,11 @@ $queryValues = [];
 /**
  * Get Host status
  */
-$request = <<<SQL
+$request = <<<SQL_WRAP
     SELECT SQL_CALC_FOUND_ROWS DISTINCT
       1 AS REALTIME, hosts.name, hosts.state, hosts.icon_image, hosts.host_id
     FROM hosts
-    SQL;
+    SQL_WRAP;
 
 if ($hostgroups) {
     $request .= <<<SQL
@@ -200,12 +200,8 @@ $hostIds = [];
 
 while ($ndo = $dbResult->fetch()) {
     $hostIds[] = $ndo["host_id"];
-    $tab_final[$ndo["name"]] = array("cs" => $ndo["state"], "hid" => $ndo["host_id"]);
-    if ($ndo["icon_image"] != "") {
-        $tabIcone[$ndo["name"]] = $ndo["icon_image"];
-    } else {
-        $tabIcone[$ndo["name"]] = "none";
-    }
+    $tab_final[$ndo["name"]] = ["cs" => $ndo["state"], "hid" => $ndo["host_id"]];
+    $tabIcone[$ndo["name"]] = $ndo["icon_image"] != "" ? $ndo["icon_image"] : "none";
 }
 $dbResult->closeCursor();
 

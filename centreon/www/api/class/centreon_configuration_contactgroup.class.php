@@ -39,10 +39,15 @@ require_once _CENTREON_PATH_ . "/www/class/centreonContactgroup.class.php";
 require_once _CENTREON_PATH_ . "/www/class/centreonLDAP.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationContactgroup
+ */
 class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
 {
     /**
-     * CentreonConfigurationContactgroup constructor.
+     * CentreonConfigurationContactgroup constructor
      */
     public function __construct()
     {
@@ -51,6 +56,7 @@ class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
 
     /**
      * @return array
+     * @throws PDOException
      * @throws RestBadRequestException
      */
     public function getList()
@@ -63,7 +69,7 @@ class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
                 || !is_numeric($this->arguments['page_limit'])
                 || $this->arguments['page_limit'] < 1
             ) {
-                throw new \RestBadRequestException('Error, limit must be an integer greater than zero');
+                throw new RestBadRequestException('Error, limit must be an integer greater than zero');
             }
             $limit = ($this->arguments['page'] - 1) * $this->arguments['page_limit'];
             $offset = $this->arguments['page_limit'];
@@ -72,11 +78,11 @@ class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
             $range = '';
         }
 
-        $filterContactgroup = array();
+        $filterContactgroup = [];
         $ldapFilter = '';
         if (isset($this->arguments['q'])) {
-            $filterContactgroup['cg_name'] = array('LIKE', '%' . $this->arguments['q'] . '%');
-            $filterContactgroup['cg_alias'] = array('OR', 'LIKE', '%' . $this->arguments['q'] . '%');
+            $filterContactgroup['cg_name'] = ['LIKE', '%' . $this->arguments['q'] . '%'];
+            $filterContactgroup['cg_alias'] = ['OR', 'LIKE', '%' . $this->arguments['q'] . '%'];
             $ldapFilter = $this->arguments['q'];
         }
 
@@ -84,20 +90,12 @@ class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
         $acl = new CentreonACL($centreon->user->user_id);
 
         $aclCgs = $acl->getContactGroupAclConf(
-            array(
-                'fields' => array('cg_id', 'cg_name', 'cg_type', 'ar_name'),
-                'get_row' => null,
-                'keys' => array('cg_id'),
-                'conditions' => $filterContactgroup,
-                'order' => array('cg_name'),
-                'pages' => $range,
-                'total' => true
-            ),
+            ['fields' => ['cg_id', 'cg_name', 'cg_type', 'ar_name'], 'get_row' => null, 'keys' => ['cg_id'], 'conditions' => $filterContactgroup, 'order' => ['cg_name'], 'pages' => $range, 'total' => true],
             false
         );
 
 
-        $contactgroupList = array();
+        $contactgroupList = [];
         foreach ($aclCgs['items'] as $id => $contactgroup) {
             // If we query local contactgroups and the contactgroup type is ldap, we skip it
             if (
@@ -113,16 +111,13 @@ class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
                 $sText .= " (LDAP : " . $contactgroup['ar_name'] . ")";
             }
             $id = $contactgroup['cg_id'];
-            $contactgroupList[] = array(
-                'id' => $id,
-                'text' => $sText
-            );
+            $contactgroupList[] = ['id' => $id, 'text' => $sText];
         }
 
         # get Ldap contactgroups
         // If we don't query local contactgroups, we can return an array with ldap contactgroups
         if (! isset($this->arguments['type']) || $this->arguments['type'] !== 'local') {
-            $ldapCgs = array();
+            $ldapCgs = [];
             if (isset($this->arguments['page_limit'], $this->arguments['page'])) {
                 $maxItem = $this->arguments['page_limit'] * $this->arguments['page'];
                 if ($aclCgs['total'] <= $maxItem) {
@@ -135,20 +130,20 @@ class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
             foreach ($ldapCgs as $key => $value) {
                 $sTemp = $value;
                 if (!$this->uniqueKey($sTemp, $contactgroupList)) {
-                    $contactgroupList[] = array(
-                        'id' => $key,
-                        'text' => $value
-                    );
+                    $contactgroupList[] = ['id' => $key, 'text' => $value];
                 }
             }
         }
 
-        return array(
-            'items' => $contactgroupList,
-            'total' => $aclCgs['total']
-        );
+        return ['items' => $contactgroupList, 'total' => $aclCgs['total']];
     }
 
+    /**
+     * @param $val
+     * @param array $array
+     *
+     * @return bool
+     */
     protected function uniqueKey($val, &$array)
     {
 

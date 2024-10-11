@@ -3,10 +3,12 @@ import { equals } from 'ramda';
 import { useTheme } from '@mui/material';
 
 import { MemoizedListing, SeverityCode } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { PanelOptions } from '../models';
 
+import { useAtomValue } from 'jotai';
 import Actions from './Actions';
 import AcknowledgeForm from './Actions/Acknowledge';
 import DowntimeForm from './Actions/Downtime';
@@ -124,9 +126,12 @@ const Listing = ({
     widgetPrefixQuery
   });
 
+  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+
   return (
     <>
       <MemoizedListing
+        isActionBarVisible={!isOnPublicPage}
         checkable
         actions={
           <Actions
@@ -136,7 +141,7 @@ const Listing = ({
             isOpenTicketEnabled={isOpenTicketEnabled}
           />
         }
-        actionsBarMemoProps={[displayType, hasMetaService]}
+        actionsBarMemoProps={[displayType, hasMetaService, isOpenTicketEnabled]}
         columnConfiguration={{
           selectedColumnIds: selectedColumnIds || defaultSelectedColumnIds,
           sortable: true

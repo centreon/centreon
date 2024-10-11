@@ -7,7 +7,7 @@
 parameters:
     locale: en
     api.header: "Api-Version"
-    api.version.latest: "24.09"
+    api.version.latest: "24.10"
     database_host: "%env(hostCentreon)%"
     database_port: "%env(port)%"
     database_db: "%env(db)%"

@@ -62,7 +62,7 @@ runs:
               {"type": "paragraph","content": []},
               {"type": "bulletList","content": [
                 {"type": "listItem","content": [{"type": "paragraph","content": [{"type": "text","text": "Target: "},{"type": "text","text": "${{ github.base_ref || github.ref_name }}","marks": [{"type": "strong"}]}]}]},
-                {"type": "listItem","content": [{"type": "paragraph","content": [{"type": "text","text": "Link to the job","marks": [{"type": "link","attrs": {"href": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}}]}]}]}
+                {"type": "listItem","content": [{"type": "paragraph","content": [{"type": "text","text": "Link to the job","marks": [{"type": "link","attrs": {"href": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"}}]}]}]}
               ]},
               {"type": "paragraph","content": []}
             ]}

@@ -226,7 +226,7 @@ const useListing = ({
       return;
     }
 
-    setPanelOptions?.({ displayType: DisplayType.All });
+    setPanelOptions?.({ displayType: DisplayType.Service });
   }, [hasMetaService]);
 
   const cancelAcknowledge = (): void => {

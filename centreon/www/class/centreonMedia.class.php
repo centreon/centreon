@@ -34,44 +34,37 @@
  */
 
 /**
- *  Class used for managing images
+ * Class
+ *
+ * @class CentreonMedia
+ * @description Class used for managing images
  */
 class CentreonMedia
 {
     public const CENTREON_MEDIA_PATH = __DIR__ . '/../img/media/';
 
-    /**
-     *
-     * @var \CentreonDB
-     */
+    /** @var CentreonDB */
     protected $db;
-
-    /**
-     *
-     * @var type
-     */
-    protected $filenames;
-
-    /**
-     *
-     * @var type
-     */
+    /** @var array */
+    protected $filenames = [];
+    /** @var string */
     protected $mediadirectoryname = '';
 
     /**
-     * Constructor
-     * @param type $db
+     * CentreonMedia constructor
+     *
+     * @param CentreonDB $db
      */
     public function __construct($db)
     {
         $this->db = $db;
-        $this->filenames = array();
     }
 
     /**
      * Get media directory path
+     *
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
     public function getMediaDirectory()
     {
@@ -84,10 +77,11 @@ class CentreonMedia
 
     /**
      * Get media directory path
-     * @return string
-     * @throws \Exception
+     *
+     * @return void
+     * @throws Exception
      */
-    public function setMediaDirectory($dirname)
+    public function setMediaDirectory($dirname): void
     {
         $this->mediadirectoryname = $dirname;
     }
@@ -96,7 +90,9 @@ class CentreonMedia
      * Returns ID of target directory
      *
      * @param string $dirName
+     *
      * @return int|null
+     * @throws PDOException
      */
     public function getDirectoryId($dirName): ?int
     {
@@ -105,7 +101,7 @@ class CentreonMedia
         $statement = $this->db->prepare(
             "SELECT dir_id FROM view_img_dir WHERE dir_name = :dirName LIMIT 1"
         );
-        $statement->bindValue(':dirName', $dirName, \PDO::PARAM_STR);
+        $statement->bindValue(':dirName', $dirName, PDO::PARAM_STR);
         $statement->execute();
 
         $dirId = null;
@@ -118,8 +114,11 @@ class CentreonMedia
 
     /**
      * Returns name of target directory
+     *
      * @param int $directoryId
+     *
      * @return string
+     * @throws PDOException
      */
     public function getDirectoryName($directoryId)
     {
@@ -141,8 +140,9 @@ class CentreonMedia
      *
      * @param string $dirName
      * @param string $dirAlias
+     *
      * @return int
-     * @throws \Exception
+     * @throws Exception
      */
     public function addDirectory($dirName, $dirAlias = null)
     {
@@ -164,11 +164,11 @@ class CentreonMedia
                 )"
             );
 
-            $statement->bindValue(':dirName', $dirName, \PDO::PARAM_STR);
-            $statement->bindValue(':dirAlias', $dirAlias, \PDO::PARAM_STR);
+            $statement->bindValue(':dirName', $dirName, PDO::PARAM_STR);
+            $statement->bindValue(':dirAlias', $dirAlias, PDO::PARAM_STR);
             $statement->execute();
-        } catch (\PDOException $e) {
-            throw new \Exception('Error while creating directory ' . $dirName, (int) $e->getCode(), $e);
+        } catch (PDOException $e) {
+            throw new Exception('Error while creating directory ' . $dirName, (int) $e->getCode(), $e);
         }
 
         $this->createDirectory($dirName);
@@ -178,7 +178,10 @@ class CentreonMedia
 
     /**
      * Add directory
+     *
      * @param string $dirname
+     *
+     * @throws Exception
      */
     private function createDirectory($dirname): void
     {
@@ -199,16 +202,19 @@ class CentreonMedia
 
     /**
      * Returns ID of target Image
+     *
      * @param string $imagename
-     * @param string $dirname
+     * @param string|null $dirname
+     *
      * @return mixed
+     * @throws PDOException
      */
     public function getImageId($imagename, $dirname = null)
     {
         if (!isset($dirname)) {
             $tab = preg_split("/\//", $imagename);
-            isset($tab[0]) ? $dirname = $tab[0] : $dirname = null;
-            isset($tab[1]) ? $imagename = $tab[1] : $imagename = null;
+            $dirname = $tab[0] ?? null;
+            $imagename = $tab[1] ?? null;
         }
 
         if (!isset($imagename) || !isset($dirname)) {
@@ -234,8 +240,10 @@ class CentreonMedia
     /**
      * Returns the filename from a given id
      *
-     * @param int $imgId
+     * @param int|null $imgId
+     *
      * @return string
+     * @throws PDOException
      */
     public function getFilename($imgId = null)
     {
@@ -258,16 +266,14 @@ class CentreonMedia
         while ($row = $res->fetchRow()) {
             $this->filenames[$row['img_id']] = $row["dir_alias"] . "/" . $row["img_path"];
         }
-        if (isset($this->filenames[$imgId])) {
-            return $this->filenames[$imgId];
-        }
-        return "";
+        return $this->filenames[$imgId] ?? "";
     }
 
     /**
      * Extract files from archive file and returns filenames
      *
      * @param string $archiveFile
+     *
      * @return array
      * @throws Exception
      */
@@ -279,28 +285,14 @@ class CentreonMedia
             throw new Exception('Missing extension');
         }
         $extension = substr($fileName, ($position + 1));
-        $files = array();
-        $allowedExt = array(
-            'zip',
-            'tar',
-            'gz',
-            'tgzip',
-            'tgz',
-            'bz',
-            'tbzip',
-            'tbz',
-            'bzip',
-            'bz2',
-            'tbzip2',
-            'tbz2',
-            'bzip2'
-        );
+        $files = [];
+        $allowedExt = ['zip', 'tar', 'gz', 'tgzip', 'tgz', 'bz', 'tbzip', 'tbz', 'bzip', 'bz2', 'tbzip2', 'tbz2', 'bzip2'];
         if (!in_array(strtolower($extension), $allowedExt)) {
             throw new Exception('Unknown extension');
         }
 
         if (strtolower($extension) == 'zip') {
-            $archiveObj = new \ZipArchive;
+            $archiveObj = new ZipArchive();
             $res = $archiveObj->open($archiveFile);
 
             if ($res !== true) {
@@ -311,31 +303,29 @@ class CentreonMedia
                 $files[] = $archiveObj->statIndex($i)['name'];
             }
         } else {
-            $archiveObj = new \PharData($archiveFile, \Phar::KEY_AS_FILENAME);
+            $archiveObj = new PharData($archiveFile, Phar::KEY_AS_FILENAME);
 
             foreach ($archiveObj as $file) {
                 $files[] = $file->getFilename();
             }
         }
 
-        if (!count($files)) {
+        if ($files === []) {
             throw new Exception('Archive file is empty');
         }
 
         if (strtolower($extension) == 'zip') {
             $archiveObj->extractTo(dirname($archiveFile), $files);
             $archiveObj->close();
-        } else {
-            if (false === $archiveObj->extractTo(dirname($archiveFile), $files)) {
-                throw new Exception('Could not extract files');
-            }
+        } elseif (false === $archiveObj->extractTo(dirname($archiveFile), $files)) {
+            throw new Exception('Could not extract files');
         }
         return $files;
     }
 
     /**
-     *
      * @param string $path
+     *
      * @return string
      */
     private function sanitizePath($path)
@@ -348,18 +338,18 @@ class CentreonMedia
     }
 
     /**
+     * @param array $parameters
+     * @param string|null $binary
      *
-     * @param string $parameters
-     * @param string $binary
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function addImage($parameters, $binary = null)
     {
         $imageId = null;
 
         if (!isset($parameters['img_name']) || !isset($parameters['img_path']) || !isset($parameters['dir_name'])) {
-            throw new \Exception('Cannot add media : missing parameters');
+            throw new Exception('Cannot add media : missing parameters');
         }
 
         if (!isset($parameters['img_comment'])) {
@@ -395,8 +385,8 @@ class CentreonMedia
 
             try {
                 $result = $this->db->query($query);
-            } catch (\PDOException $e) {
-                throw new \Exception('Error while creating image ' . $imageName);
+            } catch (PDOException $e) {
+                throw new Exception('Error while creating image ' . $imageName);
             }
 
             // Get image id
@@ -407,11 +397,11 @@ class CentreonMedia
             $error = false;
             try {
                 $result = $this->db->query($query);
-            } catch (\PDOException $e) {
+            } catch (PDOException $e) {
                 $error = true;
             }
             if ($error || !$result->rowCount()) {
-                throw new \Exception('Error while creating image ' . $imageName);
+                throw new Exception('Error while creating image ' . $imageName);
             }
             $row = $result->fetchRow();
             $imageId = $row['img_id'];
@@ -419,12 +409,12 @@ class CentreonMedia
             // Insert relation between directory and image
             $statement = $this->db->prepare("INSERT INTO view_img_dir_relation (dir_dir_parent_id, img_img_id) " .
                 "VALUES (:dirId, :imgId) ");
-            $statement->bindValue(':dirId', (int) $directoryId, \PDO::PARAM_INT);
-            $statement->bindValue(':imgId', (int) $imageId, \PDO::PARAM_INT);
+            $statement->bindValue(':dirId', (int) $directoryId, PDO::PARAM_INT);
+            $statement->bindValue(':imgId', (int) $imageId, PDO::PARAM_INT);
             try {
                 $statement->execute();
-            } catch (\PDOException $e) {
-                throw new \Exception('Error while inserting relation between' . $imageName . ' and ' . $directoryName);
+            } catch (PDOException $e) {
+                throw new Exception('Error while inserting relation between' . $imageName . ' and ' . $directoryName);
             }
         } else {
             $imageId = $this->getImageId($imageName, $directoryName);
@@ -445,7 +435,7 @@ class CentreonMedia
      * @param string $imagePath
      * @param string $binary
      */
-    private function createImage($directoryPath, $imagePath, $binary)
+    private function createImage($directoryPath, $imagePath, $binary): void
     {
         $fullPath = $directoryPath . '/' . $imagePath;
         $decodedBinary = base64_decode($binary);

@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
@@ -34,83 +34,53 @@
  */
 
 /**
- *  Class tp get metrics for a poller and return this on JSON
+ * Class
+ *
+ * @class centreonGraphPoller
+ * @description Class tp get metrics for a poller and return this on JSON
  */
 class centreonGraphPoller
 {
+    /** @var */
+    public $rrdOptions;
+    /** @var */
+    public $arguments;
+    /** @var */
+    public $metrics;
+    /** @var */
+    public $graphData;
+    /** @var */
     protected $generalOpt;
+    /** @var */
     protected $extraDatas;
-
-    /**
-     *
-     * @var string Rrdtool command line
-     */
+    /** @var string Rrdtool command line */
     private $commandLine;
-
-    /**
-     *
-     * @var int Poller id
-     */
+    /**@var int Poller id */
     private $pollerId;
-
-    /**
-     *
-     * @var array Graph titles
-     */
+    /**@var array Graph titles */
     private $title;
-
-    /**
-     *
-     * @var array
-     */
+    /** @var array */
     private $options;
-
-    /**
-     *
-     * @var array
-     */
+    /** @var array */
     private $differentStats;
-
-    /**
-     *
-     * @var array
-     */
+    /** @var array */
     private $colors;
-
-    /**
-     *
-     * @var \CentreonDB
-     */
+    /** @var \CentreonDB */
     private $db;
-
-    /**
-     *
-     * @var \CentreonDB
-     */
+    /** @var \CentreonDB */
     private $dbMonitoring;
-
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     private $graphName;
-
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     private $nagiosStatsPath;
+    /** @var array */
+    private $metricsInfos = [];
 
     /**
+     * centreonGraphPoller constructor
      *
-     * @var array
-     */
-    private $metricsInfos = array();
-
-    /**
-     *
-     * @param \CentreonDB $db
-     * @param \CentreonDB $dbMonitoring
+     * @param CentreonDB $db
+     * @param CentreonDB $dbMonitoring
      */
     public function __construct($db, $dbMonitoring)
     {
@@ -129,16 +99,13 @@ class centreonGraphPoller
      *
      * @return void
      */
-    public function setPoller($pollerId, $graphName)
+    public function setPoller($pollerId, $graphName): void
     {
         $this->graphName = $graphName;
         $this->pollerId = $pollerId;
-        $this->extraDatas = array(
-            'title' => $this->title[$graphName],
-            'base' => 1000,
-        );
-        $this->rrdOptions = array();
-        $this->arguments = array();
+        $this->extraDatas = ['title' => $this->title[$graphName], 'base' => 1000];
+        $this->rrdOptions = [];
+        $this->arguments = [];
         
         $this->setRRDOption("imgformat", "JSONTIME");
     }
@@ -148,75 +115,28 @@ class centreonGraphPoller
      *
      * @return void
      */
-    private function initGraphOptions()
+    private function initGraphOptions(): void
     {
-        $this->title = array(
-            "active_host_check" => _("Host Check Execution Time"),
-            "active_host_last" => _("Hosts Actively Checked"),
-            "host_latency" => _("Host check latency"),
-            "active_service_check" => _("Service Check Execution Time"),
-            "active_service_last" => _("Services Actively Checked"),
-            "service_latency" => _("Service check latency"),
-            "cmd_buffer" => _("Commands in buffer"),
-            "host_states" => _("Host status"),
-            "service_states" => _("Service status")
-        );
+        $this->title = ["active_host_check" => _("Host Check Execution Time"), "active_host_last" => _("Hosts Actively Checked"), "host_latency" => _("Host check latency"), "active_service_check" => _("Service Check Execution Time"), "active_service_last" => _("Services Actively Checked"), "service_latency" => _("Service check latency"), "cmd_buffer" => _("Commands in buffer"), "host_states" => _("Host status"), "service_states" => _("Service status")];
 
-        $this->colors = array(
-            "Min" => "#88b917",
-            "Max" => "#e00b3d",
-            "Average" => "#00bfb3",
-            "Last_Min" => "#00bfb3",
-            "Last_5_Min" => "#88b917",
-            "Last_15_Min" => "#ff9a13",
-            "Last_Hour" => "#F91D05",
-            "Up" => "#88b917",
-            "Down" => "#e00b3d",
-            "Unreach" => "#818285",
-            "Ok" => "#88b917",
-            "Warn" => "#ff9a13",
-            "Crit" => "#F91D05",
-            "Unk" => "#bcbdc0",
-            "In_Use" => "#88b917",
-            "Max_Used" => "#F91D05",
-            "Total_Available" => "#00bfb3"
-        );
+        $this->colors = ["Min" => "#88b917", "Max" => "#e00b3d", "Average" => "#00bfb3", "Last_Min" => "#00bfb3", "Last_5_Min" => "#88b917", "Last_15_Min" => "#ff9a13", "Last_Hour" => "#F91D05", "Up" => "#88b917", "Down" => "#e00b3d", "Unreach" => "#818285", "Ok" => "#88b917", "Warn" => "#ff9a13", "Crit" => "#F91D05", "Unk" => "#bcbdc0", "In_Use" => "#88b917", "Max_Used" => "#F91D05", "Total_Available" => "#00bfb3"];
 
-        $this->options = array(
-            "active_host_check" => "nagios_active_host_execution.rrd",
-            "active_host_last" => "nagios_active_host_last.rrd",
-            "host_latency" => "nagios_active_host_latency.rrd",
-            "active_service_check" => "nagios_active_service_execution.rrd",
-            "active_service_last" => "nagios_active_service_last.rrd",
-            "service_latency" => "nagios_active_service_latency.rrd",
-            "cmd_buffer" => "nagios_cmd_buffer.rrd",
-            "host_states" => "nagios_hosts_states.rrd",
-            "service_states" => "nagios_services_states.rrd"
-        );
+        $this->options = ["active_host_check" => "nagios_active_host_execution.rrd", "active_host_last" => "nagios_active_host_last.rrd", "host_latency" => "nagios_active_host_latency.rrd", "active_service_check" => "nagios_active_service_execution.rrd", "active_service_last" => "nagios_active_service_last.rrd", "service_latency" => "nagios_active_service_latency.rrd", "cmd_buffer" => "nagios_cmd_buffer.rrd", "host_states" => "nagios_hosts_states.rrd", "service_states" => "nagios_services_states.rrd"];
 
-        $this->differentStats = array(
-            "nagios_active_host_execution.rrd" => array("Min", "Max", "Average"),
-            "nagios_active_host_last.rrd" => array("Last_Min", "Last_5_Min", "Last_15_Min", "Last_Hour"),
-            "nagios_active_host_latency.rrd" => array("Min", "Max", "Average"),
-            "nagios_active_service_execution.rrd" => array("Min", "Max", "Average"),
-            "nagios_active_service_last.rrd" => array("Last_Min", "Last_5_Min", "Last_15_Min", "Last_Hour"),
-            "nagios_active_service_latency.rrd" => array("Min", "Max", "Average"),
-            "nagios_cmd_buffer.rrd" => array("In_Use", "Max_Used", "Total_Available"),
-            "nagios_hosts_states.rrd" => array("Up", "Down", "Unreach"),
-            "nagios_services_states.rrd" => array("Ok", "Warn", "Crit", "Unk")
-        );
+        $this->differentStats = ["nagios_active_host_execution.rrd" => ["Min", "Max", "Average"], "nagios_active_host_last.rrd" => ["Last_Min", "Last_5_Min", "Last_15_Min", "Last_Hour"], "nagios_active_host_latency.rrd" => ["Min", "Max", "Average"], "nagios_active_service_execution.rrd" => ["Min", "Max", "Average"], "nagios_active_service_last.rrd" => ["Last_Min", "Last_5_Min", "Last_15_Min", "Last_Hour"], "nagios_active_service_latency.rrd" => ["Min", "Max", "Average"], "nagios_cmd_buffer.rrd" => ["In_Use", "Max_Used", "Total_Available"], "nagios_hosts_states.rrd" => ["Up", "Down", "Unreach"], "nagios_services_states.rrd" => ["Ok", "Warn", "Crit", "Unk"]];
     }
 
     /**
      * Get rrdtool options
      *
      * @return void
+     * @throws PDOException
      */
-    private function initRrd()
+    private function initRrd(): void
     {
         $DBRESULT = $this->db->query("SELECT * FROM `options`");
 
-        $this->generalOpt = array();
+        $this->generalOpt = [];
         while ($option = $DBRESULT->fetch()) {
             $this->generalOpt[$option["key"]] = $option["value"];
         }
@@ -241,7 +161,7 @@ class centreonGraphPoller
      *
      * @param string $graphName
      */
-    public function setGraphName($graphName = '')
+    public function setGraphName($graphName = ''): void
     {
         $this->graphName = $graphName;
     }
@@ -253,7 +173,7 @@ class centreonGraphPoller
      *
      * @return void
      */
-    public function addArgument($arg)
+    public function addArgument($arg): void
     {
         $this->arguments[] = $arg;
     }
@@ -266,9 +186,9 @@ class centreonGraphPoller
      *
      * @return void
      */
-    public function setRRDOption($name, $value = null)
+    public function setRRDOption($name, $value = null): void
     {
-        if (strpos($value, " ")!==false) {
+        if (str_contains($value, " ")) {
             $value = "'".$value."'";
         }
         $this->rrdOptions[$name] = $value;
@@ -281,7 +201,7 @@ class centreonGraphPoller
      *
      * @return void
      */
-    private function log($message)
+    private function log($message): void
     {
         if ($this->generalOpt['debug_rrdtool'] &&
             is_writable($this->generalOpt['debug_path'])) {
@@ -303,7 +223,7 @@ class centreonGraphPoller
      *
      * @throws RuntimeException
      */
-    public function buildCommandLine($start, $end)
+    public function buildCommandLine($start, $end): void
     {
         $this->extraDatas['start'] = $start;
         $this->extraDatas['end'] = $end;
@@ -311,7 +231,7 @@ class centreonGraphPoller
         $this->setRRDOption("start", $start);
         $this->setRRDOption("end", $end);
         
-        $this->metrics = array();
+        $this->metrics = [];
 
         $metrics = $this->differentStats[$this->options[$this->graphName]];
 
@@ -328,16 +248,7 @@ class centreonGraphPoller
             $this->addArgument("LINE1:v" . $i . "#0000ff:v" . $i);
             $this->addArgument("GPRINT:v" . $i . $metric . ":\"" . $metric . "\:" . $displayformat . "\" ");
 
-            $this->metrics[] = array(
-                "metric_id" => $i,
-                "metric" => $metric,
-                "metric_legend" => $metric,
-                "legend" => $metric,
-                "ds_data" => array(
-                    "ds_filled" => 0,
-                    "ds_color_line" => $this->colors[$metric],
-                )
-            );
+            $this->metrics[] = ["metric_id" => $i, "metric" => $metric, "metric_legend" => $metric, "legend" => $metric, "ds_data" => ["ds_filled" => 0, "ds_color_line" => $this->colors[$metric]]];
 
             $i++;
         }
@@ -387,21 +298,20 @@ class centreonGraphPoller
         $this->log($commandLine);
 
         if (is_writable($this->generalOpt['debug_path'])) {
-            $stderr = array('file', $this->generalOpt['debug_path'] . '/rrdtool.log', 'a');
+            $stderr = ['file', $this->generalOpt['debug_path'] . '/rrdtool.log', 'a'];
         } else {
-            $stderr = array('pipe', 'a');
+            $stderr = ['pipe', 'a'];
         }
-        $descriptorspec = array(
-                            0 => array("pipe", "r"),  // stdin is pipe for reading
-                            1 => array("pipe", "w"),  // stdout is pipe for writing
-                            2 => $stderr // stderr is a file
-                        );
+        $descriptorspec = [
+            0 => ["pipe", "r"],
+            // stdin is pipe for reading
+            1 => ["pipe", "w"],
+            // stdout is pipe for writing
+            2 => $stderr,
+        ];
 
         $process = proc_open($this->generalOpt['rrdtool_path_bin']. " - ", $descriptorspec, $pipes, null, null);
-        $this->graphData = array(
-            'global' => $this->extraDatas,
-            'metrics' => array(),
-        );
+        $this->graphData = ['global' => $this->extraDatas, 'metrics' => []];
         foreach ($this->metrics as $metric) {
             $this->graphData['metrics'][] = $metric;
         }
@@ -428,9 +338,9 @@ class centreonGraphPoller
      *
      * @return void
      */
-    private function formatByMetrics($rrdData)
+    private function formatByMetrics($rrdData): void
     {
-        $this->graphData['times'] = array();
+        $this->graphData['times'] = [];
         $size = count($rrdData['data']);
         $gprintsSize = count($rrdData['meta']['gprints']);
         
@@ -441,8 +351,8 @@ class centreonGraphPoller
         $i = 1;
         $gprintsPos = 0;
         foreach ($this->graphData['metrics'] as &$metric) {
-            $metric['data'] = array();
-            $metric['prints'] = array();
+            $metric['data'] = [];
+            $metric['prints'] = [];
             
             $insert = 0;
             $metricFullname = 'v' . $metric['metric_id'];

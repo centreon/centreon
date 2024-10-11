@@ -98,7 +98,7 @@ switch ($o) {
     case DUPLICATE_COMPONENT_TEMPLATE:
         if (isCSRFTokenValid()) {
             multipleComponentTemplateInDB(
-                isset($selectedCurveTemplates) ? $selectedCurveTemplates : [],
+                $selectedCurveTemplates ?? [],
                 $duplicationNumbers
             );
         } else {
@@ -108,7 +108,7 @@ switch ($o) {
         break;
     case DELETE_COMPONENT_TEMPLATE:
         if (isCSRFTokenValid()) {
-            deleteComponentTemplateInDB(isset($selectedCurveTemplates) ? $selectedCurveTemplates : []);
+            deleteComponentTemplateInDB($selectedCurveTemplates ?? []);
         } else {
             unvalidFormMessage();
         }

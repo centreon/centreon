@@ -25,16 +25,16 @@ namespace Core\Domain\RealTime\Model;
 
 class ServiceStatus extends Status
 {
-    public const STATUS_NAME_OK = 'OK',
-                 STATUS_NAME_WARNING = 'WARNING',
-                 STATUS_NAME_CRITICAL = 'CRITICAL',
-                 STATUS_NAME_UNKNOWN = 'UNKNOWN';
-    public const STATUS_CODE_OK = 0,
-                 STATUS_CODE_WARNING = 1,
-                 STATUS_CODE_CRITICAL = 2,
-                 STATUS_CODE_UNKNOWN = 3;
-    public const STATUS_ORDER_OK = parent::STATUS_ORDER_OK,
-                 STATUS_ORDER_WARNING = parent::STATUS_ORDER_MEDIUM,
-                 STATUS_ORDER_CRITICAL = parent::STATUS_ORDER_HIGH,
-                 STATUS_ORDER_UNKNOWN = parent::STATUS_ORDER_LOW;
+    public const STATUS_NAME_OK = 'OK';
+    public const STATUS_NAME_WARNING = 'WARNING';
+    public const STATUS_NAME_CRITICAL = 'CRITICAL';
+    public const STATUS_NAME_UNKNOWN = 'UNKNOWN';
+    public const STATUS_CODE_OK = 0;
+    public const STATUS_CODE_WARNING = 1;
+    public const STATUS_CODE_CRITICAL = 2;
+    public const STATUS_CODE_UNKNOWN = 3;
+    public const STATUS_ORDER_OK = parent::STATUS_ORDER_OK;
+    public const STATUS_ORDER_WARNING = parent::STATUS_ORDER_MEDIUM;
+    public const STATUS_ORDER_CRITICAL = parent::STATUS_ORDER_HIGH;
+    public const STATUS_ORDER_UNKNOWN = parent::STATUS_ORDER_LOW;
 }

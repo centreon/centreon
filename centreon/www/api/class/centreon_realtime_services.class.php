@@ -34,36 +34,55 @@
  */
 
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once dirname(__FILE__) . "/centreon_configuration_objects.class.php";
-require_once dirname(__FILE__) . "/centreon_realtime_base.class.php";
+require_once __DIR__ . "/centreon_configuration_objects.class.php";
+require_once __DIR__ . "/centreon_realtime_base.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonRealtimeServices
+ */
 class CentreonRealtimeServices extends CentreonRealtimeBase
 {
-    /**
-     * @var CentreonDB
-     */
+    /** @var int|string|null */
+    public $servicegroup;
+    /** @var string|null*/
+    public $searchOutput;
+    /** @var CentreonACL */
     protected $aclObj;
+    /** @var int */
     protected $admin;
 
     /* parameters */
+    /** @var int|null*/
     protected $limit;
+    /** @var int|null*/
     protected $number;
+    /** @var string|null*/
     protected $status;
+    /** @var string|null*/
     protected $hostgroup;
+    /** @var string|null*/
     protected $search;
+    /** @var string|null*/
     protected $searchHost;
+    /** @var string|null*/
     protected $viewType;
+    /** @var string|null*/
     protected $sortType;
+    /** @var string|null*/
     protected $order;
+    /** @var int|null*/
     protected $instance;
+    /** @var string|null*/
     protected $criticality;
-
+    /** @var string|null*/
     protected $fieldList;
-
+    /** @var array|null*/
     protected $criticalityList;
 
     /**
-     * CentreonConfigurationService constructor.
+     * CentreonConfigurationService constructor
      */
     public function __construct()
     {
@@ -85,6 +104,8 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
 
     /**
      * @return array
+     * @throws PDOException
+     * @throws RestBadRequestException
      */
     public function getList()
     {
@@ -93,37 +114,36 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
         return $this->getServiceState();
     }
 
+    /**
+     * @return array
+     */
     protected function getFieldContent()
     {
         $tab = explode(',', $this->arguments['fields']);
 
-        $fieldList = array();
+        $fieldList = [];
         foreach ($tab as $key) {
             $fieldList[$key] = 1;
         }
         return ($fieldList);
     }
 
+    /**
+     * @return void
+     * @throws RestBadRequestException
+     */
     protected function setServiceFilters()
     {
         /* Pagination Elements */
-        if (isset($this->arguments['limit'])) {
-            $this->limit = $this->arguments['limit'];
-        } else {
-            $this->limit = 30;
-        }
-        if (isset($this->arguments['number'])) {
-            $this->number = $this->arguments['number'];
-        } else {
-            $this->number = 0;
-        }
+        $this->limit = $this->arguments['limit'] ?? 30;
+        $this->number = $this->arguments['number'] ?? 0;
         if (!is_numeric($this->number) || !is_numeric($this->limit)) {
             throw new \RestBadRequestException('Error, limit must be numerical');
         }
 
         /* Filters */
         if (isset($this->arguments['status'])) {
-            $statusList = array('ok', 'warning', 'critical', 'unknown', 'pending', 'all');
+            $statusList = ['ok', 'warning', 'critical', 'unknown', 'pending', 'all'];
             if (in_array(strtolower($this->arguments['status']), $statusList)) {
                 $this->status = $this->arguments['status'];
             } else {
@@ -132,60 +152,27 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
         } else {
             $this->status = null;
         }
-        if (isset($this->arguments['hostgroup'])) {
-            $this->hostgroup = $this->arguments['hostgroup'];
-        } else {
-            $this->hostgroup = null;
-        }
-        if (isset($this->arguments['servicegroup'])) {
-            $this->servicegroup = $this->arguments['servicegroup'];
-        } else {
-            $this->servicegroup = null;
-        }
-        if (isset($this->arguments['search'])) {
-            $this->search = $this->arguments['search'];
-        } else {
-            $this->search = null;
-        }
-        if (isset($this->arguments['searchHost'])) {
-            $this->searchHost = $this->arguments['searchHost'];
-        } else {
-            $this->searchHost = null;
-        }
-        if (isset($this->arguments['searchOutput'])) {
-            $this->searchOutput = $this->arguments['searchOutput'];
-        } else {
-            $this->searchOutput = null;
-        }
-        if (isset($this->arguments['instance'])) {
-            $this->instance = $this->arguments['instance'];
-        } else {
-            $this->instance = null;
-        }
+        $this->hostgroup = $this->arguments['hostgroup'] ?? null;
+        $this->servicegroup = $this->arguments['servicegroup'] ?? null;
+        $this->search = $this->arguments['search'] ?? null;
+        $this->searchHost = $this->arguments['searchHost'] ?? null;
+        $this->searchOutput = $this->arguments['searchOutput'] ?? null;
+        $this->instance = $this->arguments['instance'] ?? null;
         // set criticality
         $this->criticality = $this->arguments['criticality'] ?? null;
 
         /* view properties */
-        if (isset($this->arguments['viewType'])) {
-            $this->viewType = $this->arguments['viewType'];
-        } else {
-            $this->viewType = null;
-        }
-        if (isset($this->arguments['sortType'])) {
-            $this->sortType = $this->arguments['sortType'];
-        } else {
-            $this->sortType = null;
-        }
-        if (isset($this->arguments['order'])) {
-            $this->order = $this->arguments['order'];
-        } else {
-            $this->order = null;
-        }
+        $this->viewType = $this->arguments['viewType'] ?? null;
+        $this->sortType = $this->arguments['sortType'] ?? null;
+        $this->order = $this->arguments['order'] ?? null;
     }
 
+    /**
+     * @return void
+     */
     protected function setServiceFieldList()
     {
-        $fields = array();
+        $fields = [];
 
         if (!isset($this->arguments['fields'])) {
             $fields["h.host_id"] = 'host_id';
@@ -206,7 +193,7 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
         } else {
             $tab = explode(',', $this->arguments['fields']);
 
-            $fieldList = array();
+            $fieldList = [];
             foreach ($tab as $key) {
                 $fieldList[trim($key)] = 1;
             }
@@ -360,10 +347,12 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
 
     /**
      * @return array
+     * @throws PDOException
+     * @throws RestBadRequestException
      */
     public function getServiceState()
     {
-        $queryValues = array();
+        $queryValues = [];
 
         /** * *************************************************
          * Get Service status
@@ -429,7 +418,7 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
         if (isset($this->order) && strtoupper($this->order) === 'DESC') {
             $q = 'DESC';
         }
-        $tabOrder = array();
+        $tabOrder = [];
         $tabOrder["criticality_id"] = " ORDER BY criticality $q, h.name, s.description ";
         $tabOrder["service_id"] = " ORDER BY s.service_id $q ";
         $tabOrder["host_name"] = " ORDER BY h.name $q, s.description ";
@@ -571,7 +560,7 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
 
         $stmt->execute();
 
-        $dataList = array();
+        $dataList = [];
         while ($data = $stmt->fetch()) {
             if (isset($data['criticality']) && isset($this->criticalityList[$data['criticality']])) {
                 $data["criticality"] = $this->criticalityList[$data['criticality']];
@@ -581,9 +570,13 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
         return $dataList;
     }
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     protected function getCriticality()
     {
-        $this->criticalityList = array();
+        $this->criticalityList = [];
 
         $sql = "SELECT `sc_id`, `sc_name`, `level`, `icon_id`, `sc_description` FROM `service_categories` " .
             "WHERE `level` IS NOT NULL ORDER BY `level` DESC";
