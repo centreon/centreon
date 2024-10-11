@@ -19,7 +19,6 @@ Given("An admin user is logged in Centreon", () => {
 });
 
 Given("a service with notifications enabled", () => {
-  // cy.setUserTokenApiV1();
      cy.addHostGroup({
        name: data.hostGroups.hostGroup1.name,
      });
@@ -31,13 +30,6 @@ Given("a service with notifications enabled", () => {
        name: data.hosts.host1.name,
        template: "generic-host",
      })
-  // .addService({
-  //      activeCheckEnabled: false,
-  //        host: data.hosts.host1.name,
-  //      maxCheckAttempts: 1,
-  //      name: data.services.service1.name,
-  //      template: "Ping-LAN",
-  //    });
   cy.navigateTo({
     page: "Services by host",
     rootItemNumber: 3,
@@ -100,7 +92,11 @@ When("the configuration is exported", () => {
       cy.navigateTo({ page: "Pollers", rootItemNumber: 3, subMenu: "Pollers" });
       cy.wait("@getUserTimezone");
 
-      cy.getIframeBody().find("h4").contains("Poller").should("exist");
+      cy.get("iframe#main-content")
+        .its("0.contentDocument.body")
+        .find("h4")
+        .contains("Poller")
+        .should("exist");
       cy.getIframeBody()
         .find('button[name="apply_configuration"]')
         .should("be.visible");
