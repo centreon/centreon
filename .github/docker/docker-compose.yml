@@ -28,6 +28,17 @@ services:
           cpus: '0.25'
           memory: 100M
 
+  glpi:
+    env_file:
+      - .env
+    image: "glpi:kdu"
+    ports: ["80"]
+    depends_on:
+      - db
+    profiles: ["glpi"]
+    environment:
+      MYSQL_HOST: db
+
   openid:
     env_file:
       - .env
