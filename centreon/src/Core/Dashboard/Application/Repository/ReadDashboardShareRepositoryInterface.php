@@ -50,6 +50,23 @@ interface ReadDashboardShareRepositoryInterface
     ): array;
 
     /**
+     * Find all contact shares of one dashboard according to the Access Groups IDs.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param Dashboard $dashboard
+     * @param int[] $accessGroupIds
+     *
+     * @throws \Throwable
+     *
+     * @return DashboardContactShare[]
+     */
+    public function findDashboardContactSharesByRequestParameterAndAccessGroups(
+        Dashboard $dashboard,
+        RequestParametersInterface $requestParameters,
+        array $accessGroupIds
+    ): array;
+
+    /**
      * Find all contact group shares of one dashboard.
      *
      * @param RequestParametersInterface $requestParameters
@@ -221,4 +238,21 @@ interface ReadDashboardShareRepositoryInterface
      * @return bool
      */
     public function existsAsEditor(int $dashboardId, ContactInterface $contact): bool;
+
+    /**
+     * Find all contact group shares of one dashboard related to Access Group IDs.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param Dashboard $dashboard
+     * @param int[] $accessGroupIds
+     *
+     * @throws \Throwable
+     *
+     * @return DashboardContactGroupShare[]
+     */
+    public function findDashboardContactGroupSharesByRequestParameterAndAccessGroups(
+        Dashboard $dashboard,
+        RequestParametersInterface $requestParameters,
+        array $accessGroupIds
+    ): array;
 }

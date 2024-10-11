@@ -42,6 +42,8 @@ use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface
 use Core\Dashboard\Application\UseCase\AddContactGroupDashboardShare\AddContactGroupDashboardShare;
 use Core\Dashboard\Application\UseCase\AddContactGroupDashboardShare\AddContactGroupDashboardShareRequest;
 use Core\Dashboard\Application\UseCase\AddContactGroupDashboardShare\AddContactGroupDashboardShareResponse;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Tests\Core\Dashboard\Application\UseCase\AddContactGroupDashboardShare\AddContactGroupDashboardSharePresenterStub;
 
 beforeEach(function (): void {
@@ -53,6 +55,7 @@ beforeEach(function (): void {
         $this->readContactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class),
+        $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class)
     );
 
     $this->testedDashboard = new Dashboard(
@@ -164,6 +167,14 @@ it(
             ->method('findOneByContact')->willReturn($this->testedDashboard);
         $this->readContactGroupRepository->expects($this->once())
             ->method('find')->willReturn($this->testedContactGroup);
+        $this->accessGroupRepository
+            ->expects($this->once())
+            ->method('findByContact')
+            ->willReturn([new AccessGroup(1, 'aGName', 'aGAlias')]);
+        $this->readContactGroupRepository
+            ->expects($this->once())
+            ->method('existsInAccessGroups')
+            ->willReturn(true);
         $this->writeDashboardShareRepository->expects($this->once())
             ->method('upsertShareWithContactGroup');
 

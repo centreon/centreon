@@ -35,12 +35,15 @@ use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Application\Type\NoValue;
+use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class PartialUpdateContactDashboardShare
 {
@@ -52,7 +55,9 @@ final class PartialUpdateContactDashboardShare
         private readonly WriteDashboardShareRepositoryInterface $writeDashboardShareRepository,
         private readonly ContactRepositoryInterface $contactRepository,
         private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly ReadContactRepositoryInterface $readContactRepository,
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository
     ) {
     }
 
@@ -71,7 +76,7 @@ final class PartialUpdateContactDashboardShare
                     $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
                     $response = new NotFoundResponse('Dashboard');
                 } elseif (null === $contact) {
-                    $this->warning('Contact group (%s) not found', ['id' => $contactId]);
+                    $this->warning('Contact (%s) not found', ['id' => $contactId]);
                     $response = new NotFoundResponse('Contact');
                 } else {
                     $this->info('Update a contact share for dashboard', ['id' => $dashboardId, 'contact_id' => $contactId]);
@@ -85,7 +90,7 @@ final class PartialUpdateContactDashboardShare
                     $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
                     $response = new NotFoundResponse('Dashboard');
                 } elseif (null === $contact) {
-                    $this->warning('Contact group (%s) not found', ['id' => $contactId]);
+                    $this->warning('Contact (%s) not found', ['id' => $contactId]);
                     $response = new NotFoundResponse('Contact');
                 }else {
                     $this->info('Update a contact share for dashboard', ['id' => $dashboardId, 'contact_id' => $contactId]);
@@ -156,6 +161,15 @@ final class PartialUpdateContactDashboardShare
             return new ForbiddenResponse(
                 DashboardException::dashboardAccessRightsNotAllowedForWriting($dashboard->getId())
             );
+        }
+
+        $accessGroupIds = array_map(
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $this->accessGroupRepository->findByContact($this->contact)
+        );
+
+        if (! $this->readContactRepository->existInAccessGroups($contact->getId(), $accessGroupIds)) {
+            return new NotFoundResponse('Contact');
         }
 
         if (! ($request->role instanceof NoValue)) {
