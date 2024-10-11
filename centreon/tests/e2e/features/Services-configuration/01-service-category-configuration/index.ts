@@ -118,6 +118,21 @@ Then("the new service category has the same properties", () => {
     .find("table tbody")
     .contains("Ping_1")
     .should("be.visible");
+  cy.get("iframe#main-content")
+    .its("0.contentDocument.body")
+    .find("table tbody")
+    .contains("Ping_1")
+    .click();
+  cy.get("iframe#main-content")
+    .its("0.contentDocument.body")
+    .find("table > tbody > tr.list_one > td.FormRowValue")
+    .contains("Ping_1");
+  cy.getIframeBody()
+    .find("table tr.list_two td.FormRowValue")
+    .find('input[name="sc_description"]')
+    .contains("ping");
+  cy.getIframeBody().contains("Ping-LAN");
+  cy.getIframeBody().contains("Ping-WAN");
 });
 
 When("the user delete a service category", () => {
