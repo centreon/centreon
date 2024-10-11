@@ -9,9 +9,7 @@ interface Props {
   label?: string;
 }
 
-const initialize = ({
-  label = 'Text'
-}: Props): void => {
+const initialize = ({ label = 'Text' }: Props): void => {
   const store = createStore();
 
   store.set(hasEditPermissionAtom, true);
@@ -27,16 +25,14 @@ const initialize = ({
           }}
           onSubmit={cy.stub()}
         >
-          <WidgetWarningField
-            label={label}
-          />
+          <WidgetWarningField label={label} />
         </Formik>
       </Provider>
     )
   });
 };
 
-const label = "Warning message!" ; 
+const label = 'Warning message!';
 
 describe('WidgetTextField', () => {
   it('displays the text field', () => {
@@ -46,5 +42,4 @@ describe('WidgetTextField', () => {
 
     cy.makeSnapshot();
   });
-  
 });

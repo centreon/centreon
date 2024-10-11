@@ -131,3 +131,42 @@ describe('Form list', () => {
     cy.makeSnapshot();
   });
 });
+
+const initializeFile = (): void => {
+  cy.mount({
+    Component: (
+      <Form
+        initialValues={{
+          list: []
+        }}
+        inputs={[
+          {
+            fieldName: 'file',
+            group: '',
+            label: 'json',
+            type: InputType.File,
+            file: {
+              accept: '.json'
+            }
+          }
+        ]}
+        submit={cy.stub()}
+        validationSchema={object()}
+      />
+    )
+  });
+};
+
+describe('File', () => {
+  it('uploads a file when a file is selected', () => {
+    initializeFile();
+
+    cy.contains('Drop or select a file').should('be.visible');
+    cy.findByLabelText('select a file').selectFile('package.json', {
+      force: true
+    });
+    cy.contains('package.json').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+});

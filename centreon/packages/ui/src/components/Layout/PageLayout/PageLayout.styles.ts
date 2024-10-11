@@ -23,7 +23,6 @@ export const useStyles = makeStyles()((theme) => ({
       backgroundColor: theme.palette.layout.body.background
     },
     display: 'grid',
-    gridTemplateRows: 'min-content',
     overflow: 'hidden',
     padding: theme.spacing(1.5, 3, 5)
   },

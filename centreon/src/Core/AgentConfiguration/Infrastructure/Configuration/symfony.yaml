@@ -1,0 +1,24 @@
+services:
+    _defaults:
+        public: false
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
+
+    Core\AgentConfiguration\:
+        resource: '../../../../Core/AgentConfiguration/*'
+
+    _instanceof:
+        Core\AgentConfiguration\Application\Validation\TypeValidatorInterface:
+            tags: ['ac.validators']
+
+    Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\Validator:
+        arguments:
+            $parametersValidators: !tagged_iterator 'ac.validators'
+
+    Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\Validator:
+        arguments:
+            $parametersValidators: !tagged_iterator 'ac.validators'
+
+    # Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface:
+    #     class: Core\AgentConfiguration\Infrastructure\Repository\DbReadAgentConfigurationRepository
+    #     public: true

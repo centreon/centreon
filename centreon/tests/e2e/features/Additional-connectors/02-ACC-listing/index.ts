@@ -68,10 +68,10 @@ Given('an already existing additional connector configuration', () => {
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.contains('Central').click();
-  cy.get('#vCenternamevalue').clear().type('vCenter-001');
-  cy.get('#URLvalue').clear().type('https://10.0.0.0/sdk');
   cy.get('#Usernamevalue').type('admin');
   cy.get('#Passwordvalue').type('Abcde!2021');
+  cy.get('#vCenternamevalue').clear().type('vCenter-001');
+  cy.get('#URLvalue').clear().type('https://10.0.0.0/sdk');
   cy.get('#Portvalue').should('have.value', '5700');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
   cy.wait('@addAdditionalConnector');
@@ -90,9 +90,9 @@ Then('a pop up is displayed with all of the additional connector informations', 
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('be.empty');
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.get('*[class^="MuiChip-label MuiChip-labelMedium"]').should('contain', 'Central');
-  cy.get('#vCenternamevalue').should('have.value', 'vCenter-001');
-  cy.get('#URLvalue').should('have.value', 'https://10.0.0.0/sdk');
   cy.get('#Usernamevalue').should('be.empty');
   cy.get('#Passwordvalue').should('be.empty');
+  cy.get('#vCenternamevalue').should('have.value', 'vCenter-001');
+  cy.get('#URLvalue').should('have.value', 'https://10.0.0.0/sdk');
   cy.get('#Portvalue').should('have.value', '5700');
 });

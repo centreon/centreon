@@ -1,0 +1,62 @@
+delete:
+  tags:
+    - Poller/agent configuration
+  summary: "Delete a poller/agent configuration"
+  description: "Delete a poller/agent configuration"
+  parameters:
+    - $ref: 'QueryParameter/AgentConfigurationId.yaml'
+  responses:
+    '204':
+      $ref: '../../Common/Response/NoContent.yaml'
+    '400':
+      $ref: '../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'
+put:
+  tags:
+    - Poller/agent configuration
+  summary: "Update a poller/agent configuration"
+  description: "Update a poller/agent configuration"
+  parameters:
+    - $ref: 'QueryParameter/AgentConfigurationId.yaml'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'Schema/UpdateAcRequest.yaml'
+  responses:
+    '204':
+      $ref: '../../Common/Response/NoContent.yaml'
+    '400':
+      $ref: '../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'
+get:
+  tags:
+    - Poller/agent configuration
+  summary: "Get a poller/agent configuration"
+  description: "Get a poller/agent configuration"
+  parameters:
+    - $ref: 'QueryParameter/AgentConfigurationId.yaml'
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/GetAcResponse.yaml'
+    '400':
+      $ref: '../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '500':
