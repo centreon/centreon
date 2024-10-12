@@ -50,15 +50,15 @@ final class PartialUpdateDashboardRequest
      *        min_height: int
      *    },
      *    widget_type: string,
-     *    widget_settings: array<mixed>,
+     *    widget_settings: string,
      *}> $panels
      */
     public function __construct(
         #[Assert\Type('string')]
         #[Assert\Length(min: 1, max: 200)]
-        public ?string $name = null,
+        public mixed $name = null,
         #[Assert\Type('string')]
-        public ?string $description = null,
+        public mixed $description = null,
         #[Assert\Collection(
             fields: [
                 'type' => [
@@ -67,8 +67,8 @@ final class PartialUpdateDashboardRequest
                     new Assert\Choice(['global', 'manual']),
                 ],
                 'interval' => [
-                    new Assert\Type('numeric'),
                     new Assert\NotNull(),
+                    new Assert\Type('numeric'),
                     new Assert\Positive(),
                 ],
             ]
@@ -138,8 +138,11 @@ final class PartialUpdateDashboardRequest
                         new Assert\NotNull(),
                         new Assert\Type('string'),
                     ],
-                    // nothing more can be done here as widget_settings are specific to widgets...
-                    'widget_settings' => new Assert\Required(),
+                    'widget_settings' => [
+                        new Assert\NotNull(),
+                        new Assert\Type('string'),
+                        new Assert\Json(),
+                    ],
                 ]
             )
         )]
@@ -220,7 +223,7 @@ final class PartialUpdateDashboardRequest
                 name: $panel['name'],
                 layout: $panelLayoutRequestDto,
                 widgetType: $panel['widget_type'],
-                widgetSettings: ! \is_array($panel['widget_settings']) ? [] : $panel['widget_settings'],
+                widgetSettings: ! is_array(json_decode($panel['widget_settings'], true)) ? [] : json_decode($panel['widget_settings'], true),
             );
         }
 
