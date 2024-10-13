@@ -34,30 +34,29 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
     onSuccess: invalidateQueries
   });
 
-  
-  
   const mutate = (variables: Dashboard): Promise<Dashboard | ResponseError> => {
     const formData = new FormData();
 
-    pick(['name', 'description', 'refresh'], variables)
-  
+    pick(['name', 'description', 'refresh'], variables);
+
     formData.append('name', variables.name);
     formData.append('description', variables.description);
 
-    if(variables?.refresh){
+    if (variables?.refresh) {
       formData.append('refresh[type]', variables.refresh.type);
-      formData.append('refresh[interval]', JSON.stringify(variables.refresh.interval));
+      formData.append(
+        'refresh[interval]',
+        JSON.stringify(variables.refresh.interval)
+      );
     }
-    
-    
-    return  mutateAsync({
+
+    return mutateAsync({
       _meta: {
         id: variables.id
       },
       payload: formData
     });
-
-  }
+  };
 
   return {
     mutate,

@@ -24,7 +24,6 @@ import {
   Panel,
   PanelConfiguration,
   QuitWithoutSavedDashboard,
-  Thumbnail,
   WidgetOptions
 } from './models';
 

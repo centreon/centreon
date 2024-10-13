@@ -11,58 +11,56 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
-    DashboardGlobalRole,
-    ListingVariant,
-    additionalResourcesAtom,
-    federatedWidgetsAtom,
-    platformVersionsAtom,
-    refreshIntervalAtom,
-    userAtom
+  DashboardGlobalRole,
+  ListingVariant,
+  additionalResourcesAtom,
+  federatedWidgetsAtom,
+  platformVersionsAtom,
+  refreshIntervalAtom,
+  userAtom
 } from '@centreon/ui-context';
 
 import { federatedWidgetsPropertiesAtom } from '../../../federatedModules/atoms';
 import {
-    dashboardSharesEndpoint,
-    dashboardsContactsEndpoint,
-    dashboardsEndpoint,
-    getDashboardEndpoint,
-  mediasEndpoint
+  dashboardSharesEndpoint,
+  dashboardsContactsEndpoint,
+  dashboardsEndpoint,
+  getDashboardEndpoint
 } from '../../api/endpoints';
 import { DashboardRole } from '../../api/models';
 import {
-    labelAddAContact,
-    labelDelete,
-    labelSharesSaved
+  labelAddAContact,
+  labelDelete,
+  labelSharesSaved
 } from '../../translatedLabels';
 
-import { dashboardAtom } from './atoms';
 import Dashboard from './Dashboard';
+import { internalWidgetComponents } from './Widgets/widgets';
+import { dashboardAtom } from './atoms';
 import { routerParams } from './hooks/useDashboardDetails';
 import { saveBlockerHooks } from './hooks/useDashboardSaveBlocker';
 import {
-    labelAddAWidget,
-    labelCancel,
-    labelDeleteWidget,
-    labelDoYouWantToSaveChanges,
-    labelDuplicate,
-    labelEditDashboard,
-    labelEditWidget,
-    labelGlobalRefreshInterval,
-    labelIfYouClickOnDiscard,
-    labelInterval,
-    labelManualRefreshOnly,
-    labelMoreActions,
-    labelPleaseContactYourAdministrator,
-    labelSave,
-    labelTitle,
-    labelViewProperties,
-    labelWidgetType,
-    labelYourRightsOnlyAllowToView
+  labelAddAWidget,
+  labelCancel,
+  labelDeleteWidget,
+  labelDoYouWantToSaveChanges,
+  labelDuplicate,
+  labelEditDashboard,
+  labelEditWidget,
+  labelGlobalRefreshInterval,
+  labelIfYouClickOnDiscard,
+  labelInterval,
+  labelManualRefreshOnly,
+  labelMoreActions,
+  labelPleaseContactYourAdministrator,
+  labelSave,
+  labelTitle,
+  labelViewProperties,
+  labelWidgetType,
+  labelYourRightsOnlyAllowToView
 } from './translatedLabels';
-import { internalWidgetComponents } from './Widgets/widgets';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {
-
   const store = createStore();
   store.set(federatedWidgetsAtom, internalWidgetComponents);
   store.set(federatedWidgetsPropertiesAtom, [
@@ -187,16 +185,9 @@ const initializeAndMount = ({
   });
 
   cy.interceptAPIRequest({
-    alias: 'patchDashboardDetails',
-    method: Method.PATCH,
-    path: getDashboardEndpoint('1'),
-    statusCode: 201
-  });
-
-  cy.interceptAPIRequest({
-    alias: 'postMedia',
+    alias: 'updateDashboard',
     method: Method.POST,
-    path: `./api/latest${mediasEndpoint}`,
+    path: getDashboardEndpoint('1'),
     statusCode: 201
   });
 
@@ -639,7 +630,7 @@ describe('Dashboard', () => {
 
   describe('Route blocking', () => {
     it('saves changes when a dashboard is being edited, a dashboard is updated, the user goes to another page and the corresponding button is clicked', () => {
-      const { proceedNavigation } = initializeAndMount({
+      initializeAndMount({
         ...editorRoles,
         isBlocked: true
       });
@@ -654,10 +645,20 @@ describe('Dashboard', () => {
 
       cy.findByTestId('confirm').click();
 
-      cy.waitForRequest('@patchDashboardDetails').then(() => {
-        expect(proceedNavigation).to.have.been.calledWith();
+      cy.waitForRequest('@updateDashboard').then(({ request }) => {
+        const formData = new URLSearchParams(request.body);
+
+        const formDataObj = {};
+        formData.forEach((value, key) => {
+          formDataObj[key] = value;
+        });
+
+      expect(formDataObj).to.include({
+        'thumbnail[directory]': 'dashboards',
+        'thumbnail[name]': 'dashboard-1.png'
+      })
+
       });
-      cy.waitForRequest('@postMedia');
 
       cy.makeSnapshot();
     });
