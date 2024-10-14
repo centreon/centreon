@@ -44,10 +44,12 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
 
     if (variables?.refresh) {
       formData.append('refresh[type]', variables.refresh.type);
-      formData.append(
-        'refresh[interval]',
-        JSON.stringify(variables.refresh.interval)
-      );
+      if (variables.refresh.interval){
+        formData.append(
+          'refresh[interval]',
+          JSON.stringify(variables.refresh.interval)
+        );
+      }
     }
 
     return mutateAsync({
