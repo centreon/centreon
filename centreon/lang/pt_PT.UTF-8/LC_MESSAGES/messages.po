@@ -18159,3 +18159,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Clock / Timer"
 # msgstr ""
+
+# msgid "The data displayed in each dashboard is intended for representative use only."
+# msgstr ""

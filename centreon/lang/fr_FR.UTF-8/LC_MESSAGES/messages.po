@@ -19463,7 +19463,7 @@ msgid "If ticket management is enabled, only the “by service” view is availa
 msgstr "Si la gestion des tickets est activé, seule la vue par service est disponible."
 
 msgid "Ticket management"
-msgstr "gestion des tickets"
+msgstr "Gestion des tickets"
 
 msgid "Displays the time according to the selected time zone, or a timer."
 msgstr "Affiche l'heure en fonction du fuseau horaire sélectionné, ou un minuteur."
@@ -19471,8 +19471,5 @@ msgstr "Affiche l'heure en fonction du fuseau horaire sélectionné, ou un minut
 msgid "Clock / Timer"
 msgstr "Horloge/Minuteur"
 
-# msgid "Displays the time according to the selected time zone, or a timer."
-# msgstr ""
-
-# msgid "Clock / Timer"
-# msgstr ""
+msgid "The data displayed in each dashboard is intended for representative use only."
+msgstr "Les données affichées dans chaque tableau de bord sont à titre représentatif uniquement."

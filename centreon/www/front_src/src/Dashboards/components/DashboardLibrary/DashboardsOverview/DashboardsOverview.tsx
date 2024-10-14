@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { generatePath, useNavigate } from 'react-router-dom';
 
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 import { userAtom } from '@centreon/ui-context';
 import { DataTable, Tooltip } from '@centreon/ui/components';
@@ -19,6 +19,7 @@ import { Dashboard } from '../../../api/models';
 import { DashboardLayout } from '../../../models';
 import {
   labelCreateADashboard,
+  labelDataDisplayedForRepresentativeUse,
   labelSaveYourDashboardForThumbnail,
   labelWelcomeToDashboardInterface
 } from '../../../translatedLabels';
@@ -32,6 +33,7 @@ import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDash
 import { useStyles } from './DashboardsOverview.styles';
 import { DashboardsOverviewSkeleton } from './DashboardsOverviewSkeleton';
 import { useDashboardsOverview } from './useDashboardsOverview';
+import WarningdIcon from '@mui/icons-material/ErrorOutlineOutlined';
 
 const DashboardsOverview = (): ReactElement => {
   const { classes } = useStyles();
@@ -98,39 +100,48 @@ const DashboardsOverview = (): ReactElement => {
   }
 
   const GridTable = (
-    <DataTable isEmpty={isEmptyList} variant="grid">
-      {dashboards.map((dashboard) => (
-        <div className={classes.dashboardItemContainer} key={dashboard.id}>
-          <DataTable.Item
-            hasCardAction
-            Actions={<DashboardCardActions dashboard={dashboard} />}
-            description={dashboard.description ?? undefined}
-            hasActions={hasEditPermission(dashboard)}
-            thumbnail={
-              dashboard.thumbnail
-                ? getThumbnailSrc(dashboard)
-                : fallbackThumbnail
-            }
-            title={dashboard.name}
-            onClick={navigateToDashboard(dashboard)}
-          />
-          {!dashboard.thumbnail && (
-            <Box className={classes.thumbnailFallbackIcon}>
-              <Tooltip
-                followCursor={false}
-                label={t(labelSaveYourDashboardForThumbnail)}
-                placement="top"
-              >
-                <InfoOutlinedIcon
-                  color="primary"
-                  data-testid="thumbnail-fallback"
-                />
-              </Tooltip>
-            </Box>
-          )}
-        </div>
-      ))}
-    </DataTable>
+    <div>
+        <Box className={classes.warningContainer}>
+          <WarningdIcon color='primary'/>
+          <Typography className={classes.warning} >
+            {t(labelDataDisplayedForRepresentativeUse)}
+          </Typography>
+        </Box>
+        <DataTable isEmpty={isEmptyList} variant="grid">
+          {dashboards.map((dashboard) => (
+            <div className={classes.dashboardItemContainer} key={dashboard.id}>
+              <DataTable.Item
+                hasCardAction
+                Actions={<DashboardCardActions dashboard={dashboard} />}
+                description={dashboard.description ?? undefined}
+                hasActions={hasEditPermission(dashboard)}
+                thumbnail={
+                  dashboard.thumbnail
+                    ? getThumbnailSrc(dashboard)
+                    : fallbackThumbnail
+                }
+                title={dashboard.name}
+                onClick={navigateToDashboard(dashboard)}
+              />
+              {!dashboard.thumbnail && (
+                <Box className={classes.thumbnailFallbackIcon}>
+                  <Tooltip
+                    followCursor={false}
+                    label={t(labelSaveYourDashboardForThumbnail)}
+                    placement="top"
+                  >
+                    <InfoOutlinedIcon
+                      color="primary"
+                      data-testid="thumbnail-fallback"
+                    />
+                  </Tooltip>
+                </Box>
+              )}
+            </div>
+          ))}
+        </DataTable>
+
+    </div>
   );
 
   return (
