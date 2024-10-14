@@ -3,7 +3,7 @@ ARG FROM_IMAGE_VERSION=develop
 
 FROM ${REGISTRY_URL}/centreon-web-dependencies-alma8:${FROM_IMAGE_VERSION}
 
-ARG VERSION
+ARG STABILITY
 
 COPY --chmod=755 ./.github/docker/centreon-web/alma8/entrypoint /usr/share/centreon
 COPY --chown=apache:apache ./.github/docker/centreon-web/alma8/configuration /usr/share/centreon/www/install/tmp
@@ -12,9 +12,15 @@ COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 
 RUN --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <<EOF
 
+if [[ "$STABILITY" == "testing" ]]; then
+  dnf config-manager --set-disabled 'centreon*unstable'
+elif [[ "$STABILITY" == "stable" ]]; then
+  dnf config-manager --set-disabled 'centreon*unstable' --set-disabled 'centreon*testing'
+fi
+
 dnf install -y /tmp/packages-centreon/centreon-*.rpm
 
-echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
+sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php.d/20-timezone.ini
 
 touch /var/log/php-fpm/centreon-error.log
 chown apache:apache /var/log/php-fpm/centreon-error.log
@@ -29,7 +35,7 @@ dnf clean all
 
 EOF
 
-EXPOSE 80 3306
+EXPOSE 80
 
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
 

@@ -2,6 +2,7 @@ import { makeStyles } from 'tss-react/mui';
 
 export const useStyles = makeStyles()((theme) => ({
   pageLayout: {
+    height: '100%',
     display: 'grid',
     gridTemplateRows: 'auto 1fr',
     height: '100%',
@@ -23,8 +24,11 @@ export const useStyles = makeStyles()((theme) => ({
     '&[data-has-background="true"]': {
       backgroundColor: theme.palette.layout.body.background
     },
-    height: '100%',
+    '&[data-has-actions="true"]': {
+      gridTemplateRows: 'min-content auto',
+    },
     display: 'grid',
+    gridTemplateRows: 'auto',
     overflow: 'hidden',
     padding: theme.spacing(1.5, 3, 5)
   },
