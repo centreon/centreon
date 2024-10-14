@@ -1,5 +1,8 @@
+import pluralize from 'pluralize';
 import {
+  __,
   allPass,
+  compose,
   concat,
   endsWith,
   filter,
@@ -24,33 +27,31 @@ import {
   sortBy,
   split,
   startsWith,
+  toLower,
   trim,
-  without,
-  __,
-  compose
+  without
 } from 'ramda';
-import pluralize from 'pluralize';
 
 import type { SelectEntry } from '@centreon/ui';
 
+import getDefaultCriterias from '../default';
 import {
-  Criteria,
-  CriteriaDisplayProps,
+  type Criteria,
+  type CriteriaDisplayProps,
   criteriaValueNameById,
   selectableCriterias
 } from '../models';
-import getDefaultCriterias from '../default';
 
 import {
-  CriteriaId,
-  criteriaNameToQueryLanguageName,
+  type AutocompleteSuggestionProps,
+  type CriteriaId,
+  type CriteriaValueSuggestionsProps,
   criteriaNameSortOrder,
-  CriteriaValueSuggestionsProps,
-  searchableFields,
-  AutocompleteSuggestionProps,
-  staticCriteriaNames,
+  criteriaNameToQueryLanguageName,
+  dynamicCriteriaValuesByName,
   getSelectableCriteriasByName,
-  dynamicCriteriaValuesByName
+  searchableFields,
+  staticCriteriaNames
 } from './models';
 
 const singular = pluralize.singular as (string) => string;
@@ -110,7 +111,7 @@ const parse = ({
         const isStaticCriteria = isNil(objectType);
 
         if (isStaticCriteria) {
-          const id = getCriteriaNameFromQueryLanguageName(value);
+          const id = getCriteriaNameFromQueryLanguageName(toLower(value));
 
           return {
             id,
@@ -344,17 +345,20 @@ const getAutocompleteSuggestions = ({
 
     const criteriaValueSuggestions = getCriteriaValueSuggestions({
       criterias: allCriterias,
-      selectedValues: expressionCriteriaValues
+      selectedValues: map(toLower, expressionCriteriaValues)
     });
 
     const isLastValueInSuggestions = getCriteriaValueSuggestions({
       criterias: allCriterias,
       selectedValues: []
-    }).includes(lastCriteriaValue);
+    }).includes(toLower(lastCriteriaValue));
 
     return isLastValueInSuggestions
       ? map(concat(','), criteriaValueSuggestions)
-      : filter(startsWith(lastCriteriaValue), criteriaValueSuggestions);
+      : filter(
+          startsWith(toLower(lastCriteriaValue)),
+          criteriaValueSuggestions
+        );
   }
 
   return reject(includes(__, search), getCriteriaNameSuggestions(criteriaName));
@@ -366,5 +370,5 @@ export {
   getAutocompleteSuggestions,
   getDynamicCriteriaParametersAndValue,
   searchableFields,
-  DynamicCriteriaParametersAndValues
+  type DynamicCriteriaParametersAndValues
 };

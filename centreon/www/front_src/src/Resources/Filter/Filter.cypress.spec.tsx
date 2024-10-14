@@ -1,36 +1,36 @@
+import { renderHook } from '@testing-library/react-hooks/dom';
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { useAtomValue } from 'jotai';
-import { renderHook } from '@testing-library/react-hooks/dom';
 import * as Ramda from 'ramda';
 
-import { TestQueryProvider, Method } from '@centreon/ui';
+import { Method, TestQueryProvider } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
-import {
-  labelSearch,
-  labelAllAlerts,
-  labelAll,
-  labelSearchOptions,
-  labelType,
-  labelHost,
-  labelState,
-  labelAcknowledged,
-  labelStatus,
-  labelOk,
-  labelStatusType,
-  labelStateFilter,
-  labelSoft,
-  labelHostGroup,
-  labelServiceGroup
-} from '../translatedLabels';
 import useListing from '../Listing/useListing';
 import useLoadResources from '../Listing/useLoadResources';
 import {
+  type EndpointParams,
   defaultStatuses,
   getListingEndpoint,
-  searchableFields,
-  EndpointParams
+  searchableFields
 } from '../testUtils';
+import {
+  labelAcknowledged,
+  labelAll,
+  labelAllAlerts,
+  labelHost,
+  labelHostGroup,
+  labelOk,
+  labelSearch,
+  labelSearchOptions,
+  labelServiceGroup,
+  labelSoft,
+  labelState,
+  labelStateFilter,
+  labelStatus,
+  labelStatusType,
+  labelType
+} from '../translatedLabels';
 
 import useFilter from './useFilter';
 
@@ -350,6 +350,117 @@ describe('Custom filters', () => {
       cy.waitForRequest(`@request/${criteria}`);
 
       cy.makeSnapshot();
+    });
+  });
+});
+
+const staticFilters = [
+  {
+    criteriaInitialValue: 'HARD',
+    criteriaName: 'status_type',
+    expectedCriteriaValue: 'hard',
+    expectedSuggestedCriteria: ',soft',
+    id: 'Status type'
+  },
+  {
+    criteriaInitialValue: 'HOST',
+    criteriaName: 'type',
+    expectedCriteriaValue: 'host',
+    expectedSuggestedCriteria: ',service',
+    id: 'Type'
+  },
+  {
+    criteriaInitialValue: 'UNHANDLED',
+    criteriaName: 'state',
+    expectedCriteriaValue: 'unhandled',
+    expectedSuggestedCriteria: ',acknowledged',
+    id: 'State'
+  },
+  {
+    criteriaInitialValue: 'UP',
+    criteriaName: 'status',
+    expectedCriteriaValue: 'up',
+    expectedSuggestedCriteria: ',down',
+    id: 'Status'
+  }
+];
+
+describe.only('search bar:ignores case sensitivity when searching static filters', () => {
+  beforeEach(() => {
+    cy.interceptAPIRequest({
+      alias: 'filterRequest',
+      method: Method.GET,
+      path: '**/events-view*',
+      response: emptyListData
+    });
+
+    cy.mount({
+      Component: <FilterWithProvider />
+    });
+  });
+
+  staticFilters.forEach((data) => {
+    const {
+      criteriaName,
+      criteriaInitialValue,
+      expectedCriteriaValue,
+      id,
+      expectedSuggestedCriteria
+    } = data;
+
+    it('ignores case sensitivity when searching static filters', () => {
+      cy.findByPlaceholderText(labelSearch).clear();
+
+      const formmatedExpectedValue = `${expectedCriteriaValue
+        .substring(0, 1)
+        .toUpperCase()}${expectedCriteriaValue.substring(1)}`;
+      const getSearch = ({ value, name }): string => `${name}:${value}`;
+
+      cy.findByPlaceholderText(labelSearch).type(
+        `${getSearch({
+          name: criteriaName,
+          value: criteriaInitialValue
+        })}{esc}{enter}`
+      );
+
+      cy.findByPlaceholderText(labelSearch)
+        .invoke('val')
+        .should(
+          'equal',
+          `${getSearch({ name: criteriaName, value: expectedCriteriaValue })} `
+        );
+
+      cy.findByLabelText(labelSearchOptions).click();
+
+      cy.findAllByRole('button', { name: `1 ${id}` })
+        .eq(1)
+        .as('container');
+
+      cy.get('@container').click();
+
+      cy.findByRole('option', {
+        name: formmatedExpectedValue
+      }).should('have.attr', 'aria-selected', 'true');
+    });
+
+    it('displays the corresponding suggestoins when searching static filters', () => {
+      cy.findByPlaceholderText(labelSearch).clear();
+
+      cy.findByPlaceholderText(labelSearch).type(
+        `${criteriaName}:${criteriaInitialValue.substring(0, 1)}`
+      );
+      cy.findByRole('menuitem', { name: expectedCriteriaValue });
+
+      cy.findByPlaceholderText(labelSearch).clear();
+      cy.findByPlaceholderText(labelSearch).type(
+        `${criteriaName}:${criteriaInitialValue}`
+      );
+      cy.findByRole('menuitem', { name: expectedCriteriaValue }).should(
+        'not.exist'
+      );
+      cy.findByRole('menuitem', { name: expectedSuggestedCriteria }).should(
+        'exist'
+      );
     });
   });
 });
