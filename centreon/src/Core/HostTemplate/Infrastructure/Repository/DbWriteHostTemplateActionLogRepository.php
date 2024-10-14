@@ -69,7 +69,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
     {
         try {
             $hostTemplate = $this->readHostTemplateRepository->findById($hostTemplateId);
-            if ($hostTemplateId === null) {
+            if ($hostTemplate === null) {
                 throw new RepositoryException('Cannot find host template to delete');
             }
 
