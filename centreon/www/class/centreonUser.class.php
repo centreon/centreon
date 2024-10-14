@@ -480,7 +480,7 @@ class CentreonUser
      * @param CentreonDB $db
      * @param array $parameters
      *
-     * @return void
+     * @return null|void
      * @throws PDOException
      */
     public function setContactParameters($db, $parameters = [])
