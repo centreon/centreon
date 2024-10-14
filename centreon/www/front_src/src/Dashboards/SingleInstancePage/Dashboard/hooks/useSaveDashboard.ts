@@ -55,7 +55,7 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
 function dataToFormData(panels, formData) {
 
     if( isEmpty(panels) || isNil(panels) ){
-      formData.append('panels', JSON.stringify([]));
+      formData.append('panels[]', "");
 
       return;
     }
