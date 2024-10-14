@@ -82,7 +82,7 @@ apt-get clean
 
 EOF
 
-COPY --chmod=755 ./.github/docker/glpi/start.sh /opt/glpi/bin/start.sh
+COPY --chmod=755 ./.github/docker/glpi/entrypoint.sh /opt/glpi/bin/start.sh
 
 EXPOSE 80
 

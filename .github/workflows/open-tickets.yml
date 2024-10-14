@@ -171,6 +171,107 @@ jobs:
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
           stability: ${{ needs.get-version.outputs.stability }}
 
+  dockerize:
+    runs-on: ubuntu-24.04
+    needs: [get-version, package]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
+
+    env:
+      project: centreon-open-tickets
+    strategy:
+      fail-fast: false
+      matrix:
+        operating_system: [alma9]
+
+    name: dockerize ${{ matrix.operating_system }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+
+      - name: Generate information according to matrix os
+        id: matrix_include
+        run: |
+          if [ "${{ matrix.operating_system }}" = "alma8" ]; then
+            DISTRIB=el8
+            PACKAGE_EXTENSION=rpm
+          elif [ "${{ matrix.operating_system }}" = "alma9" ]; then
+            DISTRIB=el9
+            PACKAGE_EXTENSION=rpm
+          elif [ "${{ matrix.operating_system }}" = "bookworm" ]; then
+            DISTRIB=bookworm
+            PACKAGE_EXTENSION=deb
+          elif [ "${{ matrix.operating_system }}" = "jammy" ]; then
+            DISTRIB=jammy
+            PACKAGE_EXTENSION=deb
+          else
+            echo "::error::${{ matrix.operating_system }} is not managed"
+            exit 1
+          fi
+
+          echo "distrib=$DISTRIB" >> $GITHUB_OUTPUT
+          echo "package_extension=$PACKAGE_EXTENSION" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Login to registry
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.DOCKER_REGISTRY_ID }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+
+      - name: Get FROM image tag
+        id: from_image_version
+        run: |
+          FROM_IMAGE_VERSION="${{ needs.get-version.outputs.major_version }}"
+          FROM_IMAGE="centreon-web-${{ matrix.operating_system }}"
+          IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.head_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
+          if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
+            FROM_IMAGE_VERSION="${{ github.head_ref || github.ref_name }}"
+            echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
+          else
+            IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.base_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
+            if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
+              FROM_IMAGE_VERSION="${{ github.base_ref || github.ref_name }}"
+              echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
+            fi
+          fi
+
+          echo "from_image_version=$FROM_IMAGE_VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: ./*.${{ steps.matrix_include.outputs.package_extension }}
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
+          fail-on-cache-miss: true
+
+      - run: |
+          mkdir packages-centreon
+          mv *.${{ steps.matrix_include.outputs.package_extension }} packages-centreon/
+        shell: bash
+
+      - uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # v3.6.1
+
+      - name: Build and push web image
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
+        env:
+          DOCKER_BUILD_CHECKS_ANNOTATIONS: false
+          DOCKER_BUILD_SUMMARY: false
+          DOCKER_BUILD_RECORD_UPLOAD: false
+        with:
+          file: .github/docker/${{ env.project }}/Dockerfile
+          context: .
+          build-args: |
+            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+            "VERSION=${{ needs.get-version.outputs.major_version }}"
+            "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
+            "STABILITY=${{ needs.get-version.outputs.stability }}"
+          pull: true
+          push: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
+
   deliver-sources:
     runs-on: [self-hosted, common]
     needs: [get-version, package]
