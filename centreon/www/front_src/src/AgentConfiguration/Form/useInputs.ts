@@ -19,8 +19,6 @@ import {
   labelOTLPReceiver,
   labelOTelServer,
   labelParameters,
-  labelPollerCaCertificateFileName,
-  labelPollerCaName,
   labelPollers,
   labelPort,
   labelPrivateKey,
@@ -42,9 +40,9 @@ export const useInputs = (): {
   const [agentTypeForm, setAgentTypeForm] = useAtom(agentTypeFormAtom);
 
   const isCMA = equals(agentTypeForm, AgentType.CMA);
-  const publicCertificateProperty = `configuration.${isCMA ? 'otlpCertificate' : 'otelPublicCertificate'}`;
-  const caCertificateProperty = `configuration.${isCMA ? 'otlpCaCertificate' : 'otelCaCertificate'}`;
-  const privateKeyProperty = `configuration.${isCMA ? 'otlpPrivateKey' : 'otelPrivateKey'}`;
+  const publicCertificateProperty = 'configuration.otelPublicCertificate';
+  const caCertificateProperty = 'configuration.otelCaCertificate';
+  const privateKeyProperty = 'configuration.otelPrivateKey';
 
   return {
     groups: [
@@ -91,16 +89,15 @@ export const useInputs = (): {
                       }
                     : {
                         isReverse: true,
-                        otlpCertificate: '',
-                        otlpCaCertificate: null,
-                        otlpCaCertificateName: null,
-                        otlpPrivateKey: '',
+                        otelPublicCertificate: '',
+                        otelCaCertificate: null,
+                        otelPrivateKey: '',
                         hosts: [
                           {
                             address: '',
                             port: '',
-                            certificate: '',
-                            key: ''
+                            pollerCaCertificate: '',
+                            pollerCaName: ''
                           }
                         ]
                       }
@@ -174,7 +171,7 @@ export const useInputs = (): {
                   {
                     type: InputType.Text,
                     fieldName: caCertificateProperty,
-                    required: true,
+                    required: false,
                     label: t(labelCaCertificate)
                   },
                   {
@@ -182,32 +179,6 @@ export const useInputs = (): {
                     fieldName: privateKeyProperty,
                     required: true,
                     label: t(labelPrivateKey)
-                  },
-                  {
-                    type: InputType.Custom,
-                    fieldName: 'empty',
-                    label: '',
-                    custom: {
-                      Component: Empty
-                    }
-                  },
-                  {
-                    type: InputType.Text,
-                    fieldName: 'configuration.pollerCaCertificate',
-                    hideInput: (values) =>
-                      equals(values?.type?.id, AgentType.Telegraf) ||
-                      !values?.configuration?.isReverse,
-                    required: false,
-                    label: t(labelPollerCaCertificateFileName)
-                  },
-                  {
-                    type: InputType.Text,
-                    fieldName: 'configuration.pollerCaName',
-                    hideInput: (values) =>
-                      equals(values?.type?.id, AgentType.Telegraf) ||
-                      !values?.configuration?.isReverse,
-                    required: false,
-                    label: t(labelPollerCaName)
                   }
                 ],
                 gridTemplateColumns: 'repeat(2, 1fr)'

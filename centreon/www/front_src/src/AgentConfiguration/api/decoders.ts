@@ -53,20 +53,22 @@ const telegrafConfigurationDecoder = JsonDecoder.object<TelegrafConfiguration>(
 const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
   {
     isReverse: JsonDecoder.boolean,
-    otlpCaCertificate: JsonDecoder.string,
-    otlpCertificate: JsonDecoder.string,
-    otlpPrivateKey: JsonDecoder.string,
-    pollerCaCertificate: JsonDecoder.nullable(JsonDecoder.string),
-    pollerCaName: JsonDecoder.nullable(JsonDecoder.string),
+    otelPublicCertificate: JsonDecoder.string,
+    otelCaCertificate: JsonDecoder.nullable(JsonDecoder.string),
+    otelPrivateKey: JsonDecoder.string,
     hosts: JsonDecoder.array(
       JsonDecoder.object(
         {
           address: JsonDecoder.string,
           port: JsonDecoder.number,
-          certificate: JsonDecoder.string,
-          key: JsonDecoder.string
+          pollerCaCertificate: JsonDecoder.nullable(JsonDecoder.string),
+          pollerCaName: JsonDecoder.nullable(JsonDecoder.string)
         },
-        'Host configuration'
+        'Host configuration',
+        {
+          pollerCaCertificate: 'poller_ca_certificate',
+          pollerCaName: 'poller_ca_name'
+        }
       ),
       'Host configurations'
     )
@@ -75,10 +77,8 @@ const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
   {
     isReverse: 'is_reverse',
     otlpPrivateKey: 'otlp_private_key',
-    otlpCertificate: 'otlp_certificate',
-    otlpCaCertificate: 'otlp_ca_certificate',
-    pollerCaCertificate: 'poller_ca_certificate',
-    pollerCaName: 'poller_ca_name'
+    otlpPublicCertificate: 'otlp_public_certificate',
+    otlpCaCertificate: 'otlp_ca_certificate'
   }
 );
 

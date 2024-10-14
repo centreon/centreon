@@ -10,10 +10,10 @@ import { hostsConfigurationEndpoint } from '../../api/endpoints';
 import { HostConfiguration as HostConfigurationModel } from '../../models';
 import {
   labelAddHost,
+  labelCaCertificate,
   labelCertificate,
   labelDNSIP,
-  labelPort,
-  labelPrivateKey
+  labelPort
 } from '../../translatedLabels';
 import { useHostConfiguration } from './useHostConfiguration';
 
@@ -84,27 +84,33 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
       />
       <TextField
         required
-        value={host.certificate}
-        onChange={changeStringInput('certificate')}
+        value={host?.pollerCaCertificate || ''}
+        onChange={changeStringInput('pollerCaCertificate')}
         label={t(labelCertificate)}
         dataTestId={labelCertificate}
         inputProps={{
           'aria-label': labelCertificate
         }}
         fullWidth
-        error={hostTouched?.certificate && hostErrors?.certificate}
+        error={
+          (hostTouched?.pollerCaCertificate &&
+            hostErrors?.pollerCaCertificate) ||
+          undefined
+        }
       />
       <TextField
         required
-        value={host.key}
-        onChange={changeStringInput('key')}
-        label={t(labelPrivateKey)}
+        value={host?.pollerCaName || ''}
+        onChange={changeStringInput('pollerCaName')}
+        label={t(labelCaCertificate)}
         inputProps={{
-          'aria-label': labelPrivateKey
+          'aria-label': labelCaCertificate
         }}
-        dataTestId={labelPrivateKey}
+        dataTestId={labelCaCertificate}
         fullWidth
-        error={hostTouched?.key && hostErrors?.key}
+        error={
+          (hostTouched?.pollerCaName && hostErrors?.pollerCaName) || undefined
+        }
       />
     </Box>
   );

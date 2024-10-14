@@ -21,19 +21,19 @@ export interface TelegrafConfiguration {
   confPrivateKey: string;
 }
 
-export interface CMAConfiguration {
-  isReverse: boolean;
-  otlpCertificate: string;
-  otlpCaCertificate: string;
-  otlpPrivateKey: string;
+export interface HostConfiguration {
+  address: string;
+  port: number;
   pollerCaCertificate: string | null;
   pollerCaName: string | null;
-  hosts: Array<{
-    address: string;
-    port: number;
-    certificate: string;
-    key: string;
-  }>;
+}
+
+export interface CMAConfiguration {
+  isReverse: boolean;
+  otelPublicCertificate: string;
+  otelCaCertificate: string | null;
+  otelPrivateKey: string;
+  hosts: Array<HostConfiguration>;
 }
 
 export interface TelegrafConfigurationAPI {
@@ -45,21 +45,19 @@ export interface TelegrafConfigurationAPI {
   conf_private_key: string;
 }
 
-export interface HostConfiguration {
+export interface HostConfigurationToAPI {
   address: string;
   port: number;
-  certificate: string;
-  key: string;
+  poller_ca_certificate: string | null;
+  poller_ca_name: string | null;
 }
 
 export interface CMAConfigurationAPI {
   is_reverse: boolean;
-  otlp_certificate: string;
-  otlp_ca_certificate: string | null;
-  otlp_private_key: string;
-  poller_ca_certificate: string | null;
-  poller_ca_name: string | null;
-  hosts: Array<HostConfiguration>;
+  otel_public_certificate: string;
+  otel_ca_certificate: string | null;
+  otel_private_key: string;
+  hosts: Array<HostConfigurationToAPI>;
 }
 
 export interface AgentConfiguration

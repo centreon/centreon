@@ -54,11 +54,9 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
 
   const CMAConfigurationSchema = {
     isReverse: boolean(),
-    otlpCertificate: certificateValidation,
-    otlpCaCertificate: certificateValidation,
-    otlpPrivateKey: keyValidation,
-    pollerCaCertificate: certificateNullableValidation,
-    pollerCaName: string().nullable(),
+    otelPublicCertificate: certificateValidation,
+    otelCaCertificate: certificateValidation,
+    otelPrivateKey: keyValidation,
     hosts: array().when('isReverse', {
       is: true,
       // biome-ignore lint/suspicious/noThenProperty: <explanation>
@@ -76,8 +74,8 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
                 })
                 .required(t(labelRequired)),
               port: portValidation,
-              certificate: certificateValidation,
-              key: keyValidation
+              pollerCaCertificate: certificateNullableValidation,
+              pollerCaName: string().nullable()
             })
           )
           .min(1),
