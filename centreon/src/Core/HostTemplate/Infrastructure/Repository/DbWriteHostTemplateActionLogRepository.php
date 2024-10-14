@@ -28,6 +28,9 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;
 use Core\ActionLog\Domain\Model\ActionLog;
+use Core\Host\Application\Converter\HostEventConverter;
+use Core\Host\Domain\Model\HostEvent;
+use Core\Host\Domain\Model\SnmpVersion;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
@@ -35,9 +38,6 @@ use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface
 use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface;
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\HostTemplate\Domain\Model\NewHostTemplate;
-use Core\Host\Application\Converter\HostEventConverter;
-use Core\Host\Domain\Model\HostEvent;
-use Core\Host\Domain\Model\SnmpVersion;
 use Core\Infrastructure\Common\Repository\RepositoryException;
 
 class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB implements WriteHostTemplateRepositoryInterface
