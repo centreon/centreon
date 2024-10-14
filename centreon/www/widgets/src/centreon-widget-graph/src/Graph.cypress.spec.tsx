@@ -41,6 +41,21 @@ const emptyServiceMetrics: Data = {
   resources: []
 };
 
+const metaServiceData: Data = {
+  metrics: [],
+  resources: [
+    {
+      resourceType: 'meta-service',
+      resources: [
+        {
+          id: 1,
+          name: 'M1'
+        }
+      ]
+    }
+  ]
+};
+
 const disabledThreshold: FormThreshold = {
   criticalType: 'default',
   customCritical: 0,
@@ -198,7 +213,8 @@ describe('Graph Widget', () => {
     initializeComponent({});
 
     cy.waitForRequest('@getLineChart').then(({ request }) => {
-      expect(request.url.search).to.include('metric_names=[cpu,cpu%20AVG]');
+      expect(request.url.search).to.include('metric_names[]=cpu');
+      expect(request.url.search).to.include('metric_names[]=cpu%20AVG');
       expect(request.url.search).to.include(
         'search=%7B%22%24and%22%3A%5B%7B%22hostgroup.id%22%3A%7B%22%24in%22%3A%5B1%5D%7D%7D%5D%7D'
       );
@@ -380,5 +396,20 @@ describe('Graph Widget', () => {
     cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
 
     cy.makeSnapshot();
+  });
+
+  it('sends a request with meta-service when the corresponding data is provided', () => {
+    initializeComponent({
+      data: metaServiceData
+    });
+
+    cy.waitForRequest('@getLineChart').then(({ request }) => {
+      const searchParameters = request.url.searchParams;
+
+      expect(searchParameters.get('search')).to.equal(
+        '{"$and":[{"metaservice.id":{"$in":[1]}}]}'
+      );
+      expect(searchParameters.get('metrics_names')).to.equal(null);
+    });
   });
 });
