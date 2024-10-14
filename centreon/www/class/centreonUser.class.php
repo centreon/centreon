@@ -62,10 +62,18 @@ class CentreonUser
     public $version = 3;
     /** @var int|string|null */
     public $admin;
+    /** @var */
+    public $limit;
+    /** @var */
+    public $num;
     /** @var mixed|null */
     public $gmt;
     /** @var bool|null */
     public $is_admin = null;
+    /** @var */
+    public $groupList;
+    /** @var */
+    public $groupListStr;
     /** @var CentreonACL */
     public $access;
     /** @var CentreonUserLog */
