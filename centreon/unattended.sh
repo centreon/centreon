@@ -1283,7 +1283,11 @@ function install_central() {
 	fi
 
 	if [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
-		$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon
+		if [[ "$version" =~ ^24\.1[0-2]$ ]]; then
+			$PKG_MGR install -y $CENTREON_DBMS_PKG centreon
+		else
+			$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon
+		fi
 
 		if [ $? -ne 0 ]; then
 			error_and_exit "Could not install Centreon (package centreon)"
@@ -1334,7 +1338,11 @@ function install_poller() {
 	log "INFO" "Poller installation from ${CENTREON_REPO}"
 
 	if [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
-		$PKG_MGR install -y --no-install-recommends centreon-poller
+		if [[ "$version" =~ ^24\.1[0-2]$ ]]; then
+			$PKG_MGR install -y $CENTREON_DBMS_PKG centreon-poller
+		else
+			$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon-poller
+		fi
 
 		if [ $? -ne 0 ]; then
 			error_and_exit "Could not install Centreon (package centreon)"
