@@ -4,7 +4,7 @@ su apache -s /bin/bash -c "/tmp/install-centreon-module.php -b /usr/share/centre
 
 mysql -h${MYSQL_HOST} -uroot -p"${MYSQL_ROOT_PASSWORD}" centreon <<EOF
   INSERT INTO mod_open_tickets_rule(alias, provider_id, activate) VALUES ('glpi', 11, '1');
-  INSERT INTO mod_open_tickets_form_clone (rule_id, `order`, uniq_id, label, value) VALUES
+  INSERT INTO mod_open_tickets_form_clone (rule_id, \`order\`, uniq_id, label, value) VALUES
     (1, 0, 'groupList', 'Id', 'glpi_entity'),
     (1, 0, 'groupList', 'Label', 'Entity'),
     (1, 0, 'groupList', 'Type', '14'),
