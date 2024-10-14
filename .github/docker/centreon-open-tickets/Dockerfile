@@ -6,7 +6,7 @@ FROM ${REGISTRY_URL}/centreon-web-alma9:${FROM_IMAGE_VERSION}
 ARG RELEASE_CLOUD
 ARG VERSION
 
-COPY --chmod=755 ./.github/scripts/install-centreon-module.php /tmp/install-centreon-module.php
+COPY --chmod=755 ./.github/docker/install-centreon-module.php /tmp/install-centreon-module.php
 
 COPY --chmod=755 ./.github/docker/centreon-open-tickets/entrypoint.sh /usr/share/centreon/container.d/80-open-tickets.sh
 

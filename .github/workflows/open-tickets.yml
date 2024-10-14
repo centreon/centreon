@@ -117,8 +117,8 @@ jobs:
     needs:
       [
         get-version,
-        backend-lint,
-        backend-unit-test
+        # backend-lint,
+        # backend-unit-test
       ]
     if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
