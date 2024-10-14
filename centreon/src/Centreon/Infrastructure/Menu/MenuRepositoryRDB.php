@@ -23,10 +23,10 @@ declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Menu;
 
-use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Domain\Menu\Interfaces\MenuRepositoryInterface;
 use Centreon\Domain\Menu\Model\Page;
+use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 
 class MenuRepositoryRDB extends AbstractRepositoryDRB implements MenuRepositoryInterface
 {
@@ -47,7 +47,7 @@ class MenuRepositoryRDB extends AbstractRepositoryDRB implements MenuRepositoryI
         $this->db->query(
             "UPDATE topology SET topology_show = '0'
             WHERE topology_page IN ('21003', '601', '602', '60304', '608', '604', '617', '650', '609', '610', '50111',
-            '50102', '50707', '50120')
+            '50102', '50707', '50120', '60905')
             OR topology_parent IN ('601', '602', '608', '604', '617', '650', '609', '610')"
         );
     }
@@ -60,7 +60,7 @@ class MenuRepositoryRDB extends AbstractRepositoryDRB implements MenuRepositoryI
         $this->db->query(
             "UPDATE topology SET topology_show = '1'
             WHERE topology_page IN ('21003', '601', '602', '60304', '608', '604', '617', '650', '609', '610', '50111',
-            '50102', '50707', '50120')
+            '50102', '50707', '50120', '60905')
             OR topology_parent IN ('601', '602', '608', '604', '617', '650', '609', '610')"
         );
     }
