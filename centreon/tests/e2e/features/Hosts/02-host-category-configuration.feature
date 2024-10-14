@@ -1,4 +1,3 @@
-@ignore
 Feature: HostCategoryConfiguration
   As a Centreon admin
   I want to manipulate a host category
