@@ -112,6 +112,7 @@ const StatusColumnOnHover = ({
           labelAction: labelAcknowledge
         })}
         onClick={(): void => actions.onAcknowledge(row)}
+        tooltipPlacement="left"
       >
         <IconAcknowledge fontSize="small" />
       </IconButton>
@@ -125,6 +126,7 @@ const StatusColumnOnHover = ({
           labelAction: labelSetDowntime
         })}
         onClick={(): void => actions.onDowntime(row)}
+        tooltipPlacement="left"
       >
         <IconDowntime fontSize="small" />
       </IconButton>
@@ -147,6 +149,7 @@ const StatusColumnOnHover = ({
 
           actions.onCheck(row);
         }}
+        tooltipPlacement="right"
       >
         <IconForcedCheck fontSize="small" />
       </IconButton>
