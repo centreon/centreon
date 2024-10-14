@@ -33,7 +33,6 @@ import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDash
 import { useStyles } from './DashboardsOverview.styles';
 import { DashboardsOverviewSkeleton } from './DashboardsOverviewSkeleton';
 import { useDashboardsOverview } from './useDashboardsOverview';
-import WarningdIcon from '@mui/icons-material/ErrorOutlineOutlined';
 
 const DashboardsOverview = (): ReactElement => {
   const { classes } = useStyles();
@@ -102,7 +101,7 @@ const DashboardsOverview = (): ReactElement => {
   const GridTable = (
     <div>
         <Box className={classes.warningContainer}>
-          <WarningdIcon color='primary'/>
+          <InfoOutlinedIcon color='primary'/>
           <Typography className={classes.warning} >
             {t(labelDataDisplayedForRepresentativeUse)}
           </Typography>

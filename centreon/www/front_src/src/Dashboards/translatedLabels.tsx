@@ -70,4 +70,4 @@ export const labelUserDeleted = 'User deleted';
 export const labelShareWithContacts = 'Share with contacts';
 export const labelSaveYourDashboardForThumbnail =
   'Save your dashboard to generate a thumbnail';
-export const labelDataDisplayedForRepresentativeUse  = 'Thumbnails only show sample data.';
+export const labelDataDisplayedForRepresentativeUse  = 'Thumbnails show a snapshot of your data, taken when the dashboard is saved';

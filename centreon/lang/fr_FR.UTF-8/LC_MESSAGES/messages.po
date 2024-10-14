@@ -19471,5 +19471,5 @@ msgstr "Affiche l'heure en fonction du fuseau horaire sélectionné, ou un minut
 msgid "Clock / Timer"
 msgstr "Horloge/Minuteur"
 
-msgid "Thumbnails only show sample data."
-msgstr "Les vignettes affichent uniquement des données d'exemple."
+msgid "Thumbnails show a snapshot of your data, taken when the dashboard is saved"
+msgstr "Les vignettes affichent un instantané de vos données, pris au moment de la sauvegarde."
