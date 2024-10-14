@@ -170,20 +170,6 @@ jobs:
           static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
           build_command: pnpm centreon:build
 
-  frontend-widgets-build:
-    needs: [get-version]
-    runs-on: ubuntu-22.04
-
-    steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
-
-      - uses: ./.github/actions/frontend-build
-        with:
-          base_directory: ${{ env.widgets_directory }}
-          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-          static_directory: ${{ env.widgets_directory }}/src
-          static_cache_key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
-
   backend-dependencies:
     needs: [get-version]
     runs-on: ubuntu-22.04
@@ -243,20 +229,6 @@ jobs:
           dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
           pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           lint_path: ./www/front_src/
-
-  frontend-widgets-lint:
-    runs-on: ubuntu-22.04
-    needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
-
-    steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
-      - uses: ./.github/actions/frontend-lint
-        with:
-          frontend_directory: ${{ env.widgets_directory }}
-          module_name: centreon-widgets
-          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-          pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
@@ -391,8 +363,6 @@ jobs:
         backend-unit-test,
         frontend-web-build,
         frontend-web-lint,
-        frontend-widgets-build,
-        frontend-widgets-lint,
         frontend-unit-test,
         frontend-component-test,
       ]
@@ -449,17 +419,6 @@ jobs:
           path: centreon/www/static
           key: ${{ github.sha }}-${{ github.run_id }}-static
           fail-on-cache-miss: true
-
-      - name: Restore widget frontend from cache
-        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
-        with:
-          path: centreon/www/widgets/src
-          key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
-          fail-on-cache-miss: true
-
-      - name: Move widgets directory
-        run: mv centreon/www/widgets/src/* centreon/www/widgets/
-        shell: bash
 
       - name: Restore vendor directory from cache
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
