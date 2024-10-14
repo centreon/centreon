@@ -25,6 +25,7 @@ namespace Core\HostTemplate\Infrastructure\Repository;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;
 use Core\ActionLog\Domain\Model\ActionLog;
@@ -38,7 +39,6 @@ use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface
 use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface;
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\HostTemplate\Domain\Model\NewHostTemplate;
-use Core\Infrastructure\Common\Repository\RepositoryException;
 
 class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB implements WriteHostTemplateRepositoryInterface
 {
@@ -59,7 +59,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
         DatabaseConnection $db
     ) {
-        $this->db = db;
+        $this->db = $db;
     }
 
     /**
@@ -96,7 +96,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
     public function add(NewHostTemplate $hostTemplate): int
     {
         try {
-            $hostTemplateId = $this->writeHostTemplateRepository($hostTemplate);
+            $hostTemplateId = $this->writeHostTemplateRepository->add($hostTemplate);
             if ($hostTemplateId === 0) {
                 throw new RepositoryException('Host template ID cannot be 0');
             }
