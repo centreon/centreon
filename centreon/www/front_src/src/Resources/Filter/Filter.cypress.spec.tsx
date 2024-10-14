@@ -385,7 +385,7 @@ const staticFilters = [
   }
 ];
 
-describe.only('search bar:ignores case sensitivity when searching static filters', () => {
+describe('search bar:ignores case sensitivity when searching static filters', () => {
   beforeEach(() => {
     cy.interceptAPIRequest({
       alias: 'filterRequest',
@@ -397,6 +397,8 @@ describe.only('search bar:ignores case sensitivity when searching static filters
     cy.mount({
       Component: <FilterWithProvider />
     });
+
+    cy.viewport(1270, 590);
   });
 
   staticFilters.forEach((data) => {
@@ -443,13 +445,15 @@ describe.only('search bar:ignores case sensitivity when searching static filters
       }).should('have.attr', 'aria-selected', 'true');
     });
 
-    it('displays the corresponding suggestoins when searching static filters', () => {
+    it(`displays the corresponding suggestoins when searching ${criteriaName} static filters`, () => {
       cy.findByPlaceholderText(labelSearch).clear();
 
       cy.findByPlaceholderText(labelSearch).type(
         `${criteriaName}:${criteriaInitialValue.substring(0, 1)}`
       );
       cy.findByRole('menuitem', { name: expectedCriteriaValue });
+
+      cy.makeSnapshot();
 
       cy.findByPlaceholderText(labelSearch).clear();
       cy.findByPlaceholderText(labelSearch).type(
