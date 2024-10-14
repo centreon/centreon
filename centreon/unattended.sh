@@ -554,29 +554,26 @@ function set_required_prerequisite() {
 			esac
 
 			if [ "$topology" == "central" ]; then
-				log "INFO" "Installing PHP 8.2 from OS official repositories"
-				# Lines below are for pre testing, remove before merging
-				$PKG_MGR module reset php -y -q
-				$PKG_MGR module install php:8.2 -y -q
-				# dnf install \
-				# 	php-common \
-				# 	php-cli\
-				# 	php-pdo \
-				# 	php-mysqlnd \
-				# 	php-gd \
-				# 	php-xml \
-				# 	php-mbstring \
-				# 	php-ldap \
-				# 	php-snmp \
-				# 	php-intl \
-				# 	php-fpm \
-				# 	php-curl \
-				# 	php-zip \
-				# 	php-pear \
-				# 	php-json
-				# log "INFO" "Installing PHP 8.1 and enable it"
-				# $PKG_MGR module install php:8.1 -y -q
-				# $PKG_MGR module enable php:8.1 -y -q
+				case "$version" in
+					"23.04" | "23.10" | "24.04")
+						install_remi_repo
+						log "INFO" "Installing PHP 8.1 and enable it"
+						$PKG_MGR module reset php -y -q
+						$PKG_MGR module install php:remi-8.1 -y -q
+						$PKG_MGR module enable php:remi-8.1 -y -q
+						;;
+					"24.10")
+						install_remi_repo
+						log "INFO" "Installing PHP 8.2 and enable it"
+						$PKG_MGR module reset php -y -q
+						$PKG_MGR module install php:remi-8.2 -y -q
+						$PKG_MGR module enable php:remi-8.2 -y -q
+						;;
+					*)
+						log "INFO" "Installing PHP 8.2 from OS official repositories"
+						;;
+				esac
+
 			fi
 			;;
 
