@@ -206,12 +206,12 @@ class CentreonConfigPoller
         $reloadCommand = $this->commandGenerator->getEngineCommand('RELOAD');
         $return_code = $this->writeToCentcorePipe($reloadCommand, $host["id"]);
         if ($return_code === 1) {
-            print "Error while writing the command {$reloadCommand} in centcore pipe file " . PHP_EOL;
+            print "Error while writing the command {$reloadCommand} in centcore pipe file for host id {$host["id"]}" . PHP_EOL;
             exit(1);
         }
-        $return_code = $this->writeToCentcorePipe('RELOADBROKER', $host["id"]);// FIXME variable erased
+        $return_code = $this->writeToCentcorePipe('RELOADBROKER', $host["id"]);
         if ($return_code === 1) {
-            print "Error while writing the command RELOADBROKER in centcore pipe file " . PHP_EOL;
+            print "Error while writing the command RELOADBROKER in centcore pipe file for host id {$host["id"]}" . PHP_EOL;
             exit(1);
         }
         $msg_restart = _("OK: A reload signal has been sent to '" . $host["name"] . "'");
@@ -291,7 +291,15 @@ class CentreonConfigPoller
         $this->commandGenerator = $this->container->get(EngineCommandGenerator::class);
         $restartCommand = $this->commandGenerator->getEngineCommand('RESTART');
         $return_code = $this->writeToCentcorePipe($restartCommand, $host["id"]);
+        if ($return_code === 1) {
+            print "Error while writing the command {$restartCommand} in centcore pipe file for host id {$host["id"]}" . PHP_EOL;
+            exit(1);
+        }
         $return_code = $this->writeToCentcorePipe('RELOADBROKER', $host["id"]);
+        if ($return_code === 1) {
+            print "Error while writing the command RELOADBROKER in centcore pipe file for host id {$host["id"]}" . PHP_EOL;
+            exit(1);
+        }
         $msg_restart = _("OK: A restart signal has been sent to '" . $host["name"] . "'");
         print $msg_restart . "\n";
         $statement = $this->DB->prepare(
