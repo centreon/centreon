@@ -478,7 +478,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     /**
      * Build the sub request for metaservice filter.
      *
-     * @param non-empty-array<string> $metaserviceIds
+     * @param non-empty-array<int> $metaserviceIds
      *
      * @return array{
      *  request: string,
