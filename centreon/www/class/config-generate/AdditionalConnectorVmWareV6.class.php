@@ -20,7 +20,6 @@
  */
 
 use Assert\AssertionFailedException;
-use ConfigGenerateRemote\Backend as BackendRemote;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
 use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6\{VmWareConfig, VSphereServer};
@@ -35,11 +34,11 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
     /**
      * AdditionalConnectorVmWareV6 constructor
      *
-     * @param Backend|BackendRemote $backend
+     * @param Backend $backend
      * @param ReadAccRepositoryInterface $readAdditionalConnectorRepository
      */
     public function __construct(
-        private readonly Backend|BackendRemote $backend,
+        private readonly Backend $backend,
         private readonly ReadAccRepositoryInterface $readAdditionalConnectorRepository
     ) {
     }
