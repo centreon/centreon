@@ -339,7 +339,7 @@ class CentreonTraps
     /**
      * @param int|null $traps_id
      *
-     * @return void
+     * @return null|void
      * @throws InvalidArgumentException
      * @throws PDOException
      */
