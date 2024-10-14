@@ -22,7 +22,6 @@ namespace ConfigGenerateRemote;
 
 use App\Kernel;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
-use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use PDO;
 use Exception;
 use Pimple\Container;
@@ -218,13 +217,6 @@ class Generate
         (new \AdditionalConnectorVmWareV6(
             $this->backendInstance,
             $readAdditionalConnectorRepository
-        ))->generateFromPollerId($this->currentPoller['id']);
-        $readAgentConfigurationRepository = $kernel->getContainer()->get(
-            ReadAgentConfigurationRepositoryInterface::class
-        );
-        (new \AgentConfiguration(
-            $this->backendInstance,
-            $readAgentConfigurationRepository
         ))->generateFromPollerId($this->currentPoller['id']);
 
         Engine::getInstance($this->dependencyInjector)->generateFromPoller($this->currentPoller);

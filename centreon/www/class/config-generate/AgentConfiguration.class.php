@@ -19,7 +19,6 @@
  *
  */
 
-use ConfigGenerateRemote\Backend as BackendRemote;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration as ModelAgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
@@ -32,7 +31,7 @@ use Core\AgentConfiguration\Domain\Model\Type;
 class AgentConfiguration extends AbstractObjectJSON
 {
     public function __construct(
-        private readonly Backend|BackendRemote $backend,
+        private readonly Backend $backend,
         private readonly ReadAgentConfigurationRepositoryInterface $readAgentConfigurationRepository,
     ) {
         $this->generate_filename = 'otl_server.json';
