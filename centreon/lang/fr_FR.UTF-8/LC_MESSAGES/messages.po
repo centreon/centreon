@@ -19471,5 +19471,5 @@ msgstr "Affiche l'heure en fonction du fuseau horaire sélectionné, ou un minut
 msgid "Clock / Timer"
 msgstr "Horloge/Minuteur"
 
-msgid "The data displayed in each dashboard is intended for representative use only."
-msgstr "Les données affichées dans chaque tableau de bord sont à titre représentatif uniquement."
+msgid "Thumbnails only show sample data."
+msgstr "Les vignettes affichent uniquement des données d'exemple."
