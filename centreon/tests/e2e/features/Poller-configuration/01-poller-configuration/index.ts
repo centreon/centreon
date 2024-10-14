@@ -123,6 +123,7 @@ Then('I am redirected to generate page', () => {
 });
 
 Then('the selected poller names are displayed', () => {
+  cy.reload()
   cy.get<string>('@pollerName').then((pollerName) => {
     cy.getIframeBody()
       .find('form span[class="selection"]')
