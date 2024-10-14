@@ -49,7 +49,7 @@ Output: {\$service.output|substr:0:1024}
     (1, 1, 'mappingTicket', 'Arg', '1'),
     (1, 1, 'mappingTicket', 'Value', '{\$body}'),
     (1, 2, 'mappingTicket', 'Arg', '2'),
-    (1, 2, 'mappingTicket', 'Value', '{\$select.glpi_entity.id'),
+    (1, 2, 'mappingTicket', 'Value', '{\$select.glpi_entity.id}'),
     (1, 3, 'mappingTicket', 'Arg', '5'),
     (1, 3, 'mappingTicket', 'Value', '{\$select.glpi_itil_category.id}'),
     (1, 4, 'mappingTicket', 'Arg', '13'),
@@ -79,5 +79,5 @@ Output: {\$service.output|substr:0:1024}
     (1, 'api_path', '/apirest.php'),
     (1, 'protocol', 'http'),
     (1, 'user_token', 'R0MIlEL91Hhh2OJIGIS9y43TDFWCRX0r2aClU7sI'),
-    (1, 'app_token', 'Ns4CuByx9MBIZhkO83mMaKYrceFJ21YNmGDw59K8'),
+    (1, 'app_token', 'Ns4CuByx9MBIZhkO83mMaKYrceFJ21YNmGDw59K8');
 EOF
