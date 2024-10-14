@@ -16,7 +16,9 @@ import { Group, Category } from '../../../models';
 const useStyles = makeStyles()((theme) => ({
   chip: {
     alignSelf: 'center',
-    display: 'flex'
+    display: 'flex',
+    height: theme.spacing(4),
+    borderRadius: theme.spacing(2)
   },
   chipHovered: {
     backgroundColor: theme.palette.primary.main,
@@ -69,7 +71,8 @@ const GroupChip = ({ group, type }: Props): JSX.Element => {
   const filterByGroup = useCallback((): void => {
     setCriteriaAndNewFilter({
       name: type,
-      value: [group]
+      value: [group],
+      apply: true
     });
   }, [group, type]);
 
@@ -80,8 +83,9 @@ const GroupChip = ({ group, type }: Props): JSX.Element => {
   const { name, id } = group;
 
   return (
-    <Grid item className={classes.chip} key={id}>
+    <Grid item key={id}>
       <Chip
+        className={classes.chip}
         aria-label={`${name} Chip`}
         color="primary"
         label={
