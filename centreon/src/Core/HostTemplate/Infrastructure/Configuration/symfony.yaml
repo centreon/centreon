@@ -1,0 +1,14 @@
+services:
+  _defaults:
+    public: false
+    autowire: true
+    autoconfigure: true
+
+  Core\HostTemplate\Infrastructure\Repository\DbWriteHostTemplateActionLogRepository:
+    decorates: Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface
+    arguments:
+      - '@.inner'
+      - '@Centreon\Domain\Contact\Interfaces\ContactInterface'
+      - '@Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface'
+      - '@Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface'
+      - '@Centreon\Infrastructure\DatabaseConnection'
