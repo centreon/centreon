@@ -144,7 +144,7 @@ if ($centreon->user->access->page($p)) {
 
     if (isset($_GET["host_id"])) {
         echo '<span class="pathWayBracket" > &nbsp;&#62;&nbsp; </span>';
-        echo htmlentities(getMyHostName((int) $_GET["host_id"]));
+        echo HtmlSanitizer::createFromString(getMyHostName((int) $_GET["host_id"]))->sanitize()->getString();
     }
 }
 ?>
