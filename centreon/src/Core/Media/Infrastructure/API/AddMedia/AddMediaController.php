@@ -39,7 +39,7 @@ final class AddMediaController extends AbstractController
 {
     use LoggerTrait;
 
-    #[IsGranted('create_media', null, 'You are not allowed to add a media', Response::HTTP_FORBIDDEN)]
+    #[IsGranted('create_media', null, 'You are not allowed to add media', Response::HTTP_FORBIDDEN)]
     public function __invoke(Request $request, AddMedia $useCase, AddMediaPresenter $presenter): Response
     {
         $uploadedFile = '';
