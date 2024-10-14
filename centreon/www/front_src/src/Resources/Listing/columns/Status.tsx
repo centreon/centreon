@@ -111,8 +111,8 @@ const StatusColumnOnHover = ({
           isActionPermitted: isAcknowledePermitted,
           labelAction: labelAcknowledge
         })}
-        onClick={(): void => actions.onAcknowledge(row)}
         tooltipPlacement="left"
+        onClick={(): void => actions.onAcknowledge(row)}
       >
         <IconAcknowledge fontSize="small" />
       </IconButton>
@@ -125,8 +125,8 @@ const StatusColumnOnHover = ({
           isActionPermitted: isDowntimePermitted,
           labelAction: labelSetDowntime
         })}
-        onClick={(): void => actions.onDowntime(row)}
         tooltipPlacement="left"
+        onClick={(): void => actions.onDowntime(row)}
       >
         <IconDowntime fontSize="small" />
       </IconButton>
@@ -140,6 +140,7 @@ const StatusColumnOnHover = ({
           isActionPermitted: isForcedCheckPermitted,
           labelAction: labelForcedCheck
         })}
+        tooltipPlacement="right"
         onClick={(): void => {
           const forcedCheckEndpoint = path(
             ['links', 'endpoints', 'forced_check'],
@@ -149,7 +150,6 @@ const StatusColumnOnHover = ({
 
           actions.onCheck(row);
         }}
-        tooltipPlacement="right"
       >
         <IconForcedCheck fontSize="small" />
       </IconButton>
