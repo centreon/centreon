@@ -77,7 +77,7 @@ if [ ! -z ${GLPI_HOST} ] && getent hosts ${GLPI_HOST}; then
       (1, 'proxy_port', ''),
       (1, 'proxy_username', ''),
       (1, 'proxy_password', ''),
-      (1, 'address', 'glpi'),
+      (1, 'address', '${GLPI_HOST}'),
       (1, 'api_path', '/apirest.php'),
       (1, 'protocol', 'http'),
       (1, 'user_token', '${GLPI_USER_TOKEN}'),
