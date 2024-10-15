@@ -4,8 +4,13 @@ services:
     autowire: true
     autoconfigure: true
 
-  Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface:
-    class: Core\HostTemplate\Infrastructure\Repository\DbReadHostTemplateRepository
+  Core\HostTemplate\:
+    resource: '../../../../Core/HostTemplate/*'
+    bind:
+      $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
+
+  # Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface:
+  #   class: Core\HostTemplate\Infrastructure\Repository\DbReadHostTemplateRepository
 
   Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface:
     class: Core\HostTemplate\Infrastructure\Repository\DbWriteHostTemplateRepository
