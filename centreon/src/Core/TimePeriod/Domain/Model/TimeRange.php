@@ -31,6 +31,17 @@ use Core\TimePeriod\Domain\Exception\TimeRangeException;
  */
 class TimeRange implements \Stringable
 {
+    /**
+     *
+     * @var string TIME_RANGE_ALL_DAY The time range for the entire day
+     */
+    const TIME_RANGE_ALL_DAY = '00:00-24:00';
+    /**
+     *
+     * @var string TIME_RANGE_FULL_DAY_ALIAS The time range for the entire day in DOC.
+     */
+    const TIME_RANGE_FULL_DAY_ALIAS = '00:00-00:00';
+
     /** @var string Comma-delimited time range (00:00-12:00) for a particular day of the week. */
     private string $timeRange;
 
@@ -42,6 +53,8 @@ class TimeRange implements \Stringable
      */
     public function __construct(string $timeRange)
     {
+        $timeRange = $this->normalizeTimeRange($timeRange);
+
         Assertion::minLength($timeRange, 11, 'TimeRange::timeRange');
 
         if (! $this->isValidTimeRangeFormat($timeRange)) {
@@ -139,5 +152,14 @@ class TimeRange implements \Stringable
         }
 
         return $timeRanges;
+    }
+
+    private function normalizeTimeRange(string $timeRange): string
+    {
+        if ($timeRange === self::TIME_RANGE_FULL_DAY_ALIAS || empty($timeRange)) {
+            return self::TIME_RANGE_ALL_DAY;
+        }
+
+        return $timeRange;
     }
 }
