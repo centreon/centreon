@@ -120,6 +120,7 @@ const WrapperChart = ({
               tooltip={tooltip}
               width={width ?? responsiveWidth}
               zoomPreview={zoomPreview}
+              skipIntersectionObserver={rest.skipIntersectionObserver}
             />
           );
         }}
