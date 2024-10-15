@@ -100,7 +100,7 @@ if [ ! -z ${GLPI_HOST} ] && getent hosts ${GLPI_HOST}; then
       (1, 'attach_files', ''),
       (1, 'close_ticket_enable', ''),
       (1, 'error_close_centreon', ''),
-      (1, 'url', '{\$protocol}://{\$address}/glpi/front/ticket.form.php?id={\$ticket_id}'),
+      (1, 'url', '{\$protocol}://{\$address}/front/ticket.form.php?id={\$ticket_id}'),
       (1, 'format_popup', '<table class="table">
         <tr>
             <td class="FormHeader" colspan="2"><h3 style="color: #00bfb3;">{\$title}</h3></td>

@@ -69,9 +69,9 @@ cat > /etc/apache2/sites-available/000-default.conf << EOT
         RewriteRule ^(.*)\$ index.php [QSA,L]
     </Directory>
 
-    # LogLevel warn
-    # ErrorLog \${APACHE_LOG_DIR}/error-glpi.log
-    # CustomLog \${APACHE_LOG_DIR}/access-glpi.log combined
+    LogLevel warn
+    ErrorLog \${APACHE_LOG_DIR}/error-glpi.log
+    CustomLog \${APACHE_LOG_DIR}/access-glpi.log combined
 </VirtualHost>
 EOT
 

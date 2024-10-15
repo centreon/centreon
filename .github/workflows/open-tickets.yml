@@ -117,8 +117,8 @@ jobs:
     needs:
       [
         get-version,
-        # backend-lint,
-        # backend-unit-test
+        backend-lint,
+        backend-unit-test
       ]
     if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
@@ -140,7 +140,7 @@ jobs:
             image: packaging-nfpm-jammy
             distrib: jammy
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
@@ -265,9 +265,7 @@ jobs:
           context: .
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "VERSION=${{ needs.get-version.outputs.major_version }}"
             "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
-            "STABILITY=${{ needs.get-version.outputs.stability }}"
           pull: true
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
