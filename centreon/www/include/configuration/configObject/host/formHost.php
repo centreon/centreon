@@ -54,26 +54,26 @@ const BASE_ROUTE = './include/common/webServices/rest/internal.php';
 $datasetRoutes = [
     'timeperiods' => BASE_ROUTE . '?object=centreon_configuration_timeperiod&action=list',
     'default_check_periods' => BASE_ROUTE . '?object=centreon_configuration_timeperiod&action=defaultValues&target=host&field=timeperiod_tp_id&id=' . $host_id,
-    'default_notification_periods' => BASE_ROUTE . '?object=centreon_configuration_timeperiod&action=defaultValues&target=host&field=timeperiod_tp_id2&id=' . $host_id, 
+    'default_notification_periods' => BASE_ROUTE . '?object=centreon_configuration_timeperiod&action=defaultValues&target=host&field=timeperiod_tp_id2&id=' . $host_id,
     'hosts' => BASE_ROUTE . '?object=centreon_configuration_host&action=list',
-    'default_host_parents' => BASE_ROUTE . '?object=centreon_configuration_host&action=defaultValues&target=host&field=host_parents&id=' . $host_id, 
+    'default_host_parents' => BASE_ROUTE . '?object=centreon_configuration_host&action=defaultValues&target=host&field=host_parents&id=' . $host_id,
     'default_host_child' => BASE_ROUTE . '?object=centreon_configuration_host&action=defaultValues&target=host&field=host_childs&id=' . $host_id,
     'host_groups' => BASE_ROUTE . '?object=centreon_configuration_hostgroup&action=list',
     'default_host_groups' => BASE_ROUTE . '?object=centreon_configuration_hostgroup&action=defaultValues&target=host&field=host_hgs&id=' . $host_id,
     'host_categories' => BASE_ROUTE . '?object=centreon_configuration_hostcategory&action=list&t=c',
     'default_host_categories' => BASE_ROUTE . '?object=centreon_configuration_hostcategory&action=defaultValues&target=host&field=host_hcs&id=' . $host_id,
-    'default_contacts' => BASE_ROUTE . '?object=centreon_configuration_contact&action=defaultValues&target=host&field=host_cs&id=' . $host_id, 
+    'default_contacts' => BASE_ROUTE . '?object=centreon_configuration_contact&action=defaultValues&target=host&field=host_cs&id=' . $host_id,
     'contacts' => BASE_ROUTE . '?object=centreon_configuration_contact&action=list',
     'default_contact_groups' => BASE_ROUTE . '?object=centreon_configuration_contactgroup&action=defaultValues&target=host&field=host_cgs&id=' . $host_id,
     'contact_groups' => BASE_ROUTE . '?object=centreon_configuration_contactgroup&action=list',
     'default_timezones' => BASE_ROUTE . '?object=centreon_configuration_timezone&action=defaultValues&target=host&field=host_location&id=' . $host_id,
-    'timezones' => BASE_ROUTE . '?object=centreon_configuration_timezone&action=list', 
+    'timezones' => BASE_ROUTE . '?object=centreon_configuration_timezone&action=list',
     'default_commands' => BASE_ROUTE . '?object=centreon_configuration_comman&action=defaultValues&target=host&field=command_command_id&id=' . $host_id,
     'check_commands' => BASE_ROUTE . '?object=centreon_configuration_command&action=list&t=2',
     'event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=list',
-    'default_event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=defaultValues&target=host&field=command_command_id2&id=' . $host_id, 
+    'default_event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=defaultValues&target=host&field=command_command_id2&id=' . $host_id,
     'default_acl_groups' => BASE_ROUTE . '?object=centreon_administration_aclgroup&action=defaultValues&target=host&field=acl_groups&id=' . $host_id,
-    'acl_groups' => BASE_ROUTE . '?object=centreon_administration_aclgroup&action=list' 
+    'acl_groups' => BASE_ROUTE . '?object=centreon_administration_aclgroup&action=list'
 ];
 
 $attributes = [
@@ -367,7 +367,7 @@ $statement = $pearDB->query(
     . ' ORDER BY name'
 );
 while ($nsServer = $statement->fetch()) {
-    $nsServers[$nsServer['id']] = $nsServer['name'];
+    $nsServers[$nsServer['id']] = HtmlSanitizer::createFromString($nsServer['name'])->sanitize()->getString();
 }
 $statement->closeCursor();
 
@@ -634,7 +634,7 @@ if ($o === HOST_MASSIVE_CHANGE) {
 $dbResult = $pearDB->query('SELECT `value` FROM options WHERE `key` = "inheritance_mode"');
 $inheritanceMode = $dbResult->fetch();
 
-if (! $isCloudPlatform) { 
+if (! $isCloudPlatform) {
     if ($o === HOST_MASSIVE_CHANGE) {
         $contactAdditive[] = $form->createElement('radio', 'mc_contact_additive_inheritance', null, _('Yes'), '1');
         $contactAdditive[] = $form->createElement('radio', 'mc_contact_additive_inheritance', null, _('No'), '0');
