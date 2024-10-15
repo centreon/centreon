@@ -54,7 +54,7 @@ const adaptCMAConfigurationToAPI = (
 
   return {
     ...agentConfiguration,
-    pollers: pluck('id', agentConfiguration.pollers),
+    poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
     type: (agentConfiguration.type as SelectEntry).id,
     configuration: {
       is_reverse: configuration.isReverse,
