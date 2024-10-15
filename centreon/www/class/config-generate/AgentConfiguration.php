@@ -19,6 +19,8 @@
  *
  */
 
+declare(strict_types=1);
+
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration as ModelAgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
@@ -86,7 +88,7 @@ class AgentConfiguration extends AbstractObjectJSON
     }
 
     /**
-     * Undocumented function
+     * Format the configuration for Centreon Monitoring Agent.
      *
      * @param _CmaParameters $data
      *

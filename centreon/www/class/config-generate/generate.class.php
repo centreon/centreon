@@ -79,7 +79,7 @@ require_once __DIR__ . '/timeperiod.class.php';
 require_once __DIR__ . '/timezone.class.php';
 require_once __DIR__ . '/vault.class.php';
 require_once __DIR__ . '/AdditionalConnectorVmWareV6.class.php';
-require_once __DIR__ . '/AgentConfiguration.class.php';
+require_once __DIR__ . '/AgentConfiguration.php';
 
 /**
  * Class
