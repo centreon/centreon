@@ -31,13 +31,11 @@
     hasPollersSelected();
 
     jQuery(document).ready(function() {
-    jQuery('#exportConfigurationLink').on('click', function(event) {
-        event.preventDefault(); 
-        applyConfiguration(); 
-    });
+        jQuery('#exportConfigurationLink').on('click', function(event) {
+            event.preventDefault(); 
+            applyConfiguration();
+        });
     })
-
-
 
 </script>
 {/literal}
