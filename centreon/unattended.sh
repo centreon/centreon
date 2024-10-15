@@ -556,11 +556,11 @@ function set_required_prerequisite() {
 			if [ "$topology" == "central" ]; then
 				case "$version" in
 					"23.04" | "23.10" | "24.04")
-						install_remi_repo
+						#install_remi_repo
 						log "INFO" "Installing PHP 8.1 and enable it"
 						$PKG_MGR module reset php -y -q
-						$PKG_MGR module install php:remi-8.1 -y -q
-						$PKG_MGR module enable php:remi-8.1 -y -q
+						$PKG_MGR module install php:8.1 -y -q
+						$PKG_MGR module enable php:8.1 -y -q
 						;;
 					"24.10")
 						#install_remi_repo
