@@ -98,9 +98,9 @@ When("the configuration is exported", () => {
     .contains("Poller")
     .should("exist");
   cy.getIframeBody()
-    .find('button[name="apply_configuration"]')
+    .find('#exportConfigurationLink')
     .should("be.visible");
-  cy.getIframeBody().find('button[name="apply_configuration"]').click();
+  cy.getIframeBody().find('#exportConfigurationLink').click();
 
   cy.url().should("include", "poller=");
   cy.wait("@getUserTimezone");
