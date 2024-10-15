@@ -9,7 +9,8 @@ import {
   DashboardGlobalRole,
   ListingVariant,
   platformVersionsAtom,
-  userAtom
+  userAtom,
+  profileAtom
 } from '@centreon/ui-context';
 
 import { labelMoreActions } from '../Resources/translatedLabels';
@@ -54,6 +55,7 @@ import {
   labelUserDeleted,
   labelWelcomeToDashboardInterface
 } from './translatedLabels';
+import { profileEndpoint } from '../api/endpoint';
 
 interface InitializeAndMountProps {
   canAdministrateDashboard?: boolean;
@@ -93,6 +95,9 @@ const initializeAndMount = ({
     use_deprecated_pages: false,
     user_interface_density: ListingVariant.compact
   });
+
+  store.set(profileAtom, {favoriteDashboards : [1] })
+
 
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -178,6 +183,14 @@ const initializeAndMount = ({
     method: Method.DELETE,
     path: getDashboardAccessRightsContactGroupEndpoint(1, 3)
   });
+
+  cy.interceptAPIRequest({
+    alias: 'patchFavoriteDashboard',
+    method: Method.PATCH,
+    path: profileEndpoint,
+    statusCode: 201
+  });
+
 
   const version = {
     fix: '0',
@@ -812,4 +825,47 @@ describe('Dashboards', () => {
       cy.makeSnapshot();
     });
   });
+
+  describe("Dashboard favorite", () => {
+    [labelListView, labelCardsView].forEach((viewMode) => {
+      it(`${viewMode}: displays the favorite icons in the correct state`, () => {
+        initializeAndMount(administratorRole);
+
+        cy.findByTestId(viewMode).click();
+        cy.findAllByTestId("favorite-icon").first().should("have.attr", "data-favorite", "true")
+        cy.findAllByTestId("favorite-icon").eq(1).should("have.attr", "data-favorite", "false")
+  
+        cy.makeSnapshot();  
+      });
+  
+      it(`${viewMode}: toggles the dashboard favorite status when the favorite button is clicked`, () => {
+        initializeAndMount(administratorRole)
+  
+        cy.findByTestId(viewMode).click();
+
+        cy.findAllByTestId("favorite-icon").first().should("have.attr", "data-favorite", "true");
+  
+        cy.findAllByTestId("favorite-icon").first().click();
+  
+        cy.waitForRequest("@patchFavoriteDashboard")
+  
+        cy.contains("Dashboard unmarked as favorite").should("be.visible")
+        
+        cy.findAllByTestId("favorite-icon").first().should("have.attr", "data-favorite", "false");
+  
+        cy.findAllByTestId("favorite-icon").eq(1).should("have.attr", "data-favorite", "false");
+  
+        cy.findAllByTestId("favorite-icon").eq(1).click({force: true});
+  
+        cy.waitForRequest("@patchFavoriteDashboard")
+        
+        cy.contains("Dashboard marked as favorite").should("be.visible")
+  
+        cy.findAllByTestId("favorite-icon").eq(1).should("have.attr", "data-favorite", "true");
+  
+        cy.makeSnapshot();  
+      })
+
+    } )
+  })
 });
