@@ -36,7 +36,7 @@ apt-get install -y --no-install-recommends \
 
 a2enmod rewrite
 
-SRC_GLPI=\$(curl -s https://api.github.com/repos/glpi-project/glpi/releases/tags/\${GLPI_VERSION} | jq .assets[0].browser_download_url | tr -d \")
+SRC_GLPI=\$(curl -s https://api.github.com/repos/glpi-project/glpi/releases/tags/\${GLPI_VERSION} | jq '.assets[0].browser_download_url' | tr -d \")
 TAR_GLPI=\$(basename \${SRC_GLPI})
 
 wget -P /var/www/html/ \${SRC_GLPI}
