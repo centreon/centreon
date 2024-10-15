@@ -32,7 +32,7 @@ services:
   glpi:
     env_file:
       - .env
-    image: "docker.centreon.com/centreon/glpi:MON-146713-glpi"
+    image: "${GLPI_IMAGE}"
     ports: ["80"]
     depends_on:
       - db
