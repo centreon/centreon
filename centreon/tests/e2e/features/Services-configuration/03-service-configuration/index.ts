@@ -38,13 +38,12 @@ When('the user changes the properties of a service', () => {
     rootItemNumber: 3,
     subMenu: "Services",
   });
-  cy.enterIframe("iframe#main-content").within(() => {
-    cy.find("table.ListTable")
-    .find("tr.list_one")
-    .find("td.ListColLeft")
-    .contains("test")
-    .click();
-  });
+
+    cy.enterIframe("iframe#main-content").find("table.ListTable")
+        .find("tr.list_one")
+        .find("td.ListColLeft")
+        .contains("test")
+        .click();
 //   cy.get("iframe#main-content")
 //     .its("0.contentDocument.body")
 //     .find("table.ListTable")
@@ -60,20 +59,17 @@ When('the user changes the properties of a service', () => {
 //     .find('input[name="service_description"]')
 //     .clear()
 //     .type("test_modified");
-cy.enterIframe("iframe#main-content").within(() => {
-    cy.find("td.FormRowValue")
+cy.enterIframe("iframe#main-content").find("td.FormRowValue")
     .find("select#service_template_model_stm_id")
     .next()
     .click();
-  });
-    cy.enterIframe("iframe#main-content").within(() => {
-      cy.find("table.formTable")
+    cy.enterIframe("iframe#main-content")
+    .find("table.formTable")
         .find("tr.list_two")
         .find("td.FormRowValue")
         .find('input[name="service_description"]')
         .clear()
         .type("test_modified");
-    });
 //   cy.getIframeBody()
 //     .find("table tr.list_one")
 //     .find("td.FormRowValue")
@@ -97,13 +93,11 @@ Then('the properties are updated', () => {
     //   .find("td.ListColLeft")
     //   .contains("test")
     //   .click();
-    cy.enterIframe("iframe#main-content").within(() => {
-      cy.find("table.ListTable")
+    cy.enterIframe("iframe#main-content").find("table.ListTable")
       .find("tr.list_one")
       .find("td.ListColLeft")
       .contains("test")
       .click();
-    });
     // cy.get("iframe#main-content")
     //   .its("0.contentDocument.body")
     //   .find("table.formTable")
@@ -111,13 +105,11 @@ Then('the properties are updated', () => {
     //   .find("td.FormRowValue")
     //   .find('input[name="service_description"]')
     //   .should('have.value',"test_modified");
-    cy.enterIframe("iframe#main-content").within(() => {
-      cy.find("table.formTable")
+    cy.enterIframe("iframe#main-content").find("table.formTable")
       .find("tr.list_two")
       .find("td.FormRowValue")
       .find('input[name="service_description"]')
       .should('have.value',"test_modified");
-    });
   cy.getIframeBody()
     .find("table tr.list_one")
     .find("td.FormRowValue")
