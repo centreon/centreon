@@ -27,7 +27,7 @@ When('a service is configured', () => {
   activeCheckEnabled: false,
   host: "host_1",
   maxCheckAttempts: 1,
-  name: "kiwi",
+  name: "test",
   template: "Ping-LAN",
 });
 });
@@ -43,7 +43,7 @@ When('the user changes the properties of a service', () => {
     .find("table.ListTable")
     .find("tr.list_one")
     .find("td.ListColLeft")
-    .contains("kiwi")
+    .contains("test")
     .click();
   cy.get("iframe#main-content")
     .its("0.contentDocument.body")
@@ -52,7 +52,7 @@ When('the user changes the properties of a service', () => {
     .find("td.FormRowValue")
     .find('input[name="service_description"]')
     .clear()
-    .type("kiwi_modified");
+    .type("test_modified");
   cy.getIframeBody()
     .find("table tr.list_one")
     .find("td.FormRowValue")
@@ -73,7 +73,7 @@ Then('the properties are updated', () => {
       .find("table.ListTable")
       .find("tr.list_one")
       .find("td.ListColLeft")
-      .contains("kiwi")
+      .contains("test")
       .click();
     cy.get("iframe#main-content")
       .its("0.contentDocument.body")
@@ -81,7 +81,7 @@ Then('the properties are updated', () => {
       .find("tr.list_two")
       .find("td.FormRowValue")
       .find('input[name="service_description"]')
-      .should('have.value',"kiwi_modified");
+      .should('have.value',"test_modified");
   cy.getIframeBody()
     .find("table tr.list_one")
     .find("td.FormRowValue")
@@ -136,7 +136,7 @@ Then('the new service has the same properties', () => {
     .find("table.ListTable")
     .find("tr.list_two")
     .find("td.ListColLeft")
-    .contains("kiwi_modified_1")
+    .contains("test_1")
     .click();
     cy.get("iframe#main-content")
       .its("0.contentDocument.body")
@@ -144,7 +144,7 @@ Then('the new service has the same properties', () => {
       .find("tr.list_two")
       .find("td.FormRowValue")
       .find('input[name="service_description"]')
-      .should("have.value", "kiwi_modified_1");
+      .should("have.value", "test_1");
     cy.getIframeBody()
       .find("table tr.list_one")
       .find("td.FormRowValue")
@@ -197,7 +197,7 @@ Then('the deleted service is not displayed in the service list', () => {
   cy.get("iframe#main-content")
     .its("0.contentDocument.body")
     .find("table.ListTable tbody")
-    .contains("kiwi")
+    .contains("test")
     .should("not.exist");
 });
 
