@@ -27,7 +27,6 @@ declare(strict_types=1);
  * @class HtmlSanitizer
  */
 final class HtmlSanitizer {
-
     /**
      * HtmlSanitizer constructor
      *
@@ -40,16 +39,17 @@ final class HtmlSanitizer {
      *
      * @return HtmlSanitizer
      */
-    public static function createFromString(string $string): HtmlSanitizer
+    public static function createFromString(string $string): self
     {
-        return new HtmlSanitizer($string);
+        return new self($string);
     }
 
     /**
      * @return HtmlSanitizer
      */
-    public function sanitize(): HtmlSanitizer {
+    public function sanitize(): self {
         $this->string = htmlspecialchars($this->string, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
         return $this;
     }
 
@@ -58,9 +58,10 @@ final class HtmlSanitizer {
      *
      * @return HtmlSanitizer
      */
-    public function removeTags(array $allowedTags = null): HtmlSanitizer
+    public function removeTags(?array $allowedTags = null): self
     {
         $this->string = strip_tags($this->string, $allowedTags);
+
         return $this;
     }
 
@@ -71,5 +72,4 @@ final class HtmlSanitizer {
     {
         return $this->string;
     }
-
 }
