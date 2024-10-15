@@ -49,13 +49,15 @@ When('the user changes the properties of a service', () => {
     .next()
     .click();
     cy.enterIframe("iframe#main-content")
-    .find("table.formTable")
-        .find("tr.list_two")
-        .find("td.FormRowValue")
-        .find('input[name="service_description"]')
-        .clear()
-        .type("test_modified");
-  cy.getIframeBody().contains("Ping-WAN").click();
+      .find("table.formTable")
+      .find("tr.list_two")
+      .find("td.FormRowValue")
+      .find('input[name="service_description"]')
+      .clear()
+      .type("test_modified");
+  cy.enterIframe("iframe#main-content")
+    .contains("Ping-WAN")
+    .click();
   cy.getIframeBody()
     .find("div#validForm")
     .find("p.oreonbutton")
@@ -78,7 +80,7 @@ Then('the properties are updated', () => {
     .find("td.FormRowValue")
     .find('input[name="service_description"]')
     .should('have.value',"test_modified");
-  cy.getIframeBody()
+  cy.enterIframe("iframe#main-content")
     .find("table tr.list_one")
     .find("td.FormRowValue")
     .find("select#service_template_model_stm_id")
