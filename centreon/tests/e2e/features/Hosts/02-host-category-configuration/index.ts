@@ -1,36 +1,8 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
+import { checkHostsAreMonitored } from 'e2e/commons';
 
 import hostCategories from '../../../fixtures/host-categories/category.json';
-
-const services = {
-  serviceCritical: {
-    host: 'host3',
-    name: 'service3',
-    template: 'SNMP-Linux-Load-Average'
-  },
-  serviceOk: { host: 'host2', name: 'service_test_ok', template: 'Ping-LAN' },
-  serviceWarning: {
-    host: 'host2',
-    name: 'service2',
-    template: 'SNMP-Linux-Memory'
-  }
-};
-const resultsToSubmit = [
-  {
-    host: services.serviceWarning.host,
-    output: 'submit_status_2',
-    service: services.serviceCritical.name,
-    status: 'critical'
-  },
-  {
-    host: services.serviceWarning.host,
-    output: 'submit_status_2',
-    service: services.serviceWarning.name,
-    status: 'warning'
-  }
-];
 
 const checkFirstHostCategoryFromListing = () => {
   cy.navigateTo({
@@ -62,38 +34,11 @@ beforeEach(() => {
   }).as('getTimeZone');
   cy.addHost({
     hostGroup: 'Linux-Servers',
-    name: services.serviceOk.host,
+    name: 'host2',
     template: 'generic-host'
-  })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceOk.host,
-      maxCheckAttempts: 1,
-      name: services.serviceOk.name,
-      template: services.serviceOk.template
-    })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceOk.host,
-      maxCheckAttempts: 1,
-      name: services.serviceWarning.name,
-      template: services.serviceWarning.template
-    })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceOk.host,
-      maxCheckAttempts: 1,
-      name: services.serviceCritical.name,
-      template: services.serviceCritical.template
-    })
-    .applyPollerConfiguration();
+  }).applyPollerConfiguration();
 
-  checkHostsAreMonitored([{ name: services.serviceOk.host }]);
-  checkServicesAreMonitored([
-    { name: services.serviceCritical.name },
-    { name: services.serviceOk.name }
-  ]);
-  cy.submitResults(resultsToSubmit);
+  checkHostsAreMonitored([{ name: 'host2' }]);
 });
 
 afterEach(() => {
@@ -180,7 +125,7 @@ Then('the properties are updated', () => {
   cy.getIframeBody()
     .find('span.select2-content')
     .eq(0)
-    .should('have.attr', 'title', services.serviceOk.host);
+    .should('have.attr', 'title', 'host2');
   cy.getIframeBody()
     .find('span.select2-content')
     .eq(1)
