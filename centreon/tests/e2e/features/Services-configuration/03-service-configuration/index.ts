@@ -44,17 +44,18 @@ When('the user changes the properties of a service', () => {
     .find("td.ListColLeft")
     .contains("test")
     .click();
-  cy.enterIframe("iframe#main-content").find("td.FormRowValue")
+  cy.enterIframe("iframe#main-content")
+    .find("table.formTable")
+    .find("tr.list_two")
+    .find("td.FormRowValue")
+    .find('input[name="service_description"]')
+    .clear()
+    .type("test_modified");
+  cy.enterIframe("iframe#main-content")
+    .find("td.FormRowValue")
     .find("select#service_template_model_stm_id")
     .next()
     .click();
-    cy.enterIframe("iframe#main-content")
-      .find("table.formTable")
-      .find("tr.list_two")
-      .find("td.FormRowValue")
-      .find('input[name="service_description"]')
-      .clear()
-      .type("test_modified");
   cy.enterIframe("iframe#main-content")
     .contains("Ping-WAN")
     .click();
