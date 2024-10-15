@@ -75,7 +75,7 @@ export interface AgentConfigurationForm
 export interface AgentConfigurationAPI
   extends Omit<AgentConfigurationListing, 'id' | 'pollers'> {
   configuration: TelegrafConfigurationAPI | CMAConfigurationAPI;
-  pollers: Array<number>;
+  poller_ids: Array<number>;
 }
 
 export enum FormVariant {

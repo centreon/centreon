@@ -34,7 +34,7 @@ const adaptTelegrafConfigurationToAPI = (
 
   return {
     ...agentConfiguration,
-    pollers: pluck('id', agentConfiguration.pollers),
+    poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
     type: (agentConfiguration.type as SelectEntry).id,
     configuration: {
       otel_private_key: configuration.otelPrivateKey,
