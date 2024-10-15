@@ -56,7 +56,7 @@ When('the user changes the properties of a service', () => {
     .find("select#service_template_model_stm_id")
     .next()
     .click();
-  cy.enterIframe("iframe#main-content")
+  cy.getIframeBody()
     .contains("Ping-WAN")
     .click();
   cy.getIframeBody()
