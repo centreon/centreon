@@ -4,6 +4,12 @@ services:
     autowire: true
     autoconfigure: true
 
+  Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface:
+    class: Core\HostTemplate\Infrastructure\Repository\DbReadHostTemplateRepository
+
+  Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface:
+    class: Core\HostTemplate\Infrastructure\Repository\DbWriteHostTemplateRepository
+
   Core\HostTemplate\Infrastructure\Repository\DbWriteHostTemplateActionLogRepository:
     decorates: Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface
     arguments:
