@@ -149,7 +149,7 @@ Then('the new service has the same properties', () => {
       .find("table tr.list_one")
       .find("td.FormRowValue")
       .find("select#service_template_model_stm_id")
-      .contains("Ping-WAN")
+      .contains("Ping-LAN")
       .should("exist");
 });
 
