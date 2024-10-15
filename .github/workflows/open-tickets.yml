@@ -7,15 +7,15 @@ concurrency:
 on:
   workflow_dispatch:
   pull_request:
-    # types:
-    #   - opened
-    #   - synchronize
-    #   - reopened
-    #   - ready_for_review
-    # paths:
-    #   - "centreon-open-tickets/**"
-    #   - "!centreon-open-tickets/veracode.json"
-    #   - "!centreon-open-tickets/.veracode-exclusions"
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+    paths:
+      - "centreon-open-tickets/**"
+      - "!centreon-open-tickets/veracode.json"
+      - "!centreon-open-tickets/.veracode-exclusions"
   push:
     branches:
       - develop
