@@ -211,7 +211,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                 $this->writeActionLogRepository->addActionDetails($actionLogChange, $diff);
             }
 
-            if (! array_key_exists('isActivated') && count($diff) >= 1) {
+            if (! array_key_exists('isActivated', $diff) && count($diff) >= 1) {
                 $actionLogChange = new ActionLog(
                     self::SERVICE_OBJECT_TYPE,
                     $service->getId(),
