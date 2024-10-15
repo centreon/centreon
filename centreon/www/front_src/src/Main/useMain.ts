@@ -19,6 +19,7 @@ import useInitializeTranslation from './useInitializeTranslation';
 import usePlatformFeatures from './usePlatformFeatures';
 import usePlatformVersions from './usePlatformVersions';
 import useUser, { areUserParametersLoadedAtom } from './useUser';
+import useProfile from './useProfile';
 
 export const router = {
   useNavigate
@@ -49,6 +50,7 @@ const useMain = (hasReachedAPublicPage: boolean): void => {
   );
 
   const loadUser = useUser();
+  const loadProfile = useProfile();
   const location = useLocation();
   const navigate = router.useNavigate();
   const [searchParameter] = useSearchParams();
@@ -92,6 +94,7 @@ const useMain = (hasReachedAPublicPage: boolean): void => {
         return;
       }
       loadUser();
+      loadProfile();
 
       getPlatformFeatures();
       getPlatformVersions();

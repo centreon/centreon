@@ -1,6 +1,6 @@
 import { JsonDecoder } from 'ts.data.json';
 
-import type { User } from '@centreon/ui-context';
+import type { User,Profile } from '@centreon/ui-context';
 import {
   DashboardGlobalRole,
   DashboardRolesAndPermissions,
@@ -70,6 +70,16 @@ export const userDecoder = JsonDecoder.object<User>(
     isAdmin: 'is_admin',
     isExportButtonEnabled: 'is_export_button_enabled',
     themeMode: 'theme'
+  }
+);
+
+export const profileDecoder = JsonDecoder.object<Profile>(
+  {
+    favoriteDashboards: JsonDecoder.optional(JsonDecoder.array( JsonDecoder.number , "favorite dashboards" ))
+  },
+  'Profile',
+  {
+    favoriteDashboards: "favorite_dashboards"
   }
 );
 

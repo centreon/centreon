@@ -1,4 +1,5 @@
 export { default as userAtom } from './userAtom';
+export { default as profileAtom } from './profileAtom';
 export { default as aclAtom } from './aclAtom';
 export { default as downtimeAtom } from './downtimeAtom';
 export { default as refreshIntervalAtom } from './refreshIntervalAtom';
@@ -23,6 +24,7 @@ export {
 
 export type {
   User,
+  Profile,
   UserContext,
   ActionAcl,
   Actions,

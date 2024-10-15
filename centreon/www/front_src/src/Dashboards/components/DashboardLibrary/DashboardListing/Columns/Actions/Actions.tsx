@@ -20,6 +20,8 @@ import { useColumnStyles } from '../useColumnStyles';
 import MoreActions from './MoreActions';
 import useActions from './useActions';
 
+import Favorite from '../../../DashboardFavorite/Favorite';
+
 const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useColumnStyles();
@@ -30,7 +32,8 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
     openAskBeforeRevoke,
     closeMoreActions,
     moreActionsOpen,
-    openMoreActions
+    openMoreActions,
+    isFavorite
   } = useActions(row);
 
   if (isNestedRow) {
@@ -54,6 +57,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
       >
         <ShareIcon className={classes.icon} />
       </IconButton>
+      <Favorite isFavorite={isFavorite} dashboardId = {row?.id} />
       <IconButton
         ariaLabel={t(labelMoreActions)}
         title={t(labelMoreActions)}

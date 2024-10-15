@@ -1,7 +1,9 @@
-import { type ReactElement, useEffect } from 'react';
+import { type ReactElement, useEffect, useMemo } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { inc } from 'ramda';
+
+import { isOnPublicPageAtom,profileAtom } from '@centreon/ui-context';
 
 import {
   Settings as SettingsIcon,
@@ -29,6 +31,7 @@ import DashboardSaveBlockerModal from './components/DashboardSaveBlockerModal';
 import DeleteWidgetModal from './components/DeleteWidgetModal';
 import { useCanEditProperties } from './hooks/useCanEditDashboard';
 import useDashboardDetails, { routerParams } from './hooks/useDashboardDetails';
+import Favorite from '../../components/DashboardLibrary/DashboardFavorite/Favorite';
 
 const Dashboard = (): ReactElement => {
   const { classes } = useDashboardStyles();
@@ -38,7 +41,9 @@ const Dashboard = (): ReactElement => {
     dashboardId: dashboardId as string
   });
   const { editDashboard } = useDashboardConfig();
-
+  
+  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+  const profile = useAtomValue(profileAtom);
   const isEditing = useAtomValue(isEditingAtom);
   const { layout } = useAtomValue(dashboardAtom);
   const setRefreshCounts = useSetAtom(refreshCountsAtom);
@@ -82,6 +87,11 @@ const Dashboard = (): ReactElement => {
     };
   }, []);
 
+  const isFavorite = useMemo(
+    () => profile?.favoriteDashboards?.includes(Number(dashboardId)),
+    [profile]
+  );
+
   return (
     <PageLayout>
       <PageLayout.Header>
@@ -94,6 +104,7 @@ const Dashboard = (): ReactElement => {
               description={dashboard?.description || ''}
               title={dashboard?.name || ''}
             />
+            { !isOnPublicPage && <Favorite dashboardId = {Number(dashboardId)} isFavorite = {isFavorite} />}
           </PageHeader.Main>
           <DashboardNavbar />
         </PageHeader>

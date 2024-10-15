@@ -18156,3 +18156,15 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Clock / Timer"
 # msgstr ""
+
+#  msgid "Dashboard marked as favorite"
+#  msgstr ""
+
+#  msgid "Dashboard unmarked as favorite"
+#  msgstr ""
+
+#  msgid "Mark as favorite"
+#  msgstr ""
+
+#  msgid "Unmark as favorite"
+#  msgstr ""

@@ -29,6 +29,8 @@ import {
 import { useStyles } from './DashboardCardActions.styles';
 import useDashboardCardActions from './useDashboardCardActions';
 
+import Favorite from '../DashboardFavorite/Favorite';
+
 interface Props {
   dashboard: Dashboard;
 }
@@ -44,7 +46,8 @@ const DashboardCardActions = ({ dashboard }: Props): JSX.Element => {
     openEditAccessRightModal,
     openEditModal,
     openMoreActions,
-    closeMoreActions
+    closeMoreActions,
+    isFavorite
   } = useDashboardCardActions({ dashboard });
 
   const labels = {
@@ -64,6 +67,7 @@ const DashboardCardActions = ({ dashboard }: Props): JSX.Element => {
       >
         <ShareIcon fontSize="small" />
       </IconButton>
+      <Favorite dashboardId={Number(dashboard?.id)} isFavorite={isFavorite} />
       <IconButton
         ariaLabel={labels.labelMoreActions}
         title={labels.labelMoreActions}
