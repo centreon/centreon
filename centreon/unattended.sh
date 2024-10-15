@@ -563,7 +563,7 @@ function set_required_prerequisite() {
 						$PKG_MGR module enable php:remi-8.1 -y -q
 						;;
 					"24.10")
-						install_remi_repo
+						#install_remi_repo
 						log "INFO" "Installing PHP 8.2 and enable it"
 						$PKG_MGR module reset php -y -q
 						$PKG_MGR module install php:remi-8.2 -y -q
