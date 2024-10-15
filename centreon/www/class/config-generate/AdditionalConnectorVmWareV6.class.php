@@ -20,7 +20,6 @@
  */
 
 use Assert\AssertionFailedException;
-use ConfigGenerateRemote\Backend as BackendRemote;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
 use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6\{VmWareConfig, VSphereServer};
@@ -35,11 +34,11 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
     /**
      * AdditionalConnectorVmWareV6 constructor
      *
-     * @param Backend|BackendRemote $backend
+     * @param Backend $backend
      * @param ReadAccRepositoryInterface $readAdditionalConnectorRepository
      */
     public function __construct(
-        private readonly Backend|BackendRemote $backend,
+        private readonly Backend $backend,
         private readonly ReadAccRepositoryInterface $readAdditionalConnectorRepository
     ) {
     }
@@ -86,8 +85,10 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
             ];
         }
         $this->generate_filename = 'centreon_vmware.json';
+        $directory = $this->backend->generate_path . '/vmware/' . $pollerId;
+        $this->backend->createDirectories([$directory]);
         $this->generateFile($object, false);
-        $this->writeFile($this->backend->getPath());
+        $this->writeFile($directory);
     }
 
     /**
