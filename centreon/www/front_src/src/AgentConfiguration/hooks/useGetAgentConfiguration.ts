@@ -27,7 +27,6 @@ export const useGetAgentConfiguration = (
   const enabled = isNotNil(id) && !equals('add', id);
 
   const { data, isLoading } = useFetchQuery({
-    baseEndpoint: 'http://localhost:3001/centreon/api/latest',
     getEndpoint: () => getAgentConfigurationEndpoint(id),
     getQueryKey: () => ['agent-configuration', id],
     decoder: agentConfigurationDecoder,
