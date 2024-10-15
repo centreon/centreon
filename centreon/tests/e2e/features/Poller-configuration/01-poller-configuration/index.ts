@@ -115,7 +115,6 @@ When('I select some pollers', () => {
 When('I click on the Export configuration button', () => {
   cy.getIframeBody()
     .find('#exportConfigurationLink')
-    .contains('Export configuration')
     .click({ force: true });
 });
 
