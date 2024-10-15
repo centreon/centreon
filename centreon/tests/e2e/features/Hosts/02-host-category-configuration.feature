@@ -17,7 +17,7 @@ Feature: HostCategoryConfiguration
     When the user duplicates a host category
     Then a new host category is created with identical properties
 
-  TEST_MON-151102
+  @TEST_MON-151102
   Scenario: Delete one existing host category
     When the user deletes a host category
     Then the deleted host category is not visible anymore on the host category page
