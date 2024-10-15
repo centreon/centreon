@@ -20,7 +20,11 @@ import {
 } from '../api/endpoints';
 import type { Data, PanelOptions } from '../models';
 
-import { acknowledgeEndpoint, checkEndpoint, downtimeEndpoint } from '../Listing/Actions/api/endpoint';
+import {
+  acknowledgeEndpoint,
+  checkEndpoint,
+  downtimeEndpoint
+} from '../Listing/Actions/api/endpoint';
 import {
   labelAcknowledge,
   labelAcknowledgeCommandSent,
@@ -100,12 +104,12 @@ const mockAcl = (canPerformActions = true): object => ({
       submit_status: canPerformActions
     }
   }
-})
+});
 
 const store = createStore();
 const render = ({ options, data, isPublic = false }: Props): void => {
   store.set(isOnPublicPageAtom, isPublic);
-  store.set(aclAtom, mockAcl())
+  store.set(aclAtom, mockAcl());
 
   cy.window().then((window) => {
     cy.stub(window, 'open').as('windowOpen');
@@ -355,8 +359,10 @@ describe('View by all', () => {
     cy.findByLabelText(labelForcedCheck).click();
 
     cy.waitForRequest('@postCheckCommand').then(({ request }) => {
-      expect(request.body).equal('{"check":{"is_forced":true},"resources":[{"id":19,"parent":{"id":14},"type":"service"},{"id":24,"parent":{"id":14},"type":"service"}]}')
-    })
+      expect(request.body).equal(
+        '{"check":{"is_forced":true},"resources":[{"id":19,"parent":{"id":14},"type":"service"},{"id":24,"parent":{"id":14},"type":"service"}]}'
+      );
+    });
 
     cy.contains(labelForcedCheckCommandSent).should('be.visible');
 
@@ -377,13 +383,15 @@ describe('View by all', () => {
     cy.findByLabelText(labelCheck).click();
 
     cy.waitForRequest('@postCheckCommand').then(({ request }) => {
-      expect(request.body).equal('{"check":{"is_forced":false},"resources":[{"id":19,"parent":{"id":14},"type":"service"},{"id":24,"parent":{"id":14},"type":"service"}]}')
-    })
+      expect(request.body).equal(
+        '{"check":{"is_forced":false},"resources":[{"id":19,"parent":{"id":14},"type":"service"},{"id":24,"parent":{"id":14},"type":"service"}]}'
+      );
+    });
 
     cy.contains(labelCheckCommandSent).should('be.visible');
 
     cy.makeSnapshot();
-  })
+  });
 
   it('sends an acknowledgement request when resources are selected, the acknoldgement icon is clicked and the form is submitted', () => {
     render({
@@ -399,31 +407,31 @@ describe('View by all', () => {
 
     cy.waitForRequest('@postAcknowledgement').then(({ request }) => {
       expect(request.body).deep.equal({
-        "acknowledgement": {
-          "comment": "Acknowledged by ",
-          "is_notify_contacts": true,
-          "is_persistent_comment": false,
-          "is_sticky": true,
-          "with_services": true
+        acknowledgement: {
+          comment: 'Acknowledged by ',
+          is_notify_contacts: true,
+          is_persistent_comment: false,
+          is_sticky: true,
+          with_services: true
         },
-        "resources": [
+        resources: [
           {
-            "id": 19,
-            "parent": {
-              "id": 14
+            id: 19,
+            parent: {
+              id: 14
             },
-            "type": "service"
+            type: 'service'
           },
           {
-            "id": 24,
-            "parent": {
-              "id": 14
+            id: 24,
+            parent: {
+              id: 14
             },
-            "type": "service"
+            type: 'service'
           }
         ]
-      })
-    })
+      });
+    });
 
     cy.contains(labelAcknowledgeCommandSent).should('be.visible');
 
@@ -444,28 +452,28 @@ describe('View by all', () => {
 
     cy.waitForRequest('@postDowntime').then(({ request }) => {
       expect(request.body).deep.equal({
-        "downtime": {
-          "comment": "Downtime set by ",
-          "duration": 3600,
-          "end_time": "2024-08-08T01:00:00Z",
-          "is_fixed": true,
-          "start_time": "2024-08-08T00:00:00Z",
-          "with_services": false
+        downtime: {
+          comment: 'Downtime set by ',
+          duration: 3600,
+          end_time: '2024-08-08T01:00:00Z',
+          is_fixed: true,
+          start_time: '2024-08-08T00:00:00Z',
+          with_services: false
         },
-        "resources": [
+        resources: [
           {
-            "id": 19,
-            "parent": {
-              "id": 14
+            id: 19,
+            parent: {
+              id: 14
             },
-            "type": "service"
+            type: 'service'
           },
           {
-            "id": 24,
-            "parent": {
-              "id": 14
+            id: 24,
+            parent: {
+              id: 14
             },
-            "type": "service"
+            type: 'service'
           }
         ]
       });
@@ -749,10 +757,7 @@ describe('Open tickets', () => {
         displayResources: 'withoutTicket',
         isOpenTicketEnabled: true,
         provider: { id: 1, name: 'Rule 1' },
-        selectedColumnIds: [
-          ...selectedColumnIds,
-          'open_ticket',
-        ]
+        selectedColumnIds: [...selectedColumnIds, 'open_ticket']
       }
     });
 
@@ -761,12 +766,20 @@ describe('Open tickets', () => {
     cy.findAllByLabelText(labelOpenTicketForService).eq(1).click();
 
     cy.contains(labelCreateticket).should('be.visible');
-    cy.get('iframe').should('have.attr', 'src', './main.get.php?p=60421&cmd=3&rule_id=1&host_id=14&service_id=24');
+    cy.get('iframe').should(
+      'have.attr',
+      'src',
+      './main.get.php?p=60421&cmd=3&rule_id=1&host_id=14&service_id=24'
+    );
 
     cy.findByLabelText('close').click();
     cy.findAllByLabelText(labelOpenTicketForHost).eq(1).click();
 
-    cy.get('iframe').should('have.attr', 'src', './main.get.php?p=60421&cmd=4&rule_id=1&host_id=14');
+    cy.get('iframe').should(
+      'have.attr',
+      'src',
+      './main.get.php?p=60421&cmd=4&rule_id=1&host_id=14'
+    );
 
     cy.makeSnapshot();
 
