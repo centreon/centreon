@@ -39,27 +39,12 @@ When('the user changes the properties of a service', () => {
     subMenu: "Services",
   });
 
-    cy.enterIframe("iframe#main-content").find("table.ListTable")
-        .find("tr.list_one")
-        .find("td.ListColLeft")
-        .contains("test")
-        .click();
-//   cy.get("iframe#main-content")
-//     .its("0.contentDocument.body")
-//     .find("table.ListTable")
-//     .find("tr.list_one")
-//     .find("td.ListColLeft")
-//     .contains("test")
-//     .click();
-//   cy.get("iframe#main-content")
-//     .its("0.contentDocument.body")
-//     .find("table.formTable")
-//     .find("tr.list_two")
-//     .find("td.FormRowValue")
-//     .find('input[name="service_description"]')
-//     .clear()
-//     .type("test_modified");
-cy.enterIframe("iframe#main-content").find("td.FormRowValue")
+  cy.enterIframe("iframe#main-content").find("table.ListTable")
+    .find("tr.list_one")
+    .find("td.ListColLeft")
+    .contains("test")
+    .click();
+  cy.enterIframe("iframe#main-content").find("td.FormRowValue")
     .find("select#service_template_model_stm_id")
     .next()
     .click();
@@ -70,12 +55,6 @@ cy.enterIframe("iframe#main-content").find("td.FormRowValue")
         .find('input[name="service_description"]')
         .clear()
         .type("test_modified");
-//   cy.getIframeBody()
-//     .find("table tr.list_one")
-//     .find("td.FormRowValue")
-//     .find("select#service_template_model_stm_id")
-//     .next()
-//     .click();
   cy.getIframeBody().contains("Ping-WAN").click();
   cy.getIframeBody()
     .find("div#validForm")
@@ -86,30 +65,19 @@ cy.enterIframe("iframe#main-content").find("td.FormRowValue")
 });
 
 Then('the properties are updated', () => {
-    // cy.get("iframe#main-content")
-    //   .its("0.contentDocument.body")
-    //   .find("table.ListTable")
-    //   .find("tr.list_one")
-    //   .find("td.ListColLeft")
-    //   .contains("test")
-    //   .click();
-    cy.enterIframe("iframe#main-content").find("table.ListTable")
-      .find("tr.list_one")
-      .find("td.ListColLeft")
-      .contains("test")
-      .click();
-    // cy.get("iframe#main-content")
-    //   .its("0.contentDocument.body")
-    //   .find("table.formTable")
-    //   .find("tr.list_two")
-    //   .find("td.FormRowValue")
-    //   .find('input[name="service_description"]')
-    //   .should('have.value',"test_modified");
-    cy.enterIframe("iframe#main-content").find("table.formTable")
-      .find("tr.list_two")
-      .find("td.FormRowValue")
-      .find('input[name="service_description"]')
-      .should('have.value',"test_modified");
+  cy.enterIframe("iframe#main-content")
+    .find("table.ListTable")
+    .find("tr.list_one")
+    .find("td.ListColLeft")
+    .contains("test")
+    .click();
+
+  cy.enterIframe("iframe#main-content")
+    .find("table.formTable")
+    .find("tr.list_two")
+    .find("td.FormRowValue")
+    .find('input[name="service_description"]')
+    .should('have.value',"test_modified");
   cy.getIframeBody()
     .find("table tr.list_one")
     .find("td.FormRowValue")
@@ -124,87 +92,22 @@ When('the user duplicates a service', () => {
     rootItemNumber: 3,
     subMenu: "Services",
   });
-cy.get("iframe#main-content")
-  .its("0.contentDocument.body")
-  .find("table tbody")
-  .find("tr.list_one")
-  .each(($row) => {
-    cy.wrap($row)
-      .find("td.ListColLeft")
-      .then(($td) => {
-        if ($td.text().includes("host_1")) {
-          cy.wrap($row)
-            .find("td.ListColPicker")
-            .find("div.md-checkbox")
-            .click();
-        }
-      });
+  cy.enterIframe("iframe#main-content")
+    .find("table tbody")
+    .find("tr.list_one")
+    .each(($row) => {
+      cy.wrap($row)
+        .find("td.ListColLeft")
+        .then(($td) => {
+          if ($td.text().includes("host_1")) {
+            cy.wrap($row)
+              .find("td.ListColPicker")
+              .find("div.md-checkbox")
+              .click();
+          }
+        });
   });
-  cy.get("iframe#main-content")
-    .its("0.contentDocument.body")
-    .find("table.ToolbarTable tbody")
-    .find("td.Toolbar_TDSelectAction_Bottom")
-    .find("select")
-    .invoke(
-        "attr",
-        "onchange",
-        "javascript: { setO(this.form.elements['o2'].value); this.form.submit(); }",
-    );
-  cy.get("iframe#main-content")
-    .its("0.contentDocument.body")
-    .find("table.ToolbarTable tbody")
-    .find("td.Toolbar_TDSelectAction_Bottom")
-    .find("select")
-    .select("Duplicate");
-});
-
-Then('the new service has the same properties', () => {
-  cy.get("iframe#main-content")
-    .its("0.contentDocument.body")
-    .find("table.ListTable")
-    .find("tr.list_two")
-    .find("td.ListColLeft")
-    .contains("test_1")
-    .click();
-    cy.get("iframe#main-content")
-      .its("0.contentDocument.body")
-      .find("table.formTable")
-      .find("tr.list_two")
-      .find("td.FormRowValue")
-      .find('input[name="service_description"]')
-      .should("have.value", "test_1");
-    cy.getIframeBody()
-      .find("table tr.list_one")
-      .find("td.FormRowValue")
-      .find("select#service_template_model_stm_id")
-      .contains("Ping-LAN")
-      .should("exist");
-});
-
-When('the user deletes a service', () => {
-  cy.navigateTo({
-    page: "Services by host",
-    rootItemNumber: 3,
-    subMenu: "Services",
-  });
-cy.get("iframe#main-content")
-  .its("0.contentDocument.body")
-  .find("table tbody")
-  .find("tr.list_one")
-  .each(($row) => {
-    cy.wrap($row)
-      .find("td.ListColLeft")
-      .then(($td) => {
-        if ($td.text().includes("host_1")) {
-          cy.wrap($row)
-            .find("td.ListColPicker")
-            .find("div.md-checkbox")
-            .click();
-        }
-      });
-  });
-  cy.get("iframe#main-content")
-    .its("0.contentDocument.body")
+  cy.enterIframe("iframe#main-content")
     .find("table.ToolbarTable tbody")
     .find("td.Toolbar_TDSelectAction_Bottom")
     .find("select")
@@ -213,8 +116,65 @@ cy.get("iframe#main-content")
       "onchange",
       "javascript: { setO(this.form.elements['o2'].value); this.form.submit(); }",
     );
-  cy.get("iframe#main-content")
-    .its("0.contentDocument.body")
+  cy.enterIframe("iframe#main-content")
+    .find("table.ToolbarTable tbody")
+    .find("td.Toolbar_TDSelectAction_Bottom")
+    .find("select")
+    .select("Duplicate");
+});
+
+Then('the new service has the same properties', () => {
+  cy.enterIframe("iframe#main-content")
+    .find("table.ListTable")
+    .find("tr.list_two")
+    .find("td.ListColLeft")
+    .contains("test_1")
+    .click();
+  cy.enterIframe("iframe#main-content")
+    .find("table.formTable")
+    .find("tr.list_two")
+    .find("td.FormRowValue")
+    .find('input[name="service_description"]')
+    .should("have.value", "test_1");
+  cy.getIframeBody()
+    .find("table tr.list_one")
+    .find("td.FormRowValue")
+    .find("select#service_template_model_stm_id")
+    .contains("Ping-LAN")
+    .should("exist");
+});
+
+When('the user deletes a service', () => {
+  cy.navigateTo({
+    page: "Services by host",
+    rootItemNumber: 3,
+    subMenu: "Services",
+  });
+  cy.enterIframe("iframe#main-content")
+    .find("table tbody")
+    .find("tr.list_one")
+    .each(($row) => {
+      cy.wrap($row)
+        .find("td.ListColLeft")
+        .then(($td) => {
+          if ($td.text().includes("host_1")) {
+            cy.wrap($row)
+              .find("td.ListColPicker")
+              .find("div.md-checkbox")
+              .click();
+          }
+        });
+    });
+  cy.enterIframe("iframe#main-content")
+    .find("table.ToolbarTable tbody")
+    .find("td.Toolbar_TDSelectAction_Bottom")
+    .find("select")
+    .invoke(
+      "attr",
+      "onchange",
+      "javascript: { setO(this.form.elements['o2'].value); this.form.submit(); }",
+    );
+  cy.enterIframe("iframe#main-content")
     .find("table.ToolbarTable tbody")
     .find("td.Toolbar_TDSelectAction_Bottom")
     .find("select")
@@ -222,8 +182,7 @@ cy.get("iframe#main-content")
 });
 
 Then('the deleted service is not displayed in the service list', () => {
-  cy.get("iframe#main-content")
-    .its("0.contentDocument.body")
+  cy.enterIframe("iframe#main-content")
     .find("table.ListTable tbody")
     .contains("test")
     .should("not.exist");
