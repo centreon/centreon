@@ -56,7 +56,7 @@ class AgentConfiguration extends AbstractObjectJSON
                 Type::CMA => $configuration = $this->formatCmaConfiguration(
                     $agentConfiguration->getConfiguration()->getData()
                 ),
-                default => throw new \Exception('This error should never happen')
+                default => throw new \Exception('The type of the agent configuration not exists')
             };
         }
 

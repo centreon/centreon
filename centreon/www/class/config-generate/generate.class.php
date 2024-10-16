@@ -104,6 +104,10 @@ class Generate
     /** @var Container|null */
     protected $dependencyInjector = null;
 
+    private ReadAccRepositoryInterface $readAdditionalConnectorRepository;
+
+    private ReadAgentConfigurationRepositoryInterface $readAgentConfigurationRepository;
+
     /**
      * Generate constructor
      *
@@ -113,6 +117,12 @@ class Generate
     {
         $this->dependencyInjector = $dependencyInjector;
         $this->backend_instance = Backend::getInstance($this->dependencyInjector);
+        $kernel = Kernel::createForWeb();
+        $this->readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
+            ?? throw new \Exception('ReadAccRepositoryInterface not found');
+        $this->readAgentConfigurationRepository = $kernel->getContainer()
+            ->get(ReadAgentConfigurationRepositoryInterface::class)
+            ?? throw new \Exception('ReadAccRepositoryInterface not found');
     }
 
     /**
@@ -298,20 +308,13 @@ class Generate
         Engine::getInstance($this->dependencyInjector)->reset();
         Broker::getInstance($this->dependencyInjector)->reset();
 
-        $kernel = Kernel::createForWeb();
-        $readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
-            ?? throw new \Exception('ReadAccRepositoryInterface not found');
         (new AdditionalConnectorVmWareV6(
             Backend::getInstance($this->dependencyInjector),
-            $readAdditionalConnectorRepository
+            $this->readAdditionalConnectorRepository
         ))->reset();
-        $readAgentConfigurationRepository = $kernel->getContainer()->get(
-            ReadAgentConfigurationRepositoryInterface::class
-        )
-            ?? throw new \Exception('ReadAgentConfigurationRepositoryInterface not found');
         (new AgentConfiguration(
             Backend::getInstance($this->dependencyInjector),
-            $readAgentConfigurationRepository
+            $this->readAgentConfigurationRepository
         ))->reset();
         $this->resetModuleObjects();
     }
