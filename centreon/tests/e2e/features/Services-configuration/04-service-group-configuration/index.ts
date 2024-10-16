@@ -169,12 +169,12 @@ Then("the new service group has the same properties", () => {
    .find("tr.list_two")
    .find("td.FormRowValue")
    .find('input[name="sg_alias"]')
-   .should("have.value", "description_modified");
+   .should("have.value", `${data.service_group.service1.name}`);
  cy.enterIframe("iframe#main-content")
    .find("table tr.list_one")
    .find("td.FormRowValue")
    .find("select#sg_hServices")
-   .contains("Centreon-Server - Memory")
+   .contains(`${data.hosts.host1.name}`)
    .should("exist");
 });
 
