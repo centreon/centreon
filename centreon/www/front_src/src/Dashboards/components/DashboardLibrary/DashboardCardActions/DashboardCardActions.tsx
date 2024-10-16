@@ -65,8 +65,7 @@ const DashboardCardActions = ({
   return (
     <div className={classes.container}>
       <Favorite dashboardId={Number(dashboard?.id)} isFavorite={isFavorite} />
-      {
-        hasEditPermission && 
+      {hasEditPermission && (
         <>
           <IconButton
             ariaLabel={labels.labelShareWithContacts}
@@ -111,7 +110,7 @@ const DashboardCardActions = ({
             />
           </Menu>
         </>
-      }
+      )}
     </div>
   );
 };

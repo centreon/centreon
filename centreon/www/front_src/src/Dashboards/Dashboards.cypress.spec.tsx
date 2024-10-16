@@ -436,11 +436,11 @@ describe('Dashboards', () => {
 
       cy.findByLabelText('Add').should('not.exist');
       cy.findByText('Actions').should('be.visible');
-      
+
       cy.findByLabelText(labelMoreActions).should('not.exist');
       cy.findByLabelText(labelShareWithContacts).should('not.exist');
 
-      cy.findAllByTestId('favorite-icon').should("have.length", 2)
+      cy.findAllByTestId('favorite-icon').should('have.length', 2);
 
       cy.makeSnapshot();
     });

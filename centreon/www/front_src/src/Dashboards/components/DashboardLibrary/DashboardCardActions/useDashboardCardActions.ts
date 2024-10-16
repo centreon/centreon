@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 
+import { profileAtom } from '@centreon/ui-context';
 import { Dashboard } from '../../../api/models';
 import {
   dashboardToDeleteAtom,
@@ -9,7 +10,6 @@ import {
   isSharesOpenAtom
 } from '../../../atoms';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
-import { profileAtom } from '@centreon/ui-context';
 
 interface Props {
   dashboard: Dashboard;
@@ -23,7 +23,7 @@ interface UseDashboardCardActionsState {
   openEditAccessRightModal: () => void;
   openEditModal: () => void;
   openMoreActions: (event) => void;
-  isFavorite?: boolean; 
+  isFavorite?: boolean;
 }
 
 const useDashboardCardActions = ({
@@ -35,7 +35,7 @@ const useDashboardCardActions = ({
   const openMoreActions = (event): void => setMoreActionsOpen(event.target);
 
   const { editDashboard } = useDashboardConfig();
-  
+
   const profile = useAtomValue(profileAtom);
   const setIsSharesOpenAtom = useSetAtom(isSharesOpenAtom);
   const setDashboardToDelete = useSetAtom(dashboardToDeleteAtom);
@@ -62,8 +62,8 @@ const useDashboardCardActions = ({
 
   const isFavorite = useMemo(
     () => profile?.favoriteDashboards?.includes(Number(dashboard?.id)),
-    [profile,dashboard?.id]
-  )
+    [profile, dashboard?.id]
+  );
 
   return {
     closeMoreActions,

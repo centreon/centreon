@@ -20,8 +20,6 @@ import { DashboardListing } from '../DashboardListing';
 import { searchAtom, viewModeAtom } from '../DashboardListing/atom';
 import { ViewMode } from '../DashboardListing/models';
 import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
-
-import Favorite from '../../DashboardFavorite/Favorite';
 import { useStyles } from './DashboardsOverview.styles';
 import { DashboardsOverviewSkeleton } from './DashboardsOverviewSkeleton';
 import { useDashboardsOverview } from './useDashboardsOverview';
@@ -86,7 +84,7 @@ const DashboardsOverview = (): ReactElement => {
           Actions={
             <DashboardCardActions
               dashboard={dashboard}
-              hasEditPermission = {hasEditPermission(dashboard)}
+              hasEditPermission={hasEditPermission(dashboard)}
             />
           }
           description={dashboard.description ?? undefined}

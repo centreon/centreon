@@ -46,34 +46,31 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
 
   return (
     <Box className={classes.actions}>
-         <Favorite isFavorite={isFavorite} dashboardId={row?.id} /> 
-         {
-          hasEditPermission(row) &&
-          <>
-            <IconButton
-              ariaLabel={t(labelShareWithContacts)}
-              title={t(labelShareWithContacts)}
-              onClick={editAccessRights}
-            >
-              <ShareIcon className={classes.icon} />
-            </IconButton>
-            <IconButton
-              ariaLabel={t(labelMoreActions)}
-              title={t(labelMoreActions)}
-              onClick={openMoreActions}
-            >
-              <MoreIcon />
-            </IconButton>
-      
-            <MoreActions
-              anchor={moreActionsOpen}
-              close={closeMoreActions}
-              row={row}
-            />
-          </>
+      <Favorite isFavorite={isFavorite} dashboardId={row?.id} />
+      {hasEditPermission(row) && (
+        <>
+          <IconButton
+            ariaLabel={t(labelShareWithContacts)}
+            title={t(labelShareWithContacts)}
+            onClick={editAccessRights}
+          >
+            <ShareIcon className={classes.icon} />
+          </IconButton>
+          <IconButton
+            ariaLabel={t(labelMoreActions)}
+            title={t(labelMoreActions)}
+            onClick={openMoreActions}
+          >
+            <MoreIcon />
+          </IconButton>
 
-        }
-       
+          <MoreActions
+            anchor={moreActionsOpen}
+            close={closeMoreActions}
+            row={row}
+          />
+        </>
+      )}
     </Box>
   );
 };
