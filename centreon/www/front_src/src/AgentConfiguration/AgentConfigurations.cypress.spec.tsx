@@ -650,8 +650,8 @@ describe('Agent configurations modal', () => {
             {
               address: '',
               port: '',
-              poller_ca_certificate: '',
-              poller_ca_name: ''
+              poller_ca_certificate: null,
+              poller_ca_name: null
             }
           ]
         }

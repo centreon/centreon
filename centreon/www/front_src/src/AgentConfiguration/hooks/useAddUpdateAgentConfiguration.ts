@@ -38,7 +38,7 @@ const adaptTelegrafConfigurationToAPI = (
     type: (agentConfiguration.type as SelectEntry).id,
     configuration: {
       otel_private_key: configuration.otelPrivateKey,
-      otel_ca_certificate: configuration.otelCaCertificate,
+      otel_ca_certificate: configuration.otelCaCertificate || null,
       otel_public_certificate: configuration.otelPublicCertificate,
       conf_certificate: configuration.confCertificate,
       conf_private_key: configuration.confPrivateKey,
@@ -58,14 +58,14 @@ const adaptCMAConfigurationToAPI = (
     type: (agentConfiguration.type as SelectEntry).id,
     configuration: {
       is_reverse: configuration.isReverse,
-      otel_ca_certificate: configuration.otelCaCertificate,
+      otel_ca_certificate: configuration.otelCaCertificate || null,
       otel_public_certificate: configuration.otelPublicCertificate,
       otel_private_key: configuration.otelPrivateKey,
       hosts: configuration.hosts.map((host) => ({
         address: host.address,
         port: host.port,
-        poller_ca_name: host.pollerCaName,
-        poller_ca_certificate: host.pollerCaCertificate
+        poller_ca_name: host.pollerCaName || null,
+        poller_ca_certificate: host.pollerCaCertificate || null
       }))
     }
   };
