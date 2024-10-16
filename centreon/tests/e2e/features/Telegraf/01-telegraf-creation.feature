@@ -1,9 +1,9 @@
-Feature: Create a new Telegraf configuration
+Feature: Create a new Agent Configuration
   As a Centreon user
   I want to visit the Agents Configuration page
-  To manage the Telegraf agent configuration
+  To manage the Agent Configurations
 
-  Scenario: Add a telegraf with all informations
+  Scenario: Add an agent with all informations
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add
     Then a pop-up menu with the form is displayed
@@ -11,7 +11,7 @@ Feature: Create a new Telegraf configuration
     And the user clicks on Create
     Then the first agent is displayed in the Agents Configuration page
 
-  Scenario: Add a telegraf with mandatory informations
+  Scenario: Add an agent with mandatory informations
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add
     Then a pop-up menu with the form is displayed
@@ -19,26 +19,39 @@ Feature: Create a new Telegraf configuration
     And the user clicks on Create
     Then the second agent is displayed in the Agents Configuration page
 
-  Scenario: Add a telegraf with missing informations
+  Scenario: Add a centreon agent with multiple hosts
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add
-    And the user doesn't fill in all the mandatory informations
+    Then a pop-up menu with the form is displayed
+    When the user clicks to add a second host
+    Then a second group of parameters for hosts is displayed
+    When the user fills in the informations of all the parameter groups
+    And the user clicks on Create
+    Then the third agent is displayed in the Agents Configuration page
+
+  Scenario: Add an agent with missing informations
+    Given a non-admin user is in the Agents Configuration page
+    When the user clicks on Add
+    Then a pop-up menu with the form is displayed
+    When the user doesn't fill in all the mandatory informations
     Then the user cannot click on Create
 
-  Scenario: Add a telegraf with incorrect informations
+  Scenario: Add an agent with incorrect informations
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add
-    And the user doesn't fill in correct type of informations
+    Then a pop-up menu with the form is displayed
+    When the user doesn't fill in correct type of informations
     Then the form displayed an error
 
   Scenario: Cancel a creation form
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add
-    And the user fills in the needed informations
+    Then a pop-up menu with the form is displayed
+    When the user fills in all the informations
     And the user clicks on the Cancel button of the creation form
     Then a pop-up appears to confirm cancellation
     And the user confirms the the cancellation
     Then the creation form is closed
-    And the telegraf has not been created
+    And the agent has not been created
     When the user clicks on Add
     Then the form fields are empty
