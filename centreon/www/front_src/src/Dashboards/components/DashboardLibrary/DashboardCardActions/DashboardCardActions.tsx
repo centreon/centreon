@@ -33,12 +33,12 @@ import Favorite from '../../DashboardFavorite/Favorite';
 
 interface Props {
   dashboard: Dashboard;
-  isFavorite?: boolean;
+  hasEditPermission?: boolean;
 }
 
 const DashboardCardActions = ({
   dashboard,
-  isFavorite
+  hasEditPermission
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -50,7 +50,8 @@ const DashboardCardActions = ({
     openEditAccessRightModal,
     openEditModal,
     openMoreActions,
-    closeMoreActions
+    closeMoreActions,
+    isFavorite
   } = useDashboardCardActions({ dashboard });
 
   const labels = {
@@ -63,49 +64,54 @@ const DashboardCardActions = ({
 
   return (
     <div className={classes.container}>
-      <IconButton
-        ariaLabel={labels.labelShareWithContacts}
-        title={labels.labelShareWithContacts}
-        onClick={openEditAccessRightModal}
-      >
-        <ShareIcon fontSize="small" />
-      </IconButton>
       <Favorite dashboardId={Number(dashboard?.id)} isFavorite={isFavorite} />
-      <IconButton
-        ariaLabel={labels.labelMoreActions}
-        title={labels.labelMoreActions}
-        onClick={openMoreActions}
-      >
-        <MoreIcon />
-      </IconButton>
-      <Menu
-        anchorEl={moreActionsOpen}
-        open={Boolean(moreActionsOpen)}
-        onClose={closeMoreActions}
-      >
-        <ActionsList
-          actions={[
-            {
-              Icon: SettingsIcon,
-              label: labels.labelEditProperties,
-              onClick: openEditModal
-            },
-            ActionsListActionDivider.divider,
-            {
-              Icon: DuplicateIcon,
-              label: labels.labelDuplicate,
-              onClick: openDuplicateModal
-            },
-            ActionsListActionDivider.divider,
-            {
-              Icon: DeleteIcon,
-              label: labels.labelDelete,
-              onClick: openDeleteModal,
-              variant: 'error'
-            }
-          ]}
-        />
-      </Menu>
+      {
+        hasEditPermission && 
+        <>
+          <IconButton
+            ariaLabel={labels.labelShareWithContacts}
+            title={labels.labelShareWithContacts}
+            onClick={openEditAccessRightModal}
+          >
+            <ShareIcon fontSize="small" />
+          </IconButton>
+          <IconButton
+            ariaLabel={labels.labelMoreActions}
+            title={labels.labelMoreActions}
+            onClick={openMoreActions}
+          >
+            <MoreIcon />
+          </IconButton>
+          <Menu
+            anchorEl={moreActionsOpen}
+            open={Boolean(moreActionsOpen)}
+            onClose={closeMoreActions}
+          >
+            <ActionsList
+              actions={[
+                {
+                  Icon: SettingsIcon,
+                  label: labels.labelEditProperties,
+                  onClick: openEditModal
+                },
+                ActionsListActionDivider.divider,
+                {
+                  Icon: DuplicateIcon,
+                  label: labels.labelDuplicate,
+                  onClick: openDuplicateModal
+                },
+                ActionsListActionDivider.divider,
+                {
+                  Icon: DeleteIcon,
+                  label: labels.labelDelete,
+                  onClick: openDeleteModal,
+                  variant: 'error'
+                }
+              ]}
+            />
+          </Menu>
+        </>
+      }
     </div>
   );
 };

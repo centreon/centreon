@@ -5,7 +5,6 @@ import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { generatePath, useNavigate } from 'react-router-dom';
 
-import { profileAtom } from '@centreon/ui-context';
 import { DataTable } from '@centreon/ui/components';
 
 import routeMap from '../../../../reactRoutes/routeMap';
@@ -38,11 +37,6 @@ const DashboardsOverview = (): ReactElement => {
   const { createDashboard } = useDashboardConfig();
   const { hasEditPermission, canCreateOrManageDashboards } =
     useDashboardUserPermissions();
-
-  const profile = useAtomValue(profileAtom);
-
-  const getIsFavorite = (dashboard: Dashboard) =>
-    profile?.favoriteDashboards?.includes(Number(dashboard.id));
 
   const navigate = useNavigate();
 
@@ -92,17 +86,10 @@ const DashboardsOverview = (): ReactElement => {
           Actions={
             <DashboardCardActions
               dashboard={dashboard}
-              isFavorite={getIsFavorite(dashboard)}
-            />
-          }
-          fovoriteAction={
-            <Favorite
-              dashboardId={Number(dashboard?.id)}
-              isFavorite={getIsFavorite(dashboard)}
+              hasEditPermission = {hasEditPermission(dashboard)}
             />
           }
           description={dashboard.description ?? undefined}
-          hasActions={hasEditPermission(dashboard)}
           key={dashboard.id}
           title={dashboard.name}
           onClick={navigateToDashboard(dashboard)}

@@ -44,37 +44,36 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
     );
   }
 
-  if (!hasEditPermission(row)) {
-    return (
-      <Box className={classes.line}>
-        <Favorite isFavorite={isFavorite} dashboardId={row?.id} />
-      </Box>
-    );
-  }
-
   return (
     <Box className={classes.actions}>
-      <IconButton
-        ariaLabel={t(labelShareWithContacts)}
-        title={t(labelShareWithContacts)}
-        onClick={editAccessRights}
-      >
-        <ShareIcon className={classes.icon} />
-      </IconButton>
-      <Favorite isFavorite={isFavorite} dashboardId={row?.id} />
-      <IconButton
-        ariaLabel={t(labelMoreActions)}
-        title={t(labelMoreActions)}
-        onClick={openMoreActions}
-      >
-        <MoreIcon />
-      </IconButton>
+         <Favorite isFavorite={isFavorite} dashboardId={row?.id} /> 
+         {
+          hasEditPermission(row) &&
+          <>
+            <IconButton
+              ariaLabel={t(labelShareWithContacts)}
+              title={t(labelShareWithContacts)}
+              onClick={editAccessRights}
+            >
+              <ShareIcon className={classes.icon} />
+            </IconButton>
+            <IconButton
+              ariaLabel={t(labelMoreActions)}
+              title={t(labelMoreActions)}
+              onClick={openMoreActions}
+            >
+              <MoreIcon />
+            </IconButton>
+      
+            <MoreActions
+              anchor={moreActionsOpen}
+              close={closeMoreActions}
+              row={row}
+            />
+          </>
 
-      <MoreActions
-        anchor={moreActionsOpen}
-        close={closeMoreActions}
-        row={row}
-      />
+        }
+       
     </Box>
   );
 };

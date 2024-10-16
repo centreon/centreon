@@ -89,7 +89,7 @@ const Dashboard = (): ReactElement => {
 
   const isFavorite = useMemo(
     () => profile?.favoriteDashboards?.includes(Number(dashboardId)),
-    [profile]
+    [profile,dashboardId]
   );
 
   return (
@@ -104,7 +104,7 @@ const Dashboard = (): ReactElement => {
               description={dashboard?.description || ''}
               title={dashboard?.name || ''}
             />
-            { !isOnPublicPage && <Favorite dashboardId = {Number(dashboardId)} isFavorite = {isFavorite} />}
+            { !isOnPublicPage && <Favorite dashboardId={Number(dashboardId)} isFavorite={isFavorite} />}
           </PageHeader.Main>
           <DashboardNavbar />
         </PageHeader>
