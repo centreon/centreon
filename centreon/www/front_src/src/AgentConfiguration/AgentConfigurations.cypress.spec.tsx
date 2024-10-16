@@ -501,7 +501,7 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).equal(
-        '{"name":"agent","type":"telegraf","poller_ids":[1],"configuration":{"otel_private_key":"test","otel_ca_certificate":null,"otel_public_certificate":"test","conf_certificate":"test","conf_private_key":"test","conf_server_port":1234}}'
+        '{"name":"agent","type":"telegraf","configuration":{"otel_private_key":"test","otel_ca_certificate":null,"otel_public_certificate":"test","conf_certificate":"test","conf_private_key":"test","conf_server_port":1234},"poller_ids":[1]}'
       );
     });
 
@@ -523,7 +523,7 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
       expect(request.body).equal(
-        '{"name":"agent updated","type":"telegraf","poller_ids":[1,2],"configuration":{"otel_private_key":"coucou","otel_ca_certificate":"coucou","otel_public_certificate":"coucou","conf_certificate":"coucou","conf_private_key":"coucou","conf_server_port":9090}}'
+        '{"name":"agent updated","type":"telegraf","configuration":{"otel_private_key":"coucou","otel_ca_certificate":"coucou","otel_public_certificate":"coucou","conf_certificate":"coucou","conf_private_key":"coucou","conf_server_port":9090},"poller_ids":[1,2]}'
       );
     });
 
@@ -543,7 +543,7 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
       expect(request.body).equal(
-        '{"name":"agent updated","type":"telegraf","poller_ids":[1,2],"configuration":{"otel_private_key":"coucou","otel_ca_certificate":"coucou","otel_public_certificate":"coucou","conf_certificate":"coucou","conf_private_key":"coucou","conf_server_port":9090}}'
+        '{"name":"agent updated","type":"telegraf","configuration":{"otel_private_key":"coucou","otel_ca_certificate":"coucou","otel_public_certificate":"coucou","conf_certificate":"coucou","conf_private_key":"coucou","conf_server_port":9090},"poller_ids":[1,2]}'
       );
     });
 

@@ -7,7 +7,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { FormikHelpers } from 'formik';
 import { useAtom } from 'jotai';
-import { equals, pluck } from 'ramda';
+import { equals, omit, pluck } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import {
   getAgentConfigurationEndpoint,
@@ -33,7 +33,7 @@ const adaptTelegrafConfigurationToAPI = (
     agentConfiguration.configuration as TelegrafConfiguration;
 
   return {
-    ...agentConfiguration,
+    ...omit(['pollers'], agentConfiguration),
     poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
     type: (agentConfiguration.type as SelectEntry).id,
     configuration: {
@@ -53,7 +53,7 @@ const adaptCMAConfigurationToAPI = (
   const configuration = agentConfiguration.configuration as CMAConfiguration;
 
   return {
-    ...agentConfiguration,
+    ...omit(['pollers'], agentConfiguration),
     poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
     type: (agentConfiguration.type as SelectEntry).id,
     configuration: {
