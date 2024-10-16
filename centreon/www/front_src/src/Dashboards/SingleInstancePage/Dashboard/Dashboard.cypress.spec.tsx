@@ -35,7 +35,7 @@ import {
   labelSharesSaved
 } from '../../translatedLabels';
 
-import { profileEndpoint } from 'www/front_src/src/api/endpoint';
+import { profileEndpoint } from '../../../api/endpoint';
 import Dashboard from './Dashboard';
 import { internalWidgetComponents } from './Widgets/widgets';
 import { dashboardAtom } from './atoms';
