@@ -83,7 +83,6 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
         }}
       />
       <TextField
-        required
         value={host?.pollerCaCertificate || ''}
         onChange={changeStringInput('pollerCaCertificate')}
         label={t(labelCertificate)}
@@ -99,7 +98,6 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
         }
       />
       <TextField
-        required
         value={host?.pollerCaName || ''}
         onChange={changeStringInput('pollerCaName')}
         label={t(labelCaCertificate)}

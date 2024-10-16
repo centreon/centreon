@@ -639,7 +639,7 @@ describe('Agent configurations modal', () => {
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(JSON.parse(request.body)).deep.equal({
         name: 'My agent',
-        type: 'centreon_agent',
+        type: 'centreon-agent',
         poller_ids: [1],
         configuration: {
           is_reverse: false,
@@ -743,7 +743,7 @@ describe('Agent configurations modal', () => {
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(JSON.parse(request.body)).deep.equal({
         name: 'My agent',
-        type: 'centreon_agent',
+        type: 'centreon-agent',
         poller_ids: [1],
         configuration: {
           is_reverse: true,

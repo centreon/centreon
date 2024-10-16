@@ -2,7 +2,7 @@ import { SelectEntry } from '@centreon/ui';
 
 export enum AgentType {
   Telegraf = 'telegraf',
-  CMA = 'centreon_agent'
+  CMA = 'centreon-agent'
 }
 
 export interface AgentConfigurationListing {
