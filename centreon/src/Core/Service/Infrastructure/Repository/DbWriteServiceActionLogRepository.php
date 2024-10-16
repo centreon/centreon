@@ -245,6 +245,11 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
 
         foreach ($serviceReflection->getProperties() as $property) {
             $value = $property->getValue($service);
+            // Do not capture class name of function parameter in action logs
+            if ($property->getName() === 'className') {
+                continue;
+            }
+
             if ($value === null) {
                 $value = '';
             }
