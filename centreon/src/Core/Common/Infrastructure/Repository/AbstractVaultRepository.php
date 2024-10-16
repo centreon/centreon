@@ -37,6 +37,7 @@ abstract class AbstractVaultRepository
     public const KNOWLEDGE_BASE_PATH = 'configuration/knowledge_base';
     public const POLLER_MACRO_VAULT_PATH = 'monitoring/pollerMacros';
     public const OPEN_ID_CREDENTIALS_VAULT_PATH = 'configuration/openid';
+    public const GORGONE_VAULT_PATH = 'configuration/gorgone';
     public const DATABASE_VAULT_PATH = 'database';
     public const BROKER_VAULT_PATH = 'configuration/broker';
     public const ACC_VAULT_PATH = 'configuration/additionalConnectorConfigurations';
@@ -52,6 +53,7 @@ abstract class AbstractVaultRepository
         self::DATABASE_VAULT_PATH,
         self::BROKER_VAULT_PATH,
         self::ACC_VAULT_PATH,
+        self::GORGONE_VAULT_PATH,
     ];
 
     protected ?VaultConfiguration $vaultConfiguration;
