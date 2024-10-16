@@ -6,17 +6,17 @@ Feature: ServiceGroupConfiguration
   To see if all simples manipulations work
 
   Background:
-    Given I am logged in a Centreon
+    Given a user is logged in Centreon
     And a service group is configured
 
   Scenario: Change the properties of a service group
-    When I change the properties of a service group
+    When the user changes the properties of a service group
     Then the properties of the service group are updated
 
   Scenario: Duplicate one existing service group
-    When I duplicate a service group
+    When the user duplicates a service group
     Then the new service group has the same properties
 
   Scenario: Delete one existing service group
-    When I delete a service group
+    When the user deletes a service group
     Then the deleted service group is not displayed in the service group list
