@@ -84,6 +84,10 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add("enterIframe", (iframeSelector): Cypress.Chainable => {
+  return cy.get(iframeSelector)
+    .its("0.contentDocument");
+});
 
 declare global {
   namespace Cypress {
@@ -101,6 +105,7 @@ declare global {
         paramName,
         paramValue,
       }: Serviceparams) => Cypress.Chainable;
+      enterIframe: () => Cypress.Chainable;
     }
   }
 }
