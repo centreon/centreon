@@ -70,7 +70,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
         try {
             $service = $this->readServiceRepository->findById($serviceId);
             if ($service === null) {
-                throw new RepositoryException('Cannot find service to delete');
+                throw new RepositoryException(sprintf('Cannot find service to delete (ID: %d).', $serviceId));
             }
             
             $this->writeServiceRepository->delete($serviceId);
@@ -95,8 +95,9 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
      */
     public function deleteByIds(int ...$serviceIds): void
     {
-        try {
-            foreach ($serviceIds as $serviceId) {
+        $failedDeletions = [];
+        foreach ($serviceIds as $serviceId) {
+            try {
                 $service = $this->readServiceRepository->findById($serviceId);
                 if ($service === null) {
                     throw new RepositoryException('Cannot find service to delete');
@@ -112,11 +113,14 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                     $this->contact->getId()
                 );
                 $this->writeActionLogRepository->addAction($actionLog);
+            } catch (\Throwable $ex) {
+                $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+                $failedDeletions[] = $serviceId;
             }
-        } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+        }
 
-            throw $ex;
+        if ($failedDeletions !== []) {
+            throw new RepositoryException('Failed to delete services with IDs: ' . implode(',', $failedDeletions));
         }
     }
 
@@ -160,7 +164,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
         try {
             $currentService = $this->readServiceRepository->findById($service->getId());
             if ($currentService === null) {
-                throw new RepositoryException('Cannot find service to update.');
+                throw new RepositoryException(sprintf('Cannot find service to update (ID: %d).', $service->getId()));
             }
 
             $currentServiceDetails = $this->getServicePropertiesAsArray($currentService);
@@ -169,62 +173,44 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
 
             $this->writeServiceRepository->update($service);
 
-            if (array_key_exists('isActivated', $diff) && count($diff) === 1) {
-                $action = (bool) $diff['isActivated']
+            $actionsToLog = [];
+
+            if (array_key_exists('isActivated', $diff)) {
+                $actionType = (bool) $diff['isActivated']
                     ? ActionLog::ACTION_TYPE_ENABLE
                     : ActionLog::ACTION_TYPE_DISABLE;
-                $actionLog = new ActionLog(
+
+                $actionsToLog[] = new ActionLog(
                     self::SERVICE_OBJECT_TYPE,
                     $service->getId(),
                     $service->getName(),
-                    $action,
+                    $actionType,
                     $this->contact->getId()
                 );
-                $this->writeActionLogRepository->addAction($actionLog);
+
+                unset($diff['isActivated']);
             }
 
-            if (array_key_exists('isActivated', $diff) && count($diff) > 1) {
-                $action = (bool) $diff['isActivated']
-                    ? ActionLog::ACTION_TYPE_ENABLE
-                    : ActionLog::ACTION_TYPE_DISABLE;
-                $actionLog = new ActionLog(
-                    self::SERVICE_OBJECT_TYPE,
-                    $service->getId(),
-                    $service->getName(),
-                    $action,
-                    $this->contact->getId()
-                );
-                $this->writeActionLogRepository->addAction($actionLog);
-
-                $actionLogChange = new ActionLog(
+            if (count($diff) > 0) {
+                $actionsToLog[] = new ActionLog(
                     self::SERVICE_OBJECT_TYPE,
                     $service->getId(),
                     $service->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,
                     $this->contact->getId()
                 );
-                $actionLogChangeId = $this->writeActionLogRepository->addAction($actionLogChange);
-                if ($actionLogChangeId === 0) {
-                    throw new RepositoryException('Action log ID cannot be 0');
-                }
-                $actionLogChange->setId($actionLogChangeId);
-                $this->writeActionLogRepository->addActionDetails($actionLogChange, $diff);
             }
 
-            if (! array_key_exists('isActivated', $diff) && count($diff) >= 1) {
-                $actionLogChange = new ActionLog(
-                    self::SERVICE_OBJECT_TYPE,
-                    $service->getId(),
-                    $service->getName(),
-                    ActionLog::ACTION_TYPE_CHANGE,
-                    $this->contact->getId()
-                );
-                $actionLogChangeId = $this->writeActionLogRepository->addAction($actionLogChange);
-                if ($actionLogChangeId === 0) {
+            foreach ($actionsToLog as $actionLog) {
+                $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
+                if ($actionLogId === 0) {
                     throw new RepositoryException('Action log ID cannot be 0');
                 }
-                $actionLogChange->setId($actionLogChangeId);
-                $this->writeActionLogRepository->addActionDetails($actionLogChange, $diff);
+                $actionLog->setId($actionLogId);
+
+                if ($actionLog->getActionType() === ActionLog::ACTION_TYPE_CHANGE) {
+                    $this->writeActionLogRepository->addActionDetails($actionLog, $diff);
+                }
             }
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);

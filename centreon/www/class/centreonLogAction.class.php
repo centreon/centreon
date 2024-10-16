@@ -228,7 +228,7 @@ class CentreonLogAction
                 ON m.action_log_id = a.action_log_id
             WHERE object_id = :service_id
                 AND object_type = 'service'
-                AND (field_name LIKE 'service_hPars' OR field_name LIKE 'hostId')
+                AND (field_name = 'service_hPars' OR field_name = 'hostId')
                 AND field_value <> ''
             ORDER BY action_log_date DESC
             LIMIT 1
