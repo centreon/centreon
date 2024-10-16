@@ -427,16 +427,20 @@ describe('Dashboards', () => {
       cy.makeSnapshot();
     });
 
-    it('does not display actions in the "View as list" when the user has viewer global role', () => {
+    it('displays only the favorite action in the "View as list" when the user has viewer global role', () => {
       initializeAndMount(viewerRole);
 
       cy.waitForRequest('@getDashboards');
 
       cy.findByTestId(labelListView).click();
 
-      cy.findByText('Actions').should('not.exist');
-
       cy.findByLabelText('Add').should('not.exist');
+      cy.findByText('Actions').should('be.visible');
+      
+      cy.findByLabelText(labelMoreActions).should('not.exist');
+      cy.findByLabelText(labelShareWithContacts).should('not.exist');
+
+      cy.findAllByTestId('favorite-icon').should("have.length", 2)
 
       cy.makeSnapshot();
     });
