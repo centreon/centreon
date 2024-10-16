@@ -20,4 +20,4 @@ Feature: HostTemplateBasicsOperations
   @TEST_MON-151109
   Scenario: Deletion of a host template
     When the user deletes the configured host template
-    Then the deleted host template is not visible anymore on the host group page
+    Then the deleted host template is not visible anymore on the host template page

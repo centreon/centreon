@@ -233,7 +233,7 @@ When('the user deletes the configured host template', () => {
 });
 
 Then(
-  'the deleted host template is not visible anymore on the host group page',
+  'the deleted host template is not visible anymore on the host template page',
   () => {
     cy.getIframeBody()
       .contains(hostTemplates.defaultHostTemplate.name)
