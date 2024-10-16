@@ -69,15 +69,25 @@ $insertAgentConfigurationTopology = function (CentreonDB $pearDB) use (&$errorMe
             SELECT 1 FROM `topology` WHERE `topology_name` = 'Agent configurations'
             SQL
     );
+    $topologyAlreadyExists = (bool) $statement->fetch(\PDO::FETCH_COLUMN);
+
+    $errorMessage = 'Unable to retrieve data from informations table';
+    $statement = $pearDB->executeQuery(
+        <<<'SQL'
+            SELECT `value` FROM `informations` WHERE `key` = 'isCentral'
+            SQL
+    );
+    $isCentral = $statement->fetch(\PDO::FETCH_COLUMN);
 
     $errorMessage = 'Unable to insert data into table topology';
-    if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
-        $pearDB->executeQuery(
+    if (false === $topologyAlreadyExists) {
+        $constraintStatement = $pearDB->prepareQuery(
             <<<'SQL'
                 INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_show`, `is_react`)
-                VALUES (92,'Agent configurations',609,60905,50,1,'/configuration/pollers/agent-configurations', '1', '1');
+                VALUES (92,'Agent configurations',609,60905,50,1,'/configuration/pollers/agent-configurations', :show, '1');
                 SQL
         );
+        $pearDB->executePreparedQuery($constraintStatement, [':show' => $isCentral === 'yes' ? '1' : '0']);
     }
 };
 
