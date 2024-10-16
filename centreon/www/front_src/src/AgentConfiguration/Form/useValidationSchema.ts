@@ -55,7 +55,9 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
   const CMAConfigurationSchema = {
     isReverse: boolean(),
     otelPublicCertificate: certificateValidation,
-    otelCaCertificate: certificateValidation,
+    otelCaCertificate: string()
+      .matches(certificateFilenameRegexp, t(labelInvalidFilename))
+      .nullable(),
     otelPrivateKey: keyValidation,
     hosts: array().when('isReverse', {
       is: true,
