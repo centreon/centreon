@@ -860,7 +860,7 @@ describe('Notification column', () => {
       cy.fixture('resources/listing/listingWithInDowntimeAndAck.json').then(
         (data) => {
           cy.interceptAPIRequest({
-            alias: 'dataToListingTable',
+            alias: 'listing',
             method: Method.GET,
             path: '**/resources?*',
             response: data
@@ -868,7 +868,8 @@ describe('Notification column', () => {
         }
       );
 
-      cy.waitFiltersAndListingRequests();
+      cy.waitForRequest('@filterRequest');
+      cy.waitForRequest('@listing');
 
       cy.contains('Memory').should('be.visible');
       cy.makeSnapshot();
