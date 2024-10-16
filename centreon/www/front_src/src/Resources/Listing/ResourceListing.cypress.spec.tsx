@@ -847,7 +847,7 @@ describe('Notification column', () => {
 });
 
 ['dark', 'light'].forEach((mode) => {
-  describe.only(`Resource Listing: rows and picto colors on ${mode} theme`, () => {
+  describe(`Resource Listing: rows and picto colors on ${mode} theme`, () => {
     beforeEach(() => {
       const userData = renderHook(() => useAtomValue(userAtom));
       userData.result.current.themeMode = mode;
