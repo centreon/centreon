@@ -260,5 +260,13 @@ jobs:
                 ['minor_version', '${{ steps.get_version.outputs.minor_version }}'],
                 ['release', '${{ steps.get_release.outputs.release }}'],
                 ['stability', '${{ steps.get_stability.outputs.stability }}']
-              ])
-              .write();
+              ]);
+
+            if ("${{ github.head_ref || github.ref_name }}" !== "${{ github.ref_name }}") {
+              .addCodeBlock(
+                `graph TD; ${github.head_ref} --> ${github.ref_name}`,
+                "mermaid"
+              );
+            }
+
+            core.summary.write();
