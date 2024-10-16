@@ -41,6 +41,7 @@ services:
             - '../../src/Core/TimePeriod/*'
             - '../../src/Core/Service/*'
             - '../../src/Core/HostGroup/*'
+            - '../../src/Core/HostTemplate/*'
             - '../../src/Core/ServiceGroup/*'
             - '../../src/Core/Host/*'
             - '../../src/Core/Broker/*'
