@@ -11,7 +11,7 @@ Feature: HostTemplateBasicsOperations
   Scenario: Edit of a host template properties
     When the user changes the properties of the configured host template
     Then the properties are updated
-  
+
   @TEST_MON-151105
   Scenario: Duplication of a host template
     When the user duplicates the configured host template
