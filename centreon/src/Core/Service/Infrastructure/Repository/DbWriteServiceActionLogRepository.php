@@ -234,11 +234,11 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
     }
 
     /**
-     * @param NewService $service
+     * @param NewService|Service $service
      *
      * @return array<string,int|bool|string>
      */
-    private function getServicePropertiesAsArray(NewService $service): array
+    private function getServicePropertiesAsArray(NewService|Service $service): array
     {
         $servicePropertiesArray = [];
         $serviceReflection = new \ReflectionClass($service);
