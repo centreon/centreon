@@ -263,7 +263,7 @@ jobs:
               ]);
 
             if ("${{ github.head_ref || github.ref_name }}" !== "${{ github.ref_name }}") {
-              .addCodeBlock(
+              core.summary.addCodeBlock(
                 `graph TD; ${{ github.head_ref }} --> ${{ github.ref_name }}`,
                 "mermaid"
               );
