@@ -253,12 +253,12 @@ jobs:
         with:
           script: |
             core.summary
-              .addHeading('Job outputs')
+              .addHeading(`${context.workflow} environment outputs`)
               .addTable([
                 [{data: 'Name', header: true}, {data: 'Value', header: true}],
                 ['major_version', '${{ steps.get_version.outputs.major_version }}'],
                 ['minor_version', '${{ steps.get_version.outputs.minor_version }}'],
-                ['release', '${{ steps.get_release.outputs.minor_version }}'],
+                ['release', '${{ steps.get_release.outputs.release }}'],
                 ['stability', '${{ steps.get_stability.outputs.stability }}']
               ])
               .write();
