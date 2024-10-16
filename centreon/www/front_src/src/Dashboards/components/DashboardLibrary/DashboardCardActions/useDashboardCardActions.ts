@@ -10,7 +10,6 @@ import {
 } from '../../../atoms';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
 
-
 interface Props {
   dashboard: Dashboard;
 }
@@ -39,7 +38,6 @@ const useDashboardCardActions = ({
   const setDashboardToDelete = useSetAtom(dashboardToDeleteAtom);
   const setDashboardToDuplicate = useSetAtom(dashboardToDuplicateAtom);
 
-  
   const openDeleteModal = (): void => {
     setDashboardToDelete(dashboard);
     closeMoreActions();
@@ -59,8 +57,6 @@ const useDashboardCardActions = ({
     setIsSharesOpenAtom(dashboard);
   };
 
-
-
   return {
     closeMoreActions,
     moreActionsOpen,
@@ -68,7 +64,7 @@ const useDashboardCardActions = ({
     openDuplicateModal,
     openEditAccessRightModal,
     openEditModal,
-    openMoreActions,
+    openMoreActions
   };
 };
 

@@ -11,59 +11,58 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
-    DashboardGlobalRole,
-    ListingVariant,
-    additionalResourcesAtom,
-    federatedWidgetsAtom,
-    platformVersionsAtom,
-    refreshIntervalAtom,
-    userAtom,
-    profileAtom
+  DashboardGlobalRole,
+  ListingVariant,
+  additionalResourcesAtom,
+  federatedWidgetsAtom,
+  platformVersionsAtom,
+  profileAtom,
+  refreshIntervalAtom,
+  userAtom
 } from '@centreon/ui-context';
 
 import { federatedWidgetsPropertiesAtom } from '../../../federatedModules/atoms';
 import {
-    dashboardSharesEndpoint,
-    dashboardsContactsEndpoint,
-    dashboardsEndpoint,
-    getDashboardEndpoint
+  dashboardSharesEndpoint,
+  dashboardsContactsEndpoint,
+  dashboardsEndpoint,
+  getDashboardEndpoint
 } from '../../api/endpoints';
 import { DashboardRole } from '../../api/models';
 import {
-    labelAddAContact,
-    labelDelete,
-    labelSharesSaved
+  labelAddAContact,
+  labelDelete,
+  labelSharesSaved
 } from '../../translatedLabels';
 
-import { dashboardAtom } from './atoms';
+import { profileEndpoint } from 'www/front_src/src/api/endpoint';
 import Dashboard from './Dashboard';
+import { internalWidgetComponents } from './Widgets/widgets';
+import { dashboardAtom } from './atoms';
 import { routerParams } from './hooks/useDashboardDetails';
 import { saveBlockerHooks } from './hooks/useDashboardSaveBlocker';
 import {
-    labelAddAWidget,
-    labelCancel,
-    labelDeleteWidget,
-    labelDoYouWantToSaveChanges,
-    labelDuplicate,
-    labelEditDashboard,
-    labelEditWidget,
-    labelGlobalRefreshInterval,
-    labelIfYouClickOnDiscard,
-    labelInterval,
-    labelManualRefreshOnly,
-    labelMoreActions,
-    labelPleaseContactYourAdministrator,
-    labelSave,
-    labelTitle,
-    labelViewProperties,
-    labelWidgetType,
-    labelYourRightsOnlyAllowToView
+  labelAddAWidget,
+  labelCancel,
+  labelDeleteWidget,
+  labelDoYouWantToSaveChanges,
+  labelDuplicate,
+  labelEditDashboard,
+  labelEditWidget,
+  labelGlobalRefreshInterval,
+  labelIfYouClickOnDiscard,
+  labelInterval,
+  labelManualRefreshOnly,
+  labelMoreActions,
+  labelPleaseContactYourAdministrator,
+  labelSave,
+  labelTitle,
+  labelViewProperties,
+  labelWidgetType,
+  labelYourRightsOnlyAllowToView
 } from './translatedLabels';
-import { internalWidgetComponents } from './Widgets/widgets';
-import { profileEndpoint } from 'www/front_src/src/api/endpoint';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {
-
   const store = createStore();
   store.set(federatedWidgetsAtom, internalWidgetComponents);
   store.set(federatedWidgetsPropertiesAtom, [
@@ -168,8 +167,7 @@ const initializeAndMount = ({
     }
   ]);
 
-  store.set(profileAtom, {favoriteDashboards : isFavorite ? [1,2] : []})
-
+  store.set(profileAtom, { favoriteDashboards: isFavorite ? [1, 2] : [] });
 
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -296,7 +294,6 @@ const initializeDashboardWithWebpageWidgets = ({
     use_deprecated_pages: false,
     user_interface_density: ListingVariant.compact
   });
-
 
   store.set(refreshIntervalAtom, 15);
   store.set(additionalResourcesAtom, [
@@ -772,48 +769,67 @@ describe('Dashboard', () => {
     });
   });
 
-  describe("Dashboard favorite", () => {
-      it('displays the favorite icon in green when the dashboard is marked as favorite', () => {
-        initializeAndMount({isFavorite : true});
-  
-        cy.waitForRequest('@getDashboardDetails');
+  describe('Dashboard favorite', () => {
+    it('displays the favorite icon in green when the dashboard is marked as favorite', () => {
+      initializeAndMount({ isFavorite: true });
 
-        cy.findByTestId("favorite-icon").should("have.attr", "data-favorite", "true")
+      cy.waitForRequest('@getDashboardDetails');
 
-        cy.makeSnapshot();  
-      });
-      it('displays the favorite icon in gray when the dashboard is not marked as favorite', () => {
-        initializeAndMount({isFavorite : false});
-  
-        cy.waitForRequest('@getDashboardDetails');
+      cy.findByTestId('favorite-icon').should(
+        'have.attr',
+        'data-favorite',
+        'true'
+      );
 
-        cy.findByTestId("favorite-icon").should("have.attr", "data-favorite", "false");
+      cy.makeSnapshot();
+    });
+    it('displays the favorite icon in gray when the dashboard is not marked as favorite', () => {
+      initializeAndMount({ isFavorite: false });
 
-        cy.makeSnapshot();  
+      cy.waitForRequest('@getDashboardDetails');
 
-      });
-      it('toggles the dashboard favorite status when the favorite button is clicked', () => {
-        initializeAndMount({isFavorite : false});
-  
-        cy.waitForRequest('@getDashboardDetails');
+      cy.findByTestId('favorite-icon').should(
+        'have.attr',
+        'data-favorite',
+        'false'
+      );
 
-        cy.findByTestId("favorite-icon").should("have.attr", "data-favorite", "false");
+      cy.makeSnapshot();
+    });
+    it('toggles the dashboard favorite status when the favorite button is clicked', () => {
+      initializeAndMount({ isFavorite: false });
 
-        cy.findByTestId("favorite-icon").click();
+      cy.waitForRequest('@getDashboardDetails');
 
-        cy.waitForRequest("@patchFavoriteDashboard")
+      cy.findByTestId('favorite-icon').should(
+        'have.attr',
+        'data-favorite',
+        'false'
+      );
 
-        cy.contains("Dashboard marked as favorite").should("be.visible")
+      cy.findByTestId('favorite-icon').click();
 
-        cy.findByTestId("favorite-icon").should("have.attr", "data-favorite", "true");
+      cy.waitForRequest('@patchFavoriteDashboard');
 
-        cy.findByTestId("favorite-icon").click();
+      cy.contains('Dashboard marked as favorite').should('be.visible');
 
-        cy.waitForRequest("@patchFavoriteDashboard")
+      cy.findByTestId('favorite-icon').should(
+        'have.attr',
+        'data-favorite',
+        'true'
+      );
 
-        cy.contains("Dashboard unmarked as favorite").should("be.visible")
+      cy.findByTestId('favorite-icon').click();
 
-        cy.findByTestId("favorite-icon").should("have.attr", "data-favorite", "false");
-      })
-  })
+      cy.waitForRequest('@patchFavoriteDashboard');
+
+      cy.contains('Dashboard unmarked as favorite').should('be.visible');
+
+      cy.findByTestId('favorite-icon').should(
+        'have.attr',
+        'data-favorite',
+        'false'
+      );
+    });
+  });
 });

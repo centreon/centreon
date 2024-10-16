@@ -70,7 +70,8 @@ export const labelUserDeleted = 'User deleted';
 export const labelShareWithContacts = 'Share with contacts';
 
 export const labelDashboardMarkedAsFavorite = 'Dashboard marked as favorite';
-export const labelDashboardUnmarkedAsFavorite = 'Dashboard unmarked as favorite';
+export const labelDashboardUnmarkedAsFavorite =
+  'Dashboard unmarked as favorite';
 
 export const labelMarkAsFavorite = 'Mark as favorite';
 export const labelUnmarkAsFavorite = 'Unmark as favorite';

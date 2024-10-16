@@ -5,8 +5,8 @@ import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { generatePath, useNavigate } from 'react-router-dom';
 
-import { DataTable } from '@centreon/ui/components';
 import { profileAtom } from '@centreon/ui-context';
+import { DataTable } from '@centreon/ui/components';
 
 import routeMap from '../../../../reactRoutes/routeMap';
 import { Dashboard } from '../../../api/models';
@@ -22,10 +22,10 @@ import { searchAtom, viewModeAtom } from '../DashboardListing/atom';
 import { ViewMode } from '../DashboardListing/models';
 import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
 
+import Favorite from '../../DashboardFavorite/Favorite';
 import { useStyles } from './DashboardsOverview.styles';
 import { DashboardsOverviewSkeleton } from './DashboardsOverviewSkeleton';
 import { useDashboardsOverview } from './useDashboardsOverview';
-import Favorite from '../../DashboardFavorite/Favorite';
 
 const DashboardsOverview = (): ReactElement => {
   const { classes } = useStyles();
@@ -41,8 +41,8 @@ const DashboardsOverview = (): ReactElement => {
 
   const profile = useAtomValue(profileAtom);
 
-  const getIsFavorite = (dashboard: Dashboard) => profile?.favoriteDashboards?.includes(Number(dashboard.id))
-  
+  const getIsFavorite = (dashboard: Dashboard) =>
+    profile?.favoriteDashboards?.includes(Number(dashboard.id));
 
   const navigate = useNavigate();
 
@@ -89,8 +89,18 @@ const DashboardsOverview = (): ReactElement => {
       {dashboards.map((dashboard) => (
         <DataTable.Item
           hasCardAction
-          Actions={<DashboardCardActions dashboard={dashboard} isFavorite = {getIsFavorite(dashboard)}/>}
-          fovoriteAction={<Favorite dashboardId={Number(dashboard?.id)} isFavorite={getIsFavorite(dashboard)} />}
+          Actions={
+            <DashboardCardActions
+              dashboard={dashboard}
+              isFavorite={getIsFavorite(dashboard)}
+            />
+          }
+          fovoriteAction={
+            <Favorite
+              dashboardId={Number(dashboard?.id)}
+              isFavorite={getIsFavorite(dashboard)}
+            />
+          }
           description={dashboard.description ?? undefined}
           hasActions={hasEditPermission(dashboard)}
           key={dashboard.id}

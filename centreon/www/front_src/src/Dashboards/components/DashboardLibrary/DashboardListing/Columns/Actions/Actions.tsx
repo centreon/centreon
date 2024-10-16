@@ -45,9 +45,11 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   }
 
   if (!hasEditPermission(row)) {
-    return <Box className={classes.line}>
-       <Favorite isFavorite={isFavorite} dashboardId = {row?.id} />
-    </Box>;
+    return (
+      <Box className={classes.line}>
+        <Favorite isFavorite={isFavorite} dashboardId={row?.id} />
+      </Box>
+    );
   }
 
   return (
@@ -59,7 +61,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
       >
         <ShareIcon className={classes.icon} />
       </IconButton>
-      <Favorite isFavorite={isFavorite} dashboardId = {row?.id} />
+      <Favorite isFavorite={isFavorite} dashboardId={row?.id} />
       <IconButton
         ariaLabel={t(labelMoreActions)}
         title={t(labelMoreActions)}

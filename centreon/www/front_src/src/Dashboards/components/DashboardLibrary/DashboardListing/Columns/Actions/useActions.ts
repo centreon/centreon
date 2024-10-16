@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { isNil } from 'ramda';
 
+import { useDeepMemo } from '@centreon/ui';
+import { profileAtom } from '@centreon/ui-context';
 import {
   dashboardToDeleteAtom,
   dashboardToDuplicateAtom,
@@ -11,8 +13,6 @@ import {
 import { useDashboardConfig } from '../../../DashboardConfig/useDashboardConfig';
 import { askBeforeRevokeAtom } from '../../atom';
 import { unformatDashboard } from '../../utils';
-import { useDeepMemo } from '@centreon/ui';
-import { profileAtom } from '@centreon/ui-context';
 
 interface UseActionsState {
   closeMoreActions: () => void;
@@ -63,7 +63,6 @@ const useActions = (row): UseActionsState => {
       }
     });
   };
-
 
   const isFavorite = useDeepMemo({
     deps: [profile],

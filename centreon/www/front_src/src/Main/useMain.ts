@@ -18,8 +18,8 @@ import { platformInstallationStatusAtom } from './atoms/platformInstallationStat
 import useInitializeTranslation from './useInitializeTranslation';
 import usePlatformFeatures from './usePlatformFeatures';
 import usePlatformVersions from './usePlatformVersions';
-import useUser, { areUserParametersLoadedAtom } from './useUser';
 import useProfile from './useProfile';
+import useUser, { areUserParametersLoadedAtom } from './useUser';
 
 export const router = {
   useNavigate

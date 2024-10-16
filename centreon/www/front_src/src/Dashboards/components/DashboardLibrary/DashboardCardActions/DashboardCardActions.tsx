@@ -36,7 +36,10 @@ interface Props {
   isFavorite?: boolean;
 }
 
-const DashboardCardActions = ({ dashboard, isFavorite }: Props): JSX.Element => {
+const DashboardCardActions = ({
+  dashboard,
+  isFavorite
+}: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -47,7 +50,7 @@ const DashboardCardActions = ({ dashboard, isFavorite }: Props): JSX.Element => 
     openEditAccessRightModal,
     openEditModal,
     openMoreActions,
-    closeMoreActions,
+    closeMoreActions
   } = useDashboardCardActions({ dashboard });
 
   const labels = {
