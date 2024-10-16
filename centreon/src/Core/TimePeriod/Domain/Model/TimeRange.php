@@ -33,11 +33,6 @@ class TimeRange implements \Stringable
 {
     /**
      *
-     * @var string TIME_RANGE_ALL_DAY The time range for the entire day
-     */
-    const TIME_RANGE_ALL_DAY = '00:00-24:00';
-    /**
-     *
      * @var string TIME_RANGE_FULL_DAY_ALIAS The time range for the entire day in DOC.
      */
     const TIME_RANGE_FULL_DAY_ALIAS = '00:00-00:00';
@@ -53,7 +48,13 @@ class TimeRange implements \Stringable
      */
     public function __construct(string $timeRange)
     {
-        $timeRange = $this->normalizeTimeRange($timeRange);
+
+        $resolvedTimeRangeAlias = $this->resolveTimeRangeAlias($timeRange);
+        $timeRange = $resolvedTimeRangeAlias['value'];
+        if ($resolvedTimeRangeAlias['isFullDayAlias']) {
+            $this->timeRange = $timeRange;
+            return;
+        }
 
         Assertion::minLength($timeRange, 11, 'TimeRange::timeRange');
 
@@ -154,12 +155,14 @@ class TimeRange implements \Stringable
         return $timeRanges;
     }
 
-    private function normalizeTimeRange(string $timeRange): string
+    private function resolveTimeRangeAlias(string $timeRange): array
     {
-        if ($timeRange === self::TIME_RANGE_FULL_DAY_ALIAS || empty($timeRange)) {
-            return self::TIME_RANGE_ALL_DAY;
-        }
+        $isFullDayAlias = $timeRange === self::TIME_RANGE_FULL_DAY_ALIAS || empty($timeRange);
+        $value = empty($timeRange) ? "" : $timeRange;
 
-        return $timeRange;
+        return [
+            'value' => $value,
+            'isFullDayAlias' => $isFullDayAlias
+        ];
     }
 }
