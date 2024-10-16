@@ -16,17 +16,13 @@ import { checkIfConfigurationIsExported } from '../../../commons';
 
 let dateBeforeLogin: Date;
 
-before(() => {
-  cy.startContainers();
-
-  cy.addCheckCommand({
-    command: 'echo "Post command"',
-    enableShell: true,
-    name: 'post_command'
-  });
-});
-
 beforeEach(() => {
+  cy.startContainers();
+  cy.addCheckCommand({
+      command: 'echo "Post command"',
+      enableShell: true,
+      name: "post_command",
+  });
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -258,6 +254,6 @@ Then('the configuration is not generated on selected pollers', () => {
   checkIfConfigurationIsNotExported();
 });
 
-after(() => {
+afterEach(() => {
   cy.stopContainers();
 });
