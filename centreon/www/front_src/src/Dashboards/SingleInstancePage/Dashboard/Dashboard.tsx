@@ -31,7 +31,7 @@ import DashboardSaveBlockerModal from './components/DashboardSaveBlockerModal';
 import DeleteWidgetModal from './components/DeleteWidgetModal';
 import { useCanEditProperties } from './hooks/useCanEditDashboard';
 import useDashboardDetails, { routerParams } from './hooks/useDashboardDetails';
-import Favorite from '../../components/DashboardLibrary/DashboardFavorite/Favorite';
+import Favorite from '../../components/DashboardFavorite/Favorite';
 
 const Dashboard = (): ReactElement => {
   const { classes } = useDashboardStyles();

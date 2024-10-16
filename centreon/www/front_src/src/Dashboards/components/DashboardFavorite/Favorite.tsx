@@ -4,7 +4,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import {
   labelMarkAsFavorite,
   labelUnmarkAsFavorite
-} from '../../../translatedLabels';
+} from '../../translatedLabels';
 import { IconButton } from '@centreon/ui';
 import { useFavorite } from './useFavorite';
 

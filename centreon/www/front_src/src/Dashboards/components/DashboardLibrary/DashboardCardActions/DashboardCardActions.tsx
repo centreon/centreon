@@ -29,13 +29,14 @@ import {
 import { useStyles } from './DashboardCardActions.styles';
 import useDashboardCardActions from './useDashboardCardActions';
 
-import Favorite from '../DashboardFavorite/Favorite';
+import Favorite from '../../DashboardFavorite/Favorite';
 
 interface Props {
   dashboard: Dashboard;
+  isFavorite?: boolean;
 }
 
-const DashboardCardActions = ({ dashboard }: Props): JSX.Element => {
+const DashboardCardActions = ({ dashboard, isFavorite }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -47,7 +48,6 @@ const DashboardCardActions = ({ dashboard }: Props): JSX.Element => {
     openEditModal,
     openMoreActions,
     closeMoreActions,
-    isFavorite
   } = useDashboardCardActions({ dashboard });
 
   const labels = {

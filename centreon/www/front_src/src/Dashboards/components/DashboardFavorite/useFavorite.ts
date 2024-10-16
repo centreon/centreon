@@ -7,8 +7,8 @@ import { useTranslation } from 'react-i18next';
 import { profileAtom } from '@centreon/ui-context';
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
-import { profileEndpoint } from '../../../../api/endpoint';
-import { labelDashboardMarkedAsFavorite, labelDashboardUnmarkedAsFavorite } from '../../../translatedLabels';
+import { profileEndpoint } from '../../../api/endpoint';
+import { labelDashboardMarkedAsFavorite, labelDashboardUnmarkedAsFavorite } from '../../translatedLabels';
 
 interface ToggleFavoritesProps {
   dashboardId: number;

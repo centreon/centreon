@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { generatePath, useNavigate } from 'react-router-dom';
 
 import { DataTable } from '@centreon/ui/components';
+import { profileAtom } from '@centreon/ui-context';
 
 import routeMap from '../../../../reactRoutes/routeMap';
 import { Dashboard } from '../../../api/models';
@@ -24,6 +25,7 @@ import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDash
 import { useStyles } from './DashboardsOverview.styles';
 import { DashboardsOverviewSkeleton } from './DashboardsOverviewSkeleton';
 import { useDashboardsOverview } from './useDashboardsOverview';
+import Favorite from '../../DashboardFavorite/Favorite';
 
 const DashboardsOverview = (): ReactElement => {
   const { classes } = useStyles();
@@ -36,6 +38,11 @@ const DashboardsOverview = (): ReactElement => {
   const { createDashboard } = useDashboardConfig();
   const { hasEditPermission, canCreateOrManageDashboards } =
     useDashboardUserPermissions();
+
+  const profile = useAtomValue(profileAtom);
+
+  const getIsFavorite = (dashboard: Dashboard) => profile?.favoriteDashboards?.includes(Number(dashboard.id))
+  
 
   const navigate = useNavigate();
 
@@ -82,7 +89,8 @@ const DashboardsOverview = (): ReactElement => {
       {dashboards.map((dashboard) => (
         <DataTable.Item
           hasCardAction
-          Actions={<DashboardCardActions dashboard={dashboard} />}
+          Actions={<DashboardCardActions dashboard={dashboard} isFavorite = {getIsFavorite(dashboard)}/>}
+          fovoriteAction={<Favorite dashboardId={Number(dashboard?.id)} isFavorite={getIsFavorite(dashboard)} />}
           description={dashboard.description ?? undefined}
           hasActions={hasEditPermission(dashboard)}
           key={dashboard.id}

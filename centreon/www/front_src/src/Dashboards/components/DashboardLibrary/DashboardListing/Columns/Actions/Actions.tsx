@@ -20,7 +20,7 @@ import { useColumnStyles } from '../useColumnStyles';
 import MoreActions from './MoreActions';
 import useActions from './useActions';
 
-import Favorite from '../../../DashboardFavorite/Favorite';
+import Favorite from '../../../../DashboardFavorite/Favorite';
 
 const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();
@@ -45,7 +45,9 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   }
 
   if (!hasEditPermission(row)) {
-    return <Box className={classes.line}>-</Box>;
+    return <Box className={classes.line}>
+       <Favorite isFavorite={isFavorite} dashboardId = {row?.id} />
+    </Box>;
   }
 
   return (

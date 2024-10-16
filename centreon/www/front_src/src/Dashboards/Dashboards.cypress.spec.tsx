@@ -826,46 +826,48 @@ describe('Dashboards', () => {
     });
   });
 
-  describe("Dashboard favorite", () => {
-    [labelListView, labelCardsView].forEach((viewMode) => {
-      it(`${viewMode}: displays the favorite icons in the correct state`, () => {
-        initializeAndMount(administratorRole);
-
-        cy.findByTestId(viewMode).click();
-        cy.findAllByTestId("favorite-icon").first().should("have.attr", "data-favorite", "true")
-        cy.findAllByTestId("favorite-icon").eq(1).should("have.attr", "data-favorite", "false")
+  [editorRole, viewerRole].forEach((role) => {
+    describe(` ${role.globalRole} role: Dashboard favorite`, () => {
+      [labelListView, labelCardsView].forEach((viewMode) => {
+        it(`${viewMode}: displays the favorite icons in the correct state`, () => {
+          initializeAndMount(role);
+          
+          cy.findByTestId(viewMode).click();
+          cy.findAllByTestId("favorite-icon").first().should("have.attr", "data-favorite", "true")
+          cy.findAllByTestId("favorite-icon").eq(1).should("have.attr", "data-favorite", "false")
+    
+          cy.makeSnapshot();  
+        });
+    
+        it(`${viewMode}: toggles the dashboard favorite status when the favorite button is clicked`, () => {
+          initializeAndMount(role)
+    
+          cy.findByTestId(viewMode).click();
   
-        cy.makeSnapshot();  
-      });
+          cy.findAllByTestId("favorite-icon").first().should("have.attr", "data-favorite", "true");
+    
+          cy.findAllByTestId("favorite-icon").first().click();
+    
+          cy.waitForRequest("@patchFavoriteDashboard")
+    
+          cy.contains("Dashboard unmarked as favorite").should("be.visible")
+          
+          cy.findAllByTestId("favorite-icon").first().should("have.attr", "data-favorite", "false");
+    
+          cy.findAllByTestId("favorite-icon").eq(1).should("have.attr", "data-favorite", "false");
+    
+          cy.findAllByTestId("favorite-icon").eq(1).click({force: true});
+    
+          cy.waitForRequest("@patchFavoriteDashboard")
+          
+          cy.contains("Dashboard marked as favorite").should("be.visible")
+    
+          cy.findAllByTestId("favorite-icon").eq(1).should("have.attr", "data-favorite", "true");
+    
+          cy.makeSnapshot();  
+        })
   
-      it(`${viewMode}: toggles the dashboard favorite status when the favorite button is clicked`, () => {
-        initializeAndMount(administratorRole)
-  
-        cy.findByTestId(viewMode).click();
-
-        cy.findAllByTestId("favorite-icon").first().should("have.attr", "data-favorite", "true");
-  
-        cy.findAllByTestId("favorite-icon").first().click();
-  
-        cy.waitForRequest("@patchFavoriteDashboard")
-  
-        cy.contains("Dashboard unmarked as favorite").should("be.visible")
-        
-        cy.findAllByTestId("favorite-icon").first().should("have.attr", "data-favorite", "false");
-  
-        cy.findAllByTestId("favorite-icon").eq(1).should("have.attr", "data-favorite", "false");
-  
-        cy.findAllByTestId("favorite-icon").eq(1).click({force: true});
-  
-        cy.waitForRequest("@patchFavoriteDashboard")
-        
-        cy.contains("Dashboard marked as favorite").should("be.visible")
-  
-        cy.findAllByTestId("favorite-icon").eq(1).should("have.attr", "data-favorite", "true");
-  
-        cy.makeSnapshot();  
-      })
-
-    } )
+      } )
+    })
   })
 });
