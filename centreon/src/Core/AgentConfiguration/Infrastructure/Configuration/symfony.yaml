@@ -19,6 +19,6 @@ services:
         arguments:
             $parametersValidators: !tagged_iterator 'ac.validators'
 
-    # Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface:
-    #     class: Core\AgentConfiguration\Infrastructure\Repository\DbReadAgentConfigurationRepository
-    #     public: true
+    Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface:
+        class: Core\AgentConfiguration\Infrastructure\Repository\DbReadAgentConfigurationRepository
+        public: true

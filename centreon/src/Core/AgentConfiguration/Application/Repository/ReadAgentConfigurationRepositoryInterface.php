@@ -112,4 +112,15 @@ interface ReadAgentConfigurationRepositoryInterface
         RequestParametersInterface $requestParameters,
         array $accessGroups
     ): array;
+
+    /**
+     * Finds Agent Configurations by a given poller ID.
+     *
+     * @param int $pollerId The ID of the poller to find entities for
+     *
+     * @throws \Throwable
+     *
+     * @return AgentConfiguration|null Agent Configurations found by the given poller ID
+     */
+    public function findByPollerId(int $pollerId): ?AgentConfiguration;
 }

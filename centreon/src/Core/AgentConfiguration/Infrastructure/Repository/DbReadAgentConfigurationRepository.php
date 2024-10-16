@@ -348,6 +348,36 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findByPollerId(int $pollerId): ?AgentConfiguration
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    ac.id,
+                    ac.name,
+                    ac.type,
+                    ac.configuration
+                FROM `:db`.`agent_configuration` ac
+                JOIN `:db`.`ac_poller_relation` rel
+                    ON rel.ac_id = ac.id
+                WHERE rel.poller_id = :id
+                SQL
+        ));
+        $statement->bindValue(':id', $pollerId, \PDO::PARAM_INT);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        if ($result = $statement->fetch()) {
+            /** @var _AgentConfiguration $result */
+            return $this->createFromArray($result);
+        }
+
+        return null;
+    }
+
+    /**
      * @param _AgentConfiguration $row
      *
      * @throws \Throwable
