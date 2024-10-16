@@ -199,7 +199,8 @@ Then('the selected pollers are {string}', (poller_action: string) => {
 });
 
 Then('no poller names are displayed', () => {
-  cy.getIframeBody()
+  cy.get('iframe#main-content')
+        .its('0.contentDocument.body')
     .find('form span[class="selection"]')
     .eq(0)
     .should('have.value', '');
