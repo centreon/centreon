@@ -23,9 +23,9 @@ on:
       release_type:
         description: "type of release (hotfix, release)"
         value: ${{ jobs.get-environment.outputs.release_type }}
-      release_cloud:
-        description: "context of release (cloud or not cloud)"
-        value: ${{ jobs.get-environment.outputs.release_cloud }}
+      # release_cloud:
+      #   description: "context of release (cloud or not cloud)"
+      #   value: ${{ jobs.get-environment.outputs.release_cloud }}
 
 jobs:
   get-environment:
@@ -37,7 +37,7 @@ jobs:
       stability: ${{ steps.get_stability.outputs.stability }}
       os_and_database_matrix: ${{ steps.get_os_database_matrix.outputs.result }}
       release_type: ${{ steps.get_release_type.outputs.release_type }}
-      release_cloud: ${{ steps.get_version_bis.outputs.release_cloud}}
+      # release_cloud: ${{ steps.get_version_bis.outputs.release_cloud}}
 
     steps:
       - name: Checkout sources (current branch)
@@ -144,69 +144,69 @@ jobs:
             const fs = require('fs');
             const versionFileContent = fs.readFileSync('${{ env.VERSION_FILE }}');
 
-      - id: get_version_bis
-        run: |
-          set -x
+      # - id: get_version_bis
+      #   run: |
+      #     set -x
 
-          # Set default release values
-          GITHUB_RELEASE_CLOUD=0
+      #     # Set default release values
+      #     GITHUB_RELEASE_CLOUD=0
 
-          # if current branch major version is greater or equal than the develop branch major version ==> cloud version
-          if [[ "$(printf '%s\n' "${{ steps.latest_major_version.outputs.latest_major_version }}" "$MAJOR" | sort -V | head -n1)" == "${{ steps.latest_major_version.outputs.latest_major_version }}" ]]; then
-            GITHUB_RELEASE_CLOUD=1
-          fi
+      #     # if current branch major version is greater or equal than the develop branch major version ==> cloud version
+      #     if [[ "$(printf '%s\n' "${{ steps.latest_major_version.outputs.latest_major_version }}" "$MAJOR" | sort -V | head -n1)" == "${{ steps.latest_major_version.outputs.latest_major_version }}" ]]; then
+      #       GITHUB_RELEASE_CLOUD=1
+      #     fi
 
-          case "$BRANCHNAME" in
-            master)
-              GITHUB_RELEASE_CLOUD=1
-              ;;
-            [2-9][0-9].[0-9][0-9].x)
-              ;;
-            develop)
-              GITHUB_RELEASE_CLOUD=1
-              ;;
-            dev-[2-9][0-9].[0-9][0-9].x)
-              ;;
-            release* | hotfix*)
-              # Handle workflow_dispatch run triggers and run a dispatch ONLY for cloud release
-              GITHUB_RELEASE_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
-              echo "GITHUB_RELEASE_BRANCH_BASE_REF_NAME is: $GITHUB_RELEASE_BRANCH_BASE_REF_NAME"
-              GITHUB_RELEASE_BRANCH_PR_STATE="$(gh pr view $BRANCHNAME -q .state --json headRefName,baseRefName,state)"
-              echo "GITHUB_RELEASE_BRANCH_PR_STATE is: $GITHUB_RELEASE_BRANCH_PR_STATE"
+      #     case "$BRANCHNAME" in
+      #       master)
+      #         GITHUB_RELEASE_CLOUD=1
+      #         ;;
+      #       [2-9][0-9].[0-9][0-9].x)
+      #         ;;
+      #       develop)
+      #         GITHUB_RELEASE_CLOUD=1
+      #         ;;
+      #       dev-[2-9][0-9].[0-9][0-9].x)
+      #         ;;
+      #       release* | hotfix*)
+      #         # Handle workflow_dispatch run triggers and run a dispatch ONLY for cloud release
+      #         GITHUB_RELEASE_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
+      #         echo "GITHUB_RELEASE_BRANCH_BASE_REF_NAME is: $GITHUB_RELEASE_BRANCH_BASE_REF_NAME"
+      #         GITHUB_RELEASE_BRANCH_PR_STATE="$(gh pr view $BRANCHNAME -q .state --json headRefName,baseRefName,state)"
+      #         echo "GITHUB_RELEASE_BRANCH_PR_STATE is: $GITHUB_RELEASE_BRANCH_PR_STATE"
 
-              # Check if the release context (cloud and hotfix or cloud and release)
-              if [[ "$GITHUB_RELEASE_BRANCH_BASE_REF_NAME" == "master" ]] && [[ "$GITHUB_RELEASE_BRANCH_PR_STATE" == "OPEN" ]]; then
-                # Get release pull request ID
-                GITHUB_RELEASE_BRANCH_PR_NUMBER="$(gh pr view $BRANCHNAME -q .[] --json number)"
-                # Set release cloud to 1 (0=not-cloud, 1=cloud)
-                GITHUB_RELEASE_CLOUD=1
-                # Debug
-                echo "GITHUB_RELEASE_BRANCH_PR_NUMBER is: $GITHUB_RELEASE_BRANCH_PR_NUMBER" # We do leave this here as a debug help.
-                echo "GITHUB_RELEASE_CLOUD is: $GITHUB_RELEASE_CLOUD"
-              fi
-              ;;
-            prepare-release-cloud*)
-              # Set release cloud to 1 (0=not-cloud, 1=cloud)
-              GITHUB_RELEASE_CLOUD=1
-              # Debug
-              echo "GITHUB_RELEASE_CLOUD is: $GITHUB_RELEASE_CLOUD"
-              ;;
-            *)
-              # Any branch name
-              GITHUB_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
-              GITHUB_BRANCH_PR_STATE="$(gh pr view $BRANCHNAME -q .state --json headRefName,baseRefName,state)"
+      #         # Check if the release context (cloud and hotfix or cloud and release)
+      #         if [[ "$GITHUB_RELEASE_BRANCH_BASE_REF_NAME" == "master" ]] && [[ "$GITHUB_RELEASE_BRANCH_PR_STATE" == "OPEN" ]]; then
+      #           # Get release pull request ID
+      #           GITHUB_RELEASE_BRANCH_PR_NUMBER="$(gh pr view $BRANCHNAME -q .[] --json number)"
+      #           # Set release cloud to 1 (0=not-cloud, 1=cloud)
+      #           GITHUB_RELEASE_CLOUD=1
+      #           # Debug
+      #           echo "GITHUB_RELEASE_BRANCH_PR_NUMBER is: $GITHUB_RELEASE_BRANCH_PR_NUMBER" # We do leave this here as a debug help.
+      #           echo "GITHUB_RELEASE_CLOUD is: $GITHUB_RELEASE_CLOUD"
+      #         fi
+      #         ;;
+      #       prepare-release-cloud*)
+      #         # Set release cloud to 1 (0=not-cloud, 1=cloud)
+      #         GITHUB_RELEASE_CLOUD=1
+      #         # Debug
+      #         echo "GITHUB_RELEASE_CLOUD is: $GITHUB_RELEASE_CLOUD"
+      #         ;;
+      #       *)
+      #         # Any branch name
+      #         GITHUB_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
+      #         GITHUB_BRANCH_PR_STATE="$(gh pr view $BRANCHNAME -q .state --json headRefName,baseRefName,state)"
 
-              # Check if pull request branch targeting develop
-              if [[ "$GITHUB_BRANCH_BASE_REF_NAME" == "develop" ]] && [[ "$GITHUB_BRANCH_PR_STATE" == "OPEN" ]]; then
-                GITHUB_RELEASE_CLOUD=1
-              fi
-              ;;
-          esac
+      #         # Check if pull request branch targeting develop
+      #         if [[ "$GITHUB_BRANCH_BASE_REF_NAME" == "develop" ]] && [[ "$GITHUB_BRANCH_PR_STATE" == "OPEN" ]]; then
+      #           GITHUB_RELEASE_CLOUD=1
+      #         fi
+      #         ;;
+      #     esac
 
-          echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
+      #     echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
+      #   shell: bash
+      #   env:
+      #     GH_TOKEN: ${{ github.token }}
 
       - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         id: get_os_database_matrix
