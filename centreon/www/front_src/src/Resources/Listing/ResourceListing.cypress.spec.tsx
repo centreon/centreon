@@ -853,10 +853,13 @@ describe('Notification column', () => {
       userData.result.current.themeMode = mode;
 
       store.set(selectedColumnIdsAtom, ['resource', 'state', 'information']);
-      interceptRequestsAndMountBeforeEach();
-    });
+      cy.interceptAPIRequest({
+        alias: 'filterRequest',
+        method: Method.GET,
+        path: '**/events-view*',
+        response: fakeData
+      });
 
-    it('displays listing when some resources are in downtime/acknowledged', () => {
       cy.fixture('resources/listing/listingWithInDowntimeAndAck.json').then(
         (data) => {
           cy.interceptAPIRequest({
@@ -867,7 +870,16 @@ describe('Notification column', () => {
           });
         }
       );
+      cy.mount({
+        Component: (
+          <Router>
+            <ListingTestWithJotai />
+          </Router>
+        )
+      });
+    });
 
+    it('displays listing when some resources are in downtime/acknowledged', () => {
       cy.waitForRequest('@filterRequest');
       cy.waitForRequest('@listing');
 
