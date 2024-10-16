@@ -144,7 +144,6 @@ jobs:
             const fs = require('fs');
             const versionFileContent = fs.readFileSync('${{ env.VERSION_FILE }}');
 
-
       - id: get_version_bis
         run: |
           set -x
@@ -246,3 +245,20 @@ jobs:
             console.log(matrix);
 
             return matrix;
+
+      - name: Display info in job summary
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        env:
+          VERSION_FILE: ${{ inputs.version_file }}
+        with:
+          script: |
+            core.summary
+              .addHeading('Job outputs')
+              .addTable([
+                [{data: 'Name', header: true}, {data: 'Value', header: true}],
+                ['major_version', '${{ steps.get_version.outputs.major_version }}'],
+                ['minor_version', '${{ steps.get_version.outputs.minor_version }}'],
+                ['release', '${{ steps.get_release.outputs.minor_version }}'],
+                ['stability', '${{ steps.get_stability.outputs.stability }}']
+              ])
+              .write();
