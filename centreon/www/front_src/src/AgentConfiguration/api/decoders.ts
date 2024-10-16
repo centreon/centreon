@@ -33,8 +33,8 @@ export const agentConfigurationsListingDecoder = buildListingDecoder({
 const telegrafConfigurationDecoder = JsonDecoder.object<TelegrafConfiguration>(
   {
     otelPrivateKey: JsonDecoder.string,
-    otelCaCertificate: JsonDecoder.string,
     otelPublicCertificate: JsonDecoder.string,
+    otelCaCertificate: JsonDecoder.nullable(JsonDecoder.string),
     confPrivateKey: JsonDecoder.string,
     confServerPort: JsonDecoder.number,
     confCertificate: JsonDecoder.string
