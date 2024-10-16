@@ -845,3 +845,33 @@ describe('Notification column', () => {
     cy.makeSnapshot();
   });
 });
+
+['dark', 'light'].forEach((mode) => {
+  describe.only(`Resource Listing: rows and picto colors on ${mode} theme`, () => {
+    beforeEach(() => {
+      const userData = renderHook(() => useAtomValue(userAtom));
+      userData.result.current.themeMode = mode;
+
+      store.set(selectedColumnIdsAtom, ['resource', 'state', 'information']);
+      interceptRequestsAndMountBeforeEach();
+    });
+
+    it('displays listing when some resources are in downtime/acknowledged', () => {
+      cy.fixture('resources/listing/listingWithInDowntimeAndAck.json').then(
+        (data) => {
+          cy.interceptAPIRequest({
+            alias: 'dataToListingTable',
+            method: Method.GET,
+            path: '**/resources?*',
+            response: data
+          });
+        }
+      );
+
+      cy.waitFiltersAndListingRequests();
+
+      cy.contains('Memory').should('be.visible');
+      cy.makeSnapshot();
+    });
+  });
+});
