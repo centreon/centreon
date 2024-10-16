@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Core\Notification\Infrastructure\API\DeleteNotifications;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\{AbstractPresenter, MultiStatusResponse, ResponseStatusInterface};
+use Core\Application\Common\UseCase\{AbstractPresenter, ResponseStatusInterface};
 use Core\Infrastructure\Common\Api\Router;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Notification\Application\UseCase\DeleteNotifications\{
@@ -67,7 +67,7 @@ final class DeleteNotificationsPresenter extends AbstractPresenter implements De
                 }, $response->results),
             ];
 
-            $this->present(new MultiStatusResponse($multiStatusResponse));
+            $this->present($multiStatusResponse);
         } else {
             $this->setResponseStatus($response);
         }
