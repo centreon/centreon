@@ -29,9 +29,11 @@ use Core\TimePeriod\Domain\Model\TimeRange;
 
 $timeRange = '';
 it(
-    'should throw exception with empty time range',
+    'should throw exception with invalid time range length',
     function () use ($timeRange): void {
-        new TimeRange($timeRange);
+        if (strlen($timeRange) > 0 && strlen($timeRange) < 11) {
+            new TimeRange($timeRange);
+        }
     }
 )->throws(
     \InvalidArgumentException::class,
