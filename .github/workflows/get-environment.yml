@@ -297,7 +297,7 @@ jobs:
                 %%{ init: { 'gitGraph': { 'mainBranchName': '${{ github.base_ref }}', 'showCommitLabel': false } } }%%
                 gitGraph
               `;
-              ${{ steps.pr_path.outputs.result }}.reverse().foreach((branchName) => {
+              ${{ steps.pr_path.outputs.result }}.reverse().forEach((branchName) => {
                 codeBlock = `${codeBlock}
                     commit
                     ${branchName}`;
