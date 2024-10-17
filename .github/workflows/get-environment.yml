@@ -295,12 +295,12 @@ jobs:
               console.log(${{ steps.pr_path.outputs.result }}.reverse());
               let codeBlock = `
                 %%{ init: { 'gitGraph': { 'mainBranchName': '${{ github.base_ref }}', 'showCommitLabel': false } } }%%
-                gitGraph
-              `;
+                gitGraph`;
               ${{ steps.pr_path.outputs.result }}.reverse().forEach((branchName) => {
                 codeBlock = `${codeBlock}
                     commit
-                    ${branchName}`;
+                    ${branchName}
+                `;
               });
               console.log(codeBlock)
               core.summary.addCodeBlock(
