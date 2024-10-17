@@ -1,6 +1,9 @@
 import { equals } from 'ramda';
 
-import { type PaletteOptions, alpha } from '@mui/material';
+import {
+  type PaletteOptions as PaletteOptionsModel,
+  alpha
+} from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
 
@@ -140,7 +143,7 @@ declare module '@mui/material/Badge' {
   }
 }
 
-export const lightPalette: PaletteOptions = {
+export const lightPalette: PaletteOptionsModel = {
   action: {
     acknowledged: '#745F35',
     acknowledgedBackground: '#DFD2B9',
@@ -280,7 +283,7 @@ export const lightPalette: PaletteOptions = {
   }
 };
 
-export const darkPalette: PaletteOptions = {
+export const darkPalette: PaletteOptionsModel = {
   action: {
     acknowledged: '#DFD2B9',
     acknowledgedBackground: '#745F35',
@@ -418,5 +421,5 @@ export const darkPalette: PaletteOptions = {
   }
 };
 
-export const getPalette = (mode: ThemeMode): PaletteOptions =>
+export const getPalette = (mode: ThemeMode): PaletteOptionsModel =>
   equals(mode, ThemeMode.dark) ? darkPalette : lightPalette;
