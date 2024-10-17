@@ -1,6 +1,3 @@
-
-
-
 import FederatedComponentFallback from '../../federatedModules/Load/FederatedComponentFallback';
 import FederatedPageFallback from '../../federatedModules/Load/FederatedPageFallback';
 import { labelCannotLoadModule } from '../../federatedModules/translatedLabels';

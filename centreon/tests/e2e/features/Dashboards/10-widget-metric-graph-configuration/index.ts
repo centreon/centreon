@@ -10,7 +10,6 @@ import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-a
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import metricsGraphWidget from '../../../fixtures/dashboards/creation/widgets/metricsGraphWidget.json';
-import metricsGraphDoubleWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwometricsGraphWidget.json';
 import metricsGraphWithMultipleHosts from '../../../fixtures/dashboards/creation/widgets/metricsGraphWithMultipleHosts.json';
 import metricsGraphWithMultipleMetrics from '../../../fixtures/dashboards/creation/widgets/dashboardWithMetricsGraphWidgetWithMultipleMetrics.json';
 
@@ -294,7 +293,12 @@ Then('the information about the selected metric is displayed', () => {
 });
 
 Given('a dashboard featuring having Metrics Graph widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    metricsGraphWidget,
+    'centreon-widget-graph',
+    '/widgets/graph'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.wait('@performanceData');
   cy.editWidget(1);
@@ -366,7 +370,12 @@ Then(
 );
 
 Given('a dashboard that includes a configured Metrics Graph widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    metricsGraphWidget,
+    'centreon-widget-graph',
+    '/widgets/graph'
+  );
   cy.visitDashboard(dashboards.default.name);
 });
 
@@ -397,7 +406,13 @@ Then('the second widget has the same properties as the first widget', () => {
 });
 
 Given('a dashboard featuring two Metrics Graph widgets', () => {
-  cy.insertDashboardWithWidget(dashboards.default, metricsGraphDoubleWidget);
+  cy.insertDashboardWithDoubleWidget(
+    dashboards.default,
+    metricsGraphWidget,
+    metricsGraphWidget,
+    'centreon-widget-graph',
+    '/widgets/graph'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.getByTestId({ testId: 'More actions' }).eq(0).click();
   cy.wait('@performanceData');
@@ -426,7 +441,12 @@ Then(
 );
 
 Given('a dashboard featuring a configured Metrics Graph widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    metricsGraphWidget,
+    'centreon-widget-graph',
+    '/widgets/graph'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
   cy.wait('@performanceData');
@@ -467,7 +487,12 @@ Then('the thresholds are automatically hidden', () => {
 });
 
 Given('a dashboard with a configured Metrics Graph widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    metricsGraphWidget,
+    'centreon-widget-graph',
+    '/widgets/graph'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
   cy.wait('@performanceData');
@@ -491,7 +516,9 @@ Then(
 Given('a dashboard having Metrics Graph widget with multiple hosts', () => {
   cy.insertDashboardWithWidget(
     dashboards.default,
-    metricsGraphWithMultipleHosts
+    metricsGraphWithMultipleHosts,
+    'centreon-widget-graph',
+    '/widgets/graph'
   );
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
@@ -518,7 +545,9 @@ Given(
   () => {
     cy.insertDashboardWithWidget(
       dashboards.default,
-      metricsGraphWithMultipleMetrics
+      metricsGraphWithMultipleMetrics,
+      'centreon-widget-graph',
+      '/widgets/graph'
     );
     cy.editDashboard(dashboards.default.name);
     cy.getByTestId({ testId: 'More actions' }).click();
@@ -652,21 +681,18 @@ Then('the graph should be displayed as a bar chart', () => {
 When(
   'the dashboard administrator selects a custom time period for the graph',
   () => {
-    cy.contains('Last hour').click({force:true})
-    cy.contains('Customize').click({force:true})
+    cy.contains('Last hour').click({ force: true });
+    cy.contains('Customize').click({ force: true });
   }
 );
 
-Then(
-  'the graph updates to reflect data for the selected time period',
-  () => {
-    cy.getByLabel({
-      label: 'From',
-      tag: 'div'
-    }).should('be.visible')
-    cy.getByLabel({
-      label: 'to',
-      tag: 'div'
-    }).should('be.visible')
-  }
-);
+Then('the graph updates to reflect data for the selected time period', () => {
+  cy.getByLabel({
+    label: 'From',
+    tag: 'div'
+  }).should('be.visible');
+  cy.getByLabel({
+    label: 'to',
+    tag: 'div'
+  }).should('be.visible');
+});
