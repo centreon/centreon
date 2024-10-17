@@ -5,11 +5,11 @@ import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import textWidget from '../../../fixtures/dashboards/creation/widgets/textWidget.json';
 
 before(() => {
-  cy.startContainers();
-  cy.enableDashboardFeature();
-  cy.executeCommandsViaClapi(
-    'resources/clapi/config-ACL/dashboard-configuration-creator.json'
-  );
+  // cy.startContainers();
+  // cy.enableDashboardFeature();
+  // cy.executeCommandsViaClapi(
+  //   'resources/clapi/config-ACL/dashboard-configuration-creator.json'
+  // );
 });
 
 after(() => {
@@ -199,7 +199,9 @@ Given(
   () => {
     cy.insertDashboardWithWidget(
       dashboards.fromDashboardCreatorUser,
-      textWidget
+      textWidget,
+      'centreon-widget-generictext',
+      '/widgets/generictext'
     );
     cy.visitDashboards();
   }
@@ -207,6 +209,7 @@ Given(
 
 When('the dashboard administrator user starts to edit the dashboard', () => {
   cy.contains(dashboards.fromDashboardCreatorUser.name).click();
+  cy.waitForElementToBeVisible('[data-testid="edit_dashboard"]')
   cy.getByTestId({ testId: 'edit_dashboard' }).click();
   cy.location('search').should('include', 'edit=true');
   cy.get('button[type=button]').contains('Add a widget').should('exist');

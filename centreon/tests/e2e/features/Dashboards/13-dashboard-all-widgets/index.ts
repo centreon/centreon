@@ -345,7 +345,7 @@ When(
     cy.get('.react-grid-item').eq(1).realClick();
 
     cy.getByTestId({ testId: 'save_dashboard' }).click();
-    cy.wait('@updateDashboard');
+    cy.waitForElementToBeVisible('[class*="graphContainer"]')
   }
 );
 

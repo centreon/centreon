@@ -442,6 +442,29 @@ Cypress.Commands.add('patchServiceWithHost', (hostId, serviceId) => {
   });
 });
 
+Cypress.Commands.add(
+  'waitForElementToBeVisible',
+  (selector, timeout = 50000, interval = 2000) => {
+    cy.waitUntil(
+      () =>
+        cy.get('body').then(($body) => {
+          const element = $body.find(selector);
+
+          return element.length > 0 && element.is(':visible');
+        }),
+      {
+        errorMsg: `The element '${selector}' is not visible`,
+        interval,
+        timeout
+      }
+    ).then((isVisible) => {
+      if (!isVisible) {
+        throw new Error(`The element '${selector}' is not visible`);
+      }
+    });
+  }
+);
+
 interface Dashboard {
   description?: string;
   name: string;
@@ -539,6 +562,11 @@ declare global {
         closeIconIndex?:number
       ) => Cypress.Chainable;
       waitUntilPingExists: () => Cypress.Chainable;
+      waitForElementToBeVisible(
+        selector: string,
+        timeout?: number,
+        interval?: number
+      ): Cypress.Chainable;
     }
   }
 }

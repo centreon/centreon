@@ -1,25 +1,12 @@
 {
-  "panels": [
-    {
-      "name": "centreon-widget-generictext",
-      "widget_type": "/widgets/generictext",
-      "layout": {
-        "x": 0,
-        "y": 0,
-        "width": 3,
-        "height": 3,
-        "min_width": 3,
-        "min_height": 3
-      },
-      "widget_settings": {
-        "options": {
-          "name": "Generic text",
-          "description": {
-            "enabled": true,
-            "content": "{\"root\":{\"children\":[{\"children\":[{\"detail\":0,\"format\":0,\"mode\":\"normal\",\"style\":\"\",\"text\":\"Description\",\"type\":\"text\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}"
-          }
-        }
-      }
-    }
-  ]
+  "data":{
+
+  },
+  "options":{
+     "description":{
+        "content":"{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textFormat\":0,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+        "enabled":true
+     },
+     "name":""
+  }
 }
