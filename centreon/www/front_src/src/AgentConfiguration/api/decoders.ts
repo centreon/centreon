@@ -76,9 +76,9 @@ const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
   'CMA configuration',
   {
     isReverse: 'is_reverse',
-    otlpPrivateKey: 'otlp_private_key',
-    otlpPublicCertificate: 'otlp_public_certificate',
-    otlpCaCertificate: 'otlp_ca_certificate'
+    otelPrivateKey: 'otel_private_key',
+    otelPublicCertificate: 'otel_public_certificate',
+    otelCaCertificate: 'otel_ca_certificate'
   }
 );
 
