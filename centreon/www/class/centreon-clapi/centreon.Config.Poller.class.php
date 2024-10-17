@@ -187,9 +187,9 @@ class CentreonConfigPoller
      */
     public function pollerReload($variables)
     {
-        if (!isset($variables)) {
-            print "Cannot get poller";
-            exit(1);
+        if (! isset($variables)) {
+            echo "Cannot get poller";
+            return 1;
         }
 
         $poller_id = $this->ensurePollerId($variables);
@@ -206,16 +206,16 @@ class CentreonConfigPoller
         $reloadCommand = $this->commandGenerator->getEngineCommand('RELOAD');
         $return_code = $this->writeToCentcorePipe($reloadCommand, $host["id"]);
         if ($return_code === 1) {
-            print "Error while writing the command {$reloadCommand} in centcore pipe file for host id {$host["id"]}" . PHP_EOL;
-            exit(1);
+            echo "Error while writing the command {$reloadCommand} in centcore pipe file for host id {$host["id"]}" . PHP_EOL;
+            return $return_code;
         }
         $return_code = $this->writeToCentcorePipe('RELOADBROKER', $host["id"]);
         if ($return_code === 1) {
-            print "Error while writing the command RELOADBROKER in centcore pipe file for host id {$host["id"]}" . PHP_EOL;
-            exit(1);
+            echo "Error while writing the command RELOADBROKER in centcore pipe file for host id {$host["id"]}" . PHP_EOL;
+            return $return_code;
         }
         $msg_restart = _("OK: A reload signal has been sent to '" . $host["name"] . "'");
-        print $msg_restart . "\n";
+        echo $msg_restart . "\n";
         $statement = $this->DB->prepare(
             "UPDATE `nagios_server` SET `last_restart` = :last_restart, `updated` = '0' WHERE `id` = :poller_id LIMIT 1"
         );
@@ -265,7 +265,7 @@ class CentreonConfigPoller
     /**
      * @param $variables
      *
-     * @return int|void
+     * @return int
      * @throws CentreonClapiException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
@@ -273,9 +273,9 @@ class CentreonConfigPoller
      */
     public function pollerRestart($variables)
     {
-        if (!isset($variables)) {
-            print "Cannot get poller";
-            exit(1);
+        if (! isset($variables)) {
+            echo "Cannot get poller";
+            return 1;
         }
 
         $poller_id = $this->ensurePollerId($variables);
@@ -292,19 +292,20 @@ class CentreonConfigPoller
         $restartCommand = $this->commandGenerator->getEngineCommand('RESTART');
         $return_code = $this->writeToCentcorePipe($restartCommand, $host["id"]);
         if ($return_code === 1) {
-            print "Error while writing the command {$restartCommand} in centcore pipe file for host id {$host["id"]}" . PHP_EOL;
-            exit(1);
+            echo "Error while writing the command {$restartCommand} in centcore pipe file for host id {$host["id"]}" . PHP_EOL;
+            return $return_code;
         }
         $return_code = $this->writeToCentcorePipe('RELOADBROKER', $host["id"]);
         if ($return_code === 1) {
-            print "Error while writing the command RELOADBROKER in centcore pipe file for host id {$host["id"]}" . PHP_EOL;
-            exit(1);
+            echo "Error while writing the command RELOADBROKER in centcore pipe file for host id {$host["id"]}" . PHP_EOL;
+            return $return_code;
         }
         $msg_restart = _("OK: A restart signal has been sent to '" . $host["name"] . "'");
-        print $msg_restart . "\n";
+        echo $msg_restart . "\n";
         $statement = $this->DB->prepare(
             "UPDATE `nagios_server` SET `last_restart` = :last_restart, `updated` = '0' WHERE `id` = :poller_id LIMIT 1"
         );
+        // centreon -u admin -p Centreon\!2021 -a POLLERRELOAD -v 1
         $statement->bindValue(':last_restart', time(), PDO::PARAM_INT);
         $statement->bindValue(':poller_id', (int) $poller_id, PDO::PARAM_INT);
         $statement->execute();
