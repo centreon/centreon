@@ -85,9 +85,10 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
             ];
         }
         $this->generate_filename = 'centreon_vmware.json';
-        $this->backend->createDirectories([$this->backend->generate_path . '/vmware/' . $pollerId]);
+        $directory = $this->backend->generate_path . '/vmware/' . $pollerId;
+        $this->backend->createDirectories([$directory]);
         $this->generateFile($object, false);
-        $this->writeFile($this->backend->generate_path . '/vmware/' . $pollerId);
+        $this->writeFile($directory);
     }
 
     /**
