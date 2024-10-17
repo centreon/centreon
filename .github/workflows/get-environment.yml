@@ -296,12 +296,13 @@ jobs:
               const mainBranchName = prPath.pop();
               let codeBlock = `
                 %%{ init: { 'gitGraph': { 'mainBranchName': mainBranchName, 'showCommitLabel': false } } }%%
-                gitGraph`;
+                gitGraph
+                  commit`;
               ${{ steps.pr_path.outputs.result }}.reverse().forEach((branchName) => {
                 codeBlock = `${codeBlock}
-                  commit
                   branch ${branchName}
-                  checkout ${branchName}`;
+                  checkout ${branchName}
+                  commit`;
               });
 
               core.summary.addCodeBlock(
