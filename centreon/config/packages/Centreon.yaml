@@ -40,6 +40,7 @@ services:
             - '../../src/Core/ResourceAccess/*'
             - '../../src/Core/Service/*'
             - '../../src/Core/HostGroup/*'
+            - '../../src/Core/HostTemplate/*'
             - '../../src/Core/ServiceGroup/*'
             - '../../src/Core/Host/*'
             - '../../src/Core/Broker/*'
