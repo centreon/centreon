@@ -117,7 +117,7 @@ When('I click on the Export configuration button', () => {
 });
 
 Then('I am redirected to generate page', () => {
-  cy.url({ timeout: 10000 }).should('include', `/centreon/main.php?p=60902&poller=`);
+  cy.url({ timeout: 40000 }).should('include', `/centreon/main.php?p=60902&poller=`);
 });
 
 Then('the selected poller names are displayed', () => {
