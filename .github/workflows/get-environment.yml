@@ -264,13 +264,16 @@ jobs:
 
             if ("${{ github.head_ref || github.ref_name }}" !== "${{ github.ref_name }}") {
               core.summary.addCodeBlock(
-                `graph TD; ${{ github.head_ref }} --> ${{ github.ref_name }};`,
+                `flowchart LR; ${{ github.head_ref }} --> ${{ github.base_ref }};`,
                 "mermaid"
               );
               core.summary.addCodeBlock(
                 `gitGraph
+                    branch develop
                     checkout develop
-                    checkout ${{ github.ref_name }}
+                    branch ${{ github.base_ref }}
+                    checkout ${{ github.base_ref }}
+                    branch ${{ github.head_ref }}
                     checkout ${{ github.head_ref }}
                 `,
                 "mermaid"
