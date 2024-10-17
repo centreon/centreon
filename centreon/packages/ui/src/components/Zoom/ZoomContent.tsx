@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { RectClipPath } from '@visx/clip-path';
-import { ProvidedZoom } from '@visx/zoom/lib/types';
+import type { ProvidedZoom } from '@visx/zoom/lib/types';
 
 import ZoomInIcon from '@mui/icons-material/Add';
 import ZoomOutIcon from '@mui/icons-material/Remove';
@@ -12,7 +12,7 @@ import { IconButton } from '../Button';
 import Minimap from './Minimap';
 import { useZoomStyles } from './Zoom.styles';
 import { minimapScale, radius } from './constants';
-import { ChildrenProps, MinimapPosition, ZoomState } from './models';
+import type { ChildrenProps, MinimapPosition, ZoomState } from './models';
 import { useZoom } from './useZoom';
 
 export interface Props {
