@@ -65,7 +65,6 @@ jobs:
         with:
           script: |
             const prPath = ['${{ github.head_ref }}', '${{ github.base_ref }}'];
-            console.log(prPath);
 
             const result = await github.rest.pulls.list({
               owner: context.repo.owner,
@@ -89,6 +88,23 @@ jobs:
 
       - name: Get stability
         id: get_stability
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const getStability = (branchName) => {
+            };
+
+            core.setOutput('stability', getStability('${{ github.head_ref || github.ref_name }}'));
+
+            if ("${{ github.event_name }}" === "pull_request") {
+              let targetStability = 'canary';
+              const prPath = ${{ steps.pr_path.outputs.result }};
+              console.log(prPath);
+
+            }
+
+      - name: Get stability
+        id: get_stability_2
         run: |
           case "$BRANCHNAME" in
             develop | dev-[2-9][0-9].[0-9][0-9].x | prepare-release-cloud*)
