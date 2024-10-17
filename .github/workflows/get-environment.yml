@@ -298,9 +298,8 @@ jobs:
                 gitGraph`;
               ${{ steps.pr_path.outputs.result }}.reverse().forEach((branchName) => {
                 codeBlock = `${codeBlock}
-                    commit
-                    ${branchName}
-                `;
+                  commit
+                  ${branchName}`;
               });
               console.log(codeBlock)
               core.summary.addCodeBlock(
