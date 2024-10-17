@@ -294,6 +294,7 @@ jobs:
             if ("${{ github.event_name }}" === "pull_request") {
               const prPath = ${{ steps.pr_path.outputs.result }};
               const mainBranchName = prPath.pop();
+              console.log(mainBranchName);
               let codeBlock = `
                 %%{ init: { 'gitGraph': { 'mainBranchName': mainBranchName, 'showCommitLabel': false } } }%%
                 gitGraph
