@@ -155,6 +155,11 @@ class TimeRange implements \Stringable
         return $timeRanges;
     }
 
+    /**
+     * @param string $timeRange
+     *
+     * @return array{value: string, isFullDayAlias: bool}
+     */
     private function resolveTimeRangeAlias(string $timeRange): array
     {
         $isFullDayAlias = $timeRange === self::TIME_RANGE_FULL_DAY_ALIAS || empty($timeRange);
