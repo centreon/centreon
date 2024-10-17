@@ -108,7 +108,8 @@ jobs:
 
             if ("${{ github.event_name }}" === "pull_request") {
               let targetStability = 'canary';
-              const prPath = ${{ steps.pr_path.outputs.result }}.pop(); // remove current branch
+              const prPath = ${{ steps.pr_path.outputs.result }};
+              prPath.pop(); // remove current branch
               prPath.every((branchName) => {
                 targetStability = getStability(branchName);
 
