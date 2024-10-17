@@ -41,7 +41,7 @@ jobs:
   get-version:
     uses: ./.github/workflows/get-version.yml
     with:
-      version_file: centreon/.env
+      version_file: centreon/www/install/insertBaseConf.sql
 
   veracode-analysis:
     needs: [get-version]
