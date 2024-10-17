@@ -21,6 +21,19 @@ Then("a service template is configured", () => {
       name: "service_template",
       template: "generic-service",
     });
+ cy.enterIframe("iframe#main-content")
+   .find("table.ListTable")
+   .find("tr.list_two")
+   .find("td.ListColLeft")
+   .contains("service_template")
+   .click();
+ cy.enterIframe("iframe#main-content")
+   .find("table.formTable")
+   .find("tr.list_one")
+   .find("td.FormRowValue")
+   .find('input[name="service_alias"]')
+   .clear()
+   .type("service_template");
 });
 
 When("the user changes the properties of a service template", () => {
