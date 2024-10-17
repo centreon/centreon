@@ -84,7 +84,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error($ex->getMessage(), ['service_id' => $serviceId, 'trace' => $ex->getTraceAsString()]);
 
             throw $ex;
         }
@@ -100,7 +100,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
             try {
                 $service = $this->readServiceRepository->findById($serviceId);
                 if ($service === null) {
-                    throw new RepositoryException('Cannot find service to delete');
+                    throw new RepositoryException(sprintf('Cannot find service to delete (ID: %d).', $serviceId));
                 }
                 
                 $this->writeServiceRepository->delete($serviceId);
@@ -114,7 +114,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                 );
                 $this->writeActionLogRepository->addAction($actionLog);
             } catch (\Throwable $ex) {
-                $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+                $this->error($ex->getMessage(), ['service_id' => $serviceId, 'trace' => $ex->getTraceAsString()]);
                 $failedDeletions[] = $serviceId;
             }
         }
@@ -150,7 +150,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
 
             return $serviceId;
         } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error($ex->getMessage(), ['service' => $newService, 'trace' => $ex->getTraceAsString()]);
 
             throw $ex;
         }
@@ -213,7 +213,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                 }
             }
         } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error($ex->getMessage(), ['service' => $service, 'trace' => $ex->getTraceAsString()]);
 
             throw $ex;
         }
