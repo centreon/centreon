@@ -16,7 +16,9 @@ cat <<EOM >>/etc/vault.d/central_policy.hcl
 path "centreon/*" {
   capabilities = ["create", "read", "update", "patch", "delete", "list"]
 }
+EOM
 
+cat <<EOM >>/etc/vault.d/vault.hcl
 storage "raft" {
   path    = "/opt/vault/data"
   node_id = "node1"
