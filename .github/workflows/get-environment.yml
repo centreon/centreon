@@ -267,6 +267,10 @@ jobs:
                 `graph TD; ${{ github.head_ref }} --> ${{ github.ref_name }};`,
                 "mermaid"
               );
+              core.summary.addCodeBlock(
+                `gitGraph; checkout develop; checkout ${{ github.ref_name }};checkout ${{ github.head_ref }};`,
+                "mermaid"
+              );
             }
 
             core.summary.write();
