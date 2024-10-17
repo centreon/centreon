@@ -116,7 +116,7 @@ jobs:
 
             if ("${{ github.event_name }}" === "pull_request") {
               let targetStability = 'canary';
-              const prPath = ${{ steps.pr_path.outputs.result }};
+              const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               prPath.shift(); // remove current branch
               prPath.every((branchName) => {
                 console.log(`checking stability of ${branchName}`)
@@ -195,7 +195,7 @@ jobs:
         with:
           script: |
             if ("${{ github.event_name }}" === "pull_request") {
-              const prPath = ${{ steps.pr_path.outputs.result }};
+              const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               const finalTargetBranch = prPath.pop();
               if (['develop', 'master'].includes(finalTargetBranch)) {
                 return true;
