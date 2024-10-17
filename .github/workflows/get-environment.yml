@@ -299,7 +299,7 @@ jobs:
                 %%{ init: { 'gitGraph': { 'mainBranchName': '${mainBranchName}', 'showCommitLabel': false } } }%%
                 gitGraph
                   commit`;
-              ${{ steps.pr_path.outputs.result }}.reverse().forEach((branchName) => {
+              prPath.reverse().forEach((branchName) => {
                 codeBlock = `${codeBlock}
                   branch ${branchName}
                   checkout ${branchName}
