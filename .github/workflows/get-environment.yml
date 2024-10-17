@@ -296,7 +296,7 @@ jobs:
               const mainBranchName = prPath.pop();
               console.log(mainBranchName);
               let codeBlock = `
-                %%{ init: { 'gitGraph': { 'mainBranchName': mainBranchName, 'showCommitLabel': false } } }%%
+                %%{ init: { 'gitGraph': { 'mainBranchName': ${mainBranchName}, 'showCommitLabel': false } } }%%
                 gitGraph
                   commit`;
               ${{ steps.pr_path.outputs.result }}.reverse().forEach((branchName) => {
