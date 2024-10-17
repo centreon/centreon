@@ -672,7 +672,6 @@ Cypress.Commands.add('insertDashboardWithWidget', (dashboardBody, patchBody, wid
 
     const formData = new FormData();
 
-    // Utilisation des paramètres widgetName et widgetType
     formData.append('panels[0][name]', widgetName);
     formData.append('panels[0][widget_type]', widgetType);
 
