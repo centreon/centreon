@@ -269,17 +269,12 @@ jobs:
               );
               core.summary.addCodeBlock(
                 `
-            ---
-            config:
-              theme: neutral
-              look: handDrawn
-              mainBranchName: ${{ github.base_ref }}
-            ---
-            gitGraph
-              commit id: "1"
-              branch ${{ github.head_ref }}
-              checkout ${{ github.head_ref }}
-              commit id: "2"
+                  %%{ init: { 'gitGraph': { 'mainBranchName': '${{ github.base_ref }}' } } }%%
+                  gitGraph
+                    commit id: "1"
+                    branch ${{ github.head_ref }}
+                    checkout ${{ github.head_ref }}
+                    commit id: "2"
                 `,
                 "mermaid"
               );
