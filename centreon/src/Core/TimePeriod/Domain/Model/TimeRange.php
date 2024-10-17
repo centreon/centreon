@@ -33,9 +33,9 @@ class TimeRange implements \Stringable
 {
     /**
      *
-     * @var string TIME_RANGE_FULL_DAY_ALIAS The time range for the entire day in DOC.
+     * @var string TIME_RANGE_FULL_DAY_ALIAS The time range for the entire day in DOC
      */
-    const TIME_RANGE_FULL_DAY_ALIAS = '00:00-00:00';
+    public const TIME_RANGE_FULL_DAY_ALIAS = '00:00-00:00';
 
     /** @var string Comma-delimited time range (00:00-12:00) for a particular day of the week. */
     private string $timeRange;
@@ -53,6 +53,7 @@ class TimeRange implements \Stringable
         $timeRange = $resolvedTimeRangeAlias['value'];
         if ($resolvedTimeRangeAlias['isFullDayAlias']) {
             $this->timeRange = $timeRange;
+
             return;
         }
 
@@ -158,11 +159,11 @@ class TimeRange implements \Stringable
     private function resolveTimeRangeAlias(string $timeRange): array
     {
         $isFullDayAlias = $timeRange === self::TIME_RANGE_FULL_DAY_ALIAS || empty($timeRange);
-        $value = empty($timeRange) ? "" : $timeRange;
+        $value = empty($timeRange) ? '' : $timeRange;
 
         return [
             'value' => $value,
-            'isFullDayAlias' => $isFullDayAlias
+            'isFullDayAlias' => $isFullDayAlias,
         ];
     }
 }
