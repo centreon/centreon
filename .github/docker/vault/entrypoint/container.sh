@@ -10,10 +10,27 @@ vault secrets enable -path=centreon kv
 vault auth enable approle
 
 mkdir /etc/vault.d
+mkdir -p /opt/vault/tls
+
 cat <<EOM >>/etc/vault.d/central_policy.hcl
 path "centreon/*" {
   capabilities = ["create", "read", "update", "patch", "delete", "list"]
 }
+
+storage "raft" {
+  path    = "/opt/vault/data"
+  node_id = "node1"
+}
+
+listener "tcp" {
+  address       = "127.0.0.1:8200"
+  tls_cert_file = "/opt/vault/tls/tls.crt"
+  tls_key_file  = "/opt/vault/tls/tls.key"
+}
+
+api_addr     = "https://127.0.0.1:8200"
+cluster_addr = "https://127.0.0.1:8201"
+ui           = true
 EOM
 
 vault policy write central /etc/vault.d/central_policy.hcl
@@ -30,10 +47,17 @@ if [ -f /tmp/shared-volume/vault-ids ]; then
   rm -f /tmp/shared-volume/vault-ids
 fi
 
+# Export role IDs/secret IDs to the shared volume so that they are used by the central server in the registration process
 if [ ! -f /tmp/shared-volume/vault-ids ] && [[ -n $VAULT_ROLE_ID ]] && [[ -n $VAULT_SECRET_ID ]]; then
   echo "VAULT_ROLE_ID=$VAULT_ROLE_ID" >> /tmp/shared-volume/vault-ids
   echo "VAULT_SECRET_ID=$VAULT_SECRET_ID" >> /tmp/shared-volume/vault-ids
 fi
+
+vault secrets enable pki
+vault write -field=certificate pki/root/generate/internal \
+   common_name=vault \
+   issuer_name="centreon-vault" \
+   ttl=8760h > /opt/vault/tls/vault.crt
 
 vault write auth/approle/login role_id=$VAULT_ROLE_ID secret_id=$VAULT_SECRET_ID
 
