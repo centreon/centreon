@@ -60,6 +60,7 @@ jobs:
 
       - if: ${{ github.event_name == 'pull_request' }}
         name: Get nested pull request path
+        id: pr_path
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
@@ -76,15 +77,14 @@ jobs:
             while (found) {
               found = false;
               result.data.forEach(({ head: { ref: headRef }, base: { ref: baseRef} }) => {
-                if (baseRef === prPath[prPath.length - 1]) {
-                  console.log(`${baseRef} equals to ${prPath[prPath.length - 1]}: adding ${headRef}`);
+                if (baseRef === prPath[prPath.length - 1] && ! prPath.includes(headRef)) {
                   found = true;
                   prPath.push(headRef);
                 }
               });
             }
 
-            console.log(prPath);
+            return prPath;
 
       - name: Get stability
         id: get_stability
@@ -290,6 +290,7 @@ jobs:
                 ['stability', '${{ steps.get_stability.outputs.stability }}']
               ]);
 
+            console.log(${{ steps.pr_path.outputs.result }}.reverse());
             if ("${{ github.head_ref || github.ref_name }}" !== "${{ github.ref_name }}") {
               core.summary.addCodeBlock(
                 `
