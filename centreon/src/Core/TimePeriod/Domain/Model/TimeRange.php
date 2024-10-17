@@ -34,7 +34,7 @@ class TimeRange implements \Stringable
     /**
      * @var string TIME_RANGE_FULL_DAY_ALIAS The time range for the entire day in DOC
      */
-    public const TIME_RANGE_FULL_DAY_ALIAS = '00:00-00:00';
+    private const TIME_RANGE_FULL_DAY_ALIAS = '00:00-00:00';
 
     /** @var string Comma-delimited time range (00:00-12:00) for a particular day of the week. */
     private string $timeRange;
@@ -49,13 +49,11 @@ class TimeRange implements \Stringable
     {
 
         $resolvedTimeRangeAlias = $this->resolveTimeRangeAlias($timeRange);
-        $timeRange = $resolvedTimeRangeAlias['value'];
-        if ($resolvedTimeRangeAlias['isFullDayAlias']) {
-            $this->timeRange = $timeRange;
-
+        if ($resolvedTimeRangeAlias) {
             return;
         }
 
+        $timeRange = $this->timeRange;
         Assertion::minLength($timeRange, 11, 'TimeRange::timeRange');
 
         if (! $this->isValidTimeRangeFormat($timeRange)) {
@@ -158,16 +156,11 @@ class TimeRange implements \Stringable
     /**
      * @param string $timeRange
      *
-     * @return array{value: string, isFullDayAlias: bool}
+     * @return bool
      */
-    private function resolveTimeRangeAlias(string $timeRange): array
+    private function resolveTimeRangeAlias(string $timeRange): bool
     {
-        $isFullDayAlias = $timeRange === self::TIME_RANGE_FULL_DAY_ALIAS || empty($timeRange);
-        $value = empty($timeRange) ? '' : $timeRange;
-
-        return [
-            'value' => $value,
-            'isFullDayAlias' => $isFullDayAlias,
-        ];
+        $this->timeRange = empty($timeRange) ? '' : $timeRange;
+        return $timeRange === self::TIME_RANGE_FULL_DAY_ALIAS || empty($timeRange);
     }
 }
