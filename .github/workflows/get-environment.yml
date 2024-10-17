@@ -292,9 +292,10 @@ jobs:
               ]);
 
             if ("${{ github.event_name }}" === "pull_request") {
-              console.log(${{ steps.pr_path.outputs.result }}.reverse());
+              const prPath = ${{ steps.pr_path.outputs.result }};
+              const mainBranchName = prPath.pop();
               let codeBlock = `
-                %%{ init: { 'gitGraph': { 'mainBranchName': '${{ github.base_ref }}', 'showCommitLabel': false } } }%%
+                %%{ init: { 'gitGraph': { 'mainBranchName': mainBranchName, 'showCommitLabel': false } } }%%
                 gitGraph`;
               ${{ steps.pr_path.outputs.result }}.reverse().forEach((branchName) => {
                 codeBlock = `${codeBlock}
@@ -302,22 +303,11 @@ jobs:
                   branch ${branchName}
                   checkout ${branchName}`;
               });
-              console.log(codeBlock)
+
               core.summary.addCodeBlock(
                 codeBlock,
                 "mermaid"
               );
-              // core.summary.addCodeBlock(
-              //   `
-              //     %%{ init: { 'gitGraph': { 'mainBranchName': '${{ github.base_ref }}', 'showCommitLabel': false } } }%%
-              //     gitGraph
-              //       commit
-              //       branch ${{ github.head_ref }}
-              //       checkout ${{ github.head_ref }}
-              //       commit
-              //   `,
-              //   "mermaid"
-              // );
             }
 
             core.summary.write();
