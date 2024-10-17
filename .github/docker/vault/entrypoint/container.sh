@@ -2,7 +2,7 @@
 
 export VAULT_ADDR='http://127.0.0.1:8200'
 
-vault server -dev -dev-listen-address="127.0.0.1:8200" &
+vault server -dev -dev-listen-address="0.0.0.0:8200" &
 sleep 5
 
 export VAULT_TOKEN=${VAULT_DEV_ROOT_TOKEN_ID}
