@@ -78,9 +78,9 @@ jobs:
             while (found) {
               found = false;
               result.data.forEach(({ head: { ref: headRef }, base: { ref: baseRef} }) => {
-                if (baseRef === prPath[prPath.length - 1] && ! prPath.includes(headRef)) {
+                if (headRef === prPath[prPath.length - 1] && ! prPath.includes(baseRef)) {
                   found = true;
-                  prPath.push(headRef);
+                  prPath.push(baseRef);
                 }
               });
             }
@@ -293,17 +293,31 @@ jobs:
 
             if ("${{ github.event_name }}" === "pull_request") {
               console.log(${{ steps.pr_path.outputs.result }}.reverse());
+              let codeBlock = `
+                %%{ init: { 'gitGraph': { 'mainBranchName': '${{ github.base_ref }}', 'showCommitLabel': false } } }%%
+                gitGraph
+              `;
+              ${{ steps.pr_path.outputs.result }}.reverse().foreach((branchName) => {
+                codeBlock = `${codeBlock}
+                    commit
+                    ${branchName}`;
+              });
+              console.log(codeBlock)
               core.summary.addCodeBlock(
-                `
-                  %%{ init: { 'gitGraph': { 'mainBranchName': '${{ github.base_ref }}', 'showCommitLabel': false } } }%%
-                  gitGraph
-                    commit
-                    branch ${{ github.head_ref }}
-                    checkout ${{ github.head_ref }}
-                    commit
-                `,
+                codeBlock,
                 "mermaid"
               );
+              // core.summary.addCodeBlock(
+              //   `
+              //     %%{ init: { 'gitGraph': { 'mainBranchName': '${{ github.base_ref }}', 'showCommitLabel': false } } }%%
+              //     gitGraph
+              //       commit
+              //       branch ${{ github.head_ref }}
+              //       checkout ${{ github.head_ref }}
+              //       commit
+              //   `,
+              //   "mermaid"
+              // );
             }
 
             core.summary.write();
