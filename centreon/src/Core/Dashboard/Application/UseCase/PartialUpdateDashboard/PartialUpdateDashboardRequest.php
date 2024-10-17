@@ -50,15 +50,15 @@ final class PartialUpdateDashboardRequest
      *        min_height: int
      *    },
      *    widget_type: string,
-     *    widget_settings: array<mixed>,
+     *    widget_settings: string,
      *}> $panels
      */
     public function __construct(
         #[Assert\Type('string')]
         #[Assert\Length(min: 1, max: 200)]
-        public ?string $name = null,
+        public mixed $name = null,
         #[Assert\Type('string')]
-        public ?string $description = null,
+        public mixed $description = null,
         #[Assert\Collection(
             fields: [
                 'type' => [
@@ -66,11 +66,10 @@ final class PartialUpdateDashboardRequest
                     new Assert\Type('string'),
                     new Assert\Choice(['global', 'manual']),
                 ],
-                'interval' => [
+                'interval' => new Assert\Optional([
                     new Assert\Type('numeric'),
-                    new Assert\NotNull(),
                     new Assert\Positive(),
-                ],
+                ]),
             ]
         )]
         public mixed $refresh = null,
@@ -93,56 +92,65 @@ final class PartialUpdateDashboardRequest
             ],
         )]
         public mixed $thumbnail = null,
-        #[Assert\Type('array')]
-        #[Assert\All(
-            new Assert\Collection(
-                fields: [
-                    'id' => new Assert\Optional([
-                        new Assert\When(
-                            expression: 'value !== "null"',
-                            constraints: [new Assert\Type('numeric'), new Assert\Positive()]
-                        ),
-                    ]),
-                    'name' => [
-                        new Assert\NotNull(),
-                        new Assert\Type('string'),
-                    ],
-                    'layout' => new Assert\Collection(
+        #[Assert\AtLeastOneOf([
+            new Assert\Count(max: 1),
+            new Assert\Sequentially([
+                new Assert\Type('array'),
+                new Assert\All(
+                    new Assert\Collection(
                         fields: [
-                            'x' => [
+                            'id' => new Assert\Optional([
+                                new Assert\When(
+                                    expression: 'value !== "null"',
+                                    constraints: [new Assert\Type('numeric'), new Assert\Positive()]
+                                ),
+                            ]),
+                            'name' => [
                                 new Assert\NotNull(),
-                                new Assert\Type('numeric'),
+                                new Assert\Type('string'),
                             ],
-                            'y' => [
+                            'layout' => new Assert\Collection(
+                                fields: [
+                                    'x' => [
+                                        new Assert\NotNull(),
+                                        new Assert\Type('numeric'),
+                                    ],
+                                    'y' => [
+                                        new Assert\NotNull(),
+                                        new Assert\Type('numeric'),
+                                    ],
+                                    'width' => [
+                                        new Assert\NotNull(),
+                                        new Assert\Type('numeric'),
+                                    ],
+                                    'height' => [
+                                        new Assert\NotNull(),
+                                        new Assert\Type('numeric'),
+                                    ],
+                                    'min_width' => [
+                                        new Assert\NotNull(),
+                                        new Assert\Type('numeric'),
+                                    ],
+                                    'min_height' => [
+                                        new Assert\NotNull(),
+                                        new Assert\Type('numeric'),
+                                    ],
+                                ]
+                            ),
+                            'widget_type' => [
                                 new Assert\NotNull(),
-                                new Assert\Type('numeric'),
+                                new Assert\Type('string'),
                             ],
-                            'width' => [
+                            'widget_settings' => [
                                 new Assert\NotNull(),
-                                new Assert\Type('numeric'),
-                            ],
-                            'height' => [
-                                new Assert\NotNull(),
-                                new Assert\Type('numeric'),
-                            ],
-                            'min_width' => [new Assert\NotNull(),
-                                new Assert\Type('numeric'),
-                            ],
-                            'min_height' => [
-                                new Assert\NotNull(),
-                                new Assert\Type('numeric'),
+                                new Assert\Type('string'),
+                                new Assert\Json(),
                             ],
                         ]
-                    ),
-                    'widget_type' => [
-                        new Assert\NotNull(),
-                        new Assert\Type('string'),
-                    ],
-                    // nothing more can be done here as widget_settings are specific to widgets...
-                    'widget_settings' => new Assert\Required(),
-                ]
-            )
-        )]
+                    )
+                ),
+            ]),
+        ])]
         public mixed $panels = null,
     ) {
     }
@@ -186,9 +194,11 @@ final class PartialUpdateDashboardRequest
             return new NoValue();
         }
 
+        $refreshInterval = $this->refresh['interval'] ? (int) $this->refresh['interval'] : $this->refresh['interval'];
+
         return new RefreshRequestDto(
             refreshType: RefreshTypeConverter::fromString($this->refresh['type']),
-            refreshInterval: (int) $this->refresh['interval'],
+            refreshInterval: $refreshInterval
         );
     }
 
@@ -203,6 +213,12 @@ final class PartialUpdateDashboardRequest
 
         $panels = [];
 
+        // We can't send empty arrays in multipart/form-data.
+        // The panels[] sent is transformed as array{0: empty-string}
+        if (! \is_array($this->panels[0])) {
+            return $panels;
+        }
+
         foreach ($this->panels as $panel) {
             $layout = $panel['layout'];
             $panelLayoutRequestDto = new PanelLayoutRequestDto(
@@ -211,7 +227,7 @@ final class PartialUpdateDashboardRequest
                 width: (int) $layout['width'],
                 height: (int) $layout['height'],
                 minWidth: (int) $layout['min_width'],
-                minHeight : (int) $layout['min_height'],
+                minHeight: (int) $layout['min_height'],
             );
 
             $panelId = $panel['id'] ?? null;
@@ -220,7 +236,7 @@ final class PartialUpdateDashboardRequest
                 name: $panel['name'],
                 layout: $panelLayoutRequestDto,
                 widgetType: $panel['widget_type'],
-                widgetSettings: ! \is_array($panel['widget_settings']) ? [] : $panel['widget_settings'],
+                widgetSettings: ! is_array(json_decode($panel['widget_settings'], true)) ? [] : json_decode($panel['widget_settings'], true),
             );
         }
 

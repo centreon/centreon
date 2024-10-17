@@ -74,7 +74,7 @@ Cypress.Commands.add('editWidget', (nameOrPosition) => {
 
 Cypress.Commands.add(
   'waitUntilForDashboardRoles',
-  (accessRightsTestId, expectedElementCount) => {
+  (accessRightsTestId, expectedElementCount, closeIconIndex) => {
     const openModalAndCheck: () => Cypress.Chainable<boolean> = () => {
       cy.getByTestId({ testId: accessRightsTestId }).invoke('show').click();
       cy.get('.MuiSelect-select').should('be.visible');
@@ -83,7 +83,11 @@ Cypress.Commands.add(
         .get('.MuiSelect-select')
         .should('be.visible')
         .then(($element) => {
-          cy.getByTestId({ testId: 'CloseIcon' }).click();
+          if (closeIconIndex !== undefined) {
+            cy.getByTestId({ testId: 'CloseIcon' }).eq(closeIconIndex).click();
+          } else {
+            cy.getByTestId({ testId: 'CloseIcon' }).click();
+          }
 
           return cy.wrap($element.length === expectedElementCount);
         });
@@ -531,7 +535,8 @@ declare global {
       visitDashboards: () => Cypress.Chainable;
       waitUntilForDashboardRoles: (
         accessRightsTestId: string,
-        expectedElementCount: number
+        expectedElementCount: number,
+        closeIconIndex?:number
       ) => Cypress.Chainable;
       waitUntilPingExists: () => Cypress.Chainable;
     }

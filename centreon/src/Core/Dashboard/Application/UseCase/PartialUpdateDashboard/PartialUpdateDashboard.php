@@ -126,9 +126,19 @@ final class PartialUpdateDashboard
 
         if ($thumbnail !== null) {
             $thumbnail->setData($request->file->getContent());
-            $event = new DashboardUpdatedEvent(dashboardId: $dashboardId, directory: $thumbnail->getDirectory(), thumbnail: $thumbnail);
+            $event = new DashboardUpdatedEvent(
+                dashboardId: $dashboardId,
+                directory: $thumbnail->getDirectory(),
+                thumbnail: $thumbnail,
+                filename: $thumbnail->getFilename()
+            );
         } else {
-            $event = new DashboardUpdatedEvent(dashboardId: $dashboardId, directory: $request->directory, thumbnail: $request->file);
+            $event = new DashboardUpdatedEvent(
+                dashboardId: $dashboardId,
+                directory: $request->directory,
+                thumbnail: $request->file,
+                filename: $request->name,
+            );
         }
 
         $this->dispatcher->dispatch($event);

@@ -18159,3 +18159,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Clock / Timer"
 # msgstr ""
+
+# msgid "Thumbnails show a snapshot of your data, taken when the dashboard is saved"
+# msgstr ""

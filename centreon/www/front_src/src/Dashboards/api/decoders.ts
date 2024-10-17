@@ -5,6 +5,7 @@ import { JsonDecoder } from 'ts.data.json';
 
 import { buildListingDecoder } from '@centreon/ui';
 
+import { Thumbnail } from '../SingleInstancePage/Dashboard/models';
 import {
   ContactType,
   Dashboard,
@@ -19,7 +20,6 @@ import {
   Shares,
   UserRole
 } from './models';
-import { Thumbnail } from '../SingleInstancePage/Dashboard/models';
 
 const namedEntityDecoder = {
   id: JsonDecoder.number,
