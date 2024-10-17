@@ -17,17 +17,22 @@ Given("a user is logged in Centreon", () => {
 });
 
 Then("a service template is configured", () => {
-    cy.addServiceTemplate({
+  cy.addServiceTemplate({
       name: "service_template",
       template: "generic-service",
-    });
- cy.enterIframe("iframe#main-content")
+  });
+  cy.navigateTo({
+    page: "Templates",
+    rootItemNumber: 3,
+    subMenu: "Services",
+  });
+  cy.enterIframe("iframe#main-content")
    .find("table.ListTable")
    .find("tr.list_two")
    .find("td.ListColLeft")
    .contains("service_template")
    .click();
- cy.enterIframe("iframe#main-content")
+  cy.enterIframe("iframe#main-content")
    .find("table.formTable")
    .find("tr.list_one")
    .find("td.FormRowValue")
