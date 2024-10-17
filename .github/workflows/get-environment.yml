@@ -69,6 +69,11 @@ jobs:
               per_page: 100,
               state: 'open'
             });
+
+            result.data.forEach(({ head, base }) => {
+              console.log(head);
+              console.log(base);
+            });
             console.log(result);
 
       - name: Get stability
