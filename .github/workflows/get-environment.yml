@@ -111,6 +111,7 @@ jobs:
               const prPath = ${{ steps.pr_path.outputs.result }};
               prPath.pop(); // remove current branch
               prPath.every((branchName) => {
+                console.log(`checking stability of ${branchName}`)
                 targetStability = getStability(branchName);
 
                 if (targetStability !== 'canary') {
