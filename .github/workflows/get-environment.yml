@@ -268,7 +268,11 @@ jobs:
                 "mermaid"
               );
               core.summary.addCodeBlock(
-                `gitGraph; checkout develop; checkout ${{ github.ref_name }};checkout ${{ github.head_ref }};`,
+                `gitGraph
+                    checkout develop
+                    checkout ${{ github.ref_name }}
+                    checkout ${{ github.head_ref }}
+                `,
                 "mermaid"
               );
             }
