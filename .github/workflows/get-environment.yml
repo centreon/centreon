@@ -76,6 +76,7 @@ jobs:
             while (found) {
               found = false;
               result.data.forEach(({ head: { ref: headRef }, base: { ref: baseRef} }) => {
+                console.log(`Comparing ${headRef} to ${prPath[prPath.length - 1]}`)
                 if (headRef === prPath[prPath.length - 1]) {
                   found = true;
                   prPath.push(baseRef);
