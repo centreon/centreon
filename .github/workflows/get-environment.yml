@@ -271,10 +271,10 @@ jobs:
                 `
                   %%{ init: { 'gitGraph': { 'mainBranchName': '${{ github.base_ref }}' } } }%%
                   gitGraph
-                    commit id: "1"
+                    commit
                     branch ${{ github.head_ref }}
                     checkout ${{ github.head_ref }}
-                    commit id: "2"
+                    commit
                 `,
                 "mermaid"
               );
