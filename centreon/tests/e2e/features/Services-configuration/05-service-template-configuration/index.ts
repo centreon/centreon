@@ -1,7 +1,7 @@
 import { Given, When, Then } from "@badeball/cypress-cucumber-preprocessor";
 
 beforeEach(() => {
-//   cy.startContainers();
+  cy.startContainers();
   cy.intercept({
     method: "GET",
     url: "/centreon/include/common/userTimezone.php",
@@ -17,11 +17,10 @@ Given("a user is logged in Centreon", () => {
 });
 
 Then("a service template is configured", () => {
-    // cy.setUserTokenApiV1();
-    // cy.addServiceTemplate({
-    //   name: "service_template",
-    //   template: "generic-service",
-    // });
+    cy.addServiceTemplate({
+      name: "service_template",
+      template: "generic-service",
+    });
 });
 
 When("the user changes the properties of a service template", () => {
@@ -91,19 +90,105 @@ Then("the properties are updated", () => {
 });
 
 When("the user duplicates a service template", () => {
-
+  cy.navigateTo({
+    page: "Templates",
+    rootItemNumber: 3,
+    subMenu: "Services",
+  });
+ cy.enterIframe("iframe#main-content")
+   .find("table tbody")
+   .find("tr.list_two")
+   .each(($row) => {
+     cy.wrap($row)
+       .find("td.ListColLeft")
+       .then(($td) => {
+         if ($td.text().includes("service_template")) {
+           cy.wrap($row)
+             .find("td.ListColPicker")
+             .find("div.md-checkbox")
+             .click();
+         }
+       });
+   });
+ cy.enterIframe("iframe#main-content")
+   .find("table.ToolbarTable tbody")
+   .find("td.Toolbar_TDSelectAction_Bottom")
+   .find("select")
+   .invoke(
+     "attr",
+     "onchange",
+     "javascript: { setO(this.form.elements['o2'].value); this.form.submit(); }",
+   );
+ cy.enterIframe("iframe#main-content")
+   .find("table.ToolbarTable tbody")
+   .find("td.Toolbar_TDSelectAction_Bottom")
+   .find("select")
+   .select("Duplicate");
 });
 
 Then("the new service template has the same properties", () => {
-
+  cy.enterIframe("iframe#main-content")
+    .find("table.ListTable")
+    .find("tr.list_one")
+    .find("td.ListColLeft")
+    .contains("service_template_1")
+    .click();
+  cy.enterIframe("iframe#main-content")
+    .find("table.formTable")
+    .find("tr.list_one")
+    .find("td.FormRowValue")
+    .find('input[name="service_alias"]')
+    .should("have.value", "service_template_1");
+  cy.enterIframe("iframe#main-content")
+    .find("table.formTable")
+    .find("tr.list_one")
+    .find("td.FormRowValue")
+    .find('input[name="service_description"]')
+    .should("have.value", "service_template");
 });
 
 When("the user deletes a service template", () => {
-
+  cy.navigateTo({
+    page: "Templates",
+    rootItemNumber: 3,
+    subMenu: "Services",
+  });
+  cy.enterIframe("iframe#main-content")
+    .find("table tbody")
+    .find("tr.list_two")
+    .each(($row) => {
+      cy.wrap($row)
+        .find("td.ListColLeft")
+        .then(($td) => {
+          if ($td.text().includes("service_template")) {
+            cy.wrap($row)
+              .find("td.ListColPicker")
+              .find("div.md-checkbox")
+              .click();
+          }
+        });
+    });
+  cy.enterIframe("iframe#main-content")
+    .find("table.ToolbarTable tbody")
+    .find("td.Toolbar_TDSelectAction_Bottom")
+    .find("select")
+    .invoke(
+      "attr",
+      "onchange",
+      "javascript: { setO(this.form.elements['o2'].value); this.form.submit(); }",
+    );
+  cy.enterIframe("iframe#main-content")
+    .find("table.ToolbarTable tbody")
+    .find("td.Toolbar_TDSelectAction_Bottom")
+    .find("select")
+    .select("Delete");
 });
 
 Then("the deleted service template is not displayed in the list", () => {
-
+  cy.enterIframe("iframe#main-content")
+    .find("table.ListTable tbody")
+    .contains("service_template")
+    .should("not.exist");
 });
 
 afterEach(() => {
