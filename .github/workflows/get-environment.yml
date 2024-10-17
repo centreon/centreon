@@ -305,6 +305,7 @@ jobs:
                   checkout ${branchName}
                   commit`;
               });
+              console.log(codeBlock)
 
               core.summary.addCodeBlock(
                 codeBlock,
