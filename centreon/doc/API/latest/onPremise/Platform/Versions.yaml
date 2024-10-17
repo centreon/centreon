@@ -18,9 +18,9 @@ get:
               widgets:
                 type: object
                 additionalProperties:
-                  schema: { $ref: 'Schema/Version.yaml' }
+                  $ref: 'Schema/Version.yaml'
 
               modules:
                 type: object
                 additionalProperties:
-                  schema: { $ref: 'Schema/Version.yaml' }
+                  $ref: 'Schema/Version.yaml'
