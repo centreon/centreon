@@ -299,7 +299,8 @@ jobs:
               ${{ steps.pr_path.outputs.result }}.reverse().forEach((branchName) => {
                 codeBlock = `${codeBlock}
                   commit
-                  ${branchName}`;
+                  branch ${branchName}
+                  checkout ${branchName}`;
               });
               console.log(codeBlock)
               core.summary.addCodeBlock(
