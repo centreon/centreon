@@ -195,6 +195,8 @@ jobs:
               const finalTargetBranch = prPath.pop();
               if (['develop', 'master'].includes(finalTargetBranch)) {
                 return true;
+              } else if (/\d{2}\.\d{2}\.x$/.test(finalTargetBranch)) {
+                return false;
               }
             }
 
