@@ -191,7 +191,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                 unset($diff['isActivated']);
             }
 
-            if (count($diff) > 0) {
+            if ($diff !== []) {
                 $actionsToLog[] = new ActionLog(
                     self::SERVICE_OBJECT_TYPE,
                     $service->getId(),
