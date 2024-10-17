@@ -2838,15 +2838,6 @@ function insertHostInAPI(array $ret = []): int|null
             'action' => 'ADD',
             'access_grp_id' => ($formData['acl_groups'] ?? null),
         ]);
-        // Insert change logs
-        $fields = CentreonLogAction::prepareChanges($formData);
-        $centreon->CentreonLogAction->insertLog(
-            "host",
-            $hostId,
-            CentreonDB::escape($formData["host_name"]),
-            "a",
-            $fields
-        );
 
         return ($hostId);
     } catch (\Throwable $th) {
