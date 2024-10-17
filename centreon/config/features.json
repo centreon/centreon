@@ -1,9 +1,9 @@
 {
   "notification": 2,
   "map_visx_viewer": 0,
-  "vault": 0,
-  "vault_broker": 0,
-  "vault_gorgone": 0,
+  "vault": 3,
+  "vault_broker": 3,
+  "vault_gorgone": 3,
   "ad_exclusion_periods": 0,
   "resource_access_management": 2
 }
