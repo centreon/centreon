@@ -8,6 +8,9 @@ on:
       latest_major_version:
         description: "latest major version"
         value: ${{ jobs.get-environment.outputs.major_version }}
+      is_cloud:
+        description: "context of release (cloud or not cloud)"
+        value: ${{ jobs.get-environment.outputs.is_cloud }}
       major_version:
         description: "major version"
         value: ${{ jobs.get-environment.outputs.major_version }}
@@ -20,28 +23,29 @@ on:
       stability:
         description: "branch stability (stable, testing, unstable, canary)"
         value: ${{ jobs.get-environment.outputs.stability }}
+      target_stability:
+        description: "Final target branch stability (stable, testing, unstable, canary or not defined if not a pull request)"
+        value: ${{ jobs.get-environment.outputs.target_stability }}
+      release_type:
+        description: "type of release (hotfix, release or not defined if not a release)"
+        value: ${{ jobs.get-environment.outputs.release_type }}
       os_and_database_matrix:
         description: "matrix to use for dockerize and test jobs"
         value: ${{ jobs.get-environment.outputs.os_and_database_matrix }}
-      release_type:
-        description: "type of release (hotfix, release)"
-        value: ${{ jobs.get-environment.outputs.release_type }}
-      # release_cloud:
-      #   description: "context of release (cloud or not cloud)"
-      #   value: ${{ jobs.get-environment.outputs.release_cloud }}
 
 jobs:
   get-environment:
     runs-on: ubuntu-24.04
     outputs:
       latest_major_version: ${{ steps.latest_major_version.outputs.latest_major_version }}
+      is_cloud: ${{ steps.detect_cloud_version.outputs.result }}
       major_version: ${{ steps.get_version.outputs.major_version }}
       minor_version: ${{ steps.get_version.outputs.minor_version }}
       release: ${{ steps.get_release.outputs.release }}
       stability: ${{ steps.get_stability.outputs.stability }}
-      os_and_database_matrix: ${{ steps.get_os_database_matrix.outputs.result }}
+      target_stability: ${{ steps.get_stability.outputs.target_stability }}
       release_type: ${{ steps.get_release_type.outputs.release_type }}
-      # release_cloud: ${{ steps.get_version_bis.outputs.release_cloud}}
+      os_and_database_matrix: ${{ steps.get_os_database_matrix.outputs.result }}
 
     steps:
       - name: Checkout sources (current branch)
@@ -260,12 +264,11 @@ jobs:
               ['major_version', '${{ steps.get_version.outputs.major_version }}'],
               ['minor_version', '${{ steps.get_version.outputs.minor_version }}'],
               ['release', '${{ steps.get_release.outputs.release }}'],
-              ['stability', '${{ steps.get_stability.outputs.stability }}']
+              ['stability', '${{ steps.get_stability.outputs.stability }}'],
+              ['release_type', '${{ steps.get_release_type.outputs.release_type || '*not defined because it is not a release*' }}']
             ];
 
-            if ("${{ github.event_name }}" === "pull_request") {
-              outputTable.push(['target_stability', '${{ steps.get_stability.outputs.target_stability }}']);
-            }
+            outputTable.push(['target_stability', '${{ steps.get_stability.outputs.target_stability || '*not defined because it is not a pull request event*' }}']);
 
             core.summary
               .addHeading(`${context.workflow} environment outputs`)
