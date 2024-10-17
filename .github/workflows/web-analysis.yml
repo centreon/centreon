@@ -53,8 +53,8 @@ jobs:
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       stability: ${{ needs.get-version.outputs.stability }}
     secrets:
-      veracode_api_id: ${{ secrets.VERACODE_API_ID_REPORT }}
-      veracode_api_key: ${{ secrets.VERACODE_API_KEY_REPORT }}
+      veracode_api_id: ${{ secrets.VERACODE_API_ID_WEB }}
+      veracode_api_key: ${{ secrets.VERACODE_API_KEY_WEB_2 }}
       veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
       jira_base_url: ${{ secrets.JIRA_BASE_URL }}
       jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
