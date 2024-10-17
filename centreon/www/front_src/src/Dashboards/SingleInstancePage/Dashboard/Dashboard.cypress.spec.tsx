@@ -11,57 +11,58 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
-    DashboardGlobalRole,
-    ListingVariant,
-    additionalResourcesAtom,
-    federatedWidgetsAtom,
-    platformVersionsAtom,
-    refreshIntervalAtom,
-    userAtom
+  DashboardGlobalRole,
+  ListingVariant,
+  additionalResourcesAtom,
+  federatedWidgetsAtom,
+  platformVersionsAtom,
+  profileAtom,
+  refreshIntervalAtom,
+  userAtom
 } from '@centreon/ui-context';
 
 import { federatedWidgetsPropertiesAtom } from '../../../federatedModules/atoms';
 import {
-    dashboardSharesEndpoint,
-    dashboardsContactsEndpoint,
-    dashboardsEndpoint,
-    getDashboardEndpoint
+  dashboardSharesEndpoint,
+  dashboardsContactsEndpoint,
+  dashboardsEndpoint,
+  getDashboardEndpoint
 } from '../../api/endpoints';
 import { DashboardRole } from '../../api/models';
 import {
-    labelAddAContact,
-    labelDelete,
-    labelSharesSaved
+  labelAddAContact,
+  labelDelete,
+  labelSharesSaved
 } from '../../translatedLabels';
 
-import { dashboardAtom } from './atoms';
+import { profileEndpoint } from '../../../api/endpoint';
 import Dashboard from './Dashboard';
+import { internalWidgetComponents } from './Widgets/widgets';
+import { dashboardAtom } from './atoms';
 import { routerParams } from './hooks/useDashboardDetails';
 import { saveBlockerHooks } from './hooks/useDashboardSaveBlocker';
 import {
-    labelAddAWidget,
-    labelCancel,
-    labelDeleteWidget,
-    labelDoYouWantToSaveChanges,
-    labelDuplicate,
-    labelEditDashboard,
-    labelEditWidget,
-    labelGlobalRefreshInterval,
-    labelIfYouClickOnDiscard,
-    labelInterval,
-    labelManualRefreshOnly,
-    labelMoreActions,
-    labelPleaseContactYourAdministrator,
-    labelSave,
-    labelTitle,
-    labelViewProperties,
-    labelWidgetType,
-    labelYourRightsOnlyAllowToView
+  labelAddAWidget,
+  labelCancel,
+  labelDeleteWidget,
+  labelDoYouWantToSaveChanges,
+  labelDuplicate,
+  labelEditDashboard,
+  labelEditWidget,
+  labelGlobalRefreshInterval,
+  labelIfYouClickOnDiscard,
+  labelInterval,
+  labelManualRefreshOnly,
+  labelMoreActions,
+  labelPleaseContactYourAdministrator,
+  labelSave,
+  labelTitle,
+  labelViewProperties,
+  labelWidgetType,
+  labelYourRightsOnlyAllowToView
 } from './translatedLabels';
-import { internalWidgetComponents } from './Widgets/widgets';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {
-
   const store = createStore();
   store.set(federatedWidgetsAtom, internalWidgetComponents);
   store.set(federatedWidgetsPropertiesAtom, [
@@ -83,6 +84,7 @@ interface InitializeAndMountProps {
   globalRole?: DashboardGlobalRole;
   isBlocked?: boolean;
   ownRole?: DashboardRole;
+  isFavorite: boolean;
 }
 
 const editorRoles = {
@@ -124,7 +126,8 @@ const initializeAndMount = ({
   canViewDashboard = true,
   canAdministrateDashboard = true,
   isBlocked = false,
-  detailsWithData = false
+  detailsWithData = false,
+  isFavorite = false
 }: InitializeAndMountProps): {
   blockNavigation;
   proceedNavigation;
@@ -163,6 +166,8 @@ const initializeAndMount = ({
       resourceType: 'business-activity'
     }
   ]);
+
+  store.set(profileAtom, { favoriteDashboards: isFavorite ? [1, 2] : [] });
 
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -215,6 +220,13 @@ const initializeAndMount = ({
     method: Method.PUT,
     path: `./api/latest${dashboardSharesEndpoint(1)}`,
     statusCode: 204
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'patchFavoriteDashboard',
+    method: Method.PATCH,
+    path: profileEndpoint,
+    statusCode: 201
   });
 
   const proceedNavigation = cy.stub();
@@ -282,6 +294,7 @@ const initializeDashboardWithWebpageWidgets = ({
     use_deprecated_pages: false,
     user_interface_density: ListingVariant.compact
   });
+
   store.set(refreshIntervalAtom, 15);
   store.set(additionalResourcesAtom, [
     {
@@ -753,6 +766,70 @@ describe('Dashboard', () => {
       cy.findAllByTestId('Webpage Display').should('have.length', 2);
 
       cy.findAllByTestId('UpdateIcon').should('have.length', 2);
+    });
+  });
+
+  describe('Dashboard favorite', () => {
+    it('displays the favorite icon in green when the dashboard is marked as favorite', () => {
+      initializeAndMount({ isFavorite: true });
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.findByTestId('favorite-icon').should(
+        'have.attr',
+        'data-favorite',
+        'true'
+      );
+
+      cy.makeSnapshot();
+    });
+    it('displays the favorite icon in gray when the dashboard is not marked as favorite', () => {
+      initializeAndMount({ isFavorite: false });
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.findByTestId('favorite-icon').should(
+        'have.attr',
+        'data-favorite',
+        'false'
+      );
+
+      cy.makeSnapshot();
+    });
+    it('toggles the dashboard favorite status when the favorite button is clicked', () => {
+      initializeAndMount({ isFavorite: false });
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.findByTestId('favorite-icon').should(
+        'have.attr',
+        'data-favorite',
+        'false'
+      );
+
+      cy.findByTestId('favorite-icon').click();
+
+      cy.waitForRequest('@patchFavoriteDashboard');
+
+      cy.contains('Dashboard marked as favorite').should('be.visible');
+
+      cy.findByTestId('favorite-icon').should(
+        'have.attr',
+        'data-favorite',
+        'true'
+      );
+
+      cy.findByTestId('favorite-icon').click();
+
+      cy.waitForRequest('@patchFavoriteDashboard');
+
+      cy.contains('Dashboard unmarked as favorite').should('be.visible');
+
+      cy.findByTestId('favorite-icon').should(
+        'have.attr',
+        'data-favorite',
+        'false'
+      );
     });
   });
 });

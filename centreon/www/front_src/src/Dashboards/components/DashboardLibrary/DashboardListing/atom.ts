@@ -13,6 +13,8 @@ export const sortOrderAtom = atom<SortOrder>('asc');
 export const sortFieldAtom = atom<string>('name');
 export const searchAtom = atom<string>('');
 
+export const onlyFavoriteDashboardAtom = atom<boolean>(false);
+
 export const viewModeAtom = atomWithStorage<ViewMode>(
   'dashboards-view-mode',
   ViewMode.List

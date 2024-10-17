@@ -12,7 +12,7 @@
     "centreon:build:analyze": "rspack build -c ./rspack.config.prod.js --analyze",
     "centreon:build:dev": "rspack serve -c ./rspack.config.dev.js",
     "centreon:watch": "rspack serve -c ./rspack.config.dev.js",
-    "build": "pnpm widgets:build && pnpm centreon:build",
+    "build": "pnpm centreon:build",
     "build:dev": "pnpm widgets:build:dev && pnpm centreon:build:dev",
     "build:watch": "pnpm centreon:watch & pnpm widgets:watch",
     "build:analyze": "pnpm widgets:build:analyze && pnpm centreon:build:analyze",

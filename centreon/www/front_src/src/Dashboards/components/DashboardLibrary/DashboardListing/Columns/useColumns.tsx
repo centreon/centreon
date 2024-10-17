@@ -104,18 +104,14 @@ const useColumns = (): {
       sortable: true,
       type: ColumnType.string
     },
-    ...(isViewer
-      ? []
-      : [
-          {
-            Component: Actions,
-            clickable: true,
-            disablePadding: false,
-            id: 'actions',
-            label: t(labelActions),
-            type: ColumnType.component
-          }
-        ])
+    {
+      Component: Actions,
+      clickable: true,
+      disablePadding: false,
+      id: 'actions',
+      label: t(labelActions),
+      type: ColumnType.component
+    }
   ];
 
   const defaultColumnsIds = map(prop('id'), columns);

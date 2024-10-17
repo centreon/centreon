@@ -9,11 +9,13 @@ import {
   DashboardGlobalRole,
   ListingVariant,
   platformVersionsAtom,
+  profileAtom,
   userAtom
 } from '@centreon/ui-context';
 
 import { labelMoreActions } from '../Resources/translatedLabels';
 
+import { profileEndpoint } from '../api/endpoint';
 import { DashboardsPage } from './DashboardsPage';
 import {
   dashboardSharesEndpoint,
@@ -93,6 +95,8 @@ const initializeAndMount = ({
     use_deprecated_pages: false,
     user_interface_density: ListingVariant.compact
   });
+
+  store.set(profileAtom, { favoriteDashboards: [1] });
 
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -177,6 +181,13 @@ const initializeAndMount = ({
     alias: 'revokeUser',
     method: Method.DELETE,
     path: getDashboardAccessRightsContactGroupEndpoint(1, 3)
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'patchFavoriteDashboard',
+    method: Method.PATCH,
+    path: profileEndpoint,
+    statusCode: 201
   });
 
   const version = {
@@ -416,16 +427,20 @@ describe('Dashboards', () => {
       cy.makeSnapshot();
     });
 
-    it('does not display actions in the "View as list" when the user has viewer global role', () => {
+    it('displays only the favorite action in the "View as list" when the user has viewer global role', () => {
       initializeAndMount(viewerRole);
 
       cy.waitForRequest('@getDashboards');
 
       cy.findByTestId(labelListView).click();
 
-      cy.findByText('Actions').should('not.exist');
-
       cy.findByLabelText('Add').should('not.exist');
+      cy.findByText('Actions').should('be.visible');
+
+      cy.findByLabelText(labelMoreActions).should('not.exist');
+      cy.findByLabelText(labelShareWithContacts).should('not.exist');
+
+      cy.findAllByTestId('favorite-icon').should('have.length', 2);
 
       cy.makeSnapshot();
     });
@@ -810,6 +825,62 @@ describe('Dashboards', () => {
         });
 
       cy.makeSnapshot();
+    });
+  });
+
+  [editorRole, viewerRole].forEach((role) => {
+    describe(` ${role.globalRole} role: Dashboard favorite`, () => {
+      [labelListView, labelCardsView].forEach((viewMode) => {
+        it(`${viewMode}: displays the favorite icons in the correct state`, () => {
+          initializeAndMount(role);
+
+          cy.findByTestId(viewMode).click();
+          cy.findAllByTestId('favorite-icon')
+            .first()
+            .should('have.attr', 'data-favorite', 'true');
+          cy.findAllByTestId('favorite-icon')
+            .eq(1)
+            .should('have.attr', 'data-favorite', 'false');
+
+          cy.makeSnapshot();
+        });
+
+        it(`${viewMode}: toggles the dashboard favorite status when the favorite button is clicked`, () => {
+          initializeAndMount(role);
+
+          cy.findByTestId(viewMode).click();
+
+          cy.findAllByTestId('favorite-icon')
+            .first()
+            .should('have.attr', 'data-favorite', 'true');
+
+          cy.findAllByTestId('favorite-icon').first().click();
+
+          cy.waitForRequest('@patchFavoriteDashboard');
+
+          cy.contains('Dashboard unmarked as favorite').should('be.visible');
+
+          cy.findAllByTestId('favorite-icon')
+            .first()
+            .should('have.attr', 'data-favorite', 'false');
+
+          cy.findAllByTestId('favorite-icon')
+            .eq(1)
+            .should('have.attr', 'data-favorite', 'false');
+
+          cy.findAllByTestId('favorite-icon').eq(1).click({ force: true });
+
+          cy.waitForRequest('@patchFavoriteDashboard');
+
+          cy.contains('Dashboard marked as favorite').should('be.visible');
+
+          cy.findAllByTestId('favorite-icon')
+            .eq(1)
+            .should('have.attr', 'data-favorite', 'true');
+
+          cy.makeSnapshot();
+        });
+      });
     });
   });
 });
