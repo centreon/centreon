@@ -58,7 +58,7 @@ $pollersId = isset($_GET['poller']) ? explode(',', $_GET['poller']) : [];
 
 foreach ($tab_nagios_server as $key => $name) {
     if (in_array($key, $pollersId)) {
-        $tab_nagios_server[$key] = $name;
+        $tab_nagios_server[$key] = HtmlSanitizer::createFromString($name)->sanitize()->getString();
     }
 }
 
