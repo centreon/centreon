@@ -269,7 +269,7 @@ jobs:
               );
               core.summary.addCodeBlock(
                 `
-                  %%{ init: { 'gitGraph': { 'mainBranchName': '${{ github.base_ref }}' } } }%%
+                  %%{ init: { 'gitGraph': { 'mainBranchName': '${{ github.base_ref }}', showCommitLabel: false } } }%%
                   gitGraph
                     commit
                     branch ${{ github.head_ref }}
