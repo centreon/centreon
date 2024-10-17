@@ -18182,3 +18182,6 @@ msgstr ""
 
 #  msgid "Unmark as favorite"
 #  msgstr ""
+
+#  msgid "Show only dashboards marked as favorites"
+#  msgstr ""

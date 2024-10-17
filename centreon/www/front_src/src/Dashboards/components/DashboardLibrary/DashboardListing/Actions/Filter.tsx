@@ -6,7 +6,6 @@ import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { searchAtom } from '../atom';
 import { labelClearFilter, labelSearch } from '../translatedLabels';
-import { useActionsStyles } from './useActionsStyles';
 
 
 export const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
@@ -26,7 +25,6 @@ export const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
 };
 
 const Filter = (): JSX.Element => {
-  const { classes } = useActionsStyles();
   const { t } = useTranslation();
 
   const [searchValue, setSearchValue] = useAtom(searchAtom);
@@ -52,7 +50,6 @@ const Filter = (): JSX.Element => {
     <SearchField
       debounced
       fullWidth
-      className={classes.filter}
       dataTestId={t(labelSearch)}
       placeholder={t(labelSearch)}
       value={inputValue}
