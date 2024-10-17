@@ -65,7 +65,7 @@ const platformVersion = {
 const initializeWidgets = (defaultStore?): ReturnType<typeof createStore> => {
   const store = defaultStore || createStore();
 
-  store.set(federatedWidgetsAtom, internalWidgetComponents)
+  store.set(federatedWidgetsAtom, internalWidgetComponents);
   store.set(federatedWidgetsPropertiesAtom, widgetsProperties);
   store.set(platformVersionsAtom, platformVersion);
 

@@ -9,6 +9,7 @@
     "outDir": "./dist",
     "declaration": true,
     "skipLibCheck": true,
+    "module": "ESNext",
     "pretty": true,
     "emitDeclarationOnly": true,
     "types": [],

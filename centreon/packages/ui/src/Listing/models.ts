@@ -76,3 +76,11 @@ export interface TableStyleAtom {
     width: number;
   };
 }
+
+export interface ListingSubItems {
+  canCheckSubItems: boolean;
+  enable: boolean;
+  getRowProperty: (row?) => string;
+  labelCollapse: string;
+  labelExpand: string;
+}

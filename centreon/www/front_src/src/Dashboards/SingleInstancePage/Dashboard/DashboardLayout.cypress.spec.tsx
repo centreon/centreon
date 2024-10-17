@@ -20,7 +20,6 @@ import { federatedWidgetsPropertiesAtom } from 'www/front_src/src/federatedModul
 import { internalWidgetComponents } from './Widgets/widgets';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {
-
   const store = createStore();
   store.set(federatedWidgetsAtom, internalWidgetComponents);
   store.set(federatedWidgetsPropertiesAtom, [

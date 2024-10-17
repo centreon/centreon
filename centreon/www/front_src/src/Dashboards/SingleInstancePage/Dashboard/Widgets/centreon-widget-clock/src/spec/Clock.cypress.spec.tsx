@@ -1,4 +1,4 @@
-import { createStore, Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 
 import { userAtom } from '@centreon/ui-context';
 

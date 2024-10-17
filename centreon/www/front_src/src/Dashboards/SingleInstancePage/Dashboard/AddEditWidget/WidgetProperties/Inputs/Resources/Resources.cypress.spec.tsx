@@ -136,8 +136,8 @@ const initialize = ({
               data: emptyData
                 ? {}
                 : {
-                  resources: []
-                },
+                    resources: []
+                  },
               moduleName: 'widget',
               options: {}
             }}

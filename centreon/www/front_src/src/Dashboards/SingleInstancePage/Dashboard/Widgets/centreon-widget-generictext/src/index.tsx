@@ -20,7 +20,9 @@ const GenericText = ({ panelOptions }: Props): JSX.Element | null => {
     <RichTextEditor
       disabled
       editable={false}
-      editorState={displayDescription && panelOptions?.description?.content || undefined}
+      editorState={
+        (displayDescription && panelOptions?.description?.content) || undefined
+      }
     />
   );
 };

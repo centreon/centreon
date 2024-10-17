@@ -27,7 +27,6 @@ const CloseTicketModal = ({ providerID }: Props): JSX.Element => {
   const { showSuccessMessage, showErrorMessage } = useSnackbar();
   const { t } = useTranslation();
 
-  
   const { mutateAsync } = useMutationQuery({
     baseEndpoint: '',
     method: Method.POST,
@@ -43,7 +42,7 @@ const CloseTicketModal = ({ providerID }: Props): JSX.Element => {
       setResourcesToCloseTicket([]);
     }
   });
-  
+
   const resource = resourcesToCloseTicket[0];
   const isOpen = !!resource;
 
@@ -60,8 +59,7 @@ const CloseTicketModal = ({ providerID }: Props): JSX.Element => {
             : `${resource?.hostID}`,
           rule_id: `${providerID}`
         }
-      },
-
+      }
     });
   }, [resource]);
 
@@ -69,7 +67,9 @@ const CloseTicketModal = ({ providerID }: Props): JSX.Element => {
     <Modal hasCloseButton open={isOpen} onClose={close}>
       <Modal.Header> {t(labelCloseATicket)} </Modal.Header>
       <Modal.Body>
-        <Typography>{t(labelTicketWillBeClosedInTheProvider, {id: resource?.ticketId})}</Typography>
+        <Typography>
+          {t(labelTicketWillBeClosedInTheProvider, { id: resource?.ticketId })}
+        </Typography>
       </Modal.Body>
       <Modal.Actions>
         <Button variant="secondary" onClick={close}>
