@@ -456,7 +456,9 @@ Given(
 
     cy.getByLabel({ label: 'Acknowledge' }).last().click();
 
-    cy.getByTestId({tag:'button', testId:'Confirm'}).contains('Acknowledge').click();
+    cy.getByTestId({ tag: 'button', testId: 'Confirm' })
+      .contains('Acknowledge')
+      .click();
 
     cy.wait('@postAcknowledgments').then(() => {
       cy.contains('Acknowledge command sent').should('have.length', 1);

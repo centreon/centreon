@@ -79,7 +79,7 @@ before(() => {
     url: /\/centreon\/api\/latest\/monitoring\/dashboard\/metrics\/top\?.*$/
   }).as('dashboardMetricsTop');
   cy.intercept({
-    method: 'PATCH',
+    method: 'POST',
     url: `/centreon/api/latest/configuration/dashboards/*`
   }).as('updateDashboard');
   cy.startContainers();

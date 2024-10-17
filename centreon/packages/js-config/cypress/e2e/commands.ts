@@ -650,40 +650,53 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add(
-  'insertDashboardWithWidget',
-  (dashboardBody, patchBody) => {
-    cy.request({
-      body: {
-        ...dashboardBody
+Cypress.Commands.add('insertDashboardWithWidget', (dashboardBody, patchBody, widgetName, widgetType) => {
+  cy.request({
+    body: { ...dashboardBody },
+    method: 'POST',
+    url: '/centreon/api/latest/configuration/dashboards'
+  }).then((response) => {
+    const dashboardId = response.body.id;
+
+    cy.waitUntil(
+      () => {
+        return cy.request({
+          method: 'GET',
+          url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+        }).then((getResponse) => {
+          return getResponse.body && getResponse.body.id === dashboardId;
+        });
       },
+      { timeout: 10000 }
+    );
+
+    const formData = new FormData();
+
+    // Utilisation des paramètres widgetName et widgetType
+    formData.append('panels[0][name]', widgetName);
+    formData.append('panels[0][widget_type]', widgetType);
+
+    formData.append('panels[0][layout][x]', '0');
+    formData.append('panels[0][layout][y]', '0');
+    formData.append('panels[0][layout][width]', '12');
+    formData.append('panels[0][layout][height]', '3');
+    formData.append('panels[0][layout][min_width]', '2');
+    formData.append('panels[0][layout][min_height]', '2');
+
+    formData.append('panels[0][widget_settings]', JSON.stringify(patchBody));
+
+    cy.request({
       method: 'POST',
-      url: '/centreon/api/latest/configuration/dashboards'
-    }).then((response) => {
-      const dashboardId = response.body.id;
-      cy.waitUntil(
-        () => {
-          return cy
-            .request({
-              method: 'GET',
-              url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
-            })
-            .then((getResponse) => {
-              return getResponse.body && getResponse.body.id === dashboardId;
-            });
-        },
-        {
-          timeout: 10000
-        }
-      );
-      cy.request({
-        body: patchBody,
-        method: 'PATCH',
-        url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
-      });
+      url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`,
+      body: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }).then((patchResponse) => {
+      console.log('Widget added successfully:', patchResponse);
     });
-  }
-);
+  });
+});
 
 interface ShareDashboardToUserProps {
   dashboardName: string;
@@ -699,29 +712,48 @@ interface ListingRequestResult {
   };
 }
 
-interface PatchDashboardBody {
-  panels: Array<{
-    layout: {
-      height: number;
-      min_height: number;
-      min_width: number;
-      width: number;
-      x: number;
-      y: number;
-    };
-    name: string;
-    widget_settings: {
-      options: {
-        description: {
-          content: string;
-          enabled: boolean;
-        };
-        name: string;
+type PatchDashboardBody = {
+  widget_settings: {
+      data: {
+          resources: Array<{
+              resourceType: string;
+              resources: Array<{
+                  id: number;
+                  name: string;
+              }>;
+          }>;
+          metrics: Array<{
+              criticalHighThreshold: number;
+              criticalLowThreshold: number;
+              id: number;
+              name: string;
+              unit: string;
+              warningHighThreshold: number;
+              warningLowThreshold: number;
+          }>;
       };
-    };
-    widget_type: string;
-  }>;
-}
+      options: {
+          timeperiod: {
+              start: any;
+              end: any;
+              timePeriodType: number;
+          };
+          threshold: {
+              enabled: boolean;
+              customCritical: any;
+              criticalType: string;
+              customWarning: any;
+              warningType: string;
+          };
+          refreshInterval: string;
+          curveType: string;
+          description: {
+              content: string;
+              enabled: boolean;
+          };
+      };
+  };
+};
 
 Cypress.Commands.add(
   'shareDashboardToUser',
@@ -772,6 +804,71 @@ Cypress.Commands.add('getTimeFromHeader', (): Cypress.Chainable => {
     });
 });
 
+Cypress.Commands.add('insertDashboardWithDoubleWidget', (dashboardBody, patchBody1, patchBody2, widgetName, widgetType) => {
+  cy.request({
+    body: { ...dashboardBody },
+    method: 'POST',
+    url: '/centreon/api/latest/configuration/dashboards'
+  }).then((response) => {
+    const dashboardId = response.body.id;
+
+    cy.waitUntil(
+      () => {
+        return cy.request({
+          method: 'GET',
+          url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+        }).then((getResponse) => {
+          return getResponse.body && getResponse.body.id === dashboardId;
+        });
+      },
+      { timeout: 10000 }
+    );
+
+    const formData = new FormData();
+
+    // Panel 1
+    formData.append('panels[0][name]', widgetName);
+    formData.append('panels[0][widget_type]', widgetType);
+    formData.append('panels[0][layout][x]', '0');
+    formData.append('panels[0][layout][y]', '0');
+    formData.append('panels[0][layout][width]', '12');
+    formData.append('panels[0][layout][height]', '3');
+    formData.append('panels[0][layout][min_width]', '2');
+    formData.append('panels[0][layout][min_height]', '2');
+    formData.append('panels[0][widget_settings]', JSON.stringify(patchBody1));
+
+    // Panel 2
+    formData.append('panels[1][name]', widgetName);
+    formData.append('panels[1][widget_type]', widgetType);
+    formData.append('panels[1][layout][x]', '0');
+    formData.append('panels[1][layout][y]', '3');
+    formData.append('panels[1][layout][width]', '12');
+    formData.append('panels[1][layout][height]', '3');
+    formData.append('panels[1][layout][min_width]', '2');
+    formData.append('panels[1][layout][min_height]', '2');
+    formData.append('panels[1][widget_settings]', JSON.stringify(patchBody2));
+
+    // Log form data
+    const dataToLog = {};
+    formData.forEach((value, key) => {
+      dataToLog[key] = value;
+    });
+
+    console.log('FormData before POST:', JSON.stringify(dataToLog, null, 2));
+
+    cy.request({
+      method: 'POST',
+      url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`,
+      body: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }).then((patchResponse) => {
+      console.log('Widget added successfully:', patchResponse);
+    });
+  });
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -810,7 +907,16 @@ declare global {
       insertDashboardList: (fixtureFile: string) => Cypress.Chainable;
       insertDashboardWithWidget: (
         dashboard: Dashboard,
-        patch: PatchDashboardBody
+        patchBody:  Record<string, any>,
+        widgetName:string,
+        widgetType:string
+      ) => Cypress.Chainable;
+      insertDashboardWithDoubleWidget: (
+        dashboard: Dashboard,
+        patchBody1: Record<string, any>,
+        patchBody2: Record<string, any>,
+        widgetName: string,
+        widgetType: string
       ) => Cypress.Chainable;
       loginAsAdminViaApiV2: () => Cypress.Chainable;
       loginByTypeOfUser: ({
