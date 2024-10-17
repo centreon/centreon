@@ -35,13 +35,33 @@
 
 require_once __DIR__ . "/../List.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonWidgetParamsConnectorMetric
+ */
 class CentreonWidgetParamsConnectorMetric extends CentreonWidgetParamsList
 {
+    /**
+     * CentreonWidgetParamsConnectorMetric constructor
+     *
+     * @param $db
+     * @param $quickform
+     * @param $userId
+     *
+     * @throws PDOException
+     */
     public function __construct($db, $quickform, $userId)
     {
         parent::__construct($db, $quickform, $userId);
     }
 
+    /**
+     * @param $paramId
+     *
+     * @return mixed|null[]
+     * @throws PDOException
+     */
     public function getListValues($paramId)
     {
         static $tab;
@@ -50,7 +70,7 @@ class CentreonWidgetParamsConnectorMetric extends CentreonWidgetParamsList
             $query = "SELECT metric_id, metric_name FROM metrics WHERE to_delete = 0 ";
             $query .= " ORDER BY metric_name ";
             $res = $this->monitoringDb->query($query);
-            $tab = array(null => null);
+            $tab = [null => null];
             while ($row = $res->fetchRow()) {
                 $tab[$row['metric_id']] = $row['metric_name'];
             }

@@ -50,7 +50,7 @@ if (!empty($downtimeId)) {
     $downtime = new CentreonDowntime($pearDB);
     $periods = $downtime->getPeriods($downtimeId);
 } else {
-    $periods = array();
+    $periods = [];
 }
 
 print json_encode($periods);

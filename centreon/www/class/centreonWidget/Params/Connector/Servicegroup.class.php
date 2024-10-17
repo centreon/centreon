@@ -35,13 +35,33 @@
 
 require_once __DIR__ . "/../List.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonWidgetParamsConnectorServicegroup
+ */
 class CentreonWidgetParamsConnectorServicegroup extends CentreonWidgetParamsList
 {
+    /**
+     * CentreonWidgetParamsConnectorServicegroup constructor
+     *
+     * @param $db
+     * @param $quickform
+     * @param $userId
+     *
+     * @throws PDOException
+     */
     public function __construct($db, $quickform, $userId)
     {
         parent::__construct($db, $quickform, $userId);
     }
 
+    /**
+     * @param $paramId
+     *
+     * @return mixed|null[]
+     * @throws PDOException
+     */
     public function getListValues($paramId)
     {
         static $tab;
@@ -51,7 +71,7 @@ class CentreonWidgetParamsConnectorServicegroup extends CentreonWidgetParamsList
             $query .= $this->acl->queryBuilder('AND', 'sg_id', $this->acl->getServiceGroupsString());
             $query .= " ORDER BY sg_name";
             $res = $this->db->query($query);
-            $tab = array(null => null);
+            $tab = [null => null];
             while ($row = $res->fetchRow()) {
                 $tab[$row['sg_id']] = $row['sg_name'];
             }

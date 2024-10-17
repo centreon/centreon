@@ -296,5 +296,5 @@ if (isset($_GET['akey'])) {
     $dbResult = $pearDB->prepare(
         "DELETE FROM session
         WHERE session_id = ? AND user_id = (SELECT contact_id from contact where contact_autologin_key = ?)");
-    $dbResult = $pearDB->execute($dbResult, array($mySessionId, $_GET['akey']));
+    $dbResult = $pearDB->execute($dbResult, [$mySessionId, $_GET['akey']]);
 }

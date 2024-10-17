@@ -28,7 +28,7 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 
 class PartialRuleUpdatePresenterStub extends AbstractPresenter
 {
-    public ?ResponseStatusInterface $responseStatus;
+    public ?ResponseStatusInterface $responseStatus = null;
 
     public function setResponseStatus(?ResponseStatusInterface $responseStatus): void
     {

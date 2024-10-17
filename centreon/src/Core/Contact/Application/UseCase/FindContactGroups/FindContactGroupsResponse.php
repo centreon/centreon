@@ -24,10 +24,11 @@ declare(strict_types=1);
 namespace Core\Contact\Application\UseCase\FindContactGroups;
 
 use Core\Contact\Domain\Model\ContactGroup;
+use Core\Contact\Domain\Model\ContactGroupType;
 
 final class FindContactGroupsResponse
 {
-    /** @var array<array<string,string|int>> */
+    /** @var array<array<string,string|int|bool>> */
     public array $contactGroups;
 
     /**
@@ -41,7 +42,7 @@ final class FindContactGroupsResponse
     /**
      * @param array<ContactGroup> $contactGroups
      *
-     * @return array<array<string,string|int>>
+     * @return array<array<string,string|int|bool>>
      */
     private function contactGroupsToArray(array $contactGroups): array
     {
@@ -49,6 +50,12 @@ final class FindContactGroupsResponse
             fn (ContactGroup $contactGroup) => [
                 'id' => $contactGroup->getId(),
                 'name' => $contactGroup->getName(),
+                'alias' => $contactGroup->getAlias(),
+                'comments' => $contactGroup->getComments(),
+                'type' => $contactGroup->getType() === ContactGroupType::Local
+                    ? 'local'
+                    : 'ldap',
+                'is_activated' => $contactGroup->isActivated(),
             ],
             $contactGroups
         );

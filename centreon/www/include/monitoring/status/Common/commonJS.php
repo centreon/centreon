@@ -79,8 +79,8 @@ var _output_search = '<?= $search_output ?>';
 
 var _num='<?php echo $num?>';
 var _limit='<?php echo $limit?>';
-var _sort_type='<?php echo isset($sort_type) ? $sort_type : ''; ?>';
-var _order='<?php echo isset($order) ? $order : ''; ?>';
+var _sort_type='<?php echo $sort_type ?? ''; ?>';
+var _order='<?php echo $order ?? ''; ?>';
 var _date_time_format_status='<?php echo addslashes(_("Y/m/d H:i:s"))?>';
 var _o='<?php echo (isset($obis) && $obis) ? $obis : $o;?>';
 var _p='<?php echo $p?>';
@@ -329,8 +329,8 @@ function construct_HostGroupSelectList(id) {
         _select.appendChild(k);
         var i = 1;
 <?php
-        $hgNdo = array();
-        $hgBrk = array();
+        $hgNdo = [];
+        $hgBrk = [];
         $acldb = $pearDBO;
 if (!$centreon->user->access->admin) {
     $query = "SELECT DISTINCT hg.hg_alias, hg.hg_name AS name
@@ -361,7 +361,7 @@ while ($hostgroups = $DBRESULT->fetchRow()) {
     if ($centreon->user->access->admin ||
         ($centreon->user->access->admin == 0 && isset($hgBrk[$hostgroups["name"]]))) {
         if (!isset($tabHG)) {
-            $tabHG = array();
+            $tabHG = [];
         }
         if (!isset($tabHG[$hostgroups["name"]])) {
             $tabHG[$hostgroups["name"]] = "";
@@ -421,7 +421,7 @@ function construct_ServiceGroupSelectList(id) {
         var i = 1;
 <?php
 
-$sgBrk = array();
+$sgBrk = [];
 $acldb = $pearDBO;
 if (!$centreon->user->access->admin) {
     $query = "SELECT DISTINCT sg.sg_alias, sg.sg_name AS name
@@ -441,7 +441,7 @@ $DBRESULT = $pearDBO->query("SELECT DISTINCT 1 AS REALTIME, sg.name, sg.serviceg
 while ($servicegroups = $DBRESULT->fetchRow()) {
     if ($centreon->user->access->admin || ($centreon->user->access->admin == 0 && isset($sgBrk[$servicegroups["name"]]))) {
         if (!isset($tabSG)) {
-            $tabSG = array();
+            $tabSG = [];
         }
         if (!isset($tabSG[$servicegroups["name"]])) {
             $tabSG[$servicegroups["name"]] = "";

@@ -33,8 +33,10 @@
  */
 
 /**
- * Class that handles properties to create partitions for a table
+ * Class
  *
+ * @class MysqlTable
+ * @descrfiption Class that handles properties to create partitions for a table
  * @category Database
  * @package  Centreon
  * @author   qgarnier <qgarnier@centreon.com>
@@ -43,19 +45,34 @@
  */
 class MysqlTable
 {
+    /** @var string|null */
+    public $type = null;
+    /** @var CentreonDB */
     private $db;
-    private $name;
-    private $schema;
-    private $schemaFile;
-    private $activate;
-    private $column;
-    private $duration;
-    private $timezone;
-    private $retention;
-    private $retentionforward;
-    private $createstmt;
-    private $backupFolder;
-    private $backupFormat;
+    /** @var string|null */
+    private $name = null;
+    /** @var string|null */
+    private $schema = null;
+    /** @var */
+    private $schemaFile; // FIXME not used
+    /** @var int */
+    private $activate = 1;
+    /** @var string|null */
+    private $column = null;
+    /** @var string|null */
+    private $duration = null;
+    /** @var string|null */
+    private $timezone = null;
+    /** @var int|null */
+    private $retention = null;
+    /** @var int|null */
+    private $retentionforward = null;
+    /** @var string|null */
+    private $createstmt = null;
+    /** @var string|null */
+    private $backupFolder = null;
+    /** @var string|null */
+    private $backupFormat = null;
 
     /**
      * Class constructor
@@ -68,17 +85,6 @@ class MysqlTable
     {
         $this->db = $DBobj;
         $this->setName($tableName);
-        $this->activate = 1;
-        $this->column = null;
-        $this->type = null;
-        $this->duration = null;
-        $this->timezone = null;
-        $this->schema = null;
-        $this->retention = null;
-        $this->retentionforward = null;
-        $this->createstmt = null;
-        $this->backupFolder = null;
-        $this->backupFormat = null;
         $this->setSchema($schema);
     }
     
@@ -89,13 +95,9 @@ class MysqlTable
      *
      * @return null
      */
-    private function setName($name)
+    private function setName($name): void
     {
-        if (isset($name) && $name != "") {
-            $this->name = $name;
-        } else {
-            $this->name = null;
-        }
+        $this->name = isset($name) && $name != "" ? $name : null;
     }
     
     /**
@@ -115,13 +117,9 @@ class MysqlTable
      *
      * @return null
      */
-    private function setSchema($schema)
+    private function setSchema($schema): void
     {
-        if (isset($schema) && $schema != "") {
-            $this->schema = $schema;
-        } else {
-            $this->schema = null;
-        }
+        $this->schema = isset($schema) && $schema != "" ? $schema : null;
     }
     
     /**
@@ -141,7 +139,7 @@ class MysqlTable
      *
      * @return null
      */
-    public function setActivate($activate)
+    public function setActivate($activate): void
     {
         if (isset($activate) && is_numeric($activate)) {
             $this->activate = $activate;
@@ -161,11 +159,11 @@ class MysqlTable
     /**
      * Set partitioning column name
      *
-     * @param strin $column the column name
+     * @param string $column the column name
      *
      * @return null
      */
-    public function setColumn($column)
+    public function setColumn($column): void
     {
         if (isset($column) && $column != "") {
             $this->column = $column;
@@ -175,7 +173,7 @@ class MysqlTable
     /**
      * Get column value
      *
-     * @return string
+     * @return string|null
      */
     public function getColumn()
     {
@@ -185,37 +183,34 @@ class MysqlTable
     /**
      * Set partitioning timezone
      *
-     * @param strin $timezone the timezone
+     * @param string $timezone the timezone
      *
      * @return null
      */
-    public function setTimezone($timezone)
+    public function setTimezone($timezone): void
     {
-        if (isset($timezone) && $timezone != "") {
-            $this->timezone = $timezone;
-        } else {
-            $this->timezone = date_default_timezone_get();
-        }
+        $this->timezone = isset($timezone) && $timezone != "" ? $timezone : date_default_timezone_get();
     }
     
     /**
      * Get timezone value
      *
-     * @return string
+     * @return string|null
      */
     public function getTimezone()
     {
         return $this->timezone;
     }
-    
+
     /**
      * Set partitioning column type
      *
      * @param string $type the type
      *
-     * @return null
+     * @return void
+     * @throws Exception
      */
-    public function setType($type)
+    public function setType($type): void
     {
         if (isset($type) && ($type == "date")) {
             $this->type = $type;
@@ -230,21 +225,22 @@ class MysqlTable
     /**
      * Get partitioning column type
      *
-     * @return string
+     * @return string|null
      */
     public function getType()
     {
         return $this->type;
     }
-    
+
     /**
      * Set partition range
      *
      * @param string $duration the duration
      *
      * @return null
+     * @throws Exception
      */
-    public function setDuration($duration)
+    public function setDuration($duration): void
     {
         if (isset($duration) && ($duration != 'daily')) {
             throw new Exception(
@@ -259,7 +255,7 @@ class MysqlTable
     /**
      * Get partition range
      *
-     * @return string
+     * @return string|null
      */
     public function getDuration()
     {
@@ -273,7 +269,7 @@ class MysqlTable
      *
      * @return null
      */
-    public function setCreateStmt($createstmt)
+    public function setCreateStmt($createstmt): void
     {
         if (isset($createstmt) && $createstmt != "") {
             $this->createstmt = str_replace(";", "", $createstmt);
@@ -283,7 +279,7 @@ class MysqlTable
     /**
      * Get create table value
      *
-     * @return string
+     * @return string|null
      */
     public function getCreateStmt()
     {
@@ -297,7 +293,7 @@ class MysqlTable
      *
      * @return null
      */
-    public function setBackupFolder($backupFolder)
+    public function setBackupFolder($backupFolder): void
     {
         if (isset($backupFolder) || $backupFolder != "") {
             $this->backupFolder = $backupFolder;
@@ -307,7 +303,7 @@ class MysqlTable
     /**
      * Get partition backup folder
      *
-     * @return string
+     * @return string|null
      */
     public function getBackupFolder()
     {
@@ -321,7 +317,7 @@ class MysqlTable
      *
      * @return null
      */
-    public function setBackupFormat($backupFormat)
+    public function setBackupFormat($backupFormat): void
     {
         if (isset($backupFormat) || $backupFormat != "") {
             $this->backupFormat = $backupFormat;
@@ -331,7 +327,7 @@ class MysqlTable
     /**
      * Get partition backup file name format
      *
-     * @return string
+     * @return string|null
      */
     public function getBackupFormat()
     {
@@ -344,8 +340,9 @@ class MysqlTable
      * @param int $retention the retention
      *
      * @return null
+     * @throws Exception
      */
-    public function setRetention($retention)
+    public function setRetention($retention): void
     {
         if (isset($retention) && is_numeric($retention)) {
             $this->retention = $retention;
@@ -360,7 +357,7 @@ class MysqlTable
     /**
      * Get retention value
      *
-     * @return int
+     * @return int|null
      */
     public function getRetention()
     {
@@ -373,8 +370,9 @@ class MysqlTable
      * @param int $retentionforward the retention forward
      *
      * @return null
+     * @throws Exception
      */
-    public function setRetentionForward($retentionforward)
+    public function setRetentionForward($retentionforward): void
     {
         if (isset($retentionforward) && is_numeric($retentionforward)) {
             $this->retentionforward = $retentionforward;
@@ -384,12 +382,12 @@ class MysqlTable
                 . $this->schema . "." . $this->name . "\n"
             );
         }
-    }
+    } // FIXME no return
 
     /**
      * Get retention forward value
      *
-     * @return int
+     * @return int|null
      */
     public function getRetentionForward()
     {
@@ -399,7 +397,7 @@ class MysqlTable
     /**
      * Check if table properties are all set
      *
-     * @return boolean
+     * @return bool
      */
     public function isValid()
     {
@@ -417,41 +415,43 @@ class MysqlTable
     /**
      * Check if table exists in database
      *
-     * @return boolean
+     * @return bool
+     * @throws Exception
      */
     public function exists()
     {
         try {
             $DBRESULT = $this->db->query("use `" . $this->schema . "`");
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new Exception(
                 "SQL Error: Cannot use database "
                 . $this->schema . "," . $e->getMessage() . "\n"
             );
-            return(false);
+            return false;
         }
 
         try {
             $DBRESULT = $this->db->query("show tables like '" . $this->name . "'");
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new Exception(
                 "SQL Error: Cannot execute query,"
                 . $e->getMessage() . "\n"
             );
-            return(false);
+            return false;
         }
 
         if (!$DBRESULT->rowCount()) {
-            return(false);
+            return false;
         }
 
-        return (true);
+        return true;
     }
 
     /**
      * Check of column exists in table
      *
-     * @return boolean
+     * @return bool
+     * @throws Exception
      */
     public function columnExists()
     {
@@ -459,7 +459,7 @@ class MysqlTable
             $DBRESULT = $this->db->query(
                 "describe " . $this->schema . "." . $this->name
             );
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new Exception(
                 "SQL query error : " . $e->getMessage() . "\n"
             );

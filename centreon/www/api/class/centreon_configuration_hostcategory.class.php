@@ -37,15 +37,18 @@
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationHostcategory
+ */
 class CentreonConfigurationHostcategory extends CentreonConfigurationObjects
 {
-    /**
-     * @var CentreonDB
-     */
+    /** @var CentreonDB */
     protected $pearDBMonitoring;
 
     /**
-     * CentreonConfigurationHostcategory constructor.
+     * CentreonConfigurationHostcategory constructor
      */
     public function __construct()
     {
@@ -55,13 +58,14 @@ class CentreonConfigurationHostcategory extends CentreonConfigurationObjects
 
     /**
      * @return array
+     * @throws PDOException
      * @throws RestBadRequestException
      */
     public function getList()
     {
         global $centreon;
 
-        $queryValues = array();
+        $queryValues = [];
         $userId = $centreon->user->user_id;
         $isAdmin = $centreon->user->admin;
         $aclHostCategories = '';
@@ -80,7 +84,7 @@ class CentreonConfigurationHostcategory extends CentreonConfigurationObjects
         'c' = catagory only
         's' = severity only */
         if (isset($this->arguments['t'])) {
-            $selectList = array('a', 'c', 's');
+            $selectList = ['a', 'c', 's'];
             if (in_array(strtolower($this->arguments['t']), $selectList)) {
                 $t = $this->arguments['t'];
             } else {
@@ -91,11 +95,7 @@ class CentreonConfigurationHostcategory extends CentreonConfigurationObjects
         }
 
         // Check for select2 'q' argument
-        if (isset($this->arguments['q'])) {
-            $queryValues['hcName'] = '%' . (string)$this->arguments['q'] . '%';
-        } else {
-            $queryValues['hcName'] = '%%';
-        }
+        $queryValues['hcName'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
 
         $queryHostCategory = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT hc.hc_name, hc.hc_id ' .
             'FROM hostcategories hc ' .
@@ -130,17 +130,11 @@ class CentreonConfigurationHostcategory extends CentreonConfigurationObjects
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $hostCategoryList = array();
+        $hostCategoryList = [];
         while ($data = $stmt->fetch()) {
-            $hostCategoryList[] = array(
-                'id' => htmlentities($data['hc_id']),
-                'text' => $data['hc_name']
-            );
+            $hostCategoryList[] = ['id' => htmlentities($data['hc_id']), 'text' => $data['hc_name']];
         }
 
-        return array(
-            'items' => $hostCategoryList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $hostCategoryList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

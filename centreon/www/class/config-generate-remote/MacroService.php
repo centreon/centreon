@@ -20,17 +20,33 @@
 
 namespace ConfigGenerateRemote;
 
-use \PDO;
+use Exception;
+use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use PDOStatement;
+use Pimple\Container;
 
+/**
+ * Class
+ *
+ * @class MacroService
+ * @package ConfigGenerateRemote
+ */
 class MacroService extends AbstractObject
 {
+    /** @var int */
     private $useCache = 1;
+    /** @var int */
     private $doneCache = 0;
+    /** @var array */
     private $macroServiceCache = [];
+    /** @var PDOStatement|null */
     protected $stmtService = null;
+    /** @var string */
     protected $table = 'on_demand_macro_service';
+    /** @var string */
     protected $generateFilename = 'on_demand_macro_service.infile';
+    /** @var string[] */
     protected $attributesWrite = [
         'svc_svc_id',
         'svc_macro_name',
@@ -40,11 +56,11 @@ class MacroService extends AbstractObject
     ];
 
     /**
-     * Constructor
+     * MacroService constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->buildCache();
@@ -55,7 +71,7 @@ class MacroService extends AbstractObject
      *
      * @return void
      */
-    private function cacheMacroService()
+    private function cacheMacroService(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT svc_macro_id, svc_svc_id, svc_macro_name, svc_macro_value, is_password, description
@@ -79,8 +95,10 @@ class MacroService extends AbstractObject
     /**
      * Generate service macros
      *
-     * @param integer $serviceId
+     * @param int $serviceId
+     *
      * @return null|void
+     * @throws Exception
      */
     private function writeMacrosService(int $serviceId)
     {
@@ -96,8 +114,10 @@ class MacroService extends AbstractObject
     /**
      * Get service macro from service id
      *
-     * @param integer $serviceId
+     * @param int $serviceId
+     *
      * @return null|array
+     * @throws Exception
      */
     public function getServiceMacroByServiceId(int $serviceId)
     {

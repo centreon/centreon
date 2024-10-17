@@ -27,20 +27,20 @@ use Core\Service\Domain\Model\NotificationType;
 
 final class NotificationTypeConverter
 {
-    public const NONE_AS_BIT = 0b000000,
-                 NONE_AS_CHAR = 'n',
-                 WARNING_AS_BIT = 0b000001,
-                 WARNING_AS_CHAR = 'w',
-                 UNKNOWN_AS_BIT = 0b000010,
-                 UNKNOWN_AS_CHAR = 'u',
-                 CRITICAL_AS_BIT = 0b000100,
-                 CRITICAL_AS_CHAR = 'c',
-                 RECOVERY_AS_BIT = 0b001000,
-                 RECOVERY_AS_CHAR = 'r',
-                 FLAPPING_AS_BIT = 0b010000,
-                 FLAPPING_AS_CHAR = 'f',
-                 DOWNTIME_SCHEDULED_AS_BIT = 0b100000,
-                 DOWNTIME_SCHEDULED__AS_CHAR = 's';
+    public const NONE_AS_BIT = 0b000000;
+    public const NONE_AS_CHAR = 'n';
+    public const WARNING_AS_BIT = 0b000001;
+    public const WARNING_AS_CHAR = 'w';
+    public const UNKNOWN_AS_BIT = 0b000010;
+    public const UNKNOWN_AS_CHAR = 'u';
+    public const CRITICAL_AS_BIT = 0b000100;
+    public const CRITICAL_AS_CHAR = 'c';
+    public const RECOVERY_AS_BIT = 0b001000;
+    public const RECOVERY_AS_CHAR = 'r';
+    public const FLAPPING_AS_BIT = 0b010000;
+    public const FLAPPING_AS_CHAR = 'f';
+    public const DOWNTIME_SCHEDULED_AS_BIT = 0b100000;
+    public const DOWNTIME_SCHEDULED__AS_CHAR = 's';
 
     /**
      * @param NotificationType[] $notificationTypes

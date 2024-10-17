@@ -33,7 +33,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->useCase = $this->createMock(FindContactTemplates::class);
     $this->presenter = $this->createMock(FindContactTemplatesPresenterInterface::class);
 
@@ -77,7 +77,7 @@ beforeEach(function () {
     $this->request = $this->createMock(Request::class);
 });
 
-it('should call the use case', function () {
+it('should call the use case', function (): void {
     $controller = new FindContactTemplatesController();
     $controller->setContainer($this->container);
 

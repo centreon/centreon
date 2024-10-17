@@ -34,13 +34,13 @@ use Tests\Core\Security\AccessGroup\Application\UseCase\FindLocalUserAccessGroup
     FindLocalUserAccessGroupsPresenterStub
 };
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->repository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
 });
 
-it('should present an ErrorResponse while an exception occured', function () {
+it('should present an ErrorResponse while an exception occured', function (): void {
     $useCase = new FindLocalUserAccessGroups($this->repository, $this->user);
     $this->user
         ->expects($this->once())
@@ -61,7 +61,7 @@ it('should present an ErrorResponse while an exception occured', function () {
     );
 });
 
-it('should call the method findAllWithFilter if the user is admin', function () {
+it('should call the method findAllWithFilter if the user is admin', function (): void {
     $useCase = new FindLocalUserAccessGroups($this->repository, $this->user);
     $this->user
         ->expects($this->once())
@@ -76,7 +76,7 @@ it('should call the method findAllWithFilter if the user is admin', function () 
     $useCase($presenter);
 });
 
-it('should call the method findByContact if the user is not admin', function () {
+it('should call the method findByContact if the user is not admin', function (): void {
     $useCase = new FindLocalUserAccessGroups($this->repository, $this->user);
 
     $this->user
@@ -93,7 +93,7 @@ it('should call the method findByContact if the user is not admin', function () 
     $useCase($presenter);
 });
 
-it('should present a FindLocalUserAccessGroupsResponse when no error occured', function () {
+it('should present a FindLocalUserAccessGroupsResponse when no error occured', function (): void {
     $useCase = new FindLocalUserAccessGroups($this->repository, $this->user);
 
     $accessGroup = (new AccessGroup(1, 'access_group', 'access_group_alias'))

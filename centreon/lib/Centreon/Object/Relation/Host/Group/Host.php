@@ -35,16 +35,29 @@
 
 require_once "Centreon/Object/Relation/Relation.php";
 
+/**
+ * Class
+ *
+ * @class Centreon_Object_Relation_Host_Group_Host
+ */
 class Centreon_Object_Relation_Host_Group_Host extends Centreon_Object_Relation
 {
+
+    /** @var Centreon_Object_Host_Group */
+    public $firstObject;
+    /** @var Centreon_Object_Host */
+    public $secondObject;
+    /** @var string */
     protected $relationTable = "hostgroup_relation";
+    /** @var string */
     protected $firstKey = "hostgroup_hg_id";
+    /** @var string */
     protected $secondKey = "host_host_id";
 
     /**
-     * Constructor
+     * Centreon_Object_Relation_Host_Group_Host constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {

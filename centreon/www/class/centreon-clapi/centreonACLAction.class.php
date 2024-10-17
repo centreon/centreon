@@ -28,114 +28,80 @@ require_once __DIR__ . "/../../../lib/Centreon/Object/Relation/Acl/Group/Action.
 require_once __DIR__ . "/Repository/AclGroupRepository.php";
 require_once __DIR__ . "/Repository/SessionRepository.php";
 
+use App\Kernel;
+use Centreon_Object_Acl_Action;
+use Centreon_Object_Acl_Group;
+use Centreon_Object_Relation_Acl_Group_Action;
 use CentreonClapi\Repository\SessionRepository;
 use CentreonClapi\Repository\AclGroupRepository;
 use Core\Application\Common\Session\Repository\ReadSessionRepositoryInterface;
+use Exception;
+use InvalidArgumentException;
+use LogicException;
+use PDOException;
+use Pimple\Container;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Throwable;
 
 /**
- * Class for managing ACL Actions
- * @author sylvestre
+ * Class
  *
+ * @class CentreonACLAction
+ * @package CentreonClapi
+ * @description Class for managing ACL Actions
  */
 class CentreonACLAction extends CentreonObject
 {
-    const ORDER_UNIQUENAME = 0;
-    const ORDER_DESCRIPTION = 1;
-    const UNKNOWN_ACTION = "Unknown action";
+    public const ORDER_UNIQUENAME = 0;
+    public const ORDER_DESCRIPTION = 1;
+    public const UNKNOWN_ACTION = "Unknown action";
+
+    /** @var Centreon_Object_Relation_Acl_Group_Action */
     protected $relObject;
+    /** @var Centreon_Object_Acl_Group */
     protected $aclGroupObj;
-    protected $availableActions;
-
-    /**
-     * @var AclGroupRepository
-     */
+    /** @var string[] */
+    protected $availableActions = ['generate_cfg', 'create_edit_poller_cfg', 'delete_poller_cfg', 'generate_trap', 'global_event_handler', 'global_flap_detection', 'global_host_checks', 'global_host_obsess', 'global_host_passive_checks', 'global_notifications', 'global_perf_data', 'global_restart', 'global_service_checks', 'global_service_obsess', 'global_service_passive_checks', 'global_shutdown', 'host_acknowledgement', 'host_checks', 'host_checks_for_services', 'host_comment', 'host_disacknowledgement', 'host_event_handler', 'host_flap_detection', 'host_notifications', 'host_notifications_for_services', 'host_schedule_check', 'host_schedule_downtime', 'host_schedule_forced_check', 'host_submit_result', 'poller_listing', 'poller_stats', 'service_acknowledgement', 'service_checks', 'service_comment', 'service_disacknowledgement', 'service_display_command', 'service_event_handler', 'service_flap_detection', 'service_notifications', 'service_passive_checks', 'service_schedule_check', 'service_schedule_downtime', 'service_schedule_forced_check', 'service_submit_result', 'top_counter', 'manage_tokens'];
+    /** @var AclGroupRepository */
     private AclGroupRepository $aclGroupRepository;
-
-    /**
-     * @var SessionRepository
-     */
+    /** @var SessionRepository */
     private SessionRepository $sessionRepository;
 
     /**
-     * Constructor
+     * CentreonACLAction constructor
      *
-     * @return void
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $db = $dependencyInjector["configuration_db"];
         $this->aclGroupRepository = new AclGroupRepository($db);
         $this->sessionRepository = new SessionRepository($db);
-        $this->object = new \Centreon_Object_Acl_Action($dependencyInjector);
-        $this->aclGroupObj = new \Centreon_Object_Acl_Group($dependencyInjector);
-        $this->relObject = new \Centreon_Object_Relation_Acl_Group_Action($dependencyInjector);
-        $this->params = array('acl_action_activate' => '1');
+        $this->object = new Centreon_Object_Acl_Action($dependencyInjector);
+        $this->aclGroupObj = new Centreon_Object_Acl_Group($dependencyInjector);
+        $this->relObject = new Centreon_Object_Relation_Acl_Group_Action($dependencyInjector);
+        $this->params = ['acl_action_activate' => '1'];
         $this->nbOfCompulsoryParams = 2;
-        $this->availableActions = array(
-            'generate_cfg',
-            'create_edit_poller_cfg',
-            'delete_poller_cfg',
-            'generate_trap',
-            'global_event_handler',
-            'global_flap_detection',
-            'global_host_checks',
-            'global_host_obsess',
-            'global_host_passive_checks',
-            'global_notifications',
-            'global_perf_data',
-            'global_restart',
-            'global_service_checks',
-            'global_service_obsess',
-            'global_service_passive_checks',
-            'global_shutdown',
-            'host_acknowledgement',
-            'host_checks',
-            'host_checks_for_services',
-            'host_comment',
-            'host_disacknowledgement',
-            'host_event_handler',
-            'host_flap_detection',
-            'host_notifications',
-            'host_notifications_for_services',
-            'host_schedule_check',
-            'host_schedule_downtime',
-            'host_schedule_forced_check',
-            'host_submit_result',
-            'poller_listing',
-            'poller_stats',
-            'service_acknowledgement',
-            'service_checks',
-            'service_comment',
-            'service_disacknowledgement',
-            'service_display_command',
-            'service_event_handler',
-            'service_flap_detection',
-            'service_notifications',
-            'service_passive_checks',
-            'service_schedule_check',
-            'service_schedule_downtime',
-            'service_schedule_forced_check',
-            'service_submit_result',
-            'top_counter',
-            'manage_tokens',
-        );
         $this->activateField = "acl_action_activate";
         $this->action = "ACLACTION";
     }
 
     /**
      * @param $parameters
-     * @return mixed|void
+     * @return void
      * @throws CentreonClapiException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $addParams = array();
+        $addParams = [];
         $addParams[$this->object->getUniqueLabelField()] = $params[self::ORDER_UNIQUENAME];
         $addParams['acl_action_description'] = $params[self::ORDER_DESCRIPTION];
         $this->params = array_merge($this->params, $addParams);
@@ -157,7 +123,7 @@ class CentreonACLAction extends CentreonObject
         $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);
         if ($objectId != 0) {
             $params[1] = "acl_action_" . $params[1];
-            $updateParams = array($params[1] => $params[2]);
+            $updateParams = [$params[1] => $params[2]];
             $updateParams['objectId'] = $objectId;
             return $updateParams;
         } else {
@@ -168,14 +134,16 @@ class CentreonACLAction extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = []): void
     {
-        $filters = array();
+        $filters = [];
         if (isset($parameters)) {
-            $filters = array($this->object->getUniqueLabelField() => "%" . $parameters . "%");
+            $filters = [$this->object->getUniqueLabelField() => "%" . $parameters . "%"];
         }
-        $params = array("acl_action_id", "acl_action_name", "acl_action_description", "acl_action_activate");
+        $params = ["acl_action_id", "acl_action_name", "acl_action_description", "acl_action_activate"];
         $paramString = str_replace("acl_action_", "", implode($this->delim, $params));
         echo $paramString . "\n";
         $elements = $this->object->getList($params, -1, 0, null, null, $filters);
@@ -200,23 +168,23 @@ class CentreonACLAction extends CentreonObject
         if (count($params) < 2) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $aclActionId = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($params[0]));
+        $aclActionId = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$params[0]]);
         if (!count($aclActionId)) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[0]);
         }
-        return array($aclActionId[0], $params[1]);
+        return [$aclActionId[0], $params[1]];
     }
 
     /**
      * @param $aclActionName
      * @throws CentreonClapiException
      */
-    public function getaclgroup($aclActionName)
+    public function getaclgroup($aclActionName): void
     {
         if (!isset($aclActionName) || !$aclActionName) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $aclActionId = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($aclActionName));
+        $aclActionId = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$aclActionName]);
         if (!count($aclActionId)) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $aclActionName);
         }
@@ -232,11 +200,15 @@ class CentreonACLAction extends CentreonObject
 
     /**
      * @param $parameters
+     *
      * @throws CentreonClapiException
+     * @throws InvalidArgumentException
+     * @throws PDOException
+     * @throws Throwable
      */
-    public function grant($parameters)
+    public function grant($parameters): void
     {
-        list($aclActionId, $action) = $this->splitParams($parameters);
+        [$aclActionId, $action] = $this->splitParams($parameters);
         if ($action == "*") {
             $actions = $this->availableActions;
         } else {
@@ -250,13 +222,13 @@ class CentreonACLAction extends CentreonObject
         foreach ($actions as $act) {
             $res = $this->db->query(
                 "SELECT COUNT(*) as nb FROM acl_actions_rules WHERE acl_action_rule_id = ? AND acl_action_name = ?",
-                array($aclActionId, $act)
+                [$aclActionId, $act]
             );
             $row = $res->fetchAll();
             if (!$row[0]['nb']) {
                 $this->db->query(
                     "INSERT INTO acl_actions_rules (acl_action_rule_id, acl_action_name) VALUES (?, ?)",
-                    array($aclActionId, $act)
+                    [$aclActionId, $act]
                 );
             }
             unset($res);
@@ -266,15 +238,19 @@ class CentreonACLAction extends CentreonObject
 
     /**
      * @param $parameters
+     *
      * @throws CentreonClapiException
+     * @throws InvalidArgumentException
+     * @throws PDOException
+     * @throws Throwable
      */
-    public function revoke($parameters)
+    public function revoke($parameters): void
     {
-        list($aclActionId, $action) = $this->splitParams($parameters);
+        [$aclActionId, $action] = $this->splitParams($parameters);
         if ($action == "*") {
             $this->db->query(
                 "DELETE FROM acl_actions_rules WHERE acl_action_rule_id = ?",
-                array($aclActionId)
+                [$aclActionId]
             );
         } else {
             $actions = explode("|", $action);
@@ -286,7 +262,7 @@ class CentreonACLAction extends CentreonObject
             foreach ($actions as $act) {
                 $this->db->query(
                     "DELETE FROM acl_actions_rules WHERE acl_action_rule_id = ? AND acl_action_name = ?",
-                    array($aclActionId, $act)
+                    [$aclActionId, $act]
                 );
             }
         }
@@ -295,7 +271,9 @@ class CentreonACLAction extends CentreonObject
 
     /**
      * @param null $filterName
+     *
      * @return bool|void
+     * @throws Exception
      */
     public function export($filterName = null)
     {
@@ -304,7 +282,7 @@ class CentreonACLAction extends CentreonObject
         }
 
         $labelField = $this->object->getUniqueLabelField();
-        $filters = array();
+        $filters = [];
         if (!is_null($filterName)) {
             $filters[$labelField] = $filterName;
         }
@@ -341,7 +319,9 @@ class CentreonACLAction extends CentreonObject
     /**
      * @param $aclActionRuleId
      * @param $aclActionName
+     *
      * @return string
+     * @throws PDOException
      */
     private function exportGrantActions($aclActionRuleId, $aclActionName)
     {
@@ -365,12 +345,16 @@ class CentreonACLAction extends CentreonObject
      * Del Action
      *
      * @param string $objectName
+     *
+     * @return void
      * @throws CentreonClapiException
+     * @throws InvalidArgumentException
+     * @throws Throwable
      */
     public function del($objectName): void
     {
         // $ids will always be an array of 1 or 0 elements as we cannot delete multiple action acl at the same time.
-        $ids = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($objectName));
+        $ids = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$objectName]);
 
         if (empty($ids)) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $objectName);
@@ -386,15 +370,14 @@ class CentreonACLAction extends CentreonObject
 
     /**
      * @param array $parameters
+     *
      * @throws CentreonClapiException
+     * @throws InvalidArgumentException
+     * @throws Throwable
      */
-    public function setparam($parameters = array()): void
+    public function setparam($parameters = []): void
     {
-        if (method_exists($this, "initUpdateParameters")) {
-            $params = $this->initUpdateParameters($parameters);
-        } else {
-            $params = $parameters;
-        }
+        $params = method_exists($this, "initUpdateParameters") ? $this->initUpdateParameters($parameters) : $parameters;
 
         if (!empty($params)) {
             $uniqueLabel = $this->object->getUniqueLabelField();
@@ -427,7 +410,10 @@ class CentreonACLAction extends CentreonObject
     /**
      * Updates ACL actions for an authentified user from ACL Action ID
      *
-     * @param integer $aclActionId
+     * @param int $aclActionId
+     *
+     * @throws InvalidArgumentException
+     * @throws Throwable
      */
     private function updateAclActionsForAuthentifiedUsers(int $aclActionId): void
     {
@@ -439,6 +425,9 @@ class CentreonACLAction extends CentreonObject
      * This method flags updated ACL for authentified users.
      *
      * @param int[] $aclGroupIds
+     *
+     * @throws InvalidArgumentException
+     * @throws Throwable
      */
     private function flagUpdatedAclForAuthentifiedUsers(array $aclGroupIds): void
     {
@@ -454,10 +443,13 @@ class CentreonACLAction extends CentreonObject
      * This method gets SessionRepository from Service container
      *
      * @return ReadSessionRepositoryInterface
+     * @throws LogicException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     private function getReadSessionRepository(): ReadSessionRepositoryInterface
     {
-        $kernel = \App\Kernel::createForWeb();
+        $kernel = Kernel::createForWeb();
         $readSessionRepository = $kernel->getContainer()->get(
             ReadSessionRepositoryInterface::class
         );

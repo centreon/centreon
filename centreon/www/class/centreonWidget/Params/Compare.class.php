@@ -35,37 +35,49 @@
 
 require_once __DIR__ . "/../Params.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonWidgetParamsCompare
+ */
 class CentreonWidgetParamsCompare extends CentreonWidgetParams
 {
+
+    /** @var HTML_QuickForm_element */
+    public $element;
+
+    /**
+     * CentreonWidgetParamsCompare Constructor
+     *
+     * @param CentreonDB $db
+     * @param HTML_Quickform $quickform
+     * @param int $userId
+     *
+     * @throws PDOException
+     */
     public function __construct($db, $quickform, $userId)
     {
         parent::__construct($db, $quickform, $userId);
     }
 
-    public function init($params)
+    /**
+     * @param $params
+     *
+     * @return void
+     * @throws HTML_QuickForm_Error
+     */
+    public function init($params): void
     {
         parent::init($params);
         if (isset($this->quickform)) {
-            $elems = array();
-            $operands = array(
-                null => null,
-                "gt" => ">",
-                "lt" => "<",
-                "gte" => ">=",
-                "lte" => "<=",
-                "eq" => "=",
-                "ne" => "!=",
-                "like" => "LIKE",
-                "notlike" => "NOT LIKE",
-                "regex" => "REGEXP",
-                "notregex" => "NOT REGEXP"
-            );
+            $elems = [];
+            $operands = [null => null, "gt" => ">", "lt" => "<", "gte" => ">=", "lte" => "<=", "eq" => "=", "ne" => "!=", "like" => "LIKE", "notlike" => "NOT LIKE", "regex" => "REGEXP", "notregex" => "NOT REGEXP"];
             $elems[] = $this->quickform->addElement('select', 'op_' . $params['parameter_id'], '', $operands);
             $elems[] = $this->quickform->addElement(
                 'text',
                 'cmp_' . $params['parameter_id'],
                 $params['parameter_name'],
-                array("size" => 30)
+                ["size" => 30]
             );
             $this->element = $this->quickform->addGroup(
                 $elems,
@@ -76,7 +88,14 @@ class CentreonWidgetParamsCompare extends CentreonWidgetParams
         }
     }
 
-    public function setValue($params)
+    /**
+     * @param $params
+     *
+     * @return void
+     * @throws HTML_QuickForm_Error
+     * @throws PDOException
+     */
+    public function setValue($params): void
     {
         $userPref = $this->getUserPreferences($params);
         if (isset($userPref)) {
@@ -90,10 +109,7 @@ class CentreonWidgetParamsCompare extends CentreonWidgetParams
                 $val = trim($matches[2]);
             }
             if (isset($op) && isset($val)) {
-                $this->quickform->setDefaults(array(
-                    'op_' . $params['parameter_id'] => $op,
-                    'cmp_' . $params['parameter_id'] => $val
-                ));
+                $this->quickform->setDefaults(['op_' . $params['parameter_id'] => $op, 'cmp_' . $params['parameter_id'] => $val]);
             }
         }
     }

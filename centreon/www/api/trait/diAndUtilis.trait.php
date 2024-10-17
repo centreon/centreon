@@ -36,22 +36,29 @@
 use Pimple\Container;
 use CentreonLegacy\Core\Utils\Factory;
 
+/**
+ * Trait
+ *
+ * @class CentreonWebServiceDiAndUtilisTrait
+ */
 trait CentreonWebServiceDiAndUtilisTrait
 {
     /**
-     * @var \Pimple\Container
+     * @var Container
      */
     private $dependencyInjector;
 
     /**
-     * @var \CentreonLegacy\Core\Utils\Factory
+     * @var Factory
      */
     private $utils;
 
     /**
-     * {@inheritdoc}
+     * @param Container $dependencyInjector
+     *
+     * @return void
      */
-    public function finalConstruct(Container $dependencyInjector)
+    public function finalConstruct(Container $dependencyInjector): void
     {
         $this->dependencyInjector = $dependencyInjector;
 

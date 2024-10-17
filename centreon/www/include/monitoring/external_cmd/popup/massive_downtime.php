@@ -40,7 +40,7 @@ if (!isset($centreon)) {
 
 const DOWNTIME_ON_HOST = 75;
 
-$select = array();
+$select = [];
 if (isset($_GET['select'])) {
     foreach ($_GET['select'] as $key => $value) {
         if ((int) $cmd == DOWNTIME_ON_HOST) {
@@ -75,54 +75,34 @@ $form->addElement(
     'textarea',
     'comment',
     _("Comment"),
-    array(
-        "rows" => "5",
-        "cols" => "70",
-        "id" => "popupComment"
-    )
+    ["rows" => "5", "cols" => "70", "id" => "popupComment"]
 );
-$form->setDefaults(array("comment" => sprintf(_("Downtime set by %s"), $centreon->user->alias)));
+$form->setDefaults(["comment" => sprintf(_("Downtime set by %s"), $centreon->user->alias)]);
 
 $form->addElement(
     'text',
     'start',
     _('Start Time'),
-    array(
-        'id' => 'start',
-        'size' => 10,
-        'class' => 'datepicker'
-    )
+    ['id' => 'start', 'size' => 10, 'class' => 'datepicker']
 );
 $form->addElement(
     'text',
     'end',
     _('End Time'),
-    array(
-        'id' => 'end',
-        'size' => 10,
-        'class' => 'datepicker'
-    )
+    ['id' => 'end', 'size' => 10, 'class' => 'datepicker']
 );
 
 $form->addElement(
     'text',
     'start_time',
     '',
-    array(
-        'id' => 'start_time',
-        'size' => 5,
-        'class' => 'timepicker',
-    )
+    ['id' => 'start_time', 'size' => 5, 'class' => 'timepicker']
 );
 $form->addElement(
     'text',
     'end_time',
     '',
-    array(
-        'id' => 'end_time',
-        'size' => 5,
-        'class' => 'timepicker',
-    )
+    ['id' => 'end_time', 'size' => 5, 'class' => 'timepicker']
 );
 
 $form->addElement(
@@ -135,11 +115,7 @@ $form->addElement(
     'text',
     'duration',
     _('Duration'),
-    array(
-        'id' => 'duration',
-        'width' => '30',
-        'disabled' => 'true'
-    )
+    ['id' => 'duration', 'width' => '30', 'disabled' => 'true']
 );
 //setting default values
 $defaultDuration = 7200;
@@ -157,34 +133,24 @@ if (
         $defaultScale = $centreon->optGen['monitoring_dwt_duration_scale'];
     }
 }
-$form->setDefaults(array('duration' => $defaultDuration));
+$form->setDefaults(['duration' => $defaultDuration]);
 
-$scaleChoices = array(
-    "s" => _("Seconds"),
-    "m" => _("Minutes"),
-    "h" => _("Hours"),
-    "d" => _("Days")
-);
+$scaleChoices = ["s" => _("Seconds"), "m" => _("Minutes"), "h" => _("Hours"), "d" => _("Days")];
 $form->addElement(
     'select',
     'duration_scale',
     _("Scale of time"),
     $scaleChoices,
-    array(
-        'id' => 'duration_scale',
-        'disabled' => 'true'
-    )
+    ['id' => 'duration_scale', 'disabled' => 'true']
 );
-$form->setDefaults(array('duration_scale' => $defaultScale));
+$form->setDefaults(['duration_scale' => $defaultScale]);
 
 $chckbox[] = $form->addElement(
     'checkbox',
     'fixed',
     _("Fixed"),
     "",
-    array(
-        "id" => "fixed"
-    )
+    ["id" => "fixed"]
 );
 $chckbox[0]->setChecked(true);
 
@@ -193,9 +159,7 @@ $chckbox2[] = $form->addElement(
     'downtimehostservice',
     _("Set downtimes on services attached to hosts"),
     "",
-    array(
-        "id" => "downtimehostservice"
-    )
+    ["id" => "downtimehostservice"]
 );
 $chckbox2[0]->setChecked(true);
 
@@ -203,9 +167,7 @@ $form->addElement(
     'hidden',
     'author',
     $centreon->user->get_alias(),
-    array(
-        "id" => "author"
-    )
+    ["id" => "author"]
 );
 
 $form->addRule(
@@ -221,18 +183,13 @@ $form->addElement(
     'button',
     'submit',
     _("Set downtime"),
-    array(
-        "onClick" => "send_the_command();",
-        "class" => "btc bt_info"
-    )
+    ["onClick" => "send_the_command();", "class" => "btc bt_info"]
 );
 $form->addElement(
     'reset',
     'reset',
     _("Reset"),
-    array(
-        "class" => "btc bt_default"
-    )
+    ["class" => "btc bt_default"]
 );
 
 // adding hidden fields to get the result of datepicker in an unlocalized format
@@ -241,19 +198,13 @@ $form->addElement(
     'hidden',
     'alternativeDateStart',
     '',
-    array(
-        'size' => 10,
-        'class' => 'alternativeDate'
-    )
+    ['size' => 10, 'class' => 'alternativeDate']
 );
 $form->addElement(
     'hidden',
     'alternativeDateEnd',
     '',
-    array(
-        'size' => 10,
-        'class' => 'alternativeDate'
-    )
+    ['size' => 10, 'class' => 'alternativeDate']
 );
 
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);

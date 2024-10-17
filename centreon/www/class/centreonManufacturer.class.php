@@ -34,18 +34,17 @@
  */
 
 /**
+ * Class
  *
+ * @class CentreonManufacturer
  */
 class CentreonManufacturer
 {
-    /**
-     *
-     * @var \CentreonDB
-     */
+    /** @var CentreonDB */
     protected $db;
 
     /**
-     *  Constructor
+     * CentreonManufacturer constructor
      *
      * @param CentreonDB $db
      */
@@ -57,13 +56,15 @@ class CentreonManufacturer
     /**
      * @param array $values
      * @param array $options
+     *
      * @return array
+     * @throws PDOException
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
-        $items = array();
+        $items = [];
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if (!empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':traps' . $v . ',';
@@ -79,7 +80,7 @@ class CentreonManufacturer
             'WHERE id IN (' . $listValues . ') ORDER BY name ';
 
         $stmt = $this->db->prepare($query);
-        if (!empty($queryValues)) {
+        if ($queryValues !== []) {
             foreach ($queryValues as $key => $id) {
                 $stmt->bindValue(':' . $key, $id, PDO::PARAM_INT);
             }
@@ -87,10 +88,7 @@ class CentreonManufacturer
         $stmt->execute();
 
         while ($row = $stmt->fetch()) {
-            $items[] = array(
-                'id' => $row['id'],
-                'text' => $row['name']
-            );
+            $items[] = ['id' => $row['id'], 'text' => $row['name']];
         }
 
         return $items;

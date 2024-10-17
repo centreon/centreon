@@ -33,7 +33,7 @@
  *
  */
 
-$help = array();
+$help = [];
 
 /*
  * Basic Settings

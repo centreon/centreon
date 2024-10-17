@@ -34,14 +34,19 @@
  *
  */
 
-
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationCommand
+ */
 class CentreonConfigurationCommand extends CentreonConfigurationObjects
 {
+
     /**
-     * CentreonConfigurationCommand constructor.
+     * CentreonConfigurationCommand constructor
      */
     public function __construct()
     {
@@ -55,7 +60,7 @@ class CentreonConfigurationCommand extends CentreonConfigurationObjects
      */
     public function getList()
     {
-        $queryValues = array();
+        $queryValues = [];
         // Check for select2 'q' argument
         if (false === isset($this->arguments['q'])) {
             $queryValues['commandName'] = '%%';
@@ -104,14 +109,11 @@ class CentreonConfigurationCommand extends CentreonConfigurationObjects
         }
         $stmt->execute();
 
-        $commandList = array();
+        $commandList = [];
         while ($data = $stmt->fetch()) {
-            $commandList[] = array('id' => $data['command_id'], 'text' => $data['command_name']);
+            $commandList[] = ['id' => $data['command_id'], 'text' => $data['command_name']];
         }
 
-        return array(
-            'items' => $commandList,
-            'total' => (int)$this->pearDB->numberRows()
-        );
+        return ['items' => $commandList, 'total' => (int)$this->pearDB->numberRows()];
     }
 }

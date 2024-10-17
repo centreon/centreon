@@ -34,6 +34,8 @@
  *
  */
 
+use Pimple\Container;
+
 /**
  * Abstract Centreon Object class
  *
@@ -49,25 +51,28 @@ abstract class Centreon_Object
 
     /**
      * Table name of the object
+     * @var string|null
      */
     protected $table = null;
 
     /**
      * Primary key name
+     * @var string|null
      */
     protected $primaryKey = null;
 
     /**
      * Unique label field
+     * @var string|null
      */
     protected $uniqueLabelField = null;
 
     /**
-     * Constructor
+     * Centreon_Object constructor
      *
-     * @return void
+     * @param Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         $this->db = $dependencyInjector['configuration_db'];
     }
@@ -78,9 +83,11 @@ abstract class Centreon_Object
      * @param string $sqlQuery
      * @param array $sqlParams
      * @param string $fetchMethod
+     *
      * @return array
+     * @throws PDOException
      */
-    protected function getResult($sqlQuery, $sqlParams = array(), $fetchMethod = "fetchAll")
+    protected function getResult($sqlQuery, $sqlParams = [], $fetchMethod = "fetchAll")
     {
         $res = $this->db->query($sqlQuery, $sqlParams);
         $result = $res->{$fetchMethod}();
@@ -92,14 +99,16 @@ abstract class Centreon_Object
      * Used for inserting object into database
      *
      * @param array $params
-     * @return int
+     *
+     * @return false|string|null
+     * @throws PDOException
      */
-    public function insert($params = array())
+    public function insert($params = [])
     {
         $sql = "INSERT INTO $this->table ";
         $sqlFields = "";
         $sqlValues = "";
-        $sqlParams = array();
+        $sqlParams = [];
         foreach ($params as $key => $value) {
             if ($key == $this->primaryKey) {
                 continue;
@@ -126,11 +135,13 @@ abstract class Centreon_Object
      * Used for deleteing object from database
      *
      * @param int $objectId
+     *
+     * @throws PDOException
      */
-    public function delete($objectId)
+    public function delete($objectId): void
     {
         $sql = "DELETE FROM  $this->table WHERE $this->primaryKey = ?";
-        $this->db->query($sql, array($objectId));
+        $this->db->query($sql, [$objectId]);
     }
 
     /**
@@ -138,18 +149,20 @@ abstract class Centreon_Object
      *
      * @param int $objectId
      * @param array $params
+     *
      * @return void
+     * @throws PDOException
      */
-    public function update($objectId, $params = array())
+    public function update($objectId, $params = []): void
     {
         $sql = "UPDATE $this->table SET ";
         $sqlUpdate = "";
-        $sqlParams = array();
-        $not_null_attributes = array();
+        $sqlParams = [];
+        $not_null_attributes = [];
 
         if (array_search("", $params)) {
             $sql_attr = "SHOW FIELDS FROM $this->table";
-            $res = $this->getResult($sql_attr, array(), "fetchAll");
+            $res = $this->getResult($sql_attr, [], "fetchAll");
             foreach ($res as $tab) {
                 if ($tab['Null'] == 'NO') {
                     $not_null_attributes[$tab['Field']] = true;
@@ -186,9 +199,11 @@ abstract class Centreon_Object
      *
      * @param int $sourceObjectId
      * @param int $duplicateEntries
+     *
+     * @throws PDOException
      * @todo relations
      */
-    public function duplicate($sourceObjectId, $duplicateEntries = 1)
+    public function duplicate($sourceObjectId, $duplicateEntries = 1): void
     {
         $sourceParams = $this->getParameters($sourceObjectId, "*");
         if (isset($sourceParams[$this->primaryKey])) {
@@ -202,7 +217,7 @@ abstract class Centreon_Object
             if (isset($sourceParams[$this->uniqueLabelField]) && isset($originalName)) {
                 $sourceParams[$this->uniqueLabelField] = $originalName . "_" . $i;
             }
-            $ids = $this->getIdByParameter($this->uniqueLabelField, array($sourceParams[$this->uniqueLabelField]));
+            $ids = $this->getIdByParameter($this->uniqueLabelField, [$sourceParams[$this->uniqueLabelField]]);
             if (!count($ids)) {
                 $this->insert($sourceParams);
             }
@@ -214,17 +229,15 @@ abstract class Centreon_Object
      *
      * @param int $objectId
      * @param mixed $parameterNames
+     *
      * @return array
+     * @throws PDOException
      */
     public function getParameters($objectId, $parameterNames)
     {
-        if (is_array($parameterNames)) {
-            $params = implode(",", $parameterNames);
-        } else {
-            $params = $parameterNames;
-        }
+        $params = is_array($parameterNames) ? implode(",", $parameterNames) : $parameterNames;
         $sql = "SELECT $params FROM $this->table WHERE $this->primaryKey = ?";
-        return $this->getResult($sql, array($objectId), "fetch");
+        return $this->getResult($sql, [$objectId], "fetch");
     }
 
     /**
@@ -248,22 +261,18 @@ abstract class Centreon_Object
         $offset = 0,
         $order = null,
         $sort = "ASC",
-        $filters = array(),
+        $filters = [],
         $filterType = "OR"
     ) {
         if ($filterType != "OR" && $filterType != "AND") {
             throw new Exception('Unknown filter type');
         }
-        if (is_array($parameterNames)) {
-            $params = implode(",", $parameterNames);
-        } else {
-            $params = $parameterNames;
-        }
+        $params = is_array($parameterNames) ? implode(",", $parameterNames) : $parameterNames;
         $sql = "SELECT $params FROM $this->table ";
-        $filterTab = array();
+        $filterTab = [];
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
-                if (!count($filterTab)) {
+                if ($filterTab === []) {
                     $sql .= " WHERE $key ";
                 } else {
                     $sql .= " $filterType $key ";
@@ -296,14 +305,16 @@ abstract class Centreon_Object
      *
      * @param string $paramName
      * @param array $paramValues
+     *
      * @return array
+     * @throws PDOException
      */
-    public function getIdByParameter($paramName, $paramValues = array())
+    public function getIdByParameter($paramName, $paramValues = [])
     {
         $sql = "SELECT $this->primaryKey FROM $this->table WHERE ";
         $condition = "";
         if (!is_array($paramValues)) {
-            $paramValues = array($paramValues);
+            $paramValues = [$paramValues];
         }
         foreach ($paramValues as $val) {
             if ($condition != "") {
@@ -314,13 +325,13 @@ abstract class Centreon_Object
         if ($condition) {
             $sql .= $condition;
             $rows = $this->getResult($sql, $paramValues, "fetchAll");
-            $tab = array();
+            $tab = [];
             foreach ($rows as $val) {
                 $tab[] = $val[$this->primaryKey];
             }
             return $tab;
         }
-        return array();
+        return [];
     }
 
     /**

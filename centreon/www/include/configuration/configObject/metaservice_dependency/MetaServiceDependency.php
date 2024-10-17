@@ -85,8 +85,8 @@ switch ($o) {
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
             multipleMetaServiceDependencyInDB(
-                is_array($select) ? $select : array(),
-                is_array($dupNbr) ? $dupNbr : array()
+                is_array($select) ? $select : [],
+                is_array($dupNbr) ? $dupNbr : []
             );
         } else {
             unvalidFormMessage();
@@ -97,7 +97,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteMetaServiceDependencyInDB(is_array($select) ? $select : array());
+            deleteMetaServiceDependencyInDB(is_array($select) ? $select : []);
         } else {
             unvalidFormMessage();
         }

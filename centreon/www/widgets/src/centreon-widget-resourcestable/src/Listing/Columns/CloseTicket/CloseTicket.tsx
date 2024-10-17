@@ -14,16 +14,20 @@ const CloseTicket = ({ row }: ComponentColumnProps): JSX.Element | null => {
 
   const setResourcesToCloseTicket = useSetAtom(resourcesToCloseTicketAtom);
 
+  const ticket =
+  row?.extra?.open_tickets?.tickets ||
+  row?.parent?.extra?.open_tickets?.tickets;
+
   const askBeforeClosingTicket = (): void => {
     setResourcesToCloseTicket([
       {
         hostID: row.parent ? row?.parent?.id : row?.id,
-        serviceID: row.parent ? row?.id : undefined
+        serviceID: row.parent ? row?.id : undefined,
+        ticketId : ticket?.id
       }
     ]);
   };
 
-  const ticket = row?.extra?.open_tickets?.tickets;
   const hasTicket = !!ticket?.id;
 
   if (!hasTicket) {

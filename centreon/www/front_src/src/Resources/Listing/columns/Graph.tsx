@@ -1,30 +1,28 @@
-import { Suspense, lazy, useEffect } from 'react';
+import dayjs from 'dayjs';
+import { Suspense, useState } from 'react';
 
-import { useAtomValue, useSetAtom } from 'jotai';
 import { path, isNil, not } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import IconGraph from '@mui/icons-material/BarChart';
 import { Paper } from '@mui/material';
 
-import type { ComponentColumnProps } from '@centreon/ui';
-import { IconButton, LoadingSkeleton } from '@centreon/ui';
-
-import FederatedComponent from '../../../components/FederatedComponents';
-import { ResourceDetails } from '../../Details/models';
-import { lastDayPeriod } from '../../Details/tabs/Graph/models';
+import type { ComponentColumnProps, LineChartData } from '@centreon/ui';
 import {
-  changeMousePositionAndTimeValueDerivedAtom,
-  isListingGraphOpenAtom
-} from '../../Graph/Performance/Graph/mouseTimeValueAtoms';
-import { graphQueryParametersDerivedAtom } from '../../Graph/Performance/TimePeriods/timePeriodAtoms';
-import { Resource } from '../../models';
+  IconButton,
+  LineChart,
+  LoadingSkeleton,
+  useFetchQuery
+} from '@centreon/ui';
+
+import { lastDayPeriod } from '@centreon/ui';
+import FederatedComponent from '../../../components/FederatedComponents';
+import type { ResourceDetails } from '../../Details/models';
+import type { Resource } from '../../models';
 import { labelGraph, labelServiceGraphs } from '../../translatedLabels';
 
 import HoverChip from './HoverChip';
 import IconColumn from './IconColumn';
-
-const PerformanceGraph = lazy(() => import('../../Graph/Performance'));
 
 const useStyles = makeStyles()((theme) => ({
   button: {
@@ -39,52 +37,54 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 interface GraphProps {
-  displayCompleteGraph: () => void;
   endpoint?: string;
   row: Resource | ResourceDetails;
 }
 
-const Graph = ({
-  row,
-  endpoint,
-  displayCompleteGraph
-}: GraphProps): JSX.Element => {
-  const getGraphQueryParameters = useAtomValue(graphQueryParametersDerivedAtom);
-  const setIsListingGraphOpen = useSetAtom(isListingGraphOpenAtom);
-  const changeMousePositionAndTimeValue = useSetAtom(
-    changeMousePositionAndTimeValueDerivedAtom
-  );
+const Graph = ({ row, endpoint }: GraphProps): JSX.Element => {
+  const [areaThresholdLines, setAreaThresholdLines] = useState();
 
-  const graphQueryParameters = getGraphQueryParameters({
-    timePeriod: lastDayPeriod
+  const start = lastDayPeriod.getStart().toISOString();
+  const end = dayjs().toISOString();
+
+  const graphEndpoint = `${endpoint}?start=${start}&end=${end}`;
+
+  const { data } = useFetchQuery<LineChartData>({
+    getEndpoint: () => graphEndpoint,
+    getQueryKey: () => ['chartLineColumns', endpoint],
+    queryOptions: {
+      enabled: !!graphEndpoint,
+      suspense: false
+    }
   });
 
-  useEffect(() => {
-    setIsListingGraphOpen(true);
+  const getShapeLines = (callback) => {
+    setAreaThresholdLines(callback(row.uuid));
+  };
 
-    return (): void => {
-      setIsListingGraphOpen(false);
-      changeMousePositionAndTimeValue({ position: null, timeValue: null });
-    };
-  }, []);
+  const rest = areaThresholdLines ? { shapeLines: areaThresholdLines } : {};
 
   return (
     <Suspense fallback={<LoadingSkeleton height="100%" />}>
-      <PerformanceGraph
-        limitLegendRows
-        displayCompleteGraph={displayCompleteGraph}
-        displayTitle={false}
-        endpoint={`${endpoint}${graphQueryParameters}`}
-        graphHeight={150}
-        interactWithGraph={false}
-        renderAdditionalLines={(props): JSX.Element => (
-          <FederatedComponent
-            {...props}
-            path="/anomaly-detection/thresholdLines"
-          />
-        )}
-        resource={row}
-        timeline={[]}
+      <FederatedComponent
+        path="/anomaly-detection/enableThresholdLines"
+        styleMenuSkeleton={{ height: 0, width: 0 }}
+        type={row?.type}
+        getShapeLines={getShapeLines}
+      />
+      <LineChart
+        data={data}
+        end={end}
+        height={200}
+        legend={{ mode: 'grid', placement: 'bottom' }}
+        lineStyle={{ lineWidth: 1 }}
+        start={start}
+        tooltip={{ mode: 'hidden' }}
+        displayAnchor={{
+          displayGuidingLines: false,
+          displayTooltipsGuidingLines: false
+        }}
+        {...rest}
       />
     </Suspense>
   );
@@ -104,11 +104,13 @@ const renderChip =
     </IconButton>
   );
 
+interface Props {
+  onClick: (row) => void;
+}
+
 const GraphColumn = ({
   onClick
-}: {
-  onClick: (row) => void;
-}): ((props: ComponentColumnProps) => JSX.Element | null) => {
+}: Props): ((props: ComponentColumnProps) => JSX.Element | null) => {
   const GraphHoverChip = ({
     row,
     isHovered
@@ -141,21 +143,14 @@ const GraphColumn = ({
           isHovered={isHovered}
           label={label}
         >
-          {({ close, isChipHovered }): JSX.Element => {
+          {({ isChipHovered }): JSX.Element => {
             if (isHost || not(isChipHovered) || not(isHovered)) {
               return <div />;
             }
 
             return (
               <Paper className={classes.graph}>
-                <Graph
-                  displayCompleteGraph={(): void => {
-                    onClick(row);
-                    close();
-                  }}
-                  endpoint={endpoint}
-                  row={row}
-                />
+                <Graph endpoint={endpoint} row={row} />
               </Paper>
             );
           }}

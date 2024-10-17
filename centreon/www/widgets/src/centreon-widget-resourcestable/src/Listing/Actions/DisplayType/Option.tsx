@@ -31,7 +31,7 @@ const Option = ({
       tooltipClassName={classes.tooltipClassName}
       onClick={changeDisplayType}
     >
-      <Icon displayType={option} isActive={isActive} />
+      <Icon displayType={option} isActive={isActive} disabled={disabled} />
     </IconButton>
   );
 };

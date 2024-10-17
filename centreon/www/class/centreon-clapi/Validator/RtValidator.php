@@ -25,25 +25,33 @@ use CentreonClapi\CentreonHost;
 use CentreonClapi\CentreonRtAcknowledgement;
 use CentreonClapi\CentreonRtDowntime;
 use CentreonClapi\CentreonService;
+use PDOException;
 
 /**
- * This class is used to validate inputs for RT clapi endpoints.
+ *
+ * Class
+ *
+ * @class RtValidator
+ * @package CentreonClapi\Validator
+ * @description This class is used to validate inputs for RT clapi endpoints.
  *
  * @see CentreonRtAcknowledgement
  * @see CentreonRtDowntime
  */
 class RtValidator
 {
-    /**
-     * @var CentreonHost
-     */
+    /** @var CentreonHost */
     private $hostObject;
 
-    /**
-     * @var CentreonService
-     */
+    /** @var CentreonService */
     private $serviceObject;
 
+    /**
+     * RtValidator constructor
+     *
+     * @param CentreonHost $hostObject
+     * @param CentreonService $serviceObject
+     */
     public function __construct(CentreonHost $hostObject, CentreonService $serviceObject)
     {
         $this->hostObject = $hostObject;
@@ -56,7 +64,9 @@ class RtValidator
      *
      * @param string $host
      * @param string $service
+     *
      * @return bool
+     * @throws PDOException
      */
     public function isServiceNameValid(string $host, string $service): bool
     {

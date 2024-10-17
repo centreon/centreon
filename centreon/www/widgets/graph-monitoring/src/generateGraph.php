@@ -52,7 +52,7 @@ if (!isset($_GET['service'])) {
     exit;
 }
 
-list($hostId, $serviceId) = explode('-', $_GET['service']);
+[$hostId, $serviceId] = explode('-', $_GET['service']);
 
 $db = $dependencyInjector['realtime_db'];
 $query = <<<'SQL'
@@ -94,7 +94,7 @@ require_once $centreon_path . "www/include/common/common-Func.php";
 $obj->setRRDOption("start", (time() - $graphPeriod));
 $obj->setRRDOption("end", time());
 
-$obj->GMT->getMyGMTFromSession(session_id(), $db);
+$obj->GMT->getMyGMTFromSession(session_id());
 
 /**
  * Template Management

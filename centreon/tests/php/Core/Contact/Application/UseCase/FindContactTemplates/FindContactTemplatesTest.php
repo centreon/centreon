@@ -34,13 +34,13 @@ use Core\Contact\Application\UseCase\FindContactTemplates\FindContactTemplates;
 use Core\Contact\Application\UseCase\FindContactTemplates\FindContactTemplatesResponse;
 use Core\Contact\Domain\Model\ContactTemplate;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->repository = $this->createMock(ReadContactTemplateRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
 });
 
-it('should present an ErrorResponse when an exception occurred', function () {
+it('should present an ErrorResponse when an exception occurred', function (): void {
     $useCase = new FindContactTemplates($this->repository,$this->user);
 
     $this->user
@@ -62,7 +62,7 @@ it('should present an ErrorResponse when an exception occurred', function () {
     );
 });
 
-it('should present a ForbiddenResponse if the user does not have the read menu access to contact templates', function () {
+it('should present a ForbiddenResponse if the user does not have the read menu access to contact templates', function (): void {
     $useCase = new FindContactTemplates($this->repository,$this->user);
 
     $this->user
@@ -79,7 +79,7 @@ it('should present a ForbiddenResponse if the user does not have the read menu a
     );
 });
 
-it('should present a FindContactTemplatesResponse when no error occured', function () {
+it('should present a FindContactTemplatesResponse when no error occured', function (): void {
     $useCase = new FindContactTemplates($this->repository,$this->user);
 
     $this->user

@@ -30,8 +30,7 @@ use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Contact\Infrastructure\Repository\DbContactGroupFactory;
 use Core\Contact\Infrastructure\Repository\DbContactTemplateFactory;
 use Core\Security\AccessGroup\Infrastructure\Repository\DbAccessGroupFactory;
-use Core\Security\ProviderConfiguration\Application\OpenId\Repository\ReadOpenIdConfigurationRepositoryInterface
-    as ReadRepositoryInterface;
+use Core\Security\ProviderConfiguration\Application\OpenId\Repository\ReadOpenIdConfigurationRepositoryInterface as ReadRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
 use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 use Throwable;
@@ -92,12 +91,13 @@ class DbReadOpenIdConfigurationRepository extends AbstractRepositoryDRB implemen
     public function getContactGroup(int $contactGroupId): ?ContactGroup
     {
         $statement = $this->db->prepare(
-            'SELECT
-                cg_id,
-                cg_name
-            FROM contactgroup
-            WHERE
-                cg_id = :contactGroupId'
+            $this->translateDbName(<<<'SQL'
+                SELECT
+                    cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
+                FROM `:db`.contactgroup
+                WHERE cg_id = :contactGroupId
+                SQL
+            )
         );
         $statement->bindValue(':contactGroupId', $contactGroupId, \PDO::PARAM_INT);
         $statement->execute();
@@ -152,15 +152,30 @@ class DbReadOpenIdConfigurationRepository extends AbstractRepositoryDRB implemen
     public function getContactGroupRelationsByConfigurationId(int $providerConfigurationId): array
     {
         $statement = $this->db->prepare(
-            'SELECT * FROM security_provider_contact_group_relation spcgn
-                INNER JOIN contactgroup ON cg_id = spcgn.contact_group_id
-                WHERE spcgn.provider_configuration_id = :providerConfigurationId'
+            $this->translateDbName(<<<'SQL'
+                SELECT *
+                FROM `:db`.security_provider_contact_group_relation spcgn
+                INNER JOIN `:db`.contactgroup
+                    ON cg_id = spcgn.contact_group_id
+                WHERE spcgn.provider_configuration_id = :providerConfigurationId
+                SQL
+            )
         );
         $statement->bindValue(':providerConfigurationId', $providerConfigurationId, \PDO::PARAM_INT);
         $statement->execute();
 
         $contactGroupRelations = [];
         while ($statement !== false && is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /** @var array{
+             *     cg_id: int,
+             *     cg_name: string,
+             *     cg_alias: string,
+             *     cg_comment?: string,
+             *     cg_activate: string,
+             *     cg_type: string,
+             *     claim_value: string
+             * } $result
+             */
             $contactGroup = DbContactGroupFactory::createFromRecord($result);
             $contactGroupRelations[] = new ContactGroupRelation($result['claim_value'], $contactGroup);
         }

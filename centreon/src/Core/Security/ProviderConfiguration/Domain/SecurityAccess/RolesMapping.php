@@ -138,7 +138,7 @@ class RolesMapping implements SecurityAccessInterface
             throw AclConditionsException::invalidAclConditions();
         }
         $configuredClaimValues = $aclConditions->getClaimValues();
-        if ($aclConditions->onlyFirstRoleIsApplied() && ! empty($configuredClaimValues)) {
+        if ($aclConditions->onlyFirstRoleIsApplied() && $configuredClaimValues !== []) {
             foreach ($configuredClaimValues as $claimValue) {
                 if (in_array($claimValue, $conditions, true)) {
                     $this->conditionMatches = [$claimValue];
@@ -149,7 +149,7 @@ class RolesMapping implements SecurityAccessInterface
             $this->conditionMatches = array_intersect($conditions, $configuredClaimValues);
         }
 
-        if (empty($this->conditionMatches)) {
+        if ($this->conditionMatches === []) {
             $this->error(
                 'Configured attribute value not found in roles mapping configuration',
                 [

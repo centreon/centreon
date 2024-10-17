@@ -32,12 +32,12 @@ use Core\MonitoringServer\Model\MonitoringServer;
 
 class Service
 {
-    public const MAX_NAME_LENGTH = NewService::MAX_NAME_LENGTH,
-                 MAX_COMMENT_LENGTH = NewService::MAX_COMMENT_LENGTH,
-                 MAX_NOTES_LENGTH = NewService::MAX_NOTES_LENGTH,
-                 MAX_NOTES_URL_LENGTH = NewService::MAX_NOTES_URL_LENGTH,
-                 MAX_ACTION_URL_LENGTH = NewService::MAX_ACTION_URL_LENGTH,
-                 MAX_ICON_ALT_LENGTH = NewService::MAX_ICON_ALT_LENGTH;
+    public const MAX_NAME_LENGTH = NewService::MAX_NAME_LENGTH;
+    public const MAX_COMMENT_LENGTH = NewService::MAX_COMMENT_LENGTH;
+    public const MAX_NOTES_LENGTH = NewService::MAX_NOTES_LENGTH;
+    public const MAX_NOTES_URL_LENGTH = NewService::MAX_NOTES_URL_LENGTH;
+    public const MAX_ACTION_URL_LENGTH = NewService::MAX_ACTION_URL_LENGTH;
+    public const MAX_ICON_ALT_LENGTH = NewService::MAX_ICON_ALT_LENGTH;
 
     /** @var list<string> */
     private array $commandArguments = [];
@@ -200,15 +200,11 @@ class Service
                 Assertion::min($propertyValue, 0, "{$className}::{$propertyName}");
             }
         }
-
-        $this->commandArguments = [];
         foreach ($commandArguments as $argument) {
             if (is_scalar($argument)) {
                 $this->commandArguments[] = (string) $argument;
             }
         }
-
-        $this->eventHandlerArguments = [];
         foreach ($eventHandlerArguments as $argument) {
             if (is_scalar($argument)) {
                 $this->eventHandlerArguments[] = (string) $argument;

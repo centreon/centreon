@@ -42,7 +42,7 @@ require_once _CENTREON_PATH_ . 'www/class/centreonNotification.class.php';
 /**
  * Get user list
  */
-$contact = array("" => null);
+$contact = ["" => null];
 $DBRESULT = $pearDB->query("SELECT cg_id, cg_name FROM contactgroup cg ORDER BY cg_alias");
 while ($ct = $DBRESULT->fetchRow()) {
     $contact[$ct["cg_id"]] = $ct["cg_name"];
@@ -80,34 +80,30 @@ if (isset($_POST["contact"])) {
     $contactgroup_id = (int)htmlentities($_POST["contact"], ENT_QUOTES, "UTF-8");
 } else {
     $contactgroup_id = 0;
-    $formData = array('contact' => $contactgroup_id);
+    $formData = ['contact' => $contactgroup_id];
 }
 
-$formData = array('contact' => $contactgroup_id);
+$formData = ['contact' => $contactgroup_id];
 
 /*
  * Create select form
  */
 $form = new HTML_QuickFormCustom('select_form', 'GET', "?p=" . $p);
 
-$form->addElement('select', 'contact', _("Contact"), $contact, array('id' => 'contact', 'onChange' => 'submit();'));
+$form->addElement('select', 'contact', _("Contact"), $contact, ['id' => 'contact', 'onChange' => 'submit();']);
 $form->setDefaults($formData);
 
 /*
  * Host escalations
  */
-$elemArrHostEsc = array();
+$elemArrHostEsc = [];
 if ($contactgroup_id) {
     $hostEscResources = $oNotification->getNotificationsContactGroup(2, $contactgroup_id);
 }
 if (isset($hostEscResources)) {
     foreach ($hostEscResources as $hostId => $hostName) {
-        $elemArrHostEsc[] = array(
-            "MenuClass" => "list_" . $style,
-            "RowMenu_hico" => "./img/icones/16x16/server_network.gif",
-            "RowMenu_host" => myDecode($hostName)
-        );
-        $style != "two" ? $style = "two" : $style = "one";
+        $elemArrHostEsc[] = ["MenuClass" => "list_" . $style, "RowMenu_hico" => "./img/icones/16x16/server_network.gif", "RowMenu_host" => myDecode($hostName)];
+        $style = $style != "two" ? "two" : "one";
     }
 }
 $tpl->assign("elemArrHostEsc", $elemArrHostEsc);
@@ -116,20 +112,15 @@ $tpl->assign("elemArrHostEsc", $elemArrHostEsc);
 /*
  * Service escalations
  */
-$elemArrSvcEsc = array();
+$elemArrSvcEsc = [];
 if ($contactgroup_id) {
     $svcEscResources = $oNotification->getNotificationsContactGroup(3, $contactgroup_id);
 }
 if (isset($svcEscResources)) {
     foreach ($svcEscResources as $hostId => $hostTab) {
         foreach ($hostTab as $serviceId => $tab) {
-            $elemArrSvcEsc[] = array(
-                "MenuClass" => "list_" . $style,
-                "RowMenu_hico" => "./img/icones/16x16/server_network.gif",
-                "RowMenu_host" => myDecode($tab['host_name']),
-                "RowMenu_service" => myDecode($tab['service_description'])
-            );
-            $style != "two" ? $style = "two" : $style = "one";
+            $elemArrSvcEsc[] = ["MenuClass" => "list_" . $style, "RowMenu_hico" => "./img/icones/16x16/server_network.gif", "RowMenu_host" => myDecode($tab['host_name']), "RowMenu_service" => myDecode($tab['service_description'])];
+            $style = $style != "two" ? "two" : "one";
         }
     }
 }
@@ -138,18 +129,14 @@ $tpl->assign("elemArrSvcEsc", $elemArrSvcEsc);
 /*
  * Hosts
  */
-$elemArrHost = array();
+$elemArrHost = [];
 if ($contactgroup_id) {
     $hostResources = $oNotification->getNotificationsContactGroup(0, $contactgroup_id);
 }
 if (isset($hostResources)) {
     foreach ($hostResources as $hostId => $hostName) {
-        $elemArrHost[] = array(
-            "MenuClass" => "list_" . $style,
-            "RowMenu_hico" => "./img/icones/16x16/server_network.gif",
-            "RowMenu_host" => myDecode($hostName)
-        );
-        $style != "two" ? $style = "two" : $style = "one";
+        $elemArrHost[] = ["MenuClass" => "list_" . $style, "RowMenu_hico" => "./img/icones/16x16/server_network.gif", "RowMenu_host" => myDecode($hostName)];
+        $style = $style != "two" ? "two" : "one";
     }
 }
 $tpl->assign("elemArrHost", $elemArrHost);
@@ -157,31 +144,21 @@ $tpl->assign("elemArrHost", $elemArrHost);
 /*
  * Services
  */
-$elemArrSvc = array();
+$elemArrSvc = [];
 if ($contactgroup_id) {
     $svcResources = $oNotification->getNotificationsContactGroup(1, $contactgroup_id);
 }
 if (isset($svcResources)) {
     foreach ($svcResources as $hostId => $hostTab) {
         foreach ($hostTab as $serviceId => $tab) {
-            $elemArrSvc[] = array(
-                "MenuClass" => "list_" . $style,
-                "RowMenu_hico" => "./img/icones/16x16/server_network.gif",
-                "RowMenu_host" => myDecode($tab['host_name']),
-                "RowMenu_service" => myDecode($tab['service_description'])
-            );
-            $style != "two" ? $style = "two" : $style = "one";
+            $elemArrSvc[] = ["MenuClass" => "list_" . $style, "RowMenu_hico" => "./img/icones/16x16/server_network.gif", "RowMenu_host" => myDecode($tab['host_name']), "RowMenu_service" => myDecode($tab['service_description'])];
+            $style = $style != "two" ? "two" : "one";
         }
     }
 }
 $tpl->assign("elemArrSvc", $elemArrSvc);
 
-$labels = array(
-    'host_escalation' => _('Host escalations'),
-    'service_escalation' => _('Service escalations'),
-    'host_notifications' => _('Host notifications'),
-    'service_notifications' => _('Service notifications')
-);
+$labels = ['host_escalation' => _('Host escalations'), 'service_escalation' => _('Service escalations'), 'host_notifications' => _('Host notifications'), 'service_notifications' => _('Service notifications')];
 
 /*
  * Apply a template definition

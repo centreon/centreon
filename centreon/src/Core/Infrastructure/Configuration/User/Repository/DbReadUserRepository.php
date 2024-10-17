@@ -75,7 +75,7 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
     {
         $this->info('Fetching users from database');
 
-        $request = <<<'SQL'
+        $request = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS
                 contact_id,
                 contact_alias,
@@ -86,7 +86,7 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
                 user_interface_density,
                 contact_oreon AS `user_can_reach_frontend`
             FROM `:db`.contact
-            SQL;
+            SQL_WRAP;
 
         // Search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
@@ -95,7 +95,7 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY contact_id ASC';
+        $request .= $sortRequest ?? ' ORDER BY contact_id ASC';
 
         // Pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();
@@ -135,7 +135,7 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
      */
     public function findByContactGroups(ContactInterface $contact): array
     {
-        $request = <<<'SQL'
+        $request = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS DISTINCT
                 contact_id,
                 contact_alias,
@@ -148,7 +148,7 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
             FROM `:db`.contact
             INNER JOIN `:db`.contactgroup_contact_relation AS cg
             ON cg.contact_contact_id = contact.contact_id
-            SQL;
+            SQL_WRAP;
 
         // Search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
@@ -158,7 +158,7 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY contact_id ASC';
+        $request .= $sortRequest ?? ' ORDER BY contact_id ASC';
 
         // Pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();
@@ -234,7 +234,7 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
     {
         $userIds = [];
 
-        if (empty($userAliases)) {
+        if ($userAliases === []) {
             return $userIds;
         }
 

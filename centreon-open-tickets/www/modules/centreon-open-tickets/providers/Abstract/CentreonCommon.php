@@ -25,12 +25,12 @@ function smarty_function_host_get_hostgroups($params, &$smarty)
     include_once __DIR__ . '/../../class/centreonDBManager.class.php';
 
     if (!isset($params['host_id'])) {
-        $smarty->assign('host_get_hostgroups_result', array());
+        $smarty->assign('host_get_hostgroups_result', []);
         return ;
     }
     $db = new CentreonDBManager('centstorage');
 
-    $result = array();
+    $result = [];
     $dbResult = $db->query(
         "SELECT hostgroups.* FROM hosts_hostgroups, hostgroups
         WHERE hosts_hostgroups.host_id = " . $params['host_id'] . "
@@ -48,12 +48,12 @@ function smarty_function_host_get_severity($params, &$smarty)
     include_once __DIR__ . '/../../class/centreonDBManager.class.php';
 
     if (!isset($params['host_id'])) {
-        $smarty->assign('host_get_severity_result', array());
+        $smarty->assign('host_get_severity_result', []);
         return ;
     }
     $db = new CentreonDBManager();
 
-    $result = array();
+    $result = [];
     $dbResult = $db->query(
         "SELECT
             hc_id, hc_name, level
@@ -65,7 +65,7 @@ function smarty_function_host_get_severity($params, &$smarty)
         LIMIT 1"
     );
     while (($row = $dbResult->fetch())) {
-        $result[$row['hc_id']] = array('name' => $row['hc_name'], 'level' => $row['level']);
+        $result[$row['hc_id']] = ['name' => $row['hc_name'], 'level' => $row['level']];
     }
     $smarty->assign('host_get_severity_result', $result);
 }
@@ -85,14 +85,14 @@ function smarty_function_host_get_hostcategories($params, &$smarty)
     include_once __DIR__ . '/../../class/centreonDBManager.class.php';
 
     if (!isset($params['host_id'])) {
-        $smarty->assign('host_get_hostcategories_result', array());
+        $smarty->assign('host_get_hostcategories_result', []);
         return ;
     }
     $db = new CentreonDBManager();
 
-    $loop = array();
-    $array_stack = array($params['host_id']);
-    $result = array();
+    $loop = [];
+    $array_stack = [$params['host_id']];
+    $result = [];
     while ($host_id = array_shift($array_stack)) {
         if (isset($loop[$host_id])) {
             continue;
@@ -112,7 +112,7 @@ function smarty_function_host_get_hostcategories($params, &$smarty)
                 array_unshift($array_stack, $row['host_tpl_id']);
             }
             if (!is_null($row['hostcategories_hc_id']) && $row['hostcategories_hc_id'] != '') {
-                $result[$row['hostcategories_hc_id']] = array('name' => $row['hc_name']);
+                $result[$row['hostcategories_hc_id']] = ['name' => $row['hc_name']];
             }
         }
     }
@@ -134,14 +134,14 @@ function smarty_function_service_get_servicecategories($params, &$smarty)
     include_once __DIR__ . '/../../class/centreonDBManager.class.php';
 
     if (!isset($params['service_id'])) {
-        $smarty->assign('service_get_servicecategories_result', array());
+        $smarty->assign('service_get_servicecategories_result', []);
         return ;
     }
     $db = new CentreonDBManager();
 
-    $loop = array();
-    $array_stack = array($params['service_id']);
-    $result = array();
+    $loop = [];
+    $array_stack = [$params['service_id']];
+    $result = [];
     while ($service_id = array_shift($array_stack)) {
         if (isset($loop[$service_id])) {
             continue;
@@ -159,7 +159,7 @@ function smarty_function_service_get_servicecategories($params, &$smarty)
                 array_unshift($array_stack, $row['service_template_model_stm_id']);
             }
             if (!is_null($row['sc_id']) && $row['sc_id'] != '') {
-                $result[$row['sc_id']] = array('name' => $row['sc_name'], 'description' => $row['sc_description']);
+                $result[$row['sc_id']] = ['name' => $row['sc_name'], 'description' => $row['sc_description']];
             }
         }
     }
@@ -181,12 +181,12 @@ function smarty_function_service_get_servicegroups($params, &$smarty)
     include_once __DIR__ . '/../../class/centreonDBManager.class.php';
 
     if (!isset($params['service_id'])) {
-        $smarty->assign('service_get_servicegroups_result', array());
+        $smarty->assign('service_get_servicegroups_result', []);
         return ;
     }
     $db = new CentreonDBManager();
 
-    $result = array();
+    $result = [];
     $service_id_tpl = $params['service_id'];
     if (isset($params['host_id'])) {
         $dbResult = $db->query(
@@ -201,12 +201,12 @@ function smarty_function_service_get_servicegroups($params, &$smarty)
         while (($row = $dbResult->fetch())) {
             $service_id_tpl = $row['service_template_model_stm_id'];
             if (!is_null($row['sg_id']) && $row['sg_id'] != '') {
-                $result[$row['sg_id']] = array('name' => $row['sg_name'], 'alias' => $row['sg_alias']);
+                $result[$row['sg_id']] = ['name' => $row['sg_name'], 'alias' => $row['sg_alias']];
             }
         }
     }
 
-    $loop_array = array();
+    $loop_array = [];
     while (!is_null($service_id_tpl) && $service_id_tpl != '') {
         if (isset($loop_array[$service_id_tpl])) {
             break;
@@ -223,7 +223,7 @@ function smarty_function_service_get_servicegroups($params, &$smarty)
         while (($row = $dbResult->fetch())) {
             $service_id_tpl = $row['service_template_model_stm_id'];
             if (!is_null($row['sg_id']) && $row['sg_id'] != '') {
-                $result[$row['sg_id']] = array('name' => $row['sg_name'], 'alias' => $row['sg_alias']);
+                $result[$row['sg_id']] = ['name' => $row['sg_name'], 'alias' => $row['sg_alias']];
             }
         }
     }
@@ -259,8 +259,8 @@ function smarty_function_host_get_macro_value_in_config($params, &$smarty)
     }
 
     // Look macro in host template relation
-    $loop = array();
-    $array_stack = array(array('host_id' => $params['host_id'], 'macro_value' => null));
+    $loop = [];
+    $array_stack = [['host_id' => $params['host_id'], 'macro_value' => null]];
     $result = '';
     while (($host_entry = array_pop($array_stack))) {
         if (isset($loop[$host_entry['host_id']])) {
@@ -281,7 +281,7 @@ function smarty_function_host_get_macro_value_in_config($params, &$smarty)
             ORDER BY `order` DESC"
         );
         while (($row = $dbResult->fetch())) {
-            $entry = array('host_id' => $row['host_tpl_id'], 'macro_value' => null);
+            $entry = ['host_id' => $row['host_tpl_id'], 'macro_value' => null];
             if (!is_null($row['host_macro_value'])) {
                 $entry['macro_value'] = $row['host_macro_value'];
             }
@@ -298,15 +298,15 @@ function smarty_function_host_get_macro_values_in_config($params, &$smarty)
     include_once __DIR__ . '/../../class/centreonDBManager.class.php';
 
     if (!isset($params['host_id'])) {
-        $smarty->assign('host_get_macro_values_in_config_result', array());
+        $smarty->assign('host_get_macro_values_in_config_result', []);
         return ;
     }
     if (!isset($params['macro_name'])) {
-        $smarty->assign('host_get_macro_values_in_config_result', array());
+        $smarty->assign('host_get_macro_values_in_config_result', []);
         return ;
     }
     $db = new CentreonDBManager();
-    $result = array();
+    $result = [];
 
     // Get level 1
     $dbresult1 = $db->query(
@@ -319,11 +319,8 @@ function smarty_function_host_get_macro_values_in_config($params, &$smarty)
         ORDER BY `order` ASC"
     );
     while (($row_entry_level1 = $dbresult1->fetch())) {
-        $loop = array();
-        $array_stack = array(array(
-            'host_id' => $row_entry_level1['host_tpl_id'],
-            'macro_value' => $row_entry_level1['host_macro_value']
-        ));
+        $loop = [];
+        $array_stack = [['host_id' => $row_entry_level1['host_tpl_id'], 'macro_value' => $row_entry_level1['host_macro_value']]];
         while (($host_entry = array_pop($array_stack))) {
             if (isset($loop[$host_entry['host_id']])) {
                 continue;
@@ -343,7 +340,7 @@ function smarty_function_host_get_macro_values_in_config($params, &$smarty)
                 ORDER BY `order` DESC"
             );
             while (($row = $dbResult->fetch())) {
-                $entry = array('host_id' => $row['host_tpl_id'], 'macro_value' => null);
+                $entry = ['host_id' => $row['host_tpl_id'], 'macro_value' => null];
                 if (!is_null($row['host_macro_value'])) {
                     $entry['macro_value'] = $row['host_macro_value'];
                 }

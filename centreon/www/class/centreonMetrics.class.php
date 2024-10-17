@@ -4,31 +4,28 @@ require_once _CENTREON_PATH_ . 'www/class/centreonInstance.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonService.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonCommand.class.php';
 
+/**
+ * Class
+ *
+ * @class CentreonMetrics
+ */
 class CentreonMetrics
 {
-    /**
-     *
-     * @var \CentreonDB
-     */
+    /** @var CentreonDB */
+    public $dbo;
+    /** @var CentreonDB */
     protected $db;
-
-    /**
-     *
-     * @var type
-     */
+    /** @var CentreonInstance */
     protected $instanceObj;
-
-    /**
-     *
-     * @var type
-     */
+    /** @var CentreonService */
     protected $serviceObj;
 
     /**
-     * Constructor
+     * CentreonMetrics constructor
      *
      * @param CentreonDB $db
-     * @return void
+     *
+     * @throws PDOException
      */
     public function __construct($db)
     {
@@ -42,7 +39,9 @@ class CentreonMetrics
      * Get metrics information from ids to populat select2
      *
      * @param array $values list of metric ids
+     *
      * @return array
+     * @throws PDOException
      */
     public function getObjectForSelect2($values = [])
     {
@@ -71,7 +70,7 @@ class CentreonMetrics
             . "ORDER BY fullname COLLATE utf8_general_ci";
 
         $stmt = $this->dbo->prepare($queryService);
-        if (!empty($queryValues)) {
+        if ($queryValues !== []) {
             foreach ($queryValues as $key => $id) {
                 $stmt->bindValue(':' . $key, $id, PDO::PARAM_INT);
             }

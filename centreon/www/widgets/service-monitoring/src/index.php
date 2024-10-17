@@ -210,7 +210,7 @@ if (isset($preferences['service_description_search']) && $preferences['service_d
         $query = CentreonUtils::conditionBuilder($query, $serviceDescriptionCondition);
     }
 }
-$stateTab = array();
+$stateTab = [];
 if (isset($preferences['svc_ok']) && $preferences['svc_ok']) {
     $stateTab[] = 0;
 }
@@ -236,7 +236,7 @@ if (isset($preferences['hide_unreachable_host']) && $preferences['hide_unreachab
 }
 
 
-if (count($stateTab)) {
+if ($stateTab !== []) {
     $query = CentreonUtils::conditionBuilder($query, ' s.state IN (' . implode(',', $stateTab) . ')');
 }
 if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgement_filter']) {
@@ -377,11 +377,7 @@ $orderBy = 'hostname ASC ';
 if (isset($preferences['order_by']) && trim($preferences['order_by']) != '') {
     $aOrder = explode(' ', $preferences['order_by']);
     if (in_array('last_state_change', $aOrder) || in_array('last_hard_state_change', $aOrder)) {
-        if ($aOrder[1] == 'DESC') {
-            $order = 'ASC';
-        } else {
-            $order = 'DESC';
-        }
+        $order = $aOrder[1] == 'DESC' ? 'ASC' : 'DESC';
         $orderBy = $aOrder[0] . ' ' . $order;
     } else {
         $orderBy = $preferences['order_by'];
@@ -417,7 +413,7 @@ $commentLength = $preferences['comment_length'] ?: 50;
 $hostObj = new CentreonHost($db);
 $svcObj = new CentreonService($db);
 $gmt = new CentreonGMT($db);
-$gmt->getMyGMTFromSession(session_id(), $db);
+$gmt->getMyGMTFromSession(session_id());
 $allowedActionProtocols = ['http[s]?', '//', 'ssh', 'rdp', 'ftp', 'sftp'];
 $allowedProtocolsRegex = '#(^' . implode(
     ')|(^',

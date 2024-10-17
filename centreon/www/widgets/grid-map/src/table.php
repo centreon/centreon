@@ -62,13 +62,7 @@ $useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
 $widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
 
 /* INIT */
-$colors = array(
-    0 => 'service_ok',
-    1 => 'service_warning',
-    2 => 'service_critical',
-    3 => 'unknown',
-    4 => 'pending'
-);
+$colors = [0 => 'service_ok', 1 => 'service_warning', 2 => 'service_critical', 3 => 'unknown', 4 => 'pending'];
 
 try {
     if ($widgetId === false) {
@@ -109,9 +103,9 @@ $resourceController = $kernel->getContainer()->get(
 $template = new Smarty();
 $template = initSmartyTplForPopup(getcwd() . "/", $template, "./", $centreon_path);
 
-$data = array();
-$data_service = array();
-$data_check = array();
+$data = [];
+$data_service = [];
+$data_check = [];
 $inc = 0;
 
 if ($preferences['host_group']) {
@@ -159,7 +153,7 @@ if ($preferences['host_group']) {
     $inc = 0;
 
     $services = explode(",", $preferences['service']);
-    if (count($services)) {
+    if ($services !== []) {
         $query3 .= " AND (";
         foreach ($services as $elem) {
             if (!$inc) {
@@ -184,12 +178,7 @@ if ($preferences['host_group']) {
     /* Get service listing */
     $res2 = $db->query($query2);
     while ($row = $res2->fetch()) {
-        $data_service[$row['description']] = array(
-            'description' => $row['description'],
-            'hosts' => array(),
-            'hostsStatus' => [],
-            'details_uri' => []
-        );
+        $data_service[$row['description']] = ['description' => $row['description'], 'hosts' => [], 'hostsStatus' => [], 'details_uri' => []];
     }
 
     /* Get host service statuses */

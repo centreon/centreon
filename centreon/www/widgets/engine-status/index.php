@@ -87,10 +87,10 @@ $path = $centreon_path . 'www/widgets/engine-status/src/';
 $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, './', $centreon_path);
 
-$dataLat = array();
-$dataEx = array();
-$dataSth = array();
-$dataSts = array();
+$dataLat = [];
+$dataEx = [];
+$dataSth = [];
+$dataSts = [];
 $db = new CentreonDB("centstorage");
 
 $instances = [];
@@ -102,7 +102,7 @@ if (isset($preferences['poller']) && $preferences['poller']) {
     }
 }
 
-if (!empty($instances)) {
+if ($instances !== []) {
     $queryLat = "SELECT
             1 AS REALTIME,
             MAX(T1.latency) AS h_max,

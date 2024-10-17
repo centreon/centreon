@@ -35,17 +35,20 @@
 
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once _CENTREON_PATH_ . "/www/class/centreonDowntime.class.php";
-require_once dirname(__FILE__) . "/centreon_configuration_objects.class.php";
+require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationDowntime
+ */
 class CentreonConfigurationDowntime extends CentreonConfigurationObjects
 {
-    /**
-     * @var CentreonDB
-     */
+    /** @var CentreonDB */
     protected $pearDBMonitoring;
 
     /**
-     * CentreonConfigurationDowntime constructor.
+     * CentreonConfigurationDowntime constructor
      */
     public function __construct()
     {
@@ -62,13 +65,9 @@ class CentreonConfigurationDowntime extends CentreonConfigurationObjects
      */
     public function getList()
     {
-        $queryValues = array();
+        $queryValues = [];
         // Check for select2 'q' argument
-        if (false === isset($this->arguments['q'])) {
-            $queryValues['dtName'] = '%%';
-        } else {
-            $queryValues['dtName'] = '%' . (string)$this->arguments['q'] . '%';
-        }
+        $queryValues['dtName'] = false === isset($this->arguments['q']) ? '%%' : '%' . (string)$this->arguments['q'] . '%';
 
         $queryDowntime = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT dt.dt_name, dt.dt_id ' .
             'FROM downtime dt ' .
@@ -83,16 +82,10 @@ class CentreonConfigurationDowntime extends CentreonConfigurationObjects
             throw new \Exception("An error occured");
         }
 
-        $downtimeList = array();
+        $downtimeList = [];
         while ($data = $stmt->fetch()) {
-            $downtimeList[] = array(
-                'id' => htmlentities($data['dt_id']),
-                'text' => $data['dt_name']
-            );
+            $downtimeList[] = ['id' => htmlentities($data['dt_id']), 'text' => $data['dt_name']];
         }
-        return array(
-            'items' => $downtimeList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $downtimeList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

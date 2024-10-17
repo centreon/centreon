@@ -31,11 +31,11 @@ use Centreon\Domain\Common\Assertion\Assertion;
  */
 class RealTimeMonitoringServer
 {
-    public const MAX_NAME_LENGTH = 255,
-                 MIN_NAME_LENGTH = 1,
-                 MAX_ADDRESS_LENGTH = 128,
-                 MAX_DESCRIPTION_LENGTH = 128,
-                 MAX_VERSION_LENGTH = 16;
+    public const MAX_NAME_LENGTH = 255;
+    public const MIN_NAME_LENGTH = 1;
+    public const MAX_ADDRESS_LENGTH = 128;
+    public const MAX_DESCRIPTION_LENGTH = 128;
+    public const MAX_VERSION_LENGTH = 16;
     /**
      * @var int Defines the Monitoring Server id.
      */

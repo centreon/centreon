@@ -94,7 +94,7 @@ class UploadFileServiceTest extends TestCase
 
     public function testGetFiles(): void
     {
-        (function () {
+        (function (): void {
             $result = $this->service->getFiles('field1');
 
             $this->assertCount(1, $result);
@@ -102,7 +102,7 @@ class UploadFileServiceTest extends TestCase
             $this->assertEquals($this->filesRequest['field1']['name'], $result[0]->getName());
         })();
 
-        (function () {
+        (function (): void {
             $result = $this->service->getFiles('field2', ['svg']);
 
             $this->assertCount(1, $result);
@@ -112,13 +112,13 @@ class UploadFileServiceTest extends TestCase
 
     public function testPrepare(): void
     {
-        (function () {
+        (function (): void {
             $result = $this->service->prepare('field1');
 
             $this->assertCount(1, $result);
         })();
 
-        (function () {
+        (function (): void {
             $result = $this->service->prepare('field2');
 
             $this->assertCount(2, $result);
@@ -133,7 +133,7 @@ class UploadFileServiceTest extends TestCase
             $this->assertEquals($value, $result[0]);
         })();
 
-        (function () {
+        (function (): void {
             $result = $this->service->prepare('field3');
 
             $this->assertEquals([], $result);

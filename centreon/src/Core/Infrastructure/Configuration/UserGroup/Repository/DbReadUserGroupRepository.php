@@ -45,7 +45,7 @@ class DbReadUserGroupRepository extends AbstractRepositoryDRB implements ReadUse
     {
         $userGroups = [];
 
-        if (empty($userGroupIds)) {
+        if ($userGroupIds === []) {
             return $userGroups;
         }
 
