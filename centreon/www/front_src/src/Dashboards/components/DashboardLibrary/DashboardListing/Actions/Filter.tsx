@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 import { searchAtom } from '../atom';
 import { labelClearFilter, labelSearch } from '../translatedLabels';
 
-
 export const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
   const { t } = useTranslation();
 

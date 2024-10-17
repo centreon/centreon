@@ -3,15 +3,15 @@ import { makeStyles } from 'tss-react/mui';
 export const useActionsStyles = makeStyles()((theme) => ({
   container: {
     display: 'flex',
-    alignItems : "center",
+    alignItems: 'center'
   },
-  favoriteFilter:{
+  favoriteFilter: {
     flex: 1,
-    whiteSpace: "nowrap",
-    margin: theme.spacing(0,1) ,
-    display: "flex",
-    justifyContent: "center",
-    "& p":{
+    whiteSpace: 'nowrap',
+    margin: theme.spacing(0, 1),
+    display: 'flex',
+    justifyContent: 'center',
+    '& p': {
       fontSize: theme.typography.body2.fontSize,
       fontWeight: theme.typography.fontWeightRegular
     }
@@ -19,7 +19,7 @@ export const useActionsStyles = makeStyles()((theme) => ({
   actions: {
     display: 'flex',
     gap: theme.spacing(3),
-    flex : 1
+    flex: 1
   },
   viewMode: {
     alignItems: 'center',
@@ -28,5 +28,5 @@ export const useActionsStyles = makeStyles()((theme) => ({
   },
   filter: {
     width: theme.spacing(50)
-  },
+  }
 }));

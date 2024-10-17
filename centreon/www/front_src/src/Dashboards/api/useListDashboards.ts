@@ -51,7 +51,9 @@ const useListDashboards = (): UseListDashboards => {
           search,
           sort
         },
-        customQueryParameters: [{ name : "only_favorite" , value : onlyFavoriteDashboard}]
+        customQueryParameters: [
+          { name: 'only_favorite', value: onlyFavoriteDashboard }
+        ]
       }),
     getQueryKey: () => [
       resource.dashboards,
