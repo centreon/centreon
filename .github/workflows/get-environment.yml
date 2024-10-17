@@ -63,6 +63,8 @@ jobs:
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
+            const prPath = ['${{ github.head_ref }}', '${{ github.base_ref }}'];
+
             const result = await github.rest.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -70,11 +72,18 @@ jobs:
               state: 'open'
             });
 
-            result.data.forEach(({ head: { ref: headRef }, base: { ref: baseRef} }) => {
-              console.log(headRef);
-              console.log(baseRef);
-            });
-            console.log(result);
+            let found = true;
+            while (found) {
+              found = false;
+              result.data.forEach(({ head: { ref: headRef }, base: { ref: baseRef} }) => {
+                if (headRef === prPath[prPath.length - 1]) {
+                  found = true;
+                  prPath.push(baseRef);
+                }
+              });
+            }
+
+            console.log(prPath);
 
       - name: Get stability
         id: get_stability
