@@ -256,11 +256,11 @@ jobs:
             const outputTable = [
               [{data: 'Name', header: true}, {data: 'Value', header: true}],
               ['latest_major_version', '${{ steps.latest_major_version.outputs.latest_major_version }}'],
+              ['is_cloud', '${{ steps.detect_cloud_version.outputs.result }}'],
               ['major_version', '${{ steps.get_version.outputs.major_version }}'],
               ['minor_version', '${{ steps.get_version.outputs.minor_version }}'],
               ['release', '${{ steps.get_release.outputs.release }}'],
-              ['stability', '${{ steps.get_stability.outputs.stability }}'],
-              ['is_cloud', ${{ steps.detect_cloud_version.outputs.result }}]
+              ['stability', '${{ steps.get_stability.outputs.stability }}']
             ];
 
             if ("${{ github.event_name }}" === "pull_request") {
