@@ -899,7 +899,7 @@ jobs:
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_delivery == 'true' }}
+    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_delivery == 'true' }}
 
     environment: ${{ needs.get-version.outputs.environment }}
 
@@ -933,7 +933,7 @@ jobs:
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_delivery == 'true' }}
+    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_delivery == 'true' }}
 
     environment: ${{ needs.get-version.outputs.environment }}
 
