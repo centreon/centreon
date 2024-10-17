@@ -265,10 +265,10 @@ jobs:
               ['minor_version', '${{ steps.get_version.outputs.minor_version }}'],
               ['release', '${{ steps.get_release.outputs.release }}'],
               ['stability', '${{ steps.get_stability.outputs.stability }}'],
-              ['release_type', '${{ steps.get_release_type.outputs.release_type || '*not defined because this is not a release*' }}']
+              ['release_type', '${{ steps.get_release_type.outputs.release_type || '<em>not defined because this is not a release</em>' }}']
             ];
 
-            outputTable.push(['target_stability', '${{ steps.get_stability.outputs.target_stability || '*not defined because current run is not triggered by pull request event*' }}']);
+            outputTable.push(['target_stability', '${{ steps.get_stability.outputs.target_stability || '<em>not defined because current run is not triggered by pull request event</em>' }}']);
 
             core.summary
               .addHeading(`${context.workflow} environment outputs`)
