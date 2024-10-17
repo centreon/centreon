@@ -161,6 +161,7 @@ class TimeRange implements \Stringable
     private function resolveTimeRangeAlias(string $timeRange): bool
     {
         $this->timeRange = empty($timeRange) ? '' : $timeRange;
+
         return $timeRange === self::TIME_RANGE_FULL_DAY_ALIAS || empty($timeRange);
     }
 }
