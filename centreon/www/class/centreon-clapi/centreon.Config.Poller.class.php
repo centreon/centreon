@@ -305,7 +305,6 @@ class CentreonConfigPoller
         $statement = $this->DB->prepare(
             "UPDATE `nagios_server` SET `last_restart` = :last_restart, `updated` = '0' WHERE `id` = :poller_id LIMIT 1"
         );
-        // centreon -u admin -p Centreon\!2021 -a POLLERRELOAD -v 1
         $statement->bindValue(':last_restart', time(), PDO::PARAM_INT);
         $statement->bindValue(':poller_id', (int) $poller_id, PDO::PARAM_INT);
         $statement->execute();
