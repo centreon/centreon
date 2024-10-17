@@ -31,7 +31,7 @@ $timeRange = '';
 it(
     'should throw exception with invalid time range length',
     function () use ($timeRange): void {
-        if (!empty($timeRange)) {
+        if ($timeRange !== '') {
             $this->expectException(\InvalidArgumentException::class);
             $this->expectExceptionMessage(
                 AssertionException::minLength(
