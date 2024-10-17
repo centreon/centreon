@@ -65,6 +65,7 @@ jobs:
         with:
           script: |
             const prPath = ['${{ github.base_ref }}', '${{ github.head_ref }}'];
+            console.log(prPath);
 
             const result = await github.rest.pulls.list({
               owner: context.repo.owner,
