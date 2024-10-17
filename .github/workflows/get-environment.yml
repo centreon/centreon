@@ -63,7 +63,7 @@ jobs:
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
-            const prPath = ['${{ github.head_ref }}', '${{ github.base_ref }}'];
+            const prPath = ['${{ github.base_ref }}', '${{ github.head_ref }}'];
 
             const result = await github.rest.pulls.list({
               owner: context.repo.owner,
@@ -76,10 +76,10 @@ jobs:
             while (found) {
               found = false;
               result.data.forEach(({ head: { ref: headRef }, base: { ref: baseRef} }) => {
-                if (headRef === prPath[prPath.length - 1]) {
-                  console.log(`${headRef} equals to ${prPath[prPath.length - 1]}: adding ${baseRef}`);
+                if (baseRef === prPath[prPath.length - 1]) {
+                  console.log(`${baseRef} equals to ${prPath[prPath.length - 1]}: adding ${headRef}`);
                   found = true;
-                  prPath.push(baseRef);
+                  prPath.push(headRef);
                 }
               });
             }
