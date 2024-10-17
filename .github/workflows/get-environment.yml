@@ -70,9 +70,9 @@ jobs:
               state: 'open'
             });
 
-            result.data.forEach(({ head, base }) => {
-              console.log(head);
-              console.log(base);
+            result.data.forEach(({ head: { ref: headRef }, base: { ref: baseRef} }) => {
+              console.log(headRef);
+              console.log(baseRef);
             });
             console.log(result);
 
