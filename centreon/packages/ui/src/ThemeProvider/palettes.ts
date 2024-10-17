@@ -1,6 +1,6 @@
 import { equals } from 'ramda';
 
-import { alpha, PaletteOptions } from '@mui/material';
+import { type PaletteOptions, alpha } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
 
@@ -142,7 +142,7 @@ declare module '@mui/material/Badge' {
 
 export const lightPalette: PaletteOptions = {
   action: {
-    acknowledged: '#67532C',
+    acknowledged: '#745F35',
     acknowledgedBackground: '#DFD2B9',
     activatedOpacity: 0.12,
     active: '#666666',
@@ -152,7 +152,7 @@ export const lightPalette: PaletteOptions = {
     focusOpacity: 0.12,
     hover: 'rgba(0, 0, 0, 0.06)',
     hoverOpacity: 0.06,
-    inDowntime: '#4B2352',
+    inDowntime: '#512980',
     inDowntimeBackground: '#E5D8F3',
     selected: 'rgba(102, 102, 102, 0.3)',
     selectedOpacity: 0.3
@@ -282,7 +282,7 @@ export const lightPalette: PaletteOptions = {
 
 export const darkPalette: PaletteOptions = {
   action: {
-    acknowledged: '#67532C',
+    acknowledged: '#DFD2B9',
     acknowledgedBackground: '#745F35',
     activatedOpacity: 0.3,
     active: '#B5B5B5',
@@ -292,7 +292,7 @@ export const darkPalette: PaletteOptions = {
     focusOpacity: 0.3,
     hover: 'rgba(255, 255, 255, 0.16)',
     hoverOpacity: 0.16,
-    inDowntime: '#4B2352',
+    inDowntime: '#E5D8F3',
     inDowntimeBackground: '#512980',
     selected: 'rgba(255, 255, 255, 0.5)',
     selectedOpacity: 0.5
