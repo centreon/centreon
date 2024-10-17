@@ -32,7 +32,6 @@ use Core\TimePeriod\Domain\Exception\TimeRangeException;
 class TimeRange implements \Stringable
 {
     /**
-     *
      * @var string TIME_RANGE_FULL_DAY_ALIAS The time range for the entire day in DOC
      */
     public const TIME_RANGE_FULL_DAY_ALIAS = '00:00-00:00';
