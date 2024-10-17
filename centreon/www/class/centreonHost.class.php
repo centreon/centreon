@@ -423,7 +423,9 @@ class CentreonHost
             $row = $stmt->fetch();
             return $row['host_name'];
         }
-    }// FIXME no return
+
+        return '';
+    }
 
     /**
      * @param int[] $hostId
@@ -472,8 +474,9 @@ class CentreonHost
 
     /**
      * @param $hostId
-     * @return mixed
-     * @throws Exception
+     *
+     * @return int
+     * @throws PDOException
      */
     public function getHostCommandId($hostId)
     {
@@ -488,7 +491,9 @@ class CentreonHost
             $row = $stmt->fetch();
             return $row['command_command_id'];
         }
-    }// FIXME no return
+
+        return 0;
+    }
 
     /**
      * @param $hostId

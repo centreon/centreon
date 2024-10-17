@@ -38,7 +38,7 @@
  *
  * @class CentreonServicegroups
  */
-class CentreonServicegroups// FIXME CentreonServiceGroups exists too
+class CentreonServicegroups
 {
     /** @var CentreonDB */
     private $DB;
