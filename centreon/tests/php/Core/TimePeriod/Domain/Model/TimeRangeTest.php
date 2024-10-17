@@ -31,18 +31,18 @@ $timeRange = '';
 it(
     'should throw exception with invalid time range length',
     function () use ($timeRange): void {
-        if (strlen($timeRange) > 0 && strlen($timeRange) < 11) {
-            new TimeRange($timeRange);
-        }
+        new TimeRange($timeRange);
     }
 )->throws(
     \InvalidArgumentException::class,
-    AssertionException::minLength(
-        $timeRange,
-        strlen($timeRange),
-        11,
-        'TimeRange::timeRange'
-    )->getMessage()
+    !empty($timeRange)
+        ? AssertionException::minLength(
+            $timeRange,
+            strlen($timeRange),
+            11,
+            'TimeRange::timeRange'
+        )->getMessage()
+        : null
 );
 
 it(
@@ -116,8 +116,8 @@ it(
 );
 
 it('should return a valid single array', function (): void {
-        $timeRange = new TimeRange('00:00-10:00');
-        expect($timeRange->getRanges())->toBeArray()->toHaveCount(1);
+    $timeRange = new TimeRange('00:00-10:00');
+    expect($timeRange->getRanges())->toBeArray()->toHaveCount(1);
 });
 
 it('should return a valid multiple array', function (): void {
