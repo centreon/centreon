@@ -115,10 +115,6 @@ default:
       paths: [ "%paths.base%/features/ContactConfiguration.feature" ]
       contexts: [ ContactConfigurationContext ]
 
-    host_category_configuration:
-      paths: [ "%paths.base%/features/HostCategoryConfiguration.feature" ]
-      contexts: [ HostCategoryConfigurationContext ]
-
     contact_group_configuration:
       paths: [ "%paths.base%/features/ContactGroupConfiguration.feature" ]
       contexts: [ ContactGroupConfigurationContext ]
@@ -170,10 +166,6 @@ default:
     service_group_configuration:
       paths: [ "%paths.base%/features/ServiceGroupConfiguration.feature" ]
       contexts: [ ServiceGroupConfigurationContext ]
-
-    service_configuration:
-      paths: [ "%paths.base%/features/ServiceConfiguration.feature" ]
-      contexts: [ ServiceConfigurationContext ]
 
     host_group_service_configuration:
       paths: [ "%paths.base%/features/HostGroupServiceConfiguration.feature" ]
