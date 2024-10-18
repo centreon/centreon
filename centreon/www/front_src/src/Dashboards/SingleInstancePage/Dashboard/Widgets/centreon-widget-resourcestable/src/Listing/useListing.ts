@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { useAtom } from 'jotai';
-import { equals, isEmpty, isNotNil } from 'ramda';
+import { equals, isEmpty, isNil, isNotNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { type Column, useSnackbar } from '@centreon/ui';
 
-import type { CommonWidgetProps, Resource, SortOrder } from '../../../models';
+import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
 import {
   resourcesToAcknowledgeAtom,
@@ -131,6 +131,32 @@ const useListing = ({
       return;
     }
   }, [isOpenTicketEnabled]);
+
+  useEffect(() => {
+    if (isNil(limit) && isNil(sortField)) {
+      setPanelOptions?.({
+        limit: 10,
+        sortField: 'status_severity_code',
+        sortOrder: SortOrder.Desc
+      });
+      return;
+    }
+
+    if (isNil(limit)) {
+      setPanelOptions?.({
+        limit: 10
+      });
+      return;
+    }
+
+    if (isNil(limit)) {
+      setPanelOptions?.({
+        sortField: 'status_severity_code',
+        sortOrder: SortOrder.Desc
+      });
+      return;
+    }
+  }, []);
 
   const isOpenTicketInstalled = useIsOpenTicketInstalled();
 
