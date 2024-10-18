@@ -19478,7 +19478,7 @@ msgid "Mark as favorite"
 msgstr "Marquer comme favori"
 
 msgid "Unmark as favorite"
-msgstr "Désélectionner comme favori"
+msgstr "Ne plus marquer comme favori"
 
 msgid "Show only dashboards marked as favorites"
 msgstr "Afficher uniquement les tableaux de bord marqués comme favoris"
