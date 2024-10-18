@@ -5,6 +5,9 @@ export VAULT_SKIP_VERIFY=true
 export VAULT_TOKEN=${VAULT_DEV_ROOT_TOKEN_ID}
 mkdir -p /opt/vault/tls /opt/vault/data /etc/vault.d
 
+vault server -dev -dev-listen-address="0.0.0.0:8200" &
+sleep 5
+
 cat <<EOM >>/etc/vault.d/vault.hcl
 storage "raft" {
   path    = "/opt/vault/data"
@@ -35,7 +38,9 @@ vault write -format=json pki/issue/vault-role \
     > /opt/vault/tls/vault_data.json
 jq -r .data.certificate /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.crt
 jq -r .data.private_key /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.key
+
 vault server -dev -config=/etc/vault.d/vault.hcl
+sleep 5
 
 vault secrets enable -path=centreon kv
 vault auth enable approle
