@@ -24,8 +24,6 @@ cluster_addr  = "https://127.0.0.1:8202"
 ui            = true
 EOM
 
-vault server -config=/etc/vault.d/vault.hcl
-
 vault secrets enable pki
 vault write pki/roles/vault-role \
     allow_subdomains=true \
@@ -38,6 +36,7 @@ vault write -format=json pki/issue/vault-role \
 jq -r .data.certificate /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.crt
 jq -r .data.private_key /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.key
 
+vault server -config=/etc/vault.d/vault.hcl
 vault secrets enable -path=centreon kv
 vault auth enable approle
 
