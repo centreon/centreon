@@ -120,7 +120,6 @@ When("the user duplicates a service template", () => {
   });
  cy.enterIframe("iframe#main-content")
    .find("table tbody")
-   .find("tr.list_two")
    .each(($row) => {
      cy.wrap($row)
        .find("td.ListColLeft")
@@ -178,7 +177,6 @@ When("the user deletes a service template", () => {
   });
   cy.enterIframe("iframe#main-content")
     .find("table tbody")
-    .find("tr.list_two")
     .each(($row) => {
       cy.wrap($row)
         .find("td.ListColLeft")
