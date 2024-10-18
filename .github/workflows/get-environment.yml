@@ -213,7 +213,8 @@ jobs:
 
             return false;
 
-      - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      - name: Detect operating systems and databases to test
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         id: get_os_database_matrix
         with:
           script: |
@@ -239,7 +240,7 @@ jobs:
               "databases": [alma9_mariadb],
             };
 
-            if (${{ contains(github.event.pull_request.labels.*.name, 'database') && 'true' || 'false' }})) {
+            if (${{ contains(github.event.pull_request.labels.*.name, 'database') && 'true' || 'false' }}) {
               matrix = {
                 ...matrix,
                 "operating_systems": [alma9_mariadb, bookworm_mysql],
@@ -257,7 +258,7 @@ jobs:
 
             if (context.eventName === 'schedule' || ${{ contains(github.event.pull_request.labels.*.name, 'system') && 'true' || 'false' }}) {
               matrix = {
-                "main": [alma9_mariadb],
+                ...matrix,
                 "operating_systems": [alma9_mariadb, alma8_mariadb, bookworm_mysql],
                 "databases": [alma9_mariadb, bookworm_mysql],
               };
