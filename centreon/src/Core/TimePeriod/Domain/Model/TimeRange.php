@@ -31,6 +31,11 @@ use Core\TimePeriod\Domain\Exception\TimeRangeException;
  */
 class TimeRange implements \Stringable
 {
+    /**
+     * @var string TIME_RANGE_FULL_DAY_ALIAS The time range for the entire day in DOC
+     */
+    private const TIME_RANGE_FULL_DAY_ALIAS = '00:00-00:00';
+
     /** @var string Comma-delimited time range (00:00-12:00) for a particular day of the week. */
     private string $timeRange;
 
@@ -42,6 +47,13 @@ class TimeRange implements \Stringable
      */
     public function __construct(string $timeRange)
     {
+
+        $resolvedTimeRangeAlias = $this->resolveTimeRangeAlias($timeRange);
+        if ($resolvedTimeRangeAlias) {
+            return;
+        }
+
+        $timeRange = $this->timeRange;
         Assertion::minLength($timeRange, 11, 'TimeRange::timeRange');
 
         if (! $this->isValidTimeRangeFormat($timeRange)) {
@@ -139,5 +151,17 @@ class TimeRange implements \Stringable
         }
 
         return $timeRanges;
+    }
+
+    /**
+     * @param string $timeRange
+     *
+     * @return bool
+     */
+    private function resolveTimeRangeAlias(string $timeRange): bool
+    {
+        $this->timeRange = empty($timeRange) ? '' : $timeRange;
+
+        return $timeRange === self::TIME_RANGE_FULL_DAY_ALIAS || empty($timeRange);
     }
 }
