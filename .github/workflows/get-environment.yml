@@ -118,16 +118,15 @@ jobs:
 
             core.setOutput('stability', getStability('${{ github.head_ref || github.ref_name }}'));
 
+            let isTargetingFeatureBranch = false;
             if ("${{ github.event_name }}" === "pull_request") {
               let targetStability = 'canary';
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               prPath.shift(); // remove current branch
 
-              let isTargetingFeatureBranch = false;
               if (prPath.length && getStability(prPath[0]) === 'canary') {
                 isTargetingFeatureBranch = true;
               }
-              core.setOutput('is_targeting_feature_branch', isTargetingFeatureBranch);
 
               prPath.every((branchName) => {
                 console.log(`checking stability of ${branchName}`)
@@ -142,6 +141,8 @@ jobs:
 
               core.setOutput('target_stability', targetStability);
             }
+
+            core.setOutput('is_targeting_feature_branch', isTargetingFeatureBranch);
 
       - name: Get version from ${{ inputs.version_file }}
         id: get_version
@@ -286,7 +287,7 @@ jobs:
               ['release', '${{ steps.get_release.outputs.release }}'],
               ['stability', '${{ steps.get_stability.outputs.stability }}'],
               ['release_type', '${{ steps.get_release_type.outputs.release_type || '<em>not defined because this is not a release</em>' }}'],
-              ['is_targeting_feature_branch', '${{ steps.get_stability.outputs.is_targeting_feature_branch || '<em>not defined because current run is not triggered by pull request event</em>' }}'],
+              ['is_targeting_feature_branch', '${{ steps.get_stability.outputs.is_targeting_feature_branch }}'],
             ];
 
             outputTable.push(['target_stability', '${{ steps.get_stability.outputs.target_stability || '<em>not defined because current run is not triggered by pull request event</em>' }}']);
