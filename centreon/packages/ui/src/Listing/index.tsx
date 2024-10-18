@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import { useAtomValue } from 'jotai';
 import {
   concat,
   differenceWith,
@@ -28,19 +29,23 @@ import {
   uniqBy
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 
 import { Box, LinearProgress, Table, TableBody } from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
 
-import { useKeyObserver, useMemoComponent } from '../utils';
 import { ParentSize } from '..';
+import { useKeyObserver, useMemoComponent } from '../utils';
 
 import ListingActionBar from './ActionBar';
 import Cell from './Cell';
 import DataCell from './Cell/DataCell';
 import Checkbox from './Checkbox';
+import { EmptyResult } from './EmptyResult/EmptyResult';
+import { ListingHeader } from './Header';
+import { useListingStyles } from './Listing.styles';
+import ListingRow from './Row/Row';
+import { SkeletonLoader } from './Row/SkeletonLoaderRows';
 import {
   Column,
   ColumnConfiguration,
@@ -49,14 +54,9 @@ import {
   RowId,
   SortOrder
 } from './models';
-import ListingRow from './Row/Row';
+import { subItemsPivotsAtom } from './tableAtoms';
 import { labelNoResultFound } from './translatedLabels';
 import useStyleTable from './useStyleTable';
-import { useListingStyles } from './Listing.styles';
-import { EmptyResult } from './EmptyResult/EmptyResult';
-import { SkeletonLoader } from './Row/SkeletonLoaderRows';
-import { ListingHeader } from './Header';
-import { subItemsPivotsAtom } from './tableAtoms';
 
 const getVisibleColumns = ({
   columnConfiguration,
@@ -218,7 +218,15 @@ const Listing = <TRow extends { id: RowId }>({
                 row[subItems.getRowProperty()] &&
                 subItemsPivots.includes(row.id)
               ) {
-                return [...acc, row, ...row[subItems.getRowProperty()]];
+                return [
+                  ...acc,
+                  row,
+                  ...row[subItems.getRowProperty()].map((subRow) => ({
+                    ...subRow,
+                    internalListingParentId: row.id,
+                    internalListingParentRow: row
+                  }))
+                ];
               }
 
               return [...acc, row];
@@ -254,7 +262,7 @@ const Listing = <TRow extends { id: RowId }>({
       event.target.checked &&
       event.target.getAttribute('data-indeterminate') === 'false'
     ) {
-      onSelectRows(reject(disableRowCheckCondition, rows));
+      onSelectRows(reject(disableRowCheckCondition, rowsToDisplay));
       setLastSelectionIndex(null);
 
       return;
@@ -265,7 +273,9 @@ const Listing = <TRow extends { id: RowId }>({
   };
 
   const onSelectRowsWithCondition = (condition: (row) => boolean): void => {
-    onSelectRows(reject(disableRowCheckCondition, filter(condition, rows)));
+    onSelectRows(
+      reject(disableRowCheckCondition, filter(condition, rowsToDisplay))
+    );
     setLastSelectionIndex(null);
   };
 
