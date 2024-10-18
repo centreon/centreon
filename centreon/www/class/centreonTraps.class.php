@@ -337,9 +337,9 @@ class CentreonTraps
     }
 
     /**
-     * @param null $traps_id
+     * @param int|null $traps_id
      *
-     * @return null
+     * @return null|void
      * @throws InvalidArgumentException
      * @throws PDOException
      */
@@ -572,7 +572,7 @@ class CentreonTraps
         /* Prepare value for changelog */
         $fields = CentreonLogAction::prepareChanges($ret);
         $this->centreon->CentreonLogAction->insertLog("traps", $traps_id, $fields["traps_name"], "c", $fields);
-    }// FIXME no return
+    }
 
     /**
      * Set preexec commands
@@ -1000,7 +1000,9 @@ class CentreonTraps
             }
             return $arr;
         }
-    }// FIXME no return
+
+        return [];
+    }
 
     /**
      * Get matching rules from trap_id
@@ -1031,7 +1033,9 @@ class CentreonTraps
             }
             return $arr;
         }
-    }// FIXME no return
+
+        return [];
+    }
 
     /**
      * @param int $field

@@ -43,8 +43,6 @@ class CentreonInstance
 {
     /** @var array */
     public $paramsByName;
-    /** @var CentreonDB */ // FIXME three db connections ??
-    public $DB;
     /** @var CentreonDB */
     protected $db;
     /** @var CentreonDB */
@@ -150,7 +148,7 @@ class CentreonInstance
                 foreach ($filteredPollerIds as $index => $filteredPollerId) {
                     $pollerParams[':pollerId' . $index] = $filteredPollerId;
                 }
-                $stmt = $this->DB->prepare( // FIXME I think it's $db, to check
+                $stmt = $this->db->prepare(
                     'SELECT i.instance_id, i.name FROM instances i ' .
                     'WHERE i.instance_id IN ( ' . implode(',', array_keys($pollerParams)) . ' )'
                 );
