@@ -34,39 +34,35 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
+use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
+
 
 class TokenAPIAuthenticatorTest extends TestCase
 {
-    /**
-     * @var AuthenticationRepositoryInterface|MockObject
-     */
-    private $authenticationRepository;
-
-    /**
-     * @var ContactRepositoryInterface|MockObject
-     */
-    private $contactRepository;
-
-    /**
-     * @var LocalProvider
-     */
-    private $localProvider;
+    private AuthenticationRepositoryInterface|MockObject $authenticationRepository;
+    private ContactRepositoryInterface|MockObject $contactRepository;
+    private LocalProvider $localProvider;
+    private ReadTokenRepositoryInterface $readTokenRepository;
+    private TokenAPIAuthenticator $authenticator;
 
     public function setUp(): void
     {
         $this->authenticationRepository = $this->createMock(AuthenticationRepositoryInterface::class);
         $this->contactRepository = $this->createMock(ContactRepositoryInterface::class);
         $this->localProvider = $this->createMock(LocalProvider::class);
+        $this->readTokenRepository = $this->createMock(ReadTokenRepositoryInterface::class);
+
+        $this->authenticator = new TokenAPIAuthenticator(
+            $this->authenticationRepository,
+            $this->contactRepository,
+            $this->localProvider,
+            $this->readTokenRepository,
+        );
+
     }
 
     public function testStart(): void
     {
-        $authenticator = new TokenAPIAuthenticator(
-            $this->authenticationRepository,
-            $this->contactRepository,
-            $this->localProvider
-        );
-
         $request = new Request();
 
         $this->assertEquals(
@@ -76,45 +72,27 @@ class TokenAPIAuthenticatorTest extends TestCase
                 ],
                 Response::HTTP_UNAUTHORIZED
             ),
-            $authenticator->start($request)
+            $this->authenticator->start($request)
         );
     }
 
     public function testSupports(): void
     {
-        $authenticator = new TokenAPIAuthenticator(
-            $this->authenticationRepository,
-            $this->contactRepository,
-            $this->localProvider
-        );
-
         $request = new Request();
         $request->headers->set('X-AUTH-TOKEN', 'my_token');
 
-        $this->assertTrue($authenticator->supports($request));
+        $this->assertTrue($this->authenticator->supports($request));
     }
 
     public function testNotSupports(): void
     {
-        $authenticator = new TokenAPIAuthenticator(
-            $this->authenticationRepository,
-            $this->contactRepository,
-            $this->localProvider
-        );
-
         $request = new Request();
 
-        $this->assertFalse($authenticator->supports($request));
+        $this->assertFalse($this->authenticator->supports($request));
     }
 
     public function testOnAuthenticationFailure(): void
     {
-        $authenticator = new TokenAPIAuthenticator(
-            $this->authenticationRepository,
-            $this->contactRepository,
-            $this->localProvider
-        );
-
         $request = new Request();
         $exception = new AuthenticationException();
 
@@ -125,40 +103,28 @@ class TokenAPIAuthenticatorTest extends TestCase
                 ],
                 Response::HTTP_UNAUTHORIZED
             ),
-            $authenticator->onAuthenticationFailure($request, $exception)
+            $this->authenticator->onAuthenticationFailure($request, $exception)
         );
     }
 
     public function testOnAuthenticationSuccess(): void
     {
-        $authenticator = new TokenAPIAuthenticator(
-            $this->authenticationRepository,
-            $this->contactRepository,
-            $this->localProvider
-        );
-
         $request = new Request();
         $token = $this->createMock(TokenInterface::class);
 
         $this->assertNull(
-            $authenticator->onAuthenticationSuccess($request, $token, 'local')
+            $this->authenticator->onAuthenticationSuccess($request, $token, 'local')
         );
     }
 
     public function testAuthenticateSuccess(): void
     {
-        $authenticator = new TokenAPIAuthenticator(
-            $this->authenticationRepository,
-            $this->contactRepository,
-            $this->localProvider
-        );
-
         $request = new Request();
         $request->headers->set('X-AUTH-TOKEN', 'my_token');
 
         $this->assertInstanceOf(
             SelfValidatingPassport::class,
-            $authenticator->authenticate($request)
+            $this->authenticator->authenticate($request)
         );
     }
 }
