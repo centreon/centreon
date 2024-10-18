@@ -3,8 +3,7 @@
 export VAULT_ADDR='https://127.0.0.1:8200'
 export VAULT_SKIP_VERIFY=true
 export VAULT_TOKEN=${VAULT_DEV_ROOT_TOKEN_ID}
-mkdir -p /opt/vault/data
-mkdir -p /etc/vault.d
+mkdir -p /opt/vault/tls /opt/vault/data /etc/vault.d
 
 cat <<EOM >>/etc/vault.d/vault.hcl
 storage "raft" {
