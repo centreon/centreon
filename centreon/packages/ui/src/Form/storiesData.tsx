@@ -8,7 +8,7 @@ import { Typography } from '@mui/material';
 import { SelectEntry } from '../InputField/Select';
 import { Listing } from '../api/models';
 
-import { array, boolean, number, object, string } from 'yup';
+import { array, boolean, mixed, number, object, string } from 'yup';
 import {
   Group,
   InputProps,
@@ -78,7 +78,8 @@ export const basicFormValidationSchema = object().shape({
     })
   ),
   scopes: array().of(string().min(3, '3 characters min').required('Required')),
-  sports: array().of(selectEntryValidationSchema.required('Required'))
+  sports: array().of(selectEntryValidationSchema.required('Required')),
+  file: mixed()
 });
 
 const roleEntries: Array<SelectEntry> = [
@@ -134,7 +135,8 @@ export const basicFormInitialValues = {
     }
   ],
   scopes: [],
-  sports: []
+  sports: [],
+  file: null
 };
 
 export const classOptions = [...Array(10).keys()].map((idx) => ({
@@ -444,6 +446,16 @@ export const basicFormInputs: Array<InputProps> = [
       multilineRows: 4
     },
     type: InputType.Text
+  },
+  {
+    fieldName: 'file',
+    group: 'First group',
+    label: 'File',
+    type: InputType.File,
+    file: {
+      accept: 'image/*',
+      multiple: true
+    }
   }
 ];
 

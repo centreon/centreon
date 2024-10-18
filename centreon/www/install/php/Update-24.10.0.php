@@ -104,6 +104,7 @@ $fixNamingAndActivateAccTopology = function (CentreonDB $pearDB) use (&$errorMes
     $pearDB->executePreparedQuery($constraintStatement, [':show' => $isCentral === 'yes' ? '1' : '0']);
 };
 
+// Nagios Macros
 $updateNagiosMacros = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to check for existing macros in nagios_macro table';
     $statement = $pearDB->executeQuery(

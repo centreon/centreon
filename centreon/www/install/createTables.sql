@@ -2664,6 +2664,27 @@ CREATE TABLE IF NOT EXISTS `acc_poller_relation` (
     REFERENCES `nagios_server` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `agent_configuration` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `type` enum('telegraf', 'centreon-agent') NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `configuration` JSON NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name_unique` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `ac_poller_relation` (
+  `ac_id` INT UNSIGNED NOT NULL,
+  `poller_id` INT(11) NOT NULL,
+  UNIQUE KEY `rel_unique` (`ac_id`, `poller_id`),
+  CONSTRAINT `ac_id_contraint`
+    FOREIGN KEY (`ac_id`)
+    REFERENCES `agent_configuration` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `ac_poller_id_contraint`
+    FOREIGN KEY (`poller_id`)
+    REFERENCES `nagios_server` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
