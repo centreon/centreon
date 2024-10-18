@@ -68,7 +68,7 @@
                 </a>
             </td>
             <td class="ListColCenter">
-                <a href='./main.php?p=602&search={$elemArr[elem].RowMenu_name}'>
+                <a href='./main.php?p=602&search={$elemArr[elem].RowMenu_name_link}'>
                     <span class="ico-16" title='{$HelpServices}'>
                         {$listServicesIcon}
                     </span>
