@@ -34,19 +34,21 @@
  *
  */
 
-
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationTrap
+ */
 class CentreonConfigurationTrap extends CentreonConfigurationObjects
 {
-    /**
-     * @var CentreonDB
-     */
+    /**@var CentreonDB */
     protected $pearDBMonitoring;
 
     /**
-     * CentreonConfigurationTrap constructor.
+     * CentreonConfigurationTrap constructor
      */
     public function __construct()
     {
@@ -56,17 +58,14 @@ class CentreonConfigurationTrap extends CentreonConfigurationObjects
 
     /**
      * @return array
+     * @throws PDOException
      * @throws RestBadRequestException
      */
     public function getList()
     {
-        $queryValues = array();
+        $queryValues = [];
         // Check for select2 'q' argument
-        if (isset($this->arguments['q'])) {
-            $queryValues['name'] = '%' . (string)$this->arguments['q'] . '%';
-        } else {
-            $queryValues['name'] = '%%';
-        }
+        $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
         $queryTraps = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT t.traps_name, t.traps_id, m.name ' .
             'FROM traps t, traps_vendor m ' .
             'WHERE t.manufacturer_id = m.id ' .
@@ -92,18 +91,20 @@ class CentreonConfigurationTrap extends CentreonConfigurationObjects
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $trapList = array();
+        $trapList = [];
         while ($data = $stmt->fetch()) {
             $trapCompleteName = $data['name'] . ' - ' . $data['traps_name'];
             $trapCompleteId = $data['traps_id'];
-            $trapList[] = array('id' => htmlentities($trapCompleteId), 'text' => $trapCompleteName);
+            $trapList[] = ['id' => htmlentities($trapCompleteId), 'text' => $trapCompleteName];
         }
-        return array(
-            'items' => $trapList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $trapList, 'total' => (int) $this->pearDB->numberRows()];
     }
 
+    /**
+     * @return array
+     * @throws PDOException
+     * @throws RestBadRequestException
+     */
     public function getDefaultValues()
     {
         $finalDatas = parent::getDefaultValues();

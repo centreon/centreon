@@ -23,15 +23,26 @@ declare(strict_types=1);
 
 namespace Core\Contact\Infrastructure\Repository;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
+use Assert\AssertionFailedException;
 use Core\Contact\Domain\Model\ContactGroup;
+use Core\Contact\Domain\Model\ContactGroupType;
 
+/**
+ * @phpstan-type _ContactGroup array{
+ *     cg_id: int,
+ *     cg_name: string,
+ *     cg_alias: string,
+ *     cg_comment?: string,
+ *     cg_activate: string,
+ *     cg_type: string
+ * }
+ */
 class DbContactGroupFactory
 {
     /**
-     * @param array<string,string> $record
+     * @param _ContactGroup $record
      *
-     * @throws AssertionException
+     * @throws AssertionFailedException
      *
      * @return ContactGroup
      */
@@ -39,7 +50,13 @@ class DbContactGroupFactory
     {
         return new ContactGroup(
             (int) $record['cg_id'],
-            $record['cg_name']
+            $record['cg_name'],
+            $record['cg_alias'],
+            $record['cg_comment'] ?? '',
+            $record['cg_activate'] === '1',
+            $record['cg_type'] === 'local'
+                ? ContactGroupType::Local
+                : ContactGroupType::Ldap
         );
     }
 }

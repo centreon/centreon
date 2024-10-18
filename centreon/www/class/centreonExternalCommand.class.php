@@ -34,41 +34,53 @@
  */
 
 // file centreon.config.php may not exist in test environment
-$configFile = realpath(dirname(__FILE__) . "/../../config/centreon.config.php");
+$configFile = realpath(__DIR__ . "/../../config/centreon.config.php");
 if ($configFile !== false) {
     require_once $configFile;
 }
 
 require_once __DIR__ . '/centreonDB.class.php';
-require_once realpath(dirname(__FILE__) . "/centreonDBInstance.class.php");
+require_once realpath(__DIR__ . "/centreonDBInstance.class.php");
 require_once __DIR__ . '/../include/common/common-Func.php';
 
-/*
- *  This class allows the user to send external commands to Nagios
+/**
+ * Class
+ *
+ * @class CentreonExternalCommand
+ * @description This class allows the user to send external commands to Nagios
  */
-
 class CentreonExternalCommand
 {
+    /** @var CentreonDB */
     protected $DB;
+    /** @var CentreonDB */
     protected $DBC;
-    protected $cmdTab = array();
+    /** @var array */
+    protected $cmdTab = [];
+    /** @var array */
     protected $pollerTab;
-    public $localhostTab = array();
-    protected $actions = array();
+    /** @var array */
+    public $localhostTab = [];
+    /** @var array */
+    protected $actions = [];
+    /** @var CentreonGMT */
     protected $GMT;
+    /** @var int */
     public $debug = 0;
+    /** @var string|null */
     protected $userAlias;
+    /** @var int|mixed|string|null */
     protected $userId;
 
     /**
-     * CentreonExternalCommand constructor.
+     * CentreonExternalCommand constructor
      */
     public function __construct()
     {
         global $centreon;
 
         $rq = "SELECT id FROM `nagios_server` WHERE localhost = '1'";
-        $DBRES = CentreonDBInstance::getConfInstance()->query($rq);
+        $DBRES = CentreonDBInstance::getDbCentreonInstance()->query($rq);
         while ($row = $DBRES->fetchRow()) {
             $this->localhostTab[$row['id']] = "1";
         }
@@ -80,7 +92,7 @@ class CentreonExternalCommand
          * Init GMT classes
          */
         $this->GMT = new CentreonGMT();
-        $this->GMT->getMyGMTFromSession(session_id(), CentreonDBInstance::getConfInstance());
+        $this->GMT->getMyGMTFromSession(session_id());
 
         if (!is_null($centreon)) {
             $this->userId = $centreon->user->get_id();
@@ -90,33 +102,34 @@ class CentreonExternalCommand
 
     /**
      * @param $newUserId
+     *
+     * @return void
      */
-    public function setUserId($newUserId)
+    public function setUserId($newUserId): void
     {
         $this->userId = $newUserId;
     }
 
     /**
      * @param $newUserAlias
+     *
+     * @return void
      */
-    public function setUserAlias($newUserAlias)
+    public function setUserAlias($newUserAlias): void
     {
         $this->userAlias = $newUserAlias;
     }
 
     /**
-     *
      * Write command in Nagios or Centcore Pipe.
+     *
+     * @return int
      */
     public function write()
     {
         global $centreon;
 
-        if (!defined('_CENTREON_VARLIB_')) {
-            $varlib = "/var/lib/centreon";
-        } else {
-            $varlib = _CENTREON_VARLIB_;
-        }
+        $varlib = !defined('_CENTREON_VARLIB_') ? "/var/lib/centreon" : _CENTREON_VARLIB_;
 
         $str_remote = "";
         $return_remote = 0;
@@ -136,16 +149,19 @@ class CentreonExternalCommand
             $return_remote = ($result !== false) ? 0 : 1;
         }
 
-        $this->cmdTab = array();
-        $this->pollerTab = array();
+        $this->cmdTab = [];
+        $this->pollerTab = [];
 
         return $return_remote;
     }
 
-    /*
-     *  set basic process commands
+    /**
+     * @param $command
+     * @param $poller
+     *
+     * @return void
      */
-    public function setProcessCommand($command, $poller)
+    public function setProcessCommand($command, $poller): void
     {
         if ($this->debug) {
             print "POLLER: $poller<br>";
@@ -156,11 +172,12 @@ class CentreonExternalCommand
         $this->pollerTab[] = $poller;
     }
 
-    /*
-     *  set list of external commands
+    /**
+     * set list of external commands
+     *
+     * @return void
      */
-
-    private function setExternalCommandList()
+    private function setExternalCommandList(): void
     {
         # Services Actions
         $this->actions["service_checks"][0] = "ENABLE_SVC_CHECK";
@@ -269,10 +286,12 @@ class CentreonExternalCommand
     }
 
     /**
-     *
      * Get poller id where the host is hosted
+     *
      * @param null $host
+     *
      * @return int
+     * @throws PDOException
      * @internal param $pearDB
      * @internal param $host_name
      */
@@ -281,7 +300,7 @@ class CentreonExternalCommand
         if (!isset($host)) {
             return 0;
         }
-        $db = CentreonDBInstance::getMonInstance();
+        $db = CentreonDBInstance::getDbCentreonStorageInstance();
         /*
          * Check if $host is an id or a name
          */
@@ -307,15 +326,13 @@ class CentreonExternalCommand
             $statement->execute();
         }
         $row = $statement->fetchRow();
-        if (isset($row['instance_id'])) {
-            return $row['instance_id'];
-        }
-        return 0;
+        return $row['instance_id'] ?? 0;
     }
 
     /**
-     *
      * get list of external commands
+     *
+     * @return array
      */
     public function getExternalCommandList()
     {
@@ -328,8 +345,10 @@ class CentreonExternalCommand
 
     /**
      * @param $hostName
+     *
+     * @throws PDOException
      */
-    public function scheduleForcedCheckHost($hostName)
+    public function scheduleForcedCheckHost($hostName): void
     {
         $pollerId = $this->getPollerID($hostName);
 
@@ -344,8 +363,10 @@ class CentreonExternalCommand
     /**
      * @param $hostName
      * @param $serviceDescription
+     *
+     * @throws PDOException
      */
-    public function scheduleForcedCheckService($hostName, $serviceDescription)
+    public function scheduleForcedCheckService($hostName, $serviceDescription): void
     {
         $pollerId = $this->getPollerID($hostName);
 
@@ -363,12 +384,13 @@ class CentreonExternalCommand
 
     /**
      * @param $hostName
-     * @param $serviceDescription
      * @param $sticky
      * @param $notify
      * @param $persistent
      * @param $author
      * @param $comment
+     *
+     * @throws PDOException
      */
     public function acknowledgeHost(
         $hostName,
@@ -377,7 +399,7 @@ class CentreonExternalCommand
         $persistent,
         $author,
         $comment
-    ) {
+    ): void {
         $pollerId = $this->getPollerID($hostName);
 
         $this->setProcessCommand(
@@ -397,6 +419,8 @@ class CentreonExternalCommand
      * @param $persistent
      * @param $author
      * @param $comment
+     *
+     * @throws PDOException
      */
     public function acknowledgeService(
         $hostName,
@@ -406,7 +430,7 @@ class CentreonExternalCommand
         $persistent,
         $author,
         $comment
-    ) {
+    ): void {
         $pollerId = $this->getPollerID($hostName);
 
         $this->setProcessCommand(
@@ -419,12 +443,14 @@ class CentreonExternalCommand
     }
 
     /**
-     *
      * Delete acknowledgement.
+     *
      * @param string $type (HOST/SVC)
      * @param array $hosts
+     *
+     * @throws PDOException
      */
-    public function deleteAcknowledgement($type, $hosts = array())
+    public function deleteAcknowledgement($type, $hosts = []): void
     {
         foreach (array_keys($hosts) as $name) {
             $res = preg_split("/\;/", $name);
@@ -438,11 +464,18 @@ class CentreonExternalCommand
         $this->write();
     }
 
-
     /************
      * Downtime
      ***********/
 
+    /**
+     * @param $date
+     * @param $timezone
+     * @param $start
+     *
+     * @return int
+     * @throws Exception
+     */
     private function getDowntimeTimestampFromDate($date = 'now', $timezone = '', $start = true)
     {
         $inputDate = new \DateTime($date . ' GMT');
@@ -483,12 +516,14 @@ class CentreonExternalCommand
     }
 
     /**
-     *
      * Delete downtimes.
+     *
      * @param string $type
      * @param array $hosts
+     *
+     * @throws PDOException
      */
-    public function deleteDowntime($type, $hosts = array())
+    public function deleteDowntime($type, $hosts = []): void
     {
         foreach ($hosts as $key => $value) {
             $res = preg_split("/\;/", $key);
@@ -500,13 +535,18 @@ class CentreonExternalCommand
     }
 
     /**
-     *
      * Add a host downtime
+     *
      * @param string $host
      * @param string $comment
      * @param string $start
      * @param string $end
      * @param int $persistant
+     * @param null $duration
+     * @param bool $withServices
+     * @param string $hostOrCentreonTime
+     *
+     * @throws PDOException
      */
     public function addHostDowntime(
         $host,
@@ -517,7 +557,7 @@ class CentreonExternalCommand
         $duration = null,
         $withServices = false,
         $hostOrCentreonTime = "0"
-    ) {
+    ): void {
         global $centreon;
 
         if (is_null($centreon)) {
@@ -525,7 +565,7 @@ class CentreonExternalCommand
             $centreon = $oreon;
         }
 
-        if (!isset($persistant) || !in_array($persistant, array('0', '1'))) {
+        if (!isset($persistant) || !in_array($persistant, ['0', '1'])) {
             $persistant = '0';
         }
 
@@ -575,14 +615,18 @@ class CentreonExternalCommand
     }
 
     /**
-     *
      * Add Service Downtime
+     *
      * @param string $host
      * @param string $service
      * @param string $comment
      * @param string $start
      * @param string $end
      * @param int $persistant
+     * @param null $duration
+     * @param string $hostOrCentreonTime
+     *
+     * @throws PDOException
      */
     public function addSvcDowntime(
         $host,
@@ -593,7 +637,7 @@ class CentreonExternalCommand
         $persistant,
         $duration = null,
         $hostOrCentreonTime = "0"
-    ) {
+    ): void {
         global $centreon;
 
         if (is_null($centreon)) {
@@ -602,7 +646,7 @@ class CentreonExternalCommand
         }
 
 
-        if (!isset($persistant) || !in_array($persistant, array('0', '1'))) {
+        if (!isset($persistant) || !in_array($persistant, ['0', '1'])) {
             $persistant = '0';
         }
 

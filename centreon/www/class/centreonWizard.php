@@ -34,15 +34,24 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class Centreon_Wizard
+ */
 class Centreon_Wizard
 {
+    /** @var string */
     private $_uuid = null;
+    /** @var string */
     private $_name = null;
-    private $_values = array();
+    /** @var array */
+    private $_values = [];
+    /** @var int */
     private $_lastUpdate = 0;
 
     /**
-     * Constructor
+     * Centreon_Wizard constructor
      *
      * @param string $name The wizard name
      * @param string $uuid The wizard unique id
@@ -58,12 +67,13 @@ class Centreon_Wizard
      * Get values for a step
      *
      * @param int $step The step position
+     *
      * @return array
      */
     public function getValues($step)
     {
         if (false === isset($this->_values[$step])) {
-            return array();
+            return [];
         }
         return $this->_values[$step];
     }
@@ -74,6 +84,7 @@ class Centreon_Wizard
      * @param int $step The step position
      * @param string $name The variable name
      * @param string $default The default value
+     *
      * @return string
      */
     public function getValue($step, $name, $default = '')
@@ -89,11 +100,13 @@ class Centreon_Wizard
      *
      * @param int $step The step position
      * @param array $post The post with values
+     *
+     * @return void
      */
-    public function addValues($step, $post)
+    public function addValues($step, $post): void
     {
         /* Reinit */
-        $this->_values[$step] = array();
+        $this->_values[$step] = [];
         foreach ($post as $key => $value) {
             if (strncmp($key, 'step' . $step . '_', 6) === 0) {
                 $this->_values[$step][str_replace('step' . $step . '_', '', $key)] = $value;
@@ -106,6 +119,7 @@ class Centreon_Wizard
      * Test if the uuid of wizard
      *
      * @param string $uuid The unique id
+     *
      * @return bool
      */
     public function testUuid($uuid)
@@ -118,15 +132,19 @@ class Centreon_Wizard
 
     /**
      * Magic method __sleep
+     *
+     * @return string[]
      */
     public function __sleep()
     {
         $this->_lastUpdate = time();
-        return array('_uuid', '_lastUpdate', '_name', '_values');
+        return ['_uuid', '_lastUpdate', '_name', '_values'];
     }
 
     /**
      * Magic method __wakeup
+     *
+     * @return void
      */
     public function __wakeup()
     {

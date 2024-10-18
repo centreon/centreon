@@ -62,7 +62,7 @@ $status = filter_var(
 
 if (isset($_POST['Search']) || isset($_GET ['Search'])) {
     //saving filters values
-    $centreon->historySearch[$url] = array();
+    $centreon->historySearch[$url] = [];
     $centreon->historySearch[$url]["hostgroups"] = $searchHG;
     $centreon->historySearch[$url]["search"] = $searchS;
     $centreon->historySearch[$url]["template"] = $template;
@@ -76,7 +76,7 @@ if (isset($_POST['Search']) || isset($_GET ['Search'])) {
 }
 
 //Status Filter
-$statusFilter = array(1 => _("Disabled"), 2 => _("Enabled"));
+$statusFilter = [1 => _("Disabled"), 2 => _("Enabled")];
 $sqlFilterCase = "";
 if ($status == 2) {
     $sqlFilterCase = " AND sv.service_activate = '1' ";
@@ -89,8 +89,8 @@ include "./include/common/autoNumLimit.php";
 $rows = 0;
 $tmp = null;
 $tmp2 = null;
-$searchHG = $searchHG ?? "";
-$searchS = $searchS ?? "";
+$searchHG ??= "";
+$searchS ??= "";
 $aclFrom = "";
 $aclCond = "";
 $distinct = "";
@@ -273,36 +273,25 @@ $style = "one";
 
 //select2 Service template
 $route = './api/internal.php?object=centreon_configuration_servicetemplate&action=list';
-$attrServicetemplates = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $route,
-    'multiple' => false,
-    'defaultDataset' => $template,
-    'linkedObject' => 'centreonServicetemplates'
-);
-$form->addElement('select2', 'template', "", array(), $attrServicetemplates);
+$attrServicetemplates = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $route, 'multiple' => false, 'defaultDataset' => $template, 'linkedObject' => 'centreonServicetemplates'];
+$form->addElement('select2', 'template', "", [], $attrServicetemplates);
 //select2 Service Status
 $attrServiceStatus = null;
 if ($status) {
-    $statusDefault = array($statusFilter[$status] => $status);
-    $attrServiceStatus = array(
-        'defaultDataset' => $statusDefault
-    );
+    $statusDefault = [$statusFilter[$status] => $status];
+    $attrServiceStatus = ['defaultDataset' => $statusDefault];
 }
 $form->addElement('select2', 'status', "", $statusFilter, $attrServiceStatus);
 
-$attrBtnSuccess = array(
-    "class" => "btc bt_success",
-    "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"
-);
+$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
 
 
 // Fill a tab with a multidimensional Array we put in $tpl
 $interval_length = $centreon->optGen['interval_length'];
 
-$elemArr = array();
-$fgHostgroup = array("value" => null, "print" => null);
+$elemArr = [];
+$fgHostgroup = ["value" => null, "print" => null];
 
 $centreonToken = createCSRFToken();
 
@@ -337,7 +326,7 @@ for ($i = 0; $service = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
     }
 
     //TPL List
-    $tplArr = array();
+    $tplArr = [];
     $tplStr = null;
     $tplArr = getMyServiceTemplateModels($service["service_template_model_stm_id"]);
     if ($tplArr && count($tplArr)) {
@@ -386,42 +375,23 @@ for ($i = 0; $service = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
         $retry_units = "sec";
     }
 
-    $elemArr[$i] = array(
-        "MenuClass" => "list_" . ($service["nbr"] > 1 ? "three" : $style),
-        "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_name" => CentreonUtils::escapeSecure($service["hg_name"]),
-        "RowMenu_link" => "main.php?p=60102&o=c&hg_id=" . $service['hg_id'],
-        "RowMenu_link2" => "main.php?p=" . $p . "&o=c&service_id=" . $service['service_id'],
-        "RowMenu_parent" => CentreonUtils::escapeSecure($tplStr),
-        "RowMenu_sicon" => $svc_icon,
-        "RowMenu_retry" =>
-            CentreonUtils::escapeSecure("$normal_check_interval $normal_units / $retry_check_interval $retry_units"),
-        "RowMenu_attempts" => CentreonUtils::escapeSecure(
-            getMyServiceField(
-                $service['service_id'],
-                "service_max_check_attempts"
-            )
-        ),
-        "RowMenu_desc" => CentreonUtils::escapeSecure($service["service_description"]),
-        "RowMenu_status" => $service["service_activate"] ? _("Enabled") : _("Disabled"),
-        "RowMenu_badge" => $service["service_activate"] ? "service_ok" : "service_critical",
-        "RowMenu_options" => $moptions,
-        "isServiceSvgFile" => $isServiceSvgFile
-    );
+    $elemArr[$i] = ["MenuClass" => "list_" . ($service["nbr"] > 1 ? "three" : $style), "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => CentreonUtils::escapeSecure($service["hg_name"]), "RowMenu_link" => "main.php?p=60102&o=c&hg_id=" . $service['hg_id'], "RowMenu_link2" => "main.php?p=" . $p . "&o=c&service_id=" . $service['service_id'], "RowMenu_parent" => CentreonUtils::escapeSecure($tplStr), "RowMenu_sicon" => $svc_icon, "RowMenu_retry" =>
+        CentreonUtils::escapeSecure("$normal_check_interval $normal_units / $retry_check_interval $retry_units"), "RowMenu_attempts" => CentreonUtils::escapeSecure(
+        getMyServiceField(
+            $service['service_id'],
+            "service_max_check_attempts"
+        )
+    ), "RowMenu_desc" => CentreonUtils::escapeSecure($service["service_description"]), "RowMenu_status" => $service["service_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $service["service_activate"] ? "service_ok" : "service_critical", "RowMenu_options" => $moptions, "isServiceSvgFile" => $isServiceSvgFile];
 
     $fgHostgroup["print"] ? null : $elemArr[$i]["RowMenu_name"] = null;
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 
 // Different messages we put in the template
 $tpl->assign(
     'msg',
-    array(
-        "addL" => "main.php?p=" . $p . "&o=a",
-        "addT" => _("Add"),
-        "delConfirm" => _("Do you confirm the deletion ?")
-    )
+    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
 );
 
 // Toolbar select
@@ -432,81 +402,59 @@ $tpl->assign(
     }
 </script>
 <?php
-$attrs1 = array(
-    'onchange' => "javascript: " .
-        " var bChecked = isChecked(); " .
-        " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {" .
-        " alert('" . _("Please select one or more items") . "'); return false;} " .
-        "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" .
-        _("Do you confirm the duplication ?") . "')) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('" .
-        _("Do you confirm the deletion ?") . "')) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 6 && confirm('" .
-        _("Are you sure you want to detach the service ?") . "')) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 7 && confirm('" .
-        _("Are you sure you want to detach the service ?") . "')) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 3 || this.form.elements['o1'].selectedIndex == 4 || " .
-        "this.form.elements['o1'].selectedIndex == 5){" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        "this.form.elements['o1'].selectedIndex = 0"
-);
+$attrs1 = ['onchange' => "javascript: " .
+    " var bChecked = isChecked(); " .
+    " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {" .
+    " alert('" . _("Please select one or more items") . "'); return false;} " .
+    "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" .
+    _("Do you confirm the duplication ?") . "')) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('" .
+    _("Do you confirm the deletion ?") . "')) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 6 && confirm('" .
+    _("Are you sure you want to detach the service ?") . "')) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 7 && confirm('" .
+    _("Are you sure you want to detach the service ?") . "')) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 3 || this.form.elements['o1'].selectedIndex == 4 || " .
+    "this.form.elements['o1'].selectedIndex == 5){" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    "this.form.elements['o1'].selectedIndex = 0"];
 $form->addElement(
     'select',
     'o1',
     null,
-    array(
-        null => _("More actions..."),
-        "m" => _("Duplicate"),
-        "d" => _("Delete"),
-        "mc" => _("Mass Change"),
-        "ms" => _("Enable"),
-        "mu" => _("Disable"),
-        "dv" => _("Detach host group services"),
-        "mvH" => _("Move host group's services to hosts")
-    ),
+    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete"), "mc" => _("Mass Change"), "ms" => _("Enable"), "mu" => _("Disable"), "dv" => _("Detach host group services"), "mvH" => _("Move host group's services to hosts")],
     $attrs1
 );
 
-$attrs2 = array(
-    'onchange' => "javascript: " .
-        " var bChecked = isChecked(); " .
-        " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {" .
-        " alert('" . _("Please select one or more items") . "'); return false;} " .
-        "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" .
-        _("Do you confirm the duplication ?") . "')) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('" .
-        _("Do you confirm the deletion ?") . "')) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 6 && confirm('" .
-        _("Are you sure you want to detach the service ?") . "')) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 7 && confirm('" .
-        _("Are you sure you want to detach the service ?") . "')) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 3 || this.form.elements['o2'].selectedIndex == 4 || " .
-        "this.form.elements['o2'].selectedIndex == 5){" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        "this.form.elements['o2'].selectedIndex = 0"
-);
+$attrs2 = ['onchange' => "javascript: " .
+    " var bChecked = isChecked(); " .
+    " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {" .
+    " alert('" . _("Please select one or more items") . "'); return false;} " .
+    "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" .
+    _("Do you confirm the duplication ?") . "')) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('" .
+    _("Do you confirm the deletion ?") . "')) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 6 && confirm('" .
+    _("Are you sure you want to detach the service ?") . "')) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 7 && confirm('" .
+    _("Are you sure you want to detach the service ?") . "')) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 3 || this.form.elements['o2'].selectedIndex == 4 || " .
+    "this.form.elements['o2'].selectedIndex == 5){" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    "this.form.elements['o2'].selectedIndex = 0"];
 $form->addElement(
     'select',
     'o2',
     null,
-    array(
-        null => _("More actions..."),
-        "m" => _("Duplicate"),
-        "d" => _("Delete"),
-        "mc" => _("Mass Change"),
-        "ms" => _("Enable"),
-        "mu" => _("Disable"),
-        "dv" => _("Detach host group services"),
-        "mvH" => _("Move host group's services to hosts")
-    ),
+    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete"), "mc" => _("Mass Change"), "ms" => _("Enable"), "mu" => _("Disable"), "dv" => _("Detach host group services"), "mvH" => _("Move host group's services to hosts")],
     $attrs2
 );
 

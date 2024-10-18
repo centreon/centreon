@@ -122,12 +122,8 @@ while ($r = $res->fetch()) {
     $pearDB->executePreparedQuery($statement, ['contactId' => $r["user_id"]]);
     $rU = $statement->fetch();
     if ($rU["contact_admin"] != "1") {
-        $session_data[$cpt] = array();
-        if ($cpt % 2) {
-            $session_data[$cpt]["class"] = "list_one";
-        } else {
-            $session_data[$cpt]["class"] = "list_two";
-        }
+        $session_data[$cpt] = [];
+        $session_data[$cpt]["class"] = $cpt % 2 ? "list_one" : "list_two";
         $session_data[$cpt]["user_id"] = $r["user_id"];
         $session_data[$cpt]["user_alias"] = $rU["contact_name"];
         $session_data[$cpt]["admin"] = $rU["contact_admin"];
@@ -180,13 +176,12 @@ function setO(_i) {
 }
 </script>
 <?php
-foreach (array('o1', 'o2') as $option) {
-    $attrs = array(
-        'onchange'=>"javascript: " .
-            "if (this.form.elements['" . $option . "'].selectedIndex == 1) " .
-            "{setO(this.form.elements['" . $option . "'].value); submit();} " .
-            "this.form.elements['" . $option . "'].selectedIndex = 0");
-    $form->addElement('select', $option, null, array(null=>_("More actions..."), "u"=>_("Reload ACL")), $attrs);
+foreach (['o1', 'o2'] as $option) {
+    $attrs = ['onchange'=>"javascript: " .
+        "if (this.form.elements['" . $option . "'].selectedIndex == 1) " .
+        "{setO(this.form.elements['" . $option . "'].value); submit();} " .
+        "this.form.elements['" . $option . "'].selectedIndex = 0"];
+    $form->addElement('select', $option, null, [null=>_("More actions..."), "u"=>_("Reload ACL")], $attrs);
     $o1 = $form->getElement($option);
     $o1->setValue(null);
 }

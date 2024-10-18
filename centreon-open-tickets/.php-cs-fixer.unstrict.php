@@ -38,4 +38,5 @@ $finder = Finder::create()
 return (new Config())
     ->setFinder($finder)
     ->setRiskyAllowed(false) // 👈 risky NOT allowed
+    ->setUsingCache(false)
     ->setRules(PhpCsFixerRuleSet::getRulesSafe());

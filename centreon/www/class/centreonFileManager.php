@@ -33,40 +33,57 @@
  *
  */
 
+use Pimple\Container;
+
 /**
- * Created by PhpStorm.
- * User: loic
- * Date: 31/10/17
- * Time: 11:55
+ * Class
+ *
+ * @class CentreonFileManager
  */
 class CentreonFileManager implements iFileManager
 {
+    /** @var mixed */
     protected $rawFile;
+    /** @var Container */
     protected $dependencyInjector;
+    /** @var string */
     protected $comment;
+    /** @var mixed */
     protected $tmpFile;
+    /** @var */
     protected $mediaPath;
+    /** @var string */
     protected $destinationPath;
+    /** @var mixed */
     protected $destinationDir;
+    /** @var mixed */
     protected $originalFile;
+    /** @var mixed */
     protected $fileName;
+    /** @var mixed */
     protected $size;
+    /** @var array|string */
     protected $extension;
+    /** @var string */
     protected $newFile;
+    /** @var string */
     protected $completePath;
-    protected $legalExtensions;
-    protected $legalSize;
+    /** @var array */
+    protected $legalExtensions = [];
+    /** @var int */
+    protected $legalSize = 500000;
 
     /**
-     * centreonFileManager constructor.
-     * @param \Pimple\Container $dependencyInjector
+     * CentreonFileManager constructor
+     *
+     * @param Container $dependencyInjector
      * @param $rawFile
      * @param $mediaPath
      * @param $destinationDir
      * @param string $comment
      */
     public function __construct(
-        \Pimple\Container $dependencyInjector,
+        Container $dependencyInjector,
         $rawFile,
         $mediaPath,
         $destinationDir,
@@ -87,12 +104,10 @@ class CentreonFileManager implements iFileManager
         $this->fileName = $this->secureName(basename($this->originalFile, '.' . $this->extension));
         $this->newFile = $this->fileName . '.' . $this->extension;
         $this->completePath = $this->destinationPath . '/' . $this->newFile;
-        $this->legalExtensions = array();
-        $this->legalSize = 500000;
     }
 
     /**
-     * @return mixed
+     * @return array|bool|void
      */
     public function upload()
     {
@@ -123,31 +138,12 @@ class CentreonFileManager implements iFileManager
 
     /**
      * @param $text
-     * @return mixed
+     *
+     * @return array|string|string[]|null
      */
     protected function secureName($text)
     {
-        $utf8 = array(
-            '/[áàâãªä]/u' => 'a',
-            '/[ÁÀÂÃÄ]/u' => 'A',
-            '/[ÍÌÎÏ]/u' => 'I',
-            '/[íìîï]/u' => 'i',
-            '/[éèêë]/u' => 'e',
-            '/[ÉÈÊË]/u' => 'E',
-            '/[óòôõºö]/u' => 'o',
-            '/[ÓÒÔÕÖ]/u' => 'O',
-            '/[úùûü]/u' => 'u',
-            '/[ÚÙÛÜ]/u' => 'U',
-            '/ç/' => 'c',
-            '/Ç/' => 'C',
-            '/ñ/' => 'n',
-            '/Ñ/' => 'N',
-            '/–/' => '-',
-            '/[“”«»„"’‘‹›‚]/u' => '',
-            '/ /' => '',
-            '/\//' => '',
-            '/\'/' => '',
-        );
+        $utf8 = ['/[áàâãªä]/u' => 'a', '/[ÁÀÂÃÄ]/u' => 'A', '/[ÍÌÎÏ]/u' => 'I', '/[íìîï]/u' => 'i', '/[éèêë]/u' => 'e', '/[ÉÈÊË]/u' => 'E', '/[óòôõºö]/u' => 'o', '/[ÓÒÔÕÖ]/u' => 'O', '/[úùûü]/u' => 'u', '/[ÚÙÛÜ]/u' => 'U', '/ç/' => 'c', '/Ç/' => 'C', '/ñ/' => 'n', '/Ñ/' => 'N', '/–/' => '-', '/[“”«»„"’‘‹›‚]/u' => '', '/ /' => '', '/\//' => '', '/\'/' => ''];
         return preg_replace(array_keys($utf8), array_values($utf8), $text);
     }
 
@@ -201,7 +197,8 @@ class CentreonFileManager implements iFileManager
     }
 
     /**
-     * @param $dir
+     *
+     * @return void
      */
     protected function dirExist($dir)
     {
@@ -211,7 +208,7 @@ class CentreonFileManager implements iFileManager
     }
 
     /**
-     * @return mixed
+     * @return void
      */
     protected function moveFile()
     {

@@ -45,7 +45,7 @@ $viewObj = new CentreonCustomView($centreon, $db);
 $widgetObj = new CentreonWidget($centreon, $db);
 $title = "";
 $action = null;
-$defaultTab = array();
+$defaultTab = [];
 if ($_REQUEST['action'] == "load") {
     $title = _("Load a public view");
     $action = "load";
@@ -58,7 +58,7 @@ if (!isset($action)) {
 
 $query = "select * from custom_views where public = 1";
 $DBRES = $db->query($query);
-$arrayView = array();
+$arrayView = [];
 $arrayView[-1] = "";
 while ($row = $DBRES->fetchRow()) {
     $arrayView[$row['custom_view_id']] = $row['name'];
@@ -75,9 +75,9 @@ $template = initSmartyTpl($path, $template, "./");
 /**
  * Field templates
  */
-$attrsText = array("size" => "30");
-$attrsAdvSelect = array("style" => "width: 200px; height: 150px;");
-$attrsTextarea = array("rows" => "5", "cols" => "40");
+$attrsText = ["size" => "30"];
+$attrsAdvSelect = ["style" => "width: 200px; height: 150px;"];
+$attrsTextarea = ["rows" => "5", "cols" => "40"];
 $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />' .
     '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
@@ -92,10 +92,10 @@ $form->addElement('select', 'viewLoad', _("Public views list"), $arrayView);
 /**
  * Submit button
  */
-$form->addElement('button', 'submit', _("Submit"), array("onClick" => "submitData();"));
+$form->addElement('button', 'submit', _("Submit"), ["onClick" => "submitData();"]);
 $form->addElement('reset', 'reset', _("Reset"));
 $form->addElement('hidden', 'action');
-$form->setDefaults(array('action' => $action));
+$form->setDefaults(['action' => $action]);
 
 
 /**

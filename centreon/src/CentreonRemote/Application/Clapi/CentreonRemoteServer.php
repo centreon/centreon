@@ -44,7 +44,7 @@ class CentreonRemoteServer implements CentreonClapiServiceInterface
 
     public static function getName() : string
     {
-        return (new \ReflectionClass(__CLASS__))->getShortName();
+        return (new \ReflectionClass(self::class))->getShortName();
     }
 
     /**
@@ -69,7 +69,8 @@ class CentreonRemoteServer implements CentreonClapiServiceInterface
             'remoteHttpPort' => null,
             'remoteNoCheckCertificate' => false,
         ];
-        $urlString = $noProxy = '';
+        $urlString = '';
+        $noProxy = '';
 
         // Check CLAPI
         $options = explode(';', $parametersString);

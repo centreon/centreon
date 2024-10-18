@@ -35,7 +35,7 @@
 
 ini_set("display_errors", "Off");
 
-require_once realpath(dirname(__FILE__) . "/../../../config/centreon.config.php");
+require_once realpath(__DIR__ . "/../../../config/centreon.config.php");
 require_once _CENTREON_PATH_ . "www/class/centreonSession.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreon.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonDB.class.php";
@@ -56,7 +56,7 @@ if (isset($_SESSION['centreon'])) {
     $currentTime = $centreon->CentreonGMT->getCurrentTime(time(), $centreon->user->getMyGMT());
 
     $stmt = $pearDB->prepare("SELECT user_id FROM session WHERE session_id = ?");
-    $stmt->execute(array($sid));
+    $stmt->execute([$sid]);
 
     if ($stmt->rowCount()) {
         $buffer->writeElement("state", "ok");

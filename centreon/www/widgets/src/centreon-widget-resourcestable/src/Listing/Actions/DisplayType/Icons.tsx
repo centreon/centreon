@@ -8,6 +8,7 @@ import { DisplayType } from '../../models';
 interface Props {
   displayType: DisplayType;
   isActive: boolean;
+  disabled: boolean;
 }
 
 const getViewByService = (color, backgroundColor): string =>
@@ -19,16 +20,27 @@ const getViewByHost = (color, backgroundColor): string =>
 const getViewByAll = (color, backgroundColor): string =>
   `<svg width="24" height="24" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="${backgroundColor}" /><path d="M6.964-5.178H2.627L1.654-2.443H.246L4.2-12.924H5.393L9.352-2.443h-1.4ZM3.04-6.316H6.558L4.8-11.218Zm9.19,3.873H10.915V-13.5H12.23Zm3.795,0H14.71V-13.5h1.315Z" transform="translate(3.865 19.5)" fill="${color}"/></svg>`;
 
-const DisplayTypeIcon = ({ displayType, isActive }: Props): JSX.Element => {
+const DisplayTypeIcon = ({
+  displayType,
+  isActive,
+  disabled
+}: Props): JSX.Element => {
   const { palette } = useTheme();
 
-  const color = isActive ? palette.common.white : palette.primary.main;
-  const backgroundColor = isActive ? palette.primary.main : 'none';
+  const getColor = () => {
+    if (disabled) {
+      return palette.action.disabled;
+    }
+
+    return isActive ? palette.common.white : palette.primary.main;
+  };
+
+  const backgroundColor = isActive && !disabled ? palette.primary.main : 'none';
 
   if (equals(displayType, DisplayType.Host)) {
     return (
       <SvgIcon height="24" viewBox="0 0 24 24" width="24">
-        {parse(getViewByHost(color, backgroundColor))}
+        {parse(getViewByHost(getColor(), backgroundColor))}
       </SvgIcon>
     );
   }
@@ -36,14 +48,14 @@ const DisplayTypeIcon = ({ displayType, isActive }: Props): JSX.Element => {
   if (equals(displayType, DisplayType.Service)) {
     return (
       <SvgIcon height="24" viewBox="0 0 24 24" width="24">
-        {parse(getViewByService(color, backgroundColor))}
+        {parse(getViewByService(getColor(), backgroundColor))}
       </SvgIcon>
     );
   }
 
   return (
     <SvgIcon height="24" viewBox="0 0 24 24" width="24">
-      {parse(getViewByAll(color, backgroundColor))}
+      {parse(getViewByAll(getColor(), backgroundColor))}
     </SvgIcon>
   );
 };

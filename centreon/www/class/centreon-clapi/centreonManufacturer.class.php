@@ -35,47 +35,56 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_Manufacturer;
+use Exception;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonObject.class.php";
 require_once "centreonUtils.class.php";
 require_once "Centreon/Object/Manufacturer/Manufacturer.php";
 
 /**
+ * Class
  *
- * @author sylvestre
+ * @class CentreonManufacturer
+ * @package CentreonClapi
  */
 class CentreonManufacturer extends CentreonObject
 {
-    const ORDER_UNIQUENAME = 0;
-    const ORDER_ALIAS = 1;
-    const FILE_NOT_FOUND = "Could not find file";
+    public const ORDER_UNIQUENAME = 0;
+    public const ORDER_ALIAS = 1;
+    public const FILE_NOT_FOUND = "Could not find file";
 
     /**
-     * Constructor
+     * CentreonManufacturer constructor
      *
-     * @return void
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
-        $this->object = new \Centreon_Object_Manufacturer($dependencyInjector);
-        $this->params = array();
-        $this->insertParams = array('name', 'alias');
+        $this->object = new Centreon_Object_Manufacturer($dependencyInjector);
+        $this->params = [];
+        $this->insertParams = ['name', 'alias'];
         $this->action = "VENDOR";
         $this->nbOfCompulsoryParams = count($this->insertParams);
     }
 
     /**
      * @param $parameters
-     * @return mixed|void
+     * @return void
      * @throws CentreonClapiException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $addParams = array();
+        $addParams = [];
         $addParams[$this->object->getUniqueLabelField()] = $params[self::ORDER_UNIQUENAME];
         $addParams['alias'] = $params[self::ORDER_ALIAS];
         $this->params = array_merge($this->params, $addParams);
@@ -85,14 +94,16 @@ class CentreonManufacturer extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = []): void
     {
-        $filters = array();
+        $filters = [];
         if (isset($parameters)) {
-            $filters = array($this->object->getUniqueLabelField() => "%" . $parameters . "%");
+            $filters = [$this->object->getUniqueLabelField() => "%" . $parameters . "%"];
         }
-        $params = array("id", "name", "alias");
+        $params = ["id", "name", "alias"];
         parent::show($params, $filters);
     }
 
@@ -107,7 +118,7 @@ class CentreonManufacturer extends CentreonObject
         if (count($params) < self::NB_UPDATE_PARAMS) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $updateParams = array($params[1] => $params[2]);
+        $updateParams = [$params[1] => $params[2]];
         $updateParams['objectId'] = $this->getId($params[0]);
         return $updateParams;
     }
@@ -118,7 +129,7 @@ class CentreonManufacturer extends CentreonObject
      * @param null $parameters
      * @throws CentreonClapiException
      */
-    public function generatetraps($parameters = null)
+    public function generatetraps($parameters = null): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 2) {
@@ -148,7 +159,7 @@ class CentreonManufacturer extends CentreonObject
      */
     public function getName($id)
     {
-        $name = $this->object->getParameters($id, array($this->object->getUniqueLabelField()));
+        $name = $this->object->getParameters($id, [$this->object->getUniqueLabelField()]);
         return $name[$this->object->getUniqueLabelField()];
     }
 
@@ -161,7 +172,7 @@ class CentreonManufacturer extends CentreonObject
      */
     public function getId($name)
     {
-        $ids = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($name));
+        $ids = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$name]);
         if (!count($ids)) {
             throw new CentreonClapiException("Unknown instance");
         }

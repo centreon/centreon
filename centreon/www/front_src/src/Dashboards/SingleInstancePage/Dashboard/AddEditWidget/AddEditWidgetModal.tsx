@@ -23,11 +23,12 @@ import UnsavedChanges from './UnsavedChanges';
 import {
   Preview,
   WidgetData,
+  WidgetMessage,
   WidgetProperties,
   WidgetSelection
 } from './WidgetProperties';
 import { useAddWidgetStyles } from './addWidget.styles';
-import { Widget } from './models';
+import type { Widget } from './models';
 import useValidationSchema from './useValidationSchema';
 import useWidgetForm from './useWidgetModal';
 
@@ -125,6 +126,7 @@ const AddWidgetModal = (): JSX.Element | null => {
                       <Preview />
                     </Paper>
                     <WidgetData />
+                    <WidgetMessage />
                   </div>
                 </div>
               )}

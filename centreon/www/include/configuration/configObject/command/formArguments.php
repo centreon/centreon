@@ -33,7 +33,7 @@
  *
  */
 
-require_once realpath(dirname(__FILE__) . "/../../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
 
 require_once _CENTREON_PATH_ . "www/class/centreonSession.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreon.class.php";
@@ -51,7 +51,7 @@ if (!isset($centreon)) {
 $centreonLang = new CentreonLang(_CENTREON_PATH_, $centreon);
 $centreonLang->bindLang();
 
-$args = array();
+$args = [];
 $str = "";
 $nb_arg = 0;
 if (isset($_GET['cmd_line']) && $_GET['cmd_line']) {
@@ -75,10 +75,10 @@ if (isset($_GET['textArea']) && $_GET['textArea']) {
 
 $path = _CENTREON_PATH_ . "/www/include/configuration/configObject/command/";
 
-$attrsText = array("size" => "30");
-$attrsText2 = array("size" => "60");
-$attrsAdvSelect = array("style" => "width: 200px; height: 100px;");
-$attrsTextarea = array("rows" => "5", "cols" => "40");
+$attrsText = ["size" => "30"];
+$attrsText2 = ["size" => "60"];
+$attrsAdvSelect = ["style" => "width: 200px; height: 100px;"];
+$attrsTextarea = ["rows" => "5", "cols" => "40"];
 
 /*Basic info */
 $form = new HTML_QuickFormCustom('Form', 'post');
@@ -89,19 +89,13 @@ $subS = $form->addElement(
     'button',
     'submitSaveAdd',
     _("Save"),
-    array(
-        "onClick" => "setDescriptions();",
-        "class" => "btc bt_success"
-    )
+    ["onClick" => "setDescriptions();", "class" => "btc bt_success"]
 );
 $subS = $form->addElement(
     'button',
     'close',
     _("Close"),
-    array(
-        "onClick" => "closeBox();",
-        "class" => "btc bt_default"
-    )
+    ["onClick" => "closeBox();", "class" => "btc bt_default"]
 );
 
 /*
@@ -119,8 +113,8 @@ $tpl->setForceCompile(true);
 $tpl->setAutoLiteral(false);
 
 $tpl->assign('nb_arg', $nb_arg);
-$dummyTab = array();
-$defaultDesc = array();
+$dummyTab = [];
+$defaultDesc = [];
 
 for ($i = 1; $i <= $nb_arg; $i++) {
     $dummyTab[$i] = $matches[1][$i - 1];

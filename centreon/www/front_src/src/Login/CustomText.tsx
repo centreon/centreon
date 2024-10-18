@@ -12,6 +12,7 @@ const CustomText = ({ loginPageCustomisation }: Props): JSX.Element => (
     editorState={loginPageCustomisation.customText || undefined}
     minInputHeight={0}
     namespace={`Preview${loginPageCustomisation.textPosition}`}
+    disabled
   />
 );
 

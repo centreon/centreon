@@ -38,38 +38,39 @@ require_once __DIR__ . '/webService.class.php';
 require_once __DIR__ . '/../../class/centreonDB.class.php';
 require_once __DIR__ . '/../../class/centreonContact.class.php';
 
+/**
+ * Class
+ *
+ * @class CentreonTopCounter
+ */
 class CentreonTopCounter extends CentreonWebService
 {
-    /**
-     * @var CentreonDB
-     */
+    /** @var CentreonDB */
     protected $pearDBMonitoring;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $timeUnit = 60;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $refreshTime;
 
+    /** @var bool */
     protected $hasAccessToTopCounter = false;
 
+    /** @var bool */
     protected $hasAccessToPollers = false;
 
+    /** @var bool */
     protected $hasAccessToProfile = false;
 
+    /** @var bool */
     protected $soundNotificationsEnabled = false;
 
-    /**
-     * @var Centreon
-     */
+    /** @var Centreon */
     protected $centreon;
 
     /**
-     * CentreonTopCounter constructor.
+     * CentreonTopCounter constructor
      * @throws Exception
      */
     public function __construct()
@@ -90,8 +91,9 @@ class CentreonTopCounter extends CentreonWebService
      * Get refresh interval of top counter
      *
      * @return void
+     * @throws PDOException
      */
-    private function initRefreshInterval()
+    private function initRefreshInterval(): void
     {
         $refreshInterval = 60;
 
@@ -105,9 +107,9 @@ class CentreonTopCounter extends CentreonWebService
     }
 
     /**
-     * @throws RestUnauthorizedException
+     * @return void
      */
-    private function checkAccess()
+    private function checkAccess(): void
     {
         if ($this->centreon->user->access->admin == 0) {
             $tabActionACL = $this->centreon->user->access->getActions();
@@ -137,6 +139,8 @@ class CentreonTopCounter extends CentreonWebService
      * The current time of the server
      *
      * Method GET
+     *
+     * @return array
      */
     public function getClock()
     {
@@ -144,40 +148,40 @@ class CentreonTopCounter extends CentreonWebService
             ? null
             : $this->centreon->user->lang;
 
-        return array(
-            'time' => time(),
-            'locale' => $locale,
-            'timezone' => $this->centreon->CentreonGMT->getActiveTimezone($this->centreon->user->gmt)
-        );
+        return ['time' => time(), 'locale' => $locale, 'timezone' => $this->centreon->CentreonGMT->getActiveTimezone($this->centreon->user->gmt)];
     }
 
     /**
      * If the user must be disconnected
      *
      * Method GET
+     *
+     * @return bool[]
+     * @throws CentreonDbException
      */
     public function getAutologout()
     {
         $logout = true;
         if (isset($_SESSION['centreon'])) {
             $query = $this->pearDB->prepare('SELECT user_id FROM session WHERE session_id = ?');
-            $res = $this->pearDB->execute($query, array(session_id()));
+            $res = $this->pearDB->execute($query, [session_id()]);
             if ($res->rowCount()) {
                 $logout = false;
             }
         }
 
-        return array(
-            'autologout' => $logout
-        );
+        return ['autologout' => $logout];
     }
 
     /**
      * Get the user information
      *
      * Method PUT
+     *
+     * @return void
+     * @throws PDOException
      */
-    public function putAutoLoginToken()
+    public function putAutoLoginToken(): void
     {
         $userId = $this->arguments['userId'];
         $autoLoginKey = $this->arguments['token'];
@@ -189,7 +193,7 @@ class CentreonTopCounter extends CentreonWebService
         $res = $stmt->execute();
 
         if (!$res) {
-            throw new \Exception('Error while update autologinKey ' . $autoLoginKey);
+            throw new Exception('Error while update autologinKey ' . $autoLoginKey);
         }
 
         /**
@@ -202,6 +206,10 @@ class CentreonTopCounter extends CentreonWebService
      * Get the user information
      *
      * Method GET
+     *
+     * @return array
+     * @throws RestInternalServerErrorException
+     * @throws RestUnauthorizedException
      */
     public function getUser()
     {
@@ -210,19 +218,15 @@ class CentreonTopCounter extends CentreonWebService
             : $this->centreon->user->lang;
         $autoLoginKey = null;
 
-        if (isset($_SESSION['disable_sound'])) {
-            $this->soundNotificationsEnabled = !$_SESSION['disable_sound'];
-        } else {
-            $this->soundNotificationsEnabled = true;
-        }
+        $this->soundNotificationsEnabled = isset($_SESSION['disable_sound']) ? !$_SESSION['disable_sound'] : true;
 
         // Is the autologin feature enabled ?
         try {
             $res = $this->pearDB->query(
                 'SELECT value FROM options WHERE options.key = "enable_autologin"'
             );
-        } catch (\Exception $e) {
-            throw new \RestInternalServerErrorException('Error getting the user.');
+        } catch (Exception $e) {
+            throw new RestInternalServerErrorException('Error getting the user.');
         }
 
         $rowEnableShortcut = $res->fetch();
@@ -232,8 +236,8 @@ class CentreonTopCounter extends CentreonWebService
             $res = $this->pearDB->query(
                 'SELECT value FROM options WHERE options.key = "display_autologin_shortcut"'
             );
-        } catch (\Exception $e) {
-            throw new \RestInternalServerErrorException('Error getting the user.');
+        } catch (Exception $e) {
+            throw new RestInternalServerErrorException('Error getting the user.');
         }
 
         $rowEnableAutoLogin = $res->fetch();
@@ -251,14 +255,14 @@ class CentreonTopCounter extends CentreonWebService
                 $res = $this->pearDB->prepare(
                     'SELECT contact_autologin_key FROM contact WHERE contact_id = :userId'
                 );
-                $res->bindValue(':userId', (int) $this->centreon->user->user_id, \PDO::PARAM_INT);
+                $res->bindValue(':userId', (int) $this->centreon->user->user_id, PDO::PARAM_INT);
                 $res->execute();
-            } catch (\Exception $e) {
-                throw new \RestInternalServerErrorException('Error getting the user.');
+            } catch (Exception $e) {
+                throw new RestInternalServerErrorException('Error getting the user.');
             }
 
             if ($res->rowCount() === 0) {
-                throw new \RestUnauthorizedException('User does not exist.');
+                throw new RestUnauthorizedException('User does not exist.');
             }
 
             $row = $res->fetch();
@@ -284,6 +288,7 @@ class CentreonTopCounter extends CentreonWebService
      * int : number of seconds before expiration
      *
      * @return int|null
+     * @throws PDOException
      */
     private function getPasswordRemainingTime(): ?int
     {
@@ -314,30 +319,19 @@ class CentreonTopCounter extends CentreonWebService
      * Get the pollers status
      *
      * Method GET
+     *
+     * @return array
+     * @throws RestInternalServerErrorException
+     * @throws RestUnauthorizedException
      */
     public function getPollersStatus()
     {
         if (!$this->hasAccessToPollers) {
-            throw new \RestUnauthorizedException("You're not authorized to access poller datas");
+            throw new RestUnauthorizedException("You're not authorized to access poller datas");
         }
 
         $pollers = $this->pollersStatusList();
-        $result = array(
-            'latency' => array(
-                'warning' => 0,
-                'critical' => 0
-            ),
-            'stability' => array(
-                'warning' => 0,
-                'critical' => 0
-            ),
-            'database' => array(
-                'warning' => 0,
-                'critical' => 0
-            ),
-            'total' => count($pollers),
-            'refreshTime' => $this->refreshTime
-        );
+        $result = ['latency' => ['warning' => 0, 'critical' => 0], 'stability' => ['warning' => 0, 'critical' => 0], 'database' => ['warning' => 0, 'critical' => 0], 'total' => count($pollers), 'refreshTime' => $this->refreshTime];
 
         foreach ($pollers as $poller) {
             if ($poller['stability'] === 1) {
@@ -365,12 +359,16 @@ class CentreonTopCounter extends CentreonWebService
      * Get the list of pollers by status type
      *
      * Method GET
+     *
+     * @return array
+     * @throws RestBadRequestException
+     * @throws RestInternalServerErrorException
      */
     public function getPollers()
     {
         $listType = ['configuration', 'stability', 'database', 'latency'];
         if (!isset($this->arguments['type']) || !in_array($this->arguments['type'], $listType)) {
-            throw new \RestBadRequestException('Missing type argument or bad type name.');
+            throw new RestBadRequestException('Missing type argument or bad type name.');
         }
 
         $result = [
@@ -389,12 +387,7 @@ class CentreonTopCounter extends CentreonWebService
             $changeStateServers = getChangeState($changeStateServers);
             foreach ($pollers as $poller) {
                 if ($poller['updated']) {
-                    $result['pollers'][] = array(
-                        'id' => $poller['id'],
-                        'name' => $poller['name'],
-                        'status' => 1,
-                        'information' => ''
-                    );
+                    $result['pollers'][] = ['id' => $poller['id'], 'name' => $poller['name'], 'status' => 1, 'information' => ''];
                 }
             }
         } else {
@@ -410,12 +403,7 @@ class CentreonTopCounter extends CentreonWebService
                     $info = $poller[$type]['time'];
                 }
                 if ($state > 0) {
-                    $result['pollers'][] = array(
-                        'id' => $poller['id'],
-                        'name' => $poller['name'],
-                        'status' => $state,
-                        'information' => $info
-                    );
+                    $result['pollers'][] = ['id' => $poller['id'], 'name' => $poller['name'], 'status' => $state, 'information' => $info];
                 }
             }
         }
@@ -428,105 +416,51 @@ class CentreonTopCounter extends CentreonWebService
      * Get the list of pollers with problems
      *
      * Method GET
+     *
+     * @return array
+     * @throws RestInternalServerErrorException
+     * @throws RestUnauthorizedException
      */
     public function getPollersListIssues()
     {
         if (!$this->hasAccessToPollers) {
-            throw new \RestUnauthorizedException(_("You're not authorized to access poller data"));
+            throw new RestUnauthorizedException(_("You're not authorized to access poller data"));
         }
 
         $pollers = $this->pollersStatusList();
-        $result = array(
-            'issues' => array(
-                'latency' => array(
-                    'warning' => array(
-                        'poller' => array(),
-                        'total' => 0
-                    ),
-                    'critical' => array(
-                        'poller' => array(),
-                        'total' => 0
-                    ),
-                    'total' => 0
-                ),
-                'stability' => array(
-                    'warning' => array(
-                        'poller' => array(),
-                        'total' => 0
-                    ),
-                    'critical' => array(
-                        'poller' => array(),
-                        'total' => 0
-                    ),
-                    'total' => 0
-                ),
-                'database' => array(
-                    'warning' => array(
-                        'poller' => array(),
-                        'total' => 0
-                    ),
-                    'critical' => array(
-                        'poller' => array(),
-                        'total' => 0
-                    ),
-                    'total' => 0
-                )
-            ),
-            'total' => count($pollers),
-            'refreshTime' => $this->refreshTime
-        );
-
-        $staWar = $staCri = $datWar = $datCri = $latWar = $latCri = 0;
+        $result = ['issues' => ['latency' => ['warning' => ['poller' => [], 'total' => 0], 'critical' => ['poller' => [], 'total' => 0], 'total' => 0], 'stability' => ['warning' => ['poller' => [], 'total' => 0], 'critical' => ['poller' => [], 'total' => 0], 'total' => 0], 'database' => ['warning' => ['poller' => [], 'total' => 0], 'critical' => ['poller' => [], 'total' => 0], 'total' => 0]], 'total' => count($pollers), 'refreshTime' => $this->refreshTime];
+        $staWar = 0;
+        $staCri = 0;
+        $datWar = 0;
+        $datCri = 0;
+        $latWar = 0;
+        $latCri = 0;
 
         foreach ($pollers as $poller) {
             //stability
             if ($poller['stability'] === 1) {
-                $result['issues']['stability']['warning']['poller'][] = array(
-                    'id' => $poller['id'],
-                    'name' => $poller['name'],
-                    'since' => ''
-                );
+                $result['issues']['stability']['warning']['poller'][] = ['id' => $poller['id'], 'name' => $poller['name'], 'since' => ''];
                 $staWar++;
             } elseif ($poller['stability'] === 2) {
-                $result['issues']['stability']['critical']['poller'][] = array(
-                    'id' => $poller['id'],
-                    'name' => $poller['name'],
-                    'since' => ''
-                );
+                $result['issues']['stability']['critical']['poller'][] = ['id' => $poller['id'], 'name' => $poller['name'], 'since' => ''];
                 $staCri++;
             }
 
             //database
             if ($poller['database']['state'] === 1) {
-                $result['issues']['database']['warning']['poller'][] = array(
-                    'id' => $poller['id'],
-                    'name' => $poller['name'],
-                    'since' => $poller['database']['time']
-                );
+                $result['issues']['database']['warning']['poller'][] = ['id' => $poller['id'], 'name' => $poller['name'], 'since' => $poller['database']['time']];
                 $datWar++;
             } elseif ($poller['database']['state'] === 2) {
-                $result['issues']['database']['critical']['poller'][] = array(
-                    'id' => $poller['id'],
-                    'name' => $poller['name'],
-                    'since' => $poller['database']['time']
-                );
+                $result['issues']['database']['critical']['poller'][] = ['id' => $poller['id'], 'name' => $poller['name'], 'since' => $poller['database']['time']];
                 $datCri++;
             }
 
             //latency
             if ($poller['latency']['state'] === 1) {
-                $result['issues']['latency']['warning']['poller'][] = array(
-                    'id' => $poller['id'],
-                    'name' => $poller['name'],
-                    'since' => $poller['latency']['time']
-                );
+                $result['issues']['latency']['warning']['poller'][] = ['id' => $poller['id'], 'name' => $poller['name'], 'since' => $poller['latency']['time']];
                 $latWar++;
             } elseif ($poller['latency']['state'] === 2) {
-                $result['issues']['latency']['critical']['poller'][] = array(
-                    'id' => $poller['id'],
-                    'name' => $poller['name'],
-                    'since' => $poller['latency']['time']
-                );
+                $result['issues']['latency']['critical']['poller'][] = ['id' => $poller['id'], 'name' => $poller['name'], 'since' => $poller['latency']['time']];
                 $latCri++;
             }
         }
@@ -590,11 +524,15 @@ class CentreonTopCounter extends CentreonWebService
      * Get the hosts status
      *
      * Method GET
+     *
+     * @return array|mixed
+     * @throws RestInternalServerErrorException
+     * @throws RestUnauthorizedException
      */
     public function getHosts_status()
     {
         if (!$this->hasAccessToTopCounter) {
-            throw new \RestUnauthorizedException("You're not authorized to access resource data");
+            throw new RestUnauthorizedException("You're not authorized to access resource data");
         }
 
         if (
@@ -628,27 +566,13 @@ class CentreonTopCounter extends CentreonWebService
 
         try {
             $res = $this->pearDBMonitoring->query($query);
-        } catch (\Exception $e) {
-            throw new \RestInternalServerErrorException($e);
+        } catch (Exception $e) {
+            throw new RestInternalServerErrorException($e);
         }
 
         $row = $res->fetch();
 
-        $result = array(
-            'down' => array(
-                'total' => $row['down_total'],
-                'unhandled' => $row['down_unhandled']
-            ),
-            'unreachable' => array(
-                'total' => $row['unreachable_total'],
-                'unhandled' => $row['unreachable_unhandled']
-            ),
-            'ok' => $row['up_total'],
-            'pending' => $row['pending_total'],
-            'total' => $row['up_total'] + $row['pending_total'] + $row['down_total'] + $row['unreachable_total'],
-            'refreshTime' => $this->refreshTime,
-            'time' => time()
-        );
+        $result = ['down' => ['total' => $row['down_total'], 'unhandled' => $row['down_unhandled']], 'unreachable' => ['total' => $row['unreachable_total'], 'unhandled' => $row['unreachable_unhandled']], 'ok' => $row['up_total'], 'pending' => $row['pending_total'], 'total' => $row['up_total'] + $row['pending_total'] + $row['down_total'] + $row['unreachable_total'], 'refreshTime' => $this->refreshTime, 'time' => time()];
 
         CentreonSession::writeSessionClose('topCounterHostStatus', $result);
         return $result;
@@ -658,11 +582,15 @@ class CentreonTopCounter extends CentreonWebService
      * Get the services status
      *
      * Method GET
+     *
+     * @return array|mixed
+     * @throws RestInternalServerErrorException
+     * @throws RestUnauthorizedException
      */
     public function getServicesStatus()
     {
         if (!$this->hasAccessToTopCounter) {
-            throw new \RestUnauthorizedException("You're not authorized to access resource data");
+            throw new RestUnauthorizedException("You're not authorized to access resource data");
         }
 
         if (
@@ -705,32 +633,14 @@ class CentreonTopCounter extends CentreonWebService
 
         try {
             $res = $this->pearDBMonitoring->query($query);
-        } catch (\Exception $e) {
-            throw new \RestInternalServerErrorException($e);
+        } catch (Exception $e) {
+            throw new RestInternalServerErrorException($e);
         }
 
         $row = $res->fetch();
 
-        $result = array(
-            'critical' => array(
-                'total' => $row['critical_total'],
-                'unhandled' => $row['critical_unhandled']
-            ),
-            'warning' => array(
-                'total' => $row['warning_total'],
-                'unhandled' => $row['warning_unhandled']
-            ),
-            'unknown' => array(
-                'total' => $row['unknown_total'],
-                'unhandled' => $row['unknown_unhandled']
-            ),
-            'ok' => $row['ok_total'],
-            'pending' => $row['pending_total'],
-            'total' => $row['ok_total'] + $row['pending_total'] + $row['critical_total'] + $row['unknown_total'] +
-                $row['warning_total'],
-            'refreshTime' => $this->refreshTime,
-            'time' => time()
-        );
+        $result = ['critical' => ['total' => $row['critical_total'], 'unhandled' => $row['critical_unhandled']], 'warning' => ['total' => $row['warning_total'], 'unhandled' => $row['warning_unhandled']], 'unknown' => ['total' => $row['unknown_total'], 'unhandled' => $row['unknown_unhandled']], 'ok' => $row['ok_total'], 'pending' => $row['pending_total'], 'total' => $row['ok_total'] + $row['pending_total'] + $row['critical_total'] + $row['unknown_total'] +
+            $row['warning_total'], 'refreshTime' => $this->refreshTime, 'time' => time()];
 
         CentreonSession::writeSessionClose('topCounterServiceStatus', $result);
         return $result;
@@ -739,14 +649,17 @@ class CentreonTopCounter extends CentreonWebService
     /**
      * Get intervals for refreshing header data
      * Method: GET
+     *
+     * @return array
+     * @throws RestInternalServerErrorException
      */
     public function getRefreshIntervals()
     {
         $query = "SELECT * FROM `options` WHERE `key` IN ('AjaxTimeReloadMonitoring','AjaxTimeReloadStatistic')";
         try {
             $res = $this->pearDB->query($query);
-        } catch (\Exception $e) {
-            throw new \RestInternalServerErrorException($e);
+        } catch (Exception $e) {
+            throw new RestInternalServerErrorException($e);
         }
         $row = $res->fetchAll();
 
@@ -760,63 +673,52 @@ class CentreonTopCounter extends CentreonWebService
 
     /**
      * Get the configured pollers
+     *
+     * @return array
+     * @throws RestInternalServerErrorException
      */
     protected function pollersList()
     {
         /* Get the list of configured pollers */
-        $listPoller = array();
+        $listPoller = [];
         $query = 'SELECT id, name, last_restart, updated FROM nagios_server WHERE ns_activate = "1"';
 
         /* Add ACL */
         $aclPoller = $this->centreon->user->access->getPollerString('id');
         if (!$this->centreon->user->admin) {
             if ($aclPoller === '') {
-                return array();
+                return [];
             }
             $query .= ' AND id IN (' . $aclPoller . ')';
         }
 
         try {
             $res = $this->pearDB->query($query);
-        } catch (\Exception $e) {
-            throw new \RestInternalServerErrorException($e);
+        } catch (Exception $e) {
+            throw new RestInternalServerErrorException($e);
         }
 
         if ($res->rowCount() === 0) {
-            return array();
+            return [];
         }
         while ($row = $res->fetch()) {
-            $listPoller[$row['id']] = array(
-                'id' => $row['id'],
-                'name' => $row['name'],
-                'lastRestart' => $row['last_restart'],
-                'updated' => $row['updated']
-            );
+            $listPoller[$row['id']] = ['id' => $row['id'], 'name' => $row['name'], 'lastRestart' => $row['last_restart'], 'updated' => $row['updated']];
         }
         return $listPoller;
     }
 
     /**
      * Get information for pollers
+     *
+     * @return array
+     * @throws RestInternalServerErrorException
      */
     protected function pollersStatusList()
     {
-        $listPoller = array();
+        $listPoller = [];
         $listConfPoller = $this->pollersList();
         foreach ($listConfPoller as $poller) {
-            $listPoller[$poller['id']] = array(
-                'id' => $poller['id'],
-                'name' => $poller['name'],
-                'stability' => 0,
-                'database' => array(
-                    'state' => 0,
-                    'time' => null
-                ),
-                'latency' => array(
-                    'state' => 0,
-                    'time' => null
-                )
-            );
+            $listPoller[$poller['id']] = ['id' => $poller['id'], 'name' => $poller['name'], 'stability' => 0, 'database' => ['state' => 0, 'time' => null], 'latency' => ['state' => 0, 'time' => null]];
         }
 
         /* Get status of pollers */
@@ -825,8 +727,8 @@ class CentreonTopCounter extends CentreonWebService
 
         try {
             $res = $this->pearDBMonitoring->query($query);
-        } catch (\Exception $e) {
-            throw new \RestInternalServerErrorException($e);
+        } catch (Exception $e) {
+            throw new RestInternalServerErrorException($e);
         }
 
         while ($row = $res->fetch()) {
@@ -855,8 +757,8 @@ class CentreonTopCounter extends CentreonWebService
 
         try {
             $res = $this->pearDBMonitoring->query($query);
-        } catch (\Exception $e) {
-            throw new \RestInternalServerErrorException($e);
+        } catch (Exception $e) {
+            throw new RestInternalServerErrorException($e);
         }
 
         while ($row = $res->fetch()) {
@@ -876,9 +778,9 @@ class CentreonTopCounter extends CentreonWebService
      * Authorize to access to the action
      *
      * @param string $action The action name
-     * @param array $user The current user
-     * @param boolean $isInternal If the api is call in internal
-     * @return boolean If the has access to the action
+     * @param CentreonUser $user The current user
+     * @param bool $isInternal If the api is call in internal
+     * @return bool If the has access to the action
      */
     public function authorize($action, $user, $isInternal = false)
     {

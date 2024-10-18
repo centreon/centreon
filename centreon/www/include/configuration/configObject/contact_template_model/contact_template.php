@@ -42,17 +42,17 @@ if (!isset($centreon)) {
     exit();
 }
 
-isset($_GET["contact_id"]) ? $cG = $_GET["contact_id"] : $cG = null;
-isset($_POST["contact_id"]) ? $cP = $_POST["contact_id"] : $cP = null;
-$cG ? $contact_id = $cG : $contact_id = $cP;
+$cG = $_GET["contact_id"] ?? null;
+$cP = $_POST["contact_id"] ?? null;
+$contact_id = $cG ?: $cP;
 
-isset($_GET["select"]) ? $cG = $_GET["select"] : $cG = null;
-isset($_POST["select"]) ? $cP = $_POST["select"] : $cP = null;
-$cG ? $select = $cG : $select = $cP;
+$cG = $_GET["select"] ?? null;
+$cP = $_POST["select"] ?? null;
+$select = $cG ?: $cP;
 
-isset($_GET["dupNbr"]) ? $cG = $_GET["dupNbr"] : $cG = null;
-isset($_POST["dupNbr"]) ? $cP = $_POST["dupNbr"] : $cP = null;
-$cG ? $dupNbr = $cG : $dupNbr = $cP;
+$cG = $_GET["dupNbr"] ?? null;
+$cP = $_POST["dupNbr"] ?? null;
+$dupNbr = $cG ?: $cP;
 
 /*
  * Path to the configuration dir
@@ -113,7 +113,7 @@ $eventDispatcher->addEventHandler(
     (function () {
         // We define an event to delete a list of contacts
         $handler = new EventHandler();
-        $handler->setProcessing(function ($arguments) {
+        $handler->setProcessing(function ($arguments): void {
             if (isset($arguments['contact_ids'])) {
                 deleteContactInDB($arguments['contact_ids']);
             }
@@ -150,7 +150,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            enableContactInDB(null, isset($select) ? $select : array());
+            enableContactInDB(null, $select ?? []);
         } else {
             unvalidFormMessage();
         }
@@ -170,7 +170,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            disableContactInDB(null, isset($select) ? $select : array());
+            disableContactInDB(null, $select ?? []);
         } else {
             unvalidFormMessage();
         }
@@ -185,7 +185,7 @@ switch ($o) {
                 $eventContext,
                 EventDispatcher::EVENT_DUPLICATE,
                 [
-                    'contact_ids' => isset($select) ? $select : [],
+                    'contact_ids' => $select ?? [],
                     'numbers' => $dupNbr
                 ]
             );
@@ -202,7 +202,7 @@ switch ($o) {
             $eventDispatcher->notify(
                 $eventContext,
                 EventDispatcher::EVENT_DELETE,
-                ['contact_ids' => isset($select) ? $select : []]
+                ['contact_ids' => $select ?? []]
             );
         } else {
             unvalidFormMessage();

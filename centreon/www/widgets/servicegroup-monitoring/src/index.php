@@ -89,35 +89,13 @@ $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 $nbRows = $preferences['entries'];
 
 
-$aColorHost = array(
-    0 => 'host_up',
-    1 => 'host_down',
-    2 => 'host_unreachable',
-    4 => 'host_pending'
-);
+$aColorHost = [0 => 'host_up', 1 => 'host_down', 2 => 'host_unreachable', 4 => 'host_pending'];
 
-$aColorService = array(
-    0 => 'service_ok',
-    1 => 'service_warning',
-    2 => 'service_critical',
-    3 => 'service_unknown',
-    4 => 'pending'
-);
+$aColorService = [0 => 'service_ok', 1 => 'service_warning', 2 => 'service_critical', 3 => 'service_unknown', 4 => 'pending'];
 
-$hostStateLabels = array(
-    0 => "Up",
-    1 => "Down",
-    2 => "Unreachable",
-    4 => "Pending"
-);
+$hostStateLabels = [0 => "Up", 1 => "Down", 2 => "Unreachable", 4 => "Pending"];
 
-$serviceStateLabels = array(
-    0 => "Ok",
-    1 => "Warning",
-    2 => "Critical",
-    3 => "Unknown",
-    4 => "Pending"
-);
+$serviceStateLabels = [0 => "Ok", 1 => "Warning", 2 => "Critical", 3 => "Unknown", 4 => "Pending"];
 
 $query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, name, servicegroup_id FROM servicegroups ";
 if (isset($preferences['sg_name_search']) && $preferences['sg_name_search'] != "") {
@@ -205,7 +183,7 @@ $criticalStatus = $buildParameter('CRITICAL', 'Critical');
 $unknownStatus = $buildParameter('UNKNOWN', 'Unknown');
 $pendingStatus = $buildParameter('PENDING', 'Pending');
 
-$data = array();
+$data = [];
 $detailMode = false;
 if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
     $detailMode = true;

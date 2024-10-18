@@ -86,7 +86,7 @@ class MetricServiceTest extends TestCase
     /**
      * test findMetricsByService with admin user
      */
-    public function testFindMetricsByService()
+    public function testFindMetricsByService(): void
     {
         $this->metricRepository->expects($this->once())
             ->method('findMetricsByService')
@@ -106,7 +106,7 @@ class MetricServiceTest extends TestCase
     /**
      * test findStatusByService with admin user
      */
-    public function testFindStatusByService()
+    public function testFindStatusByService(): void
     {
         $this->metricRepository->expects($this->once())
             ->method('findStatusByService')

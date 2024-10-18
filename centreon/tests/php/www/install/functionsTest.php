@@ -30,7 +30,7 @@ if (file_exists($fileInstallFunctions)) {
 
     require_once __DIR__ . '/../../../../www/install/functions.php';
 
-    it('generates random password with lowercase, uppercase, number and special character', function () {
+    it('generates random password with lowercase, uppercase, number and special character', function (): void {
         $password = generatePassword();
         expect($password)->toHaveLength(12)
             ->and($password)->toMatch('/[0-9]+/')

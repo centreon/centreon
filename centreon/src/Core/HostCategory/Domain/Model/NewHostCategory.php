@@ -27,9 +27,9 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class NewHostCategory
 {
-    public const MAX_NAME_LENGTH = 200,
-                MAX_ALIAS_LENGTH = 200,
-                MAX_COMMENT_LENGTH = 65535;
+    public const MAX_NAME_LENGTH = 200;
+    public const MAX_ALIAS_LENGTH = 200;
+    public const MAX_COMMENT_LENGTH = 65535;
 
     protected bool $isActivated = true;
 

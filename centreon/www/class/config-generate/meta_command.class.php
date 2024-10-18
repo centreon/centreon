@@ -34,22 +34,31 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class MetaCommand
+ */
 class MetaCommand extends AbstractObject
 {
+    /** @var string */
     protected $generate_filename = 'meta_commands.cfg';
-    protected $object_name = 'command';
-    protected $attributes_write = array(
-        'command_name',
-        'command_line',
-    );
+    /** @var string */
+    protected string $object_name = 'command';
+    /** @var string[] */
+    protected $attributes_write = ['command_name', 'command_line'];
 
+    /**
+     * @return int|void
+     * @throws Exception
+     */
     public function generateObjects()
     {
         if ($this->checkGenerate(0)) {
             return 0;
         }
 
-        $object = array();
+        $object = [];
         $object['command_name'] = 'check_meta';
         $object['command_line'] = '$CENTREONPLUGINS$/centreon_centreon_central.pl ' .
             '--plugin=apps::centreon::local::plugin --mode=metaservice --centreon-config=/etc/centreon/conf.pm ' .

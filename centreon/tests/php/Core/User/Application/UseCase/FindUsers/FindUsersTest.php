@@ -29,6 +29,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\User\Application\Exception\UserException;
@@ -185,7 +186,7 @@ it(
 
         $this->readUserRepository
             ->expects($this->once())
-            ->method('findByAccessGroupsAndRequestParameters')
+            ->method('findByAccessGroupsUserAndRequestParameters')
             ->willReturn([$this->contact]);
 
         ($this->useCase)($this->presenter);

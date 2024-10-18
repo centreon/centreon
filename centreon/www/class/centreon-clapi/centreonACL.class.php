@@ -35,26 +35,32 @@
 
 namespace CentreonClapi;
 
+use Pimple\Container;
+
 require_once "centreonUtils.class.php";
 
 /**
- * Class for managing ACL system
- * @author sylvestre
+ * Class
  *
+ * @class CentreonACL
+ * @package CentreonClapi
  */
 class CentreonACL
 {
+    /** @var CentreonDB */
     protected $db;
     // hack to get rid of warning messages
-    public $topology = array();
+    /** @var array */
+    public $topology = [];
+    /** @var string */
     public $topologyStr = "";
 
     /**
-     * Constructor
+     * CentreonACL constructor
      *
-     * @return void
+     * @param Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         $this->db = $dependencyInjector['configuration_db'];
     }
@@ -64,7 +70,7 @@ class CentreonACL
      *
      * @return void
      */
-    public function reload($flagOnly = false)
+    public function reload($flagOnly = false): void
     {
         $this->db->query("UPDATE acl_groups SET acl_group_changed = 1");
         $this->db->query("UPDATE acl_resources SET changed = 1");
@@ -79,7 +85,7 @@ class CentreonACL
      *
      * @return void
      */
-    public function lastreload($timeformat = null)
+    public function lastreload($timeformat = null): void
     {
         $res = $this->db->query("SELECT time_launch FROM cron_operation WHERE name LIKE 'centAcl%'");
         $row = $res->fetch();

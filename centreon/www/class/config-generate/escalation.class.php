@@ -34,22 +34,50 @@
  *
  */
 
+use Pimple\Container;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
+/**
+ * Class
+ *
+ * @class Escalation
+ */
 class Escalation extends AbstractObject
 {
+    /** @var */
+    public $hg_build;
+    /** @var */
+    public $sg_build;
+    /** @var int */
     private $use_cache = 1;
+    /** @var int */
     private $done_cache = 0;
+    /** @var int */
     private $has_escalation = 1; # by default, we have.
-    private $escalation_cache = array();
-    private $escalation_linked_cg_cache = array();
-    private $escalation_linked_host_cache = array();
-    private $escalation_linked_hg_cache = array();
-    private $escalation_linked_service_cache = array();
-    private $escalation_linked_sg_cache = array();
-    private $escalation_linked_meta_cache = array();
-    private $hosts_build = array();
-    private $services_build = array();
+    /** @var array */
+    private $escalation_cache = [];
+    /** @var array */
+    private $escalation_linked_cg_cache = [];
+    /** @var array */
+    private $escalation_linked_host_cache = [];
+    /** @var array */
+    private $escalation_linked_hg_cache = [];
+    /** @var array */
+    private $escalation_linked_service_cache = [];
+    /** @var array */
+    private $escalation_linked_sg_cache = [];
+    /** @var array */
+    private $escalation_linked_meta_cache = [];
+    /** @var array */
+    private $hosts_build = [];
+    /** @var array */
+    private $services_build = [];
+    /** @var string */
     protected $generate_filename = 'escalations.cfg';
-    protected $object_name = 'hostescalation';
+    /** @var string */
+    protected string $object_name = 'hostescalation';
+    /** @var string */
     protected $attributes_select = "
         esc_id,
         esc_name as ';escalation_name',
@@ -62,34 +90,41 @@ class Escalation extends AbstractObject
         host_inheritance_to_services,
         hostgroup_inheritance_to_services
     ";
-    protected $attributes_write = array(
-        ';escalation_name',
-        'first_notification',
-        'last_notification',
-        'notification_interval',
-        'escalation_period',
-        'escalation_options',
-    );
-    protected $attributes_array = array(
-        'hostgroup_name',
-        'host_name',
-        'servicegroup_name',
-        'service_description',
-        'contact_groups',
-    );
+    /** @var string[] */
+    protected $attributes_write = [';escalation_name', 'first_notification', 'last_notification', 'notification_interval', 'escalation_period', 'escalation_options'];
+    /** @var string[] */
+    protected $attributes_array = ['hostgroup_name', 'host_name', 'servicegroup_name', 'service_description', 'contact_groups'];
+    /** @var Host|null */
     protected $host_instance = null;
+    /** @var Service|null */
     protected $service_instance = null;
+    /** @var Hostgroup|null */
     protected $hg_instance = null;
+    /** @var Servicegroup|null */
     protected $sg_instance = null;
+    /** @var null */
     protected $stmt_escalation = null;
+    /** @var null */
     protected $stmt_cg = null;
+    /** @var null */
     protected $stmt_host = null;
+    /** @var null */
     protected $stmt_service = null;
+    /** @var null */
     protected $stmt_hg = null;
+    /** @var null */
     protected $stmt_sg = null;
+    /** @var null */
     protected $stmt_meta = null;
 
-    public function __construct(\Pimple\Container $dependencyInjector)
+    /**
+     * Escalation constructor
+     *
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
+     */
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->host_instance = Host::getInstance($this->dependencyInjector);
@@ -99,7 +134,11 @@ class Escalation extends AbstractObject
         $this->buildCache();
     }
 
-    private function getEscalationCache()
+    /**
+     * @return void
+     * @throws PDOException
+     */
+    private function getEscalationCache(): void
     {
         $stmt = $this->backend_instance->db->prepare("SELECT 
                     $this->attributes_select
@@ -120,6 +159,10 @@ class Escalation extends AbstractObject
         }
     }
 
+    /**
+     * @return int|void
+     * @throws PDOException
+     */
     private function getEscalationLinkedCache()
     {
         if ($this->has_escalation == 0) {
@@ -162,6 +205,10 @@ class Escalation extends AbstractObject
         $this->escalation_linked_service_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
     }
 
+    /**
+     * @return int|void
+     * @throws PDOException
+     */
     private function buildCache()
     {
         if ($this->done_cache == 1) {
@@ -173,18 +220,34 @@ class Escalation extends AbstractObject
         $this->done_cache = 1;
     }
 
-    private function generateSubObjects(&$escalation, $esc_id)
+    /**
+     * @param $escalation
+     * @param $esc_id
+     *
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
+    private function generateSubObjects(&$escalation, $esc_id): void
     {
         $period = Timeperiod::getInstance($this->dependencyInjector);
         $cg = Contactgroup::getInstance($this->dependencyInjector);
 
         $escalation['escalation_period'] = $period->generateFromTimeperiodId($escalation['escalation_period_id']);
-        $escalation['contact_groups'] = array();
+        $escalation['contact_groups'] = [];
         foreach ($this->escalation_linked_cg_cache[$esc_id] as $cg_id) {
             $escalation['contact_groups'][] = $cg->generateFromCgId($cg_id);
         }
     }
 
+    /**
+     * @param $escalation_id
+     *
+     * @return mixed|null
+     * @throws PDOException
+     */
     private function getEscalationFromId($escalation_id)
     {
         if (isset($this->escalation_cache[$escalation_id])) {
@@ -222,6 +285,12 @@ class Escalation extends AbstractObject
         return $this->escalation_cache[$escalation_id];
     }
 
+    /**
+     * @param $host_id
+     *
+     * @return int|void
+     * @throws PDOException
+     */
     private function addHost($host_id)
     {
         if ($this->use_cache == 0) {
@@ -243,7 +312,7 @@ class Escalation extends AbstractObject
 
         foreach ($this->escalation_linked_host_cache[$host_id] as $escalation_id) {
             if (!isset($this->hosts_build[$escalation_id])) {
-                $this->hosts_build[$escalation_id] = array();
+                $this->hosts_build[$escalation_id] = [];
             }
             $this->hosts_build[$escalation_id][] = $this->host_instance->getString($host_id, 'host_name');
 
@@ -257,7 +326,7 @@ class Escalation extends AbstractObject
                 }
                 foreach ($services[$host_id] as $service_id) {
                     if (!isset($this->services_build[$escalation_id])) {
-                        $this->services_build[$escalation_id] = array($host_id => array());
+                        $this->services_build[$escalation_id] = [$host_id => []];
                     }
                     $this->services_build[$escalation_id][$host_id][$service_id] = 1;
                 }
@@ -265,6 +334,13 @@ class Escalation extends AbstractObject
         }
     }
 
+    /**
+     * @param $hg_id
+     * @param $hostgroup
+     *
+     * @return int|void
+     * @throws PDOException
+     */
     private function addHostgroup($hg_id, $hostgroup)
     {
         if ($this->use_cache == 0) {
@@ -298,7 +374,7 @@ class Escalation extends AbstractObject
                     }
                     foreach ($services[$host_id] as $service_id) {
                         if (!isset($this->services_build[$escalation_id])) {
-                            $this->services_build[$escalation_id] = array($host_id => array());
+                            $this->services_build[$escalation_id] = [$host_id => []];
                         }
                         $this->services_build[$escalation_id][$host_id][$service_id] = 1;
                     }
@@ -307,7 +383,7 @@ class Escalation extends AbstractObject
 
 
             if (!isset($this->hg_build[$escalation_id])) {
-                $this->hg_build[$escalation_id] = array();
+                $this->hg_build[$escalation_id] = [];
             }
             $hostgroup_name = $this->hg_instance->getString($hg_id, 'hostgroup_name');
             if (!is_null($hostgroup_name)) {
@@ -316,6 +392,13 @@ class Escalation extends AbstractObject
         }
     }
 
+    /**
+     * @param $host_id
+     * @param $service_id
+     *
+     * @return int|void
+     * @throws PDOException
+     */
     private function addService($host_id, $service_id)
     {
         if ($this->use_cache == 0) {
@@ -339,12 +422,18 @@ class Escalation extends AbstractObject
 
         foreach ($this->escalation_linked_service_cache[$host_id . '_' . $service_id] as $escalation_id) {
             if (!isset($this->services_build[$escalation_id])) {
-                $this->services_build[$escalation_id] = array($host_id => array());
+                $this->services_build[$escalation_id] = [$host_id => []];
             }
             $this->services_build[$escalation_id][$host_id][$service_id] = 1;
         }
     }
 
+    /**
+     * @param $sg_id
+     *
+     * @return int|void
+     * @throws PDOException
+     */
     private function addServicegroup($sg_id)
     {
         if ($this->use_cache == 0) {
@@ -366,7 +455,7 @@ class Escalation extends AbstractObject
 
         foreach ($this->escalation_linked_sg_cache[$sg_id] as $escalation_id) {
             if (!isset($this->sg_build[$escalation_id])) {
-                $this->sg_build[$escalation_id] = array();
+                $this->sg_build[$escalation_id] = [];
             }
             $servicegroup_name = $this->sg_instance->getString($sg_id, 'servicegroup_name');
             if (!is_null($servicegroup_name)) {
@@ -375,6 +464,12 @@ class Escalation extends AbstractObject
         }
     }
 
+    /**
+     * @param $meta_id
+     *
+     * @return array|false|mixed
+     * @throws PDOException
+     */
     private function getEscalationFromMetaId($meta_id)
     {
         if ($this->use_cache == 0) {
@@ -391,13 +486,20 @@ class Escalation extends AbstractObject
             $this->escalation_linked_meta_cache[$meta_id] = $this->stmt_service->fetchAll(PDO::FETCH_COLUMN);
         }
         if (!isset($this->escalation_linked_meta_cache[$meta_id])) {
-            return array();
+            return [];
         }
 
         return $this->escalation_linked_meta_cache[$meta_id];
     }
 
-    private function generateHosts()
+    /**
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
+    private function generateHosts(): void
     {
         $this->object_name = 'hostescalation';
         foreach ($this->hosts_build as $escalation_id => $values) {
@@ -410,17 +512,22 @@ class Escalation extends AbstractObject
         }
     }
 
-    private function generateServices()
+    /**
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
+    private function generateServices(): void
     {
         $this->object_name = 'serviceescalation';
         foreach ($this->services_build as $escalation_id => $hosts) {
             foreach ($hosts as $host_id => $services) {
                 foreach ($services as $service_id => $service) {
                     $object = $this->getEscalationFromId($escalation_id);
-                    $object['host_name'] = array($this->host_instance->getString($host_id, 'host_name'));
-                    $object['service_description'] = array(
-                        $this->service_instance->getString($service_id, 'service_description')
-                    );
+                    $object['host_name'] = [$this->host_instance->getString($host_id, 'host_name')];
+                    $object['service_description'] = [$this->service_instance->getString($service_id, 'service_description')];
                     $object['escalation_options'] = $object['escalation_options_service'];
                     # Dont care of the id (we set 0)
                     $this->generateSubObjects($object, $escalation_id);
@@ -430,7 +537,14 @@ class Escalation extends AbstractObject
         }
     }
 
-    private function generateHostgroups()
+    /**
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
+    private function generateHostgroups(): void
     {
         $this->object_name = 'hostescalation';
         foreach ($this->hg_build as $escalation_id => $values) {
@@ -447,7 +561,14 @@ class Escalation extends AbstractObject
         }
     }
 
-    private function generateServicegroups()
+    /**
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
+    private function generateServicegroups(): void
     {
         $this->object_name = 'serviceescalation';
         foreach ($this->sg_build as $escalation_id => $values) {
@@ -464,7 +585,14 @@ class Escalation extends AbstractObject
         }
     }
 
-    public function doHostService()
+    /**
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
+    public function doHostService(): void
     {
         $services = $this->service_instance->getGeneratedServices();
         foreach ($services as $host_id => &$values) {
@@ -478,7 +606,14 @@ class Escalation extends AbstractObject
         $this->generateServices();
     }
 
-    public function doHostgroup()
+    /**
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
+    public function doHostgroup(): void
     {
         $hostgroups = $this->hg_instance->getHostgroups();
         foreach ($hostgroups as $hg_id => &$value) {
@@ -488,7 +623,14 @@ class Escalation extends AbstractObject
         $this->generateHostgroups();
     }
 
-    public function doServicegroup()
+    /**
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
+    public function doServicegroup(): void
     {
         $servicegroups = $this->sg_instance->getServicegroups();
         foreach ($servicegroups as $sg_id => &$value) {
@@ -498,6 +640,13 @@ class Escalation extends AbstractObject
         $this->generateServicegroups();
     }
 
+    /**
+     * @return int|void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
     public function doMetaService()
     {
         if (!MetaService::getInstance($this->dependencyInjector)->hasMetaServices()) {
@@ -508,8 +657,8 @@ class Escalation extends AbstractObject
             $escalation = $this->getEscalationFromMetaId($meta_id);
             foreach ($escalation as $escalation_id) {
                 $object = $this->getEscalationFromId($escalation_id);
-                $object['host_name'] = array('_Module_Meta');
-                $object['service_description'] = array('meta_' . $meta_id);
+                $object['host_name'] = ['_Module_Meta'];
+                $object['service_description'] = ['meta_' . $meta_id];
                 $object['escalation_options'] = $object['escalation_options_service'];
                 # Dont care of the id (we set 0)
                 $this->generateSubObjects($object, $escalation_id);
@@ -518,6 +667,13 @@ class Escalation extends AbstractObject
         }
     }
 
+    /**
+     * @return int|void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
     public function generateObjects()
     {
         if ($this->has_escalation == 0) {
@@ -529,12 +685,16 @@ class Escalation extends AbstractObject
         $this->doMetaService();
     }
 
-    public function reset()
+    /**
+     * @return void
+     * @throws Exception
+     */
+    public function reset(): void
     {
-        $this->hosts_build = array();
-        $this->services_build = array();
-        $this->hg_build = array();
-        $this->sg_build = array();
+        $this->hosts_build = [];
+        $this->services_build = [];
+        $this->hg_build = [];
+        $this->sg_build = [];
         parent::reset();
     }
 }

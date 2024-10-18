@@ -1,5 +1,5 @@
 <?php
-$help = array();
+$help = [];
 
 $help["vendor"] = dgettext("help", "Choose a vendor from the list. The vendor must have been created beforehand.");
 $help["filename"] = dgettext(

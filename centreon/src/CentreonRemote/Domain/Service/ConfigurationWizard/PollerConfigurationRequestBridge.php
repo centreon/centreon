@@ -132,7 +132,7 @@ class PollerConfigurationRequestBridge
      */
     private function getPollersToLink(array $pollers)
     {
-        if (empty($pollers)) {
+        if ($pollers === []) {
             return [];
         }
 

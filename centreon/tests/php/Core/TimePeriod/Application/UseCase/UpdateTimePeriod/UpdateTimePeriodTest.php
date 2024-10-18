@@ -33,14 +33,14 @@ use Core\TimePeriod\Application\Repository\{ReadTimePeriodRepositoryInterface, W
 use Core\TimePeriod\Application\UseCase\UpdateTimePeriod\{UpdateTimePeriod, UpdateTimePeriodRequest};
 use Core\TimePeriod\Domain\Model\TimePeriod;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->readRepository = $this->createMock(ReadTimePeriodRepositoryInterface::class);
     $this->writeRepository = $this->createMock(WriteTimePeriodRepositoryInterface::class);
     $this->formatter = $this->createMock(PresenterFormatterInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
 });
 
-it('should present an ErrorResponse when an exception is raised', function () {
+it('should present an ErrorResponse when an exception is raised', function (): void {
     $request = new UpdateTimePeriodRequest();
     $request->id = 1;
 
@@ -65,7 +65,7 @@ it('should present an ErrorResponse when an exception is raised', function () {
         ->toBe(TimePeriodException::errorOnUpdate($request->id)->getMessage());
 });
 
-it('should present an ForbiddenResponse when user has insufficient rigths', function () {
+it('should present an ForbiddenResponse when user has insufficient rigths', function (): void {
     $request = new UpdateTimePeriodRequest();
     $request->id = 1;
 
@@ -84,7 +84,7 @@ it('should present an ForbiddenResponse when user has insufficient rigths', func
         ->toBe(TimePeriodException::editNotAllowed()->getMessage());
 });
 
-it('should present a NotFoundResponse when the time period to update is not found', function () {
+it('should present a NotFoundResponse when the time period to update is not found', function (): void {
     $request = new UpdateTimePeriodRequest();
     $request->id = 1;
 
@@ -109,7 +109,7 @@ it('should present a NotFoundResponse when the time period to update is not foun
         ->toBe((new NotFoundResponse('Time period'))->getMessage());
 });
 
-it('should present an ErrorResponse when the time period name already exists', function () {
+it('should present an ErrorResponse when the time period name already exists', function (): void {
     $request = new UpdateTimePeriodRequest();
     $request->id = 1;
     $request->name = 'fake_name';
@@ -144,7 +144,7 @@ it('should present an ErrorResponse when the time period name already exists', f
         ->toBe(TimePeriodException::nameAlreadyExists($request->name)->getMessage());
 });
 
-it('should present a NoContentResponse after update', function () {
+it('should present a NoContentResponse after update', function (): void {
     $request = new UpdateTimePeriodRequest();
     $request->id = 1;
     $request->name = 'fake_name';

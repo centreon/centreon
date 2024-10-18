@@ -39,11 +39,7 @@ require_once __DIR__ . '/../../../../bootstrap.php';
 $step = new \CentreonLegacy\Core\Install\Step\Step3($dependencyInjector);
 $parametersConfiguration = $step->getEngineParameters();
 
-$err = array(
-    'required' => array(),
-    'directory_not_found' => array(),
-    'file_not_found' => array()
-);
+$err = ['required' => [], 'directory_not_found' => [], 'file_not_found' => []];
 
 $parameters = filter_input_array(INPUT_POST);
 foreach ($parameters as $name => $value) {
@@ -60,7 +56,7 @@ foreach ($parameters as $name => $value) {
     }
 }
 
-if (!count($err['file_not_found']) && !count($err['file_not_found']) && !count($err['file_not_found'])) {
+if ($err['file_not_found'] === [] && $err['file_not_found'] === [] && $err['file_not_found'] === []) {
     $step->setEngineConfiguration($parameters);
 }
 

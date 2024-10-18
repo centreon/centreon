@@ -37,7 +37,7 @@ use Core\Dashboard\Domain\Model\Metric\PerformanceMetric;
 use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
-beforeEach(function() {
+beforeEach(function(): void {
     $this->adminUser = (new Contact())->setAdmin(true)->setId(1);
     $this->nonAdminUser = (new Contact())->setAdmin(false)->setId(1);
     $this->requestParameters = $this->createMock(RequestParametersInterface::class);
@@ -47,7 +47,7 @@ beforeEach(function() {
     $this->isCloudPlatform = false;
 });
 
-it('should present an ErrorResponse when something occurs in the repository', function() {
+it('should present an ErrorResponse when something occurs in the repository', function(): void {
 
     $useCase = new FindPerformanceMetrics(
         $this->adminUser,
@@ -76,7 +76,7 @@ it('should present an ErrorResponse when something occurs in the repository', fu
         ->toBe('An error occured while retrieving metrics');
 });
 
-it('should present a FindPerformanceMetricsResponse when metrics are found', function() {
+it('should present a FindPerformanceMetricsResponse when metrics are found', function(): void {
 
     $useCase = new FindPerformanceMetrics(
         $this->adminUser,
@@ -201,7 +201,7 @@ it('should present a FindPerformanceMetricsResponse when metrics are found', fun
         );
 });
 
-it('should present a FindPerformanceMetricsResponse when metrics are found as non-admin', function() {
+it('should present a FindPerformanceMetricsResponse when metrics are found as non-admin', function(): void {
 
     $useCase = new FindPerformanceMetrics(
         $this->nonAdminUser,
@@ -326,7 +326,7 @@ it('should present a FindPerformanceMetricsResponse when metrics are found as no
         );
 });
 
-it('should present a ForbiddenResponse when user has unsufficient rights', function () {
+it('should present a ForbiddenResponse when user has unsufficient rights', function (): void {
     $useCase = new FindPerformanceMetrics(
         $this->nonAdminUser,
         $this->requestParameters,

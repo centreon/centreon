@@ -164,7 +164,7 @@ function duplicateHostSecretsInVault(
         }
 
     // Get UUID from macro password if they match the vault path regex
-    } elseif (! empty($macroPasswords)) {
+    } elseif ($macroPasswords !== []) {
         foreach ($macroPasswords as $macroInfo) {
             if (str_starts_with($macroInfo['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN)) {
                 $vaultPath = $macroInfo['macroValue'];
@@ -183,7 +183,7 @@ function duplicateHostSecretsInVault(
         );
     }
 
-    if (! empty($hostSecretsFromVault)) {
+    if ($hostSecretsFromVault !== []) {
         $vaultPaths = $writeVaultRepository->upsert(null, $hostSecretsFromVault);
 
         // Store vault path for SNMP Community
@@ -192,7 +192,7 @@ function duplicateHostSecretsInVault(
         }
 
         // Store vault path for macros
-        if (! empty($macroPasswords)) {
+        if ($macroPasswords !== []) {
             foreach ($macroPasswords as  $macroId => $macroInfo) {
                 $macroPasswords[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
             }
@@ -246,7 +246,7 @@ function deleteResourceSecretsInVault(
     array $hostIds,
     array $serviceIds
 ): void {
-    if (! empty($hostIds)) {
+    if ($hostIds !== []) {
         $uuids = retrieveMultipleHostUuidsFromDatabase($hostIds);
         if (array_key_exists('host', $uuids)) {
             foreach ($uuids['host'] as $uuid) {
@@ -264,7 +264,7 @@ function deleteResourceSecretsInVault(
         }
     }
 
-    if (! empty($serviceIds)) {
+    if ($serviceIds !== []) {
         $uuids = retrieveMultipleServiceUuidsFromDatabase($serviceIds);
         foreach ($uuids as $uuid) {
             $writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
@@ -512,7 +512,7 @@ function updateHostSecretsInVaultFromMC(
         $hostSecretsFromVault
     );
 
-    if (! empty($updateHostPayload)) {
+    if ($updateHostPayload !== []) {
         $vaultPaths = $writeVaultRepository->upsert($uuid, $updateHostPayload);
         foreach ($macros as  $macroId => $macroInfo) {
             $macros[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
@@ -524,7 +524,7 @@ function updateHostSecretsInVaultFromMC(
         }
 
         // Store vault path for macros
-        if (! empty($macros)) {
+        if ($macros !== []) {
             updateOnDemandMacroHostTableWithVaultPath($pearDB, $macros);
         }
     }
@@ -622,7 +622,7 @@ function updateHostSecretsInVault(
         }
 
         // Store vault path for macros
-        if (! empty($macros)) {
+        if ($macros !== []) {
             updateOnDemandMacroHostTableWithVaultPath($pearDB, $macros);
         }
     }
@@ -739,11 +739,11 @@ function duplicateServiceSecretsInVault(
         );
     }
 
-    if (! empty($serviceSecretsFromVault)) {
+    if ($serviceSecretsFromVault !== []) {
         $vaultPaths = $writeVaultRepository->upsert(null, $serviceSecretsFromVault);
 
         // Store vault path for macros
-        if (! empty($macroPasswords)) {
+        if ($macroPasswords !== []) {
             foreach ($macroPasswords as  $macroId => $macroInfo) {
                 $macroPasswords[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
             }
@@ -908,7 +908,7 @@ function updateServiceSecretsInVaultFromMC(
         }
 
         // Store vault path for macros
-        if (! empty($macros)) {
+        if ($macros !== []) {
             updateOnDemandMacroServiceTableWithVaultPath($pearDB, $macros);
         }
     }
@@ -998,7 +998,7 @@ function updateServiceSecretsInVault(
             $macros[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
         }
         // Store vault path for macros
-        if (! empty($macros)) {
+        if ($macros !== []) {
             updateOnDemandMacroServiceTableWithVaultPath($pearDB, $macros);
         }
     }

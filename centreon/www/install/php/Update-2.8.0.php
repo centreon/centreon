@@ -39,7 +39,7 @@ require_once _CENTREON_PATH_ . '/www/class/centreonMeta.class.php';
 if (isset($pearDB)) {
     $metaObj = new CentreonMeta($pearDB);
     $hostId = null;
-    $virtualServices = array();
+    $virtualServices = [];
 
     /* Check virtual host */
     $queryHost = 'SELECT host_id '

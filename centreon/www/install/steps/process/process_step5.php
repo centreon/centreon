@@ -38,12 +38,7 @@ session_start();
 require_once __DIR__ . '/../../../../bootstrap.php';
 require_once __DIR__ . '/../../../class/centreonAuth.class.php';
 
-$err = array(
-    'required' => array(),
-    'email' => true,
-    'password' => true,
-    'password_security_policy' => true
-);
+$err = ['required' => [], 'email' => true, 'password' => true, 'password_security_policy' => true];
 
 $emailRegexp = "/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?" .
     "(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/";
@@ -81,7 +76,7 @@ if (
     );
 }
 
-if (!count($err['required']) && $err['password'] && $err['email'] && $err['password_security_policy']) {
+if ($err['required'] === [] && $err['password'] && $err['email'] && $err['password_security_policy']) {
     $step = new \CentreonLegacy\Core\Install\Step\Step5($dependencyInjector);
     $step->setAdminConfiguration($parameters);
 }

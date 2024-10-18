@@ -72,7 +72,7 @@ $inputPost = [
     'limit' => \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['limit'] ?? '')
 ];
 
-$inputs = array();
+$inputs = [];
 foreach ($inputGet as $argumentName => $argumentValue) {
     if (!empty($inputGet[$argumentName]) && trim($inputGet[$argumentName]) != '') {
         $inputs[$argumentName] = $inputGet[$argumentName];
@@ -98,7 +98,7 @@ include_once("./include/common/common-Func.php");
 include_once("./include/core/header/header.php");
 
 $userAgent = $_SERVER['HTTP_USER_AGENT'];
-$isMobile = strpos($userAgent, 'Mobil') !== false;
+$isMobile = str_contains($userAgent, 'Mobil');
 
 if ($isMobile) {
     $db = $dependencyInjector['configuration_db'];

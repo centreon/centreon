@@ -143,7 +143,7 @@ echo _("Status") . ";"
 
 // Getting stats on Host
 $reportingTimePeriod = getreportingTimePeriod();
-$hostgroupStats = array();
+$hostgroupStats = [];
 $hostgroupStats = getLogInDbForHostGroup($hostgroupId, $startDate, $endDate, $reportingTimePeriod);
 
 echo _("UP") . ";"

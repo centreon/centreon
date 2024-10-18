@@ -58,6 +58,13 @@ class UniqueEntityValidatorTest extends TestCase
 {
     use Dependency\CentreonDbManagerDependencyTrait;
 
+    /** @var Container */
+    public $container;
+    /** @var (object&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject|ExecutionContext|(ExecutionContext&object&\PHPUnit\Framework\MockObject\MockObject)|(ExecutionContext&\PHPUnit\Framework\MockObject\MockObject) */
+    public $executionContext;
+    /** @var UniqueEntityValidator */
+    public $validator;
+
     public function setUp(): void
     {
         $this->container = new Container();

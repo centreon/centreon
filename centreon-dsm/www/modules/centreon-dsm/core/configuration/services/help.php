@@ -34,7 +34,7 @@
  *
  */
 
-$help = array();
+$help = [];
 
 $help['pool_name'] = dgettext('help', 'The pool name.');
 $help['pool_description'] = dgettext('help', 'The pool description.');

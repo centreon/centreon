@@ -86,7 +86,7 @@ try {
     $err['connection_error'] = "Unable to create vault configuration";
 }
 
-if (!count($err['required'])  && trim($err['connection_error']) == '') {
+if ($err['required'] === []  && trim($err['connection_error']) == '') {
     $step = new \CentreonLegacy\Core\Install\Step\Step6Vault($dependencyInjector);
     $step->setVaultConfiguration($parameters);
 }

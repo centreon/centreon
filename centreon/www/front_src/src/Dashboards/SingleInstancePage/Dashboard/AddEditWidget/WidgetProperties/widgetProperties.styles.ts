@@ -98,3 +98,21 @@ export const useWidgetSelectionStyles = makeStyles()((theme) => ({
     width: '100%'
   }
 }));
+
+export const useWidgetMessageStyles = makeStyles()((theme) => ({
+  label: {
+    color: theme.palette.action.disabled
+  },
+  container: {
+    marginTop: theme.spacing(4),
+    display: 'flex',
+    alignItems: 'center'
+  },
+  icon: {
+    fill: theme.palette.primary.main,
+    height: theme.spacing(3),
+    marginRight: theme.spacing(1),
+    marginTop: theme.spacing(0.5),
+    width: theme.spacing(3)
+  }
+}));

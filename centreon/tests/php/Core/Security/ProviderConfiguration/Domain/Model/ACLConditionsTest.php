@@ -26,12 +26,12 @@ use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\ACLConditionsException;
 use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->custom_relative_url = '/info';
     $this->custom_url = 'https://domain.com/info';
 });
 
-it('should return a default ACLConditions instance', function () {
+it('should return a default ACLConditions instance', function (): void {
     $aclConditions = new ACLConditions(
         false,
         false,
@@ -47,7 +47,7 @@ it('should return a default ACLConditions instance', function () {
         ->and($aclConditions->getRelations())->toBeArray()->toHaveLength(0);
 });
 
-it('should throw an exception for missing parameter attribute_path', function () {
+it('should throw an exception for missing parameter attribute_path', function (): void {
     (new ACLConditions(
         true,
         false,
@@ -60,7 +60,7 @@ it('should throw an exception for missing parameter attribute_path', function ()
     ACLConditionsException::missingFields(['attribute_path'])->getMessage()
 );
 
-it('it should throw an exception for missing parameter endpoint', function () {
+it('it should throw an exception for missing parameter endpoint', function (): void {
     (new ACLConditions(
         true,
         false,
@@ -75,7 +75,7 @@ it('it should throw an exception for missing parameter endpoint', function () {
 
 it(
     'it should throw an exception for missing parameter relations when applyOnlyFirstRole is enabled',
-    function () {
+    function (): void {
         (new ACLConditions(
             true,
             true,
@@ -89,7 +89,7 @@ it(
     ACLConditionsException::missingFields(['relations'])->getMessage()
 );
 
-it('it should throw an exception for all missing parameters', function () {
+it('it should throw an exception for all missing parameters', function (): void {
     (new ACLConditions(
         true,
         true,

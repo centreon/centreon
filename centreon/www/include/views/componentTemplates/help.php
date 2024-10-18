@@ -1,6 +1,6 @@
 <?php
 
-$help = array();
+$help = [];
 
 /**
  * General Information
