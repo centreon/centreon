@@ -2,7 +2,9 @@
 
 export VAULT_ADDR='https://127.0.0.1:8200'
 export VAULT_SKIP_VERIFY=true
+export VAULT_TOKEN=${VAULT_DEV_ROOT_TOKEN_ID}
 mkdir /opt/vault/data
+mkdir /etc/vault.d/vault.hcl
 
 cat <<EOM >>/etc/vault.d/vault.hcl
 storage "raft" {
@@ -23,7 +25,7 @@ cluster_addr  = "https://127.0.0.1:8201"
 ui            = true
 EOM
 
-vault server -config=/etc/vault.d/vault.hcl
+vault server -dev -config=/etc/vault.d/vault.hcl
 vault secrets enable pki
 vault write pki/roles/vault-role \
     allow_subdomains=true \
@@ -36,15 +38,8 @@ vault write -format=json pki/issue/vault-role \
 jq -r .data.private_key /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.key
 jq -r .data.certificate /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.crt
 
-vault server -dev -dev-listen-address="0.0.0.0:8200" &
-sleep 5
-
-export VAULT_TOKEN=${VAULT_DEV_ROOT_TOKEN_ID}
 vault secrets enable -path=centreon kv
 vault auth enable approle
-
-mkdir /etc/vault.d
-mkdir -p /opt/vault/tls
 
 cat <<EOM >>/etc/vault.d/central_policy.hcl
 path "centreon/*" {
