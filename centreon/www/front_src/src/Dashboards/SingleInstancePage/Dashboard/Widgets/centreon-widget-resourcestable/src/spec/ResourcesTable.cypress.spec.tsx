@@ -46,6 +46,7 @@ import {
   labelTicketWillBeClosedInTheProvider
 } from '../Listing/translatedLabels';
 import {
+  basicOptions,
   columnsForViewByHost,
   columnsForViewByService,
   metaServiceResources,
@@ -249,7 +250,7 @@ describe('View by all', () => {
   beforeEach(resourcesRequests);
 
   it('retrieves resources', () => {
-    render({ data: { resources }, options: resourcesOptions });
+    render({ data: { resources }, options: basicOptions });
 
     cy.waitForRequest('@getResources');
     verifyListingRows();
