@@ -239,7 +239,7 @@ jobs:
               "databases": [alma9_mariadb],
             };
 
-            if (context.eventName === 'schedule') {
+            if (context.eventName === 'schedule' || ${{ contains(github.event.pull_request.labels.*.name, 'system') && 'true' || 'false' }}) {
               matrix = {
                 "main": [alma9_mariadb],
                 "operating_systems": [alma9_mariadb, alma8_mariadb, bookworm_mysql],
@@ -287,12 +287,13 @@ jobs:
                   checkout ${branchName}
                   commit`;
               });
-              console.log(codeBlock)
 
-              core.summary.addCodeBlock(
-                codeBlock,
-                "mermaid"
-              );
+              core.summary
+                .addHeading('Git workflow')
+                .addCodeBlock(
+                  codeBlock,
+                  "mermaid"
+                );
             }
 
             core.summary.write();
