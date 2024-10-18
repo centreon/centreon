@@ -148,7 +148,13 @@ const defaultColumnConfiguration = {
 
 export const performanceRowsLimit = 60;
 
-const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
+const Listing = <
+  TRow extends {
+    id: RowId;
+    internalListingParentId?: RowId;
+    internalListingParentRow: TRow;
+  }
+>({
   customListingComponent,
   displayCustomListing,
   limit = 10,
@@ -248,7 +254,8 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
                   row,
                   ...row[subItems.getRowProperty()].map((subRow) => ({
                     ...subRow,
-                    internalListingParentId: row.id
+                    internalListingParentId: row.id,
+                    internalListingParentRow: row
                   }))
                 ];
               }
