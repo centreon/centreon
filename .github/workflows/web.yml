@@ -26,11 +26,11 @@ on:
       - "!centreon/veracode.json"
       - "!centreon/packages/**"
   push:
-    # branches:
-    #   - develop
-    #   - dev-[2-9][0-9].[0-9][0-9].x
-    #   - master
-    #   - "[2-9][0-9].[0-9][0-9].x"
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon/**"
       - "!centreon/cypress/**"
@@ -923,8 +923,6 @@ jobs:
         legacy-e2e-test,
       ]
     if: ${{ !cancelled() && contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_delivery == 'true' }}
-
-    environment: ${{ needs.get-environment.outputs.environment }}
 
     strategy:
       matrix:
