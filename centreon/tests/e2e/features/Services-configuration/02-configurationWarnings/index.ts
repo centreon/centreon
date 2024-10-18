@@ -72,7 +72,6 @@ Given("a service with notifications enabled", () => {
     .find("p.oreonbutton")
     .find('.btc.bt_success[name="submitA"]')
     .click();
-  cy.setUserTokenApiV1();
   cy.setServiceParameters({
     name: data.hosts.host1.name,
     paramName: "notifications_enabled",
@@ -92,8 +91,7 @@ When("the configuration is exported", () => {
   cy.navigateTo({ page: "Pollers", rootItemNumber: 3, subMenu: "Pollers" });
   cy.wait("@getUserTimezone");
 
-  cy.get("iframe#main-content")
-    .its("0.contentDocument.body")
+  cy.enterIframe("iframe#main-content")
     .find("h4")
     .contains("Poller")
     .should("exist");
@@ -104,14 +102,20 @@ When("the configuration is exported", () => {
 
   cy.url().should("include", "poller=");
   cy.wait("@getUserTimezone");
-  cy.getIframeBody()
+  cy.enterIframe("iframe#main-content")
     .find('input.select2-search__field[placeholder="Pollers"]')
     .click();
   cy.getIframeBody().contains("Central").click();
 
-  cy.getIframeBody().find('input[name="move"]').parent().click();
-  cy.getIframeBody().find('input[name="restart"]').parent().click();
-  cy.getIframeBody().find('input[id="exportBtn"]').click();
+  cy.enterIframe("iframe#main-content")
+    .find('input[name="move"]')
+    .parent()
+    .click();
+  cy.enterIframe("iframe#main-content")
+    .find('input[name="restart"]')
+    .parent()
+    .click();
+  cy.enterIframe("iframe#main-content").find('input[id="exportBtn"]').click();
 });
 
 Then("a warning message is printed", () => {

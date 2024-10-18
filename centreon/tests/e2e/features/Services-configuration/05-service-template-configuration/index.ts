@@ -39,6 +39,11 @@ Then("a service template is configured", () => {
    .find('input[name="service_alias"]')
    .clear()
    .type("service_template");
+  cy.getIframeBody()
+    .find("div#validForm")
+    .find("p.oreonbutton")
+    .find('.btc.bt_success[name="submitC"]')
+    .click();
 });
 
 When("the user changes the properties of a service template", () => {
@@ -156,13 +161,13 @@ Then("the new service template has the same properties", () => {
     .find("tr.list_one")
     .find("td.FormRowValue")
     .find('input[name="service_alias"]')
-    .should("have.value", "service_template_1");
+    .should("have.value", "service_template");
   cy.enterIframe("iframe#main-content")
     .find("table.formTable")
-    .find("tr.list_one")
+    .find("tr.list_two")
     .find("td.FormRowValue")
     .find('input[name="service_description"]')
-    .should("have.value", "service_template");
+    .should("have.value", "service_template_1");
 });
 
 When("the user deletes a service template", () => {
