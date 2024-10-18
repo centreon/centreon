@@ -58,6 +58,7 @@ When("the user changes the properties of a service template", () => {
     .find("td.ListColLeft")
     .contains("service_template")
     .click();
+  cy.waitForElementInIframe("#main-content", 'input[name="service_alias"]');
   cy.enterIframe("iframe#main-content")
     .find("table.formTable")
     .find("tr.list_one")
@@ -92,6 +93,7 @@ Then("the properties are updated", () => {
     .find("td.ListColLeft")
     .contains("service_template_modified")
     .click();
+  cy.waitForElementInIframe("#main-content", 'input[name="service_alias"]');
   cy.enterIframe("iframe#main-content")
     .find("table.formTable")
     .find("tr.list_one")
@@ -120,6 +122,7 @@ When("the user duplicates a service template", () => {
   });
  cy.enterIframe("iframe#main-content")
    .find("table tbody")
+   .find("tr.list_two")
    .each(($row) => {
      cy.wrap($row)
        .find("td.ListColLeft")
@@ -177,6 +180,7 @@ When("the user deletes a service template", () => {
   });
   cy.enterIframe("iframe#main-content")
     .find("table tbody")
+    .find("tr.list_two")
     .each(($row) => {
       cy.wrap($row)
         .find("td.ListColLeft")
