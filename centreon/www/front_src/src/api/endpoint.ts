@@ -5,3 +5,5 @@ export const userEndpoint = `${baseEndpoint}/configuration/users/current/paramet
 export const logoutEndpoint = `${baseEndpoint}/authentication/logout`;
 export const platformVersionsEndpoint = `${baseEndpoint}/platform/versions`;
 export const platformFeaturesEndpoint = `${baseEndpoint}/platform/features`;
+
+export const profileEndpoint = `${baseEndpoint}/configuration/users/current/profile`;

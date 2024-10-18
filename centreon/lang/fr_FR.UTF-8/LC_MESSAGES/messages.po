@@ -19468,8 +19468,17 @@ msgstr "Affiche l'heure en fonction du fuseau horaire sélectionné, ou un minut
 msgid "Clock / Timer"
 msgstr "Horloge/Minuteur"
 
-# msgid "Displays the time according to the selected time zone, or a timer."
-# msgstr ""
+msgid "Dashboard marked as favorite"
+msgstr "Tableau de bord marqué comme favori"
 
-# msgid "Clock / Timer"
-# msgstr ""
+msgid "Dashboard unmarked as favorite"
+msgstr "Tableau de bord non marqué comme favori"
+
+msgid "Mark as favorite"
+msgstr "Marquer comme favori"
+
+msgid "Unmark as favorite"
+msgstr "Ne plus marquer comme favori"
+
+msgid "Show only dashboards marked as favorites"
+msgstr "Afficher uniquement les tableaux de bord marqués comme favoris"

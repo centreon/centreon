@@ -4,6 +4,7 @@ import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
 
 import {
   limitAtom,
+  onlyFavoriteDashboardAtom,
   pageAtom,
   searchAtom,
   sortFieldAtom,
@@ -26,6 +27,7 @@ const useListDashboards = (): UseListDashboards => {
   const sortField = useAtomValue(sortFieldAtom);
   const sortOrder = useAtomValue(sortOrderAtom);
   const searchValue = useAtomValue(searchAtom);
+  const onlyFavoriteDashboard = useAtomValue(onlyFavoriteDashboardAtom);
 
   const sort = { [sortField]: sortOrder };
   const search = {
@@ -48,7 +50,10 @@ const useListDashboards = (): UseListDashboards => {
           page: page || 1,
           search,
           sort
-        }
+        },
+        customQueryParameters: [
+          { name: 'only_favorite', value: onlyFavoriteDashboard }
+        ]
       }),
     getQueryKey: () => [
       resource.dashboards,
@@ -56,7 +61,8 @@ const useListDashboards = (): UseListDashboards => {
       sortOrder,
       page,
       limit,
-      search
+      search,
+      onlyFavoriteDashboard
     ],
     queryOptions: {
       suspense: false

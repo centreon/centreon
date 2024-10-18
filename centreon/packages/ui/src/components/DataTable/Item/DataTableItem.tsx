@@ -13,7 +13,6 @@ import { useStyles } from './DataTableItem.styles';
 export interface DataTableItemProps {
   Actions?: JSX.Element;
   description?: string;
-  hasActions?: boolean;
   hasCardAction?: boolean;
   onClick?: () => void;
   title: string;
@@ -25,9 +24,8 @@ const DataTableItem = forwardRef(
       title,
       description,
       hasCardAction = false,
-      hasActions = false,
       onClick,
-      Actions
+      Actions,
     }: DataTableItemProps,
     ref
   ): ReactElement => {
@@ -53,12 +51,10 @@ const DataTableItem = forwardRef(
             {description && <MuiTypography>{description}</MuiTypography>}
           </MuiCardContent>
         </ActionArea>
-        {hasActions && (
           <MuiCardActions>
             <span />
             <span>{Actions}</span>
           </MuiCardActions>
-        )}
       </MuiCard>
     );
   }

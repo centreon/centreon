@@ -1,8 +1,10 @@
 import { useState } from 'react';
 
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { isNil } from 'ramda';
 
+import { useDeepMemo } from '@centreon/ui';
+import { profileAtom } from '@centreon/ui-context';
 import {
   dashboardToDeleteAtom,
   dashboardToDuplicateAtom,
@@ -22,11 +24,14 @@ interface UseActionsState {
   openDeleteModal: () => void;
   openDuplicateModal: () => void;
   openMoreActions: (event) => void;
+  isFavorite?: boolean;
 }
 
 const useActions = (row): UseActionsState => {
   const [moreActionsOpen, setMoreActionsOpen] = useState(null);
   const setAskBeforeRevoke = useSetAtom(askBeforeRevokeAtom);
+
+  const profile = useAtomValue(profileAtom);
 
   const { editDashboard } = useDashboardConfig();
   const setIsSharesOpen = useSetAtom(isSharesOpenAtom);
@@ -59,6 +64,11 @@ const useActions = (row): UseActionsState => {
     });
   };
 
+  const isFavorite = useDeepMemo({
+    deps: [profile],
+    variable: profile?.favoriteDashboards?.includes(row.id)
+  });
+
   return {
     closeMoreActions,
     editAccessRights: openShares(unformattedDashboard),
@@ -68,7 +78,8 @@ const useActions = (row): UseActionsState => {
     openAskBeforeRevoke,
     openDeleteModal,
     openDuplicateModal,
-    openMoreActions
+    openMoreActions,
+    isFavorite
   };
 };
 

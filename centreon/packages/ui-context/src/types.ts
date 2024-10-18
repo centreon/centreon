@@ -34,6 +34,10 @@ export interface User {
   user_interface_density: ListingVariant;
 }
 
+export interface Profile {
+  favoriteDashboards?: Array<number>;
+}
+
 export enum ThemeMode {
   dark = 'dark',
   light = 'light'

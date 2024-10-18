@@ -20,7 +20,6 @@ import { DashboardListing } from '../DashboardListing';
 import { searchAtom, viewModeAtom } from '../DashboardListing/atom';
 import { ViewMode } from '../DashboardListing/models';
 import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
-
 import { useStyles } from './DashboardsOverview.styles';
 import { DashboardsOverviewSkeleton } from './DashboardsOverviewSkeleton';
 import { useDashboardsOverview } from './useDashboardsOverview';
@@ -82,9 +81,13 @@ const DashboardsOverview = (): ReactElement => {
       {dashboards.map((dashboard) => (
         <DataTable.Item
           hasCardAction
-          Actions={<DashboardCardActions dashboard={dashboard} />}
+          Actions={
+            <DashboardCardActions
+              dashboard={dashboard}
+              hasEditPermission={hasEditPermission(dashboard)}
+            />
+          }
           description={dashboard.description ?? undefined}
-          hasActions={hasEditPermission(dashboard)}
           key={dashboard.id}
           title={dashboard.name}
           onClick={navigateToDashboard(dashboard)}

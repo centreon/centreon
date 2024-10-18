@@ -20,6 +20,8 @@ import { useColumnStyles } from '../useColumnStyles';
 import MoreActions from './MoreActions';
 import useActions from './useActions';
 
+import Favorite from '../../../../DashboardFavorite/Favorite';
+
 const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useColumnStyles();
@@ -30,7 +32,8 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
     openAskBeforeRevoke,
     closeMoreActions,
     moreActionsOpen,
-    openMoreActions
+    openMoreActions,
+    isFavorite
   } = useActions(row);
 
   if (isNestedRow) {
@@ -41,32 +44,33 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
     );
   }
 
-  if (!hasEditPermission(row)) {
-    return <Box className={classes.line}>-</Box>;
-  }
-
   return (
     <Box className={classes.actions}>
-      <IconButton
-        ariaLabel={t(labelShareWithContacts)}
-        title={t(labelShareWithContacts)}
-        onClick={editAccessRights}
-      >
-        <ShareIcon className={classes.icon} />
-      </IconButton>
-      <IconButton
-        ariaLabel={t(labelMoreActions)}
-        title={t(labelMoreActions)}
-        onClick={openMoreActions}
-      >
-        <MoreIcon />
-      </IconButton>
+      <Favorite isFavorite={isFavorite} dashboardId={row?.id} />
+      {hasEditPermission(row) && (
+        <>
+          <IconButton
+            ariaLabel={t(labelShareWithContacts)}
+            title={t(labelShareWithContacts)}
+            onClick={editAccessRights}
+          >
+            <ShareIcon className={classes.icon} />
+          </IconButton>
+          <IconButton
+            ariaLabel={t(labelMoreActions)}
+            title={t(labelMoreActions)}
+            onClick={openMoreActions}
+          >
+            <MoreIcon />
+          </IconButton>
 
-      <MoreActions
-        anchor={moreActionsOpen}
-        close={closeMoreActions}
-        row={row}
-      />
+          <MoreActions
+            anchor={moreActionsOpen}
+            close={closeMoreActions}
+            row={row}
+          />
+        </>
+      )}
     </Box>
   );
 };
