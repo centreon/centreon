@@ -1,28 +1,13 @@
 {
-    "panels": [
-      {
-        "id": null,
-        "layout": {
-          "height": 3,
-          "min_height": 2,
-          "min_width": 2,
-          "width": 12,
-          "x": 0,
-          "y": 0
-        },
-        "name": "centreon-widget-webpage",
-        "widget_settings": {
-          "data": {},
-          "options": {
-            "url": "https://docs.centreon.com/fr/",
-            "description": {
-              "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
-              "enabled": true
-            },
-            "name": "New wab page widget"
-          }
-        },
-        "widget_type": "/widgets/webpage"
-      }
-    ]
+  "data":{
+
+  },
+  "options":{
+     "url":"https://docs.centreon.com/fr/",
+     "description":{
+        "content":"{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+        "enabled":true
+     },
+     "name":"New wab page widget"
   }
+}

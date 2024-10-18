@@ -1,31 +1,16 @@
 {
-    "panels": [
-      {
-        "id": null,
-        "layout": {
-          "height": 3,
-          "min_height": 2,
-          "min_width": 2,
-          "width": 12,
-          "x": 0,
-          "y": 0
-        },
-        "name": "centreon-widget-clock",
-        "widget_settings": {
-          "data": {},
-          "options": {
-            "displayType": "clock",
-            "showTimezone": true,
-            "showDate": true,
-            "timeFormat": "12",
-            "backgroundColor": "#255891",
-            "description": {
-              "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
-              "enabled": true
-            }
-          }
-        },
-        "widget_type": "/widgets/clock"
-      }
-    ]
+  "data":{
+
+  },
+  "options":{
+     "displayType":"clock",
+     "showTimezone":true,
+     "showDate":true,
+     "timeFormat":"12",
+     "backgroundColor":"#255891",
+     "description":{
+        "content":"{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+        "enabled":true
+     }
   }
+}
