@@ -16,11 +16,6 @@ on:
   schedule:
     - cron: "0 3 * * 1-5"
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
     paths:
       - "centreon/**"
       - "!centreon/cypress/**"
@@ -56,7 +51,9 @@ jobs:
     outputs:
       has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes }}
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
-      has_features_changes: ${{ steps.filter.outputs.has_features_changes }}
+      has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
+      trigger_delivery: ${{ steps.changes_trigger_checks.outputs.trigger_delivery }}
+      trigger_api_testing: ${{ steps.changes_trigger_checks.outputs.trigger_api_testing }}
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
@@ -65,42 +62,46 @@ jobs:
         with:
           filters: |
             has_frontend_changes:
-              - '**/*.[jt]sx?'
-              - '**/www/front_src/**'
-              - '**/www/widgets/src/**'
-              - '**/tests/e2e/**'
-              - '**/package*'
-              - '**/lighthouse/**'
-              - '**/tsconfig.json'
-              - '**/cypress/**|**/pnpm-*'
+              - 'centreon/*.[jt]sx?'
+              - 'centreon/!(*tests)/*.[jt]sx?'
+              - 'centreon/www/front_src/**'
+              - 'centreon/www/widgets/src/**'
+              - 'centreon/package*'
+              - 'centreon/lighthouse/**'
+              - 'centreon/tsconfig.json'
+              - 'centreon/cypress/**|**/pnpm-*'
             has_backend_changes:
-              - '**/*.php'
-              - '**/phpstan*.neon'
+              - 'centreon/*.php'
+              - 'centreon/!(*tests)/*.php'
+              - 'centreon/phpstan*.neon'
               - 'centreon/codingstyle.xml'
               - 'centreon/config/**/*.xml'
               - 'centreon/phpunit.xml'
               - 'centreon/ruleset.xml'
               - 'centreon/www/**/*.xml'
-              - '**/bin/**'
-              - '**/tmpl/**'
-              - '**/features/**'
-              - '/centreon/src/**'
-              - '**/config/**'
-              - '**/composer.*'
-              - '**/tests/api/**'
-              - '**/tests/rest_api/collections/**'
-              - '**/tests/php/**'
-              - '**/tests/clapi_export/**'
-              - '**/www/!(front_src)/**'
-              - '**/doc/API/**'
-            has_features_changes:
-              - '**/tests/e2e/**/*.feature'
+              - 'centreon/bin/**'
+              - 'centreon/tmpl/**'
+              - 'centreon/features/**'
+              - 'centreon/src/**'
+              - 'centreon/config/**'
+              - 'centreon/composer.*'
+              - 'centreon/www/!(front_src)/**'
+              - 'centreon/doc/API/**'
+            has_test_changes:
+              - 'centreon/tests/**'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - uses: ./.github/actions/changes-trigger-checks
+        id: changes_trigger_checks
+        with:
+          has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes }}
+          has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
+          has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
 
   gherkin-lint:
     runs-on: ubuntu-22.04
     needs: [changes]
-    if: ${{ needs.changes.outputs.has_features_changes == 'true' }}
+    if: ${{ needs.changes.outputs.has_test_changes == 'true' }}
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
@@ -130,23 +131,6 @@ jobs:
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
-  veracode-analysis:
-    needs: [get-version]
-    uses: ./.github/workflows/veracode-analysis.yml
-    with:
-      module_directory: centreon
-      module_name: centreon-web
-      major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ needs.get-version.outputs.minor_version }}
-      stability: ${{ needs.get-version.outputs.stability }}
-    secrets:
-      veracode_api_id: ${{ secrets.VERACODE_API_ID_WEB }}
-      veracode_api_key: ${{ secrets.VERACODE_API_KEY_WEB_2 }}
-      veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
-      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-
   frontend-web-build:
     needs: [get-version]
     runs-on: ubuntu-22.04
@@ -163,20 +147,6 @@ jobs:
           index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
           static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
           build_command: pnpm centreon:build
-
-  frontend-widgets-build:
-    needs: [get-version]
-    runs-on: ubuntu-22.04
-
-    steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
-
-      - uses: ./.github/actions/frontend-build
-        with:
-          base_directory: ${{ env.widgets_directory }}
-          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-          static_directory: ${{ env.widgets_directory }}/src
-          static_cache_key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
 
   backend-dependencies:
     needs: [get-version]
@@ -237,20 +207,6 @@ jobs:
           dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
           pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           lint_path: ./www/front_src/
-
-  frontend-widgets-lint:
-    runs-on: ubuntu-22.04
-    needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
-
-    steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
-      - uses: ./.github/actions/frontend-lint
-        with:
-          frontend_directory: ${{ env.widgets_directory }}
-          module_name: centreon-widgets
-          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-          pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
@@ -385,8 +341,6 @@ jobs:
         backend-unit-test,
         frontend-web-build,
         frontend-web-lint,
-        frontend-widgets-build,
-        frontend-widgets-lint,
         frontend-unit-test,
         frontend-component-test,
       ]
@@ -443,17 +397,6 @@ jobs:
           path: centreon/www/static
           key: ${{ github.sha }}-${{ github.run_id }}-static
           fail-on-cache-miss: true
-
-      - name: Restore widget frontend from cache
-        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
-        with:
-          path: centreon/www/widgets/src
-          key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
-          fail-on-cache-miss: true
-
-      - name: Move widgets directory
-        run: mv centreon/www/widgets/src/* centreon/www/widgets/
-        shell: bash
 
       - name: Restore vendor directory from cache
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
@@ -628,6 +571,7 @@ jobs:
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "VERSION=${{ needs.get-version.outputs.major_version }}"
             "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
+            "STABILITY=${{ needs.get-version.outputs.stability }}"
           pull: true
           push: true
           load: true
@@ -679,7 +623,7 @@ jobs:
 
   newman-test:
     needs: [get-version, changes, create-xray-test-plan-and-test-execution, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_api_testing == 'true' }}
     strategy:
       fail-fast: false
       matrix:
@@ -927,12 +871,13 @@ jobs:
     runs-on: [self-hosted, common]
     needs:
       [
+        changes,
         get-version,
         e2e-test,
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_delivery == 'true' }}
 
     environment: ${{ needs.get-version.outputs.environment }}
 
@@ -960,12 +905,13 @@ jobs:
     runs-on: [self-hosted, common]
     needs:
       [
+        changes,
         get-version,
         e2e-test,
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_delivery == 'true' }}
 
     environment: ${{ needs.get-version.outputs.environment }}
 

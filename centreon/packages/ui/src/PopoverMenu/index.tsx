@@ -30,8 +30,9 @@ interface PopoverData {
 
 interface Props {
   canOpen?: boolean;
-  children: JSX.Element | ((props?) => JSX.Element);
+  children: (props?) => JSX.Element | JSX.Element;
   className?: string;
+  tooltipClassName?: string;
   dataTestId?: string;
   getPopoverData?: (data: PopoverData) => void;
   icon: JSX.Element;
@@ -53,6 +54,7 @@ const PopoverMenu = ({
   className,
   dataTestId,
   getPopoverData,
+  tooltipClassName,
   popperProps
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
@@ -114,7 +116,7 @@ const PopoverMenu = ({
             onResizeCapture={(): undefined => undefined}
             {...popperProps}
           >
-            <Paper style={{ borderRadius: '4px' }}>
+            <Paper className={tooltipClassName}>
               {equals(type(children), 'Function')
                 ? children({ close })
                 : children}
