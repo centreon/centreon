@@ -20,6 +20,7 @@ listener "tcp" {
 
 disable_mlock = true
 api_addr      = "https://0.0.0.0:8202"
+cluster_addr  = "https://127.0.0.1:8202"
 ui            = true
 EOM
 
