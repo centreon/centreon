@@ -8,7 +8,6 @@ import {
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import topBottomWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTopBottomWidget.json';
-import dashbboardWithTwoTopBottomWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwoTopBottomWidgets.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 
 const hostName = 'Centreon-Server';
@@ -282,7 +281,12 @@ Then("the Top Bottom metric widget is added in the dashboard's layout", () => {
 });
 
 Given('a dashboard configured with a Top Bottom widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    topBottomWidget,
+    'centreon-widget-topbottom',
+    '/widgets/topbottom'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
   cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('be.visible');
@@ -337,7 +341,12 @@ Then(
 );
 
 Given('a dashboard having a configured Top Bottom widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    topBottomWidget,
+    'centreon-widget-topbottom',
+    '/widgets/topbottom'
+  );
   cy.visitDashboard(dashboards.default.name);
 });
 
@@ -361,9 +370,12 @@ Then('a second Top Bottom widget is displayed on the dashboard', () => {
 });
 
 Given('a dashboard featuring two Top Bottom widgets', () => {
-  cy.insertDashboardWithWidget(
+  cy.insertDashboardWithDoubleWidget(
     dashboards.default,
-    dashbboardWithTwoTopBottomWidgets
+    topBottomWidget,
+    topBottomWidget,
+    'centreon-widget-topbottom',
+    '/widgets/topbottom'
   );
   cy.editDashboard(dashboards.default.name);
   cy.wait('@dashboardMetricsTop');
@@ -384,7 +396,12 @@ Then('only the contents of the other widget are displayed', () => {
 });
 
 Given('a dashboard with a configured Top Bottom widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    topBottomWidget,
+    'centreon-widget-topbottom',
+    '/widgets/topbottom'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
 });
@@ -409,7 +426,12 @@ Then(
 );
 
 Given('a dashboard containing a Top Bottom widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    topBottomWidget,
+    'centreon-widget-topbottom',
+    '/widgets/topbottom'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
 });
@@ -441,7 +463,12 @@ Then(
 );
 
 Given('a dashboard featuring a configured Top Bottom widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    topBottomWidget,
+    'centreon-widget-topbottom',
+    '/widgets/topbottom'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
 });
@@ -488,7 +515,12 @@ Then(
 );
 
 Given('a dashboard with a Top bottom widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    topBottomWidget,
+    'centreon-widget-topbottom',
+    '/widgets/topbottom'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.contains('Centreon-Server_Ping').should('be.visible');
 });
