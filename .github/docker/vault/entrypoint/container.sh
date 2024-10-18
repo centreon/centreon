@@ -13,9 +13,9 @@ storage "raft" {
 }
 
 listener "tcp" {
-  address       = "0.0.0.0:8200"
-  tls_cert_file = "/opt/vault/tls/tls.crt"
-  tls_key_file  = "/opt/vault/tls/tls.key"
+  address       = "0.0.0.0:8202"
+  tls_cert_file = "/opt/vault/tls/vault.crt"
+  tls_key_file  = "/opt/vault/tls/vault.key"
   tls_disable   = false
 }
 
@@ -25,7 +25,6 @@ cluster_addr  = "https://127.0.0.1:8201"
 ui            = true
 EOM
 
-vault server -dev -config=/etc/vault.d/vault.hcl
 vault secrets enable pki
 vault write pki/roles/vault-role \
     allow_subdomains=true \
@@ -35,8 +34,9 @@ vault write -format=json pki/issue/vault-role \
     common_name="vault" \
     ttl=720h \
     > /opt/vault/tls/vault_data.json
-jq -r .data.private_key /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.key
 jq -r .data.certificate /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.crt
+jq -r .data.private_key /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.key
+vault server -dev -config=/etc/vault.d/vault.hcl
 
 vault secrets enable -path=centreon kv
 vault auth enable approle
