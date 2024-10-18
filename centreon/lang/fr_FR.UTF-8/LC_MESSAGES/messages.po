@@ -19472,7 +19472,7 @@ msgid "Dashboard marked as favorite"
 msgstr "Tableau de bord marqué comme favori"
 
 msgid "Dashboard unmarked as favorite"
-msgstr "Tableau de bord désélectionné comme favori"
+msgstr "Tableau de bord non marqué comme favori"
 
 msgid "Mark as favorite"
 msgstr "Marquer comme favori"
