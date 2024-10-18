@@ -46,6 +46,7 @@ import {
   labelTicketWillBeClosedInTheProvider
 } from '../Listing/translatedLabels';
 import {
+  basicOptions,
   columnsForViewByHost,
   columnsForViewByService,
   metaServiceResources,
@@ -161,7 +162,7 @@ const resourcesRequests = (): void => {
         dashboardId: 1,
         playlistHash: 'hash',
         widgetId: '1'
-      })}?&limit=40&page=1&sort_by=%7B%22status%22%3A%22desc%22%7D`,
+      })}?limit=40&page=1&sort_by=%7B%22status%22%3A%22desc%22%7D`,
       response: data
     });
   });
@@ -249,7 +250,7 @@ describe('View by all', () => {
   beforeEach(resourcesRequests);
 
   it('retrieves resources', () => {
-    render({ data: { resources }, options: resourcesOptions });
+    render({ data: { resources }, options: basicOptions });
 
     cy.waitForRequest('@getResources');
     verifyListingRows();
