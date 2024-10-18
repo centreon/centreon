@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { closestCenter, DraggableSyntheticListeners } from '@dnd-kit/core';
+import { DraggableSyntheticListeners, closestCenter } from '@dnd-kit/core';
 import { horizontalListSortingStrategy } from '@dnd-kit/sortable';
 import { equals, find, map, pick, propEq } from 'ramda';
 
@@ -8,16 +8,16 @@ import { TableHead, TableRow } from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
 
-import { getVisibleColumns, Props as ListingProps } from '..';
+import { Props as ListingProps, getVisibleColumns } from '..';
 import SortableItems from '../../SortableItems';
 import { Column } from '../models';
 
 import ListingHeaderCell from './Cell/ListingHeaderCell';
-import { useStyles } from './ListingHeader.styles';
 import {
   SelectActionListingHeaderCell,
   SelectActionListingHeaderCellProps
 } from './Cell/SelectActionListingHeaderCell';
+import { useStyles } from './ListingHeader.styles';
 
 type Props = Pick<
   ListingProps<unknown>,
@@ -160,7 +160,12 @@ const MemoizedListingHeader = React.memo<Props>(
     equals(prevProps.columnConfiguration, nextProps.columnConfiguration) &&
     equals(prevProps.memoProps, nextProps.memoProps) &&
     equals(prevProps.areColumnsEditable, nextProps.areColumnsEditable) &&
-    equals(prevProps.listingVariant, nextProps.listingVariant)
+    equals(prevProps.listingVariant, nextProps.listingVariant) &&
+    equals(prevProps.onSelectAllClick, nextProps.onSelectAllClick) &&
+    equals(
+      prevProps.onSelectRowsWithCondition,
+      nextProps.onSelectRowsWithCondition
+    )
 );
 
 export { MemoizedListingHeader as ListingHeader };
