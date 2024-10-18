@@ -1,8 +1,8 @@
 #!/bin/sh
 
 export VAULT_ADDR='https://127.0.0.1:8200'
-export VAULT_SKIP_VERIFY=true  # If using self-signed certificates
-vault status
+export VAULT_SKIP_VERIFY=true
+mkdir /opt/vault/data
 
 cat <<EOM >>/etc/vault.d/vault.hcl
 storage "raft" {
@@ -17,11 +17,13 @@ listener "tcp" {
   tls_disable   = false
 }
 
-api_addr     = "https://0.0.0.0:8200"
-cluster_addr = "https://127.0.0.1:8201"
-ui           = true
+disable_mlock = true
+api_addr      = "https://0.0.0.0:8200"
+cluster_addr  = "https://127.0.0.1:8201"
+ui            = true
 EOM
 
+vault server -config=/etc/vault.d/vault.hcl
 vault secrets enable pki
 vault write pki/roles/vault-role \
     allow_subdomains=true \
@@ -49,8 +51,6 @@ path "centreon/*" {
   capabilities = ["create", "read", "update", "patch", "delete", "list"]
 }
 EOM
-
-
 
 vault policy write central /etc/vault.d/central_policy.hcl
 vault write auth/approle/role/central token_policies="central" \
