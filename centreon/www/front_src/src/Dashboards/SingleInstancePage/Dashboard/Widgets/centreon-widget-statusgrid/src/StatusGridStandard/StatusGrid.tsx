@@ -7,36 +7,36 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '@mui/material';
 
 import {
-    HeatMap,
-    ListingModel,
-    useFetchQuery,
-    useRefreshInterval
+  HeatMap,
+  ListingModel,
+  useFetchQuery,
+  useRefreshInterval
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { NoResourcesFound } from '../../../NoResourcesFound';
 import {
-    labelNoBAFound,
-    labelNoHostsFound,
-    labelNoKPIFound,
-    labelNoServicesFound
+  labelNoBAFound,
+  labelNoHostsFound,
+  labelNoKPIFound,
+  labelNoServicesFound
 } from '../../../translatedLabels';
 import { getWidgetEndpoint } from '../../../utils';
 import {
-    buildBAsEndpoint,
-    buildResourcesEndpoint,
-    hostsEndpoint,
-    resourcesEndpoint
+  buildBAsEndpoint,
+  buildResourcesEndpoint,
+  hostsEndpoint,
+  resourcesEndpoint
 } from '../api/endpoints';
 
 import HeatMapSkeleton from './LoadingSkeleton';
 import Tile from './Tile';
 import Tooltip from './Tooltip/Tooltip';
 import {
-    IndicatorType,
-    ResourceData,
-    ResourceStatus,
-    StatusGridProps
+  IndicatorType,
+  ResourceData,
+  ResourceStatus,
+  StatusGridProps
 } from './models';
 import { getColor } from './utils';
 
