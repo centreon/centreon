@@ -239,6 +239,22 @@ jobs:
               "databases": [alma9_mariadb],
             };
 
+            if (${{ contains(github.event.pull_request.labels.*.name, 'database') && 'true' || 'false' }})) {
+              matrix = {
+                ...matrix,
+                "operating_systems": [alma9_mariadb, bookworm_mysql],
+                "databases": [alma9_mariadb, bookworm_mysql],
+              };
+            }
+
+            if (context.eventName === 'schedule' || ${{ contains(github.event.pull_request.labels.*.name, 'system') && 'true' || 'false' }}) {
+              matrix = {
+                ...matrix,
+                "operating_systems": [alma9_mariadb, alma8_mariadb, bookworm_mysql],
+                "databases": [alma9_mariadb, bookworm_mysql],
+              };
+            }
+
             if (context.eventName === 'schedule' || ${{ contains(github.event.pull_request.labels.*.name, 'system') && 'true' || 'false' }}) {
               matrix = {
                 "main": [alma9_mariadb],
