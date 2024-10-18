@@ -11,13 +11,13 @@ on:
       - '.github/docker/glpi/**'
 
 jobs:
-  get-version:
-    uses: ./.github/workflows/get-version.yml
+  get-environment:
+    uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
   dockerize:
-    needs: [get-version]
+    needs: [get-environment]
     runs-on: ubuntu-24.04
 
     steps:
@@ -42,7 +42,7 @@ jobs:
           file: .github/docker/glpi/Dockerfile
           context: .
           build-args: |
-            "VERSION=${{ needs.get-version.outputs.major_version }}"
+            "VERSION=${{ needs.get-environment.outputs.major_version }}"
           pull: true
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/glpi:${{ needs.get-version.outputs.stability == 'unstable' && needs.get-version.outputs.major_version || github.head_ref || github.ref_name }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/glpi:${{ needs.get-environment.outputs.stability == 'unstable' && needs.get-environment.outputs.major_version || github.head_ref || github.ref_name }}

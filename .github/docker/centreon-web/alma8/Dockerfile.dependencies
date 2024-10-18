@@ -3,7 +3,7 @@ ARG VERSION
 FROM almalinux:8
 
 ARG VERSION
-ARG RELEASE_CLOUD
+ARG IS_CLOUD
 
 RUN --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_USERNAME \
     --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_PASSWORD \
@@ -21,7 +21,7 @@ dnf config-manager --set-enabled powertools
 
 dnf install -y epel-release
 
-if [[ ${RELEASE_CLOUD} -eq 1 ]]; then
+if [[ ${IS_CLOUD} == "true" ]]; then
   dnf config-manager --add-repo https://$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal/24.10/el8/centreon-24.10-internal.repo
   sed -i "s#packages.centreon.com/rpm-standard-internal#$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-24.10-internal.repo
 else

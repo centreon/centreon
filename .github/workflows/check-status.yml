@@ -86,8 +86,10 @@ jobs:
                 core.summary.addList(failedCheckRuns);
                 core.summary.write()
 
-                core.setFailed(`${failure.length} workflow(s) failed`);
-                return;
+                if (failedCheckRuns.length > 0) {
+                  core.setFailed(`${failedCheckRuns.length} job(s) failed`);
+                  return;
+                }
               }
 
               if (pending.length === 1) {
