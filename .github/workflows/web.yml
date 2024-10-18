@@ -14,11 +14,6 @@ on:
         default: false
         type: boolean
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
     paths:
       - "centreon/**"
       - "!centreon/cypress/**"
@@ -109,7 +104,9 @@ jobs:
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
+
   frontend-build:
+    needs: [get-version]
     runs-on: ubuntu-22.04
 
     steps:
