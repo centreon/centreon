@@ -256,14 +256,6 @@ jobs:
               };
             }
 
-            if (context.eventName === 'schedule' || ${{ contains(github.event.pull_request.labels.*.name, 'system') && 'true' || 'false' }}) {
-              matrix = {
-                ...matrix,
-                "operating_systems": [alma9_mariadb, alma8_mariadb, bookworm_mysql],
-                "databases": [alma9_mariadb, bookworm_mysql],
-              };
-            }
-
             console.log(matrix);
 
             return matrix;
