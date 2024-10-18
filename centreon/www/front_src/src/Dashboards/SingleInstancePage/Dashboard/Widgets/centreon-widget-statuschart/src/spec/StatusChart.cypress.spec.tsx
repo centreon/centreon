@@ -83,7 +83,7 @@ const interceptRequests = (): void => {
       method: Method.GET,
       path: `./api/latest${getPublicWidgetEndpoint({
         dashboardId: 1,
-        extraQueryParameters: '?&resource_type=%22host%22',
+        extraQueryParameters: '?resource_type=%22host%22',
         playlistHash: 'hash',
         widgetId: '1'
       })}`,
