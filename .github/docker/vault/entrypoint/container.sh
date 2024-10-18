@@ -1,6 +1,38 @@
 #!/bin/sh
 
-export VAULT_ADDR='http://127.0.0.1:8200'
+export VAULT_ADDR='https://127.0.0.1:8200'
+export VAULT_SKIP_VERIFY=true  # If using self-signed certificates
+vault status
+
+cat <<EOM >>/etc/vault.d/vault.hcl
+storage "raft" {
+  path    = "/opt/vault/data"
+  node_id = "node1"
+}
+
+listener "tcp" {
+  address       = "0.0.0.0:8200"
+  tls_cert_file = "/opt/vault/tls/tls.crt"
+  tls_key_file  = "/opt/vault/tls/tls.key"
+  tls_disable   = false
+}
+
+api_addr     = "https://0.0.0.0:8200"
+cluster_addr = "https://127.0.0.1:8201"
+ui           = true
+EOM
+
+vault secrets enable pki
+vault write pki/roles/vault-role \
+    allow_subdomains=true \
+    max_ttl="8760h" \
+    allow_any_name=true
+vault write -format=json pki/issue/vault-role \
+    common_name="vault" \
+    ttl=720h \
+    > /opt/vault/tls/vault_data.json
+jq -r .data.private_key /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.key
+jq -r .data.certificate /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.crt
 
 vault server -dev -dev-listen-address="0.0.0.0:8200" &
 sleep 5
@@ -18,22 +50,7 @@ path "centreon/*" {
 }
 EOM
 
-cat <<EOM >>/etc/vault.d/vault.hcl
-storage "raft" {
-  path    = "/opt/vault/data"
-  node_id = "node1"
-}
 
-listener "tcp" {
-  address       = "0.0.0.0:8200"
-  tls_cert_file = "/opt/vault/tls/tls.crt"
-  tls_key_file  = "/opt/vault/tls/tls.key"
-}
-
-api_addr     = "https://0.0.0.0:8200"
-cluster_addr = "https://127.0.0.1:8201"
-ui           = true
-EOM
 
 vault policy write central /etc/vault.d/central_policy.hcl
 vault write auth/approle/role/central token_policies="central" \
@@ -54,12 +71,6 @@ if [ ! -f /tmp/shared-volume/vault-ids ] && [[ -n $VAULT_ROLE_ID ]] && [[ -n $VA
   echo "VAULT_ROLE_ID=$VAULT_ROLE_ID" >> /tmp/shared-volume/vault-ids
   echo "VAULT_SECRET_ID=$VAULT_SECRET_ID" >> /tmp/shared-volume/vault-ids
 fi
-
-vault secrets enable pki
-vault write -field=certificate pki/root/generate/internal \
-   common_name=vault \
-   issuer_name="centreon-vault" \
-   ttl=8760h > /opt/vault/tls/vault.crt
 
 vault write auth/approle/login role_id=$VAULT_ROLE_ID secret_id=$VAULT_SECRET_ID
 
