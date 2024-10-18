@@ -164,6 +164,38 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
     }
 
     /**
+     * @param string $token
+     *
+     * @return bool
+     */
+    public function isTokenTypeManual(string $token): bool
+    {
+        try {
+            $statement = $this->db->prepare($this->translateDbName(
+            sprintf(<<<'SQL'
+                SELECT 1
+                FROM `:db`.security_authentication_tokens sat
+                WHERE sat.token = :token
+                    AND sat.token_type = '%s'
+                SQL,self::TYPE_MANUAL)
+            )
+            );
+
+            $statement->execute([':token' => $token]);
+            $result = $statement->fetch(\PDO::FETCH_ASSOC);
+
+            return ! empty($result);
+        } catch (\PDOException $exception) {
+            $this->error('Database error while checking token type', [
+                'error' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString(),
+            ]);
+
+            throw $exception;
+        }
+    }
+
+    /**
      * @param int|null $userId
      * @param RequestParametersInterface $requestParameters
      *
