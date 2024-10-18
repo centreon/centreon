@@ -69,7 +69,9 @@ const useLoadResources = ({
   provider,
   isOpenTicketEnabled
 }: LoadResourcesProps): LoadResources => {
-  const sort = { [sortField as string]: sortOrder };
+  const sort = sortField
+    ? { [sortField as string]: sortOrder }
+    : { status_severity_code: SortOrder.Desc };
 
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
@@ -100,7 +102,7 @@ const useLoadResources = ({
         extraQueryParameters: {
           limit: limit || 10,
           page: page || 1,
-          sort_by: sort || { status_severity_code: SortOrder.Desc }
+          sort_by: sort
         },
         isOnPublicPage,
         playlistHash,
