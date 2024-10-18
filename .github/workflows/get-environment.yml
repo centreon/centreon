@@ -7,7 +7,7 @@ on:
     outputs:
       latest_major_version:
         description: "latest major version"
-        value: ${{ jobs.get-environment.outputs.major_version }}
+        value: ${{ jobs.get-environment.outputs.latest_major_version }}
       is_cloud:
         description: "context of release (cloud or not cloud)"
         value: ${{ jobs.get-environment.outputs.is_cloud }}
@@ -168,7 +168,7 @@ jobs:
             exit 1
           fi
 
-          if egrep '^[2-9][0-9]\.[0-9][0-9]\.[0-9]+' <<<"$VERSION" >/dev/null 2>&1 ; then
+          if grep -E '^[2-9][0-9]\.[0-9][0-9]\.[0-9]+' <<<"$VERSION" >/dev/null 2>&1 ; then
             n=${VERSION//[!0-9]/ }
             a=(${n//\./ })
             echo "major_version=${a[0]}.${a[1]}" >> $GITHUB_OUTPUT
