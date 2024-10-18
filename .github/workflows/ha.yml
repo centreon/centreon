@@ -84,8 +84,8 @@ jobs:
 #           bucket_directory: centreon-ha
 #           module_directory: centreon-ha
 #           module_name: centreon-ha
-#           major_version: ${{ needs.get-version.outputs.major_version }}
-#           minor_version: ${{ needs.get-version.outputs.minor_version }}
+#           major_version: ${{ needs.get-environment.outputs.major_version }}
+#           minor_version: ${{ needs.get-environment.outputs.minor_version }}
 #           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
 #   delivery-rpm:
@@ -106,16 +106,16 @@ jobs:
 #         with:
 #           module_name: ha
 #           distrib: ${{ matrix.distrib }}
-#           version: ${{ needs.get-version.outputs.major_version }}
+#           version: ${{ needs.get-environment.outputs.major_version }}
 #           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 #           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-#           stability: ${{ needs.get-version.outputs.stability }}
-#           release_type: ${{ needs.get-version.outputs.release_type }}
-#           is_cloud: ${{ needs.get-version.outputs.is_cloud }}
+#           stability: ${{ needs.get-environment.outputs.stability }}
+#           release_type: ${{ needs.get-environment.outputs.release_type }}
+#           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
 #   deliver-deb:
 #     needs: [get-environment, package]
-#     if: ${{ needs.get-environment.outputs.is_cloud == 'false' && contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+#     if: ${{ needs.get-environment.outputs.is_cloud == 'false' && contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) }}
 #     runs-on: [self-hosted, common]
 
 #     strategy:
@@ -130,16 +130,16 @@ jobs:
 #         with:
 #           module_name: ha
 #           distrib: ${{ matrix.distrib }}
-#           version: ${{ needs.get-version.outputs.major_version }}
+#           version: ${{ needs.get-environment.outputs.major_version }}
 #           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 #           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
-#           stability: ${{ needs.get-version.outputs.stability }}
-#           release_type: ${{ needs.get-version.outputs.release_type }}
-#           is_cloud: ${{ needs.get-version.outputs.is_cloud }}
+#           stability: ${{ needs.get-environment.outputs.stability }}
+#           release_type: ${{ needs.get-environment.outputs.release_type }}
+#           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
 #   promote:
-#     needs: [get-version]
-#     if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+#     needs: [get-environment]
+#     if: ${{ contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' }}
 #     runs-on: [self-hosted, common]
 #     strategy:
 #       matrix:

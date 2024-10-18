@@ -89,7 +89,7 @@ jobs:
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   backend-lint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [changes, get-environment]
     if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
     steps:
@@ -101,7 +101,7 @@ jobs:
           php-version: 8.2
           coverage: none
         env:
-          runner: ubuntu-22.04
+          runner: ubuntu-24.04
 
       - name: Install Dependencies
         run: composer install --optimize-autoloader

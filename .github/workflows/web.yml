@@ -21,15 +21,15 @@ on:
       - synchronize
       - reopened
       - ready_for_review
-    # paths:
-    #   - "centreon/**"
-    #   - "!centreon/cypress/**"
-    #   - "!centreon/features/**"
-    #   - "!centreon/lighthouse/**"
-    #   - "!centreon/tests/**"
-    #   - "!centreon/.veracode-exclusions"
-    #   - "!centreon/veracode.json"
-    #   - "!centreon/packages/**"
+    paths:
+      - "centreon/**"
+      - "!centreon/cypress/**"
+      - "!centreon/features/**"
+      - "!centreon/lighthouse/**"
+      - "!centreon/tests/**"
+      - "!centreon/.veracode-exclusions"
+      - "!centreon/veracode.json"
+      - "!centreon/packages/**"
   push:
     branches:
       - develop
@@ -116,7 +116,7 @@ jobs:
 
   dispatch-to-maintained-branches:
     if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
@@ -177,10 +177,23 @@ jobs:
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
-      - uses: ./.github/actions/backend-dependencies
+      - name: Setup PHP
+        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.29.0
         with:
-          base_directory: ${{ env.base_directory }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
+          php-version: 8.2
+        env:
+          runner: ubuntu-24.04
+
+      - name: Install Dependencies
+        run: composer install --no-dev --optimize-autoloader
+        working-directory: ${{ env.base_directory }}
+        shell: bash
+
+      - name: Cache vendor directory
+        uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: ${{ env.base_directory }}/vendor
+          key: ${{ github.sha }}-${{ github.run_id }}-vendor
 
   translation-build:
     needs: [get-environment]
@@ -814,7 +827,7 @@ jobs:
   publish-openapi-documentation:
     runs-on: [self-hosted, infra]
     needs: [get-environment]
-    if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
+    if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
