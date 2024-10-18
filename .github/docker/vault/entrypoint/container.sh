@@ -24,7 +24,7 @@ cluster_addr  = "https://127.0.0.1:8200"
 ui            = true
 EOM
 
-vault server -dev -dev-listen-address="0.0.0.0:8200" -config=/etc/vault.d/vault.hcl
+vault server -dev-listen-address="0.0.0.0:8200" -config=/etc/vault.d/vault.hcl
 
 vault secrets enable pki
 vault write pki/roles/vault-role \
