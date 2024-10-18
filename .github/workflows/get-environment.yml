@@ -32,6 +32,9 @@ on:
       os_and_database_matrix:
         description: "matrix to use for dockerize and test jobs"
         value: ${{ jobs.get-environment.outputs.os_and_database_matrix }}
+      is_targeting_feature_branch:
+        description: "if it is a PR, check if targeting a feature branch"
+        value: ${{ jobs.get-environment.outputs.is_targeting_feature_branch }}
 
 jobs:
   get-environment:
@@ -46,6 +49,7 @@ jobs:
       target_stability: ${{ steps.get_stability.outputs.target_stability }}
       release_type: ${{ steps.get_release_type.outputs.release_type }}
       os_and_database_matrix: ${{ steps.get_os_database_matrix.outputs.result }}
+      is_targeting_feature_branch: ${{ steps.get_stability.outputs.is_targeting_feature_branch }}
 
     steps:
       - name: Checkout sources (current branch)
@@ -118,6 +122,13 @@ jobs:
               let targetStability = 'canary';
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               prPath.shift(); // remove current branch
+
+              let isTargetingFeatureBranch = false;
+              if (prPath.length && getStability(prPath[0]) === 'canary') {
+                isTargetingFeatureBranch = true;
+              }
+              core.setOutput('is_targeting_feature_branch', isTargetingFeatureBranch);
+
               prPath.every((branchName) => {
                 console.log(`checking stability of ${branchName}`)
                 targetStability = getStability(branchName);
@@ -274,7 +285,8 @@ jobs:
               ['minor_version', '${{ steps.get_version.outputs.minor_version }}'],
               ['release', '${{ steps.get_release.outputs.release }}'],
               ['stability', '${{ steps.get_stability.outputs.stability }}'],
-              ['release_type', '${{ steps.get_release_type.outputs.release_type || '<em>not defined because this is not a release</em>' }}']
+              ['release_type', '${{ steps.get_release_type.outputs.release_type || '<em>not defined because this is not a release</em>' }}'],
+              ['is_targeting_feature_branch', '${{ steps.get_stability.outputs.is_targeting_feature_branch || '<em>not defined because current run is not triggered by pull request event</em>' }}'],
             ];
 
             outputTable.push(['target_stability', '${{ steps.get_stability.outputs.target_stability || '<em>not defined because current run is not triggered by pull request event</em>' }}']);
