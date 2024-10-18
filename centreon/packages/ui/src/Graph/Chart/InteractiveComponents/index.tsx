@@ -76,13 +76,18 @@ interface Props {
   commonData: CommonData;
   timeShiftZonesData: TimeShiftZonesData;
   zoomData: ZoomPreviewModel;
+  useTransformMatrix?: {
+    fx: (pointX: number) => number;
+    fy: (pointY: number) => number;
+  };
 }
 
 const InteractionWithGraph = ({
   zoomData,
   commonData,
   annotationData,
-  timeShiftZonesData
+  timeShiftZonesData,
+  useTransformMatrix
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
@@ -127,7 +132,10 @@ const InteractionWithGraph = ({
     if (!mousePoint) {
       return;
     }
-    updateMousePosition([mousePoint.x, mousePoint.y]);
+    updateMousePosition([
+      useTransformMatrix?.fx?.(mousePoint.x) ?? mousePoint.x,
+      useTransformMatrix?.fy?.(mousePoint.y) ?? mousePoint.y
+    ]);
   };
 
   const mouseDown = (event): void => {

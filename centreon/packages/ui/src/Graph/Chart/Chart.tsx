@@ -56,6 +56,10 @@ interface Props extends LineChartProps {
   shapeLines?: GlobalAreaLines;
   thresholdUnit?: string;
   thresholds?: ThresholdsModel;
+  useTransformMatrix?: {
+    fx: (pointX: number) => number;
+    fy: (pointY: number) => number;
+  };
 }
 
 const filterLines = (lines: Array<Line>, displayThreshold): Array<Line> => {
@@ -98,7 +102,8 @@ const Chart = ({
   thresholds,
   thresholdUnit,
   limitLegend,
-  skipIntersectionObserver
+  skipIntersectionObserver,
+  useTransformMatrix
 }: Props): JSX.Element => {
   const { classes } = useChartStyles();
 
@@ -320,6 +325,7 @@ const Chart = ({
                       graphInterval
                     }}
                     zoomData={{ ...zoomPreview }}
+                    useTransformMatrix={useTransformMatrix}
                   />
                   {thresholds?.enabled && (
                     <Thresholds
