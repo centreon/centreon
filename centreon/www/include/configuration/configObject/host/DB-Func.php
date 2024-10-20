@@ -50,6 +50,7 @@ use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Converter\HostEventConverter;
+use Core\Host\Infrastructure\Repository\DbWriteHostActionLogRepository;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Symfony\Component\HttpClient\CurlHttpClient;
@@ -2838,14 +2839,16 @@ function insertHostInAPI(array $ret = []): int|null
             'action' => 'ADD',
             'access_grp_id' => ($formData['acl_groups'] ?? null),
         ]);
-        // Insert change logs
+
+        //Insert change logs
         $fields = CentreonLogAction::prepareChanges($formData);
+        $filteredFields = array_diff_key($fields, array_flip(DbWriteHostActionLogRepository::HOST_PROPERTIES_MAP));
         $centreon->CentreonLogAction->insertLog(
             "host",
             $hostId,
             CentreonDB::escape($formData["host_name"]),
             "a",
-            $fields
+            $filteredFields
         );
 
         return ($hostId);
