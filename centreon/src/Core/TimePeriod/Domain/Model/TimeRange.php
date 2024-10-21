@@ -47,15 +47,6 @@ class TimeRange implements \Stringable
      */
     public function __construct(string $timeRange)
     {
-
-        $resolvedTimeRangeAlias = $this->resolveTimeRangeAlias($timeRange);
-        if ($resolvedTimeRangeAlias) {
-            return;
-        }
-
-        $timeRange = $this->timeRange;
-        Assertion::minLength($timeRange, 11, 'TimeRange::timeRange');
-
         if (! $this->isValidTimeRangeFormat($timeRange)) {
             throw TimeRangeException::badTimeRangeFormat($timeRange);
         }
@@ -91,6 +82,10 @@ class TimeRange implements \Stringable
      */
     private function isValidTimeRangeFormat(string $timeRange): bool
     {
+        if (empty($timeRange)) {
+            return true;
+        }
+        Assertion::minLength($timeRange, 11, 'TimeRange::timeRange');
         return (bool) preg_match(
             "/^((?'time_range'(?'time'(([[0-1][0-9]|2[0-3]):[0-5][0-9]))-((?&time)|24:00))(,(?&time_range))*)$/",
             $timeRange
@@ -109,6 +104,9 @@ class TimeRange implements \Stringable
     private function areTimeRangesOrderedWithoutOverlap(string $timeRanges): bool
     {
         $previousEndTime = null;
+        if ($timeRanges === self::TIME_RANGE_FULL_DAY_ALIAS) {
+            return true;
+        }
         foreach (explode(',', $timeRanges) as $timeRange) {
             [$start, $end] = explode('-', $timeRange);
             // The start of a new time range cannot be less than or equal to the end of the previous time range
@@ -151,17 +149,5 @@ class TimeRange implements \Stringable
         }
 
         return $timeRanges;
-    }
-
-    /**
-     * @param string $timeRange
-     *
-     * @return bool
-     */
-    private function resolveTimeRangeAlias(string $timeRange): bool
-    {
-        $this->timeRange = empty($timeRange) ? '' : $timeRange;
-
-        return $timeRange === self::TIME_RANGE_FULL_DAY_ALIAS || empty($timeRange);
     }
 }
