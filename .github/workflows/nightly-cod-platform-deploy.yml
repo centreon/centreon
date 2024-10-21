@@ -27,7 +27,7 @@ jobs:
                -H "Authorization: Bearer ${{ secrets.CENTREON_TECHNIQUE_PAT }}" \
                -H "Accept: application/vnd.github.v3+json" \
                https://api.github.com/repos/centreon/centreon-on-demand/dispatches \
-               -d '{"event_type": "trigger-nightly-platform",
+               -d '{"event_type": "deploy-nightly-platform",
                   "client_payload": {
                     "bu": "RD",
                     "deployment_profile": "Standard profile",
