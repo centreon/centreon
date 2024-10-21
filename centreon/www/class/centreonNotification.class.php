@@ -213,7 +213,7 @@ class CentreonNotification
      */
     protected function getHostEscalations($escalations)
     {
-        $escalations = implode('', array_keys($escalations)); // FIXME bug ?? before rector : implode(array_keys($escalations))
+        $escalations = implode(',', array_keys($escalations));
         $sql = "SELECT h.host_id, h.host_name
         		FROM escalation_host_relation ehr, host h
         		WHERE h.host_id = ehr.host_host_id
@@ -284,7 +284,7 @@ class CentreonNotification
         $sql = "SELECT ecr.escalation_esc_id, e.esc_name
         		FROM escalation_contactgroup_relation ecr, escalation e
         		WHERE e.esc_id = ecr.escalation_esc_id
-        		AND ecr.contactgroup_cg_id IN (".implode('', array_keys($contactgroups)).")";
+        		AND ecr.contactgroup_cg_id IN (".implode(',', array_keys($contactgroups)).")";
         $res = $this->db->query($sql);
         $escTab = [];
         while ($row = $res->fetchRow()) {
