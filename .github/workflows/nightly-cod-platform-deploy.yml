@@ -36,8 +36,8 @@ jobs:
                     "instance_features": "Alma9 - MariaDB",
                     "centreon_branch": "develop",
                     "custom_centreon_web_admin_password": "${{ secrets.COD_NIGHTLY_INSTANCE_ADMIN_PWD }}",
-                    "configured_resources": true,
-                    "install_business_modules": false
+                    "configured_resources": "true",
+                    "install_business_modules": "false"
                   }
                 }'
         shell: bash
