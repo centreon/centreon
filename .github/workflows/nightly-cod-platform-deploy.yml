@@ -25,7 +25,6 @@ jobs:
 
           echo "[INFO]: Deploying a nightly CoD instance with the latest developments."
           curl --fail \
-            -s \
             -o /dev/null \
             -X POST \
             -H "Authorization: Bearer ${{ secrets.CENTREON_TECHNIQUE_PAT }}" \
