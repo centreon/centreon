@@ -1,6 +1,6 @@
 #!/bin/sh
 set -x
-export VAULT_ADDR='https://127.0.0.1:8202'
+export VAULT_ADDR='http://127.0.0.1:8200'
 export VAULT_SKIP_VERIFY=true
 export VAULT_TOKEN=${VAULT_DEV_ROOT_TOKEN_ID}
 mkdir -p /opt/vault/tls /opt/vault/data /etc/vault.d
@@ -12,15 +12,15 @@ storage "raft" {
 }
 
 listener "tcp" {
-  address       = "0.0.0.0:8202"
+  address       = "0.0.0.0:8200"
   tls_cert_file = "/opt/vault/tls/vault.crt"
   tls_key_file  = "/opt/vault/tls/vault.key"
   tls_disable   = false
 }
 
 disable_mlock = true
-api_addr      = "https://0.0.0.0:8202"
-cluster_addr  = "https://127.0.0.1:8202"
+api_addr      = "https://0.0.0.0:8200"
+cluster_addr  = "https://127.0.0.1:8200"
 ui            = true
 EOM
 
@@ -32,7 +32,7 @@ vault write pki/roles/vault-role \
 vault write -format=json pki/issue/vault-role \
     common_name="vault" \
     ttl=720h \
-    > /opt/vault/tls/vault_data.json
+    > /opt/vault/tls/vault.json
 jq -r .data.certificate /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.crt
 jq -r .data.private_key /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.key
 
