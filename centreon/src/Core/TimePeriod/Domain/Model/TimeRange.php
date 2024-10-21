@@ -82,9 +82,6 @@ class TimeRange implements \Stringable
      */
     private function isValidTimeRangeFormat(string $timeRange): bool
     {
-        if (empty($timeRange)) {
-            return true;
-        }
         Assertion::minLength($timeRange, 11, 'TimeRange::timeRange');
 
         return (bool) preg_match(
