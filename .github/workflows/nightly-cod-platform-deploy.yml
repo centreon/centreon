@@ -1,7 +1,6 @@
 name: nightly-cod-platform-deploy
 
 on:
-  workflow_dispatch:
   schedule:
     - cron: "15 6 * * 1-5"
 
