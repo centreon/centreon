@@ -27,6 +27,21 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\TimePeriod\Domain\Exception\TimeRangeException;
 use Core\TimePeriod\Domain\Model\TimeRange;
 
+$timeRange = '';
+it(
+    'should throw exception with empty time range',
+    function () use ($timeRange): void {
+        new TimeRange($timeRange);
+    }
+)->throws(
+    \InvalidArgumentException::class,
+    AssertionException::minLength(
+        $timeRange,
+        strlen($timeRange),
+        11,
+        'TimeRange::timeRange'
+    )->getMessage()
+);
 
 it(
     'should throw exception with wrong time format',
@@ -106,4 +121,9 @@ it('should return a valid single array', function (): void {
 it('should return a valid multiple array', function (): void {
     $timeRange = new TimeRange('00:00-10:00,11:00-18:00');
     expect($timeRange->getRanges())->toBeArray()->toHaveCount(2);
+});
+
+it('should not throw an exception for 00:00-00:00', function (): void {
+    $timeRange = new TimeRange('00:00-00:00');
+    expect($timeRange->getRanges())->toBeArray()->toHaveCount(1);
 });
