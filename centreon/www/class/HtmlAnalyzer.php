@@ -18,18 +18,30 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
+/**
+ * Class
+ *
+ * @class HtmlAnalyzer
+ *
+ * @deprecated Instead used {@see HtmlSanitizer}
+ */
 class HtmlAnalyzer
 {
-    private int $index;
+    /** @var int */
+    private int $index = -1;
+    /** @var mixed|string */
     private mixed $stringToSanitize;
+    /** @var int */
     private int $deepTag = 0;
 
     /**
      * Sanitize and remove html tags
      *
      * @param mixed $stringToSanitize
+     *
      * @return string
      */
     public static function sanitizeAndRemoveTags($stringToSanitize): string
@@ -48,9 +60,7 @@ class HtmlAnalyzer
      */
     public function __construct(string $stringToSanitize)
     {
-        $this->index = -1;
         $this->stringToSanitize = $stringToSanitize;
-        $this->deepTag = 0;
     }
 
     /**

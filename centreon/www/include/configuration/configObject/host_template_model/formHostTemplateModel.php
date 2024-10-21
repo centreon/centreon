@@ -904,11 +904,7 @@ $form->addRule(
 );
 $from_list_menu = false;
 if ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
-    if ($form->getSubmitValue('submitMC')) {
-        $from_list_menu = false;
-    } else {
-        $from_list_menu = true;
-    }
+    $from_list_menu = $form->getSubmitValue('submitMC') ? false : true;
 }
 
 //

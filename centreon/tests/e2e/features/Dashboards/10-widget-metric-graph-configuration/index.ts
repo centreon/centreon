@@ -135,6 +135,8 @@ before(() => {
     jsonName: 'admin'
   });
 
+  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' });
+
   checkHostsAreMonitored([
     { name: services.serviceOk.host },
     { name: services.serviceCritical.host }
@@ -646,3 +648,25 @@ When(
 Then('the graph should be displayed as a bar chart', () => {
   cy.get('path[data-testid*="stacked-bar-"]').should('exist');
 });
+
+When(
+  'the dashboard administrator selects a custom time period for the graph',
+  () => {
+    cy.contains('Last hour').click({force:true})
+    cy.contains('Customize').click({force:true})
+  }
+);
+
+Then(
+  'the graph updates to reflect data for the selected time period',
+  () => {
+    cy.getByLabel({
+      label: 'From',
+      tag: 'div'
+    }).should('be.visible')
+    cy.getByLabel({
+      label: 'to',
+      tag: 'div'
+    }).should('be.visible')
+  }
+);

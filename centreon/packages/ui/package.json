@@ -18,6 +18,7 @@
     "cypress:run": "cypress run --component --browser=chrome",
     "tokens:transform": "TS_NODE_PROJECT=tsconfig.node.json ts-node style-dictionary.transform.ts"
   },
+  "type": "module",
   "sideEffects": false,
   "repository": {
     "type": "git",
@@ -53,8 +54,6 @@
     "@cypress/webpack-dev-server": "^3.10.1",
     "@faker-js/faker": "^8.4.1",
     "@mdx-js/react": "^3.0.1",
-    "@modern-js/prod-server": "^2.58.1",
-    "@modern-js/storybook": "^2.58.1",
     "@simonsmith/cypress-image-snapshot": "^9.1.0",
     "@storybook/addon-a11y": "^8.2.9",
     "@storybook/addon-docs": "^8.2.9",
@@ -134,6 +133,7 @@
     "anylogger": "^1.0.11",
     "d3-array": "3.2.4",
     "dayjs": "^1.11.12",
+    "highlight.js": "^11.10.0",
     "humanize-duration": "^3.32.1",
     "lexical": "^0.17.0",
     "notistack": "^3.0.1",

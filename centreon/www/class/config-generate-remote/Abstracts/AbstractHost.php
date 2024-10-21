@@ -20,7 +20,7 @@
 
 namespace ConfigGenerateRemote\Abstracts;
 
-use \PDO;
+use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
 use ConfigGenerateRemote\Command;
 use ConfigGenerateRemote\Contact;
@@ -33,9 +33,21 @@ use ConfigGenerateRemote\Relations\ContactGroupHostRelation;
 use ConfigGenerateRemote\Relations\HostTemplateRelation;
 use ConfigGenerateRemote\Relations\HostPollerRelation;
 use ConfigGenerateRemote\Relations\MacroHost;
+use PDOStatement;
 
+/**
+ * Class
+ *
+ * @class AbstractHost
+ * @package ConfigGenerateRemote\Abstracts
+ */
 abstract class AbstractHost extends AbstractObject
 {
+    /** @var PDOStatement */
+    protected $stmt_htpl;
+    /** @var array */
+    protected $hosts;
+    /** @var string */
     protected $attributesSelect = '
         host_id,
         command_command_id,
@@ -73,6 +85,7 @@ abstract class AbstractHost extends AbstractObject
         geo_coords
     ';
 
+    /** @var string[] */
     protected $attributesWrite = [
         'host_id',
         'command_command_id',
@@ -102,11 +115,17 @@ abstract class AbstractHost extends AbstractObject
         'geo_coords'
     ];
 
+    /** @var array */
     protected $loopHtpl = []; // To be reset
+    /** @var null */
     protected $stmtMacro = null;
+    /** @var null */
     protected $stmtHtpl = null;
+    /** @var null */
     protected $stmtContact = null;
+    /** @var null */
     protected $stmtCg = null;
+    /** @var null */
     protected $stmtPoller = null;
 
     /**
@@ -164,24 +183,8 @@ abstract class AbstractHost extends AbstractObject
         if (isset($host['macros'])) {
             return 1;
         }
-
-        if (is_null($this->stmtMacro)) {
-            $this->stmtMacro = $this->backendInstance->db->prepare(
-                "SELECT host_macro_id, host_macro_name, host_macro_value, is_password, description, host_host_id
-                FROM on_demand_macro_host
-                WHERE host_host_id = :host_id"
-            );
-        }
-        $this->stmtMacro->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
-        $this->stmtMacro->execute();
-        $macros = $this->stmtMacro->fetchAll(PDO::FETCH_ASSOC);
-
-        $host['macros'] = [];
-        foreach ($macros as $macro) {
-            $host['macros'][$macro['host_macro_name']] = $macro['host_macro_value'];
-            MacroHost::getInstance($this->dependencyInjector)->add($macro, $host['host_id']);
-        }
-
+        $host['macros'] = MacroHost::getInstance($this->dependencyInjector)
+            ->getHostMacroByHostId($host['host_id']);
         return 0;
     }
 
@@ -299,9 +302,9 @@ abstract class AbstractHost extends AbstractObject
     /**
      * Check if a host id is a host template
      *
-     * @param integer $hostId
-     * @param integer $hostTplId
-     * @return boolean
+     * @param int $hostId
+     * @param int $hostTplId
+     * @return bool
      */
     public function isHostTemplate(int $hostId, int $hostTplId): bool
     {
@@ -340,7 +343,7 @@ abstract class AbstractHost extends AbstractObject
      *
      * @param array $host
      * @param string $commandIdLabel
-     * @return integer
+     * @return int
      */
     protected function getHostCommand(array &$host, string $commandIdLabel): int
     {
@@ -377,16 +380,12 @@ abstract class AbstractHost extends AbstractObject
     /**
      * Get host attribute
      *
-     * @param integer $hostId
+     * @param int $hostId
      * @param string $attr
      * @return string|null
      */
     public function getString(int $hostId, string $attr): ?string
     {
-        if (isset($this->hosts[$hostId][$attr])) {
-            return $this->hosts[$hostId][$attr];
-        }
-
-        return null;
+        return $this->hosts[$hostId][$attr] ?? null;
     }
 }

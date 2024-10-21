@@ -49,7 +49,7 @@ $search = \HtmlAnalyzer::sanitizeAndRemoveTags(
 
 if (isset($_POST['searchH']) || isset($_GET['searchH'])) {
     //saving filters values
-    $centreon->historySearch[$url] = array();
+    $centreon->historySearch[$url] = [];
     $centreon->historySearch[$url]['search'] = $search;
 } else {
     //restoring saved values
@@ -95,7 +95,7 @@ $tpl = new Smarty();
 $tpl = initSmartyTpl($path, $tpl);
 
 /* Access level */
-($centreon->user->access->page($p) == 1) ? $lvl_access = 'w' : $lvl_access = 'r';
+$lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
 /*
@@ -114,14 +114,11 @@ $form = new HTML_QuickFormCustom('select_form', 'POST', "?p=" . $p);
 // Different style between each lines
 $style = "one";
 
-$attrBtnSuccess = array(
-    "class" => "btc bt_success",
-    "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"
-);
+$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
 
 // Fill a tab with a multidimensional Array we put in $tpl
-$elemArr = array();
+$elemArr = [];
 $centreonToken = createCSRFToken();
 
 for ($i = 0; $hc = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
@@ -143,10 +140,10 @@ for ($i = 0; $hc = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
         "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" . $hc['hc_id'] . "]' />";
 
     // Check Nbr of Host / hc
-    $nbrhostAct = array();
-    $nbrhostDeact = array();
-    $nbrhostgroupAct = array();
-    $nbrhostgroupDeact = array();
+    $nbrhostAct = [];
+    $nbrhostDeact = [];
+    $nbrhostgroupAct = [];
+    $nbrhostgroupDeact = [];
 
     $aclFrom = "";
     $aclCond = "";
@@ -161,8 +158,8 @@ for ($i = 0; $hc = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
         " AND h.host_register = '1' ");
     $hcStatement->bindValue(':hcId', (int) $hc['hc_id'], \PDO::PARAM_INT);
     $hcStatement->execute();
-    $nbrhostActArr = array();
-    $nbrhostDeactArr = array();
+    $nbrhostActArr = [];
+    $nbrhostDeactArr = [];
     while ($row = $hcStatement->fetch()) {
         if ($row['host_activate']) {
             $nbrhostActArr[$row['host_id']] = true;
@@ -173,32 +170,16 @@ for ($i = 0; $hc = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
     $nbrhostAct = count($nbrhostActArr);
     $nbrhostDeact = count($nbrhostDeactArr);
 
-    $elemArr[$i] = array(
-        "MenuClass" => "list_" . $style,
-        "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_name" => CentreonUtils::escapeSecure($hc["hc_name"]),
-        "RowMenu_link" => "main.php?p=" . $p . "&o=c&hc_id=" . $hc['hc_id'],
-        "RowMenu_desc" => CentreonUtils::escapeSecure($hc["hc_alias"]),
-        "RowMenu_hc_type" => ($hc["level"] ? _('Severity') . ' (' . $hc['level'] . ')' : _('Regular')),
-        "RowMenu_status" => $hc["hc_activate"] ? _("Enabled") : _("Disabled"),
-        "RowMenu_badge" => $hc["hc_activate"] ? "service_ok" : "service_critical",
-        "RowMenu_hostAct" => $nbrhostAct,
-        "RowMenu_hostDeact" => $nbrhostDeact,
-        "RowMenu_options" => $moptions
-    );
+    $elemArr[$i] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => CentreonUtils::escapeSecure($hc["hc_name"]), "RowMenu_link" => "main.php?p=" . $p . "&o=c&hc_id=" . $hc['hc_id'], "RowMenu_desc" => CentreonUtils::escapeSecure($hc["hc_alias"]), "RowMenu_hc_type" => ($hc["level"] ? _('Severity') . ' (' . $hc['level'] . ')' : _('Regular')), "RowMenu_status" => $hc["hc_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $hc["hc_activate"] ? "service_ok" : "service_critical", "RowMenu_hostAct" => $nbrhostAct, "RowMenu_hostDeact" => $nbrhostDeact, "RowMenu_options" => $moptions];
     // Switch color line
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 
 // Different messages we put in the template
 $tpl->assign(
     'msg',
-    array(
-        "addL" => "main.php?p=" . $p . "&o=a",
-        "addT" => _("Add"),
-        "delConfirm" => _("Do you confirm the deletion ?")
-    )
+    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
 );
 
 ?>
@@ -208,38 +189,30 @@ $tpl->assign(
     }
 </script>
 <?php
-foreach (array('o1', 'o2') as $option) {
-    $attrs1 = array(
-        'onchange' => "javascript: " .
-            "var bChecked = isChecked(); " .
-            "if (this.form.elements['" . $option . "'].selectedIndex != 0 && !bChecked) {" .
-            " alert('" . _("Please select one or more items") . "'); return false;} " .
-            "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('" .
-            _("Do you confirm the duplication ?") . "')) {" .
-            "   setO(this.form.elements['" . $option . "'].value); submit();} " .
-            "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('" .
-            _("Do you confirm the deletion ?") . "')) {" .
-            "   setO(this.form.elements['" . $option . "'].value); submit();} " .
-            "else if (this.form.elements['" . $option . "'].selectedIndex == 3) {" .
-            "   setO(this.form.elements['" . $option . "'].value); submit();} " .
-            "else if (this.form.elements['" . $option . "'].selectedIndex == 4) {" .
-            "   setO(this.form.elements['" . $option . "'].value); submit();} " .
-            "this.form.elements['" . $option . "'].selectedIndex = 0"
-    );
+foreach (['o1', 'o2'] as $option) {
+    $attrs1 = ['onchange' => "javascript: " .
+        "var bChecked = isChecked(); " .
+        "if (this.form.elements['" . $option . "'].selectedIndex != 0 && !bChecked) {" .
+        " alert('" . _("Please select one or more items") . "'); return false;} " .
+        "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('" .
+        _("Do you confirm the duplication ?") . "')) {" .
+        "   setO(this.form.elements['" . $option . "'].value); submit();} " .
+        "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('" .
+        _("Do you confirm the deletion ?") . "')) {" .
+        "   setO(this.form.elements['" . $option . "'].value); submit();} " .
+        "else if (this.form.elements['" . $option . "'].selectedIndex == 3) {" .
+        "   setO(this.form.elements['" . $option . "'].value); submit();} " .
+        "else if (this.form.elements['" . $option . "'].selectedIndex == 4) {" .
+        "   setO(this.form.elements['" . $option . "'].value); submit();} " .
+        "this.form.elements['" . $option . "'].selectedIndex = 0"];
     $form->addElement(
         'select',
         $option,
         null,
-        array(
-            null => _("More actions..."),
-            "m" => _("Duplicate"),
-            "d" => _("Delete"),
-            "ms" => _("Enable"),
-            "mu" => _("Disable")
-        ),
+        [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete"), "ms" => _("Enable"), "mu" => _("Disable")],
         $attrs1
     );
-    $form->setDefaults(array($option => null));
+    $form->setDefaults([$option => null]);
     $o1 = $form->getElement($option);
     $o1->setValue(null);
     $o1->setSelected(null);

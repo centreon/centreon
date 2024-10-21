@@ -16,11 +16,6 @@ on:
   schedule:
     - cron: "0 3 * * 1-5"
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
     paths:
       - "centreon/**"
       - "!centreon/cypress/**"
@@ -56,53 +51,59 @@ jobs:
     outputs:
       has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes }}
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
-      has_features_changes: ${{ steps.filter.outputs.has_features_changes }}
+      has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
+      trigger_delivery: ${{ steps.changes_trigger_checks.outputs.trigger_delivery }}
+      trigger_api_testing: ${{ steps.changes_trigger_checks.outputs.trigger_api_testing }}
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: filter
         with:
           filters: |
             has_frontend_changes:
-              - '**/*.[jt]sx?'
-              - '**/www/front_src/**'
-              - '**/www/widgets/src/**'
-              - '**/tests/e2e/**'
-              - '**/package*'
-              - '**/lighthouse/**'
-              - '**/tsconfig.json'
-              - '**/cypress/**|**/pnpm-*'
+              - 'centreon/*.[jt]sx?'
+              - 'centreon/!(*tests)/*.[jt]sx?'
+              - 'centreon/www/front_src/**'
+              - 'centreon/www/widgets/src/**'
+              - 'centreon/package*'
+              - 'centreon/lighthouse/**'
+              - 'centreon/tsconfig.json'
+              - 'centreon/cypress/**|**/pnpm-*'
             has_backend_changes:
-              - '**/*.php'
-              - '**/phpstan*.neon'
+              - 'centreon/*.php'
+              - 'centreon/!(*tests)/*.php'
+              - 'centreon/phpstan*.neon'
               - 'centreon/codingstyle.xml'
               - 'centreon/config/**/*.xml'
               - 'centreon/phpunit.xml'
               - 'centreon/ruleset.xml'
               - 'centreon/www/**/*.xml'
-              - '**/bin/**'
-              - '**/tmpl/**'
-              - '**/features/**'
-              - '/centreon/src/**'
-              - '**/config/**'
-              - '**/composer.*'
-              - '**/tests/api/**'
-              - '**/tests/rest_api/collections/**'
-              - '**/tests/php/**'
-              - '**/tests/clapi_export/**'
-              - '**/www/!(front_src)/**'
-              - '**/doc/API/**'
-            has_features_changes:
-              - '**/tests/e2e/**/*.feature'
+              - 'centreon/bin/**'
+              - 'centreon/tmpl/**'
+              - 'centreon/features/**'
+              - 'centreon/src/**'
+              - 'centreon/config/**'
+              - 'centreon/composer.*'
+              - 'centreon/www/!(front_src)/**'
+              - 'centreon/doc/API/**'
+            has_test_changes:
+              - 'centreon/tests/**'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - uses: ./.github/actions/changes-trigger-checks
+        id: changes_trigger_checks
+        with:
+          has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes }}
+          has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
+          has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
 
   gherkin-lint:
     runs-on: ubuntu-22.04
     needs: [changes]
-    if: ${{ needs.changes.outputs.has_features_changes == 'true' }}
+    if: ${{ needs.changes.outputs.has_test_changes == 'true' }}
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - uses: ./.github/actions/gherkin-lint
         with:
@@ -113,10 +114,10 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout sources
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - run: |
-          NIGHTLY_TARGETS=("dev-22.10.x" "dev-23.04.x" "dev-23.10.x" "dev-24.04.x")
+          NIGHTLY_TARGETS=("dev-23.04.x" "dev-23.10.x" "dev-24.04.x")
           for target in "${NIGHTLY_TARGETS[@]}"; do
             echo "[INFO] - Dispatching nightly run to $target branch."
             gh workflow run web.yml -r "$target" -f is_nightly=true
@@ -130,29 +131,12 @@ jobs:
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
-  veracode-analysis:
-    needs: [get-version]
-    uses: ./.github/workflows/veracode-analysis.yml
-    with:
-      module_directory: centreon
-      module_name: centreon-web
-      major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ needs.get-version.outputs.minor_version }}
-      stability: ${{ needs.get-version.outputs.stability }}
-    secrets:
-      veracode_api_id: ${{ secrets.VERACODE_API_ID_WEB }}
-      veracode_api_key: ${{ secrets.VERACODE_API_KEY_WEB_2 }}
-      veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
-      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-
   frontend-web-build:
     needs: [get-version]
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - uses: ./.github/actions/frontend-build
         with:
@@ -164,26 +148,12 @@ jobs:
           static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
           build_command: pnpm centreon:build
 
-  frontend-widgets-build:
-    needs: [get-version]
-    runs-on: ubuntu-22.04
-
-    steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-
-      - uses: ./.github/actions/frontend-build
-        with:
-          base_directory: ${{ env.widgets_directory }}
-          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-          static_directory: ${{ env.widgets_directory }}/src
-          static_cache_key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
-
   backend-dependencies:
     needs: [get-version]
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - uses: ./.github/actions/backend-dependencies
         with:
@@ -201,7 +171,7 @@ jobs:
         password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - run: |
           cd centreon
@@ -228,7 +198,7 @@ jobs:
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - uses: ./.github/actions/frontend-lint
         with:
@@ -238,34 +208,20 @@ jobs:
           pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           lint_path: ./www/front_src/
 
-  frontend-widgets-lint:
-    runs-on: ubuntu-22.04
-    needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
-
-    steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-      - uses: ./.github/actions/frontend-lint
-        with:
-          frontend_directory: ${{ env.widgets_directory }}
-          module_name: centreon-widgets
-          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-          pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
   frontend-unit-test:
     runs-on: ubuntu-22.04
     needs: [changes, get-version]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
           version: 8
           run_install: false
 
-      - uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+      - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
         with:
           node-version: 20
           cache: pnpm
@@ -307,12 +263,12 @@ jobs:
     if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
         with:
-          php-version: 8.1
+          php-version: 8.2
           coverage: none
         env:
           runner: ubuntu-22.04
@@ -339,12 +295,12 @@ jobs:
     if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
         with:
-          php-version: 8.1
+          php-version: 8.2
           coverage: none
         env:
           runner: ubuntu-22.04
@@ -385,8 +341,6 @@ jobs:
         backend-unit-test,
         frontend-web-build,
         frontend-web-lint,
-        frontend-widgets-build,
-        frontend-widgets-lint,
         frontend-unit-test,
         frontend-component-test,
       ]
@@ -403,16 +357,13 @@ jobs:
             image: packaging-nfpm-alma9
             distrib: el9
           - package_extension: deb
-            image: packaging-nfpm-bullseye
-            distrib: bullseye
-          - package_extension: deb
             image: packaging-nfpm-bookworm
             distrib: bookworm
           - package_extension: deb
             image: packaging-nfpm-jammy
             distrib: jammy
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
@@ -424,7 +375,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Restore translation from cache
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
@@ -446,17 +397,6 @@ jobs:
           path: centreon/www/static
           key: ${{ github.sha }}-${{ github.run_id }}-static
           fail-on-cache-miss: true
-
-      - name: Restore widget frontend from cache
-        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
-        with:
-          path: centreon/www/widgets/src
-          key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
-          fail-on-cache-miss: true
-
-      - name: Move widgets directory
-        run: mv centreon/www/widgets/src/* centreon/www/widgets/
-        shell: bash
 
       - name: Restore vendor directory from cache
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
@@ -530,7 +470,7 @@ jobs:
           stability: ${{ needs.get-version.outputs.stability }}
 
   dockerize:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [get-version, package]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
@@ -545,7 +485,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Generate information according to matrix os
         id: matrix_include
@@ -556,9 +496,6 @@ jobs:
           elif [ "${{ matrix.operating_system }}" = "alma9" ]; then
             DISTRIB=el9
             PACKAGE_EXTENSION=rpm
-          elif [ "${{ matrix.operating_system }}" = "bullseye" ]; then
-            DISTRIB=bullseye
-            PACKAGE_EXTENSION=deb
           elif [ "${{ matrix.operating_system }}" = "bookworm" ]; then
             DISTRIB=bookworm
             PACKAGE_EXTENSION=deb
@@ -581,6 +518,26 @@ jobs:
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
+      - name: Get FROM image tag
+        id: from_image_version
+        run: |
+          FROM_IMAGE_VERSION="${{ needs.get-version.outputs.major_version }}"
+          FROM_IMAGE="centreon-web-dependencies-${{ matrix.operating_system }}"
+          IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.head_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
+          if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
+            FROM_IMAGE_VERSION="${{ github.head_ref || github.ref_name }}"
+            echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
+          else
+            IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.base_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
+            if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
+              FROM_IMAGE_VERSION="${{ github.base_ref || github.ref_name }}"
+              echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
+            fi
+          fi
+
+          echo "from_image_version=$FROM_IMAGE_VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
@@ -588,10 +545,21 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
           fail-on-cache-miss: true
 
+      - run: |
+          if [ "${{ steps.matrix_include.outputs.package_extension }}" = "rpm" ]; then
+            rm -f centreon{,-central,-mariadb,-mysql}-${{ needs.get-version.outputs.major_version }}*.rpm
+          else
+            rm -f centreon{,-central,-mariadb,-mysql}_${{ needs.get-version.outputs.major_version }}*.deb
+          fi
+
+          mkdir packages-centreon
+          mv *.${{ steps.matrix_include.outputs.package_extension }} packages-centreon/
+        shell: bash
+
       - uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # v3.6.1
 
       - name: Build and push web image
-        uses: docker/build-push-action@16ebe778df0e7752d2cfcbd924afdbbd89c1a755 # v6.6.1
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
         env:
           DOCKER_BUILD_CHECKS_ANNOTATIONS: false
           DOCKER_BUILD_SUMMARY: false
@@ -602,44 +570,18 @@ jobs:
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "VERSION=${{ needs.get-version.outputs.major_version }}"
-            "MYDUMPER_VERSION=0.16.3-5"
+            "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
+            "STABILITY=${{ needs.get-version.outputs.stability }}"
           pull: true
           push: true
           load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
-
-      - name: Setup docker slim
-        run: curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -s -- 1.40.11
-        shell: bash
-
-      - name: Build slim image
-        run: |
-          export WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}"
-          sed -i '/openid:/,$d' .github/docker/docker-compose.yml # remove all services after openid
-          docker compose -f .github/docker/docker-compose.yml pull db
-          slim build \
-            --compose-file .github/docker/docker-compose.yml \
-            --compose-env-file .github/docker/.env \
-            --target-compose-svc web \
-            --show-clogs \
-            --show-blogs \
-            --include-shell \
-            --include-new=false \
-            --http-probe-off \
-            --exec-file .github/docker/centreon-web/${{ matrix.operating_system }}/slim-configuration/exec.txt \
-            --include-path-file .github/docker/centreon-web/${{ matrix.operating_system }}/slim-configuration/include-path.txt \
-            --include-bin-file .github/docker/centreon-web/${{ matrix.operating_system }}/slim-configuration/include-bin.txt \
-            --path-perms-file .github/docker/centreon-web/${{ matrix.operating_system }}/slim-configuration/path-perms.txt \
-            --tag ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
-          docker tag ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
-        shell: bash
-
-      - name: Push slim image
-        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
-        shell: bash
+          tags: |
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
 
       - name: Store slim image in local archive
         run: |
+          docker tag ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }} ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
           mkdir -p /tmp/cache/docker-image
           docker save --output /tmp/cache/docker-image/${{ env.project }}-slim-${{ matrix.operating_system }}.tar ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
         shell: bash
@@ -681,7 +623,7 @@ jobs:
 
   newman-test:
     needs: [get-version, changes, create-xray-test-plan-and-test-execution, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_api_testing == 'true' }}
     strategy:
       fail-fast: false
       matrix:
@@ -753,7 +695,7 @@ jobs:
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       stability: ${{ needs.get-version.outputs.stability }}
-      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma8' && 'rpm-el8' || matrix.operating_system == 'alma9' && 'rpm-el9' || matrix.operating_system == 'bullseye' && 'deb-bullseye' || 'deb-bookworm' ) }}
+      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma8' && 'rpm-el8' || matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-bookworm' ) }}
       package_directory: centreon/tests/e2e/fixtures/packages
       test_tags: ${{ matrix.test_tags }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
@@ -778,7 +720,7 @@ jobs:
     name: performances-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Login to registry
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
@@ -827,7 +769,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -853,14 +795,14 @@ jobs:
     if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
           version: 9
           run_install: false
 
-      - uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+      - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
         with:
           node-version: 20
 
@@ -929,12 +871,13 @@ jobs:
     runs-on: [self-hosted, common]
     needs:
       [
+        changes,
         get-version,
         e2e-test,
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_delivery == 'true' }}
 
     environment: ${{ needs.get-version.outputs.environment }}
 
@@ -944,7 +887,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
@@ -962,22 +905,23 @@ jobs:
     runs-on: [self-hosted, common]
     needs:
       [
+        changes,
         get-version,
         e2e-test,
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !needs.get-version.outputs.release_cloud && !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_delivery == 'true' }}
 
     environment: ${{ needs.get-version.outputs.environment }}
 
     strategy:
       matrix:
-        distrib: [bullseye, bookworm, jammy]
+        distrib: [bookworm, jammy]
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Delivery
         uses: ./.github/actions/deb-delivery
@@ -992,16 +936,20 @@ jobs:
           release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   promote:
-    needs: [get-version]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+    needs: [get-version, deliver-deb, deliver-rpm]
+    if: |
+      (contains(fromJson('["stable", "testing"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch') &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye, bookworm]
+        distrib: [el8, el9, bookworm]
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable

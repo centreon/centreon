@@ -35,7 +35,7 @@ import {
   setCriteriaAndNewFilterDerivedAtom
 } from '../Filter/filterAtoms';
 import { rowColorConditions } from '../colors';
-import { Resource, SortOrder, Visualization } from '../models';
+import { type Resource, type SortOrder, Visualization } from '../models';
 import {
   labelForcedCheckCommandSent,
   labelSelectAtLeastOneColumn,
@@ -239,6 +239,7 @@ const ResourceListing = (): JSX.Element => {
     <Listing
       checkable
       actions={<Actions onRefresh={initAutorefreshAndLoad} />}
+      actionsBarMemoProps={[selectedResourceDetails]}
       columnConfiguration={{
         selectedColumnIds,
         sortable: areColumnsSortable

@@ -11,10 +11,6 @@ default:
   gherkin:
     cache: ~
   suites:
-    configuration_warnings:
-      paths: [ "%paths.base%/features/ConfigurationWarnings.feature" ]
-      contexts: [ ConfigurationWarningsContext ]
-
     generate_service_contact_configuration:
       paths: [ "%paths.base%/features/GenerateServiceContact.feature" ]
       contexts: [ GenerateServiceContactContext ]
@@ -119,25 +115,9 @@ default:
       paths: [ "%paths.base%/features/ContactConfiguration.feature" ]
       contexts: [ ContactConfigurationContext ]
 
-    host_configuration:
-      paths: [ "%paths.base%/features/HostConfiguration.feature" ]
-      contexts: [ HostConfigurationContext ]
-
-    host_category_configuration:
-      paths: [ "%paths.base%/features/HostCategoryConfiguration.feature" ]
-      contexts: [ HostCategoryConfigurationContext ]
-
-    host_group_configuration:
-      paths: [ "%paths.base%/features/HostGroupConfiguration.feature" ]
-      contexts: [ HostGroupConfigurationContext ]
-
     contact_group_configuration:
       paths: [ "%paths.base%/features/ContactGroupConfiguration.feature" ]
       contexts: [ ContactGroupConfigurationContext ]
-
-    host_template_basics_operations:
-      paths: [ "%paths.base%/features/HostTemplateBasicsOperations.feature" ]
-      contexts: [ HostTemplateBasicsOperationsContext ]
 
     ldap_configuration:
       paths: [ "%paths.base%/features/LdapConfiguration.feature" ]
@@ -179,14 +159,6 @@ default:
       paths: [ "%paths.base%/features/CommandConfiguration.feature" ]
       contexts: [ CommandConfigurationContext ]
 
-    service_group_configuration:
-      paths: [ "%paths.base%/features/ServiceGroupConfiguration.feature" ]
-      contexts: [ ServiceGroupConfigurationContext ]
-
-    service_configuration:
-      paths: [ "%paths.base%/features/ServiceConfiguration.feature" ]
-      contexts: [ ServiceConfigurationContext ]
-
     host_group_service_configuration:
       paths: [ "%paths.base%/features/HostGroupServiceConfiguration.feature" ]
       contexts: [ HostGroupServiceConfigurationContext ]
@@ -198,10 +170,6 @@ default:
     contact_template_configuration:
       paths: [ "%paths.base%/features/ContactTemplateConfiguration.feature" ]
       contexts: [ ContactTemplateConfigurationContext ]
-
-    service_category_configuration:
-      paths: [ "%paths.base%/features/ServiceCategoryConfiguration.feature" ]
-      contexts: [ ServiceCategoryConfigurationContext ]
 
     escalation_configuration:
       paths: [ "%paths.base%/features/EscalationConfiguration.feature" ]

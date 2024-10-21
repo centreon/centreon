@@ -9,6 +9,7 @@ import {
   findIndex,
   gt,
   gte,
+  identity,
   includes,
   isNil,
   last,
@@ -75,9 +76,9 @@ const getVisibleColumns = ({
     return columns;
   }
 
-  return selectedColumnIds.map((id) =>
-    columns.find(propEq(id, 'id'))
-  ) as Array<Column>;
+  return selectedColumnIds
+    .map((id) => columns.find(propEq(id, 'id')))
+    .filter(identity) as Array<Column>;
 };
 
 interface CustomStyle {
@@ -138,6 +139,7 @@ export interface Props<TRow> {
   totalRows?: number;
   viewerModeConfiguration?: ViewerModeConfiguration;
   widthToMoveTablePagination?: number;
+  isActionBarVisible: boolean;
 }
 
 const defaultColumnConfiguration = {
@@ -146,7 +148,13 @@ const defaultColumnConfiguration = {
 
 export const performanceRowsLimit = 60;
 
-const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
+const Listing = <
+  TRow extends {
+    id: RowId;
+    internalListingParentId?: RowId;
+    internalListingParentRow: TRow;
+  }
+>({
   customListingComponent,
   displayCustomListing,
   limit = 10,
@@ -190,7 +198,8 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
     getRowProperty: () => '',
     labelCollapse: 'Collapse',
     labelExpand: 'Expand'
-  }
+  },
+  isActionBarVisible = true
 }: Props<TRow>): JSX.Element => {
   const currentVisibleColumns = getVisibleColumns({
     columnConfiguration,
@@ -245,7 +254,8 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
                   row,
                   ...row[subItems.getRowProperty()].map((subRow) => ({
                     ...subRow,
-                    internalListingParentId: row.id
+                    internalListingParentId: row.id,
+                    internalListingParentRow: row
                   }))
                 ];
               }
@@ -516,30 +526,33 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
         className={classes.container}
         ref={containerRef as RefObject<HTMLDivElement>}
       >
-        <div
-          className={classes.actionBar}
-          ref={actionBarRef as RefObject<HTMLDivElement>}
-        >
-          <ListingActionBar
-            actions={actions}
-            actionsBarMemoProps={actionsBarMemoProps}
-            columnConfiguration={columnConfiguration}
-            columns={columns}
-            currentPage={currentPage}
-            customPaginationClassName={customPaginationClassName}
-            limit={limit}
-            listingVariant={listingVariant}
-            moveTablePagination={moveTablePagination}
-            paginated={paginated}
-            totalRows={totalRows}
-            viewerModeConfiguration={viewerModeConfiguration}
-            widthToMoveTablePagination={widthToMoveTablePagination}
-            onLimitChange={changeLimit}
-            onPaginate={onPaginate}
-            onResetColumns={onResetColumns}
-            onSelectColumns={onSelectColumns}
-          />
-        </div>
+        {
+          isActionBarVisible && 
+            <div
+              className={classes.actionBar}
+              ref={actionBarRef as RefObject<HTMLDivElement>}
+            >
+              <ListingActionBar
+                actions={actions}
+                actionsBarMemoProps={actionsBarMemoProps}
+                columnConfiguration={columnConfiguration}
+                columns={columns}
+                currentPage={currentPage}
+                customPaginationClassName={customPaginationClassName}
+                limit={limit}
+                listingVariant={listingVariant}
+                moveTablePagination={moveTablePagination}
+                paginated={paginated}
+                totalRows={totalRows}
+                viewerModeConfiguration={viewerModeConfiguration}
+                widthToMoveTablePagination={widthToMoveTablePagination}
+                onLimitChange={changeLimit}
+                onPaginate={onPaginate}
+                onResetColumns={onResetColumns}
+                onSelectColumns={onSelectColumns}
+              />
+            </div>
+        }
 
         <ParentSize
           parentSizeStyles={{

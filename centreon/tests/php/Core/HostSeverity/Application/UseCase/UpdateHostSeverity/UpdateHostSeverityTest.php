@@ -41,7 +41,7 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->writeHostSeverityRepository = $this->createMock(WriteHostSeverityRepositoryInterface::class);
     $this->readHostSeverityRepository = $this->createMock(ReadHostSeverityRepositoryInterface::class);
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
@@ -64,7 +64,7 @@ beforeEach(function () {
     );
 });
 
-it('should present an ErrorResponse when a generic exception is thrown', function () {
+it('should present an ErrorResponse when a generic exception is thrown', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -100,7 +100,7 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
         ->toBe(HostSeverityException::writeActionsNotAllowed()->getMessage());
 });
 
-it('should present a NotFoundResponse when the host severity does not exist (with admin user)', function () {
+it('should present a NotFoundResponse when the host severity does not exist (with admin user)', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -122,7 +122,7 @@ it('should present a NotFoundResponse when the host severity does not exist (wit
         ->toBe('Host severity not found');
 });
 
-it('should present a NotFoundResponse when the host severity does not exist (with non-admin user)', function () {
+it('should present a NotFoundResponse when the host severity does not exist (with non-admin user)', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -144,7 +144,7 @@ it('should present a NotFoundResponse when the host severity does not exist (wit
         ->toBe('Host severity not found');
 });
 
-it('should present an ErrorResponse if the existing host severity cannot be retrieved', function () {
+it('should present an ErrorResponse if the existing host severity cannot be retrieved', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -170,7 +170,7 @@ it('should present an ErrorResponse if the existing host severity cannot be retr
         ->toBe(HostSeverityException::errorWhileRetrievingObject()->getMessage());
 });
 
-it('should present a ConflictResponse when name is already used', function () {
+it('should present a ConflictResponse when name is already used', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -200,7 +200,7 @@ it('should present a ConflictResponse when name is already used', function () {
         ->toBe(HostSeverityException::hostNameAlreadyExists()->getMessage());
 });
 
-it('should present an InvalidArgumentResponse when an assertion fails', function () {
+it('should present an InvalidArgumentResponse when an assertion fails', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -233,7 +233,7 @@ it('should present an InvalidArgumentResponse when an assertion fails', function
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(InvalidArgumentResponse::class);
 });
 
-it('should return a NoContentResponse on success', function () {
+it('should return a NoContentResponse on success', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')

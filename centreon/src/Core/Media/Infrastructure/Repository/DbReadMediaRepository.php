@@ -88,7 +88,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
      */
     public function findAll(): Traversable&\Countable
     {
-        $request = <<<'SQL'
+        $request = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS
                 `img`.img_id,
                 `img`.img_path,
@@ -101,7 +101,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
                 ON dir.dir_id = rel.dir_dir_parent_id
             ORDER BY img_id
             LIMIT :from, :max_item_by_request
-            SQL;
+            SQL_WRAP;
         $index = 0;
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement->bindParam(':from', $index, \PDO::PARAM_INT);
@@ -180,7 +180,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
             'filename' => 'img_path',
             'directory' => 'dir_name',
         ]);
-        $request = <<<'SQL'
+        $request = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS
                 `img`.img_id,
                 `img`.img_path,
@@ -191,7 +191,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
                 ON rel.img_img_id = img.img_id
             INNER JOIN `:db`.`view_img_dir` dir
                 ON dir.dir_id = rel.dir_dir_parent_id
-            SQL;
+            SQL_WRAP;
 
         $searchRequest = $sqlTranslator->translateSearchParameterToSql();
         if ($searchRequest !== null) {
@@ -200,7 +200,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
 
         // Handle sort
         $sortRequest = $sqlTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY img_id';
+        $request .= $sortRequest ?? ' ORDER BY img_id';
         $request .= $sqlTranslator->translatePaginationToSql();
         $statement = $this->db->prepare($this->translateDbName($request));
         foreach ($sqlTranslator->getSearchValues() as $key => $data) {

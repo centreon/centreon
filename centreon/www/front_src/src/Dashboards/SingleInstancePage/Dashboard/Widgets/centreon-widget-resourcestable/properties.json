@@ -1,0 +1,181 @@
+{
+  "title": "Resource table",
+  "description": "Displays data on resource status and events, centralized in a table.",
+  "icon": "<g><path  d=\"M49.2,6H10.8c-2.65,0-4.8,2.15-4.8,4.8v38.4c0,2.65,2.15,4.8,4.8,4.8h38.4c2.65,0,4.8-2.15,4.8-4.8V10.8c0-2.65-2.15-4.8-4.8-4.8ZM52.08,18.48v16.1h-13.47v-16.1h13.47ZM23.63,34.58v-16.1h12.99v16.1h-12.99ZM36.61,36.58v15.5h-12.99v-15.5h12.99ZM21.63,18.48v16.1H7.92v-16.1h13.71ZM7.92,49.2v-12.62h13.71v15.5h-10.83c-1.59,0-2.88-1.29-2.88-2.88ZM49.2,52.08h-10.59v-15.5h13.47v12.62c0,1.59-1.29,2.88-2.88,2.88\"/></g>",
+  "options": {
+    "statuses": {
+      "type": "checkbox",
+      "label": "Display resources with this status",
+      "options": [
+        {
+          "id": "problem",
+          "name": "Problem (Down/Critical)"
+        },
+        {
+          "id": "warning",
+          "name": "Warning"
+        },
+        {
+          "id": "pending",
+          "name": "Pending"
+        },
+        {
+          "id": "success",
+          "name": "Success (OK/Up)"
+        },
+        {
+          "id": "undefined",
+          "name": "Undefined (Unreachable/Unknown)"
+        }
+      ],
+      "defaultValue": ["warning", "problem"]
+    },
+    "states": {
+      "type": "checkbox",
+      "label": "Display resources with this state",
+      "options": [
+        {
+          "id": "unhandled_problems",
+          "name": "Unhandled"
+        },
+        {
+          "id": "acknowledged",
+          "name": "Acknowledged"
+        },
+        {
+          "id": "in_downtime",
+          "name": "In downtime"
+        }
+      ],
+      "defaultValue": ["unhandled_problems"]
+    },
+    "statusTypes": {
+      "type": "checkbox",
+      "label": "Display resources with these status types",
+      "options": [
+        {
+          "id": "hard",
+          "name": "Hard"
+        },
+        {
+          "id": "soft",
+          "name": "Soft"
+        }
+      ],
+      "defaultValue": []
+    },
+    "hostSeverities": {
+      "type": "connected-autocomplete",
+      "label": "Host severities",
+      "secondaryLabel": "Select host severities",
+      "baseEndpoint": "/monitoring/severities/host",
+      "isSingleAutocomplete": false
+    },
+    "serviceSeverities": {
+      "type": "connected-autocomplete",
+      "label": "Service severities",
+      "secondaryLabel": "Select service severities",
+      "baseEndpoint": "/monitoring/severities/service",
+      "isSingleAutocomplete": false
+    },
+    "refreshInterval": {
+      "type": "refresh-interval",
+      "defaultValue": "default",
+      "label": "Interval"
+    }
+  },
+  "data": {
+    "resources": {
+      "type": "resources",
+      "defaultValue": [],
+      "required": false
+    }
+  },
+  "categories": {
+    "Ticket management": {
+      "hasModule": "centreon-open-tickets",
+      "groups": [
+        {
+          "id": "isOpenTicketEnabled",
+          "name": "Enable ticket management"
+        },
+        {
+          "id": "provider",
+          "name": "Rule (ticket provider)"
+        },
+        {
+          "id": "displayResources",
+          "name": "Display resources"
+        }
+      ],
+      "elements": {
+        "warning": {
+          "type": "warning",
+          "label": "If ticket management is enabled, only the “by service” view is available."
+        },
+        "isOpenTicketEnabled": {
+          "type": "switch",
+          "label": "Enable ticket management",
+          "defaultValue": false
+        },
+        "provider": {
+          "type": "connected-autocomplete",
+          "label": "Rule (ticket provider)",
+          "secondaryLabel": "Select rule (ticket provider)",
+          "baseEndpoint": "/open-tickets/providers",
+          "isSingleAutocomplete": true,
+          "hiddenCondition": {
+            "target": "options",
+            "when": "options.isOpenTicketEnabled",
+            "method": "equals",
+            "matches": false
+          },
+          "isRequiredProperty": true
+        },
+        "displayResources": {
+          "type": "radio",
+          "label": "Display resources",
+          "options": [
+            {
+              "id": "withoutTicket",
+              "name": "Resources with no ticket"
+            },
+            {
+              "id": "withTicket",
+              "name": "Resources linked to a ticket"
+            }
+          ],
+          "defaultValue": "withoutTicket",
+          "hiddenCondition": {
+            "target": "options",
+            "when": "options.provider",
+            "method": "isNil"
+          }
+        },
+        "isDownHostHidden": {
+          "type": "switch",
+          "label": "Hide services with Down host",
+          "defaultValue": false,
+          "hiddenCondition": {
+            "target": "options",
+            "when": "options.isOpenTicketEnabled",
+            "method": "equals",
+            "matches": false
+          }
+        },
+        "isUnreachableHostHidden": {
+          "type": "switch",
+          "label": "Hide services with Unreachable host",
+          "defaultValue": false,
+          "hiddenCondition": {
+            "target": "options",
+            "when": "options.isOpenTicketEnabled",
+            "method": "equals",
+            "matches": false
+          }
+        }
+      }
+    }
+  },
+  "moduleName": "centreon-widget-resourcestable"
+}

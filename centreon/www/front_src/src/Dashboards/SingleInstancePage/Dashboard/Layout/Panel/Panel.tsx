@@ -1,9 +1,14 @@
-import { useMemo } from 'react';
+import { Suspense, useMemo } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 
-import { RichTextEditor, client, useMemoComponent } from '@centreon/ui';
+import {
+  LoadingSkeleton,
+  RichTextEditor,
+  client,
+  useMemoComponent
+} from '@centreon/ui';
 
 import FederatedComponent from '../../../../../components/FederatedComponents';
 import {
@@ -20,17 +25,21 @@ import useLinkToResourceStatus from '../../hooks/useLinkToResourceStatus';
 import useSaveDashboard from '../../hooks/useSaveDashboard';
 import { isGenericText, isRichTextEditorEmpty } from '../../utils';
 
+import { equals, find, isEmpty, isNil } from 'ramda';
+import { internalWidgetComponents } from '../../Widgets/widgets';
 import { usePanelHeaderStyles } from './usePanelStyles';
 
 interface Props {
   dashboardId: number | string;
   id: string;
+  name: string;
   playlistHash?: string;
   refreshCount?: number;
 }
 
 const Panel = ({
   id,
+  name,
   refreshCount,
   playlistHash,
   dashboardId
@@ -63,6 +72,12 @@ const Panel = ({
 
   const panelConfigurations = getPanelConfigurations(id);
 
+  const { Component, remoteEntry } =
+    find(
+      (widget) => equals(widget.moduleName, name),
+      internalWidgetComponents
+    ) || {};
+
   const widgetPrefixQuery = useMemo(
     () => `${panelConfigurations.path}_${id}`,
     [panelConfigurations.path, id]
@@ -80,58 +95,38 @@ const Panel = ({
     });
   };
 
+  const isGenericTextPanel = isGenericText(panelConfigurations?.path);
+
   const displayDescription =
+    !isGenericTextPanel &&
     panelOptionsAndData.options?.description?.enabled &&
     panelOptionsAndData.options?.description?.content &&
     !isRichTextEditorEmpty(panelOptionsAndData.options?.description?.content);
 
-  const isGenericTextPanel = isGenericText(panelConfigurations?.path);
-
-  const getDescription = (): JSX.Element | null => {
-    if (!displayDescription) {
-      return null;
-    }
-
-    if (isGenericTextPanel) {
-      return (
-        <RichTextEditor
-          disabled
-          contentClassName={cx(isGenericTextPanel && classes.description)}
-          editable={false}
-          editorState={
-            panelOptionsAndData.options?.description?.content || undefined
-          }
-        />
-      );
-    }
-
-    return (
-      <DescriptionWrapper>
-        <RichTextEditor
-          disabled
-          contentClassName={cx(isGenericTextPanel && classes.description)}
-          editable={false}
-          editorState={
-            panelOptionsAndData.options?.description?.content || undefined
-          }
-          inputClassname={classes.descriptionInput}
-        />
-      </DescriptionWrapper>
-    );
-  };
-
   return useMemoComponent({
     Component: (
       <>
-        {getDescription()}
-        {!isGenericTextPanel && (
-          <div
-            className={cx(
-              displayDescription
-                ? classes.panelContentWithDescription
-                : classes.panelContent
-            )}
-          >
+        {displayDescription && (
+          <DescriptionWrapper>
+            <RichTextEditor
+              disabled
+              contentClassName={cx(isGenericTextPanel && classes.description)}
+              editable={false}
+              editorState={
+                panelOptionsAndData.options?.description?.content || undefined
+              }
+              inputClassname={classes.descriptionInput}
+            />
+          </DescriptionWrapper>
+        )}
+        <div
+          className={cx(
+            displayDescription
+              ? classes.panelContentWithDescription
+              : classes.panelContent
+          )}
+        >
+          {!isEmpty(remoteEntry) || isNil(Component) ? (
             <FederatedComponent
               isFederatedWidget
               canEdit={canEditField}
@@ -151,8 +146,37 @@ const Panel = ({
               setPanelOptions={changePanelOptions}
               widgetPrefixQuery={widgetPrefixQuery}
             />
-          </div>
-        )}
+          ) : (
+            <Suspense
+              fallback={
+                <LoadingSkeleton
+                  variant="rectangular"
+                  width="100%"
+                  height="100%"
+                />
+              }
+            >
+              <Component
+                canEdit={canEditField}
+                changeViewMode={changeViewMode}
+                dashboardId={dashboardId}
+                globalRefreshInterval={refreshInterval}
+                hasDescription={displayDescription}
+                isEditingDashboard={isEditing}
+                panelData={panelOptionsAndData?.data}
+                panelOptions={panelOptionsAndData?.options}
+                path={panelConfigurations.path}
+                id={id}
+                playlistHash={playlistHash}
+                queryClient={client}
+                refreshCount={refreshCount}
+                saveDashboard={saveDashboard}
+                setPanelOptions={changePanelOptions}
+                widgetPrefixQuery={widgetPrefixQuery}
+              />
+            </Suspense>
+          )}
+        </div>
       </>
     ),
     memoProps: [

@@ -109,13 +109,13 @@ $rq1 .= "WHERE hosts.name NOT LIKE '\_Module\_%' AND hosts.enabled = 1 "
     . $obj->access->queryBuilder("AND", "hosts.host_id", "centreon_acl.host_id") . " "
     . $obj->access->queryBuilder("AND", "group_id", $obj->grouplistStr) . " ";
 
-if (substr($o, -3) === '_pb' || substr($o, -6) === '_ack_0') {
+if (str_ends_with($o, '_pb') || str_ends_with($o, '_ack_0')) {
     $rq1 .= "AND hosts.host_id IN ( "
         . "SELECT s.host_id FROM services s "
         . "WHERE s.state != 0 "
         . "AND s.state != 4 "
         . "AND s.enabled = 1) ";
-} elseif (substr($o, -6) === '_ack_1') {
+} elseif (str_ends_with($o, '_ack_1')) {
     $rq1 .= "AND hosts.host_id IN ( "
         . "SELECT s.host_id FROM services s "
         . "WHERE s.acknowledged = '1' "
@@ -203,20 +203,41 @@ $tabFinal = [];
 while ($ndo = $dbResult->fetch()) {
     $tabFinal[$ndo["name"]]["nb_service_k"] = 0;
     $tabFinal[$ndo["name"]]["host_id"] = $ndo["host_id"];
-    if (substr($o, 0, 6) !== 'svcSum') {
-        $tabFinal[$ndo["name"]]["nb_service_k"] = $obj->monObj->getServiceStatusCount($ndo["name"], $obj, $o, 0, $obj);
+    if (!str_starts_with($o, 'svcSum')) {
+        $tabFinal[$ndo["name"]]["nb_service_k"] = $obj->monObj->getServiceStatusCount(
+            $ndo["name"],
+            $obj,
+            $o,
+            CentreonMonitoring::SERVICE_STATUS_OK
+        );
     }
-    $tabFinal[$ndo["name"]]["nb_service_w"] = 0 + $obj->monObj->getServiceStatusCount($ndo["name"], $obj, $o, 1, $obj);
-    $tabFinal[$ndo["name"]]["nb_service_c"] = 0 + $obj->monObj->getServiceStatusCount($ndo["name"], $obj, $o, 2, $obj);
-    $tabFinal[$ndo["name"]]["nb_service_u"] = 0 + $obj->monObj->getServiceStatusCount($ndo["name"], $obj, $o, 3, $obj);
-    $tabFinal[$ndo["name"]]["nb_service_p"] = 0 + $obj->monObj->getServiceStatusCount($ndo["name"], $obj, $o, 4, $obj);
+    $tabFinal[$ndo["name"]]["nb_service_w"] = 0 + $obj->monObj->getServiceStatusCount(
+        $ndo["name"],
+        $obj,
+        $o,
+        CentreonMonitoring::SERVICE_STATUS_WARNING
+    );
+    $tabFinal[$ndo["name"]]["nb_service_c"] = 0 + $obj->monObj->getServiceStatusCount(
+        $ndo["name"],
+        $obj,
+        $o,
+        CentreonMonitoring::SERVICE_STATUS_CRITICAL
+    );
+    $tabFinal[$ndo["name"]]["nb_service_u"] = 0 + $obj->monObj->getServiceStatusCount(
+        $ndo["name"],
+        $obj,
+        $o,
+        CentreonMonitoring::SERVICE_STATUS_UNKNOWN
+    );
+    $tabFinal[$ndo["name"]]["nb_service_p"] = 0 + $obj->monObj->getServiceStatusCount(
+        $ndo["name"],
+        $obj,
+        $o,
+        CentreonMonitoring::SERVICE_STATUS_PENDING
+    );
     $tabFinal[$ndo["name"]]["cs"] = $ndo["state"];
 
-    if (isset($ndo["icon_image"]) && $ndo["icon_image"] != "") {
-        $tabIcone[$ndo["name"]] = $ndo["icon_image"];
-    } else {
-        $tabIcone[$ndo["name"]] = "none";
-    }
+    $tabIcone[$ndo["name"]] = isset($ndo["icon_image"]) && $ndo["icon_image"] != "" ? $ndo["icon_image"] : "none";
 }
 
 foreach ($tabFinal as $host_name => $tab) {

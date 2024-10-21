@@ -53,12 +53,12 @@ $trapsId = filter_var(
 );
 
 $selectIds = filter_var_array(
-    $_GET["select"] ?? $_POST["select"] ?? array(),
+    $_GET["select"] ?? $_POST["select"] ?? [],
     FILTER_VALIDATE_INT
 );
 
 $duplicateNbr = filter_var_array(
-    $_GET["dupNbr"] ?? $_POST["dupNbr"] ?? array(),
+    $_GET["dupNbr"] ?? $_POST["dupNbr"] ?? [],
     FILTER_VALIDATE_INT
 );
 

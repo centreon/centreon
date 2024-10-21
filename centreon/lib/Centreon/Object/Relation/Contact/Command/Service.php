@@ -35,16 +35,29 @@
 
 require_once "Centreon/Object/Relation/Relation.php";
 
+/**
+ * Class
+ *
+ * @class Centreon_Object_Relation_Contact_Command_Service
+ */
 class Centreon_Object_Relation_Contact_Command_Service extends Centreon_Object_Relation
 {
+
+    /** @var Centreon_Object_Contact */
+    public $firstObject;
+    /** @var Centreon_Object_Command */
+    public $secondObject;
+    /** @var string */
     protected $relationTable = "contact_servicecommands_relation";
+    /** @var string */
     protected $firstKey = "contact_contact_id";
+    /** @var string */
     protected $secondKey = "command_command_id";
 
     /**
-     * Constructor
+     * Centreon_Object_Relation_Contact_Command_Service constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {

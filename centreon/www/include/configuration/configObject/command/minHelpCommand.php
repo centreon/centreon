@@ -76,7 +76,7 @@ if (isCommandInAllowedResources($pearDB, $commandPath)) {
     $msg = str_replace("\n", "<br />", $stdout);
 }
 
-$attrsText = array("size" => "25");
+$attrsText = ["size" => "25"];
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
 $form->addElement('header', 'title', _("Plugin Help"));
 

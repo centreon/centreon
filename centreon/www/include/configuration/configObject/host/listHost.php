@@ -49,7 +49,7 @@ $host_method = new CentreonHost($pearDB);
 $mediaObj = new CentreonMedia($pearDB);
 
 // Get Extended informations
-$ehiCache = array();
+$ehiCache = [];
 $dbResult = $pearDB->query('SELECT ehi_icon_image, host_host_id FROM extended_host_information');
 
 while ($ehi = $dbResult->fetch()) {
@@ -83,7 +83,7 @@ $status = filter_var(
 
 if (isset($_POST['search']) || isset($_GET['search'])) {
     //saving chosen filters values
-    $centreon->historySearch[$url] = array();
+    $centreon->historySearch[$url] = [];
     $centreon->historySearch[$url]["searchH"] = $search;
     $centreon->historySearch[$url]["poller"] = $poller;
     $centreon->historySearch[$url]["hostgroup"] = $hostgroup;
@@ -104,7 +104,7 @@ $centreon->hostgroup = $hostgroup;
 $centreon->template = $template;
 
 // Status Filter
-$statusFilter = array(1 => _("Disabled"), 2 => _("Enabled"));
+$statusFilter = [1 => _("Disabled"), 2 => _("Enabled")];
 $sqlFilterCase = match((int) $status) {
     2 => " AND host_activate = '1' ",
     1 => " AND host_activate = '0' ",
@@ -157,7 +157,7 @@ $tpl->assign("headerMenu_status", _("Status"));
 $tpl->assign("headerMenu_options", _("Options"));
 
 // Host list
-$nagios_server = array();
+$nagios_server = [];
 $dbResult = $pearDB->query(
     'SELECT ns.name, ns.id FROM nagios_server ns ' .
     ($aclPollerString != "''" ? $acl->queryBuilder('WHERE', 'ns.id', $aclPollerString) : '') .
@@ -165,13 +165,13 @@ $dbResult = $pearDB->query(
 );
 
 while ($relation = $dbResult->fetch()) {
-    $nagios_server[$relation['id']] = $relation['name'];
+    $nagios_server[$relation['id']] = HtmlSanitizer::createFromString($relation['name'])->sanitize()->getString();
 }
 $dbResult->closeCursor();
 unset($relation);
 
-$tab_relation = array();
-$tab_relation_id = array();
+$tab_relation = [];
+$tab_relation_id = [];
 $dbResult = $pearDB->query(
     'SELECT nhr.host_host_id, nhr.nagios_server_id FROM ns_host_relation nhr'
 );
@@ -189,62 +189,36 @@ $style = 'one';
 
 //select2 HG
 $hostgroupsRoute = './api/internal.php?object=centreon_configuration_hostgroup&action=list';
-$attrHostgroups = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $hostgroupsRoute,
-    'multiple' => false,
-    'defaultDataset' => $hostgroup,
-    'linkedObject' => 'centreonHostgroups'
-);
-$form->addElement('select2', 'hostgroup', '', array(), $attrHostgroups);
+$attrHostgroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $hostgroupsRoute, 'multiple' => false, 'defaultDataset' => $hostgroup, 'linkedObject' => 'centreonHostgroups'];
+$form->addElement('select2', 'hostgroup', '', [], $attrHostgroups);
 
 //select2 Poller
 $pollerRoute = './api/internal.php?object=centreon_configuration_poller&action=list';
-$attrPoller = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $pollerRoute,
-    'multiple' => false,
-    'defaultDataset' => $poller,
-    'linkedObject' => 'centreonInstance'
-);
-$form->addElement('select2', 'poller', "", array(), $attrPoller);
+$attrPoller = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $pollerRoute, 'multiple' => false, 'defaultDataset' => $poller, 'linkedObject' => 'centreonInstance'];
+$form->addElement('select2', 'poller', "", [], $attrPoller);
 
 
 //select2 Host Template
 $hostTplRoute = './api/internal.php?object=centreon_configuration_hosttemplate&action=list';
-$attrHosttemplates = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $hostTplRoute,
-    'multiple' => false,
-    'defaultDataset' => $template,
-    'linkedObject' => 'centreonHosttemplates'
-);
-$form->addElement('select2', 'template', "", array(), $attrHosttemplates);
+$attrHosttemplates = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $hostTplRoute, 'multiple' => false, 'defaultDataset' => $template, 'linkedObject' => 'centreonHosttemplates'];
+$form->addElement('select2', 'template', "", [], $attrHosttemplates);
 
 //select2 Host Status
 $attrHostStatus = null;
 $statusDefault = '';
 if ($status) {
-    $statusDefault = array($statusFilter[$status] => $status);
+    $statusDefault = [$statusFilter[$status] => $status];
 }
-$attrHostStatus = array(
-    'defaultDataset' => $statusDefault
-);
+$attrHostStatus = ['defaultDataset' => $statusDefault];
 $form->addElement('select2', 'status', "", $statusFilter, $attrHostStatus);
 
-$attrBtnSuccess = array(
-    "class" => "btc bt_success",
-    "onClick" => "window.history.pushState('', '', '?p=" . $p . "');"
-);
+$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.pushState('', '', '?p=" . $p . "');"];
 $subS = $form->addElement('submit', 'SearchB', _("Search"), $attrBtnSuccess);
 
 /*
  * Select hosts
  */
-$attrBtnSuccess = array(
-    "class" => "btc bt_success",
-    "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"
-);
+$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'SearchB', _("Search"), $attrBtnSuccess);
 
 //Select hosts
@@ -268,7 +242,6 @@ if (!$centreon->user->admin) {
 
 if ($hostgroup) {
     $mainQueryParameters[':host_group_id'] = [\PDO::PARAM_INT => $hostgroup];
-
     if ($poller) {
         $mainQueryParameters[':poller_id'] = [\PDO::PARAM_INT => $poller];
 
@@ -307,11 +280,9 @@ if ($hostgroup) {
             LIMIT :offset, :limit
             SQL;
     }
-} else {
-    if ($poller) {
-        $mainQueryParameters[':poller_id'] = [\PDO::PARAM_INT => $poller];
-
-        $request = <<<SQL
+} elseif ($poller) {
+    $mainQueryParameters[':poller_id'] = [\PDO::PARAM_INT => $poller];
+    $request = <<<SQL
             SELECT SQL_CALC_FOUND_ROWS DISTINCT
                 h.host_id, h.host_name, host_alias, host_address, host_activate, host_template_model_htm_id
             FROM host h
@@ -326,8 +297,8 @@ if ($hostgroup) {
             ORDER BY h.host_name
             LIMIT :offset, :limit 
             SQL;
-    } else {
-        $request = <<<SQL
+} else {
+    $request = <<<SQL
             SELECT SQL_CALC_FOUND_ROWS DISTINCT
                 h.host_id, h.host_name, host_alias, host_address, host_activate, host_template_model_htm_id
             FROM host h
@@ -339,7 +310,6 @@ if ($hostgroup) {
             ORDER BY h.host_name
             LIMIT :offset, :limit 
             SQL;
-    }
 }
 $dbResult = $pearDB->prepare($request);
 
@@ -360,7 +330,7 @@ include './include/common/checkPagination.php';
 $search = tidySearchKey($search, $advanced_search);
 
 // Fill a tab with a multidimensional Array we put in $tpl
-$elemArr = array();
+$elemArr = [];
 $search = str_replace('\_', "_", $search ?? '');
 
 
@@ -402,7 +372,7 @@ for ($i = 0; $host = $dbResult->fetch(); $i++) {
         }
 
         // TPL List
-        $tplArr = array();
+        $tplArr = [];
         $tplStr = "";
 
         // Create Template topology
@@ -444,28 +414,27 @@ for ($i = 0; $host = $dbResult->fetch(); $i++) {
         }
 
         // Create Array Data for template list
-        $elemArr[$i] = array(
+        $elemArr[$i] = [
             "MenuClass" => "list_" . $style,
             "RowMenu_select" => $selectedElements->toHtml(),
-            "RowMenu_name" => CentreonUtils::escapeSecure($host["host_name"]),
+            "RowMenu_name" => $host["host_name"],
+            "RowMenu_name_link" => HtmlAnalyzer::sanitizeAndRemoveTags($host["host_name"]),
             "RowMenu_id" => $host["host_id"],
             "RowMenu_icone" => $host_icone,
             "RowMenu_link" => "main.php?p=" . $p . "&o=c&host_id=" . $host['host_id'],
             "RowMenu_desc" => CentreonUtils::escapeSecure($host["host_alias"]),
             "RowMenu_address" => CentreonUtils::escapeSecure($host["host_address"]),
-            "RowMenu_poller" => isset($tab_relation[$host["host_id"]])
-                ? $tab_relation[$host["host_id"]]
-                : "",
+            "RowMenu_poller" => $tab_relation[$host["host_id"]] ?? "",
             "RowMenu_parent" => CentreonUtils::escapeSecure($tplStr),
             "RowMenu_status" => $host["host_activate"] ? _("Enabled") : _("Disabled"),
             "RowMenu_badge" => $host["host_activate"] ? "service_ok" : "service_critical",
             "RowMenu_options" => $moptions,
             "isSvgFile" => $isSvgFile
-        );
+        ];
 
-        $style != "two"
-            ? $style = "two"
-            : $style = "one";
+        $style = $style != "two"
+            ? "two"
+            : "one";
     }
 }
 $tpl->assign("elemArr", $elemArr);
@@ -473,11 +442,7 @@ $tpl->assign("elemArr", $elemArr);
 // Different messages we put in the template
 $tpl->assign(
     'msg',
-    array(
-        "addL" => "main.php?p=" . $p . "&o=a",
-        "addT" => _("Add"),
-        "delConfirm" => _("Do you confirm the deletion ?")
-    )
+    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
 );
 
 // Toolbar select
@@ -488,38 +453,28 @@ $tpl->assign(
         }
     </script>
 <?php
-foreach (array('o1', 'o2') as $option) {
-    $attrs1 = array(
-        'onchange' => "javascript: "
-            . " var bChecked = isChecked(); "
-            . " if (this.form.elements['$option'].selectedIndex != 0 && !bChecked) {"
-            . " alert('" . _("Please select one or more items") . "'); return false;} "
-            . "if (this.form.elements['$option'].selectedIndex == 1 && confirm('"
-            . _("Do you confirm the duplication ?") . "')) {"
-            . "   setO(this.form.elements['$option'].value); submit();} "
-            . "else if (this.form.elements['$option'].selectedIndex == 2 && confirm('"
-            . _("Do you confirm the deletion ?") . "')) {"
-            . "   setO(this.form.elements['$option'].value); submit();} "
-            . "else if (this.form.elements['$option'].selectedIndex == 3 ||
+foreach (['o1', 'o2'] as $option) {
+    $attrs1 = ['onchange' => "javascript: "
+        . " var bChecked = isChecked(); "
+        . " if (this.form.elements['$option'].selectedIndex != 0 && !bChecked) {"
+        . " alert('" . _("Please select one or more items") . "'); return false;} "
+        . "if (this.form.elements['$option'].selectedIndex == 1 && confirm('"
+        . _("Do you confirm the duplication ?") . "')) {"
+        . "   setO(this.form.elements['$option'].value); submit();} "
+        . "else if (this.form.elements['$option'].selectedIndex == 2 && confirm('"
+        . _("Do you confirm the deletion ?") . "')) {"
+        . "   setO(this.form.elements['$option'].value); submit();} "
+        . "else if (this.form.elements['$option'].selectedIndex == 3 ||
                         this.form.elements['$option'].selectedIndex == 4 ||
                         this.form.elements['$option'].selectedIndex == 5 ||
                         this.form.elements['$option'].selectedIndex == 6){"
-            . "   setO(this.form.elements['$option'].value); submit();} "
-            . "this.form.elements['$option'].selectedIndex = 0"
-    );
+        . "   setO(this.form.elements['$option'].value); submit();} "
+        . "this.form.elements['$option'].selectedIndex = 0"];
     $form->addElement(
         'select',
         $option,
         null,
-        array(
-            null => _("More actions..."),
-            "m" => _("Duplicate"),
-            "d" => _("Delete"),
-            "mc" => _("Mass Change"),
-            "ms" => _("Enable"),
-            "mu" => _("Disable"),
-            "dp" => _("Deploy Service")
-        ),
+        [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete"), "mc" => _("Mass Change"), "ms" => _("Enable"), "mu" => _("Disable"), "dp" => _("Deploy Service")],
         $attrs1
     );
     $o1 = $form->getElement($option);

@@ -25,6 +25,7 @@ namespace Security;
 
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Exception\ContactDisabledException;
+use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 use Security\Domain\Authentication\Model\LocalProvider;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -47,36 +48,26 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
  */
 class TokenAPIAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
 {
-    /** @var AuthenticationRepositoryInterface */
-    private $authenticationRepository;
-
-    /** @var ContactRepositoryInterface */
-    private $contactRepository;
-
-    /** @var LocalProvider */
-    private $localProvider;
-
     /**
      * TokenAPIAuthenticator constructor.
      *
      * @param AuthenticationRepositoryInterface $authenticationRepository
      * @param ContactRepositoryInterface $contactRepository
      * @param LocalProvider $localProvider
+     * @param ReadTokenRepositoryInterface $readTokenRepository
      */
     public function __construct(
-        AuthenticationRepositoryInterface $authenticationRepository,
-        ContactRepositoryInterface $contactRepository,
-        LocalProvider $localProvider
+        private AuthenticationRepositoryInterface $authenticationRepository,
+        private ContactRepositoryInterface $contactRepository,
+        private LocalProvider $localProvider,
+        private ReadTokenRepositoryInterface $readTokenRepository,
     ) {
-        $this->authenticationRepository = $authenticationRepository;
-        $this->contactRepository = $contactRepository;
-        $this->localProvider = $localProvider;
     }
 
     /**
      * @inheritDoc
      */
-    public function start(Request $request, ?AuthenticationException $authException = null)
+    public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
         $data = [
             'message' => _('Authentication Required'),
@@ -166,7 +157,9 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
             throw new ContactDisabledException();
         }
 
-        $this->authenticationRepository->updateProviderTokenExpirationDate($providerToken);
+        if (! $this->readTokenRepository->isTokenTypeManual($apiToken)) {
+            $this->authenticationRepository->updateProviderTokenExpirationDate($providerToken);
+        }
 
         return $contact;
     }
