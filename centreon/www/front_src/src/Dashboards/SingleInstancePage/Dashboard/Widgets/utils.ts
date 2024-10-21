@@ -353,8 +353,8 @@ export const getWidgetEndpoint = ({
     const extraqueryParametersStringified = extraQueryParameters
       ? toPairs(extraQueryParameters).reduce(
           (acc, [key, value]) =>
-            `${acc}&${key as string}=${encodeURIComponent(JSON.stringify(value))}`,
-          '?'
+            `${acc}${equals(acc, '') ? '?' : '&'}${key as string}=${encodeURIComponent(JSON.stringify(value))}`,
+          ''
         )
       : '';
 

@@ -89,3 +89,19 @@ export const options: PanelOptions = {
   statusTypes: [],
   statuses: ['success', 'problem', 'undefined']
 };
+
+export const basicOptions: PanelOptions = {
+  displayResources: 'all',
+  displayType: DisplayType.All,
+  hostSeverities: [],
+  isDownHostHidden: false,
+  isOpenTicketEnabled: false,
+  isUnreachableHostHidden: false,
+  refreshInterval: 'manual',
+  refreshIntervalCustom: 30,
+  selectedColumnIds,
+  serviceSeverities: [],
+  states: [],
+  statusTypes: [],
+  statuses: ['success', 'problem', 'undefined']
+};
