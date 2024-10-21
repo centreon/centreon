@@ -38,6 +38,7 @@ jobs:
 
   veracode-analysis:
     needs: [get-environment]
+    if: ${{ needs.get-environment.outputs.is_targeting_feature_branch != 'true' && github.event.pull_request.draft == 'false' }}
     uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: centreon-dsm
