@@ -26,7 +26,6 @@ Feature: Generate poller configuration
     Examples:
       | method    | poller_action |
       | Reload    | reloaded      |
-      # | Restart   | restarted     |
 
   Scenario: Generate the configuration with no poller selected
     When I visit the export configuration page
