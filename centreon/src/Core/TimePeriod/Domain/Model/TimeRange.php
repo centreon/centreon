@@ -47,6 +47,8 @@ class TimeRange implements \Stringable
      */
     public function __construct(string $timeRange)
     {
+        Assertion::minLength($timeRange, 11, 'TimeRange::timeRange');
+
         if (! $this->isValidTimeRangeFormat($timeRange)) {
             throw TimeRangeException::badTimeRangeFormat($timeRange);
         }
