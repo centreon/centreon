@@ -58,7 +58,7 @@ on:
 # NIGHTLY <OSS|MODULES|COLLECT> <MAJOR_VERSION> (e.g., NIGHTLY OSS 23.10)
 jobs:
   create-xray-test-plan-and-test-execution:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       test_plan_key_alma8: ${{ steps.get_test_plan_key.outputs.test_plan_key_alma8 }}
       test_plan_id_alma8: ${{ steps.get_test_plan_id.outputs.test_plan_id_alma8 }}
