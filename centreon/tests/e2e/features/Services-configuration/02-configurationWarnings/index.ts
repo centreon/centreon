@@ -91,9 +91,8 @@ Given("the service has no notification period", () => {
 When("the configuration is exported", () => {
   cy.navigateTo({ page: "Pollers", rootItemNumber: 3, subMenu: "Pollers" });
   cy.wait("@getUserTimezone");
-
-  cy.get("iframe#main-content")
-    .its("0.contentDocument.body")
+  cy.waitForElementInIframe("#main-content", 'input[name="searchP"]');
+  cy.getIframeBody()
     .find("h4")
     .contains("Poller")
     .should("exist");
