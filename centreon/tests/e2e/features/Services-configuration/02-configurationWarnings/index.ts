@@ -103,6 +103,10 @@ When("the configuration is exported", () => {
 
   cy.url().should("include", "poller=");
   cy.wait("@getUserTimezone");
+  cy.waitForElementInIframe(
+    "#main-content",
+    'input.select2-search__field[placeholder="Pollers"]',
+  );
   cy.getIframeBody()
     .find('input.select2-search__field[placeholder="Pollers"]')
     .click();
