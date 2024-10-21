@@ -118,10 +118,10 @@ When('I click on the Export configuration button', () => {
 
 Then('I am redirected to generate page', () => {
   cy.url({ timeout: 60000 }).should('include', `/centreon/main.php?p=60902&poller=`);
+  cy.reload()
 });
 
 Then('the selected poller names are displayed', () => {
-  cy.reload()
   cy.get<string>('@pollerName').then((pollerName) => {
     cy.getIframeBody()
       .find('form span[class="selection"]')
