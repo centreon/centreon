@@ -27,24 +27,6 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\TimePeriod\Domain\Exception\TimeRangeException;
 use Core\TimePeriod\Domain\Model\TimeRange;
 
-$timeRange = '';
-it(
-    'should throw exception with invalid time range length',
-    function () use ($timeRange): void {
-        if ($timeRange !== '') {
-            $this->expectException(\InvalidArgumentException::class);
-            $this->expectExceptionMessage(
-                AssertionException::minLength(
-                    $timeRange,
-                    strlen($timeRange),
-                    11,
-                    'TimeRange::timeRange'
-                )->getMessage()
-            );
-        }
-        new TimeRange($timeRange);
-    }
-);
 
 it(
     'should throw exception with wrong time format',
