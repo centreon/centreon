@@ -1,13 +1,13 @@
 import { GraphOptionId } from '../Graph/Performance/models';
 import {
-  Status,
   Acknowledgement,
   Downtime,
+  NamedEntity,
   Parent,
   ResourceLinks,
-  NamedEntity,
   ResourceType,
   Severity,
+  Status,
 } from '../models';
 
 import { CustomTimePeriod, TimePeriodId } from './tabs/Graph/models';
@@ -42,14 +42,14 @@ export interface ResourceDetails extends NamedEntity {
   fqdn?: string;
   groups?: Array<Group>;
   information: string;
-  last_check: string;
-  last_notification: string;
-  last_status_change: string;
-  last_time_with_no_issue: string;
+  last_check: string | number;
+  last_notification: string | number;
+  last_status_change: string | number;
+  last_time_with_no_issue: string | number;
   latency: number;
   links: ResourceLinks;
   monitoring_server_name?: string;
-  next_check: string;
+  next_check: string | number;
   notification_number: number;
   parent: Parent;
   passive_checks?: boolean;
