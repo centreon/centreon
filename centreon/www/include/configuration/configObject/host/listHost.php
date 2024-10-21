@@ -448,7 +448,8 @@ for ($i = 0; $host = $dbResult->fetch(); $i++) {
         $elemArr[$i] = array(
             "MenuClass" => "list_" . $style,
             "RowMenu_select" => $selectedElements->toHtml(),
-            "RowMenu_name" => CentreonUtils::escapeSecure($host["host_name"]),
+            "RowMenu_name" => $host["host_name"],
+            "RowMenu_name_link" => HtmlAnalyzer::sanitizeAndRemoveTags($host["host_name"]),
             "RowMenu_id" => $host["host_id"],
             "RowMenu_icone" => $host_icone,
             "RowMenu_link" => "main.php?p=" . $p . "&o=c&host_id=" . $host['host_id'],
