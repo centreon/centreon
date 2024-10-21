@@ -23,13 +23,11 @@ jobs:
         run: |
           set -x
           echo "[INFO]: Deploying a nightly CoD instance with the latest developments."
-          curl --fail \
-            -o /dev/null \
-            -X POST \
-            -H "Authorization: Bearer ${{ secrets.CENTREON_TECHNIQUE_PAT }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/centreon/centreon-on-demand/dispatches \
-            -d '{"event_type": "trigger-nightly-platform", "client_payload": \
+          curl -X POST \
+               -H "Authorization: Bearer ${{ secrets.CENTREON_TECHNIQUE_PAT }}" \
+               -H "Accept: application/vnd.github.v3+json" \
+               https://api.github.com/repos/centreon/centreon-on-demand/dispatches \
+               -d '{"event_type": "trigger-nightly-platform", "client_payload": \
                                         {"bu": "RD", \
                                          "deployment_profile": "Standard profile", \
                                          "remote_server_number": 1, \
@@ -39,5 +37,4 @@ jobs:
                                          "custom_centreon_web_admin_password": "${{ secrets.COD_NIGHTLY_INSTANCE_ADMIN_PWD }}", \
                                          "configured_resources": true, \
                                          "install_business_modules": false }}'
-            -w %http_code
         shell: bash
