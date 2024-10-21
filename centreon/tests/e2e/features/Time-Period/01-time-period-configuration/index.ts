@@ -94,11 +94,6 @@ Given("an existing time period", () => {
 });
 
 When("a user duplicates the time period", () => {
-  cy.navigateTo({
-    page: "Time Periods",
-    rootItemNumber: 3,
-    subMenu: "Users",
-  });
   cy.waitForElementInIframe("#main-content", 'input[name="searchTP"]');
   cy.enterIframe("iframe#main-content")
     .find('tr[class*="list_"]')
@@ -175,11 +170,6 @@ Then(
 );
 
 When("a user deletes the time period", () => {
-  cy.navigateTo({
-    page: "Time Periods",
-    rootItemNumber: 3,
-    subMenu: "Users",
-  });
   cy.waitForElementInIframe("#main-content", 'input[name="searchTP"]');
   cy.getIframeBody()
     .find('tr[class*="list_"]')
