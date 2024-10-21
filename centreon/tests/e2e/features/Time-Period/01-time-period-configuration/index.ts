@@ -100,7 +100,7 @@ When("a user duplicates the time period", () => {
     subMenu: "Users",
   });
   cy.waitForElementInIframe("#main-content", 'input[name="searchTP"]');
-  cy.getIframeBody()
+  cy.enterIframe("iframe#main-content")
     .find('tr[class*="list_"]')
     .each(($row) => {
       cy.wrap($row)
