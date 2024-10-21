@@ -90,4 +90,12 @@ interface ReadContactGroupRepositoryInterface
      * @return int[]
      */
     public function exist(array $contactGroupIds): array;
+
+    /**
+     * @param int $contactGroupId
+     * @param int[] $accessGroupIds
+     *
+     * @return bool
+     */
+    public function existsInAccessGroups(int $contactGroupId, array $accessGroupIds): bool;
 }

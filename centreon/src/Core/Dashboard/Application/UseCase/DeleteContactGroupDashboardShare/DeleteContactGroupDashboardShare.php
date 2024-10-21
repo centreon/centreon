@@ -39,6 +39,8 @@ use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class DeleteContactGroupDashboardShare
 {
@@ -50,7 +52,8 @@ final class DeleteContactGroupDashboardShare
         private readonly WriteDashboardShareRepositoryInterface $writeDashboardShareRepository,
         private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
         private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository
     ) {
     }
 
@@ -149,6 +152,15 @@ final class DeleteContactGroupDashboardShare
             return new ForbiddenResponse(
                 DashboardException::dashboardAccessRightsNotAllowedForWriting($dashboard->getId())
             );
+        }
+
+        $accessGroupIds = array_map(
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $this->accessGroupRepository->findByContact($this->contact)
+        );
+
+        if (! $this->readContactGroupRepository->existsInAccessGroups($contactGroupId, $accessGroupIds)) {
+            return new NotFoundResponse('Contact Group');
         }
 
         if (! $this->writeDashboardShareRepository->deleteContactGroupShare($group->getId(), $dashboard->getId())) {
