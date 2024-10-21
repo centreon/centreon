@@ -79,7 +79,7 @@ if (!$centreon_bg->is_admin) {
 }
 $query .= ") ORDER BY `host_name`, `description`";
 
-$hosts_done = array();
+$hosts_done = [];
 
 $dbResult = $db_storage->query($query);
 while (($row = $dbResult->fetch())) {
@@ -101,22 +101,19 @@ try {
         $method_external_name = 'setProcessCommand';
     }
 
-    $error_msg = array();
+    $error_msg = [];
 
     foreach ($problems as $row) {
         // host check action and service description from database is empty (meaning entry is about a host)
         if (! $isService && (is_null($row['description']) || $row['description'] == '')) {
             $command = $forced ? "SCHEDULE_FORCED_HOST_CHECK;%s;%s" : "SCHEDULE_HOST_CHECK;%s;%s";
             call_user_func_array(
-                array($external_cmd, $method_external_name),
-                array(
-                    sprintf(
-                        $command,
-                        $row['host_name'],
-                        time()
-                    ),
-                    $row['instance_id']
-                )
+                [$external_cmd, $method_external_name],
+                [sprintf(
+                    $command,
+                    $row['host_name'],
+                    time()
+                ), $row['instance_id']]
             );
             continue;
         // servuce check action and service description from database is empty (meaning entry is about a host)
@@ -127,16 +124,13 @@ try {
         if ($isService) {
             $command = $forced ? "SCHEDULE_FORCED_SVC_CHECK;%s;%s;%s" : "SCHEDULE_SVC_CHECK;%s;%s;%s";
             call_user_func_array(
-                array($external_cmd, $method_external_name),
-                array(
-                    sprintf(
-                        $command,
-                        $row['host_name'],
-                        $row['description'],
-                        time()
-                    ),
-                    $row['instance_id']
-                )
+                [$external_cmd, $method_external_name],
+                [sprintf(
+                    $command,
+                    $row['host_name'],
+                    $row['description'],
+                    time()
+                ), $row['instance_id']]
             );
         }
     }

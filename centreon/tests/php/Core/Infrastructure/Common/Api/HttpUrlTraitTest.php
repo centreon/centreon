@@ -27,15 +27,15 @@ use Symfony\Component\HttpFoundation\ServerBag;
 
 uses(HttpUrlTrait::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->httpServerBag = new ServerBag([]);
 });
 
-it('returns empty base url when there is no current request', function () {
+it('returns empty base url when there is no current request', function (): void {
     expect($this->getBaseUrl())->toBe('');
 });
 
-it('returns empty base uri when there is no current request', function () {
+it('returns empty base uri when there is no current request', function (): void {
     expect($this->getBaseUri())->toBe('');
 });
 
@@ -44,7 +44,7 @@ it(
     function (
         $requestUri,
         $baseUri
-    ) {
+    ): void {
         $this->httpServerBag->replace(['REQUEST_URI' => $requestUri]);
 
         expect($this->getBaseUri())->toBe($baseUri);
@@ -65,7 +65,7 @@ it(
     function (
         $requestParameters,
         $baseUrl
-    ) {
+    ): void {
         $this->httpServerBag->replace([
             'HTTPS' => $requestParameters[0],
             'SERVER_NAME' => $requestParameters[1],

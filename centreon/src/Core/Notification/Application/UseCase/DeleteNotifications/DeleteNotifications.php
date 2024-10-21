@@ -26,6 +26,7 @@ namespace Core\Notification\Application\UseCase\DeleteNotifications;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\RepositoryException;
 use Core\Application\Common\UseCase\{
     ErrorResponse,
     ForbiddenResponse,
@@ -67,12 +68,12 @@ final class DeleteNotifications
                 foreach ($request->ids as $notificationId) {
                     try {
                         $statusResponse = $this->deleteNotification($notificationId);
-                        $responseStatusDto = $this->createStatusResonseDto($statusResponse, $notificationId);
+                        $responseStatusDto = $this->createStatusResponseDto($statusResponse, $notificationId);
                         $results[] = $responseStatusDto;
                     } catch (\Throwable $ex) {
                         $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
                         $statusResponse = new ErrorResponse(NotificationException::errorWhileDeletingObject());
-                        $responseStatusDto = $this->createStatusResonseDto($statusResponse, $notificationId);
+                        $responseStatusDto = $this->createStatusResponseDto($statusResponse, $notificationId);
                         $results[] = $responseStatusDto;
                     }
                 }
@@ -96,12 +97,15 @@ final class DeleteNotifications
     /**
      * @param int $notificationId
      *
+     * @throws RepositoryException
+     * @throws \Throwable
+     *
      * @return ResponseStatusInterface
      */
     private function deleteNotification(int $notificationId): ResponseStatusInterface
     {
         $this->info('Deleting notification', ['id' => $notificationId]);
-        if ($this->writeRepository->delete($notificationId) === 1) {
+        if ($this->writeRepository->deleteNotification($notificationId) === 1) {
             return new NoContentResponse();
         }
 
@@ -124,7 +128,7 @@ final class DeleteNotifications
      *
      * @return DeleteNotificationsStatusResponse
      */
-    private function createStatusResonseDto(
+    private function createStatusResponseDto(
         ResponseStatusInterface $statusResponse,
         int $notificationId
     ): DeleteNotificationsStatusResponse {
@@ -133,7 +137,7 @@ final class DeleteNotifications
         if ($statusResponse instanceof NoContentResponse) {
             $responseStatusDto->status = ResponseCode::OK;
             $responseStatusDto->message = null;
-        } else if ($statusResponse instanceof NotFoundResponse) {
+        } elseif ($statusResponse instanceof NotFoundResponse) {
             $responseStatusDto->status = ResponseCode::NotFound;
             $responseStatusDto->message = $statusResponse->getMessage();
         } else {

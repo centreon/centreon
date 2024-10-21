@@ -261,40 +261,17 @@ if ($numRows > 0) {
 
     while ($tab = $dbResult->fetch()) {
         if (!isset($aTab[$tab["sg_name"]])) {
-            $aTab[$tab["sg_name"]] = array(
-                'sgn' => CentreonUtils::escapeSecure($tab["sg_name"]),
-                'o' => $ct,
-                'host' => []
-            );
+            $aTab[$tab["sg_name"]] = ['sgn' => CentreonUtils::escapeSecure($tab["sg_name"]), 'o' => $ct, 'host' => []];
         }
 
         if (!isset($aTab[$tab["sg_name"]]['host'][$tab["host_name"]])) {
             $count++;
-            if ($tab["icon_image"]) {
-                $icone = $tab["icon_image"];
-            } else {
-                $icone = "none";
-            }
-            $aTab[$tab["sg_name"]]['host'][$tab["host_name"]] = array(
-                'h' => $tab["host_name"],
-                'hs' => _($obj->statusHost[$tab["host_state"]]),
-                'hn' => CentreonUtils::escapeSecure($tab["host_name"]),
-                'hico' => $icone,
-                'hnl' => CentreonUtils::escapeSecure(urlencode($tab["host_name"])),
-                'hid' => $tab["host_id"],
-                "hcount" => $count,
-                "hc" => $obj->colorHost[$tab["host_state"]],
-                'service' => []
-            );
+            $icone = $tab["icon_image"] ?: "none";
+            $aTab[$tab["sg_name"]]['host'][$tab["host_name"]] = ['h' => $tab["host_name"], 'hs' => _($obj->statusHost[$tab["host_state"]]), 'hn' => CentreonUtils::escapeSecure($tab["host_name"]), 'hico' => $icone, 'hnl' => CentreonUtils::escapeSecure(urlencode($tab["host_name"])), 'hid' => $tab["host_id"], "hcount" => $count, "hc" => $obj->colorHost[$tab["host_state"]], 'service' => []];
         }
 
         if (!isset($aTab[$tab["sg_name"]]['host'][$tab["host_name"]]['service'][$tab['description']])) {
-            $aTab[$tab["sg_name"]]['host'][$tab["host_name"]]['service'][$tab['description']] = array(
-                "sn" => CentreonUtils::escapeSecure($tab['description']),
-                "snl" => CentreonUtils::escapeSecure(urlencode($tab['description'])),
-                "sc" => $obj->colorService[$tab['state']],
-                "svc_id" => $tab['service_id']
-            );
+            $aTab[$tab["sg_name"]]['host'][$tab["host_name"]]['service'][$tab['description']] = ["sn" => CentreonUtils::escapeSecure($tab['description']), "snl" => CentreonUtils::escapeSecure(urlencode($tab['description'])), "sc" => $obj->colorService[$tab['state']], "svc_id" => $tab['service_id']];
         }
         $ct++;
     }

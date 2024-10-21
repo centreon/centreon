@@ -40,7 +40,7 @@ use App\Kernel;
 use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
 use Centreon\Domain\Entity\Task;
 
-require_once realpath(dirname(__FILE__) . "/../../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
 require_once realpath(__DIR__ . "/../../../../../config/bootstrap.php");
 require_once realpath(__DIR__ . "/../../../../../bootstrap.php");
 require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
@@ -190,11 +190,7 @@ if (!empty($remotesResults)) {
             'pollers' => []
         ];
 
-        if (!empty($linkedResults)) {
-            $exportParams['pollers'] = array_column($linkedResults, 'id');
-        } else {
-            $exportParams['pollers'] = [$remote['id']];
-        }
+        $exportParams['pollers'] = !empty($linkedResults) ? array_column($linkedResults, 'id') : [$remote['id']];
 
         $dependencyInjector['centreon.taskservice']->addTask(Task::TYPE_EXPORT, ['params' => $exportParams]);
     }
@@ -215,19 +211,19 @@ $log_error = function ($errno, $errstr, $errfile, $errline) {
         case E_ERROR:
         case E_USER_ERROR:
         case E_CORE_ERROR:
-            $generatePhpErrors[] = array('error', $errstr);
+            $generatePhpErrors[] = ['error', $errstr];
             break;
         case E_WARNING:
         case E_USER_WARNING:
         case E_CORE_WARNING:
-            $generatePhpErrors[] = array('warning', $errstr);
+            $generatePhpErrors[] = ['warning', $errstr];
             break;
     }
     return true;
 };
 
 try {
-    $ret = array();
+    $ret = [];
     $ret['host'] = $pollers;
 
     chdir(_CENTREON_PATH_ . "www");
@@ -240,21 +236,12 @@ try {
     # Centcore pipe path
     $centcore_pipe = _CENTREON_VARLIB_ . "/centcore.cmd";
 
-    $tab_server = array();
-    $tabs = $centreon->user->access->getPollerAclConf(array(
-        'fields' => array('name', 'id', 'localhost'),
-        'order' => array('name'),
-        'conditions' => array('ns_activate' => '1'),
-        'keys' => array('id')
-    ));
+    $tab_server = [];
+    $tabs = $centreon->user->access->getPollerAclConf(['fields' => ['name', 'id', 'localhost'], 'order' => ['name'], 'conditions' => ['ns_activate' => '1'], 'keys' => ['id']]);
 
     foreach ($tabs as $tab) {
         if (isset($ret["host"]) && ($ret["host"] == 0 || in_array($tab['id'], $ret["host"]))) {
-            $tab_server[$tab["id"]] = array(
-                "id" => $tab["id"],
-                "name" => $tab["name"],
-                "localhost" => $tab["localhost"]
-            );
+            $tab_server[$tab["id"]] = ["id" => $tab["id"], "name" => $tab["name"], "localhost" => $tab["localhost"]];
         }
     }
 

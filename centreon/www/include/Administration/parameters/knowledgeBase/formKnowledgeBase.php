@@ -88,8 +88,8 @@ $tpl = initSmartyTpl($path . "/knowledgeBase", $tpl);
 
 $form->setDefaults($gopt);
 
-$subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-$DBRESULT = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+$subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+$DBRESULT = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 
 // prepare help texts
 $helptext = "";
@@ -119,7 +119,7 @@ $form->addElement(
     "button",
     "change",
     _("Modify"),
-    array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=knowledgeBase'", 'class' => 'btc bt_info')
+    ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=knowledgeBase'", 'class' => 'btc bt_info']
 );
 
 /*

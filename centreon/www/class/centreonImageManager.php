@@ -33,22 +33,33 @@
  *
  */
 
+use Pimple\Container;
+
+/**
+ * Class
+ *
+ * @class CentreonImageManager
+ */
 class CentreonImageManager extends centreonFileManager
 {
-    protected $legalExtensions;
-    protected $legalSize;
+    /** @var string[] */
+    protected $legalExtensions = ["jpg", "jpeg", "png", "gif", "svg"];
+    /** @var int */
+    protected $legalSize = 2000000;
+    /** @var mixed */
     protected $dbConfig;
 
     /**
-     * CentreonImageManager constructor.
-     * @param \Pimple\Container $dependencyInjector
+     * CentreonImageManager constructor
+     *
+     * @param Container $dependencyInjector
      * @param $rawFile
      * @param $basePath
      * @param $destinationDir
      * @param string $comment
      */
     public function __construct(
-        \Pimple\Container $dependencyInjector,
+        Container $dependencyInjector,
         $rawFile,
         $basePath,
         $destinationDir,
@@ -56,8 +67,6 @@ class CentreonImageManager extends centreonFileManager
     ) {
         parent::__construct($dependencyInjector, $rawFile, $basePath, $destinationDir, $comment);
         $this->dbConfig = $this->dependencyInjector['configuration_db'];
-        $this->legalExtensions = array("jpg", "jpeg", "png", "gif", "svg");
-        $this->legalSize = 2000000;
     }
 
     /**
@@ -82,7 +91,8 @@ class CentreonImageManager extends centreonFileManager
      * Upload file from Temp Directory
      *
      * @param string $tempDirectory
-     * @param boolean $insert
+     * @param bool $insert
+     *
      * @return array|bool
      */
     public function uploadFromDirectory(string $tempDirectory, $insert = true)
@@ -103,8 +113,9 @@ class CentreonImageManager extends centreonFileManager
     }
 
     /**
-     * @param $imgId
-     * @param $imgName
+     * @param string|int $imgId
+     * @param string $imgName
+     *
      * @return bool
      */
     public function update($imgId, $imgName)
@@ -174,7 +185,9 @@ class CentreonImageManager extends centreonFileManager
     }
 
     /**
-     * @param $fullPath
+     * @param string $fullPath
+     *
+     * @return void
      */
     protected function deleteImg($fullPath)
     {
@@ -210,8 +223,8 @@ class CentreonImageManager extends centreonFileManager
             "INSERT INTO view_img_dir (dir_name, dir_alias) "
             . "VALUES (:dirName, :dirAlias)"
         );
-        $stmt->bindParam(':dirName', $this->destinationDir, \PDO::PARAM_STR);
-        $stmt->bindParam(':dirAlias', $this->destinationDir, \PDO::PARAM_STR);
+        $stmt->bindParam(':dirName', $this->destinationDir, PDO::PARAM_STR);
+        $stmt->bindParam(':dirAlias', $this->destinationDir, PDO::PARAM_STR);
         if ($stmt->execute()) {
             return $this->dbConfig->lastInsertId();
         }
@@ -220,14 +233,16 @@ class CentreonImageManager extends centreonFileManager
 
     /**
      * @param $dirId
+     *
+     * @return void
      */
     protected function updateDirectory($dirId)
     {
         $query = "UPDATE view_img_dir SET dir_name = :dirName, dir_alias = :dirAlias WHERE dir_id = :dirId";
         $stmt = $this->dbConfig->prepare($query);
-        $stmt->bindParam(':dirName', $this->destinationDir, \PDO::PARAM_STR);
-        $stmt->bindParam(':dirAlias', $this->destinationDir, \PDO::PARAM_STR);
-        $stmt->bindParam(':dirId', $dirId, \PDO::PARAM_INT);
+        $stmt->bindParam(':dirName', $this->destinationDir, PDO::PARAM_STR);
+        $stmt->bindParam(':dirAlias', $this->destinationDir, PDO::PARAM_STR);
+        $stmt->bindParam(':dirId', $dirId, PDO::PARAM_INT);
         $stmt->execute();
     }
 
@@ -244,9 +259,9 @@ class CentreonImageManager extends centreonFileManager
             "INSERT INTO view_img (img_name, img_path, img_comment) "
             . "VALUES (:imgName, :imgPath, :dirComment)"
         );
-        $stmt->bindParam(':imgName', $this->fileName, \PDO::PARAM_STR);
-        $stmt->bindParam(':imgPath', $this->newFile, \PDO::PARAM_STR);
-        $stmt->bindParam(':dirComment', $this->comment, \PDO::PARAM_STR);
+        $stmt->bindParam(':imgName', $this->fileName, PDO::PARAM_STR);
+        $stmt->bindParam(':imgPath', $this->newFile, PDO::PARAM_STR);
+        $stmt->bindParam(':dirComment', $this->comment, PDO::PARAM_STR);
         $stmt->execute();
         $imgId = $this->dbConfig->lastInsertId();
 
@@ -254,16 +269,16 @@ class CentreonImageManager extends centreonFileManager
             "INSERT INTO view_img_dir_relation (dir_dir_parent_id, img_img_id) "
             . "VALUES (:dirId, :imgId)"
         );
-        $stmt->bindParam(':dirId', $dirId, \PDO::PARAM_INT);
-        $stmt->bindParam(':imgId', $imgId, \PDO::PARAM_INT);
+        $stmt->bindParam(':dirId', $dirId, PDO::PARAM_INT);
+        $stmt->bindParam(':imgId', $imgId, PDO::PARAM_INT);
         $stmt->execute();
         $stmt->closeCursor();
         return $imgId;
     }
 
     /**
-     * @param $old
-     * @param $new
+     * @param string $old
+     * @param string $new
      */
     protected function moveImage($old, $new)
     {

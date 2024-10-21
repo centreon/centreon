@@ -38,7 +38,7 @@ $alterTopologyForFeatureFlag = function(CentreonDB $pearDB): void {
     }
 };
 
-$removeNagiosPathImg = function(CentreonDB $pearDB) {
+$removeNagiosPathImg = function(CentreonDB $pearDB): void {
     $selectStatement = $pearDB->query("SELECT 1 FROM options WHERE `key`='nagios_path_img'");
     if($selectStatement->rowCount() > 0) {
         $pearDB->query("DELETE FROM options WHERE `key`='nagios_path_img'");

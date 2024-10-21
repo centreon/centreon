@@ -95,7 +95,7 @@ class SqlRequestParametersTranslator
             } elseif (is_int($key) && (is_object($searchRequests) || is_array($searchRequests))) {
                 // It's a list of object to process
                 $searchRequests = (array) $searchRequests;
-                if (!empty($searchRequests)) {
+                if ($searchRequests !== []) {
                     // Recursive call until to read key/value data
                     $databaseSubQuery = $this->createDatabaseQuery($searchRequests, $aggregateOperator);
                 }

@@ -73,21 +73,21 @@ export const labelForcedCheckDescription =
 export const labelCheckDescription =
   'Check selected resources only within configured check period';
 export const labelCheck = 'Check';
-export const labelOpenTicket = 'Open ticket';
+export const labelTicket = 'Tickets';
 export const labelOpenTicketForHost = 'Open ticket for host';
 export const labelOpenTicketForService = 'Open ticket for service';
 export const labelCloseTicket = 'Close ticket';
 
 export const labelTicketID = 'Ticket ID';
 export const labelTicketSubject = 'Ticket subject';
-export const labelTicketOpenTime = 'Opened on';
+export const labelOpenedOn = 'Opened on';
 
 export const labelSubject = 'Subject';
-export const labelOpenTime = 'Open time';
 export const labelCreateticket = 'Create a ticket';
 export const labelCloseATicket = 'Close a ticket';
 export const labelConfirm = 'Confirm';
 export const labelTicketWillBeClosedInTheProvider =
-  'The ticket will be closed on the selected ticket provider';
+  'The ticket with ID #{{id}} will be closed for the selected ticket provider.';
+
 export const labelTicketCreated = 'Ticket created';
 export const labelTicketClosed = 'Ticket closed';

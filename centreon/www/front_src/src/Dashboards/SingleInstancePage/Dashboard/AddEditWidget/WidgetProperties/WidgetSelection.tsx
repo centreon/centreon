@@ -8,7 +8,7 @@ import { Box, ListItemIcon, ListItemText, SvgIcon } from '@mui/material';
 import { SingleAutocompleteField } from '@centreon/ui';
 import { Avatar } from '@centreon/ui/components';
 
-import { FederatedWidgetProperties } from '../../../../../federatedModules/models';
+import type { FederatedWidgetProperties } from '../../../../../federatedModules/models';
 import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
 import { labelWidgetType } from '../../translatedLabels';
 import { useAddWidgetStyles } from '../addWidget.styles';

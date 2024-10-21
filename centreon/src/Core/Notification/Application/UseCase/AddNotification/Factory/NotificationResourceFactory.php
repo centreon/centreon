@@ -39,38 +39,89 @@ class NotificationResourceFactory
     use LoggerTrait;
 
     public function __construct(
-        private NotificationResourceRepositoryProviderInterface $repositoryProvider,
-        private ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private ContactInterface $user
+        private readonly NotificationResourceRepositoryProviderInterface $notificationResourceRepositoryProvider,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly ContactInterface $user
     ) {
+    }
+
+    /**
+     * Create multiple NotificationResource.
+     *
+     * @param array<array{
+     *  type: string,
+     *  ids: int[],
+     *  events: int,
+     *  includeServiceEvents: int
+     * }> $resources
+     *
+     * @throws \Assert\AssertionFailedException
+     * @throws NotificationException
+     * @throws \Throwable
+     *
+     * @return NotificationResource[]
+     */
+    public function createNotificationResources(array $resources): array
+    {
+        if ($resources === []) {
+            throw NotificationException::emptyArrayNotAllowed('resource');
+        }
+
+        $newResources = [];
+        foreach ($resources as $resourceData) {
+            $resourceIds = array_unique($resourceData['ids']);
+            if ($resourceIds === []) {
+                continue;
+            }
+
+            $resourceRepository = $this->notificationResourceRepositoryProvider->getRepository($resourceData['type']);
+            // If multiple resources with same type are defined, only the last one of each type is kept
+            $newResources[$resourceRepository->resourceType()] = $this->createNotificationResource(
+                $resourceRepository,
+                $resourceData
+            );
+        }
+
+        $totalResources = 0;
+        foreach ($newResources as $newResource) {
+            $totalResources += $newResource->getResourcesCount();
+        }
+        if ($totalResources <= 0) {
+            throw NotificationException::emptyArrayNotAllowed('resource.ids');
+        }
+
+        return $newResources;
     }
 
     /**
      * Create a NotificationResource.
      *
-     * @param NotificationResourceRepositoryInterface $repository
+     * @param NotificationResourceRepositoryInterface $resourceRepository
      * @param array{
-     *  type: string,
-     *  ids: int[],
-     *  events: int,
-     *  includeServiceEvents: int
+     *     type: string,
+     *     ids: int[],
+     *     events: int,
+     *     includeServiceEvents: int
      * } $resource
      *
-     * @throws \Assert\AssertionFailedException
+     * @throws NotificationException
+     * @throws \Throwable
      *
      * @return NotificationResource
      */
-    public function create(NotificationResourceRepositoryInterface $repository, array $resource): NotificationResource
-    {
+    private function createNotificationResource(
+        NotificationResourceRepositoryInterface $resourceRepository,
+        array $resource
+    ): NotificationResource{
         $resourceIds = array_unique($resource['ids']);
 
         if ($this->user->isAdmin()) {
             // Assert IDs validity without ACLs
-            $existingResources = $repository->exist($resourceIds);
+            $existingResources = $resourceRepository->exist($resourceIds);
         } else {
             // Assert IDs validity with ACLs
             $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-            $existingResources = $repository->existByAccessGroups($resourceIds, $accessGroups);
+            $existingResources = $resourceRepository->existByAccessGroups($resourceIds, $accessGroups);
         }
 
         $difference = new BasicDifference($resourceIds, $existingResources);
@@ -86,56 +137,13 @@ class NotificationResourceFactory
 
         // If multiple resources with same type are defined, only the last one of each type is kept
         return new NotificationResource(
-            $repository->resourceType(),
-            $repository->eventEnum(),
+            $resourceRepository->resourceType(),
+            $resourceRepository->eventEnum(),
             array_map((fn($resourceId) => new ConfigurationResource($resourceId, '')), $resourceIds),
-            ($repository->eventEnumConverter())::fromBitFlags($resource['events']),
+            ($resourceRepository->eventEnumConverter())::fromBitFlags($resource['events']),
             $resource['includeServiceEvents']
                 ? NotificationServiceEventConverter::fromBitFlags($resource['includeServiceEvents'])
                 : []
         );
-    }
-
-    /**
-     * Create multiple NotificationResource.
-     *
-     * @param array<array{
-     *  type: string,
-     *  ids: int[],
-     *  events: int,
-     *  includeServiceEvents: int
-     * }> $resources
-     *
-     * @throws \Assert\AssertionFailedException
-     *
-     * @return NotificationResource[]
-     */
-    public function createMultipleResource(array $resources): array
-    {
-        if (empty($resources)) {
-            throw NotificationException::emptyArrayNotAllowed('resource');
-        }
-
-        $newResources = [];
-        foreach ($resources as $resourceData) {
-            $resourceIds = array_unique($resourceData['ids']);
-            if (count($resourceIds) === 0) {
-                continue;
-            }
-
-            $repository = $this->repositoryProvider->getRepository($resourceData['type']);
-            // If multiple resources with same type are defined, only the last one of each type is kept
-            $newResources[$repository->resourceType()] = $this->create($repository, $resourceData);
-        }
-
-        $totalResources = 0;
-        foreach ($newResources as $newResource) {
-            $totalResources += $newResource->getResourcesCount();
-        }
-        if ($totalResources <= 0) {
-            throw NotificationException::emptyArrayNotAllowed('resource.ids');
-        }
-
-        return $newResources;
     }
 }

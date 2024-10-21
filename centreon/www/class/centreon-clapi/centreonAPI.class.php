@@ -36,78 +36,117 @@
 
 namespace CentreonClapi;
 
-use Security\Domain\Authentication\Exceptions\ProviderException;
-use Security\Domain\Authentication\Model\LocalProvider;
+use CentreonAuth;
+use CentreonAuthLDAP;
+use CentreonDB;
+use CentreonLog;
+use CentreonUserLog;
+use CentreonXML;
+use DateTime;
+use Exception;
+use HtmlAnalyzer;
+use LogicException;
+use PDO;
+use PDOException;
+use Pimple\Container;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 require_once _CENTREON_PATH_ . "www/class/centreon-clapi/centreonExported.class.php";
-require_once realpath(dirname(__FILE__) . "/../centreonDB.class.php");
-require_once realpath(dirname(__FILE__) . "/../centreonXML.class.php");
+require_once realpath(__DIR__ . "/../centreonDB.class.php");
+require_once realpath(__DIR__ . "/../centreonXML.class.php");
 require_once _CENTREON_PATH_ . "www/include/configuration/configGenerate/DB-Func.php";
 require_once _CENTREON_PATH_ . 'www/class/config-generate/generate.class.php';
 require_once __DIR__ . '/../centreonAuth.class.php';
 require_once _CENTREON_PATH_ . "www/class/centreonAuth.LDAP.class.php";
 require_once _CENTREON_PATH_ . 'www/class/centreonLog.class.php';
-require_once realpath(dirname(__FILE__) . "/../centreonSession.class.php");
+require_once realpath(__DIR__ . "/../centreonSession.class.php");
 
-
-/**
+/*
  * General Centreon Management
  */
 require_once "centreon.Config.Poller.class.php";
 
 /**
- * Declare Centreon API
+ * Class
  *
+ * @class CentreonAPI
+ * @package CentreonClapi
  */
 class CentreonAPI
 {
+    /** @var null */
     private static $instance = null;
 
+    /** @var int */
     public $dateStart;
+    /** @var string */
     public $login;
+    /** @var string */
     public $password;
+    /** @var string */
     public $action;
+    /** @var string */
     public $object;
+    /** @var array */
     public $options;
+    /** @var */ // FIXME not use ?
     public $args;
+    /** @var CentreonDB */
     public $DB;
+    /** @var CentreonDB */
     public $DBC;
+    /** @var */ // FIXME not use ?
     public $DBN;
+    /** @var string */
     public $format;
+    /** @var CentreonXML */
     public $xmlObj;
-    public $debug;
+    /** @var int */
+    public $debug = 0;
+    /** @var mixed|string */
     public $variables;
+    /** @var string */
     public $centreon_path;
-    private $return_code;
+    /** @var int */
+    private $return_code = 0;
+    /** @var Container */
     private $dependencyInjector;
+    /** @var array */
     private $relationObject;
+    /** @var array */
     private $objectTable;
+    /** @var array */
     private $aExport = [];
-
-    /**
-     * @var string
-     */
+    /** @var string */
     public $delim = ';';
 
+    /**
+     * CentreonAPI constructor
+     *
+     * @param string $user
+     * @param string $password
+     * @param string $action
+     * @param string $centreon_path
+     * @param array $options
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
+     */
     public function __construct(
         $user,
         $password,
         $action,
         $centreon_path,
         $options,
-        \Pimple\Container $dependencyInjector
+        Container $dependencyInjector
     ) {
-        /**
-         * Set variables
-         */
-        $this->debug = 0;
-        $this->return_code = 0;
         $this->dependencyInjector = $dependencyInjector;
         if (isset($user)) {
             $this->login = htmlentities($user, ENT_QUOTES);
         }
         if (isset($password)) {
-            $this->password = \HtmlAnalyzer::sanitizeAndRemoveTags($password);
+            $this->password = HtmlAnalyzer::sanitizeAndRemoveTags($password);
         }
         if (isset($action)) {
             $this->action = htmlentities(strtoupper($action), ENT_QUOTES);
@@ -116,17 +155,9 @@ class CentreonAPI
         $this->options = $options;
         $this->centreon_path = $centreon_path;
 
-        if (isset($options["v"])) {
-            $this->variables = $options["v"];
-        } else {
-            $this->variables = "";
-        }
+        $this->variables = $options["v"] ?? "";
 
-        if (isset($options["o"])) {
-            $this->object = htmlentities(strtoupper($options["o"]), ENT_QUOTES);
-        } else {
-            $this->object = "";
-        }
+        $this->object = isset($options["o"]) ? htmlentities(strtoupper($options["o"]), ENT_QUOTES) : "";
 
         $this->objectTable = [];
 
@@ -356,9 +387,15 @@ class CentreonAPI
     }
 
     /**
+     * @param string|null $user
+     * @param string|null $password
+     * @param string|null $action
+     * @param string|null $centreon_path
+     * @param array|null $options
+     * @param Container|null $dependencyInjector
      *
-     * @param void
-     * @return CentreonApi
+     * @return CentreonAPI|null
+     * @throws PDOException
      */
     public static function getInstance(
         $user = null,
@@ -387,7 +424,7 @@ class CentreonAPI
     }
 
     /**
-     * @return \Pimple\Container
+     * @return Container
      */
     public function getDependencyInjector()
     {
@@ -400,13 +437,17 @@ class CentreonAPI
      * @param int $returnCode
      * @return void
      */
-    public function setReturnCode($returnCode)
+    public function setReturnCode($returnCode): void
     {
         $this->return_code = $returnCode;
     }
 
     /**
      * Centreon Object Management
+     *
+     * @param string $object
+     *
+     * @return void
      */
     protected function requireLibs($object)
     {
@@ -457,7 +498,7 @@ class CentreonAPI
             }
         }
 
-        /**
+        /*
          * Default class needed
          */
         require_once __DIR__ . "/centreonTimePeriod.class.php";
@@ -465,21 +506,21 @@ class CentreonAPI
     }
 
     /**
+     * @param string $login
      *
-     * Set user login
-     * @param varchar $login
+     * @return void
      */
-    public function setLogin($login)
+    public function setLogin($login): void
     {
         $this->login = $login;
     }
 
     /**
+     * @param string $password
      *
-     * Set password of the user
-     * @param varchar $password
+     * @return void
      */
-    public function setPassword($password)
+    public function setPassword($password): void
     {
         $this->password = trim($password);
     }
@@ -487,9 +528,11 @@ class CentreonAPI
     /**
      * Check user access and password
      *
-     * @param boolean $useSha1
-     * @param boolean $isWorker
-     * @return return bool 1 if user can login
+     * @param bool $useSha1
+     * @param bool $isWorker
+     *
+     * @return int|void 1 if user can login
+     * @throws PDOException
      */
     public function checkUser($useSha1 = false, $isWorker = false)
     {
@@ -514,7 +557,7 @@ class CentreonAPI
             AND `contact_activate` = '1' AND `contact_register` = '1'
             ORDER BY contact_password.creation_date DESC LIMIT 1"
         );
-        $DBRESULT->bindParam(':contactAlias', $this->login, \PDO::PARAM_STR);
+        $DBRESULT->bindParam(':contactAlias', $this->login, PDO::PARAM_STR);
         $DBRESULT->execute();
         if ($DBRESULT->rowCount()) {
             $row = $DBRESULT->fetchRow();
@@ -542,13 +585,13 @@ class CentreonAPI
                     $row['login_attempts'] = null;
                     $row['blocking_time'] = null;
                 } else {
-                    $now = new \DateTime();
-                    $expirationDate = (new \DateTime())->setTimestamp(
+                    $now = new DateTime();
+                    $expirationDate = (new DateTime())->setTimestamp(
                         $row['blocking_time'] + $securityPolicy['blocking_duration']
                     );
                     $interval = (date_diff($now, $expirationDate))->format('%Dd %Hh %Im %Ss');
                     print "Authentication failed.\n";
-                    $CentreonLog = new \CentreonLog();
+                    $CentreonLog = new CentreonLog();
                     $CentreonLog->insertLog(
                         1, "Authentication failed for '" . $row['contact_alias'] . "',"
                         . " max login attempts has been reached. $interval left\n"
@@ -559,7 +602,7 @@ class CentreonAPI
 
             $passwordExpirationDelay = $securityPolicy['password_expiration']['expiration_delay'];
             if (
-                $row['contact_auth_type'] !== \CentreonAuth::AUTH_TYPE_LDAP
+                $row['contact_auth_type'] !== CentreonAuth::AUTH_TYPE_LDAP
                 && $passwordExpirationDelay !== null
                 && (int) $row['password_creation'] + (int) $passwordExpirationDelay < time()
                 // Do not check expiration for excluded users of local security policy
@@ -578,23 +621,23 @@ class CentreonAPI
                     'md5'
                 )
             ) {
-                $hashedPassword = password_hash($this->password, \CentreonAuth::PASSWORD_HASH_ALGORITHM);
+                $hashedPassword = password_hash($this->password, CentreonAuth::PASSWORD_HASH_ALGORITHM);
                 $contact->replacePasswordByContactId(
                     (int) $row['contact_id'],
                     $row["contact_passwd"],
                     $hashedPassword
                 );
-                \CentreonClapi\CentreonUtils::setUserId($row['contact_id']);
+                CentreonUtils::setUserId($row['contact_id']);
                 $this->removeBlockingTimeOnUser();
                 return 1;
             }
             if (password_verify($this->password, $row['contact_passwd'])) {
-                \CentreonClapi\CentreonUtils::setUserId($row['contact_id']);
+                CentreonUtils::setUserId($row['contact_id']);
                 $this->removeBlockingTimeOnUser();
                 return 1;
             } elseif ($row['contact_auth_type'] == 'ldap') {
-                $CentreonLog = new \CentreonUserLog(-1, $this->DB);
-                $centreonAuth = new \CentreonAuthLDAP(
+                $CentreonLog = new CentreonUserLog(-1, $this->DB);
+                $centreonAuth = new CentreonAuthLDAP(
                     $this->DB,
                     $CentreonLog,
                     $this->login,
@@ -602,8 +645,8 @@ class CentreonAPI
                     $row,
                     $row['ar_id']
                 );
-                if ($centreonAuth->checkPassword() == \CentreonAuth::PASSWORD_VALID) {
-                    \CentreonClapi\CentreonUtils::setUserId($row['contact_id']);
+                if ($centreonAuth->checkPassword() == CentreonAuth::PASSWORD_VALID) {
+                    CentreonUtils::setUserId($row['contact_id']);
                     return 1;
                 }
             }
@@ -620,19 +663,21 @@ class CentreonAPI
     }
 
     /**
-     *
      * return (print) a "\n"
+     *
+     * @return void
      */
-    public function endOfLine()
+    public function endOfLine(): void
     {
         print "\n";
     }
 
     /**
-     *
      * close the current action
+     *
+     * @return void
      */
-    public function close()
+    public function close(): void
     {
         print "\n";
         exit($this->return_code);
@@ -641,10 +686,10 @@ class CentreonAPI
     /**
      * Print usage for using CLAPI ...
      *
-     * @param boolean $dbOk | whether db is ok
+     * @param bool $dbOk | whether db is ok
      * @param int $returnCode
      */
-    public function printHelp($dbOk = true, $returnCode = 0)
+    public function printHelp($dbOk = true, $returnCode = 0): void
     {
         if ($dbOk) {
             $this->printLegals();
@@ -684,9 +729,11 @@ class CentreonAPI
     }
 
     /**
-     *
      * Get variable passed in parameters
-     * @param varchar $str
+     *
+     * @param string $str
+     *
+     * @return string
      */
     public function getVar($str)
     {
@@ -695,10 +742,11 @@ class CentreonAPI
     }
 
     /**
-     *
      * Init XML Flow
+     *
+     * @return void
      */
-    public function initXML()
+    public function initXML(): void
     {
         $this->xmlObj = new CentreonXML();
     }
@@ -706,34 +754,35 @@ class CentreonAPI
     /**
      * Main function : Launch action
      *
-     * @param boolean $exit If exit or return the return code
+     * @param bool $exit If exit or return the return code
+     *
+     * @return int|void
      */
     public function launchAction($exit = true)
     {
         $action = strtoupper($this->action);
 
-        /**
+        /*
          * Debug
          */
         if ($this->debug) {
             print "DEBUG : $action\n";
         }
 
-        /**
+        /*
          * Check method availability before using it.
          */
         if ($this->object) {
             $isService = $this->dependencyInjector['centreon.clapi']->has($this->object);
-
             if ($isService === true) {
                 $objName = $this->dependencyInjector['centreon.clapi']->get($this->object);
             } else {
-                /**
+                /*
                  * Require needed class
                  */
                 $this->requireLibs($this->object);
 
-                /**
+                /*
                  * Check class declaration
                  */
                 if (isset($this->relationObject[$this->object]['class'])) {
@@ -752,23 +801,19 @@ class CentreonAPI
                     return 1;
                 }
             }
-
             $obj = new $objName($this->dependencyInjector);
-
             if (method_exists($obj, $action) || method_exists($obj, "__call")) {
                 $this->return_code = $obj->$action($this->variables);
             } else {
                 print "Method not implemented into Centreon API.\n";
                 return 1;
             }
+        } elseif (method_exists($this, $action)) {
+            $this->return_code = $this->$action();
+            print "Return code end : " . $this->return_code . "\n";
         } else {
-            if (method_exists($this, $action)) {
-                $this->return_code = $this->$action();
-                print "Return code end : " . $this->return_code . "\n";
-            } else {
-                print "Method not implemented into Centreon API.\n";
-                $this->return_code = 1;
-            }
+            print "Method not implemented into Centreon API.\n";
+            $this->return_code = 1;
         }
 
         if ($exit) {
@@ -780,6 +825,10 @@ class CentreonAPI
 
     /**
      * Import Scenario file
+     *
+     * @param string $filename
+     *
+     * @return int
      */
     public function import($filename)
     {
@@ -817,9 +866,7 @@ class CentreonAPI
                 }
                 try {
                     $this->launchActionForImport();
-                } catch (CentreonClapiException $e) {
-                    echo "Line $i : " . $e->getMessage() . "\n";
-                } catch (\Exception $e) {
+                } catch (CentreonClapiException|Exception $e) {
                     echo "Line $i : " . $e->getMessage() . "\n";
                 }
                 if ($this->return_code) {
@@ -831,23 +878,26 @@ class CentreonAPI
         return $globalReturn;
     }
 
+    /**
+     * @return int|void
+     */
     public function launchActionForImport()
     {
         $action = strtoupper($this->action);
-        /**
+        /*
          * Debug
          */
         if ($this->debug) {
             print "DEBUG : $action\n";
         }
 
-        /**
+        /*
          * Check method availability before using it.
          */
         if ($this->object) {
             $this->iniObject($this->object);
 
-            /**
+            /*
              * Check class declaration
              */
             $obj = $this->objectTable[$this->object];
@@ -857,18 +907,18 @@ class CentreonAPI
                 print "Method not implemented into Centreon API.\n";
                 return 1;
             }
+        } elseif (method_exists($this, $action) || method_exists($this, "__call")) {
+            $this->return_code = $this->$action();
         } else {
-            if (method_exists($this, $action) || method_exists($this, "__call")) {
-                $this->return_code = $this->$action();
-            } else {
-                print "Method not implemented into Centreon API.\n";
-                $this->return_code = 1;
-            }
+            print "Method not implemented into Centreon API.\n";
+            $this->return_code = 1;
         }
     }
 
     /**
      * @param $newOption
+     *
+     * @return void
      */
     public function setOption($newOption): void
     {
@@ -877,6 +927,8 @@ class CentreonAPI
 
     /**
      * @param $newVariables
+     *
+     * @return void
      */
     public function setVariables($newVariables): void
     {
@@ -885,6 +937,8 @@ class CentreonAPI
 
     /**
      * @param $newPath
+     *
+     * @return void
      */
     public function setCentreonPath($newPath): void
     {
@@ -894,7 +948,9 @@ class CentreonAPI
     /**
      * Export All configuration
      *
-     * @param $withoutClose disable using of PHP exit function (default: false)
+     * @param bool $withoutClose disable using of PHP exit function (default: false)
+     *
+     * @return int|void
      */
     public function export($withoutClose = false)
     {
@@ -911,14 +967,14 @@ class CentreonAPI
             $selected = $this->options['select'];
 
             if (!is_array($this->options['select'])) {
-                $selected = array($this->options['select']);
+                $selected = [$this->options['select']];
             }
 
             foreach ($selected as $select) {
                 $splits = explode(';', $select);
 
-                $splits[0] = isset($splits[0]) ? $splits[0] : null;
-                $splits[1] = isset($splits[1]) ? $splits[1] : null;
+                $splits[0] ??= null;
+                $splits[1] ??= null;
 
                 if (!isset($this->objectTable[$splits[0]])) {
                     print "Unknown object : $splits[0]\n";
@@ -964,12 +1020,11 @@ class CentreonAPI
     }
 
     /**
+     * @param string $objname
      *
-     * Init an object
-     * @param unknown_type $DB
-     * @param unknown_type $objname
+     * @return void
      */
-    private function iniObject($objname)
+    private function iniObject($objname): void
     {
         $className = '';
         if (
@@ -985,8 +1040,10 @@ class CentreonAPI
 
     /**
      * Init All object instance in order to export all informations
+     *
+     * @return void
      */
-    private function initAllObjects()
+    private function initAllObjects(): void
     {
         if (count($this->aExport) > 0) {
             foreach ($this->aExport as $oObjet) {
@@ -997,8 +1054,12 @@ class CentreonAPI
 
     /**
      * Check if file exists
+     *
+     * @param string $filename
+     *
+     * @return void
      */
-    private function fileExists($filename)
+    private function fileExists($filename): void
     {
         if (!file_exists($filename)) {
             print "$filename : File doesn't exists\n";
@@ -1007,10 +1068,12 @@ class CentreonAPI
     }
 
     /**
-     *
      * Print centreon version and legal use
+     *
+     * @return void
+     * @throws PDOException
      */
-    public function printLegals()
+    public function printLegals(): void
     {
         $DBRESULT = $this->DB->query("SELECT * FROM informations WHERE `key` = 'version'");
         $data = $DBRESULT->fetchRow();
@@ -1020,24 +1083,29 @@ class CentreonAPI
     }
 
     /**
-     *
      * Print centreon version
+     *
+     * @return void
+     * @throws PDOException
      */
-    public function printVersion()
+    public function printVersion(): void
     {
         $res = $this->DB->query("SELECT * FROM informations WHERE `key` = 'version'");
         $data = $res->fetchRow();
         print "Centreon version " . $data["value"] . "\n";
     }
 
-    /**     * *****************************************************
+    /* *****************************************************
      *
      * API Possibilities
      */
 
     /**
-     *
      * List all poller declared in Centreon
+     *
+     * @return int
+     * @throws PDOException
+     * @throws LogicException
      */
     public function POLLERLIST()
     {
@@ -1046,8 +1114,14 @@ class CentreonAPI
     }
 
     /**
-     *
      * Launch poller restart
+     *
+     * @return int|null
+     * @throws CentreonClapiException
+     * @throws PDOException
+     * @throws LogicException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function POLLERRESTART()
     {
@@ -1056,8 +1130,14 @@ class CentreonAPI
     }
 
     /**
-     *
      * Launch poller reload
+     *
+     * @return int|mixed
+     * @throws CentreonClapiException
+     * @throws PDOException
+     * @throws LogicException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function POLLERRELOAD()
     {
@@ -1066,8 +1146,12 @@ class CentreonAPI
     }
 
     /**
-     *
      * Launch poller configuration files generation
+     *
+     * @return int
+     * @throws CentreonClapiException
+     * @throws PDOException
+     * @throws LogicException
      */
     public function POLLERGENERATE()
     {
@@ -1076,8 +1160,12 @@ class CentreonAPI
     }
 
     /**
-     *
      * Launch poller configuration test
+     *
+     * @return int|null
+     * @throws CentreonClapiException
+     * @throws PDOException
+     * @throws LogicException
      */
     public function POLLERTEST()
     {
@@ -1087,6 +1175,11 @@ class CentreonAPI
 
     /**
      * Execute the post generation command
+     *
+     * @return int
+     * @throws CentreonClapiException
+     * @throws PDOException
+     * @throws LogicException
      */
     public function POLLEREXECCMD()
     {
@@ -1095,8 +1188,12 @@ class CentreonAPI
     }
 
     /**
-     *
      * move configuration files into final directory
+     *
+     * @return int|null
+     * @throws CentreonClapiException
+     * @throws PDOException
+     * @throws LogicException
      */
     public function CFGMOVE()
     {
@@ -1106,6 +1203,11 @@ class CentreonAPI
 
     /**
      * Send trap configuration file to poller
+     *
+     * @return int|null
+     * @throws CentreonClapiException
+     * @throws PDOException
+     * @throws LogicException
      */
     public function SENDTRAPCFG()
     {
@@ -1114,8 +1216,14 @@ class CentreonAPI
     }
 
     /**
-     *
      * Apply configuration Generation + move + reload
+     *
+     * @return int|mixed|null
+     * @throws CentreonClapiException
+     * @throws PDOException
+     * @throws LogicException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function APPLYCFG()
     {
@@ -1149,8 +1257,10 @@ class CentreonAPI
 
     /**
      * This method sort the objects to export
+     *
+     * @return void
      */
-    public function sortClassExport()
+    public function sortClassExport(): void
     {
         if (isset($this->relationObject) && is_array(($this->relationObject))) {
             $aObject = $this->relationObject;
@@ -1197,8 +1307,10 @@ class CentreonAPI
     /**
      * Increment login attempts for user.
      *
-     * @param integer $contactLoginAttempts
-     * @return integer
+     * @param int $contactLoginAttempts
+     *
+     * @return int
+     * @throws PDOException
      */
     private function incrementLoginAttempts(int $contactLoginAttempts): int
     {
@@ -1209,8 +1321,8 @@ class CentreonAPI
         $attemptStatement = $this->DB->prepare(
             'UPDATE contact SET login_attempts = :loginAttempts WHERE contact_alias = :contactAlias'
         );
-        $attemptStatement->bindValue(':loginAttempts', $contactLoginAttempts, \PDO::PARAM_INT);
-        $attemptStatement->bindValue(':contactAlias', $this->login, \PDO::PARAM_STR);
+        $attemptStatement->bindValue(':loginAttempts', $contactLoginAttempts, PDO::PARAM_INT);
+        $attemptStatement->bindValue(':contactAlias', $this->login, PDO::PARAM_STR);
         $attemptStatement->execute();
 
         return $contactLoginAttempts;
@@ -1218,30 +1330,35 @@ class CentreonAPI
 
     /**
      * Block login for user.
+     *
+     * @return void
+     * @throws PDOException
      */
     private function blockLoginForUser(): void
     {
         $blockLoginStatement = $this->DB->prepare(
             'UPDATE contact SET blocking_time = :blockingTime WHERE contact_alias = :contactAlias'
         );
-        $blockLoginStatement->bindValue(':blockingTime', time(), \PDO::PARAM_INT);
-        $blockLoginStatement->bindValue(':contactAlias', $this->login, \PDO::PARAM_STR);
+        $blockLoginStatement->bindValue(':blockingTime', time(), PDO::PARAM_INT);
+        $blockLoginStatement->bindValue(':contactAlias', $this->login, PDO::PARAM_STR);
         $blockLoginStatement->execute();
     }
 
     /**
      * Exit with invalid credentials message.
      *
-     * @param integer $contactLoginAttempts
-     * @param integer $securityPolicyAttempts
-     * @param integer $blockingDuration
+     * @param int $contactLoginAttempts
+     * @param int $securityPolicyAttempts
+     * @param int $blockingDuration
+     *
+     * @throws PDOException
      */
     private function exitOnInvalidCredentials(
         int $contactLoginAttempts,
         int $securityPolicyAttempts,
         int $blockingDuration
     ): void {
-        $CentreonLog = new \CentreonLog();
+        $CentreonLog = new CentreonLog();
         $loginAttempts = $this->incrementLoginAttempts($contactLoginAttempts);
         if ($loginAttempts === $securityPolicyAttempts) {
             $this->blockLoginForUser();
@@ -1261,6 +1378,9 @@ class CentreonAPI
 
     /**
      * Remove the blocking time and login attemps.
+     *
+     * @return void
+     * @throws PDOException
      */
     private function removeBlockingTimeOnUser(): void
     {
@@ -1268,7 +1388,7 @@ class CentreonAPI
             "UPDATE contact SET blocking_time = NULL, login_attempts = NULL "
                 . "WHERE contact_alias = :contactAlias"
         );
-        $unblockStatement->bindValue(':contactAlias', $this->login, \PDO::PARAM_STR);
+        $unblockStatement->bindValue(':contactAlias', $this->login, PDO::PARAM_STR);
         $unblockStatement->execute();
     }
 }

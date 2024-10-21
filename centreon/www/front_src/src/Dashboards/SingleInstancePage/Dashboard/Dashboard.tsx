@@ -1,4 +1,4 @@
-import { ReactElement, useEffect } from 'react';
+import { type ReactElement, useEffect } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { inc } from 'ramda';
@@ -12,7 +12,7 @@ import { Divider } from '@mui/material';
 
 import { IconButton, PageHeader, PageLayout } from '@centreon/ui/components';
 
-import { Dashboard as DashboardType } from '../../api/models';
+import type { Dashboard as DashboardType } from '../../api/models';
 import { isSharesOpenAtom } from '../../atoms';
 import { DashboardAccessRightsModal } from '../../components/DashboardLibrary/DashboardAccessRights/DashboardAccessRightsModal';
 import { DashboardConfigModal } from '../../components/DashboardLibrary/DashboardConfig/DashboardConfigModal';
@@ -46,7 +46,20 @@ const Dashboard = (): ReactElement => {
 
   const { canEdit } = useCanEditProperties();
 
+  const refreshIframes = () => {
+    const iframes = document.querySelectorAll(
+      'iframe[title="Webpage Display"]'
+    );
+
+    iframes.forEach((iframe) => {
+      // biome-ignore lint/correctness/noSelfAssign: <explanation>
+      iframe.src = iframe.src;
+    });
+  };
+
   const refreshAllWidgets = (): void => {
+    refreshIframes();
+
     setRefreshCounts((prev) => {
       return layout.reduce((acc, widget) => {
         const prevRefreshCount = prev[widget.i];

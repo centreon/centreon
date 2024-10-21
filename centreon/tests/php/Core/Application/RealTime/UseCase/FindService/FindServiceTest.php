@@ -47,7 +47,7 @@ use Core\Application\RealTime\Repository\ReadAcknowledgementRepositoryInterface;
 use Tests\Core\Application\RealTime\UseCase\FindService\FindServicePresenterStub;
 use Core\Severity\RealTime\Application\Repository\ReadSeverityRepositoryInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->repository = $this->createMock(ReadServiceRepositoryInterface::class);
     $this->servicegroupRepository = $this->createMock(ReadServicegroupRepositoryInterface::class);
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
@@ -81,7 +81,7 @@ beforeEach(function () {
     $this->severity = new Severity(1, 'severityName', 10, Severity::SERVICE_SEVERITY_TYPE_ID, $icon);
 });
 
-it('should present a NotFoundResponse if host not found as admin', function () {
+it('should present a NotFoundResponse if host not found as admin', function (): void {
     $findService = new FindService(
         $this->repository,
         $this->hostRepository,
@@ -115,7 +115,7 @@ it('should present a NotFoundResponse if host not found as admin', function () {
     );
 });
 
-it('should present a NotFoundResponse if host not found as non admin', function () {
+it('should present a NotFoundResponse if host not found as non admin', function (): void {
     $findService = new FindService(
         $this->repository,
         $this->hostRepository,
@@ -154,7 +154,7 @@ it('should present a NotFoundResponse if host not found as non admin', function 
     );
 });
 
-it('should present a NotFoundResponse if service not found as admin', function () {
+it('should present a NotFoundResponse if service not found as admin', function (): void {
     $findService = new FindService(
         $this->repository,
         $this->hostRepository,
@@ -193,7 +193,7 @@ it('should present a NotFoundResponse if service not found as admin', function (
     );
 });
 
-it('should present a NotFoundResponse if service not found as non admin', function () {
+it('should present a NotFoundResponse if service not found as non admin', function (): void {
     $findService = new FindService(
         $this->repository,
         $this->hostRepository,
@@ -237,7 +237,7 @@ it('should present a NotFoundResponse if service not found as non admin', functi
     );
 });
 
-it('should find service as admin', function () {
+it('should find service as admin', function (): void {
     $findService = new FindService(
         $this->repository,
         $this->hostRepository,
@@ -349,7 +349,7 @@ it('should find service as admin', function () {
     expect($severity['icon']['url'])->toBe($this->severity->getIcon()->getUrl());
 });
 
-it('FindService service found as non admin', function () {
+it('FindService service found as non admin', function (): void {
     $findService = new FindService(
         $this->repository,
         $this->hostRepository,

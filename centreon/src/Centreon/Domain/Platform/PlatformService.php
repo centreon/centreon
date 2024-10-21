@@ -52,7 +52,7 @@ class PlatformService implements PlatformServiceInterface
     {
         try {
             $webVersion = $this->platformRepository->getWebVersion();
-            return ($webVersion !== null) ? $webVersion : '0.0.0';
+            return $webVersion ?? '0.0.0';
         } catch (\Exception $ex) {
             throw new PlatformException('Error while searching for the web version of the Centreon platform');
         }

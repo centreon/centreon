@@ -90,7 +90,7 @@ function testGroupExistence($name = null)
  * @param null $acl_group_id
  * @param array $groups
  */
-function enableGroupInDB($acl_group_id = null, $groups = array())
+function enableGroupInDB($acl_group_id = null, $groups = [])
 {
     global $pearDB, $centreon;
 
@@ -128,7 +128,7 @@ function enableGroupInDB($acl_group_id = null, $groups = array())
  * @param null $acl_group_id
  * @param array $groups
  */
-function disableGroupInDB($acl_group_id = null, $groups = array())
+function disableGroupInDB($acl_group_id = null, $groups = [])
 {
     global $pearDB, $centreon;
 
@@ -136,7 +136,7 @@ function disableGroupInDB($acl_group_id = null, $groups = array())
         return;
     }
     if ($acl_group_id) {
-        $groups = array($acl_group_id => "1");
+        $groups = [$acl_group_id => "1"];
     }
 
     foreach ($groups as $key => $value) {
@@ -160,7 +160,7 @@ function disableGroupInDB($acl_group_id = null, $groups = array())
  * Delete the selected group in DB
  * @param $groups
  */
-function deleteGroupInDB($groups = array())
+function deleteGroupInDB($groups = [])
 {
     global $pearDB, $centreon;
 
@@ -184,7 +184,7 @@ function deleteGroupInDB($groups = array())
  * @param $groups
  * @param $nbrDup
  */
-function multipleGroupInDB($groups = array(), $nbrDup = array())
+function multipleGroupInDB($groups = [], $nbrDup = [])
 {
     global $pearDB, $centreon;
 
@@ -199,7 +199,10 @@ function multipleGroupInDB($groups = array(), $nbrDup = array())
             $val = null;
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
-                $key2 == "acl_group_name" ? ($acl_group_name = $value2 = $value2 . "_" . $i) : null;
+                if ($key2 == "acl_group_name") {
+                    $acl_group_name = $value2 . "_" . $i;
+                    $value2 = $value2 . "_" . $i;
+                }
                 $val ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")
                     : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
                 if ($key2 != "acl_group_id") {
@@ -211,7 +214,7 @@ function multipleGroupInDB($groups = array(), $nbrDup = array())
             }
 
             if (testGroupExistence($acl_group_name)) {
-                $val ? $rq = "INSERT INTO acl_groups VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO acl_groups VALUES (" . $val . ")" : null;
                 $pearDB->query($rq);
                 $dbResult = $pearDB->query("SELECT MAX(acl_group_id) FROM acl_groups");
                 $maxId = $dbResult->fetch();
@@ -243,7 +246,7 @@ function multipleGroupInDB($groups = array(), $nbrDup = array())
  * Insert group in DB
  * @param $ret
  */
-function insertGroupInDB($ret = array())
+function insertGroupInDB($ret = [])
 {
     global $form, $centreon;
 
@@ -403,7 +406,7 @@ function updateGroup($aclGroupId = null)
  * @param $acl_group_id
  * @param $ret
  */
-function updateGroupContacts($acl_group_id, $ret = array())
+function updateGroupContacts($acl_group_id, $ret = [])
 {
     global $form, $pearDB;
 
@@ -430,7 +433,7 @@ function updateGroupContacts($acl_group_id, $ret = array())
  * @param $acl_group_id
  * @param $ret
  */
-function updateGroupContactGroups($acl_group_id, $ret = array())
+function updateGroupContactGroups($acl_group_id, $ret = [])
 {
     global $form, $pearDB;
 
@@ -466,7 +469,7 @@ function updateGroupContactGroups($acl_group_id, $ret = array())
  * @param $acl_group_id
  * @param $ret
  */
-function updateGroupActions($acl_group_id, $ret = array())
+function updateGroupActions($acl_group_id, $ret = [])
 {
     global $form, $pearDB;
 
@@ -493,7 +496,7 @@ function updateGroupActions($acl_group_id, $ret = array())
  * @param $acl_group_id
  * @param $ret
  */
-function updateGroupMenus($acl_group_id, $ret = array())
+function updateGroupMenus($acl_group_id, $ret = [])
 {
     global $form, $pearDB;
 
@@ -520,7 +523,7 @@ function updateGroupMenus($acl_group_id, $ret = array())
  * @param $acl_group_id
  * @param $ret
  */
-function updateGroupResources($acl_group_id, $ret = array())
+function updateGroupResources($acl_group_id, $ret = [])
 {
     global $form, $pearDB;
 

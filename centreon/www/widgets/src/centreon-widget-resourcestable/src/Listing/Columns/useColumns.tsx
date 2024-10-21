@@ -1,10 +1,26 @@
-import { useAtomValue } from 'jotai';
-import { T, always, cond, equals, head, pipe, propOr, split } from 'ramda';
+import {
+  T,
+  always,
+  cond,
+  equals,
+  head,
+  isEmpty,
+  isNotNil,
+  pipe,
+  propOr,
+  split
+} from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { ColumnType, useStyleTable } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
+import { useAtomValue } from 'jotai';
+
+import {
+  ColumnType,
+  useLocaleDateTimeFormat,
+  useStyleTable
+} from '@centreon/ui';
 import type { Column } from '@centreon/ui';
-import { featureFlagsDerivedAtom } from '@centreon/ui-context';
 
 import { DisplayType } from '../models';
 import {
@@ -13,7 +29,7 @@ import {
   labelHost,
   labelInformation,
   labelLastCheck,
-  labelOpenTicket,
+  labelOpenedOn,
   labelParent,
   labelResource,
   labelService,
@@ -21,13 +37,15 @@ import {
   labelSeverity,
   labelState,
   labelStatus,
+  labelTicket,
   labelTicketID,
-  labelTicketOpenTime,
   labelTicketSubject,
   labelTries
 } from '../translatedLabels';
 
+import useIsOpenTicketInstalled from '../useIsOpenTicketInstalled';
 import CloseTicket from './CloseTicket/CloseTicket';
+
 import useStyles, { useStatusStyles } from './Columns.styles';
 import OpenTicket from './OpenTicket/OpenTicket';
 import ParentResourceColumn from './Parent';
@@ -39,7 +57,7 @@ import StatusColumn from './Status';
 import truncate from './truncate';
 
 interface ColumnProps {
-  displayResources: 'all' | 'withTicket' | 'withoutTicket';
+  displayResources: 'withTicket' | 'withoutTicket';
   displayType?: DisplayType;
   isOpenTicketEnabled: boolean;
   provider?: { id: number; name: string };
@@ -50,20 +68,28 @@ interface ColumnsState {
   defaultSelectedColumnIds: Array<string>;
 }
 
+const getTicketInformations = (row) =>
+  row?.extra?.open_tickets?.tickets ||
+  row?.parent?.extra?.open_tickets?.tickets;
+
 const useColumns = ({
   displayType = DisplayType.All,
-  displayResources = 'all',
+  displayResources,
   provider,
   isOpenTicketEnabled
 }: ColumnProps): ColumnsState => {
   const { classes } = useStyles();
-  const { t } = useTranslation();
-  const featureFlags = useAtomValue(featureFlagsDerivedAtom);
-
   const { dataStyle } = useStyleTable({});
   const { classes: statusClasses } = useStatusStyles({
     data: dataStyle.statusColumnChip
   });
+
+  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+
+  const { format } = useLocaleDateTimeFormat();
+  const { t } = useTranslation();
+
+  const isOpenTicketInstalled = useIsOpenTicketInstalled();
 
   const resourceLabel = cond([
     [equals(DisplayType.Host), always(labelHost)],
@@ -77,11 +103,12 @@ const useColumns = ({
     [T, always(labelParent)]
   ])(displayType);
 
+  const hasProvider = isNotNil(provider) && !isEmpty(provider);
   const isOpenTicketColumnsVisible =
-    featureFlags?.resouresTableOpenTickets && isOpenTicketEnabled && !!provider;
+    isOpenTicketInstalled && isOpenTicketEnabled && hasProvider;
 
   const isOpenTicketActionColumnVisible =
-    isOpenTicketColumnsVisible && !equals(displayResources, 'withTicket');
+    isOpenTicketColumnsVisible && equals(displayResources, 'withoutTicket');
 
   const areTicketColumnsVisible =
     isOpenTicketColumnsVisible && equals(displayResources, 'withTicket');
@@ -136,13 +163,13 @@ const useColumns = ({
       sortable: true,
       type: ColumnType.component
     },
-    ...(isOpenTicketActionColumnVisible
+    ...(isOpenTicketActionColumnVisible && !isOnPublicPage
       ? [
           {
             Component: OpenTicket,
             clickable: true,
             id: 'open_ticket',
-            label: t(labelOpenTicket),
+            label: t(labelTicket),
             type: ColumnType.component
           }
         ]
@@ -150,33 +177,28 @@ const useColumns = ({
     ...(areTicketColumnsVisible
       ? [
           {
-            getFormattedString: (row): string =>
-              row?.extra?.open_tickets?.tickets.id,
+            getFormattedString: (row): string => getTicketInformations(row)?.id,
             id: 'ticket_id',
             label: t(labelTicketID),
             type: ColumnType.string
-          }
-        ]
-      : []),
-
-    ...(areTicketColumnsVisible
-      ? [
+          },
           {
             getFormattedString: (row): string =>
-              row?.extra?.open_tickets?.tickets?.subject,
+              getTicketInformations(row)?.subject,
             id: 'ticket_subject',
             label: t(labelTicketSubject),
             type: ColumnType.string
-          }
-        ]
-      : []),
-    ...(areTicketColumnsVisible
-      ? [
+          },
           {
             getFormattedString: (row): string =>
-              row?.extra?.open_tickets?.tickets?.created_at,
+              getTicketInformations(row)?.created_at
+                ? format({
+                    date: getTicketInformations(row)?.created_at,
+                    formatString: 'L'
+                  })
+                : '',
             id: 'ticket_open_time',
-            label: t(labelTicketOpenTime),
+            label: t(labelOpenedOn),
             type: ColumnType.string
           }
         ]
@@ -237,7 +259,7 @@ const useColumns = ({
       sortable: false,
       type: ColumnType.component
     },
-    ...(areTicketColumnsVisible
+    ...(areTicketColumnsVisible && !isOnPublicPage
       ? [
           {
             Component: CloseTicket,

@@ -35,7 +35,7 @@ use Core\Domain\Configuration\User\Model\User;
 use Core\Infrastructure\Common\Presenter\JsonFormatter;
 use Core\Infrastructure\Configuration\User\Api\PatchUser\PatchUserPresenter;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->writeUserRepository = $this->createMock(WriteUserRepositoryInterface::class);
     $this->readUserRepository = $this->createMock(ReadUserRepositoryInterface::class);
     $this->readSessionRepository = $this->createMock(ReadSessionRepositoryInterface::class);
@@ -47,7 +47,7 @@ beforeEach(function () {
     $this->presenter = new PatchUserPresenter(new JsonFormatter());
 });
 
-it('tests the error message when user is not found', function () {
+it('tests the error message when user is not found', function (): void {
     $this->readUserRepository
         ->expects($this->once())
         ->method('findById')
@@ -63,7 +63,7 @@ it('tests the error message when user is not found', function () {
         ->toEqual(new NotFoundResponse('User'));
 });
 
-it('tests the exception while searching for the user', function () {
+it('tests the exception while searching for the user', function (): void {
     $this->readUserRepository
         ->expects($this->once())
         ->method('findById')
@@ -81,7 +81,7 @@ it('tests the exception while searching for the user', function () {
         );
 });
 
-it('tests the error message when there are no available themes', function () {
+it('tests the error message when there are no available themes', function (): void {
     $user = new User(1, 'alias', 'name', 'email', true, 'light', 'compact', true);
     $this->readUserRepository
         ->expects($this->once())
@@ -103,7 +103,7 @@ it('tests the error message when there are no available themes', function () {
         ->toEqual(new ErrorResponse('Abnormally empty list of themes'));
 });
 
-it('tests the error message when the given theme is not in the list of available themes', function () {
+it('tests the error message when the given theme is not in the list of available themes', function (): void {
     $user = new User(1, 'alias', 'name', 'email', true, 'light', 'compact', true);
     $this->readUserRepository
         ->expects($this->once())
@@ -124,7 +124,7 @@ it('tests the error message when the given theme is not in the list of available
         ->toEqual(new ErrorResponse('Requested theme not found'));
 });
 
-it('tests the exception while searching for available themes', function () {
+it('tests the exception while searching for available themes', function (): void {
     $user = new User(1, 'alias', 'name', 'email', true, 'light', 'compact', true);
     $this->readUserRepository
         ->expects($this->once())
@@ -147,7 +147,7 @@ it('tests the exception while searching for available themes', function () {
         );
 });
 
-it('tests the exception while updating the theme of user', function () {
+it('tests the exception while updating the theme of user', function (): void {
     $user = new User(1, 'alias', 'name', 'email', true, 'light', 'compact', true);
     $this->readUserRepository
         ->expects($this->once())

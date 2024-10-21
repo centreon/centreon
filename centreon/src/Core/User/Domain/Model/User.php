@@ -28,18 +28,18 @@ use Core\Contact\Domain\Model\ContactTemplate;
 
 class User
 {
-    public const MIN_ALIAS_LENGTH = 1,
-                 MAX_ALIAS_LENGTH = 255,
-                 MIN_NAME_LENGTH = 1,
-                 MAX_NAME_LENGTH = 255,
-                 MIN_EMAIL_LENGTH = 1,
-                 MAX_EMAIL_LENGTH = 255,
-                 MIN_THEME_LENGTH = 1,
-                 MAX_THEME_LENGTH = 100,
-                 THEME_LIGHT = 'light',
-                 THEME_DARK = 'dark',
-                 USER_INTERFACE_DENSITY_EXTENDED = 'extended',
-                 USER_INTERFACE_DENSITY_COMPACT = 'compact';
+    public const MIN_ALIAS_LENGTH = 1;
+    public const MAX_ALIAS_LENGTH = 255;
+    public const MIN_NAME_LENGTH = 1;
+    public const MAX_NAME_LENGTH = 255;
+    public const MIN_EMAIL_LENGTH = 1;
+    public const MAX_EMAIL_LENGTH = 255;
+    public const MIN_THEME_LENGTH = 1;
+    public const MAX_THEME_LENGTH = 100;
+    public const THEME_LIGHT = 'light';
+    public const THEME_DARK = 'dark';
+    public const USER_INTERFACE_DENSITY_EXTENDED = 'extended';
+    public const USER_INTERFACE_DENSITY_COMPACT = 'compact';
 
     /** @var bool */
     protected bool $isActivate = true;

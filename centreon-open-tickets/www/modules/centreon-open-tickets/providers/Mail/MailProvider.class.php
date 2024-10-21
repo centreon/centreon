@@ -40,7 +40,7 @@ class MailProvider extends AbstractProvider
         $this->default_data['subject'] =
             'Issue {$ticket_id} - {include file="file:$centreon_open_tickets_path' .
             '/providers/Abstract/templates/display_title.ihtml"}';
-        $this->default_data['clones']['headerMail'] = array();
+        $this->default_data['clones']['headerMail'] = [];
         $this->default_data['ishtml'] = 'yes';
     }
 
@@ -86,23 +86,14 @@ class MailProvider extends AbstractProvider
             ($this->getFormValue('ishtml') === 'yes' ? 'checked' : '') . '/>' .
             '<label class="empty-label" for="ishtml"></label></div>';
 
-        $array_form = array(
-            'from' => array('label' => _("From") . $this->required_field, 'html' => $from_html),
-            'to' => array('label' => _("To") . $this->required_field, 'html' => $to_html),
-            'subject' => array('label' => _("Subject") . $this->required_field, 'html' => $subject_html),
-            'header' => array('label' => _("Headers")),
-            'ishtml' => array('label' => _("Use html"), 'html' => $ishtml_html),
-        );
+        $array_form = ['from' => ['label' => _("From") . $this->required_field, 'html' => $from_html], 'to' => ['label' => _("To") . $this->required_field, 'html' => $to_html], 'subject' => ['label' => _("Subject") . $this->required_field, 'html' => $subject_html], 'header' => ['label' => _("Headers")], 'ishtml' => ['label' => _("Use html"), 'html' => $ishtml_html]];
 
         // Clone part
         $headerMailName_html = '<input id="headerMailName_#index#" size="20" name="headerMailName[#index#]" ' .
             'type="text" />';
         $headerMailValue_html = '<input id="headerMailValue_#index#" size="20" name="headerMailValue[#index#]" ' .
             'type="text" />';
-        $array_form['headerMail'] = array(
-            array('label' => _("Name"), 'html' => $headerMailName_html),
-            array('label' => _("Value"), 'html' => $headerMailValue_html),
-        );
+        $array_form['headerMail'] = [['label' => _("Name"), 'html' => $headerMailName_html], ['label' => _("Value"), 'html' => $headerMailValue_html]];
 
         $tpl->assign('form', $array_form);
         $this->config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
@@ -118,7 +109,7 @@ class MailProvider extends AbstractProvider
 
     protected function saveConfigExtra()
     {
-        $this->save_config['clones']['headerMail'] = $this->getCloneSubmitted('headerMail', array('Name', 'Value'));
+        $this->save_config['clones']['headerMail'] = $this->getCloneSubmitted('headerMail', ['Name', 'Value']);
         $this->save_config['simple']['from'] = $this->submitted_config['from'];
         $this->save_config['simple']['to'] = $this->submitted_config['to'];
         $this->save_config['simple']['subject'] = $this->submitted_config['subject'];
@@ -130,19 +121,14 @@ class MailProvider extends AbstractProvider
 
     public function validateFormatPopup()
     {
-        $result = array('code' => 0, 'message' => 'ok');
+        $result = ['code' => 0, 'message' => 'ok'];
         $this->validateFormatPopupLists($result);
         return $result;
     }
 
     protected function doSubmit($db_storage, $contact, $host_problems, $service_problems)
     {
-        $result = array(
-            'ticket_id' => null,
-            'ticket_error_message' => null,
-            'ticket_is_ok' => 0,
-            'ticket_time' => time()
-        );
+        $result = ['ticket_id' => null, 'ticket_error_message' => null, 'ticket_is_ok' => 0, 'ticket_time' => time()];
 
         try {
             $db_storage->query(

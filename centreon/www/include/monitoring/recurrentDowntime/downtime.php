@@ -43,13 +43,13 @@ $downtime_id = filter_var(
     FILTER_VALIDATE_INT
 );
 
-isset($_GET["select"]) ? $cG = $_GET["select"] : $cG = null;
-isset($_POST["select"]) ? $cP = $_POST["select"] : $cP = null;
-$cG ? $select = $cG : $select = $cP;
+$cG = $_GET["select"] ?? null;
+$cP = $_POST["select"] ?? null;
+$select = $cG ?: $cP;
 
-isset($_GET["dupNbr"]) ? $cG = $_GET["dupNbr"] : $cG = null;
-isset($_POST["dupNbr"]) ? $cP = $_POST["dupNbr"] : $cP = null;
-$cG ? $dupNbr = $cG : $dupNbr = $cP;
+$cG = $_GET["dupNbr"] ?? null;
+$cP = $_POST["dupNbr"] ?? null;
+$dupNbr = $cG ?: $cP;
 
 $path = "./include/monitoring/recurrentDowntime/";
 

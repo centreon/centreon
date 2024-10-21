@@ -34,20 +34,23 @@
  *
  */
 
+
 /**
- * Ldap Administration class
+ * Class
+ *
+ * @class CentreonLdapAdmin
  */
 class CentreonLdapAdmin
 {
-    /**
-     * @object centreonLog
-     */
+
+    /** @var CentreonLog */
     public $centreonLog;
 
+    /** @var CentreonDB */
     private $db;
 
     /**
-     * Constructor
+     * CentreonLdapAdmin constructor
      *
      * @param CentreonDB $pearDB The database connection
      */
@@ -65,7 +68,7 @@ class CentreonLdapAdmin
      */
     public function getLdapParameters()
     {
-        $tab = array(
+        $tab = [
             'ldap_store_password',
             'ldap_auto_import',
             'ldap_connection_timeout',
@@ -94,16 +97,19 @@ class CentreonLdapAdmin
             'group_filter',
             'group_name',
             'group_member',
-            'ldap_auto_sync', // is auto synchronization enabled
-            'ldap_sync_interval' // unsigned integer interval between two LDAP synchronization
-        );
+            'ldap_auto_sync',
+            // is auto synchronization enabled
+            'ldap_sync_interval',
+        ];
         return $tab;
     }
 
     /**
      * Update Ldap servers
      *
-     * @param int $arId | auth resource id
+     * @param int $arId auth resource id
+     *
+     * @throws PDOException
      */
     protected function updateLdapServers($arId): void
     {
@@ -156,7 +162,9 @@ class CentreonLdapAdmin
      *
      * @param array<string, mixed> $options The list of options
      * @param int $arId
+     *
      * @return int resource auth id
+     * @throws PDOException
      */
     public function setGeneralOptions(array $options, $arId = 0): int
     {
@@ -234,16 +242,7 @@ class CentreonLdapAdmin
             if (
                 in_array(
                     $key,
-                    array(
-                        "alias",
-                        "user_name",
-                        "user_email",
-                        "user_pager",
-                        "user_firstname",
-                        "user_lastname",
-                        "group_name",
-                        "group_member"
-                    )
+                    ["alias", "user_name", "user_email", "user_pager", "user_firstname", "user_lastname", "group_name", "group_member"]
                 )
             ) {
                 $value = strtolower($value);
@@ -279,7 +278,9 @@ class CentreonLdapAdmin
      * Get the general options
      *
      * @param int $arId
+     *
      * @return array
+     * @throws PDOException
      */
     public function getGeneralOptions($arId)
     {
@@ -304,7 +305,9 @@ class CentreonLdapAdmin
      *
      * @param int $arId
      * @param array<string, mixed> $params
+     *
      * @return void
+     * @throws PDOException
      */
     public function addServer($arId, $params = []): void
     {
@@ -327,9 +330,11 @@ class CentreonLdapAdmin
      *
      * @param int $arId
      * @param array<string, mixed> $params
+     *
      * @return void
+     * @throws PDOException
      */
-    public function modifyServer($arId, $params = array()): void
+    public function modifyServer($arId, $params = []): void
     {
         if (!isset($params['order']) || !isset($params['id'])) {
             return;
@@ -401,7 +406,7 @@ class CentreonLdapAdmin
      * Modify a template
      * (Possibility of a dead code)
      *
-     * @param int The id of the template
+     * @param int $id The id of the template
      * @param array $options A hash table with options for connections and search in ldap
      * @return bool
      */
@@ -442,7 +447,9 @@ class CentreonLdapAdmin
      * Get the template information
      *
      * @param int $id The template id, if 0 get the template
+     *
      * @return array<string, string>
+     * @throws PDOException
      */
     public function getTemplate($id = 0): array
     {
@@ -453,7 +460,7 @@ class CentreonLdapAdmin
                  WHERE ar_type = 'ldap_tmpl'"
             );
             if ($res->rowCount() == 0) {
-                return array();
+                return [];
             }
             $row = $res->fetch();
             $id = $row['ar_id'];
@@ -479,9 +486,9 @@ class CentreonLdapAdmin
      */
     public function getTemplateAd()
     {
-        $infos = array();
+        $infos = [];
         $infos['user_filter'] = "(&(samAccountName=%s)(objectClass=user)(samAccountType=805306368))";
-        $attr = array();
+        $attr = [];
         $attr['alias'] = 'samaccountname';
         $attr['email'] = 'mail';
         $attr['name'] = 'name';
@@ -491,7 +498,7 @@ class CentreonLdapAdmin
         $attr['lastname'] = 'sn';
         $infos['user_attr'] = $attr;
         $infos['group_filter'] = "(&(samAccountName=%s)(objectClass=group)(samAccountType=268435456))";
-        $attr = array();
+        $attr = [];
         $attr['group_name'] = 'samaccountname';
         $attr['member'] = 'member';
         $infos['group_attr'] = $attr;
@@ -505,9 +512,9 @@ class CentreonLdapAdmin
      */
     public function getTemplateLdap()
     {
-        $infos = array();
+        $infos = [];
         $infos['user_filter'] = "(&(uid=%s)(objectClass=inetOrgPerson))";
-        $attr = array();
+        $attr = [];
         $attr['alias'] = 'uid';
         $attr['email'] = 'mail';
         $attr['name'] = 'cn';
@@ -517,7 +524,7 @@ class CentreonLdapAdmin
         $attr['lastname'] = 'sn';
         $infos['user_attr'] = $attr;
         $infos['group_filter'] = "(&(cn=%s)(objectClass=groupOfNames))";
-        $attr = array();
+        $attr = [];
         $attr['group_name'] = 'cn';
         $attr['member'] = 'member';
         $infos['group_attr'] = $attr;
@@ -528,9 +535,11 @@ class CentreonLdapAdmin
      * Get LDAP configuration list
      *
      * @param string $search
-     * @param string $offset
-     * @param int $limit
-     * @return mixed[]
+     * @param string|int|null $offset
+     * @param string|int|null $limit
+     *
+     * @return array
+     * @throws PDOException
      */
     public function getLdapConfigurationList($search = "", $offset = null, $limit = null): array
     {
@@ -563,19 +572,21 @@ class CentreonLdapAdmin
     /**
      * Delete ldap configuration
      *
-     * @param mixed[] $configList
+     * @param array $configList
+     *
      * @return void
+     * @throws PDOException
      */
     public function deleteConfiguration(array $configList = []): void
     {
-        if (count($configList)) {
+        if ($configList !== []) {
             $configIds = [];
             foreach ($configList as $configId) {
                 if (is_numeric($configId)) {
                     $configIds[] = (int) $configId;
                 }
             }
-            if (count($configIds)) {
+            if ($configIds !== []) {
                 $this->db->query(
                     'DELETE FROM auth_ressource WHERE ar_id IN (' . implode(',', $configIds) . ')'
                 );
@@ -587,10 +598,12 @@ class CentreonLdapAdmin
      * Enable/Disable ldap configuration
      *
      * @param int $status
-     * @param mixed[] $configList
+     * @param array $configList
+     *
      * @return void
+     * @throws PDOException
      */
-    public function setStatus($status, $configList = array()): void
+    public function setStatus($status, $configList = []): void
     {
         if (count($configList)) {
             $configIds = [];
@@ -599,7 +612,7 @@ class CentreonLdapAdmin
                     $configIds[] = (int) $configId;
                 }
             }
-            if (count($configIds)) {
+            if ($configIds !== []) {
                 $statement = $this->db->prepare(
                     'UPDATE auth_ressource 
                     SET ar_enable = :is_enabled
@@ -615,7 +628,9 @@ class CentreonLdapAdmin
      * Get list of servers from resource id
      *
      * @param int $arId Auth resource id
+     *
      * @return array<int, array<string, mixed>>
+     * @throws PDOException
      */
     public function getServersFromResId($arId): array
     {
@@ -647,7 +662,9 @@ class CentreonLdapAdmin
      * Remove contact passwords if password storage is disabled
      *
      * @param int $arId Auth resource id
+     *
      * @return void
+     * @throws PDOException
      */
     private function manageContactPasswords($arId): void
     {
@@ -668,7 +685,7 @@ class CentreonLdapAdmin
                 while ($row2 = $statement2->fetch()) {
                     $ldapContactIdList[] = (int) $row2['contact_id'];
                 }
-                if (!empty($ldapContactIdList)) {
+                if ($ldapContactIdList !== []) {
                     $contactIds = implode(', ', $ldapContactIdList);
                     $this->db->query(
                         "DELETE FROM contact_password WHERE contact_id IN ($contactIds)"

@@ -61,16 +61,10 @@ $formHostGroup = new HTML_QuickFormCustom('formHostGroup', 'post', "?p=" . $p);
 $redirect = $formHostGroup->addElement('hidden', 'o');
 $redirect->setValue($o);
 
-$hostsGroupRoute = array(
-    'datasourceOrigin' => 'ajax',
-    'multiple' => false,
-    'linkedObject' => 'centreonHostgroups',
-    'availableDatasetRoute' =>
-    './api/internal.php?object=centreon_configuration_hostgroup&action=list',
-    'defaultDatasetRoute' =>
-    './api/internal.php?object=centreon_configuration_hostgroup'
-    . '&action=defaultValues&target=service&field=service_hgPars&id=' . $id,
-);
+$hostsGroupRoute = ['datasourceOrigin' => 'ajax', 'multiple' => false, 'linkedObject' => 'centreonHostgroups', 'availableDatasetRoute' =>
+'./api/internal.php?object=centreon_configuration_hostgroup&action=list', 'defaultDatasetRoute' =>
+'./api/internal.php?object=centreon_configuration_hostgroup'
+. '&action=defaultValues&target=service&field=service_hgPars&id=' . $id];
 $hostGroupSelectBox = $formPeriod->addElement(
     'select2',
     'itemElement',
@@ -119,7 +113,7 @@ if ($id !== false) {
     /*
      * Getting hostgroup and his hosts stats
      */
-    $hostgroupStats = array();
+    $hostgroupStats = [];
     $hostgroupStats = getLogInDbForHostGroup($id, $start_date, $end_date, $reportingTimePeriod);
 
     /*
@@ -140,7 +134,7 @@ if ($id !== false) {
     /*
      * removing average infos from table
      */
-    $hostgroupFinalStats = array();
+    $hostgroupFinalStats = [];
     foreach ($hostgroupStats as $key => $value) {
         if ($key != "average") {
             $hostgroupFinalStats[$key] = $value;
@@ -153,7 +147,7 @@ if ($id !== false) {
     $tpl->assign('to', _("to"));
     $tpl->assign('date_end', $end_date);
     $tpl->assign('period', $period);
-    $formPeriod->setDefaults(array('period' => $period));
+    $formPeriod->setDefaults(['period' => $period]);
     $tpl->assign('hostgroup_id', $id);
     $tpl->assign('Alert', _("Alert"));
 

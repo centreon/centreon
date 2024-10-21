@@ -19,6 +19,15 @@
  *
  */
 
+use App\Kernel;
+use Centreon\Domain\Log\Logger;
+use Centreon\LegacyContainer;
+use CentreonLicense\Infrastructure\Service\LicenseService;
+use Core\Common\Infrastructure\FeatureFlags;
+use Pimple\Exception\UnknownIdentifierException;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
 require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonDB.class.php';
 require_once __DIR__ . '/../../class/centreonUUID.class.php';
@@ -26,20 +35,31 @@ require_once __DIR__ . '/../../class/centreonStatistics.class.php';
 require_once __DIR__ . '/../../include/common/common-Func.php';
 require_once __DIR__ . '/webService.class.php';
 
+/**
+ * Class
+ *
+ * @class CentreonCeip
+ */
 class CentreonCeip extends CentreonWebService
 {
     /** @var string */
     private $uuid;
 
-    /** @var \CentreonUser */
+    /** @var CentreonUser */
     private $user;
 
-    private \Centreon\Domain\Log\Logger $logger;
+    /** @var Logger */
+    private Logger $logger;
 
-    private \Core\Common\Infrastructure\FeatureFlags $featureFlags;
+    /** @var FeatureFlags */
+    private FeatureFlags $featureFlags;
 
     /**
-     * Constructor.
+     * CentreonCeip constructor
+     *
+     * @throws LogicException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function __construct()
     {
@@ -52,10 +72,10 @@ class CentreonCeip extends CentreonWebService
         // Generate UUID
         $this->uuid = (string) (new CentreonUUID($this->pearDB))->getUUID();
 
-        $kernel = \App\Kernel::createForWeb();
-        $this->logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class)
+        $kernel = Kernel::createForWeb();
+        $this->logger = $kernel->getContainer()->get(Logger::class)
             ?? throw new LogicException('Logger not found in container');
-        $this->featureFlags = $kernel->getContainer()->get(\Core\Common\Infrastructure\FeatureFlags::class)
+        $this->featureFlags = $kernel->getContainer()->get(FeatureFlags::class)
             ?? throw new LogicException('FeatureFlags not found in container');
     }
 
@@ -63,6 +83,7 @@ class CentreonCeip extends CentreonWebService
      * Get CEIP Account and User info.
      *
      * @return array<string,mixed> with Account/User info
+     * @throws PDOException
      */
     public function getCeipInfo(): array
     {
@@ -86,6 +107,7 @@ class CentreonCeip extends CentreonWebService
      *     type: 'central'|'remote',
      *     platform: 'on_premise'|'centreon_cloud',
      * } the type of the server
+     * @throws PDOException
      */
     private function getServerType(): array
     {
@@ -112,8 +134,6 @@ class CentreonCeip extends CentreonWebService
 
     /**
      * Get visitor information.
-     *
-     * @throws \PDOException
      *
      * @return array<string,mixed> with visitor information
      */
@@ -202,13 +222,13 @@ class CentreonCeip extends CentreonWebService
         /**
          * Getting License information.
          */
-        $dependencyInjector = \Centreon\LegacyContainer::getInstance();
+        $dependencyInjector = LegacyContainer::getInstance();
         $productLicense = 'Open Source';
         $licenseClientName = '';
         try {
             $centreonModules = ['epp', 'bam', 'map', 'mbi'];
 
-            /** @var \CentreonLicense\Infrastructure\Service\LicenseService $licenseObject */
+            /** @var LicenseService $licenseObject */
             $licenseObject = $dependencyInjector['lm.license'];
 
             /** @var array<array-key, array<array-key, string|array<array-key, string>>> $licenseInformation */
@@ -239,9 +259,9 @@ class CentreonCeip extends CentreonWebService
                     }
                 }
             }
-        } catch (\Pimple\Exception\UnknownIdentifierException) {
+        } catch (UnknownIdentifierException) {
             // The licence does not exist, 99.99% chance we are on Open source. No need to log.
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['context' => $exception]);
         }
 
@@ -254,9 +274,9 @@ class CentreonCeip extends CentreonWebService
     /**
      * Get the major and minor versions of Centreon web.
      *
-     * @throws \PDOException
-     *
      * @return array{major: string, minor: string} with major and minor versions
+     *@throws PDOException
+     *
      */
     private function getCentreonVersion(): array
     {
@@ -270,9 +290,9 @@ class CentreonCeip extends CentreonWebService
     /**
      * Get CEIP status.
      *
-     * @throws \PDOException
-     *
      * @return bool the status of CEIP
+     *@throws PDOException
+     *
      */
     private function isCeipActive(): bool
     {
@@ -297,11 +317,11 @@ class CentreonCeip extends CentreonWebService
                 $statement?->bindValue(...$args);
             }
             $statement?->execute();
-            $row = $statement?->fetch(\PDO::FETCH_NUM);
+            $row = $statement?->fetch(PDO::FETCH_NUM);
             $value = is_array($row) && isset($row[0]) ? $row[0] : null;
 
             return is_string($value) || is_int($value) || is_float($value) ? $value : null;
-        } catch (\PDOException $exception) {
+        } catch (PDOException $exception) {
             $this->logger->error($exception->getMessage(), ['context' => $exception]);
 
             return null;

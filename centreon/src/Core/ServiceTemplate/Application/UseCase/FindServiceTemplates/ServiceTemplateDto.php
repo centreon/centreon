@@ -36,9 +36,9 @@ final class ServiceTemplateDto
 
     public string|null $comment = null;
 
-    public int|null $acknowledgementTimeout;
+    public int|null $acknowledgementTimeout = null;
 
-    public string|null $actionUrl;
+    public string|null $actionUrl = null;
 
     public bool $isContactAdditiveInheritance = false;
 

@@ -65,7 +65,7 @@ class Validator implements JsonValidatorInterface
     /**
      * @var string Version of the definition files to use for the validation process
      */
-    private $version;
+    private $version = self::VERSION_DEFAULT;
 
     /**
      * @var string Path where the definition files are stored
@@ -87,7 +87,6 @@ class Validator implements JsonValidatorInterface
     {
         $this->validationFilePath = $validationFilePath;
         $this->validatorCache = $validatorCache;
-        $this->version = self::VERSION_DEFAULT;
     }
 
     /**
@@ -139,7 +138,7 @@ class Validator implements JsonValidatorInterface
             );
         }
 
-        if (empty($definitionsToUseForValidation)) {
+        if ($definitionsToUseForValidation === []) {
             throw new \Exception(
                 sprintf(_('The definition model "%s" to validate the JSON does not exist or is empty'), $modelName)
             );
@@ -203,11 +202,9 @@ class Validator implements JsonValidatorInterface
                 serialize($this->definitions),
                 $this->definitionFiles
             );
-        } else {
+        } elseif (($cache = $this->validatorCache->getCache()) !== null) {
             // We retrieve data from cache
-            if (($cache = $this->validatorCache->getCache()) !== null) {
-                $this->definitions = unserialize($cache);
-            }
+            $this->definitions = unserialize($cache);
         }
     }
 

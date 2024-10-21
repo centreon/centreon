@@ -40,7 +40,7 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Application\Common\UseCase\NotFoundResponse;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->writeHostCategoryRepository = $this->createMock(WriteHostCategoryRepositoryInterface::class);
     $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class);
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
@@ -59,7 +59,7 @@ beforeEach(function () {
     );
 });
 
-it('should present an ErrorResponse when a generic exception is thrown', function () {
+it('should present an ErrorResponse when a generic exception is thrown', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -95,7 +95,7 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
         ->toBe(HostCategoryException::writingActionsNotAllowed()->getMessage());
 });
 
-it('should present a NotFoundResponse when the host category does not exist (with admin user)', function () {
+it('should present a NotFoundResponse when the host category does not exist (with admin user)', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -117,7 +117,7 @@ it('should present a NotFoundResponse when the host category does not exist (wit
         ->toBe('Host category not found');
 });
 
-it('should present a NotFoundResponse when the host category does not exist (with non-admin user)', function () {
+it('should present a NotFoundResponse when the host category does not exist (with non-admin user)', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -139,7 +139,7 @@ it('should present a NotFoundResponse when the host category does not exist (wit
         ->toBe('Host category not found');
 });
 
-it('should present an ErrorResponse if the existing host category cannot be retrieved', function () {
+it('should present an ErrorResponse if the existing host category cannot be retrieved', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -165,7 +165,7 @@ it('should present an ErrorResponse if the existing host category cannot be retr
         ->toBe(HostCategoryException::errorWhileRetrievingObject()->getMessage());
 });
 
-it('should present a ConflictResponse when name is already used', function () {
+it('should present a ConflictResponse when name is already used', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -195,7 +195,7 @@ it('should present a ConflictResponse when name is already used', function () {
         ->toBe(HostCategoryException::hostNameAlreadyExists()->getMessage());
 });
 
-it('should present an InvalidArgumentResponse when an assertion fails', function () {
+it('should present an InvalidArgumentResponse when an assertion fails', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -224,7 +224,7 @@ it('should present an InvalidArgumentResponse when an assertion fails', function
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(InvalidArgumentResponse::class);
 });
 
-it('should return created object on success', function () {
+it('should return created object on success', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')

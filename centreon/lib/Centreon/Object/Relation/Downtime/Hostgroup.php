@@ -37,16 +37,29 @@ require_once "Centreon/Object/Relation/Relation.php";
 require_once "Centreon/Object/Downtime/Downtime.php";
 require_once "Centreon/Object/Host/Group.php";
 
+/**
+ * Class
+ *
+ * @class Centreon_Object_Relation_Downtime_Hostgroup
+ */
 class Centreon_Object_Relation_Downtime_Hostgroup extends Centreon_Object_Relation
 {
+
+    /** @var Centreon_Object_Downtime */
+    public $firstObject;
+    /** @var Centreon_Object_Host_Group */
+    public $secondObject;
+    /** @var string */
     protected $relationTable = "downtime_hostgroup_relation";
+    /** @var string */
     protected $firstKey = "dt_id";
+    /** @var string */
     protected $secondKey = "hg_hg_id";
 
     /**
-     * Constructor
+     * Centreon_Object_Relation_Downtime_Hostgroup constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {

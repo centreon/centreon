@@ -67,7 +67,7 @@ on:
 
 jobs:
   cypress-e2e-test-list:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       features: ${{ steps.list-features.outputs.features }}
 
@@ -92,7 +92,7 @@ jobs:
   cypress-e2e-test-run:
     if: ${{ needs.cypress-e2e-test-list.outputs.features != '' && toJson(fromJson(needs.cypress-e2e-test-list.outputs.features)) != '[]' }}
     needs: [cypress-e2e-test-list]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
