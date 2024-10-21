@@ -65,8 +65,9 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
         $request .= $search !== null ? ' AND ' : ' WHERE ';
         $request .= 'services.type = 0 AND services.enabled = 1';
 
-        $sort = $sqlTranslator->translateSortParameterToSql();
+        $request .= ' GROUP BY services.id, services.name, services.status ';
 
+        $sort = $sqlTranslator->translateSortParameterToSql();
         $request .= $sort ?? ' ORDER BY services.name ASC';
 
         $statement = $this->db->prepare($this->translateDbName($request));
@@ -107,6 +108,8 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
         $request .= $search = $sqlTranslator->translateSearchParameterToSql();
         $request .= $search !== null ? ' AND ' : ' WHERE ';
         $request .= "services.type = 0 AND services.enabled = 1 AND acls.group_id IN ({$bindQuery})";
+
+        $request .= ' GROUP BY services.id, services.name, services.status ';
 
         $sort = $sqlTranslator->translateSortParameterToSql();
 
