@@ -86,6 +86,7 @@ class TimeRange implements \Stringable
             return true;
         }
         Assertion::minLength($timeRange, 11, 'TimeRange::timeRange');
+
         return (bool) preg_match(
             "/^((?'time_range'(?'time'(([[0-1][0-9]|2[0-3]):[0-5][0-9]))-((?&time)|24:00))(,(?&time_range))*)$/",
             $timeRange
