@@ -9060,7 +9060,7 @@
 											"const responseJson = pm.response.json();\r",
 											"console.log(responseJson);\r",
 											"pm.test(\"The service was not updated because the user does not have sufficient rights for the severity which is not recognized.\", function () {\r",
-											"    pm.response.to.have.status(404);\r",
+											"    pm.response.to.have.status(409);\r",
 											"\r",
 											"    pm.expect(responseJson.message).to.eql('Service not found');\r",
 											"\r",
