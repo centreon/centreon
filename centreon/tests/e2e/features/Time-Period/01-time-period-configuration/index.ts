@@ -101,7 +101,7 @@ When("a user duplicates the time period", () => {
   });
   cy.waitForElementInIframe("#main-content", 'input[name="searchTP"]');
   cy.getIframeBody()
-    .find("tr.list_two")
+    .find('tr[class*="list_"]')
     .each(($row) => {
       cy.wrap($row)
         .find("td.ListColLeft")
@@ -182,7 +182,7 @@ When("a user deletes the time period", () => {
   });
   cy.waitForElementInIframe("#main-content", 'input[name="searchTP"]');
   cy.getIframeBody()
-    .find("tr.list_two")
+    .find('tr[class*="list_"]')
     .each(($row) => {
       cy.wrap($row)
         .find("td.ListColLeft")
