@@ -185,8 +185,8 @@ const initializeAndMount = ({
   });
 
   cy.interceptAPIRequest({
-    alias: 'patchDashboardDetails',
-    method: Method.PATCH,
+    alias: 'updateDashboard',
+    method: Method.POST,
     path: getDashboardEndpoint('1'),
     statusCode: 201
   });
@@ -630,7 +630,7 @@ describe('Dashboard', () => {
 
   describe('Route blocking', () => {
     it('saves changes when a dashboard is being edited, a dashboard is updated, the user goes to another page and the corresponding button is clicked', () => {
-      const { proceedNavigation } = initializeAndMount({
+      initializeAndMount({
         ...editorRoles,
         isBlocked: true
       });
@@ -645,8 +645,19 @@ describe('Dashboard', () => {
 
       cy.findByTestId('confirm').click();
 
-      cy.waitForRequest('@patchDashboardDetails').then(() => {
-        expect(proceedNavigation).to.have.been.calledWith();
+      cy.waitForRequest('@updateDashboard').then(({ request }) => {
+        const formData = new URLSearchParams(request.body);
+
+        const formDataObj = {};
+        formData.forEach((value, key) => {
+          formDataObj[key] = value;
+        });
+
+      expect(formDataObj).to.include({
+        'thumbnail[directory]': 'dashboards',
+        'thumbnail[name]': 'dashboard-1.png'
+      })
+
       });
 
       cy.makeSnapshot();

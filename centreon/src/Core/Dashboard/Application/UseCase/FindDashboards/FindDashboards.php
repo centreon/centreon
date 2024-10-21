@@ -85,6 +85,13 @@ final class FindDashboards
     private function findDashboardAsAdmin(): FindDashboardsResponse
     {
         $dashboards = $this->readDashboardRepository->findByRequestParameter($this->requestParameters);
+
+        $dashboardIds = array_map(
+            static fn (Dashboard $dashboard): int => $dashboard->getId(),
+            $dashboards
+        );
+
+        $thumbnails = $this->readDashboardRepository->findThumbnailsByDashboardIds($dashboardIds);
         $contactIds = $this->extractAllContactIdsFromDashboards($dashboards);
 
         return FindDashboardsFactory::createResponse(
@@ -93,7 +100,8 @@ final class FindDashboards
             $this->readDashboardShareRepository->getMultipleSharingRoles($this->contact, ...$dashboards),
             $this->readDashboardShareRepository->findDashboardsContactShares(...$dashboards),
             $this->readDashboardShareRepository->findDashboardsContactGroupShares(...$dashboards),
-            DashboardSharingRole::Editor
+            DashboardSharingRole::Editor,
+            $thumbnails
         );
     }
 
@@ -108,6 +116,14 @@ final class FindDashboards
             $this->requestParameters,
             $this->contact,
         );
+
+        $dashboardIds = array_map(
+            static fn (Dashboard $dashboard): int => $dashboard->getId(),
+            $dashboards
+        );
+
+        $thumbnails = $this->readDashboardRepository->findThumbnailsByDashboardIds($dashboardIds);
+
         $editorIds = $this->extractAllContactIdsFromDashboards($dashboards);
 
         $userAccessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
@@ -127,7 +143,8 @@ final class FindDashboards
                 ...$dashboards
             ),
             $this->readDashboardShareRepository->findDashboardsContactGroupSharesByContact($this->contact, ...$dashboards),
-            DashboardSharingRole::Viewer
+            DashboardSharingRole::Viewer,
+            $thumbnails
         );
     }
 

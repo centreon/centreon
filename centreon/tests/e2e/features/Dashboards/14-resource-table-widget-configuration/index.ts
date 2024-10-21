@@ -130,7 +130,7 @@ before(() => {
 
   ['Disk-/', 'Load', 'Memory', 'Ping'].forEach((service) => {
     cy.scheduleServiceCheck({ host: 'Centreon-Server', service });
-  })
+  });
 
   checkHostsAreMonitored([
     { name: services.serviceOk.host },
@@ -211,7 +211,12 @@ after(() => {
 });
 
 Given('a dashboard that includes a configured resource table widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, resourceTable);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    resourceTable,
+    'centreon-widget-resourcestable',
+    '/widgets/resourcestable'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
   cy.editWidget(1);
@@ -282,7 +287,12 @@ Then('only the services must be displayed', () => {
 });
 
 Given('a dashboard containing a configured resource table widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, resourceTable);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    resourceTable,
+    'centreon-widget-resourcestable',
+    '/widgets/resourcestable'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
   cy.wait('@resourceRequest');
@@ -327,6 +337,9 @@ When(
   () => {
     cy.contains('Select all').click();
     cy.wait('@resourceRequest');
+    cy.getByLabel({ label: 'RichTextEditor' })
+      .eq(0)
+      .type(genericTextWidgets.default.description, { force: true });
   }
 );
 
@@ -369,7 +382,13 @@ Then(
 );
 
 Given('a dashboard featuring two resource table widgets', () => {
-  cy.insertDashboardWithWidget(dashboards.default, resourceTable);
+  cy.insertDashboardWithDoubleWidget(
+    dashboards.default,
+    resourceTable,
+    resourceTable,
+    'centreon-widget-resourcestable',
+    '/widgets/resourcestable'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
   cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
@@ -403,7 +422,12 @@ Then('only the contents of the other widget are displayed', () => {
 });
 
 Given('a dashboard having a configured resource table widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, resourceTable);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    resourceTable,
+    'centreon-widget-resourcestable',
+    '/widgets/resourcestable'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
 });
@@ -530,7 +554,12 @@ Then("the resource table widget is added to the dashboard's layout", () => {
 });
 
 Given('a dashboard with a resource table widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, resourceTable);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    resourceTable,
+    'centreon-widget-resourcestable',
+    '/widgets/resourcestable'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
   cy.editWidget(1);
@@ -553,27 +582,38 @@ Then(
 );
 
 Given('a dashboard containing a resource table widget', () => {
-  cy.logoutViaAPI()
+  cy.logoutViaAPI();
   cy.loginByTypeOfUser({
     jsonName: 'admin',
     loginViaApi: false
   });
-  cy.insertDashboardWithWidget(dashboards.default, resourceTable);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    resourceTable,
+    'centreon-widget-resourcestable',
+    '/widgets/resourcestable'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
   cy.editWidget(1);
   cy.wait('@resourceRequest');
 });
 
-When('the dashboard administrator clicks on a random resource from the resource table', () => {
-  cy.get('[aria-label^="Select row"]').eq(0).click({force:true})
-});
+When(
+  'the dashboard administrator clicks on a random resource from the resource table',
+  () => {
+    cy.get('[aria-label^="Select row"]').eq(0).click({ force: true });
+  }
+);
 
-Then('the dashboard administrator clicks on the downtime button and submits', () => {
-  cy.getByLabel({ label: 'Set downtime' }).eq(1).click()
-  cy.contains('Set downtime').realClick()
-  cy.wait('@setDowntime')
-});
+Then(
+  'the dashboard administrator clicks on the downtime button and submits',
+  () => {
+    cy.getByLabel({ label: 'Set downtime' }).eq(1).click();
+    cy.contains('Set downtime').realClick();
+    cy.wait('@setDowntime');
+  }
+);
 
 Then('the dashboard administrator clicks on the downtime filter', () => {
   cy.get('input[name="unhandled_problems"]').click();
@@ -581,27 +621,33 @@ Then('the dashboard administrator clicks on the downtime filter', () => {
 });
 
 Then('the resources set to downtime should be displayed', () => {
-  cy.waitUntil(() =>
-    cy.get('body').then($body => {
-      const element = $body.find('svg[data-icon="Downtime"]');
-      return element.length > 0 && element.is(':visible');
-    })
-  , {
-    errorMsg: 'The element is not visible',
-    timeout: 50000,
-    interval: 2000
-  }).then((isVisible) => {
+  cy.waitUntil(
+    () =>
+      cy.get('body').then(($body) => {
+        const element = $body.find('svg[data-icon="Downtime"]');
+
+        return element.length > 0 && element.is(':visible');
+      }),
+    {
+      errorMsg: 'The element is not visible',
+      interval: 2000,
+      timeout: 50000
+    }
+  ).then((isVisible) => {
     if (!isVisible) {
       throw new Error('The element is not visible');
     }
   });
 });
 
-Then('the dashboard administrator clicks on the acknowledge button and submits', () => {
-  cy.getByTestId({ testId: 'mainAcknowledge' }).eq(1).click({force:true});
-  cy.getByTestId({ testId: 'Confirm' }).eq(1).click();
-  cy.wait('@setAcknowledge')
-});
+Then(
+  'the dashboard administrator clicks on the acknowledge button and submits',
+  () => {
+    cy.getByTestId({ testId: 'mainAcknowledge' }).eq(1).click({ force: true });
+    cy.getByTestId({ testId: 'Confirm' }).eq(1).click();
+    cy.wait('@setAcknowledge');
+  }
+);
 
 Then('the dashboard administrator clicks on the acknowledge filter', () => {
   cy.get('input[name="undefined"]').click();
@@ -610,18 +656,23 @@ Then('the dashboard administrator clicks on the acknowledge filter', () => {
 });
 
 Then('the resources set to acknowledge should be displayed', () => {
-  cy.waitUntil(() =>
-    cy.get('body').then($body => {
-      const element = $body.find('[aria-label="service2 Acknowledged"]');
-      return element.length > 0 && element.is(':visible');
-    })
-  , {
-    errorMsg: 'The element with label "service3 Acknowledged" is not visible',
-    timeout: 50000,
-    interval: 2000
-  }).then((isVisible) => {
+  cy.waitUntil(
+    () =>
+      cy.get('body').then(($body) => {
+        const element = $body.find('[aria-label="service2 Acknowledged"]');
+
+        return element.length > 0 && element.is(':visible');
+      }),
+    {
+      errorMsg: 'The element with label "service3 Acknowledged" is not visible',
+      interval: 2000,
+      timeout: 50000
+    }
+  ).then((isVisible) => {
     if (!isVisible) {
-      throw new Error('The element with label "service3 Acknowledged" is not visible');
+      throw new Error(
+        'The element with label "service3 Acknowledged" is not visible'
+      );
     }
   });
 });

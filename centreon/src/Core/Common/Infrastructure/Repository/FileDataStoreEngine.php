@@ -138,6 +138,16 @@ class FileDataStoreEngine implements DataStorageEngineInterface
         return file_put_contents($absolutePathName, $data, $flags);
     }
 
+    /**
+     * @param string $filePath
+     *
+     * @throws \Exception
+     */
+    public function deleteFromFileSystem(string $filePath): void
+    {
+        $this->deleteFile($this->absoluteMediaPath . DIRECTORY_SEPARATOR . $filePath);
+    }
+
     public function getLastError(): string
     {
         return $this->lastError;

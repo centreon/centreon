@@ -271,7 +271,7 @@ const updatePlatformPackages = (): Cypress.Chainable => {
     })
     .getWebVersion()
     .then(({ major_version }) => {
-      let installCommands: string[] = [];
+      let installCommands: Array<string> = [];
 
       switch (Cypress.env('WEB_IMAGE_OS')) {
         case 'alma8':

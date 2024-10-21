@@ -68,3 +68,17 @@ properties:
         type: integer
         nullable: true
         example: 10
+
+  thumbnail:
+    type: object
+    nullable: true
+    properties:
+      id:
+        type: integer
+        example: 1
+      name:
+        type: string
+        example: 'dashboard-1.png'
+      directory:
+        type: string
+        example: 'dashboard'
