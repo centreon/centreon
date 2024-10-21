@@ -1,4 +1,3 @@
-@ignore
 @REQ_MON-151290
 Feature: Time period Configuration
     As a Centreon user
