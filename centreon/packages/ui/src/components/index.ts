@@ -12,5 +12,6 @@ export * from './Avatar';
 export * from './CollapsibleItem';
 export * from './Inputs';
 export { default as Zoom } from './Zoom/Zoom';
+export type { ZoomState } from './Zoom/models';
 export * from './Tabs';
 export { default as CopyCommand } from './CopyCommand/CopyCommand';
