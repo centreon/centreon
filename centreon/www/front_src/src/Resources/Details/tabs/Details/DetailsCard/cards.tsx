@@ -1,46 +1,46 @@
-import { pick, isEmpty, isNil, equals, includes } from 'ramda';
+import { equals, includes, isEmpty, isNil, pick } from 'ramda';
 
 import { SeverityCode } from '@centreon/ui';
 
 import ChecksIcon from '../../../../ChecksIcon';
+import { CriteriaNames } from '../../../../Filter/Criterias/models';
+import { ResourceType } from '../../../../models';
 import {
-  labelCurrentStatusDuration,
-  labelMonitoringServer,
-  labelTimezone,
-  labelLastStatusChange,
-  labelLastCheck,
-  labelNextCheck,
-  labelCheckDuration,
-  labelLatency,
-  labelLastNotification,
-  labelCurrentNotificationNumber,
-  labelFqdn,
+  labelAcknowledgement,
   labelAlias,
-  labelGroups,
   labelCalculationType,
+  labelCategories,
   labelCheck,
+  labelCheckDuration,
+  labelCommand,
+  labelCurrentNotificationNumber,
+  labelCurrentStatusDuration,
+  labelDowntimeDuration,
+  labelFqdn,
+  labelGroups,
+  labelLastCheck,
+  labelLastCheckWithOkStatus,
+  labelLastNotification,
+  labelLastStatusChange,
+  labelLatency,
+  labelMonitoringServer,
+  labelNextCheck,
+  labelPerformanceData,
+  labelSeverity,
   labelStatusChangePercentage,
   labelStatusInformation,
-  labelDowntimeDuration,
-  labelAcknowledgement,
-  labelPerformanceData,
-  labelCommand,
-  labelLastCheckWithOkStatus,
-  labelCategories,
-  labelSeverity,
+  labelTimezone,
 } from '../../../../translatedLabels';
 import { ResourceDetails } from '../../../models';
 import ExpandableCard from '../ExpandableCard';
 import { ChangeExpandedCardsProps } from '../SortableCards/models';
-import { ResourceType } from '../../../../models';
-import { CriteriaNames } from '../../../../Filter/Criterias/models';
 
-import DetailsLine from './DetailsLine';
-import PercentStateChangeCard from './PercentStateChangeCard';
-import DowntimesCard from './DowntimesCard';
 import AcknowledgementCard from './AcknowledegmentCard';
 import CommandLineCard from './CommandLineCard';
+import DetailsLine from './DetailsLine';
+import DowntimesCard from './DowntimesCard';
 import GroupChips from './GroupChips';
+import PercentStateChangeCard from './PercentStateChangeCard';
 import SeverityCard from './SeverityCard';
 
 export interface DetailCardLine {
@@ -138,18 +138,18 @@ const getDetailCardLines = ({
     },
     {
       line: <DetailsLine line={toDateTime(details.last_status_change)} />,
-      shouldBeDisplayed: !isNil(details.last_status_change),
+      shouldBeDisplayed: Boolean(details.last_status_change),
       title: labelLastStatusChange,
     },
     {
       line: <DetailsLine line={toDateTime(details.last_check)} />,
-      shouldBeDisplayed: !isNil(details.last_check),
+      shouldBeDisplayed: Boolean(details.last_check),
       title: labelLastCheck,
     },
     {
       line: <DetailsLine line={toDateTime(details.last_time_with_no_issue)} />,
       shouldBeDisplayed:
-        !isNil(details.last_time_with_no_issue) &&
+        Boolean(details.last_time_with_no_issue) &&
         !equals(details.status.severity_code, SeverityCode.Ok),
       title: labelLastCheckWithOkStatus,
     },
@@ -162,7 +162,7 @@ const getDetailCardLines = ({
     },
     {
       line: <DetailsLine line={toDateTime(details.next_check)} />,
-      shouldBeDisplayed: !isNil(details.next_check),
+      shouldBeDisplayed: Boolean(details.next_check),
       title: labelNextCheck,
     },
     {
@@ -182,7 +182,7 @@ const getDetailCardLines = ({
     },
     {
       line: <DetailsLine line={toDateTime(details.last_notification)} />,
-      shouldBeDisplayed: !isNil(details.last_notification),
+      shouldBeDisplayed: Boolean(details.last_notification),
       title: labelLastNotification,
     },
     {
