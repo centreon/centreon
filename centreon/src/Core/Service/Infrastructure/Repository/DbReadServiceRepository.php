@@ -203,7 +203,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
             <<<SQL
                 SELECT 1
                 FROM `:db`.`service` s
-                INNER JOIN `:db`.`service_categories_relation` scr
+                LEFT JOIN `:db`.`service_categories_relation` scr
                     ON scr.`service_service_id` = s.`service_id`
                     {$categoryAcls}
                 JOIN `:dbstg`.`centreon_acl` acl
