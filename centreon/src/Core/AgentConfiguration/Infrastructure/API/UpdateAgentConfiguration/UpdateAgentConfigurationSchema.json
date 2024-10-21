@@ -1,0 +1,33 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Update a poller/agent configuration",
+    "type": "object",
+    "required": [
+        "type",
+        "name",
+        "poller_ids",
+        "configuration"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "type": {
+            "type": "string",
+            "enum": [
+                "telegraf",
+                "centreon-agent"
+            ]
+        },
+        "name": {
+            "type": "string"
+        },
+        "poller_ids": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            }
+        },
+        "configuration": {
+            "type": "object"
+        }
+    }
+}
