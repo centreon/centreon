@@ -4,7 +4,7 @@
 OPTIONS="hst:v:r:l:p:d:V:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
-declare -A SUPPORTED_VERSION=([21.10]=1 [22.04]=1 [22.10]=1 [23.04]=1 [23.10]=1 [24.04]=1 [24.07]=1 [24.09]=1)
+declare -A SUPPORTED_VERSION=([21.10]=1 [22.04]=1 [22.10]=1 [23.04]=1 [23.10]=1 [24.04]=1 [24.07]=1 [24.09]=1 [24.10]=1)
 declare -A SUPPORTED_REPOSITORY=([testing]=1 [unstable]=1 [stable]=1)
 declare -A SUPPORTED_DBMS=([MariaDB]=1 [MySQL]=1)
 default_timeout_in_sec=5
@@ -591,7 +591,8 @@ function set_required_prerequisite() {
 			if ! [[ "$version" == "23.10" || "$version" =~ "24.0"[4-9] || "$version" =~ "24.1"[0-2] || "$topology" == "poller" ]]; then
 				error_and_exit "For Debian on Raspberry, only Centreon versions (poller mode) >=23.10 are compatible. You chose $version to install $topology server"
 			fi
-			;;
+		fi
+		;;
 		ubuntu-release*)
 			if ! [[ "$version" == "24.04" ]]; then
 				error_and_exit "For Ubuntu, only Centreon versions >= 24.04 are compatible. You chose $version"
