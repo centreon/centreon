@@ -249,15 +249,15 @@ if ($prepareSelect->execute()) {
                 : $contactList[$res['log_contact_id']];
 
             $element = [
-                'date' => $res['action_log_date'],
-                'type' => $res['object_type'],
-                'object_name' => $objectName,
-                'action_log_id' => $res['action_log_id'],
-                'object_id' => $res['object_id'],
-                'modification_type' => $tabAction[$res['action_type']],
-                'author' => $author,
-                'change' => $tabAction[$res['action_type']],
-                'badge' => $badge[$tabAction[$res['action_type']]],
+                'date' => $res['action_log_date'] ?? null,
+                'type' => $res['object_type'] ?? null,
+                'object_name' => $objectName ?? null,
+                'action_log_id' => $res['action_log_id'] ?? null,
+                'object_id' => $res['object_id'] ?? null,
+                'modification_type' => $tabAction[$res['action_type']] ?? null,
+                'author' => $author ?? null,
+                'change' => $tabAction[$res['action_type']] ?? null,
+                'badge' => $badge[$tabAction[$res['action_type']]] ?? null,
             ];
 
             if ($res['object_type'] == "service") {
