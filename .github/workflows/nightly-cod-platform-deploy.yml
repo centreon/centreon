@@ -32,8 +32,8 @@ jobs:
             -d '{"event_type": "trigger-nightly-platform", "client_payload": \
                                         {"bu": "RD", \
                                          "deployment_profile": "Standard profile", \
-                                         "poller_number": 1, \
                                          "remote_server_number": 1, \
+                                         "poller_number": 1, \
                                          "instance_features": "Alma9 - MariaDB", \
                                          "centreon_branch": "develop", \
                                          "custom_centreon_web_admin_password": "${{ secrets.COD_NIGHTLY_INSTANCE_ADMIN_PWD }}", \
