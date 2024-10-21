@@ -18170,3 +18170,12 @@ msgstr ""
 
 #  msgid "Ticket management"
 #  msgstr ""
+
+# msgid "Breadcrumb copied"
+# msgstr ""
+
+# msgid "Failed to copy breadcrumb"
+# msgstr ""
+
+# msgid "Copy breadcrumb"
+# msgstr ""
