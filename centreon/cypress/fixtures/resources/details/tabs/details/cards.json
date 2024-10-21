@@ -1,0 +1,98 @@
+{
+	"uuid": "h14-s26",
+	"id": 26,
+	"name": "Ping",
+	"type": "service",
+	"short_type": "s",
+	"status": {
+		"name": "OK",
+		"code": 0,
+		"severity_code": 5,
+		"type": 1
+	},
+	"in_downtime": true,
+	"acknowledged": false,
+	"flapping": false,
+	"performance_data": "rta=0.082ms;200.000;400.000;0; pl=0%;20;50;0;100 rtmax=0.110ms;;;; rtmin=0.063ms;;;; ",
+	"information": "OK - 127.0.0.1 rta 0.082ms lost 0%\n",
+	"command_line": "/usr/lib64/nagios/plugins/check_icmp -H 127.0.0.1 -n 3 -w 200,20% -c 400,50%",
+	"notification_number": 0,
+	"latency": 0.251,
+	"percent_state_change": 0,
+	"passive_checks": false,
+	"execution_time": 0.142081,
+	"active_checks": true,
+	"icon": {
+		"id": null,
+		"name": "",
+		"url": ""
+	},
+	"groups": [],
+	"parent": {
+		"type": "host",
+		"id": 14,
+		"name": "Centreon-Server",
+		"status": {
+			"name": "UP",
+			"code": 0,
+			"severity_code": 5,
+			"type": 1
+		},
+		"monitoring_server_name": "Central"
+	},
+	"monitoring_server_name": "Central",
+	"categories": [
+		{
+			"id": 1,
+			"name": "Ping",
+			"configuration_uri": "/centreon/main.php?p=60209&o=c&sc_id=1"
+		}
+	],
+	"severity": null,
+	"acknowledgement": null,
+	"downtimes": [
+		{
+			"start_time": "2024-10-18T11:36:07+02:00",
+			"end_time": "2024-10-18T13:36:07+02:00",
+			"actual_start_time": "2024-10-18T11:36:16+02:00",
+			"actual_end_time": "1970-01-01T01:00:00+01:00",
+			"id": 1,
+			"entry_time": "2024-10-18T11:36:15+02:00",
+			"author_id": 1,
+			"author_name": "admin",
+			"host_id": 14,
+			"service_id": 26,
+			"is_cancelled": false,
+			"comment": "Downtime set by admin",
+			"deletion_time": "1970-01-01T01:00:00+01:00",
+			"duration": 7200,
+			"internal_id": 1,
+			"is_fixed": true,
+			"poller_id": 1,
+			"is_started": true
+		}
+	],
+	"duration": "16m 40s",
+	"next_check": 0,
+	"last_check": 0,
+	"last_time_with_no_issue": 0,
+	"last_status_change": 0,
+	"last_notification": 0,
+	"tries": "1/3(H)",
+	"links": {
+		"endpoints": {
+			"notification_policy": "/centreon/api/latest/configuration/hosts/14/services/26/notification-policy",
+			"timeline": "/centreon/api/latest/monitoring/hosts/14/services/26/timeline",
+			"timeline_download": "/centreon/api/latest/monitoring/hosts/14/services/26/timeline/download",
+			"status_graph": "/centreon/api/latest/monitoring/hosts/14/services/26/metrics/status",
+			"performance_graph": "/centreon/api/latest/monitoring/hosts/14/services/26/metrics/performance",
+			"details": "/centreon/api/latest/monitoring/resources/hosts/14/services/26",
+			"metrics": "/centreon/api/latest/monitoring/hosts/14/services/26/metrics"
+		},
+		"uris": {
+			"configuration": "/centreon/main.php?p=60201&o=c&service_id=26",
+			"logs": "/centreon/main.php?p=20301&svc=14_26",
+			"reporting": "/centreon/main.php?p=30702&period=yesterday&start=&end=&host_id=14&item=26"
+		}
+	}
+}
