@@ -1,6 +1,10 @@
 import { Given, When, Then } from "@badeball/cypress-cucumber-preprocessor";
 
-import { setTimePeriod } from "../common";
+import {
+  setTimePeriod,
+  navigateToTimePeriodsAndInitiateAddition,
+  submitForm,
+} from "../common";
 
 beforeEach(() => {
   cy.startContainers();
@@ -19,34 +23,16 @@ Given('a user is logged in Centreon', () => {
 });
 
 When('a user creates a time period with separated holidays dates excluded', () => {
-  cy.navigateTo({
-    page: "Time Periods",
-    rootItemNumber: 3,
-    subMenu: "Users",
-  });
-  cy.waitForElementInIframe("#main-content", 'input[name="searchTP"]');
-  cy.getIframeBody().find("a.bt_success").contains("Add").click();
-  cy.waitForElementInIframe("#main-content", 'input[name="tp_name"]');
+  navigateToTimePeriodsAndInitiateAddition();
   setTimePeriod();
 });
 
 Then('all properties of my time period are saved', () => {
-  cy.getIframeBody()
-    .find("div#validForm")
-    .find("p.oreonbutton")
-    .find('.btc.bt_success[name="submitA"]')
-    .click();
+  submitForm();
 });
 
 When("a user creates a time period with a range of dates to exclude", () => {
-  cy.navigateTo({
-    page: "Time Periods",
-    rootItemNumber: 3,
-    subMenu: "Users",
-  });
-  cy.waitForElementInIframe("#main-content", 'input[name="searchTP"]');
-  cy.getIframeBody().find("a.bt_success").contains("Add").click();
-  cy.waitForElementInIframe("#main-content", 'input[name="tp_name"]');
+  navigateToTimePeriodsAndInitiateAddition();
   cy.getIframeBody().find('input[name="tp_name"]').type("timePeriodName");
   cy.getIframeBody().find('input[name="tp_alias"]').type("timePeriodAlias");
   cy.getIframeBody().find('input[name="tp_sunday"]').type("14:00-16:00");
@@ -69,28 +55,13 @@ When("a user creates a time period with a range of dates to exclude", () => {
 });
 
 Then("all properties of my time period are saved with the exclusions", () => {
-  cy.getIframeBody()
-    .find("div#validForm")
-    .find("p.oreonbutton")
-    .find('.btc.bt_success[name="submitA"]')
-    .click();
+  submitForm();
 });
 
 Given("an existing time period", () => {
-  cy.navigateTo({
-    page: "Time Periods",
-    rootItemNumber: 3,
-    subMenu: "Users",
-  });
-  cy.waitForElementInIframe("#main-content", 'input[name="searchTP"]');
-  cy.getIframeBody().find("a.bt_success").contains("Add").click();
-  cy.waitForElementInIframe("#main-content", 'input[name="tp_name"]');
+  navigateToTimePeriodsAndInitiateAddition();
   setTimePeriod();
-  cy.getIframeBody()
-    .find("div#validForm")
-    .find("p.oreonbutton")
-    .find('.btc.bt_success[name="submitA"]')
-    .click();
+  submitForm();
 });
 
 When("a user duplicates the time period", () => {
