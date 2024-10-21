@@ -10,10 +10,9 @@ const checkFirstContactFromListing = () => {
     subMenu: 'Users'
   });
   cy.wait('@getTimeZone');
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
+  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(3).click();
   cy.getIframeBody()
-    .find('select')
-    .eq(0)
+    .find('select[name="o1"]')
     .invoke(
       'attr',
       'onchange',
@@ -82,13 +81,41 @@ Then('these properties are updated', () => {
 });
 
 When('the user duplicates the configured contact', () => {
+  checkFirstContactFromListing();
+  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
+  cy.wait('@getTimeZone');
+  cy.exportConfig();
 });
 
 Then('a new contact is created with identical properties', () => {
+  cy.getIframeBody().contains(`${contacts.default.alias}_1`).should('exist');
+  cy.getIframeBody().contains(`${contacts.default.alias}_1`).click();
+  cy.waitForElementInIframe('#main-content', 'input[name="contact_alias"]');
+
+  cy.getIframeBody()
+    .find('input[name="contact_alias"]')
+    .should('have.value', `${contacts.default.alias}_1`);
+  cy.getIframeBody()
+    .find('input[name="contact_name"]')
+    .should('have.value', `${contacts.default.name}_1`);
+  cy.getIframeBody()
+    .find('input[name="contact_email"]')
+    .should('have.value', contacts.default.email);
+  cy.getIframeBody()
+    .find('input[name="contact_pager"]')
+    .should('have.value', contacts.default.pager);
+  cy.getIframeBody().find('#contact_template_id').should('have.value', '19');
+  cy.checkLegacyRadioButton(contacts.default.isNotificationsEnabled);
+
 });
 
 When('the user deletes the configured contact', () => {
+  checkFirstContactFromListing();
+  cy.getIframeBody().find('select[name="o1"').select('Delete');
+  cy.wait('@getTimeZone');
+  cy.exportConfig();
 });
 
 Then('the deleted contact is not visible anymore on the contact page', () => {
+  cy.getIframeBody().contains(contacts.default.name).should('not.exist');
 });
