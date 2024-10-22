@@ -4,5 +4,5 @@ DeleteAgentConfigurationPollerLink:
   requirements:
     acId: '\d+'
     pollerId: '\d+'
-  controller: 'Core\AgentConfiguration\Infrastructure\API\DeleteAgentConfigurationPollerLinkController\DeleteAgentConfigurationPollerLinkController'
+  controller: 'Core\AgentConfiguration\Infrastructure\API\DeleteAgentConfigurationPollerLink\DeleteAgentConfigurationPollerLinkController'
   condition: "request.attributes.get('version') >= 24.10"
