@@ -116,7 +116,7 @@ jobs:
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           stability: ${{ needs.get-environment.outputs.stability }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
-          release_cloud: ${{ needs.get-environment.outputs.release_cloud }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   delivery-deb:
     needs: [get-environment, package]
@@ -140,7 +140,7 @@ jobs:
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-environment.outputs.stability }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
-          release_cloud: ${{ needs.get-environment.outputs.release_cloud }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   promote:
     needs: [get-environment]
@@ -165,4 +165,4 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
           github_ref_name: ${{ github.ref_name }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
-          release_cloud: ${{ needs.get-environment.outputs.release_cloud }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
