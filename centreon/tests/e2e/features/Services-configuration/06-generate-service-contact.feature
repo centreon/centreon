@@ -11,7 +11,7 @@ Feature: Generate a service contact configuration
   Scenario: Configure checkbox Inherit only contacts and contacts group from host
     Given a service associated to a host is configured
     And the user is in the "Notifications" tab
-    When the user checks case yes
+    When the user checks case yes to enable Notifications
     And the case Inherit contacts is checked
     Then the field "Implied Contacts" is disabled
     And the field "Implied Contact Groups" is disabled
