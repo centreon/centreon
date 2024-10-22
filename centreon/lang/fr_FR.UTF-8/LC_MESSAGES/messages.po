@@ -19231,7 +19231,7 @@ msgid "Critical KPIs"
 msgstr "Indicateurs critiques"
 
 msgid "Additional connector configurations"
-msgstr "Configuration supplémentaire de connecteurs"
+msgstr "Configurations supplémentaires de connecteurs"
 
 msgid "Types"
 msgstr "Types"
