@@ -717,13 +717,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJson(needs.get-environment.outputs.dockerize_matrix) }}
+        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
 
     uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
     with:
       major_version: ${{ needs.get-environment.outputs.major_version }}
       minor_version: ${{ needs.get-environment.outputs.minor_version }}
-      os: ${{ matrix.os }}
+      os: ${{ matrix.operating_system }}
     secrets:
       xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
       xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
