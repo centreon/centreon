@@ -27,7 +27,9 @@ services:
 
     Centreon\:
         resource: '../../src/Centreon/*'
-        exclude: '../../src/Centreon/Tests'
+        exclude:
+            - '../../src/Centreon/Tests'
+            - '../../src/Core/Service/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
