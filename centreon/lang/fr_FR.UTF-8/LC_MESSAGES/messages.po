@@ -19582,5 +19582,3 @@ msgstr "L'ID de collecteur #%d est le seul lié à l'ID de configuration collect
 msgid "Error while retrieving multiple poller/agent configurations"
 msgstr "Erreur durant la récupération de multiples configurations collecteur/agent"
 
-msgid "Clock / Timer"
-msgstr "Horloge / Minuterie"
