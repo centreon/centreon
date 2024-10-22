@@ -24,6 +24,7 @@ const setTimePeriod = (): Cypress.Chainable => {
     cy.getIframeBody().find(`input[name="tp_${day}"]`).type(timeRanges[day]);
   });
   cy.getIframeBody().find("li#c2").click();
+  cy.getIframeBody().contains("+ Add new entry").click();
   const exceptions = [
     { date: "december 25", timeRange: "00:00-22:59,23:00-24:00" },
     { date: "january 1", timeRange: "00:00-24:00" },
