@@ -121,31 +121,7 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
 
     public function linkToHosts(int $serviceTemplateId, array $hostTemplateIds): void
     {
-        try {
-            $this->writeServiceTemplateRepository->linkToHosts($serviceTemplateId, $hostTemplateIds);
-
-            $serviceTemplate = $this->readServiceTemplateRepository->findById($serviceTemplateId);
-            if ($serviceTemplate === null) {
-                throw new RepositoryException('Cannot find service template to link hosts');
-            }
-
-            $actionLog = new ActionLog(
-                self::SERVICE_TEMPLATE_OBJECT_TYPE,
-                $serviceTemplateId,
-                $serviceTemplate->getName(),
-                ActionLog::ACTION_TYPE_CHANGE,
-                $this->contact->getId()
-            );
-            $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
-            $actionLog->setId($actionLogId);
-
-            $details = ['linked_host_template_ids' => implode(',', $hostTemplateIds)];
-            $this->writeActionLogRepository->addActionDetails($actionLog, $details);
-        } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-
-            throw $ex;
-        }
+       $this->writeServiceTemplateRepository->linkToHosts($serviceTemplateId, $hostTemplateIds);
     }
 
     public function unlinkHosts(int $serviceTemplateId): void
