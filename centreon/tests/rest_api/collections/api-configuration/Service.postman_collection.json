@@ -9089,14 +9089,14 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/configuration/services/{{Service3Id}}",
+									"raw": "{{baseUrl}}/configuration/services/{{Service1Id}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"configuration",
 										"services",
-										"{{Service3Id}}"
+										"{{Service1Id}}"
 									]
 								}
 							},
