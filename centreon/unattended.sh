@@ -509,18 +509,6 @@ function set_required_prerequisite() {
 						log "INFO" "Installing PHP 8.2 from OS official repositories"
 						;;
 				esac
-
-				# install_remi_repo
-
-				# if [[ "$version" == "21.10" || "$version" == "22.04" ]]; then
-				# 	log "INFO" "Installing PHP 8.0 and enable it"
-				# 	$PKG_MGR module reset php -y -q
-				# 	$PKG_MGR module install php:remi-8.0 -y -q
-				# else
-				# 	log "INFO" "Installing PHP 8.1 and enable it"
-				# 	$PKG_MGR module install php:remi-8.1 -y -q
-				# 	$PKG_MGR module enable php:remi-8.1 -y -q
-				# fi
 			fi
 			;;
 
@@ -603,8 +591,6 @@ function set_required_prerequisite() {
 		;;
 	debian-release* | ubuntu-release*)
 		log "INFO" "Setting specific part for $detected_os_release"
-		# Remove me, used for pre testing only
-		#PHP_SERVICE_UNIT="php8.1-fpm"
 		HTTP_SERVICE_UNIT="apache2"
 		PKG_MGR="apt -qq"
 		case "$detected_os_release" in
@@ -675,8 +661,6 @@ function set_required_prerequisite() {
 					echo "Installing php from official os repositories."
 					;;
 			esac
-			# echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
-			# wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1			if [[ "$dbms" == "MariaDB" ]]; then
 			if [[ "$dbms" == "MariaDB" ]]; then
 				set_mariadb_repos
 			else
