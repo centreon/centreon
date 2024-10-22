@@ -576,7 +576,7 @@ describe('Agent configurations modal', () => {
     cy.makeSnapshot();
   });
 
-  it('resets the form a different agent type is selected', () => {
+  it('resets the form when a different agent type is selected', () => {
     initialize({});
 
     cy.contains(labelAddNewAgent).click();
