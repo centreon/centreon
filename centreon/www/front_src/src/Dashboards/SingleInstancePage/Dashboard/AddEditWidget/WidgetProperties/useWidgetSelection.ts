@@ -30,7 +30,6 @@ import {
   customBaseColorAtom,
   singleMetricSelectionAtom,
   singleResourceSelectionAtom,
-  widgetFormInitialDataAtom,
   widgetPropertiesAtom
 } from '../atoms';
 import type { Widget } from '../models';
