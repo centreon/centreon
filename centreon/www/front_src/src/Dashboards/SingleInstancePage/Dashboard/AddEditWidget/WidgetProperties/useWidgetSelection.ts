@@ -10,7 +10,6 @@ import {
   isEmpty,
   isNil,
   map,
-  pick,
   propEq,
   reduce,
   reject,
@@ -88,7 +87,6 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   const federatedWidgetsProperties = useAtomValue(
     federatedWidgetsPropertiesAtom
   );
-  const widgetFormInitialData = useAtomValue(widgetFormInitialDataAtom);
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
   const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
@@ -192,21 +190,19 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
 
     setValues((currentValues) => ({
       data,
-      id: equals(widgetFormInitialData?.moduleName, selectedWidget.moduleName)
-        ? widgetFormInitialData?.id
-        : selectedWidget.moduleName,
+      id: selectedWidget.moduleName,
       moduleName: selectedWidget.moduleName,
       options: {
         ...options,
         ...properties,
-        ...pick(['name'], currentValues.options),
         description:
           shouldResetDescription || isNil(currentValues.options.description)
             ? {
                 content: null,
                 enabled: true
               }
-            : currentValues.options.description
+            : currentValues.options.description,
+        name: currentValues.options.name
       },
       panelConfiguration: selectedWidget.federatedComponentsConfiguration[0]
     }));
