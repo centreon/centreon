@@ -6,6 +6,14 @@ concurrency:
 
 on:
   workflow_dispatch:
+    inputs:
+      is_nightly:
+        description: 'Set to true for nightly run'
+        required: true
+        default: false
+        type: boolean
+  schedule:
+    - cron: "0 3 * * 1-5"
   pull_request:
     types:
       - opened
