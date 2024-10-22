@@ -59,22 +59,15 @@ When("the user changes the properties of a service template", () => {
     .contains("service_template")
     .click();
   cy.waitForElementInIframe("#main-content", 'input[name="service_alias"]');
-  cy.enterIframe("iframe#main-content")
-    .find("table.formTable")
-    .find("tr.list_one")
-    .find("td.FormRowValue")
+  cy.getIframeBody()
     .find('input[name="service_alias"]')
     .clear()
     .type("service_template_modified");
-  cy.enterIframe("iframe#main-content")
-    .find("table.formTable")
-    .find("tr.list_two")
-    .find("td.FormRowValue")
+  cy.getIframeBody()
     .find('input[name="service_description"]')
     .clear()
     .type("template_desp_modified");
-  cy.enterIframe("iframe#main-content")
-    .find("td.FormRowValue")
+  cy.getIframeBody()
     .find("select#service_template_model_stm_id")
     .next()
     .click();
@@ -120,6 +113,7 @@ When("the user duplicates a service template", () => {
     rootItemNumber: 3,
     subMenu: "Services",
   });
+  cy.waitForElementInIframe("#main-content", 'input[name="searchST"]');
  cy.enterIframe("iframe#main-content")
    .find("table tbody")
    .find("tr.list_two")
