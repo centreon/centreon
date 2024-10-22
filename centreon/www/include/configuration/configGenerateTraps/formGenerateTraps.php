@@ -164,7 +164,11 @@ if ($form->validate()) {
                 $filename = "{$trapdPath}/{$host['id']}/centreontrapd.sdb";
                 $output = array();
                 $returnVal = 0;
-                exec(_CENTREON_PATH_ . "/bin/generateSqlLite '{$host['id']}' '{$filename}' 2>&1", $output, $returnVal);
+                exec(
+                    escapeshellcmd(_CENTREON_PATH_ . "/bin/generateSqlLite '{$host['id']}' '{$filename}'") . ' 2>&1',
+                    $output,
+                    $returnVal
+                );
                 $stdout .= implode("<br/>", $output) . "<br/>";
                 if ($returnVal != 0) {
                     break;
@@ -175,9 +179,12 @@ if ($form->validate()) {
         if (isset($ret["apply"]) && $ret["apply"] && $returnVal == 0) {
             $msg_generate .= sprintf("<strong>%s</strong><br/>", _('Centcore commands'));
             foreach ($tab_server as $host) {
-                passthru("echo 'SYNCTRAP:" . $host['id'] . "' >> $centcore_pipe", $return);
+                passthru(
+                    escapeshellcmd("echo 'SYNCTRAP:{$host['id']}'") . ' >> ' . escapeshellcmd($centcore_pipe),
+                    $return
+                );
                 if ($return) {
-                    $msg_generate .= "Error while writing into $centcore_pipe<br/>";
+                    $msg_generate .= "Error while writing into {$centcore_pipe}<br/>";
                 } else {
                     $msg_generate .= "Poller (id:{$host['id']}): SYNCTRAP sent to centcore.cmd<br/>";
                 }
@@ -185,11 +192,14 @@ if ($form->validate()) {
         }
         if (isset($ret['signal']) && in_array($ret['signal'], array('RELOADCENTREONTRAPD', 'RESTARTCENTREONTRAPD'))) {
             foreach ($tab_server as $host) {
-                passthru("echo '" . $ret['signal'] . ":" . $host['id'] . "' >> $centcore_pipe", $return);
+                passthru(
+                    escapeshellcmd("echo '{$ret['signal']}:{$host['id']}'") . ' >> ' . escapeshellcmd($centcore_pipe),
+                    $return
+                );
                 if ($return) {
-                    $msg_generate .= "Error while writing into $centcore_pipe<br/>";
+                    $msg_generate .= "Error while writing into {$centcore_pipe}<br/>";
                 } else {
-                    $msg_generate .= "Poller (id:{$host['id']}): " . $ret['signal'] . " sent to centcore.cmd<br/>";
+                    $msg_generate .= "Poller (id:{$host['id']}): {$ret['signal']} sent to centcore.cmd<br/>";
                 }
             }
         }
