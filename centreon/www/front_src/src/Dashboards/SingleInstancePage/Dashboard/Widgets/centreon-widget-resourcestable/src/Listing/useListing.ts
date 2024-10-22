@@ -149,7 +149,7 @@ const useListing = ({
       return;
     }
 
-    if (isNil(limit)) {
+    if (isNil(sortField)) {
       setPanelOptions?.({
         sortField: 'status_severity_code',
         sortOrder: SortOrder.Desc
