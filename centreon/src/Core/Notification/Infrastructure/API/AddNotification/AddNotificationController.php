@@ -114,7 +114,7 @@ final class AddNotificationController extends AbstractController
     {
         $notificationRequest = new AddNotificationRequest();
         $notificationRequest->name = $data['name'];
-        $notificationRequest->timeperiodId = $data['timeperiod_id'];
+        $notificationRequest->timePeriodId = $data['timeperiod_id'];
         $notificationRequest->isActivated = $data['is_activated'] ?? true;
         $notificationRequest->users = $data['users'];
         $notificationRequest->contactGroups = $data['contactgroups'];

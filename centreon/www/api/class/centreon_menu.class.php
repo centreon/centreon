@@ -34,12 +34,22 @@
  */
 
 use CentreonLegacy\Core\Menu\Menu;
+use Pimple\Container;
 
-require_once dirname(__FILE__) . "/webService.class.php";
+require_once __DIR__ . "/webService.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonMenu
+ */
 class CentreonMenu extends CentreonWebService implements CentreonWebServiceDiInterface
 {
+    /** @var CentreonDB */
+    public $pearDB;
+    /** @var Container */
     private $dependencyInjector;
+
     /**
      * Get the init menu on loading page
      *
@@ -47,11 +57,14 @@ class CentreonMenu extends CentreonWebService implements CentreonWebServiceDiInt
      *   page -> int - The current page
      *
      * Method: GET
+     *
+     * @return array
+     * @throws RestUnauthorizedException
      */
     public function getMenu()
     {
         if (!isset($_SESSION['centreon'])) {
-            throw new \RestUnauthorizedException('Session does not exists.');
+            throw new RestUnauthorizedException('Session does not exists.');
         }
         /**
          * Initialize the language translator
@@ -65,9 +78,11 @@ class CentreonMenu extends CentreonWebService implements CentreonWebServiceDiInt
     /**
      * Define the dependency injector
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
+     *
+     * @return void
      */
-    public function finalConstruct(\Pimple\Container $dependencyInjector)
+    public function finalConstruct(Container $dependencyInjector): void
     {
         $this->dependencyInjector = $dependencyInjector;
     }

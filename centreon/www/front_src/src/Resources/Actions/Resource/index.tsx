@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { useAtom } from 'jotai';
-import { all, equals, head, pathEq } from 'ramda';
+import { all, equals, find, head, pathEq, propEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -13,7 +13,7 @@ import { PopoverMenu, SeverityCode, useCancelTokenSource } from '@centreon/ui';
 
 import AddCommentForm from '../../Graph/Performance/Graph/AddCommentForm';
 import Downtime from '../../icons/Downtime';
-import { Resource } from '../../models';
+import { type Resource, ResourceType } from '../../models';
 import {
   labelAcknowledge,
   labelAddComment,
@@ -29,10 +29,10 @@ import {
 } from '../actionsAtoms';
 import {
   Action,
-  CheckActionModel,
-  ExtraActionsInformation,
-  MoreSecondaryActions,
-  ResourceActions
+  type CheckActionModel,
+  type ExtraActionsInformation,
+  type MoreSecondaryActions,
+  type ResourceActions
 } from '../model';
 
 import AcknowledgeForm from './Acknowledge';
@@ -219,11 +219,16 @@ const ResourceActionsButtons = ({
 
   const hasSelectedResources = resources.length > 0;
   const hasOneResourceSelected = resources.length === 1;
+  const hasADResource = find(
+    propEq(ResourceType.anomalyDetection, 'type'),
+    resources
+  );
 
   const disableSubmitStatus =
     !hasOneResourceSelected ||
     !canSubmitStatus(resources) ||
-    !head(resources)?.has_passive_checks_enabled;
+    !head(resources)?.has_passive_checks_enabled ||
+    hasADResource;
 
   const disableAddComment = !hasOneResourceSelected || !canComment(resources);
 

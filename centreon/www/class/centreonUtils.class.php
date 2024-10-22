@@ -33,10 +33,14 @@
  *
  */
 
-
 require_once _CENTREON_PATH_ . 'www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonGMT.class.php';
 
+/**
+ * Class
+ *
+ * @class CentreonUtils
+ */
 class CentreonUtils
 {
     /**
@@ -59,6 +63,8 @@ class CentreonUtils
 
     /**
      * Defines all self-closing html tags allowed
+     *
+     * @var string[]
      */
     public static $selfclosingHtmlTagsAllowed = ['br', 'hr'];
 
@@ -67,11 +73,12 @@ class CentreonUtils
      *
      * @param mixed $arrObjData
      * @param array $arrSkipIndices
-     * @return mixed
+     *
+     * @return array|string
      */
-    public function objectIntoArray($arrObjData, $arrSkipIndices = array())
+    public function objectIntoArray($arrObjData, $arrSkipIndices = [])
     {
-        $arrData = array();
+        $arrData = [];
 
         if (is_object($arrObjData)) {
             $arrObjData = get_object_vars($arrObjData);
@@ -88,7 +95,7 @@ class CentreonUtils
                 $arrData[$index] = $value;
             }
         }
-        if (!count($arrData)) {
+        if ($arrData === []) {
             $arrData = "";
         }
         return $arrData;
@@ -159,7 +166,7 @@ class CentreonUtils
      * Convert operand to Mysql format
      *
      * @param string $str
-     * @return string;
+     * @return string
      */
     public static function operandToMysqlFormat($str)
     {
@@ -205,19 +212,21 @@ class CentreonUtils
     /**
      * Merge with initial values
      *
-     * @param Quickform $form
+     * @param HTML_QuickFormCustom $form
      * @param string $key
+     *
      * @return array
+     * @throws InvalidArgumentException
      */
     public static function mergeWithInitialValues($form, $key)
     {
-        $init = array();
+        $init = [];
         try {
             $initForm = $form->getElement('initialValues');
-            $initForm = \HtmlAnalyzer::sanitizeAndRemoveTags($initForm->getValue());
+            $initForm = HtmlAnalyzer::sanitizeAndRemoveTags($initForm->getValue());
 
-            if ($initForm === false) {
-                throw new \InvalidArgumentException('Invalid Parameters');
+            if ($initForm === false) {// FIXME not a good test
+                throw new InvalidArgumentException('Invalid Parameters');
             }
 
             $initialValues = unserialize($initForm, ['allowed_classes' => false]);
@@ -241,7 +250,7 @@ class CentreonUtils
      *                             otherwise values will be used
      * @return string
      */
-    public static function toStringWithQuotes($arr = array(), $transformKey = true)
+    public static function toStringWithQuotes($arr = [], $transformKey = true)
     {
         $string = "";
         $first = true;
@@ -260,11 +269,11 @@ class CentreonUtils
     }
 
     /**
-     *
      * @param string $currentVersion Original version
      * @param string $targetVersion Version to compare
      * @param string $delimiter Indicates the delimiter parameter for version
-     * @param integer $depth Indicates the depth of comparison, if 0 it means "unlimited"
+     *
+     * @param int $depth Indicates the depth of comparison, if 0 it means "unlimited"
      */
     public static function compareVersion($currentVersion, $targetVersion, $delimiter = ".", $depth = 0)
     {
@@ -274,11 +283,7 @@ class CentreonUtils
         $isCurrentEqual = false;
 
 
-        if ($depth == 0) {
-            $maxRecursion = count($currentVersionExplode);
-        } else {
-            $maxRecursion = $depth;
-        }
+        $maxRecursion = $depth == 0 ? count($currentVersionExplode) : $depth;
 
         for ($i = 0; $i < $maxRecursion; $i++) {
             if ($currentVersionExplode[$i] > $targetVersionExplode[$i]) {
@@ -309,6 +314,7 @@ class CentreonUtils
      *
      * @param string $stringToEscape String to escape
      * @param int $escapeMethod Escape method (default: ESCAPE_LEGACY_METHOD)
+     *
      * @return string Escaped string
      * @see CentreonUtils::ESCAPE_LEGACY_METHOD
      * @see CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
@@ -322,7 +328,7 @@ class CentreonUtils
         switch ($escapeMethod) {
             case self::ESCAPE_LEGACY_METHOD:
                 // Remove script and input tags by default
-                return preg_replace(array("/<script.*?\/script>/si", "/<input[^>]+\>/si"), "", $stringToEscape ?? '');
+                return preg_replace(["/<script.*?\/script>/si", "/<input[^>]+\>/si"], "", $stringToEscape ?? '');
             case self::ESCAPE_ALL_EXCEPT_LINK:
                 return self::escapeAllExceptLink($stringToEscape);
             case self::ESCAPE_ALL:
@@ -331,7 +337,7 @@ class CentreonUtils
                 $chars = (string) $_SESSION['centreon']->Nagioscfg['illegal_object_name_chars'];
                 return str_replace(str_split($chars), '', $stringToEscape);
         }
-    }
+    }// FIXME no return
 
     /**
      * Convert all html tags into HTML entities
@@ -347,7 +353,7 @@ class CentreonUtils
     /**
      * Protect a string and return it with single quotes around.
      *
-     * This is the same behaviour as {@see \PDO::quote()}.
+     * This is the same behaviour as {@see PDO::quote}.
      *
      * @see https://dev.mysql.com/doc/refman/5.7/en/mysql-real-escape-string.html
      * @see https://www.php.net/manual/fr/mysqli.real-escape-string.php
@@ -376,6 +382,7 @@ class CentreonUtils
      *
      * @param string $stringToEscape String (HTML) to escape
      * @param string[] $tagsNotToEscape List of tags not to escape
+     *
      * @return string HTML escaped
      */
     public static function escapeAllExceptSelectedTags(
@@ -388,17 +395,18 @@ class CentreonUtils
         }
 
         $tagOccurences = [];
-        /**
+        /*
          * Before to escape HTML, we will search and replace all HTML tags
          * allowed by specific tags to avoid they are processed
          */
-        for ($indexTag = 0; $indexTag < count($tagsNotToEscape); $indexTag++) {
+        $counter = count($tagsNotToEscape);
+        for ($indexTag = 0; $indexTag < $counter; $indexTag++) {
             $linkToken = "{{__TAG{$indexTag}x__}}";
             $currentTag = $tagsNotToEscape[$indexTag];
             if (!in_array($currentTag, self::$selfclosingHtmlTagsAllowed)) {
                 // The current tag is not self-closing tag allowed
                 $index = 0;
-                $tagsFound = array();
+                $tagsFound = [];
 
                 // Specific process for not self-closing HTML tags
                 while ($occurence = self::getHtmlTags($currentTag, $stringToEscape)) {
@@ -427,12 +435,13 @@ class CentreonUtils
 
         $escapedString = htmlentities($stringToEscape, ENT_QUOTES, 'UTF-8');
 
-        /**
+        /*
          * After we escaped all unauthorized HTML tags, we will search and
          * replace all previous specifics tags by their original tag
          */
         foreach ($tagOccurences as $linkToken => $tagsFound) {
-            for ($indexTag = 0; $indexTag < count($tagsFound); $indexTag++) {
+            $counter = count($tagsFound);
+            for ($indexTag = 0; $indexTag < $counter; $indexTag++) {
                 $linkTag = str_replace('x', $indexTag, $linkToken);
                 $escapedString = str_replace($linkTag, $tagsFound[$indexTag], $escapedString);
             }
@@ -457,6 +466,7 @@ class CentreonUtils
      *
      * @param string $tag HTML tag to find
      * @param string $html HTML to analyse
+     *
      * @return array (('tag'=> html tag; 'start' => start position of tag,
      * 'length'=> length between start and end of tag), ...)
      */
@@ -469,25 +479,21 @@ class CentreonUtils
             ($end = stripos($html, "</$tag>", strlen("</$tag>")))
         ) {
             if (!is_array($occurrences[$tag])) {
-                $occurrences[$tag] = array();
+                $occurrences[$tag] = [];
             }
             $occurrences =
-                array(
-                    'tag' => substr(
-                        $html,
-                        $start,
-                        $end + strlen("</$tag>") - $start
-                    ),
-                    'start' => $start,
-                    'length' => $end + strlen("</$tag>") - $start
-                );
+                ['tag' => substr(
+                    $html,
+                    $start,
+                    $end + strlen("</$tag>") - $start
+                ), 'start' => $start, 'length' => $end + strlen("</$tag>") - $start];
         }
         return $occurrences;
     }
 
     /**
+     * @param string $coords -90.0,180.0
      *
-     * @param $coords -90.0,180.0
      * @return bool
      */
     public static function validateGeoCoords($coords): bool

@@ -91,7 +91,7 @@ export default (): void => {
       cy.findByTestId(labelTypes)
         .parent()
         .within(() => {
-          cy.contains('VMWare_6/7');
+          cy.contains('VMWare 6/7');
         });
 
       cy.findByTestId(labelPollers)
@@ -109,7 +109,7 @@ export default (): void => {
       cy.get(`input[data-testid="${labelName}"`).type('vmware1');
 
       cy.findByTestId(labelTypes).click();
-      cy.contains('VMWare_6/7').click();
+      cy.contains('VMWare 6/7').click();
       cy.findByTestId(labelTypes).click();
 
       cy.findByTestId(labelPollers).click();
@@ -155,7 +155,7 @@ export default (): void => {
       cy.get(`input[data-testid="${labelName}"`).type('vmware1');
 
       cy.findByTestId(labelTypes).click();
-      cy.contains('VMWare_6/7').click();
+      cy.contains('VMWare 6/7').click();
       cy.findByTestId(labelTypes).click();
 
       cy.findByTestId(labelPollers).click();

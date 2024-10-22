@@ -49,7 +49,6 @@ beforeEach(function (): void {
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->createMock(RequestParametersInterface::class),
         $this->contact,
-        false
     );
 
     $this->testedHostGroup = new HostGroup(

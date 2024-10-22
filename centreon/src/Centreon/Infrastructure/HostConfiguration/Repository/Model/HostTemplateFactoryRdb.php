@@ -132,7 +132,7 @@ class HostTemplateFactoryRdb
         $optionToDefine = 0;
         $optionsTags = explode(',', $options);
         $optionsNotAllowed = array_diff($optionsTags, ['d','u','r','f','s','n']);
-        if (!empty($optionsNotAllowed)) {
+        if ($optionsNotAllowed !== []) {
             throw HostTemplateFactoryException::notificationOptionsNotAllowed(implode(',', $optionsNotAllowed));
         }
         if (in_array('n', $optionsTags)) {
@@ -176,7 +176,7 @@ class HostTemplateFactoryRdb
         $optionToDefine = 0;
         $optionsTags = explode(',', $options);
         $optionsNotAllowed = array_diff($optionsTags, ['o','d','u']);
-        if (!empty($optionsNotAllowed)) {
+        if ($optionsNotAllowed !== []) {
             throw HostTemplateFactoryException::stalkingOptionsNotAllowed(implode(',', $optionsNotAllowed));
         }
         if (in_array('o', $optionsTags)) {

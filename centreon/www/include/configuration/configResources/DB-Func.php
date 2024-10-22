@@ -77,7 +77,7 @@ function testExistence($name = null, $instanceId = null)
     } elseif (! is_null($instanceId) && $instanceId) {
         $instanceIds = [(int) $instanceId];
     }
-    if (empty($instanceIds)) {
+    if ($instanceIds === []) {
         return true;
     }
     $prepare = $pearDB->prepare(

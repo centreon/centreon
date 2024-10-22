@@ -20,80 +20,64 @@
  */
 
 declare(strict_types=1);
-/**
- * Copyright 2005-2017 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
- *
- * For more information : contact@centreon.com
- */
 
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 require_once __DIR__ . '/centreon_configuration_objects.class.php';
 require_once __DIR__ . '/centreon_realtime_base.class.php';
 
+
 /**
- * Class Centreon Realtime Host.
+ * Class
+ *
+ * @class CentreonRealtimeHosts
  */
 class CentreonRealtimeHosts extends CentreonRealtimeBase
 {
     /** @var CentreonDB */
     protected $aclObj;
 
+    /** @var int */
     protected $admin;
 
     // parameters
+    /** @var int */
     protected $limit;
 
+    /** @var int */
     protected $number;
 
+    /** @var string */
     protected $status;
 
+    /** @var array|null */
     protected $hostgroup;
 
+    /** @var string|null*/
     protected $search;
 
+    /** @var */
     protected $searchHost;
 
+    /** @var string|null*/
     protected $viewType;
 
+    /** @var string|null*/
     protected $sortType;
 
+    /** @var string|null*/
     protected $order;
 
+    /** @var string|null*/
     protected $instance;
 
+    /** @var string|null*/
     protected $criticality;
 
+    /** @var string*/
     protected $fieldList;
 
     /**
-     * CentreonConfigurationService constructor.
+     * CentreonConfigurationService constructor
      */
     public function __construct()
     {
@@ -112,6 +96,8 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
 
     /**
      * @return array
+     * @throws PDOException
+     * @throws RestBadRequestException
      */
     public function getList()
     {
@@ -122,9 +108,9 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
     }
 
     /**
-     * @throws RestBadRequestException
-     *
      * @return array
+     * @throws PDOException
+     * @throws RestBadRequestException
      */
     public function getHostState()
     {
@@ -334,16 +320,8 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
     protected function setHostFilters(): void
     {
         // Pagination Elements
-        if (isset($this->arguments['limit'])) {
-            $this->limit = $this->arguments['limit'];
-        } else {
-            $this->limit = 30;
-        }
-        if (isset($this->arguments['number'])) {
-            $this->number = $this->arguments['number'];
-        } else {
-            $this->number = 0;
-        }
+        $this->limit = $this->arguments['limit'] ?? 30;
+        $this->number = $this->arguments['number'] ?? 0;
         if (! is_numeric($this->number) || ! is_numeric($this->limit)) {
             throw new \RestBadRequestException('Error, limit must be numerical');
         }
@@ -359,33 +337,13 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
         } else {
             $this->status = null;
         }
-        if (isset($this->arguments['hostgroup'])) {
-            $this->hostgroup = $this->arguments['hostgroup'];
-        } else {
-            $this->hostgroup = null;
-        }
-        if (isset($this->arguments['search'])) {
-            $this->search = $this->arguments['search'];
-        } else {
-            $this->search = null;
-        }
-        if (isset($this->arguments['instance'])) {
-            $this->instance = $this->arguments['instance'];
-        } else {
-            $this->instance = null;
-        }
-        if (isset($this->arguments['criticality'])) {
-            $this->criticality = $this->arguments['criticality'];
-        } else {
-            $this->criticality = null;
-        }
+        $this->hostgroup = $this->arguments['hostgroup'] ?? null;
+        $this->search = $this->arguments['search'] ?? null;
+        $this->instance = $this->arguments['instance'] ?? null;
+        $this->criticality = $this->arguments['criticality'] ?? null;
 
         // view properties
-        if (isset($this->arguments['viewType'])) {
-            $this->viewType = $this->arguments['viewType'];
-        } else {
-            $this->viewType = null;
-        }
+        $this->viewType = $this->arguments['viewType'] ?? null;
         if (isset($this->arguments['order'])) {
             if (
                 mb_strtolower($this->arguments['order']) === 'asc'
@@ -398,11 +356,7 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
         } else {
             $this->order = null;
         }
-        if (isset($this->arguments['sortType'])) {
-            $this->sortType = $this->arguments['sortType'];
-        } else {
-            $this->sortType = null;
-        }
+        $this->sortType = $this->arguments['sortType'] ?? null;
     }
 
     /**

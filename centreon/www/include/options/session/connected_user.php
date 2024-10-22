@@ -80,19 +80,15 @@ if ($selectedUserId) {
 $tpl = new Smarty();
 $tpl = initSmartyTpl($path, $tpl);
 
-$session_data = array();
+$session_data = [];
 $res = $pearDB->query(
     "SELECT session.*, contact_name, contact_admin, contact_auth_type, `contact_ldap_last_sync`
     FROM session, contact
     WHERE contact_id = user_id ORDER BY contact_name, contact_admin"
 );
 for ($cpt = 0; $r = $res->fetch(); $cpt++) {
-    $session_data[$cpt] = array();
-    if ($cpt % 2) {
-        $session_data[$cpt]["class"] = "list_one";
-    } else {
-        $session_data[$cpt]["class"] = "list_two";
-    }
+    $session_data[$cpt] = [];
+    $session_data[$cpt]["class"] = $cpt % 2 ? "list_one" : "list_two";
     $session_data[$cpt]["user_id"] = $r["user_id"];
     $session_data[$cpt]["user_alias"] = $r["contact_name"];
     $session_data[$cpt]["admin"] = $r["contact_admin"];
@@ -110,11 +106,7 @@ for ($cpt = 0; $r = $res->fetch(); $cpt++) {
 
     // getting the current users' position in the IHM
     $session_data[$cpt]["current_page"] = $r["current_page"] . $rCP["topology_url_opt"];
-    if ($rCP['topology_name'] != '') {
-        $session_data[$cpt]["topology_name"] = _($rCP["topology_name"]);
-    } else {
-        $session_data[$cpt]["topology_name"] = $rCP["topology_name"];
-    }
+    $session_data[$cpt]["topology_name"] = $rCP['topology_name'] != '' ? _($rCP["topology_name"]) : $rCP["topology_name"];
 
     if ($centreon->user->admin) {
         // adding the link to be able to kick the user

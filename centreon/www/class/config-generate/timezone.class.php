@@ -34,11 +34,22 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class Timezone
+ */
 class Timezone extends AbstractObject
 {
+    /** @var null */
     private $aTimezone = null;
+    /** @var null */
     private $defaultTimezone = null;
 
+    /**
+     * @return mixed|null
+     * @throws PDOException
+     */
     public function getDefaultTimezone()
     {
         if (!is_null($this->defaultTimezone)) {
@@ -55,13 +66,17 @@ class Timezone extends AbstractObject
         return $this->defaultTimezone;
     }
 
+    /**
+     * @return void|null
+     * @throws PDOException
+     */
     private function getTimezone()
     {
         if (!is_null($this->aTimezone)) {
             return $this->aTimezone;
         }
 
-        $this->aTimezone = array();
+        $this->aTimezone = [];
         $stmt = $this->backend_instance->db->prepare("SELECT 
                 timezone_id,
                 timezone_name
@@ -73,6 +88,13 @@ class Timezone extends AbstractObject
         }
     }
 
+    /**
+     * @param $iTimezone
+     * @param $returnDefault
+     *
+     * @return mixed|null
+     * @throws PDOException
+     */
     public function getTimezoneFromId($iTimezone, $returnDefault = false)
     {
         if (is_null($this->aTimezone)) {

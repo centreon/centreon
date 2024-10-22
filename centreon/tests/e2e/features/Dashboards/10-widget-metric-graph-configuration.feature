@@ -104,3 +104,9 @@ Feature: Configuring metrics graph widget
     Given a dashboard featuring a configured Metrics Graph widget with multiple metrics
     When the dashboard administrator clicks the "Display as Bar Chart" button
     Then the graph should be displayed as a bar chart
+
+  @TEST_MON-147771
+  Scenario: Update Metrics Graph by selecting a custom time period
+    Given a dashboard featuring a configured Metrics Graph widget with multiple metrics
+    When the dashboard administrator selects a custom time period for the graph
+    Then the graph updates to reflect data for the selected time period

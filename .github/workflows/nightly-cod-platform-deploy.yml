@@ -32,11 +32,12 @@ jobs:
             https://api.github.com/repos/centreon/centreon-on-demand/actions/workflows/deploy.yml/dispatches \
             -d '{"ref": "main", "inputs":{"bu":"RD", \
                                           "deployment_profile":"Standard profile", \
-                                          "poller_number":"1", \
+                                          "poller_number": 1, \
+                                          "remote_server_number": 1,
                                           "instance_features":"Alma9 - MariaDB", \
                                           "centreon_branch":"develop", \
                                           "custom_centreon_web_admin_password":"${{ secrets.COD_NIGHTLY_INSTANCE_ADMIN_PWD }}", \
-                                          "configured_resources":"false", \
-                                          "install_business_modules":"false" }}'
+                                          "configured_resources": true, \
+                                          "install_business_modules": false }}'
             -w %http_code
         shell: bash

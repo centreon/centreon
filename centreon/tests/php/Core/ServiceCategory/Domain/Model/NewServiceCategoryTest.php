@@ -26,12 +26,12 @@ namespace Tests\Core\ServiceCategory\Domain\Model;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\ServiceCategory\Domain\Model\NewServiceCategory;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->categoryName = 'service-name';
     $this->categoryAlias = 'service-alias';
 });
 
-it('should return properly set service category instance', function () {
+it('should return properly set service category instance', function (): void {
     $serviceCategory = new NewServiceCategory($this->categoryName, $this->categoryAlias);
 
     expect($serviceCategory->getName())->toBe($this->categoryName)
@@ -48,7 +48,7 @@ it('should trim the fields "name" and "alias"', function (): void {
         ->and($serviceCategory->getAlias())->toBe(trim($aliasWithSpaces));
 });
 
-it('should throw an exception when service category name is empty', function () {
+it('should throw an exception when service category name is empty', function (): void {
     new NewServiceCategory('', $this->categoryAlias);
 })->throws(
     \Assert\InvalidArgumentException::class,
@@ -56,7 +56,7 @@ it('should throw an exception when service category name is empty', function () 
         ->getMessage()
 );
 
-it('should throw an exception when service category name is too long', function () {
+it('should throw an exception when service category name is too long', function (): void {
     new NewServiceCategory(str_repeat('a', NewServiceCategory::MAX_NAME_LENGTH + 1), $this->categoryAlias);
 })->throws(
     \Assert\InvalidArgumentException::class,
@@ -68,7 +68,7 @@ it('should throw an exception when service category name is too long', function 
     )->getMessage()
 );
 
-it('should throw an exception when service category alias is empty', function () {
+it('should throw an exception when service category alias is empty', function (): void {
     new NewServiceCategory($this->categoryName, '');
 })->throws(
     \Assert\InvalidArgumentException::class,
@@ -76,7 +76,7 @@ it('should throw an exception when service category alias is empty', function ()
         ->getMessage()
 );
 
-it('should throw an exception when service category alias is too long', function () {
+it('should throw an exception when service category alias is too long', function (): void {
     new NewServiceCategory($this->categoryName, str_repeat('a', NewServiceCategory::MAX_ALIAS_LENGTH + 1));
 })->throws(
     \Assert\InvalidArgumentException::class,

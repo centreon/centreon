@@ -36,17 +36,21 @@
 
 namespace CentreonClapi;
 
+use CentreonDB;
+use PDOException;
 
+/**
+ * Class
+ *
+ * @class CentreonUtils
+ * @package CentreonClapi
+ */
 class CentreonUtils
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private static $clapiUserName;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private static $clapiUserId;
 
     /**
@@ -64,18 +68,20 @@ class CentreonUtils
     }
 
     /**
-     * @param $imagename
+     * @param string $imagename
      * @param CentreonDB|null $db
+     *
      * @return int|null
+     * @throws PDOException
      */
     public static function getImageId($imagename, $db = null)
     {
         if (is_null($db)) {
-            $db = new \CentreonDB('centreon');
+            $db = new CentreonDB('centreon');
         }
         $tab = preg_split("/\//", $imagename);
-        isset($tab[0]) ? $dirname = $tab[0] : $dirname = null;
-        isset($tab[1]) ? $imagename = $tab[1] : $imagename = null;
+        $dirname = $tab[0] ?? null;
+        $imagename = $tab[1] ?? null;
 
         if (!isset($imagename) || !isset($dirname)) {
             return null;
@@ -110,8 +116,7 @@ class CentreonUtils
     }
 
     /**
-     *
-     * @param $coords -90.0,180.0
+     * @param string $coords -90.0,180.0
      * @return bool
      */
     public static function validateGeoCoords($coords): bool
@@ -127,21 +132,37 @@ class CentreonUtils
         return false;
     }
 
-    public static function setUserName($userName)
+    /**
+     * @param string $userName
+     *
+     * @return void
+     */
+    public static function setUserName($userName): void
     {
         self::$clapiUserName = $userName;
     }
 
+    /**
+     * @return string
+     */
     public static function getUserName()
     {
         return self::$clapiUserName;
     }
 
-    public static function setUserId($userId)
+    /**
+     * @param int $userId
+     *
+     * @return void
+     */
+    public static function setUserId($userId): void
     {
         self::$clapiUserId = $userId;
     }
 
+    /**
+     * @return int
+     */
     public static function getuserId()
     {
         return self::$clapiUserId;

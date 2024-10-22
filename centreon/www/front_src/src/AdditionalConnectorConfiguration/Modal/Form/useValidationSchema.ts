@@ -67,7 +67,7 @@ const useValidationSchema = ({ variant }: Props): { validationSchema } => {
     port: number()
       .required(t(labelRequired))
       .integer(t(labelInvalidPortNumber))
-      .min(0, t(labelInvalidPortNumber))
+      .min(1, t(labelInvalidPortNumber))
       .max(65535, t(labelInvalidPortNumber)),
     vcenters: array()
       .of(vcenterSchema)

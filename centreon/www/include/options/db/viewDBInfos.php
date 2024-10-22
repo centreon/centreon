@@ -54,14 +54,9 @@ $dataCentstorage = $pearDBO->getProperties();
  */
 $partEngine = new PartEngine();
 
-$tables = array(
-    'data_bin',
-    'logs',
-    'log_archive_host',
-    'log_archive_service'
-);
+$tables = ['data_bin', 'logs', 'log_archive_host', 'log_archive_service'];
 
-$partitioningInfos = array();
+$partitioningInfos = [];
 foreach ($tables as $table) {
     $mysqlTable = new MysqlTable($pearDBO, $table, $conf_centreon['dbcstg']);
     $partitioningInfos[$table] = $partEngine->listParts($mysqlTable, $pearDBO, false);

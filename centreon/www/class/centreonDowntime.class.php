@@ -37,8 +37,10 @@
  */
 
 /**
- * Class for cycle downtime management
+ * Class
  *
+ * @class CentreonDowntime
+ * @description Class for cycle downtime management
  */
 class CentreonDowntime
 {
@@ -50,23 +52,33 @@ class CentreonDowntime
     private const TYPE_HOST_GROUP = 'hostgrp';
     private const TYPE_SERVICE_GROUP = 'svcgrp';
 
+    private const SERVICE_REGISTER_SERVICE_TEMPLATE = 0;
+
+    /** @var CentreonDB */
     protected CentreonDB $db;
 
     //$safe is the key to be bound
+    /** @var string */
     protected string $search = '';
 
     //$safeSearch is the value to bind in the prepared statement
+    /** @var string */
     protected string $safeSearch = '';
 
+    /** @var int|null */
     protected ?int $nbRows = null;
+    /** @var array */
     protected array $remoteCommands = [];
+    /** @var string */
     protected string $remoteCmdDir = '';
+    /** @var array|null */
     protected ?array $periods = null;
+    /** @var array|null */
     protected ?array $downtimes = null;
 
-    private const SERVICE_REGISTER_SERVICE_TEMPLATE = 0;
-
     /**
+     * CentreonDowntime constructor
+     *
      * @param CentreonDB $pearDB The connection to database centreon
      * @param string|null $varlib Centreon dynamic dir
      */
@@ -78,13 +90,17 @@ class CentreonDowntime
         }
     }
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     public function initPeriods(): void
     {
         if (! is_null($this->periods)) {
             return;
         }
 
-        $this->periods = array();
+        $this->periods = [];
 
         $statement = $this->db->query(<<<'SQL'
             SELECT dt_id, dtp_start_time, dtp_end_time, dtp_day_of_week, dtp_month_cycle,
@@ -167,6 +183,7 @@ class CentreonDowntime
      *     dt_description: string,
      *     dt_activate: string
      * }> The list of downtime
+     * @throws PDOException
      */
     public function getList(int $num, int $limit, ?string $type = null): array
     {
@@ -219,7 +236,7 @@ class CentreonDowntime
         } catch (Throwable) {
             return [];
         }
-        $list = array();
+        $list = [];
         $statement->setFetchMode(PDO::FETCH_ASSOC);
         foreach ($statement as $row) {
             $list[] = $row;
@@ -229,11 +246,17 @@ class CentreonDowntime
         return $list;
     }
 
+    /**
+     * @param $id
+     *
+     * @return array
+     * @throws PDOException
+     */
     public function getPeriods($id)
     {
         $this->initPeriods();
 
-        $periods = array();
+        $periods = [];
         if (!isset($this->periods[$id])) {
             return $periods;
         }
@@ -248,15 +271,7 @@ class CentreonDowntime
             $start_time = substr($period['dtp_start_time'], 0, strrpos($period['dtp_start_time'], ':'));
             $end_time = substr($period['dtp_end_time'], 0, strrpos($period['dtp_end_time'], ':'));
 
-            $periods[] = array(
-                'start_time' => $start_time,
-                'end_time' => $end_time,
-                'day_of_week' => $days,
-                'month_cycle' => $period['dtp_month_cycle'],
-                'day_of_month' => preg_split('/\,/', $period['dtp_day_of_month']),
-                'fixed' => $period['dtp_fixed'],
-                'duration' => $period['dtp_duration']
-            );
+            $periods[] = ['start_time' => $start_time, 'end_time' => $end_time, 'day_of_week' => $days, 'month_cycle' => $period['dtp_month_cycle'], 'day_of_month' => preg_split('/\,/', $period['dtp_day_of_month']), 'fixed' => $period['dtp_fixed'], 'duration' => $period['dtp_duration']];
         }
 
         return $periods;
@@ -287,11 +302,7 @@ class CentreonDowntime
             ];
         }
         $row = $res->fetch();
-        return array(
-            'name' => $row['dt_name'],
-            'description' => $row['dt_description'],
-            'activate' => $row['dt_activate'],
-        );
+        return ['name' => $row['dt_name'], 'description' => $row['dt_description'], 'activate' => $row['dt_activate']];
     }
 
     /**
@@ -300,6 +311,7 @@ class CentreonDowntime
      * @param int $downtimeId
      *
      * @return array<string, array<int, array{id: string, activated: '0'|'1'}>>
+     * @throws PDOException
      */
     public function getRelations(int $downtimeId): array
     {
@@ -383,6 +395,7 @@ class CentreonDowntime
      * Returns all downtimes configured for enabled hosts
      *
      * @return array
+     * @throws PDOException
      */
     public function getForEnabledHosts(): array
     {
@@ -424,6 +437,7 @@ class CentreonDowntime
      * Returns all downtimes configured for enabled services
      *
      * @return array
+     * @throws PDOException
      */
     public function getForEnabledServices(): array
     {
@@ -500,6 +514,7 @@ class CentreonDowntime
      * Returns all downtimes configured for enabled hostgroups
      *
      * @return array
+     * @throws PDOException
      */
     public function getForEnabledHostgroups(): array
     {
@@ -543,6 +558,10 @@ class CentreonDowntime
         return $downtimes;
     }
 
+    /**
+     * @return array
+     * @throws PDOException
+     */
     public function getForEnabledServicegroups()
     {
         $request = <<<'SQL'
@@ -630,7 +649,7 @@ class CentreonDowntime
             }
         }
 
-        if (! empty($templateDowntimeInformation)) {
+        if ($templateDowntimeInformation !== []) {
             foreach ($this->findServicesByServiceTemplateIds(array_keys($templateDowntimeInformation)) as $service) {
                 $downtimes[] = array_merge(
                     $templateDowntimeInformation[$service['service_template_model_stm_id']],
@@ -649,7 +668,9 @@ class CentreonDowntime
 
     /**
      * @param int[] $serviceTemplateIds
+     *
      * @return array
+     * @throws PDOException
      */
     private function findServicesByServiceTemplateIds(array $serviceTemplateIds): array
     {
@@ -689,6 +710,7 @@ class CentreonDowntime
      * Get the list of all downtimes
      *
      * @return array All downtimes
+     * @throws PDOException
      */
     public function getForEnabledResources()
     {
@@ -717,14 +739,12 @@ class CentreonDowntime
      *
      * @param array $ids The list of downtime id to replicate
      * @param array $nb The list of number of duplicate by downtime id
+     *
+     * @throws PDOException
      */
     public function duplicate($ids, $nb): void
     {
-        if (false === is_array($ids)) {
-            $ids = array($ids);
-        } else {
-            $ids = array_keys($ids);
-        }
+        $ids = false === is_array($ids) ? [$ids] : array_keys($ids);
         foreach ($ids as $id) {
             if (isset($nb[$id])) {
                 $query = "SELECT dt_id, dt_name, dt_description, dt_activate FROM downtime WHERE dt_id = :id";
@@ -736,7 +756,8 @@ class CentreonDowntime
                     return;
                 }
                 $row = $statement->fetch(PDO::FETCH_ASSOC);
-                $index = $i = 1;
+                $index = 1;
+                $i = 1;
                 while ($i <= $nb[$id]) {
                     if (!$this->downtimeExists($row['dt_name'] . '_' . $index)) {
                         $row['index'] = $index;
@@ -797,6 +818,8 @@ class CentreonDowntime
      * @param string $name The downtime name
      * @param string $desc The downtime description
      * @param string $activate If the downtime is activated (0 Downtime is deactivated, 1 Downtime is activated)
+     *
+     * @throws PDOException
      */
     public function modify(int $id, string $name, string $desc, string $activate): void
     {
@@ -839,6 +862,8 @@ class CentreonDowntime
      *
      * @param int $id Downtime id
      * @param array $infos The information for a downtime period
+     *
+     * @throws PDOException
      */
     public function addPeriod(int $id, array $infos): void
     {
@@ -898,6 +923,8 @@ class CentreonDowntime
      * Delete all periods for a downtime
      *
      * @param int $id The downtime id
+     *
+     * @throws PDOException
      */
     public function deletePeriods(int $id): void
     {
@@ -912,6 +939,8 @@ class CentreonDowntime
      * @param int $id The downtime id
      * @param array $objIds The list of object id
      * @param string $objType The object type (host, hostgrp, svc, svcgrp)
+     *
+     * @throws PDOException
      */
     public function addRelations(int $id, array $objIds, string $objType): void
     {
@@ -968,6 +997,8 @@ class CentreonDowntime
      * Delete all downtime relations
      *
      * @param int $id The downtime id
+     *
+     * @throws PDOException
      */
     public function deleteRelations(int $id): void
     {
@@ -1050,6 +1081,8 @@ class CentreonDowntime
      * Delete downtimes
      *
      * @param int[] $ids Downtimes ids
+     *
+     * @throws PDOException
      */
     public function multiDelete(array $ids): void
     {
@@ -1070,6 +1103,8 @@ class CentreonDowntime
      *
      * @param int|int[] $ids Downtime IDs
      * @param bool $status 0 Downtime is deactivated, 1 Downtime is activated
+     *
+     * @throws PDOException
      */
     private function setActivate(int|array $ids, bool $status): void
     {
@@ -1162,6 +1197,8 @@ class CentreonDowntime
      * All in one function to duplicate downtime.
      *
      * @param array $params
+     *
+     * @throws PDOException
      */
     private function duplicateDowntime(array $params): void
     {
@@ -1190,7 +1227,9 @@ class CentreonDowntime
      * Check if the downtime exists by name.
      *
      * @param string $dtName
+     *
      * @return bool
+     * @throws PDOException
      */
     private function downtimeExists(string $dtName): bool
     {
@@ -1204,7 +1243,9 @@ class CentreonDowntime
      * Creating new downtime and returns id.
      *
      * @param array<string, string> $params
+     *
      * @return int
+     * @throws PDOException
      */
     private function createDowntime(array $params): int
     {
@@ -1222,6 +1263,8 @@ class CentreonDowntime
      * Creating downtime periods for the new downtime.
      *
      * @param array<string, string> $params
+     *
+     * @throws PDOException
      */
     private function createDowntimePeriods(array $params): void
     {
@@ -1243,6 +1286,8 @@ class CentreonDowntime
      * Creating hosts relations for the new downtime.
      *
      * @param array<string, string> $params
+     *
+     * @throws PDOException
      */
     private function createDowntimeHostsRelations(array $params): void
     {
@@ -1259,6 +1304,8 @@ class CentreonDowntime
      * Create host groups for the new downtime.
      *
      * @param array<string, string> $params
+     *
+     * @throws PDOException
      */
     private function createDowntimeHostGroupsRelations(array $params): void
     {
@@ -1275,6 +1322,8 @@ class CentreonDowntime
      * Creating services relations for the new downtime.
      *
      * @param array<string, string> $params
+     *
+     * @throws PDOException
      */
     private function createDowntimeServicesRelations(array $params): void
     {
@@ -1294,6 +1343,8 @@ class CentreonDowntime
      * Creating service groups relations for the new downtime.
      *
      * @param array<string, string> $params
+     *
+     * @throws PDOException
      */
     private function createDowntimeServiceGroupsRelations(array $params): void
     {

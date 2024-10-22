@@ -74,7 +74,7 @@ try {
         $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
         $writeVaultRepository->setCustomPath('database');
         $vaultPaths = migrateDatabaseCredentialsToVault($writeVaultRepository);
-        if (! empty($vaultPaths)) {
+        if ($vaultPaths !== []) {
             updateConfigFilesWithVaultPath($vaultPaths);
         }
     }
@@ -100,7 +100,4 @@ try {
     $message = $e->getMessage();
 }
 
-echo json_encode(array(
-    'result' => $result,
-    'message' => $message
-));
+echo json_encode(['result' => $result, 'message' => $message]);

@@ -49,8 +49,3 @@ parameters:
             message: "#^Variable \\$centreon_path might not be defined\\.$#"
             count: 1
             path: www/modules/centreon-open-tickets/class/centreonDBManager.class.php
-
-        -
-            message: "#^Variable \\$read in empty\\(\\) always exists and is not falsy\\.$#"
-            count: 1
-            path: www/modules/centreon-open-tickets/providers/Abstract/AbstractProvider.class.php

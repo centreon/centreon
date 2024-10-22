@@ -16,7 +16,11 @@ import {
   labelWarning
 } from './translatedLabels';
 
-export const getResourceTypeName = (resourceType: string): string => {
+export const getResourceTypeName = (resourceType?: string | null): string => {
+  if (!resourceType) {
+    return '';
+  }
+
   const [firstPart, secondPart] = resourceType.split('-');
 
   if (!secondPart) {

@@ -62,45 +62,8 @@ class ItopProvider extends AbstractProvider
         $this->default_data['protocol'] = 'https';
         $this->default_data['timeout'] = 60;
 
-        $this->default_data['clones']['mappingTicket'] = array(
-            array(
-                'Arg' => self::ARG_CONTENT,
-                'Value' => '{$body}'
-            ),
-            array(
-                'Arg' => self::ARG_TITLE,
-                'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers' .
-                    '/Abstract/templates/display_title.ihtml"}'
-            ),
-            array(
-                'Arg' => self::ARG_ORGANIZATION,
-                'Value' => '{$select.itop_organization.id}'
-            ),
-            array(
-                'Arg' => self::ARG_CALLER,
-                'Value' => '{$select.itop_caller.id}'
-            ),
-            array(
-                'Arg' => self::ARG_ORIGIN,
-                'Value' => '{$select.itop_origin.value}'
-            ),
-            array(
-                'Arg' => self::ARG_SERVICE,
-                'Value' => '{$select.itop_service.id}'
-            ),
-            array(
-                'Arg' => self::ARG_SERVICE_SUBCATEGORY,
-                'Value' => '{$select.itop_service_subcategory.id}'
-            ),
-            array(
-                'Arg' => self::ARG_IMPACT,
-                'Value' => '{$select.itop_impact.value}'
-            ),
-            array(
-                'Arg' => self::ARG_URGENCY,
-                'Value' => '{$select.itop_urgency.value}'
-            )
-        );
+        $this->default_data['clones']['mappingTicket'] = [['Arg' => self::ARG_CONTENT, 'Value' => '{$body}'], ['Arg' => self::ARG_TITLE, 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers' .
+            '/Abstract/templates/display_title.ihtml"}'], ['Arg' => self::ARG_ORGANIZATION, 'Value' => '{$select.itop_organization.id}'], ['Arg' => self::ARG_CALLER, 'Value' => '{$select.itop_caller.id}'], ['Arg' => self::ARG_ORIGIN, 'Value' => '{$select.itop_origin.value}'], ['Arg' => self::ARG_SERVICE, 'Value' => '{$select.itop_service.id}'], ['Arg' => self::ARG_SERVICE_SUBCATEGORY, 'Value' => '{$select.itop_service_subcategory.id}'], ['Arg' => self::ARG_IMPACT, 'Value' => '{$select.itop_impact.value}'], ['Arg' => self::ARG_URGENCY, 'Value' => '{$select.itop_urgency.value}']];
     }
 
     /*
@@ -131,132 +94,9 @@ class ItopProvider extends AbstractProvider
 </table>
 ';
 
-        $this->default_data['clones']['groupList'] = array(
-            array(
-                'Id' => 'itop_organization',
-                'Label' => _('Organization'),
-                'Type' => self::ITOP_ORGANIZATION_TYPE,
-                'Filter' => '',
-                'Mandatory' => ''
-            ),
-            array(
-                'Id' => 'itop_caller',
-                'Label' => _('Caller'),
-                'Type' => self::ITOP_CALLER_TYPE,
-                'Filter' => '',
-                'Mandatory' => ''
-            ),
-            array(
-                'Id' => 'itop_service',
-                'Label' => _('Service'),
-                'Type' => self::ITOP_SERVICE_TYPE,
-                'Filter' => '',
-                'Mandatory' => ''
-            ),
-            array(
-                'Id' => 'itop_service_subcategory',
-                'Label' => _('Service Subcategory'),
-                'Type' => self::ITOP_SERVICE_SUBCATEGORY_TYPE,
-                'Filter' => '',
-                'Mandatory' => ''
-            ),
-            array(
-                'Id' => 'itop_origin',
-                'Label' => _('Origin'),
-                'Type' => self::CUSTOM_TYPE,
-                'Filter' => '',
-                'Mandatory' => ''
-            ),
-            array(
-                'Id' => 'itop_urgency',
-                'Label' => _('Urgency'),
-                'Type' => self::CUSTOM_TYPE,
-                'Filter' => '',
-                'Mandatory' => ''
-            ),
-            array(
-                'Id' => 'itop_impact',
-                'Label' => _('Impact'),
-                'Type' => self::CUSTOM_TYPE,
-                'Filter' => '',
-                'Mandatory' => ''
-            )
-        );
+        $this->default_data['clones']['groupList'] = [['Id' => 'itop_organization', 'Label' => _('Organization'), 'Type' => self::ITOP_ORGANIZATION_TYPE, 'Filter' => '', 'Mandatory' => ''], ['Id' => 'itop_caller', 'Label' => _('Caller'), 'Type' => self::ITOP_CALLER_TYPE, 'Filter' => '', 'Mandatory' => ''], ['Id' => 'itop_service', 'Label' => _('Service'), 'Type' => self::ITOP_SERVICE_TYPE, 'Filter' => '', 'Mandatory' => ''], ['Id' => 'itop_service_subcategory', 'Label' => _('Service Subcategory'), 'Type' => self::ITOP_SERVICE_SUBCATEGORY_TYPE, 'Filter' => '', 'Mandatory' => ''], ['Id' => 'itop_origin', 'Label' => _('Origin'), 'Type' => self::CUSTOM_TYPE, 'Filter' => '', 'Mandatory' => ''], ['Id' => 'itop_urgency', 'Label' => _('Urgency'), 'Type' => self::CUSTOM_TYPE, 'Filter' => '', 'Mandatory' => ''], ['Id' => 'itop_impact', 'Label' => _('Impact'), 'Type' => self::CUSTOM_TYPE, 'Filter' => '', 'Mandatory' => '']];
 
-        $this->default_data['clones']['customList'] = array(
-            array(
-                'Id' => 'itop_origin',
-                'Value' => 'mail',
-                'Label' => 'email',
-                'Default' => ''
-            ),
-            array(
-                'Id' => 'itop_origin',
-                'Value' => 'monitoring',
-                'Label' => 'monitoring',
-                'Default' => ''
-            ),
-            array(
-                'Id' => 'itop_origin',
-                'Value' => 'phone',
-                'Label' => 'phone',
-                'Default' => ''
-            ),
-            array(
-                'Id' => 'itop_origin',
-                'Value' => 'portal',
-                'Label' => 'portal',
-                'Default' => ''
-            ),
-            array(
-                'Id' => 'itop_origin',
-                'Value' => 'mail',
-                'Label' => 'email',
-                'Default' => ''
-            ),
-            array(
-                'Id' => 'itop_impact',
-                'Value' => '1',
-                'Label' => 'A department',
-                'Default' => ''
-            ),
-            array(
-                'Id' => 'itop_impact',
-                'Value' => '2',
-                'Label' => 'A service',
-                'Default' => ''
-            ),
-            array(
-                'Id' => 'itop_impact',
-                'Value' => '3',
-                'Label' => 'A person',
-                'Default' => ''
-            ),
-            array(
-                'Id' => 'itop_urgency',
-                'Value' => '1',
-                'Label' => 'critical',
-                'Default' => ''
-            ),
-            array(
-                'Id' => 'itop_urgency',
-                'Value' => '2',
-                'Label' => 'high',
-                'Default' => ''
-            ),
-            array(
-                'Id' => 'itop_urgency',
-                'Value' => '3',
-                'Label' => 'medium',
-                'Default' => ''
-            ),
-            array(
-                'Id' => 'itop_urgency',
-                'Value' => '4',
-                'Label' => 'low',
-                'Default' => ''
-            )
-        );
+        $this->default_data['clones']['customList'] = [['Id' => 'itop_origin', 'Value' => 'mail', 'Label' => 'email', 'Default' => ''], ['Id' => 'itop_origin', 'Value' => 'monitoring', 'Label' => 'monitoring', 'Default' => ''], ['Id' => 'itop_origin', 'Value' => 'phone', 'Label' => 'phone', 'Default' => ''], ['Id' => 'itop_origin', 'Value' => 'portal', 'Label' => 'portal', 'Default' => ''], ['Id' => 'itop_origin', 'Value' => 'mail', 'Label' => 'email', 'Default' => ''], ['Id' => 'itop_impact', 'Value' => '1', 'Label' => 'A department', 'Default' => ''], ['Id' => 'itop_impact', 'Value' => '2', 'Label' => 'A service', 'Default' => ''], ['Id' => 'itop_impact', 'Value' => '3', 'Label' => 'A person', 'Default' => ''], ['Id' => 'itop_urgency', 'Value' => '1', 'Label' => 'critical', 'Default' => ''], ['Id' => 'itop_urgency', 'Value' => '2', 'Label' => 'high', 'Default' => ''], ['Id' => 'itop_urgency', 'Value' => '3', 'Label' => 'medium', 'Default' => ''], ['Id' => 'itop_urgency', 'Value' => '4', 'Label' => 'low', 'Default' => '']];
     }
 
     /*
@@ -297,7 +137,7 @@ class ItopProvider extends AbstractProvider
         );
         $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('img_brick', './modules/centreon-open-tickets/images/brick.png');
-        $tpl->assign('header', array('Itop' => _("Itop Rest Api")));
+        $tpl->assign('header', ['Itop' => _("Itop Rest Api")]);
         $tpl->assign('webServiceUrl', './api/internal.php');
 
         // we create the html that is going to be displayed
@@ -315,35 +155,7 @@ class ItopProvider extends AbstractProvider
             $this->getFormValue('timeout') . '" />';
 
         // this array is here to link a label with the html code that we've wrote above
-        $array_form = array(
-             'address' => array(
-                 'label' => _('Address') . $this->required_field,
-                 'html' => $address_html
-             ),
-             'username' => array(
-                 'label' => _('Username') . $this->required_field,
-                 'html' => $username_html
-             ),
-             'password' => array(
-                 'label' => _('Password') . $this->required_field,
-                 'html' => $password_html
-             ),
-             'api_version' => array(
-                 'label' => _('API version') . $this->required_field,
-                 'html' => $api_version_html
-             ),
-             'protocol' => array(
-                 'label' => _("Protocol"),
-                 'html' => $protocol_html
-             ),
-             'timeout' => array(
-                 'label' => _("Timeout"),
-                 'html' => $timeout_html
-             ),
-             'mappingticket' => array(
-                 'label' => _("Mapping ticket arguments")
-             )
-        );
+        $array_form = ['address' => ['label' => _('Address') . $this->required_field, 'html' => $address_html], 'username' => ['label' => _('Username') . $this->required_field, 'html' => $username_html], 'password' => ['label' => _('Password') . $this->required_field, 'html' => $password_html], 'api_version' => ['label' => _('API version') . $this->required_field, 'html' => $api_version_html], 'protocol' => ['label' => _("Protocol"), 'html' => $protocol_html], 'timeout' => ['label' => _("Timeout"), 'html' => $timeout_html], 'mappingticket' => ['label' => _("Mapping ticket arguments")]];
 
         // html code for a dropdown list where we will be able to select something from the following list
         $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" ' .
@@ -361,15 +173,7 @@ class ItopProvider extends AbstractProvider
             '<option value="' . self::ARG_CALLER . '">' . _('Caller') . '</options>' .
             '</select>';
 
-        $array_form['mappingTicket'] = array(
-            array(
-                'label' => _("Argument"),
-                'html' => $mappingTicketArg_html
-            ),
-            array(
-                'label' => _("Value"),
-                'html' => $mappingTicketValue_html),
-        );
+        $array_form['mappingTicket'] = [['label' => _("Argument"), 'html' => $mappingTicketArg_html], ['label' => _("Value"), 'html' => $mappingTicketValue_html]];
 
         $tpl->assign('form', $array_form);
         $this->config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
@@ -447,11 +251,8 @@ class ItopProvider extends AbstractProvider
     protected function assignItopOrganizations($entry, &$groups_order, &$groups)
     {
         // add a label to our entry and activate sorting or not.
-        $groups[$entry['Id']] = array(
-            'label' => _($entry['Label']) .
-                (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''),
-            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        $groups[$entry['Id']] = ['label' => _($entry['Label']) .
+            (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
 
         $groups_order[] = $entry['Id'];
 
@@ -466,7 +267,7 @@ class ItopProvider extends AbstractProvider
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $e->getMessage();
         }
-        $result = array();
+        $result = [];
 
         foreach ($listOrganizations['objects'] ?? [] as $organization) {
             // foreach organization found, if we don't have any filter configured,
@@ -498,12 +299,8 @@ class ItopProvider extends AbstractProvider
     protected function assignItopAjax($entry, &$groups_order, &$groups)
     {
         // add a label to our entry and activate sorting or not.
-        $groups[$entry['Id']] = array(
-            'label' => _($entry['Label']) .
-                (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''),
-            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0),
-            'filter' => $entry['Filter']
-        );
+        $groups[$entry['Id']] = ['label' => _($entry['Label']) .
+            (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0), 'filter' => $entry['Filter']];
 
         $groups_order[] = $entry['Id'];
 
@@ -517,7 +314,7 @@ class ItopProvider extends AbstractProvider
     */
     public function validateFormatPopup()
     {
-        $result = array('code' => 0, 'message' => 'ok');
+        $result = ['code' => 0, 'message' => 'ok'];
         $this->validateFormatPopupLists($result);
         return $result;
     }
@@ -538,12 +335,7 @@ class ItopProvider extends AbstractProvider
     protected function doSubmit($db_storage, $contact, $host_problems, $service_problems, $extraTicketArguments = [])
     {
         // initiate a result array
-        $result = array(
-            'ticket_id' => null,
-            'ticket_error_message' => null,
-            'ticket_is_ok' => 0,
-            'ticket_time' => time()
-        );
+        $result = ['ticket_id' => null, 'ticket_error_message' => null, 'ticket_is_ok' => 0, 'ticket_time' => time()];
         $tpl = $this->initSmartyTemplate();
         $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('user', $contact);
@@ -572,15 +364,7 @@ class ItopProvider extends AbstractProvider
             return $result;
         }
         // we save ticket data in our database
-        $this->saveHistory($db_storage, $result, array(
-            'contact' => $contact,
-            'host_problems' => $host_problems,
-            'service_problems' => $service_problems,
-            'ticket_value' => $ticketId,
-            'subject' => $ticketArguments[self::ARG_TITLE],
-            'data_type' => self::DATA_TYPE_JSON,
-            'data' => json_encode($ticketArguments)
-        ));
+        $this->saveHistory($db_storage, $result, ['contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems, 'ticket_value' => $ticketId, 'subject' => $ticketArguments[self::ARG_TITLE], 'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode($ticketArguments)]);
         return $result;
     }
 
@@ -616,15 +400,9 @@ class ItopProvider extends AbstractProvider
         $apiAddress = $info['protocol'] . '://' . $info['address'] . '/webservices/rest.php?version=' .
         $info['api_version'];
 
-        $data = array(
-            'operation' => 'list_operations'
-        );
+        $data = ['operation' => 'list_operations'];
 
-        $query = array(
-            'auth_user' => $info['username'],
-            'auth_pwd' => $info['password'],
-            'json_data' => json_encode($data)
-        );
+        $query = ['auth_user' => $info['username'], 'auth_pwd' => $info['password'], 'json_data' => json_encode($data)];
 
         // initiate our curl options
         curl_setopt($curl, CURLOPT_URL, $apiAddress);
@@ -667,11 +445,7 @@ class ItopProvider extends AbstractProvider
             throw new \Exception("couldn't find php curl", 10);
         }
 
-        $query = array(
-            'auth_user' => $this->getFormValue('username'),
-            'auth_pwd' => $this->getFormValue('password'),
-            'json_data' => json_encode($data)
-        );
+        $query = ['auth_user' => $this->getFormValue('username'), 'auth_pwd' => $this->getFormValue('password'), 'json_data' => json_encode($data)];
 
         $curl = curl_init();
         $apiAddress = $this->getFormValue('protocol') . '://' . $this->getFormValue('address') .
@@ -733,12 +507,7 @@ class ItopProvider extends AbstractProvider
     {
         $key = "SELECT Organization WHERE status='active'";
 
-        $data = array(
-            'operation' => 'core/get',
-            'class' => 'Organization',
-            'key' => $key,
-            'output_fields' => 'name'
-        );
+        $data = ['operation' => 'core/get', 'class' => 'Organization', 'key' => $key, 'output_fields' => 'name'];
 
         try {
             $organizations = $this->curlQuery($data);
@@ -773,12 +542,7 @@ class ItopProvider extends AbstractProvider
             $key .= " AND friendlyname LIKE '%" . $filter . "%'";
         }
 
-        $data = array(
-            'operation' => 'core/get',
-            'class' => 'Person',
-            'key' => $key,
-            'output_fields' => 'friendlyname'
-        );
+        $data = ['operation' => 'core/get', 'class' => 'Person', 'key' => $key, 'output_fields' => 'friendlyname'];
 
         try {
             $listCallers = $this->getCache('itop_caller_' . $matches[1]);
@@ -818,12 +582,7 @@ class ItopProvider extends AbstractProvider
             $key .= " AND friendlyname LIKE '%" . $filter . "%'";
         }
 
-        $data = array(
-            'operation' => 'core/get',
-            'class' => 'Service',
-            'key' => $key,
-            'output_fields' => 'friendlyname'
-        );
+        $data = ['operation' => 'core/get', 'class' => 'Service', 'key' => $key, 'output_fields' => 'friendlyname'];
 
 
         try {
@@ -864,12 +623,7 @@ class ItopProvider extends AbstractProvider
             $key .= " AND friendlyname LIKE '%" . $filter . "%'";
         }
 
-        $data = array(
-            'operation' => 'core/get',
-            'class' => 'ServiceSubcategory',
-            'key' => $key,
-            'output_fields' => 'friendlyname'
-        );
+        $data = ['operation' => 'core/get', 'class' => 'ServiceSubcategory', 'key' => $key, 'output_fields' => 'friendlyname'];
 
         try {
             $listServiceSubcategories = $this->getCache('itop_service_subcategory_' . $matches[1]);
@@ -891,16 +645,7 @@ class ItopProvider extends AbstractProvider
      */
     protected function createTicket($ticketArguments)
     {
-        $data = array (
-            'operation' => 'core/create',
-            'class' => 'UserRequest',
-            'output_fields' => 'id',
-            'comment' => 'Opened from Centreon',
-            'fields' => array (
-                'description' => $ticketArguments['content'],
-                'title' => $ticketArguments['title']
-            )
-        );
+        $data = ['operation' => 'core/create', 'class' => 'UserRequest', 'output_fields' => 'id', 'comment' => 'Opened from Centreon', 'fields' => ['description' => $ticketArguments['content'], 'title' => $ticketArguments['title']]];
 
         if (isset($ticketArguments['organization']) &&
             $ticketArguments['organization'] != '' &&
@@ -962,15 +707,7 @@ class ItopProvider extends AbstractProvider
     protected function closeTicketItop($ticketId)
     {
 
-        $data = array(
-            'operation' => 'core/update',
-            'class' => 'UserRequest',
-            'comment' => 'Closing ticket from Centreon',
-            'key' => $ticketId,
-            'fields' => array(
-                'status' => 'closed'
-            )
-        );
+        $data = ['operation' => 'core/update', 'class' => 'UserRequest', 'comment' => 'Closing ticket from Centreon', 'key' => $ticketId, 'fields' => ['status' => 'closed']];
 
         try {
             $result = $this->curlQuery($data);
@@ -988,7 +725,7 @@ class ItopProvider extends AbstractProvider
     *
     * @return void
     */
-    public function closeTicket(&$tickets)
+    public function closeTicket(&$tickets): void
     {
         if ($this->doCloseTicket()) {
             foreach ($tickets as $k => $v) {

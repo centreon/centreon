@@ -83,7 +83,7 @@ final class DeleteNotification
      */
     private function deleteNotification(int $notificationId): ResponseStatusInterface
     {
-        if ($this->writeRepository->delete($notificationId) === 1) {
+        if ($this->writeRepository->deleteNotification($notificationId) === 1) {
             return new NoContentResponse();
         }
 

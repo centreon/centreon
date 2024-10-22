@@ -153,7 +153,7 @@ const useWidgetModal = (): UseWidgetModalState => {
 
     setPanelOptions({
       data: values.data || undefined,
-      id: values.id as string,
+      id: widgetFormInitialData?.id as string,
       options: values.options
     });
     showSuccessMessage(t(labelYourWidgetHasBeenModified));

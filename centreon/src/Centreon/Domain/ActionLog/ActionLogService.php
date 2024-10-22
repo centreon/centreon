@@ -54,7 +54,7 @@ class ActionLogService implements ActionLogServiceInterface
     {
         try {
             $actionId = $this->actionLogRepository->addAction($actionLog);
-            if (!empty($details)) {
+            if ($details !== []) {
                 $actionLog->setId($actionId);
                 $this->addDetailsOfAction($actionLog, $details);
             }

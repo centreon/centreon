@@ -54,8 +54,8 @@ class MigrateAllMediasCommand extends AbstractMigrationCommand
         string $postMax,
     ) {
         parent::__construct($readProxyRepository);
-        $this->maxFilesize = $this->parseSize($maxFilesize);
-        $this->postMax = $this->parseSize($postMax);
+        $this->maxFilesize = self::parseSize($maxFilesize);
+        $this->postMax = self::parseSize($postMax);
     }
 
     protected function configure(): void

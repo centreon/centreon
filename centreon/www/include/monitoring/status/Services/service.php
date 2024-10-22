@@ -111,7 +111,7 @@ if ($resetFilter) {
     $centreon->historySearch[$url] = '';
     $centreon->historySearchService[$url] = '';
     $centreon->historySearchOutput[$url] = '';
-    $_SESSION['filters'][$url] = array();
+    $_SESSION['filters'][$url] = [];
     $_SESSION['monitoring_default_hostgroups'] = '';
     $_SESSION['monitoring_default_servicegroups'] = '';
     $_SESSION['monitoring_default_poller'] = '';
@@ -120,7 +120,7 @@ if ($resetFilter) {
 }
 
 if (!isset($o) || empty($o)) {
-    $o = isset($_SESSION['monitoring_service_status']) ? $_SESSION['monitoring_service_status'] : null;
+    $o = $_SESSION['monitoring_service_status'] ?? null;
 }
 
 foreach ($myinputsGet as $key => $value) {
@@ -164,13 +164,13 @@ if (!empty($filters['sg'])) {
     $_SESSION['monitoring_default_servicegroups'] = $filters['sg'];
 }
 
-$tab_class = array("0" => "list_one", "1" => "list_two");
+$tab_class = ["0" => "list_one", "1" => "list_two"];
 $rows = 10;
 
 /*
  * ACL Actions
  */
-$GroupListofUser = array();
+$GroupListofUser = [];
 $GroupListofUser = $centreon->user->access->getAccessGroups();
 
 $allActions = false;
@@ -178,7 +178,7 @@ $allActions = false;
  * Get list of actions allowed for user
  */
 if (count($GroupListofUser) > 0 && $is_admin == 0) {
-    $authorized_actions = array();
+    $authorized_actions = [];
     $authorized_actions = $centreon->user->access->getActions();
 } else {
     /*
@@ -218,16 +218,8 @@ if (!empty($centreon->optGen["global_sort_order"])) {
 }
 
 if ($o == "svcpb" || $o == "svc_unhandled") {
-    if (!empty($filters["sort_type"])) {
-        $sort_type = $filters["sort_type"];
-    } else {
-        $sort_type = $centreon->optGen["problem_sort_type"];
-    }
-    if (!empty($filters["order"])) {
-        $order = $filters["order"];
-    } else {
-        $order = $centreon->optGen["problem_sort_order"];
-    }
+    $sort_type = !empty($filters["sort_type"]) ? $filters["sort_type"] : $centreon->optGen["problem_sort_type"];
+    $order = !empty($filters["order"]) ? $filters["order"] : $centreon->optGen["problem_sort_order"];
 } else {
     if (!empty($filters["sort_type"])) {
         $sort_type = $filters["sort_type"];
@@ -311,19 +303,15 @@ $tpl->assign("mon_last_check", _("Last Check"));
 $tpl->assign("mon_duration", _("Duration"));
 $tpl->assign("mon_status_information", _("Status information"));
 
-$tab_class = array("0" => "list_one", "1" => "list_two");
+$tab_class = ["0" => "list_one", "1" => "list_two"];
 $rows = 10;
 
-if (!isset($_GET['o'])) {
-    $sSetOrderInMemory = "1";
-} else {
-    $sSetOrderInMemory = "0";
-}
+$sSetOrderInMemory = !isset($_GET['o']) ? "1" : "0";
 
 $form = new HTML_QuickFormCustom('select_form', 'GET', "?p=" . $p);
 
 $tpl->assign("order", strtolower($order));
-$tab_order = array("sort_asc" => "sort_desc", "sort_desc" => "sort_asc");
+$tab_order = ["sort_asc" => "sort_desc", "sort_desc" => "sort_asc"];
 $tpl->assign("tab_order", $tab_order);
 ?>
 <script type="text/javascript">
@@ -334,7 +322,7 @@ $tpl->assign("tab_order", $tab_order);
     }
 </script>
 <?php
-$action_list = array();
+$action_list = [];
 $action_list[] = _("More actions...");
 
 $informationsService = $dependencyInjector['centreon_remote.informations_service'];
@@ -428,52 +416,37 @@ if (isset($authorized_actions) && $allActions == false) {
     $action_list[75] = _("Hosts : Set Downtime");
 }
 
-$attrs = array(
-    'onchange' => "javascript: " .
-        " var bChecked = isChecked(); " .
-        " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {" .
-        " alert('" . _("Please select one or more items") . "'); return false;} " .
-        " if (this.form.elements['o1'].selectedIndex == 0) {" .
-        " return false;} " .
-        " if (cmdCallback(this.value)) { setO(this.value); submit();} else { setO(this.value); }"
-);
+$attrs = ['onchange' => "javascript: " .
+    " var bChecked = isChecked(); " .
+    " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {" .
+    " alert('" . _("Please select one or more items") . "'); return false;} " .
+    " if (this.form.elements['o1'].selectedIndex == 0) {" .
+    " return false;} " .
+    " if (cmdCallback(this.value)) { setO(this.value); submit();} else { setO(this.value); }"];
 $form->addElement('select', 'o1', null, $action_list, $attrs);
 
-$form->setDefaults(array('o1' => null));
+$form->setDefaults(['o1' => null]);
 $o1 = $form->getElement('o1');
 $o1->setValue(null);
 
-$attrs = array(
-    'onchange' => "javascript: " .
-        " var bChecked = isChecked(); " .
-        " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {" .
-        " alert('" . _("Please select one or more items") . "'); return false;} " .
-        " if (this.form.elements['o2'].selectedIndex == 0) {" .
-        " return false;} " .
-        " if (cmdCallback(this.value)) { setO(this.value); submit();} else { setO(this.value); }"
-);
+$attrs = ['onchange' => "javascript: " .
+    " var bChecked = isChecked(); " .
+    " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {" .
+    " alert('" . _("Please select one or more items") . "'); return false;} " .
+    " if (this.form.elements['o2'].selectedIndex == 0) {" .
+    " return false;} " .
+    " if (cmdCallback(this.value)) { setO(this.value); submit();} else { setO(this.value); }"];
 $form->addElement('select', 'o2', null, $action_list, $attrs);
-$form->setDefaults(array('o2' => null));
+$form->setDefaults(['o2' => null]);
 $o2 = $form->getElement('o2');
 $o2->setValue(null);
 $o2->setSelected(null);
 $tpl->assign('limit', $limit);
 
 $keyPrefix = "";
-$statusList = array(
-    "" => "",
-    "ok" => _("OK"),
-    "warning" => _("Warning"),
-    "critical" => _("Critical"),
-    "unknown" => _("Unknown"),
-    "pending" => _("Pending")
-);
+$statusList = ["" => "", "ok" => _("OK"), "warning" => _("Warning"), "critical" => _("Critical"), "unknown" => _("Unknown"), "pending" => _("Pending")];
 
-$statusService = array(
-    "svc_unhandled" => _("Unhandled Problems"),
-    "svcpb" => _("Service Problems"),
-    "svc" => _("All")
-);
+$statusService = ["svc_unhandled" => _("Unhandled Problems"), "svcpb" => _("Service Problems"), "svc" => _("All")];
 
 if ($o == "svc") {
     $keyPrefix = "svc";
@@ -500,7 +473,7 @@ $defaultStatusService =  $_GET['statusService']
     ?: $_SESSION['monitoring_service_status']
     ?? 'svc_unhandled';
 $o = $defaultStatusService;
-$form->setDefaults(array('statusFilter' => $defaultStatusService));
+$form->setDefaults(['statusFilter' => $defaultStatusService]);
 
 $defaultStatusFilter = $_GET['statusFilter']
     ?? $_POST['statusFilter']
@@ -512,7 +485,7 @@ $form->addElement(
     'statusFilter',
     _('Status'),
     $statusList,
-    array('id' => 'statusFilter', 'onChange' => "filterStatus(this.value);")
+    ['id' => 'statusFilter', 'onChange' => "filterStatus(this.value);"]
 );
 $form->setDefaults(['statusFilter' => $defaultStatusFilter]);
 
@@ -521,13 +494,13 @@ $form->addElement(
     'statusService',
     _('Service Status'),
     $statusService,
-    array('id' => 'statusService', 'onChange' => "statusServices(this.value);")
+    ['id' => 'statusService', 'onChange' => "statusServices(this.value);"]
 );
 $form->setDefaults(['statusService' => $defaultStatusService]);
 
 $criticality = new CentreonCriticality($pearDB);
 $crits = $criticality->getList(null, "level", 'ASC', null, null, true);
-$critArray = array(0 => "");
+$critArray = [0 => ""];
 foreach ($crits as $critId => $crit) {
     $critArray[$critId] = $crit['sc_name'] . " ({$crit['level']})";
 }
@@ -536,9 +509,9 @@ $form->addElement(
     'criticality',
     _('Severity'),
     $critArray,
-    array('id' => 'critFilter', 'onChange' => "filterCrit(this.value);")
+    ['id' => 'critFilter', 'onChange' => "filterCrit(this.value);"]
 );
-$form->setDefaults(array('criticality' => isset($_SESSION['criticality_id']) ? $_SESSION['criticality_id'] : "0"));
+$form->setDefaults(['criticality' => $_SESSION['criticality_id'] ?? "0"]);
 
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);

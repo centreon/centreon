@@ -46,23 +46,15 @@ if (!$centreon->user->admin && $centreon->user->access->checkAction('generate_cf
  *  Get Poller List
  */
 $acl = $centreon->user->access;
-$tab_nagios_server = $acl->getPollerAclConf(array(
-    'get_row' => 'name',
-    'order' => array('name'),
-    'keys' => array('id'),
-    'conditions' => array('ns_activate' => 1)
-));
+$tab_nagios_server = $acl->getPollerAclConf(['get_row' => 'name', 'order' => ['name'], 'keys' => ['id'], 'conditions' => ['ns_activate' => 1]]);
 /* Sort the list of poller server */
 $pollersFromUrl = $_GET['poller'] ?? '';
 $pollersId = explode(',', $pollersFromUrl);
-$selectedPollers = array();
+$selectedPollers = [];
 
 foreach ($tab_nagios_server as $key => $name) {
     if (in_array($key, $pollersId)) {
-        $selectedPollers[] = array(
-            'id' => $key,
-            'text' => $name
-        );
+        $selectedPollers[] = ['id' => $key, 'text' => $name];
     }
 }
 
@@ -71,29 +63,24 @@ foreach ($tab_nagios_server as $key => $name) {
  */
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
 
-$form->addElement('checkbox', 'debug', _("Run monitoring engine debug (-v)"), null, array('id' => 'ndebug'));
-$form->addElement('checkbox', 'gen', _("Generate Configuration Files"), null, array('id' => 'ngen'));
-$form->addElement('checkbox', 'move', _("Move Export Files"), null, array('id' => 'nmove'));
-$form->addElement('checkbox', 'restart', _("Restart Monitoring Engine"), null, array('id' => 'nrestart'));
-$form->addElement('checkbox', 'postcmd', _('Post generation command'), null, array('id' => 'npostcmd'));
+$form->addElement('checkbox', 'debug', _("Run monitoring engine debug (-v)"), null, ['id' => 'ndebug']);
+$form->addElement('checkbox', 'gen', _("Generate Configuration Files"), null, ['id' => 'ngen']);
+$form->addElement('checkbox', 'move', _("Move Export Files"), null, ['id' => 'nmove']);
+$form->addElement('checkbox', 'restart', _("Restart Monitoring Engine"), null, ['id' => 'nrestart']);
+$form->addElement('checkbox', 'postcmd', _('Post generation command'), null, ['id' => 'npostcmd']);
 $form->addElement(
     'select',
     'restart_mode',
     _("Method"),
-    array(2 => _("Restart"), 1 => _("Reload")),
-    array('id' => 'nrestart_mode', 'style' => 'width: 220px;')
+    [2 => _("Restart"), 1 => _("Reload")],
+    ['id' => 'nrestart_mode', 'style' => 'width: 220px;']
 );
-$form->setDefaults(array('debug' => '1', 'gen' => '1', 'restart_mode' => '1'));
+$form->setDefaults(['debug' => '1', 'gen' => '1', 'restart_mode' => '1']);
 
 /* Add multiselect for pollers */
 $route = './include/common/webServices/rest/internal.php?object=centreon_configuration_poller&action=list';
-$attrPoller = array(
-    'datasourceOrigin' => 'ajax',
-    'allowClear' => true,
-    'availableDatasetRoute' => $route,
-    'multiple' => true
-);
-$form->addElement('select2', 'nhost', _("Pollers"), array("class" => "required"), $attrPoller);
+$attrPoller = ['datasourceOrigin' => 'ajax', 'allowClear' => true, 'availableDatasetRoute' => $route, 'multiple' => true];
+$form->addElement('select2', 'nhost', _("Pollers"), ["class" => "required"], $attrPoller);
 $form->addRule('nhost', _("You need to select a least one polling instance."), 'required', null, 'client');
 
 $redirect = $form->addElement('hidden', 'o');
@@ -109,7 +96,7 @@ $sub = $form->addElement(
     'button',
     'submit',
     _("Export"),
-    array('id' => 'exportBtn', 'onClick' => 'generationProcess();', 'class' => 'btc bt_success')
+    ['id' => 'exportBtn', 'onClick' => 'generationProcess();', 'class' => 'btc bt_success']
 );
 $msg = null;
 $stdout = null;

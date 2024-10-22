@@ -27,7 +27,7 @@ const CloseModalConfirmation = (): React.JSX.Element => {
   };
 
   return (
-    <Modal open={isModalOpen} size="medium" onClose={onCancel}>
+    <Modal open={isModalOpen} size="large" onClose={onCancel}>
       <Modal.Header>{t(labelDoYouWantToQuitWithoutSaving)}</Modal.Header>
       <Modal.Body>
         <Typography>{t(labelYourFormHasUnsavedChanges)}</Typography>
