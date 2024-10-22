@@ -56,7 +56,7 @@
     "resources": {
       "type": "resources",
       "defaultValue": [],
-      "required": false,
+      "required": true,
       "requireResourceType": true,
       "singleResourceType": true,
       "restrictedResourceTypes": ["host-group", "service-group"]
