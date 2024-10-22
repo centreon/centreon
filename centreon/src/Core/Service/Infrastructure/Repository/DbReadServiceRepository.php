@@ -203,13 +203,13 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
             <<<SQL
                 SELECT 1
                 FROM `:db`.`service` s
-                INNER JOIN `:db`.`service_categories_relation` scr
+                LEFT JOIN `:db`.`service_categories_relation` scr
                     ON scr.`service_service_id` = s.`service_id`
-                    {$categoryAcls}
                 JOIN `:dbstg`.`centreon_acl` acl
                 WHERE acl.`group_id` IN ({$bindParamsAsString})
-                AND s.`service_id` = :service_id
-                AND s.`service_register` = '1'
+                    AND s.`service_id` = :service_id
+                    AND s.`service_register` = '1'
+                    {$categoryAcls}
                 SQL
         ));
         $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
