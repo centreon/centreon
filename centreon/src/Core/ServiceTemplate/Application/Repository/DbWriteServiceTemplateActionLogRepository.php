@@ -23,24 +23,21 @@ declare(strict_types=1);
 
 namespace Core\ServiceTemplate\Infrastructure\Repository;
 
-use Centreon\Domain\Log\LoggerTrait;
-use Core\Common\Domain\YesNoDefault;
-use Core\ActionLog\Domain\Model\ActionLog;
-use Core\Service\Domain\Model\SnmpVersion;
-use Core\Service\Domain\Model\ServiceEvent;
-use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Domain\Repository\RepositoryException;
-use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
-use Core\ServiceTemplate\Domain\Model\NotificationType;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\ServiceTemplate\Domain\Model\NewServiceTemplate;
-use Core\Common\Application\Converter\YesNoDefaultConverter;
-use Core\Service\Application\Converter\ServiceEventConverter;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
-use Core\ServiceTemplate\Infrastructure\Model\NotificationTypeConverter;
+use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\RepositoryException;
+use Centreon\Infrastructure\DatabaseConnection;
 use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;
+use Core\ActionLog\Domain\Model\ActionLog;
+use Core\Common\Application\Converter\YesNoDefaultConverter;
+use Core\Common\Domain\YesNoDefault;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Application\Repository\WriteServiceTemplateRepositoryInterface;
+use Core\ServiceTemplate\Domain\Model\NewServiceTemplate;
+use Core\ServiceTemplate\Domain\Model\NotificationType;
+use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
+use Core\ServiceTemplate\Infrastructure\Model\NotificationTypeConverter;
 
 class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB implements WriteServiceTemplateRepositoryInterface
 {
@@ -155,7 +152,7 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
                 throw new RepositoryException('Action log ID cannot be 0');
             }
             $actionLog->setId($actionLogId);
-            $this->writeActionLogRepository->addActionDetails($actionLog, $updatedServiceTemplateDetails);
+            $this->writeActionLogRepository->addActionDetails($actionLog, $diff);
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
 
