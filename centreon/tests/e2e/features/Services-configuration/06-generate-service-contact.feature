@@ -1,4 +1,3 @@
-@ignore
 @REQ_MON-151418
 Feature: Generate a service contact configuration
   As a Centreon admin
