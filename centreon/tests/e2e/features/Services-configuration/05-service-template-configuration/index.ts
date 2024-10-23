@@ -26,16 +26,12 @@ Then("a service template is configured", () => {
     rootItemNumber: 3,
     subMenu: "Services",
   });
-  cy.enterIframe("iframe#main-content")
-   .find("table.ListTable")
-   .find("tr.list_two")
-   .find("td.ListColLeft")
+  cy.waitForElementInIframe("#main-content", 'input[name="searchST"]');
+  cy.getIframeBody()
    .contains("service_template")
    .click();
-  cy.enterIframe("iframe#main-content")
-   .find("table.formTable")
-   .find("tr.list_one")
-   .find("td.FormRowValue")
+  cy.waitForElementInIframe("#main-content", 'input[name="service_alias"]');
+  cy.getIframeBody()
    .find('input[name="service_alias"]')
    .clear()
    .type("service_template");
@@ -47,15 +43,8 @@ Then("a service template is configured", () => {
 });
 
 When("the user changes the properties of a service template", () => {
-  cy.navigateTo({
-    page: "Templates",
-    rootItemNumber: 3,
-    subMenu: "Services",
-  });
-  cy.enterIframe("iframe#main-content")
-    .find("table.ListTable")
-    .find("tr.list_two")
-    .find("td.ListColLeft")
+  cy.waitForElementInIframe("#main-content", 'input[name="searchST"]');
+  cy.getIframeBody()
     .contains("service_template")
     .click();
   cy.waitForElementInIframe("#main-content", 'input[name="service_alias"]');
@@ -80,55 +69,34 @@ When("the user changes the properties of a service template", () => {
 });
 
 Then("the properties are updated", () => {
-  cy.enterIframe("iframe#main-content")
-    .find("table.ListTable")
-    .find("tr.list_two")
-    .find("td.ListColLeft")
+  cy.waitForElementInIframe("#main-content", 'input[name="searchST"]');
+  cy.getIframeBody()
     .contains("service_template_modified")
     .click();
   cy.waitForElementInIframe("#main-content", 'input[name="service_alias"]');
-  cy.enterIframe("iframe#main-content")
-    .find("table.formTable")
-    .find("tr.list_one")
-    .find("td.FormRowValue")
+  cy.getIframeBody()
     .find('input[name="service_alias"]')
     .should("have.value", "service_template_modified");
-  cy.enterIframe("iframe#main-content")
-    .find("table.formTable")
-    .find("tr.list_two")
-    .find("td.FormRowValue")
+  cy.getIframeBody()
     .find('input[name="service_description"]')
     .should("have.value", "template_desp_modified");
-  cy.enterIframe("iframe#main-content")
-    .find("table tr.list_one")
-    .find("td.FormRowValue")
+  cy.getIframeBody()
     .find("select#service_template_model_stm_id")
     .contains("Ping-WAN")
     .should("exist");
 });
 
 When("the user duplicates a service template", () => {
-  cy.navigateTo({
-    page: "Templates",
-    rootItemNumber: 3,
-    subMenu: "Services",
-  });
   cy.waitForElementInIframe("#main-content", 'input[name="searchST"]');
- cy.enterIframe("iframe#main-content")
-   .find("table tbody")
-   .find("tr.list_two")
-   .each(($row) => {
-     cy.wrap($row)
-       .find("td.ListColLeft")
-       .then(($td) => {
-         if ($td.text().includes("service_template")) {
-           cy.wrap($row)
-             .find("td.ListColPicker")
-             .find("div.md-checkbox")
-             .click();
-         }
-       });
-   });
+  cy.getIframeBody()
+    .find("td.ListColLeft")
+    .contains("a", "service_template")
+    .parents("tr")
+    .within(() => {
+      cy.get("td.ListColPicker")
+        .find("div.md-checkbox")
+        .click();
+    });
  cy.enterIframe("iframe#main-content")
    .find("table.ToolbarTable tbody")
    .find("td.Toolbar_TDSelectAction_Bottom")
@@ -146,46 +114,29 @@ When("the user duplicates a service template", () => {
 });
 
 Then("the new service template has the same properties", () => {
-  cy.enterIframe("iframe#main-content")
-    .find("table.ListTable")
-    .find("tr.list_one")
+  cy.reload();
+  cy.waitForElementInIframe("#main-content", 'input[name="searchST"]');
+  cy.getIframeBody()
     .find("td.ListColLeft")
-    .contains("service_template_1")
+    .contains("a", "service_template_1")
     .click();
-  cy.enterIframe("iframe#main-content")
-    .find("table.formTable")
-    .find("tr.list_one")
-    .find("td.FormRowValue")
+  cy.waitForElementInIframe("#main-content", 'input[name="service_alias"]');
+  cy.getIframeBody()
     .find('input[name="service_alias"]')
     .should("have.value", "service_template");
-  cy.enterIframe("iframe#main-content")
-    .find("table.formTable")
-    .find("tr.list_two")
-    .find("td.FormRowValue")
+  cy.getIframeBody()
     .find('input[name="service_description"]')
     .should("have.value", "service_template_1");
 });
 
 When("the user deletes a service template", () => {
-  cy.navigateTo({
-    page: "Templates",
-    rootItemNumber: 3,
-    subMenu: "Services",
-  });
-  cy.enterIframe("iframe#main-content")
-    .find("table tbody")
-    .find("tr.list_two")
-    .each(($row) => {
-      cy.wrap($row)
-        .find("td.ListColLeft")
-        .then(($td) => {
-          if ($td.text().includes("service_template")) {
-            cy.wrap($row)
-              .find("td.ListColPicker")
-              .find("div.md-checkbox")
-              .click();
-          }
-        });
+  cy.waitForElementInIframe("#main-content", 'input[name="searchST"]');
+  cy.getIframeBody()
+    .find("td.ListColLeft")
+    .contains("a", "service_template")
+    .parents("tr")
+    .within(() => {
+      cy.get("td.ListColPicker").find("div.md-checkbox").click();
     });
   cy.enterIframe("iframe#main-content")
     .find("table.ToolbarTable tbody")
