@@ -967,9 +967,9 @@ jobs:
       - name: Create Jira ticket
         uses: ./.github/actions/create-jira-ticket
         with:
-          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_user_email: ${{ secrets.JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
+          jira_base_url: ${{ secrets.jira_base_url }}
+          jira_user_email: ${{ secrets.jira_user_email }}
+          jira_api_token: ${{ secrets.jira_api_token }}
           module_name: web
           reason_for_ticket_creation: "nightly"
 
