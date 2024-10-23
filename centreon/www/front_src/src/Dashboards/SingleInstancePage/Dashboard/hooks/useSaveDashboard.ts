@@ -129,9 +129,7 @@ const useSaveDashboard = (): UseSaveDashboardState => {
       formData.append('thumbnail_data', blob, `dashboard-${dashboardId}.png`);
       formData.append('thumbnail[directory]', 'dashboards');
       formData.append('thumbnail[name]', `dashboard-${dashboardId}.png`);
-
     }).finally(() => {
-      
       mutateAsync({
         payload: formData
       }).then(() => {
