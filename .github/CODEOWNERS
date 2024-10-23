@@ -51,6 +51,7 @@ tsconfig.json                           @centreon/owners-react
 **/packaging/                           @centreon/owners-pipelines
 dependencies/**                         @centreon/owners-pipelines
 .coderabbit.yml                         @centreon/owners-pipelines
+**/unattended.sh                        @centreon/owners-pipelines
 
 **/config/features.json                 @centreon/release-management
 
