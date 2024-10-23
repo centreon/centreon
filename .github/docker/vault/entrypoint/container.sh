@@ -3,40 +3,20 @@ set -x
 export VAULT_ADDR='http://127.0.0.1:8200'
 export VAULT_SKIP_VERIFY=true
 export VAULT_TOKEN=${VAULT_DEV_ROOT_TOKEN_ID}
-mkdir -p /opt/vault/tls /opt/vault/data /etc/vault.d
 
-cat <<EOM >>/etc/vault.d/vault.hcl
-storage "raft" {
-  path    = "/opt/vault/data"
-  node_id = "node1"
-}
+vault server -dev-tls
+# vault secrets enable pki
+# vault write pki/roles/vault-role \
+#     allow_subdomains=true \
+#     max_ttl="8760h" \
+#     allow_any_name=true
+# vault write -format=json pki/issue/vault-role \
+#     common_name="vault" \
+#     ttl=720h \
+#     > /opt/vault/tls/vault.json
+# jq -r .data.certificate /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.crt
+# jq -r .data.private_key /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.key
 
-listener "tcp" {
-  address       = "0.0.0.0:8200"
-  tls_cert_file = "/opt/vault/tls/vault.crt"
-  tls_key_file  = "/opt/vault/tls/vault.key"
-  tls_disable   = false
-}
-
-disable_mlock = true
-api_addr      = "https://0.0.0.0:8200"
-cluster_addr  = "https://127.0.0.1:8200"
-ui            = true
-EOM
-
-vault secrets enable pki
-vault write pki/roles/vault-role \
-    allow_subdomains=true \
-    max_ttl="8760h" \
-    allow_any_name=true
-vault write -format=json pki/issue/vault-role \
-    common_name="vault" \
-    ttl=720h \
-    > /opt/vault/tls/vault.json
-jq -r .data.certificate /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.crt
-jq -r .data.private_key /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.key
-
-vault server -config=/etc/vault.d/vault.hcl
 vault secrets enable -path=centreon kv
 vault auth enable approle
 
