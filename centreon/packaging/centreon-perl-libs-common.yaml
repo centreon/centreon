@@ -25,6 +25,8 @@ overrides:
   rpm:
     depends:
       - perl-interpreter
+      - perl(Crypt::OpenSSL::AES)
+      - perl(JSON::XS)
       - perl(DBI)
       - perl(FindBin)
       - perl(IO::Handle)
@@ -42,6 +44,9 @@ overrides:
   deb:
     depends:
       - libconfig-inifiles-perl
+      - libcrypt-openssl-aes-perl
+      - libjson-xs-perl
+      - libnet-curl-perl
       - libcrypt-des-perl
       - librrds-perl
       - libdigest-hmac-perl
