@@ -52,9 +52,8 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
     })
   );
 
-function dataToFormData(panels, formData) {
-
-    if( isEmpty(panels) || isNil(panels) ){
+const dataToFormData = ({ panels, formData }): void => {
+    if (isEmpty(panels) || isNil(panels)) {
       formData.append('panels[]', "");
 
       return;
