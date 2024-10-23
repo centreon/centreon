@@ -54,7 +54,7 @@ runs:
         echo "[DEBUG] - stability: ${{ inputs.stability }}"
 
         # Make sure all required inputs are NOT empty
-        if [[ -z "${{ inputs.module_name }}" || -z "${{ inputs.distrib }}" || -z ${{ inputs.stability }} || -z ${{ inputs.version }} || -z "${{ inputs.is_cloud }}" || -z "${{ inputs.release_type }}" ]]; then
+        if [[ -z "${{ inputs.module_name }}" || -z "${{ inputs.distrib }}" || -z ${{ inputs.stability }} || -z ${{ inputs.version }} || -z "${{ inputs.is_cloud }}" ]]; then
           echo "Some mandatory inputs are empty, please check the logs."
           exit 1
         fi

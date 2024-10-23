@@ -591,7 +591,7 @@ jobs:
 
       - name: Build slim image
         run: |
-          export WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}"
+          export WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}"
           sed -i '/openid:/,$d' .github/docker/docker-compose.yml # remove all services after openid
           docker compose -f .github/docker/docker-compose.yml pull db
           slim build \
@@ -603,22 +603,22 @@ jobs:
             --include-shell \
             --include-new=false \
             --http-probe-off \
-            --exec-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/exec.txt \
-            --include-path-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-path.txt \
-            --include-bin-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-bin.txt \
-            --path-perms-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/path-perms.txt \
-            --tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-          docker tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+            --exec-file .github/docker/centreon-web/${{ matrix.operating_system }}/slim-configuration/exec.txt \
+            --include-path-file .github/docker/centreon-web/${{ matrix.operating_system }}/slim-configuration/include-path.txt \
+            --include-bin-file .github/docker/centreon-web/${{ matrix.operating_system }}/slim-configuration/include-bin.txt \
+            --path-perms-file .github/docker/centreon-web/${{ matrix.operating_system }}/slim-configuration/path-perms.txt \
+            --tag ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
+          docker tag ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
       - name: Push slim image
-        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
       - name: Store slim image in local archive
         run: |
           mkdir -p /tmp/cache/docker-image
-          docker save --output /tmp/cache/docker-image/${{ env.project }}-slim-${{ matrix.os }}.tar ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          docker save --output /tmp/cache/docker-image/${{ env.project }}-slim-${{ matrix.operating_system }}.tar ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
       - name: Clear previous docker image from cache
@@ -627,7 +627,7 @@ jobs:
             -X DELETE \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
+            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
         shell: bash
 
       - name: Store slim image in cache
