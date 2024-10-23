@@ -9058,7 +9058,7 @@
 											"pm.test(\"The service was not updated because the user does not have sufficient rights for the severity which is not recognized.\", function () {\r",
 											"    pm.response.to.have.status(409);\r",
 											"\r",
-											"    pm.expect(responseJson.message).to.eql(\"The severity_id with value'\" + pm.collectionVariables.get(\"ServiceSeverity1Id\") + \"' does not exist\");\r",
+											"    pm.expect(responseJson.message).to.eql(\"The severity_id with value '\" + pm.collectionVariables.get(\"ServiceSeverity1Id\") + \"' does not exist\");\r",
 											"\r",
 											"});"
 										],
