@@ -1,5 +1,5 @@
-name: QG incident tracking
-description: Create Jira ticket on Veracode QG failure
+name: Nightly/QG incident tracking
+description: Create Jira ticket on nightly build/veracode qg failure
 
 inputs:
   jira_base_url:
@@ -14,10 +14,29 @@ inputs:
   module_name:
     required: true
     description: module name
+  reason_for_ticket_creation:
+    required: true
+    description: reason for ticket creation ("nightly", "veracode")
 
 runs:
   using: "composite"
   steps:
+    - name: Get ticket elements from context
+      id: get_context
+      run: |
+        # Change context elements (summary, parent epic, etc.) that is checked depending on the reason the ticket is created
+        if [[ ${{ inputs.reason_for_ticket_creation }} == "veracode" ]]; then
+          parent_epic="AT-268"
+          ticket_summary="PR-${{ github.event.pull_request.number }} incident"
+        elif [[ ${{ inputs.reason_for_ticket_creation }} == "nightly" ]]; then
+          parent_epic="MON-151547"
+          ticket_summary="$(date '+%Y-%m-%d') ${{ module_name }}-${{ github.ref_name }} nightly build failure"
+        fi
+
+        echo "ticket_summary=$ticket_summary" >> $GITHUB_ENV
+        echo "parent_epic=$parent_epic" >> $GITHUB_ENV
+      shell: bash
+
     - name: Check if ticket exists already
       id: check_ticket
       run: |
@@ -29,7 +48,7 @@ runs:
           --header 'Content-Type: application/json' \
           --data '{
             "fields": ["summary"],
-            "jql": "project = MON AND parentEpic = AT-268 AND issueType = Technical AND summary ~ \"PR-${{ github.event.pull_request.number }} incident\" AND component = \"${{ inputs.module_name }}\" AND resolution = unresolved ORDER BY key ASC",
+            "jql": "project = MON AND parentEpic = ${{ env.parent_epic }} AND issueType = Technical AND summary ~ ${{ env.ticket_summary }} AND component = \"${{ inputs.module_name }}\" AND resolution = unresolved ORDER BY key ASC",
             "maxResults": 1
         }' | jq .issues[0].key )
 
