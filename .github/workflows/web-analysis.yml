@@ -65,7 +65,6 @@ jobs:
 
   get-environment:
     uses: ./.github/workflows/get-environment.yml
-
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
