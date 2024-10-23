@@ -35,7 +35,7 @@ on:
 jobs:
   build:
     name: Binary preparation
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     outputs:
       fail_build: ${{ steps.routing-mode.outputs.fail_build }}
       development_stage: ${{ steps.routing-mode.outputs.development_stage }}
