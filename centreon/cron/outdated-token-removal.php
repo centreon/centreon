@@ -43,8 +43,8 @@ try {
     $pearDB->commit();
 } catch (\Throwable) {
     $pearDB->rollBack();
-    $centreonLog->insertLog(
-        2,
+    $centreonLog->info(
+        CentreonLog::TYPE_BUSINESS_LOG,
         "TokenRemoval CRON: failed to delete old tokens"
     );
 }
@@ -54,9 +54,9 @@ try {
  */
 function deleteExpiredProviderRefreshTokens(CentreonLog $logger, CentreonDB $pearDB): void
 {
-    $logger->insertLog(2, 'Deleting expired refresh tokens');
+    $logger->info(CentreonLog::TYPE_BUSINESS_LOG, 'Deleting expired refresh tokens');
 
-    $pearDB->query(
+    $pearDB->executeQuery(
         <<<'SQL'
             DELETE st FROM security_token st
             WHERE st.expiration_date < UNIX_TIMESTAMP(NOW())
@@ -76,9 +76,9 @@ function deleteExpiredProviderRefreshTokens(CentreonLog $logger, CentreonDB $pea
  */
 function deleteExpiredProviderTokens(CentreonLog $logger, CentreonDB $pearDB): void
 {
-    $logger->insertLog(2, 'Deleting expired tokens which are not linked to a refresh token');
+    $logger->info(CentreonLog::TYPE_BUSINESS_LOG, 'Deleting expired tokens which are not linked to a refresh token');
 
-    $pearDB->query(
+    $pearDB->executeQuery(
         <<<'SQL'
             DELETE st FROM security_token st
             WHERE st.expiration_date < UNIX_TIMESTAMP(NOW())
@@ -98,9 +98,9 @@ function deleteExpiredProviderTokens(CentreonLog $logger, CentreonDB $pearDB): v
  */
 function deleteExpiredSessions(CentreonLog $logger, CentreonDB $pearDB): void
 {
-    $logger->insertLog(2, 'Deleting expired sessions');
+    $logger->info(CentreonLog::TYPE_BUSINESS_LOG, 'Deleting expired sessions');
 
-    $pearDB->query(
+    $pearDB->executeQuery(
         <<<'SQL'
             DELETE s FROM session s
             WHERE s.last_reload < (
