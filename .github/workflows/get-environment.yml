@@ -107,7 +107,7 @@ jobs:
               switch (true) {
                 case /(^develop$)|(^dev-\d{2}\.\d{2}\.x$)|(^prepare-release-cloud.*)/.test(branchName):
                   return 'unstable';
-                case /(^release.+)|(hotfix.+)/.test(branchName):
+                case /(^release.+)|(^hotfix.+)/.test(branchName):
                   return 'testing';
                 case /(^master$)|(^\d{2}\.\d{2}\.x$)/.test(branchName):
                   return 'stable';
