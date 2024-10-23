@@ -20,7 +20,6 @@ Given("a user is logged in Centreon", () => {
 
 
 Given("a service associated to a host is configured", () => {
-  cy.setUserTokenApiV1();
   cy.addHostGroup({
     name: data.hostGroups.hostGroup1.name,
   })
@@ -36,43 +35,45 @@ Given("a service associated to a host is configured", () => {
       host: data.hosts.host1.name,
       maxCheckAttempts: 1,
       name: data.services.service1.name,
-      template: "Ping-LAN",
+      template: "Ping-WAN",
     });
 });
 
 Given('the user is in the "Notifications" tab', () => {
   cy.navigateTo({
-    page: "Service Groups",
+    page: "Services by host",
     rootItemNumber: 3,
     subMenu: "Services",
   });
   cy.waitForElementInIframe("#main-content", 'input[name="searchH"]');
-  cy.getIframeBody().find('tr[class*="list_"]').contains('Ping').click();
+  cy.getIframeBody()
+    .find('tr[class*="list_"]')
+    .contains(`${data.services.service1.name}`)
+    .click();
+  cy.waitForElementInIframe("#main-content",'input[name="service_description"]');
   cy.getIframeBody().find("li#c2").click();
 });
 
 When("the user checks case yes to enable Notifications", () => {
   cy.getIframeBody()
-    .find(
-      'input[name="service_notifications_enabled[service_notifications_enabled]"]',
-    )
+    .find('input[name*="service_notifications_enabled"][value="1"]')
+    .parent()
     .click();
 });
 
 When("the case Inherit contacts is checked", () => {
   cy.getIframeBody()
-    .find(
-      'input[name="service_use_only_contacts_from_host[service_use_only_contacts_from_host]"]',
-    )
+    .find('input[name*="service_use_only_contacts_from_host"][value="1"]')
+    .parent()
     .click();
 });
 
 Then('the field "Implied Contacts" is disabled', () => {
-  cy.getIframeBody().find('input[placeholder = "Implied Contacts"]').should('be.disabled');
+  cy.getIframeBody().find('input[placeholder="Implied Contacts"]').should('be.disabled');
 });
 
 Then('the field "Implied Contact Groups" is disabled', () => {
-
+  cy.getIframeBody().find("select#service_cgs").should("be.disabled");
 });
 
 afterEach(() => {
