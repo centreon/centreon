@@ -22,7 +22,7 @@ inputs:
   release_type:
     description: "Type of release (hotfix, release)"
     required: true
-  release_cloud:
+  is_cloud:
     description: "Release context (cloud or not cloud)"
     required: true
 
@@ -61,12 +61,12 @@ runs:
         echo "[DEBUG] - Version: ${{ inputs.version }}"
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
         echo "[DEBUG] - module_name: ${{ inputs.module_name }}"
-        echo "[DEBUG] - release_cloud: ${{ inputs.release_cloud }}"
+        echo "[DEBUG] - is_cloud: ${{ inputs.is_cloud }}"
         echo "[DEBUG] - release_type: ${{ inputs.release_type }}"
         echo "[DEBUG] - stability: ${{ inputs.stability }}"
 
         # Make sure all required inputs are NOT empty
-        if [[ -z "${{ inputs.module_name }}" || -z "${{ inputs.distrib }}" || -z ${{ inputs.stability }} || -z ${{ inputs.version }} || -z ${{ inputs.release_cloud }} || -z ${{ inputs.release_type }} ]]; then
+        if [[ -z "${{ inputs.module_name }}" || -z "${{ inputs.distrib }}" || -z ${{ inputs.stability }} || -z ${{ inputs.version }} || -z "${{ inputs.is_cloud }}" ]]; then
           echo "Some mandatory inputs are empty, please check the logs."
           exit 1
         fi
@@ -85,32 +85,32 @@ runs:
           mv "$FILE" "$ARCH"
         done
 
-        # Build upload target path based on release_cloud and release_type values
+        # Build upload target path based on is_cloud and release_type values
         # if cloud + hotfix or cloud + release, deliver to internal testing-<release_type>
         # if cloud + develop, delivery to internal unstable
         # if non-cloud, delivery to onprem testing or unstable
 
         # CLOUD + HOTFIX + REPO STANDARD INTERNAL OR CLOUD + RELEASE + REPO STANDARD INTERNAL
-        if [[ ${{ inputs.release_cloud }} -eq 1 ]] && ([[ ${{ inputs.release_type }} == "hotfix" ]] || [[ ${{ inputs.release_type }} == "release" ]]); then
+        if [[ "${{ inputs.is_cloud }}" == "true" ]] && ([[ "${{ inputs.release_type }}" == "hotfix" ]] || [[ "${{ inputs.release_type }}" == "release" ]]); then
           echo "[DEBUG] : Release cloud + ${{ inputs.release_type }}, using rpm-standard-internal."
           ROOT_REPO_PATHS="rpm-standard-internal"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/${{ inputs.module_name }}/"
 
         # CLOUD + NOT HOTFIX OR CLOUD + NOT RELEASE + REPO STANDARD INTERNAL
-        elif [[ ${{ inputs.release_cloud }} -eq 1 ]] && ([[ ${{ inputs.release_type }} != "hotfix" ]] || [[ ${{ inputs.release_type }} != "release" ]]); then
+        elif [[ "${{ inputs.is_cloud }}" == "true" ]] && ([[ "${{ inputs.release_type }}" != "hotfix" ]] || [[ "${{ inputs.release_type }}" != "release" ]]); then
           echo "[DEBUG] : Release cloud + NOT ${{ inputs.release_type }}, using rpm-standard-internal."
           ROOT_REPO_PATHS="rpm-standard-internal"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/${{ inputs.module_name }}/"
 
         # NON-CLOUD + (HOTFIX OR RELEASE) + REPO STANDARD
-        elif [[ ${{ inputs.release_cloud }} -eq 0 ]]; then
+        elif [[ "${{ inputs.is_cloud }}" == "false" ]]; then
           echo "[DEBUG] : NOT Release cloud + ${{ inputs.release_type }}, using rpm-standard."
           ROOT_REPO_PATHS="rpm-standard"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
 
         # ANYTHING ELSE
         else
-          echo "::error:: Invalid combination of release_type [${{ inputs.release_type }}] and release_cloud [${{ inputs.release_cloud }}]"
+          echo "::error:: Invalid combination of release_type [${{ inputs.release_type }}] and is_cloud [${{ inputs.is_cloud }}]"
           exit 1
         fi
 
