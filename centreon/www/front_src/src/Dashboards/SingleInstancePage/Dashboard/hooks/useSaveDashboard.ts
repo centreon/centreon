@@ -9,15 +9,12 @@ import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 import { getDashboardEndpoint } from '../../../api/endpoints';
 
 import { resource } from '../../../api/models';
-import {
-  dashboardAtom,
-  switchPanelsEditionModeDerivedAtom
-} from '../atoms';
+import { dashboardAtom, switchPanelsEditionModeDerivedAtom } from '../atoms';
 import { Panel, PanelDetailsToAPI } from '../models';
 import { labelYourDashboardHasBeenSaved } from '../translatedLabels';
 
-import { routerParams } from './useDashboardDetails';
 import { isEmpty, isNil } from 'ramda';
+import { routerParams } from './useDashboardDetails';
 
 const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
   layout.map(
@@ -52,37 +49,42 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
     })
   );
 
-const dataToFormData = ({ panels, formData }): void => {
-    if (isEmpty(panels) || isNil(panels)) {
-      formData.append('panels[]', "");
+interface DataToFormDataProps {
+  panels: Array<PanelDetailsToAPI>;
+  formData: FormData;
+}
 
-      return;
-    }
-  
-    panels.forEach((panel, index) => {
-      formData.append(`panels[${index}][name]`, panel.name);
-      formData.append(`panels[${index}][widget_type]`, panel.widget_type);
-  
-      formData.append(`panels[${index}][layout][x]`, panel.layout.x);
-      formData.append(`panels[${index}][layout][y]`, panel.layout.y);
-      formData.append(`panels[${index}][layout][width]`, panel.layout.width);
-      formData.append(`panels[${index}][layout][height]`, panel.layout.height);
-      formData.append(
-        `panels[${index}][layout][min_width]`,
-        panel.layout.min_width
-      );
-      formData.append(
-        `panels[${index}][layout][min_height]`,
-        panel.layout.min_height
-      );
-  
-      formData.append(
-        `panels[${index}][widget_settings]`,
-        JSON.stringify(panel.widget_settings)
-      );
-    });
+const dataToFormData = ({ panels, formData }: DataToFormDataProps): void => {
+  if (isEmpty(panels) || isNil(panels)) {
+    formData.append('panels[]', '');
+
+    return;
   }
-  
+
+  panels.forEach((panel, index) => {
+    formData.append(`panels[${index}][name]`, panel.name);
+    formData.append(`panels[${index}][widget_type]`, panel.widget_type);
+
+    formData.append(`panels[${index}][layout][x]`, panel.layout.x);
+    formData.append(`panels[${index}][layout][y]`, panel.layout.y);
+    formData.append(`panels[${index}][layout][width]`, panel.layout.width);
+    formData.append(`panels[${index}][layout][height]`, panel.layout.height);
+    formData.append(
+      `panels[${index}][layout][min_width]`,
+      panel.layout.min_width
+    );
+    formData.append(
+      `panels[${index}][layout][min_height]`,
+      panel.layout.min_height
+    );
+
+    formData.append(
+      `panels[${index}][widget_settings]`,
+      JSON.stringify(panel.widget_settings)
+    );
+  });
+};
+
 interface UseSaveDashboardState {
   saveDashboard: () => void;
 }
@@ -117,25 +119,23 @@ const useSaveDashboard = (): UseSaveDashboardState => {
     toBlob(node, {
       backgroundColor: theme.palette.background.default,
       height: 360
-    }).then((blob) => {
-      if (!blob) {
-        return;
-      }
-
-      formData.append('thumbnail_data', blob, `dashboard-${dashboardId}.png`);
-      formData.append('thumbnail[directory]', 'dashboards');
-      formData.append('thumbnail[name]', `dashboard-${dashboardId}.png`);
-    }).finally(() => {
-      mutateAsync({
-        payload: formData
-      }).then(() => {
-        showSuccessMessage(t(labelYourDashboardHasBeenSaved));
-        switchPanelsEditionMode(false);
-        queryClient.invalidateQueries({
-          queryKey: [resource.dashboard, dashboardId]
+    })
+      .then((blob) => {
+        formData.append('thumbnail_data', blob, `dashboard-${dashboardId}.png`);
+        formData.append('thumbnail[directory]', 'dashboards');
+        formData.append('thumbnail[name]', `dashboard-${dashboardId}.png`);
+      })
+      .finally(() => {
+        mutateAsync({
+          payload: formData
+        }).then(() => {
+          showSuccessMessage(t(labelYourDashboardHasBeenSaved));
+          switchPanelsEditionMode(false);
+          queryClient.invalidateQueries({
+            queryKey: [resource.dashboard, dashboardId]
+          });
         });
       });
-    });
   };
 
   return { saveDashboard };

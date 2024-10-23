@@ -1,5 +1,4 @@
 import { UseMutationResult, useQueryClient } from '@tanstack/react-query';
-import { pick } from 'ramda';
 
 import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 
@@ -37,14 +36,12 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
   const mutate = (variables: Dashboard): Promise<Dashboard | ResponseError> => {
     const formData = new FormData();
 
-    pick(['name', 'description', 'refresh'], variables);
-
     formData.append('name', variables.name);
-    formData.append('description', variables.description);
+    formData.append('description', variables.description || '');
 
     if (variables?.refresh) {
       formData.append('refresh[type]', variables.refresh.type);
-      if (variables.refresh.interval){
+      if (variables.refresh.interval) {
         formData.append(
           'refresh[interval]',
           JSON.stringify(variables.refresh.interval)
