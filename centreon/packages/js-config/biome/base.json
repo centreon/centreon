@@ -21,10 +21,12 @@
       "correctness": {
         "noUnusedImports": "error",
         "noUnusedVariables": "error",
-        "useExhaustiveDependencies": "off"
+        "useExhaustiveDependencies": "off",
+        "noUnknownUnit": "error",
+        "noUnknownProperty": "error",
+        "noUnknownFunction": "error"
       },
       "nursery": {
-        "noConsole": "error",
         "noRestrictedImports": {
           "level": "error",
           "options": {
@@ -33,12 +35,10 @@
               "moment": "Using moment is not encouraged."
             }
           }
-        },
-        "noUnknownFunction": "error",
-        "noUnknownProperty": "error",
-        "noUnknownUnit": "error"
+        }
       },
       "suspicious": {
+        "noConsole": "error",
         "useAwait": "error"
       },
       "performance": {

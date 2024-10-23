@@ -111,18 +111,6 @@ default:
       paths: [ "%paths.base%/features/SpecialCharactersInContact.feature" ]
       contexts: [ SpecialCharactersInContactContext ]
 
-    contact_configuration:
-      paths: [ "%paths.base%/features/ContactConfiguration.feature" ]
-      contexts: [ ContactConfigurationContext ]
-
-    contact_group_configuration:
-      paths: [ "%paths.base%/features/ContactGroupConfiguration.feature" ]
-      contexts: [ ContactGroupConfigurationContext ]
-
-    host_template_basics_operations:
-      paths: [ "%paths.base%/features/HostTemplateBasicsOperations.feature" ]
-      contexts: [ HostTemplateBasicsOperationsContext ]
-
     ldap_configuration:
       paths: [ "%paths.base%/features/LdapConfiguration.feature" ]
       contexts: [ LdapConfigurationContext ]
@@ -143,10 +131,6 @@ default:
       paths: [ "%paths.base%/features/NonAdminContactCreation.feature" ]
       contexts: [ NonAdminContactCreationContext ]
 
-    time_period_configuration:
-      paths: [ "%paths.base%/features/TimePeriodConfiguration.feature" ]
-      contexts: [ TimePeriodConfigurationContext ]
-
     massive_change_hosts:
       paths: [ "%paths.base%/features/MassiveChangeHosts.feature" ]
       contexts: [ MassiveChangeHostsContext ]
@@ -162,10 +146,6 @@ default:
     command_configuration:
       paths: [ "%paths.base%/features/CommandConfiguration.feature" ]
       contexts: [ CommandConfigurationContext ]
-
-    service_group_configuration:
-      paths: [ "%paths.base%/features/ServiceGroupConfiguration.feature" ]
-      contexts: [ ServiceGroupConfigurationContext ]
 
     host_group_service_configuration:
       paths: [ "%paths.base%/features/HostGroupServiceConfiguration.feature" ]
