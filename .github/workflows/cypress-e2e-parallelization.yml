@@ -49,8 +49,8 @@ on:
       is_cloud:
         description: "Define if the version is targeting cloud"
         required: false
-        type: boolean
-        default: false
+        type: string # Set as string instead of boolean to avoid mixing types between workflows and actions
+        default: 'false'
     secrets:
       registry_username:
         required: true
