@@ -161,7 +161,7 @@ jobs:
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
     if: ${{ inputs.stability == 'testing' || github.event_name == 'schedule' }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
@@ -292,7 +292,7 @@ jobs:
   cypress-e2e-test-report:
     needs: [cypress-e2e-test-run]
     if: failure()
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -318,3 +318,26 @@ jobs:
           path: mochawesome.json
           format: cypress
           urlFilePrefix: centreon
+<<<<<<< HEAD
+=======
+
+  regroup-artifacts:
+    needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report]
+    if: always()
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        type_of_report: [test-results, test-reports, xray-reports]
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Merging Artifacts
+        uses: ./.github/actions/merge-artifacts
+        if: ${{ ( contains(needs.cypress-e2e-test-run.result, 'failure') && ( matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'xray-reports' }}
+        with:
+          target_name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
+          source_paths: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}/**
+          source_name_pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+>>>>>>> b0afe7a028 (enh(ci): refactor get-version workflow (#5390) (#5471))

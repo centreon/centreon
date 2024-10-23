@@ -19,20 +19,20 @@ on:
       - "widgets/centreon-widget-single-metric/**"
 
 jobs:
-  get-version:
-    uses: ./.github/workflows/get-version.yml
+  get-environment:
+    uses: ./.github/workflows/get-environment.yml
     with:
       version_file: widgets/centreon-widget-single-metric/single-metric/configs.xml
 
   package:
-    needs: [get-version]
+    needs: [get-environment]
 
     uses: ./.github/workflows/widget-package.yml
     with:
       widget_name: single-metric
-      major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ needs.get-version.outputs.minor_version }}
-      release: ${{ needs.get-version.outputs.release }}
+      major_version: ${{ needs.get-environment.outputs.major_version }}
+      minor_version: ${{ needs.get-environment.outputs.minor_version }}
+      release: ${{ needs.get-environment.outputs.release }}
       commit_hash: ${{ github.sha }}
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
@@ -41,23 +41,23 @@ jobs:
       registry_private_token: ${{ secrets.HARBOR_CENTREON_PRIVATE_TOKEN }}
 
   delivery:
-    needs: [get-version, package]
+    needs: [get-environment, package]
     uses: ./.github/workflows/widget-delivery.yml
     with:
       widget_name: single-metric
-      major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ needs.get-version.outputs.minor_version }}
-      stability: ${{ needs.get-version.outputs.stability }}
-      environment: ${{ needs.get-version.outputs.environment }}
-      release_type: ${{ needs.get-version.outputs.release_type }}
-      release_cloud: ${{ needs.get-version.outputs.release_cloud }}
+      major_version: ${{ needs.get-environment.outputs.major_version }}
+      minor_version: ${{ needs.get-environment.outputs.minor_version }}
+      stability: ${{ needs.get-environment.outputs.stability }}
+      environment: ${{ needs.get-environment.outputs.environment }}
+      release_type: ${{ needs.get-environment.outputs.release_type }}
+      is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
     secrets:
       artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
   promote:
-    needs: [get-version]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
+    needs: [get-environment]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
@@ -73,9 +73,9 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           module: widget-single-metric
           distrib: ${{ matrix.distrib }}
-          major_version: ${{ needs.get-version.outputs.major_version }}
-          minor_version: ${{ needs.get-version.outputs.minor_version }}
-          stability: ${{ needs.get-version.outputs.stability }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          minor_version: ${{ needs.get-environment.outputs.minor_version }}
+          stability: ${{ needs.get-environment.outputs.stability }}
           github_ref_name: ${{ github.ref_name }}
-          release_type: ${{ needs.get-version.outputs.release_type }}
-          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}

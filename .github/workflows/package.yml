@@ -87,7 +87,7 @@ on:
 jobs:
   package:
     name: Package ${{ inputs.package_extension }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}:${{ inputs.major_version }}
       credentials:
@@ -129,7 +129,7 @@ jobs:
   sign:
     if: ${{ inputs.package_extension == 'rpm' }}
     needs: [package]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     container:
       image: docker.centreon.com/centreon-private/rpm-signing:latest
       options: -t
