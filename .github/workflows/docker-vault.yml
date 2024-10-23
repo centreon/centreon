@@ -22,7 +22,7 @@ jobs:
       version_file: centreon/www/install/insertBaseConf.sql
 
   create-and-push-docker:
-    needs: [get-version]
+    needs: [get-environment]
     runs-on: ubuntu-22.04
 
     steps:
@@ -44,4 +44,4 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/vault:${{ needs.get-version.outputs.major_version }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/vault:${{ needs.get-environment.outputs.major_version }}
