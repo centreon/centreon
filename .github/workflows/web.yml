@@ -761,7 +761,7 @@ jobs:
       xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
 
   performances-test:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     needs: [get-environment, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
 
