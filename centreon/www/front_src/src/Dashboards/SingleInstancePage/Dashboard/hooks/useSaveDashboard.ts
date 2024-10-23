@@ -81,12 +81,9 @@ function dataToFormData(panels, formData) {
         `panels[${index}][widget_settings]`,
         JSON.stringify(panel.widget_settings)
       );
-
     });
   }
   
-
-
 interface UseSaveDashboardState {
   saveDashboard: () => void;
 }
