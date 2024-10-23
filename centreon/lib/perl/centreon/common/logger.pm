@@ -126,10 +126,10 @@ sub is_file_mode {
 sub is_debug {
     my $self = shift;
 
-    if ($self->{severity} < 6) {
-        return 0;
+    if ($self->{severity} == 7) {
+        return 1;
     }
-    return 1;
+    return 0;
 }
 
 sub syslog_mode($$$) {
@@ -150,7 +150,7 @@ sub redirect_output {
         open STDERR, '>&', $lfh;
     }
 }
-# Bypass the write cache set up by the kernel/file system and always write the log
+# Bypass the buffers set up by the kernel/file system and always write the log
 # as soon as it is sent.
 sub flush_output {
     my ($self, %options) = @_;
