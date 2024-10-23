@@ -49,8 +49,8 @@ on:
       is_cloud:
         description: "Define if the version is targeting cloud"
         required: false
-        type: boolean
-        default: false
+        type: string # Set as string instead of boolean to avoid mixing types between workflows and actions
+        default: 'false'
     secrets:
       registry_username:
         required: true
@@ -231,7 +231,7 @@ jobs:
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
     if: ${{ always() && (inputs.stability == 'testing' || github.event_name == 'schedule') }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
@@ -271,7 +271,7 @@ jobs:
   cypress-e2e-test-report:
     needs: [cypress-e2e-test-run]
     if: failure()
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
@@ -302,7 +302,7 @@ jobs:
   regroup-artifacts:
     needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report]
     if: always()
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
