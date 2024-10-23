@@ -72,6 +72,7 @@ Given("a service with notifications enabled", () => {
     .find("p.oreonbutton")
     .find('.btc.bt_success[name="submitA"]')
     .click();
+  cy.setUserTokenApiV1();
   cy.setServiceParameters({
     name: data.hosts.host1.name,
     paramName: "notifications_enabled",
@@ -111,15 +112,9 @@ When("the configuration is exported", () => {
     .click();
   cy.getIframeBody().contains("Central").click();
 
-  cy.enterIframe("iframe#main-content")
-    .find('input[name="move"]')
-    .parent()
-    .click();
-  cy.enterIframe("iframe#main-content")
-    .find('input[name="restart"]')
-    .parent()
-    .click();
-  cy.enterIframe("iframe#main-content").find('input[id="exportBtn"]').click();
+  cy.getIframeBody().find('input[name="move"]').parent().click();
+  cy.getIframeBody().find('input[name="restart"]').parent().click();
+  cy.getIframeBody().find('input[id="exportBtn"]').click();
 });
 
 Then("a warning message is printed", () => {
