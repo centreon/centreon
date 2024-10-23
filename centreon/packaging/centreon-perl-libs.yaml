@@ -8,22 +8,44 @@ section: "default"
 priority: "optional"
 maintainer: "Centreon <contact@centreon.com>"
 description: |
-  This package contains Centreon Perl libraries.
+  This package contains Centreon Perl libraries for various script.
   Commit: @COMMIT_HASH@
 vendor: "Centreon"
 homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
 contents:
-  - src: "../lib/perl/centreon"
-    dst: "${PERL_VENDORLIB}/centreon"
+  - src: "../lib/perl/centreon/health"
+    dst: "${PERL_VENDORLIB}/centreon/health"
+    expand: true
+    file_info:
+      mode: 0755
+  - src: "../lib/perl/centreon/reporting"
+    dst: "${PERL_VENDORLIB}/centreon/reporting"
+    expand: true
+    file_info:
+      mode: 0755
+  - src: "../lib/perl/centreon/script"
+    dst: "${PERL_VENDORLIB}/centreon/script"
+    expand: true
+    file_info:
+      mode: 0755
+  - src: "../lib/perl/centreon/trapd"
+    dst: "${PERL_VENDORLIB}/centreon/trapd"
+    expand: true
+    file_info:
+      mode: 0755
+  - src: "../lib/perl/centreon/script.pm"
+    dst: "${PERL_VENDORLIB}/centreon/script.pm"
     expand: true
     file_info:
       mode: 0755
 
+
 overrides:
   rpm:
     depends:
+      - centreon-perl-libs-common
       - centreon-common = ${VERSION}-${RELEASE}${DIST}
       - perl-interpreter
       - perl(DBI)
@@ -35,12 +57,6 @@ overrides:
       - perl(Sys::Syslog)
     provides:
       - perl-centreon-base
-      - perl(centreon::common::db)
-      - perl(centreon::common::lock)
-      - perl(centreon::common::lock::file)
-      - perl(centreon::common::lock::sql)
-      - perl(centreon::common::logger)
-      - perl(centreon::common::misc)
       - perl(centreon::script)
       - perl(centreon::script::centreontrapd)
       - perl(centreon::script::centreontrapdforward)
@@ -57,6 +73,7 @@ overrides:
       - perl-centreon-base
   deb:
     depends:
+      - centreon-perl-libs-common
       - centreon-common (= ${VERSION}-${RELEASE}${DIST})
       - libconfig-inifiles-perl
       - libcrypt-des-perl
