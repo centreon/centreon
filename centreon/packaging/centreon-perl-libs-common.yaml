@@ -15,7 +15,7 @@ homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
 contents:
-  - src: "../lib/perl/perl/common"
+  - src: "../lib/perl/centreon/common"
     dst: "${PERL_VENDORLIB}/centreon/common"
     expand: true
     file_info:
