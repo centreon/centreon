@@ -38,20 +38,21 @@ on:
       - "!centreon/packages/**"
 
 jobs:
-  get-version:
-    uses: ./.github/workflows/get-version.yml
+  get-environment:
+    uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
   veracode-analysis:
-    needs: [get-version]
+    needs: [get-environment]
+    if: ${{ needs.get-environment.outputs.is_targeting_feature_branch != 'true' && github.event.pull_request.draft != 'true' }}
     uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: "centreon"
       module_name: "centreon-web"
-      major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ needs.get-version.outputs.minor_version }}
-      stability: ${{ needs.get-version.outputs.stability }}
+      major_version: ${{ needs.get-environment.outputs.major_version }}
+      minor_version: ${{ needs.get-environment.outputs.minor_version }}
+      stability: ${{ needs.get-environment.outputs.stability }}
     secrets:
       veracode_api_id: ${{ secrets.VERACODE_API_ID_WEB }}
       veracode_api_key: ${{ secrets.VERACODE_API_KEY_WEB_2 }}

@@ -22,7 +22,7 @@ inputs:
   release_type:
     description: "Type of release (hotfix, release)"
     required: true
-  release_cloud:
+  is_cloud:
     description: "Release context (cloud or not cloud)"
     required: true
 
@@ -49,12 +49,12 @@ runs:
         echo "[DEBUG] - Version: ${{ inputs.version }}"
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
         echo "[DEBUG] - module_name: ${{ inputs.module_name }}"
-        echo "[DEBUG] - release_cloud: ${{ inputs.release_cloud }}"
+        echo "[DEBUG] - is_cloud: ${{ inputs.is_cloud }}"
         echo "[DEBUG] - release_type: ${{ inputs.release_type }}"
         echo "[DEBUG] - stability: ${{ inputs.stability }}"
 
         # Make sure all required inputs are NOT empty
-        if [[ -z "${{ inputs.module_name }}" || -z "${{ inputs.distrib }}" || -z ${{ inputs.stability }} || -z ${{ inputs.version }} || -z ${{ inputs.release_cloud }} || -z ${{ inputs.release_type }} ]]; then
+        if [[ -z "${{ inputs.module_name }}" || -z "${{ inputs.distrib }}" || -z ${{ inputs.stability }} || -z ${{ inputs.version }} || -z "${{ inputs.is_cloud }}" ]]; then
           echo "Some mandatory inputs are empty, please check the logs."
           exit 1
         fi

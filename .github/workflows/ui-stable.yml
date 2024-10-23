@@ -21,11 +21,6 @@ env:
   AWS_DEFAULT_REGION: eu-west-1
 
 jobs:
-  get-version:
-    uses: ./.github/workflows/get-version.yml
-    with:
-      version_file: centreon/www/install/insertBaseConf.sql
-
   publish-new-npm-version:
     runs-on: ubuntu-22.04
 
