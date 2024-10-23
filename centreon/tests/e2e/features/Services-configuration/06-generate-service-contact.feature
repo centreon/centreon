@@ -8,6 +8,7 @@ Feature: Generate a service contact configuration
   Background:
     Given a user is logged in Centreon
 
+  @TEST_MON-151543
   Scenario: Configure checkbox Inherit only contacts and contacts group from host
     Given a service associated to a host is configured
     And the user is in the "Notifications" tab
