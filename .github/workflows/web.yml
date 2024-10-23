@@ -956,7 +956,6 @@ jobs:
         deliver-deb
       ]
     if: |
-      ! cancelled() &&
         contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
         (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) &&
         (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && contains(github.workflow, 'nightly')))
