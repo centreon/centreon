@@ -15,13 +15,12 @@ runs:
 
         echo "[INFO]: Filtering the results of the last nightly build"
         lastNightlyRunDetails=$(gh run ls \
-          --json number,status,conclusion \
-          --event schedule \
+          --json name,number,status,conclusion \
           --workflow web.yml \
-          --branch develop \
-          --limit 1)
+          --branch ${{ github.ref_name }} \
+          --limit 20 || jq --arg branch "${{ github.ref_name }}" $ 'map(select(.name == "web nightly $branch"))')
 
-        echo "Last nightly run details:"
+        echo "Last ${{ module_name }} run details:"
         echo "$lastNightlyRunDetails"
 
         echo "last_nightly_result=$(echo "$lastNightlyRunDetails" | jq -r '.[0].conclusion')" >> $GITHUB_OUTPUT
