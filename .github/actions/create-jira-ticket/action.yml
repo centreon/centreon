@@ -165,7 +165,7 @@ runs:
                   {
                     "type": "text",
                     "text": "Link to the failed nightly",
-                    "marks": [{"type": "link", "attrs": {"href": "$run_url"}}]
+                    "marks": [{"type": "link", "attrs": {"href": "${{ steps.get_context.outputs.run_url }}"]
                   }
                 ]
               }
