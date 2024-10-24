@@ -125,7 +125,7 @@ When('the user saves the Clock timer widget', () => {
   });
 });
 
-Then("the Clock timer widget is added to the dashboard's layout", () => {
+Then("the Clock timer widget is added in the dashboard's layout", () => {
   cy.get('div[class$="clockInformation"]').should('be.visible');
   cy.get('div[class$="clockLabel"]').should('be.visible');
 });
