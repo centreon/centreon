@@ -957,7 +957,7 @@ jobs:
       ]
     if: |
         contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-        (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped')) &&
+        (cancelled() || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure')) &&
         (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && contains(github.workflow, 'nightly')))
     steps:
       - name: Checkout sources
