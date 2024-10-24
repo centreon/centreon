@@ -38,7 +38,7 @@ class MediaException extends \Exception
      */
     public static function updateNotAllowed(): self
     {
-        return new self(_('You are not allowed to update a media'));
+        return new self(_('You are not allowed to update media'));
     }
 
     /**
