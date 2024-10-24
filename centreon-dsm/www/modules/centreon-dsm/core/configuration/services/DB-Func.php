@@ -755,7 +755,6 @@ function insertPool($ret = [])
         $statement = $pearDB->prepareQuery(
             <<<'SQL'
                     INSERT INTO `mod_dsm_pool` (
-                        `pool_id`,
                         `pool_name`,
                         `pool_host_id`,
                         `pool_description`,
@@ -766,8 +765,15 @@ function insertPool($ret = [])
                         `pool_activate`,
                         `pool_service_template_id`
                     ) VALUES (
-                        NULL, :pool_name, :pool_host_id, :pool_description, :pool_number,
-                        :pool_prefix, :pool_cmd_id, :pool_args, :pool_activate, :pool_service_template_id
+                        :pool_name,
+                        :pool_host_id,
+                        :pool_description,
+                        :pool_number,
+                        :pool_prefix,
+                        :pool_cmd_id,
+                        :pool_args,
+                        :pool_activate,
+                        :pool_service_template_id
                     )
                 SQL
         );
@@ -791,13 +797,13 @@ function insertPool($ret = [])
             'pool_prefix' => PDO::PARAM_STR,
             'pool_cmd_id' => PDO::PARAM_INT,
             'pool_args' => PDO::PARAM_STR,
-            'pool_activate' => PDO::PARAM_INT,
+            'pool_activate' => PDO::PARAM_STR,
             'pool_service_template_id' => PDO::PARAM_INT,
         ];
 
         $parameters = [];
         foreach ($fields as $field => $type) {
-            $value = $ret[$field] ?? null;
+            $field === 'pool_activate' ? $value = $ret[$field][$field] : $value = $ret[$field] ?? null;
             $parameters[":{$field}"] = [$value, $value !== null ? $type : PDO::PARAM_NULL];
         }
 
@@ -809,7 +815,7 @@ function insertPool($ret = [])
         $pool_id = $pearDB->fetch($statementMax);
         $pearDB->closeQuery($statementMax);
 
-        if ($ret['pool_activate'] == 1) {
+        if ($ret['pool_activate']['pool_activate'] == 1) {
             enablePoolInDB($pool_id['MAX(pool_id)']);
         } else {
             disablePoolInDB($pool_id['MAX(pool_id)']);
