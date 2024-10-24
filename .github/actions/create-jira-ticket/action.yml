@@ -44,8 +44,8 @@ runs:
                 {"type": "paragraph","content": []}
               ]
             }
-            EOD
-            )
+          EOD
+          )
         elif [[ ${{ inputs.reason_for_ticket_creation }} == "nightly" ]]; then
           parent_epic_id=206242
           parent_epic_key="MON-151547"
@@ -62,8 +62,8 @@ runs:
                 {"type": "paragraph","content": [{"type": "text","text": "Link to the failed nightly","marks": [{"type": "link","attrs": {"href": "$run_url"}}]}]},
               ]
             }
-            EOD
-            )
+          EOD
+          )
         fi
 
         echo "parent_epic_id=$parent_epic_id" >> $GITHUB_ENV
