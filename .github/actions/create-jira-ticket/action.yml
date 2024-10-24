@@ -142,6 +142,7 @@ runs:
         echo "parent_epic_key=$parent_epic_key"
         echo "ticket_summary=$ticket_summary"
         echo "ticket_labels=$ticket_labels"
+        echo "run_url=$run_url"
         echo "ticket_description=$ticket_description"
 
         echo "parent_epic_id=$parent_epic_id" >> $GITHUB_OUTPUT
