@@ -17,18 +17,19 @@ on:
       - ".github/docker/Dockerfile.packaging-*"
 
 jobs:
-  get-version:
-    uses: ./.github/workflows/get-version.yml
+  get-environment:
+    uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
   dockerize:
-    needs: [get-version]
-    runs-on: ubuntu-22.04
+    needs: [get-environment]
+    runs-on: ubuntu-24.04
 
     strategy:
       matrix:
         distrib: [alma8, alma9, bullseye]
+
     steps:
       - name: Checkout sources
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -48,4 +49,4 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/packaging-${{ matrix.distrib }}:${{ needs.get-version.outputs.major_version }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/packaging-${{ matrix.distrib }}:${{ needs.get-environment.outputs.major_version }}
