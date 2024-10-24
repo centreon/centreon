@@ -69,7 +69,7 @@ runs:
           --url "${{ inputs.jira_base_url }}/rest/api/3/issue/${{ env.parent_epic }}" \
           --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
           --header 'Accept: application/json' \
-          --header 'Content-Type: application/json')
+          --header 'Content-Type: application/json'
 
         # Creating a new incident ticket on Jira
         DATA=$( cat <<-EOF
