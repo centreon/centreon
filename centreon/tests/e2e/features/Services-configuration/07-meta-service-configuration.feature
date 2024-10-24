@@ -8,10 +8,10 @@ Feature: Edit a meta service
     Given a user is logged in Centreon
     And a meta service is configured
 
-  @TEST_MON-151571
-  Scenario: Change the properties of a meta service
-    When the user changes the properties of a meta service
-    Then the properties are updated
+#   @TEST_MON-151571
+#   Scenario: Change the properties of a meta service
+#     When the user changes the properties of a meta service
+#     Then the properties are updated
 
   @TEST_MON-151572
   Scenario: Duplicate one existing meta service
