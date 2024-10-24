@@ -135,11 +135,11 @@ runs:
             )
         fi
 
-        echo "parent_epic_id=$parent_epic_id" >> $GITHUB_ENV
-        echo "parent_epic_key=$parent_epic_key" >> $GITHUB_ENV
-        echo "ticket_summary=$ticket_summary" >> $GITHUB_ENV
-        echo "ticket_labels=$ticket_labels" >> $GITHUB_ENV
-        echo "ticket_description=$ticket_description" >> $GITHUB_ENV
+        echo "parent_epic_id=$parent_epic_id" >> $GITHUB_OUTPUT
+        echo "parent_epic_key=$parent_epic_key" >> $GITHUB_OUTPUT
+        echo "ticket_summary=$ticket_summary" >> $GITHUB_OUTPUT
+        echo "ticket_labels=$ticket_labels" >> $GITHUB_OUTPUT
+        echo "ticket_description=$ticket_description" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Check if ticket exists already
@@ -153,7 +153,7 @@ runs:
           --header 'Content-Type: application/json' \
           --data '{
             "fields": ["summary"],
-            "jql": "project = MON AND parentEpic = ${{ env.parent_epic_key }} AND issueType = Technical AND summary ~ ${{ env.ticket_summary }} AND component = \"${{ inputs.module_name }}\" AND resolution = unresolved ORDER BY key ASC",
+            "jql": "project = MON AND parentEpic = ${{ steps.get_context.outputs.parent_epic_key }} AND issueType = Technical AND summary ~ ${{ steps.get_context.outputs.ticket_summary }} AND component = \"${{ inputs.module_name }}\" AND resolution = unresolved ORDER BY key ASC",
             "maxResults": 1
         }' | jq .issues[0].key )
 
@@ -170,15 +170,15 @@ runs:
         DATA=$( cat <<-EOF
         {
           "fields": {
-            "summary": "${{ env.ticket_summary }}",
+            "summary": "${{ steps.get_context.outputs.ticket_summary }}",
             "project": {"key": "MON"},
             "issuetype": {"id": "10209"},
-            "parent": {"id": "${{ env.parent_epic_id }}", "key": "${{ env.parent_epic_key }}"},
-            "labels": $ticket_labels,
+            "parent": {"id": "${{ steps.get_context.outputs.parent_epic_id }}", "key": "${{ steps.get_context.outputs.parent_epic_key }}"},
+            "labels": ${{ steps.get_context.outputs.ticket_labels }},
             "components":[{"name": "${{ inputs.module_name }}"}],
             "customfield_10902": {"id": "10524", "value": "DevSecOps"},
             "customfield_10005": 1.0,
-            "description": $ticket_description
+            "description": ${{ steps.get_context.outputs.ticket_description }}
           }
         }
         EOF
