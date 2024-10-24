@@ -21,8 +21,8 @@ jobs:
         if: ${{ steps.check-latest-nightly-status.outputs.last_nightly_result == 'failure' }}
         uses: ./.github/actions/create-jira-ticket
         with:
-          jira_base_url: ${{ secrets.jira_base_url }}
-          jira_user_email: ${{ secrets.jira_user_email }}
-          jira_api_token: ${{ secrets.jira_api_token }}
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
           module_name: web
           reason_for_ticket_creation: "nightly"

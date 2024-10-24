@@ -93,12 +93,12 @@ runs:
         EOF
         )
 
-        curl --request POST \
+        create_ticket_ang_get_id=$( curl --request POST \
           --url "${{ inputs.jira_base_url }}/rest/api/3/issue" \
           --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
           --header 'Accept: application/json' \
           --header 'Content-Type: application/json' \
-          --data "$DATA"
+          --data "$DATA" | jq .key )
 
         echo "::error::Incident ticket created as $create_ticket_ang_get_id"
       shell: bash
