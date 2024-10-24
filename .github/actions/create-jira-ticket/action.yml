@@ -72,7 +72,7 @@ runs:
       if: ${{ env.abort_ticket_creation != 'true' }}
       run: |
         if [[ "${{ inputs.reason_for_ticket_creation }}" == "veracode" ]]; then
-          ticket_description="$(cat <<-EOD
+          ticket_description=$(cat <<-EOD
           {
             \"version\": 1,
             \"type\": \"doc\",
