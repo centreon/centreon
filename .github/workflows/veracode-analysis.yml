@@ -247,12 +247,13 @@ jobs:
       - name: Create jira ticket
         # In case of QG failure, a ticket must be created
         if: needs.build.outputs.enable_qg == 'false' || ( needs.build.outputs.development_stage == 'Development' && failure() )
-        uses: ./.github/actions/veracode-create-jira-ticket
+        uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.jira_base_url }}
           jira_user_email: ${{ secrets.jira_user_email }}
           jira_api_token: ${{ secrets.jira_api_token }}
           module_name: ${{ inputs.module_name }}
+          reason_for_ticket_creation: "veracode"
 
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
