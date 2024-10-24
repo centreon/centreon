@@ -187,7 +187,7 @@ runs:
             "labels": ${{ steps.get_context.outputs.ticket_labels }},
             "components":[{"name": "${{ inputs.module_name }}"}],
             "customfield_10902": {"id": "10524", "value": "DevSecOps"},
-            "customfield_10005": 1.0,
+            "customfield_10005": 1.0
           }
         }
         EOF
