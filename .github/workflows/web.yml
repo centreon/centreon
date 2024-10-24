@@ -961,7 +961,7 @@ jobs:
 
       - run: |
           echo ${{ contains(fromJson('["testing", "unstable", "canary"]'), needs.get-environment.outputs.stability) }}
-          echo ${{ contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure') }}
+          echo ${{ contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped') }}
           echo ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && contains(github.workflow, 'nightly')) }}
 
       - name: Create Jira ticket
