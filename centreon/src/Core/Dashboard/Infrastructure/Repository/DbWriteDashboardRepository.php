@@ -43,6 +43,29 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
     }
 
     /**
+     * @inheritDoc
+     */
+    public function addThumbnailRelation(int $dashboardId, int $thumbnailId): void {
+        $request = <<<'SQL'
+                INSERT INTO `:db`.dashboard_thumbnail_relation
+                    (
+                        dashboard_id,
+                        img_id
+                    )
+                VALUES
+                    (
+                        :dashboardId,
+                        :thumbnailId
+                    )
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement->bindValue(':dashboardId', $dashboardId, \PDO::PARAM_INT);
+        $statement->bindValue(':thumbnailId', $thumbnailId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function delete(int $dashboardId): void

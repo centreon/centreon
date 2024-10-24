@@ -8,7 +8,6 @@ import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-a
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import groupMonitoringwidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithGroupMonitoringWidget.json';
-import twoGroupMonitoringwidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwoGroupMonitoringWidgets.json';
 
 const hostGroupName = 'Linux-Servers';
 
@@ -273,7 +272,12 @@ Then("the Group monitoring widget is added in the dashboard's layout", () => {
 });
 
 Given('a dashboard that includes a configured Group monitoring widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    groupMonitoringwidget,
+    'centreon-widget-groupmonitoring',
+    '/widgets/groupmonitoring'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
 });
@@ -309,7 +313,14 @@ Then(
 );
 
 Given('a dashboard featuring two group monitoring widgets', () => {
-  cy.insertDashboardWithWidget(dashboards.default, twoGroupMonitoringwidgets);
+  cy.insertDashboardWithDoubleWidget(
+    dashboards.default,
+    groupMonitoringwidget,
+    groupMonitoringwidget,
+    'centreon-widget-groupmonitoring',
+    '/widgets/groupmonitoring'
+  );
+
   cy.editDashboard(dashboards.default.name);
   cy.getByTestId({ testId: 'More actions' }).eq(0).click();
 });
@@ -334,7 +345,12 @@ Then('only the contents of the other widget are displayed', () => {
 });
 
 Given('a dashboard having a configured group monitoring widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    groupMonitoringwidget,
+    'centreon-widget-groupmonitoring',
+    '/widgets/groupmonitoring'
+  );
   cy.visitDashboard(dashboards.default.name);
 });
 
@@ -370,7 +386,12 @@ Then('the second widget has the same properties as the first widget', () => {
 });
 
 Given('a dashboard configuring group monitoring widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    groupMonitoringwidget,
+    'centreon-widget-groupmonitoring',
+    '/widgets/groupmonitoring'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
 });
@@ -398,7 +419,12 @@ Then(
 );
 
 Given('a dashboard with a group monitoring widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    groupMonitoringwidget,
+    'centreon-widget-groupmonitoring',
+    '/widgets/groupmonitoring'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.contains('Linux-Servers').should('be.visible');
 });

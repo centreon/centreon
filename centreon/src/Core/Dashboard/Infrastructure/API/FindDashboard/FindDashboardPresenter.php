@@ -28,6 +28,7 @@ use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardPresenterInter
 use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardResponse;
 use Core\Dashboard\Application\UseCase\FindDashboard\Response\PanelResponseDto;
 use Core\Dashboard\Application\UseCase\FindDashboard\Response\RefreshResponseDto;
+use Core\Dashboard\Application\UseCase\FindDashboard\Response\ThumbnailResponseDto;
 use Core\Dashboard\Application\UseCase\FindDashboard\Response\UserResponseDto;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
@@ -54,10 +55,27 @@ final class FindDashboardPresenter extends DefaultPresenter implements FindDashb
                 'own_role' => DashboardSharingRoleConverter::toString($data->ownRole),
                 'refresh' => $this->globalRefreshToArray($data->refresh),
                 'shares' => $this->formatShares($data->shares),
+                'thumbnail' => $this->thumbnailToOptionalArray($data->thumbnail),
             ]);
         } else {
             $this->setResponseStatus($data);
         }
+    }
+
+    /**
+     * @param null|ThumbnailResponseDto $dto
+     *
+     * @return null|array{id:int, name:string, directory:string}
+     */
+    private function thumbnailToOptionalArray(?ThumbnailResponseDto $dto): ?array
+    {
+        return $dto
+            ? [
+                'id' => $dto->id,
+                'name' => $dto->name,
+                'directory' => $dto->directory,
+            ]
+            : null;
     }
 
     /**

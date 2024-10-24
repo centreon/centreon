@@ -33,17 +33,20 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Application\Type\NoValue;
+use Core\Dashboard\Application\Event\DashboardUpdatedEvent;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardPanelRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardPanelRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
+use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\ThumbnailRequestDto;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Refresh;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final class PartialUpdateDashboard
 {
@@ -60,18 +63,19 @@ final class PartialUpdateDashboard
         private readonly DashboardRights $rights,
         private readonly ContactInterface $contact,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly EventDispatcherInterface $dispatcher,
         private readonly bool $isCloudPlatform
     ) {
     }
 
     /**
      * @param int $dashboardId
-     * @param PartialUpdateDashboardRequest $request
+     * @param PartialUpdateDashboardRequestDto $request
      * @param PartialUpdateDashboardPresenterInterface $presenter
      */
     public function __invoke(
         int $dashboardId,
-        PartialUpdateDashboardRequest $request,
+        PartialUpdateDashboardRequestDto $request,
         PartialUpdateDashboardPresenterInterface $presenter
     ): void {
         try {
@@ -94,6 +98,11 @@ final class PartialUpdateDashboard
                 );
             }
 
+            // dispatch DashboardUpdatedEvent that will be handled by a subscriber
+            if (! $request->thumbnail instanceof NoValue) {
+                $this->updateOrCreateDashboardThumbnail($dashboardId, $request->thumbnail);
+            }
+
             $presenter->presentResponse($response);
         } catch (AssertionFailedException $ex) {
             $presenter->presentResponse(new InvalidArgumentResponse($ex));
@@ -108,7 +117,35 @@ final class PartialUpdateDashboard
     }
 
     /**
-     * @param PartialUpdateDashboardRequest $request
+     * @param int $dashboardId
+     * @param ThumbnailRequestDto $request
+     */
+    private function updateOrCreateDashboardThumbnail(int $dashboardId, ThumbnailRequestDto $request): void
+    {
+        $thumbnail = $this->readDashboardRepository->findThumbnailByDashboardId($dashboardId);
+
+        if ($thumbnail !== null) {
+            $thumbnail->setData($request->file->getContent());
+            $event = new DashboardUpdatedEvent(
+                dashboardId: $dashboardId,
+                directory: $thumbnail->getDirectory(),
+                thumbnail: $thumbnail,
+                filename: $thumbnail->getFilename()
+            );
+        } else {
+            $event = new DashboardUpdatedEvent(
+                dashboardId: $dashboardId,
+                directory: $request->directory,
+                thumbnail: $request->file,
+                filename: $request->name,
+            );
+        }
+
+        $this->dispatcher->dispatch($event);
+    }
+
+    /**
+     * @param PartialUpdateDashboardRequestDto $request
      * @param int $dashboardId
      *
      * @throws \Throwable
@@ -118,20 +155,19 @@ final class PartialUpdateDashboard
      */
     private function partialUpdateDashboardAsAdmin(
         int $dashboardId,
-        PartialUpdateDashboardRequest $request
+        PartialUpdateDashboardRequestDto $request
     ): NoContentResponse|NotFoundResponse {
         $dashboard = $this->readDashboardRepository->findOne($dashboardId);
         if (null === $dashboard) {
             return new NotFoundResponse('Dashboard');
         }
-
         $this->updateDashboardAndSave($dashboard, $request);
 
         return new NoContentResponse();
     }
 
     /**
-     * @param PartialUpdateDashboardRequest $request
+     * @param PartialUpdateDashboardRequestDto $request
      * @param int $dashboardId
      *
      * @throws \Throwable
@@ -141,7 +177,7 @@ final class PartialUpdateDashboard
      */
     private function partialUpdateDashboardAsContact(
         int $dashboardId,
-        PartialUpdateDashboardRequest $request
+        PartialUpdateDashboardRequestDto $request
     ): NoContentResponse|NotFoundResponse|ForbiddenResponse {
         $dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact);
         if (null === $dashboard) {
@@ -160,11 +196,11 @@ final class PartialUpdateDashboard
 
     /**
      * @param Dashboard $dashboard
-     * @param PartialUpdateDashboardRequest $request
+     * @param PartialUpdateDashboardRequestDto $request
      *
      * @throws AssertionFailedException|\Throwable
      */
-    private function updateDashboardAndSave(Dashboard $dashboard, PartialUpdateDashboardRequest $request): void
+    private function updateDashboardAndSave(Dashboard $dashboard, PartialUpdateDashboardRequestDto $request): void
     {
         // Build of the new domain objects.
         $updatedDashboard = $this->getUpdatedDashboard($dashboard, $request);
@@ -204,13 +240,13 @@ final class PartialUpdateDashboard
 
     /**
      * @param Dashboard $dashboard
-     * @param PartialUpdateDashboardRequest $request
+     * @param PartialUpdateDashboardRequestDto $request
      *
      * @throws AssertionFailedException
      *
      * @return Dashboard
      */
-    private function getUpdatedDashboard(Dashboard $dashboard, PartialUpdateDashboardRequest $request): Dashboard
+    private function getUpdatedDashboard(Dashboard $dashboard, PartialUpdateDashboardRequestDto $request): Dashboard
     {
         return (new Dashboard(
             id: $dashboard->getId(),

@@ -53,6 +53,40 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
     /**
      * @inheritDoc
      */
+    public function findById(int $mediaId): ?Media
+    {
+        $request = <<<'SQL'
+            SELECT
+                `img`.img_id,
+                `img`.img_path,
+                `img`.img_comment,
+                `dir`.dir_name
+            FROM `:db`.`view_img` img
+            INNER JOIN `:db`.`view_img_dir_relation` rel
+                ON rel.img_img_id = img.img_id
+            INNER JOIN `:db`.`view_img_dir` dir
+                ON dir.dir_id = rel.dir_dir_parent_id
+            WHERE `img`.img_id = :mediaId
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement->bindValue(':mediaId', $mediaId, \PDO::PARAM_INT);
+
+        $statement->execute();
+
+        /** @var _Media|false */
+        $record = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        if ($record === false) {
+            return null;
+        }
+
+        return $this->createMedia($record);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function existsByPath(string $path): bool
     {
         $pathInfo = pathInfo($path);

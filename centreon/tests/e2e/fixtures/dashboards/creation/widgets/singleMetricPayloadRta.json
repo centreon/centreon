@@ -1,84 +1,68 @@
 {
-  "panels": [
-    {
-      "layout": {
-        "height": 3,
-        "min_height": 3,
-        "min_width": 3,
-        "width": 12,
-        "x": 0,
-        "y": 0
-      },
-      "name": "centreon-widget-singlemetric",
-      "widget_settings": {
-        "data": {
-          "resources": [
-            {
-              "resourceType": "host",
-              "resources": [
-                {
-                  "id": 14,
-                  "poller_id": 1,
-                  "name": "Centreon-Server",
-                  "acknowledged": false,
-                  "address_ip": "127.0.0.1",
-                  "alias": "Monitoring Server",
-                  "check_attempt": 1,
-                  "checked": true,
-                  "display_name": "Centreon-Server",
-                  "execution_time": 0.025543,
-                  "icon_image": "",
-                  "icon_image_alt": "",
-                  "last_check": "2023-11-03T13:22:59+01:00",
-                  "last_hard_state_change": "2023-11-03T13:19:14+01:00",
-                  "last_state_change": "2023-11-03T13:19:14+01:00",
-                  "last_time_down": null,
-                  "last_time_unreachable": null,
-                  "last_time_up": "2023-11-03T13:23:04+01:00",
-                  "last_update": "2023-11-03T13:17:59+01:00",
-                  "max_check_attempts": 5,
-                  "output": "OK - 127.0.0.1 rta 0.035ms lost 0%\n",
-                  "passive_checks": false,
-                  "state": 0,
-                  "state_type": 1,
-                  "timezone": "",
-                  "scheduled_downtime_depth": 0,
-                  "criticality": null
-                }
-              ]
-            }
-          ],
-          "metrics": [
-            {
-              "criticalHighThreshold": 400,
-              "criticalLowThreshold": 0,
-              "id": 1,
-              "name": "rta",
-              "unit": "ms",
-              "warningHighThreshold": 200,
-              "warningLowThreshold": 0
-            }
-          ]
-        },
-        "options": {
-          "singleMetricGraphType": "text",
-          "threshold": {
-            "enabled": true,
-            "customCritical": null,
-            "criticalType": "default",
-            "customWarning": null,
-            "warningType": "default",
-            "baseColor": null
-          },
-          "refreshInterval": "default",
-          "valueFormat": "human",
-          "description": {
-            "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"center\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
-            "enabled": true
+  "data": {
+    "resources": [
+      {
+        "resourceType": "host",
+        "resources": [
+          {
+            "id": 14,
+            "poller_id": 1,
+            "name": "Centreon-Server",
+            "acknowledged": false,
+            "address_ip": "127.0.0.1",
+            "alias": "Monitoring Server",
+            "check_attempt": 1,
+            "checked": true,
+            "display_name": "Centreon-Server",
+            "execution_time": 0.025543,
+            "icon_image": "",
+            "icon_image_alt": "",
+            "last_check": "2023-11-03T13:22:59+01:00",
+            "last_hard_state_change": "2023-11-03T13:19:14+01:00",
+            "last_state_change": "2023-11-03T13:19:14+01:00",
+            "last_time_down": null,
+            "last_time_unreachable": null,
+            "last_time_up": "2023-11-03T13:23:04+01:00",
+            "last_update": "2023-11-03T13:17:59+01:00",
+            "max_check_attempts": 5,
+            "output": "OK - 127.0.0.1 rta 0.035ms lost 0%\n",
+            "passive_checks": false,
+            "state": 0,
+            "state_type": 1,
+            "timezone": "",
+            "scheduled_downtime_depth": 0,
+            "criticality": null
           }
-        }
-      },
-      "widget_type": "/widgets/singlemetric"
+        ]
+      }
+    ],
+    "metrics": [
+      {
+        "criticalHighThreshold": 400,
+        "criticalLowThreshold": 0,
+        "id": 1,
+        "name": "rta",
+        "unit": "ms",
+        "warningHighThreshold": 200,
+        "warningLowThreshold": 0
+      }
+    ]
+  },
+  "options": {
+    "singleMetricGraphType": "text",
+    "threshold": {
+      "enabled": true,
+      "customCritical": null,
+      "criticalType": "default",
+      "customWarning": null,
+      "warningType": "default",
+      "baseColor": null
+    },
+    "refreshInterval": "default",
+    "valueFormat": "human",
+    "description": {
+      "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"center\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+      "enabled": true
     }
-  ]
+  }
 }

@@ -2664,6 +2664,20 @@ CREATE TABLE IF NOT EXISTS `acc_poller_relation` (
     REFERENCES `nagios_server` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `dashboard_thumbnail_relation` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `dashboard_id` INT UNSIGNED NOT NULL,
+  `img_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `dashboard_thumbnail_relation_unique` (`dashboard_id`,`img_id`),
+  CONSTRAINT `dashboard_thumbnail_relation_dashboard_id`
+    FOREIGN KEY (`dashboard_id`)
+    REFERENCES `dashboard` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `dashboard_thumbnail_relation_img_id`
+    FOREIGN KEY (`img_id`)
+    REFERENCES `view_img` (`img_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS `agent_configuration` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `type` enum('telegraf', 'centreon-agent') NOT NULL,

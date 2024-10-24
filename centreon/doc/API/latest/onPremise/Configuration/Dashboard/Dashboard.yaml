@@ -19,7 +19,7 @@ get:
     '404': { $ref: '../../Common/Response/NotFound.yaml' }
     '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
 
-patch:
+post:
   tags:
     - Dashboard
   summary: "Partial update of a dashboard"
@@ -32,7 +32,7 @@ patch:
   requestBody:
     required: true
     content:
-      application/json:
+      multipart/form-data:
         schema:
           $ref: 'Schema/Dashboard.PartialUpdate.yaml'
   responses:

@@ -27,22 +27,34 @@ use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Common\Application\Type\NoValue;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboard;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboardRequest;
-use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\PanelRequestDto;
-use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\RefreshRequestDto;
-use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
+use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboardRequestDto;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\ConstraintViolationInterface;
+use Symfony\Component\Validator\Exception\ValidationFailedException;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class PartialUpdateDashboardController extends AbstractController
 {
     use LoggerTrait;
 
+    public function __construct(private readonly ValidatorInterface $validator)
+    {
+    }
+
     /**
      * @param int $dashboardId
      * @param Request $request
+     * @param PartialUpdateDashboardRequest $mappedRequest
      * @param PartialUpdateDashboard $useCase
      * @param PartialUpdateDashboardPresenter $presenter
      *
@@ -53,101 +65,86 @@ final class PartialUpdateDashboardController extends AbstractController
     public function __invoke(
         int $dashboardId,
         Request $request,
+        #[MapRequestPayload] PartialUpdateDashboardRequest $mappedRequest,
         PartialUpdateDashboard $useCase,
         PartialUpdateDashboardPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
         try {
-            $partialUpdateDashboardRequest = $this->getPartialUpdateDashboardRequest($request);
+            $partialUpdateDashboardRequest = $mappedRequest->toDto();
+
+            $this->assertThumbnailDataSent($request, $partialUpdateDashboardRequest);
+
+            if (
+                $request->files->get('thumbnail_data') !== null
+                && ! $partialUpdateDashboardRequest->thumbnail instanceof NoValue
+            ) {
+                /** @var UploadedFile $thumbnail */
+                $thumbnail = $request->files->get('thumbnail_data');
+                $this->validateThumbnailContent($thumbnail);
+                $partialUpdateDashboardRequest->thumbnail->file = $thumbnail;
+            }
 
             $useCase($dashboardId, $partialUpdateDashboardRequest, $presenter);
-        } catch (\InvalidArgumentException $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
-        } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->setResponseStatus(new ErrorResponse($ex));
+        } catch (\InvalidArgumentException $exception) {
+            $this->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            $presenter->setResponseStatus(new InvalidArgumentResponse($exception));
+        } catch (\Throwable $exception) {
+            $this->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            $presenter->setResponseStatus(new ErrorResponse($exception));
         }
 
         return $presenter->show();
     }
 
     /**
+     * Assert that if at least one data for thumbnail is sent then both are required
+     *
      * @param Request $request
-     *
+     * @param PartialUpdateDashboardRequestDto $dashboardRequest
      * @throws \InvalidArgumentException
-     *
-     * @return PartialUpdateDashboardRequest
      */
-    private function getPartialUpdateDashboardRequest(Request $request): PartialUpdateDashboardRequest
+    private function assertThumbnailDataSent(Request $request, PartialUpdateDashboardRequestDto $dashboardRequest): void
     {
-        /** @var array{
-         *     name?: string,
-         *     description?: ?string,
-         *     panels?: array<array{
-         *         id?: ?int,
-         *         name: string,
-         *         layout: array{
-         *             x: int,
-         *             y: int,
-         *             width: int,
-         *             height: int,
-         *             min_width: int,
-         *             min_height: int
-         *         },
-         *         widget_type: string,
-         *         widget_settings: array<mixed>,
-         *     }>,
-         *     refresh?: array{
-         *         type: string,
-         *         interval: int|null
-         *     }
-         * } $dataSent
-         */
-        $dataSent = $this->validateAndRetrieveDataSent($request, __DIR__ . '/PartialUpdateDashboardSchema.json');
-
-        $dto = new PartialUpdateDashboardRequest();
-        if (\array_key_exists('name', $dataSent)) {
-            $dto->name = $dataSent['name'];
+        if (
+            ($request->files->get('thumbnail_data') && $dashboardRequest->thumbnail instanceof NoValue)
+            || (! $request->files->get('thumbnail_data') && ! $dashboardRequest->thumbnail instanceof NoValue)
+        ) {
+            throw new \InvalidArgumentException('Thumbnail definition and content are both required');
         }
+    }
 
-        if (\array_key_exists('description', $dataSent)) {
-            $dto->description = (string) $dataSent['description'];
-        }
+    /**
+     * @param UploadedFile $thumbnail
+     *
+     * @throws HttpException
+     * @throws FileException
+     */
+    private function validateThumbnailContent(UploadedFile $thumbnail): void
+    {
+        // Dashboard use case we do only allow png files.
+        $errors = $this->validator->validate(
+            $thumbnail,
+            [
+                new Assert\Image([
+                    'mimeTypes' => ['image/png'],
+                ]),
+            ]
+        );
 
-        if (\array_key_exists('panels', $dataSent)) {
-            $dto->panels = [];
-            foreach ($dataSent['panels'] as $panelArray) {
-                $dtoPanel = new PanelRequestDto();
-
-                $dtoPanel->id = $panelArray['id'] ?? null;
-                $dtoPanel->name = $panelArray['name'];
-
-                $dtoPanel->layout->posX = $panelArray['layout']['x'];
-                $dtoPanel->layout->posY = $panelArray['layout']['y'];
-                $dtoPanel->layout->width = $panelArray['layout']['width'];
-                $dtoPanel->layout->height = $panelArray['layout']['height'];
-                $dtoPanel->layout->minWidth = $panelArray['layout']['min_width'];
-                $dtoPanel->layout->minHeight = $panelArray['layout']['min_height'];
-
-                $dtoPanel->widgetType = $panelArray['widget_type'];
-                $dtoPanel->widgetSettings = $panelArray['widget_settings'];
-
-                $dto->panels[] = $dtoPanel;
-            }
-        }
-
-        if (\array_key_exists('refresh', $dataSent)) {
-            $dtoGlobalRefresh = new RefreshRequestDto();
-            $dtoGlobalRefresh->refreshType = RefreshTypeConverter::fromString(
-                $dataSent['refresh']['type']
+        if (count($errors) > 0) {
+            throw new HttpException(
+                Response::HTTP_UNPROCESSABLE_ENTITY,
+                implode(
+                    "\n",
+                    array_map(
+                        static fn (ConstraintViolationInterface $exception) => $exception->getMessage(),
+                        iterator_to_array($errors),
+                    ),
+                ),
+                new ValidationFailedException($thumbnail, $errors),
             );
-            $dtoGlobalRefresh->refreshInterval = $dataSent['refresh']['interval'];
-
-            $dto->refresh = $dtoGlobalRefresh;
         }
-
-        return $dto;
     }
 }

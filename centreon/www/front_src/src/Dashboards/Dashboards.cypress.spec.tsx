@@ -24,6 +24,8 @@ import {
   playlistsByDashboardEndpoint
 } from './api/endpoints';
 import { DashboardRole } from './api/models';
+import { viewModeAtom } from './components/DashboardLibrary/DashboardListing/atom';
+import { ViewMode } from './components/DashboardLibrary/DashboardListing/models';
 import {
   labelCardsView,
   labelEditProperties,
@@ -48,6 +50,7 @@ import {
   labelDuplicateDashboard,
   labelName,
   labelSave,
+  labelSaveYourDashboardForThumbnail,
   labelShareWithContacts,
   labelSharesSaved,
   labelUpdate,
@@ -77,6 +80,8 @@ const initializeAndMount = ({
   store;
 } => {
   const store = createStore();
+
+  store.set(viewModeAtom, ViewMode.List);
 
   store.set(userAtom, {
     alias: 'admin',
@@ -162,7 +167,7 @@ const initializeAndMount = ({
 
   cy.interceptAPIRequest({
     alias: 'updateDashboard',
-    method: Method.PATCH,
+    method: Method.POST,
     path: `${dashboardsEndpoint}/1`,
     statusCode: 204
   });
@@ -327,7 +332,17 @@ describe('Dashboards', () => {
       );
 
       cy.contains('My Dashboard').should('be.visible');
+      cy.findByTestId('thumbnail-My Dashboard-my description').should(
+        'be.visible'
+      );
       cy.contains('My Dashboard 2').should('be.visible');
+      cy.findByTestId('thumbnail-My Dashboard 2-undefined').should(
+        'be.visible'
+      );
+
+      cy.findAllByTestId('thumbnail-fallback').first().trigger('mouseover');
+
+      cy.contains(labelSaveYourDashboardForThumbnail).should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -605,7 +620,14 @@ describe('Dashboards', () => {
         cy.findByLabelText(labelUpdate).click();
 
         cy.waitForRequest('@updateDashboard').then(({ request }) => {
-          expect(JSON.parse(request.body)).to.deep.equal({
+          const formData = new URLSearchParams(request.body);
+
+          const formDataObj = {};
+          formData.forEach((value, key) => {
+            formDataObj[key] = value;
+          });
+
+          expect(formDataObj).to.deep.equal({
             description: 'New description',
             name: 'New name'
           });
