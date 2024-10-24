@@ -31,7 +31,7 @@ runs:
           ticket_labels="[\"Veracode\", \"Pipeline\"]"
         elif [[ ${{ inputs.reason_for_ticket_creation }} == "nightly" ]]; then
           parent_epic="MON-151547"
-          ticket_summary="$(date '+%Y-%m-%d') ${{ module_name }}-${{ github.ref_name }} nightly build failure"
+          ticket_summary="$(date '+%Y-%m-%d') ${{ inputs.module_name }}-${{ github.ref_name }} nightly build failure"
           ticket_labels="[\"Nightly\", \"Pipeline\"]"
         fi
 
