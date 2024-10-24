@@ -36,7 +36,7 @@ runs:
             parent_epic_key="MON-151547"
             ticket_summary="$(date '+%Y-%m-%d') ${{ inputs.module_name }}-${{ github.ref_name }} nightly build failure"
             ticket_labels="[\"Nightly\", \"Pipeline\"]"
-            run_url=$(gh run ls --json name,url --workflow web.yml --branch ${{ github.ref_name }} --limit 20 || jq --arg branch "${{ github.ref_name }}" 'map(select(.name == "web nightly $branch")) | .[0].url')
+            run_url=$(gh run ls --json name,url --workflow web.yml --branch ${{ github.ref_name }} --limit 20 | jq --arg branch "${{ github.ref_name }}" 'map(select(.name | contains($branch))) | .[0].url')
         fi
 
         echo "run_url=$run_url" >> $GITHUB_OUTPUT
