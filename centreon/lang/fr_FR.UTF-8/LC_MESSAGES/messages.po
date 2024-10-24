@@ -19473,3 +19473,12 @@ msgstr "Horloge/Minuteur"
 
 # msgid "Clock / Timer"
 # msgstr ""
+
+msgid "Breadcrumb copied"
+msgstr "Fil d'Ariane copié"
+
+msgid "Failed to copy breadcrumb"
+msgstr "Échec de la copie du fil d'Ariane"
+
+msgid "Copy breadcrumb"
+msgstr "Copier le fil d'Ariane"
