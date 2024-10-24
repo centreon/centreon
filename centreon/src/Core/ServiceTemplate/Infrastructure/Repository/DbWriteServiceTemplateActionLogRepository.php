@@ -65,9 +65,6 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
     {
         try {
             $serviceTemplate = $this->readServiceTemplateRepository->findById($serviceTemplateId);
-            if ($serviceTemplate === null) {
-                throw new RepositoryException('Cannot find service template to delete');
-            }
 
             $this->writeServiceTemplateRepository->deleteById($serviceTemplateId);
 
@@ -90,9 +87,6 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
     {
         try {
             $serviceTemplateId = $this->writeServiceTemplateRepository->add($newServiceTemplate);
-            if ($serviceTemplateId === 0) {
-                throw new RepositoryException('Service template ID cannot be 0');
-            }
 
             $actionLog = new ActionLog(
                 self::SERVICE_TEMPLATE_OBJECT_TYPE,
@@ -130,9 +124,6 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
     {
         try {
             $currentServiceTemplate = $this->readServiceTemplateRepository->findById($serviceTemplate->getId());
-            if ($currentServiceTemplate === null) {
-                throw new RepositoryException('Cannot find service template to update');
-            }
 
             $currentServiceTemplateDetails = $this->getServiceTemplatePropertiesAsArray($currentServiceTemplate);
             $updatedServiceTemplateDetails = $this->getServiceTemplatePropertiesAsArray($serviceTemplate);
@@ -148,9 +139,6 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
                 $this->contact->getId()
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
-            if ($actionLogId === 0) {
-                throw new RepositoryException('Action log ID cannot be 0');
-            }
             $actionLog->setId($actionLogId);
             $this->writeActionLogRepository->addActionDetails($actionLog, $diff);
         } catch (\Throwable $ex) {
