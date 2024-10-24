@@ -3,7 +3,7 @@ post:
     - Media
   summary: "Update the media content on the file system"
   description: |
-    Updates the content of the file linked to media ID provided on the file system
+    Updates on the file system the contents of the file linked to the provided media ID
   requestBody:
     required: true
     content:
