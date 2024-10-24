@@ -19469,7 +19469,7 @@ msgid "Displays the time according to the selected time zone, or a timer."
 msgstr "Affiche l'heure en fonction du fuseau horaire sélectionné, ou un minuteur."
 
 msgid "Clock / Timer"
-msgstr "Horloge/Minuteur"
+msgstr "Horloge / Minuteur"
 
 msgid "Thumbnails show a snapshot of your data, taken when the dashboard is saved"
 msgstr "Les vignettes affichent un instantané de vos données, pris au moment de la sauvegarde."
