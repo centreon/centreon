@@ -137,15 +137,17 @@ runs:
         EOD
             )
         fi
-        echo $parent_epic_id
+
+        echo "parent_epic_id=$parent_epic_id"
+        echo "parent_epic_key=$parent_epic_key"
+        echo "ticket_summary=$ticket_summary"
+        echo "ticket_labels=$ticket_labels"
+        echo "ticket_description=$ticket_description"
+
         echo "parent_epic_id=$parent_epic_id" >> $GITHUB_OUTPUT
-        echo $parent_epic_key
         echo "parent_epic_key=$parent_epic_key" >> $GITHUB_OUTPUT
-        echo $ticket_summary
         echo "ticket_summary=$ticket_summary" >> $GITHUB_OUTPUT
-        echo $ticket_labels
         echo "ticket_labels=$ticket_labels" >> $GITHUB_OUTPUT
-        echo $ticket_description
         echo "ticket_description=$ticket_description" >> $GITHUB_OUTPUT
       shell: bash
 
