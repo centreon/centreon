@@ -28,5 +28,23 @@
         "linkedContact": "Guest",
         "status":"Disabled",
         "comment": "this contact group is used for update test case!"
+    },
+    "defaultTemplate":{
+        "alias": "contactTemplate-alias",
+        "name": "contactTemplate-name",
+        "usedCTemplate": "19",
+        "defaultPage": "104",
+        "isNotEnabled": "No",
+        "timePeriod": "24x7",
+        "NotCommands": "host-notify-by-email"
+    },
+    "templateForUpdate":{
+        "alias": "contactTemplate-alias-1",
+        "name": "contactTemplate-name-1",
+        "usedCTemplate": "19",
+        "defaultPage": "103",
+        "isNotEnabled": "Default",
+        "timePeriod": "none",
+        "NotCommands": "service-notify-by-epager"
     }
 }
