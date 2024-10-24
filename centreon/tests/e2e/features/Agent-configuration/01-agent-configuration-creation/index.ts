@@ -87,13 +87,19 @@ Then('the second agent is displayed in the Agents Configuration page', () => {
     .should('contain', 'telegraf-002');
 });
 
+When('the user selects the centreon agent', () => {
+  cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
+  cy.contains('Centreon Monitoring Agent').click();
+});
+
 When('the user clicks to add a second host', () => {
+  cy.contains('Add a host').click();
 });
 
 Then('a second group of parameters for hosts is displayed', () => {
 });
 
-When('the user fills in the informations of all the parameter groups', () => {
+When('the user fills in all of the centreon agent parameters', () => {
 });
 
 Then('the third agent is displayed in the Agents Configuration page', () => {

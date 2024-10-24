@@ -23,9 +23,10 @@ Feature: Create a new Agent Configuration
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add
     Then a pop-up menu with the form is displayed
-    When the user clicks to add a second host
+    When the user selects the centreon agent
+    And the user clicks to add a second host
     Then a second group of parameters for hosts is displayed
-    When the user fills in the informations of all the parameter groups
+    When the user fills in all of the centreon agent parameters
     And the user clicks on Create
     Then the third agent is displayed in the Agents Configuration page
 
