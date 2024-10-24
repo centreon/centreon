@@ -513,7 +513,7 @@ Then(
   }
 );
 
-Given('a dashboard having Metrics Graph widget with multiple hosts', () => {
+Given('a dashboard having a Metrics Graph widget with multiple hosts', () => {
   cy.insertDashboardWithWidget(
     dashboards.default,
     metricsGraphWithMultipleHosts,
