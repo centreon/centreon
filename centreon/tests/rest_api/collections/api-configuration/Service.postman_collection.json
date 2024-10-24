@@ -9060,9 +9060,9 @@
 											"const responseJson = pm.response.json();\r",
 											"console.log(responseJson);\r",
 											"pm.test(\"The service was not updated because the user does not have sufficient rights for the severity which is not recognized.\", function () {\r",
-											"    pm.response.to.have.status(404);\r",
+											"    pm.response.to.have.status(409);\r",
 											"\r",
-											"    pm.expect(responseJson.message).to.eql('Service not found');\r",
+                                            "    pm.expect(responseJson.message).to.eql(\"The severity_id with value '\" + pm.collectionVariables.get(\"ServiceSeverity1Id\") + \"' does not exist\");\r",
 											"\r",
 											"});"
 										],
@@ -9089,14 +9089,14 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/configuration/services/{{Service3Id}}",
+									"raw": "{{baseUrl}}/configuration/services/{{Service1Id}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"configuration",
 										"services",
-										"{{Service3Id}}"
+										"{{Service1Id}}"
 									]
 								}
 							},

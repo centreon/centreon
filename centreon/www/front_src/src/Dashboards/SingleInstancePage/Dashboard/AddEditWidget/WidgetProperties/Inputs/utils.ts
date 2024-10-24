@@ -188,14 +188,14 @@ export const showInput = ({
   const dependencyValue = path(when.split('.'), values) as Array<object>;
 
   if (notContains) {
-    return notContains.some(
+    return notContains?.some(
       ({ key, value }) =>
         !includes(value, pluck(key, dependencyValue).join(','))
     );
   }
 
   if (contains) {
-    return contains.some(({ key, value }) =>
+    return contains?.some(({ key, value }) =>
       includes(value, pluck(key, dependencyValue).join(','))
     );
   }
