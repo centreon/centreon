@@ -11,7 +11,7 @@ properties:
       type: object
       properties:
         id:
-          type: int
+          type: integer
           description: "Contact ID"
           example: 1
         role:
@@ -26,7 +26,7 @@ properties:
       type: object
       properties:
         id:
-          type: int
+          type: integer
           description: "Contact ID"
           example: 1
         role:
