@@ -25,7 +25,7 @@ runs:
       id: get_context
       run: |
         # Change context elements (summary, parent epic, etc.) that is checked depending on the reason the ticket is created
-        if [[ ${{ inputs.reason_for_ticket_creation }} == "veracode" ]]; then
+        if [[ "${{ inputs.reason_for_ticket_creation }}" == "veracode" ]]; then
             parent_epic_id=83818
             parent_epic_key="AT-268"
             ticket_summary="PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}"
@@ -102,7 +102,7 @@ runs:
             }
           EOD
           )
-        elif [[ ${{ inputs.reason_for_ticket_creation }} == "nightly" ]]; then
+        elif [[ "${{ inputs.reason_for_ticket_creation }}" == "nightly" ]]; then
             parent_epic_id=206242
             parent_epic_key="MON-151547"
             ticket_summary="$(date '+%Y-%m-%d') ${{ inputs.module_name }}-${{ github.ref_name }} nightly build failure"
