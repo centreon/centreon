@@ -1,0 +1,10 @@
+Core\AgentConfiguration\Domain\Model\AgentConfiguration:
+  attributes:
+    id:
+      groups: ['AgentConfiguration:Read']
+    name:
+      groups: ['AgentConfiguration:Read']
+    configuration:
+      groups: ['AgentConfiguration:Read']
+    type:
+      groups: ['AgentConfiguration:Read']

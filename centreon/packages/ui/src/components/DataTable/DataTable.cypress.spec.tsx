@@ -53,7 +53,8 @@ const initializeDataTableEmpty = (canCreate = false): void => {
             actions: {
               create: 'Create'
             },
-            title: 'Welcome'
+            title: 'Welcome',
+            description: 'Description'
           }}
           onCreate={cy.stub()}
         />
