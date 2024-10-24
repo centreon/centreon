@@ -109,6 +109,14 @@ jobs:
         with:
           features_path: centreon/tests/e2e/features
 
+  output-nightly-status:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+
+      - run: echo "::set-output name=is_nightly::${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}"
+        shell: bash
+
   dispatch-to-maintained-branches:
     if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' }}
     runs-on: ubuntu-24.04
@@ -945,33 +953,6 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-
-  create-jira-ticket:
-    runs-on: [self-hosted, common]
-    needs:
-      [
-        fail-nightly,
-        get-environment,
-        deliver-rpm,
-        deliver-deb
-      ]
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
-
-      - run: |
-          echo ${{ contains(fromJson('["testing", "unstable", "canary"]'), needs.get-environment.outputs.stability) }}
-          echo ${{ contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped') }}
-          echo ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && contains(github.workflow, 'nightly')) }}
-
-      - name: Create Jira ticket
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.jira_base_url }}
-          jira_user_email: ${{ secrets.jira_user_email }}
-          jira_api_token: ${{ secrets.jira_api_token }}
-          module_name: web
-          reason_for_ticket_creation: "nightly"
 
   promote:
     needs: [get-environment, deliver-deb, deliver-rpm]
