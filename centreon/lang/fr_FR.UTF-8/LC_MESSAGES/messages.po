@@ -19460,7 +19460,7 @@ msgid "Save your dashboard to generate a thumbnail"
 msgstr "Sauvegardez votre tableau de bord pour générer une vignette"
 
 msgid "If ticket management is enabled, only the “by service” view is available."
-msgstr "Si la gestion des tickets est activé, seule la vue par service est disponible."
+msgstr "Si la gestion des tickets est activée, seule la vue par service est disponible."
 
 msgid "Ticket management"
 msgstr "Gestion des tickets"
