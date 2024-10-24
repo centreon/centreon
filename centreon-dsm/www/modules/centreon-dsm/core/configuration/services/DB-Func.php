@@ -196,19 +196,21 @@ function enablePoolInDB($pool_id = null, $pool_arr = [])
 
             $listServices = getListServiceForPool($id);
             if (! empty($listServices)) {
-                $placeholders = implode(', ', array_fill(0, count($listServices), '?'));
+                $bindPlaceholders = array_map(fn(int $index) => ':service_id_' . $index, array_keys($listServices));
+                $bindPlaceholdersAsString = implode(', ', $bindPlaceholders);
                 $query = sprintf(
                     <<<'SQL'
                             UPDATE service
                             SET service_activate = '1'
                             WHERE service_id IN (%s)
                         SQL,
-                    $placeholders
+                    $bindPlaceholdersAsString
                 );
 
-                // Prepare and execute the query with service IDs
+                $bindValues = array_map(fn(int $serviceId) => [$serviceId, \PDO::PARAM_INT], $listServices);
+                $bindParams = array_combine($bindPlaceholders, $bindValues);
                 $statement = $pearDB->prepareQuery($query);
-                $pearDB->executePreparedQuery($statement, array_map(fn($serviceId) => [$serviceId, PDO::PARAM_INT], $listServices), false);
+                $pearDB->executePreparedQuery($statement, $bindParams, true);
                 $pearDB->closeQuery($statement);
             }
         }
@@ -262,18 +264,21 @@ function disablePoolInDB($pool_id = null, $pool_arr = [])
             // Update services in Centreon configuration
             $listServices = getListServiceForPool($id);
             if (! empty($listServices)) {
-                $placeholders = implode(', ', array_fill(0, count($listServices), '?'));
+                $bindPlaceholders = array_map(fn(int $index) => ':service_id_' . $index, array_keys($listServices));
+                $bindPlaceholdersAsString = implode(', ', $bindPlaceholders);
                 $query = sprintf(
                     <<<'SQL'
                             UPDATE service
                             SET service_activate = '0'
                             WHERE service_id IN (%s)
                         SQL,
-                    $placeholders
+                    $bindPlaceholdersAsString
                 );
 
+                $bindValues = array_map(fn(int $serviceId) => [$serviceId, \PDO::PARAM_INT], $listServices);
+                $bindParams = array_combine($bindPlaceholders, $bindValues);
                 $statement = $pearDB->prepareQuery($query);
-                $pearDB->executePreparedQuery($statement, array_map(fn($serviceId) => [$serviceId, PDO::PARAM_INT], $listServices), false);
+                $pearDB->executePreparedQuery($statement, $bindParams, true);
                 $pearDB->closeQuery($statement);
             }
         }
@@ -303,17 +308,20 @@ function deletePoolInDB($pools = [])
             // Delete services in Centreon configuration
             $listServices = getListServiceForPool($key);
             if (! empty($listServices)) {
-                $placeholders = implode(', ', array_fill(0, count($listServices), '?'));
+                $bindPlaceholders = array_map(fn(int $index) => ':service_id_' . $index, array_keys($listServices));
+                $bindPlaceholdersAsString = implode(', ', $bindPlaceholders);
                 $query = sprintf(
                     <<<'SQL'
                             DELETE FROM service
                             WHERE service_id IN (%s)
                         SQL,
-                    $placeholders
+                    $bindPlaceholdersAsString
                 );
 
+                $bindValues = array_map(fn(int $serviceId) => [$serviceId, \PDO::PARAM_INT], $listServices);
+                $bindParams = array_combine($bindPlaceholders, $bindValues);
                 $statement = $pearDB->prepareQuery($query);
-                $pearDB->executePreparedQuery($statement, array_map(fn($serviceId) => [$serviceId, PDO::PARAM_INT], $listServices), false);
+                $pearDB->executePreparedQuery($statement, $bindParams, true);
                 $pearDB->closeQuery($statement);
             }
 
@@ -755,7 +763,6 @@ function insertPool($ret = [])
         $statement = $pearDB->prepareQuery(
             <<<'SQL'
                     INSERT INTO `mod_dsm_pool` (
-                        `pool_id`,
                         `pool_name`,
                         `pool_host_id`,
                         `pool_description`,
@@ -766,8 +773,15 @@ function insertPool($ret = [])
                         `pool_activate`,
                         `pool_service_template_id`
                     ) VALUES (
-                        NULL, :pool_name, :pool_host_id, :pool_description, :pool_number,
-                        :pool_prefix, :pool_cmd_id, :pool_args, :pool_activate, :pool_service_template_id
+                        :pool_name,
+                        :pool_host_id,
+                        :pool_description,
+                        :pool_number,
+                        :pool_prefix,
+                        :pool_cmd_id,
+                        :pool_args,
+                        :pool_activate,
+                        :pool_service_template_id
                     )
                 SQL
         );
@@ -791,25 +805,24 @@ function insertPool($ret = [])
             'pool_prefix' => PDO::PARAM_STR,
             'pool_cmd_id' => PDO::PARAM_INT,
             'pool_args' => PDO::PARAM_STR,
-            'pool_activate' => PDO::PARAM_INT,
+            'pool_activate' => PDO::PARAM_STR,
             'pool_service_template_id' => PDO::PARAM_INT,
         ];
 
         $parameters = [];
         foreach ($fields as $field => $type) {
-            $value = $ret[$field] ?? null;
+            $field === 'pool_activate' ? $value = $ret[$field][$field] : $value = $ret[$field] ?? null;
             $parameters[":{$field}"] = [$value, $value !== null ? $type : PDO::PARAM_NULL];
         }
 
         $pearDB->executePreparedQuery($statement, $parameters, true);
         $pearDB->closeQuery($statement);
 
-        $statementMax = $pearDB->prepareQuery('SELECT MAX(pool_id) FROM mod_dsm_pool');
-        $pearDB->executePreparedQuery($statementMax, [], false);
+        $statementMax = $pearDB->executeQuery('SELECT MAX(pool_id) FROM mod_dsm_pool');
         $pool_id = $pearDB->fetch($statementMax);
         $pearDB->closeQuery($statementMax);
 
-        if ($ret['pool_activate'] == 1) {
+        if ($ret['pool_activate']['pool_activate'] == 1) {
             enablePoolInDB($pool_id['MAX(pool_id)']);
         } else {
             disablePoolInDB($pool_id['MAX(pool_id)']);
