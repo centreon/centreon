@@ -1,0 +1,44 @@
+{
+    "snmp1":{
+        "name": "atrapName",
+        "oid": "1.2.3",
+        "vendor": "Cisco",
+        "output": "trapOutputMessage"
+    },
+    "snmp2":{
+        "name": "atrapNameChanged",
+        "oid": ".1.2.3.4",
+        "vendor": "HP",
+        "output": "trapOutputMessagechanged",
+        "status": "Critical",
+        "severity": "serviceCategoryName (3)",
+        "mode": 1,
+        "behavior": "If match, disable submit",
+        "rule":
+            {
+                "string" : "@trapRule@",
+                "regexp" : "/ruleRegexp/",
+                "status" : "Critical",
+                "severity" : "serviceCategoryName (3)"
+        },
+        "submit": 0,
+        "reschedule": 1,
+        "execute_command": 1,
+        "special_command": "trapCommand",
+        "comments": "trapComments",
+        "services": "hostName - serviceName",
+        "service_templates": "serviceTemplateName",
+        "routing": 1,
+        "routing_definition": "trapRouteDefinition",
+        "filter_services": "trapFilterServices",
+        "preexec": ["trapPreexec"],
+        "insert_information": 1,
+        "timeout": "66",
+        "execution_interval": "44",
+        "execution_type": 2,
+        "execution_method": 0,
+        "check_downtime": 2,
+        "output_transform": "trapOutputTransform",
+        "custom_code": "trapCustomCode"
+    }
+}

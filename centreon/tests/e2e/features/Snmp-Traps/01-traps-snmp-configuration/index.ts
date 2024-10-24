@@ -1,5 +1,11 @@
 import { Given, When, Then } from "@badeball/cypress-cucumber-preprocessor";
 
+import data from '../../../fixtures/snmp-traps/snmp-trap.json'
+import {
+  TrapsSNMPConfiguration,
+  submitForm,
+} from "../common";
+
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
@@ -22,8 +28,13 @@ When(
   () => {
   cy.waitForElementInIframe("#main-content", 'input[name="searchT"]');
   cy.getIframeBody().find("a.bt_success").contains("Add").click();
-  cy.waitForElementInIframe("#main-content", 'input[name="traps_name"]');
-  cy.getIframeBody().find('input[name="traps_name"]').type(data.name);
+  TrapsSNMPConfiguration({
+    name: data.snmp1.name,
+    vendor: data.snmp1.vendor,
+    oid: data.snmp1.oid,
+    output: data.snmp1.output,
+  });
+  submitForm();
   },
 );
 
