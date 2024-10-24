@@ -100,7 +100,7 @@ runs:
                     {"type": "paragraph", "content": []}
                 ]
             }
-            EOD
+        EOD
             )
         elif [[ ${{ inputs.reason_for_ticket_creation }} == "nightly" ]]; then
             parent_epic_id=206242
@@ -131,7 +131,7 @@ runs:
                     }
                 ]
             }
-            EOD
+        EOD
             )
         fi
 
