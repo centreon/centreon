@@ -27,14 +27,17 @@ runs:
         # Change context elements (summary, parent epic, etc.) that is checked depending on the reason the ticket is created
         if [[ ${{ inputs.reason_for_ticket_creation }} == "veracode" ]]; then
           parent_epic="AT-268"
-          ticket_summary="PR-${{ github.event.pull_request.number }} incident"
+          ticket_summary="PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}"
+          ticket_labels="[\"Veracode\", \"Pipeline\"]"
         elif [[ ${{ inputs.reason_for_ticket_creation }} == "nightly" ]]; then
           parent_epic="MON-151547"
           ticket_summary="$(date '+%Y-%m-%d') ${{ module_name }}-${{ github.ref_name }} nightly build failure"
+          ticket_labels="[\"Nightly\", \"Pipeline\"]"
         fi
 
         echo "ticket_summary=$ticket_summary" >> $GITHUB_ENV
         echo "parent_epic=$parent_epic" >> $GITHUB_ENV
+        echo "ticket_labels=$ticket_labels" >> $GITHUB_ENV
       shell: bash
 
     - name: Check if ticket exists already
@@ -65,11 +68,11 @@ runs:
         DATA=$( cat <<-EOF
         {
           "fields": {
-            "summary": "PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}",
+            "summary": "${{ env.ticket_summary }}",
             "project": {"key": "MON"},
             "issuetype": {"id": "10209"},
-            "parent": {"id": "83818", "key": "AT-268"},
-            "labels": ["Veracode", "Pipeline"],
+            "parent": {"id": "83818", "key": "${{ env.parent_epic }}"},
+            "labels": $ticket_labels,
             "components":[{"name": "${{ inputs.module_name }}"}],
             "customfield_10902": {"id": "10524", "value": "DevSecOps"},
             "customfield_10005": 1.0,
