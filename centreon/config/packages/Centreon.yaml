@@ -47,6 +47,7 @@ services:
             - '../../src/Core/Host/*'
             - '../../src/Core/Broker/*'
             - '../../src/Core/AdditionalConnectorConfiguration/*'
+            - '../../src/Core/AgentConfiguration/*'
             - '../../src/Core/Security/Vault/*'
             - '../../src/Core/Contact/*'
         bind:
