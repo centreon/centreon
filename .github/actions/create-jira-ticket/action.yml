@@ -65,12 +65,11 @@ runs:
       if: ${{ env.abort_ticket_creation != 'true' }}
       run: |
         # Get parent issue id
-        parent_epic_id=$( curl --request POST \
+        curl --request POST \
           --url "${{ inputs.jira_base_url }}/rest/api/3/issue/${{ env.parent_epic }}" \
           --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
           --header 'Accept: application/json' \
-          --header 'Content-Type: application/json' | jq .key )
-        echo "parent_epic_id=$parent_epic_id"
+          --header 'Content-Type: application/json')
 
         # Creating a new incident ticket on Jira
         DATA=$( cat <<-EOF
@@ -79,7 +78,7 @@ runs:
             "summary": "${{ env.ticket_summary }}",
             "project": {"key": "MON"},
             "issuetype": {"id": "10209"},
-            "parent": {"id": "$parent_epic_id", "key": "${{ env.parent_epic }}"},
+            "parent": {"id": "83818", "key": "${{ env.parent_epic }}"},
             "labels": $ticket_labels,
             "components":[{"name": "${{ inputs.module_name }}"}],
             "customfield_10902": {"id": "10524", "value": "DevSecOps"},
