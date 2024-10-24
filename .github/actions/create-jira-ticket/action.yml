@@ -193,12 +193,10 @@ runs:
         EOF
         )
 
-        create_ticket_ang_get_id=$( curl --request POST \
+        curl -v --request POST \
           --url "${{ inputs.jira_base_url }}/rest/api/3/issue" \
           --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
           --header 'Accept: application/json' \
           --header 'Content-Type: application/json' \
-          --data "$DATA" | jq .key )
-
-        echo "::error::Incident ticket created as $create_ticket_ang_get_id"
+          --data "$DATA"
       shell: bash
