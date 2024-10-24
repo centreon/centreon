@@ -135,6 +135,11 @@ runs:
             )
         fi
 
+        echo "parent_epic_id=$parent_epic_id" >> $GITHUB_ENV
+        echo "parent_epic_key=$parent_epic_key" >> $GITHUB_ENV
+        echo "ticket_summary=$ticket_summary" >> $GITHUB_ENV
+        echo "ticket_labels=$ticket_labels" >> $GITHUB_ENV
+        echo "ticket_description=$ticket_description" >> $GITHUB_ENV
       shell: bash
 
     - name: Check if ticket exists already
