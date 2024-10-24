@@ -32,7 +32,7 @@ runs:
           --json number,status,conclusion \
           --event schedule \
           --workflow web.yml \
-          --branch develop \
+          --branch ${{ github.ref_name }} \
           --limit 1)
 
         echo "Last run details:"
