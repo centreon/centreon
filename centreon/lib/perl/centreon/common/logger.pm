@@ -30,9 +30,9 @@
 # 
 #
 ####################################################################################
+# updated by Evan ADAM on 10/2024
 
 package centreon::common::logger;
-
 =head1 NOM
 
 centreon::common::logger - Simple logging module
@@ -43,8 +43,7 @@ centreon::common::logger - Simple logging module
 
  use strict;
  use warnings;
-
- use centreon::polling;
+ use centreon::common::logger;
 
  my $logger = new centreon::common::logger();
 
@@ -64,12 +63,15 @@ use strict;
 use warnings;
 use Sys::Syslog qw(:standard :macros);
 use IO::Handle;
-use Encode;
 
-my %severities = (
-    1 => LOG_INFO,
-    2 => LOG_ERR,
-    4 => LOG_DEBUG
+# Fixed the severity internal representation to be
+my %human_severities = (
+    2 => 'FATAL',
+    3 => 'ERROR',
+    4 => 'WARNING',
+    5 => 'NOTICE',
+    6 => 'INFO',
+    7 => 'DEBUG'
 );
 
 sub new {
@@ -79,13 +81,15 @@ sub new {
       {
        file => 0,
        filehandler => undef,
-       # 0 = nothing, 1 = critical, 3 = info, 7 = debug
-       severity => 3,
-       old_severity => 3,
+       # warning by default, see %human_severities for the available possibilty
+       severity => 4,
+       old_severity => 4,
        # 0 = stdout, 1 = file, 2 = syslog
        log_mode => 0,
        # Output pid of current process
-       withpid => 0,
+        withpid => 0,
+       # Output date of log
+        withdate => 1,
        # syslog
        log_facility => undef,
        log_option => LOG_PID,
@@ -121,8 +125,8 @@ sub is_file_mode {
 
 sub is_debug {
     my $self = shift;
-    
-    if (($self->{severity} & 4) == 0) {
+
+    if ($self->{severity} < 6) {
         return 0;
     }
     return 1;
@@ -146,6 +150,19 @@ sub redirect_output {
         open STDERR, '>&', $lfh;
     }
 }
+# Bypass the write cache set up by the kernel/file system and always write the log
+# as soon as it is sent.
+sub flush_output {
+    my ($self, %options) = @_;
+
+    $| = 1 if (defined($options{enabled}));
+}
+
+sub force_default_severity {
+    my ($self, %options) = @_;
+
+    $self->{old_severity} = defined($options{severity}) ? $options{severity} : $self->{severity};
+}
 
 sub set_default_severity {
     my $self = shift;
@@ -157,87 +174,109 @@ sub set_default_severity {
 sub severity {
     my $self = shift;
     if (@_) {
+        my $input_severity = lc($_[0]);
         my $save_severity = $self->{severity};
-        if ($_[0] =~ /^[012347]$/) {
-            $self->{severity} = $_[0];
-        } elsif ($_[0] eq "none") {
+        if ($input_severity =~ /^[0234567]$/) {
+            $self->{severity} = $input_severity;
+        } elsif ($input_severity eq "none") {
             $self->{severity} = 0;
-        } elsif ($_[0] eq "error") {
-            $self->{severity} = 1;
-        } elsif ($_[0] eq "info") {
+        } elsif ($input_severity eq "fatal") {
+            $self->{severity} = 2;
+        } elsif ($input_severity eq "error") {
             $self->{severity} = 3;
-        } elsif ($_[0] eq "debug") {
+        } elsif ($input_severity eq "warning") {
+            $self->{severity} = 4;
+        } elsif ($input_severity eq "notice") {
+            $self->{severity} = 5;
+        } elsif ($input_severity eq "info") {
+            $self->{severity} = 6;
+        } elsif ($input_severity eq "debug") {
             $self->{severity} = 7;
+            # if we debug we probably nearly always want the pid of the process.
+            $self->withpid(1);
         } else {
             $self->writeLogError("Wrong severity value set.");
             return -1;
         }
         $self->{old_severity} = $save_severity;
     }
-    return $self->{severity};
+    return $human_severities{$self->{severity}};
 }
 
 sub withpid {
     my $self = shift;
     if (@_) {
-        $self->{withpid} = $_[0];
+        if ($_[0]){
+        $self->{withpid} = 1;
+        }else{
+        $self->{withpid} = 0;
+        }
+
     }
     return $self->{withpid};
+}
+
+sub withdate {
+    my $self = shift;
+    if (@_) {
+        $self->{withdate} = $_[0];
+    }
+    return $self->{withdate};
 }
 
 sub get_date {
     my $self = shift;
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time());
-    return sprintf("%04d-%02d-%02d %02d:%02d:%02d", 
+    return sprintf("%04d-%02d-%02d %02d:%02d:%02d",
                    $year+1900, $mon+1, $mday, $hour, $min, $sec);
 }
 
-sub writeLog {
-    my ($self, %options) = @_;
+sub writeLog($$$%) {
+    my ($self, $severity, $msg, %options) = @_;
 
-    my $withdate = (defined $options{withdate}) ? $options{withdate} : 1;
-    my $withseverity = (defined $options{withseverity}) ? $options{withseverity} : 1;
-    
-    my $msg = $options{message};
-    $msg = ($self->{withpid} == 1) ? "$$ - $msg " : $msg;
-    my $newmsg = ($withseverity) 
-      ? $options{severity_str} . " - $msg" : $msg;
-    $newmsg = ($withdate) 
-      ? $self->get_date . " - $newmsg" : $newmsg;
-    
+    # do nothing if the configured severity does not imply logging this message
+    return if ($self->{severity} < $severity);
 
-    if (($self->{severity} & $options{severity}) == 0) {
-        return;
+    $msg = ($self->withpid()) ? "[$$] $msg" : $msg;
+
+    my $datedmsg = "[" . $human_severities{$severity} . "] " . $msg . "\n";
+    if ($self->withdate()) {
+        $datedmsg = "[" . $self->get_date . "] " . $datedmsg;
     }
-
-    $newmsg = encode('UTF-8', $newmsg);
-    if ($self->{log_mode} == 0) {
-        print "$newmsg\n";
-    } elsif ($self->{log_mode} == 1) {
-        if (defined $self->{filehandler}) {
-            print { $self->{filehandler} } "$newmsg\n";
-        }
+    if ($self->{log_mode} == 1 and defined($self->{filehandler})) {
+        print {$self->{filehandler}} $datedmsg;
+    } elsif ($self->{log_mode} == 0) {
+        print $datedmsg;
     } elsif ($self->{log_mode} == 2) {
-        syslog($severities{$options{severity}}, $msg);
+        syslog($severity, $msg);
+    } else {
+        print STDERR "Unknown log mode '$self->{log_mode}' or log file unavailable for the following log :\n $datedmsg\n";
     }
 }
 
 sub writeLogDebug {
-    my ($self, $msg) = @_;
-    
-    $self->writeLog(severity => 4, severity_str => 'DEBUG', message => $msg);
+    shift->writeLog(7, @_);
 }
 
 sub writeLogInfo {
-    my ($self, $msg) = @_;
-    
-    $self->writeLog(severity => 2, severity_str => 'INFO', message => $msg);
+    shift->writeLog(6, @_);
+}
+
+sub writeLogNotice {
+    shift->writeLog(5, @_);
+}
+
+sub writeLogWarning {
+    shift->writeLog(4, @_);
 }
 
 sub writeLogError {
-    my ($self, $msg) = @_;
-    
-    $self->writeLog(severity => 1, severity_str => 'ERROR', message => $msg);
+    shift->writeLog(3, @_);
+}
+
+sub writeLogFatal {
+    shift->writeLog(2, @_);
+    die("FATAL: " . $_[0] . "\n");
 }
 
 sub DESTROY {
