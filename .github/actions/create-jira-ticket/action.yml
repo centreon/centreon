@@ -82,64 +82,30 @@ runs:
               {"type": "text", "text": "This incident ticket relates to:"}
             ]},
             {"type": "bulletList", "content": [
-              {
-                "type": "listItem",
-                    "content": [
-                      {
-                        "type": "paragraph",
-                        "content": [
-                          {"type": "text", "text": "Ref: "},
-                          {
-                            "type": "text",
-                            "text": "PR-${{ github.event.pull_request.number }}",
-                            "marks": [{"type": "link", "attrs": {"href": "${{ github.event.pull_request.html_url }}"}}]
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              },
-              {"type": "paragraph", "content": []},
-              {
-                "type": "bulletList",
-                "content": [
-                  {
-                    "type": "listItem",
-                    "content": [
-                      {
-                        "type": "paragraph",
-                        "content": [
-                          {"type": "text", "text": "Target: "},
-                          {
-                            "type": "text",
-                            "text": "${{ github.base_ref || github.ref_name }}",
-                            "marks": [{"type": "strong"}]
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  {
-                    "type": "listItem",
-                    "content": [
-                      {
-                        "type": "paragraph",
-                        "content": [
-                          {
-                            "type": "text",
-                            "text": "Link to the job",
-                            "marks": [{"type": "link", "attrs": {"href": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"}}]
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              },
-              {"type": "paragraph", "content": []}
-            ]
-          }
+                {"type": "listItem", "content": [
+                  {"type": "paragraph", "content": [
+                    {"type": "text", "text": "Ref: "},
+                    {"type": "text", "text": "PR-${{ github.event.pull_request.number }}", "marks": [{"type": "link", "attrs": {"href": "${{ github.event.pull_request.html_url }}"}}]}
+                  ]
+                }]
+              }]
+            },
+            {"type": "paragraph", "content": []},
+              {"type": "bulletList", "content": [
+                {"type": "listItem", "content": [
+                  {"type": "paragraph", "content": [
+                    {"type": "text", "text": "Target: "},
+                    {"type": "text", "text": "${{ github.base_ref || github.ref_name }}", "marks": [{"type": "strong"}]}
+                  ]}
+                ]},
+                {"type": "listItem", "content": [
+                  {"type": "paragraph", "content": [
+                    {"type": "text", "text": "Link to the job", "marks": [{"type": "link", "attrs": {"href": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"}}]}
+                  ]}
+                ]}
+              ]},
+            {"type": "paragraph", "content": []}
+            ]}
         EOD
           )
         elif [[ "${{ inputs.reason_for_ticket_creation }}" == "nightly" ]]; then
