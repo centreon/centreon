@@ -48,6 +48,8 @@ runs:
         echo "run_url=$run_url" >> $GITHUB_OUTPUT
         echo "ticket_description=$ticket_description" >> $GITHUB_OUTPUT
       shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
 
     - name: Check if ticket exists already
       id: check_ticket
@@ -167,7 +169,7 @@ runs:
                   {
                     "type": "text",
                     "text": "Link to the failed nightly",
-                    "marks": [{"type": "link", "attrs": {"href": "${{ steps.get_context.outputs.run_url }}" }]
+                    "marks": [{"type": "link", "attrs": {"href": "${{ steps.get_context.outputs.run_url }}" }}]
                   }
                 ]
               }
