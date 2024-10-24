@@ -1,0 +1,70 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "CMA configuration parameters schema",
+    "type": "object",
+    "required": [
+        "configuration"
+    ],
+    "additionalProperties": true,
+    "properties": {
+        "configuration": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "is_reverse",
+                "otel_public_certificate",
+                "otel_ca_certificate",
+                "otel_private_key",
+                "hosts"
+            ],
+            "properties": {
+                "is_reverse": {
+                    "type": "boolean"
+                },
+                "otel_public_certificate": {
+                    "type": "string"
+                },
+                "otel_ca_certificate": {
+                    "type": [
+                        "null",
+                        "string"
+                    ]
+                },
+                "otel_private_key": {
+                    "type": "string"
+                },
+                "hosts": {
+                    "type": "array",
+                    "items": {
+                        "required": [
+                            "address",
+                            "port",
+                            "poller_ca_certificate",
+                            "poller_ca_name"
+                        ],
+                        "properties": {
+                            "address": {
+                                "type": "string"
+                            },
+                            "port": {
+                                "type": "integer"
+                            },
+                            "poller_ca_certificate": {
+                                "type": [
+                                    "null",
+                                    "string"
+                                ]
+                            },
+                            "poller_ca_name": {
+                                "type": [
+                                    "null",
+                                    "string"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
