@@ -1,4 +1,4 @@
-name: create nightly incident ticket
+name: create-nightly-incident-ticket
 run-name: ${{ format('web nightly {0}', github.ref_name) || '' }}
 
 on:
