@@ -39,8 +39,6 @@ runs:
             run_url=$(gh run ls --json name,url --workflow web.yml --branch ${{ github.ref_name }} --limit 20 | jq --arg branch "${{ github.ref_name }}" 'map(select(.name | contains($branch))) | .[0].url')
         fi
 
-        echo "run_url=$run_url" >> $GITHUB_OUTPUT
-
         echo "parent_epic_id=$parent_epic_id" >> $GITHUB_OUTPUT
         echo "parent_epic_key=$parent_epic_key" >> $GITHUB_OUTPUT
         echo "ticket_summary=$ticket_summary" >> $GITHUB_OUTPUT
@@ -104,7 +102,6 @@ runs:
                   ]}
                 ]}
               ]},
-            {"type": "paragraph", "content": []}
             ]}
         EOD
           )
