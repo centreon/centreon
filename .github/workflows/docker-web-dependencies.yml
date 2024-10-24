@@ -13,14 +13,14 @@ on:
     - cron: '0 2 * * *'
 
 jobs:
-  get-version:
-    uses: ./.github/workflows/get-version.yml
+  get-environment:
+    uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
   dockerize:
-    needs: [get-version]
-    runs-on: ubuntu-22.04
+    needs: [get-environment]
+    runs-on: ubuntu-24.04
 
     strategy:
       matrix:
@@ -44,4 +44,4 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ needs.get-version.outputs.major_version }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ needs.get-environment.outputs.major_version }}
