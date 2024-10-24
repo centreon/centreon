@@ -2,10 +2,8 @@ name: create nightly incident ticket
 run-name: ${{ format('web nightly {0}', github.ref_name) || '' }}
 
 on:
-  workflow_run:
-    workflows: [web.yml]
-    types:
-      - completed
+  schedule:
+    - cron: "15 6 * * 1-5"
   workflow_dispatch:
 
 jobs:
@@ -20,6 +18,7 @@ jobs:
         uses: ./.github/actions/check-latest-nightly-status
 
       - name: Create Jira ticket
+        if: ${{ steps.check-latest-nightly-status.outputs.last_nightly_result == 'failure' }}
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.jira_base_url }}
