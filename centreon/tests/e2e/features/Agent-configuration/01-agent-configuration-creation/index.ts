@@ -1,11 +1,11 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
-  cy.startContainers();
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/acc-acl-user.json');
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-3.json'); 
+  // cy.startContainers();
+  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/ac-acl-user.json');
+  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
+  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
+  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-3.json'); 
 });
 
 beforeEach(() => {
@@ -15,21 +15,21 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/pollers/agent-configurations?*'
+    url: '/centreon/api/latest/configuration/agent-configurations?*'
   }).as('getAgentsPage');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/pollers/agent-configurations'
+    url: '/centreon/api/latest/configuration/agent-configurations'
   }).as('addAgents');
 });
 
 after(() => {
-  cy.stopContainers();
+  // cy.stopContainers();
 });
 
 Given('a non-admin user is in the Agents Configuration page', () => {
   cy.loginByTypeOfUser({
-    jsonName: 'user-non-admin-for-ACC',
+    jsonName: 'user-non-admin-for-AC',
     loginViaApi: false
   });
   cy.visit('/centreon/configuration/pollers/agent-configurations');
@@ -37,7 +37,7 @@ Given('a non-admin user is in the Agents Configuration page', () => {
 });
 
 When('the user clicks on Add', () => {
-  cy.getByLabel({ label: 'create', tag: 'button' }).click();
+  cy.getByTestId({ testId: 'AddIcon' }).click();
 });
 
 Then('a pop-up menu with the form is displayed', () => {
@@ -52,10 +52,10 @@ When('the user fills in all the informations', () => {
   cy.contains('Central').click();
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('my-otel-certificate-name-001');
   cy.getByLabel({ label: 'CA file name', tag: 'input' }).type('ca-file-name-001');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).type('my-otel-private-key-name-001');
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).type('my-otel-private-key-name-001');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
   cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type('my-certificate-name-001');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).type('my-otel-private-key-name-001');
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).type('my-otel-private-key-name-001');
 });
 
 When('the user clicks on Create', () => {
@@ -75,10 +75,10 @@ When('the user fills in the mandatory informations', () => {
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-1').click();
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('my-otel-certificate-name-002');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).type('my-otel-private-key-name-002');
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).type('my-otel-private-key-name-002');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
   cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type('my-certificate-name-002');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).type('my-otel-private-key-name-002');
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).type('my-otel-private-key-name-002');
 });
 
 Then('the second agent is displayed in the Agents Configuration page', () => {
@@ -97,40 +97,109 @@ When('the user clicks to add a second host', () => {
 });
 
 Then('a second group of parameters for hosts is displayed', () => {
+  // cy.getByLabel({ label: 'Add host', tag: 'input' }).eq(0).should('exist');
+  // cy.getByLabel({ label: 'Add host', tag: 'input' }).eq(1).should('exist');
+  cy.get('[class$="hostConfigurations"]').find('[class^="MuiDivider-root MuiDivider-fullWidth"]').should('have.length', 2);
 });
 
-When('the user fills in all of the centreon agent parameters', () => {
+When('the user fills in the centreon agent parameters', () => {
+  cy.getByLabel({ label: 'Name', tag: 'input' }).type('centreon-agent-001');
+  cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
+  cy.contains('Poller-2').click();
+  cy.contains('Poller-3').click();
+  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('my-otel-certificate-name-003');
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).type('my-otel-private-key-name-003');
+  cy.getByLabel({ label: 'CA file name', tag: 'input' }).eq(0).type('my-ca-file-003');
+  cy.getByLabel({ label: 'Add host', tag: 'input' }).eq(0).click();
+  cy.contains('Centreon-Server').click();
+  cy.getByLabel({ label: 'DNS/IP', tag: 'input' }).eq(1).type('10.0.0.0');
+  cy.getByTestId({ testId: 'Port' }).eq(1).type('4317');
+  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).eq(1).type('my-certificate-name-003');
 });
 
 Then('the third agent is displayed in the Agents Configuration page', () => {
+  cy.wait('@addAgents');
+  cy.get('*[role="rowgroup"]')
+    .should('contain', 'centreon-agent-001');
 });
 
 When("the user doesn't fill in all the mandatory informations", () => {
+  cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
+  cy.contains('Telegraf').click();
+  cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
+  cy.contains('Poller-1').click();
+  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('my-otel-certificate-name-002');
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).type('my-otel-private-key-name-002');
+  cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
+  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type('my-certificate-name-002');
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).type('my-otel-private-key-name-002');
 });
 
 Then('the user cannot click on Create', () => {
+  cy.getByTestId({ testId: 'SaveIcon' }).parents('button').should('be.disabled');
 });
 
 When("the user doesn't fill in correct type of informations", () => {
+  cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
+  cy.contains('Telegraf').click();
+  cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-003');
+  cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
+  cy.contains('Poller-1').click();
+  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('my-otel-certificate-name-001.crt');
+  cy.getByLabel({ label: 'CA file name', tag: 'input' }).type('ca-file-name-001.crt');
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).type('my-otel-private-key-name-001.key');
+  cy.getByLabel({ label: 'Port', tag: 'input' }).clear().type('700000');
+  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type('my-certificate-name-001.crt');
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).type('my-otel-private-key-name-001.key');
+  cy.contains('Add poller/agent configuration').click();
 });
 
 Then('the form displayed an error', () => {
+  cy.getByTestId({ testId: 'Public certificate file name' }).contains('Invalid filename');
+  cy.getByTestId({ testId: 'CA file name' }).contains('Invalid filename');
+  cy.getByTestId({ testId: 'Private key file name' }).eq(0).contains('Invalid filename');
+  cy.getByTestId({ testId: 'Port' }).contains('Port number must be at most 65535');
+  cy.getByTestId({ testId: 'Certificate file name' }).contains('Invalid filename');
+  cy.getByTestId({ testId: 'Private key file name' }).eq(2).contains('Invalid filename');
+});
+
+When('the user fills in the needed informations', () => {
+  cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
+  cy.contains('Telegraf').click();
+  cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-004');
+  cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
+  cy.contains('Central').click();
+  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('my-otel-certificate-name-001');
+  cy.getByLabel({ label: 'CA file name', tag: 'input' }).type('ca-file-name-001');
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).type('my-otel-private-key-name-001');
+  cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
+  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type('my-certificate-name-001');
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).type('my-otel-private-key-name-001');
 });
 
 When('the user clicks on the Cancel button of the creation form', () => {
+  cy.contains('Cancel').click();
 });
 
 Then('a pop-up appears to confirm cancellation', () => {
+  cy.contains('Do you want to save the changes?').should('be.visible');
+  cy.contains('If you click on Discard, your changes will not be saved.').should('be.visible');
 });
 
 When('the user confirms the the cancellation', () => {
+  cy.getByLabel({ label: 'Discard', tag: 'button' }).click()
 });
 
 Then('the creation form is closed', () => {
+  cy.contains('Add poller/agent configuration').should('not.exist');
 });
 
 Then('the agent has not been created', () => {
+  cy.get('*[role="rowgroup"]')
+  .should('not.contain', 'telegraf-004');
 });
 
 Then('the form fields are empty', () => {
+  cy.getByLabel({ label: 'Agent type', tag: 'input' }).should('be.empty');
+  cy.getByLabel({ label: 'Name', tag: 'input' }).should('be.empty');
 });
