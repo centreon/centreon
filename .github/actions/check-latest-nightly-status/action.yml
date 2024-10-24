@@ -33,9 +33,8 @@ runs:
           --event schedule \
           --workflow web.yml \
           --branch ${{ github.ref_name }} \
-          --limit 1)
-
-        echo "Last run details:"
+          --limit 20 || jq --arg branch "${{ github.ref_name }}" $ 'map(select(.name == "web nightly $branch"))')
+        echo "Last nightly run details for ${{ github.ref_name }}:"
         echo "$lastNightlyRunDetails"
 
         echo "last_nightly_result=$(echo "$lastNightlyRunDetails" | jq -r '.[0].conclusion')" >> $GITHUB_OUTPUT
