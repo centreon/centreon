@@ -7,14 +7,14 @@ on:
       - dev-[2-9][0-9].[0-9][0-9].x
 
 jobs:
-  get-version:
-    uses: ./.github/workflows/get-version.yml
+  get-environment:
+    uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
   synchronize-jira-xray:
-    needs: [get-version]
-    runs-on: ubuntu-22.04
+    needs: [get-environment]
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout Code
@@ -53,10 +53,10 @@ jobs:
       - name: Run Script on Changed Feature Files
         if: env.CHANGED_FILES != ''
         run: |
-          echo "The target version for this script is : ${{ needs.get-version.outputs.major_version }}"
+          echo "The target version for this script is : ${{ needs.get-environment.outputs.major_version }}"
           for file in $CHANGED_FILES; do
             echo "Running script for $file on branch ${{ github.ref_name }}"
-            node .github/scripts/synchronize_jira_xray.js "$file" ${{ github.ref_name }} ${{ needs.get-version.outputs.major_version }}
+            node .github/scripts/synchronize_jira_xray.js "$file" ${{ github.ref_name }} ${{ needs.get-environment.outputs.major_version }}
           done
         env:
           JIRA_USER: ${{ secrets.JIRA_USER }}
