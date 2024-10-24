@@ -30,112 +30,112 @@ runs:
             parent_epic_key="AT-268"
             ticket_summary="PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}"
             ticket_labels="[\"Veracode\", \"Pipeline\"]"
-            ticket_description="$(cat <<-EOD
-            {
-              \"version\": 1,
-              \"type\": \"doc\",
-              \"content\": [
-                {
-                  \"type\": \"paragraph\",
-                  \"content\": [{\"type\": \"text\", \"text\": \"This incident ticket relates to:\"}]
-                },
-                {
-                  \"type\": \"bulletList\",
-                  \"content\": [
-                    {
-                      \"type\": \"listItem\",
-                      \"content\": [
-                        {
-                          \"type\": \"paragraph\",
-                          \"content\": [
-                            {\"type\": \"text\", \"text\": \"Ref: \"},
-                            {
-                              \"type\": \"text\",
-                              \"text\": \"PR-${{ github.event.pull_request.number }}\",
-                              \"marks\": [{\"type\": \"link\", \"attrs\": {\"href\": \"${{ github.event.pull_request.html_url }}\"}}]
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {\"type\": \"paragraph\", \"content\": []},
-                {
-                  \"type\": \"bulletList\",
-                  \"content\": [
-                    {
-                      \"type\": \"listItem\",
-                      \"content\": [
-                        {
-                          \"type\": \"paragraph\",
-                          \"content\": [
-                            {\"type\": \"text\", \"text\": \"Target: \"},
-                            {
-                              \"type\": \"text\",
-                              \"text\": \"${{ github.base_ref || github.ref_name }}\",
-                              \"marks\": [{\"type\": \"strong\"}]
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      \"type\": \"listItem\",
-                      \"content\": [
-                        {
-                          \"type\": \"paragraph\",
-                          \"content\": [
-                            {
-                              \"type\": \"text\",
-                              \"text\": \"Link to the job\",
-                              \"marks\": [{\"type\": \"link\", \"attrs\": {\"href\": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}\"}}]
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {\"type\": \"paragraph\", \"content\": []}
-              ]
-            }
-          EOD
-          )
+          #   ticket_description="$(cat <<-EOD
+          #   {
+          #     \"version\": 1,
+          #     \"type\": \"doc\",
+          #     \"content\": [
+          #       {
+          #         \"type\": \"paragraph\",
+          #         \"content\": [{\"type\": \"text\", \"text\": \"This incident ticket relates to:\"}]
+          #       },
+          #       {
+          #         \"type\": \"bulletList\",
+          #         \"content\": [
+          #           {
+          #             \"type\": \"listItem\",
+          #             \"content\": [
+          #               {
+          #                 \"type\": \"paragraph\",
+          #                 \"content\": [
+          #                   {\"type\": \"text\", \"text\": \"Ref: \"},
+          #                   {
+          #                     \"type\": \"text\",
+          #                     \"text\": \"PR-${{ github.event.pull_request.number }}\",
+          #                     \"marks\": [{\"type\": \"link\", \"attrs\": {\"href\": \"${{ github.event.pull_request.html_url }}\"}}]
+          #                   }
+          #                 ]
+          #               }
+          #             ]
+          #           }
+          #         ]
+          #       },
+          #       {\"type\": \"paragraph\", \"content\": []},
+          #       {
+          #         \"type\": \"bulletList\",
+          #         \"content\": [
+          #           {
+          #             \"type\": \"listItem\",
+          #             \"content\": [
+          #               {
+          #                 \"type\": \"paragraph\",
+          #                 \"content\": [
+          #                   {\"type\": \"text\", \"text\": \"Target: \"},
+          #                   {
+          #                     \"type\": \"text\",
+          #                     \"text\": \"${{ github.base_ref || github.ref_name }}\",
+          #                     \"marks\": [{\"type\": \"strong\"}]
+          #                   }
+          #                 ]
+          #               }
+          #             ]
+          #           },
+          #           {
+          #             \"type\": \"listItem\",
+          #             \"content\": [
+          #               {
+          #                 \"type\": \"paragraph\",
+          #                 \"content\": [
+          #                   {
+          #                     \"type\": \"text\",
+          #                     \"text\": \"Link to the job\",
+          #                     \"marks\": [{\"type\": \"link\", \"attrs\": {\"href\": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}\"}}]
+          #                   }
+          #                 ]
+          #               }
+          #             ]
+          #           }
+          #         ]
+          #       },
+          #       {\"type\": \"paragraph\", \"content\": []}
+          #     ]
+          #   }
+          # EOD
+          # )
         elif [[ "${{ inputs.reason_for_ticket_creation }}" == "nightly" ]]; then
             parent_epic_id=206242
             parent_epic_key="MON-151547"
             ticket_summary="$(date '+%Y-%m-%d') ${{ inputs.module_name }}-${{ github.ref_name }} nightly build failure"
             ticket_labels="[\"Nightly\", \"Pipeline\"]"
             run_url=$(gh run ls --json name,url --workflow web.yml --branch ${{ github.ref_name }} --limit 20 || jq --arg branch "${{ github.ref_name }}" 'map(select(.name == "web nightly $branch")) | .[0].url')
-            ticket_description=$(cat <<-EOD
-            {
-              \"version\": 1,
-              \"type\": \"doc\",
-              \"content\": [
-                {
-                  \"type\": \"paragraph\",
-                  \"content\": [
-                    {
-                      \"type\": \"text\",
-                      \"text\": \"This incident ticket relates to the ${{ inputs.module_name }} nightly on ${{ github.ref_name }} which failed on $(date '+%Y-%m-%d').\"
-                    }
-                  ]
-                },
-                {
-                  \"type\": \"paragraph\",
-                  \"content\": [
-                    {
-                      \"type\": \"text\",
-                      \"text\": \"Link to the failed nightly\",
-                      \"marks\": [{\"type\": \"link\", \"attrs\": {\"href\": \"$run_url\"}}]
-                    }
-                  ]
-                }
-              ]
-            }
-        EOD
-            )"
+        #     ticket_description=$(cat <<-EOD
+        #     {
+        #       \"version\": 1,
+        #       \"type\": \"doc\",
+        #       \"content\": [
+        #         {
+        #           \"type\": \"paragraph\",
+        #           \"content\": [
+        #             {
+        #               \"type\": \"text\",
+        #               \"text\": \"This incident ticket relates to the ${{ inputs.module_name }} nightly on ${{ github.ref_name }} which failed on $(date '+%Y-%m-%d').\"
+        #             }
+        #           ]
+        #         },
+        #         {
+        #           \"type\": \"paragraph\",
+        #           \"content\": [
+        #             {
+        #               \"type\": \"text\",
+        #               \"text\": \"Link to the failed nightly\",
+        #               \"marks\": [{\"type\": \"link\", \"attrs\": {\"href\": \"$run_url\"}}]
+        #             }
+        #           ]
+        #         }
+        #       ]
+        #     }
+        # EOD
+        #     )"
         fi
 
         echo "parent_epic_id=$parent_epic_id"
@@ -143,13 +143,13 @@ runs:
         echo "ticket_summary=$ticket_summary"
         echo "ticket_labels=$ticket_labels"
         echo "run_url=$run_url"
-        echo "ticket_description=$ticket_description"
+        # echo "ticket_description=$ticket_description"
 
         echo "parent_epic_id=$parent_epic_id" >> $GITHUB_OUTPUT
         echo "parent_epic_key=$parent_epic_key" >> $GITHUB_OUTPUT
         echo "ticket_summary=$ticket_summary" >> $GITHUB_OUTPUT
         echo "ticket_labels=$ticket_labels" >> $GITHUB_OUTPUT
-        echo "ticket_description=$ticket_description" >> $GITHUB_OUTPUT
+        # echo "ticket_description=$ticket_description" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Check if ticket exists already
@@ -188,7 +188,6 @@ runs:
             "components":[{"name": "${{ inputs.module_name }}"}],
             "customfield_10902": {"id": "10524", "value": "DevSecOps"},
             "customfield_10005": 1.0,
-            "description": ${{ steps.get_context.outputs.ticket_description }}
           }
         }
         EOF
