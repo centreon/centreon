@@ -19,6 +19,11 @@ env:
   AWS_DEFAULT_REGION: eu-west-1
 
 jobs:
+  get-environment:
+    uses: ./.github/workflows/get-environment.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
   publish-new-npm-version:
     runs-on: ubuntu-22.04
     if: ${{ github.event.pull_request.merged == true }}
@@ -36,12 +41,12 @@ jobs:
 
   publish-storybook:
     runs-on: ubuntu-22.04
-    needs: [get-version]
+    needs: [get-environment]
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - uses: ./.github/actions/publish-storybook
         with:
-          major_version: ${{ needs.get-version.outputs.major_version }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
           directory: ${{ env.directory }}
