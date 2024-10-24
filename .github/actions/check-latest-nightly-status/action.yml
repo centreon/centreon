@@ -39,3 +39,5 @@ runs:
 
         echo "last_nightly_result=$(echo "$lastNightlyRunDetails" | jq -r '.[0].conclusion')" >> $GITHUB_OUTPUT
       shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
