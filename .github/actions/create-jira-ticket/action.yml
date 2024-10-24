@@ -74,27 +74,27 @@ runs:
         if [[ "${{ inputs.reason_for_ticket_creation }}" == "veracode" ]]; then
           ticket_description=$(cat <<-EOD
           {
-            \"version\": 1,
-            \"type\": \"doc\",
-            \"content\": [
+            "version": 1,
+            "type": "doc",
+            "content": [
               {
-                \"type\": \"paragraph\",
-                \"content\": [{\"type\": \"text\", \"text\": \"This incident ticket relates to:\"}]
+                "type": "paragraph",
+                "content": [{"type": "text", "text": "This incident ticket relates to:"}]
               },
               {
-                \"type\": \"bulletList\",
-                \"content\": [
+                "type": "bulletList",
+                "content": [
                   {
-                    \"type\": \"listItem\",
-                    \"content\": [
+                    "type": "listItem",
+                    "content": [
                       {
-                        \"type\": \"paragraph\",
-                        \"content\": [
-                          {\"type\": \"text\", \"text\": \"Ref: \"},
+                        "type": "paragraph",
+                        "content": [
+                          {"type": "text", "text": "Ref: "},
                           {
-                            \"type\": \"text\",
-                            \"text\": \"PR-${{ github.event.pull_request.number }}\",
-                            \"marks\": [{\"type\": \"link\", \"attrs\": {\"href\": \"${{ github.event.pull_request.html_url }}\"}}]
+                            "type": "text",
+                            "text": "PR-${{ github.event.pull_request.number }}",
+                            "marks": [{"type": "link", "attrs": {"href": "${{ github.event.pull_request.html_url }}"}}]
                           }
                         ]
                       }
@@ -102,36 +102,36 @@ runs:
                   }
                 ]
               },
-              {\"type\": \"paragraph\", \"content\": []},
+              {"type": "paragraph", "content": []},
               {
-                \"type\": \"bulletList\",
-                \"content\": [
+                "type": "bulletList",
+                "content": [
                   {
-                    \"type\": \"listItem\",
-                    \"content\": [
+                    "type": "listItem",
+                    "content": [
                       {
-                        \"type\": \"paragraph\",
-                        \"content\": [
-                          {\"type\": \"text\", \"text\": \"Target: \"},
+                        "type": "paragraph",
+                        "content": [
+                          {"type": "text", "text": "Target: "},
                           {
-                            \"type\": \"text\",
-                            \"text\": \"${{ github.base_ref || github.ref_name }}\",
-                            \"marks\": [{\"type\": \"strong\"}]
+                            "type": "text",
+                            "text": "${{ github.base_ref || github.ref_name }}",
+                            "marks": [{"type": "strong"}]
                           }
                         ]
                       }
                     ]
                   },
                   {
-                    \"type\": \"listItem\",
-                    \"content\": [
+                    "type": "listItem",
+                    "content": [
                       {
-                        \"type\": \"paragraph\",
-                        \"content\": [
+                        "type": "paragraph",
+                        "content": [
                           {
-                            \"type\": \"text\",
-                            \"text\": \"Link to the job\",
-                            \"marks\": [{\"type\": \"link\", \"attrs\": {\"href\": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}\"}}]
+                            "type": "text",
+                            "text": "Link to the job",
+                            "marks": [{"type": "link", "attrs": {"href": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"}}]
                           }
                         ]
                       }
@@ -139,38 +139,38 @@ runs:
                   }
                 ]
               },
-              {\"type\": \"paragraph\", \"content\": []}
+              {"type": "paragraph", "content": []}
             ]
           }
         EOD
           )
         elif [[ "${{ inputs.reason_for_ticket_creation }}" == "nightly" ]]; then
           ticket_description=$(cat <<-EOD
-            {
-              \"version\": 1,
-              \"type\": \"doc\",
-              \"content\": [
-                {
-                  \"type\": \"paragraph\",
-                  \"content\": [
-                    {
-                      \"type\": \"text\",
-                      \"text\": \"This incident ticket relates to the ${{ inputs.module_name }} nightly on ${{ github.ref_name }} which failed on $(date '+%Y-%m-%d').\"
-                    }
-                  ]
-                },
-                {
-                  \"type\": \"paragraph\",
-                  \"content\": [
-                    {
-                      \"type\": \"text\",
-                      \"text\": \"Link to the failed nightly\",
-                      \"marks\": [{\"type\": \"link\", \"attrs\": {\"href\": \"$run_url\"}}]
-                    }
-                  ]
-                }
-              ]
-            }
+          {
+            "version": 1,
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "This incident ticket relates to the ${{ inputs.module_name }} nightly on ${{ github.ref_name }} which failed on $(date '+%Y-%m-%d')."
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Link to the failed nightly",
+                    "marks": [{"type": "link", "attrs": {"href": "$run_url"}}]
+                  }
+                ]
+              }
+            ]
+          }
         EOD
           )
         fi
