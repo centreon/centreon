@@ -66,7 +66,7 @@ runs:
       run: |
         # Get parent issue id
         parent_epic_id=$( curl --request POST \
-          --url "${{ inputs.jira_base_url }}/rest/api/2/issue/${{ env.parent_epic }}" \
+          --url "${{ inputs.jira_base_url }}/rest/api/3/issue/${{ env.parent_epic }}" \
           --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
           --header 'Accept: application/json' \
           --header 'Content-Type: application/json' | jq .key )
