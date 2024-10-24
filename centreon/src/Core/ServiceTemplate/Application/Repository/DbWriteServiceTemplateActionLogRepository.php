@@ -39,7 +39,7 @@ use Core\ServiceTemplate\Domain\Model\NotificationType;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 use Core\ServiceTemplate\Infrastructure\Model\NotificationTypeConverter;
 
-class Core_ServiceTemplate_Application_DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB implements WriteServiceTemplateRepositoryInterface
+class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB implements WriteServiceTemplateRepositoryInterface
 {
     use LoggerTrait;
     public const SERVICE_TEMPLATE_OBJECT_TYPE = 'service';

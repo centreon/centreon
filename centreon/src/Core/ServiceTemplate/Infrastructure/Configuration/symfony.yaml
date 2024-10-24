@@ -15,7 +15,7 @@ services:
   Core\ServiceTemplate\Application\Repository\WriteServiceTemplateRepositoryInterface:
     class: Core\ServiceTemplate\Infrastructure\Repository\DbWriteServiceTemplateRepository
 
-  Core\ServiceTemplate\Infrastructure\Repository\Core_ServiceTemplate_Application_DbWriteServiceTemplateActionLogRepository:
+  Core\ServiceTemplate\Infrastructure\Repository\DbWriteServiceTemplateActionLogRepository:
     decorates: Core\ServiceTemplate\Application\Repository\WriteServiceTemplateRepositoryInterface
     arguments:
       - '@.inner'
