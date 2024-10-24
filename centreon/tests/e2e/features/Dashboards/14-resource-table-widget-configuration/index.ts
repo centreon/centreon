@@ -620,7 +620,7 @@ Then('the dashboard administrator clicks on the downtime filter', () => {
   cy.get('input[name="in_downtime"]').click();
 });
 
-Then('the resources set to downtime should be displayed', () => {
+Then('the resources set to in downtime should be displayed', () => {
   cy.waitUntil(
     () =>
       cy.get('body').then(($body) => {
@@ -655,7 +655,7 @@ Then('the dashboard administrator clicks on the acknowledge filter', () => {
   cy.get('input[name="acknowledged"]').click();
 });
 
-Then('the resources set to acknowledge should be displayed', () => {
+Then('the resources set to acknowledged should be displayed', () => {
   cy.waitUntil(
     () =>
       cy.get('body').then(($body) => {
