@@ -430,53 +430,72 @@ function multiplePoolInDB($pool = [], $nbrDup = [])
         foreach ($pool as $key => $value) {
             $statement = $pearDB->prepareQuery(
                 <<<'SQL'
-                        SELECT *
-                        FROM `mod_dsm_pool`
-                        WHERE `pool_id` = :pool_id
-                        LIMIT 1
+                    SELECT *
+                    FROM `mod_dsm_pool`
+                    WHERE `pool_id` = :pool_id
+                    LIMIT 1
                     SQL
             );
             $pearDB->executePreparedQuery($statement, [':pool_id' => [$key, PDO::PARAM_INT]], true);
 
-            $row = $pearDB->fetch($statement);
-            $pearDB->closeQuery($statement);
+            if (($row = $pearDB->fetch($statement)) !== false) {
+                unset($row['pool_id']);
 
-            $row['pool_id'] = null;
+                $fields = [
+                    'pool_name' => \PDO::PARAM_STR,
+                    'pool_host_id' => \PDO::PARAM_INT,
+                    'pool_description' => \PDO::PARAM_STR,
+                    'pool_number' => \PDO::PARAM_INT,
+                    'pool_prefix' => \PDO::PARAM_STR,
+                    'pool_cmd_id' => \PDO::PARAM_INT,
+                    'pool_args' => \PDO::PARAM_STR,
+                    'pool_activate' => \PDO::PARAM_STR,
+                    'pool_service_template_id' => \PDO::PARAM_INT,
+                ];
 
-            for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-                $val = null;
+                for ($i = 1; $i <= $nbrDup[$key]; $i++) {
+                    $parameters = [];
+                    $row['pool_name'] = isset($row['pool_name']) ? $row['pool_name'] . '_' . $i : null;
+                    $row['pool_host_id'] = null;
+                    $row['pool_activate'] = '0';
 
-                foreach ($row as $key2 => $value2) {
-                    $key2 == 'pool_name' ? ($pool_name = $value2 = $value2 . '_' . $i) : null;
-                    if ($key2 == 'pool_host_id') {
-                        $value2 = null;
-                    } elseif ($key2 == 'pool_activate') {
-                        $value2 = '0';
+                    foreach ($fields as $field => $type) {
+                        $parameters[":{$field}"] = [$row[$field], $row[$field] === null ? \PDO::PARAM_NULL : $type];
                     }
-                    $val ? $val .= (
-                        $value2 != null ? (", '" . $pearDB->escapeString($value2) . "'") : ', NULL'
-                    ) : $val .= (
-                        $value2 != null ? ("'" . $pearDB->escapeString($value2) . "'") : 'NULL'
-                    );
-                    if ($key2 != 'pool_id') {
-                        $fields[$key2] = $pearDB->escapeString($value2);
-                    }
-                    if (isset($pool_name)) {
-                        $fields['pool_name'] = $pool_name . "_{$i}";
-                    }
-                }
 
-                if (isset($pool_name) && ! testPoolExistence($pool_name)) {
-                    if ($val) {
-                        $statement = $pearDB->prepareQuery("INSERT INTO `mod_dsm_pool` VALUES ({$val})");
-                        $pearDB->executePreparedQuery($statement, [], false);
+                    if (! testPoolExistence($row['pool_name'])) {
+                        $statement = $pearDB->prepareQuery(
+                            <<<'SQL'
+                                INSERT INTO `mod_dsm_pool` (
+                                    `pool_name`,
+                                    `pool_host_id`,
+                                    `pool_description`,
+                                    `pool_number`,
+                                    `pool_prefix`,
+                                    `pool_cmd_id`,
+                                    `pool_args`,
+                                    `pool_activate`,
+                                    `pool_service_template_id`
+                                ) VALUES (
+                                    :pool_name,
+                                    :pool_host_id,
+                                    :pool_description,
+                                    :pool_number,
+                                    :pool_prefix,
+                                    :pool_cmd_id,
+                                    :pool_args,
+                                    :pool_activate,
+                                    :pool_service_template_id
+                                )
+                                SQL
+                        );
+                        $pearDB->executePreparedQuery($statement, $parameters, true);
+                        $pearDB->closeQuery($statement);
+
+                        $statement = $pearDB->executeQuery('SELECT MAX(pool_id) FROM `mod_dsm_pool`');
+                        $cmd_id = $pearDB->fetch($statement);
                         $pearDB->closeQuery($statement);
                     }
-
-                    $statement = $pearDB->prepareQuery('SELECT MAX(pool_id) FROM `mod_dsm_pool`');
-                    $pearDB->executePreparedQuery($statement, [], false);
-                    $cmd_id = $pearDB->fetch($statement);
-                    $pearDB->closeQuery($statement);
                 }
             }
         }
