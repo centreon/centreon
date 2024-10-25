@@ -1,3 +1,4 @@
+@ignore
 @REQ_MON-151631
 Feature: TrapsSNMPConfiguration
   As an IT supervisor

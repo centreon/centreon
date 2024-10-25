@@ -3,7 +3,14 @@
         "name": "atrapName",
         "oid": "1.2.3",
         "vendor": "Cisco",
-        "output": "trapOutputMessage"
+        "output": "trapOutputMessage",
+        "rule":
+            {
+                "string" : "@trapRule@",
+                "regexp" : "/ruleRegexp/",
+                "status" : "Critical",
+                "severity" : "serviceCategoryName (3)"
+        }
     },
     "snmp2":{
         "name": "atrapNameChanged",
@@ -16,8 +23,8 @@
         "behavior": "If match, disable submit",
         "rule":
             {
-                "string" : "@trapRule@",
-                "regexp" : "/ruleRegexp/",
+                "string" : "@trapRuleModified@",
+                "regexp" : "/ruleRegexpM/",
                 "status" : "Critical",
                 "severity" : "serviceCategoryName (3)"
         },
@@ -26,12 +33,12 @@
         "execute_command": 1,
         "special_command": "trapCommand",
         "comments": "trapComments",
-        "services": "hostName - serviceName",
+        "hostName": "hostName" ,
+        "serviceName": "serviceName",
         "service_templates": "serviceTemplateName",
         "routing": 1,
         "routing_definition": "trapRouteDefinition",
         "filter_services": "trapFilterServices",
-        "preexec": ["trapPreexec"],
         "insert_information": 1,
         "timeout": "66",
         "execution_interval": "44",
