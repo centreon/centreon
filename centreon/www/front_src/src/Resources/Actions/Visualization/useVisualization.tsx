@@ -1,16 +1,13 @@
-import { useSetAtom, useAtomValue, useAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { cond, equals, has } from 'ramda';
 
-import { selectedVisualizationAtom } from '../actionsAtoms';
-import { ResourceListing, Visualization } from '../../models';
-import { setCriteriaAndNewFilterDerivedAtom } from '../../Filter/filterAtoms';
-import { CriteriaNames } from '../../Filter/Criterias/models';
-import { listingAtom, selectedColumnIdsAtom } from '../../Listing/listingAtoms';
-import {
-  defaultSelectedColumnIds,
-  defaultSelectedColumnIdsforViewByHost
-} from '../../Listing/columns/index';
 import { platformVersionsAtom } from '../../../Main/atoms/platformVersionsAtom';
+import { CriteriaNames } from '../../Filter/Criterias/models';
+import { setCriteriaAndNewFilterDerivedAtom } from '../../Filter/filterAtoms';
+import { defaultSelectedColumnIdsforViewByHost } from '../../Listing/columns/index';
+import { listingAtom, selectedColumnIdsAtom } from '../../Listing/listingAtoms';
+import { ResourceListing, Visualization } from '../../models';
+import { selectedVisualizationAtom } from '../actionsAtoms';
 
 interface Props {
   type: Visualization;
@@ -67,10 +64,7 @@ const useVisualization = ({ type }: Props): State => {
   const resetColumnsConfiguration = (): void => {
     if (equals(type, Visualization.Host)) {
       setSelectedColumnIds(defaultSelectedColumnIdsforViewByHost);
-
-      return;
     }
-    setSelectedColumnIds(defaultSelectedColumnIds);
   };
 
   const updateSearchAndSortValues = (): void => {
