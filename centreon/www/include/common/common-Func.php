@@ -1803,6 +1803,7 @@ function findHostsForConfigChangeFlagFromHostGroupIds(array $hostgroupIds, bool 
     global $pearDB;
 
     $bindedParams = [];
+    $hostgroupIds = array_values($hostgroupIds);
     foreach ($hostgroupIds as $key => $hostgroupId) {
         $bindedParams[':hostgroup_id_' . $key] = $hostgroupId;
     }
@@ -1844,6 +1845,7 @@ function findHostsForConfigChangeFlagFromServiceIds(array $serviceIds, bool $sho
     global $pearDB;
 
     $bindedParams = [];
+    $serviceIds = array_values($serviceIds);
     foreach ($serviceIds as $key => $serviceId) {
         $bindedParams[':service_id_' . $key] = $serviceId;
     }
@@ -1885,6 +1887,7 @@ function findServicesForConfigChangeFlagFromServiceTemplateIds(array $serviceTem
     global $pearDB;
 
     $bindedParams = [];
+    $serviceTemplateIds = array_values($serviceTemplateIds);
     foreach ($serviceTemplateIds as $key => $serviceTemplateId) {
         $bindedParams[':servicetemplate_id_' . $key] = $serviceTemplateId;
     }
@@ -1978,6 +1981,7 @@ function findPollersForConfigChangeFlagFromHostIds(array $hostIds, bool $shouldH
     global $pearDB;
 
     $bindedParams = [];
+    $hostIds = array_values($hostIds);
     foreach ($hostIds as $key => $hostId) {
         $bindedParams[':host_id_' . $key] = $hostId;
     }
@@ -2016,6 +2020,7 @@ function definePollersToUpdated(array $pollerIds): void
     global $pearDB;
 
     $bindedParams = [];
+    $pollerIds = array_values($pollerIds);
     foreach ($pollerIds as $key => $pollerId) {
         $bindedParams[':poller_id_' . $key] = $pollerId;
     }
