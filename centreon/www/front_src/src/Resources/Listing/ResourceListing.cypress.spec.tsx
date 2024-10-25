@@ -568,6 +568,45 @@ describe('Listing request', () => {
   });
 });
 
+describe('Notification column', () => {
+  it('displays notification column if the cloud notification feature is disabled', () => {
+    store.set(
+      platformFeaturesAtom,
+      getPlatformFeatures({ notification: false })
+    );
+    interceptRequestsAndMountBeforeEach();
+
+    cy.waitFiltersAndListingRequests();
+
+    cy.contains('E0').should('be.visible');
+
+    cy.findByTestId('Add columns').click();
+
+    cy.findByText('Notification (Notif)').should('exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('hides notification column if the cloud notification feature is enabled', () => {
+    store.set(
+      platformFeaturesAtom,
+      getPlatformFeatures({ notification: true })
+    );
+    interceptRequestsAndMountBeforeEach();
+
+    cy.waitFiltersAndListingRequests();
+
+    cy.contains('E0').should('be.visible');
+
+    cy.findByTestId('Add columns').click();
+
+    cy.findByText('Severity (S)').should('exist');
+    cy.findByText('Notification (Notif)').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+});
+
 describe('Display additional columns', () => {
   beforeEach(() => {
     cy.interceptAPIRequest({
@@ -608,6 +647,11 @@ describe('Display additional columns', () => {
   });
 
   it('displays downtime details when the downtime state chip is hovered', () => {
+    store.set(
+      platformFeaturesAtom,
+      getPlatformFeatures({ notification: false })
+    );
+
     cy.waitFiltersAndListingRequests();
 
     const entityInDowntime = entities.find(
@@ -716,45 +760,6 @@ describe('Display additional columns', () => {
 
       cy.makeSnapshot();
     });
-  });
-});
-
-describe('Notification column', () => {
-  it('displays notification column if the cloud notification feature is disabled', () => {
-    store.set(
-      platformFeaturesAtom,
-      getPlatformFeatures({ notification: false })
-    );
-    interceptRequestsAndMountBeforeEach();
-
-    cy.waitFiltersAndListingRequests();
-
-    cy.contains('E0').should('be.visible');
-
-    cy.findByTestId('Add columns').click();
-
-    cy.findByText('Notification (Notif)').should('exist');
-
-    cy.makeSnapshot();
-  });
-
-  it('hides notification column if the cloud notification feature is enabled', () => {
-    store.set(
-      platformFeaturesAtom,
-      getPlatformFeatures({ notification: true })
-    );
-    interceptRequestsAndMountBeforeEach();
-
-    cy.waitFiltersAndListingRequests();
-
-    cy.contains('E0').should('be.visible');
-
-    cy.findByTestId('Add columns').click();
-
-    cy.findByText('Severity (S)').should('exist');
-    cy.findByText('Notification (Notif)').should('not.exist');
-
-    cy.makeSnapshot();
   });
 });
 
