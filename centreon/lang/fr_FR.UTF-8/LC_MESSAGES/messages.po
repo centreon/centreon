@@ -19473,3 +19473,6 @@ msgstr "Horloge/Minuteur"
 
 # msgid "Clock / Timer"
 # msgstr ""
+
+msgid "Sticky for any non-OK status"
+msgstr "Sticky pour tout statut non-OK"

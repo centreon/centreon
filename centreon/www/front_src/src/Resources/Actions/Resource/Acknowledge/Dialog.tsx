@@ -20,7 +20,8 @@ import {
   labelComment,
   labelNotify,
   labelNotifyHelpCaption,
-  labelSticky
+  labelSticky,
+  labelStickyForAnyNonOkStatus
 } from '../../../translatedLabels';
 import useAclQuery from '../aclQuery';
 
@@ -126,7 +127,7 @@ const DialogAcknowledge = ({
                 onChange={handleChange('isSticky')}
               />
             }
-            label={t(labelSticky) as string}
+            label={t(labelStickyForAnyNonOkStatus) as string}
           />
         </Grid>
         {hasHosts && (

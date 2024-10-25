@@ -18156,3 +18156,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Clock / Timer"
 # msgstr ""
+
+# msgid "Sticky for any non-OK status"
+# msgstr ""
