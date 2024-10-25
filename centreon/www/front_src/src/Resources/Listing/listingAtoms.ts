@@ -1,10 +1,11 @@
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-
 import { equals } from 'ramda';
+
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
 import { ResourceListing, Visualization } from '../models';
 import { baseKey } from '../storage';
+
 import {
   defaultSelectedColumnIds,
   defaultSelectedColumnIdsforViewByHost

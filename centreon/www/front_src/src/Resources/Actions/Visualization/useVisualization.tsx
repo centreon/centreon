@@ -64,8 +64,6 @@ const useVisualization = ({ type }: Props): State => {
   const resetColumnsConfiguration = (): void => {
     if (equals(type, Visualization.Host)) {
       setSelectedColumnIds(defaultSelectedColumnIdsforViewByHost);
-
-      return;
     }
   };
 
