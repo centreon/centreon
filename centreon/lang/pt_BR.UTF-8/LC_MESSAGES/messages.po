@@ -18170,3 +18170,6 @@ msgstr ""
 
 #  msgid "Ticket management"
 #  msgstr ""
+
+# msgid "Sticky for any non-OK status"
+# msgstr ""

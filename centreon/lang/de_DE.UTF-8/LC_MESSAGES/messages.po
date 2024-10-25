@@ -17366,3 +17366,6 @@ msgstr "Erweiterter Modus"
 
 # msgid "Clock / Timer"
 # msgstr ""
+
+# msgid "Sticky for any non-OK status"
+# msgstr ""
