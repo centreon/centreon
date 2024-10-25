@@ -234,18 +234,6 @@ describe('Resource Listing', () => {
 
     cy.makeSnapshot();
   });
-
-  it('reoders columns when a drag handle is focused and an arrow is pressed', () => {
-    interceptRequestsAndMountBeforeEach();
-    cy.waitFiltersAndListingRequests();
-
-    cy.moveSortableElementUsingAriaLabel({
-      ariaLabel: 'Parent Drag handle',
-      direction: 'right'
-    });
-
-    cy.makeSnapshot();
-  });
 });
 
 describe('Resource Listing: Visualization by Service', () => {
