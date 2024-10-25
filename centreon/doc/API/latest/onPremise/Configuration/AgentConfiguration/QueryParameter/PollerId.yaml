@@ -1,0 +1,8 @@
+in: path
+name: poller_id
+required: true
+description: "Poller ID"
+schema:
+  type: integer
+  minimum: 1
+  example: 1

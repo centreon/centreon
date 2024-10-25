@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { useAtom } from 'jotai';
 import { equals, isNil, map, pick, propEq, reject } from 'ramda';
@@ -71,11 +71,21 @@ const AdvancedFilters = (): JSX.Element => {
   const isOptionEqualToValue = (option, selectedValue): boolean => {
     return (
       !isNil(option) &&
-      equals(option.name.toString(), selectedValue.name.toString())
+      equals(
+        option.name.toString(),
+        selectedValue.name.toString().replace('_', ' ')
+      )
     );
   };
 
   const isClearDisabled = equals(filters, filtersDefaultValue);
+
+  const connectorTypes = useMemo(() => {
+    return filters.types.map((type) => ({
+      ...type,
+      name: type.name.replace('_', ' ')
+    }));
+  }, [filters.types]);
 
   const reset = (): void => {
     setFilters(filtersDefaultValue);
@@ -110,8 +120,8 @@ const AdvancedFilters = (): JSX.Element => {
         dataTestId={labelTypes}
         isOptionEqualToValue={isOptionEqualToValue}
         label={t(labelTypes)}
-        options={[{ id: 1, name: 'VMWare_6/7' }]}
-        value={filters.types}
+        options={[{ id: 1, name: 'VMWare 6/7' }]}
+        value={connectorTypes}
         onChange={changeTypes}
       />
 

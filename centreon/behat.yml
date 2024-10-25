@@ -11,10 +11,6 @@ default:
   gherkin:
     cache: ~
   suites:
-    generate_service_contact_configuration:
-      paths: [ "%paths.base%/features/GenerateServiceContact.feature" ]
-      contexts: [ GenerateServiceContactContext ]
-
     acknowledgement:
       paths: [ "%paths.base%/features/Acknowledgement.feature" ]
       contexts: [ AcknowledgementContext ]
@@ -111,18 +107,6 @@ default:
       paths: [ "%paths.base%/features/SpecialCharactersInContact.feature" ]
       contexts: [ SpecialCharactersInContactContext ]
 
-    contact_configuration:
-      paths: [ "%paths.base%/features/ContactConfiguration.feature" ]
-      contexts: [ ContactConfigurationContext ]
-
-    contact_group_configuration:
-      paths: [ "%paths.base%/features/ContactGroupConfiguration.feature" ]
-      contexts: [ ContactGroupConfigurationContext ]
-
-    host_template_basics_operations:
-      paths: [ "%paths.base%/features/HostTemplateBasicsOperations.feature" ]
-      contexts: [ HostTemplateBasicsOperationsContext ]
-
     ldap_configuration:
       paths: [ "%paths.base%/features/LdapConfiguration.feature" ]
       contexts: [ LdapConfigurationContext ]
@@ -135,17 +119,9 @@ default:
       paths: [ "%paths.base%/features/LdapManualImport.feature" ]
       contexts: [ LdapManualImportContext ]
 
-    modify_default_page_connexion:
-      paths: [ "%paths.base%/features/ModifyDefaultPageConnection.feature" ]
-      contexts: [ ModifyDefaultPageConnectionContext ]
-
     non_admin_contact_creation:
       paths: [ "%paths.base%/features/NonAdminContactCreation.feature" ]
       contexts: [ NonAdminContactCreationContext ]
-
-    time_period_configuration:
-      paths: [ "%paths.base%/features/TimePeriodConfiguration.feature" ]
-      contexts: [ TimePeriodConfigurationContext ]
 
     massive_change_hosts:
       paths: [ "%paths.base%/features/MassiveChangeHosts.feature" ]
@@ -163,21 +139,9 @@ default:
       paths: [ "%paths.base%/features/CommandConfiguration.feature" ]
       contexts: [ CommandConfigurationContext ]
 
-    service_group_configuration:
-      paths: [ "%paths.base%/features/ServiceGroupConfiguration.feature" ]
-      contexts: [ ServiceGroupConfigurationContext ]
-
     host_group_service_configuration:
       paths: [ "%paths.base%/features/HostGroupServiceConfiguration.feature" ]
       contexts: [ HostGroupServiceConfigurationContext ]
-
-    service_template_configuration:
-      paths: [ "%paths.base%/features/ServiceTemplateConfiguration.feature" ]
-      contexts: [ ServiceTemplateConfigurationContext ]
-
-    contact_template_configuration:
-      paths: [ "%paths.base%/features/ContactTemplateConfiguration.feature" ]
-      contexts: [ ContactTemplateConfigurationContext ]
 
     escalation_configuration:
       paths: [ "%paths.base%/features/EscalationConfiguration.feature" ]

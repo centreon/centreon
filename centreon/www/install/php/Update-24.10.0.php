@@ -83,18 +83,28 @@ $addDisableServiceCheckColumn = function (CentreonDB $pearDB) use (&$errorMessag
 
 // ACC
 $fixNamingAndActivateAccTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to retrieve data from informations table';
+    $statement = $pearDB->executeQuery(
+        <<<'SQL'
+            SELECT `value` FROM `informations` WHERE `key` = 'isCentral'
+            SQL
+    );
+    $isCentral = $statement->fetch(PDO::FETCH_COLUMN);
+
     $errorMessage = 'Unable to update table topology';
-    $pearDB->executeQuery(
+    $constraintStatement = $pearDB->prepareQuery(
         <<<'SQL'
             UPDATE `topology`
-            SET `topology_show` = '1',
+            SET `topology_show` = :show,
                 `topology_name` = 'Additional Connector Configurations',
                 `topology_order` = 91
             WHERE `topology_url` = '/configuration/additional-connector-configurations'
             SQL
     );
+    $pearDB->executePreparedQuery($constraintStatement, [':show' => $isCentral === 'yes' ? '1' : '0']);
 };
 
+// Nagios Macros
 $updateNagiosMacros = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to check for existing macros in nagios_macro table';
     $statement = $pearDB->executeQuery(

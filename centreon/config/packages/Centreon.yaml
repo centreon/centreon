@@ -41,10 +41,12 @@ services:
             - '../../src/Core/TimePeriod/*'
             - '../../src/Core/Service/*'
             - '../../src/Core/HostGroup/*'
+            - '../../src/Core/HostTemplate/*'
             - '../../src/Core/ServiceGroup/*'
             - '../../src/Core/Host/*'
             - '../../src/Core/Broker/*'
             - '../../src/Core/AdditionalConnectorConfiguration/*'
+            - '../../src/Core/AgentConfiguration/*'
             - '../../src/Core/Security/Vault/*'
             - '../../src/Core/Contact/*'
         bind:

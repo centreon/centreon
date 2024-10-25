@@ -11,57 +11,56 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
-    DashboardGlobalRole,
-    ListingVariant,
-    additionalResourcesAtom,
-    federatedWidgetsAtom,
-    platformVersionsAtom,
-    refreshIntervalAtom,
-    userAtom
+  DashboardGlobalRole,
+  ListingVariant,
+  additionalResourcesAtom,
+  federatedWidgetsAtom,
+  platformVersionsAtom,
+  refreshIntervalAtom,
+  userAtom
 } from '@centreon/ui-context';
 
 import { federatedWidgetsPropertiesAtom } from '../../../federatedModules/atoms';
 import {
-    dashboardSharesEndpoint,
-    dashboardsContactsEndpoint,
-    dashboardsEndpoint,
-    getDashboardEndpoint
+  dashboardSharesEndpoint,
+  dashboardsContactsEndpoint,
+  dashboardsEndpoint,
+  getDashboardEndpoint
 } from '../../api/endpoints';
 import { DashboardRole } from '../../api/models';
 import {
-    labelAddAContact,
-    labelDelete,
-    labelSharesSaved
+  labelAddAContact,
+  labelDelete,
+  labelSharesSaved
 } from '../../translatedLabels';
 
-import { dashboardAtom } from './atoms';
 import Dashboard from './Dashboard';
+import { internalWidgetComponents } from './Widgets/widgets';
+import { dashboardAtom } from './atoms';
 import { routerParams } from './hooks/useDashboardDetails';
 import { saveBlockerHooks } from './hooks/useDashboardSaveBlocker';
 import {
-    labelAddAWidget,
-    labelCancel,
-    labelDeleteWidget,
-    labelDoYouWantToSaveChanges,
-    labelDuplicate,
-    labelEditDashboard,
-    labelEditWidget,
-    labelGlobalRefreshInterval,
-    labelIfYouClickOnDiscard,
-    labelInterval,
-    labelManualRefreshOnly,
-    labelMoreActions,
-    labelPleaseContactYourAdministrator,
-    labelSave,
-    labelTitle,
-    labelViewProperties,
-    labelWidgetType,
-    labelYourRightsOnlyAllowToView
+  labelAddAWidget,
+  labelCancel,
+  labelDeleteWidget,
+  labelDoYouWantToSaveChanges,
+  labelDuplicate,
+  labelEditDashboard,
+  labelEditWidget,
+  labelGlobalRefreshInterval,
+  labelIfYouClickOnDiscard,
+  labelInterval,
+  labelManualRefreshOnly,
+  labelMoreActions,
+  labelPleaseContactYourAdministrator,
+  labelSave,
+  labelTitle,
+  labelViewProperties,
+  labelWidgetType,
+  labelYourRightsOnlyAllowToView
 } from './translatedLabels';
-import { internalWidgetComponents } from './Widgets/widgets';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {
-
   const store = createStore();
   store.set(federatedWidgetsAtom, internalWidgetComponents);
   store.set(federatedWidgetsPropertiesAtom, [
