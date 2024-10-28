@@ -1,4 +1,3 @@
-@ignore
 @REQ_MON-151631
 Feature: TrapsSNMPConfiguration
   As an IT supervisor
@@ -21,7 +20,7 @@ Feature: TrapsSNMPConfiguration
   @TEST_MON-151634
   Scenario: Duplicate SNMP trap definition
     When the user has duplicated one existing SNMP trap definition
-    Then all SNMP trap properties are updated
+    Then all SNMP trap properties are unchanged except the name
 
   @TEST_MON-151635
   Scenario: Delete SNMP trap definition

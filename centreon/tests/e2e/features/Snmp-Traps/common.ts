@@ -59,7 +59,7 @@ const UpdateTrapsSNMPConfiguration = ({
     .click();
   cy.getIframeBody().find('select[name="traps_status"]').select(status);
   cy.getIframeBody()
-    .find(`input[name*="traps_advanced_treatment"][value=${status}]`)
+    .find(`input[name*="traps_advanced_treatment"][value=${mode}]`)
     .parent()
     .click();
   cy.getIframeBody()
@@ -102,7 +102,7 @@ const UpdateTrapsSNMPConfiguration = ({
     .find('input[name="traps_routing_value"]')
     .type(routing_definition);
   cy.getIframeBody()
-    .find('input[name="traps_routing_value"]')
+    .find('input[name="traps_routing_filter_services"]')
     .type(filter_services);
   cy.getIframeBody().find('input[name="traps_log"]').parent().click();
   cy.getIframeBody().find('input[name="traps_timeout"]').type(timeout);
