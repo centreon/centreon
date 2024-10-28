@@ -83,9 +83,10 @@ Then('the deleted contact is not displayed in the user list', () => {
 });
 
 Then(
-  'the admin can logg in Centreon Web with the duplicated contact account',
+  'the admin can log in to Centreon Web with the duplicated contact account',
   () => {
     cy.logout();
     cy.loginByDuplicatedUser('user-with-access-to-allmodules');
+    cy.url().should('include', '/centreon/monitoring/resources');
   }
 );

@@ -7,10 +7,10 @@ Feature: NonAdminContactCreation
     Given an admin user is logged in a Centreon server
 
   @TEST_MON-151725
-  Scenario: Basic operations on contacts
+  Scenario: Non-admin Contact Management Operations
     When the admin user creates a non admin contact
     And the admin user duplicates this contact
     And the admin delete this contact
     Then the duplicated contact is displayed in the user list
     And the deleted contact is not displayed in the user list
-    And the admin can logg in Centreon Web with the duplicated contact account
+    And the admin can log in to Centreon Web with the duplicated contact account
