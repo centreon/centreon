@@ -151,7 +151,7 @@ Then(
       const now = new Date();
 
       // Add 2 hours to the current time
-      now.setHours(now.getHours() + 2);
+      now.setHours(now.getHours() + 1);
 
       // Format the hours and minutes with leading zeros if needed
       const hours = String(now.getHours()).padStart(2, '0');
