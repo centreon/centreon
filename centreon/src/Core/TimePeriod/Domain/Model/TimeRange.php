@@ -113,4 +113,40 @@ class TimeRange implements \Stringable
 
         return true;
     }
+
+    /**
+     * @return array<array{start: string, end: string}>
+     */
+    public function getRanges(): array
+    {
+        return $this->extractRange($this->timeRange);
+    }
+
+    /**
+     * @param string $rule
+     *
+     * @return array<array{start: string, end: string}>
+     */
+    private function extractRange(string $rule): array
+    {
+        return $this->extractRanges($rule);
+    }
+
+    /**
+     * @param string $rule
+     *
+     * @return array<array{start: string, end: string}>
+     */
+    private function extractRanges(string $rule): array
+    {
+        $timePeriodRanges = explode(',', trim($rule));
+
+        $timeRanges = [];
+        foreach ($timePeriodRanges as $timePeriodRange) {
+            [$start, $end] = explode('-', trim($timePeriodRange));
+            $timeRanges[] = ['start' => $start, 'end' => $end];
+        }
+
+        return $timeRanges;
+    }
 }
