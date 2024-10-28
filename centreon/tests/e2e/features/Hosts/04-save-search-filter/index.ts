@@ -53,8 +53,8 @@ When('the user goes back to the host template listing', () => {
   navigateToSpecificPage('Hosts', 3, 'Templates');
 });
 
-When(
-  'the search on the host template page is fill by the previous search',
+Then(
+  'the search on the host template page is filled with the previous search',
   () => {
     cy.waitForElementInIframe('#main-content', 'input[name="searchHT"]');
     cy.getIframeBody()
@@ -77,7 +77,7 @@ When('the user goes back to the traps listing', () => {
   navigateToSpecificPage('SNMP Traps', 3, 'SNMP Traps');
 });
 
-Then('the search on the traps page is fill by the previous search', () => {
+Then('the search on the traps page is filled with the previous search', () => {
   cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');
   cy.getIframeBody()
     .find('input[name="searchT"]')
