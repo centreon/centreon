@@ -67,6 +67,14 @@ class TimeRange implements \Stringable
     }
 
     /**
+     * @return array<array{start: string, end: string}>
+     */
+    public function getRanges(): array
+    {
+        return $this->extractRange($this->timeRange);
+    }
+
+    /**
      * Check the format of the time range(s).
      * 00:00-12:00,13:00-14:00,...
      *
@@ -112,14 +120,6 @@ class TimeRange implements \Stringable
         }
 
         return true;
-    }
-
-    /**
-     * @return array<array{start: string, end: string}>
-     */
-    public function getRanges(): array
-    {
-        return $this->extractRange($this->timeRange);
     }
 
     /**
