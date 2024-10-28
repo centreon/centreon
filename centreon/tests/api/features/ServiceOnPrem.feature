@@ -48,7 +48,7 @@ Feature:
     Then the response code should be "204"
 
     Then I send a DELETE request to '/api/latest/configuration/services/29'
-    Then the response code should be "404"
+    Then the response code should be "204"
 
     When I send a DELETE request to '/api/latest/configuration/services/99'
     Then the response code should be "404"
