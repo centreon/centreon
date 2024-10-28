@@ -805,7 +805,7 @@ jobs:
   publish-openapi-documentation:
     runs-on: [self-hosted, infra]
     needs: [get-environment]
-    # if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
+    if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
@@ -847,29 +847,29 @@ jobs:
           sudo ./aws/install
         shell: bash
 
-      # - uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
-      #   with:
-      #     aws-region: eu-west-1
-      #     role-to-assume: ${{ secrets.CLOUDFRONT_ROLE_DOC_PRODUCTION }}
-      #     role-session-name: InvalidDocCache
-      #     role-skip-session-tagging: true
-      #     role-duration-seconds: 900
+      - uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
+        with:
+          aws-region: eu-west-1
+          role-to-assume: ${{ secrets.CLOUDFRONT_ROLE_DOC_PRODUCTION }}
+          role-session-name: InvalidDocCache
+          role-skip-session-tagging: true
+          role-duration-seconds: 900
 
-      # - name: Copy to AWS S3 centreon-documentation-api
-      #   run: |
-      #     if [[ "${{ needs.get-environment.outputs.is_cloud }}" == "true" ]]; then
-      #       BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/cloud"
-      #     else
-      #       BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/${{ needs.get-environment.outputs.major_version }}"
-      #     fi
+      - name: Copy to AWS S3 centreon-documentation-api
+        run: |
+          if [[ "${{ needs.get-environment.outputs.is_cloud }}" == "true" ]]; then
+            BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/cloud"
+          else
+            BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/${{ needs.get-environment.outputs.major_version }}"
+          fi
 
-      #     aws s3 cp "index.html" "${BUCKET_PATH}/index.html"
-      #     aws s3 cp "centreon/doc/API/centreon-logo.png" "${BUCKET_PATH}/centreon-logo.png"
-      #   shell: bash
+          aws s3 cp "index.html" "${BUCKET_PATH}/index.html"
+          aws s3 cp "centreon/doc/API/centreon-logo.png" "${BUCKET_PATH}/centreon-logo.png"
+        shell: bash
 
-      # - name: Invalid AWS Cloudfront cache
-      #   run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_ID_DOC_API }} --paths "/*"
-      #   shell: bash
+      - name: Invalid AWS Cloudfront cache
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_ID_DOC_API }} --paths "/*"
+        shell: bash
 
       - name: Upload built openapi doc
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
