@@ -1,5 +1,5 @@
 import { useAtomValue } from 'jotai';
-import { equals, reject, type } from 'ramda';
+import { equals, isNil, reject, type } from 'ramda';
 
 import { federatedModulesAtom, isOnPublicPageAtom } from '@centreon/ui-context';
 
@@ -22,7 +22,7 @@ const FederatedPage = ({
   const federatedModules = useAtomValue(federatedModulesAtom);
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
-  if (!federatedModules) {
+  if (isNil(federatedModules)) {
     return <PageSkeleton />;
   }
 
