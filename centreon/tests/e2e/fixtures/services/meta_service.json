@@ -1,0 +1,23 @@
+{
+        "name" : "metaServiceName",
+        "output_format": "metaServiceOutputFormat",
+        "warning_level": "75",
+        "critical_level" : "90",
+        "calculation_type" : "Sum",
+        "data_source_type" : "ABSOLUTE",
+        "selection_mode" : 2,
+        "sql_like_clause_expression" : "metaServiceExpression",
+        "check_period" : "workhours",
+        "max_check_attempts" : "10",
+        "normal_check_interval" : "15",
+        "retry_check_interval" : "5",
+        "notification_enabled" : "1",
+        "contacts" : "User",
+        "contact_groups" : "Guest",
+        "notification_interval" : "34",
+        "notification_period" : "none",
+        "geo_coordinates" : "2.3522219,48.856614",
+        "graph_template" : "Latency",
+        "enabled" : "1",
+        "comments" : "metaServiceComments"
+}
