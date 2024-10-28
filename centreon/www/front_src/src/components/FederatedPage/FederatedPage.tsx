@@ -3,11 +3,11 @@ import { equals, reject, type } from 'ramda';
 
 import { federatedModulesAtom, isOnPublicPageAtom } from '@centreon/ui-context';
 
+import { PageSkeleton } from '@centreon/ui';
 import { Remote } from '../../federatedModules/Load';
 import FederatedPageFallback from '../../federatedModules/Load/FederatedPageFallback';
 import { childrenComponentsMapping } from '../../federatedModules/childrenComponentsMapping';
 import { FederatedModule, PageComponent } from '../../federatedModules/models';
-import { PageSkeleton } from '@centreon/ui';
 
 interface Props {
   childrenComponent?: string;
@@ -22,8 +22,8 @@ const FederatedPage = ({
   const federatedModules = useAtomValue(federatedModulesAtom);
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
-  if(!federatedModules){
-    return <PageSkeleton />
+  if (!federatedModules) {
+    return <PageSkeleton />;
   }
 
   const filteredFederatedModules = reject(
