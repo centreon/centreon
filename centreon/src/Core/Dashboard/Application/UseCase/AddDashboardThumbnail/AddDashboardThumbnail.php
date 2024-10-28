@@ -33,8 +33,9 @@ use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Media\Application\Repository\WriteMediaRepositoryInterface;
 use Core\Media\Domain\Model\NewMedia;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
-final class AddDashboardThumbnail
+readonly final class AddDashboardThumbnail
 {
     use LoggerTrait;
 
@@ -46,11 +47,11 @@ final class AddDashboardThumbnail
      * @param ContactInterface $user
      */
     public function __construct(
-        private readonly WriteDashboardRepositoryInterface $writeDashboardRepository,
-        private readonly WriteMediaRepositoryInterface $writeMediaRepository,
-        private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
-        private readonly DataStorageEngineInterface $dataStorageEngine,
-        private readonly ContactInterface $user
+        private WriteDashboardRepositoryInterface $writeDashboardRepository,
+        private WriteMediaRepositoryInterface $writeMediaRepository,
+        private ReadDashboardRepositoryInterface $readDashboardRepository,
+        private DataStorageEngineInterface $dataStorageEngine,
+        private ContactInterface $user
     ) {
     }
 
@@ -58,15 +59,19 @@ final class AddDashboardThumbnail
      * @param AddDashboardThumbnailRequest $request
      * @param AddDashboardThumbnailPresenterInterface $presenter
      */
-    public function __invoke(AddDashboardThumbnailRequest $request, AddDashboardThumbnailPresenterInterface $presenter): void
-    {
+    public function __invoke(
+        AddDashboardThumbnailRequest $request,
+        AddDashboardThumbnailPresenterInterface $presenter,
+    ): void {
         try {
             $dashboard = $this->user->isAdmin()
                 ? $this->readDashboardRepository->findOne($request->dashboardId)
                 : $this->readDashboardRepository->findOneByContact($request->dashboardId, $this->user);
 
             if ($dashboard === null) {
-                $presenter->presentResponse(new ErrorResponse(DashboardException::theDashboardDoesNotExist($request->dashboardId)));
+                $presenter->presentResponse(new ErrorResponse(
+                    DashboardException::theDashboardDoesNotExist($request->dashboardId),
+                ));
 
                 return;
             }
@@ -86,7 +91,7 @@ final class AddDashboardThumbnail
 
     /**
      * @param AddDashboardThumbnailRequest $request
-     *
+     * @throws FileException
      * @return NewMedia
      */
     private function createMediaFromRequest(AddDashboardThumbnailRequest $request): NewMedia
@@ -97,6 +102,7 @@ final class AddDashboardThumbnail
     /**
      * @param NewMedia $thumbnail
      *
+     * @throws \Throwable
      * @return int
      */
     private function addThumbnail(NewMedia $thumbnail): int

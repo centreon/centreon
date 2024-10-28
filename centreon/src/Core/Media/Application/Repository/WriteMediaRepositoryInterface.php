@@ -46,6 +46,8 @@ interface WriteMediaRepositoryInterface
 
     /**
      * @param Media $media
+     *
+     * @throws \Throwable
      */
     public function update(Media $media): void;
 }

@@ -46,25 +46,26 @@ use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Refresh;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-final class PartialUpdateDashboard
+readonly final class PartialUpdateDashboard
 {
     use LoggerTrait;
     public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     public function __construct(
-        private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
-        private readonly WriteDashboardRepositoryInterface $writeDashboardRepository,
-        private readonly ReadDashboardPanelRepositoryInterface $readDashboardPanelRepository,
-        private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
-        private readonly WriteDashboardPanelRepositoryInterface $writeDashboardPanelRepository,
-        private readonly DataStorageEngineInterface $dataStorageEngine,
-        private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact,
-        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private readonly EventDispatcherInterface $dispatcher,
-        private readonly bool $isCloudPlatform
+        private ReadDashboardRepositoryInterface $readDashboardRepository,
+        private WriteDashboardRepositoryInterface $writeDashboardRepository,
+        private ReadDashboardPanelRepositoryInterface $readDashboardPanelRepository,
+        private ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
+        private WriteDashboardPanelRepositoryInterface $writeDashboardPanelRepository,
+        private DataStorageEngineInterface $dataStorageEngine,
+        private DashboardRights $rights,
+        private ContactInterface $contact,
+        private ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private EventDispatcherInterface $dispatcher,
+        private bool $isCloudPlatform
     ) {
     }
 
@@ -119,6 +120,8 @@ final class PartialUpdateDashboard
     /**
      * @param int $dashboardId
      * @param ThumbnailRequestDto $request
+     * @throws FileException
+     * @throws \Throwable
      */
     private function updateOrCreateDashboardThumbnail(int $dashboardId, ThumbnailRequestDto $request): void
     {

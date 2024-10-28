@@ -26,7 +26,7 @@ namespace Core\Dashboard\Application\Event;
 use Core\Media\Domain\Model\Media;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-final class DashboardUpdatedEvent
+readonly final class DashboardUpdatedEvent
 {
     /**
      * @param int $dashboardId
@@ -35,10 +35,10 @@ final class DashboardUpdatedEvent
      * @param string $filename
      */
     public function __construct(
-        private readonly int $dashboardId,
-        private readonly string $directory,
-        private readonly Media|UploadedFile $thumbnail,
-        private readonly string $filename
+        private int $dashboardId,
+        private string $directory,
+        private Media|UploadedFile $thumbnail,
+        private string $filename
     ) {
     }
 

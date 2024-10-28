@@ -105,10 +105,11 @@ final class FindDashboardsFactory
             }
 
             if ($thumbnail !== null) {
-                $dto->thumbnail = new ThumbnailResponseDto();
-                $dto->thumbnail->id = $thumbnail->getId();
-                $dto->thumbnail->name = $thumbnail->getFilename();
-                $dto->thumbnail->directory = $thumbnail->getDirectory();
+                $dto->thumbnail = new ThumbnailResponseDto(
+                    $thumbnail->getId(),
+                    $thumbnail->getFilename(),
+                    $thumbnail->getDirectory()
+                );
             }
 
             $response->dashboards[] = $dto;

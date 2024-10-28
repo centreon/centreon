@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindDashboard\Response;
 
-final class ThumbnailResponseDto
+readonly final class ThumbnailResponseDto
 {
     public function __construct(
         public int $id = 0,

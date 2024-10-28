@@ -25,7 +25,7 @@ namespace Core\Dashboard\Application\UseCase\AddDashboardThumbnail;
 
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-final class AddDashboardThumbnailRequest
+readonly final class AddDashboardThumbnailRequest
 {
     public function __construct(
         public int $dashboardId,

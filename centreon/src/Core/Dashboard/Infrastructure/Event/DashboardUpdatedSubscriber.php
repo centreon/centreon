@@ -35,7 +35,7 @@ use Core\Media\Domain\Model\Media;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-final class DashboardUpdatedSubscriber implements EventSubscriberInterface
+readonly final class DashboardUpdatedSubscriber implements EventSubscriberInterface
 {
     /**
      * @param UpdateMedia $thumbnailUpdater
@@ -44,10 +44,10 @@ final class DashboardUpdatedSubscriber implements EventSubscriberInterface
      * @param AddDashboardThumbnailPresenterInterface $thumbnailCreatorPresenter
      */
     public function __construct(
-        private readonly UpdateMedia $thumbnailUpdater,
-        private readonly UpdateMediaPresenterInterface $thumbnailUpdaterPresenter,
-        private readonly AddDashboardThumbnail $thumbnailCreator,
-        private readonly AddDashboardThumbnailPresenterInterface $thumbnailCreatorPresenter,
+        private UpdateMedia $thumbnailUpdater,
+        private UpdateMediaPresenterInterface $thumbnailUpdaterPresenter,
+        private AddDashboardThumbnail $thumbnailCreator,
+        private AddDashboardThumbnailPresenterInterface $thumbnailCreatorPresenter,
     ) {
     }
 
@@ -110,12 +110,18 @@ final class DashboardUpdatedSubscriber implements EventSubscriberInterface
      *
      * @return AddDashboardThumbnailRequest
      */
-    private function createAddDashboardThumbnailRequestFromEvent(DashboardUpdatedEvent $event): AddDashboardThumbnailRequest
-    {
+    private function createAddDashboardThumbnailRequestFromEvent(
+        DashboardUpdatedEvent $event,
+    ): AddDashboardThumbnailRequest {
         /** @var UploadedFile $thumbnail */
         $thumbnail = $event->getThumbnail();
 
-        return new AddDashboardThumbnailRequest($event->getDashboardId(), $event->getDirectory(), $event->getFilename(), $thumbnail);
+        return new AddDashboardThumbnailRequest(
+            $event->getDashboardId(),
+            $event->getDirectory(),
+            $event->getFilename(),
+            $thumbnail,
+        );
     }
 
     /**

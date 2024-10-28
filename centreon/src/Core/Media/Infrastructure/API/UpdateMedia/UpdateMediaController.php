@@ -32,6 +32,7 @@ use Core\Media\Infrastructure\API\AddMedia\AddMediaValidator;
 use Core\Media\Infrastructure\API\Exception\MediaException;
 use enshrined\svgSanitize\Sanitizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -97,6 +98,7 @@ final class UpdateMediaController extends AbstractController
     /**
      * @param UploadedFile $file
      *
+     * @throws FileException
      * @return string
      */
     private function sanitizeData(UploadedFile $file): string

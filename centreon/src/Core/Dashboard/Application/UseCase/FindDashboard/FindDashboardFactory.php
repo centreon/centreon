@@ -102,10 +102,11 @@ final class FindDashboardFactory
         $response->refresh->refreshInterval = $dashboard->getRefresh()->getRefreshInterval();
 
         if ($dashboard->getThumbnail() !== null) {
-            $response->thumbnail = new ThumbnailResponseDto();
-            $response->thumbnail->id = $dashboard->getThumbnail()->getId();
-            $response->thumbnail->name = $dashboard->getThumbnail()->getFilename();
-            $response->thumbnail->directory = $dashboard->getThumbnail()->getDirectory();
+            $response->thumbnail = new ThumbnailResponseDto(
+                $dashboard->getThumbnail()->getId(),
+                $dashboard->getThumbnail()->getFilename(),
+                $dashboard->getThumbnail()->getDirectory()
+            );
         }
 
         return $response;
