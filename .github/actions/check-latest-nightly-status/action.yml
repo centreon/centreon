@@ -34,7 +34,10 @@ runs:
           --branch ${{ github.ref_name }} \
           --limit 20 || jq --arg branch "${{ github.ref_name }}" '. | map(select(.name == "web nightly $branch"))')
         echo "Last nightly run details for ${{ github.ref_name }}: $lastNightlyRunDetails"
-        echo "last_nightly_result=$(echo "$lastNightlyRunDetails" | jq -r '.[0].conclusion')" >> $GITHUB_OUTPUT
+
+        last_nightly_result="$(echo "$lastNightlyRunDetails" | jq -r '.[0].conclusion')"
+        echo "Last nightly result for branch ${{ github.ref_name }}: $last_nightly_result"
+        echo "last_nightly_result=$last_nightly_result" >> $GITHUB_OUTPUT
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
