@@ -155,10 +155,6 @@ default:
       paths: [ "%paths.base%/features/ModifyDefaultPageConnection.feature" ]
       contexts: [ ModifyDefaultPageConnectionContext ]
 
-    non_admin_contact_creation:
-      paths: [ "%paths.base%/features/NonAdminContactCreation.feature" ]
-      contexts: [ NonAdminContactCreationContext ]
-
     time_period_configuration:
       paths: [ "%paths.base%/features/TimePeriodConfiguration.feature" ]
       contexts: [ TimePeriodConfigurationContext ]
