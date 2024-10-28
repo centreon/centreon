@@ -97,7 +97,7 @@
           cy.getByLabel({ label: 'Alias', tag: 'input' }).type(
             `{selectAll}{backspace}${credential.login}_1`
           );
-          cy.getByLabel({ label: 'Mot de passe', tag: 'input' }).type(
+          cy.getByLabel({ label: 'Password', tag: 'input' }).type(
             `{selectAll}{backspace}${credential.password}`
           );
         })
