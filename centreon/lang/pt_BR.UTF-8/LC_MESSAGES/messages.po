@@ -18293,3 +18293,6 @@ msgstr ""
 
 #  msgid "Poller ID #%d is the only one linked to poller/agent configuration ID #%d"
 #  msgstr ""
+
+# msgid "Sticky for any non-OK status"
+# msgstr ""
