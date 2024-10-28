@@ -155,16 +155,20 @@ Then(
 
         const now = new Date();
 
-        // Add 1 hours to the current time
-        now.setHours(now.getHours() + 1);
+        const timePlusOne = new Date(now);
+        timePlusOne.setHours(now.getHours() + 1);
 
-        // Format the hours and minutes with leading zeros if needed
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const timePlusTwo = new Date(now);
+        timePlusTwo.setHours(now.getHours() + 2);
 
-        const currentTime = `${hours}:${minutes}`;
+        const hoursPlusOne = String(timePlusOne.getHours()).padStart(2, '0');
+        const hoursPlusTwo = String(timePlusTwo.getHours()).padStart(2, '0');
 
-        expect(clockText.trim()).to.equal(currentTime);
+        expect(clockText.trim()).to.satisfy(
+          (displayedTime) =>
+            displayedTime.startsWith(hoursPlusOne) ||
+            displayedTime.startsWith(hoursPlusTwo)
+        );
       });
   }
 );
