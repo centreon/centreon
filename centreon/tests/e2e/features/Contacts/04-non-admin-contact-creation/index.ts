@@ -47,14 +47,14 @@ When('the admin user creates a non admin contact', () => {
   );
 });
 
-When('the admin user duplicates this contact', () => {
+When('the admin user duplicates the newly created non-admin contact', () => {
   checkCreatedContactFromListing();
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
-When('the admin delete this contact', () => {
+When('the admin user deletes the original non-admin contact', () => {
   cy.reload();
   checkCreatedContactFromListing();
   cy.getIframeBody().find('select[name="o1"]').select('Delete');
@@ -68,7 +68,7 @@ Then('the duplicated contact is displayed in the user list', () => {
     .should('be.visible');
 });
 
-Then('the deleted contact is not displayed in the user list', () => {
+Then('the deleted contact should not be visible in the user list', () => {
   cy.getIframeBody()
     .contains('a', 'user-with-access-to-allmodules_1')
     .should('be.visible');
