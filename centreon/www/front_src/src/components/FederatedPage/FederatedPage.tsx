@@ -7,6 +7,7 @@ import { Remote } from '../../federatedModules/Load';
 import FederatedPageFallback from '../../federatedModules/Load/FederatedPageFallback';
 import { childrenComponentsMapping } from '../../federatedModules/childrenComponentsMapping';
 import { FederatedModule, PageComponent } from '../../federatedModules/models';
+import { PageSkeleton } from '@centreon/ui';
 
 interface Props {
   childrenComponent?: string;
@@ -20,6 +21,10 @@ const FederatedPage = ({
 }: Props): JSX.Element => {
   const federatedModules = useAtomValue(federatedModulesAtom);
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+
+  if(!federatedModules){
+    return <PageSkeleton />
+  }
 
   const filteredFederatedModules = reject(
     (federatedModule) => equals(type(federatedModule), 'String'),
