@@ -30,7 +30,6 @@ runs:
         echo "[INFO]: Filtering the results of the last nightly build"
         lastNightlyRunDetails=$(gh run ls \
           --json number,status,conclusion \
-          --event schedule \
           --workflow web.yml \
           --branch ${{ github.ref_name }} \
           --limit 20 || jq --arg branch "${{ github.ref_name }}" '. | map(select(.name == "web nightly $branch"))')
