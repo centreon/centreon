@@ -36,7 +36,7 @@ runs:
             parent_epic_key="MON-151547"
             ticket_summary="$(date '+%Y-%m-%d') ${{ inputs.module_name }}-${{ github.ref_name }} nightly build failure"
             ticket_labels="[\"Nightly\", \"Pipeline\"]"
-            run_url=$(gh run ls --json name,url --workflow web.yml --branch ${{ github.ref_name }} --limit 20 | jq --arg branch "${{ github.ref_name }}" 'map(select(.name | contains($branch))) | .[0].url')
+            run_url=$(gh run ls --json name,url --workflow web.yml --branch ${{ github.ref_name }} --limit 20 | "${{ github.ref_name }}" '. | map(select(.name == "web nightly $branch")) | .[0].url')
         fi
 
         echo "parent_epic_id=$parent_epic_id" >> $GITHUB_OUTPUT
@@ -53,7 +53,8 @@ runs:
       id: check_ticket
       run: |
         # Checking if an incident ticket already exists
-        check_if_ticket_exists=$( curl --request POST \
+        response=$(curl --fail \
+          --request POST \
           --url '${{ inputs.jira_base_url }}/rest/api/3/search' \
           --user '${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}' \
           --header 'Accept: application/json' \
@@ -62,8 +63,14 @@ runs:
             "fields": ["summary"],
             "jql": "project = MON AND parentEpic = ${{ steps.get_context.outputs.parent_epic_key }} AND issueType = Technical AND summary ~ ${{ steps.get_context.outputs.ticket_summary }} AND component = \"${{ inputs.module_name }}\" AND resolution = unresolved ORDER BY key ASC",
             "maxResults": 1
-        }' | jq .issues[0].key )
+        }')
 
+        if [ $? -ne 0 ]; then
+          echo "::error::Failed to check existing tickets: $response"
+          exit 1
+        fi
+
+        check_if_ticket_exists=$(echo "$response" | jq .issues[0].key)
         if [[ "$check_if_ticket_exists" != "null" ]]; then
           echo "abort_ticket_creation=true" >> $GITHUB_ENV
           echo "::error::ticket found as $check_if_ticket_exists aborting ticket creation"
@@ -137,10 +144,19 @@ runs:
         EOF
         )
 
-        curl -v --request POST \
+        response=$(curl --fail \
+          --request POST
           --url "${{ inputs.jira_base_url }}/rest/api/3/issue" \
           --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
           --header 'Accept: application/json' \
           --header 'Content-Type: application/json' \
-          --data "$DATA"
+          --data "$DATA")
+
+        if [ $? -ne 0 ]; then
+          echo "::error::Failed to create ticket: $response"
+          exit 1
+        fi
+
+        ticket_key=$(echo "$response" | jq -r .key)
+        echo "::notice:: Created ticket: $ticket_key"
       shell: bash
