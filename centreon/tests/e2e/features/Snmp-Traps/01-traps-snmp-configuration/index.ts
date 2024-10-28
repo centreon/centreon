@@ -8,7 +8,7 @@ import {
 } from "../common";
 
 beforeEach(() => {
-//   cy.startContainers();
+  cy.startContainers();
   cy.intercept({
     method: "GET",
     url: "/centreon/include/common/userTimezone.php",
@@ -86,7 +86,7 @@ When(
     template: "Ping-LAN",
   });
   cy.addServiceTemplate({
-    name: data.snmp2.service_templates
+    name: data.snmp2.service_templates,
     template: "generic-service",
   });
   cy.navigateTo({
@@ -301,4 +301,8 @@ Then("this definition disappears from the SNMP trap list", () => {
     .find("table.ListTable tbody")
     .contains(data.snmp1.name)
     .should("not.exist");
+});
+
+afterEach(() => {
+  cy.stopContainers();
 });
