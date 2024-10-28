@@ -70,7 +70,7 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
             $actionLog = new ActionLog(
                 self::SERVICE_TEMPLATE_OBJECT_TYPE,
                 $serviceTemplateId,
-                $serviceTemplate ? $serviceTemplate->getName() : "",
+                $serviceTemplate ? $serviceTemplate->getName() : '',
                 ActionLog::ACTION_TYPE_DELETE,
                 $this->contact->getId()
             );
