@@ -33,7 +33,7 @@ import {
   labelNotify,
   labelSetDowntime,
   labelSetDowntimeOnServices,
-  labelSticky,
+  labelStickyForAnyNonOkStatus,
   labelSubmitStatus,
   labelUnreachable,
   labelUp
@@ -322,7 +322,7 @@ describe('Actions', () => {
         'Acknowledged by admin'
       );
       cy.findByLabelText(labelNotify).should('not.be.checked');
-      cy.findByLabelText(labelSticky).should('be.checked');
+      cy.findByLabelText(labelStickyForAnyNonOkStatus).should('be.checked');
       cy.findByLabelText(labelAcknowledgeServices).should('be.checked');
 
       cy.findAllByLabelText(labelAcknowledge).eq(2).click();
@@ -352,7 +352,7 @@ describe('Actions', () => {
 
       cy.findByLabelText(labelComment).clear().type('Acknowledged');
       cy.findByLabelText(labelNotify).check();
-      cy.findByLabelText(labelSticky).uncheck();
+      cy.findByLabelText(labelStickyForAnyNonOkStatus).uncheck();
       cy.findByLabelText(labelAcknowledgeServices).uncheck();
 
       cy.findAllByLabelText(labelAcknowledge).eq(2).click();
