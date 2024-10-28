@@ -17831,4 +17831,4 @@ msgstr "Retractar"
 #  msgstr ""
 
 msgid "Sticky for any non-OK status"
-msgstr "Sticky para cualquier estado no-OK"
+msgstr "Sticky para cualquier estado que no sea OK"
