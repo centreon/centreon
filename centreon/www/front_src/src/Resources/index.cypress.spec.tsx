@@ -321,6 +321,7 @@ testData.forEach((item) =>
 
     it(`displays the correct number of days for the current month when the ${item.button} button is clicked`, () => {
       cy.get('input').click();
+
       item.data.forEach((element) => {
         const { lastDay } = Object.values(element)[0];
 
