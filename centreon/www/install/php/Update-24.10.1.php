@@ -70,7 +70,25 @@ $updateNagiosMacros =  function (CentreonDB $pearDB) use (&$errorMessage): void 
     );
 };
 
+$addAllContactsColumnToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add the colum all_contacts to the table acl_groups';
+    if (! $pearDB->isColumnExist(table: 'acl_groups', column: 'all_contacts')) {
+        $pearDB->exec('ALTER TABLE `acl_groups` ADD COLUMN `all_contacts` TINYINT(1) DEFAULT 0 NOT NULL');
+    }
+};
+
+$addAllContactGroupsColumnToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add the colum all_contact_groups to the table acl_groups';
+    if (! $pearDB->isColumnExist(table: 'acl_groups', column: 'all_contact_groups')) {
+        $pearDB->exec('ALTER TABLE `acl_groups` ADD COLUMN `all_contact_groups` TINYINT(1) DEFAULT 0 NOT NULL');
+    }
+};
+
 try {
+    // DDL statements
+    $addAllContactsColumnToAclGroups($pearDB);
+    $addAllContactGroupsColumnToAclGroups($pearDB);
+
     // Transactional queries
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
@@ -80,19 +98,24 @@ try {
 
     $pearDB->commit();
 } catch (\Exception $e) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: $versionOfTheUpgrade . $errorMessage,
+        customContext: ['trace' => $e->getTraceAsString()],
+        exception: $e
+    );
 
     if ($pearDB->inTransaction()) {
-        $pearDB->rollBack();
+        try {
+            $pearDB->rollBack();
+        } catch (PDOException $e) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_UPGRADE,
+                message: "{$versionOfTheUpgrade} error while rolling back the upgrade operation",
+                exception: $e
+            );
+        }
     }
-
-    $centreonLog->log(
-        4,
-        strtoupper($centreonLog::LEVEL_ERROR),
-        $versionOfTheUpgrade . $errorMessage
-        . ' - Code : ' . (int) $e->getCode()
-        . ' - Error : ' . $e->getMessage()
-        . ' - Trace : ' . $e->getTraceAsString()
-    );
 
     throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }
