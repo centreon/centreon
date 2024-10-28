@@ -13,13 +13,10 @@ on:
       stability:
         required: true
         type: string
-      environment:
-        required: true
-        type: string
       release_type:
         required: true
         type: string
-      release_cloud:
+      is_cloud:
         required: true
         type: string
     secrets:
@@ -50,7 +47,6 @@ jobs:
   delivery-rpm:
     if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
     runs-on: [self-hosted, common]
-    environment: ${{ inputs.environment }}
 
     strategy:
       matrix:
@@ -70,12 +66,11 @@ jobs:
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           stability: ${{ inputs.stability }}
           release_type: ${{ inputs.release_type }}
-          release_cloud: ${{ inputs.release_cloud }}
+          is_cloud: ${{ inputs.is_cloud }}
 
   delivery-deb:
     if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
     runs-on: [self-hosted, common]
-    environment: ${{ inputs.environment }}
 
     strategy:
       matrix:
@@ -95,4 +90,4 @@ jobs:
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ inputs.stability }}
           release_type: ${{ inputs.release_type }}
-          release_cloud: ${{ inputs.release_cloud }}
+          is_cloud: ${{ inputs.is_cloud }}
