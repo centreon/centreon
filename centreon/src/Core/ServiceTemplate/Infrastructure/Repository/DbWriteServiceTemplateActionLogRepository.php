@@ -70,7 +70,7 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
             $actionLog = new ActionLog(
                 self::SERVICE_TEMPLATE_OBJECT_TYPE,
                 $serviceTemplateId,
-                $serviceTemplate->getName(),
+                $serviceTemplate ? $serviceTemplate->getName() : "",
                 ActionLog::ACTION_TYPE_DELETE,
                 $this->contact->getId()
             );
@@ -124,7 +124,7 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
         try {
             $currentServiceTemplate = $this->readServiceTemplateRepository->findById($serviceTemplate->getId());
 
-            $currentServiceTemplateDetails = $this->getServiceTemplatePropertiesAsArray($currentServiceTemplate);
+            $currentServiceTemplateDetails = $currentServiceTemplate ? $this->getServiceTemplatePropertiesAsArray($currentServiceTemplate) : [];
             $updatedServiceTemplateDetails = $this->getServiceTemplatePropertiesAsArray($serviceTemplate);
             $diff = array_diff_assoc($updatedServiceTemplateDetails, $currentServiceTemplateDetails);
 
