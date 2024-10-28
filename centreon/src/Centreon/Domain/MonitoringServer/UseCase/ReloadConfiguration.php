@@ -65,7 +65,8 @@ class ReloadConfiguration
     {
         try {
             if (
-                ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ)
+                $this->contact->isAllowedToReachWeb()
+                && ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ)
                 && ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)
             ) {
                 throw new AccessDeniedException(
