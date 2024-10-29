@@ -35,7 +35,7 @@ use Core\Media\Application\Repository\WriteMediaRepositoryInterface;
 use Core\Media\Domain\Model\NewMedia;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
-readonly final class AddDashboardThumbnail
+final class AddDashboardThumbnail
 {
     use LoggerTrait;
 
@@ -47,11 +47,11 @@ readonly final class AddDashboardThumbnail
      * @param ContactInterface $user
      */
     public function __construct(
-        private WriteDashboardRepositoryInterface $writeDashboardRepository,
-        private WriteMediaRepositoryInterface $writeMediaRepository,
-        private ReadDashboardRepositoryInterface $readDashboardRepository,
-        private DataStorageEngineInterface $dataStorageEngine,
-        private ContactInterface $user
+        private readonly WriteDashboardRepositoryInterface $writeDashboardRepository,
+        private readonly WriteMediaRepositoryInterface $writeMediaRepository,
+        private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
+        private readonly DataStorageEngineInterface $dataStorageEngine,
+        private readonly ContactInterface $user
     ) {
     }
 
@@ -96,7 +96,7 @@ readonly final class AddDashboardThumbnail
      */
     private function createMediaFromRequest(AddDashboardThumbnailRequest $request): NewMedia
     {
-        return new NewMedia($request->filename, $request->directory, $request->thumbnail->getContent());
+        return new NewMedia($request->filename, $request->directory, $request->content);
     }
 
     /**

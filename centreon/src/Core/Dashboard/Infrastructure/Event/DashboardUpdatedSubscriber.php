@@ -31,9 +31,7 @@ use Core\Dashboard\Application\UseCase\AddDashboardThumbnail\AddDashboardThumbna
 use Core\Media\Application\UseCase\UpdateMedia\UpdateMedia;
 use Core\Media\Application\UseCase\UpdateMedia\UpdateMediaPresenterInterface;
 use Core\Media\Application\UseCase\UpdateMedia\UpdateMediaRequest;
-use Core\Media\Domain\Model\Media;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 readonly final class DashboardUpdatedSubscriber implements EventSubscriberInterface
 {
@@ -66,16 +64,7 @@ readonly final class DashboardUpdatedSubscriber implements EventSubscriberInterf
      */
     public function createOrUpdateDashboardThumbnail(DashboardUpdatedEvent $event): void
     {
-        $thumbnail = $event->getThumbnail();
-
-        /**
-         * IF $thumbnail is an instance of UploadedFile it means that the dashboard updated does not have
-         * any thumbnail created yet. The thumbnailCreator will create the thumbnail (media) on the
-         * database + filesystem and then add the relation between the thumbnail and the dashboard updated.
-         *
-         * Otherwise only the content of the thumbnail (media) on the filesystem will be updated.
-         */
-        if ($thumbnail instanceof UploadedFile) {
+        if ($event->getThumbnailId() === null) {
             ($this->thumbnailCreator)(
                 $this->createAddDashboardThumbnailRequestFromEvent($event),
                 $this->thumbnailCreatorPresenter
@@ -90,8 +79,8 @@ readonly final class DashboardUpdatedSubscriber implements EventSubscriberInterf
             }
         } else {
             ($this->thumbnailUpdater)(
-                $thumbnail->getId(),
-                $this->createUpdateMediaRequest($thumbnail),
+                $event->getThumbnailId(),
+                $this->createUpdateMediaRequest($event),
                 $this->thumbnailUpdaterPresenter,
             );
 
@@ -113,28 +102,25 @@ readonly final class DashboardUpdatedSubscriber implements EventSubscriberInterf
     private function createAddDashboardThumbnailRequestFromEvent(
         DashboardUpdatedEvent $event,
     ): AddDashboardThumbnailRequest {
-        /** @var UploadedFile $thumbnail */
-        $thumbnail = $event->getThumbnail();
-
         return new AddDashboardThumbnailRequest(
             $event->getDashboardId(),
             $event->getDirectory(),
             $event->getFilename(),
-            $thumbnail,
+            $event->getContent(),
         );
     }
 
     /**
-     * @param Media $thumbnail
+     * @param DashboardUpdatedEvent $event
      *
      * @return UpdateMediaRequest
      */
-    private function createUpdateMediaRequest(Media $thumbnail): UpdateMediaRequest
+    private function createUpdateMediaRequest(DashboardUpdatedEvent $event): UpdateMediaRequest
     {
-        if ($thumbnail->getData() === null) {
-            throw new \Exception(sprintf('No data found for media %s', $thumbnail->getFilename()));
+        if ($event->getContent() === '') {
+            throw new \Exception(sprintf('No data found for media %s', $event->getFilename()));
         }
 
-        return new UpdateMediaRequest($thumbnail->getFilename(), $thumbnail->getData());
+        return new UpdateMediaRequest($event->getFilename(), $event->getContent());
     }
 }

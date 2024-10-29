@@ -67,7 +67,7 @@ beforeEach(function (): void {
     $this->testedPartialUpdateDashboardRequest = new PartialUpdateDashboardRequestDto();
     $this->testedPartialUpdateDashboardRequest->name = 'updated-dashboard';
     $this->testedPartialUpdateDashboardRequest->thumbnail = new ThumbnailRequestDto(null, __DIR__, 'logo.jpg');
-    $this->testedPartialUpdateDashboardRequest->thumbnail->file = new UploadedFile(__DIR__ . '/logo.jpg', 'logo.jpg');
+    $this->testedPartialUpdateDashboardRequest->thumbnail->content = file_get_contents(__DIR__ . '/logo.jpg');
 
     $this->testedDashboard = new Dashboard(
         $this->testedDashboardId = random_int(1, 1_000_000),

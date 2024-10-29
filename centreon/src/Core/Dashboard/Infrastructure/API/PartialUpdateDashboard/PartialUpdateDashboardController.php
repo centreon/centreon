@@ -82,8 +82,9 @@ final class PartialUpdateDashboardController extends AbstractController
             ) {
                 /** @var UploadedFile $thumbnail */
                 $thumbnail = $request->files->get('thumbnail_data');
-                $this->validateThumbnailContent($thumbnail);
-                $partialUpdateDashboardRequest->thumbnail->file = $thumbnail;
+                $partialUpdateDashboardRequest->thumbnail->content = $this->validateAndRetrieveThumbnailContent(
+                    $thumbnail,
+                );
             }
 
             $useCase($dashboardId, $partialUpdateDashboardRequest, $presenter);
@@ -117,11 +118,11 @@ final class PartialUpdateDashboardController extends AbstractController
 
     /**
      * @param UploadedFile $thumbnail
-     *
      * @throws HttpException
      * @throws FileException
+     * @return string
      */
-    private function validateThumbnailContent(UploadedFile $thumbnail): void
+    private function validateAndRetrieveThumbnailContent(UploadedFile $thumbnail): string
     {
         // Dashboard use case we do only allow png files.
         $errors = $this->validator->validate(
@@ -146,5 +147,7 @@ final class PartialUpdateDashboardController extends AbstractController
                 new ValidationFailedException($thumbnail, $errors),
             );
         }
+
+        return $thumbnail->getContent();
     }
 }

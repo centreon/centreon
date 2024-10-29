@@ -23,11 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request;
 
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-
 final class ThumbnailRequestDto
 {
-    public UploadedFile $file;
+    public string $content;
 
     public function __construct(
         public ?int $id,

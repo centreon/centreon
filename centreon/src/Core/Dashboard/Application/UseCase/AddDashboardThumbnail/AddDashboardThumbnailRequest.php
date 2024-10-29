@@ -23,15 +23,13 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\AddDashboardThumbnail;
 
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-
 readonly final class AddDashboardThumbnailRequest
 {
     public function __construct(
         public int $dashboardId,
         public string $directory,
         public string $filename,
-        public UploadedFile $thumbnail
+        public string $content
     ) {
     }
 }

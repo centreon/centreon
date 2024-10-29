@@ -40,20 +40,20 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Throwable;
 
-readonly final class DeleteDashboard
+final class DeleteDashboard
 {
     use LoggerTrait;
     public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     public function __construct(
-        private ReadDashboardRepositoryInterface $readDashboardRepository,
-        private WriteDashboardRepositoryInterface $writeDashboardRepository,
-        private ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
-        private DashboardRights $rights,
-        private ContactInterface $contact,
-        private ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private WriteMediaRepositoryInterface $mediaRepository,
-        private bool $isCloudPlatform
+        private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
+        private readonly WriteDashboardRepositoryInterface $writeDashboardRepository,
+        private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
+        private readonly DashboardRights $rights,
+        private readonly ContactInterface $contact,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly WriteMediaRepositoryInterface $mediaRepository,
+        private readonly bool $isCloudPlatform
     ) {
     }
 

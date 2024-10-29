@@ -49,23 +49,23 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-readonly final class PartialUpdateDashboard
+final class PartialUpdateDashboard
 {
     use LoggerTrait;
     public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     public function __construct(
-        private ReadDashboardRepositoryInterface $readDashboardRepository,
-        private WriteDashboardRepositoryInterface $writeDashboardRepository,
-        private ReadDashboardPanelRepositoryInterface $readDashboardPanelRepository,
-        private ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
-        private WriteDashboardPanelRepositoryInterface $writeDashboardPanelRepository,
-        private DataStorageEngineInterface $dataStorageEngine,
-        private DashboardRights $rights,
-        private ContactInterface $contact,
-        private ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private EventDispatcherInterface $dispatcher,
-        private bool $isCloudPlatform
+        private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
+        private readonly WriteDashboardRepositoryInterface $writeDashboardRepository,
+        private readonly ReadDashboardPanelRepositoryInterface $readDashboardPanelRepository,
+        private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
+        private readonly WriteDashboardPanelRepositoryInterface $writeDashboardPanelRepository,
+        private readonly DataStorageEngineInterface $dataStorageEngine,
+        private readonly DashboardRights $rights,
+        private readonly ContactInterface $contact,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -128,19 +128,19 @@ readonly final class PartialUpdateDashboard
         $thumbnail = $this->readDashboardRepository->findThumbnailByDashboardId($dashboardId);
 
         if ($thumbnail !== null) {
-            $thumbnail->setData($request->file->getContent());
             $event = new DashboardUpdatedEvent(
                 dashboardId: $dashboardId,
                 directory: $thumbnail->getDirectory(),
-                thumbnail: $thumbnail,
-                filename: $thumbnail->getFilename()
+                content: $request->content,
+                filename: $thumbnail->getFilename(),
+                thumbnailId: $thumbnail->getId()
             );
         } else {
             $event = new DashboardUpdatedEvent(
                 dashboardId: $dashboardId,
                 directory: $request->directory,
-                thumbnail: $request->file,
-                filename: $request->name,
+                content: $request->content,
+                filename: $request->name
             );
         }
 
