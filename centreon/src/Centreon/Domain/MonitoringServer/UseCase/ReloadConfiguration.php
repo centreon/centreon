@@ -64,25 +64,25 @@ class ReloadConfiguration
     public function execute(int $monitoringServerId): void
     {
         try {
-            if (
-                $this->contact->isAllowedToReachWeb()
-                && ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ)
-                && ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)
-            ) {
-                throw new AccessDeniedException(
-                    'Insufficient rights (required: ROLE_CONFIGURATION_MONITORING_SERVER_READ or ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)'
-                );
-            }
+            if ($this->contact->isAdmin()) {
+                $monitoringServer = $this->monitoringServerRepository->findServer($monitoringServerId);
+            } else {
+                if (
+                    ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ)
+                    && ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)
+                ) {
+                    throw new AccessDeniedException(
+                        'Insufficient rights (required: ROLE_CONFIGURATION_MONITORING_SERVER_READ or '
+                            . 'ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)'
+                    );
+                }
 
-            if (! $this->contact->isAdmin()) {
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->contact);
 
                 $monitoringServer = $this->monitoringServerRepository->findByIdAndAccessGroups(
                     $monitoringServerId,
                     $accessGroups
                 );
-            } else {
-                $monitoringServer = $this->monitoringServerRepository->findServer($monitoringServerId);
             }
 
             if ($monitoringServer === null) {
