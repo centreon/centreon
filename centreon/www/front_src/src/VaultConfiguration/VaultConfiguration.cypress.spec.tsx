@@ -178,7 +178,7 @@ describe('Vault configuration', () => {
     cy.contains(labelSave).should('be.disabled');
 
     cy.findByLabelText(labelSecretID).should('have.value', '');
-    cy.findByLabelText(labelVaultAddress).should('have.value', 'example.com');
+    cy.findByLabelText(labelVaultAddress).should('have.value', 'localhost');
 
     cy.makeSnapshot();
   });
