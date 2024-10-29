@@ -151,7 +151,7 @@ Then(
       .eq(2)
       .invoke('text')
       .then((clockText) => {
-        cy.log(clockText);
+        cy.log(`Clock text: ${clockText}`);
 
         const hoursNow = new Date().toLocaleString('en-US', {
           hour: '2-digit',
@@ -159,14 +159,12 @@ Then(
           timeZone: 'Europe/Paris'
         });
 
-        const hoursPlusOne = String((parseInt(hoursNow, 10) + 1) % 24).padStart(
-          2,
-          '0'
-        );
-        const hoursPlusTwo = String((parseInt(hoursNow, 10) + 2) % 24).padStart(
-          2,
-          '0'
-        );
+        const hoursPlusOne = String((parseInt(hoursNow, 10) + 1) % 24).padStart(2, '0');
+        const hoursPlusTwo = String((parseInt(hoursNow, 10) + 2) % 24).padStart(2, '0');
+
+        cy.log(`Current hour (hoursNow): ${hoursNow}`);
+        cy.log(`One hour ahead (hoursPlusOne): ${hoursPlusOne}`);
+        cy.log(`Two hours ahead (hoursPlusTwo): ${hoursPlusTwo}`);
 
         const displayedHour = clockText.trim().slice(0, 2);
 
