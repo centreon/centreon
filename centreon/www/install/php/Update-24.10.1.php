@@ -42,12 +42,14 @@ $addAllContactGroupsColumnToAclGroups = function (CentreonDB $pearDB) use (&$err
 };
 
 try {
+    // DDL statements
+    $addAllContactsColumnToAclGroups($pearDB);
+    $addAllContactGroupsColumnToAclGroups($pearDB);
+
+    // Transactional queries
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
-
-    $addAllContactsColumnToAclGroups($pearDB);
-    $addAllContactGroupsColumnToAclGroups($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {
