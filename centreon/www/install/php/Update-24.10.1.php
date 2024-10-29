@@ -22,8 +22,6 @@
 require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 
-global $pearDB;
-
 $versionOfTheUpgrade = 'UPGRADE - 24.10.1: ';
 $errorMessage = '';
 
