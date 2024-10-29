@@ -65,11 +65,12 @@ runs:
           --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
           --header "Accept:application/json" \
           --header "Content-Type:application/json" \
-          --data "{
-              \"fields\": [\"summary\"],
-              \"jql\": \"project = MON AND parentEpic = ${{ steps.get_context.outputs.parent_epic_key }} AND issueType = Technical AND summary ~ \"${{ steps.get_context.outputs.ticket_summary }}\" AND component ~ \"${{ inputs.module_name }}\" AND resolution = unresolved ORDER BY key ASC\",
-              \"maxResults\": 1
-        }")
+          --data '{
+              "fields": ["summary"],
+              "jql": "project = MON AND parentEpic = ${{ steps.get_context.outputs.parent_epic_key }} AND issueType = Technical AND summary ~ \"${{ steps.get_context.outputs.ticket_summary }}\" AND component ~ \"${{ inputs.module_name }}\" AND resolution = unresolved ORDER BY key ASC",
+              "maxResults": 1
+            }'
+          )
         echo "$response"
         check_if_ticket_exists=$(echo "$response" | jq .issues[0].key)
         if [[ "$check_if_ticket_exists" != "null" ]]; then
