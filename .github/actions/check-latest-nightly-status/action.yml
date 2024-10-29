@@ -32,7 +32,7 @@ runs:
         fi
 
         echo "Filtering the results of the last nightly build"
-        lastNightlyRunDetails=$(gh run ls --json number,status,conclusion --workflow web.yml --branch ${{ github.ref_name }} --limit 20 | \
+        lastNightlyRunDetails=$(gh run ls --json name,number,status,conclusion --workflow web.yml --branch ${{ github.ref_name }} --limit 20 | \
           jq --arg module_name "${{ inputs.module_name }}" --arg branch "${{ github.ref_name }}" '. | map(select(.name == "$module_name nightly $branch"))')
         echo "Last nightly run details for ${{ github.ref_name }}: $lastNightlyRunDetails"
 
