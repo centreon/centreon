@@ -168,15 +168,13 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
                 $value = YesNoDefaultConverter::toString($value);
             }
 
-            if ($value instanceof NotificationType) {
-                $value = NotificationTypeConverter::toString([$value]);
-            }
-
             if (is_array($value)) {
                 if (empty($value)) {
                     $value = '';
                 } elseif (is_string($value[0])) {
                     $value = implode(',', str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], $value));
+                } elseif ($value[0] instanceof NotificationType) {
+                    $value = NotificationTypeConverter::toString($value);
                 } else {
                     $value = implode(',', $value);
                 }
