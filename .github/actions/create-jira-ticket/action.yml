@@ -100,7 +100,7 @@ runs:
         EOF
         )
 
-        response=$(curl --fail \
+        response=$(curl \
           --request POST
           --url "${{ inputs.jira_base_url }}/rest/api/3/issue" \
           --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
