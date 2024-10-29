@@ -17,6 +17,7 @@
     "@types/node": "^20.11.1",
     "cross-env": "^7.0.3",
     "cypress": "^13.6.2",
+    "cypress-on-fix": "^1.0.3",
     "cypress-real-events": "^1.11.0",
     "cypress-wait-until": "^3.0.1",
     "path": "^0.12.7",
