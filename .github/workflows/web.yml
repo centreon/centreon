@@ -689,7 +689,7 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   e2e-test:
-    needs: [get-environment, dockerize, create-xray-test-plan-and-test-execution]
+    needs: [get-environment]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false

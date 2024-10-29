@@ -168,10 +168,10 @@ Then(
           '0'
         );
 
-        expect(clockText.trim()).to.satisfy(
-          (displayedTime) =>
-            displayedTime.startsWith(hoursPlusOne) ||
-            displayedTime.startsWith(hoursPlusTwo)
+        const displayedHour = clockText.trim().slice(0, 2);
+
+        expect(displayedHour).to.satisfy(
+          (hour) => hour === hoursPlusOne || hour === hoursPlusTwo
         );
       });
   }
