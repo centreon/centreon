@@ -47,7 +47,8 @@ export default ({
       reporterOptions: {
         configFile: `${__dirname}/reporter-config.js`
       },
-      setupNodeEvents: async (on, config) => {
+      setupNodeEvents: async (cypressOn, config) => {
+        const on = require('cypress-on-fix')(cypressOn)
         installLogsPrinter(on);
         await esbuildPreprocessor(on, config);
         tasks(on);
