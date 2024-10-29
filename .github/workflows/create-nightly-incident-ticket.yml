@@ -33,8 +33,7 @@ jobs:
 
       - name: Create Jira ticket
         if: |
-          steps.check-latest-nightly-status.outputs.last_nightly_result == 'failure' &&
-          (github.ref_name == 'develop' || startsWith(github.ref_name, 'dev-'))
+          steps.check-latest-nightly-status.outputs.last_nightly_result == 'failure'
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
