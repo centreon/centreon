@@ -1,5 +1,9 @@
 name: "check-latest-nightly-status"
 description: "Check the status of the latest nightly build"
+inputs:
+  module_name:
+    required: true
+    description: module name
 outputs:
   last_nightly_result:
     description: "The status of the latest nightly build (success or failure)"

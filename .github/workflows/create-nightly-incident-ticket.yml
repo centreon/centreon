@@ -28,6 +28,8 @@ jobs:
       - name: Check the status of the last nightly
         id: check-latest-nightly-status
         uses: ./.github/actions/check-latest-nightly-status
+        with:
+          module_name: web
 
       - name: Create Jira ticket
         if: |
