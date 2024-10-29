@@ -148,28 +148,22 @@ Then(
   'the time format in the widget should be updated to reflect the new format',
   () => {
     cy.get('div[class$="clockLabel"] p')
-      .eq(2)
-      .invoke('text')
-      .then((clockText) => {
-        cy.log(`Clock text: ${clockText}`);
+    .eq(2)
+    .invoke('text')
+    .then((clockText) => {
+      cy.log(`Clock text: ${clockText}`);
 
-        const hoursNow = new Date().toLocaleString('en-US', {
-          hour: '2-digit',
-          hour12: false
-        });
-
-        const hoursPlusOne = String((parseInt(hoursNow, 10) + 1) % 24).padStart(
-          2,
-          '0'
-        );
-
-        cy.log(`Current hour (hoursNow): ${hoursNow}`);
-        cy.log(`One hour ahead (hoursPlusOne): ${hoursPlusOne}`);
-
-        const displayedHour = clockText.trim().slice(0, 2);
-
-        expect(displayedHour).to.be.oneOf([hoursNow, hoursPlusOne]);
+      const hoursNow = new Date().toLocaleString('en-US', {
+        hour: '2-digit',
+        hour12: false
       });
+
+      cy.log(`Current hour (hoursNow): ${hoursNow}`);
+
+      const displayedHour = clockText.trim().slice(0, 2);
+
+      expect(displayedHour).to.equal(hoursNow);
+    });
   }
 );
 
