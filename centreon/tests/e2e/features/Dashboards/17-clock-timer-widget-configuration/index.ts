@@ -158,7 +158,10 @@ Then(
           hour12: false
         });
 
-        const hoursPlusOne = String((parseInt(hoursNow, 10) + 1) % 24).padStart(2, '0');
+        const hoursPlusOne = String((parseInt(hoursNow, 10) + 1) % 24).padStart(
+          2,
+          '0'
+        );
 
         cy.log(`Current hour (hoursNow): ${hoursNow}`);
         cy.log(`One hour ahead (hoursPlusOne): ${hoursPlusOne}`);
