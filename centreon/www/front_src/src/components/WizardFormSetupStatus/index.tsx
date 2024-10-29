@@ -1,18 +1,18 @@
 import { equals, isNil, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Typography, Paper, Grid, Alert } from '@mui/material';
-import Chip from '@mui/material/Chip';
 import CheckIcon from '@mui/icons-material/Check';
 import SmsFailedIcon from '@mui/icons-material/SmsFailed';
+import { Alert, Grid, Paper, Typography } from '@mui/material';
+import Chip from '@mui/material/Chip';
 
 import { ContentWithCircularLoading } from '@centreon/ui';
 
-import { useStylesWithProps } from '../../styles/partials/form/PollerWizardStyle';
 import {
   labelCreatingExportTask,
   labelGeneratingExportFiles
 } from '../../PollerWizard/translatedLabels';
+import { useStylesWithProps } from '../../styles/partials/form/PollerWizardStyle';
 
 interface Props {
   error: string | null;

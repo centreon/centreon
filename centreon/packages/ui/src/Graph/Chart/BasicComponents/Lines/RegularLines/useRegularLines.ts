@@ -1,7 +1,7 @@
 import { difference } from 'ramda';
 
-import { Line } from '../../../../common/timeSeries/models';
 import { getSortedStackedLines } from '../../../../common/timeSeries';
+import { Line } from '../../../../common/timeSeries/models';
 
 interface RegularLines {
   regularLines: Array<Line>;

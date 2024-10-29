@@ -45,7 +45,7 @@ include "./include/common/autoNumLimit.php";
 /*
  * nagios servers comes from DB
  */
-$nagios_servers = array();
+$nagios_servers = [];
 $dbResult = $pearDB->query("SELECT * FROM nagios_server ORDER BY name");
 while ($nagios_server = $dbResult->fetch()) {
     $nagios_servers[$nagios_server["id"]] = $nagios_server["name"];
@@ -54,7 +54,7 @@ $dbResult->closeCursor();
 
 // Smarty template Init
 $tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+$tpl = initSmartyTpl(__DIR__, $tpl);
 
 // Access level
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
@@ -78,7 +78,7 @@ $search = \HtmlAnalyzer::sanitizeAndRemoveTags(
 
 if (isset($_POST['searchCB']) || isset($_GET['searchCB'])) {
     //saving filters values
-    $centreon->historySearch[$url] = array();
+    $centreon->historySearch[$url] = [];
     $centreon->historySearch[$url]['search'] = $search;
 } else {
     //restoring saved values
@@ -87,11 +87,7 @@ if (isset($_POST['searchCB']) || isset($_GET['searchCB'])) {
 
 $aclCond = "";
 if (!$centreon->user->admin && count($allowedBrokerConf)) {
-    if ($search !== '') {
-        $aclCond = " AND ";
-    } else {
-        $aclCond = " WHERE ";
-    }
+    $aclCond = $search !== '' ? " AND " : " WHERE ";
     $aclCond .= "config_id IN (" . implode(',', array_keys($allowedBrokerConf)) . ") ";
 }
 
@@ -128,7 +124,7 @@ $form = new HTML_QuickFormCustom('select_form', 'POST', "?p=" . $p);
 $style = "one";
 
 // Fill a tab with a multidimensional Array we put in $tpl
-$elemArr = array();
+$elemArr = [];
 $centreonToken = createCSRFToken();
 
 $statementBrokerInfo = $pearDB->prepare(
@@ -172,37 +168,21 @@ for ($i = 0; $config = $cfgBrokerStmt->fetch(); $i++) {
     $row = $statementBrokerInfo->fetch(\PDO::FETCH_ASSOC);
     $inputNumber = $row["num"];
 
-    $elemArr[$i] = array(
-        "MenuClass" => "list_" . $style,
-        "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_name" => htmlentities($config["config_name"], ENT_QUOTES, 'UTF-8'),
-        "RowMenu_link" => "main.php?p=" . $p . "&o=c&id=" . $config['config_id'],
-        "RowMenu_desc" => CentreonUtils::escapeSecure(
-            substr(
-                $nagios_servers[$config["ns_nagios_server"]],
-                0,
-                40
-            )
-        ),
-        "RowMenu_inputs" => $inputNumber,
-        "RowMenu_outputs" => $outputNumber,
-        "RowMenu_status" => $config["config_activate"] ? _("Enabled") : _("Disabled"),
-        "RowMenu_badge" => $config["config_activate"] ? "service_ok" : "service_critical",
-        "RowMenu_options" => $moptions
-    );
-    $style != "two" ? $style = "two" : $style = "one";
+    $elemArr[$i] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => htmlentities($config["config_name"], ENT_QUOTES, 'UTF-8'), "RowMenu_link" => "main.php?p=" . $p . "&o=c&id=" . $config['config_id'], "RowMenu_desc" => CentreonUtils::escapeSecure(
+        substr(
+            $nagios_servers[$config["ns_nagios_server"]],
+            0,
+            40
+        )
+    ), "RowMenu_inputs" => $inputNumber, "RowMenu_outputs" => $outputNumber, "RowMenu_status" => $config["config_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $config["config_activate"] ? "service_ok" : "service_critical", "RowMenu_options" => $moptions];
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 
 // Different messages we put in the template
 $tpl->assign(
     'msg',
-    array(
-        "addL" => "main.php?p=" . $p . "&o=a",
-        "addT" => _("Add"),
-        "addWizard" => _('Add with wizard'),
-        "delConfirm" => _("Do you confirm the deletion ?")
-    )
+    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "addWizard" => _('Add with wizard'), "delConfirm" => _("Do you confirm the deletion ?")]
 );
 ?>
 <script type="text/javascript">
@@ -211,55 +191,51 @@ $tpl->assign(
     }
 </script>
 <?php
-$attrs = array(
-    'onchange' => "javascript: " .
-        " var bChecked = isChecked(); " .
-        " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {" .
-        " alert('" . _("Please select one or more items") . "'); return false;} " .
-        "if (this.form.elements['o1'].selectedIndex == 1 && confirm('"
-        . _("Do you confirm the duplication ?") . "')) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
-        . _("Do you confirm the deletion ?") . "')) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        "else if (this.form.elements['o1'].selectedIndex == 3) {" .
-        " 	setO(this.form.elements['o1'].value); submit();} " .
-        ""
-);
+$attrs = ['onchange' => "javascript: " .
+    " var bChecked = isChecked(); " .
+    " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {" .
+    " alert('" . _("Please select one or more items") . "'); return false;} " .
+    "if (this.form.elements['o1'].selectedIndex == 1 && confirm('"
+    . _("Do you confirm the duplication ?") . "')) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
+    . _("Do you confirm the deletion ?") . "')) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    "else if (this.form.elements['o1'].selectedIndex == 3) {" .
+    " 	setO(this.form.elements['o1'].value); submit();} " .
+    ""];
 $form->addElement(
     'select',
     'o1',
     null,
-    array(null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")),
+    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
     $attrs
 );
-$form->setDefaults(array('o1' => null));
+$form->setDefaults(['o1' => null]);
 $o1 = $form->getElement('o1');
 $o1->setValue(null);
 
-$attrs = array(
-    'onchange' => "javascript: " .
-        " var bChecked = isChecked(); " .
-        " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {" .
-        " alert('" . _("Please select one or more items") . "'); return false;} " .
-        "if (this.form.elements['o2'].selectedIndex == 1 && confirm('"
-        . _("Do you confirm the duplication ?") . "')) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('"
-        . _("Do you confirm the deletion ?") . "')) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        "else if (this.form.elements['o2'].selectedIndex == 3) {" .
-        " 	setO(this.form.elements['o2'].value); submit();} " .
-        ""
-);
+$attrs = ['onchange' => "javascript: " .
+    " var bChecked = isChecked(); " .
+    " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {" .
+    " alert('" . _("Please select one or more items") . "'); return false;} " .
+    "if (this.form.elements['o2'].selectedIndex == 1 && confirm('"
+    . _("Do you confirm the duplication ?") . "')) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('"
+    . _("Do you confirm the deletion ?") . "')) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    "else if (this.form.elements['o2'].selectedIndex == 3) {" .
+    " 	setO(this.form.elements['o2'].value); submit();} " .
+    ""];
 $form->addElement(
     'select',
     'o2',
     null,
-    array(null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")),
+    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
     $attrs
 );
-$form->setDefaults(array('o2' => null));
+$form->setDefaults(['o2' => null]);
 $o2 = $form->getElement('o2');
 $o2->setValue(null);
 

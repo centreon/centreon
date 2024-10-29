@@ -12,11 +12,11 @@ import { Provider } from 'jotai';
 
 import { Box } from '@mui/material';
 
-import { LineChartProps } from '../Chart/models';
-import { LineChartData, Thresholds } from '../common/models';
 import { ParentSize } from '../../ParentSize';
-import useChartData from '../Chart/useChartData';
 import LoadingSkeleton from '../Chart/LoadingSkeleton';
+import { LineChartProps } from '../Chart/models';
+import useChartData from '../Chart/useChartData';
+import { LineChartData, Thresholds } from '../common/models';
 
 import ResponsiveBarChart from './ResponsiveBarChart';
 import { BarStyle } from './models';
@@ -38,6 +38,7 @@ export interface BarChartProps
   start: string;
   thresholdUnit?: string;
   thresholds?: Thresholds;
+  skipIntersectionObserver?: boolean;
 }
 
 const BarChart = ({
@@ -57,7 +58,8 @@ const BarChart = ({
   barStyle = {
     opacity: 1,
     radius: 0.2
-  }
+  },
+  skipIntersectionObserver
 }: BarChartProps): JSX.Element => {
   const { adjustedData } = useChartData({ data, end, start });
   const lineChartRef = useRef<HTMLDivElement | null>(null);
@@ -93,6 +95,7 @@ const BarChart = ({
               thresholds={thresholds}
               tooltip={tooltip}
               width={width}
+              skipIntersectionObserver={skipIntersectionObserver}
             />
           )}
         </ParentSize>

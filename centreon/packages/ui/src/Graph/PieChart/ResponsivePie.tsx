@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 
-import { Pie } from '@visx/shape';
 import { Group } from '@visx/group';
+import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
 import numeral from 'numeral';
 import { always, equals, gt, ifElse, lt } from 'ramda';
@@ -14,8 +14,8 @@ import { Legend as LegendComponent } from '../Legend';
 import { LegendProps } from '../Legend/models';
 import { getValueByUnit } from '../common/utils';
 
-import { PieProps } from './models';
 import { usePieStyles } from './PieChart.styles';
+import { PieProps } from './models';
 import { useResponsivePie } from './useResponsivePie';
 
 const DefaultLegend = ({ scale, direction }: LegendProps): JSX.Element => (
@@ -42,8 +42,6 @@ const getTooltipPlacement = ({ radianX, radianY }): Placement => {
 
 const ResponsivePie = ({
   title,
-  titlePosition,
-  displayTitle = true,
   variant = 'pie',
   width,
   height,
@@ -92,10 +90,7 @@ const ResponsivePie = ({
   const isSmall = lt(width, 130);
   const mustDisplayLegend = isTooSmallForLegend ? false : displayLegend;
 
-  const { classes } = usePieStyles({
-    reverse: equals(titlePosition, 'bottom'),
-    svgSize
-  });
+  const { classes } = usePieStyles({ svgSize });
 
   return (
     <div
@@ -110,16 +105,12 @@ const ResponsivePie = ({
           minHeight: equals(variant, 'donut') && isSmall ? 'auto' : height
         }}
       >
-        {(equals(variant, 'pie') ||
-          isSmall ||
-          (equals(variant, 'donut') && equals(titlePosition, 'bottom'))) &&
-          title &&
-          displayTitle && (
-            <div className={classes.title} data-testid="Title" ref={titleRef}>
-              {`${displayTotal ? numeral(total).format('0a').toUpperCase() : ''} `}
-              {t(title)}
-            </div>
-          )}
+        {(equals(variant, 'pie') || isSmall) && title && (
+          <div className={classes.title} data-testid="Title" ref={titleRef}>
+            {`${displayTotal ? numeral(total).format('0a').toUpperCase() : ''} `}
+            {t(title)}
+          </div>
+        )}
         <div
           className={classes.svgContainer}
           data-testid="pieChart"
@@ -194,7 +185,11 @@ const ResponsivePie = ({
                           radianY: Math.sin(midAngle)
                         })}
                       >
-                        <g data-testid={arc.data.label} onClick={onClick}>
+                        <g
+                          data-testid={arc.data.label}
+                          onClick={onClick}
+                          onKeyUp={() => undefined}
+                        >
                           <path
                             cursor="pointer"
                             d={pie.path(arc) as string}
@@ -228,31 +223,27 @@ const ResponsivePie = ({
                   });
                 }}
               </Pie>
-              {equals(variant, 'donut') &&
-                !isSmall &&
-                title &&
-                displayTitle &&
-                !equals(titlePosition, 'bottom') && (
-                  <>
-                    <Text
-                      className={classes.title}
-                      dy={lt(svgSize, 150) ? -10 : -15}
-                      fill={theme.palette.text.primary}
-                      textAnchor="middle"
-                    >
-                      {numeral(total).format('0a').toUpperCase()}
-                    </Text>
-                    <Text
-                      className={classes.title}
-                      data-testid="Title"
-                      dy={lt(svgSize, 150) ? 10 : 15}
-                      fill={theme.palette.text.primary}
-                      textAnchor="middle"
-                    >
-                      {t(title)}
-                    </Text>
-                  </>
-                )}
+              {equals(variant, 'donut') && !isSmall && title && (
+                <>
+                  <Text
+                    className={classes.title}
+                    dy={lt(svgSize, 150) ? -10 : -15}
+                    fill={theme.palette.text.primary}
+                    textAnchor="middle"
+                  >
+                    {numeral(total).format('0a').toUpperCase()}
+                  </Text>
+                  <Text
+                    className={classes.title}
+                    data-testid="Title"
+                    dy={lt(svgSize, 150) ? 10 : 15}
+                    fill={theme.palette.text.primary}
+                    textAnchor="middle"
+                  >
+                    {t(title)}
+                  </Text>
+                </>
+              )}
             </Group>
           </svg>
         </div>

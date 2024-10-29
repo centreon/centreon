@@ -34,91 +34,160 @@
  *
  */
 
-/*
- *  Class that displays any kind of information between the html header containing logo
- *  and the horizontal menu
+/**
+ * Class
+ *
+ * @class CentreonMsg
+ * @description Class that displays any kind of information between the html header containing logo
+ *              and the horizontal menu
  */
-
 class CentreonMsg
 {
+    /** @var string */
+    public $color;
+    /** @var string */
     public $div;
 
-    /* Constructor */
+    /**
+     * CentreonMsg constructor
+     *
+     * @param string|null $divId
+     */
     public function __construct($divId = null)
     {
-        if (empty($divId)) {
-            $this->div = "centreonMsg";
-        } else {
-            $this->div = $divId;
-        }
+        $this->div = empty($divId) ? "centreonMsg" : $divId;
         $this->color = "#FFFFFF";
     }
 
-    /*
- 	 *  Sets style of text inside Div
- 	 */
-    public function setTextStyle($style)
+    /**
+     * Display an information message.
+     *
+     * @param string $message
+     *
+     * @return void
+     */
+    public function info(string $message): void
+    {
+        $this->setTextStyle("bold");
+        $this->setText($message);
+        $this->setTimeOut("3");
+    }
+
+    /**
+     * Display an error message.
+     *
+     * @param string $message
+     *
+     * @return void
+     */
+    public function error(string $message): void
+    {
+        $this->setTextColor("rgb(255, 102, 102)");
+        $this->setTextStyle("bold");
+        $this->setText($message);
+        $this->setTimeOut("3");
+    }
+
+    /**
+     * Sets style of text inside Div
+     *
+     * @param string $style
+     *
+     * @return void
+     */
+    public function setTextStyle($style): void
     {
         echo "<script type=\"text/javascript\">_setTextStyle(\"$this->div\", \"$style\")</script>";
     }
 
-    /*
- 	 *  Sets text color
- 	 */
-    public function setTextColor($color)
+    /**
+     * @param string $color
+     *
+     * @return void
+     */
+    public function setTextColor($color): void
     {
         echo "<script type=\"text/javascript\">_setTextColor(\"$this->div\", \"$color\")</script>";
     }
 
-    /*
- 	 *  Sets text align
- 	 */
-    public function setAlign($align)
+    /**
+     * @param string $align
+     *
+     * @return void
+     */
+    public function setAlign($align): void
     {
         echo "<script type=\"text/javascript\">_setAlign(\"$this->div\", \"$align\")</script>";
     }
 
-    /*
- 	 *  Sets vertical align
- 	 */
-    public function setValign($align)
+    /**
+     * @param string $align
+     *
+     * @return void
+     */
+    public function setValign($align): void
     {
         echo "<script type=\"text/javascript\">_setValign(\"$this->div\", \"$align\")</script>";
     }
 
-    /* Sets background color of Div */
-    public function setBackgroundColor($color)
+    /**
+     * @param string $color
+     *
+     * @return void
+     */
+    public function setBackgroundColor($color): void
     {
         echo "<script type=\"text/javascript\">_setBackgroundColor(\"$this->div\", \"$color\")</script>";
     }
 
-    /* Sets text in Div */
-    public function setText($str)
+    /**
+     * @param string $str
+     *
+     * @return void
+     */
+    public function setText($str): void
     {
         echo "<script type=\"text/javascript\">_setText(\"$this->div\", \"$str\")</script>";
     }
 
-    /* Sets image in Div */
-    public function setImage($img_url)
+    /**
+     * @param string $img_url
+     *
+     * @return void
+     */
+    public function setImage($img_url): void
     {
         echo "<script type=\"text/javascript\">_setImage(\"$this->div\", \"$img_url\")</script>";
     }
 
-    /* If you want to display your message for a limited time period, just call this function */
-    public function setTimeOut($sec)
+    /**
+     * If you want to display your message for a limited time period, just call this function
+     *
+     * @param int $sec
+     *
+     * @return void
+     */
+    public function setTimeOut($sec): void
     {
         echo "<script type=\"text/javascript\">"
             . "setTimeout(() => { jQuery(\"#" . $this->div . "\").toggle(); }, " . ($sec * 1000) . ");"
             . "</script>";
     }
 
-    /* Clear message box */
-    public function clear()
+    /**
+     * Clear message box
+     *
+     * @return void
+     */
+    public function clear(): void
     {
         echo "<script type=\"text/javascript\">_clear(\"$this->div\")</script>";
     }
 
-    public function nextLine()
+    /**
+     * @return void
+     */
+    public function nextLine(): void
     {
         echo "<script type=\"text/javascript\">_nextLine(\"$this->div\")</script>";
     }

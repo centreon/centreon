@@ -1,17 +1,17 @@
 import { useState } from 'react';
 
-import { createStore, Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 
 import { userAtom } from '@centreon/ui-context';
 
 import { LineChartData } from '../common/models';
-import dataLastDay from '../mockedData/lastDay.json';
-import dataLastDayWithNullValues from '../mockedData/lastDayWithNullValues.json';
-import dataLastDayWithIncompleteValues from '../mockedData/lastDayWithIncompleteValues.json';
 import dataCurvesWithSameColor from '../mockedData/curvesWithSameColor.json';
+import dataLastDay from '../mockedData/lastDay.json';
+import dataLastDayWithIncompleteValues from '../mockedData/lastDayWithIncompleteValues.json';
+import dataLastDayWithNullValues from '../mockedData/lastDayWithNullValues.json';
 import dataPingServiceLinesBars from '../mockedData/pingServiceLinesBars.json';
-import dataPingServiceLinesBarsStacked from '../mockedData/pingServiceLinesBarsStacked.json';
 import dataPingServiceLinesBarsMixed from '../mockedData/pingServiceLinesBarsMixed.json';
+import dataPingServiceLinesBarsStacked from '../mockedData/pingServiceLinesBarsStacked.json';
 
 import { args as argumentsData } from './helpers/doc';
 import { LineChartProps } from './models';

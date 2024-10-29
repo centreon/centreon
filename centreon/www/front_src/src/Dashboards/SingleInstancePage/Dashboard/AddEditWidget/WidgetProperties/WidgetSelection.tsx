@@ -1,17 +1,17 @@
-import { useTranslation } from 'react-i18next';
-import { find, propEq } from 'ramda';
 import parse from 'html-react-parser';
+import { find, propEq } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import { Box, ListItemIcon, ListItemText, SvgIcon } from '@mui/material';
 import WidgetsIcon from '@mui/icons-material/Widgets';
+import { Box, ListItemIcon, ListItemText, SvgIcon } from '@mui/material';
 
 import { SingleAutocompleteField } from '@centreon/ui';
 import { Avatar } from '@centreon/ui/components';
 
+import type { FederatedWidgetProperties } from '../../../../../federatedModules/models';
+import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
 import { labelWidgetType } from '../../translatedLabels';
 import { useAddWidgetStyles } from '../addWidget.styles';
-import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
-import { FederatedWidgetProperties } from '../../../../../federatedModules/models';
 
 import useWidgetSelection from './useWidgetSelection';
 import { useWidgetSelectionStyles } from './widgetProperties.styles';

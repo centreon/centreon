@@ -1,19 +1,30 @@
+import type { FormikValues } from 'formik';
+import type { TFunction } from 'i18next';
 import {
+  path,
   always,
   cond,
   equals,
   includes,
   isEmpty,
-  path,
   pluck,
   split
 } from 'ramda';
-import * as Yup from 'yup';
-import { TFunction } from 'i18next';
-import { FormikValues } from 'formik';
 
 import {
-  FederatedWidgetOption,
+  type AnyObjectSchema,
+  type AnySchema,
+  type ArraySchema,
+  type StringSchema,
+  array,
+  boolean,
+  mixed,
+  number,
+  object,
+  string
+} from 'yup';
+import {
+  type FederatedWidgetOption,
   FederatedWidgetOptionType
 } from '../../../../../../federatedModules/models';
 import {
@@ -22,8 +33,8 @@ import {
   labelRequired
 } from '../../../translatedLabels';
 import {
-  ShowInput,
-  WidgetDataResource,
+  type ShowInput,
+  type WidgetDataResource,
   WidgetResourceType
 } from '../../models';
 
@@ -33,15 +44,15 @@ export const getProperty = <T>({ propertyName, obj }): T | undefined =>
 export const getDataProperty = <T>({ propertyName, obj }): T | undefined =>
   path<T>(['data', ...split('.', propertyName)], obj);
 
-const namedEntitySchema = Yup.object().shape({
-  id: Yup.mixed().required(),
-  name: Yup.string().required()
+const namedEntitySchema = object().shape({
+  id: mixed().required(),
+  name: string().required()
 });
 
-const metricSchema = Yup.object().shape({
-  id: Yup.number().required(),
-  name: Yup.string().required(),
-  unit: Yup.string()
+const metricSchema = object().shape({
+  id: number().required(),
+  name: string().required(),
+  unit: string()
 });
 
 interface GetYupValidatorTypeProps {
@@ -53,54 +64,54 @@ const getYupValidatorType = ({
   t,
   properties
 }: GetYupValidatorTypeProps):
-  | Yup.StringSchema
-  | Yup.AnyObjectSchema
-  | Yup.ArraySchema<Yup.AnySchema> =>
+  | StringSchema
+  | AnyObjectSchema
+  | ArraySchema<AnySchema> =>
   cond<
     Array<FederatedWidgetOptionType>,
-    Yup.StringSchema | Yup.AnyObjectSchema | Yup.ArraySchema<Yup.AnySchema>
+    StringSchema | AnyObjectSchema | ArraySchema<AnySchema>
   >([
     [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.textfield),
-      always(Yup.string())
+      always(string())
     ],
     [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.richText),
-      always(Yup.string())
+      always(string())
     ],
     [
       equals<FederatedWidgetOptionType>(
         FederatedWidgetOptionType.singleMetricGraphType
       ),
-      always(Yup.string())
+      always(string())
     ],
     [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.valueFormat),
-      always(Yup.string())
+      always(string())
     ],
     [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.slider),
-      always(Yup.number())
+      always(number())
     ],
     [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.resources),
       always(
-        Yup.array()
+        array()
           .of(
-            Yup.object()
+            object()
               .shape({
                 resourceType:
                   properties.required || properties.requireResourceType
-                    ? Yup.string().required(t(labelRequired) as string)
-                    : Yup.string(),
+                    ? string().required(t(labelRequired) as string)
+                    : string(),
                 resources: properties.required
-                  ? Yup.array().of(namedEntitySchema).min(1)
-                  : Yup.array()
+                  ? array().of(namedEntitySchema).min(1)
+                  : array()
               })
               .optional()
           )
           .min(
-            properties.required ? 1 : 0,
+            properties.required || properties?.requireResourceType ? 1 : 0,
             t(labelPleaseSelectAResource) as string
           )
       )
@@ -108,18 +119,18 @@ const getYupValidatorType = ({
     [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.metrics),
       always(
-        Yup.array()
+        array()
           .of(
-            Yup.object()
+            object()
               .shape({
-                id: Yup.number().required(t(labelRequired) as string),
-                metrics: Yup.array().of(metricSchema).min(1),
-                name: Yup.string().required(t(labelRequired) as string)
+                id: number().required(t(labelRequired) as string),
+                metrics: array().of(metricSchema).min(1),
+                name: string().required(t(labelRequired) as string)
               })
               .optional()
           )
           .when('resources', ([resources], schema) => {
-            const hasMetaService = resources.some(({ resourceType }) =>
+            const hasMetaService = resources?.some(({ resourceType }) =>
               equals(resourceType, WidgetResourceType.metaService)
             );
 
@@ -135,21 +146,21 @@ const getYupValidatorType = ({
       equals<FederatedWidgetOptionType>(
         FederatedWidgetOptionType.refreshInterval
       ),
-      always(Yup.string())
+      always(string())
     ],
     [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.threshold),
       always(
-        Yup.object().shape({
-          critical: Yup.number().nullable(),
-          enabled: Yup.boolean(),
-          warning: Yup.number().nullable()
+        object().shape({
+          critical: number().nullable(),
+          enabled: boolean(),
+          warning: number().nullable()
         })
       )
     ],
     [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.tiles),
-      always(Yup.number().min(1))
+      always(number().min(1))
     ]
   ])(properties.type);
 
@@ -161,7 +172,7 @@ interface BuildValidationSchemaProps {
 export const buildValidationSchema = ({
   t,
   properties
-}: BuildValidationSchemaProps): Yup.StringSchema => {
+}: BuildValidationSchemaProps): StringSchema => {
   const yupValidator = getYupValidatorType({
     properties,
     t
@@ -202,14 +213,14 @@ export const showInput = ({
   const dependencyValue = path(when.split('.'), values) as Array<object>;
 
   if (notContains) {
-    return notContains.some(
+    return notContains?.some(
       ({ key, value }) =>
         !includes(value, pluck(key, dependencyValue).join(','))
     );
   }
 
   if (contains) {
-    return contains.some(({ key, value }) =>
+    return contains?.some(({ key, value }) =>
       includes(value, pluck(key, dependencyValue).join(','))
     );
   }

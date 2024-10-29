@@ -7,30 +7,30 @@ import { useTranslation } from 'react-i18next';
 import { useSnackbar } from '@centreon/ui';
 import { federatedWidgetsAtom } from '@centreon/ui-context';
 
-import { Panel, PanelConfiguration } from '../models';
+import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 import {
   addPanelDerivedAtom,
   removePanelDerivedAtom,
   setPanelOptionsAndDataDerivedAtom
 } from '../atoms';
+import { useCanEditProperties } from '../hooks/useCanEditDashboard';
+import { Panel, PanelConfiguration } from '../models';
 import {
   labelYourWidgetHasBeenCreated,
   labelYourWidgetHasBeenModified
 } from '../translatedLabels';
-import { useCanEditProperties } from '../hooks/useCanEditDashboard';
-import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 
+import { getDefaultValues } from './WidgetProperties/useWidgetSelection';
 import {
   customBaseColorAtom,
-  singleResourceSelectionAtom,
   singleMetricSelectionAtom,
+  singleResourceSelectionAtom,
   widgetFormInitialDataAtom,
   widgetPropertiesAtom
 } from './atoms';
 import { Widget } from './models';
-import { getDefaultValues } from './WidgetProperties/useWidgetSelection';
 
-interface useWidgetModalState {
+interface UseWidgetModalState {
   addWidget: (values: Widget) => void;
   askBeforeCloseModal: (shouldAskForClosingConfirmation: boolean) => void;
   askingBeforeCloseModal: boolean;
@@ -42,7 +42,7 @@ interface useWidgetModalState {
   widgetFormInitialData: Widget | null;
 }
 
-const useWidgetModal = (): useWidgetModalState => {
+const useWidgetModal = (): UseWidgetModalState => {
   const { t } = useTranslation();
 
   const { canEditField } = useCanEditProperties();
@@ -153,7 +153,7 @@ const useWidgetModal = (): useWidgetModalState => {
 
     setPanelOptions({
       data: values.data || undefined,
-      id: values.id as string,
+      id: widgetFormInitialData?.id as string,
       options: values.options
     });
     showSuccessMessage(t(labelYourWidgetHasBeenModified));

@@ -4,13 +4,13 @@ import { equals, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import {
-  TextField as MuiTextField,
+  Box,
   InputAdornment,
+  TextField as MuiTextField,
   TextFieldProps,
   Theme,
   Tooltip,
-  Typography,
-  Box
+  Typography
 } from '@mui/material';
 
 import { getNormalizedId } from '../../utils';
@@ -77,7 +77,7 @@ const OptionalLabelInputAdornment = ({
 type SizeVariant = 'large' | 'medium' | 'small' | 'compact';
 
 export type TextProps = {
-  EndAdornment?: React.FC;
+  EndAdornment?: React.FC | JSX.Element;
   StartAdornment?: React.FC;
   ariaLabel?: string;
   autoSize?: boolean;

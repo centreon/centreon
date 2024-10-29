@@ -1,10 +1,10 @@
 import { Axis } from '@visx/visx';
-import { isNil } from 'ramda';
 import { ScaleLinear } from 'd3-scale';
+import { isNil } from 'ramda';
 
-import { getUnits } from '../../timeSeries';
 import formatMetricValue from '../../formatMetricValue';
 import { Line } from '../../models';
+import { getUnits } from '../../timeSeries';
 
 import { commonTickLabelProps } from '.';
 

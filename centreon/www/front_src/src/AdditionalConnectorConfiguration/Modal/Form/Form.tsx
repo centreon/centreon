@@ -1,26 +1,23 @@
 /* eslint-disable react/no-unstable-nested-components */
 import { ReactElement } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { useFormikContext } from 'formik';
 import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { Form, FormProps } from '@centreon/ui';
 import { FormVariant } from '@centreon/ui/components';
 
-import { labelCancel, labelCreate, labelUpdate } from '../../translatedLabels';
-import { useFormStyles } from '../useModalStyles';
-import { AdditionalConnectorConfiguration } from '../models';
 import { isFormDirtyAtom } from '../../atoms';
+import { labelCancel, labelCreate, labelUpdate } from '../../translatedLabels';
+import { AdditionalConnectorConfiguration } from '../models';
+import { useFormStyles } from '../useModalStyles';
 
-import useValidationSchema from './useValidationSchema';
 import useFormInitialValues from './useFormInitialValues';
 import useFormInputs from './useFormInputs';
+import useValidationSchema from './useValidationSchema';
 
-import {
-  FormActions,
-  FormActionsProps
-} from 'packages/ui/src/components/Form/FormActions';
+import { FormActions, FormActionsProps } from '@centreon/ui/components';
 
 export type AdditionalConnectorFormProps = {
   connectorId?: number;

@@ -1,7 +1,7 @@
 import { Modal as ModalRoot } from './Modal';
-import { ModalHeader } from './ModalHeader';
-import { ModalBody } from './ModalBody';
 import { ModalActions } from './ModalActions';
+import { ModalBody } from './ModalBody';
+import { ModalHeader } from './ModalHeader';
 
 export { ConfirmationModal } from './ConfirmationModal/ConfirmationModal';
 

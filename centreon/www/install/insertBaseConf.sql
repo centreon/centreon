@@ -2,7 +2,7 @@
 -- Insert version
 --
 
-INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '24.07.0');
+INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '24.10.0');
 
 --
 -- Contenu de la table `contact`
@@ -476,7 +476,14 @@ INSERT INTO `cb_log` (`id`, `name`) VALUES
 (7, 'tcp'),
 (8, 'tls'),
 (9, 'lua'),
-(10, 'bam');
+(10, 'bam'),
+(11, 'neb'),
+(12, 'rrd'),
+(13, 'grpc'),
+(14, 'influxdb'),
+(15, 'graphite'),
+(16, 'victoria_metrics'),
+(17, 'stats');
 
 --
 -- Contenu de la table `cb_log_level`
@@ -610,7 +617,7 @@ INSERT INTO `cb_field` (`cb_field_id`, `fieldname`, `displayname`, `description`
 (68, 'storage_db_port', 'Storage DB port', 'Port on which the DB server listens', 'int', NULL),
 (69, 'storage_db_type', 'Storage DB type', 'Target DBMS.', 'select', NULL),
 (74, 'path', 'Path', 'Path of the lua script.', 'text', NULL),
-(75, 'connections_count', 'Number of connection to the database', 'Usually cpus/2', 'int', NULL),
+(75, 'connections_count', 'Number of connections to the database', "1: all queries are sent through one connection\n 2: one connection for data_bin and logs, one for the rest\n 3: one connection for data_bin, one for logs, one for the rest", 'int', NULL),
 (76, 'tls_hostname', 'TLS Host name', 'Expected TLS certificate common name (CN) - leave blank if unsure.', 'text', NULL),
 (77, 'db_type', 'DB type', 'Target DBMS.', 'text', 'T=options:C=value:CK=key:K=unified_sql_db_type'),
 (78, 'host','Listening address (optional)','Fill in this field only if you want to specify the address on which Broker should listen','text', NULL),
@@ -1506,4 +1513,6 @@ VALUES ('centreon-widget-statusgrid');
 INSERT INTO dashboard_widgets (`name`) VALUES
 ('centreon-widget-resourcestable'),
 ('centreon-widget-groupmonitoring'),
-('centreon-widget-statuschart');
+('centreon-widget-statuschart'),
+('centreon-widget-clock'),
+('centreon-widget-webpage');

@@ -5,4 +5,4 @@ DeleteContactGroupDashboardShare:
     dashboardId: '\d+'
     contactGroupId: '\d+'
   controller: 'Core\Dashboard\Infrastructure\API\DeleteContactGroupDashboardShare\DeleteContactGroupDashboardShareController'
-  condition: "request.attributes.get('version') >= 23.10 and request.attributes.get('feature.dashboard')"
+  condition: "request.attributes.get('version') >= 23.10"

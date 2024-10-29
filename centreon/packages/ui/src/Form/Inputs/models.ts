@@ -6,20 +6,21 @@ import { SelectEntry } from '../../InputField/Select';
 import { ConditionsSearchParameter } from '../../api/buildListingEndpoint/models';
 
 export enum InputType {
-  Switch,
-  Radio,
-  Text,
-  SingleAutocomplete,
-  MultiAutocomplete,
-  Password,
-  SingleConnectedAutocomplete,
-  MultiConnectedAutocomplete,
-  FieldsTable,
-  Grid,
-  Custom,
-  Checkbox,
-  CheckboxGroup,
-  List
+  Switch = 0,
+  Radio = 1,
+  Text = 2,
+  SingleAutocomplete = 3,
+  MultiAutocomplete = 4,
+  Password = 5,
+  SingleConnectedAutocomplete = 6,
+  MultiConnectedAutocomplete = 7,
+  FieldsTable = 8,
+  Grid = 9,
+  Custom = 10,
+  Checkbox = 11,
+  CheckboxGroup = 12,
+  List = 13,
+  File = 14
 }
 
 interface FieldsTableGetRequiredProps {
@@ -37,8 +38,16 @@ export interface InputProps {
   autocomplete?: {
     creatable?: boolean;
     options: Array<SelectEntry>;
+    fullWidth?: boolean;
   };
-  change?: ({ setFieldValue, value }) => void;
+  change?: ({
+    setFieldValue,
+    value,
+    setFieldTouched,
+    setValues,
+    values,
+    setTouched
+  }) => void;
   checkbox?: {
     direction?: 'horizontal' | 'vertical';
     labelPlacement?: LabelPlacement;
@@ -50,6 +59,12 @@ export interface InputProps {
     endpoint?: string;
     filterKey?: string;
     getRenderedOptionText?: (option) => string | JSX.Element;
+  };
+  file?: {
+    multiple?: boolean;
+    accept?: string;
+    maxFileSize?: number;
+    CustomDropZoneContent: ({ files }) => JSX.Element;
   };
   custom?: {
     Component: React.ComponentType<InputPropsWithoutGroup>;
@@ -102,6 +117,8 @@ export interface InputProps {
     multilineRows?: number;
     placeholder?: string;
     type?: string;
+    min?: number;
+    fullWidth?: boolean;
   };
   type: InputType;
 }

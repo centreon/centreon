@@ -4,8 +4,8 @@ import { isNil, prop } from 'ramda';
 import { bisectDate, getDates } from '../../../common/timeSeries';
 import { TimeValue } from '../../../common/timeSeries/models';
 
-import useTickGraph from './useTickGraph';
 import { GetYAnchorPoint } from './models';
+import useTickGraph from './useTickGraph';
 
 import AnchorPoint from '.';
 

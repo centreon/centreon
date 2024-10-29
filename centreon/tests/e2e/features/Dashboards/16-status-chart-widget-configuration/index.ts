@@ -2,13 +2,21 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkHostsAreMonitored,
-  checkServicesAreMonitored
+  checkServicesAreMonitored,
+  checkMetricsAreMonitored
 } from '../../../commons';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import statuschartWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithStatusChartWidget.json';
 import twoStatuschartWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwoStatusChartWidgets.json';
+
+const greenCssBackground = 'background: rgb(136, 185, 34)';
+const orangeCssBackground = 'background: rgb(253, 155, 39)';
+const redCssBackground = 'background: rgb(255, 102, 102)';
+const greyCssBackground = 'background: rgb(227, 227, 227)';
+const blueCssBackground = 'background: rgb(30, 190, 179)';
+
 
 const hostGroupName = 'Linux-Servers';
 
@@ -51,6 +59,7 @@ const resultsToSubmit = [
     status: 'ok'
   }
 ];
+
 before(() => {
   cy.intercept({
     method: 'GET',
@@ -139,6 +148,21 @@ before(() => {
   checkServicesAreMonitored([
     { name: services.serviceCritical.name, status: 'critical' },
     { name: services.serviceOk.name, status: 'ok' }
+  ]);
+
+  cy.scheduleHostCheck({ host: services.serviceOk.host })
+    .scheduleHostCheck({ host: services.serviceCritical.host });
+
+  ['Disk-/', 'Load', 'Memory', 'Ping'].forEach((service) => {
+    cy.scheduleServiceCheck({ host: 'Centreon-Server', service });
+  });
+
+  checkMetricsAreMonitored([
+    {
+      host: 'Centreon-Server',
+      name: 'rta',
+      service: 'Ping'
+    }
   ]);
 
   cy.logoutViaAPI();
@@ -263,23 +287,23 @@ Then(
     cy.verifyLegendItemStyle(
       0,
       [
-        'background: rgb(136, 185, 34)',
-        'background: rgb(255, 102, 102)',
-        'background: rgb(227, 227, 227)',
-        'background: rgb(30, 190, 179)'
+        greenCssBackground,
+        redCssBackground,
+        greyCssBackground,
+        blueCssBackground
       ],
       ['100.0%', '0.0%', '0.0%', '0.0%']
     );
     cy.verifyLegendItemStyle(
       1,
       [
-        'background: rgb(136, 185, 34)',
-        'background: rgb(253, 155, 39)',
-        'background: rgb(255, 102, 102)',
-        'background: rgb(227, 227, 227)',
-        'background: rgb(30, 190, 179)'
+        greenCssBackground,
+        orangeCssBackground,
+        redCssBackground,
+        greyCssBackground,
+        blueCssBackground
       ],
-      ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%']
+      ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
     );
   }
 );
@@ -301,23 +325,23 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
   cy.verifyLegendItemStyle(
     0,
     [
-      'background: rgb(136, 185, 34)',
-      'background: rgb(255, 102, 102)',
-      'background: rgb(227, 227, 227)',
-      'background: rgb(30, 190, 179)'
+      greenCssBackground,
+      redCssBackground,
+      greyCssBackground,
+      blueCssBackground
     ],
     ['100.0%', '0.0%', '0.0%', '0.0%']
   );
   cy.verifyLegendItemStyle(
     1,
     [
-      'background: rgb(136, 185, 34)',
-      'background: rgb(253, 155, 39)',
-      'background: rgb(255, 102, 102)',
-      'background: rgb(227, 227, 227)',
-      'background: rgb(30, 190, 179)'
+      greenCssBackground,
+      orangeCssBackground,
+      redCssBackground,
+      greyCssBackground,
+      blueCssBackground
     ],
-    ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%']
+    ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
   );
 });
 
@@ -338,13 +362,13 @@ Then('the unit of the resources already displayed should be updated', () => {
   cy.verifyLegendItemStyle(
     1,
     [
-      'background: rgb(136, 185, 34)',
-      'background: rgb(253, 155, 39)',
-      'background: rgb(255, 102, 102)',
-      'background: rgb(227, 227, 227)',
-      'background: rgb(30, 190, 179)'
+      greenCssBackground,
+      orangeCssBackground,
+      redCssBackground,
+      greyCssBackground,
+      blueCssBackground
     ],
-    ['3', '1', '1', '0', '5']
+    ['3', '1', '1', '3', '2']
   );
 });
 
@@ -369,23 +393,23 @@ Then('only the contents of the other widget are displayed', () => {
   cy.verifyLegendItemStyle(
     1,
     [
-      'background: rgb(136, 185, 34)',
-      'background: rgb(255, 102, 102)',
-      'background: rgb(227, 227, 227)',
-      'background: rgb(30, 190, 179)'
+      greenCssBackground,
+      redCssBackground,
+      greyCssBackground,
+      blueCssBackground
     ],
     ['3', '0', '0', '0']
   );
   cy.verifyLegendItemStyle(
     0,
     [
-      'background: rgb(136, 185, 34)',
-      'background: rgb(253, 155, 39)',
-      'background: rgb(255, 102, 102)',
-      'background: rgb(227, 227, 227)',
-      'background: rgb(30, 190, 179)'
+      greenCssBackground,
+      orangeCssBackground,
+      redCssBackground,
+      greyCssBackground,
+      blueCssBackground
     ],
-    ['3', '1', '1', '0', '5']
+    ['3', '1', '1', '3', '2']
   );
 });
 
@@ -397,7 +421,7 @@ When(
   'the dashboard administrator user duplicates the Status Chart widget',
   () => {
     cy.editDashboard(dashboards.default.name);
-    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click({ force: true });
   }
 );
@@ -406,13 +430,13 @@ Then('a second Status Chart widget is displayed on the dashboard', () => {
   cy.verifyLegendItemStyle(
     3,
     [
-      'background: rgb(136, 185, 34)',
-      'background: rgb(253, 155, 39)',
-      'background: rgb(255, 102, 102)',
-      'background: rgb(227, 227, 227)',
-      'background: rgb(30, 190, 179)'
+      greenCssBackground,
+      orangeCssBackground,
+      redCssBackground,
+      greyCssBackground,
+      blueCssBackground
     ],
-    ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%']
+    ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
   );
 });
 
@@ -438,13 +462,13 @@ Then(
     cy.verifyLegendItemStyle(
       1,
       [
-        'background: rgb(136, 185, 34)',
-        'background: rgb(253, 155, 39)',
-        'background: rgb(255, 102, 102)',
-        'background: rgb(227, 227, 227)',
-        'background: rgb(30, 190, 179)'
+        greenCssBackground,
+        orangeCssBackground,
+        redCssBackground,
+        greyCssBackground,
+        blueCssBackground
       ],
-      ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%']
+      ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
     );
   }
 );

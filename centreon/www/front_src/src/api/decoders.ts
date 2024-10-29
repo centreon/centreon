@@ -4,10 +4,10 @@ import type { User } from '@centreon/ui-context';
 import {
   DashboardGlobalRole,
   DashboardRolesAndPermissions,
-  ListingVariant,
-  ThemeMode,
   FeatureFlags,
-  PlatformFeatures
+  ListingVariant,
+  PlatformFeatures,
+  ThemeMode
 } from '@centreon/ui-context';
 
 import {
@@ -116,20 +116,12 @@ export const platformVersionsDecoder = JsonDecoder.object<PlatformVersions>(
 export const featuresFlagDecoder = JsonDecoder.object<FeatureFlags>(
   {
     adExclusionPeriods: JsonDecoder.optional(JsonDecoder.boolean),
-    dashboard: JsonDecoder.optional(JsonDecoder.boolean),
-    dashboard_playlist: JsonDecoder.optional(JsonDecoder.boolean),
     notification: JsonDecoder.optional(JsonDecoder.boolean),
-    resourceStatusFilterRevamp: JsonDecoder.optional(JsonDecoder.boolean),
-    resourceStatusTreeView: JsonDecoder.optional(JsonDecoder.boolean),
-    resouresTableOpenTickets: JsonDecoder.optional(JsonDecoder.boolean),
     vault: JsonDecoder.optional(JsonDecoder.boolean)
   },
   'Feature flags',
   {
-    adExclusionPeriods: 'ad_exclusion_periods',
-    resourceStatusFilterRevamp: 'resource_status_filter_revamp',
-    resourceStatusTreeView: 'resource_status_tree_view',
-    resouresTableOpenTickets: 'resources_table_widget_open_tickets'
+    adExclusionPeriods: 'ad_exclusion_periods'
   }
 );
 

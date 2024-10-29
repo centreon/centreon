@@ -142,7 +142,7 @@ function disableNagiosInDB($nagiosId = null)
     }
 }
 
-function deleteNagiosInDB($nagios = array())
+function deleteNagiosInDB($nagios = [])
 {
     global $pearDB;
 
@@ -174,7 +174,7 @@ function deleteNagiosInDB($nagios = array())
 /*
  * Duplicate Engine Configuration file in DB
  */
-function multipleNagiosInDB($nagios = array(), $nbrDup = array())
+function multipleNagiosInDB($nagios = [], $nbrDup = [])
 {
     foreach ($nagios as $originalNagiosId => $value) {
         global $pearDB;
@@ -187,7 +187,7 @@ function multipleNagiosInDB($nagios = array(), $nbrDup = array())
         $row["nagios_activate"] = '0';
         $stmt->closeCursor();
 
-        $rowBks = array();
+        $rowBks = [];
         $stmt = $pearDB->prepare("SELECT * FROM cfg_nagios_broker_module WHERE cfg_nagios_id = :nagiosId");
         $stmt->bindValue('nagiosId', (int) $originalNagiosId, \PDO::PARAM_INT);
         $stmt->execute();
@@ -201,12 +201,15 @@ function multipleNagiosInDB($nagios = array(), $nbrDup = array())
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
                 $value2 = $pearDB->escape($value2);
-                $key2 == "nagios_name" ? ($nagios_name = $value2 = $value2 . "_" . $i) : null;
+                if ($key2 == "nagios_name") {
+                    $nagios_name = $value2 . "_" . $i;
+                    $value2 = $value2 . "_" . $i;
+                }
                 $val ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")
                     : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
             }
             if (testExistence($nagios_name)) {
-                $val ? $rq = "INSERT INTO cfg_nagios VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO cfg_nagios VALUES (" . $val . ")" : null;
                 $dbResult = $pearDB->query($rq);
                 /* Find the new last nagios_id once */
                 $dbResult = $pearDB->query("SELECT MAX(nagios_id) FROM cfg_nagios");
@@ -405,6 +408,7 @@ function getNagiosCfgColumnsDetails(): array
         'enable_notifications' => ['isRadio' => true, 'default' => '1'],
         'enable_predictive_host_dependency_checks' => ['isRadio' => true, 'default' => '0'],
         'enable_predictive_service_dependency_checks' => ['isRadio' => true, 'default' => '0'],
+        'host_down_disable_service_checks' => ['isRadio' => true, 'default' => '0'],
         'execute_host_checks' => ['isRadio' => true, 'default' => '1'],
         'execute_service_checks' => ['isRadio' => true, 'default' => '1'],
         'log_event_handlers' => ['isRadio' => true, 'default' => '1'],
@@ -532,7 +536,7 @@ function encodeFieldNagios(string $value, string $columnName): string
         : htmlentities($value, ENT_QUOTES, "UTF-8");
 }
 
-function insertNagios($data = array(), $brokerTab = array())
+function insertNagios($data = [], $brokerTab = [])
 {
     global $form, $pearDB, $centreon;
 

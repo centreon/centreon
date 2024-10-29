@@ -2,7 +2,7 @@ import { JsonDecoder } from 'ts.data.json';
 
 import { buildListingDecoder } from '@centreon/ui';
 
-import { NamedEntity, AdditionalConnectorListItem } from '../Listing/models';
+import { AdditionalConnectorListItem, NamedEntity } from '../Listing/models';
 import { Parameter, ParameterKeys } from '../Modal/models';
 
 const namedEntityDecoder = {

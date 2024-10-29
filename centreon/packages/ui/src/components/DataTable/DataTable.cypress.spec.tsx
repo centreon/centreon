@@ -1,5 +1,5 @@
-import { Box } from '@mui/material';
 import Delete from '@mui/icons-material/Delete';
+import { Box } from '@mui/material';
 
 import { IconButton } from '../..';
 import { ColumnType } from '../../Listing/models';
@@ -53,7 +53,8 @@ const initializeDataTableEmpty = (canCreate = false): void => {
             actions: {
               create: 'Create'
             },
-            title: 'Welcome'
+            title: 'Welcome',
+            description: 'Description'
           }}
           onCreate={cy.stub()}
         />

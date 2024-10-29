@@ -1,11 +1,11 @@
 import { equals } from 'ramda';
 
+import { additionalConnectorDecoder } from '../../api/decoders';
+import { getAdditionalConnectorEndpoint } from '../../api/endpoints';
 import { defaultParameters } from '../../utils';
 import { AdditionalConnectorConfiguration } from '../models';
-import { getAdditionalConnectorEndpoint } from '../../api/endpoints';
-import { additionalConnectorDecoder } from '../../api/decoders';
 
-import { useFetchQuery } from 'packages/ui/src';
+import { useFetchQuery } from '@centreon/ui';
 
 interface InitialValuesState {
   initialValues: AdditionalConnectorConfiguration;

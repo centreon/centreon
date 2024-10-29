@@ -1,6 +1,7 @@
 import { Formik } from 'formik';
 import { Provider, createStore } from 'jotai';
 
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
   labelBottom,
   labelDisplay,
@@ -9,7 +10,6 @@ import {
   labelShowValueLabels,
   labelTop
 } from '../../../../translatedLabels';
-import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
 import TopBottomSettings from './TopBottomSettings';
 
@@ -68,8 +68,19 @@ describe('TopBottomSettings', () => {
   it('displays the number of values when the value is changed', () => {
     initializeComponent();
 
-    cy.findByLabelText(labelNumberOfValues).clear().type('5');
-    cy.findByLabelText(labelNumberOfValues).should('have.value', '50');
+    cy.findByLabelText(labelNumberOfValues).type('{selectall}').type('5');
+
+    cy.findByLabelText(labelNumberOfValues).should('have.value', '5');
+
+    cy.makeSnapshot();
+  });
+
+  it('enforces the value to be 1 when the user manually enters 0', () => {
+    initializeComponent();
+
+    cy.findByLabelText(labelNumberOfValues).type('{selectall}').type('0');
+
+    cy.findByLabelText(labelNumberOfValues).should('have.value', '1');
 
     cy.makeSnapshot();
   });

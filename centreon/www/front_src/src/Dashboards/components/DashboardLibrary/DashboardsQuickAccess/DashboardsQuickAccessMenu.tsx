@@ -1,20 +1,20 @@
 import { ReactElement } from 'react';
 
-import { generatePath, useNavigate } from 'react-router-dom';
-import { equals } from 'ramda';
 import { useSetAtom } from 'jotai';
+import { equals } from 'ramda';
+import { generatePath, useNavigate } from 'react-router-dom';
 
 import { PageLayout } from '@centreon/ui/components';
 
-import { Dashboard } from '../../../api/models';
 import routeMap from '../../../../reactRoutes/routeMap';
+import { isEditingAtom } from '../../../SingleInstancePage/Dashboard/atoms';
+import { Dashboard } from '../../../api/models';
+import { DashboardLayout } from '../../../models';
 import {
   labelCreateADashboard,
   labelDashboards
 } from '../../../translatedLabels';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
-import { DashboardLayout } from '../../../models';
-import { isEditingAtom } from '../../../SingleInstancePage/Dashboard/atoms';
 
 import { useDashboardsQuickAccess } from './useDashboardsQuickAccess';
 

@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 
 import { useTranslation } from 'react-i18next';
 
@@ -16,6 +16,7 @@ type ListEmptyStateProps = {
       create: string;
     };
     title: string;
+    description?: string;
   };
   onCreate?: () => void;
 };
@@ -34,6 +35,11 @@ const DataTableEmptyState = ({
       data-testid="data-table-empty-state"
     >
       <MuiTypography variant="h2">{t(labels.title)}</MuiTypography>
+      {labels.description && (
+        <MuiTypography className={classes.description}>
+          {t(labels.description)}
+        </MuiTypography>
+      )}
       <div className={classes.actions}>
         {canCreate && (
           <Button

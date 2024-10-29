@@ -1,18 +1,22 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
-import { ScaleLinear } from 'd3-scale';
+import type { ScaleLinear } from 'd3-scale';
 
-import { Line, TimeValue } from '../common/timeSeries/models';
-import { LineChartData } from '../common/models';
-import { AxisX, Axis as AxisYLeft, AxisYRight } from '../common/Axes/models';
-import { BarStyle } from '../BarChart/models';
+import type { BarStyle } from '../BarChart/models';
+import type {
+  AxisX,
+  Axis as AxisYLeft,
+  AxisYRight
+} from '../common/Axes/models';
+import type { LineChartData } from '../common/models';
+import type { Line, TimeValue } from '../common/timeSeries/models';
 
-import {
+import type { FactorsVariation } from './BasicComponents/Lines/Threshold/models';
+import type {
   AreaRegularLines,
   AreaStackedLines
 } from './BasicComponents/Lines/models';
-import { TimelineEvent } from './InteractiveComponents/Annotations/models';
-import { FactorsVariation } from './BasicComponents/Lines/Threshold/models';
+import type { TimelineEvent } from './InteractiveComponents/Annotations/models';
 
 export interface LineChartEndpoint {
   baseUrl: string;
@@ -116,6 +120,7 @@ export interface LineChartProps {
   tooltip?: Tooltip;
   width: number;
   zoomPreview?: InteractedZone;
+  skipIntersectionObserver?: boolean;
 }
 
 export interface Area {
@@ -138,16 +143,18 @@ export interface PatternThreshold {
   data: Array<LineChartData>;
   orientation?: Array<PatternOrientation>;
   type: ThresholdType.pattern;
+  id: string;
 }
 export interface VariationThreshold {
   displayCircles?: boolean;
   factors: FactorsVariation;
   getCountDisplayedCircles?: (value: number) => void;
   type: ThresholdType.variation;
+  id: string;
 }
 
 export interface BasicThreshold {
-  id?: string;
+  id: string;
   type: ThresholdType.basic;
 }
 

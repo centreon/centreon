@@ -17,9 +17,6 @@ on:
       stability:
         required: true
         type: string
-      is_perl_project:
-        required: false
-        type: boolean
 
     secrets:
       veracode_api_id:
@@ -50,11 +47,13 @@ jobs:
       - name: Set routing mode
         id: routing-mode
         run: |
+          # Quality gate settings
           ENABLE_QG="true"
           if [[ "${{ vars.VERACODE_QUALITY_GATE }}" == "false" ]] || [[ -n "${{ vars.VERACODE_EXCEPTION_ON_PR }}" && "${{ vars.VERACODE_EXCEPTION_ON_PR }}" == "${{ github.event.pull_request.number }}" ]]; then
             ENABLE_QG="false"
           fi
 
+          # Setting run options
           CHECK_BRANCH=`echo "${{ github.ref_name }}" | cut -d'/' -f2`
           if [[ $CHECK_BRANCH != "merge" && '${{ github.event_name }}' != 'pull_request' && '${{ inputs.stability }}' == 'stable' ]]; then
             # e.g master
@@ -69,17 +68,32 @@ jobs:
           elif [[ $CHECK_BRANCH == "merge" && -n '${{ github.head_ref }}' && '${{ github.head_ref }}' =~ ^release-[2-9][0-9].[0-9][0-9]-next ]]; then
             # e.g release-23.04-next
             FAIL_BUILD="false"
-            DEVELOPMENT_STAGE="Testing"
+            DEVELOPMENT_STAGE="Development"
             DISPLAY_SUMMARY="false"
           else
+            # e.g. all the other pull-requests
             FAIL_BUILD="$ENABLE_QG"
             DEVELOPMENT_STAGE="Development"
-            DISPLAY_SUMMARY="true"
+            DISPLAY_SUMMARY="$ENABLE_QG"
           fi
 
-          # skip analysis of draft PR and analysis on development branches using workflow dispatch
+          # PR related exceptions
           SKIP_ANALYSIS="true"
-          if [[ "${{ github.event_name }}" == "pull_request" && -n "${{ github.event.pull_request.number }}" && -n "${{ github.event.pull_request.draft }}" && "${{ github.event.pull_request.draft }}" == "false" ]] || [[ "$DEVELOPMENT_STAGE" != "Development" ]]; then
+          # list of head branch targets to analyse
+          HEAD_BRANCHES=(develop master dev-${{ inputs.major_version }}.x ${{ inputs.major_version }}.x)
+
+          # skip draft pull-request
+          if [[ "${{ github.event_name }}" == "pull_request" && -n "${{ github.event.pull_request.number }}" && -n "${{ github.event.pull_request.draft }}" && "${{ github.event.pull_request.draft }}" == "false" ]]; then
+            # skip pull-request "ready-to-review" and not targeting a (un)stable branch
+            for HEAD_BRANCH in "${HEAD_BRANCHES[@]}"; do
+              if [[ "$HEAD_BRANCH" == "${{ github.base_ref }}" ]]; then
+                SKIP_ANALYSIS="false"
+                break
+              fi
+            done
+            [ "$SKIP_ANALYSIS" == "true" ] && echo "::notice::PR targets a feature branch. Skipping"
+          elif [[ "$DEVELOPMENT_STAGE" != "Development" ]]; then
+            # skip development branches using workflow dispatch
             SKIP_ANALYSIS="false"
           fi
 
@@ -90,7 +104,7 @@ jobs:
           echo "skip_analysis=$SKIP_ANALYSIS" >> $GITHUB_OUTPUT
           cat $GITHUB_OUTPUT
 
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
         if: steps.routing-mode.outputs.skip_analysis == 'false'
 
       - name: Generate binary file
@@ -103,11 +117,11 @@ jobs:
   pipeline-scan:
     needs: [build]
     name: Run a pipeline scan
-    if: needs.build.outputs.skip_analysis == 'false' && inputs.is_perl_project != 'true'
+    if: needs.build.outputs.skip_analysis == 'false'
     runs-on: [self-hosted, common]
 
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Get build binary
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
@@ -153,7 +167,7 @@ jobs:
           echo "create_baseline_from=$create_baseline_from" >> $GITHUB_ENV
           cat $GITHUB_ENV
 
-      - uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 # v4.2.1
+      - uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73 # v4.4.0
         with:
           distribution: 'zulu'
           java-version: 8
@@ -244,7 +258,7 @@ jobs:
         # only baseline files not generated from a development branch are saved
         if: success() && needs.build.outputs.development_stage != 'Development'
         run: |
-          BRANCHES=(develop master dev-${{ inputs.major_version }}.x ${{ inputs.major_version }}.x release-${{ inputs.major_version }}-next)
+          BRANCHES=(develop master dev-${{ inputs.major_version }}.x ${{ inputs.major_version }}.x)
           for BRANCH in "${BRANCHES[@]}"; do
             if [[ "${{ github.ref_name }}" == "$BRANCH" ]]; then
               mv *results.json /tmp
@@ -258,10 +272,10 @@ jobs:
     needs: [pipeline-scan]
     name: Clean artifact
     if: success() || failure()
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
-      - uses: geekyeggo/delete-artifact@24928e75e6e6590170563b8ddae9fac674508aa1 # v5.0.0
+      - uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
         with:
           name: "Veracode Pipeline-Scan Results"
 
@@ -270,7 +284,7 @@ jobs:
     name: Run a sandbox scan
     # only stable and unstable maintenances branches will produce a report
     if: needs.build.outputs.development_stage != 'Development'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Get build binary
@@ -285,7 +299,7 @@ jobs:
         continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
           appname: "${{ inputs.module_name }}"
-          version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_runId-${{ github.run_id }}"
+          version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_runId-${{ github.run_id }}_attempt-${{ github.run_attempt }}"
           filepath: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           vid: "vera01ei-${{ secrets.veracode_api_id }}"
           vkey: "vera01es-${{ secrets.veracode_api_key }}"
@@ -318,23 +332,43 @@ jobs:
     name: Run a SCA scan
     # only stable and unstable maintenance branches will produce a report
     if: needs.build.outputs.development_stage != 'Development'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
-      - name: Removing pnpm dependencies
+      - name: Prepare analysis
         run: |
           cd ${{ inputs.module_directory }}
+
           echo "[DEBUG] - pnpm dependencies analysis disabled"
           find ./ -type f -name "package.json" -o -name "package-lock.json" -o -name "npm-shrinkwrap.json" -delete
 
-          RESULT=`find ./ -type f -name "composer.lock" -o -name "composer.json"`
-          if [[ -n ${RESULT[0]} ]]; then
-          	echo "trigger_sca_scan=true" >> $GITHUB_ENV
+          if [[ -f composer.json ]]; then
+            echo "is_php_project=true" >> $GITHUB_ENV
+            PHP_VERSION=$(grep -m1 '"php":' composer.json | cut -d ":" -f2 | cut -d"." -f 1,2 |  tr -d '">= ~' )
+            echo "php_version=$PHP_VERSION" >> $GITHUB_ENV
+            echo "trigger_sca_scan=true" >> $GITHUB_ENV
+            if [[ ! -f composer.lock ]]; then
+              composer install --no-dev --optimize-autoloader
+            fi
           fi
+
+          cat $GITHUB_ENV
+
+      - name: install PHP
+        if: env.is_php_project == 'true'
+        uses: shivammathur/setup-php@2e947f1f6932d141d076ca441d0e1e881775e95b # v2.31.0
+        with:
+          php-version: ${{ env.php_version }}
+          extensions: none
+          tools: composer:v2
+          coverage: none
+        env:
+          fail-fast: "true"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: SCA scan
         if: env.trigger_sca_scan == 'true'

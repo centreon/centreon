@@ -1,5 +1,4 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
 import {
   complement,
   equals,
@@ -11,6 +10,7 @@ import {
   propEq,
   split
 } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
   Method,
@@ -20,16 +20,16 @@ import {
 } from '@centreon/ui';
 
 import {
+  DeleteResourceAccessRuleType,
+  DeleteType,
+  ResourceAccessRuleType
+} from '../../models';
+import {
   labelFailedToDeleteRule,
   labelFailedToDeleteSelectedRules,
   labelResourceAccessRuleDeletedSuccess,
   labelResourceAccessRulesDeletedSuccess
 } from '../../translatedLabels';
-import {
-  DeleteResourceAccessRuleType,
-  DeleteType,
-  ResourceAccessRuleType
-} from '../../models';
 
 import {
   deleteMultipleRulesEndpoint,
@@ -83,7 +83,7 @@ const useDeleteRequest = ({
         const failedResponsesIds = failedResponses
           .map(prop('href'))
           .map((item: string) =>
-            parseInt(last(split('/', item)) as string, 10)
+            Number.parseInt(last(split('/', item)) as string, 10)
           );
 
         if (isEmpty(successfulResponses)) {

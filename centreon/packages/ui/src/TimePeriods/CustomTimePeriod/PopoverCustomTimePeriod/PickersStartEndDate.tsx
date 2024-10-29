@@ -12,8 +12,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import { userAtom } from '@centreon/ui-context';
 
-import { isInvalidDate } from '../../helpers';
 import DateTimePickerInput from '../../DateTimePickerInput';
+import { isInvalidDate } from '../../helpers';
 import {
   CustomTimePeriodProperty,
   DateTimePickerInputModel

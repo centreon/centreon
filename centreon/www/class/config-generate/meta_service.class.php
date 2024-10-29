@@ -34,13 +34,27 @@
  *
  */
 
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
+/**
+ * Class
+ *
+ * @class MetaService
+ */
 class MetaService extends AbstractObject
 {
+    /** @var int */
     private $has_meta_services = 0;
-    private $meta_services = array();
-    private $generated_services = array(); # for index_data build
+    /** @var array */
+    private $meta_services = [];
+    /** @var array */
+    private $generated_services = []; # for index_data build
+    /** @var string */
     protected $generate_filename = 'meta_services.cfg';
-    protected $object_name = 'service';
+    /** @var string */
+    protected string $object_name = 'service';
+    /** @var string */
     protected $attributes_select = '
         meta_id,
         meta_name as display_name,
@@ -53,36 +67,29 @@ class MetaService extends AbstractObject
         notification_options,
         notifications_enabled
     ';
-    protected $attributes_write = array(
-        'service_description',
-        'display_name',
-        'host_name',
-        'check_command',
-        'max_check_attempts',
-        'normal_check_interval',
-        'retry_check_interval',
-        'active_checks_enabled',
-        'passive_checks_enabled',
-        'check_period',
-        'notification_interval',
-        'notification_period',
-        'notification_options',
-        'register',
-    );
-    protected $attributes_default = array(
-        'notifications_enabled',
-    );
-    protected $attributes_hash = array(
-        'macros'
-    );
-    protected $attributes_array = array(
-        'contact_groups',
-        'contacts'
-    );
+    /** @var string[] */
+    protected $attributes_write = ['service_description', 'display_name', 'host_name', 'check_command', 'max_check_attempts', 'normal_check_interval', 'retry_check_interval', 'active_checks_enabled', 'passive_checks_enabled', 'check_period', 'notification_interval', 'notification_period', 'notification_options', 'register'];
+    /** @var string[] */
+    protected $attributes_default = ['notifications_enabled'];
+    /** @var string[] */
+    protected $attributes_hash = ['macros'];
+    /** @var string[] */
+    protected $attributes_array = ['contact_groups', 'contacts'];
+    /** @var null */
     private $stmt_cg = null;
+    /** @var null */
     private $stmt_contact = null;
 
-    private function getCtFromMetaId($meta_id)
+    /**
+     * @param $meta_id
+     *
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
+    private function getCtFromMetaId($meta_id): void
     {
         if (is_null($this->stmt_contact)) {
             $this->stmt_contact = $this->backend_instance->db->prepare("SELECT 
@@ -93,14 +100,23 @@ class MetaService extends AbstractObject
         }
         $this->stmt_contact->bindParam(':meta_id', $meta_id);
         $this->stmt_contact->execute();
-        $this->meta_services[$meta_id]['contacts'] = array();
+        $this->meta_services[$meta_id]['contacts'] = [];
         foreach ($this->stmt_contact->fetchAll(PDO::FETCH_COLUMN) as $ct_id) {
             $this->meta_services[$meta_id]['contacts'][] =
                 Contact::getInstance($this->dependencyInjector)->generateFromContactId($ct_id);
         }
     }
 
-    private function getCgFromMetaId($meta_id)
+    /**
+     * @param $meta_id
+     *
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
+    private function getCgFromMetaId($meta_id): void
     {
         if (is_null($this->stmt_cg)) {
             $this->stmt_cg = $this->backend_instance->db->prepare("SELECT 
@@ -111,13 +127,20 @@ class MetaService extends AbstractObject
         }
         $this->stmt_cg->bindParam(':meta_id', $meta_id);
         $this->stmt_cg->execute();
-        $this->meta_services[$meta_id]['contact_groups'] = array();
+        $this->meta_services[$meta_id]['contact_groups'] = [];
         foreach ($this->stmt_cg->fetchAll(PDO::FETCH_COLUMN) as $cg_id) {
             $this->meta_services[$meta_id]['contact_groups'][] =
                 Contactgroup::getInstance($this->dependencyInjector)->generateFromCgId($cg_id);
         }
     }
 
+    /**
+     * @param $meta_id
+     * @param $meta_name
+     *
+     * @return mixed
+     * @throws PDOException
+     */
     private function getServiceIdFromMetaId($meta_id, $meta_name)
     {
         $composed_name = 'meta_' . $meta_id;
@@ -141,7 +164,11 @@ class MetaService extends AbstractObject
         return $service_id;
     }
 
-    private function buildCacheMetaServices()
+    /**
+     * @return void
+     * @throws PDOException
+     */
+    private function buildCacheMetaServices(): void
     {
         $query = "SELECT $this->attributes_select FROM meta_service WHERE meta_activate = '1'";
         $stmt = $this->backend_instance->db->prepare($query);
@@ -155,6 +182,13 @@ class MetaService extends AbstractObject
         }
     }
 
+    /**
+     * @return int|void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
     public function generateObjects()
     {
         $this->buildCacheMetaServices();
@@ -173,7 +207,7 @@ class MetaService extends AbstractObject
         $this->has_meta_services = 1;
 
         foreach ($this->meta_services as $meta_id => &$meta_service) {
-            $meta_service['macros'] = array('_SERVICE_ID' => $meta_service['service_id']);
+            $meta_service['macros'] = ['_SERVICE_ID' => $meta_service['service_id']];
             $this->getCtFromMetaId($meta_id);
             $this->getCgFromMetaId($meta_id);
             $meta_service['check_period'] = Timeperiod::getInstance($this->dependencyInjector)
@@ -193,16 +227,25 @@ class MetaService extends AbstractObject
         }
     }
 
+    /**
+     * @return array
+     */
     public function getMetaServices()
     {
         return $this->meta_services;
     }
 
+    /**
+     * @return int
+     */
     public function hasMetaServices()
     {
         return $this->has_meta_services;
     }
 
+    /**
+     * @return array
+     */
     public function getGeneratedServices()
     {
         return $this->generated_services;

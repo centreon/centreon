@@ -1,18 +1,18 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
-import { isNil, equals } from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useNavigate } from 'react-router-dom';
+import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import type { NavigateFunction } from 'react-router-dom';
 import type { JsonDecoder } from 'ts.data.json';
-import type { TFunction } from 'react-i18next';
 
 import { useFetchQuery } from '@centreon/ui';
-import { userAtom, refreshIntervalAtom } from '@centreon/ui-context';
+import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
 
-import type { Filter } from '../../Resources/Filter/models';
 import { applyFilterDerivedAtom } from '../../Resources/Filter/filterAtoms';
+import type { Filter } from '../../Resources/Filter/models';
 
 interface AdapterProps<Input> {
   applyFilter: (update: Filter) => void;

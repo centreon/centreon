@@ -1,4 +1,4 @@
-import { memo, ReactNode } from 'react';
+import { ReactNode, memo } from 'react';
 
 import { Curve, Shape } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
@@ -78,7 +78,7 @@ const RegularLine = ({
   return (
     <>
       {shapeCircleAnomalyDetection}
-      <Shape.LinePath<TimeValue> {...props} />;
+      <Shape.LinePath<TimeValue> {...props} />
     </>
   );
 };

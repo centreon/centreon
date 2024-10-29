@@ -1,4 +1,5 @@
-import { SelectEntry } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
+import { ComponentType, LazyExoticComponent } from 'react';
 
 export interface FederatedComponentsConfiguration {
   federatedComponents: Array<string>;
@@ -16,6 +17,7 @@ export interface FederatedModule {
   preloadScript?: string;
   remoteEntry: string;
   remoteUrl?: string;
+  Component?: LazyExoticComponent<ComponentType<{ [key: string]: unknown }>>;
 }
 
 export interface PageComponent {
@@ -35,8 +37,11 @@ export enum FederatedWidgetOptionType {
   autocomplete = 'autocomplete',
   buttonGroup = 'button-group',
   checkbox = 'checkbox',
+  color = 'color',
   connectedAutocomplete = 'connected-autocomplete',
+  datePicker = 'date-picker',
   displayType = 'displayType',
+  locale = 'locale',
   metrics = 'metrics',
   radio = 'radio',
   refreshInterval = 'refresh-interval',
@@ -50,9 +55,12 @@ export enum FederatedWidgetOptionType {
   textfield = 'textfield',
   threshold = 'threshold',
   tiles = 'tiles',
+  timeFormat = 'time-format',
   timePeriod = 'time-period',
+  timezone = 'timezone',
   topBottomSettings = 'top-bottom-settings',
-  valueFormat = 'value-format'
+  valueFormat = 'value-format',
+  warning = 'warning'
 }
 
 interface WidgetHiddenCondition {
@@ -106,6 +114,7 @@ export interface FederatedWidgetProperties {
         };
       };
       groups: Array<SelectEntry>;
+      hasModule?: string;
     };
   };
   customBaseColor?: boolean;
@@ -121,4 +130,8 @@ export interface FederatedWidgetProperties {
   singleMetricSelection?: boolean;
   singleResourceSelection?: boolean;
   title: string;
+  message?: {
+    label: string;
+    icon?: string;
+  };
 }

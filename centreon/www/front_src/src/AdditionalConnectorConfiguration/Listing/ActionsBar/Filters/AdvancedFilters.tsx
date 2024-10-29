@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
 import { equals, isNil, map, pick, propEq, reject } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
   MultiAutocompleteField,
@@ -12,6 +12,7 @@ import {
 } from '@centreon/ui';
 import { Button } from '@centreon/ui/components';
 
+import { getPollersEndpoint } from '../../../api/endpoints';
 import {
   labelClear,
   labelName,
@@ -19,12 +20,11 @@ import {
   labelSearch,
   labelTypes
 } from '../../../translatedLabels';
-import { useFilterStyles } from '../useActionsStyles';
-import { filtersAtom } from '../../atom';
-import useLoadData from '../../useLoadData';
-import { getPollersEndpoint } from '../../../api/endpoints';
 import { filtersDefaultValue } from '../../../utils';
+import { filtersAtom } from '../../atom';
 import { NamedEntity } from '../../models';
+import useLoadData from '../../useLoadData';
+import { useFilterStyles } from '../useActionsStyles';
 
 import useUpdateSearchBarBasedOnFilters from './useUpdateSearchBarBasedOnFilters';
 
@@ -71,11 +71,21 @@ const AdvancedFilters = (): JSX.Element => {
   const isOptionEqualToValue = (option, selectedValue): boolean => {
     return (
       !isNil(option) &&
-      equals(option.name.toString(), selectedValue.name.toString())
+      equals(
+        option.name.toString(),
+        selectedValue.name.toString().replace('_', ' ')
+      )
     );
   };
 
   const isClearDisabled = equals(filters, filtersDefaultValue);
+
+  const connectorTypes = useMemo(() => {
+    return filters.types.map((type) => ({
+      ...type,
+      name: type.name.replace('_', ' ')
+    }));
+  }, [filters.types]);
 
   const reset = (): void => {
     setFilters(filtersDefaultValue);
@@ -110,8 +120,8 @@ const AdvancedFilters = (): JSX.Element => {
         dataTestId={labelTypes}
         isOptionEqualToValue={isOptionEqualToValue}
         label={t(labelTypes)}
-        options={[{ id: 1, name: 'VMWare_6/7' }]}
-        value={filters.types}
+        options={[{ id: 1, name: 'VMWare 6/7' }]}
+        value={connectorTypes}
         onChange={changeTypes}
       />
 

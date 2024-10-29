@@ -42,13 +42,13 @@ if (!isset($oreon)) {
 
 include("./include/common/autoNumLimit.php");
 
-!isset($_GET["sort_types"]) ? $sort_types = 0 : $sort_types = $_GET["sort_types"];
-!isset($_GET["order"]) ? $order = 'ASC' : $order = $_GET["order"];
-!isset($_GET["num"]) ? $num = 0 : $num = $_GET["num"];
-!isset($_GET["search_type_host"]) ? $search_type_host = 1 : $search_type_host = $_GET["search_type_host"];
-!isset($_GET["search_type_service"]) ? $search_type_service = 1 : $search_type_service = $_GET["search_type_service"];
-!isset($_GET["sort_type"]) ? $sort_type = "alias" : $sort_type = $_GET["sort_type"];
-!isset($_GET["host_search"]) ? $host_search = 0 : $host_search = $_GET["host_search"];
+$sort_types = !isset($_GET["sort_types"]) ? 0 : $_GET["sort_types"];
+$order = !isset($_GET["order"]) ? 'ASC' : $_GET["order"];
+$num = !isset($_GET["num"]) ? 0 : $_GET["num"];
+$search_type_host = !isset($_GET["search_type_host"]) ? 1 : $_GET["search_type_host"];
+$search_type_service = !isset($_GET["search_type_service"]) ? 1 : $_GET["search_type_service"];
+$sort_type = !isset($_GET["sort_type"]) ? "alias" : $_GET["sort_type"];
+$host_search = !isset($_GET["host_search"]) ? 0 : $_GET["host_search"];
 
 /*
  * Check search value in Host search field
@@ -57,19 +57,11 @@ if (isset($_GET["host_search"])) {
     $centreon->historySearch[$url] = $_GET["host_search"];
 }
 
-$aTypeAffichageLevel1 = array(
-    "svcOVHG" => _("Details"),
-    "svcSumHG" => _("Summary")
-);
+$aTypeAffichageLevel1 = ["svcOVHG" => _("Details"), "svcSumHG" => _("Summary")];
 
-$aTypeAffichageLevel2 = array(
-    "" => _("All"),
-    "pb" => _("Problems"),
-    "ack_1" => _("Acknowledge"),
-    "ack_0" => _("Not Acknowledged"),
-);
+$aTypeAffichageLevel2 = ["" => _("All"), "pb" => _("Problems"), "ack_1" => _("Acknowledge"), "ack_0" => _("Not Acknowledged")];
 
-$tab_class = array("0" => "list_one", "1" => "list_two");
+$tab_class = ["0" => "list_one", "1" => "list_two"];
 $rows = 10;
 
 include_once("./include/monitoring/status/Common/default_poller.php");
@@ -105,18 +97,18 @@ $form->addElement(
     'typeDisplay',
     _('Display'),
     $aTypeAffichageLevel1,
-    array('id' => 'typeDisplay', 'onChange' => "displayingLevel1(this.value);")
+    ['id' => 'typeDisplay', 'onChange' => "displayingLevel1(this.value);"]
 );
 $form->addElement(
     'select',
     'typeDisplay2',
     _('Display '),
     $aTypeAffichageLevel2,
-    array('id' => 'typeDisplay2', 'onChange' => "displayingLevel2(this.value);")
+    ['id' => 'typeDisplay2', 'onChange' => "displayingLevel2(this.value);"]
 );
 
 $tpl->assign("order", strtolower($order));
-$tab_order = array("sort_asc" => "sort_desc", "sort_desc" => "sort_asc");
+$tab_order = ["sort_asc" => "sort_desc", "sort_desc" => "sort_asc"];
 $tpl->assign("tab_order", $tab_order);
 
 ?>

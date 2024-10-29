@@ -35,24 +35,42 @@
 
 require_once __DIR__ . "/Params/Interface.class.php";
 
-class CentreonWidgetParamsException extends Exception
-{
-}
+/**
+ * Class
+ *
+ * @class CentreonWidgetParamsException
+ */
+class CentreonWidgetParamsException extends Exception {}
 
+/**
+ * Class
+ *
+ * @class CentreonWidgetParams
+ */
 abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
 {
+    /** @var */
     protected static $instances;
+    /** @var int */
+    public $userId;
+    /** @var mixed */
+    public $element;
+    /** @var CentreonDB */
     protected $db;
+    /** @var HTML_Quickform */
     protected $quickform;
+    /** @var mixed */
     protected $params;
-    protected $userGroups;
-    protected $trigger;
+    /** @var array */
+    protected $userGroups = [];
+    /** @var false */
+    protected $trigger = false;
+    /** @var CentreonACL */
     protected $acl;
+    /** @var CentreonDB */
     protected $monitoringDb;
-    protected $multiType = array(
-        'serviceMulti'
-    );
-
+    /** @var string[] */
+    protected $multiType = ['serviceMulti'];
 
     /**
      * Constructor
@@ -60,15 +78,14 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      * @param CentreonDB $db
      * @param HTML_Quickform $quickform
      * @param int $userId
-     * @return void
+     *
+     * @throws PDOException
      */
     public function __construct($db, $quickform, $userId)
     {
-        $this->trigger = false;
         $this->db = $db;
         $this->quickform = $quickform;
         $this->userId = $userId;
-        $this->userGroups = array();
         $query = "SELECT contactgroup_cg_id
                           FROM contactgroup_contact_relation
                           WHERE contact_contact_id = " . $this->db->escape($this->userId);
@@ -84,7 +101,9 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      * Get User Preferences
      *
      * @param array $params
+     *
      * @return mixed
+     * @throws PDOException
      */
     protected function getUserPreferences($params)
     {
@@ -115,8 +134,9 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      *
      * @param CentreonDB $db
      * @param HTML_Quickform $quickform
-     * @param string $typeName
+     * @param $className
      * @param int $userId
+     *
      * @return mixed
      */
     public static function factory($db, $quickform, $className, $userId)
@@ -133,7 +153,7 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      * @param array $params
      * @return void
      */
-    public function init($params)
+    public function init($params): void
     {
         $this->params = $params;
     }
@@ -142,9 +162,12 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      * Set Value
      *
      * @param array $params
+     *
      * @return void
+     * @throws HTML_QuickForm_Error
+     * @throws PDOException
      */
-    public function setValue($params)
+    public function setValue($params): void
     {
         $userPref = $this->getUserPreferences($params);
         if (in_array($params['ft_typename'], $this->multiType)) {
@@ -153,9 +176,9 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
             }
         }
         if (isset($userPref)) {
-            $this->quickform->setDefaults(array('param_' . $params['parameter_id'] => $userPref));
+            $this->quickform->setDefaults(['param_' . $params['parameter_id'] => $userPref]);
         } elseif (isset($params['default_value']) && $params['default_value'] != "") {
-            $this->quickform->setDefaults(array('param_' . $params['parameter_id'] => $params['default_value']));
+            $this->quickform->setDefaults(['param_' . $params['parameter_id'] => $params['default_value']]);
         }
     }
 
@@ -173,7 +196,9 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      * Get List Values
      *
      * @param int $paramId
+     *
      * @return array
+     * @throws PDOException
      */
     public function getListValues($paramId)
     {
@@ -181,13 +206,16 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
                           FROM widget_parameters_multiple_options
                           WHERE parameter_id = " . $this->db->escape($paramId);
         $res = $this->db->query($query);
-        $tab = array(null => null);
+        $tab = [null => null];
         while ($row = $res->fetchRow()) {
             $tab[$row['option_value']] = $row['option_name'];
         }
         return $tab;
     }
 
+    /**
+     * @return false
+     */
     public function getTrigger()
     {
         return $this->trigger;

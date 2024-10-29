@@ -1,21 +1,21 @@
-import { useTranslation } from 'react-i18next';
-import { equals, isEmpty, isNil, not, pick } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
 import { useAtomValue } from 'jotai';
+import { equals, isEmpty, isNil, not, pick } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import Divider from '@mui/material/Divider';
 
-import { userAtom, ListingVariant } from '@centreon/ui-context';
+import { ListingVariant, userAtom } from '@centreon/ui-context';
 
-import { ListingProps, IconButton } from '../..';
-import { labelOf, labelRowsPerPage } from '../translatedLabels';
+import { IconButton, ListingProps } from '../..';
 import { useMemoComponent } from '../../utils';
+import { labelOf, labelRowsPerPage } from '../translatedLabels';
 
+import ColumnMultiSelect from './ColumnMultiSelect';
 import StyledPagination from './Pagination';
 import PaginationActions from './PaginationActions';
-import ColumnMultiSelect from './ColumnMultiSelect';
 
 interface StyleProps {
   marginWidthTableListing: number;

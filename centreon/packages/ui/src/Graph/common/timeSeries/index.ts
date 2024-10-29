@@ -1,51 +1,51 @@
-import numeral from 'numeral';
 import { Scale } from '@visx/visx';
 import { bisector } from 'd3-array';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
+import numeral from 'numeral';
 import {
-  map,
-  pipe,
-  reduce,
-  filter,
-  addIndex,
-  isNil,
   path,
-  reject,
-  equals,
-  keys,
-  prop,
-  flatten,
-  propEq,
-  uniq,
-  find,
-  sortBy,
-  add,
-  isEmpty,
-  any,
-  lt,
-  identity,
-  head,
-  last,
-  cond,
-  always,
   T,
+  add,
+  addIndex,
+  always,
+  any,
+  cond,
+  equals,
+  filter,
+  find,
+  flatten,
+  head,
+  identity,
   includes,
-  split,
+  isEmpty,
+  isNil,
+  isNotNil,
+  keys,
+  last,
+  lt,
+  map,
   negate,
-  isNotNil
+  pipe,
+  prop,
+  propEq,
+  reduce,
+  reject,
+  sortBy,
+  split,
+  uniq
 } from 'ramda';
 
 import { margin } from '../../Chart/common';
 import { LineChartData } from '../models';
 
 import {
+  AxeScale,
+  FormatMetricValueProps,
+  Line,
   Metric,
   TimeValue,
-  Line,
-  AxeScale,
-  Xscale,
-  FormatMetricValueProps,
-  TimeValueProps
+  TimeValueProps,
+  Xscale
 } from './models';
 
 interface TimeTickWithMetrics {
@@ -137,7 +137,7 @@ const toLine = ({
   name: legend,
   stackOrder:
     equals(ds_data.ds_stack, '1') || equals(ds_data.ds_stack, true)
-      ? parseInt(ds_data.ds_order || '0', 10)
+      ? Number.parseInt(ds_data.ds_order || '0', 10)
       : null,
   transparency: ds_data.ds_transparency,
   unit

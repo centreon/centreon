@@ -37,25 +37,7 @@ if (!isset($centreon)) {
     exit();
 }
 
-$user_params = array(
-    "log_filter_host" => true,
-    "log_filter_svc" => true,
-    "log_filter_host_down" => true,
-    "log_filter_host_up" => true,
-    "log_filter_host_unreachable" => true,
-    "log_filter_svc_ok" => true,
-    "log_filter_svc_warning" => true,
-    "log_filter_svc_critical" => true,
-    "log_filter_svc_unknown" => true,
-    "log_filter_notif" => false,
-    "log_filter_error" => true,
-    "log_filter_alert" => true,
-    "log_filter_oh" => false,
-    "search_H" => "",
-    "search_S" => "",
-    'log_filter_period' => "",
-    'output' => ""
-);
+$user_params = ["log_filter_host" => true, "log_filter_svc" => true, "log_filter_host_down" => true, "log_filter_host_up" => true, "log_filter_host_unreachable" => true, "log_filter_svc_ok" => true, "log_filter_svc_warning" => true, "log_filter_svc_critical" => true, "log_filter_svc_unknown" => true, "log_filter_notif" => false, "log_filter_error" => true, "log_filter_alert" => true, "log_filter_oh" => false, "search_H" => "", "search_S" => "", 'log_filter_period' => "", 'output' => ""];
 
 /*
  * Add QuickSearch ToolBar
@@ -90,10 +72,10 @@ $postInputs = [
     'output' => isset($_POST['output']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['output']) : null,
 ];
 
-$serviceGrpArray = array();
-$pollerArray = array();
+$serviceGrpArray = [];
+$pollerArray = [];
 
-$defaultHosts = array();
+$defaultHosts = [];
 if (isset($getInputs['h'])) {
     $h = explode(",", $getInputs['h']);
     $hostObj = new CentreonHost($pearDB);
@@ -103,7 +85,7 @@ if (isset($getInputs['h'])) {
     }
 }
 
-$defaultHostgroups = array();
+$defaultHostgroups = [];
 if (isset($getInputs['hg'])) {
     $hg = explode(",", $getInputs['hg']);
     $hostGrpObj = new CentreonHostgroups($pearDB);
@@ -113,7 +95,7 @@ if (isset($getInputs['hg'])) {
     }
 }
 
-$defaultServices = array();
+$defaultServices = [];
 if (isset($getInputs['svc'])) {
     $svc = explode(",", $getInputs['svc']);
     $serviceObj = new CentreonService($pearDB);
@@ -123,7 +105,7 @@ if (isset($getInputs['svc'])) {
             && preg_match('/^meta_(\d+)/', $defaultService['description'], $matches)
         ) {
             $defaultService['host_name'] = 'Meta';
-            $serviceParameters = $serviceObj->getParameters($defaultService['service_id'], array('display_name'));
+            $serviceParameters = $serviceObj->getParameters($defaultService['service_id'], ['display_name']);
             $defaultService['description'] = $serviceParameters['display_name'];
         }
         $defaultServices[$defaultService['host_name'] . ' - '
@@ -131,7 +113,7 @@ if (isset($getInputs['svc'])) {
     }
 }
 
-$defaultServicegroups = array();
+$defaultServicegroups = [];
 if (isset($getInputs['svcg'])) {
     $svcg = explode(",", $getInputs['svcg']);
     $serviceGrpObj = new CentreonServicegroups($pearDB);
@@ -141,7 +123,7 @@ if (isset($getInputs['svcg'])) {
     }
 }
 
-$defaultPollers = array();
+$defaultPollers = [];
 if (isset($getInputs['poller'])) {
     $poller = explode(",", $getInputs['poller']);
     $pollerObj = new CentreonInstance($pearDB, $pearDBO);
@@ -159,21 +141,21 @@ $form->addElement('header', 'title', _("Choose the source"));
 
 $periods = [
     "" => "",
-    "10800" => _("Last 3 Hours"),
-    "21600" => _("Last 6 Hours"),
-    "43200" => _("Last 12 Hours"),
-    "86400" => _("Last 24 Hours"),
-    "172800" => _("Last 2 Days"),
-    "302400" => _("Last 4 Days"),
-    "604800" => _("Last 7 Days"),
-    "1209600" => _("Last 14 Days"),
-    "2419200" => _("Last 28 Days"),
-    "2592000" => _("Last 30 Days"),
-    "2678400" => _("Last 31 Days"),
-    "5184000" => _("Last 2 Months"),
-    "10368000" => _("Last 4 Months"),
-    "15552000" => _("Last 6 Months"),
-    "31104000" => _("Last Year")
+    "10800" => _("Last 3 hours"),
+    "21600" => _("Last 6 hours"),
+    "43200" => _("Last 12 hours"),
+    "86400" => _("Last 24 hours"),
+    "172800" => _("Last 2 days"),
+    "302400" => _("Last 4 days"),
+    "604800" => _("Last 7 days"),
+    "1209600" => _("Last 14 days"),
+    "2419200" => _("Last 28 days"),
+    "2592000" => _("Last 30 days"),
+    "2678400" => _("Last 31 days"),
+    "5184000" => _("Last 2 months"),
+    "10368000" => _("Last 4 months"),
+    "15552000" => _("Last 6 months"),
+    "31104000" => _("Last year")
 ];
 
 $lang = [
@@ -198,56 +180,31 @@ $form->addElement(
     'text',
     'StartDate',
     '',
-    array(
-        "id" => "StartDate",
-        "onClick" => "resetPeriod()",
-        "class" => "datepicker",
-        "size" => 8
-    )
+    ["id" => "StartDate", "onClick" => "resetPeriod()", "class" => "datepicker", "size" => 8]
 );
 $form->addElement(
     'text',
     'StartTime',
     '',
-    array(
-        "id" => "StartTime",
-        "onChange" => "resetPeriod()",
-        "class" => "timepicker",
-        "size" => 5
-    )
+    ["id" => "StartTime", "onChange" => "resetPeriod()", "class" => "timepicker", "size" => 5]
 );
 $form->addElement(
     'text',
     'EndDate',
     '',
-    array(
-        "id" => "EndDate",
-        "onClick" => "resetPeriod()",
-        "class" => "datepicker",
-        "size" => 8
-    )
+    ["id" => "EndDate", "onClick" => "resetPeriod()", "class" => "datepicker", "size" => 8]
 );
 $form->addElement(
     'text',
     'EndTime',
     '',
-    array(
-        "id" => "EndTime",
-        "onChange" => "resetPeriod()",
-        "class" => "timepicker",
-        "size" => 5
-    )
+    ["id" => "EndTime", "onChange" => "resetPeriod()", "class" => "timepicker", "size" => 5]
 );
 $form->addElement(
     'text',
     'output',
     _("Output"),
-    array(
-        "id" => "output",
-        "style" => "width: 203px;",
-        "size" => 15,
-        "value" => $user_params['output']
-    )
+    ["id" => "output", "style" => "width: 203px;", "size" => 15, "value" => $user_params['output']]
 );
 
 /* adding hidden fields to get the result of datepicker in an unlocalized format */
@@ -255,19 +212,13 @@ $form->addElement(
     'hidden',
     'alternativeDateStartDate',
     '',
-    array(
-        'size' => 10,
-        'class' => 'alternativeDate'
-    )
+    ['size' => 10, 'class' => 'alternativeDate']
 );
 $form->addElement(
     'hidden',
     'alternativeDateEndDate',
     '',
-    array(
-        'size' => 10,
-        'class' => 'alternativeDate'
-    )
+    ['size' => 10, 'class' => 'alternativeDate']
 );
 
 if (!$getInputs['engine']) {
@@ -275,108 +226,70 @@ if (!$getInputs['engine']) {
         'button',
         'graph',
         _("Apply period"),
-        array(
-            "onclick" => "apply_period()",
-            "class" => "btc bt_success"
-        )
+        ["onclick" => "apply_period()", "class" => "btc bt_success"]
     );
 } else {
     $form->addElement(
         'button',
         'graph',
         _("Apply period"),
-        array(
-            "onclick" => "apply_period_engine()",
-            "class" => "btc bt_success"
-        )
+        ["onclick" => "apply_period_engine()", "class" => "btc bt_success"]
     );
 }
 
 $hostRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_host&action=list';
-$attrHost1 = array(
-    'datasourceOrigin' => 'ajax',
-    'allowClear' => false,
-    'availableDatasetRoute' => $hostRoute,
-    'multiple' => true,
-    'defaultDataset' => $defaultHosts
-);
+$attrHost1 = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'availableDatasetRoute' => $hostRoute, 'multiple' => true, 'defaultDataset' => $defaultHosts];
 $form->addElement(
     'select2',
     'host_filter',
     _("Hosts"),
-    array(),
+    [],
     $attrHost1
 );
 
 $serviceGroupRoute = './include/common/webServices/rest/'
     . 'internal.php?object=centreon_configuration_servicegroup&action=list';
-$attrServicegroup1 = array(
-    'datasourceOrigin' => 'ajax',
-    'allowClear' => false,
-    'availableDatasetRoute' => $serviceGroupRoute,
-    'multiple' => true,
-    'defaultDataset' => $defaultServicegroups
-);
+$attrServicegroup1 = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'availableDatasetRoute' => $serviceGroupRoute, 'multiple' => true, 'defaultDataset' => $defaultServicegroups];
 $form->addElement(
     'select2',
     'service_group_filter',
-    _("Services Groups"),
-    array(),
+    _("Service Groups"),
+    [],
     $attrServicegroup1
 );
 
 $serviceRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_service&action=list';
-$attrService1 = array(
-    'datasourceOrigin' => 'ajax',
-    'allowClear' => false,
-    'availableDatasetRoute' => $serviceRoute,
-    'multiple' => true,
-    'defaultDataset' => $defaultServices
-);
+$attrService1 = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'availableDatasetRoute' => $serviceRoute, 'multiple' => true, 'defaultDataset' => $defaultServices];
 $form->addElement(
     'select2',
     'service_filter',
     _("Services"),
-    array(),
+    [],
     $attrService1
 );
 
 $hostGroupRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_hostgroup&action=list';
-$attrHostGroup1 = array(
-    'datasourceOrigin' => 'ajax',
-    'allowClear' => false,
-    'availableDatasetRoute' => $hostGroupRoute,
-    'multiple' => true,
-    'defaultDataset' => $defaultHostgroups
-);
+$attrHostGroup1 = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'availableDatasetRoute' => $hostGroupRoute, 'multiple' => true, 'defaultDataset' => $defaultHostgroups];
 $form->addElement(
     'select2',
     'host_group_filter',
-    _("Hosts Groups"),
-    array(),
+    _("Host Groups"),
+    [],
     $attrHostGroup1
 );
 
 $pollerRoute = './include/common/webServices/rest/internal.php?object=centreon_monitoring_poller&action=list';
-$attrPoller1 = array(
-    'datasourceOrigin' => 'ajax',
-    'allowClear' => false,
-    'availableDatasetRoute' => $pollerRoute,
-    'multiple' => true,
-    'defaultDataset' => $defaultPollers
-);
+$attrPoller1 = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'availableDatasetRoute' => $pollerRoute, 'multiple' => true, 'defaultDataset' => $defaultPollers];
 $form->addElement(
     'select2',
     'poller_filter',
     _("Pollers"),
-    array(),
+    [],
     $attrPoller1
 );
 
 $form->setDefaults(
-    array(
-        "period" => $user_params['log_filter_period']
-    )
+    ["period" => $user_params['log_filter_period']]
 );
 
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);

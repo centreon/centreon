@@ -2,12 +2,14 @@ import { useCallback, useEffect } from 'react';
 
 import { useAtom } from 'jotai';
 
-import { getData, useRequest, useDeepCompare } from '@centreon/ui';
+import { getData, useDeepCompare, useRequest } from '@centreon/ui';
 import { federatedWidgetsAtom } from '@centreon/ui-context';
 
-import usePlatformVersions from '../Main/usePlatformVersions';
 import { store } from '../Main/Provider';
+import usePlatformVersions from '../Main/usePlatformVersions';
 
+import { difference, pluck } from 'ramda';
+import { internalWidgetComponents } from '../Dashboards/SingleInstancePage/Dashboard/Widgets/widgets';
 import { federatedWidgetsPropertiesAtom } from './atoms';
 import { FederatedModule, FederatedWidgetProperties } from './models';
 import { loadScript } from './utils';
@@ -19,7 +21,7 @@ export const getFederatedWidget = (moduleName: string): string => {
   return `${getFederatedWidgetFolder(moduleName)}/moduleFederation.json`;
 };
 
-export const getFederatedWidgetProperties = (moduleName: string): string => {
+const getFederatedWidgetProperties = (moduleName: string): string => {
   return `${getFederatedWidgetFolder(moduleName)}/properties.json`;
 };
 
@@ -45,6 +47,11 @@ const useFederatedWidgets = (): UseFederatedModulesState => {
 
   const widgets = getWidgets();
 
+  const externalWidgets = difference(
+    widgets || [],
+    pluck('moduleName', internalWidgetComponents)
+  );
+
   const getFederatedModulesConfigurations = useCallback((): void => {
     if (!widgets) {
       return;
@@ -53,13 +60,15 @@ const useFederatedWidgets = (): UseFederatedModulesState => {
     const timestamp = `?t=${new Date().getTime()}`;
 
     Promise.all(
-      widgets?.map((moduleName) =>
+      externalWidgets.map((moduleName) =>
         sendRequest({
           endpoint: `${getFederatedWidget(moduleName)}${timestamp}`
         })
       ) || []
     ).then((federatedWidgetConfigs: Array<FederatedModule>): void => {
-      setFederatedWidgets(federatedWidgetConfigs);
+      setFederatedWidgets(
+        federatedWidgetConfigs.concat(internalWidgetComponents)
+      );
 
       federatedWidgetConfigs
         .filter(({ preloadScript }) => preloadScript)
@@ -72,13 +81,15 @@ const useFederatedWidgets = (): UseFederatedModulesState => {
     });
 
     Promise.all(
-      widgets?.map((moduleName) =>
+      externalWidgets?.map((moduleName) =>
         sendRequestProperties({
           endpoint: `${getFederatedWidgetProperties(moduleName)}${timestamp}`
         })
       ) || []
-    ).then(setFederatedWidgetsProperties);
-  }, [widgets]);
+    ).then((properties) =>
+      setFederatedWidgetsProperties((current) => current.concat(properties))
+    );
+  }, [externalWidgets]);
 
   useEffect(
     () => {

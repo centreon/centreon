@@ -34,7 +34,7 @@ import {
   selectedResourcesDetailsAtom,
   sendingDetailsAtom
 } from '../../Details/detailsAtoms';
-import { ResourceDetails } from '../../Details/models';
+import type { ResourceDetails } from '../../Details/models';
 import { searchableFields } from '../../Filter/Criterias/searchQueryLanguage';
 import {
   appliedFilterAtom,
@@ -45,7 +45,8 @@ import {
   resourcesEndpoint as allResourcesEndpoint,
   hostsEndpoint
 } from '../../api/endpoint';
-import { ResourceListing, SortOrder, Visualization } from '../../models';
+import { resourceDetailsDecoder } from '../../decoders';
+import { type ResourceListing, SortOrder, Visualization } from '../../models';
 import {
   labelNoResourceFound,
   labelSomethingWentWrong
@@ -58,9 +59,8 @@ import {
   pageAtom,
   sendingAtom
 } from '../listingAtoms';
-import { resourceDetailsDecoder } from '../../decoders';
 
-import { Search } from './models';
+import type { Search } from './models';
 
 export interface LoadResources {
   initAutorefreshAndLoad: () => void;

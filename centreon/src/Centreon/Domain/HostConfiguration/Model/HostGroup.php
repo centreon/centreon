@@ -32,15 +32,15 @@ use Centreon\Domain\Media\Model\Image;
  */
 class HostGroup
 {
-    public const MAX_NAME_LENGTH = 200,
-                 MAX_ALIAS_LENGTH = 200,
-                 MAX_NOTES_LENGTH = 255,
-                 MAX_NOTES_URL_LENGTH = 255,
-                 MAX_ACTION_URL_LENGTH = 255,
-                 MAX_GEO_COORDS_LENGTH = 32,
-                 MIN_RRD_NUMBER = 1,
-                 MAX_RRD_NUMBER = 2147483648,
-                 MAX_COMMENTS_LENGTH = 65535;
+    public const MAX_NAME_LENGTH = 200;
+    public const MAX_ALIAS_LENGTH = 200;
+    public const MAX_NOTES_LENGTH = 255;
+    public const MAX_NOTES_URL_LENGTH = 255;
+    public const MAX_ACTION_URL_LENGTH = 255;
+    public const MAX_GEO_COORDS_LENGTH = 32;
+    public const MIN_RRD_NUMBER = 1;
+    public const MAX_RRD_NUMBER = 2147483648;
+    public const MAX_COMMENTS_LENGTH = 65535;
 
     /**
      * @var int|null

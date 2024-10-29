@@ -1,5 +1,6 @@
 import { ReactNode, useMemo } from 'react';
 
+import { useAtomValue } from 'jotai';
 import {
   concat,
   equals,
@@ -10,7 +11,6 @@ import {
   reject,
   type
 } from 'ramda';
-import { useAtomValue } from 'jotai';
 
 import { useMemoComponent } from '@centreon/ui';
 import {

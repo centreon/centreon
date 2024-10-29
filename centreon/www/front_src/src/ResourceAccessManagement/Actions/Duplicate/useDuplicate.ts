@@ -1,13 +1,13 @@
-import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
-import { ResourceAccessRule } from '../../models';
 import { duplicatedRuleAtom, isDuplicateDialogOpenAtom } from '../../atom';
-import useDuplicateRequest from '../api/useDuplicateRequest';
+import { ResourceAccessRule } from '../../models';
 import {
   labelFailedToDuplicateRule,
   labelRuleDuplicatedSuccess
 } from '../../translatedLabels';
+import useDuplicateRequest from '../api/useDuplicateRequest';
 
 interface UseDuplicateState {
   closeDialog: () => void;

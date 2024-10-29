@@ -35,6 +35,18 @@ inputs:
   test_execution_key:
     description: "xray test execution key"
     required: true
+  stability:
+    description: "Branch stability"
+    required: true
+  is_cloud:
+    description: "Define if the version is targeting cloud"
+    required: false
+  artifactory_internal_repo_username:
+    description: "Artifactory internal repository username"
+    required: false
+  artifactory_internal_repo_password:
+    description: "Artifactory internal repository password"
+    required: false
 
 runs:
   using: "composite"
@@ -44,7 +56,7 @@ runs:
         version: 8
         run_install: false
 
-    - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+    - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
       with:
         node-version: 20
         cache: pnpm
@@ -82,6 +94,10 @@ runs:
         CYPRESS_WEB_IMAGE_VERSION: ${{ inputs.web_image_version }}
         CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}
         CYPRESS_SAML_IMAGE_VERSION: ${{ inputs.saml_image_version }}
+        CYPRESS_STABILITY: ${{ inputs.stability }}
+        CYPRESS_IS_CLOUD: ${{ inputs.is_cloud }}
+        CYPRESS_INTERNAL_REPO_USERNAME: ${{ inputs.artifactory_internal_repo_username }}
+        CYPRESS_INTERNAL_REPO_PASSWORD: ${{ inputs.artifactory_internal_repo_password }}
 
     - name: Ensure logs directory exists
       run: mkdir -p ${{ inputs.module }}/tests/e2e/results/cucumber-logs/

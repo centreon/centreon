@@ -1,26 +1,26 @@
 import { useCallback } from 'react';
 
-import { useTranslation } from 'react-i18next';
-import { map, find, equals, path } from 'ramda';
-import { useSetAtom, useAtom } from 'jotai';
 import { rectIntersection } from '@dnd-kit/core';
 import { rectSortingStrategy } from '@dnd-kit/sortable';
+import { useAtom, useSetAtom } from 'jotai';
+import { path, equals, find, map } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Typography, LinearProgress, Stack } from '@mui/material';
+import { LinearProgress, Stack, Typography } from '@mui/material';
 
 import {
   MemoizedSectionPanel as SectionPanel,
-  useRequest,
-  SortableItems
+  SortableItems,
+  useRequest
 } from '@centreon/ui';
 import type { RootComponentProps } from '@centreon/ui';
 
 import { labelEditFilters } from '../../translatedLabels';
+import { Criteria } from '../Criterias/models';
 import { patchFilter } from '../api';
 import { customFiltersAtom, editPanelOpenAtom } from '../filterAtoms';
 import { Filter } from '../models';
-import { Criteria } from '../Criterias/models';
 
 import SortableContent from './SortableContent';
 

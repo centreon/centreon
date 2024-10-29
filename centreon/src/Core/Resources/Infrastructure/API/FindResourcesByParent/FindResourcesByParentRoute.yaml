@@ -2,4 +2,4 @@ FindResourcesByParent:
     methods: GET
     path: /monitoring/resources/hosts
     controller: 'Core\Resources\Infrastructure\API\FindResourcesByParent\FindResourcesByParentController'
-    condition: "request.attributes.get('version') >= 23.10 and request.attributes.get('feature.resource_status_tree_view')"
+    condition: "request.attributes.get('version') >= 23.10"

@@ -1,9 +1,9 @@
-import { filter, propEq, isNil } from 'ramda';
 import { ScaleTime } from 'd3-scale';
+import { filter, isNil, propEq } from 'ramda';
 
-import { TimelineEvent } from './models';
-import LineAnnotation from './Annotation/Line';
 import AreaAnnotation from './Annotation/Area';
+import LineAnnotation from './Annotation/Line';
+import { TimelineEvent } from './models';
 
 interface Props {
   Icon: (props) => JSX.Element | null;

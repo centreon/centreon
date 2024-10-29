@@ -46,6 +46,11 @@ on:
         description: "The test execution and the test plan keys and ids"
         required: true
         type: string
+      is_cloud:
+        description: "Define if the version is targeting cloud"
+        required: false
+        type: string # Set as string instead of boolean to avoid mixing types between workflows and actions
+        default: 'false'
     secrets:
       registry_username:
         required: true
@@ -55,16 +60,20 @@ on:
         required: true
       xray_client_secret:
         required: true
+      artifactory_internal_repo_username:
+        required: false
+      artifactory_internal_repo_password:
+        required: false
 
 jobs:
   cypress-e2e-test-list:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       features: ${{ steps.list-features.outputs.features }}
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
@@ -83,7 +92,7 @@ jobs:
   cypress-e2e-test-run:
     if: ${{ needs.cypress-e2e-test-list.outputs.features != '' && toJson(fromJson(needs.cypress-e2e-test-list.outputs.features)) != '[]' }}
     needs: [cypress-e2e-test-list]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -96,7 +105,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Restore packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
@@ -160,6 +169,10 @@ jobs:
           test_tags: ${{ inputs.test_tags }}
           dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
           test_execution_key: ${{ steps.get-test-execution-key.outputs.test_execution_key }}
+          stability: ${{ inputs.stability }}
+          is_cloud: ${{ inputs.is_cloud }}
+          artifactory_internal_repo_username: ${{ secrets.artifactory_internal_repo_username }}
+          artifactory_internal_repo_password: ${{ secrets.artifactory_internal_repo_password }}
 
       - name: Replace / with - in the feature path
         id: feature-path
@@ -218,9 +231,9 @@ jobs:
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
     if: ${{ always() && (inputs.stability == 'testing' || github.event_name == 'schedule') }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
@@ -258,10 +271,10 @@ jobs:
   cypress-e2e-test-report:
     needs: [cypress-e2e-test-run]
     if: failure()
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
@@ -289,7 +302,7 @@ jobs:
   regroup-artifacts:
     needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report]
     if: always()
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -305,7 +318,7 @@ jobs:
           retention-days: 1
 
       - name: Delete merged artifacts
-        uses: geekyeggo/delete-artifact@24928e75e6e6590170563b8ddae9fac674508aa1 # v5.0.0
+        uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
           failOnError: false

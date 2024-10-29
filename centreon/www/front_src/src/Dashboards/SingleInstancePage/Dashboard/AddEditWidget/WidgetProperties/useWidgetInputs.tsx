@@ -1,60 +1,67 @@
 import { useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
-  propEq,
-  find,
   path,
-  equals,
-  has,
-  pluck,
   difference,
-  isEmpty,
-  reject,
+  equals,
+  find,
+  has,
   includes,
+  isEmpty,
+  isNil,
+  pluck,
+  propEq,
+  reject,
   type
 } from 'ramda';
-import { useAtomValue, useSetAtom } from 'jotai';
 
 import { useDeepCompare } from '@centreon/ui';
 import {
-  platformVersionsAtom,
-  featureFlagsDerivedAtom
+  featureFlagsDerivedAtom,
+  platformVersionsAtom
 } from '@centreon/ui-context';
 
-import { Widget, WidgetPropertyProps } from '../models';
+import { federatedWidgetsPropertiesAtom } from '../../../../../federatedModules/atoms';
 import {
   FederatedWidgetOption,
   FederatedWidgetOptionType
 } from '../../../../../federatedModules/models';
 import {
   customBaseColorAtom,
-  singleResourceSelectionAtom,
   singleMetricSelectionAtom,
+  singleResourceSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
-import { federatedWidgetsPropertiesAtom } from '../../../../../federatedModules/atoms';
+import { Widget, WidgetPropertyProps } from '../models';
 
 import {
+  WidgetButtonGroup,
+  WidgetCheckboxes,
+  WidgetColorSelector,
+  WidgetConnectedAutocomplete,
+  WidgetDatePicker,
+  WidgetDisplayType,
+  WidgetLocale,
   WidgetMetrics,
+  WidgetRadio,
   WidgetRefreshInterval,
   WidgetResources,
   WidgetRichTextEditor,
+  WidgetSelect,
+  WidgetSlider,
+  WidgetSwitch,
+  WidgetText,
   WidgetTextField,
   WidgetThreshold,
-  WidgetValueFormat,
-  WidgetTimePeriod,
-  WidgetTopBottomSettings,
-  WidgetRadio,
-  WidgetCheckboxes,
   WidgetTiles,
-  WidgetDisplayType,
-  WidgetSwitch,
-  WidgetSelect,
-  WidgetButtonGroup,
-  WidgetSlider,
-  WidgetText,
-  WidgetConnectedAutocomplete
+  WidgetTimeFormat,
+  WidgetTimePeriod,
+  WidgetTimezone,
+  WidgetTopBottomSettings,
+  WidgetValueFormat,
+  WidgetWarning
 } from './Inputs';
 
 export interface WidgetPropertiesRenderer {
@@ -82,7 +89,14 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.buttonGroup]: WidgetButtonGroup,
   [FederatedWidgetOptionType.slider]: WidgetSlider,
   [FederatedWidgetOptionType.text]: WidgetText,
-  [FederatedWidgetOptionType.connectedAutocomplete]: WidgetConnectedAutocomplete
+  [FederatedWidgetOptionType.connectedAutocomplete]:
+    WidgetConnectedAutocomplete,
+  [FederatedWidgetOptionType.timezone]: WidgetTimezone,
+  [FederatedWidgetOptionType.locale]: WidgetLocale,
+  [FederatedWidgetOptionType.color]: WidgetColorSelector,
+  [FederatedWidgetOptionType.timeFormat]: WidgetTimeFormat,
+  [FederatedWidgetOptionType.datePicker]: WidgetDatePicker,
+  [FederatedWidgetOptionType.warning]: WidgetWarning
 };
 
 export const DefaultComponent = (): JSX.Element => (
@@ -151,6 +165,12 @@ export const useWidgetInputs = (
                           difference(reject(equals(''), items), matches)
                         )))
                 );
+              }
+
+              if (equals(method, 'isNil')) {
+                const formValue = path(when.split('.'), values);
+
+                return hasModule && !isEmpty(formValue) && !isNil(formValue);
               }
 
               return (

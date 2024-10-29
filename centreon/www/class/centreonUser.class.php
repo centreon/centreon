@@ -37,68 +37,100 @@ require_once __DIR__ . '/centreonACL.class.php';
 require_once __DIR__ . '/centreonLog.class.php';
 require_once __DIR__ . '/centreonAuth.class.php';
 
+/**
+ * Class
+ *
+ * @class CentreonUser
+ */
 class CentreonUser
 {
+    /** @var int|string|null */
     public $user_id;
+    /** @var string|null */
     public $name;
+    /** @var string|null */
     public $alias;
+    /** @var string|null */
     public $passwd;
+    /** @var string|null */
     public $email;
+    /** @var string|null */
     public $lang;
-    public $charset;
-    public $version;
+    /** @var string */
+    public $charset = "UTF-8";
+    /** @var int */
+    public $version = 3;
+    /** @var int|string|null */
     public $admin;
+    /** @var */
     public $limit;
+    /** @var */
     public $num;
+    /** @var mixed|null */
     public $gmt;
-    public $is_admin;
+    /** @var bool|null */
+    public $is_admin = null;
+    /** @var */
     public $groupList;
+    /** @var */
     public $groupListStr;
+    /** @var CentreonACL */
     public $access;
+    /** @var CentreonUserLog */
     public $log;
+    /** @var string|null */
     protected $token;
+    /** @var int|mixed */
     public $default_page;
+    /** @var bool */
     private $showDeprecatedPages;
+    /** @var int */
     private $currentPage;
+    /** @var string|null */
     public $theme;
 
+    /** @var bool */
     protected $restApi;
+    /** @var bool */
     protected $restApiRt;
 
     # User LCA
     # Array with elements ID for loop test
+    /** @var array|null */
     public $lcaTopo;
 
     # String with elements ID separated by commas for DB requests
+    /** @var string|null */
     public $lcaTStr;
 
+    /** @var string */
     public $authType;
 
     /**
-     * CentreonUser constructor.
+     * CentreonUser constructor
+     *
      * @param array $user
      *
-     * @global type $pearDB
-     * @param type $user
+     * @throws PDOException
      */
-    public function __construct($user = array())
+    public function __construct($user = [])
     {
         global $pearDB;
 
-        $this->user_id = $user["contact_id"];
-        $this->name = html_entity_decode($user["contact_name"], ENT_QUOTES, "UTF-8");
-        $this->alias = html_entity_decode($user["contact_alias"], ENT_QUOTES, "UTF-8");
-        $this->email = html_entity_decode($user["contact_email"], ENT_QUOTES, "UTF-8");
-        $this->lang = $user["contact_lang"];
-        $this->charset = "UTF-8";
+        $this->user_id = $user["contact_id"] ?? null;
+        $this->name = isset($user["contact_name"]) ?
+            html_entity_decode($user["contact_name"], ENT_QUOTES, "UTF-8") : null;
+        $this->alias = isset($user["contact_alias"]) ?
+            html_entity_decode($user["contact_alias"], ENT_QUOTES, "UTF-8") : null;
+        $this->email = isset($user["contact_email"]) ?
+            html_entity_decode($user["contact_email"], ENT_QUOTES, "UTF-8") : null;
+        $this->lang = $user["contact_lang"] ?? null;
         $this->passwd = $user["contact_passwd"] ?? null;
-        $this->token = $user['contact_autologin_key'];
-        $this->admin = $user["contact_admin"];
-        $this->version = 3;
+        $this->token = $user['contact_autologin_key'] ?? null;
+        $this->admin = $user["contact_admin"] ?? null;
         $this->default_page = $user["default_page"] ?? CentreonAuth::DEFAULT_PAGE;
-        $this->gmt = $user["contact_location"];
+        $this->gmt = $user["contact_location"] ?? null;
         $this->showDeprecatedPages = (bool) $user["show_deprecated_pages"];
-        $this->is_admin = null;
         $this->theme = $user["contact_theme"] ?? 'light';
         /*
          * Initiate ACL
@@ -124,10 +156,9 @@ class CentreonUser
     }
 
     /**
+     * @param $div_name
      *
-     * @global type $pearDB
-     * @param type $div_name
-     * @return int
+     * @return int|mixed
      */
     public function showDiv($div_name = null)
     {
@@ -136,17 +167,14 @@ class CentreonUser
         if (!isset($div_name)) {
             return 0;
         }
-
-        if (isset($_SESSION['_Div_' . $div_name])) {
-            return $_SESSION['_Div_' . $div_name];
-        }
-        return 1;
+        return $_SESSION['_Div_' . $div_name] ?? 1;
     }
 
     /**
+     * @param CentreonDB $pearDB
      *
-     * @param \CentreonDB $pearDB
-     * @return int
+     * @return array
+     * @throws PDOException
      */
     public function getAllTopology($pearDB)
     {
@@ -165,9 +193,11 @@ class CentreonUser
      * Check if user is admin or had ACL
      *
      * @param string $sid
-     * @param \CentreonDB $pearDB
+     * @param CentreonDB $pearDB
+     *
+     * @throws PDOException
      */
-    public function checkUserStatus($sid, $pearDB)
+    public function checkUserStatus($sid, $pearDB): void
     {
         $query1 = "SELECT contact_admin, contact_id FROM session, contact " .
             "WHERE session.session_id = :session_id" .
@@ -175,17 +205,18 @@ class CentreonUser
         $statement = $pearDB->prepare($query1);
         $statement->bindValue(':session_id', $sid);
         $statement->execute();
-        $admin = $statement->fetch(\PDO::FETCH_ASSOC);
+        $admin = $statement->fetch(PDO::FETCH_ASSOC);
         $statement->closeCursor();
 
         $query2 = "SELECT count(*) FROM `acl_group_contacts_relations` " .
             "WHERE contact_contact_id = :contact_id";
         $statement = $pearDB->prepare($query2);
-        $statement->bindValue(':contact_id', (int)$admin["contact_id"], \PDO::PARAM_INT);
+        $statement->bindValue(':contact_id', (int)$admin["contact_id"], PDO::PARAM_INT);
         $statement->execute();
-        $admin2 = $statement->fetch(\PDO::FETCH_ASSOC);
+        $admin2 = $statement->fetch(PDO::FETCH_ASSOC);
         $statement->closeCursor();
 
+        $this->is_admin = 0;
         if ($admin["contact_admin"]) {
             unset($admin);
             $this->is_admin = 1;
@@ -193,19 +224,20 @@ class CentreonUser
             unset($admin2);
             $this->is_admin = 1;
         }
-        $this->is_admin = 0;
     }
 
     // Get
 
+    /**
+     * @return int|mixed|string|null
+     */
     public function get_id()
     {
         return $this->user_id;
     }
 
     /**
-     *
-     * @return string
+     * @return string|null
      */
     public function get_name()
     {
@@ -213,8 +245,7 @@ class CentreonUser
     }
 
     /**
-     *
-     * @return string
+     * @return string|null
      */
     public function get_email()
     {
@@ -222,8 +253,7 @@ class CentreonUser
     }
 
     /**
-     *
-     * @return type
+     * @return string|null
      */
     public function get_alias()
     {
@@ -231,8 +261,7 @@ class CentreonUser
     }
 
     /**
-     *
-     * @return string
+     * @return int
      */
     public function get_version()
     {
@@ -240,7 +269,6 @@ class CentreonUser
     }
 
     /**
-     *
      * @return string
      */
     public function get_lang(): string
@@ -250,19 +278,18 @@ class CentreonUser
         // Get locale from browser
         if ($lang === 'browser') {
             if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-                $lang = \Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+                $lang = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
             }
 
             // check that the variable value end with .UTF-8 or add it
-            $lang = (strpos($lang, '.UTF-8') !== false) ?: $lang . '.UTF-8';
+            $lang = (str_contains($lang, '.UTF-8')) ?: $lang . '.UTF-8';
         }
 
         return $lang;
     }
 
     /**
-     *
-     * @return type
+     * @return mixed|string|null
      */
     public function get_passwd()
     {
@@ -270,8 +297,7 @@ class CentreonUser
     }
 
     /**
-     *
-     * @return type
+     * @return int|string|null
      */
     public function get_admin()
     {
@@ -279,8 +305,7 @@ class CentreonUser
     }
 
     /**
-     *
-     * @return type
+     * @return bool|null
      */
     public function is_admin()
     {
@@ -288,7 +313,6 @@ class CentreonUser
     }
 
     /**
-     *
      * @return bool
      */
     public function doesShowDeprecatedPages()
@@ -297,10 +321,11 @@ class CentreonUser
     }
 
     /**
-     *
      * @param bool $showDeprecatedPages
+     *
+     * @return void
      */
-    public function setShowDeprecatedPages(bool $showDeprecatedPages)
+    public function setShowDeprecatedPages(bool $showDeprecatedPages): void
     {
         $this->showDeprecatedPages = $showDeprecatedPages;
     }
@@ -308,62 +333,67 @@ class CentreonUser
     // Set
 
     /**
+     * @param $id
      *
-     * @param type $id
+     * @return void
      */
-    public function set_id($id)
+    public function set_id($id): void
     {
         $this->user_id = $id;
     }
 
     /**
+     * @param string $name
      *
-     * @param type $name
+     * @return void
      */
-    public function set_name($name)
+    public function set_name($name): void
     {
         $this->name = $name;
     }
 
     /**
+     * @param string $email
      *
-     * @param type $email
+     * @return void
      */
-    public function set_email($email)
+    public function set_email($email): void
     {
         $this->email = $email;
     }
 
     /**
+     * @param string $lang
      *
-     * @param type $lang
+     * @return void
      */
-    public function set_lang($lang)
+    public function set_lang($lang): void
     {
         $this->lang = $lang;
     }
 
     /**
+     * @param string $alias
      *
-     * @param type $alias
+     * @return void
      */
-    public function set_alias($alias)
+    public function set_alias($alias): void
     {
         $this->alias = $alias;
     }
 
     /**
+     * @param string $version
      *
-     * @param type $version
+     * @return void
      */
-    public function set_version($version)
+    public function set_version($version): void
     {
         $this->version = $version;
     }
 
     /**
-     *
-     * @return type
+     * @return mixed|null
      */
     public function getMyGMT()
     {
@@ -371,16 +401,17 @@ class CentreonUser
     }
 
     /**
-     * Get User List
+     * @param CentreonDB $db
      *
-     * @return array
+     * @return array|mixed
+     * @throws PDOException
      */
     public function getUserList($db)
     {
         static $userList;
 
         if (!isset($userList)) {
-            $userList = array();
+            $userList = [];
             $res = $db->query(
                 "SELECT contact_id, contact_name
                 FROM contact
@@ -398,25 +429,24 @@ class CentreonUser
     /**
      * Get Contact Name
      *
-     * @param int $userId
      * @param CentreonDB $db
+     * @param int $userId
+     *
      * @return string
+     * @throws PDOException
      */
     public function getContactName($db, $userId)
     {
         static $userNames;
 
         if (!isset($userNames)) {
-            $userNames = array();
+            $userNames = [];
             $res = $db->query("SELECT contact_name, contact_id FROM contact");
             while ($row = $res->fetch()) {
                 $userNames[$row['contact_id']] = $row['contact_name'];
             }
         }
-        if (isset($userNames[$userId])) {
-            return $userNames[$userId];
-        }
-        return null;
+        return $userNames[$userId] ?? null;
     }
 
     /**
@@ -424,11 +454,13 @@ class CentreonUser
      *
      * @param CentreonDB $db
      * @param array $parameters
+     *
      * @return array
+     * @throws PDOException
      */
-    public function getContactParameters($db, $parameters = array())
+    public function getContactParameters($db, $parameters = [])
     {
-        $values = array();
+        $values = [];
 
         $queryParameters = '';
         if (is_array($parameters) && count($parameters)) {
@@ -455,14 +487,16 @@ class CentreonUser
      *
      * @param CentreonDB $db
      * @param array $parameters
-     * @return null
+     *
+     * @return null|void
+     * @throws PDOException
      */
-    public function setContactParameters($db, $parameters = array())
+    public function setContactParameters($db, $parameters = [])
     {
         if (!count($parameters)) {
             return null;
         }
-        $queryValues = array();
+        $queryValues = [];
         $keys = array_keys($parameters);
         $deleteQuery = 'DELETE FROM contact_param WHERE cp_contact_id = :cp_contact_id AND cp_key IN( ';
         $queryValues[':cp_contact_id'] = $this->user_id;
@@ -503,7 +537,7 @@ class CentreonUser
      * @param int $currentPage
      * @return void
      */
-    public function setCurrentPage($currentPage)
+    public function setCurrentPage($currentPage): void
     {
         $this->currentPage = $currentPage;
     }
@@ -524,7 +558,7 @@ class CentreonUser
      * @param string $theme
      * @return void
      */
-    public function setTheme($theme)
+    public function setTheme($theme): void
     {
         $this->theme = $theme;
     }
@@ -545,13 +579,15 @@ class CentreonUser
      * @param string $token
      * @return void
      */
-    public function setToken($token)
+    public function setToken($token): void
     {
         $this->token = $token;
     }
 
     /**
      * If the user has access to Rest API Configuration
+     *
+     * @return bool
      */
     public function hasAccessRestApiConfiguration()
     {
@@ -560,6 +596,8 @@ class CentreonUser
 
     /**
      * If the user has access to Rest API Realtime
+     *
+     * @return bool
      */
     public function hasAccessRestApiRealtime()
     {

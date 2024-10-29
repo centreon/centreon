@@ -1,22 +1,24 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import SettingsIcon from '@mui/icons-material/Settings';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import IconButton from '@mui/material/IconButton';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { Chip, Grid, Tooltip, Typography } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
 
 import { CriteriaNames } from '../../../../Filter/Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../../../../Filter/filterAtoms';
-import { Group, Category } from '../../../models';
+import { Category, Group } from '../../../models';
 
 const useStyles = makeStyles()((theme) => ({
   chip: {
     alignSelf: 'center',
-    display: 'flex'
+    display: 'flex',
+    height: theme.spacing(4),
+    borderRadius: theme.spacing(2)
   },
   chipHovered: {
     backgroundColor: theme.palette.primary.main,
@@ -69,7 +71,8 @@ const GroupChip = ({ group, type }: Props): JSX.Element => {
   const filterByGroup = useCallback((): void => {
     setCriteriaAndNewFilter({
       name: type,
-      value: [group]
+      value: [group],
+      apply: true
     });
   }, [group, type]);
 
@@ -80,8 +83,9 @@ const GroupChip = ({ group, type }: Props): JSX.Element => {
   const { name, id } = group;
 
   return (
-    <Grid item className={classes.chip} key={id}>
+    <Grid item key={id}>
       <Chip
+        className={classes.chip}
         aria-label={`${name} Chip`}
         color="primary"
         label={

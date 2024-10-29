@@ -34,14 +34,26 @@
  *
  */
 
-require_once dirname(__FILE__) . '/object.class.php';
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
+require_once __DIR__ . '/object.class.php';
+
+/**
+ * Class
+ *
+ * @class AbstractHost
+ */
 abstract class AbstractHost extends AbstractObject
 {
-    const TYPE_HOST = 1;
-    const TYPE_TEMPLATE = 0;
-    const TYPE_VIRTUAL_HOST = 2;
+    public const TYPE_HOST = 1;
+    public const TYPE_TEMPLATE = 0;
+    public const TYPE_VIRTUAL_HOST = 2;
 
+    /** @var array */
+    protected $hosts;
+
+    /** @var string */
     protected $attributes_select = '
         host_id,
         command_command_id as check_command_id,
@@ -91,72 +103,36 @@ abstract class AbstractHost extends AbstractObject
         host_location,
         host_acknowledgement_timeout as acknowledgement_timeout
     ';
-    protected $attributes_write = array(
-        'host_name',
-        'alias',
-        'address',
-        'display_name',
-        'contacts',
-        'contact_groups',
-        'check_command',
-        'check_period',
-        'notification_period',
-        'event_handler',
-        'max_check_attempts',
-        'check_interval',
-        'retry_interval',
-        'initial_state',
-        'freshness_threshold',
-        'low_flap_threshold',
-        'high_flap_threshold',
-        'flap_detection_options',
-        'notification_interval',
-        'notification_options',
-        'first_notification_delay',
-        'recovery_notification_delay',
-        'stalking_options',
-        'register',
-        'notes',
-        'notes_url',
-        'action_url',
-        'icon_image',
-        'icon_id',
-        'icon_image_alt',
-        'statusmap_image',
-        'timezone',
-        'acknowledgement_timeout'
-    );
-    protected $attributes_default = array(
-        'active_checks_enabled',
-        'passive_checks_enabled',
-        'event_handler_enabled',
-        'flap_detection_enabled',
-        'notifications_enabled',
-        'obsess_over_host',
-        'check_freshness',
-        'process_perf_data',
-        'retain_status_information',
-        'retain_nonstatus_information',
-    );
+    /** @var string[] */
+    protected $attributes_write = ['host_name', 'alias', 'address', 'display_name', 'contacts', 'contact_groups', 'check_command', 'check_period', 'notification_period', 'event_handler', 'max_check_attempts', 'check_interval', 'retry_interval', 'initial_state', 'freshness_threshold', 'low_flap_threshold', 'high_flap_threshold', 'flap_detection_options', 'notification_interval', 'notification_options', 'first_notification_delay', 'recovery_notification_delay', 'stalking_options', 'register', 'notes', 'notes_url', 'action_url', 'icon_image', 'icon_id', 'icon_image_alt', 'statusmap_image', 'timezone', 'acknowledgement_timeout'];
+    /** @var string[] */
+    protected $attributes_default = ['active_checks_enabled', 'passive_checks_enabled', 'event_handler_enabled', 'flap_detection_enabled', 'notifications_enabled', 'obsess_over_host', 'check_freshness', 'process_perf_data', 'retain_status_information', 'retain_nonstatus_information'];
+    /** @var string[] */
     protected $attributes_array = [
         'use',
         'parents',
         'category_tags',
         'group_tags',
     ];
-    protected $attributes_hash = array(
-        'macros'
-    );
-    protected $loop_htpl = array(); # To be reset
+    /** @var string[] */
+    protected $attributes_hash = ['macros'];
+    /** @var array */
+    protected $loop_htpl = []; # To be reset
+    /** @var null */
     protected $stmt_macro = null;
+    /** @var null */
     protected $stmt_htpl = null;
+    /** @var null */
     protected $stmt_contact = null;
+    /** @var null */
     protected $stmt_cg = null;
 
     /**
      * @param int $hostId
      * @param int|null $hostType
+     *
      * @return mixed
+     * @throws PDOException
      */
     protected function getHostById(int $hostId, ?int $hostType = self::TYPE_HOST)
     {
@@ -179,6 +155,12 @@ abstract class AbstractHost extends AbstractObject
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * @param $host
+     *
+     * @return void
+     * @throws PDOException
+     */
     protected function getImages(&$host)
     {
         $media = Media::getInstance($this->dependencyInjector);
@@ -191,6 +173,15 @@ abstract class AbstractHost extends AbstractObject
         }
     }
 
+    /**
+     * @param $host
+     *
+     * @return int
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
     protected function getMacros(&$host)
     {
         if (isset($host['macros'])) {
@@ -212,7 +203,7 @@ abstract class AbstractHost extends AbstractObject
         $this->stmt_macro->execute();
         $macros = $this->stmt_macro->fetchAll(PDO::FETCH_ASSOC);
 
-        $host['macros'] = array();
+        $host['macros'] = [];
         foreach ($macros as $macro) {
             $hostMacroName = preg_replace(
                 '/\$_HOST(.*)\$/',
@@ -233,6 +224,11 @@ abstract class AbstractHost extends AbstractObject
     /**
      * @param array $host
      * @param bool $generate
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     protected function getHostTemplates(array &$host, bool $generate = true): void
     {
@@ -255,7 +251,7 @@ abstract class AbstractHost extends AbstractObject
         }
 
         $hostTemplate = HostTemplate::getInstance($this->dependencyInjector);
-        $host['use'] = array();
+        $host['use'] = [];
         foreach ($host['htpl'] as $templateId) {
             $host['use'][] = $hostTemplate->generateFromHostId($templateId);
         }
@@ -263,6 +259,8 @@ abstract class AbstractHost extends AbstractObject
 
     /**
      * @param array $host (passing by Reference)
+     *
+     * @throws PDOException
      */
     protected function getContacts(array &$host): void
     {
@@ -283,7 +281,9 @@ abstract class AbstractHost extends AbstractObject
     }
 
     /**
-      * @param array $host (passing by Reference)
+     * @param array $host (passing by Reference)
+     *
+     * @throws PDOException
      */
     protected function getContactGroups(array &$host): void
     {
@@ -303,10 +303,16 @@ abstract class AbstractHost extends AbstractObject
         }
     }
 
+    /**
+     * @param $host_id
+     * @param $host_tpl_id
+     *
+     * @return int
+     */
     public function isHostTemplate($host_id, $host_tpl_id)
     {
-        $loop = array();
-        $stack = array();
+        $loop = [];
+        $stack = [];
 
         $hosts_tpl = HostTemplate::getInstance($this->dependencyInjector)->hosts;
         $stack = $this->hosts[$host_id]['htpl'];
@@ -324,10 +330,16 @@ abstract class AbstractHost extends AbstractObject
         return 0;
     }
 
+    /**
+     * @param $host_id
+     * @param $command_label
+     *
+     * @return mixed|null
+     */
     protected function findCommandName($host_id, $command_label)
     {
-        $loop = array();
-        $stack = array();
+        $loop = [];
+        $stack = [];
 
         $hosts_tpl = HostTemplate::getInstance($this->dependencyInjector)->hosts;
         $stack = $this->hosts[$host_id]['htpl'];
@@ -345,6 +357,12 @@ abstract class AbstractHost extends AbstractObject
         return null;
     }
 
+    /**
+     * @param $host
+     *
+     * @return void
+     * @throws PDOException
+     */
     protected function getHostTimezone(&$host)
     {
         $oTimezone = Timezone::getInstance($this->dependencyInjector);
@@ -354,6 +372,18 @@ abstract class AbstractHost extends AbstractObject
         }
     }
 
+    /**
+     * @param $host
+     * @param $result_name
+     * @param $command_id_label
+     * @param $command_arg_label
+     *
+     * @return int
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
     protected function getHostCommand(&$host, $result_name, $command_id_label, $command_arg_label)
     {
         $command_name = Command::getInstance($this->dependencyInjector)
@@ -384,12 +414,27 @@ abstract class AbstractHost extends AbstractObject
         return 0;
     }
 
+    /**
+     * @param $host
+     *
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
     protected function getHostCommands(&$host)
     {
         $this->getHostCommand($host, 'check_command', 'check_command_id', 'check_command_arg');
         $this->getHostCommand($host, 'event_handler', 'event_handler_id', 'event_handler_arg');
     }
 
+    /**
+     * @param $host
+     *
+     * @return void
+     * @throws PDOException
+     */
     protected function getHostPeriods(&$host)
     {
         $period = Timeperiod::getInstance($this->dependencyInjector);
@@ -397,17 +442,22 @@ abstract class AbstractHost extends AbstractObject
         $host['notification_period'] = $period->generateFromTimeperiodId($host['notification_period_id']);
     }
 
+    /**
+     * @param $host_id
+     * @param $attr
+     *
+     * @return mixed|null
+     */
     public function getString($host_id, $attr)
     {
-        if (isset($this->hosts[$host_id][$attr])) {
-            return $this->hosts[$host_id][$attr];
-        }
-        return null;
+        return $this->hosts[$host_id][$attr] ?? null;
     }
 
     /**
      * @param array<string,mixed> $host
+     *
      * @return array<string,mixed>
+     * @throws PDOException
      */
     private function getHostCategoriesByHost(array $host): array
     {
@@ -427,6 +477,8 @@ abstract class AbstractHost extends AbstractObject
     /**
      * @param HostCategory $hostCategory
      * @param array<string,mixed> $host
+     *
+     * @throws PDOException
      */
     public function insertHostInHostCategoryMembers(HostCategory $hostCategory, array &$host): void
     {

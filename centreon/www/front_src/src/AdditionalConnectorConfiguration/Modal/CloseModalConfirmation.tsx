@@ -1,17 +1,17 @@
-import { useTranslation } from 'react-i18next';
 import { useAtom, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 
 import { Modal } from '@centreon/ui/components';
 
+import { dialogStateAtom, isCloseModalDialogOpenAtom } from '../atoms';
 import {
   labelCancel,
   labelConfirm,
   labelDoYouWantToQuitWithoutSaving,
   labelYourFormHasUnsavedChanges
 } from '../translatedLabels';
-import { dialogStateAtom, isCloseModalDialogOpenAtom } from '../atoms';
 
 const CloseModalConfirmation = (): React.JSX.Element => {
   const { t } = useTranslation();
@@ -27,7 +27,7 @@ const CloseModalConfirmation = (): React.JSX.Element => {
   };
 
   return (
-    <Modal open={isModalOpen} size="medium" onClose={onCancel}>
+    <Modal open={isModalOpen} size="large" onClose={onCancel}>
       <Modal.Header>{t(labelDoYouWantToQuitWithoutSaving)}</Modal.Header>
       <Modal.Body>
         <Typography>{t(labelYourFormHasUnsavedChanges)}</Typography>

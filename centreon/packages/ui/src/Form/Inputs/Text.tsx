@@ -1,7 +1,6 @@
 import { ChangeEvent, useCallback, useState } from 'react';
 
-import { useTranslation } from 'react-i18next';
-import { useFormikContext, FormikValues } from 'formik';
+import { FormikValues, useFormikContext } from 'formik';
 import {
   equals,
   gt,
@@ -11,6 +10,7 @@ import {
   split,
   type as variableType
 } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { InputAdornment } from '@mui/material';
 
@@ -36,22 +36,37 @@ const Text = ({
 
   const [isVisible, setIsVisible] = useState(false);
 
-  const { values, setFieldValue, touched, errors, handleBlur } =
-    useFormikContext<FormikValues>();
+  const {
+    values,
+    setFieldValue,
+    touched,
+    errors,
+    handleBlur,
+    setFieldTouched,
+    setValues,
+    setTouched
+  } = useFormikContext<FormikValues>();
 
   const fieldNamePath = split('.', fieldName);
 
   const changeText = (event: ChangeEvent<HTMLInputElement>): void => {
     const { value } = event.target;
     if (change) {
-      change({ setFieldValue, value });
+      change({
+        setFieldValue,
+        value,
+        setFieldTouched,
+        setValues,
+        values,
+        setTouched
+      });
 
       return;
     }
 
     const formattedValue =
       equals(text?.type, 'number') && !isEmpty(value)
-        ? parseInt(value, 10)
+        ? Number.parseInt(value, 10)
         : value;
 
     setFieldValue(fieldName, formattedValue);
@@ -107,11 +122,11 @@ const Text = ({
   return useMemoComponent({
     Component: (
       <TextField
-        fullWidth
+        fullWidth={text?.fullWidth ?? true}
         EndAdornment={EndAdornment}
         ariaLabel={t(label) || ''}
         autoFocus={autoFocus}
-        dataTestId={dataTestId || ''}
+        dataTestId={dataTestId || label}
         disabled={disabled}
         error={error as string | undefined}
         label={t(label)}
@@ -123,6 +138,11 @@ const Text = ({
         value={value || ''}
         onBlur={handleBlur(fieldName)}
         onChange={changeText}
+        inputProps={{
+          'data-testid': dataTestId || label,
+          'aria-label': label,
+          min: text?.min
+        }}
       />
     ),
     memoProps: [

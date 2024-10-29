@@ -9,12 +9,12 @@ import {
   SingleConnectedAutocompleteField
 } from '@centreon/ui';
 
-import { WidgetPropertyProps } from '../../../models';
 import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import { WidgetPropertyProps } from '../../../models';
 
-import useAutocomplete from './useConnectedAutocomplete';
 import { useStyles } from './ConnectedAutocomplete.styles';
+import useAutocomplete from './useConnectedAutocomplete';
 
 const ConnectedAutocomplete = ({
   propertyName,
@@ -22,7 +22,8 @@ const ConnectedAutocomplete = ({
   secondaryLabel,
   isSingleAutocomplete,
   baseEndpoint,
-  isInGroup
+  isInGroup,
+  isRequiredProperty
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -53,6 +54,7 @@ const ConnectedAutocomplete = ({
           limitTags={2}
           value={value}
           onChange={changeValue}
+          required={isRequiredProperty}
         />
       ) : (
         <MultiConnectedAutocompleteField
@@ -68,6 +70,7 @@ const ConnectedAutocomplete = ({
           placeholder=""
           value={value}
           onChange={changeValues}
+          required={isRequiredProperty}
         />
       )}
     </div>

@@ -3129,6 +3129,7 @@ msgstr "Accueil"
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:294
 #: centreon-web/www/include/options/accessLists/define/formLCA.php:244
 #: centreon-web/www/include/monitoring/objectDetails/serviceDetails.php:587
+#: centreon-web/www/include/eventLogs/viewLog.php:247
 msgid "Host Groups"
 msgstr "Groupes d'hôtes"
 
@@ -3331,6 +3332,7 @@ msgstr "État du serveur"
 #: centreon-web/www/install/menu_translation.php:133
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:330
 #: centreon-web/www/include/options/accessLists/define/formLCA.php:275
+#: centreon-web/www/include/eventLogs/viewLog.php:229
 msgid "Service Groups"
 msgstr "Groupes de services"
 
@@ -3851,7 +3853,7 @@ msgstr "Le dernier mois"
 
 #: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:94
 msgid "Last year"
-msgstr "La dernière année"
+msgstr "Les 12 derniers mois"
 
 #: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:147
 #: centreon-web/www/include/configuration/configDowntime/formDowntime.php:233
@@ -5365,10 +5367,6 @@ msgstr "Propriétés d'authentification"
 msgid "Support Information"
 msgstr "Centre de services"
 
-#: centreon-web/www/include/Administration/parameters/engine/form.php:73
-msgid "Monitoring Engine information"
-msgstr "Informations sur le moteur de supervision"
-
 #: centreon-web/www/include/Administration/parameters/engine/form.php:74
 msgid "Images Directory"
 msgstr "Répertoire des images"
@@ -5402,11 +5400,6 @@ msgid "Page refresh interval"
 msgstr "Intervalle de rafraîchissement de la page"
 
 #: centreon-web/www/include/Administration/parameters/engine/form.php:98
-#: centreon-web/www/include/monitoring/acknowlegement/hostAcknowledge.php:92
-#: centreon-web/www/include/monitoring/acknowlegement/xml/broker/makeXMLForAck.php:85
-#: centreon-web/www/include/monitoring/external_cmd/popup/massive_ack.php:114
-msgid "Sticky"
-msgstr "Persistant (non-OK)"
 
 #: centreon-web/www/include/Administration/parameters/engine/form.php:99
 #: centreon-web/www/include/monitoring/acknowlegement/hostAcknowledge.php:77
@@ -6147,7 +6140,7 @@ msgid "View an ACL"
 msgstr "Visualiser une ACL"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:230
-msgid "Hosts Groups Shared"
+msgid "Host Groups Shared"
 msgstr "Groupes d'hôtes partagés"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:232
@@ -6272,11 +6265,11 @@ msgid "Required field"
 msgstr "Champ requis"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:429
-msgid "Hosts Resources"
+msgid "Host Resources"
 msgstr "Gestion des hôtes"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:430
-msgid "Services Resources"
+msgid "Service Resources"
 msgstr "Gestion des services"
 
 msgid "Centreon Users"
@@ -7072,18 +7065,12 @@ msgstr "Choisissez la source à grapher"
 #: centreon-web/www/include/views/graphs/graphs.php:177
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:106
 #: centreon-web/www/include/eventLogs/viewLog.php:172
-msgid "Last 2 Days"
-msgstr "Les 2 précédents jours"
+msgid "Last 2 days"
+msgstr "Les 2 derniers jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:178
-msgid "Last 3 Days"
+msgid "Last 3 days"
 msgstr "Les 3 derniers jours"
-
-#: centreon-web/www/include/views/graphs/graphs.php:179
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:107
-#: centreon-web/www/include/eventLogs/viewLog.php:173
-msgid "Last 4 Days"
-msgstr "Les 4 précédents jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:180
 msgid "Last 5 days"
@@ -7092,8 +7079,8 @@ msgstr "Les 5 derniers jours"
 #: centreon-web/www/include/views/graphs/graphs.php:182
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:109
 #: centreon-web/www/include/eventLogs/viewLog.php:175
-msgid "Last 14 Days"
-msgstr "Les 14 précédents jours"
+msgid "Last 14 days"
+msgstr "Les 14 derniers jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:183
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:110
@@ -7104,27 +7091,20 @@ msgstr "Les 28 derniers jours"
 #: centreon-web/www/include/views/graphs/graphs.php:185
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:112
 #: centreon-web/www/include/eventLogs/viewLog.php:178
-msgid "Last 31 Days"
-msgstr "Les 31 précédents jours"
+msgid "Last 31 days"
+msgstr "Les 31 derniers jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:186
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:113
 #: centreon-web/www/include/eventLogs/viewLog.php:179
-msgid "Last 2 Months"
-msgstr "Les 2 précédents mois"
+msgid "Last 2 months"
+msgstr "Les 2 derniers mois"
 
 #: centreon-web/www/include/views/graphs/graphs.php:187
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:114
 #: centreon-web/www/include/eventLogs/viewLog.php:180
-msgid "Last 4 Months"
-msgstr "Les 4 précédents mois"
-
-#: centreon-web/www/include/views/graphs/graphs.php:189
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:116
-#: centreon-web/www/include/reporting/dashboard/common-Func.php:260
-#: centreon-web/www/include/eventLogs/viewLog.php:182
-msgid "Last Year"
-msgstr "L'année précédente"
+msgid "Last 4 months"
+msgstr "Les 4 derniers mois"
 
 #: centreon-web/www/include/views/graphs/graphs.php:191
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:118
@@ -7604,10 +7584,6 @@ msgstr "Cette Semaine"
 #: centreon-web/www/include/reporting/dashboard/common-Func.php:256
 msgid "This Month"
 msgstr "Ce mois ci"
-
-#: centreon-web/www/include/reporting/dashboard/common-Func.php:258
-msgid "Last Month"
-msgstr "Le mois dernier"
 
 #: centreon-web/www/include/reporting/dashboard/common-Func.php:259
 msgid "This Year"
@@ -8904,7 +8880,7 @@ msgstr "octets"
 msgid "Warning: this value can be dangerous, use -1 if you have any doubt."
 msgstr ""
 "Attention : le changement de cette valeur peut avoir des conséquences "
-"importantes. Utiliser '-1' si vous avez le moindre doute"
+"importantes. Utilisez -1 si vous avez le moindre doute"
 
 #: centreon-web/www/include/configuration/configNagios/formNagios.php:905
 msgid "This option must be enabled for Centreon Dashboard module."
@@ -11657,10 +11633,6 @@ msgstr "Informations sur le serveur"
 msgid "Gorgone Information"
 msgstr "Informations Gorgone"
 
-#: centreon-web/www/include/configuration/configServers/formServers.php:103
-msgid "Monitoring Engine Information"
-msgstr "Information sur le moteur de supervision"
-
 #: centreon-web/www/include/configuration/configServers/formServers.php:105
 msgid "Centreon Trap Collector"
 msgstr "Colleteur de traps SNMP Centreon"
@@ -12120,14 +12092,6 @@ msgstr "Etat validés (Hard) seulement"
 #: centreon-web/www/include/eventLogs/viewLog.php:200
 msgid "Log Period"
 msgstr "Période de visualisation"
-
-#: centreon-web/www/include/eventLogs/viewLog.php:229
-msgid "Services Groups"
-msgstr "Groupes de services"
-
-#: centreon-web/www/include/eventLogs/viewLog.php:247
-msgid "Hosts Groups"
-msgstr "Groupes d'hôtes"
 
 #: centreon-web/www/include/eventLogs/xml/data.php:715
 msgid "Y/m/d"
@@ -15224,9 +15188,6 @@ msgstr "31 jours"
 msgid "Last day"
 msgstr "Dernier jour"
 
-msgid "Last 31 days"
-msgstr "Derniers 31 jours"
-
 msgid "Set downtime on"
 msgstr "Programmer une plage de maintenance sur"
 
@@ -17924,10 +17885,10 @@ msgid "Show thresholds"
 msgstr "Afficher les seuils"
 
 msgid "Custom"
-msgstr "Personnalisé"
+msgstr "Personnalisée"
 
-msgid "Thresholds are automatically hidden as soon as you select 2 metric units."
-msgstr "Les seuils sont automatiquement masqués dès que vous sélectionnez 2 unités métriques."
+msgid "Thresholds are automatically hidden when you select several metrics with different units."
+msgstr "Les seuils sont automatiquement masqués lorsque vous sélectionnez des métriques aux unités différentes."
 
 msgid "Show description"
 msgstr "Afficher la description"
@@ -17960,7 +17921,7 @@ msgid "Your widget has been created successfully!"
 msgstr "Votre widget a été créé avec succès !"
 
 msgid "Value settings"
-msgstr "Paramètres de valeur"
+msgstr "Paramètres des valeurs"
 
 msgid "By turning off this option, all the links included in the widget will be opened in the same tab."
 msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet."
@@ -18008,7 +17969,7 @@ msgid "Widget type"
 msgstr "Type de widget"
 
 msgid "Display as"
-msgstr "Afficher en tant que"
+msgstr "Afficher sous forme de"
 
 msgid "Text"
 msgstr "Texte"
@@ -18019,8 +17980,8 @@ msgstr "Jauge"
 msgid "Bar chart"
 msgstr "Diagramme à barres"
 
-msgid "The default value is the value defined for the first metric used."
-msgstr "La valeur par défaut est la valeur définie pour la première métrique utilisée."
+msgid "The default value is the value defined for the first selected metric."
+msgstr "La valeur par défaut est la valeur définie pour la première métrique sélectionnée."
 
 msgid "Raw value"
 msgstr "Valeur brute"
@@ -18173,8 +18134,8 @@ msgstr "Seuils"
 msgid "Value format"
 msgstr "Format de la valeur"
 
-msgid "Time period"
-msgstr "Période temporelle"
+msgid "Time range"
+msgstr "Plage temporelle"
 
 msgid "Last hour"
 msgstr "La dernière heure"
@@ -18963,8 +18924,8 @@ msgstr "Type de courbe"
 msgid "Linear"
 msgstr "Linéaire"
 
-msgid "Natural"
-msgstr "Naturel"
+msgid "Smooth"
+msgstr "Arrondie"
 
 msgid "Error while partially updating the token"
 msgstr "Erreur lors de la mise à jour partielle du jeton"
@@ -18987,23 +18948,20 @@ msgstr "Vous n'êtes pas autorisé à accéder aux hôtes dans le cadre du temps
 msgid "You are not allowed to access services in the real time context"
 msgstr "Vous n'êtes pas autorisé à accéder aux services dans le cadre du temps réel"
 
-msgid "Value sorting"
+msgid "Value sort order"
 msgstr "Tri des valeurs"
 
 msgid "By name"
 msgstr "Par nom"
 
-msgid "Tooltip display"
-msgstr "Affichage de l'infobulle"
-
 msgid "All"
-msgstr "Tout"
+msgstr "Toutes"
 
-msgid "Single"
-msgstr "Unique"
+msgid "Only one"
+msgstr "Une seule"
 
 msgid "Hidden"
-msgstr "Masqué"
+msgstr "Masquées"
 
 msgid "Hide"
 msgstr "Masquer"
@@ -19014,8 +18972,8 @@ msgstr "Largeur de la ligne"
 msgid "Auto"
 msgstr "Auto"
 
-msgid "Show area"
-msgstr "Afficher l'aire"
+msgid "Area"
+msgstr "Aire"
 
 msgid "Show"
 msgstr "Afficher"
@@ -19023,14 +18981,14 @@ msgstr "Afficher"
 msgid "Display curve points"
 msgstr "Afficher les points de la courbe"
 
-msgid "Show axis border"
-msgstr "Afficher la bordure de l'axe"
+msgid "Show axis borders"
+msgstr "Afficher les bordures de l'axe"
 
-msgid "Y-axis tick label rotation"
-msgstr "Rotation de l'étiquette de l'axe Y"
+msgid "Y-axis label rotation"
+msgstr "Rotation des étiquettes de l'axe Y"
 
-msgid "The Auto value corresponds to the value defined in the Curves configuration in Centreon."
-msgstr "La valeur Auto correspond à la valeur définie dans la configuration des courbes dans Centreon."
+msgid "Auto: Default value defined for the corresponding curve template (Monitoring > Performances > Curves)."
+msgstr "Auto : Valeur par défaut définie dans le modèle de courbe correspondant (Supervision > Informations de performance > Courbes)."
 
 msgid "Position"
 msgstr "Position"
@@ -19053,11 +19011,11 @@ msgstr "Centré sur zéro"
 msgid "Solid"
 msgstr "Uni"
 
-msgid "Dashed"
-msgstr "Tiret"
+msgid "Dashes"
+msgstr "Tirets"
 
-msgid "Dotted"
-msgstr "Pointillé"
+msgid "Dots"
+msgstr "Pointillés"
 
 msgid "Graph style"
 msgstr "Style de graphe"
@@ -19065,8 +19023,8 @@ msgstr "Style de graphe"
 msgid "Display type"
 msgstr "Type d'affichage"
 
-msgid "Display settings"
-msgstr "Afichage des paramètres"
+msgid "Graph settings"
+msgstr "Paramètres de graphe"
 
 msgid "Fill opacity"
 msgstr "Opacité du remplissage"
@@ -19080,8 +19038,11 @@ msgstr "Largeur du tiret"
 msgid "Space"
 msgstr "Espacement"
 
-msgid "Show grid lines"
-msgstr "Affichage de la grille"
+msgid "Show gridlines"
+msgstr "Afficher le quadrillage"
+
+msgid "Gridline type"
+msgstr "Type de quadrillage"
 
 msgid "Horizontal"
 msgstr "Horizontal"
@@ -19104,11 +19065,11 @@ msgstr "Gauche"
 msgid "Right"
 msgstr "Droite"
 
-msgid "Axis"
-msgstr "Axe"
+msgid "Axes"
+msgstr "Axes"
 
-msgid "Tooltip"
-msgstr "Infobulle"
+msgid "Tooltips"
+msgstr "Infobulles"
 
 msgid "Unable to retrieve credentials ['%s'] from vault"
 msgstr "Impossible de récupérer les informations d'identification ['%s'] du coffre"
@@ -19134,8 +19095,8 @@ msgstr "Orientation"
 msgid "Bar radius"
 msgstr "Radius de la barre"
 
-msgid "Bar background opacity"
-msgstr "Opacité du fond de la barre"
+msgid "Bar opacity"
+msgstr "Opacité de la barre"
 
 msgid "Check command sent!"
 msgstr "Commande de vérification envoyée !"
@@ -19164,8 +19125,8 @@ msgstr "Sélectionner les sévérités des services"
 msgid "Select host severities"
 msgstr "Sélectionner les sévérités des hôtes"
 
-msgid "Enable Open Tickets"
-msgstr "Activer Open Tickets"
+msgid "Enable ticket management"
+msgstr "Activer la gestion des tickets"
 
 msgid "Ticket provider"
 msgstr "Fournisseur de tickets"
@@ -19195,10 +19156,22 @@ msgid "Ticket subject"
 msgstr "Sujet du ticket"
 
 msgid "Opened on"
-msgstr "Date d'ouverture"
+msgstr "Ouvert le"
 
 msgid "Create a ticket"
 msgstr "Créer un ticket"
+
+msgid "Close a ticket"
+msgstr "Fermer un ticket"
+
+msgid "Ticket created"
+msgstr "Ticket créé"
+
+msgid "Ticket closed"
+msgstr "Ticket fermé"
+
+msgid "The ticket with ID #{{id}} will be closed for the selected ticket provider."
+msgstr "Le ticket avec l'ID #{{id}} sera fermé pour le fournisseur de tickets sélectionné."
 
 msgid "Rule (ticket provider)"
 msgstr "Règle (fournisseur de tickets)"
@@ -19258,7 +19231,7 @@ msgid "Critical KPIs"
 msgstr "Indicateurs critiques"
 
 msgid "Additional connector configurations"
-msgstr "Configuration supplémentaire de connecteurs"
+msgstr "Configurations supplémentaires de connecteurs"
 
 msgid "Types"
 msgstr "Types"
@@ -19380,3 +19353,234 @@ msgstr "Erreur lors de la mise à jour d'une configuration additionnelle de conn
 
 msgid "Changing type of an existing additional connector configuration is not allowed"
 msgstr "Changer le type d'une configuration additionnelle de connecteur existante n'est pas autorisé"
+
+msgid "Select time zone"
+msgstr "Sélectionner un fuseau horaire"
+
+msgid "Select time format"
+msgstr "Sélectionner un format d'heure"
+
+msgid "12 hours"
+msgstr "12 heures"
+
+msgid "24 hours"
+msgstr "24 heures"
+
+msgid "Ends at"
+msgstr "Se termine à"
+
+msgid "Time zone"
+msgstr "Fuseau horaire"
+
+msgid "Date format"
+msgstr "Format de date"
+
+msgid "Time format"
+msgstr "Format d'heure"
+
+msgid "Countdown"
+msgstr "Compte à rebours"
+
+msgid "Timer"
+msgstr "Minuteur"
+
+msgid "Show time zone"
+msgstr "Afficher le fuseau horaire"
+
+msgid "Show date"
+msgstr "Afficher la date"
+
+msgid "The ticket will be closed for the selected ticket provider"
+msgstr "Le ticket sera fermé pour le fournisseur de tickets sélectionné"
+
+msgid "Vault configuration"
+msgstr "Configuration du Vault"
+
+msgid "The address is invalid"
+msgstr "L'addresse est invalide"
+
+msgid "Vault address"
+msgstr "Addresse du Vault"
+
+msgid "Root path"
+msgstr "Chemin de la racine"
+
+msgid "Role ID"
+msgstr "Role ID"
+
+msgid "Secret ID"
+msgstr "Secret ID"
+
+msgid "Reset configuration"
+msgstr "Réinitialiser la configuration"
+
+msgid "The form will be cleared and all data will be lost. Do you want to proceed?"
+msgstr "Le formulaire sera réinitialisé et les données modifiées seront perdues. Souhaitez-vous continuer ?"
+
+msgid "Port expected at most 65535"
+msgstr "Le numéro de port maximum attendu est 65535"
+
+msgid "Vault configuration updated"
+msgstr "La configuration du Vault a été mise à jour"
+
+msgid "Post must start from 1"
+msgstr "Le numéro de port doit être au moins 1"
+
+msgid "Migrate"
+msgstr "Migrer"
+
+msgid "Migration script"
+msgstr "Script de migration"
+
+msgid "Execute this script as root on the central."
+msgstr "Exécuter ce script en tant que root sur le serveur central."
+
+msgid "The following script will migrate all your credentials from Centreon, Auto-discovery and the database."
+msgstr "Le script suivant migrera vos identifiants de Centreon, d'Auto-discovery ainsi que de la base de données."
+
+msgid "By executing this script, your platform will be in a locked mode and you will not be able to do <strong>anything</strong> during the migration process (example: deploying your configuration, updating administration parameters, etc...)."
+msgstr "En exécutant ce script, votre plateforme sera verrouillée and vous ne pourrez plus <strong>rien modifier</strong> durant le processus de migration (exemple: déployer la configuration, modifier les paramètres d'administration, etc...)."
+
+msgid "The migration process can take several minutes depending on your configuration."
+msgstr "Le processus de migration peut prendre plusieurs minutes selon votre configuration."
+
+msgid "Web page"
+msgstr "Page web"
+
+msgid "Displays a web page"
+msgstr "Affiche une page web"
+
+msgid "Please note that domains outside your organization must be authorized in your Apache configuration."
+msgstr "Attention, les domaines en dehors de votre organisation doivent être autorisés dans votre configuration Apache."
+
+msgid "Web page preview"
+msgstr "Aperçu de la page web"
+
+msgid "If ticket management is enabled, only the “by service” view is available."
+msgstr "Si la gestion des tickets est activé, seule la vue par service est disponible."
+
+msgid "Ticket management"
+msgstr "gestion des tickets"
+
+msgid "Displays the time according to the selected time zone, or a timer."
+msgstr "Affiche l'heure en fonction du fuseau horaire sélectionné, ou un minuteur."
+
+msgid "Clock / Timer"
+msgstr "Horloge/Minuteur"
+
+msgid "Poller/agent configuration"
+msgstr "Configuration collecteur/agent"
+
+msgid "Welcome to the poller/agent configuration page"
+msgstr "Bienvenue sur la page des configurations collecteur/agent"
+
+msgid "Agent type"
+msgstr "Type d'agent"
+
+msgid "Expand"
+msgstr "Étendre"
+
+msgid "Collapse"
+msgstr "Réduire"
+
+msgid "Add new agent configuration"
+msgstr "Ajouter une nouvelle configuration d'agent"
+
+msgid "Agent types"
+msgstr "Types d'agent"
+
+msgid "Delete poller"
+msgstr "Supprimer un collecteur"
+
+msgid "Delete agent"
+msgstr "Supprimer un agent"
+
+msgid "Agent configurations"
+msgstr "Configurations d'agent"
+
+msgid "Poller configuration"
+msgstr "Configuration du collecteur"
+
+msgid "Invalid address"
+msgstr "Adresse invalide"
+
+msgid "Add poller/agent configuration"
+msgstr "Ajouter une configuration collecteur/agent"
+
+msgid "OTLP receiver"
+msgstr "Receveur OTLP"
+
+msgid "Listening address"
+msgstr "Addresse d'écoute"
+
+msgid "Port number must be at most 65535"
+msgstr "Le numéro du port ne doit pas excéder 65535"
+
+msgid "Port number must be a least 1"
+msgstr "Le numéro du port doit être au minimum 1"
+
+msgid "Extension not allowed"
+msgstr "Extension non autorisée"
+
+msgid "Public certificate file name"
+msgstr "Nom de fichier du certificat public"
+
+msgid "CA file name"
+msgstr "Nom de fichier du CA"
+
+msgid "Certificate file name"
+msgstr "Nom de fichier du certificat"
+
+msgid "Private key file name"
+msgstr "Nom de fichier de la clé privée"
+
+msgid "Configuration provider"
+msgstr "Fournisseur de configuration"
+
+msgid "Poller/agent configuration created"
+msgstr "Configuration collecteur/agent créée"
+
+msgid "Poller/agent configuration updated"
+msgstr "Configuration collecteur/agent mise à jour"
+
+msgid "Update poller/agent configuration"
+msgstr "Mettre à jour la configuration collecteur/agent"
+
+msgid "An agent is a piece of software you install on the host you want to monitor, that executes the checks."
+msgstr "Un agent est une partie d'un logiciel que vous installez sur l'hôte que vous souhaitez superviser qui exécutes les vérifications."
+
+msgid "Error while adding a poller/agent configuration"
+msgstr "Erreur lors de l'ajout de la configuration collecteur/agent"
+
+msgid "Error while updating a poller/agent configuration"
+msgstr "Erreur lors de la mise à jour de la configuration collecteur/agent"
+
+msgid "Error while deleting a poller/agent configuration"
+msgstr "Erreur lors de la suppression de la configuration collecteur/agent"
+
+msgid "You are not allowed to access poller/agent configurations"
+msgstr "Vous n'êtes pas autorisé à accéder aux configurations collecteur/agent"
+
+msgid "A poller/agent configuration is already associated with poller ID(s) '%s'"
+msgstr "Une configuration collecteur/agent est déjà associée au(x) ID(s) de collecteur(s) '%s'"
+
+msgid "Error while retrieving a poller/agent configuration"
+msgstr "Erreur durant la récupération d'une configuration collecteur/agent"
+
+msgid "The poller/agent configuration name '%s' already exists"
+msgstr "La configuration collecteur/agent '%s' existe déjà"
+
+msgid "Changing the type of an existing poller/agent configuration is not allowed"
+msgstr "Changer le type d'une configuration collecteur/agent existante n'est pas autorisé"
+
+msgid "Filename '%s' (%s) is invalid"
+msgstr "Le nom de fichier '%s' (%s) est invalide"
+
+msgid "Poller ID #%d is the only one linked to poller/agent configuration ID #%d"
+msgstr "L'ID de collecteur #%d est le seul lié à l'ID de configuration collecteur/agent #%d"
+
+msgid "Error while retrieving multiple poller/agent configurations"
+msgstr "Erreur durant la récupération de multiples configurations collecteur/agent"
+
+msgid "Sticky for any non-OK status"
+msgstr "Sticky pour tout statut non-OK"

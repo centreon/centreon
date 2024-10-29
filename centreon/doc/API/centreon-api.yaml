@@ -12,7 +12,8 @@ info:
     + Added new filters to the /monitoring/servicegroups endpoint
     + Added new filters for /monitoring/resources /monitoring/resources/hosts related to Open Tickets
     + Added new key 'extra' that contains extra data from modules installed for resources endpoints
-    +
+    + Update /configuration/contacts/groups endpoint by adding new listing properties
+
     # Information
     All dates are in **ISO 8601** format
     # Authentication
@@ -55,6 +56,7 @@ tags:
   - name: Authentication
     description: "Login and logout endpoints to retrieve authentication token"
   - name: Command
+  - name: Contact group
   - name: Downtime
   - name: Gorgone
   - name: Host
@@ -252,8 +254,14 @@ paths:
     $ref: "./latest/onPremise/Configuration/AdditionalConnectorConfiguration/AddAndFindAccs.yaml"
   /configuration/additional-connector-configurations/{acc_id}:
     $ref: "./latest/onPremise/Configuration/AdditionalConnectorConfiguration/DeleteUpdateAndFindAcc.yaml"
-  /configuration/additional-connectors/pollers/{type}:
+  /configuration/additional-connector-configurations/pollers/{type}:
     $ref: "./latest/onPremise/Configuration/AdditionalConnectorConfiguration/FindPollers.yaml"
+  /configuration/agent-configurations:
+    $ref: "./latest/onPremise/Configuration/AgentConfiguration/AddOrFindAc.yaml"
+  /configuration/agent-configurations/{ac_id}:
+    $ref: "./latest/onPremise/Configuration/AgentConfiguration/DeleteAndUpdateAndFindDetailAc.yaml"
+  /configuration/agent-configurations/{ac_id}/pollers/{poller_id}:
+    $ref: "./latest/onPremise/Configuration/AgentConfiguration/DeleteAcPollerLink.yaml"
   /configuration/broker/{brokerId}/{tag}:
     $ref: "./latest/onPremise/Configuration/Broker/AddBrokerInputOutput.yaml"
   /configuration/broker/{brokerId}/outputs/{outputId}/file:
@@ -1512,31 +1520,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/contacts/groups:
-    get:
-      tags:
-      - User
-      summary: "List contact groups"
-      description: "List configured contact groups"
-      responses:
-        '200':
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  result:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Configuration.ContactGroup'
-                  meta:
-                    $ref: '#/components/schemas/Meta'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+    $ref: './latest/onPremise/Configuration/ContactGroup/FindContactGroups.yaml'
   /configuration/dashboards:
     $ref: './latest/onPremise/Configuration/Dashboard/Dashboards.yaml'
   /configuration/dashboards/{dashboard_id}:
@@ -6228,20 +6212,6 @@ components:
           type: string
           description: "Contact template name"
           example: "Contact Template"
-    Configuration.ContactGroup:
-      type: object
-      required:
-        - id
-        - name
-      properties:
-        id:
-          type: integer
-          description: "Contact group id"
-          example: 1
-        name:
-          type: string
-          description: "Contact group name"
-          example: "Contact group"
     Configuration.AccessGroup:
       type: object
       required:

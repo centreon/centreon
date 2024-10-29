@@ -37,7 +37,7 @@ module.exports = (enableCoverage = false) =>
       plugins: [
         new rspack.ProvidePlugin({
           React: 'react',
-          process: 'process/browser'
+          process: require.resolve('process/browser')
         }),
         new rspack.HtmlRspackPlugin({
           filename: path.resolve(`${__dirname}`, 'www', 'index.html'),

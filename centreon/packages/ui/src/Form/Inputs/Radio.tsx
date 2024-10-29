@@ -6,8 +6,8 @@ import {
   FormControlLabel,
   FormGroup,
   FormLabel,
-  RadioGroup,
-  Radio as MUIRadio
+  Radio as MUIRadio,
+  RadioGroup
 } from '@mui/material';
 
 import { useMemoComponent } from '../..';
@@ -26,12 +26,20 @@ const Radio = ({
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
 
-  const { values, setFieldValue } = useFormikContext<FormikValues>();
+  const { values, setFieldValue, setFieldTouched, setValues, setTouched } =
+    useFormikContext<FormikValues>();
 
   const changeRadio = (_, value): void => {
     if (includes(value, ['true', 'false'])) {
       if (change) {
-        change({ setFieldValue, value: equals(value, 'true') });
+        change({
+          setFieldValue,
+          value: equals(value, 'true'),
+          values,
+          setFieldTouched,
+          setValues,
+          setTouched
+        });
 
         return;
       }
@@ -42,7 +50,7 @@ const Radio = ({
     }
 
     if (change) {
-      change({ setFieldValue, value });
+      change({ setFieldValue, value, values, setFieldTouched, setValues });
 
       return;
     }

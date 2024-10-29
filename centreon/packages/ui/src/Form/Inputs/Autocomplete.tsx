@@ -6,11 +6,11 @@ import { useTranslation } from 'react-i18next';
 
 import { FormHelperText, Stack } from '@mui/material';
 
+import { SelectEntry } from '../../InputField/Select';
 import SingleAutocompleteField from '../../InputField/Select/Autocomplete';
-import { labelPressEnterToAccept } from '../translatedLabels';
 import MultiAutocompleteField from '../../InputField/Select/Autocomplete/Multi';
 import { useMemoComponent } from '../../utils';
-import { SelectEntry } from '../../InputField/Select';
+import { labelPressEnterToAccept } from '../translatedLabels';
 
 import { InputPropsWithoutGroup, InputType } from './models';
 
@@ -53,7 +53,15 @@ const Autocomplete = ({
 
   const [inputText, setInputText] = useState('');
 
-  const { values, setFieldValue, errors } = useFormikContext<FormikValues>();
+  const {
+    values,
+    setFieldValue,
+    setFieldTouched,
+    errors,
+    touched,
+    setValues,
+    setTouched
+  } = useFormikContext<FormikValues>();
 
   const isMultiple = equals(inputType, InputType.MultiAutocomplete);
 
@@ -67,11 +75,20 @@ const Autocomplete = ({
     setInputText('');
 
     if (change) {
-      change({ setFieldValue, value: normalizedNewValues });
+      setFieldTouched(fieldName, true, false);
+      change({
+        setFieldValue,
+        value: normalizedNewValues,
+        setFieldTouched,
+        setValues,
+        values,
+        setTouched
+      });
 
       return;
     }
 
+    setFieldTouched(fieldName, true, false);
     setFieldValue(fieldName, normalizedNewValues);
   };
 
@@ -83,6 +100,10 @@ const Autocomplete = ({
   );
 
   const getError = useCallback((): Array<string> | undefined => {
+    if (!path([...fieldName.split('.')], touched)) {
+      return undefined;
+    }
+
     const error = path([...fieldName.split('.')], errors) as
       | Array<string>
       | string
@@ -111,7 +132,7 @@ const Autocomplete = ({
     const filteredError = formattedError?.filter(Boolean);
 
     return (filteredError as Array<string>) || undefined;
-  }, [errors, fieldName, isMultiple, selectedValues]);
+  }, [errors, fieldName, isMultiple, selectedValues, touched]);
 
   const textChange = useCallback(
     (event): void => setInputText(event.target.value),
@@ -167,6 +188,7 @@ const Autocomplete = ({
           value={getValues() ?? null}
           onChange={changeValues}
           onTextChange={textChange}
+          style={{ width: autocomplete?.fullWidth ?? true ? 'auto' : '180px' }}
         />
         {inputErrors && (
           <Stack>
@@ -180,6 +202,7 @@ const Autocomplete = ({
       </div>
     ),
     memoProps: [
+      values,
       getValues(),
       inputErrors,
       additionalLabel,

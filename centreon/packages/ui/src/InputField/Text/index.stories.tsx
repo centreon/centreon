@@ -1,10 +1,9 @@
-import * as React from 'react';
-
 import { makeStyles } from 'tss-react/mui';
 
-import { Theme } from '@mui/material';
 import AbcIcon from '@mui/icons-material/Abc';
+import { Theme } from '@mui/material';
 
+import { useState } from 'react';
 import TextField from '.';
 
 const useStyles = makeStyles()((theme: Theme) => ({
@@ -79,7 +78,7 @@ export const autoSizeCustomPadding = (): JSX.Element => (
 );
 
 const ControlledTextFieldWithAutoSize = (): JSX.Element => {
-  const [value, setValue] = React.useState('');
+  const [value, setValue] = useState('');
 
   const change = (event): void => {
     setValue(event.target.value);

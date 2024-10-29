@@ -13,3 +13,4 @@ export * from './CollapsibleItem';
 export * from './Inputs';
 export { default as Zoom } from './Zoom/Zoom';
 export * from './Tabs';
+export { default as CopyCommand } from './CopyCommand/CopyCommand';

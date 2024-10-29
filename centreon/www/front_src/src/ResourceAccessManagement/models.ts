@@ -76,8 +76,8 @@ export type NamedEntity = {
 };
 
 export enum DeleteType {
-  MultipleItems,
-  SingleItem
+  MultipleItems = 0,
+  SingleItem = 1
 }
 
 export interface DeleteResourceAccessRuleType {

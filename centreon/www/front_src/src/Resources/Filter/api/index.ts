@@ -2,11 +2,11 @@ import { CancelToken } from 'axios';
 
 import {
   buildListingEndpoint,
-  getData,
-  postData,
-  putData,
   deleteData,
-  patchData
+  getData,
+  patchData,
+  postData,
+  putData
 } from '@centreon/ui';
 import type { ListingModel } from '@centreon/ui';
 

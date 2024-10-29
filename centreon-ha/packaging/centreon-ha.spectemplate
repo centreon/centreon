@@ -2,8 +2,8 @@
 %define debug_package %{nil}
 %define version %{PACKAGE_VERSION}
 %define release %{PACKAGE_RELEASE}%{?dist}
-%define thismajor 24.07.0
-%define nextmajor 24.10.0
+%define thismajor 24.10.0
+%define nextmajor 24.11.0
 
 Name:       %{name}
 Version:    %{version}
