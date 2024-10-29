@@ -296,7 +296,7 @@ When("the user has deleted one existing SNMP trap definition", () => {
     output: data.snmp1.output,
     string: data.snmp1.rule.string,
     regexp: data.snmp1.rule.regexp,
-    severity: data.snmp1.rule.severity,
+    severity: data.snmp1.rule.status,
   });
   submitForm();
   cy.waitForElementInIframe("#main-content", 'input[name="traps_name"]');
