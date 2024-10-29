@@ -155,7 +155,8 @@ Then(
 
         const hoursNow = new Date().toLocaleString('en-US', {
           hour: '2-digit',
-          hour12: false
+          hour12: false,
+          timeZone: 'Europe/Paris'
         });
 
         cy.log(`Current hour (hoursNow): ${hoursNow}`);
