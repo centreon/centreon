@@ -79,7 +79,7 @@ export const services = [
     status: 'ok'
   },
   {
-    color: 'rgb(0, 0, 0)',
+    color: 'rgb(227, 227, 227)',
     eq: 0,
     name: 'Disk-/',
     status: 'unknown'

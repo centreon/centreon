@@ -142,10 +142,12 @@ const ResourcesTooltip = ({
                     key={name}
                     ref={isLastElement ? elementRef : undefined}
                     sx={{
-                      color: getColor({
-                        severityCode: elementStatus?.severity_code,
-                        theme
-                      })
+                      color: equals(elementStatus?.severity_code, 6)
+                        ? theme.palette.text.primary
+                        : getColor({
+                            severityCode: elementStatus?.severity_code,
+                            theme
+                          })
                     }}
                   >
                     {name}

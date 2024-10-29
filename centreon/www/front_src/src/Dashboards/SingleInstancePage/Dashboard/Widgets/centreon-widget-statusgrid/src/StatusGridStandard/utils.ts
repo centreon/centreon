@@ -39,13 +39,6 @@ export const getColor = ({
     return theme.palette.action.inDowntimeBackground;
   }
 
-  if (equals(severityCode, 6) || equals(severityCode, 3)) {
-    return getStatusColors({
-      severityCode: severityCode as SeverityCode,
-      theme
-    })?.color;
-  }
-
   return getStatusColors({
     severityCode: severityCode as SeverityCode,
     theme
