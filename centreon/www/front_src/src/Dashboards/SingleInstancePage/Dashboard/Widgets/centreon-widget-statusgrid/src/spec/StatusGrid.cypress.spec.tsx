@@ -264,7 +264,7 @@ describe('View by host', () => {
       cy.get('[data-status="unknown"]')
         .parent()
         .parent()
-        .should('have.css', 'background-color', 'rgb(0, 0, 0)');
+        .should('have.css', 'background-color', 'rgb(227, 227, 227)');
 
       cy.makeSnapshot();
     });
@@ -280,7 +280,7 @@ describe('View by host', () => {
       cy.get('[data-resourceName="Passive_server_1"]').should(
         'have.css',
         'color',
-        'rgb(227, 227, 227)'
+        'rgb(0, 0, 0)'
       );
 
       cy.contains('unknown (No output returned from host check)').should(
@@ -447,7 +447,7 @@ describe('View by service', () => {
       cy.get('[data-resourcename="Disk-/"]').should(
         'have.css',
         'color',
-        'rgb(227, 227, 227)'
+        'rgb(0, 0, 0)'
       );
       cy.get('[data-parentstatus="5"]').should('be.visible');
       cy.findAllByText('Centreon-Server').should('have.length', 7);
