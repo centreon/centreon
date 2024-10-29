@@ -41,7 +41,7 @@ When(
     output: data.snmp1.output,
     string: data.snmp1.rule.string,
     regexp: data.snmp1.rule.regexp,
-    severity: data.snmp1.rule.severity,
+    severity: data.snmp1.rule.status,
   });
   },
 );
@@ -50,18 +50,26 @@ Then(
   "the trap definition is saved with its properties, especially the content of Regexp field",
   () => {
   submitForm();
-  cy.waitForElementInIframe("#main-content", 'input[name="traps_name"]');
+  cy.waitForElementInIframe("#main-content", 'input[name="searchT"]');
   cy.getIframeBody()
    .contains(data.snmp1.name)
    .click();
+  cy.waitForElementInIframe("#main-content", 'input[name="traps_name"]');
   cy.getIframeBody().find('input[name="traps_name"]').should("have.value", data.snmp1.name);
   cy.getIframeBody().find('input[name="traps_oid"]').should("have.value", data.snmp1.oid);
   cy.getIframeBody().find(`span[title=${data.snmp1.vendor}]`).contains(data.snmp1.vendor).should("exist");
   cy.getIframeBody().find('input[name="traps_args"]').should("have.value", data.snmp1.output);
   cy.getIframeBody().find("div#matchingrules_add").click();
-  cy.getIframeBody().find("input#rule_0").should("have.value", data.snmp1.string);
-  cy.getIframeBody().find("input#regexp_0").should("have.value", data.snmp1.regexp);
-  cy.getIframeBody().find("select#rulestatus_0").should("have.value", data.snmp1.severity);
+  cy.waitForElementInIframe("#main-content", "input#rule_0");
+  cy.getIframeBody()
+    .find("input#rule_0")
+    .should("have.value", data.snmp1.rule.string);
+  cy.getIframeBody()
+    .find("input#regexp_0")
+    .should("have.value", data.snmp1.rule.regexp);
+  cy.getIframeBody()
+    .find("select#rulestatus_0")
+    .should("have.value", "2");
   },
 );
 
@@ -103,12 +111,13 @@ When(
     output: data.snmp1.output,
     string: data.snmp1.rule.string,
     regexp: data.snmp1.rule.regexp,
-    severity: data.snmp1.rule.severity,
+    severity: data.snmp1.rule.status,
   });
   submitForm();
- cy.getIframeBody()
-   .contains(data.snmp1.name)
-   .click();
+  cy.waitForElementInIframe("#main-content", 'input[name="searchT"]');
+  cy.getIframeBody()
+    .contains(data.snmp1.name)
+    .click();
   UpdateTrapsSNMPConfiguration({
     name: data.snmp2.name,
     vendor: data.snmp2.vendor,
@@ -119,7 +128,7 @@ When(
     behavior: data.snmp2.behavior,
     string: data.snmp2.rule.string,
     regexp: data.snmp2.rule.regexp,
-    severity: data.snmp2.rule.severity,
+    severity: data.snmp2.rule.status,
     special_command: data.snmp2.special_command,
     comments: data.snmp2.comments,
     serviceName: data.snmp2.serviceName,
@@ -131,17 +140,22 @@ When(
     output_transform: data.snmp2.output_transform,
     custom_code: data.snmp2.custom_code,
   });
+  cy.getIframeBody()
+    .find("div#validForm")
+    .find("p.oreonbutton")
+    .find('.btc.bt_success[name="submitC"]')
+    .click();
   },
 );
 
 Then("all changes are saved", () => {
-  cy.waitForElementInIframe("#main-content", 'input[name="traps_name"]');
+  cy.waitForElementInIframe("#main-content", 'input[name="searchT"]');
   cy.getIframeBody()
    .contains(data.snmp2.name)
    .click();
   cy.getIframeBody().find('input[name="traps_name"]').should("have.value", data.snmp2.name);
   cy.getIframeBody().find('input[name="traps_oid"]').should("have.value", data.snmp2.oid);
-  cy.getIframeBody().find(`span[title=${data.snmp1.vendor}]`).contains(data.snmp2.vendor).should("exist");
+  cy.getIframeBody().find(`span[title=${data.snmp2.vendor}]`).contains(data.snmp2.vendor).should("exist");
   cy.getIframeBody().find('input[name="traps_args"]').should("have.value", data.snmp2.output);
   cy.getIframeBody()
     .find('select[name="traps_status"]')
@@ -151,9 +165,15 @@ Then("all changes are saved", () => {
     .find('select[name="traps_advanced_treatment_default"]')
     .should("have.value", "2");
   cy.getIframeBody().find("div#matchingrules_add").click();
-  cy.getIframeBody().find("input#rule_0").should("have.value", data.snmp2.string);
-  cy.getIframeBody().find("input#regexp_0").should("have.value", data.snmp2.regexp);
-  cy.getIframeBody().find("select#rulestatus_0").should("have.value", data.snmp2.severity);
+  cy.getIframeBody()
+    .find("input#rule_0")
+    .should("have.value", data.snmp2.rule.string);
+  cy.getIframeBody()
+    .find("input#regexp_0")
+    .should("have.value", data.snmp2.rule.regexp);
+  cy.getIframeBody()
+    .find("select#rulestatus_0")
+    .should("have.value", data.snmp2.rule.status);
   cy.getIframeBody()
     .find('input[name="traps_reschedule_svc_enable"]').should("have.value", data.snmp2.reschedule);
   cy.getIframeBody()
@@ -225,10 +245,10 @@ When("the user has duplicated one existing SNMP trap definition", () => {
     output: data.snmp1.output,
     string: data.snmp1.rule.string,
     regexp: data.snmp1.rule.regexp,
-    severity: data.snmp1.rule.severity,
+    severity: data.snmp1.rule.status,
   });
   submitForm();
-  cy.waitForElementInIframe("#main-content", 'input[name="traps_name"]');
+  cy.waitForElementInIframe("#main-content", 'input[name="searchT"]');
   cy.getIframeBody()
     .find("td.ListColLeft")
     .contains("a", data.snmp1.name)

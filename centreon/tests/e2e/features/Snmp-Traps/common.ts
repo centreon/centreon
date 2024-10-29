@@ -14,7 +14,7 @@ const TrapsSNMPConfiguration = ({
     .find('span[id*="-manufacturer_id-container"]')
     .parent()
     .click();
-  cy.contains(`${vendor}`).click();
+  cy.getIframeBody().contains(`${vendor}`).click();
   cy.getIframeBody().find('input[name="traps_args"]').type(output);
   cy.getIframeBody().find("div#matchingrules_add").click();
   cy.getIframeBody().find("input#rule_0").clear().type(string);
@@ -51,7 +51,7 @@ const UpdateTrapsSNMPConfiguration = ({
     .find('span[id*="-manufacturer_id-container"]')
     .parent()
     .click();
-  cy.contains(`${vendor}`).click();
+  cy.getIframeBody().contains(`${vendor}`).click();
   cy.getIframeBody().find('input[name="traps_args"]').type(output);
   cy.getIframeBody()
     .find(`input[name*="traps_mode"][value=${mode}]`)
@@ -82,14 +82,17 @@ const UpdateTrapsSNMPConfiguration = ({
     .type(special_command);
   cy.getIframeBody().find('textarea[name="traps_comments"]').type(comments);
   cy.getIframeBody().find("li#c2").click();
-  cy.waitForElementInIframe(
-    "#main-content",
-    'input[placeholder="Linked Services"]',
-  );
-  cy.getIframeBody().find('input[placeholder="Linked Services"]').click();
+  cy.waitForElementInIframe("#main-content", 'span[name="services"]');
+  cy.getIframeBody()
+    .find('input[placeholder="Linked Services"]')
+    .parent()
+    .parent()
+    .click();
   cy.getIframeBody().contains(serviceName).click();
   cy.getIframeBody()
     .find('input[placeholder="Linked Service Templates"]')
+    .parent()
+    .parent()
     .click();
   cy.getIframeBody().contains(service_templates).click();
   cy.getIframeBody().find("li#c3").click();
@@ -111,8 +114,12 @@ const UpdateTrapsSNMPConfiguration = ({
     .type(execution_interval);
   cy.getIframeBody()
     .find('input[name*="traps_exec_interval_type"][value="2"]')
+    .parent()
     .click();
-  cy.getIframeBody().find('input[name*="traps_downtime"][value="2"]').click();
+  cy.getIframeBody()
+  .find('input[name*="traps_downtime"][value="2"]')
+  .parent()
+  .click();
   cy.getIframeBody()
     .find('input[name="traps_output_transform"]')
     .type(output_transform);
