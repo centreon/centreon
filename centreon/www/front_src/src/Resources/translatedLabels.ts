@@ -84,6 +84,7 @@ export const labelSearch = 'Search';
 export const labelSeverity = 'Severity';
 export const labelStatus = 'Status';
 export const labelSticky = 'Sticky';
+export const labelStickyForAnyNonOkStatus = 'Sticky for any non-OK status';
 export const labelTries = 'Tries';
 export const labelInformation = 'Information';
 export const labelMore = 'More';
