@@ -67,7 +67,7 @@ runs:
           --header "Content-Type:application/json" \
           --data "{
               \"fields\": [\"summary\"],
-              \"jql\": \"project = MON AND parentEpic = ${{ steps.get_context.outputs.parent_epic_key }} AND issueType = Technical AND summary ~ ${{ steps.get_context.outputs.ticket_summary }} AND component ~ ${{ inputs.module_name }} AND resolution = unresolved ORDER BY key ASC\",
+              \"jql\": \"project = MON AND parentEpic = ${{ steps.get_context.outputs.parent_epic_key }} AND issueType = Technical AND summary ~ \"${{ steps.get_context.outputs.ticket_summary }}\" AND component ~ \"${{ inputs.module_name }}\" AND resolution = unresolved ORDER BY key ASC\",
               \"maxResults\": 1
         }")
 
