@@ -153,6 +153,7 @@ Then("all changes are saved", () => {
   cy.getIframeBody()
    .contains(data.snmp2.name)
    .click();
+  cy.waitForElementInIframe("#main-content", 'input[name="traps_name"]');
   cy.getIframeBody().find('input[name="traps_name"]').should("have.value", data.snmp2.name);
   cy.getIframeBody().find('input[name="traps_oid"]').should("have.value", data.snmp2.oid);
   cy.getIframeBody().find(`span[title=${data.snmp2.vendor}]`).contains(data.snmp2.vendor).should("exist");
@@ -173,7 +174,7 @@ Then("all changes are saved", () => {
     .should("have.value", data.snmp2.rule.regexp);
   cy.getIframeBody()
     .find("select#rulestatus_0")
-    .should("have.value", data.snmp2.rule.status);
+    .should("have.value", "2");
   cy.getIframeBody()
     .find('input[name="traps_reschedule_svc_enable"]').should("have.value", data.snmp2.reschedule);
   cy.getIframeBody()
@@ -189,16 +190,13 @@ Then("all changes are saved", () => {
     .find('textarea[name="traps_comments"]')
     .should("have.value", data.snmp2.comments);
   cy.getIframeBody().find("li#c2").click();
-  cy.waitForElementInIframe(
-    "#main-content",
-    'input[placeholder="Linked Services"]',
-  );
+  cy.waitForElementInIframe("#main-content", 'span[name="services"]');
   cy.getIframeBody()
-    .find(`span[title=serviceName]`)
-    .contains("serviceName")
+    .find(`span[title*=${data.snmp2.serviceName}]`)
+    .contains(data.snmp2.serviceName)
     .should("exist");
   cy.getIframeBody()
-    .find(`span[title=${data.snmp2.service_templates}]`)
+    .find(`span[title*=${data.snmp2.service_templates}]`)
     .contains(`${data.snmp2.service_templates}`)
     .should("exist");
   cy.getIframeBody().find("li#c3").click();
@@ -271,9 +269,12 @@ When("the user has duplicated one existing SNMP trap definition", () => {
 Then("all SNMP trap properties are unchanged except the name", () => {
   cy.reload();
   cy.getIframeBody()
-   .contains(data.snmp1.name)
+   .contains(`${data.snmp1.name}_1`)
    .click();
-  cy.getIframeBody().find('input[name="traps_name"]').should("have.value", data.snmp1.name);
+  cy.waitForElementInIframe("#main-content", 'input[name="traps_name"]');
+  cy.getIframeBody()
+    .find('input[name="traps_name"]')
+    .should("have.value", `${data.snmp1.name}_1`);
   cy.getIframeBody().find('input[name="traps_oid"]').should("have.value", data.snmp1.oid);
   cy.getIframeBody().find(`span[title=${data.snmp1.vendor}]`).contains(data.snmp1.vendor).should("exist");
   cy.getIframeBody().find('input[name="traps_args"]').should("have.value", data.snmp1.output);

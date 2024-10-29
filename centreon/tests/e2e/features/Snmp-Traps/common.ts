@@ -45,14 +45,14 @@ const UpdateTrapsSNMPConfiguration = ({
   custom_code,
 }): Cypress.Chainable => {
   cy.waitForElementInIframe("#main-content", 'input[name="traps_name"]');
-  cy.getIframeBody().find('input[name="traps_name"]').type(name);
-  cy.getIframeBody().find('input[name="traps_oid"]').type(oid);
+  cy.getIframeBody().find('input[name="traps_name"]').clear().type(name);
+  cy.getIframeBody().find('input[name="traps_oid"]').clear().type(oid);
   cy.getIframeBody()
     .find('span[id*="-manufacturer_id-container"]')
     .parent()
     .click();
   cy.getIframeBody().contains(`${vendor}`).click();
-  cy.getIframeBody().find('input[name="traps_args"]').type(output);
+  cy.getIframeBody().find('input[name="traps_args"]').clear().type(output);
   cy.getIframeBody()
     .find(`input[name*="traps_mode"][value=${mode}]`)
     .parent()
