@@ -27,12 +27,9 @@ runs:
           echo "GH CLI is already installed."
         fi
 
-        echo "[INFO]: Filtering the results of the last nightly build"
-        lastNightlyRunDetails=$(gh run ls \
-          --json number,status,conclusion \
-          --workflow web.yml \
-          --branch ${{ github.ref_name }} \
-          --limit 20 || jq --arg branch "${{ github.ref_name }}" '. | map(select(.name == "web nightly $branch"))')
+        echo "Filtering the results of the last nightly build"
+        lastNightlyRunDetails=$(gh run ls --json number,status,conclusion --workflow web.yml --branch ${{ github.ref_name }} --limit 20 | \
+          jq --arg module_name "${{ inputs.module_name }}" --arg branch "${{ github.ref_name }}" '. | map(select(.name == "$module_name nightly $branch"))')
         echo "Last nightly run details for ${{ github.ref_name }}: $lastNightlyRunDetails"
 
         last_nightly_result="$(echo "$lastNightlyRunDetails" | jq -r '.[0].conclusion')"

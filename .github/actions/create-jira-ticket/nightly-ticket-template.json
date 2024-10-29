@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "This incident ticket relates to the ${{ inputs.module_name }} nightly on ${{ github.ref_name }} which failed on $(date '+%Y-%m-%d')."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Link to the failed nightly",
+          "marks": [
+            {
+              "type": "link",
+              "attrs": {
+                "href": "${{ steps.get_context.outputs.run_url }}"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
