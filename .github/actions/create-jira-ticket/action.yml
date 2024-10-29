@@ -83,6 +83,7 @@ runs:
       if: ${{ env.abort_ticket_creation != 'true' }}
       run: |
         # Creating a new incident ticket on Jira
+        DESCRIPTION=$(envsubst < ./.github/actions/create-jira-ticket/${{ inputs.reason_for_ticket_creation }}-ticket-template.json)
         DATA=$( cat <<-EOF
         {
           "fields": {
@@ -94,7 +95,7 @@ runs:
             "components":[{"name": "${{ inputs.module_name }}"}],
             "customfield_10902": {"id": "10524", "value": "DevSecOps"},
             "customfield_10005": 1.0,
-            "description": $(cat ./.github/actions/create-jira-ticket/${{ inputs.reason_for_ticket_creation }}-ticket-template.json)
+            "description": $DESCRIPTION
           }
         }
         EOF
