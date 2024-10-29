@@ -299,7 +299,7 @@ When("the user has deleted one existing SNMP trap definition", () => {
     severity: data.snmp1.rule.status,
   });
   submitForm();
-  cy.waitForElementInIframe("#main-content", 'input[name="traps_name"]');
+  cy.waitForElementInIframe("#main-content", 'input[name="searchT"]');
   cy.getIframeBody()
     .find("td.ListColLeft")
     .contains("a", data.snmp1.name)
