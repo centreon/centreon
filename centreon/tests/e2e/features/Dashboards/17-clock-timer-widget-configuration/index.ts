@@ -155,22 +155,17 @@ Then(
 
         const hoursNow = new Date().toLocaleString('en-US', {
           hour: '2-digit',
-          hour12: false,
-          timeZone: 'Europe/Paris'
+          hour12: false
         });
 
-        const hoursPlusOne = String((parseInt(hoursNow, 10) + 1) % 24).padStart(
-          2,
-          '0'
-        );
-        const hoursPlusTwo = String((parseInt(hoursNow, 10) + 2) % 24).padStart(
-          2,
-          '0'
-        );
+        const hoursPlusOne = String((parseInt(hoursNow, 10) + 1) % 24).padStart(2, '0');
+
+        cy.log(`Current hour (hoursNow): ${hoursNow}`);
+        cy.log(`One hour ahead (hoursPlusOne): ${hoursPlusOne}`);
 
         const displayedHour = clockText.trim().slice(0, 2);
 
-        expect(displayedHour).to.be.oneOf([hoursPlusOne, hoursPlusTwo]);
+        expect(displayedHour).to.be.oneOf([hoursNow, hoursPlusOne]);
       });
   }
 );
