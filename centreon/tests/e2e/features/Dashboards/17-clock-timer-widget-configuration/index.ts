@@ -153,16 +153,20 @@ Then(
       .then((clockText) => {
         cy.log(clockText);
 
-        const now = new Date();
+        const hoursNow = new Date().toLocaleString('en-US', {
+          hour: '2-digit',
+          hour12: false,
+          timeZone: 'Europe/Paris'
+        });
 
-        const timePlusOne = new Date(now);
-        timePlusOne.setHours(now.getHours() + 1);
-
-        const timePlusTwo = new Date(now);
-        timePlusTwo.setHours(now.getHours() + 2);
-
-        const hoursPlusOne = String(timePlusOne.getHours()).padStart(2, '0');
-        const hoursPlusTwo = String(timePlusTwo.getHours()).padStart(2, '0');
+        const hoursPlusOne = String((parseInt(hoursNow, 10) + 1) % 24).padStart(
+          2,
+          '0'
+        );
+        const hoursPlusTwo = String((parseInt(hoursNow, 10) + 2) % 24).padStart(
+          2,
+          '0'
+        );
 
         expect(clockText.trim()).to.satisfy(
           (displayedTime) =>
