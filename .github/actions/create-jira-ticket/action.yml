@@ -61,7 +61,7 @@ runs:
         # Checking if an incident ticket already exists
         response=$(curl \
           --request POST \
-          --url "${{ inputs.jira_base_url }}/rest/api/3/search" \
+          --url "${{ inputs.jira_base_url }}rest/api/3/search" \
           --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
           --header "Accept:application/json" \
           --header "Content-Type:application/json" \
@@ -101,8 +101,8 @@ runs:
         )
 
         response=$(curl \
-          --request POST
-          --url "${{ inputs.jira_base_url }}/rest/api/3/issue" \
+          --request POST \
+          --url "${{ inputs.jira_base_url }}rest/api/3/issue" \
           --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
           --header 'Accept: application/json' \
           --header 'Content-Type: application/json' \
