@@ -264,7 +264,7 @@ describe('View by host', () => {
       cy.get('[data-status="unknown"]')
         .parent()
         .parent()
-        .should('have.css', 'background-color', 'rgb(227, 227, 227)');
+        .should('have.css', 'background-color', 'rgb(0, 0, 0)');
 
       cy.makeSnapshot();
     });
@@ -467,7 +467,7 @@ describe('View by service', () => {
       cy.get('[data-resourcename="Load"]').should(
         'have.css',
         'color',
-        'rgb(227, 227, 227)'
+        'rgb(0, 0, 0)'
       );
       cy.get('[data-parentstatus="5"]').should('be.visible');
       cy.findAllByText('Centreon-Server').should('have.length', 7);

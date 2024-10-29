@@ -386,7 +386,7 @@ describe('Business activities', () => {
     cy.get('[data-status="unknown"]')
       .parent()
       .parent()
-      .should('have.css', 'background-color', 'rgb(227, 227, 227)');
+      .should('have.css', 'background-color', 'rgb(0, 0, 0)');
 
     cy.makeSnapshot();
   });
@@ -434,7 +434,7 @@ describe('Indicators', () => {
     cy.get('[data-status="unknown"]')
       .parent()
       .parent()
-      .should('have.css', 'background-color', 'rgb(227, 227, 227)');
+      .should('have.css', 'background-color', 'rgb(0, 0, 0)');
 
     cy.makeSnapshot();
   });
