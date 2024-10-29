@@ -148,30 +148,24 @@ Then(
   'the time format in the widget should be updated to reflect the new format',
   () => {
     cy.get('div[class$="clockLabel"] p')
-      .eq(2)
-      .invoke('text')
-      .then((clockText) => {
-        cy.log(`Clock text: ${clockText}`);
+    .eq(2)
+    .invoke('text')
+    .then((clockText) => {
+      cy.log(`Clock text: ${clockText}`);
 
-        const hoursNow = new Date().toLocaleString('en-US', {
-          hour: '2-digit',
-          hour12: false,
-          timeZone: 'Europe/Paris'
-        });
-
-        const hoursPlusOne = String((parseInt(hoursNow, 10) + 1) % 24).padStart(2, '0');
-        const hoursPlusTwo = String((parseInt(hoursNow, 10) + 2) % 24).padStart(2, '0');
-
-        cy.log(`Current hour (hoursNow): ${hoursNow}`);
-        cy.log(`One hour ahead (hoursPlusOne): ${hoursPlusOne}`);
-        cy.log(`Two hours ahead (hoursPlusTwo): ${hoursPlusTwo}`);
-
-        const displayedHour = clockText.trim().slice(0, 2);
-
-        expect(displayedHour).to.satisfy(
-          (hour) => hour === hoursPlusOne || hour === hoursPlusTwo
-        );
+      const hoursNow = new Date().toLocaleString('en-US', {
+        hour: '2-digit',
+        hour12: false,
+        timeZone: 'Europe/Paris'
       });
+
+      const hoursPlusOne = String((parseInt(hoursNow, 10) + 1) % 24).padStart(2, '0');
+      const hoursPlusTwo = String((parseInt(hoursNow, 10) + 2) % 24).padStart(2, '0');
+
+
+      const displayedHour = clockText.trim().slice(0, 2);
+
+      expect(displayedHour).to.be.oneOf([hoursPlusOne, hoursPlusTwo]);
   }
 );
 
