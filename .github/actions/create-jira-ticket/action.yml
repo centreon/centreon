@@ -40,7 +40,6 @@ runs:
           ticket_labels="[\"Nightly\", \"Pipeline\"]"
           run_url=$(gh run ls --json name,url --workflow web.yml --branch ${{ github.ref_name }} --limit 20 | \
             jq --arg module_name "${{ inputs.module_name }}" --arg branch "${{ github.ref_name }}" '. | map(select(.name == ($module_name + " nightly " + $branch))) | .[0].url')
-          echo "run_url=$run_url"
           if [ $? -ne 0 ] || [ "$run_url" == "null" ]; then
             echo "::error::Failed to get nightly run URL"
             exit 1
@@ -62,20 +61,15 @@ runs:
         # Checking if an incident ticket already exists
         response=$(curl --fail \
           --request POST \
-          --url '${{ inputs.jira_base_url }}/rest/api/3/search' \
-          --user '${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}' \
-          --header 'Accept: application/json' \
-          --header 'Content-Type: application/json' \
-          --data '{
+          --url "${{ inputs.jira_base_url }}/rest/api/3/search" \
+          --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+          --header "Accept: application/json" \
+          --header "Content-Type: application/json" \
+          --data "{
             "fields": ["summary"],
             "jql": "project = MON AND parentEpic = ${{ steps.get_context.outputs.parent_epic_key }} AND issueType = Technical AND summary ~ ${{ steps.get_context.outputs.ticket_summary }} AND component = \"${{ inputs.module_name }}\" AND resolution = unresolved ORDER BY key ASC",
             "maxResults": 1
-        }')
-
-        if [ $? -ne 0 ]; then
-          echo "::error::Failed to check existing tickets: $response"
-          exit 1
-        fi
+        }")
 
         check_if_ticket_exists=$(echo "$response" | jq .issues[0].key)
         if [[ "$check_if_ticket_exists" != "null" ]]; then
