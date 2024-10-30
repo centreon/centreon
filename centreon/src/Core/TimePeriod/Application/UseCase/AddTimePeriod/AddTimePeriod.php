@@ -87,6 +87,7 @@ final class AddTimePeriod
 
                 return;
             }
+            // TODO: add a check to prevent templates loop (see testTemplateLoop() in legacy code)
             $newTimePeriod = NewTimePeriodFactory::create($request);
             $newTimePeriodId = $this->writeTimePeriodRepository->add($newTimePeriod);
             $timePeriod = $this->readTimePeriodRepository->findById($newTimePeriodId);
