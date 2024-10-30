@@ -410,6 +410,8 @@ class CentreonStatistics
     /**
      * Get poller/agent configuration data.
      *
+     * @throws CentreonDbException
+     *
      * @return array
      */
     public function getAgentConfigurationData(): array
@@ -423,7 +425,7 @@ class CentreonStatistics
                 SQL
         );
 
-        $total = $statement->fetchColumn();
+        $total =  $this->dbConfig->fetchColumn($statement);
 
         if ($total === false) {
             return $data;
@@ -441,7 +443,8 @@ class CentreonStatistics
                 SQL
         );
 
-        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $row) {
+        $results = $this->dbConfig->fetchAll($statement);
+        foreach ($results as $row) {
             $data[$row['type']]['configuration'] = $row['nb_ac_per_type'];
             $data[$row['type']]['pollers'] = $row['nb_poller_per_type'];
         }
