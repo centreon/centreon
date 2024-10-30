@@ -27,7 +27,7 @@ $centreonLog = CentreonLog::create();
 // error specific content
 $versionOfTheUpgrade = 'UPGRADE - 24.11.0: ';
 $errorMessage = '';
-  
+
 $createDashboardThumbnailTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to add table dashboard_thumbnail_relation';
     $pearDB->executeQuery(
@@ -114,6 +114,7 @@ $insertAgentConfigurationTopology = function (CentreonDB $pearDB) use (&$errorMe
 
 try {
     $createAgentConfiguration($pearDB);
+    $createDashboardThumbnailTable($pearDB);
 
     // Transactional queries
     if (! $pearDB->inTransaction()) {
@@ -121,14 +122,13 @@ try {
     }
 
     $insertAgentConfigurationTopology($pearDB);
-    $createDashboardThumbnailTable($pearDB);
 
     $pearDB->commit();
 } catch (Exception $e) {
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
     }
-  
+
     $centreonLog->log(
         CentreonLog::TYPE_UPGRADE,
         CentreonLog::LEVEL_ERROR,
