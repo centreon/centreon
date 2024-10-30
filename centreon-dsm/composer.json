@@ -16,12 +16,7 @@
   "repositories": [
     {
       "type": "path",
-      "url": "../centreon",
-      "options": {
-        "versions": {
-          "centreon/centreon": "dev-release-24.10-next"
-        }
-      }
+      "url": "../centreon"
     }
   ],
   "config": {
