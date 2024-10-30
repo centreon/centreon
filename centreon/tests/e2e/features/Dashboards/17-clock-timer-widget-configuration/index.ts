@@ -181,7 +181,7 @@ When(
   }
 );
 
-Then('timezone should be updating in the widget', () => {
+Then('the timezone should be updated in the widget', () => {
   cy.get('p[class$="timezone"]')
     .eq(1)
     .invoke('text')
