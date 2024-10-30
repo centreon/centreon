@@ -85,8 +85,8 @@ jobs:
       commit_hash: ${{ github.sha }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
-      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+      registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
       registry_private_username: ${{ secrets.HARBOR_CENTREON_PRIVATE_USERNAME }}
       registry_private_token: ${{ secrets.HARBOR_CENTREON_PRIVATE_TOKEN }}
 
