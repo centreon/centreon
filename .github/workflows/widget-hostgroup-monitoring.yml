@@ -38,8 +38,8 @@ jobs:
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       release: ${{ needs.get-version.outputs.release }}
     secrets:
-      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+      registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
       registry_private_username: ${{ secrets.HARBOR_CENTREON_PRIVATE_USERNAME }}
       registry_private_token: ${{ secrets.HARBOR_CENTREON_PRIVATE_TOKEN }}
 
