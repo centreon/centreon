@@ -8,14 +8,12 @@
     "centreon-open-tickets"
   ],
   "license": "GPL-2.0-only",
-  "require": {
-    "centreon/centreon": "dev-MON-146850-php82",
-    "ext-openssl": "*",
-    "ext-json": "*"
-  },
   "require-dev": {
+    "ext-openssl": "*",
+    "ext-json": "*",
     "beberlei/assert": "^3.3",
-    "centreon/centreon-test-lib": "dev-MON-147667-upgrade-to-php-8.2",
+    "centreon/centreon": "@dev",
+    "centreon/centreon-test-lib": "24.10.x-dev",
     "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
     "friendsofphp/php-cs-fixer": "3.64.*",
     "pestphp/pest": "^1.21",
@@ -35,7 +33,12 @@
   "repositories": [
     {
       "type": "path",
-      "url": "../centreon"
+      "url": "../centreon",
+      "options": {
+        "versions": {
+          "centreon/centreon": "dev-release-24.10-next"
+        }
+      }
     }
   ],
   "config": {
