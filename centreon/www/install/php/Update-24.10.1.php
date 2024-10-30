@@ -28,6 +28,7 @@ $centreonLog = new CentreonLog();
 $versionOfTheUpgrade = 'UPGRADE - 24.10.1: ';
 $errorMessage = '';
 
+// Nagios macros
 $updateNagiosMacros =  function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to check for existing macros in nagios_macro table';
     $statement = $pearDB->executeQuery(
@@ -55,7 +56,7 @@ $updateNagiosMacros =  function (CentreonDB $pearDB) use (&$errorMessage): void 
             SQL
         );
     }
-    
+
     $errorMessage = 'Unable to delete deprecated macros from nagios_macro table';
     $pearDB->executeQuery(
     <<<'SQL'
@@ -70,13 +71,79 @@ $updateNagiosMacros =  function (CentreonDB $pearDB) use (&$errorMessage): void 
     );
 };
 
+// Agent Configuration
+$createAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to create agent_configuration table';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `agent_configuration` (
+                `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                `type` enum('telegraf', 'centreon-agent') NOT NULL,
+                `name` varchar(255) NOT NULL,
+                `configuration` JSON NOT NULL,
+                PRIMARY KEY (`id`),
+                UNIQUE KEY `name_unique` (`name`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            SQL
+    );
+
+    $errorMessage = 'Unable to create ac_poller_relation table';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `ac_poller_relation` (
+                `ac_id` INT UNSIGNED NOT NULL,
+                `poller_id` INT(11) NOT NULL,
+                UNIQUE KEY `rel_unique` (`ac_id`, `poller_id`),
+                CONSTRAINT `ac_id_contraint`
+                    FOREIGN KEY (`ac_id`)
+                    REFERENCES `agent_configuration` (`id`) ON DELETE CASCADE,
+                CONSTRAINT `ac_poller_id_contraint`
+                    FOREIGN KEY (`poller_id`)
+                    REFERENCES `nagios_server` (`id`) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            SQL
+    );
+};
+
+$insertAgentConfigurationTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to retrieve data from topology table';
+    $statement = $pearDB->executeQuery(
+        <<<'SQL'
+            SELECT 1 FROM `topology` WHERE `topology_name` = 'Agent configurations'
+            SQL
+    );
+    $topologyAlreadyExists = (bool) $statement->fetch(\PDO::FETCH_COLUMN);
+
+    $errorMessage = 'Unable to retrieve data from informations table';
+    $statement = $pearDB->executeQuery(
+        <<<'SQL'
+            SELECT `value` FROM `informations` WHERE `key` = 'isCentral'
+            SQL
+    );
+    $isCentral = $statement->fetch(\PDO::FETCH_COLUMN);
+
+    $errorMessage = 'Unable to insert data into table topology';
+    if (false === $topologyAlreadyExists) {
+        $constraintStatement = $pearDB->prepareQuery(
+            <<<'SQL'
+                INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_show`, `is_react`)
+                VALUES (92,'Agent configurations',609,60905,50,1,'/configuration/pollers/agent-configurations', :show, '1');
+                SQL
+        );
+        $pearDB->executePreparedQuery($constraintStatement, [':show' => $isCentral === 'yes' ? '1' : '0']);
+    }
+};
+
 try {
+    $createAgentConfiguration($pearDB);
+
     // Transactional queries
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
 
     $updateNagiosMacros($pearDB);
+    $insertAgentConfigurationTopology($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {
