@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/method-signature-style */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable newline-before-return */
 /* eslint-disable @typescript-eslint/no-namespace */
 import metrics from '../../fixtures/dashboards/creation/widgets/metrics.json';
@@ -152,7 +154,6 @@ Cypress.Commands.add('waitUntilPingExists', () => {
     () => {
       cy.getByTestId({ testId: 'Select resource' }).eq(0).realClick();
       cy.contains('Centreon-Server').realClick();
-      cy.wait(60_000);
       cy.getByTestId({ testId: 'Select resource' }).eq(1).realClick();
 
       return cy.wait('@servicesRequest').then((interception) => {
@@ -556,17 +557,17 @@ declare global {
       ) => Cypress.Chainable;
       visitDashboard: (name: string) => Cypress.Chainable;
       visitDashboards: () => Cypress.Chainable;
-      waitUntilForDashboardRoles: (
-        accessRightsTestId: string,
-        expectedElementCount: number,
-        closeIconIndex?:number
-      ) => Cypress.Chainable;
-      waitUntilPingExists: () => Cypress.Chainable;
       waitForElementToBeVisible(
         selector: string,
         timeout?: number,
         interval?: number
       ): Cypress.Chainable;
+      waitUntilForDashboardRoles: (
+        accessRightsTestId: string,
+        expectedElementCount: number,
+        closeIconIndex?: number
+      ) => Cypress.Chainable;
+      waitUntilPingExists: () => Cypress.Chainable;
     }
   }
 }

@@ -131,7 +131,12 @@ Then("the Clock timer widget is added in the dashboard's layout", () => {
 });
 
 Given('a dashboard with a Clock Timer widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, clockTimerWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    clockTimerWidget,
+    'centreon-widget-clock',
+    '/widgets/clock'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
 });

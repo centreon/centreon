@@ -1,13 +1,11 @@
 {
-  "data":{
-
-  },
-  "options":{
-     "url":"https://docs.centreon.com/fr/",
-     "description":{
-        "content":"{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
-        "enabled":true
+   "data": {},
+   "options": {
+     "url": "https://docs.centreon.com/fr/",
+     "description": {
+       "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+       "enabled": true
      },
-     "name":"New wab page widget"
-  }
-}
+     "name": "New wab page widget"
+   }
+ }

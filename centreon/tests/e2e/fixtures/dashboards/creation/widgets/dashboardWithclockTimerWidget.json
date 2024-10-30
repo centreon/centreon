@@ -1,16 +1,13 @@
 {
-  "data":{
-
-  },
-  "options":{
-     "displayType":"clock",
-     "showTimezone":true,
-     "showDate":true,
-     "timeFormat":"12",
-     "backgroundColor":"#255891",
-     "description":{
-        "content":"{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
-        "enabled":true
+   "data": {},
+   "options": {
+     "displayType": "clock",
+     "showTimezone": true,
+     "showDate": true,
+     "timeFormat": "12",
+     "description": {
+       "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+       "enabled": true
      }
-  }
-}
+   }
+ }
