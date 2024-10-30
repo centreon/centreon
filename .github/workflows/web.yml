@@ -169,8 +169,8 @@ jobs:
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ needs.get-environment.outputs.major_version }}
       credentials:
-        username: ${{ secrets.DOCKER_REGISTRY_ID }}
-        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+        username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+        password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -384,8 +384,8 @@ jobs:
       commit_hash: ${{ github.sha }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
-      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+      registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
       registry_private_username: ${{ secrets.HARBOR_CENTREON_PRIVATE_USERNAME }}
       registry_private_token: ${{ secrets.HARBOR_CENTREON_PRIVATE_TOKEN }}
 
@@ -432,8 +432,8 @@ jobs:
         uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-          username: ${{ secrets.DOCKER_REGISTRY_ID }}
-          password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+          username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
 
       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
@@ -543,8 +543,8 @@ jobs:
       features_path: tests/api/features
       config_file: tests/api/behat.yml
     secrets:
-      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+      registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   legacy-e2e-test:
@@ -564,8 +564,8 @@ jobs:
       os: ${{ matrix.operating_system }}
       features_path: features
     secrets:
-      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+      registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   e2e-test:
@@ -591,8 +591,8 @@ jobs:
       package_directory: centreon/tests/e2e/fixtures/packages
       dependencies_lock_file: centreon/pnpm-lock.yaml
     secrets:
-      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+      registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
       client_id: ${{ secrets.XRAY_CLIENT_ID }}
       client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
       jira_user: ${{ secrets.JIRA_USER }}
@@ -610,8 +610,8 @@ jobs:
         uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-          username: ${{ secrets.DOCKER_REGISTRY_ID }}
-          password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
       - name: Run Lighthouse
         uses: ./.github/actions/lighthouse-performance-testing
