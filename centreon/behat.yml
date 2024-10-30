@@ -47,10 +47,6 @@ default:
       paths: [ "%paths.base%/features/ShowDisabledHostsServices.feature" ]
       contexts: [ ShowDisabledHostsServicesContext ]
 
-    save_search_filter:
-      paths: [ "%paths.base%/features/SaveSearchFilter.feature" ]
-      contexts: [ SaveSearchFilterContext ]
-
     downtime_start_and_stop:
       paths: [ "%paths.base%/features/DowntimeStartAndStop.feature" ]
       contexts: [ DowntimeStartAndStopContext ]
