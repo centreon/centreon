@@ -14,7 +14,7 @@ info:
         margin: auto;
       ">
         Many more endpoints are available but not included in this document yet.
-        Please refer to the <a href="https://docs-api.centreon.com/api/centreon-web/">OnPrem API page</a> if you are looking for a specific endpoint.
+        Please refer to the <a href="https://docs-api.centreon.com/api/centreon-web/24.10/">OnPrem API page</a> if you are looking for a specific endpoint.
         Bear in mind that not all endpoints described in the OnPrem API page are available on a cloud platform, in particular those related to the administration of the Centreon platform.
       </p>
     </blockquote>
