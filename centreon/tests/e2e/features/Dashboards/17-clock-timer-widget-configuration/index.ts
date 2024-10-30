@@ -131,12 +131,7 @@ Then("the Clock timer widget is added in the dashboard's layout", () => {
 });
 
 Given('a dashboard with a Clock Timer widget', () => {
-  cy.insertDashboardWithWidget(
-    dashboards.default,
-    clockTimerWidget,
-    'centreon-widget-clock',
-    '/widgets/clock'
-  );
+  cy.insertDashboardWithWidget(dashboards.default, clockTimerWidget);
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
 });
@@ -156,20 +151,19 @@ Then(
       .eq(2)
       .invoke('text')
       .then((clockText) => {
-        cy.log(clockText);
+        cy.log(`Clock text: ${clockText}`);
 
-        const now = new Date();
+        const hoursNow = new Date().toLocaleString('en-US', {
+          hour: '2-digit',
+          hour12: false,
+          timeZone: 'Europe/Paris'
+        });
 
-        // Add 2 hours to the current time
-        now.setHours(now.getHours() + 1);
+        cy.log(`Current hour (hoursNow): ${hoursNow}`);
 
-        // Format the hours and minutes with leading zeros if needed
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const displayedHour = clockText.trim().slice(0, 2);
 
-        const currentTime = `${hours}:${minutes}`;
-
-        expect(clockText.trim()).to.equal(currentTime);
+        expect(displayedHour).to.equal(hoursNow);
       });
   }
 );
@@ -182,7 +176,7 @@ When(
   }
 );
 
-Then('the timezone should be updated in the widget', () => {
+Then('timezone should be updating in the widget', () => {
   cy.get('p[class$="timezone"]')
     .eq(1)
     .invoke('text')

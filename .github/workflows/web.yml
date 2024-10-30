@@ -820,7 +820,7 @@ jobs:
           node-version: 20
 
       - name: Install redocly cli
-        run: pnpm add -g @redocly/cli@1.16.0
+        run: pnpm add -g @redocly/cli@1.25.9
         shell: bash
 
       - name: Build openapi documentation

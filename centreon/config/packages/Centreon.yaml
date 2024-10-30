@@ -44,6 +44,7 @@ services:
             - '../../src/Core/HostGroup/*'
             - '../../src/Core/HostTemplate/*'
             - '../../src/Core/ServiceGroup/*'
+            - '../../src/Core/ServiceTemplate/*'
             - '../../src/Core/Host/*'
             - '../../src/Core/Broker/*'
             - '../../src/Core/AdditionalConnectorConfiguration/*'

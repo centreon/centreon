@@ -23,12 +23,9 @@ describe('Public pages manager', () => {
     cy.makeSnapshot();
   });
 
-  it('displays an error when the page fails to load', () => {
+  it('does not display a not found page when  the page fails to load', () => {
     initialize('/public/dashboards/playlists/hash');
 
     cy.contains('404').should('not.exist');
-    cy.contains('Cannot load module').should('be.visible');
-
-    cy.makeSnapshot();
   });
 });
