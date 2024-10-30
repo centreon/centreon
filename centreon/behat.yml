@@ -119,10 +119,6 @@ default:
       paths: [ "%paths.base%/features/LdapManualImport.feature" ]
       contexts: [ LdapManualImportContext ]
 
-    non_admin_contact_creation:
-      paths: [ "%paths.base%/features/NonAdminContactCreation.feature" ]
-      contexts: [ NonAdminContactCreationContext ]
-
     massive_change_hosts:
       paths: [ "%paths.base%/features/MassiveChangeHosts.feature" ]
       contexts: [ MassiveChangeHostsContext ]
