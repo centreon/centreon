@@ -1,4 +1,4 @@
-name: Nightly/QG incident tracking
+name: Workflow incident tracking
 description: Create Jira ticket on nightly build/veracode qg failure
 
 inputs:
