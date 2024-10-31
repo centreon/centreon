@@ -47,10 +47,6 @@ default:
       paths: [ "%paths.base%/features/ShowDisabledHostsServices.feature" ]
       contexts: [ ShowDisabledHostsServicesContext ]
 
-    save_search_filter:
-      paths: [ "%paths.base%/features/SaveSearchFilter.feature" ]
-      contexts: [ SaveSearchFilterContext ]
-
     downtime_start_and_stop:
       paths: [ "%paths.base%/features/DowntimeStartAndStop.feature" ]
       contexts: [ DowntimeStartAndStopContext ]
@@ -111,21 +107,9 @@ default:
       paths: [ "%paths.base%/features/LdapConfiguration.feature" ]
       contexts: [ LdapConfigurationContext ]
 
-    traps_snmp_configuration:
-      paths: [ "%paths.base%/features/TrapsSNMPConfiguration.feature" ]
-      contexts: [ TrapsSNMPConfigurationContext ]
-
     ldap_manual_import:
       paths: [ "%paths.base%/features/LdapManualImport.feature" ]
       contexts: [ LdapManualImportContext ]
-
-    non_admin_contact_creation:
-      paths: [ "%paths.base%/features/NonAdminContactCreation.feature" ]
-      contexts: [ NonAdminContactCreationContext ]
-
-    massive_change_hosts:
-      paths: [ "%paths.base%/features/MassiveChangeHosts.feature" ]
-      contexts: [ MassiveChangeHostsContext ]
 
     massive_change_services:
       paths: [ "%paths.base%/features/MassiveChangeServices.feature" ]
