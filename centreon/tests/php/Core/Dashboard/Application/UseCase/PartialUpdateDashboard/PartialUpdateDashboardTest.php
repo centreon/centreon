@@ -38,7 +38,7 @@ use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardPanelRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboard;
-use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboardRequestDto;
+use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboardRequest;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\ThumbnailRequestDto;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
@@ -64,7 +64,7 @@ beforeEach(function (): void {
         $this->isCloudPlatform = false
     );
 
-    $this->testedPartialUpdateDashboardRequest = new PartialUpdateDashboardRequestDto();
+    $this->testedPartialUpdateDashboardRequest = new PartialUpdateDashboardRequest();
     $this->testedPartialUpdateDashboardRequest->name = 'updated-dashboard';
     $this->testedPartialUpdateDashboardRequest->thumbnail = new ThumbnailRequestDto(null, __DIR__, 'logo.jpg');
     $this->testedPartialUpdateDashboardRequest->thumbnail->content = file_get_contents(__DIR__ . '/logo.jpg');

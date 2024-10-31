@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\AddDashboardThumbnail;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
@@ -92,6 +93,7 @@ final class AddDashboardThumbnail
     /**
      * @param AddDashboardThumbnailRequest $request
      * @throws FileException
+     * @throws AssertionFailedException
      * @return NewMedia
      */
     private function createMediaFromRequest(AddDashboardThumbnailRequest $request): NewMedia

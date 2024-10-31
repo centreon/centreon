@@ -30,7 +30,6 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Common\Application\Type\NoValue;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboard;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboardRequest;
-use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboardRequestDto;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -54,34 +53,31 @@ final class PartialUpdateDashboardController extends AbstractController
     /**
      * @param int $dashboardId
      * @param Request $request
-     * @param PartialUpdateDashboardRequest $mappedRequest
+     * @param PartialUpdateDashboardInput $mappedRequest
      * @param PartialUpdateDashboard $useCase
      * @param PartialUpdateDashboardPresenter $presenter
      *
      * @throws AccessDeniedException
-     *
      * @return Response
      */
     public function __invoke(
         int $dashboardId,
         Request $request,
-        #[MapRequestPayload] PartialUpdateDashboardRequest $mappedRequest,
+        #[MapRequestPayload] PartialUpdateDashboardInput $mappedRequest,
         PartialUpdateDashboard $useCase,
         PartialUpdateDashboardPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
         try {
-            $partialUpdateDashboardRequest = $mappedRequest->toDto();
+
+            $partialUpdateDashboardRequest = PartialUpdateDashboardRequestTransformer::transform($mappedRequest);
 
             $this->assertThumbnailDataSent($request, $partialUpdateDashboardRequest);
 
-            if (
-                $request->files->get('thumbnail_data') !== null
-                && ! $partialUpdateDashboardRequest->thumbnail instanceof NoValue
-            ) {
-                /** @var UploadedFile $thumbnail */
-                $thumbnail = $request->files->get('thumbnail_data');
+            if (! $partialUpdateDashboardRequest->thumbnail instanceof NoValue) {
+                /** @var UploadedFile|null $thumbnail */
+                $thumbnail = $request->files->get('thumbnail_data', null);
                 $partialUpdateDashboardRequest->thumbnail->content = $this->validateAndRetrieveThumbnailContent(
                     $thumbnail,
                 );
@@ -103,10 +99,11 @@ final class PartialUpdateDashboardController extends AbstractController
      * Assert that if at least one data for thumbnail is sent then both are required
      *
      * @param Request $request
-     * @param PartialUpdateDashboardRequestDto $dashboardRequest
+     * @param PartialUpdateDashboardRequest $dashboardRequest
+     *
      * @throws \InvalidArgumentException
      */
-    private function assertThumbnailDataSent(Request $request, PartialUpdateDashboardRequestDto $dashboardRequest): void
+    private function assertThumbnailDataSent(Request $request, PartialUpdateDashboardRequest $dashboardRequest): void
     {
         if (
             ($request->files->get('thumbnail_data') && $dashboardRequest->thumbnail instanceof NoValue)
@@ -117,17 +114,18 @@ final class PartialUpdateDashboardController extends AbstractController
     }
 
     /**
-     * @param UploadedFile $thumbnail
+     * @param null|UploadedFile $thumbnail
      * @throws HttpException
      * @throws FileException
      * @return string
      */
-    private function validateAndRetrieveThumbnailContent(UploadedFile $thumbnail): string
+    private function validateAndRetrieveThumbnailContent(?UploadedFile $thumbnail): string
     {
         // Dashboard use case we do only allow png files.
         $errors = $this->validator->validate(
             $thumbnail,
             [
+                new Assert\NotBlank(),
                 new Assert\Image([
                     'mimeTypes' => ['image/png'],
                 ]),
@@ -148,6 +146,10 @@ final class PartialUpdateDashboardController extends AbstractController
             );
         }
 
+        // at this point we are sure that $thumbnail is not null
+        /**
+         * @var UploadedFile $thumbnail
+         */
         return $thumbnail->getContent();
     }
 }
