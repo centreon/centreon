@@ -274,23 +274,23 @@ Then(
     cy.verifyLegendItemStyle(
       0,
       [
-        'background: rgb(136, 185, 34)',
-        'background: rgb(255, 155, 39)',
-        'background: rgb(227, 227, 227)',
-        'background: rgb(30, 190, 179)'
+        greenCssBackground,
+        redCssBackground,
+        greyCssBackground,
+        blueCssBackground
       ],
       ['100.0%', '0.0%', '0.0%', '0.0%']
     );
     cy.verifyLegendItemStyle(
       1,
       [
-        'background: rgb(136, 185, 34)',
-        'background: rgb(253, 155, 39)',
-        'background: rgb(255, 102, 102)',
-        'background: rgb(227, 227, 227)',
-        'background: rgb(30, 190, 179)'
+        greenCssBackground,
+        orangeCssBackground,
+        redCssBackground,
+        greyCssBackground,
+        blueCssBackground
       ],
-      ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%']
+      ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
     );
   }
 );
