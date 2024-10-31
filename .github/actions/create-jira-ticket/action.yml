@@ -120,6 +120,7 @@ runs:
         }
         EOF
         )
+        echo "DATA=$DATA"
 
         response=$(curl \
           --request POST \
