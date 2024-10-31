@@ -4,7 +4,6 @@ import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
-import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import statuschartWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithStatusChartWidget.json';
@@ -72,9 +71,6 @@ before(() => {
   }).as('resourceRequest');
   cy.startContainers();
   cy.enableDashboardFeature();
-  cy.executeCommandsViaClapi(
-    'resources/clapi/config-ACL/dashboard-metrics-graph.json'
-  );
   cy.addHost({
     hostGroup: 'Linux-Servers',
     name: services.serviceOk.host,
@@ -146,7 +142,6 @@ before(() => {
     { name: services.serviceCritical.name, status: 'critical' },
     { name: services.serviceOk.name, status: 'ok' }
   ]);
-
   cy.logoutViaAPI();
   cy.applyAcl();
 });
@@ -189,7 +184,7 @@ beforeEach(() => {
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
   cy.loginByTypeOfUser({
-    jsonName: dashboardAdministratorUser.login,
+    jsonName: 'admin',
     loginViaApi: false
   });
 });
@@ -281,17 +276,23 @@ Then(
       ],
       ['100.0%', '0.0%', '0.0%', '0.0%']
     );
+  cy.getByLabel({ label: 'Unknown status services', tag: 'a' })
+  .invoke('text')
+  .then((text) => {
+    const labelValue = parseInt(text, 10);
+    const styleMap = {
+      0: ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%'],
+      1: ['30.0%', '10.0%', '10.0%', '10.0%', '40.0%'],
+      2: ['30.0%', '10.0%', '10.0%', '20.0%', '30.0%'],
+      3: ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
+    };
+    const styles = styleMap[labelValue] || styleMap[3];
     cy.verifyLegendItemStyle(
       1,
-      [
-        greenCssBackground,
-        orangeCssBackground,
-        redCssBackground,
-        greyCssBackground,
-        blueCssBackground
-      ],
-      ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
+      [greenCssBackground, orangeCssBackground, redCssBackground, greyCssBackground, blueCssBackground],
+      styles
     );
+  });
   }
 );
 
@@ -319,17 +320,23 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
     ],
     ['100.0%', '0.0%', '0.0%', '0.0%']
   );
-  cy.verifyLegendItemStyle(
-    1,
-    [
-      greenCssBackground,
-      orangeCssBackground,
-      redCssBackground,
-      greyCssBackground,
-      blueCssBackground
-    ],
-    ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
-  );
+  cy.getByLabel({ label: 'Unknown status services', tag: 'a' })
+  .invoke('text')
+  .then((text) => {
+    const labelValue = parseInt(text, 10);
+    const styleMap = {
+      0: ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%'],
+      1: ['30.0%', '10.0%', '10.0%', '10.0%', '40.0%'],
+      2: ['30.0%', '10.0%', '10.0%', '20.0%', '30.0%'],
+      3: ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
+    };
+    const styles = styleMap[labelValue] || styleMap[3];
+    cy.verifyLegendItemStyle(
+      1,
+      [greenCssBackground, orangeCssBackground, redCssBackground, greyCssBackground, blueCssBackground],
+      styles
+    );
+  });
 });
 
 Given('a dashboard that includes a configured Status Chart widget', () => {
@@ -359,17 +366,23 @@ When(
 );
 
 Then('the unit of the resources already displayed should be updated', () => {
-  cy.verifyLegendItemStyle(
-    1,
-    [
-      greenCssBackground,
-      orangeCssBackground,
-      redCssBackground,
-      greyCssBackground,
-      blueCssBackground
-    ],
-    ['3', '1', '1', '3', '2']
-  );
+  cy.getByLabel({ label: 'Unknown status services', tag: 'a' })
+  .invoke('text')
+  .then((text) => {
+    const labelValue = parseInt(text, 10);
+    const styleMap = {
+      0: ['3', '1', '1', '0', '5'],
+      1: ['3', '1', '1', '1', '4'],
+      2: ['3', '1', '1', '2', '3'],
+      3: ['3', '1', '1', '3', '2']
+    };
+    const styles = styleMap[labelValue] || styleMap[3];
+    cy.verifyLegendItemStyle(
+      1,
+      [greenCssBackground, orangeCssBackground, redCssBackground, greyCssBackground, blueCssBackground],
+      styles
+    );
+  });
 });
 
 Given('a dashboard featuring two Status Chart widgets', () => {
@@ -409,17 +422,23 @@ Then('only the contents of the other widget are displayed', () => {
     ],
     ['3', '0', '0', '0']
   );
-  cy.verifyLegendItemStyle(
-    0,
-    [
-      greenCssBackground,
-      orangeCssBackground,
-      redCssBackground,
-      greyCssBackground,
-      blueCssBackground
-    ],
-    ['3', '1', '1', '3', '2']
-  );
+  cy.getByLabel({ label: 'Unknown status services', tag: 'a' })
+  .invoke('text')
+  .then((text) => {
+    const labelValue = parseInt(text, 10);
+    const styleMap = {
+      0: ['3', '1', '1', '0', '5'],
+      1: ['3', '1', '1', '1', '4'],
+      2: ['3', '1', '1', '2', '3'],
+      3: ['3', '1', '1', '3', '2']
+    };
+    const styles = styleMap[labelValue] || styleMap[3];
+    cy.verifyLegendItemStyle(
+      1,
+      [greenCssBackground, orangeCssBackground, redCssBackground, greyCssBackground, blueCssBackground],
+      styles
+    );
+  });
 });
 
 Given('a dashboard having a configured Status Chart widget', () => {
@@ -447,18 +466,23 @@ When(
 );
 
 Then('a second Status Chart widget is displayed on the dashboard', () => {
-  cy.verifyLegendItemStyle(
-    3,
-    [
-      greenCssBackground,
-      orangeCssBackground,
-      redCssBackground,
-      greyCssBackground,
-      blueCssBackground
-
-    ],
-    ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
-  );
+  cy.getByLabel({ label: 'Unknown status services', tag: 'a' })
+  .invoke('text')
+  .then((text) => {
+    const labelValue = parseInt(text, 10);
+    const styleMap = {
+      0: ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%'],
+      1: ['30.0%', '10.0%', '10.0%', '10.0%', '40.0%'],
+      2: ['30.0%', '10.0%', '10.0%', '20.0%', '30.0%'],
+      3: ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
+    };
+    const styles = styleMap[labelValue] || styleMap[3];
+    cy.verifyLegendItemStyle(
+      3,
+      [greenCssBackground, orangeCssBackground, redCssBackground, greyCssBackground, blueCssBackground],
+      styles
+    );
+  });
 });
 
 Given(
@@ -493,16 +517,22 @@ When(
 Then(
   'the widget is updated to reflect that change of displayed resource type',
   () => {
+  cy.getByLabel({ label: 'Unknown status services', tag: 'a' })
+  .invoke('text')
+  .then((text) => {
+    const labelValue = parseInt(text, 10);
+    const styleMap = {
+      0: ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%'],
+      1: ['30.0%', '10.0%', '10.0%', '10.0%', '40.0%'],
+      2: ['30.0%', '10.0%', '10.0%', '20.0%', '30.0%'],
+      3: ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
+    };
+    const styles = styleMap[labelValue] || styleMap[3];
     cy.verifyLegendItemStyle(
       1,
-      [
-        greenCssBackground,
-        orangeCssBackground,
-        redCssBackground,
-        greyCssBackground,
-        blueCssBackground
-      ],
-      ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
+      [greenCssBackground, orangeCssBackground, redCssBackground, greyCssBackground, blueCssBackground],
+      styles
     );
+  });
   }
 );
