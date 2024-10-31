@@ -731,7 +731,7 @@ jobs:
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   e2e-test:
-    needs: [get-environment]
+    needs: [get-environment, dockerize, create-xray-test-plan-and-test-execution]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false
