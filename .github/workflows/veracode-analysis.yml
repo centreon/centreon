@@ -173,9 +173,20 @@ jobs:
           java-version: 8
 
       - name: Pipeline scan
+        uses: veracode/Veracode-pipeline-scan-action@fe0924c134a03ab5a74fcb9722ed8456efa48e17 # v1.0.16
         continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
-        run: exit 1
-        shell: bash
+        with:
+          vid: "vera01ei-${{ secrets.veracode_api_id }}"
+          vkey: "vera01es-${{ secrets.veracode_api_key }}"
+          file: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
+          baseline_file: "${{ env.baseline_file }}"
+          create_baseline_from: "${{ env.create_baseline_from }}"
+          fail_build: '${{ needs.build.outputs.fail_build }}'
+          fail_on_severity: "'Very High','High'"
+          timeout: 60
+          development_stage: '${{ needs.build.outputs.development_stage }}'
+          summary_display: '${{ needs.build.outputs.display_summary }}'
+          issue_details: '${{ needs.build.outputs.display_summary }}'
 
       - name: Backup analysis reports
         # debug step used to investigate support case
