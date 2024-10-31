@@ -8,6 +8,9 @@ import { equals, isNil, not, pipe } from 'ramda';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
+import utcPlugin from 'dayjs/plugin/utc';
+
+dayjs.extend(utcPlugin);
 
 interface UseDateTimePickerAdapterProps {
   Adapter;
@@ -223,7 +226,12 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     };
 
     public getWeekdays = (): Array<string> => {
-      const start = dayjs().locale(locale).tz(timezone).startOf('week');
+      // const start = dayjs().locale(locale).tz(timezone).startOf('week');
+
+       const dateByTimeZone = dayjs(date).tz(item.timezone);
+        const firstDay = dateByTimeZone.isUTC()
+          ? dateByTimeZone.utc().startOf('month').startOf('week')
+          : dateByTimeZone.startOf('month').startOf('week');
 
       return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
         this.formatByString(start.add(diff, 'day'), 'dd')
