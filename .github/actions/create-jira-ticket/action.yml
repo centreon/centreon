@@ -94,10 +94,11 @@ runs:
             -e 's|@GITHUB_RUN_ID@|${{ github.run_id }}|g' \
             -e 's|@GITHUB_RUN_ATTEMPT@|${{ github.run_attempt }}|g' $JSON_TEMPLATE_FILE
         elif [[ ${{ inputs.reason_for_ticket_creation }} == "nightly" ]]; then
+          DATE=$(date '+%Y-%m-%d')
           sed -i \
             -e 's|@MODULE_NAME@|${{ inputs.module_name }}|g' \
             -e 's|@REF_NAME@|${{ github.ref_name }}|g' \
-            -e 's|@DATE@|$(date '+%Y-%m-%d')|g' \
+            -e 's|@DATE@|$DATE|g' \
             -e 's|@RUN_URL@|${{ steps.get_context.outputs.run_url }}|g' $JSON_TEMPLATE_FILE
         fi
         cat $JSON_TEMPLATE_FILE
@@ -127,7 +128,7 @@ runs:
           --header 'Accept: application/json' \
           --header 'Content-Type: application/json' \
           --data "$DATA")
-
+        echo $response
         if [ $? -ne 0 ]; then
           echo "::error::Failed to create ticket: $response"
           exit 1

@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  create-jira-ticket:
+  create-nightly-incident-jira-ticket:
     runs-on: [self-hosted, common]
     steps:
       - name: Checkout sources
