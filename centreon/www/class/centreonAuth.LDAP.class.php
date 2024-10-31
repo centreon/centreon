@@ -200,7 +200,7 @@ class CentreonAuthLDAP
      * @return bool If the DN is modified
      * @throws exception
      */
-    public function updateUserDn()
+    public function updateUserDn(): bool
     {
         $contactAlias = html_entity_decode($this->contactInfos['contact_alias'], ENT_QUOTES, 'UTF-8');
 
@@ -225,18 +225,32 @@ class CentreonAuthLDAP
 
             //getting user's email
             $userEmail = $this->contactInfos['contact_email'];
-            if (isset($userInfos[$this->ldap->getAttrName('user', 'email')])) {
-                if (is_array($userInfos[$this->ldap->getAttrName('user', 'email')])) {
-                    // Get the first if there are multiple entries
-                    if ($userInfos[$this->ldap->getAttrName('user', 'email')][0]) {
-                        $userEmail = $userInfos[$this->ldap->getAttrName('user', 'email')][0];
+            try {
+                if (isset($userInfos[$this->ldap->getAttrName('user', 'email')])) {
+                    if (is_array($userInfos[$this->ldap->getAttrName('user', 'email')])) {
+                        // Get the first if there are multiple entries
+                        if (
+                            $userInfos[$this->ldap->getAttrName('user', 'email')][0]
+                            && trim($userInfos[$this->ldap->getAttrName('user', 'email')][0]) !== ''
+                        ) {
+                            $userEmail = $userInfos[$this->ldap->getAttrName('user', 'email')][0];
+                        }
+                    } elseif (
+                        is_string($userInfos[$this->ldap->getAttrName('user', 'email')])
+                        && trim($userInfos[$this->ldap->getAttrName('user', 'email')]) !== ''
+                    ) {
+                        $userEmail = $userInfos[$this->ldap->getAttrName('user', 'email')];
+                    } else {
+                        throw new Exception('User email must be a string or an array of strings.');
                     }
-                } elseif (
-                    is_string($userInfos[$this->ldap->getAttrName('user', 'email')])
-                    && trim($userInfos[$this->ldap->getAttrName('user', 'email')]) !== ''
-                ) {
-                    $userEmail = $userInfos[$this->ldap->getAttrName('user', 'email')];
                 }
+            } catch (Exception $ex) {
+                $this->CentreonLog->insertLog(
+                    3,
+                    'LDAP AUTH - Error : Invalid user email : ' . $ex->getMessage()
+                );
+
+                return false;
             }
             //getting user's pager
             $userPager = $this->contactInfos['contact_pager'];
