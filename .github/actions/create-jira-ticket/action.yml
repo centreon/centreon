@@ -1,5 +1,5 @@
 name: Workflow incident tracking
-description: Create Jira ticket on nightly build/veracode qg failure
+description: Create Jira ticket on incident
 
 inputs:
   jira_base_url:
@@ -16,7 +16,7 @@ inputs:
     description: module name
   reason_for_ticket_creation:
     required: true
-    description: type of incident causing the ticket creation (currently: veracode or nightly)
+    description: type of incident causing the ticket creation (currently veracode or nightly)
 
 runs:
   using: "composite"
