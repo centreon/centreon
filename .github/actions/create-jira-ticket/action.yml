@@ -39,7 +39,7 @@ runs:
           ticket_summary="$(date '+%Y-%m-%d') ${{ inputs.module_name }}-${{ github.ref_name }} nightly build failure"
           ticket_labels="[\"Nightly\", \"Pipeline\"]"
           run_url=$(gh run ls --json name,url --workflow web.yml --branch ${{ github.ref_name }} --limit 20 | \
-            jq --arg module_name "${{ inputs.module_name }}" --arg branch "${{ github.ref_name }}" '. | map(select(.name == ($module_name + " nightly " + $branch))) | .[0].url')
+            jq --arg module_name "${{ inputs.module_name }}" --arg branch "${{ github.ref_name }}" '. | map(select(.name == ($module_name + " nightly " + $branch))) | .[0].url'| sed 's/^"//;s/"$//')
           if [ $? -ne 0 ] || [ "$run_url" == "null" ]; then
             echo "::error::Failed to get nightly run URL"
             exit 1
