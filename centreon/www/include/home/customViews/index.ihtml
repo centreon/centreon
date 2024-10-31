@@ -605,7 +605,10 @@ function toggleEdit(show) {
             action: 'defaultEditMode',
             editMode: show
         },
-        type: 'POST'
+        type: 'POST',
+        error: function(xhr, status, error) {
+            console.error('Failed to update edit mode:', error);
+        }
     });
 }
 
