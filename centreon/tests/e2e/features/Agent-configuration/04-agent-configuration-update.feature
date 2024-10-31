@@ -1,8 +1,10 @@
+@REQ_MON-146653
 Feature: Update a Agent Configuration
   As a Centreon user
   I want to visit the Agents Configuration page
   To update the agent agent configuration
 
+  @TEST_MON-151999
   Scenario: Update a agent configuration
     Given a non-admin user is in the Agents Configuration page
     And an already existing agent configuration
