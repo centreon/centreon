@@ -229,7 +229,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       // const start = dayjs().locale(locale).tz(timezone).startOf('week');
 
        const dateByTimeZone = dayjs(date).tz(item.timezone);
-        const firstDay = dateByTimeZone.isUTC()
+        const start = dateByTimeZone.isUTC()
           ? dateByTimeZone.utc().startOf('month').startOf('week')
           : dateByTimeZone.startOf('month').startOf('week');
 
