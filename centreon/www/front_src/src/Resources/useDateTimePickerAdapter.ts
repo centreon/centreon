@@ -5,10 +5,10 @@ import DayjsAdapter from '@date-io/dayjs';
 import dayjs from 'dayjs';
 import { useAtomValue } from 'jotai';
 import { equals, isNil, not, pipe } from 'ramda';
+import utcPlugin from 'dayjs/plugin/utc';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
-import utcPlugin from 'dayjs/plugin/utc';
 
 dayjs.extend(utcPlugin);
 
@@ -226,12 +226,10 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     };
 
     public getWeekdays = (): Array<string> => {
-      // const start = dayjs().locale(locale).tz(timezone).startOf('week');
-
-       const dateByTimeZone = dayjs().locale(locale).tz(timezone);
-        const start = dateByTimeZone.isUTC()
-          ? dateByTimeZone.utc().startOf('month').startOf('week')
-          : dateByTimeZone.startOf('month').startOf('week');
+      const dateByTimeZone = dayjs().locale(locale).tz(timezone);
+      const start = dateByTimeZone.isUTC()
+        ? dateByTimeZone.utc().startOf('month').startOf('week')
+        : dateByTimeZone.startOf('month').startOf('week');
 
       return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
         this.formatByString(start.add(diff, 'day'), 'dd')
