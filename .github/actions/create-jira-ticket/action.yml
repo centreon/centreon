@@ -52,6 +52,7 @@ runs:
         echo "ticket_summary=$ticket_summary" >> $GITHUB_OUTPUT
         echo "ticket_labels=$ticket_labels" >> $GITHUB_OUTPUT
         echo "run_url=$run_url" >> $GITHUB_OUTPUT
+        cat $GITHUB_OUTPUT
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
