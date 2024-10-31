@@ -173,76 +173,65 @@ jobs:
           java-version: 8
 
       - name: Pipeline scan
-        uses: veracode/Veracode-pipeline-scan-action@fe0924c134a03ab5a74fcb9722ed8456efa48e17 # v1.0.16
         continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
-        with:
-          vid: "vera01ei-${{ secrets.veracode_api_id }}"
-          vkey: "vera01es-${{ secrets.veracode_api_key }}"
-          file: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
-          baseline_file: "${{ env.baseline_file }}"
-          create_baseline_from: "${{ env.create_baseline_from }}"
-          fail_build: '${{ needs.build.outputs.fail_build }}'
-          fail_on_severity: "'Very High','High'"
-          timeout: 60
-          development_stage: '${{ needs.build.outputs.development_stage }}'
-          summary_display: '${{ needs.build.outputs.display_summary }}'
-          issue_details: '${{ needs.build.outputs.display_summary }}'
+        run: exit 1
+        shell: bash
 
-      - name: Backup analysis reports
-        # debug step used to investigate support case
-        if: needs.build.outputs.enable_qg == 'false' || failure()
-        run: |
-          echo "[DEBUG] downloaded baseline details in /tmp"
-          ls -la /tmp
-          echo "[DEBUG] current location details of analysis results"
-          pwd
-          ls -la
+      # - name: Backup analysis reports
+      #   # debug step used to investigate support case
+      #   if: needs.build.outputs.enable_qg == 'false' || failure()
+      #   run: |
+      #     echo "[DEBUG] downloaded baseline details in /tmp"
+      #     ls -la /tmp
+      #     echo "[DEBUG] current location details of analysis results"
+      #     pwd
+      #     ls -la
 
-          function backup_baseline(){
-            echo "" # adding a blank line
-            if [[ -z $1 ]]; then
-              echo "[ERROR] Missing mandatory parameters to backup baseline file"
-              exit 0
-            fi
-            CURRENT_NAME=$1
+      #     function backup_baseline(){
+      #       echo "" # adding a blank line
+      #       if [[ -z $1 ]]; then
+      #         echo "[ERROR] Missing mandatory parameters to backup baseline file"
+      #         exit 0
+      #       fi
+      #       CURRENT_NAME=$1
 
-            # specific case for downloaded baseline file
-            if [[ -n $2 && "$2" != "downloaded" ]]; then
-              echo "[ERROR] Missing downloaded baseline mandatory parameter to continue"
-              exit 0
-            fi
-            [[ -n $2 ]] && TARGET=$BASE_BRANCH || TARGET=$CURRENT_PR
-            [[ -n $2 ]] && FILENAME="/tmp/$CURRENT_NAME" || FILENAME="$CURRENT_NAME"
-            [[ -n $2 ]] && NEW_NAME="baseline.json" || NEW_NAME=$CURRENT_NAME
+      #       # specific case for downloaded baseline file
+      #       if [[ -n $2 && "$2" != "downloaded" ]]; then
+      #         echo "[ERROR] Missing downloaded baseline mandatory parameter to continue"
+      #         exit 0
+      #       fi
+      #       [[ -n $2 ]] && TARGET=$BASE_BRANCH || TARGET=$CURRENT_PR
+      #       [[ -n $2 ]] && FILENAME="/tmp/$CURRENT_NAME" || FILENAME="$CURRENT_NAME"
+      #       [[ -n $2 ]] && NEW_NAME="baseline.json" || NEW_NAME=$CURRENT_NAME
 
-            echo "[DEBUG] FILENAME = $FILENAME"
-            if [[ -s "$FILENAME" ]]; then
-              FILE_DETAILS=$( stat -c '%s %y' "$FILENAME" )
-              DETAILS=(${FILE_DETAILS//\ / })
+      #       echo "[DEBUG] FILENAME = $FILENAME"
+      #       if [[ -s "$FILENAME" ]]; then
+      #         FILE_DETAILS=$( stat -c '%s %y' "$FILENAME" )
+      #         DETAILS=(${FILE_DETAILS//\ / })
 
-              FILE_SIZE=${DETAILS[0]}
-              CREATION_DATE=${DETAILS[1]}
-              CREATION_TIME=$( echo "${DETAILS[2]}" | cut -d ':' -f1-2 | tr ':' 'h' )
-              cp "$FILENAME" "/tmp/backup/$TARGET.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
-            else
-              echo "[WARN] - no $CURRENT_NAME found for FILENAME. Skipping it"
-            fi
-          }
+      #         FILE_SIZE=${DETAILS[0]}
+      #         CREATION_DATE=${DETAILS[1]}
+      #         CREATION_TIME=$( echo "${DETAILS[2]}" | cut -d ':' -f1-2 | tr ':' 'h' )
+      #         cp "$FILENAME" "/tmp/backup/$TARGET.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
+      #       else
+      #         echo "[WARN] - no $CURRENT_NAME found for FILENAME. Skipping it"
+      #       fi
+      #     }
 
-          CURRENT_DATE=$( date +"%Y-%m-%d" )
-          CURRENT_PR="PR-"$( echo "${{ github.ref_name }}" | cut -d '/' -f1 )
-          BASE_BRANCH=${{ github.base_ref || github.ref_name }}
-          BACKUP_LOCATION="s3://centreon-veracode-reports/${{ inputs.module_name }}/debug/$CURRENT_PR"
+      #     CURRENT_DATE=$( date +"%Y-%m-%d" )
+      #     CURRENT_PR="PR-"$( echo "${{ github.ref_name }}" | cut -d '/' -f1 )
+      #     BASE_BRANCH=${{ github.base_ref || github.ref_name }}
+      #     BACKUP_LOCATION="s3://centreon-veracode-reports/${{ inputs.module_name }}/debug/$CURRENT_PR"
 
-          # saving all reports
-          mkdir /tmp/backup
-          backup_baseline "results.json" "downloaded"
-          backup_baseline "results.json"
-          backup_baseline "filtered_results.json"
+      #     # saving all reports
+      #     mkdir /tmp/backup
+      #     backup_baseline "results.json" "downloaded"
+      #     backup_baseline "results.json"
+      #     backup_baseline "filtered_results.json"
 
-          ZIPNAME="$CURRENT_PR.$CURRENT_DATE.${{github.run_id}}.zip"
-          cd /tmp/backup && zip "$ZIPNAME" *
-          aws s3 cp "/tmp/backup/$ZIPNAME" "$BACKUP_LOCATION/$ZIPNAME"
+      #     ZIPNAME="$CURRENT_PR.$CURRENT_DATE.${{github.run_id}}.zip"
+      #     cd /tmp/backup && zip "$ZIPNAME" *
+      #     aws s3 cp "/tmp/backup/$ZIPNAME" "$BACKUP_LOCATION/$ZIPNAME"
 
       - name: Create jira ticket
         # In case of QG failure, a ticket must be created
