@@ -30,7 +30,7 @@
  * {"widget_id":1}}}
  */
 
-it('test contructor arguments of CentreonLog', function () {
+it('test contructor arguments of CentreonLog', function (): void {
     $loggerTest = new CentreonLog([99 => 'custom.log'], __DIR__ . '/log');
     expect($loggerTest->getLogFileHandler())->toEqual(
         [
@@ -45,7 +45,7 @@ it('test contructor arguments of CentreonLog', function () {
     );
 });
 
-it('test changing the path of an existing log', function () {
+it('test changing the path of an existing log', function (): void {
     $loggerTest = new CentreonLog();
     $loggerTest->setPathLogFile('/user/test')
         ->pushLogFileHandler(CentreonLog::TYPE_LOGIN, 'login.log')
@@ -66,14 +66,14 @@ it('test changing the path of an existing log', function () {
     );
 });
 
-it('test adding custom log', function () {
+it('test adding custom log', function (): void {
     $loggerTest = new CentreonLog();
     $loggerTest->setPathLogFile('/user/test')
         ->pushLogFileHandler(99, 'custom.log');
     expect($loggerTest->getLogFileHandler())->toHaveKey(99, '/user/test/custom.log');
 });
 
-beforeEach(function () {
+beforeEach(function (): void {
     if (! file_exists(__DIR__ . '/log')) {
         mkdir(__DIR__ . '/log');
     }
@@ -86,7 +86,7 @@ beforeEach(function () {
     );
 });
 
-afterEach(function () {
+afterEach(function (): void {
     if (file_exists($this->centreonLogTest->pathToLogTest)) {
         $files = glob($this->centreonLogTest->pathToLogTest);
         foreach ($files as $file) {
@@ -99,7 +99,7 @@ afterEach(function () {
     }
 });
 
-it('test log file handler is correct', function () {
+it('test log file handler is correct', function (): void {
     expect($this->centreonLogTest->loggerTest->getLogFileHandler())->toEqual(
         [
             CentreonLog::TYPE_LOGIN => __DIR__ . '/log/login.log',
@@ -113,7 +113,7 @@ it('test log file handler is correct', function () {
     );
 });
 
-it('test writing the log to the login file', function () {
+it('test writing the log to the login file', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/login.log';
     $this->centreonLogTest->loggerTest
         ->log(CentreonLog::TYPE_LOGIN, CentreonLog::LEVEL_ERROR, 'login_message');
@@ -126,7 +126,7 @@ it('test writing the log to the login file', function () {
     );
 });
 
-it('test writing the log to the sql file', function () {
+it('test writing the log to the sql file', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/sql-error.log';
     $this->centreonLogTest->loggerTest
         ->log(CentreonLog::TYPE_SQL, CentreonLog::LEVEL_ERROR, 'sql_message');
@@ -139,7 +139,7 @@ it('test writing the log to the sql file', function () {
     );
 });
 
-it('test writing the log to the ldap file', function () {
+it('test writing the log to the ldap file', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/ldap.log';
     $this->centreonLogTest->loggerTest
         ->log(CentreonLog::TYPE_LDAP, CentreonLog::LEVEL_ERROR, 'ldap_message');
@@ -152,7 +152,7 @@ it('test writing the log to the ldap file', function () {
     );
 });
 
-it('test writing the log to the upgrade file', function () {
+it('test writing the log to the upgrade file', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/upgrade.log';
     $this->centreonLogTest->loggerTest
         ->log(CentreonLog::TYPE_UPGRADE, CentreonLog::LEVEL_ERROR, 'upgrade_message');
@@ -165,7 +165,7 @@ it('test writing the log to the upgrade file', function () {
     );
 });
 
-it('test writing the log to the plugin pack manager file', function () {
+it('test writing the log to the plugin pack manager file', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/plugin-pack-manager.log';
     $this->centreonLogTest->loggerTest
         ->log(CentreonLog::TYPE_PLUGIN_PACK_MANAGER, CentreonLog::LEVEL_ERROR, 'plugin_message');
@@ -178,7 +178,7 @@ it('test writing the log to the plugin pack manager file', function () {
     );
 });
 
-it('test writing the log to the custom log file', function () {
+it('test writing the log to the custom log file', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/custom.log';
     $this->centreonLogTest->loggerTest->log(99, CentreonLog::LEVEL_ERROR, 'custom_message');
     testContentLogWithoutContext(
@@ -190,7 +190,7 @@ it('test writing the log to the custom log file', function () {
     );
 });
 
-it('test writing logs with all levels', function () {
+it('test writing logs with all levels', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/login.log';
     $this->centreonLogTest->loggerTest->notice(CentreonLog::TYPE_LOGIN, 'login_message');
     testContentLogWithoutContext(
@@ -250,7 +250,7 @@ it('test writing logs with all levels', function () {
     );
 });
 
-it('test writing logs with a custom context', function () {
+it('test writing logs with a custom context', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/login.log';
     $this->centreonLogTest->loggerTest
         ->notice(CentreonLog::TYPE_LOGIN, 'login_message', ['custom_value1' => 'foo', 'custom_value2' => 'bar']);
@@ -267,7 +267,7 @@ it('test writing logs with a custom context', function () {
     expect($successDeleteFile)->toBeTrue();
 });
 
-it('test writing logs with a custom context and an exception', function () {
+it('test writing logs with a custom context and an exception', function (): void {
     try {
         throw new RuntimeException('test_message_exception', 99);
     } catch (RuntimeException $e) {

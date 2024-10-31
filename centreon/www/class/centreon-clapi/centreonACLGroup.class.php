@@ -36,54 +36,56 @@ require_once __DIR__ . "/../../../lib/Centreon/Object/Relation/Acl/Group/Contact
 require_once __DIR__ . "/Repository/AclGroupRepository.php";
 require_once __DIR__ . "/Repository/SessionRepository.php";
 
+use App\Kernel;
+use Centreon_Object_Acl_Group;
 use CentreonClapi\Repository\SessionRepository;
 use CentreonClapi\Repository\AclGroupRepository;
 use Core\Application\Common\Session\Repository\ReadSessionRepositoryInterface;
+use Exception;
+use InvalidArgumentException;
+use LogicException;
+use PDOException;
+use Pimple\Container;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Throwable;
 
 /**
- * Class for managing ACL groups
- * @author sylvestre
+ * Class
  *
+ * @class CentreonACLGroup
+ * @package CentreonClapi
+ * @description Class for managing ACL groups
  */
 class CentreonACLGroup extends CentreonObject
 {
-    const ORDER_UNIQUENAME = 0;
-    const ORDER_ALIAS = 1;
+    public const ORDER_UNIQUENAME = 0;
+    public const ORDER_ALIAS = 1;
 
-    public $aDepends = array(
-        'CONTACT',
-        'CG',
-        'ACLMENU',
-        'ACLACTION',
-        'ACLRESOURCE'
-    );
+    /** @var string[] */
+    public $aDepends = ['CONTACT', 'CG', 'ACLMENU', 'ACLACTION', 'ACLRESOURCE'];
 
-    /**
-     * @var AclGroupRepository
-     */
+    /** @var AclGroupRepository */
     private AclGroupRepository $aclGroupRepository;
 
-    /**
-     * @var SessionRepository
-     */
+    /** @var SessionRepository */
     private SessionRepository $sessionRepository;
 
     /**
-     * Constructor
+     * CentreonACLGroup constructor
      *
-     * @return void
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
-        $this->object = new \Centreon_Object_Acl_Group($dependencyInjector);
+        $this->object = new Centreon_Object_Acl_Group($dependencyInjector);
         $db = $dependencyInjector['configuration_db'];
         $this->aclGroupRepository = new AclGroupRepository($db);
         $this->sessionRepository = new SessionRepository($db);
-        $this->params = array(
-            'acl_group_changed' => '1',
-            'acl_group_activate' => '1'
-        );
+        $this->params = ['acl_group_changed' => '1', 'acl_group_activate' => '1'];
         $this->nbOfCompulsoryParams = 2;
         $this->activateField = "acl_group_activate";
         $this->action = "ACLGROUP";
@@ -91,16 +93,16 @@ class CentreonACLGroup extends CentreonObject
 
     /**
      * @param $parameters
-     * @return mixed|void
+     * @return void
      * @throws CentreonClapiException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $addParams = array();
+        $addParams = [];
         $addParams[$this->object->getUniqueLabelField()] = $params[self::ORDER_UNIQUENAME];
         $addParams['acl_group_alias'] = $params[self::ORDER_ALIAS];
         $this->params = array_merge($this->params, $addParams);
@@ -121,7 +123,7 @@ class CentreonACLGroup extends CentreonObject
         $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);
         if ($objectId != 0) {
             $params[1] = "acl_group_" . $params[1];
-            $updateParams = array($params[1] => $params[2]);
+            $updateParams = [$params[1] => $params[2]];
             $updateParams['objectId'] = $objectId;
             return $updateParams;
         } else {
@@ -132,14 +134,16 @@ class CentreonACLGroup extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = []): void
     {
-        $filters = array();
+        $filters = [];
         if (isset($parameters)) {
-            $filters = array($this->object->getUniqueLabelField() => "%" . $parameters . "%");
+            $filters = [$this->object->getUniqueLabelField() => "%" . $parameters . "%"];
         }
-        $params = array("acl_group_id", "acl_group_name", "acl_group_alias", "acl_group_activate");
+        $params = ["acl_group_id", "acl_group_name", "acl_group_alias", "acl_group_activate"];
         $paramString = str_replace("acl_group_", "", implode($this->delim, $params));
         echo $paramString . "\n";
         $elements = $this->object->getList(
@@ -164,9 +168,12 @@ class CentreonACLGroup extends CentreonObject
      * Magic method
      *
      * @param string $name
-     * @param array $args
+     * @param array $arg
+     *
      * @return void
      * @throws CentreonClapiException
+     * @throws InvalidArgumentException
+     * @throws Throwable
      */
     public function __call($name, $arg)
     {
@@ -190,7 +197,7 @@ class CentreonACLGroup extends CentreonObject
                     throw new CentreonClapiException(self::MISSINGPARAMETER);
                 }
                 $args = explode($this->delim, $arg[0]);
-                $groupIds = $this->object->getIdByParameter($uniqueLabel, array($args[0]));
+                $groupIds = $this->object->getIdByParameter($uniqueLabel, [$args[0]]);
                 if (!count($groupIds)) {
                     throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $args[0]);
                 }
@@ -202,7 +209,7 @@ class CentreonACLGroup extends CentreonObject
                     $tab = $relobj->getTargetIdFromSourceId($relobj->getSecondKey(), $relobj->getFirstKey(), $groupIds);
                     echo "id" . $this->delim . "name" . "\n";
                     foreach ($tab as $value) {
-                        $tmp = $obj->getParameters($value, array($obj->getUniqueLabelField()));
+                        $tmp = $obj->getParameters($value, [$obj->getUniqueLabelField()]);
                         echo $value . $this->delim . $tmp[$obj->getUniqueLabelField()] . "\n";
                     }
                 } else {
@@ -211,9 +218,9 @@ class CentreonACLGroup extends CentreonObject
                     }
                     $relation = $args[1];
                     $relations = explode("|", $relation);
-                    $relationTable = array();
+                    $relationTable = [];
                     foreach ($relations as $rel) {
-                        $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), array($rel));
+                        $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), [$rel]);
                         if (!count($tab)) {
                             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $rel);
                         }
@@ -225,7 +232,7 @@ class CentreonACLGroup extends CentreonObject
                     $existingRelationIds = $relobj->getTargetIdFromSourceId(
                         $relobj->getSecondKey(),
                         $relobj->getFirstKey(),
-                        array($groupId)
+                        [$groupId]
                     );
                     foreach ($relationTable as $relationId) {
                         if ($matches[1] == "del") {
@@ -241,7 +248,7 @@ class CentreonACLGroup extends CentreonObject
                         $this->flagUpdatedAclForAuthentifiedUsers($groupIds);
                     }
 
-                    $updateParams = array('acl_group_changed' => '1');
+                    $updateParams = ['acl_group_changed' => '1'];
 
                     if (
                         isset($updateParams[$uniqueLabel])
@@ -271,7 +278,9 @@ class CentreonACLGroup extends CentreonObject
 
     /**
      * @param null $filterName
+     *
      * @return bool|void
+     * @throws Exception
      */
     public function export($filterName = null)
     {
@@ -280,7 +289,7 @@ class CentreonACLGroup extends CentreonObject
         }
 
         $labelField = $this->object->getUniqueLabelField();
-        $filters = array();
+        $filters = [];
         if (!is_null($filterName)) {
             $filters[$labelField] = $filterName;
         }
@@ -314,37 +323,13 @@ class CentreonACLGroup extends CentreonObject
     /**
      * @param $aclGroupId
      * @param $aclGroupName
+     *
      * @return string
+     * @throws CentreonClapiException
      */
     private function exportLinkedObjects($aclGroupId, $aclGroupName)
     {
-        $objectList = array(
-            array(
-                'object' => 'MENU',
-                'relClass' => 'Centreon_Object_Relation_Acl_Group_Menu',
-                'objectFieldName' => 'acl_topo_name'
-            ),
-            array(
-                'object' => 'ACTION',
-                'relClass' => 'Centreon_Object_Relation_Acl_Group_Action',
-                'objectFieldName' => 'acl_action_name'
-            ),
-            array(
-                'object' => 'RESOURCE',
-                'relClass' => 'Centreon_Object_Relation_Acl_Group_Resource',
-                'objectFieldName' => 'acl_res_name'
-            ),
-            array(
-                'object' => 'CONTACT',
-                'relClass' => 'Centreon_Object_Relation_Acl_Group_Contact',
-                'objectFieldName' => 'contact_alias'
-            ),
-            array(
-                'object' => 'CONTACTGROUP',
-                'relClass' => 'Centreon_Object_Relation_Acl_Group_Contact_Group',
-                'objectFieldName' => 'cg_name'
-            ),
-        );
+        $objectList = [['object' => 'MENU', 'relClass' => 'Centreon_Object_Relation_Acl_Group_Menu', 'objectFieldName' => 'acl_topo_name'], ['object' => 'ACTION', 'relClass' => 'Centreon_Object_Relation_Acl_Group_Action', 'objectFieldName' => 'acl_action_name'], ['object' => 'RESOURCE', 'relClass' => 'Centreon_Object_Relation_Acl_Group_Resource', 'objectFieldName' => 'acl_res_name'], ['object' => 'CONTACT', 'relClass' => 'Centreon_Object_Relation_Acl_Group_Contact', 'objectFieldName' => 'contact_alias'], ['object' => 'CONTACTGROUP', 'relClass' => 'Centreon_Object_Relation_Acl_Group_Contact_Group', 'objectFieldName' => 'cg_name']];
 
         $linkedObjectsSetter = $this->action . $this->delim . 'SET%s' . $this->delim .
             $aclGroupName . $this->delim .
@@ -384,13 +369,13 @@ class CentreonACLGroup extends CentreonObject
         $comparisonKey1 = $this->object->getTableName() . '.' . $this->object->getPrimaryKey();
 
         $links = $relObj->getMergedParameters(
-            array(),
-            array($objectFieldName),
+            [],
+            [$objectFieldName],
             -1,
             0,
             $objectFieldName,
             'ASC',
-            array($comparisonKey1 => $aclGroupId),
+            [$comparisonKey1 => $aclGroupId],
             'AND'
         );
 
@@ -407,6 +392,9 @@ class CentreonACLGroup extends CentreonObject
      * This method flags updated ACL for authentified users.
      *
      * @param int[] $aclGroupIds
+     *
+     * @throws InvalidArgumentException
+     * @throws Throwable
      */
     private function flagUpdatedAclForAuthentifiedUsers(array $aclGroupIds): void
     {
@@ -422,10 +410,13 @@ class CentreonACLGroup extends CentreonObject
      * This method gets SessionRepository from Service container
      *
      * @return ReadSessionRepositoryInterface
+     * @throws LogicException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     private function getReadSessionRepository(): ReadSessionRepositoryInterface
     {
-        $kernel = \App\Kernel::createForWeb();
+        $kernel = Kernel::createForWeb();
         $readSessionRepository = $kernel->getContainer()->get(
             ReadSessionRepositoryInterface::class
         );

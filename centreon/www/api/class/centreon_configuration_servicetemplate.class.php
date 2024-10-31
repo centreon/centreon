@@ -38,10 +38,15 @@
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/centreon_configuration_service.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationServicetemplate
+ */
 class CentreonConfigurationServicetemplate extends CentreonConfigurationService
 {
     /**
-     * Constructor
+     * CentreonConfigurationServicetemplate constructor
      */
     public function __construct()
     {
@@ -54,16 +59,12 @@ class CentreonConfigurationServicetemplate extends CentreonConfigurationService
      */
     public function getList()
     {
-        $range = array();
+        $range = [];
         // Check for select2 'q' argument
-        if (isset($this->arguments['q'])) {
-            $q = (string)$this->arguments['q'];
-        } else {
-            $q = '';
-        }
+        $q = isset($this->arguments['q']) ? (string)$this->arguments['q'] : '';
 
         if (isset($this->arguments['l'])) {
-            $templateType = array('0', '1');
+            $templateType = ['0', '1'];
             if (in_array($this->arguments['l'], $templateType)) {
                 $l = $this->arguments['l'];
             } else {
@@ -86,23 +87,21 @@ class CentreonConfigurationServicetemplate extends CentreonConfigurationService
             $range[] = (int)$this->arguments['page_limit'];
         }
 
-        if ($l == '1') {
-            $serviceTemplateList = $this->listWithHostTemplate($q, $range);
-        } else {
-            $serviceTemplateList = $this->listClassic($q, $range);
-        }
+        $serviceTemplateList = $l == '1' ? $this->listWithHostTemplate($q, $range) : $this->listClassic($q, $range);
         return $serviceTemplateList;
     }
 
     /**
      * @param $q
      * @param array $range
+     *
      * @return array
+     * @throws PDOException
      */
-    private function listClassic($q, $range = array())
+    private function listClassic($q, $range = [])
     {
-        $serviceList = array();
-        $queryValues = array();
+        $serviceList = [];
+        $queryValues = [];
 
         $queryContact = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT service_id, service_description ' .
             'FROM service ' .
@@ -123,22 +122,21 @@ class CentreonConfigurationServicetemplate extends CentreonConfigurationService
         }
         $stmt->execute();
         while ($data = $stmt->fetch()) {
-            $serviceList[] = array('id' => $data['service_id'], 'text' => $data['service_description']);
+            $serviceList[] = ['id' => $data['service_id'], 'text' => $data['service_description']];
         }
-        return array(
-            'items' => $serviceList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $serviceList, 'total' => (int) $this->pearDB->numberRows()];
     }
 
     /**
      * @param string $q
      * @param array $range
+     *
      * @return array
+     * @throws PDOException
      */
-    private function listWithHostTemplate($q = '', $range = array())
+    private function listWithHostTemplate($q = '', $range = [])
     {
-        $queryValues = array();
+        $queryValues = [];
         $queryValues['description'] = '%' . (string)$q . '%';
         $queryService = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT s.service_description, s.service_id, ' .
             'h.host_name, h.host_id ' .
@@ -161,19 +159,13 @@ class CentreonConfigurationServicetemplate extends CentreonConfigurationService
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $serviceList = array();
+        $serviceList = [];
         while ($data = $stmt->fetch()) {
             $serviceCompleteName = $data['host_name'] . ' - ' . $data['service_description'];
             $serviceCompleteId = $data['host_id'] . '-' . $data['service_id'];
 
-            $serviceList[] = array(
-                'id' => htmlentities($serviceCompleteId),
-                'text' => $serviceCompleteName
-            );
+            $serviceList[] = ['id' => htmlentities($serviceCompleteId), 'text' => $serviceCompleteName];
         }
-        return array(
-            'items' => $serviceList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $serviceList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

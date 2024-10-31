@@ -151,7 +151,7 @@ Then(
       const now = new Date();
 
       // Add 2 hours to the current time
-      now.setHours(now.getHours() + 2);
+      now.setHours(now.getHours() + 1);
 
       // Format the hours and minutes with leading zeros if needed
       const hours = String(now.getHours()).padStart(2, '0');
@@ -230,7 +230,9 @@ When(
   'the dashboard administrator user duplicates the Clock timer widget',
   () => {
     cy.editDashboard(dashboards.default.name);
-    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.get('p[class$="timezone"]').should('be.visible')
+    cy.get('div[class$="clockLabel"] p').should('be.visible')
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click({ force: true });
   }
 );

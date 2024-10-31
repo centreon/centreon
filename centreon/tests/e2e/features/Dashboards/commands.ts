@@ -82,7 +82,7 @@ Cypress.Commands.add('editWidget', (nameOrPosition) => {
 
 Cypress.Commands.add(
   'waitUntilForDashboardRoles',
-  (accessRightsTestId, expectedElementCount) => {
+  (accessRightsTestId, expectedElementCount, closeIconIndex) => {
     const openModalAndCheck: () => Cypress.Chainable<boolean> = () => {
       cy.getByTestId({ testId: accessRightsTestId }).invoke('show').click();
       cy.get('.MuiSelect-select').should('be.visible');
@@ -91,7 +91,11 @@ Cypress.Commands.add(
         .get('.MuiSelect-select')
         .should('be.visible')
         .then(($element) => {
-          cy.getByTestId({ testId: 'CloseIcon' }).click();
+          if (closeIconIndex !== undefined) {
+            cy.getByTestId({ testId: 'CloseIcon' }).eq(closeIconIndex).click();
+          } else {
+            cy.getByTestId({ testId: 'CloseIcon' }).click();
+          }
 
           return cy.wrap($element.length === expectedElementCount);
         });
@@ -299,9 +303,117 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('addNewHostAndReturnId', (hostData = {}) => {
+  const defaultHostData = {
+    address: '127.0.0.1',
+    alias: 'generic-active-host',
+    groups: [53],
+    macros: [
+      {
+        description: 'Some text to describe the macro',
+        is_password: false,
+        name: 'MacroName',
+        value: 'macroValue'
+      }
+    ],
+    monitoring_server_id: 1,
+    name: 'generic-active-host',
+    templates: [2]
+  };
+
+  const requestBody = { ...defaultHostData, ...hostData };
+
+  cy.request({
+    body: requestBody,
+    method: 'POST',
+    url: '/centreon/api/latest/configuration/hosts'
+  }).then((response) => {
+    expect(response.status).to.eq(201);
+    return response.body.id;
+  });
+});
+
+Cypress.Commands.add('getServiceIdByName', (serviceName) => {
+  return cy
+    .request({
+      method: 'GET',
+      url: '/centreon/api/latest/monitoring/services'
+    })
+    .then((response) => {
+      const service = response.body.result.find(
+        (s) => s.display_name === serviceName
+      );
+      if (service) {
+        return service.id;
+      }
+      throw new Error(`Service with name ${serviceName} not found`);
+    });
+});
+
+Cypress.Commands.add('patchServiceWithHost', (hostId, serviceId) => {
+  const patchData = {
+    host_id: hostId
+  };
+  cy.request({
+    body: patchData,
+    method: 'PATCH',
+    url: `/centreon/api/latest/configuration/services/${serviceId}`
+  }).then((response) => {
+    expect(response.status).to.eq(204);
+  });
+});
+
 interface Dashboard {
   description?: string;
   name: string;
+}
+
+interface HostDataType {
+  acknowledgement_timeout: number;
+  action_url: string;
+  active_check_enabled: number;
+  add_inherited_contact: boolean;
+  add_inherited_contact_group: boolean;
+  address: string;
+  alias: string;
+  categories: Array<number>;
+  check_command_args: Array<string>;
+  check_command_id: number;
+  check_timeperiod_id: number;
+  comment: string;
+  event_handler_command_args: Array<string>;
+  event_handler_command_id: number;
+  event_handler_enabled: number;
+  first_notification_delay: number;
+  flap_detection_enabled: number;
+  freshness_checked: number;
+  freshness_threshold: number;
+  geo_coords: string;
+  groups: Array<number>;
+  high_flap_threshold: number;
+  icon_alternative: string;
+  icon_id: number;
+  is_activated: boolean;
+  low_flap_threshold: number;
+  macros: Array<object>;
+  max_check_attempts: number;
+  monitoring_server_id: number;
+  name: string;
+  snmp_community: string;
+  note: string;
+  note_url: string;
+  notification_enabled: number;
+  normal_check_interval: number;
+  notification_options: number;
+  snmp_version: string;
+  passive_check_enabled: number;
+  recovery_notification_delay: number;
+  retry_check_interval: number;
+  notification_interval: number;
+  timezone_id: number;
+  notification_timeperiod_id: number;
+  templates: Array<number>;
+  severity_id: number;
 }
 
 type metricsGraphWidgetJSONData = typeof metricsGraphWidget;
@@ -323,14 +435,22 @@ type widgetJSONData =
 declare global {
   namespace Cypress {
     interface Chainable {
+      addNewHostAndReturnId: (
+        hostData?: Partial<HostDataType>
+      ) => Cypress.Chainable;
       applyAcl: () => Cypress.Chainable;
       editDashboard: (name: string) => Cypress.Chainable;
       editWidget: (nameOrPosition: string | number) => Cypress.Chainable;
       enableDashboardFeature: () => Cypress.Chainable;
       getCellContent: (rowIndex: number, colIndex: number) => Cypress.Chainable;
+      getServiceIdByName: (serviceName: string) => Cypress.Chainable;
       insertDashboardWithWidget: (
         dashboard: Dashboard,
         patch: widgetJSONData
+      ) => Cypress.Chainable;
+      patchServiceWithHost: (
+        hostId: string,
+        serviceId: string
       ) => Cypress.Chainable;
       verifyDuplicatesGraphContainer: (metrics) => Cypress.Chainable;
       verifyGraphContainer: (metrics) => Cypress.Chainable;
@@ -343,7 +463,8 @@ declare global {
       visitDashboards: () => Cypress.Chainable;
       waitUntilForDashboardRoles: (
         accessRightsTestId: string,
-        expectedElementCount: number
+        expectedElementCount: number,
+        closeIconIndex?:number
       ) => Cypress.Chainable;
       waitUntilPingExists: () => Cypress.Chainable;
     }

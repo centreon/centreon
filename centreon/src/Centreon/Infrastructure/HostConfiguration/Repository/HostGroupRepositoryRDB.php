@@ -258,7 +258,7 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
     public function findByNames(array $groupsName): array
     {
         $hostGroups = [];
-        if (empty($groupsName)) {
+        if ($groupsName === []) {
             return $hostGroups;
         }
         $statement = $this->db->prepare(

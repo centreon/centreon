@@ -57,18 +57,20 @@ use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
  *          ds_color_line: string,
  *          ds_transparency: ?float,
  *          ds_color_area: ?string,
+ *          ds_color_area_warn?: string,
+ *          ds_color_area_crit?: string,
  *          legend: ?string,
  *          ds_filled: ?int,
  *          ds_invert: ?int,
  *          ds_stack: ?int,
- *          ds_order: ?int
+ *          ds_order: ?int,
  *     },
  *     warn: ?float,
  *     warn_low: ?float,
  *     crit: ?float,
  *     crit_low: ?float,
- *     ds_color_area_warn: string,
- *     ds_color_area_crit: string,
+ *     ds_color_area_warn?: string,
+ *     ds_color_area_crit?: string,
  *     data: array<float|null>,
  *     prints: array<array<string>>,
  *     min: ?float,
@@ -98,6 +100,8 @@ use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
  *     ds_color_line_mode: int,
  *     ds_color_line: string,
  *     ds_transparency: ?float,
+ *     ds_color_area_warn?: string,
+ *     ds_color_area_crit?: string,
  *     ds_color_area: ?string,
  *     legend: ?string,
  *     ds_filled: ?int,
@@ -129,9 +133,9 @@ class PerformanceMetricsDataFactory
             $times[] = $metricData['times'];
         }
 
-        $base = ! empty($metricBases) ? $this->getHighestBase($metricBases) : PerformanceMetricsData::DEFAULT_BASE;
-        $metricsInfo = ! empty($metrics) ? $this->createMetricInformations($metrics, $metricNames) : [];
-        $times = ! empty($times) ? $this->getTimes($times) : [];
+        $base = $metricBases !== [] ? $this->getHighestBase($metricBases) : PerformanceMetricsData::DEFAULT_BASE;
+        $metricsInfo = $metrics !== [] ? $this->createMetricInformations($metrics, $metricNames) : [];
+        $times = $times !== [] ? $this->getTimes($times) : [];
 
         return new PerformanceMetricsData($base, $metricsInfo, $times);
     }
@@ -172,7 +176,9 @@ class PerformanceMetricsDataFactory
         $metrics = [];
         foreach ($metricsData as $hostName => $metricData) {
             \preg_match('/^index:\d+;host_name:([[:ascii:]]+)$/', $hostName, $matches);
-            $hostName = $matches[1];
+            if ($matches !== []) {
+                $hostName = $matches[1];
+            }
             foreach ($metricData as $metric) {
                 if (in_array($metric['metric'], $metricNames, true)) {
                     $metric['metric'] = $hostName . ': ' . $metric['metric'];
@@ -253,8 +259,8 @@ class PerformanceMetricsDataFactory
                     $metric['warn_low'] !== null ? (float) $metric['warn_low'] : null,
                     $metric['crit'] !== null ? (float) $metric['crit'] : null,
                     $metric['crit_low'] !== null ? (float) $metric['crit_low'] : null,
-                    $metric['ds_color_area_warn'],
-                    $metric['ds_color_area_crit']
+                    $metric['ds_color_area_warn'] ?? $dsData['ds_color_area_warn'] ?? '',
+                    $metric['ds_color_area_crit'] ?? $dsData['ds_color_area_crit'] ?? ''
                 );
 
                 $realTimeDataInformation = new RealTimeDataInformation(

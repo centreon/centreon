@@ -18,12 +18,21 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
+/**
+ * Class
+ *
+ * @class HtmlAnalyzer
+ */
 class HtmlAnalyzer
 {
-    private int $index;
+    /** @var int */
+    private int $index = -1;
+    /** @var mixed|string */
     private mixed $stringToSanitize;
+    /** @var int */
     private int $deepTag = 0;
 
     /**
@@ -48,9 +57,7 @@ class HtmlAnalyzer
      */
     public function __construct(string $stringToSanitize)
     {
-        $this->index = -1;
         $this->stringToSanitize = $stringToSanitize;
-        $this->deepTag = 0;
     }
 
     /**

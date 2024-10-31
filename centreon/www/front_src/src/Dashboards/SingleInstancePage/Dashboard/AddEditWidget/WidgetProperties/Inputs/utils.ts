@@ -1,5 +1,5 @@
-import { FormikValues } from 'formik';
-import { TFunction } from 'i18next';
+import type { FormikValues } from 'formik';
+import type { TFunction } from 'i18next';
 import {
   path,
   always,
@@ -24,7 +24,7 @@ import {
   string
 } from 'yup';
 import {
-  FederatedWidgetOption,
+  type FederatedWidgetOption,
   FederatedWidgetOptionType
 } from '../../../../../../federatedModules/models';
 import {
@@ -33,8 +33,8 @@ import {
   labelRequired
 } from '../../../translatedLabels';
 import {
-  ShowInput,
-  WidgetDataResource,
+  type ShowInput,
+  type WidgetDataResource,
   WidgetResourceType
 } from '../../models';
 
@@ -130,7 +130,7 @@ const getYupValidatorType = ({
               .optional()
           )
           .when('resources', ([resources], schema) => {
-            const hasMetaService = resources.some(({ resourceType }) =>
+            const hasMetaService = resources?.some(({ resourceType }) =>
               equals(resourceType, WidgetResourceType.metaService)
             );
 
@@ -213,14 +213,14 @@ export const showInput = ({
   const dependencyValue = path(when.split('.'), values) as Array<object>;
 
   if (notContains) {
-    return notContains.some(
+    return notContains?.some(
       ({ key, value }) =>
         !includes(value, pluck(key, dependencyValue).join(','))
     );
   }
 
   if (contains) {
-    return contains.some(({ key, value }) =>
+    return contains?.some(({ key, value }) =>
       includes(value, pluck(key, dependencyValue).join(','))
     );
   }

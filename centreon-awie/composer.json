@@ -1,35 +1,49 @@
 {
-    "name": "centreon/centreon-awie",
-    "version": "23.04.0",
-    "type": "project",
-    "license": "Apache-2.0",
-    "scripts": {
-        "codestyle": "phpcs --extensions=php --standard=./ruleset.xml ./",
-        "codestyle:ci": "@codestyle --report=checkstyle --report-file=./build/checkstyle.xml --no-cache"
-    },
-    "repositories": [{
-        "type": "path",
-        "url": "../centreon"
-    }],
-    "require": {
-        "centreon/centreon": "dev-develop"
-    },
-    "require-dev": {
-        "behat/behat": "^3.10",
-        "behat/mink-selenium2-driver": "^1.5",
-        "friends-of-behat/mink": "^1.9",
-        "friends-of-behat/mink-extension": "^2.5",
-        "centreon/centreon-test-lib": "dev-master",
-        "squizlabs/php_codesniffer": "3.5.8",
-        "psr/container": "1.1.1"
-    },
-    "config": {
-        "secure-http": false,
-        "platform": {
-            "php": "8.1"
-        },
-        "allow-plugins": {
-            "symfony/flex": false
-        }
+  "name": "centreon/centreon-awie",
+  "version": "24.10.0",
+  "type": "project",
+  "license": "Apache-2.0",
+  "require-dev": {
+    "behat/behat": "^3.10",
+    "behat/mink-selenium2-driver": "^1.5",
+    "centreon/centreon": "@dev",
+    "centreon/centreon-test-lib": "24.10.x-dev",
+    "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
+    "friends-of-behat/mink": "^1.9",
+    "friends-of-behat/mink-extension": "^2.5",
+    "friendsofphp/php-cs-fixer": "3.64.*",
+    "phpcompatibility/php-compatibility": "9.3.*",
+    "phpstan/phpstan": "1.12.*",
+    "psr/container": "1.1.1",
+    "rector/rector": "1.2.*",
+    "squizlabs/php_codesniffer": "3.10.*"
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../centreon"
     }
+  ],
+  "config": {
+    "secure-http": false,
+    "sort-packages": true,
+    "platform": {
+      "php": "8.2"
+    },
+    "allow-plugins": {
+      "symfony/flex": false,
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "pestphp/pest-plugin": true
+    }
+  },
+  "scripts": {
+    "phpcs": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff",
+    "phpcs:exec": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --diff",
+    "phpcs:ci": "@phpcs",
+    "phpstan": "phpstan analyse -c phpstan.neon --level=6 --memory-limit=512M --debug",
+    "phpstan:ci": "@phpstan --no-progress",
+    "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
+    "rector:check": "rector --dry-run --debug",
+    "rector:exec": "rector --debug"
+  }
 }

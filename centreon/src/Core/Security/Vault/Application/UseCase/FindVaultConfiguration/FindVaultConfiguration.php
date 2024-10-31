@@ -25,7 +25,7 @@ namespace Core\Security\Vault\Application\UseCase\FindVaultConfiguration;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, NotFoundResponse, PresenterInterface};
+use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, NotFoundResponse};
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
@@ -45,15 +45,15 @@ final class FindVaultConfiguration
     }
 
     /**
-     * @param PresenterInterface $presenter
+     * @param FindVaultConfigurationPresenterInterface $presenter
      */
     public function __invoke(
-        PresenterInterface $presenter,
+        FindVaultConfigurationPresenterInterface $presenter,
     ): void {
         try {
             if (! $this->user->isAdmin()) {
                 $this->error('User is not admin', ['user' => $this->user->getName()]);
-                $presenter->setResponseStatus(
+                $presenter->presentResponse(
                     new ForbiddenResponse(VaultConfigurationException::onlyForAdmin()->getMessage())
                 );
 
@@ -62,7 +62,7 @@ final class FindVaultConfiguration
 
             if (! $this->readVaultConfigurationRepository->exists()) {
                 $this->error('Vault configuration not found');
-                $presenter->setResponseStatus(
+                $presenter->presentResponse(
                     new NotFoundResponse('Vault configuration')
                 );
 
@@ -72,13 +72,13 @@ final class FindVaultConfiguration
             /** @var VaultConfiguration $vaultConfiguration */
             $vaultConfiguration = $this->readVaultConfigurationRepository->find();
 
-            $presenter->present($this->createResponse($vaultConfiguration));
+            $presenter->presentResponse($this->createResponse($vaultConfiguration));
         } catch (\Throwable $ex) {
             $this->error(
                 'An error occurred in while getting vault configuration',
                 ['trace' => $ex->getTraceAsString()]
             );
-            $presenter->setResponseStatus(
+            $presenter->presentResponse(
                 new ErrorResponse(VaultConfigurationException::impossibleToFind()->getMessage())
             );
         }
@@ -92,9 +92,9 @@ final class FindVaultConfiguration
     private function createResponse(VaultConfiguration $vaultConfiguration): FindVaultConfigurationResponse
     {
         $findVaultConfigurationResponse = new FindVaultConfigurationResponse();
-        $findVaultConfigurationResponse->vaultConfiguration['url'] = $vaultConfiguration->getAddress();
-        $findVaultConfigurationResponse->vaultConfiguration['port'] = $vaultConfiguration->getPort();
-        $findVaultConfigurationResponse->vaultConfiguration['root_path'] = $vaultConfiguration->getRootPath();
+        $findVaultConfigurationResponse->address = $vaultConfiguration->getAddress();
+        $findVaultConfigurationResponse->port = $vaultConfiguration->getPort();
+        $findVaultConfigurationResponse->rootPath = $vaultConfiguration->getRootPath();
 
         return $findVaultConfigurationResponse;
     }

@@ -35,55 +35,79 @@
  */
 
 // file centreon.config.php may not exist in test environment
-$configFile = realpath(dirname(__FILE__) . "/../../../config/centreon.config.php");
+
+use App\Kernel;
+use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
+use Pimple\Container;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
+$configFile = realpath(__DIR__ . "/../../../config/centreon.config.php");
 if ($configFile !== false) {
     require_once $configFile;
 }
 
-require_once dirname(__FILE__) . '/abstract/object.class.php';
-require_once dirname(__FILE__) . '/abstract/objectJSON.class.php';
-require_once dirname(__FILE__) . '/backend.class.php';
-require_once dirname(__FILE__) . '/broker.class.php';
-require_once dirname(__FILE__) . '/command.class.php';
-require_once dirname(__FILE__) . '/connector.class.php';
-require_once dirname(__FILE__) . '/contact.class.php';
-require_once dirname(__FILE__) . '/contactgroup.class.php';
-require_once dirname(__FILE__) . '/dependency.class.php';
-require_once dirname(__FILE__) . '/engine.class.php';
-require_once dirname(__FILE__) . '/escalation.class.php';
-require_once dirname(__FILE__) . '/host.class.php';
-require_once dirname(__FILE__) . '/hostcategory.class.php';
-require_once dirname(__FILE__) . '/hostgroup.class.php';
-require_once dirname(__FILE__) . '/hosttemplate.class.php';
-require_once dirname(__FILE__) . '/macro.class.php';
-require_once dirname(__FILE__) . '/media.class.php';
-require_once dirname(__FILE__) . '/meta_command.class.php';
-require_once dirname(__FILE__) . '/meta_host.class.php';
-require_once dirname(__FILE__) . '/meta_service.class.php';
-require_once dirname(__FILE__) . '/meta_timeperiod.class.php';
-require_once dirname(__FILE__) . '/resource.class.php';
-require_once dirname(__FILE__) . '/service.class.php';
-require_once dirname(__FILE__) . '/servicecategory.class.php';
-require_once dirname(__FILE__) . '/servicegroup.class.php';
-require_once dirname(__FILE__) . '/servicetemplate.class.php';
-require_once dirname(__FILE__) . '/severity.class.php';
-require_once dirname(__FILE__) . '/timeperiod.class.php';
-require_once dirname(__FILE__) . '/timezone.class.php';
-require_once dirname(__FILE__) . '/vault.class.php';
+require_once __DIR__ . '/abstract/object.class.php';
+require_once __DIR__ . '/abstract/objectJSON.class.php';
+require_once __DIR__ . '/backend.class.php';
+require_once __DIR__ . '/broker.class.php';
+require_once __DIR__ . '/command.class.php';
+require_once __DIR__ . '/connector.class.php';
+require_once __DIR__ . '/contact.class.php';
+require_once __DIR__ . '/contactgroup.class.php';
+require_once __DIR__ . '/dependency.class.php';
+require_once __DIR__ . '/engine.class.php';
+require_once __DIR__ . '/escalation.class.php';
+require_once __DIR__ . '/host.class.php';
+require_once __DIR__ . '/hostcategory.class.php';
+require_once __DIR__ . '/hostgroup.class.php';
+require_once __DIR__ . '/hosttemplate.class.php';
+require_once __DIR__ . '/macro.class.php';
+require_once __DIR__ . '/media.class.php';
+require_once __DIR__ . '/meta_command.class.php';
+require_once __DIR__ . '/meta_host.class.php';
+require_once __DIR__ . '/meta_service.class.php';
+require_once __DIR__ . '/meta_timeperiod.class.php';
+require_once __DIR__ . '/resource.class.php';
+require_once __DIR__ . '/service.class.php';
+require_once __DIR__ . '/servicecategory.class.php';
+require_once __DIR__ . '/servicegroup.class.php';
+require_once __DIR__ . '/servicetemplate.class.php';
+require_once __DIR__ . '/severity.class.php';
+require_once __DIR__ . '/timeperiod.class.php';
+require_once __DIR__ . '/timezone.class.php';
+require_once __DIR__ . '/vault.class.php';
+require_once __DIR__ . '/AdditionalConnectorVmWareV6.class.php';
 
+/**
+ * Class
+ *
+ * @class Generate
+ */
 class Generate
 {
     private const GENERATION_FOR_ENGINE = 1;
     private const GENERATION_FOR_BROKER = 2;
 
-    private $poller_cache = array();
+    /** @var array */
+    private $poller_cache = [];
+    /** @var Backend|null */
     private $backend_instance = null;
+    /** @var null */
     private $current_poller = null;
+    /** @var null */
     private $installed_modules = null;
+    /** @var null */
     private $module_objects = null;
+    /** @var Container|null */
     protected $dependencyInjector = null;
 
-    public function __construct(\Pimple\Container $dependencyInjector)
+    /**
+     * Generate constructor
+     *
+     * @param Container $dependencyInjector
+     */
+    public function __construct(Container $dependencyInjector)
     {
         $this->dependencyInjector = $dependencyInjector;
         $this->backend_instance = Backend::getInstance($this->dependencyInjector);
@@ -93,7 +117,9 @@ class Generate
      * Insert services in index_data
      *
      * @param bool $isLocalhost (FALSE by default)
+     *
      * @return void
+     * @throws PDOException
      */
     private function generateIndexData($isLocalhost = false): void
     {
@@ -107,7 +133,7 @@ class Generate
         $bindParams = [];
         $bulkCount = 0;
 
-        $bulkInsert = function () use (&$valuesQueries, &$bindParams, &$bulkCount) {
+        $bulkInsert = function () use (&$valuesQueries, &$bindParams, &$bulkCount): void {
             $stmt = $this->backend_instance->db_cs->prepare(
                 'INSERT INTO index_data (host_id, service_id, host_name, service_description) VALUES '
                 . implode(',', $valuesQueries)
@@ -115,7 +141,7 @@ class Generate
                 . ' host_name=VALUES(host_name), service_description=VALUES(service_description) '
             );
 
-            foreach ($bindParams as $bindKey => list($bindValue, $bindType)) {
+            foreach ($bindParams as $bindKey => [$bindValue, $bindType]) {
                 $stmt->bindValue($bindKey, $bindValue, $bindType);
             }
 
@@ -130,10 +156,10 @@ class Generate
             $hostName = $hostInstance->getString($hostId, 'host_name');
             foreach ($values as $serviceId) {
                 $serviceDescription = $serviceInstance->getString($serviceId, 'service_description');
-                $bindParams[":host_id_{$hostId}"] = [$hostId, \PDO::PARAM_INT];
-                $bindParams[":service_id_{$serviceId}"] = [$serviceId, \PDO::PARAM_INT];
-                $bindParams[":host_name_{$hostId}"] = [$hostName, \PDO::PARAM_STR];
-                $bindParams[":service_description_{$serviceId}"] = [$serviceDescription, \PDO::PARAM_STR];
+                $bindParams[":host_id_{$hostId}"] = [$hostId, PDO::PARAM_INT];
+                $bindParams[":service_id_{$serviceId}"] = [$serviceId, PDO::PARAM_INT];
+                $bindParams[":host_name_{$hostId}"] = [$hostName, PDO::PARAM_STR];
+                $bindParams[":service_description_{$serviceId}"] = [$serviceDescription, PDO::PARAM_STR];
                 $valuesQueries[] = "(
                     :host_id_{$hostId},
                     :service_id_{$serviceId},
@@ -152,10 +178,10 @@ class Generate
             $metaServices = MetaService::getInstance($this->dependencyInjector)->getMetaServices();
             $hostId = MetaHost::getInstance($this->dependencyInjector)->getHostIdByHostName('_Module_Meta');
             foreach ($metaServices as $metaId => $metaService) {
-                $bindParams[":host_id_{$hostId}"] = [$hostId, \PDO::PARAM_INT];
-                $bindParams[":meta_service_id_{$metaId}"] = [$metaService['service_id'], \PDO::PARAM_INT];
-                $bindParams[":host_name_{$hostId}"] = ['_Module_Meta', \PDO::PARAM_STR];
-                $bindParams[":meta_service_description_{$metaId}"] = ['meta_' . $metaId, \PDO::PARAM_STR];
+                $bindParams[":host_id_{$hostId}"] = [$hostId, PDO::PARAM_INT];
+                $bindParams[":meta_service_id_{$metaId}"] = [$metaService['service_id'], PDO::PARAM_INT];
+                $bindParams[":host_name_{$hostId}"] = ['_Module_Meta', PDO::PARAM_STR];
+                $bindParams[":meta_service_description_{$metaId}"] = ['meta_' . $metaId, PDO::PARAM_STR];
                 $valuesQueries[] = "(
                     :host_id_{$hostId},
                     :meta_service_id_{$metaId},
@@ -178,7 +204,9 @@ class Generate
      * Insert services created by modules in index_data
      *
      * @param bool $isLocalhost (FALSE by default)
+     *
      * @return void
+     * @throws PDOException
      */
     private function generateModulesIndexData($isLocalhost = false): void
     {
@@ -198,6 +226,12 @@ class Generate
         }
     }
 
+    /**
+     * @param $poller_id
+     *
+     * @return void
+     * @throws PDOException
+     */
     private function getPollerFromId($poller_id): void
     {
         $query = "SELECT id, localhost,  centreonconnector_path FROM nagios_server " .
@@ -212,6 +246,12 @@ class Generate
         }
     }
 
+    /**
+     * @param $poller_name
+     *
+     * @return void
+     * @throws PDOException
+     */
     private function getPollerFromName($poller_name): void
     {
         $query = "SELECT id, localhost, centreonconnector_path FROM nagios_server " .
@@ -226,6 +266,10 @@ class Generate
         }
     }
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     public function resetObjectsEngine(): void
     {
         Host::getInstance($this->dependencyInjector)->reset();
@@ -251,15 +295,39 @@ class Generate
         Resource::getInstance($this->dependencyInjector)->reset();
         Engine::getInstance($this->dependencyInjector)->reset();
         Broker::getInstance($this->dependencyInjector)->reset();
+
+        $kernel = Kernel::createForWeb();
+        $readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
+            ?? throw new \Exception('ReadAccRepositoryInterface not found');
+        (new AdditionalConnectorVmWareV6(
+            Backend::getInstance($this->dependencyInjector),
+            $readAdditionalConnectorRepository
+        ))->reset();
         $this->resetModuleObjects();
     }
 
+    /**
+     * @param $username
+     *
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
     private function configPoller($username = 'unknown'): void
     {
         $this->backend_instance->setUserName($username);
         $this->backend_instance->initPath($this->current_poller['id']);
         $this->backend_instance->setPollerId($this->current_poller['id']);
         $this->resetObjectsEngine();
+        $kernel = Kernel::createForWeb();
+        $readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
+            ?? throw new \Exception('ReadAccRepositoryInterface not found');
+        (new AdditionalConnectorVmWareV6(
+            $this->backend_instance,
+            $readAdditionalConnectorRepository
+        ))->generateFromPollerId($this->current_poller['id']);
 
         Vault::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);
         Host::getInstance($this->dependencyInjector)->generateFromPollerId(
@@ -280,6 +348,12 @@ class Generate
         $this->generateModulesIndexData($this->current_poller['localhost'] === '1');
     }
 
+    /**
+     * @param $poller_name
+     *
+     * @return void
+     * @throws Exception
+     */
     public function configPollerFromName($poller_name): void
     {
         try {
@@ -292,6 +366,13 @@ class Generate
         }
     }
 
+    /**
+     * @param $poller_id
+     * @param $username
+     *
+     * @return void
+     * @throws Exception
+     */
     public function configPollerFromId($poller_id, $username = 'unknown'): void
     {
         try {
@@ -306,6 +387,12 @@ class Generate
         }
     }
 
+    /**
+     * @param $username
+     *
+     * @return void
+     * @throws PDOException
+     */
     public function configPollers($username = 'unknown'): void
     {
         $query = "SELECT id, localhost, centreonconnector_path FROM " .
@@ -318,12 +405,16 @@ class Generate
         }
     }
 
+    /**
+     * @return void|null
+     * @throws PDOException
+     */
     public function getInstalledModules()
     {
         if (!is_null($this->installed_modules)) {
             return $this->installed_modules;
         }
-        $this->installed_modules = array();
+        $this->installed_modules = [];
         $stmt = $this->backend_instance->db->prepare("SELECT name FROM modules_informations");
         $stmt->execute();
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
@@ -331,7 +422,11 @@ class Generate
         }
     }
 
-    public function getModuleObjects()
+    /**
+     * @return void
+     * @throws PDOException
+     */
+    public function getModuleObjects(): void
     {
         $this->getInstalledModules();
 
@@ -350,7 +445,9 @@ class Generate
 
     /**
      * @param int $type (1: engine, 2: broker)
+     *
      * @return void
+     * @throws PDOException
      */
     public function generateModuleObjects(int $type = self::GENERATION_FOR_ENGINE): void
     {
@@ -376,6 +473,10 @@ class Generate
         }
     }
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     public function resetModuleObjects(): void
     {
         if (is_null($this->module_objects)) {
@@ -396,7 +497,7 @@ class Generate
      */
     public function reset(): void
     {
-        $this->poller_cache = array();
+        $this->poller_cache = [];
         $this->current_poller = null;
         $this->installed_modules = null;
         $this->module_objects = null;

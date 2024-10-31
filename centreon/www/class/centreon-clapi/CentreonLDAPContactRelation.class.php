@@ -22,6 +22,11 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_Contact;
+use Exception;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonObject.class.php";
 require_once "centreonUtils.class.php";
 require_once "centreonTimePeriod.class.php";
@@ -32,34 +37,42 @@ require_once "Centreon/Object/Relation/Contact/Command/Service.php";
 require_once "centreonLDAP.class.php";
 
 /**
- * Class representating relation between a contact and his LDAP configuration
+ * Class
+ *
+ * @class CentreonLDAPContactRelation
+ * @package CentreonClapi
+ * @description Class representating relation between a contact and his LDAP configuration
  */
 class CentreonLDAPContactRelation extends CentreonObject
 {
     private const ORDER_NAME = 0;
     private const LDAP_PARAMETER_NAME = "ar_name";
 
-    /**
-     * @var int
-     */
-    protected $register;
+    /** @var string[] */
     public static $aDepends = [
         'CONTACT',
         'LDAP'
     ];
+    /** @var CentreonLdap */
+    public $ldap;
+    /** @var Centreon_Object_Contact */
+    public $contact;
+    /** @var int */
+    protected $register = 1;
 
     /**
-     * Constructor
-     * @param \Pimple\Container $dependencyInjector
-     * @return void
+     * CentreonLDAPContactRelation constructor
+     *
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->ldap = new CentreonLdap($dependencyInjector);
-        $this->contact = new \Centreon_Object_Contact($dependencyInjector);
+        $this->contact = new Centreon_Object_Contact($dependencyInjector);
         $this->action = "LDAPCONTACT";
-        $this->register = 1;
         $this->activateField = 'contact_activate';
     }
 
@@ -79,8 +92,10 @@ class CentreonLDAPContactRelation extends CentreonObject
     /**
      * Export data
      *
-     * @param string|null $filterName
+     * @param null $filterName
+     *
      * @return bool
+     * @throws Exception
      */
     public function export($filterName = null): bool
     {

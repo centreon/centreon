@@ -35,21 +35,33 @@
 
 require_once __DIR__ . "/../Select2.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonWidgetParamsConnectorServiceMulti
+ */
 class CentreonWidgetParamsConnectorServiceMulti extends CentreonWidgetParamsSelect2
 {
+    /**
+     * CentreonWidgetParamsConnectorServiceMulti constructor
+     *
+     * @param $db
+     * @param $quickform
+     * @param $userId
+     *
+     * @throws PDOException
+     */
     public function __construct($db, $quickform, $userId)
     {
         parent::__construct($db, $quickform, $userId);
     }
 
+    /**
+     * @return array
+     */
     public function getParameters()
     {
         $path = './include/common/webServices/rest/internal.php?object=centreon_configuration_service&action=list';
-        return array(
-            'datasourceOrigin' => 'ajax',
-            'availableDatasetRoute' => $path,
-            'multiple' => true,
-            'linkedObject' => 'centreonService'
-        );
+        return ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $path, 'multiple' => true, 'linkedObject' => 'centreonService'];
     }
 }

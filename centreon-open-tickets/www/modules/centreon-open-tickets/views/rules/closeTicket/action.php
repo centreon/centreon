@@ -58,7 +58,10 @@ $centreon_bg = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1,
 $db = $dependencyInjector['configuration_db'];
 $rule = new Centreon_OpenTickets_Rule($db);
 
-$data = isset($_POST['data']) ? json_decode($_POST['data'], true) : null;
+$request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+$payload = json_decode($request->getContent(), true);
+
+$data = $payload['data'] ?? null;
 
 if ($data === null) {
     $resultat = ['code' => 1, 'msg' => 'POST data key missing'];
@@ -70,7 +73,7 @@ if ($data === null) {
 
 if (
     ! isset($data['rule_id'])
-    || ! is_int($data['rule_id'])
+    || (int) $data['rule_id'] <= 0
 ) {
     $resultat = ['code' => 1, 'msg' => 'Rule ID should be provided as an integer'];
     header('Content-type: text/plain');

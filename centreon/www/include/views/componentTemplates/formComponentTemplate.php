@@ -74,7 +74,7 @@ $stmt->closeCursor();
  */
 $dataSources = [];
 $stmt = $pearDBO->query(
-    'SELECT 1 AS REALTIME, `metric_name`, `unit_name` FROM `metrics` GROUP BY `metric_name` ORDER BY `metric_name`'
+    'SELECT 1 AS REALTIME, `metric_name`, `unit_name` FROM `metrics` GROUP BY `metric_name`, `unit_name` ORDER BY `metric_name`'
 );
 while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
     $dataSources[$row['metric_name']] = $row['metric_name'];
@@ -169,11 +169,7 @@ $l_dsColorList = [
 ];
 
 foreach ($l_dsColorList as $l_dsColor => $l_dCData) {
-    if (isset($compo[$l_dsColor]) && !empty($compo[$l_dsColor])) {
-        $l_hxColor = $compo[$l_dsColor];
-    } else {
-        $l_hxColor = $l_dCData['color'];
-    }
+    $l_hxColor = isset($compo[$l_dsColor]) && !empty($compo[$l_dsColor]) ? $compo[$l_dsColor] : $l_dCData['color'];
     $attColText = [
         'value' => $l_hxColor,
         'size' => 7,

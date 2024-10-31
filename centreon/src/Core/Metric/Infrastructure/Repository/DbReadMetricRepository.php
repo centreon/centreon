@@ -63,7 +63,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         $statement->execute();
 
         $records = $statement->fetchAll();
-        if (! is_array($records) || count($records) === 0) {
+        if (! is_array($records) || $records === []) {
             return [];
         }
 

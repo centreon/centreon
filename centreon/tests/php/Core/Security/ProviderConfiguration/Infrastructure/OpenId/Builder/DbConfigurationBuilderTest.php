@@ -34,7 +34,7 @@ use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->customConfiguration = [
         'is_active' => true,
         'client_id' => 'clientid',
@@ -68,7 +68,7 @@ beforeEach(function () {
     ];
 });
 
-it('should throw an exception when a mandatory parameter is empty and configuration is active', function () {
+it('should throw an exception when a mandatory parameter is empty and configuration is active', function (): void {
     $this->customConfiguration['base_url'] = null;
     $configuration = new Configuration(
         2,
@@ -84,7 +84,7 @@ it('should throw an exception when a mandatory parameter is empty and configurat
 it(
     'should throw an exception when both userinformation and introspection '
     . 'endpoints are empty and a configuration is active',
-    function () {
+    function (): void {
         $this->customConfiguration['userinfo_endpoint'] = null;
         $this->customConfiguration['introspection_token_endpoint'] = null;
         $configuration = new Configuration(
@@ -104,7 +104,7 @@ it(
 
 it(
     'should throw an exception when the configuration is active, autoimport enabled but with missing parameters',
-    function () {
+    function (): void {
         $this->customConfiguration['contact_template'] = null;
         $this->customConfiguration['email_bind_attribute'] = null;
         $this->customConfiguration['fullname_bind_attribute'] = null;
@@ -125,11 +125,11 @@ it(
     )->getMessage()
 );
 
-it('should return a Provider when all mandatory parameters are present', function () {
+it('should return a Provider when all mandatory parameters are present', function (): void {
 
     // Note: contact_template and contact_group are overridden
     $this->customConfiguration['contact_template'] = new ContactTemplate(1, 'contact_template');
-    $this->customConfiguration['contact_group'] = new ContactGroup(1, 'contact_group');
+    $this->customConfiguration['contact_group'] = new ContactGroup(1, 'contact_group', 'contact_group');
     $this->customConfiguration['authentication_conditions'] = new AuthenticationConditions(
         true,
         "info.groups",

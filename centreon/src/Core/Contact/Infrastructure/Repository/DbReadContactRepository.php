@@ -23,18 +23,36 @@ declare(strict_types=1);
 
 namespace Core\Contact\Infrastructure\Repository;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\NotEmptyString;
+use Core\Common\Domain\PositiveInteger;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
+use Core\Contact\Domain\Model\BasicContact;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
-class DbReadContactRepository extends AbstractRepositoryDRB implements ReadContactRepositoryInterface
+/**
+ * @phpstan-type _ContactRecord array{
+ *   contact_id: int|string,
+ *   contact_alias: string,
+ *   contact_name: string,
+ *   contact_email: string,
+ *   contact_admin: string,
+ *   contact_activate: string,
+ * }
+ */
+class DbReadContactRepository extends AbstractRepositoryRDB implements ReadContactRepositoryInterface
 {
     use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     public function __construct(DatabaseConnection $db)
     {
@@ -213,14 +231,14 @@ class DbReadContactRepository extends AbstractRepositoryDRB implements ReadConta
         $sqlTranslator->setConcordanceArray([
             'name' => 'c.contact_name',
         ]);
-        $query = <<<'SQL'
+        $query = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS
                 c.contact_id,
                 c.contact_name,
                 c.contact_email,
                 c.contact_admin
             FROM `:db`.contact c
-            SQL;
+            SQL_WRAP;
 
         $searchRequest = $sqlTranslator->translateSearchParameterToSql();
         $query .= $searchRequest !== null
@@ -280,20 +298,21 @@ class DbReadContactRepository extends AbstractRepositoryDRB implements ReadConta
 
         $accessGroupIdsAsString = implode(',', array_keys($bind));
 
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<SQL
+        $statement = $this->db->prepare(
+            $this->translateDbName(<<<SQL
                 SELECT c.contact_id
                 FROM `:db`.contact c
-                         LEFT JOIN `:db`.contactgroup_contact_relation ccr
-                                   ON c.contact_id = ccr.contact_contact_id
-                         LEFT JOIN `:db`.acl_group_contacts_relations gcr
-                                   ON c.contact_id = gcr.contact_contact_id
-                         LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
-                                   ON ccr.contactgroup_cg_id = gcgr.cg_cg_id
+                 LEFT JOIN `:db`.contactgroup_contact_relation ccr
+                           ON c.contact_id = ccr.contact_contact_id
+                 LEFT JOIN `:db`.acl_group_contacts_relations gcr
+                           ON c.contact_id = gcr.contact_contact_id
+                 LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
+                           ON ccr.contactgroup_cg_id = gcgr.cg_cg_id
                 WHERE  gcr.acl_group_id IN ({$accessGroupIdsAsString})
                     OR gcgr.acl_group_id IN ({$accessGroupIdsAsString});
                 SQL
-        ));
+            )
+        );
         foreach ($bind as $token => $accessGroupId) {
             $statement->bindValue($token, $accessGroupId, \PDO::PARAM_INT);
         }
@@ -351,5 +370,246 @@ class DbReadContactRepository extends AbstractRepositoryDRB implements ReadConta
         }
 
         return $admins;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByIds(array $contactIds): array
+    {
+        if ($contactIds === []) {
+            return [];
+        }
+        [$bindValues, $subRequest] = $this->createMultipleBindQuery($contactIds, ':id');
+
+        $statement = $this->db->prepare(
+            $this->translateDbName(<<<SQL
+                SELECT contact_id, contact_name, contact_alias, contact_email,
+                    contact_admin, contact_activate
+                FROM `:db`.contact
+                WHERE contact_id IN ({$subRequest})
+                SQL
+            )
+        );
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+
+        $contacts = [];
+        foreach ($statement as $data) {
+            /** @var _ContactRecord $data */
+            $contacts[] = $this->createBasicContact($data);
+        }
+
+        return $contacts;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function retrieveExistingContactIds(array $contactIds): array
+    {
+        if ($contactIds === []) {
+            return [];
+        }
+
+        [$bindValues, $subRequest] = $this->createMultipleBindQuery($contactIds, ':id_');
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                "SELECT contact_id FROM `:db`.contact WHERE contact_id IN ({$subRequest})"
+            )
+        );
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
+    }
+
+    /**
+     * @inheritDoc
+     *
+     * @throws AssertionFailedException
+     */
+    public function findByAccessGroup(array $accessGroups): array
+    {
+        if ($accessGroups === []) {
+            return [];
+        }
+        $accessGroupIds = array_map(
+            fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        [$accessGroupBindValues, $accessGroupSubRequest] = $this->createMultipleBindQuery($accessGroupIds, ':id_');
+
+        $request = $this->translateDbName(<<<SQL
+            SELECT contact_id, contact_name, contact_alias, contact_email,
+                   contact_admin, contact_activate
+            FROM `:db`.contact
+            LEFT JOIN `:db`.contactgroup_contact_relation cgcr
+                ON cgcr.contact_contact_id = contact.contact_id
+            LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
+                ON gcgr.cg_cg_id = cgcr.contactgroup_cg_id
+            LEFT JOIN `:db`.acl_groups aclcg
+                ON aclcg.acl_group_id = gcgr.acl_group_id
+                AND aclcg.acl_group_activate = '1'
+            LEFT JOIN `:db`.acl_group_contacts_relations gcr
+                ON gcr.contact_contact_id = contact.contact_id
+            LEFT JOIN `:db`.acl_groups aclc
+                ON aclc.acl_group_id = gcr.acl_group_id
+            WHERE contact.contact_register = '1'
+                AND (aclc.acl_group_id IN ({$accessGroupSubRequest}) OR aclcg.acl_group_id IN ({$accessGroupSubRequest}))
+            GROUP BY contact.contact_id
+            SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        foreach ($accessGroupBindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+
+        $contacts = [];
+        foreach ($statement as $result) {
+            /**
+             * @var _ContactRecord $result
+             */
+            $contacts[] = $this->createBasicContact($result);
+        }
+
+        return $contacts;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByAccessGroupsAndUserAndRequestParameters(
+        array $accessGroups,
+        ContactInterface $user,
+        ?RequestParametersInterface $requestParameters = null
+    ): array {
+        if ([] === $accessGroups) {
+            return [];
+        }
+
+        $accessGroupIds = array_map(
+            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $accessGroups
+        );
+        [$binValues, $subRequest] = $this->createMultipleBindQuery($accessGroupIds, ':id_');
+
+        $request = <<<SQL
+            SELECT DISTINCT SQL_CALC_FOUND_ROWS *
+            FROM (
+                SELECT /* Finds associated users in ACL group rules */
+                    contact.contact_id, contact.contact_alias, contact.contact_name,
+                    contact.contact_email, contact.contact_admin, contact.contact_activate
+                FROM `:db`.`contact`
+                INNER JOIN `:db`.`acl_group_contacts_relations` acl_c_rel
+                    ON acl_c_rel.contact_contact_id = contact.contact_id
+                WHERE contact.contact_register = '1'
+                    AND acl_c_rel.acl_group_id IN ({$subRequest})
+                UNION
+                SELECT /* Finds users belonging to associated contact groups in ACL group rules */
+                    contact.contact_id, contact.contact_alias, contact.contact_name,
+                    contact.contact_email, contact.contact_admin, contact.contact_activate
+                FROM `:db`.`contact`
+                INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel
+                    ON c_cg_rel.contact_contact_id = contact.contact_id
+                INNER JOIN `:db`.`acl_group_contactgroups_relations` acl_cg_rel
+                    ON acl_cg_rel.cg_cg_id = c_cg_rel.contactgroup_cg_id
+                WHERE contact.contact_register = '1'
+                    AND acl_cg_rel.acl_group_id IN ({$subRequest})
+                UNION
+                SELECT /* Finds users belonging to the same contact groups as the user */
+                    contact2.contact_id, contact2.contact_alias, contact2.contact_name,
+                    contact2.contact_email, contact2.contact_admin, contact.contact_activate
+                FROM `:db`.`contact`
+                INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel
+                    ON c_cg_rel.contact_contact_id = contact.contact_id
+                INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel2
+                    ON c_cg_rel2.contactgroup_cg_id = c_cg_rel.contactgroup_cg_id
+                INNER JOIN `:db`.`contact` contact2
+                    ON contact2.contact_id = c_cg_rel2.contact_contact_id
+                WHERE c_cg_rel.contact_contact_id  = :user_id
+                    AND contact.contact_register = '1'
+                    AND contact2.contact_register = '1'
+                GROUP BY contact2.contact_id
+            ) as contact
+            SQL;
+
+        // Update the SQL query with the RequestParameters through SqlRequestParametersTranslator
+        $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
+        $sqlTranslator?->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
+        $sqlTranslator?->setConcordanceArray([
+            'id' => 'contact_id',
+            'alias' => 'contact_alias',
+            'name' => 'contact_name',
+            'email' => 'contact_email',
+            'is_admin' => 'contact_admin',
+            'is_activate' => 'contact_activate',
+        ]);
+
+        $searchRequest = $sqlTranslator?->translateSearchParameterToSql();
+        $request .= $searchRequest;
+
+        // handle sort
+        $request .= $sqlTranslator?->translateSortParameterToSql();
+        // handle pagination
+        $request .= $sqlTranslator?->translatePaginationToSql();
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+
+        $statement->bindValue(':user_id', $user->getId(), \PDO::PARAM_INT);
+        foreach ($binValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        if ($sqlTranslator !== null) {
+            foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+                $type = (int) key($data);
+                $value = $data[$type];
+                $statement->bindValue($key, $value, $type);
+            }
+        }
+
+        $statement->execute();
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+
+        // Calculate the number of rows for the pagination.
+        if ($total = $this->calculateNumberOfRows()) {
+            $requestParameters?->setTotal($total);
+        }
+
+        $basicContacts = [];
+        foreach ($statement as $result) {
+            /** @var _ContactRecord $result */
+            $basicContacts[] = $this->createBasicContact($result);
+        }
+
+        return $basicContacts;
+    }
+
+    /**
+     * @param _ContactRecord $data
+     *
+     * @return BasicContact
+     */
+    private function createBasicContact(array $data): BasicContact
+    {
+        return new BasicContact(
+            new PositiveInteger((int) $data['contact_id']),
+            new NotEmptyString($data['contact_name']),
+            new NotEmptyString($data['contact_alias']),
+            new NotEmptyString($data['contact_email']),
+            $data['contact_admin'] === '1',
+            $data['contact_activate'] === '1'
+        );
     }
 }
