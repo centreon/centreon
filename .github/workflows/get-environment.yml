@@ -206,6 +206,10 @@ jobs:
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
+            if ("${{ github.ref_name }}" === "master") {
+              return true;
+            }
+
             if ("${{ github.event_name }}" === "pull_request") {
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               const finalTargetBranch = prPath.pop();

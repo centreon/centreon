@@ -62,23 +62,24 @@ class GenerateAllConfigurations
     public function execute(): void
     {
         try {
-            if (
-                ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ)
-                && ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)
-            ) {
-                throw new AccessDeniedException(
-                    'Insufficient rights (required: ROLE_CONFIGURATION_MONITORING_SERVER_READ or ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)'
-                );
-            }
+            if ($this->contact->isAdmin()) {
+                $monitoringServers = $this->monitoringServerRepository->findServersWithRequestParameters();
+            } else {
+                if (
+                    ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ)
+                    && ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)
+                ) {
+                    throw new AccessDeniedException(
+                        'Insufficient rights (required: ROLE_CONFIGURATION_MONITORING_SERVER_READ or '
+                            . 'ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)'
+                    );
+                }
 
-            if (! $this->contact->isAdmin()) {
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->contact);
 
                 $monitoringServers = $this->monitoringServerRepository->findServersWithRequestParametersAndAccessGroups(
                     $accessGroups
                 );
-            } else {
-                $monitoringServers = $this->monitoringServerRepository->findServersWithRequestParameters();
             }
         } catch(AccessDeniedException $ex) {
             throw new AccessDeniedException($ex->getMessage());

@@ -90,6 +90,29 @@
       cy.exportConfig();
   });
   
+  Cypress.Commands.add('loginByDuplicatedUser', (jsonName: string) =>{
+      cy.visit(`${Cypress.config().baseUrl}`)
+        .fixture(`users/${jsonName}.json`)
+        .then((credential) => {
+          cy.getByLabel({ label: 'Alias', tag: 'input' }).type(
+            `{selectAll}{backspace}${credential.login}_1`
+          );
+          cy.getByLabel({ label: 'Password', tag: 'input' }).type(
+            `{selectAll}{backspace}${credential.password}`
+          );
+        })
+        .getByLabel({ label: 'Connect', tag: 'button' })
+        .click();
+  
+      return cy.get('.MuiAlert-message').then(($snackbar) => {
+        if ($snackbar.text().includes('Login succeeded')) {
+          cy.wait('@getNavigationList');
+          cy.get('.MuiAlert-message').should('not.be.visible');
+        }
+      });
+    }
+  );
+  
   interface Contact {
     alias: string,
     name: string,
@@ -123,6 +146,7 @@
         addOrUpdateContact: (body: Contact) => Cypress.Chainable;
         addOrUpdateContactGroup: (body: ContactGroup) => Cypress.Chainable;
         addOrUpdateContactTemplate: (body: ContactTemplate) => Cypress.Chainable;
+        loginByDuplicatedUser: (jsonName: string) => Cypress.Chainable;
       }
     }
   }
