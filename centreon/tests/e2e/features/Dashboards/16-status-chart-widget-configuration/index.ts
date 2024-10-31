@@ -412,16 +412,6 @@ When('the dashboard administrator user deletes one of the widgets', () => {
 });
 
 Then('only the contents of the other widget are displayed', () => {
-  cy.verifyLegendItemStyle(
-    1,
-    [
-      greenCssBackground,
-      redCssBackground,
-      greyCssBackground,
-      blueCssBackground
-    ],
-    ['3', '0', '0', '0']
-  );
   cy.getByLabel({ label: 'Unknown status services', tag: 'a' })
   .invoke('text')
   .then((text) => {
@@ -434,7 +424,7 @@ Then('only the contents of the other widget are displayed', () => {
     };
     const styles = styleMap[labelValue] || styleMap[3];
     cy.verifyLegendItemStyle(
-      1,
+      0,
       [greenCssBackground, orangeCssBackground, redCssBackground, greyCssBackground, blueCssBackground],
       styles
     );
