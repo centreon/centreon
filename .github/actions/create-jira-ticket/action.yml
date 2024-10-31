@@ -88,7 +88,7 @@ runs:
         if [[ ${{ inputs.reason_for_ticket_creation }} == "veracode" ]]; then
           sed -i \
             -e 's|@PULL_REQUEST_NUMBER@|${{ github.event.pull_request.number }}|g' \
-            -e 's|@PULL_REQUEST_URL@|${{ github.event.pull_request_html.url }}|g' \
+            -e 's|@PULL_REQUEST_URL@|${{ github.event.pull_request.html_url }}|g' \
             -e 's|@GITHUB_BRANCH@|${{ github.base_ref || github.ref_name }}|g' \
             -e 's|@GITHUB_SERVER_URL@|${{ github.server_url }}|g' \
             -e 's|@GITHUB_REPOSITORY@|${{ github.repository }}|g' \
