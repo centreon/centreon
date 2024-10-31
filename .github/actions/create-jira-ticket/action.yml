@@ -115,7 +115,7 @@ runs:
             "components":[{"name": "${{ inputs.module_name }}"}],
             "customfield_10902": {"id": "10524", "value": "DevSecOps"},
             "customfield_10005": 1.0,
-            "description": $JSON_TEMPLATE_FILE
+            "description": $(cat $JSON_TEMPLATE_FILE)
           }
         }
         EOF
