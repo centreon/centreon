@@ -590,6 +590,7 @@ class CentreonConfigCentreonBroker
         $cdata = CentreonData::getInstance();
         if (isset($this->arrayMultiple)) {
             foreach ($this->arrayMultiple as $key => $multipleGroup) {
+                ksort($multipleGroup);
                 $cdata->addJsData('clone-values-' . $key, htmlspecialchars(
                     json_encode($multipleGroup),
                     ENT_QUOTES
@@ -1296,9 +1297,8 @@ class CentreonConfigCentreonBroker
                     $suffix = '';
                 }
                 $arrayMultipleValues[$fieldname]['suffix'] = $suffix;
-                $arrayMultipleValues[$fieldname]['values'][] =
+                $arrayMultipleValues[$fieldname]['values'][$row['fieldIndex']] =
                     $isTypePassword && $suffix === 'value' ? \CentreonAuth::PWS_OCCULTATION : $row['config_value'];
-
                 if ($suffix === 'type' && $row['config_value'] === 'password') {
                     $isTypePassword = true;
                 } elseif ($isTypePassword && $suffix === 'value') {
@@ -1328,7 +1328,6 @@ class CentreonConfigCentreonBroker
         }
         $forms = array();
         $isMultiple = false;
-
         foreach (array_keys($formsInfos) as $key) {
             $qf = $this->quickFormById($formsInfos[$key]['blockId'], $page, $key, $config_id);
             //Replace loaded configuration with defaults external values
@@ -1361,10 +1360,8 @@ class CentreonConfigCentreonBroker
         if (isset($arrayMultiple)) {
             foreach ($arrayMultiple as $key => $arrayMultipleS) {
                 foreach ($arrayMultipleS as $key2 => $oneElemArray) {
-                    $cnt = 0;
-                    foreach ($oneElemArray as $oneElem) {
-                        $this->arrayMultiple[$key][$cnt][$key2] = $oneElem;
-                        $cnt++;
+                    foreach ($oneElemArray as $index => $oneElem) {
+                        $this->arrayMultiple[$key][$index][$key2] = $oneElem;
                     }
                 }
             }
