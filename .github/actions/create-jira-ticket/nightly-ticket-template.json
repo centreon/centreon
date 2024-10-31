@@ -7,7 +7,7 @@
       "content": [
         {
           "type": "text",
-          "text": "This incident ticket relates to the ${{ inputs.module_name }} nightly on ${{ github.ref_name }} which failed on $(date '+%Y-%m-%d')."
+          "text": "This incident ticket relates to the @MODULE_NAME@ nightly on @REF_NAME@ which failed on @DATE@."
         }
       ]
     },
@@ -21,7 +21,7 @@
             {
               "type": "link",
               "attrs": {
-                "href": "${{ steps.get_context.outputs.run_url }}"
+                "href": "@RUN_URL@"
               }
             }
           ]

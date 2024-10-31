@@ -26,12 +26,12 @@
                        },
                        {
                           "type":"text",
-                          "text":"PR-${{ github.event.pull_request.number }}",
+                          "text":"PR-@PULL_REQUEST_NUMBER@",
                           "marks":[
                              {
                                 "type":"link",
                                 "attrs":{
-                                   "href":"${{ github.event.pull_request.html_url }}"
+                                   "href":"@PULL_REQUEST_URL@"
                                 }
                              }
                           ]
@@ -61,7 +61,7 @@
                        },
                        {
                           "type":"text",
-                          "text":"${{ github.base_ref || github.ref_name }}",
+                          "text":"@GITHUB_BRANCH@",
                           "marks":[
                              {
                                 "type":"strong"
@@ -85,7 +85,7 @@
                              {
                                 "type":"link",
                                 "attrs":{
-                                   "href":"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"
+                                   "href":"@GITHUB_SERVER_URL@/@GITHUB_REPOSITORY@/actions/runs/@GITHUB_RUN_ID@/attempts/@GITHUB_RUN_ATTEMPT@"
                                 }
                              }
                           ]
