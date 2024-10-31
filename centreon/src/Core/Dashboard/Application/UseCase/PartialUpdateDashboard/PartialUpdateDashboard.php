@@ -71,12 +71,12 @@ final class PartialUpdateDashboard
 
     /**
      * @param int $dashboardId
-     * @param PartialUpdateDashboardRequestDto $request
+     * @param PartialUpdateDashboardRequest $request
      * @param PartialUpdateDashboardPresenterInterface $presenter
      */
     public function __invoke(
         int $dashboardId,
-        PartialUpdateDashboardRequestDto $request,
+        PartialUpdateDashboardRequest $request,
         PartialUpdateDashboardPresenterInterface $presenter
     ): void {
         try {
@@ -148,17 +148,17 @@ final class PartialUpdateDashboard
     }
 
     /**
-     * @param PartialUpdateDashboardRequestDto $request
+     * @param PartialUpdateDashboardRequest $request
      * @param int $dashboardId
      *
-     * @throws \Throwable
-     * @throws DashboardException
-     *
      * @return NoContentResponse|NotFoundResponse
+     *@throws DashboardException
+     *
+     * @throws \Throwable
      */
     private function partialUpdateDashboardAsAdmin(
         int $dashboardId,
-        PartialUpdateDashboardRequestDto $request
+        PartialUpdateDashboardRequest $request
     ): NoContentResponse|NotFoundResponse {
         $dashboard = $this->readDashboardRepository->findOne($dashboardId);
         if (null === $dashboard) {
@@ -170,17 +170,17 @@ final class PartialUpdateDashboard
     }
 
     /**
-     * @param PartialUpdateDashboardRequestDto $request
+     * @param PartialUpdateDashboardRequest $request
      * @param int $dashboardId
      *
-     * @throws \Throwable
-     * @throws DashboardException
-     *
      * @return NoContentResponse|NotFoundResponse|ForbiddenResponse
+     *@throws DashboardException
+     *
+     * @throws \Throwable
      */
     private function partialUpdateDashboardAsContact(
         int $dashboardId,
-        PartialUpdateDashboardRequestDto $request
+        PartialUpdateDashboardRequest $request
     ): NoContentResponse|NotFoundResponse|ForbiddenResponse {
         $dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact);
         if (null === $dashboard) {
@@ -199,11 +199,11 @@ final class PartialUpdateDashboard
 
     /**
      * @param Dashboard $dashboard
-     * @param PartialUpdateDashboardRequestDto $request
+     * @param PartialUpdateDashboardRequest $request
      *
      * @throws AssertionFailedException|\Throwable
      */
-    private function updateDashboardAndSave(Dashboard $dashboard, PartialUpdateDashboardRequestDto $request): void
+    private function updateDashboardAndSave(Dashboard $dashboard, PartialUpdateDashboardRequest $request): void
     {
         // Build of the new domain objects.
         $updatedDashboard = $this->getUpdatedDashboard($dashboard, $request);
@@ -243,13 +243,13 @@ final class PartialUpdateDashboard
 
     /**
      * @param Dashboard $dashboard
-     * @param PartialUpdateDashboardRequestDto $request
-     *
-     * @throws AssertionFailedException
+     * @param PartialUpdateDashboardRequest $request
      *
      * @return Dashboard
+     *@throws AssertionFailedException
+     *
      */
-    private function getUpdatedDashboard(Dashboard $dashboard, PartialUpdateDashboardRequestDto $request): Dashboard
+    private function getUpdatedDashboard(Dashboard $dashboard, PartialUpdateDashboardRequest $request): Dashboard
     {
         return (new Dashboard(
             id: $dashboard->getId(),
