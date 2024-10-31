@@ -111,10 +111,6 @@ default:
       paths: [ "%paths.base%/features/LdapManualImport.feature" ]
       contexts: [ LdapManualImportContext ]
 
-    massive_change_services:
-      paths: [ "%paths.base%/features/MassiveChangeServices.feature" ]
-      contexts: [ MassiveChangeServicesContext ]
-
     virtual_metric_handle:
       paths: [ "%paths.base%/features/VirtualMetricHandle.feature" ]
       contexts: [ VirtualMetricHandleContext ]
