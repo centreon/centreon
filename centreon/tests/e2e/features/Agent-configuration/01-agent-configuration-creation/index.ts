@@ -97,8 +97,6 @@ When('the user clicks to add a second host', () => {
 });
 
 Then('a second group of parameters for hosts is displayed', () => {
-  // cy.getByLabel({ label: 'Add host', tag: 'input' }).eq(0).should('exist');
-  // cy.getByLabel({ label: 'Add host', tag: 'input' }).eq(1).should('exist');
   cy.get('[class$="hostConfigurations"]').find('[class^="MuiDivider-root MuiDivider-fullWidth"]').should('have.length', 2);
 });
 

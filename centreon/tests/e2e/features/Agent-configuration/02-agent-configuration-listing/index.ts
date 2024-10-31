@@ -21,6 +21,10 @@ beforeEach(() => {
     method: 'POST',
     url: '/centreon/api/latest/configuration/agent-configurations'
   }).as('addAgents');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/agent-configurations/**'
+  }).as('getAgentsDetails');
 });
 
 after(() => {
@@ -74,6 +78,7 @@ Given('an already existing agent configuration', () => {
 
 When('the user clicks on the line of the agent configuration', () => {
   cy.get('*[role="row"]').eq(1).click({force: true});
+  cy.wait('@getAgentsDetails');
 });
 
 Then('a pop up is displayed with all of the agent informations', () => {

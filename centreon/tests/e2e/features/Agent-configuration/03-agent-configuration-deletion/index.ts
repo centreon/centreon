@@ -18,6 +18,10 @@ beforeEach(() => {
     method: 'POST',
     url: '/centreon/api/latest/configuration/agent-configurations'
   }).as('addAgents');
+  cy.intercept({
+    method: 'DELETE',
+    url: '/centreon/api/latest/configuration/agent-configurations/*'
+  }).as('deleteAgents');
 });
 
 after(() => {
@@ -59,6 +63,7 @@ When('the user deletes the agent configuration', () => {
 
 When('the user confirms on the pop-up', () => {
   cy.get('[class^="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary"]').click();
+  cy.wait('@deleteAgents');
 });
 
 Then('the agent configuration is no longer displayed in the listing page', () => {
