@@ -124,7 +124,7 @@ jobs:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Get build binary
-        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
@@ -288,7 +288,7 @@ jobs:
 
     steps:
       - name: Get build binary
-        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
