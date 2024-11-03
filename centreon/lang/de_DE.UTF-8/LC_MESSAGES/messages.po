@@ -17374,4 +17374,117 @@ msgstr "Erweiterter Modus"
 # msgstr ""
 
 # msgid "Copy breadcrumb"
+
+# msgid "Agent configuration"
+# msgstr ""
+
+# msgid "Welcome to the agent configuration page"
+# msgstr ""
+
+# msgid "Agent type"
+# msgstr ""
+
+# msgid "Expand"
+# msgstr ""
+
+# msgid "Collapse"
+# msgstr ""
+
+# msgid "Add new agent configuration"
+# msgstr ""
+
+# msgid "Agent types"
+# msgstr ""
+
+# msgid "Delete poller"
+# msgstr ""
+
+# msgid "Delete agent"
+# msgstr ""
+
+# msgid "Agent configurations"
+# msgstr ""
+
+# msgid "Poller configuration"
+# msgstr ""
+
+# msgid "Invalid address"
+# msgstr ""
+
+# msgid "Add agent configuration"
+# msgstr ""
+
+# msgid "OTel server"
+# msgstr ""
+
+# msgid "Listening address"
+# msgstr ""
+
+# msgid "Port number must be at most 65535"
+# msgstr ""
+
+# msgid "Port number must be a least 1"
+# msgstr ""
+
+# msgid "Extension not allowed"
+# msgstr ""
+
+# msgid "Public certificate file name"
+# msgstr ""
+
+# msgid "CA file name"
+# msgstr ""
+
+# msgid "Certificate file name"
+# msgstr ""
+
+# msgid "Private key file name"
+# msgstr ""
+
+# msgid "Configuration server"
+# msgstr ""
+
+# msgid "Agent configuration created"
+# msgstr ""
+
+# msgid "Agent configuration updated"
+# msgstr ""
+
+# msgid "Update agent configuration"
+# msgstr ""
+
+# msgid "An agent is a piece of software you install on the host you want to monitor, that executes the checks."
+# msgstr ""
+
+#  msgid "Error while adding a poller/agent configuration"
+#  msgstr ""
+
+#  msgid "Error while updating a poller/agent configuration"
+#  msgstr ""
+
+#  msgid "Error while deleting a poller/agent configuration"
+#  msgstr ""
+
+#  msgid "You are not allowed to access poller/agent configurations"
+#  msgstr ""
+
+#  msgid "A poller/agent configuration is already associated with poller ID(s) '%s'"
+#  msgstr ""
+
+#  msgid "Error while retrieving a poller/agent configuration"
+#  msgstr ""
+
+#  msgid "The poller/agent configuration name '%s' already exists"
+#  msgstr ""
+
+#  msgid "Changing the type of an existing poller/agent configuration is not allowed"
+#  msgstr ""
+
+#  msgid "Filename '%s' (%s) is invalid"
+#  msgstr ""
+
+#  msgid "Poller ID #%d is the only one linked to poller/agent configuration ID #%d"
+#  msgstr ""
+
+# msgid "Sticky for any non-OK status"
 # msgstr ""
