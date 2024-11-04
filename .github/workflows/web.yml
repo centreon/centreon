@@ -619,6 +619,7 @@ jobs:
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "VERSION=${{ needs.get-environment.outputs.major_version }}"
             "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
+            "STABILITY=${{ needs.get-version.outputs.stability }}"
           pull: true
           push: true
           load: true
@@ -958,7 +959,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bookworm, jammy]
+        distrib: [bookworm]
 
     steps:
       - name: Checkout sources

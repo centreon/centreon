@@ -36,7 +36,6 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
 {
     /**
      * @param DatabaseConnection $db
-     * @param SqlRequestParametersTranslator $sqlRequestTranslator
      * @param array<
      *  string, array{
      *    request: string,
@@ -46,11 +45,9 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      */
     public function __construct(
         DatabaseConnection $db,
-        private readonly SqlRequestParametersTranslator $sqlRequestTranslator,
         private array $subRequestsInformation = []
     ) {
         $this->db = $db;
-        $this->sqlRequestTranslator->setConcordanceArray(['current_value' => 'm.current_value']);
     }
 
     /**
@@ -421,6 +418,9 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         array $accessGroups = [],
         bool $hasMetricName = false): string
     {
+        $sqlRequestTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlRequestTranslator->setConcordanceArray(['current_value' => 'm.current_value']);
+
         $request
             = <<<'SQL_WRAP'
                     SELECT SQL_CALC_FOUND_ROWS DISTINCT
@@ -464,9 +464,10 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 SQL;
         }
 
-        $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
+        $sortRequest = $sqlRequestTranslator->translateSortParameterToSql();
+
         $request .= $sortRequest ?? ' ORDER BY m.metric_id ASC';
-        $request .= $this->sqlRequestTranslator->translatePaginationToSql();
+        $request .= $sqlRequestTranslator->translatePaginationToSql();
 
         return $request;
     }
