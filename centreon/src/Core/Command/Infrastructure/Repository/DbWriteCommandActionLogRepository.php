@@ -52,7 +52,7 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
         try {
             $commandId = $this->writeCommandRepository->add($command);
             if ($commandId === 0) {
-                throw new RepositoryException('commandId ID cannot be 0');
+                throw new RepositoryException('Command ID cannot be 0');
             }
 
             $actionLog = new ActionLog(
