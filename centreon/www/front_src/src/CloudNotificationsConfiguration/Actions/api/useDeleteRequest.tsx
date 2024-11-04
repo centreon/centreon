@@ -4,6 +4,7 @@ import {
   equals,
   includes,
   isEmpty,
+  isNil,
   last,
   length,
   prop,
