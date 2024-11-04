@@ -72,18 +72,6 @@ jobs:
           TEST_TAGS=$(echo "${{ inputs.test_tags }}" | sed -e 's#not #~#' -e 's# and #\&\&#')
           echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
 
-      - name: Create Jira ticket if nightly build failure
-        if: |
-          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
-          failure() && github.run_attempt == 1
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.jira_base_url }}
-          jira_user_email: ${{ secrets.jira_user_email }}
-          jira_api_token: ${{ secrets.jira_api_token }}
-          module_name: "centreon-web"
-          ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.workflow }}']"
-
   behat-test-run:
     if: ${{ needs.behat-test-list.outputs.features != '' && toJson(fromJson(needs.behat-test-list.outputs.features)) != '[]' }}
     needs: [behat-test-list]
@@ -196,18 +184,6 @@ jobs:
           path: xunit-reports
           retention-days: 1
 
-      - name: Create Jira ticket if nightly build failure
-        if: |
-          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
-          failure() && github.run_attempt == 1
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.jira_base_url }}
-          jira_user_email: ${{ secrets.jira_user_email }}
-          jira_api_token: ${{ secrets.jira_api_token }}
-          module_name: "centreon-web"
-          ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.workflow }}']"
-
   behat-test-report:
     needs: [behat-test-run]
     if: failure()
@@ -227,18 +203,6 @@ jobs:
         with:
           check_name: ${{ inputs.name }}-tests-report
           path: '${{ inputs.name }}-xunit-reports/**/*.xml'
-
-      - name: Create Jira ticket if nightly build failure
-        if: |
-          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
-          failure() && github.run_attempt == 1
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.jira_base_url }}
-          jira_user_email: ${{ secrets.jira_user_email }}
-          jira_api_token: ${{ secrets.jira_api_token }}
-          module_name: "centreon-web"
-          ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.workflow }}']"
 
   regroup-artifacts:
     needs: [behat-test-run, behat-test-report]
@@ -263,10 +227,13 @@ jobs:
           name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
           failOnError: false
 
+  create-jira-nightly-ticket:
+    runs-on: ubuntu-24.04
+    if: |
+      github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
+      (failure() || cancelled()) && github.run_attempt == 1
+    steps:
       - name: Create Jira ticket if nightly build failure
-        if: |
-          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
-          failure() && github.run_attempt == 1
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.jira_base_url }}
