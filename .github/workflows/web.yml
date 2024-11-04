@@ -121,7 +121,7 @@ jobs:
           jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
           jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
           module_name: "centreon-web"
-          ticket_labels: "['Nightly', 'Pipeline', '${{ github.job }}']"
+          ticket_labels: '["Nightly", "Pipeline", "${{ github.job }}"]'
 
   # dispatch-to-maintained-branches:
   #   if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' }}
