@@ -50,6 +50,12 @@ on:
         required: true
       jira_token_test:
         required: true
+      jira_base_url:
+        required: true
+      jira_user_email:
+        required: true
+      jira_api_token:
+        required: true
 
 jobs:
   newman-test-list:

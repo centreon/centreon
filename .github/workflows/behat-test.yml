@@ -36,6 +36,12 @@ on:
         required: true
       composer_token:
         required: true
+      jira_base_url:
+        required: true
+      jira_user_email:
+        required: true
+      jira_api_token:
+        required: true
 
 jobs:
   behat-test-list:

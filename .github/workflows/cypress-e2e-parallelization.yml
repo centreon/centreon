@@ -66,6 +66,12 @@ on:
         required: false
       artifactory_internal_repo_password:
         required: false
+      jira_base_url:
+        required: true
+      jira_user_email:
+        required: true
+      jira_api_token:
+        required: true
 
 jobs:
   cypress-e2e-test-list:

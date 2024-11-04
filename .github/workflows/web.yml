@@ -288,6 +288,9 @@ jobs:
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.LIGHTHOUSE_SECRET }}
+      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
     with:
       name: centreon
       module_name: centreon
@@ -712,6 +715,9 @@ jobs:
       client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
       jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
+      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   legacy-e2e-test:
     needs: [get-environment, changes, dockerize]
@@ -735,6 +741,9 @@ jobs:
       registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   e2e-test:
     needs: [get-environment, dockerize, create-xray-test-plan-and-test-execution]
@@ -769,6 +778,9 @@ jobs:
       xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
       artifactory_internal_repo_username: ${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}
       artifactory_internal_repo_password: ${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}
+      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   performances-test:
     runs-on: ubuntu-24.04
