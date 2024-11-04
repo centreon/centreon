@@ -1,6 +1,7 @@
 {
   "name": "centreon/centreon",
   "description": "Centreon - IT and Application monitoring software",
+  "version": "24.10.0",
   "type": "project",
   "license": "GPL-2.0-only",
   "require": {
@@ -70,7 +71,7 @@
   "require-dev": {
     "behat/behat": "^3.10",
     "behat/mink-selenium2-driver": "1.6.*",
-    "centreon/centreon-test-lib": "dev-MON-147667-upgrade-to-php-8.2",
+    "centreon/centreon-test-lib": "24.10.x-dev",
     "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
     "friends-of-behat/mink": "^1.9",
     "friends-of-behat/mink-extension": "^2.5",

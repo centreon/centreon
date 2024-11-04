@@ -20,8 +20,6 @@
 
 namespace ConfigGenerateRemote;
 
-use App\Kernel;
-use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use PDO;
 use Exception;
 use Pimple\Container;
@@ -211,13 +209,6 @@ class Generate
             $this->currentPoller['id'],
             $this->currentPoller['localhost']
         );
-        $kernel = Kernel::createForWeb();
-        $readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
-            ?? throw new \Exception('ReadAccRepositoryInterface not found');
-        (new \AdditionalConnectorVmWareV6(
-            $this->backendInstance,
-            $readAdditionalConnectorRepository
-        ))->generateFromPollerId($this->currentPoller['id']);
 
         Engine::getInstance($this->dependencyInjector)->generateFromPoller($this->currentPoller);
         Broker::getInstance($this->dependencyInjector)->generateFromPoller($this->currentPoller);
