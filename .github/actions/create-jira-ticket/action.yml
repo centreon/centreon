@@ -14,37 +14,40 @@ inputs:
   module_name:
     required: true
     description: module name
-  reason_for_ticket_creation:
+  ticket_labels:
     required: true
-    description: type of incident causing the ticket creation (currently veracode or nightly)
+    description: ticket labels, usually Pipeline + Nightly/Veracode + x
+    default: 'Pipeline'
 
 runs:
   using: "composite"
   steps:
     - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
-      if: ${{ inputs.reason_for_ticket_creation != 'veracode' }}
+      if: contains(fromJSON(inputs.ticket_labels), "Veracode") == 'true'
 
     - name: Get ticket elements from context
       id: get_context
       run: |
-        # Change context elements (summary, parent epic, etc.) that is checked depending on the reason the ticket is created
-        if [[ "${{ inputs.reason_for_ticket_creation }}" == "veracode" ]]; then
+        # Change context elements (summary, parent epic, etc.) that is checked depending on the ticket labels in the input
+        echo "ticket_labels=${{ inputs.ticket_labels }}"
+        if [[ "${{ inputs.ticket_labels }}" =~ "Veracode" ]]; then
           parent_epic_id=83818
           parent_epic_key="AT-268"
           ticket_summary="PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}"
-          ticket_labels="[\"Veracode\", \"Pipeline\"]"
           run_url="N/A"
-        elif [[ "${{ inputs.reason_for_ticket_creation }}" == "nightly" ]]; then
+        elif [[ "${{ inputs.ticket_labels }}" =~ "Nightly" ]]; then
           parent_epic_id=206242
           parent_epic_key="MON-151547"
           ticket_summary="$(date '+%Y-%m-%d') ${{ inputs.module_name }}-${{ github.ref_name }} nightly build failure"
-          ticket_labels="[\"Nightly\", \"Pipeline\"]"
           run_url=$(gh run ls --json name,url --workflow web.yml --branch ${{ github.ref_name }} --limit 20 | \
             jq --arg module_name "${{ inputs.module_name }}" --arg branch "${{ github.ref_name }}" '. | map(select(.name == ($module_name + " nightly " + $branch))) | .[0].url'| sed 's/^"//;s/"$//')
           if [ $? -ne 0 ] || [ "$run_url" == "null" ]; then
             echo "::error::Failed to get nightly run URL"
             exit 1
           fi
+        else
+          echo "::error::Cannot find a valid labelling for the ticket."
+          exit 1
         fi
 
         echo "parent_epic_id=$parent_epic_id" >> $GITHUB_OUTPUT
@@ -86,7 +89,7 @@ runs:
       run: |
         # Formatting ticket description from template files
         JSON_TEMPLATE_FILE="./.github/actions/create-jira-ticket/${{ inputs.reason_for_ticket_creation }}-ticket-template.json"
-        if [[ ${{ inputs.reason_for_ticket_creation }} == "veracode" ]]; then
+        if [[ "${{ inputs.ticket_labels }}" =~ "Veracode" ]]; then
           sed -i \
             -e 's|@PULL_REQUEST_NUMBER@|${{ github.event.pull_request.number }}|g' \
             -e 's|@PULL_REQUEST_URL@|${{ github.event.pull_request.html_url }}|g' \
@@ -95,7 +98,7 @@ runs:
             -e 's|@GITHUB_REPOSITORY@|${{ github.repository }}|g' \
             -e 's|@GITHUB_RUN_ID@|${{ github.run_id }}|g' \
             -e 's|@GITHUB_RUN_ATTEMPT@|${{ github.run_attempt }}|g' $JSON_TEMPLATE_FILE
-        elif [[ ${{ inputs.reason_for_ticket_creation }} == "nightly" ]]; then
+        elif [[ "${{ inputs.ticket_labels }}" =~ "Nightly" ]]; then
           sed -i \
             -e 's|@MODULE_NAME@|${{ inputs.module_name }}|g' \
             -e 's|@REF_NAME@|${{ github.ref_name }}|g' \
@@ -112,7 +115,7 @@ runs:
             "project": {"key": "MON"},
             "issuetype": {"id": "10209"},
             "parent": {"id": "${{ steps.get_context.outputs.parent_epic_id }}", "key": "${{ steps.get_context.outputs.parent_epic_key }}"},
-            "labels": ${{ steps.get_context.outputs.ticket_labels }},
+            "labels": ${{ inputs.ticket_labels }},
             "components":[{"name": "${{ inputs.module_name }}"}],
             "customfield_10902": {"id": "10524", "value": "DevSecOps"},
             "customfield_10005": 1.0,
