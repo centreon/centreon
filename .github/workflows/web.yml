@@ -101,11 +101,7 @@ jobs:
   gherkin-lint:
     runs-on: ubuntu-24.04
     needs: [changes]
-<<<<<<< HEAD
     if: ${{ needs.changes.outputs.has_test_changes == 'true' }}
-=======
-    # if: ${{ needs.changes.outputs.has_test_changes == 'true' }}
->>>>>>> parent of 445253ec38 (comment changes)
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
@@ -113,14 +109,16 @@ jobs:
         with:
           features_path: centreon/tests/e2e/features
 
-      - if: (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) && failure()
+      - if: |
+          ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
+          failure() && github.run_attempt == 1 }}
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
           jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
           jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
           module_name: "centreon-web"
-          ticket_labels: "['Nightly', 'Pipeline', '${{ env.GITHUB_JOB }}']"
+          ticket_labels: "['Nightly', 'Pipeline', '${{ github.job }}']"
 
   dispatch-to-maintained-branches:
     if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' }}
