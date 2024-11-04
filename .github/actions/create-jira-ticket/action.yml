@@ -101,6 +101,7 @@ runs:
       run: |
         # Creating a new incident ticket on Jira
         formatted_labels=$(echo ${{ inputs.ticket_labels }} | sed 's/^"//;s/"$//' | tr -d '\n')
+        echo "formatted_labels=$formatted_labels"
         DATA=$( cat <<-EOF
         {
           "fields": {
