@@ -1,3 +1,5 @@
+name: frontend-component-test
+
 on:
   workflow_call:
     inputs:
@@ -39,6 +41,18 @@ jobs:
         run: |
           cd ${{ inputs.module_name }}
           echo "specs=$(find ${{ inputs.specs_path }} -type f -name "*${{ inputs.spec_extension }}" -exec basename {} \; | sed -e "s/${{ inputs.spec_extension }}//" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
+          failure() && github.run_attempt == 1
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
 
   cypress-component-test-run:
     needs: [cypress-component-test-list]
@@ -128,6 +142,18 @@ jobs:
           path: ${{ inputs.module_name }}/.nyc_output/${{ matrix.spec }}-out.json
           retention-days: 1
 
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
+          failure() && github.run_attempt == 1
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+
   cypress-component-coverage-report:
     needs: [cypress-component-test-run]
     if: always()
@@ -215,6 +241,18 @@ jobs:
           aws s3 cp /tmp/newBaseCodeCoverages.json s3://centreon-lighthouse-report/baseCodeCoverages.json
         shell: bash
 
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
+          failure() && github.run_attempt == 1
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+
   cypress-component-test-report:
     needs: [cypress-component-test-run]
     if: failure()
@@ -247,6 +285,18 @@ jobs:
           format: cypress
           urlFilePrefix: centreon
 
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
+          failure() && github.run_attempt == 1
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+
   regroup-artifacts:
     needs: [cypress-component-coverage-report, cypress-component-test-report, cypress-component-test-run]
     if: always()
@@ -271,3 +321,15 @@ jobs:
         with:
           name: ${{ inputs.name }}-component-${{ matrix.type_of_report }}-*
           failOnError: false
+
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
+          failure() && github.run_attempt == 1
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"

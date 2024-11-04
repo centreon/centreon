@@ -1,3 +1,5 @@
+name: newman-test
+
 on:
   workflow_call:
     inputs:
@@ -67,6 +69,18 @@ jobs:
           echo "collections=$collections" >> $GITHUB_OUTPUT
           echo "GITHUB_OUTPUT contents:"
           cat $GITHUB_OUTPUT
+
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
+          failure() && github.run_attempt == 1
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
 
   associate-test-cases:
     runs-on: ubuntu-24.04
@@ -354,6 +368,18 @@ jobs:
           echo "Response from Add Tests to Test Execution:"
           echo "$response_addTestsToTestExecution"
 
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
+          failure() && github.run_attempt == 1
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+
   newman-test-run:
     needs: [newman-test-list, associate-test-cases]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
@@ -511,6 +537,18 @@ jobs:
           name: newman-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: centreon/tests/rest_api/postman_summaries/*.json
           retention-days: 1
+
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
+          failure() && github.run_attempt == 1
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
 
   synchronize-with-xray:
     needs: [newman-test-run, associate-test-cases]
@@ -771,6 +809,18 @@ jobs:
               echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
           fi
 
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
+          failure() && github.run_attempt == 1
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+
   regroup-artifacts:
     needs: [newman-test-run]
     if: always()
@@ -790,3 +840,15 @@ jobs:
         with:
           name: newman-${{ inputs.os }}-html-reports-*
           failOnError: false
+
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
+          failure() && github.run_attempt == 1
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"

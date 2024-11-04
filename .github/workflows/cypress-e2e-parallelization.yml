@@ -1,3 +1,5 @@
+name: cypress-e2e-test
+
 on:
   workflow_call:
     inputs:
@@ -88,6 +90,18 @@ jobs:
           cd ${{ inputs.module_name }}
           cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]'
           echo "features=$(cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
+          failure() && github.run_attempt == 1
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
 
   cypress-e2e-test-run:
     if: ${{ needs.cypress-e2e-test-list.outputs.features != '' && toJson(fromJson(needs.cypress-e2e-test-list.outputs.features)) != '[]' }}
@@ -227,6 +241,18 @@ jobs:
           path: ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/*.json
           retention-days: 1
 
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
+          failure() && github.run_attempt == 1
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+
   # This action is only for NIGHTLY and testing branches
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
@@ -268,6 +294,18 @@ jobs:
             curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data @"$file" https://xray.cloud.getxray.app/api/v2/import/execution/cucumber
           done
 
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
+          failure() && github.run_attempt == 1
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+
   cypress-e2e-test-report:
     needs: [cypress-e2e-test-run]
     if: failure()
@@ -299,6 +337,18 @@ jobs:
           format: cypress
           urlFilePrefix: centreon
 
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
+          failure() && github.run_attempt == 1
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+
   regroup-artifacts:
     needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report]
     if: always()
@@ -322,3 +372,15 @@ jobs:
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
           failOnError: false
+
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
+          failure() && github.run_attempt == 1
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
