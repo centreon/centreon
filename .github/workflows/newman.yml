@@ -86,7 +86,7 @@ jobs:
           jira_user_email: ${{ secrets.jira_user_email }}
           jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
-          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+          ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.workflow }}']"
 
   associate-test-cases:
     runs-on: ubuntu-24.04
@@ -384,7 +384,7 @@ jobs:
           jira_user_email: ${{ secrets.jira_user_email }}
           jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
-          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+          ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.workflow }}']"
 
   newman-test-run:
     needs: [newman-test-list, associate-test-cases]
@@ -554,7 +554,7 @@ jobs:
           jira_user_email: ${{ secrets.jira_user_email }}
           jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
-          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+          ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.workflow }}']"
 
   synchronize-with-xray:
     needs: [newman-test-run, associate-test-cases]
@@ -825,7 +825,7 @@ jobs:
           jira_user_email: ${{ secrets.jira_user_email }}
           jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
-          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+          ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.workflow }}']"
 
   regroup-artifacts:
     needs: [newman-test-run]
@@ -857,4 +857,4 @@ jobs:
           jira_user_email: ${{ secrets.jira_user_email }}
           jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
-          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+          ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.workflow }}']"

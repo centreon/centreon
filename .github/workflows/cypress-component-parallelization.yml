@@ -58,7 +58,7 @@ jobs:
           jira_user_email: ${{ secrets.jira_user_email }}
           jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
-          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+          ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.workflow }}']"
 
   cypress-component-test-run:
     needs: [cypress-component-test-list]
@@ -158,7 +158,7 @@ jobs:
           jira_user_email: ${{ secrets.jira_user_email }}
           jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
-          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+          ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.workflow }}']"
 
   cypress-component-coverage-report:
     needs: [cypress-component-test-run]
@@ -257,7 +257,7 @@ jobs:
           jira_user_email: ${{ secrets.jira_user_email }}
           jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
-          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+          ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.workflow }}']"
 
   cypress-component-test-report:
     needs: [cypress-component-test-run]
@@ -301,7 +301,7 @@ jobs:
           jira_user_email: ${{ secrets.jira_user_email }}
           jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
-          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+          ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.workflow }}']"
 
   regroup-artifacts:
     needs: [cypress-component-coverage-report, cypress-component-test-report, cypress-component-test-run]
@@ -338,4 +338,4 @@ jobs:
           jira_user_email: ${{ secrets.jira_user_email }}
           jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
-          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+          ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.workflow }}']"

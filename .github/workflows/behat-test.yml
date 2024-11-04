@@ -82,7 +82,7 @@ jobs:
           jira_user_email: ${{ secrets.jira_user_email }}
           jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
           module_name: "centreon-web"
-          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+          ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.workflow }}']"
 
   behat-test-run:
     if: ${{ needs.behat-test-list.outputs.features != '' && toJson(fromJson(needs.behat-test-list.outputs.features)) != '[]' }}
@@ -206,7 +206,7 @@ jobs:
           jira_user_email: ${{ secrets.jira_user_email }}
           jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
           module_name: "centreon-web"
-          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+          ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.workflow }}']"
 
   behat-test-report:
     needs: [behat-test-run]
@@ -238,7 +238,7 @@ jobs:
           jira_user_email: ${{ secrets.jira_user_email }}
           jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
-          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+          ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.workflow }}']"
 
   regroup-artifacts:
     needs: [behat-test-run, behat-test-report]
@@ -273,4 +273,4 @@ jobs:
           jira_user_email: ${{ secrets.jira_user_email }}
           jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
           module_name: "centreon-web"
-          ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
+          ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.workflow }}']"
