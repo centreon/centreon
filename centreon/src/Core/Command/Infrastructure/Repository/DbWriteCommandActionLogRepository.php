@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Command\Infrastructure\Repository;
 
-
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\RepositoryException;
