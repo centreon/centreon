@@ -7,7 +7,7 @@
       "content": [
         {
           "type": "text",
-          "text": "This incident ticket relates to the @MODULE_NAME@ nightly on @REF_NAME@ which failed on @DATE@."
+          "text": "This incident ticket relates to the @MODULE_NAME@ nightly on the @GITHUB_BRANCH@ branch which failed on @DATE@."
         }
       ]
     },
@@ -21,7 +21,7 @@
             {
               "type": "link",
               "attrs": {
-                "href": "@RUN_URL@"
+                "href": "@GITHUB_SERVER_URL@/@GITHUB_REPOSITORY@/actions/runs/@GITHUB_RUN_ID@/attempts/@GITHUB_RUN_ATTEMPT@"
               }
             }
           ]

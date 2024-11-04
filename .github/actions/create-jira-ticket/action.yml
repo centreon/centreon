@@ -46,8 +46,28 @@ runs:
         echo "parent_epic_key=$parent_epic_key" >> $GITHUB_OUTPUT
         echo "ticket_summary=$ticket_summary" >> $GITHUB_OUTPUT
         echo "ticket_labels=$ticket_labels" >> $GITHUB_OUTPUT
-        echo "run_url=$run_url" >> $GITHUB_OUTPUT
         cat $GITHUB_OUTPUT
+
+        if [[ "$ticket_labels" =~ "Veracode" ]]; then
+          JSON_TEMPLATE_FILE="./.github/actions/create-jira-ticket/veracode-ticket-template.json"
+          sed -i \
+            -e 's|@PULL_REQUEST_NUMBER@|${{ github.event.pull_request.number }}|g' \
+            -e 's|@PULL_REQUEST_URL@|${{ github.event.pull_request.html_url }}|g' $JSON_TEMPLATE_FILE
+        elif [[ "$ticket_labels" =~ "Nightly" ]]; then
+          JSON_TEMPLATE_FILE="./.github/actions/create-jira-ticket/nightly-ticket-template.json"
+          sed -i \
+            -e 's|@MODULE_NAME@|${{ inputs.module_name }}|g' \
+            -e "s|@DATE@|$(date '+%Y-%m-%d')|g" \
+            -e 's|@RUN_URL@|${{ steps.get_context.outputs.run_url }}|g' $JSON_TEMPLATE_FILE
+        fi
+        sed -i \
+          -e 's|@GITHUB_BRANCH@|${{ github.base_ref || github.ref_name }}|g' \
+          -e 's|@GITHUB_SERVER_URL@|${{ github.server_url }}|g' \
+          -e 's|@GITHUB_REPOSITORY@|${{ github.repository }}|g' \
+          -e 's|@GITHUB_RUN_ID@|${{ github.run_id }}|g' \
+          -e 's|@GITHUB_RUN_ATTEMPT@|${{ github.run_attempt }}|g' $JSON_TEMPLATE_FILE
+        cat $JSON_TEMPLATE_FILE
+        echo "json_template_file=$JSON_TEMPLATE_FILE" >> $GITHUB_OUTPUT
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
@@ -79,27 +99,6 @@ runs:
     - name: Create Jira Issue
       if: ${{ env.abort_ticket_creation != 'true' }}
       run: |
-        # Formatting ticket description from template files
-        JSON_TEMPLATE_FILE="./.github/actions/create-jira-ticket/${{ inputs.reason_for_ticket_creation }}-ticket-template.json"
-        IFS=', ' read -a ticket_labels <<< $(echo "${{ inputs.ticket_labels }}" | tr -d "[],'")
-        if [[ "$ticket_labels" =~ "Veracode" ]]; then
-          sed -i \
-            -e 's|@PULL_REQUEST_NUMBER@|${{ github.event.pull_request.number }}|g' \
-            -e 's|@PULL_REQUEST_URL@|${{ github.event.pull_request.html_url }}|g' \
-            -e 's|@GITHUB_BRANCH@|${{ github.base_ref || github.ref_name }}|g' \
-            -e 's|@GITHUB_SERVER_URL@|${{ github.server_url }}|g' \
-            -e 's|@GITHUB_REPOSITORY@|${{ github.repository }}|g' \
-            -e 's|@GITHUB_RUN_ID@|${{ github.run_id }}|g' \
-            -e 's|@GITHUB_RUN_ATTEMPT@|${{ github.run_attempt }}|g' $JSON_TEMPLATE_FILE
-        elif [[ "$ticket_labels" =~ "Nightly" ]]; then
-          sed -i \
-            -e 's|@MODULE_NAME@|${{ inputs.module_name }}|g' \
-            -e 's|@REF_NAME@|${{ github.ref_name }}|g' \
-            -e "s|@DATE@|$(date '+%Y-%m-%d')|g" \
-            -e 's|@RUN_URL@|${{ steps.get_context.outputs.run_url }}|g' $JSON_TEMPLATE_FILE
-        fi
-        cat $JSON_TEMPLATE_FILE
-
         # Creating a new incident ticket on Jira
         DATA=$( cat <<-EOF
         {
@@ -112,7 +111,7 @@ runs:
             "components":[{"name": "${{ inputs.module_name }}"}],
             "customfield_10902": {"id": "10524", "value": "DevSecOps"},
             "customfield_10005": 1.0,
-            "description": $(cat $JSON_TEMPLATE_FILE)
+            "description": $(cat ${{ steps.get_context.outputs.json_template_file }})
           }
         }
         EOF
