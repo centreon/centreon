@@ -192,8 +192,6 @@ sub severity {
             $self->{severity} = 6;
         } elsif ($input_severity eq "debug") {
             $self->{severity} = 7;
-            # if we debug we probably nearly always want the pid of the process.
-            $self->withpid(1);
         } else {
             $self->writeLogError("Wrong severity value set.");
             return -1;
