@@ -25,7 +25,7 @@ inputs:
   release_type:
     description: "Type of release (hotfix, release)"
     required: true
-  release_cloud:
+  is_cloud:
     description: "Release context (cloud or not cloud)"
     required: true
 
@@ -52,7 +52,7 @@ runs:
         echo "[DEBUG] - Major version: ${{ inputs.major_version }}"
         echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
-        echo "[DEBUG] - release_cloud: ${{ inputs.release_cloud }}"
+        echo "[DEBUG] - is_cloud: ${{ inputs.is_cloud }}"
         echo "[DEBUG] - release_type: ${{ inputs.release_type }}"
 
         # Cloud specific promote
@@ -66,15 +66,15 @@ runs:
         # Search for testing packages candidate for promote
         for ARCH in "noarch" "x86_64"; do
 
-          # Build search path based on release_cloud and release_type values
+          # Build search path based on is_cloud and release_type values
           # if cloud, search in testing-<release_type> path
           # if non-cloud, search in the testing usual path
-          if [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "hotfix" ]] || [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "release" ]];then
+          if [[ "${{ inputs.is_cloud }}" == "true" && "${{ inputs.release_type }}" == "hotfix" ]] || [[ "${{ inputs.is_cloud }}" == "true" && "${{ inputs.release_type }}" == "release" ]]; then
             SEARCH_REPO_PATH="${{ inputs.major_version }}/${{ inputs.distrib }}/testing-${{ inputs.release_type }}/$ARCH/${{ inputs.module }}"
-          elif [[ ${{ inputs.release_cloud }} -eq 0 ]];then
+          elif [[ "${{ inputs.is_cloud }}" == "false" ]];then
             SEARCH_REPO_PATH="${{ inputs.major_version }}/${{ inputs.distrib }}/testing/$ARCH/${{ inputs.module }}"
           else
-            echo "Invalid combination of release_type and release_cloud"
+            echo "Invalid combination of release_type and is_cloud"
           fi
 
           echo "[DEBUG] - Get path of $ARCH testing artifacts to promote to stable."
@@ -119,7 +119,7 @@ runs:
       shell: bash
 
     - name: Promote DEB packages to stable
-      if: ${{ contains(fromJSON('["bullseye", "bookworm"]') , inputs.distrib) && !inputs.release_cloud }}
+      if: ${{ contains(fromJSON('["bullseye", "bookworm"]') , inputs.distrib) }}
       run: |
         set -eux
 

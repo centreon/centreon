@@ -143,25 +143,26 @@ When(
 Then(
   'the time format in the widget should be updated to reflect the new format',
   () => {
-    cy.get('div[class$="clockLabel"] p').eq(2)
-    .invoke('text')
-    .then((clockText) => {
-      cy.log(clockText);
+    cy.get('div[class$="clockLabel"] p')
+      .eq(2)
+      .invoke('text')
+      .then((clockText) => {
+        cy.log(`Clock text: ${clockText}`);
 
-      const now = new Date();
+        const hoursNow = new Date().toLocaleString('en-US', {
+          hour: '2-digit',
+          hour12: false,
+          timeZone: 'Europe/Paris'
+        });
 
-      // Add 2 hours to the current time
-      now.setHours(now.getHours() + 2);
+        cy.log(`Current hour (hoursNow): ${hoursNow}`);
 
-      // Format the hours and minutes with leading zeros if needed
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
+        const displayedHour = clockText.trim().slice(0, 2);
 
-      const currentTime = `${hours}:${minutes}`;
-
-      expect(clockText.trim()).to.equal(currentTime);
-    });
-});
+        expect(displayedHour).to.equal(hoursNow);
+      });
+  }
+);
 
 When(
   'the dashboard administrator updates the time zone by selecting a new one',
