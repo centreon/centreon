@@ -100,6 +100,7 @@ runs:
       if: ${{ env.abort_ticket_creation != 'true' }}
       run: |
         # Creating a new incident ticket on Jira
+        formatted_labels=$(echo ${{ inputs.ticket_labels }} | sed 's/^"//;s/"$//')
         DATA=$( cat <<-EOF
         {
           "fields": {
@@ -107,7 +108,7 @@ runs:
             "project": {"key": "MON"},
             "issuetype": {"id": "10209"},
             "parent": {"id": "${{ steps.get_context.outputs.parent_epic_id }}", "key": "${{ steps.get_context.outputs.parent_epic_key }}"},
-            "labels": $(echo ${{ inputs.ticket_labels }} | sed 's/^"//;s/"$//'),
+            "labels": $formatted_labels,
             "components":[{"name": "${{ inputs.module_name }}"}],
             "customfield_10902": {"id": "10524", "value": "DevSecOps"},
             "customfield_10005": 1.0,
