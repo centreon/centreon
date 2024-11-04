@@ -28,14 +28,14 @@ runs:
       id: get_context
       run: |
         # Change context elements (summary, parent epic, etc.) that is checked depending on the ticket labels in the input
-        ticket_labels=${{ inputs.ticket_labels }}
+        ticket_labels="${{ inputs.ticket_labels }}"
         echo "ticket_labels=$ticket_labels"
-        if [[ "${ticket_labels[@]}" =~ "Veracode" ]]; then
+        if [[ "$ticket_labels" =~ "Veracode" ]]; then
           parent_epic_id=83818
           parent_epic_key="AT-268"
           ticket_summary="PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}"
           run_url="N/A"
-        elif [[ "${ticket_labels[@]}" =~ "Nightly" ]]; then
+        elif [[ "$ticket_labels" =~ "Nightly" ]]; then
           parent_epic_id=206242
           parent_epic_key="MON-151547"
           ticket_summary="$(date '+%Y-%m-%d') ${{ inputs.module_name }}-${{ github.ref_name }} nightly build failure"
@@ -90,7 +90,7 @@ runs:
         # Formatting ticket description from template files
         JSON_TEMPLATE_FILE="./.github/actions/create-jira-ticket/${{ inputs.reason_for_ticket_creation }}-ticket-template.json"
         ticket_labels=${{ inputs.ticket_labels }}
-        if [[ "${ticket_labels[@]}" =~ "Veracode" ]]; then
+        if [[ "$ticket_labels" =~ "Veracode" ]]; then
           sed -i \
             -e 's|@PULL_REQUEST_NUMBER@|${{ github.event.pull_request.number }}|g' \
             -e 's|@PULL_REQUEST_URL@|${{ github.event.pull_request.html_url }}|g' \
@@ -99,7 +99,7 @@ runs:
             -e 's|@GITHUB_REPOSITORY@|${{ github.repository }}|g' \
             -e 's|@GITHUB_RUN_ID@|${{ github.run_id }}|g' \
             -e 's|@GITHUB_RUN_ATTEMPT@|${{ github.run_attempt }}|g' $JSON_TEMPLATE_FILE
-        elif [[ "${ticket_labels[@]}" =~ "Nightly" ]]; then
+        elif [[ "$ticket_labels" =~ "Nightly" ]]; then
           sed -i \
             -e 's|@MODULE_NAME@|${{ inputs.module_name }}|g' \
             -e 's|@REF_NAME@|${{ github.ref_name }}|g' \
