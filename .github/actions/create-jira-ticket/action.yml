@@ -29,11 +29,11 @@ runs:
       run: |
         # Change context elements (summary, parent epic, etc.) that is checked depending on the ticket labels in the input
         IFS=', ' read -a ticket_labels <<< $(echo "${{ inputs.ticket_labels }}" | tr -d "[],'")
-        if [[ "$ticket_labels" =~ "Veracode" ]]; then
+        if [[ "${ticket_labels[@]}" =~ "Veracode" ]]; then
           parent_epic_id=83818
           parent_epic_key="AT-268"
           ticket_summary="PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}"
-        elif [[ "$ticket_labels" =~ "Nightly" ]]; then
+        elif [[ "${ticket_labels[@]}" =~ "Nightly" ]]; then
           parent_epic_id=206242
           parent_epic_key="MON-151547"
           ticket_summary="$(date '+%Y-%m-%d') ${{ inputs.module_name }}-${{ github.ref_name }} nightly build failure"
@@ -45,15 +45,13 @@ runs:
         echo "parent_epic_id=$parent_epic_id" >> $GITHUB_OUTPUT
         echo "parent_epic_key=$parent_epic_key" >> $GITHUB_OUTPUT
         echo "ticket_summary=$ticket_summary" >> $GITHUB_OUTPUT
-        echo "ticket_labels=$ticket_labels" >> $GITHUB_OUTPUT
-        cat $GITHUB_OUTPUT
 
-        if [[ "$ticket_labels" =~ "Veracode" ]]; then
+        if [[ "${ticket_labels[@]}" =~ "Veracode" ]]; then
           JSON_TEMPLATE_FILE="./.github/actions/create-jira-ticket/veracode-ticket-template.json"
           sed -i \
             -e 's|@PULL_REQUEST_NUMBER@|${{ github.event.pull_request.number }}|g' \
             -e 's|@PULL_REQUEST_URL@|${{ github.event.pull_request.html_url }}|g' $JSON_TEMPLATE_FILE
-        elif [[ "$ticket_labels" =~ "Nightly" ]]; then
+        elif [[ "${ticket_labels[@]}" =~ "Nightly" ]]; then
           JSON_TEMPLATE_FILE="./.github/actions/create-jira-ticket/nightly-ticket-template.json"
           sed -i \
             -e 's|@MODULE_NAME@|${{ inputs.module_name }}|g' \
@@ -68,6 +66,8 @@ runs:
           -e 's|@GITHUB_RUN_ATTEMPT@|${{ github.run_attempt }}|g' $JSON_TEMPLATE_FILE
         cat $JSON_TEMPLATE_FILE
         echo "json_template_file=$JSON_TEMPLATE_FILE" >> $GITHUB_OUTPUT
+
+        cat $GITHUB_OUTPUT
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
@@ -107,7 +107,7 @@ runs:
             "project": {"key": "MON"},
             "issuetype": {"id": "10209"},
             "parent": {"id": "${{ steps.get_context.outputs.parent_epic_id }}", "key": "${{ steps.get_context.outputs.parent_epic_key }}"},
-            "labels": ${{ inputs.ticket_labels }},
+            "labels": "${{ inputs.ticket_labels }}",
             "components":[{"name": "${{ inputs.module_name }}"}],
             "customfield_10902": {"id": "10524", "value": "DevSecOps"},
             "customfield_10005": 1.0,
