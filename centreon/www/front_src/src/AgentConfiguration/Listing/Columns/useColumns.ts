@@ -1,6 +1,7 @@
 import { Column, ColumnType } from '@centreon/ui';
 import { T, equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { agentTypes } from '../../Form/useInputs';
 import {
   labelAction,
   labelAgentType,
@@ -9,7 +10,6 @@ import {
 } from '../../translatedLabels';
 import Action from './Action';
 import Poller from './Poller';
-import { agentTypes } from '../../Form/useInputs';
 
 export const useColumns = (): Array<Column> => {
   const { t } = useTranslation();
