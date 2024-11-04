@@ -48,9 +48,9 @@ jobs:
           failure() && github.run_attempt == 1
         uses: ./.github/actions/create-jira-ticket
         with:
-          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          jira_base_url: ${{ secrets.jira_base_url }}
+          jira_user_email: ${{ secrets.jira_user_email }}
+          jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
           ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
 
@@ -148,9 +148,9 @@ jobs:
           failure() && github.run_attempt == 1
         uses: ./.github/actions/create-jira-ticket
         with:
-          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          jira_base_url: ${{ secrets.jira_base_url }}
+          jira_user_email: ${{ secrets.jira_user_email }}
+          jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
           ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
 
@@ -247,9 +247,9 @@ jobs:
           failure() && github.run_attempt == 1
         uses: ./.github/actions/create-jira-ticket
         with:
-          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          jira_base_url: ${{ secrets.jira_base_url }}
+          jira_user_email: ${{ secrets.jira_user_email }}
+          jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
           ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
 
@@ -291,9 +291,9 @@ jobs:
           failure() && github.run_attempt == 1
         uses: ./.github/actions/create-jira-ticket
         with:
-          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          jira_base_url: ${{ secrets.jira_base_url }}
+          jira_user_email: ${{ secrets.jira_user_email }}
+          jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
           ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
 
@@ -328,8 +328,8 @@ jobs:
           failure() && github.run_attempt == 1
         uses: ./.github/actions/create-jira-ticket
         with:
-          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          jira_base_url: ${{ secrets.jira_base_url }}
+          jira_user_email: ${{ secrets.jira_user_email }}
+          jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
           ticket_labels: "['Nightly', 'Pipeline', '${{ github.workflow }}']"
