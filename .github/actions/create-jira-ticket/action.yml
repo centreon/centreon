@@ -100,7 +100,7 @@ runs:
       if: ${{ env.abort_ticket_creation != 'true' }}
       run: |
         # Creating a new incident ticket on Jira
-        formatted_labels=$(echo ${{ inputs.ticket_labels }} | sed 's/^"//;s/"$//')
+        formatted_labels=$(echo ${{ inputs.ticket_labels }} | sed 's/^"//;s/"$//' | tr -d '\n')
         DATA=$( cat <<-EOF
         {
           "fields": {
