@@ -107,7 +107,7 @@ runs:
             "project": {"key": "MON"},
             "issuetype": {"id": "10209"},
             "parent": {"id": "${{ steps.get_context.outputs.parent_epic_id }}", "key": "${{ steps.get_context.outputs.parent_epic_key }}"},
-            "labels": "${{ inputs.ticket_labels }}",
+            "labels": $(echo ${{ inputs.ticket_labels }} | sed 's/^"//;s/"$//'),
             "components":[{"name": "${{ inputs.module_name }}"}],
             "customfield_10902": {"id": "10524", "value": "DevSecOps"},
             "customfield_10005": 1.0,
