@@ -76,35 +76,34 @@ const useDeleteRequest = ({
     method: fetchMethod,
     onSettled,
     onSuccess: (response) => {
-      const { statusCode, data } = response as ResponseError;
-      if (equals(statusCode, 207)) {
-        const successfulResponses = data.filter(propEq(204, 'status'));
-        const failedResponses = data.filter(complement(propEq(204, 'status')));
-        const failedResponsesIds = failedResponses
-          .map(prop('href'))
-          .map((item: string) =>
-            Number.parseInt(last(split('/', item)) as string, 10)
-          );
+      const { data } = response as ResponseError;
 
-        if (isEmpty(successfulResponses)) {
-          showErrorMessage(t(labelFailed));
+      const successfulResponses = data.filter(propEq(204, 'status'));
+      const failedResponses = data.filter(complement(propEq(204, 'status')));
+      const failedResponsesIds = failedResponses
+        .map(prop('href'))
+        .map((item: string) =>
+          Number.parseInt(last(split('/', item)) as string, 10)
+        );
 
-          return;
-        }
+      if (isEmpty(successfulResponses)) {
+        showErrorMessage(t(labelFailed));
 
-        if (length(successfulResponses) < length(data)) {
-          const failedResponsesNames = selectedRows
-            ?.filter((item) => includes(item.id, failedResponsesIds))
-            .map((item) => item.name);
+        return;
+      }
 
-          showWarningMessage(
-            `${labelFailedToDeleteSelectedRules}: ${failedResponsesNames.join(
-              ', '
-            )}`
-          );
+      if (length(successfulResponses) < length(data)) {
+        const failedResponsesNames = selectedRows
+          ?.filter((item) => includes(item.id, failedResponsesIds))
+          .map((item) => item.name);
 
-          return;
-        }
+        showWarningMessage(
+          `${labelFailedToDeleteSelectedRules}: ${failedResponsesNames.join(
+            ', '
+          )}`
+        );
+
+        return;
       }
 
       showSuccessMessage(t(labelSuccess));
