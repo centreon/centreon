@@ -26,8 +26,8 @@ export const useColumns = (): Array<Column> => {
       type: ColumnType.string,
       id: 'type',
       label: t(labelAgentType),
-      getFormattedString: ({ type }) =>
-        agentTypes.find(({ id }) => equals(id, type)).name
+      getFormattedString: ({ type, pollers }) =>
+        isNil(pollers) ? '' : agentTypes.find(({ id }) => equals(id, type)).name
     },
     {
       type: ColumnType.component,
