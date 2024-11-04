@@ -18270,3 +18270,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Sticky for any non-OK status"
 # msgstr ""
+
+# msgid "There are errors in the form."
+# msgstr ""
