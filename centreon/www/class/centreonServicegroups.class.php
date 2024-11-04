@@ -247,9 +247,9 @@ class CentreonServicegroups
                     $queryValues[':sg_' . $serviceGroupId] = (int) $serviceGroupId;
                 }
             }
-
-            $whereCondition = ' WHERE sg_id IN (' . implode(',', array_keys($queryValues)) . ')';
         }
+
+        $whereCondition = ' WHERE sg_id IN (' . (count($queryValues) ? implode(',', array_keys($queryValues)) : "''") . ')';
 
         $request = <<<SQL
             SELECT
