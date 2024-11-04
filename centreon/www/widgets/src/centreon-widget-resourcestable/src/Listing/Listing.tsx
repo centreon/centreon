@@ -3,10 +3,12 @@ import { equals } from 'ramda';
 import { useTheme } from '@mui/material';
 
 import { MemoizedListing, SeverityCode } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { PanelOptions } from '../models';
 
+import { useAtomValue } from 'jotai';
 import Actions from './Actions';
 import AcknowledgeForm from './Actions/Acknowledge';
 import DowntimeForm from './Actions/Downtime';
@@ -124,21 +126,33 @@ const Listing = ({
     widgetPrefixQuery
   });
 
+  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+
   return (
     <>
       <MemoizedListing
+        paginated={!isOnPublicPage}
         checkable
         actions={
-          <Actions
-            displayType={displayType}
-            hasMetaService={hasMetaService}
-            setPanelOptions={setPanelOptions}
-            isOpenTicketEnabled={isOpenTicketEnabled}
-          />
+          isOnPublicPage ? undefined : (
+            <Actions
+              displayType={displayType}
+              hasMetaService={hasMetaService}
+              setPanelOptions={setPanelOptions}
+              isOpenTicketEnabled={isOpenTicketEnabled}
+            />
+          )
         }
-        actionsBarMemoProps={[displayType, hasMetaService,isOpenTicketEnabled]}
+        actionsBarMemoProps={[
+          displayType,
+          hasMetaService,
+          isOpenTicketEnabled,
+          isOnPublicPage
+        ]}
         columnConfiguration={{
-          selectedColumnIds: selectedColumnIds || defaultSelectedColumnIds,
+          selectedColumnIds: isOnPublicPage
+            ? undefined
+            : selectedColumnIds || defaultSelectedColumnIds,
           sortable: true
         }}
         columns={columns}

@@ -3,7 +3,7 @@ ARG FROM_IMAGE_VERSION=develop
 
 FROM ${REGISTRY_URL}/centreon-web-dependencies-bookworm:${FROM_IMAGE_VERSION}
 
-ARG VERSION
+ARG STABILITY
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -16,11 +16,18 @@ COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 
 RUN --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <<EOF
 
+if [[ "$STABILITY" == "testing" ]]; then
+  for i in \$( ls /etc/apt/sources.list.d/centreon*unstable* ); do mv \$i \$i.disabled; done
+elif [[ "$STABILITY" == "stable" ]]; then
+  for i in \$( ls /etc/apt/sources.list.d/centreon*{unstable,testing}* ); do mv \$i \$i.disabled; done
+fi
+
 apt-get update
 
 apt-get install -y /tmp/packages-centreon/centreon-*.deb
 
-echo "date.timezone = Europe/Paris" >> /etc/php/8.2/mods-available/centreon.ini
+sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php/8.2/mods-available/timezone.ini
+phpenmod -v 8.2 timezone
 
 touch /var/log/php8.2-fpm-centreon-error.log
 chown www-data:www-data /var/log/php8.2-fpm-centreon-error.log
@@ -35,7 +42,7 @@ apt-get clean
 
 EOF
 
-EXPOSE 80 3306
+EXPOSE 80
 
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
