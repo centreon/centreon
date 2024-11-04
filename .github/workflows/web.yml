@@ -47,7 +47,7 @@ env:
 
 jobs:
   changes:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes }}
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
@@ -93,7 +93,7 @@ jobs:
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   gherkin-lint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [changes]
     if: ${{ needs.changes.outputs.has_features_changes == 'true' }}
     steps:
@@ -105,7 +105,7 @@ jobs:
 
   dispatch-to-maintained-branches:
     if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -120,14 +120,14 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  get-version:
-    uses: ./.github/workflows/get-version.yml
+  get-environment:
+    uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
   frontend-web-build:
-    needs: [get-version]
-    runs-on: ubuntu-22.04
+    needs: [get-environment]
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -143,8 +143,8 @@ jobs:
           build_command: pnpm centreon:build
 
   frontend-widgets-build:
-    needs: [get-version]
-    runs-on: ubuntu-22.04
+    needs: [get-environment]
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -157,23 +157,36 @@ jobs:
           static_cache_key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
 
   backend-dependencies:
-    needs: [get-version]
-    runs-on: ubuntu-22.04
+    needs: [get-environment]
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
-      - uses: ./.github/actions/backend-dependencies
+      - name: Setup PHP
+        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.29.0
         with:
-          base_directory: ${{ env.base_directory }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
+          php-version: 8.2
+        env:
+          runner: ubuntu-24.04
+
+      - name: Install Dependencies
+        run: composer install --no-dev --optimize-autoloader
+        working-directory: ${{ env.base_directory }}
+        shell: bash
+
+      - name: Cache vendor directory
+        uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: ${{ env.base_directory }}/vendor
+          key: ${{ github.sha }}-${{ github.run_id }}-vendor
 
   translation-build:
-    needs: [get-version]
+    needs: [get-environment]
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     container:
-      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ needs.get-version.outputs.major_version }}
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ needs.get-environment.outputs.major_version }}
       credentials:
         username: ${{ secrets.DOCKER_REGISTRY_ID }}
         password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
@@ -201,9 +214,9 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-translation
 
   frontend-web-lint:
-    runs-on: ubuntu-22.04
-    needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+    runs-on: ubuntu-24.04
+    needs: [changes, get-environment]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -217,9 +230,9 @@ jobs:
           lint_path: ./www/front_src/
 
   frontend-widgets-lint:
-    runs-on: ubuntu-22.04
-    needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+    runs-on: ubuntu-24.04
+    needs: [changes, get-environment]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -231,9 +244,9 @@ jobs:
           pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   frontend-unit-test:
-    runs-on: ubuntu-22.04
-    needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+    runs-on: ubuntu-24.04
+    needs: [changes, get-environment]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -267,8 +280,8 @@ jobs:
           path: "centreon/junit.xml"
 
   frontend-component-test:
-    needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+    needs: [changes, get-environment]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
     uses: ./.github/workflows/cypress-component-parallelization.yml
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
@@ -280,9 +293,9 @@ jobs:
       dependencies_lock_file: centreon/pnpm-lock.yaml
 
   backend-unit-test:
-    runs-on: ubuntu-22.04
-    needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+    runs-on: ubuntu-24.04
+    needs: [changes, get-environment]
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -293,7 +306,7 @@ jobs:
           php-version: 8.2
           coverage: none
         env:
-          runner: ubuntu-22.04
+          runner: ubuntu-24.04
 
       - name: Install dependencies
         uses: ramsey/composer-install@57532f8be5bda426838819c5ee9afb8af389d51a # v3.0.0
@@ -312,9 +325,9 @@ jobs:
           format: "php-junit"
 
   backend-lint:
-    runs-on: ubuntu-22.04
-    needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+    runs-on: ubuntu-24.04
+    needs: [changes, get-environment]
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -325,7 +338,7 @@ jobs:
           php-version: 8.2
           coverage: none
         env:
-          runner: ubuntu-22.04
+          runner: ubuntu-24.04
 
       - name: Install Dependencies
         run: composer install --optimize-autoloader
@@ -356,7 +369,7 @@ jobs:
     needs:
       [
         gherkin-lint,
-        get-version,
+        get-environment,
         translation-build,
         backend-dependencies,
         backend-lint,
@@ -368,7 +381,7 @@ jobs:
         frontend-unit-test,
         frontend-component-test,
       ]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
 
     strategy:
       fail-fast: false
@@ -390,7 +403,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     container:
-      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
       credentials:
         username: ${{ secrets.DOCKER_REGISTRY_ID }}
         password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
@@ -478,7 +491,7 @@ jobs:
         if: ${{ matrix.package_extension == 'rpm' }}
         run: |
           cd centreon/selinux
-          sed -i "s/@VERSION@/${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}/g" *.te
+          sed -i "s/@VERSION@/${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}/g" *.te
           make -f /usr/share/selinux/devel/Makefile
         shell: bash
 
@@ -493,28 +506,28 @@ jobs:
           nfpm_file_pattern: "centreon/packaging/*.yaml"
           distrib: ${{ matrix.distrib }}
           package_extension: ${{ matrix.package_extension }}
-          major_version: ${{ needs.get-version.outputs.major_version }}
-          minor_version: ${{ needs.get-version.outputs.minor_version }}
-          release: ${{ needs.get-version.outputs.release }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          minor_version: ${{ needs.get-environment.outputs.minor_version }}
+          release: ${{ needs.get-environment.outputs.release }}
           arch: all
           commit_hash: ${{ github.sha }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
           rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
           rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
-          stability: ${{ needs.get-version.outputs.stability }}
+          stability: ${{ needs.get-environment.outputs.stability }}
 
   dockerize:
     runs-on: ubuntu-24.04
-    needs: [get-version, package]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
+    needs: [get-environment, package]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
 
     env:
       project: centreon-web
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).operating_systems }}
+        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
 
     name: dockerize ${{ matrix.operating_system }}
 
@@ -556,7 +569,7 @@ jobs:
       - name: Get FROM image tag
         id: from_image_version
         run: |
-          FROM_IMAGE_VERSION="${{ needs.get-version.outputs.major_version }}"
+          FROM_IMAGE_VERSION="${{ needs.get-environment.outputs.major_version }}"
           FROM_IMAGE="centreon-web-dependencies-${{ matrix.operating_system }}"
           IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.head_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
           if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
@@ -582,9 +595,9 @@ jobs:
 
       - run: |
           if [ "${{ steps.matrix_include.outputs.package_extension }}" = "rpm" ]; then
-            rm -f centreon{,-central,-mariadb,-mysql}-${{ needs.get-version.outputs.major_version }}*.rpm
+            rm -f centreon{,-central,-mariadb,-mysql}-${{ needs.get-environment.outputs.major_version }}*.rpm
           else
-            rm -f centreon{,-central,-mariadb,-mysql}_${{ needs.get-version.outputs.major_version }}*.deb
+            rm -f centreon{,-central,-mariadb,-mysql}_${{ needs.get-environment.outputs.major_version }}*.deb
           fi
 
           mkdir packages-centreon
@@ -604,9 +617,9 @@ jobs:
           context: .
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "VERSION=${{ needs.get-version.outputs.major_version }}"
+            "VERSION=${{ needs.get-environment.outputs.major_version }}"
             "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
-            "STABILITY=${{ needs.get-version.outputs.stability }}"
+            "STABILITY=${{ needs.get-environment.outputs.stability }}"
           pull: true
           push: true
           load: true
@@ -637,18 +650,18 @@ jobs:
           key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
 
   create-xray-test-plan-and-test-execution:
-    needs: [get-version, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
+    needs: [get-environment, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).operating_systems }}
+        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
     name: create-xray-test-plan-and-test-execution-${{ matrix.operating_system }}
 
     uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
     with:
-      major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      major_version: ${{ needs.get-environment.outputs.major_version }}
+      minor_version: ${{ needs.get-environment.outputs.minor_version }}
       os: ${{ matrix.operating_system }}
     secrets:
       xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
@@ -657,12 +670,12 @@ jobs:
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   newman-test:
-    needs: [get-version, changes, create-xray-test-plan-and-test-execution, dockerize]
+    needs: [get-environment, changes, create-xray-test-plan-and-test-execution, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).databases }}
+        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).databases }}
     name: newman-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/newman.yml
@@ -675,8 +688,8 @@ jobs:
       centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
       database_image: bitnami/${{ matrix.database }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
-      major_version: ${{ needs.get-version.outputs.major_version }}
-      stability: ${{ needs.get-version.outputs.stability }}
+      major_version: ${{ needs.get-environment.outputs.major_version }}
+      stability: ${{ needs.get-environment.outputs.stability }}
       xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
 
     secrets:
@@ -688,12 +701,12 @@ jobs:
       jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   legacy-e2e-test:
-    needs: [get-version, changes, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+    needs: [get-environment, changes, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).operating_systems }}
+        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
     name: legacy-e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/behat-test.yml
@@ -711,12 +724,12 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   e2e-test:
-    needs: [get-version, dockerize, create-xray-test-plan-and-test-execution]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
+    needs: [get-environment, dockerize, create-xray-test-plan-and-test-execution]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).operating_systems }}
+        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
     name: e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/cypress-e2e-parallelization.yml
@@ -727,15 +740,15 @@ jobs:
       database_image: bitnami/${{ matrix.database }}
       os: ${{ matrix.operating_system }}
       features_path: tests/e2e/features
-      major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ needs.get-version.outputs.minor_version }}
-      stability: ${{ needs.get-version.outputs.stability }}
+      major_version: ${{ needs.get-environment.outputs.major_version }}
+      minor_version: ${{ needs.get-environment.outputs.minor_version }}
+      stability: ${{ needs.get-environment.outputs.stability }}
       package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma8' && 'rpm-el8' || matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-bookworm' ) }}
       package_directory: centreon/tests/e2e/fixtures/packages
       test_tags: ${{ matrix.test_tags }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
       xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
-      is_cloud: ${{ needs.get-version.outputs.release_cloud == '1' && true || false }}
+      is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
@@ -745,13 +758,13 @@ jobs:
       artifactory_internal_repo_password: ${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}
 
   performances-test:
-    runs-on: ubuntu-22.04
-    needs: [get-version, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
+    runs-on: ubuntu-24.04
+    needs: [get-environment, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).main }}
+        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).main }}
     name: performances-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     steps:
@@ -771,7 +784,7 @@ jobs:
           image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-alma9
           image_version: ${{ github.head_ref || github.ref_name }}
           database_image: bitnami/mariadb:10.11
-          image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
+          image_lighthouse_version: ${{ needs.get-environment.outputs.major_version }}
           module: centreon
           dependencies_lock_file: centreon/pnpm-lock.yaml
 
@@ -795,12 +808,12 @@ jobs:
     runs-on: [self-hosted, common]
     needs:
       [
-        get-version,
+        get-environment,
         e2e-test,
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
+    if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
 
     steps:
       - name: Checkout sources
@@ -820,14 +833,14 @@ jobs:
           backend_vendor_directory: centreon/vendor
           translation_cache_key: ${{ github.sha }}-${{ github.run_id }}-translation
           translation_directory: centreon/www/locale
-          major_version: ${{ needs.get-version.outputs.major_version }}
-          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          minor_version: ${{ needs.get-environment.outputs.minor_version }}
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
   publish-openapi-documentation:
     runs-on: [self-hosted, infra]
-    needs: [get-version]
-    if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
+    needs: [get-environment]
+    if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -847,12 +860,12 @@ jobs:
 
       - name: Build openapi documentation
         run: |
-          if [[ "${{ needs.get-version.outputs.release_cloud }}" == "1" && -f "centreon/doc/API/centreon-cloud-api.yaml" ]]; then
+          if [[ "${{ needs.get-environment.outputs.is_cloud }}" == "true" && -f "centreon/doc/API/centreon-cloud-api.yaml" ]]; then
             OPENAPI_FILE="centreon/doc/API/centreon-cloud-api.yaml"
           elif [[ -f "centreon/doc/API/centreon-api.yaml" ]]; then
             OPENAPI_FILE="centreon/doc/API/centreon-api.yaml"
-          elif [[ -f "centreon/doc/API/centreon-api-v${{ needs.get-version.outputs.major_version }}.yaml" ]]; then
-            OPENAPI_FILE="centreon/doc/API/centreon-api-v${{ needs.get-version.outputs.major_version }}.yaml"
+          elif [[ -f "centreon/doc/API/centreon-api-v${{ needs.get-environment.outputs.major_version }}.yaml" ]]; then
+            OPENAPI_FILE="centreon/doc/API/centreon-api-v${{ needs.get-environment.outputs.major_version }}.yaml"
           else
             echo "::error::openapi file not found"
             exit 1
@@ -879,10 +892,10 @@ jobs:
 
       - name: Copy to AWS S3 centreon-documentation-api
         run: |
-          if [[ "${{ needs.get-version.outputs.release_cloud }}" == "1" ]]; then
+          if [[ "${{ needs.get-environment.outputs.is_cloud }}" == "true" ]]; then
             BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/cloud"
           else
-            BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/${{ needs.get-version.outputs.major_version }}"
+            BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/${{ needs.get-environment.outputs.major_version }}"
           fi
 
           aws s3 cp "index.html" "${BUCKET_PATH}/index.html"
@@ -906,14 +919,12 @@ jobs:
     runs-on: [self-hosted, common]
     needs:
       [
-        get-version,
+        get-environment,
         e2e-test,
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
-
-    environment: ${{ needs.get-version.outputs.environment }}
+    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
       matrix:
@@ -928,25 +939,23 @@ jobs:
         with:
           module_name: web
           distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-version.outputs.major_version }}
+          version: ${{ needs.get-environment.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-          stability: ${{ needs.get-version.outputs.stability }}
-          release_type: ${{ needs.get-version.outputs.release_type }}
-          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   deliver-deb:
     runs-on: [self-hosted, common]
     needs:
       [
-        get-version,
+        get-environment,
         e2e-test,
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
-
-    environment: ${{ needs.get-version.outputs.environment }}
+    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
       matrix:
@@ -961,17 +970,17 @@ jobs:
         with:
           module_name: web
           distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-version.outputs.major_version }}
+          version: ${{ needs.get-environment.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
-          stability: ${{ needs.get-version.outputs.stability }}
-          release_type: ${{ needs.get-version.outputs.release_type }}
-          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   promote:
-    needs: [get-version, deliver-deb, deliver-rpm]
+    needs: [get-environment, deliver-deb, deliver-rpm]
     if: |
-      (contains(fromJson('["stable", "testing"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch') &&
+      (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled')
@@ -990,9 +999,9 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           module: web
           distrib: ${{ matrix.distrib }}
-          major_version: ${{ needs.get-version.outputs.major_version }}
-          minor_version: ${{ needs.get-version.outputs.minor_version }}
-          stability: ${{ needs.get-version.outputs.stability }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          minor_version: ${{ needs.get-environment.outputs.minor_version }}
+          stability: ${{ needs.get-environment.outputs.stability }}
           github_ref_name: ${{ github.ref_name }}
-          release_type: ${{ needs.get-version.outputs.release_type }}
-          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
