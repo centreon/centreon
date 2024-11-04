@@ -1,0 +1,140 @@
+name: Workflow incident tracking
+description: Create Jira ticket on incident
+
+inputs:
+  jira_base_url:
+    required: true
+    description: jira base url
+  jira_user_email:
+    required: true
+    description: jira user email
+  jira_api_token:
+    required: true
+    description: jira api token
+  module_name:
+    required: true
+    description: module name
+  reason_for_ticket_creation:
+    required: true
+    description: type of incident causing the ticket creation (currently veracode or nightly)
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      if: ${{ inputs.reason_for_ticket_creation != 'veracode' }}
+
+    - name: Get ticket elements from context
+      id: get_context
+      run: |
+        # Change context elements (summary, parent epic, etc.) that is checked depending on the reason the ticket is created
+        if [[ "${{ inputs.reason_for_ticket_creation }}" == "veracode" ]]; then
+          parent_epic_id=83818
+          parent_epic_key="AT-268"
+          ticket_summary="PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}"
+          ticket_labels="[\"Veracode\", \"Pipeline\"]"
+          run_url="N/A"
+        elif [[ "${{ inputs.reason_for_ticket_creation }}" == "nightly" ]]; then
+          parent_epic_id=206242
+          parent_epic_key="MON-151547"
+          ticket_summary="$(date '+%Y-%m-%d') ${{ inputs.module_name }}-${{ github.ref_name }} nightly build failure"
+          ticket_labels="[\"Nightly\", \"Pipeline\"]"
+          run_url=$(gh run ls --json name,url --workflow web.yml --branch ${{ github.ref_name }} --limit 20 | \
+            jq --arg module_name "${{ inputs.module_name }}" --arg branch "${{ github.ref_name }}" '. | map(select(.name == ($module_name + " nightly " + $branch))) | .[0].url'| sed 's/^"//;s/"$//')
+          if [ $? -ne 0 ] || [ "$run_url" == "null" ]; then
+            echo "::error::Failed to get nightly run URL"
+            exit 1
+          fi
+        fi
+
+        echo "parent_epic_id=$parent_epic_id" >> $GITHUB_OUTPUT
+        echo "parent_epic_key=$parent_epic_key" >> $GITHUB_OUTPUT
+        echo "ticket_summary=$ticket_summary" >> $GITHUB_OUTPUT
+        echo "ticket_labels=$ticket_labels" >> $GITHUB_OUTPUT
+        echo "run_url=$run_url" >> $GITHUB_OUTPUT
+        cat $GITHUB_OUTPUT
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+
+    - name: Check if the ticket already exists
+      id: check_ticket
+      run: |
+        # Checking if an incident ticket already exists
+        response=$(curl \
+          --request POST \
+          --url "${{ inputs.jira_base_url }}/rest/api/3/search" \
+          --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+          --header "Accept:application/json" \
+          --header "Content-Type:application/json" \
+          --data '{
+              "fields": ["summary"],
+              "jql": "project = MON AND parentEpic = ${{ steps.get_context.outputs.parent_epic_key }} AND issueType = Technical AND summary ~ \"${{ steps.get_context.outputs.ticket_summary }}\" AND component = \"centreon-web\" AND resolution = unresolved ORDER BY key ASC",
+              "maxResults": 1
+            }'
+          )
+        echo "$response"
+        check_if_ticket_exists=$(echo "$response" | jq .issues[0].key)
+        if [[ "$check_if_ticket_exists" != "null" ]]; then
+          echo "abort_ticket_creation=true" >> $GITHUB_ENV
+          echo "::error::ticket found as $check_if_ticket_exists aborting ticket creation"
+        fi
+      shell: bash
+
+    - name: Create Jira Issue
+      if: ${{ env.abort_ticket_creation != 'true' }}
+      run: |
+        # Formatting ticket description from template files
+        JSON_TEMPLATE_FILE="./.github/actions/create-jira-ticket/${{ inputs.reason_for_ticket_creation }}-ticket-template.json"
+        if [[ ${{ inputs.reason_for_ticket_creation }} == "veracode" ]]; then
+          sed -i \
+            -e 's|@PULL_REQUEST_NUMBER@|${{ github.event.pull_request.number }}|g' \
+            -e 's|@PULL_REQUEST_URL@|${{ github.event.pull_request.html_url }}|g' \
+            -e 's|@GITHUB_BRANCH@|${{ github.base_ref || github.ref_name }}|g' \
+            -e 's|@GITHUB_SERVER_URL@|${{ github.server_url }}|g' \
+            -e 's|@GITHUB_REPOSITORY@|${{ github.repository }}|g' \
+            -e 's|@GITHUB_RUN_ID@|${{ github.run_id }}|g' \
+            -e 's|@GITHUB_RUN_ATTEMPT@|${{ github.run_attempt }}|g' $JSON_TEMPLATE_FILE
+        elif [[ ${{ inputs.reason_for_ticket_creation }} == "nightly" ]]; then
+          sed -i \
+            -e 's|@MODULE_NAME@|${{ inputs.module_name }}|g' \
+            -e 's|@REF_NAME@|${{ github.ref_name }}|g' \
+            -e "s|@DATE@|$(date '+%Y-%m-%d')|g" \
+            -e 's|@RUN_URL@|${{ steps.get_context.outputs.run_url }}|g' $JSON_TEMPLATE_FILE
+        fi
+        cat $JSON_TEMPLATE_FILE
+
+        # Creating a new incident ticket on Jira
+        DATA=$( cat <<-EOF
+        {
+          "fields": {
+            "summary": "${{ steps.get_context.outputs.ticket_summary }}",
+            "project": {"key": "MON"},
+            "issuetype": {"id": "10209"},
+            "parent": {"id": "${{ steps.get_context.outputs.parent_epic_id }}", "key": "${{ steps.get_context.outputs.parent_epic_key }}"},
+            "labels": ${{ steps.get_context.outputs.ticket_labels }},
+            "components":[{"name": "${{ inputs.module_name }}"}],
+            "customfield_10902": {"id": "10524", "value": "DevSecOps"},
+            "customfield_10005": 1.0,
+            "description": $(cat $JSON_TEMPLATE_FILE)
+          }
+        }
+        EOF
+        )
+
+        response=$(curl \
+          --request POST \
+          --url "${{ inputs.jira_base_url }}/rest/api/3/issue" \
+          --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+          --header 'Accept: application/json' \
+          --header 'Content-Type: application/json' \
+          --data "$DATA")
+        echo $response
+        if [ $? -ne 0 ]; then
+          echo "::error::Failed to create ticket: $response"
+          exit 1
+        fi
+
+        ticket_key=$(echo "$response" | jq -r .key)
+        echo "::notice::Created ticket: $ticket_key"
+      shell: bash

@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "This incident ticket relates to the @MODULE_NAME@ nightly on @REF_NAME@ which failed on @DATE@."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Link to the failed nightly",
+          "marks": [
+            {
+              "type": "link",
+              "attrs": {
+                "href": "@RUN_URL@"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
