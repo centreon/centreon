@@ -30,6 +30,7 @@ runs:
         # Change context elements (summary, parent epic, etc.) that is checked depending on the ticket labels in the input
         ticket_labels=${{ inputs.ticket_labels }}
         IFS=', ' read -a ticket_labels_array <<< $(echo $ticket_labels | tr -d "[],'")
+        echo "${ticket_labels_array[@]}"
         if [[ "${ticket_labels_array[@]}" =~ "Veracode" ]]; then
           parent_epic_id=83818
           parent_epic_key="AT-268"
