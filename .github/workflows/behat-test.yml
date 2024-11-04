@@ -80,7 +80,7 @@ jobs:
         with:
           jira_base_url: ${{ secrets.jira_base_url }}
           jira_user_email: ${{ secrets.jira_user_email }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
           ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.workflow }}']"
 
@@ -204,7 +204,7 @@ jobs:
         with:
           jira_base_url: ${{ secrets.jira_base_url }}
           jira_user_email: ${{ secrets.jira_user_email }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
           ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.workflow }}']"
 
@@ -271,6 +271,6 @@ jobs:
         with:
           jira_base_url: ${{ secrets.jira_base_url }}
           jira_user_email: ${{ secrets.jira_user_email }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
           ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.workflow }}']"
