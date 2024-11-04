@@ -4,6 +4,7 @@ import {
   equals,
   includes,
   isEmpty,
+  isNil,
   last,
   length,
   prop,
@@ -78,21 +79,22 @@ const useDeleteRequest = ({
     onSuccess: (response) => {
       const { data } = response as ResponseError;
 
-      const successfulResponses = data.filter(propEq(204, 'status'));
-      const failedResponses = data.filter(complement(propEq(204, 'status')));
+      const successfullResponses =
+        data?.filter(propEq(204, 'status')) || isNil(data);
+      const failedResponses = data?.filter(complement(propEq(204, 'status')));
       const failedResponsesIds = failedResponses
         .map(prop('href'))
         .map((item: string) =>
           Number.parseInt(last(split('/', item)) as string, 10)
         );
 
-      if (isEmpty(successfulResponses)) {
+      if (isEmpty(successfullResponses)) {
         showErrorMessage(t(labelFailed));
 
         return;
       }
 
-      if (length(successfulResponses) < length(data)) {
+      if (length(successfullResponses) < length(data)) {
         const failedResponsesNames = selectedRows
           ?.filter((item) => includes(item.id, failedResponsesIds))
           .map((item) => item.name);
