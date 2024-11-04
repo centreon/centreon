@@ -51,7 +51,7 @@ on:
 
 jobs:
   newman-test-list:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     outputs:
       collections: ${{ steps.set_collections.outputs.collections }}
@@ -69,7 +69,7 @@ jobs:
           cat $GITHUB_OUTPUT
 
   associate-test-cases:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: ${{ inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
     outputs:
       test_execution_id: ${{ steps.get-test-ids.outputs.test_execution_id }}
@@ -357,7 +357,7 @@ jobs:
   newman-test-run:
     needs: [newman-test-list, associate-test-cases]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -515,7 +515,7 @@ jobs:
   synchronize-with-xray:
     needs: [newman-test-run, associate-test-cases]
     if: always()
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
@@ -774,7 +774,7 @@ jobs:
   regroup-artifacts:
     needs: [newman-test-run]
     if: always()
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Merge Artifacts
