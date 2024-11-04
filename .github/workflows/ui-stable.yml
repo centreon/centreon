@@ -15,7 +15,7 @@ on:
 env:
   directory: "centreon/packages/ui"
   package: "ui"
-  base_branch: develop
+  base_branch: dev-24.10.x
   AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.LIGHTHOUSE_SECRET }}
   AWS_DEFAULT_REGION: eu-west-1
