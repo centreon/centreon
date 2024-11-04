@@ -1,5 +1,5 @@
 import { Column, ColumnType } from '@centreon/ui';
-import { T, isNil, prop } from 'ramda';
+import { T, equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import {
   labelAction,
@@ -9,6 +9,7 @@ import {
 } from '../../translatedLabels';
 import Action from './Action';
 import Poller from './Poller';
+import { agentTypes } from '../../Form/useInputs';
 
 export const useColumns = (): Array<Column> => {
   const { t } = useTranslation();
@@ -25,7 +26,8 @@ export const useColumns = (): Array<Column> => {
       type: ColumnType.string,
       id: 'type',
       label: t(labelAgentType),
-      getFormattedString: prop('type')
+      getFormattedString: ({ type }) =>
+        agentTypes.find(({ id }) => equals(id, type)).name
     },
     {
       type: ColumnType.component,
