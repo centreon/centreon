@@ -461,6 +461,8 @@ if (!empty($msgConditions)) {
 
 // Host and service filters
 $hostServiceConditions = [];
+// Check if the filter is on services
+$service_filter = str_contains($openid, 'HS');
 $tab_id = explode(',', $openid);
 $tab_host_ids = [];
 $tab_svc = [];
@@ -473,7 +475,7 @@ foreach ($tab_id as $openidItem) {
     }
 
     $type = $tab_tmp[0];
-    if ($type == "HG" && (isset($lca["LcaHostGroup"][$id]) || $is_admin)) {
+    if (!$service_filter && $type == "HG" && (isset($lca["LcaHostGroup"][$id]) || $is_admin)) {
         // Get hosts from host groups
         $hosts = getMyHostGroupHosts($id);
         foreach ($hosts as $h_id) {
@@ -482,7 +484,7 @@ foreach ($tab_id as $openidItem) {
                 $tab_svc[$h_id] = $lca["LcaHost"][$h_id];
             }
         }
-    } elseif ($type == 'SG' && (isset($lca["LcaSG"][$id]) || $is_admin)) {
+    } elseif (!$service_filter && $type == 'SG' && (isset($lca["LcaSG"][$id]) || $is_admin)) {
         // Get services from service groups
         $services = getMyServiceGroupServices($id);
         foreach ($services as $svc_id => $svc_name) {
@@ -493,7 +495,7 @@ foreach ($tab_id as $openidItem) {
                 $tab_svc[$tmp_host_id][$tmp_service_id] = $lca["LcaHost"][$tmp_host_id][$tmp_service_id];
             }
         }
-    } elseif ($type == "HH" && isset($lca["LcaHost"][$id])) {
+    } elseif (!$service_filter && $type == "HH" && isset($lca["LcaHost"][$id])) {
         $tab_host_ids[] = $id;
         $tab_svc[$id] = $lca["LcaHost"][$id];
     } elseif ($type == "HS" && isset($lca["LcaHost"][$hostId][$id])) {
