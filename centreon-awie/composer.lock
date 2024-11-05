@@ -225,30 +225,28 @@
         },
         {
             "name": "behat/mink-selenium2-driver",
-            "version": "v1.7.0",
+            "version": "v1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/minkphp/MinkSelenium2Driver.git",
-                "reference": "4ca4083f305de7dff4434ac402dc4e3f39c0866a"
+                "reference": "e5f8421654930da725499fb92983e6948c6f973e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/minkphp/MinkSelenium2Driver/zipball/4ca4083f305de7dff4434ac402dc4e3f39c0866a",
-                "reference": "4ca4083f305de7dff4434ac402dc4e3f39c0866a",
+                "url": "https://api.github.com/repos/minkphp/MinkSelenium2Driver/zipball/e5f8421654930da725499fb92983e6948c6f973e",
+                "reference": "e5f8421654930da725499fb92983e6948c6f973e",
                 "shasum": ""
             },
             "require": {
-                "behat/mink": "^1.11@dev",
+                "behat/mink": "^1.9@dev",
                 "ext-json": "*",
-                "instaclick/php-webdriver": "^1.4.14",
+                "instaclick/php-webdriver": "^1.4",
                 "php": ">=7.2"
             },
             "require-dev": {
                 "mink/driver-testsuite": "dev-master",
-                "phpstan/phpstan": "^1.10",
-                "phpstan/phpstan-phpunit": "^1.3",
                 "phpunit/phpunit": "^8.5.22 || ^9.5.11",
-                "symfony/error-handler": "^4.4 || ^5.0 || ^6.0 || ^7.0"
+                "symfony/error-handler": "^4.4 || ^5.0"
             },
             "type": "mink-driver",
             "extra": {
@@ -289,9 +287,9 @@
             ],
             "support": {
                 "issues": "https://github.com/minkphp/MinkSelenium2Driver/issues",
-                "source": "https://github.com/minkphp/MinkSelenium2Driver/tree/v1.7.0"
+                "source": "https://github.com/minkphp/MinkSelenium2Driver/tree/v1.6.0"
             },
-            "time": "2023-12-09T11:58:45+00:00"
+            "time": "2022-03-28T14:55:17+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -1635,27 +1633,27 @@
         },
         {
             "name": "friends-of-behat/mink",
-            "version": "v1.11.0",
+            "version": "v1.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfBehat/Mink.git",
-                "reference": "8aa0dc57999cb12736b80b379e22187d7f18e8a9"
+                "reference": "301371a4e229cb7d4e0e401d6afb90cff4214ef5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfBehat/Mink/zipball/8aa0dc57999cb12736b80b379e22187d7f18e8a9",
-                "reference": "8aa0dc57999cb12736b80b379e22187d7f18e8a9",
+                "url": "https://api.github.com/repos/FriendsOfBehat/Mink/zipball/301371a4e229cb7d4e0e401d6afb90cff4214ef5",
+                "reference": "301371a4e229cb7d4e0e401d6afb90cff4214ef5",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.4|^8.0",
-                "symfony/css-selector": "^4.4|^5.0|^6.0|^7.0"
+                "symfony/css-selector": "^4.4|^5.0|^6.0"
             },
             "replace": {
                 "behat/mink": "self.version"
             },
             "require-dev": {
-                "symfony/phpunit-bridge": "^5.2|^6.0|^7.0"
+                "symfony/phpunit-bridge": "^5.2|^6.0"
             },
             "suggest": {
                 "behat/mink-browserkit-driver": "extremely fast headless driver for Symfony\\Kernel-based apps (Sf2, Silex)",
@@ -1694,29 +1692,29 @@
                 "web"
             ],
             "support": {
-                "source": "https://github.com/FriendsOfBehat/Mink/tree/v1.11.0"
+                "source": "https://github.com/FriendsOfBehat/Mink/tree/v1.10.0"
             },
-            "time": "2024-02-06T13:17:10+00:00"
+            "time": "2021-12-13T11:05:18+00:00"
         },
         {
             "name": "friends-of-behat/mink-extension",
-            "version": "v2.7.5",
+            "version": "v2.7.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfBehat/MinkExtension.git",
-                "reference": "854336030e11983f580f49faad1b49a1238f9846"
+                "reference": "18d5a53dff3e2c8934c53e2db8b02b7ea345fe85"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfBehat/MinkExtension/zipball/854336030e11983f580f49faad1b49a1238f9846",
-                "reference": "854336030e11983f580f49faad1b49a1238f9846",
+                "url": "https://api.github.com/repos/FriendsOfBehat/MinkExtension/zipball/18d5a53dff3e2c8934c53e2db8b02b7ea345fe85",
+                "reference": "18d5a53dff3e2c8934c53e2db8b02b7ea345fe85",
                 "shasum": ""
             },
             "require": {
                 "behat/behat": "^3.0.5",
                 "behat/mink": "^1.5",
                 "php": ">=7.4",
-                "symfony/config": "^4.4 || ^5.0 || ^6.0 || ^7.0"
+                "symfony/config": "^4.4 || ^5.0 || ^6.0"
             },
             "replace": {
                 "behat/mink-extension": "self.version"
@@ -1759,10 +1757,9 @@
                 "web"
             ],
             "support": {
-                "issues": "https://github.com/FriendsOfBehat/MinkExtension/issues",
-                "source": "https://github.com/FriendsOfBehat/MinkExtension/tree/v2.7.5"
+                "source": "https://github.com/FriendsOfBehat/MinkExtension/tree/v2.7.4"
             },
-            "time": "2024-01-11T09:12:02+00:00"
+            "time": "2023-10-03T13:15:12+00:00"
         },
         {
             "name": "friendsofphp/php-cs-fixer",
@@ -2300,16 +2297,16 @@
         },
         {
             "name": "instaclick/php-webdriver",
-            "version": "1.4.19",
+            "version": "1.4.18",
             "source": {
                 "type": "git",
                 "url": "https://github.com/instaclick/php-webdriver.git",
-                "reference": "3b2a2ddc4e0a690cc691d7e5952964cc4b9538b1"
+                "reference": "a61a8459f86c79dd1f19934ea3929804f2e41f8c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/instaclick/php-webdriver/zipball/3b2a2ddc4e0a690cc691d7e5952964cc4b9538b1",
-                "reference": "3b2a2ddc4e0a690cc691d7e5952964cc4b9538b1",
+                "url": "https://api.github.com/repos/instaclick/php-webdriver/zipball/a61a8459f86c79dd1f19934ea3929804f2e41f8c",
+                "reference": "a61a8459f86c79dd1f19934ea3929804f2e41f8c",
                 "shasum": ""
             },
             "require": {
@@ -2357,9 +2354,9 @@
             ],
             "support": {
                 "issues": "https://github.com/instaclick/php-webdriver/issues",
-                "source": "https://github.com/instaclick/php-webdriver/tree/1.4.19"
+                "source": "https://github.com/instaclick/php-webdriver/tree/1.4.18"
             },
-            "time": "2024-03-19T01:58:53+00:00"
+            "time": "2023-12-08T07:11:19+00:00"
         },
         {
             "name": "jms/metadata",
@@ -7628,16 +7625,16 @@
         },
         {
             "name": "symfony/css-selector",
-            "version": "v6.4.13",
+            "version": "v6.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/css-selector.git",
-                "reference": "cb23e97813c5837a041b73a6d63a9ddff0778f5e"
+                "reference": "d036c6c0d0b09e24a14a35f8292146a658f986e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/css-selector/zipball/cb23e97813c5837a041b73a6d63a9ddff0778f5e",
-                "reference": "cb23e97813c5837a041b73a6d63a9ddff0778f5e",
+                "url": "https://api.github.com/repos/symfony/css-selector/zipball/d036c6c0d0b09e24a14a35f8292146a658f986e4",
+                "reference": "d036c6c0d0b09e24a14a35f8292146a658f986e4",
                 "shasum": ""
             },
             "require": {
@@ -7673,7 +7670,7 @@
             "description": "Converts CSS selectors to XPath expressions",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/css-selector/tree/v6.4.13"
+                "source": "https://github.com/symfony/css-selector/tree/v6.4.0"
             },
             "funding": [
                 {
@@ -7689,7 +7686,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-09-25T14:18:03+00:00"
+            "time": "2023-10-31T08:40:20+00:00"
         },
         {
             "name": "symfony/dependency-injection",
