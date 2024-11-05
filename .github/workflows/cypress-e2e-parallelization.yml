@@ -332,15 +332,13 @@ jobs:
           failOnError: false
 
   create-jira-nightly-ticket:
+    needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report, regroup-artifacts]
     runs-on: ubuntu-24.04
     if: |
       github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
       (failure() || cancelled()) && github.run_attempt == 1
     steps:
       - name: Create Jira ticket if nightly build failure
-        if: |
-          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
-          failure() && github.run_attempt == 1
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.jira_base_url }}

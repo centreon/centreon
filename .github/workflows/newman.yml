@@ -800,6 +800,7 @@ jobs:
           failOnError: false
 
   create-jira-nightly-ticket:
+    needs: [newman-test-run, synchronize-with-xray, regroup-artifacts]
     runs-on: ubuntu-24.04
     if: |
       github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
