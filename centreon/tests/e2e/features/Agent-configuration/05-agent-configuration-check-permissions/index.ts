@@ -203,11 +203,7 @@ Given('the user has a filter on one of the pollers', () => {
 });
 
 When('the user accesses the Agents Configuration page', () => {
-  cy.navigateTo({
-    page: 'Agent configurations',
-    rootItemNumber: 0,
-    subMenu: 'Pollers'
-  });
+  cy.reload();
   cy.wait('@getAgentsPage');
 });
 

@@ -6,6 +6,7 @@ before(() => {
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-3.json'); 
+  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-4.json'); 
 });
 
 beforeEach(() => {
@@ -166,7 +167,7 @@ When('the user fills in the needed information', () => {
   cy.contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-004');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
-  cy.contains('Central').click();
+  cy.contains('Poller-4').click();
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('my-otel-certificate-name-001');
   cy.getByLabel({ label: 'CA file name', tag: 'input' }).type('ca-file-name-001');
   cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).type('my-otel-private-key-name-001');
