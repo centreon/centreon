@@ -53,7 +53,7 @@ runs:
             -e 's|@MODULE_NAME@|${{ inputs.module_name }}|g' \
             -e "s|@DATE@|$(date '+%Y-%m-%d')|g" $JSON_TEMPLATE_FILE
         else
-          echo "::error::Cannot find a valid labelling for the ticket."
+          echo "::error::Cannot find a valid labelling option for the ticket."
           exit 1
         fi
 

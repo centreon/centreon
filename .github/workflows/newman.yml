@@ -795,8 +795,18 @@ jobs:
           name: newman-${{ inputs.os }}-html-reports-*
           failOnError: false
 
-  create-jira-nightly-ticket:
+  fail-nightly:
     needs: [newman-test-run, synchronize-with-xray, regroup-artifacts]
+    runs-on: ubuntu-24.04
+    if: |
+      github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
+      (failure() || cancelled()) && github.run_attempt == 1
+    steps:
+      - run: exit 1
+        shell: bash
+
+  create-jira-nightly-ticket:
+    needs: [newman-test-run, synchronize-with-xray, regroup-artifacts, fail-nightly]
     runs-on: ubuntu-24.04
     if: |
       github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
