@@ -285,6 +285,7 @@ if ($EndDate != "") {
 }
 
 // Setting the startDate/Time using the user's chosen period
+$period = 86400;
 if ($auto_period > 0 || $start === 0) {
     $period = (int)$auto_period;
     $start = time() - $period;
@@ -630,7 +631,7 @@ $limitClause = '';
 if (!$export) {
     $queryValues[':offset'] = [$num, \PDO::PARAM_INT];
     $queryValues[':limit'] = [$limit, \PDO::PARAM_INT];
-    $limitClause = 'LIMIT :limit, :offset';
+    $limitClause = 'LIMIT :limit OFFSET :offset';
 }
 
 $sqlQuery = "
