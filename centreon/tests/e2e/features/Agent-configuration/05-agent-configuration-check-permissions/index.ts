@@ -85,7 +85,7 @@ Then('the first configuration is displayed in the Agents Configuration page', ()
     .should('contain', 'telegraf-001');
 });
 
-Given('a agent configuration is already created', () => {
+Given('an agent configuration is already created', () => {
   cy.get('*[role="rowgroup"]')
     .should('contain', 'telegraf-001');
 });
@@ -165,7 +165,7 @@ Given('a non-admin user is logged in', () => {
   });
 });
 
-Given('a agent configuration already created linked with two pollers', () => {
+Given('an agent configuration already created linked with two pollers', () => {
   cy.visit('/centreon/configuration/pollers/agent-configurations');
   cy.wait('@getAgentsPage');
   cy.getByTestId({ testId: 'AddIcon' }).click();

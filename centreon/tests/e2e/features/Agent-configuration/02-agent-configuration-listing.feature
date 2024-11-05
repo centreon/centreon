@@ -1,5 +1,5 @@
 @REQ_MON-146653
-Feature: Access a Agent Configuration
+Feature: Access an Agent Configuration
   As a Centreon user
   I want to visit the Agents Configuration page
   To list the agent configuration

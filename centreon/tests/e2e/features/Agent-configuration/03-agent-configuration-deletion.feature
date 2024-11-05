@@ -1,5 +1,5 @@
 @REQ_MON-146653
-Feature: Delete a Agent Configuration
+Feature: Delete an Agent Configuration
   As a Centreon user
   I want to visit the Agents Configuration page
   To delete the agent configuration

@@ -16,7 +16,7 @@ Feature: Check permissions on Agent Configuration
   @TEST_MON-152001
   Scenario: Update an agent configuration with an admin user
     Given an admin user is in the Agents Configuration page
-    And a agent configuration is already created
+    And an agent configuration is already created
     When the user clicks on the line of the Agents Configuration
     Then a pop up is displayed with all of the agent information
     When the user modifies the configuration
@@ -27,7 +27,7 @@ Feature: Check permissions on Agent Configuration
   @TEST_MON-152002
   Scenario: Delete an agent configuration with an admin user
     Given an admin user is in the Agents Configuration page
-    And a agent configuration is already created
+    And an agent configuration is already created
     When the user deletes the Agents Configuration
     Then the Agents Configuration is no longer displayed in the listing page
 
@@ -40,7 +40,7 @@ Feature: Check permissions on Agent Configuration
   @TEST_MON-152004
   Scenario: Access to Agents page with a non-admin user with filters on Pollers
     Given a non-admin user is logged in
-    And a agent configuration already created linked with two pollers
+    And an agent configuration already created linked with two pollers
     And the user has a filter on one of the pollers
     When the user accesses the Agents Configuration page
     Then the user can not view the agent configuration linked to the 2 pollers

@@ -1,5 +1,5 @@
 @REQ_MON-146653
-Feature: Update a Agent Configuration
+Feature: Update an Agent Configuration
   As a Centreon user
   I want to visit the Agents Configuration page
   To update the agent configuration
