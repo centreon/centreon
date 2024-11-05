@@ -17707,6 +17707,9 @@ msgstr "Modo avanzado"
 #  msgid "Web page preview"
 #  msgstr ""
 
+# msgid "Save your dashboard to generate a thumbnail"
+# msgstr ""
+
 #  msgid "If ticket management is enabled, only the “by service” view is available."
 #  msgstr ""
 
@@ -17726,6 +17729,9 @@ msgstr "Modo avanzado"
 # msgstr ""
 
 # msgid "Copy breadcrumb"
+# msgstr ""
+
+# msgid "Thumbnails show a snapshot of your data, taken when the dashboard is saved"
 # msgstr ""
 
 # msgid "Agent configuration"
