@@ -26,6 +26,7 @@ namespace Core\Dashboard\Application\UseCase\PartialUpdateDashboard;
 use Core\Common\Application\Type\NoValue;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\PanelRequestDto;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\RefreshRequestDto;
+use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\ThumbnailRequestDto;
 
 final class PartialUpdateDashboardRequest
 {
@@ -34,12 +35,14 @@ final class PartialUpdateDashboardRequest
      * @param NoValue|string $description
      * @param NoValue|array<PanelRequestDto> $panels
      * @param NoValue|RefreshRequestDto $refresh
+     * @param NoValue|ThumbnailRequestDto $thumbnail
      */
     public function __construct(
         public NoValue|string $name = new NoValue(),
         public NoValue|string $description = new NoValue(),
         public NoValue|array $panels = new NoValue(),
         public NoValue|RefreshRequestDto $refresh = new NoValue(),
+        public NoValue|ThumbnailRequestDto $thumbnail = new NoValue()
     ) {
     }
 }
