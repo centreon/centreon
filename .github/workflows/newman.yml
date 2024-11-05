@@ -46,10 +46,6 @@ on:
         required: true
       client_secret:
         required: true
-      jira_user:
-        required: true
-      jira_api_token:
-        required: true
       jira_base_url:
         required: true
       jira_user_email:
