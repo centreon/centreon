@@ -1,11 +1,11 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
-  cy.startContainers();
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/ac-acl-user.json');
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-3.json'); 
+  // cy.startContainers();
+  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/ac-acl-user.json');
+  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
+  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
+  // cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-3.json'); 
 });
 
 beforeEach(() => {
@@ -28,7 +28,7 @@ beforeEach(() => {
 });
 
 after(() => {
-  cy.stopContainers();
+  // cy.stopContainers();
 });
 
 Given('a non-admin user is logged in', () => {
@@ -39,7 +39,11 @@ Given('a non-admin user is logged in', () => {
 });
 
 When('the user clicks on the Agents Configuration page', () => {
-  cy.visit('/centreon/configuration/pollers/agent-configurations');
+  cy.navigateTo({
+    page: 'Agent configurations',
+    rootItemNumber: 0,
+    subMenu: 'Pollers'
+  });
 });
 
 Then('the user sees the Agents Configuration page', () => {

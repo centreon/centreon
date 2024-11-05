@@ -203,7 +203,11 @@ Given('the user has a filter on one of the pollers', () => {
 });
 
 When('the user accesses the Agents Configuration page', () => {
-  cy.visit('/centreon/configuration/pollers/agent-configurations');
+  cy.navigateTo({
+    page: 'Agent configurations',
+    rootItemNumber: 0,
+    subMenu: 'Pollers'
+  });
   cy.wait('@getAgentsPage');
 });
 
