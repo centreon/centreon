@@ -28,49 +28,6 @@ $centreonLog = new CentreonLog();
 $versionOfTheUpgrade = 'UPGRADE - 24.10.1: ';
 $errorMessage = '';
 
-// Nagios macros
-$updateNagiosMacros =  function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to check for existing macros in nagios_macro table';
-    $statement = $pearDB->executeQuery(
-        <<<'SQL'
-            SELECT COUNT(*) FROM `nagios_macro`
-            WHERE `macro_name` IN (
-                '$NOTIFICATIONAUTHOR$',
-                '$NOTIFICATIONAUTHORNAME$',
-                '$NOTIFICATIONAUTHORALIAS$',
-                '$NOTIFICATIONCOMMENT$'
-            )
-        SQL
-    );
-
-    $errorMessage = 'Unable to insert new macros into nagios_macro table';
-    if (0 === (int) $statement->fetch(\PDO::FETCH_COLUMN)) {
-        $pearDB->executeQuery(
-        <<<'SQL'
-            INSERT INTO `nagios_macro` (`macro_name`)
-            VALUES
-                ('$NOTIFICATIONAUTHOR$'),
-                ('$NOTIFICATIONAUTHORNAME$'),
-                ('$NOTIFICATIONAUTHORALIAS$'),
-                ('$NOTIFICATIONCOMMENT$')
-            SQL
-        );
-    }
-
-    $errorMessage = 'Unable to delete deprecated macros from nagios_macro table';
-    $pearDB->executeQuery(
-    <<<'SQL'
-        DELETE FROM `nagios_macro`
-        WHERE `macro_name` IN (
-            '$HOSTACKAUTHOR$',
-            '$HOSTACKCOMMENT$',
-            '$SERVICEACKAUTHOR$',
-            '$SERVICEACKCOMMENT$'
-        )
-        SQL
-    );
-};
-
 // Agent Configuration
 $createAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to create agent_configuration table';
@@ -142,7 +99,6 @@ try {
         $pearDB->beginTransaction();
     }
 
-    $updateNagiosMacros($pearDB);
     $insertAgentConfigurationTopology($pearDB);
 
     $pearDB->commit();

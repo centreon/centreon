@@ -338,7 +338,7 @@ class Generate
         $readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
             ?? throw new \Exception('ReadAccRepositoryInterface not found');
         (new AdditionalConnectorVmWareV6(
-            Backend::getInstance($this->dependencyInjector),
+            $this->backend_instance,
             $readAdditionalConnectorRepository
         ))->generateFromPollerId($this->current_poller['id']);
         $readAgentConfigurationRepository = $kernel->getContainer()->get(

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ require_once __DIR__ . '/../../class/centreonLog.class.php';
 
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 24.10.0: ';
 $errorMessage = '';
 
@@ -38,7 +38,7 @@ $insertWebPageWidget = function (CentreonDB $pearDB) use (&$errorMessage): void 
     );
 
     $errorMessage = 'Unable to insert data into table dashboard_widgets';
-    if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
+    if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
         $pearDB->executeQuery(
             <<<'SQL'
                 INSERT INTO `dashboard_widgets` (`name`)
@@ -58,7 +58,7 @@ $insertVaultConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): 
     );
 
     $errorMessage = 'Unable to insert data into table topology';
-    if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
+    if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
         $pearDB->executeQuery(
             <<<'SQL'
                 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_feature_flag`)
@@ -115,9 +115,10 @@ try {
     $insertVaultConfiguration($pearDB);
     $insertWebPageWidget($pearDB);
     $fixNamingAndActivateAccTopology($pearDB);
+    $updateNagiosMacros($pearDB);
 
     $pearDB->commit();
-} catch (\Exception $e) {
+} catch (Exception $e) {
 
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
@@ -131,5 +132,5 @@ try {
             . ' - Trace : ' . $e->getTraceAsString()
     );
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }
