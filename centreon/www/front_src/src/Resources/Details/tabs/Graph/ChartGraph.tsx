@@ -89,7 +89,7 @@ const ChartGraph = ({
   return (
     <>
       <FederatedComponent
-        path="/anomaly-detection/enableThresholdLines"
+        path="/anomaly-detection/EnableThresholdLines"
         styleMenuSkeleton={{ height: 0, width: 0 }}
         type={resource?.type}
         getShapeLines={getShapeLines}

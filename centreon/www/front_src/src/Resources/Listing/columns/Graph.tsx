@@ -67,7 +67,7 @@ const Graph = ({ row, endpoint }: GraphProps): JSX.Element => {
   return (
     <Suspense fallback={<LoadingSkeleton height="100%" />}>
       <FederatedComponent
-        path="/anomaly-detection/enableThresholdLines"
+        path="/anomaly-detection/EnableThresholdLines"
         styleMenuSkeleton={{ height: 0, width: 0 }}
         type={row?.type}
         getShapeLines={getShapeLines}
