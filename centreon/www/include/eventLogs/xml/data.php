@@ -113,99 +113,69 @@ $defaultLimit = $centreon->optGen['maxViewConfiguration'] > 1
     ? (int) $centreon->optGen['maxViewConfiguration']
     : 30;
 
-/**
- * Get input vars
- */
-$inputGet = [
-    'lang' => isset($_GET['lang']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['lang']) : null,
-    'id' => isset($_GET['id']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['id']) : null,
-    'num' => filter_input(INPUT_GET, 'num', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]),
-    'limit' => filter_input(INPUT_GET, 'limit', FILTER_VALIDATE_INT, ['options' => ['default' => $defaultLimit]]),
-    'StartDate' => isset($_GET['StartDate']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['StartDate']) : null,
-    'EndDate' => isset($_GET['EndDate']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['EndDate']) : null,
-    'StartTime' => isset($_GET['StartTime']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['StartTime']) : null,
-    'EndTime' => isset($_GET['EndTime']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['EndTime']) : null,
-    'period' => filter_input(INPUT_GET, 'period', FILTER_VALIDATE_INT),
-    'engine' => isset($_GET['engine']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['engine']) : null,
-    'up' => isset($_GET['up']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['up']) : null,
-    'down' => isset($_GET['down']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['down']) : null,
-    'unreachable' => isset($_GET['unreachable'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['unreachable'])
-        : null,
-    'ok' => isset($_GET['ok']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['ok']) : null,
-    'warning' => isset($_GET['warning']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['warning']) : null,
-    'critical' => isset($_GET['critical']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['critical']) : null,
-    'unknown' => isset($_GET['unknown']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['unknown']) : null,
-    'acknowledgement' => isset($_GET['acknowledgement']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['acknowledgement']) : null,
-    'notification' => isset($_GET['notification'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['notification'])
-        : null,
-    'alert' => isset($_GET['alert']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['alert']) : null,
-    'oh' => isset($_GET['oh']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['oh']) : null,
-    'error' => isset($_GET['error']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['error']) : null,
-    'output' => isset($_GET['output']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['output']) : null,
-    'search_H' => isset($_GET['search_H']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search_H']) : null,
-    'search_S' => isset($_GET['search_S']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search_S']) : null,
-    'search_host' => isset($_GET['search_host'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search_host'])
-        : null,
-    'search_service' => isset($_GET['search_service'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search_service'])
-        : null,
-    'export' => isset($_GET['export']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['export']) : null,
-];
+// Define a function to get and sanitize inputs where necessary
+function getInput($key, $sanitize = false, $default = null, $filter = null)
+{
+    $value = $_GET[$key] ?? $_POST[$key] ?? $default;
 
-$inputPost = [
-    'lang' => isset($_POST['lang']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['lang']) : null,
-    'id' => isset($_POST['id']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['id']) : null,
-    'num' => filter_input(INPUT_POST, 'num', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]),
-    'limit' => filter_input(INPUT_POST, 'limit', FILTER_VALIDATE_INT, ['options' => ['default' => $defaultLimit]]),
-    'StartDate' => isset($_POST['StartDate']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['StartDate']) : null,
-    'EndDate' => isset($_POST['EndDate']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['EndDate']) : null,
-    'StartTime' => isset($_POST['StartTime']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['StartTime']) : null,
-    'EndTime' => isset($_POST['EndTime']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['EndTime']) : null,
-    'period' => filter_input(INPUT_POST, 'period', FILTER_VALIDATE_INT),
-    'engine' => isset($_POST['engine']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['engine']) : null,
-    'up' => isset($_POST['up']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['up']) : null,
-    'down' => isset($_POST['down']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['down']) : null,
-    'unreachable' => isset($_POST['unreachable'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['unreachable'])
-        : null,
-    'ok' => isset($_POST['ok']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['ok']) : null,
-    'warning' => isset($_POST['warning']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['warning']) : null,
-    'critical' => isset($_POST['critical']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['critical']) : null,
-    'unknown' => isset($_POST['unknown']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['unknown']) : null,
-    'acknowledgement' => isset($_POST['acknowledgement']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['acknowledgement']) : null,
-    'notification' => isset($_POST['notification'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['notification'])
-        : null,
-    'alert' => isset($_POST['alert']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['alert']) : null,
-    'oh' => isset($_POST['oh']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['oh']) : null,
-    'error' => isset($_POST['error']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['error']) : null,
-    'output' => isset($_POST['output']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['output']) : null,
-    'search_H' => isset($_POST['search_H']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['search_H']) : null,
-    'search_S' => isset($_POST['search_S']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['search_S']) : null,
-    'search_host' => isset($_POST['search_host'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['search_host'])
-        : null,
-    'search_service' => isset($_POST['search_service'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['search_service'])
-        : null,
-    'export' => isset($_POST['export']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['export']) : null,
-];
-
-// Saving bound values
-$queryValues = [];
-
-$inputs = [];
-foreach ($inputGet as $argumentName => $argumentValue) {
-    if (!empty($inputGet[$argumentName])) {
-        $inputs[$argumentName] = $inputGet[$argumentName];
-    } elseif (!empty($inputPost[$argumentName])) {
-        $inputs[$argumentName] = $inputPost[$argumentName];
-    } else {
-        $inputs[$argumentName] = null;
+    if ($filter !== null && $value !== null) {
+        $value = filter_var($value, $filter, FILTER_NULL_ON_FAILURE);
+        if ($value === null) {
+            $value = $default;
+        }
     }
+
+    if ($sanitize && $value !== null) {
+        // Sanitizing the input
+        $value = HtmlSanitizer::createFromString($value)
+            ->removeTags()  // Remove all HTML tags
+            ->sanitize()    // Convert special characters to HTML entities
+            ->getString();
+    }
+
+    return $value;
+}
+
+// Define input specifications
+$inputDefinitions = [
+    'lang' => ['sanitize' => true, 'default' => null],
+    'id' => ['sanitize' => true, 'default' => '-1'],
+    'num' => ['default' => 0, 'filter' => FILTER_VALIDATE_INT],
+    'limit' => ['default' => $defaultLimit, 'filter' => FILTER_VALIDATE_INT],
+    'StartDate' => ['default' => ''],
+    'EndDate' => ['default' => ''],
+    'StartTime' => ['default' => ''],
+    'EndTime' => ['default' => ''],
+    'period' => ['default' => -1, 'filter' => FILTER_VALIDATE_INT],
+    'engine' => ['default' => 'false'],
+    'up' => ['default' => 'true'],
+    'down' => ['default' => 'true'],
+    'unreachable' => ['default' => 'true'],
+    'ok' => ['default' => 'true'],
+    'warning' => ['default' => 'true'],
+    'critical' => ['default' => 'true'],
+    'unknown' => ['default' => 'true'],
+    'acknowledgement' => ['default' => 'true'],
+    'notification' => ['default' => 'false'],
+    'alert' => ['default' => 'true'],
+    'oh' => ['default' => 'false'],
+    'error' => ['default' => 'false'],
+    'output' => ['sanitize' => true, 'default' => ''],
+    'search_H' => ['default' => 'VIDE'],
+    'search_S' => ['default' => 'VIDE'],
+    'search_host' => ['default' => ''],
+    'search_service' => ['default' => ''],
+    'export' => ['default' => 0],
+];
+
+// Collect inputs
+$inputs = [];
+foreach ($inputDefinitions as $key => $properties) {
+    $sanitize = $properties['sanitize'] ?? false;
+    $default = $properties['default'] ?? null;
+    $filter = $properties['filter'] ?? null;
+
+    $inputs[$key] = getInput($key, $sanitize, $default, $filter);
 }
 
 $kernel = \App\Kernel::createForWeb();
@@ -220,8 +190,8 @@ $buffer->startElement("root");
 /*
  * Security check
  */
-$lang_ = \HtmlAnalyzer::sanitizeAndRemoveTags($inputs["lang"] ?? "-1");
-$openid = \HtmlAnalyzer::sanitizeAndRemoveTags($inputs["id"] ?? "-1");
+$lang_ = $inputs["lang"] ?? "-1";
+$openid = $inputs["id"];
 $sid = session_id();
 $sid ??= "-1";
 
@@ -250,31 +220,31 @@ if (isset($sid) && $sid) {
 $num = filter_var($inputs['num'], FILTER_VALIDATE_INT, ['options' => ['default' => 0, 'min_range' => 0]]);
 $limit = filter_var($inputs['limit'], FILTER_VALIDATE_INT, ['options' => ['default' => 30]]);
 
-// data should be sanitized in the output (front) not in the input
-$StartDate = $inputs["StartDate"] ?? "";
-$EndDate = $inputs["EndDate"] ?? "";
-$StartTime = $inputs["StartTime"] ?? "";
-$EndTime = $inputs["EndTime"] ?? "";
-$auto_period = isset($inputs["period"]) ? (int)$inputs["period"] : -1;
-$engine = $inputs["engine"] ?? "false";
-$up = $inputs["up"] ?? "true";
-$down = $inputs["down"] ?? "true";
-$unreachable = $inputs["unreachable"] ?? "true";
-$ok = $inputs["ok"] ?? "true";
-$warning = $inputs["warning"] ?? "true";
-$critical = $inputs["critical"] ?? "true";
-$unknown = $inputs["unknown"] ?? "true";
-$acknowledgement = $inputs["acknowledgement"] ?? "true";
-$notification = $inputs["notification"] ?? "false";
-$alert = $inputs["alert"] ?? "true";
-$oh = $inputs["oh"] ?? "false";
-$error = $inputs["error"] ?? "false";
+// use Binding, to avoid SQL injection
+$StartDate = $inputs["StartDate"];
+$EndDate = $inputs["EndDate"];
+$StartTime = $inputs["StartTime"];
+$EndTime = $inputs["EndTime"];
+$auto_period = (int)$inputs["period"];
+$engine = $inputs["engine"];
+$up = $inputs["up"];
+$down = $inputs["down"];
+$unreachable = $inputs["unreachable"];
+$ok = $inputs["ok"];
+$warning = $inputs["warning"];
+$critical = $inputs["critical"];
+$unknown = $inputs["unknown"];
+$acknowledgement = $inputs["acknowledgement"];
+$notification = $inputs["notification"];
+$alert = $inputs["alert"];
+$oh = $inputs["oh"];
+$error = $inputs["error"];
 $output = isset($inputs["output"]) ? urldecode($inputs["output"]) : "";
-$search_H = $inputs["search_H"] ?? "VIDE";
-$search_S = $inputs["search_S"] ?? "VIDE";
-$search_host = $inputs["search_host"] ?? "";
-$search_service = $inputs["search_service"] ?? "";
-$export = $inputs["export"] ?? 0;
+$search_H = $inputs["search_H"];
+$search_S = $inputs["search_S"];
+$search_host = $inputs["search_host"];
+$search_service = $inputs["search_service"];
+$export = $inputs["export"];
 
 $start = 0;
 $end = time();
@@ -396,41 +366,41 @@ $buffer->endElement();
 // Build message type and status conditions
 $msg_type_set = [];
 if ($alert == 'true') {
-    array_push($msg_type_set, "'0'", "'1'");
+    array_push($msg_type_set, 0, 1);
 }
 if ($notification == 'true') {
-    array_push($msg_type_set, "'2'", "'3'");
+    array_push($msg_type_set, 2, 3);
 }
 if ($error == 'true') {
-    array_push($msg_type_set, "'4'");
+    array_push($msg_type_set, 4);
 }
 
 $host_msg_status_set = [];
 if ($up == 'true') {
-    $host_msg_status_set[] = "'" . STATUS_UP . "'";
+    $host_msg_status_set[] = STATUS_UP;
 }
 if ($down == 'true') {
-    $host_msg_status_set[] = "'" . STATUS_DOWN . "'";
+    $host_msg_status_set[] = STATUS_DOWN;
 }
 if ($unreachable == 'true') {
-    $host_msg_status_set[] = "'" . STATUS_UNREACHABLE . "'";
+    $host_msg_status_set[] = STATUS_UNREACHABLE;
 }
 
 $svc_msg_status_set = [];
 if ($ok == 'true') {
-    $svc_msg_status_set[] = "'" . STATUS_OK . "'";
+    $svc_msg_status_set[] = STATUS_OK;
 }
 if ($warning == 'true') {
-    $svc_msg_status_set[] = "'" . STATUS_WARNING . "'";
+    $svc_msg_status_set[] = STATUS_WARNING;
 }
 if ($critical == 'true') {
-    $svc_msg_status_set[] = "'" . STATUS_CRITICAL . "'";
+    $svc_msg_status_set[] = STATUS_CRITICAL;
 }
 if ($unknown == 'true') {
-    $svc_msg_status_set[] = "'" . STATUS_UNKNOWN . "'";
+    $svc_msg_status_set[] = STATUS_UNKNOWN;
 }
 if ($acknowledgement == 'true') {
-    $svc_msg_status_set[] = "'" . STATUS_ACKNOWLEDGEMENT . "'";
+    $svc_msg_status_set[] = STATUS_ACKNOWLEDGEMENT;
 }
 
 $whereClauses = [];
@@ -438,14 +408,14 @@ $queryValues = [];
 
 // Time range conditions
 $whereClauses[] = 'logs.ctime > :startTime';
-$queryValues[':startTime'] = [\PDO::PARAM_INT => $start];
+$queryValues[':startTime'] = [$start, \PDO::PARAM_INT];
 $whereClauses[] = 'logs.ctime <= :endTime';
-$queryValues[':endTime'] = [\PDO::PARAM_INT => $end];
+$queryValues[':endTime'] = [$end, \PDO::PARAM_INT];
 
 // Output filter
 if (!empty($output)) {
     $whereClauses[] = 'logs.output LIKE :output';
-    $queryValues[':output'] = [\PDO::PARAM_STR => '%' . $output . '%'];
+    $queryValues[':output'] = ['%' . $output . '%', \PDO::PARAM_STR];
 }
 
 // Message type and status conditions
@@ -453,16 +423,16 @@ $msgConditions = [];
 
 if ($notification == 'true') {
     if (!empty($host_msg_status_set)) {
-        $msgConditions[] = "(logs.msg_type = '3' AND logs.status IN (" . implode(',', $host_msg_status_set) . "))";
+        $msgConditions[] = "(logs.msg_type = 3 AND logs.status IN (" . implode(',', $host_msg_status_set) . "))";
     }
     if (!empty($svc_msg_status_set)) {
-        $msgConditions[] = "(logs.msg_type = '2' AND logs.status IN (" . implode(',', $svc_msg_status_set) . "))";
+        $msgConditions[] = "(logs.msg_type = 2 AND logs.status IN (" . implode(',', $svc_msg_status_set) . "))";
     }
 }
 if ($alert == 'true') {
     $alertConditions = [];
-    $alertMsgTypesHost = ['1', '10', '11'];
-    $alertMsgTypesSvc = ['0', '10', '11'];
+    $alertMsgTypesHost = [1, 10, 11];
+    $alertMsgTypesSvc = [0, 10, 11];
 
     if (!empty($host_msg_status_set)) {
         $alertConditions[] = "(logs.msg_type IN (" . implode(',', $alertMsgTypesHost) . ") AND logs.status IN (" . implode(',', $host_msg_status_set) . "))";
@@ -475,14 +445,14 @@ if ($alert == 'true') {
         foreach ($alertConditions as &$condition) {
             $condition = '(' . $condition . ' AND logs.type = :logType)';
         }
-        $queryValues[':logType'] = [\PDO::PARAM_INT => TYPE_HARD];
+        $queryValues[':logType'] = [TYPE_HARD, \PDO::PARAM_INT];
     }
     // Add alert conditions to msgConditions
     $msgConditions = array_merge($msgConditions, $alertConditions);
 }
 
 if ($error == 'true') {
-    $msgConditions[] = 'logs.msg_type IN (\'4\', \'5\')';
+    $msgConditions[] = 'logs.msg_type IN (4, 5)';
 }
 if (!empty($msgConditions)) {
     $whereClauses[] = '(' . implode(' OR ', $msgConditions) . ')';
@@ -497,7 +467,6 @@ foreach ($tab_id as $openidItem) {
     $tab_tmp = explode('_', $openidItem);
     $id = $tab_tmp[2] ?? $tab_tmp[1] ?? '';
     $hostId = !empty($tab_tmp[2]) ? $tab_tmp[1] : '';
-    $serviceId = $tab_tmp[2] ?? null; //??
     if ($id == "") {
         continue;
     }
@@ -536,22 +505,30 @@ foreach ($tab_id as $openidItem) {
 if (in_array('true', [$up, $down, $unreachable, $ok, $warning, $critical, $unknown, $acknowledgement])) {
 
     if (!empty($tab_host_ids)) {
-        $hostPlaceholders = implode(', ', array_fill(0, count($tab_host_ids), '?'));
-        $hostServiceConditions[] = "(logs.host_id IN ($hostPlaceholders) AND (logs.service_id IS NULL OR logs.service_id = 0))";
-        foreach ($tab_host_ids as $hostId) {
-            $queryValues[] = [\PDO::PARAM_INT => $hostId];
+        $hostPlaceholders = [];
+        foreach ($tab_host_ids as $index => $hostId) {
+            $paramName = ':hostId' . $index;
+            $hostPlaceholders[] = $paramName;
+            $queryValues[$paramName] = [$hostId, \PDO::PARAM_INT];
         }
+        $hostPlaceholdersString = implode(', ', $hostPlaceholders);
+        $hostServiceConditions[] = "(logs.host_id IN ($hostPlaceholdersString) AND (logs.service_id IS NULL OR logs.service_id = 0))";
     }
 
     if (!empty($tab_svc)) {
         $serviceConditions = [];
-        foreach ($tab_svc as $hostId => $services) {
-            $svcPlaceholders = implode(', ', array_fill(0, count($services), '?'));
-            $serviceConditions[] = "(logs.host_id = ? AND logs.service_id IN ($svcPlaceholders))";
-            $queryValues[] = [\PDO::PARAM_INT => $hostId];
-            foreach ($services as $svcId) {
-                $queryValues[] = [\PDO::PARAM_INT => $svcId];
+        foreach ($tab_svc as $hostIndex => $services) {
+            $hostParam = ':hostId' . $hostIndex;
+            $queryValues[$hostParam] = [$hostIndex, \PDO::PARAM_INT];
+
+            $servicePlaceholders = [];
+            foreach ($services as $svcIndex => $svcId) {
+                $paramName = ':serviceId' . $hostIndex . '_' . $svcIndex;
+                $servicePlaceholders[] = $paramName;
+                $queryValues[$paramName] = [$svcIndex, \PDO::PARAM_INT];
             }
+            $servicePlaceholdersString = implode(', ', $servicePlaceholders);
+            $serviceConditions[] = "(logs.host_id = $hostParam AND logs.service_id IN ($servicePlaceholdersString))";
         }
         if (!empty($serviceConditions)) {
             $hostServiceConditions[] = '(' . implode(' OR ', $serviceConditions) . ')';
@@ -565,24 +542,22 @@ if (in_array('true', [$up, $down, $unreachable, $ok, $warning, $critical, $unkno
 
 // Exclude BAM modules if necessary
 if ($engine == "false" && empty($tab_host_ids) && empty($tab_svc)) {
-    $whereClauses[] = "logs.msg_type NOT IN ('4', '5')";
+    $whereClauses[] = "logs.msg_type NOT IN (4, 5)";
     $whereClauses[] = "logs.host_name NOT LIKE '_Module_BAM%'";
 }
 
 // Apply host and service search filters
 if (!empty($search_host)) {
     $whereClauses[] = 'logs.host_name LIKE :searchHost';
-    $queryValues[':searchHost'] = [\PDO::PARAM_STR => '%' . $search_host . '%'];
+    $queryValues[':searchHost'] = ['%' . $search_host . '%', \PDO::PARAM_STR];
 }
 if (!empty($search_service)) {
     $whereClauses[] = 'logs.service_description LIKE :searchService';
-    $queryValues[':searchService'] = [\PDO::PARAM_STR => '%' . $search_service . '%'];
+    $queryValues[':searchService'] = ['%' . $search_service . '%', \PDO::PARAM_STR];
 }
 
-// Build the final SQL query
+// Build the select fields without including SQL_CALC_FOUND_ROWS and DISTINCT
 $selectFields = [
-    "SQL_CALC_FOUND_ROWS",
-    (!$is_admin ? "DISTINCT" : ""),
     "1 AS REALTIME",
     "logs.ctime",
     "logs.host_id",
@@ -599,26 +574,42 @@ $selectFields = [
     "logs.instance_name"
 ];
 
-$selectClause = "SELECT " . implode(", ", array_filter($selectFields));
+// Start building the SELECT clause
+$selectClause = "SELECT ";
+
+// Add DISTINCT if the user is not an admin
+if (!$is_admin) {
+    $selectClause .= "DISTINCT ";
+}
+
+// Add SQL_CALC_FOUND_ROWS
+$selectClause .= "SQL_CALC_FOUND_ROWS ";
+
+// Add the select fields
+$selectClause .= implode(", ", $selectFields);
+
 $fromClause = "FROM logs";
 
 $joinClauses = [];
 if ($engine == "true" && !empty($openid)) {
     $pollerIds = array_filter(explode(',', $openid), 'is_numeric');
     if (!empty($pollerIds)) {
-        $pollerPlaceholders = implode(', ', array_fill(0, count($pollerIds), '?'));
+        $pollerPlaceholders = [];
+        foreach ($pollerIds as $index => $pollerId) {
+            $paramName = ':pollerId' . $index;
+            $pollerPlaceholders[] = $paramName;
+            $queryValues[$paramName] = [$pollerId, \PDO::PARAM_INT];
+        }
+        $pollerPlaceholdersString = implode(', ', $pollerPlaceholders);
         $joinClauses[] = "
             INNER JOIN instances i ON i.name = logs.instance_name
-            AND i.instance_id IN ($pollerPlaceholders)
+            AND i.instance_id IN ($pollerPlaceholdersString)
         ";
-        foreach ($pollerIds as $index => $pollerId) {
-            $queryValues['pollerId' . $index] = [\PDO::PARAM_INT => $pollerId];
-        }
     }
     if ($str_unitH != "") {
         $str_unitH = "(logs.host_id IN ($str_unitH) AND (logs.service_id IS NULL OR logs.service_id = 0))";
         if (isset($search_host) && $search_host != "") {
-            $host_search_sql = " AND logs.host_name LIKE '%" . $pearDBO->escape($search_host) . "%' ";
+            $host_search_sql = " AND logs.host_name LIKE '%" . $pearDBO->escapeString($search_host) . "%' ";
         }
     }
 }
@@ -637,9 +628,9 @@ $orderClause = "ORDER BY logs.ctime DESC";
 
 $limitClause = '';
 if (!$export) {
-    $queryValues[':offset'] = [\PDO::PARAM_INT => $num];
-    $queryValues[':limit'] = [\PDO::PARAM_INT => $limit];
-    $limitClause = 'LIMIT :offset, :limit';
+    $queryValues[':offset'] = [$num, \PDO::PARAM_INT];
+    $queryValues[':limit'] = [$limit, \PDO::PARAM_INT];
+    $limitClause = 'LIMIT :limit, :offset';
 }
 
 $sqlQuery = "
@@ -650,20 +641,14 @@ $sqlQuery = "
     $orderClause
     $limitClause
 ";
+
+$paginator = new Paginator((int)$num, (int)$limit);
 try {
     // Prepare and execute the query using CentreonDB methods
     $statement = $pearDBO->prepareQuery($sqlQuery);
-
-    // Flatten $queryValues for binding
-    $flatQueryValues = [];
-    foreach ($queryValues as $key => $value) {
-        $flatQueryValues[$key] = $value;
-    }
-
-    $pearDBO->executePreparedQuery($statement, $flatQueryValues, true);
+    $pearDBO->executePreparedQuery($statement, $queryValues, true);
     $rows = $statement->rowCount();
 
-    $paginator = new Paginator((int)$num, (int)$limit);
     $result = $pearDBO->executeQuery('SELECT FOUND_ROWS()');
     if ($result) {
         $totalRows = $pearDBO->fetchColumn($result);
@@ -675,11 +660,10 @@ try {
         // Update the offset in both $queryValues and $flatQueryValues
         $newOffset = $paginator->getOffsetMaximum();
         $queryValues[':offset'] = [$newOffset, \PDO::PARAM_INT];
-        $flatQueryValues[':offset'] = [$newOffset, \PDO::PARAM_INT];
 
         // Re-prepare and execute the query with the updated offset
         $statement = $pearDBO->prepareQuery($sqlQuery);
-        $pearDBO->executePreparedQuery($statement, $flatQueryValues, true);
+        $pearDBO->executePreparedQuery($statement, $queryValues, true);
     }
 
     $logs = $pearDBO->fetchAll($statement);
