@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindDashboard;
 
-use Core\Dashboard\Application\UseCase\FindDashboard\Response\{PanelResponseDto, RefreshResponseDto, UserResponseDto};
+use Core\Dashboard\Application\UseCase\FindDashboard\Response\{PanelResponseDto, RefreshResponseDto, ThumbnailResponseDto, UserResponseDto};
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 
 final class FindDashboardResponse
@@ -48,6 +48,8 @@ final class FindDashboardResponse
     public DashboardSharingRole $ownRole = DashboardSharingRole::Viewer;
 
     public RefreshResponseDto $refresh;
+
+    public ?ThumbnailResponseDto $thumbnail = null;
 
     /**
      * @var array{

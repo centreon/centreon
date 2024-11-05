@@ -24,12 +24,14 @@ declare(strict_types=1);
 namespace Core\Dashboard\Application\UseCase\FindDashboards;
 
 use Core\Dashboard\Application\UseCase\FindDashboards\Response\DashboardResponseDto;
+use Core\Dashboard\Application\UseCase\FindDashboards\Response\ThumbnailResponseDto;
 use Core\Dashboard\Application\UseCase\FindDashboards\Response\UserResponseDto;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use Core\Dashboard\Domain\Model\Share\DashboardContactGroupShare;
 use Core\Dashboard\Domain\Model\Share\DashboardContactShare;
 use Core\Dashboard\Domain\Model\Share\DashboardSharingRoles;
+use Core\Media\Domain\Model\Media;
 
 final class FindDashboardsFactory
 {
@@ -40,6 +42,7 @@ final class FindDashboardsFactory
      * @param array<int, array<DashboardContactShare>> $contactShares
      * @param array<int, array<DashboardContactGroupShare>> $contactGroupShares
      * @param DashboardSharingRole $defaultRole
+     * @param array<int, Media> $thumbnails
      *
      * @return FindDashboardsResponse
      */
@@ -49,13 +52,16 @@ final class FindDashboardsFactory
         array $sharingRolesList,
         array $contactShares,
         array $contactGroupShares,
-        DashboardSharingRole $defaultRole
+        DashboardSharingRole $defaultRole,
+        array $thumbnails
     ): FindDashboardsResponse {
         $response = new FindDashboardsResponse();
 
         foreach ($dashboards as $dashboard) {
             $sharingRoles = $sharingRolesList[$dashboard->getId()] ?? null;
             $ownRole = $defaultRole->getTheMostPermissiveOfBoth($sharingRoles?->getTheMostPermissiveRole());
+
+            $thumbnail = $thumbnails[$dashboard->getId()] ?? null;
 
             $dto = new DashboardResponseDto();
 
@@ -96,6 +102,14 @@ final class FindDashboardsFactory
                         'role' => $contactGroupShare->getRole(),
                     ],
                     $contactGroupShares[$dashboard->getId()]);
+            }
+
+            if ($thumbnail !== null) {
+                $dto->thumbnail = new ThumbnailResponseDto(
+                    $thumbnail->getId(),
+                    $thumbnail->getFilename(),
+                    $thumbnail->getDirectory()
+                );
             }
 
             $response->dashboards[] = $dto;

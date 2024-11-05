@@ -36,6 +36,7 @@
     "sensio/framework-extra-bundle": "^6.2",
     "smarty/smarty": "^v4.5",
     "smarty-gettext/smarty-gettext": "^1.6",
+    "smarty/smarty": "^v4.3",
     "symfony/config": "6.4.*",
     "symfony/console": "6.4.*",
     "symfony/dependency-injection": "6.4.*",

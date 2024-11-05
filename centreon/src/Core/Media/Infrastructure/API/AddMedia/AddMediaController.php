@@ -29,7 +29,8 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Common\Infrastructure\Upload\FileCollection;
 use Core\Media\Application\UseCase\AddMedia\AddMedia;
 use Core\Media\Application\UseCase\AddMedia\AddMediaRequest;
-use Core\Media\Infrastructure\API\Exception\AddMediaException;
+use Core\Media\Infrastructure\API\Exception\MediaException;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,9 +39,9 @@ final class AddMediaController extends AbstractController
 {
     use LoggerTrait;
 
+    #[IsGranted('create_media', null, 'You are not allowed to add media', Response::HTTP_FORBIDDEN)]
     public function __invoke(Request $request, AddMedia $useCase, AddMediaPresenter $presenter): Response
     {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
         $uploadedFile = '';
         $filesToDeleteAfterProcessing = [];
         try {
@@ -65,14 +66,14 @@ final class AddMediaController extends AbstractController
             $addMediaRequest->directory = (string) $request->request->get('directory');
 
             $useCase($addMediaRequest, $presenter);
-        } catch (AddMediaException $ex) {
+        } catch (MediaException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->presentResponse(
                 new ErrorResponse(
-                    AddMediaException::errorUploadingFile($uploadedFile)->getMessage()
+                    MediaException::errorUploadingFile($uploadedFile)->getMessage()
                 )
             );
         } finally {
