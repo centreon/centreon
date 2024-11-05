@@ -122,3 +122,8 @@ it('should return a valid multiple array', function (): void {
     $timeRange = new TimeRange('00:00-10:00,11:00-18:00');
     expect($timeRange->getRanges())->toBeArray()->toHaveCount(2);
 });
+
+it('should not throw an exception for 00:00-00:00', function (): void {
+    $timeRange = new TimeRange('00:00-00:00');
+    expect($timeRange->getRanges())->toBeArray()->toHaveCount(1);
+});
