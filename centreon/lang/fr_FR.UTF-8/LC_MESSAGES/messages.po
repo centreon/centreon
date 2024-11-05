@@ -19477,6 +19477,15 @@ msgstr "Les vignettes affichent un instantané de vos données, pris au moment d
 msgid "Poller/agent configuration"
 msgstr "Configuration collecteur/agent"
 
+msgid "Breadcrumb copied"
+msgstr "Fil d'Ariane copié"
+
+msgid "Failed to copy breadcrumb"
+msgstr "Échec de la copie du fil d'Ariane"
+
+msgid "Copy breadcrumb"
+msgstr "Copier le fil d'Ariane"
+
 msgid "Welcome to the poller/agent configuration page"
 msgstr "Bienvenue sur la page des configurations collecteur/agent"
 
