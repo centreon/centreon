@@ -83,6 +83,15 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
             $parameters['base_uri'] .= '/';
         }
 
+        // Manage URL Generation for HTTPS and Legacy nested route generation calls
+        $context = $this->router->getContext();
+        if ($_SERVER['REQUEST_SCHEME'] === "https") {
+                $context->setScheme($_SERVER['REQUEST_SCHEME']);
+        }
+        if ($_SERVER['SERVER_NAME'] !== "localhost") {
+            $context->setHost($_SERVER['SERVER_NAME']);
+        }
+
         $generatedRoute = $this->router->generate($name, $parameters, $referenceType);
 
         // remove double slashes
