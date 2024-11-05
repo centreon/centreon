@@ -1,6 +1,6 @@
 {
     "name": "centreon/centreon",
-    "version": "23.10",
+    "version": "23.04",
     "type": "project",
     "license": "GPL-2.0-only",
     "description": "Centreon - IT and Application monitoring software",
