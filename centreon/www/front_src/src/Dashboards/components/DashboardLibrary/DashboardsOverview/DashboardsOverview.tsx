@@ -5,13 +5,22 @@ import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { generatePath, useNavigate } from 'react-router-dom';
 
-import { DataTable } from '@centreon/ui/components';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { Box, Typography } from '@mui/material';
+
+import { userAtom } from '@centreon/ui-context';
+import { DataTable, Tooltip } from '@centreon/ui/components';
+
+import thumbnailFallbackDark from '../../../../assets/thumbnail-fallback-dark.svg';
+import thumbnailFallbackLight from '../../../../assets/thumbnail-fallback-light.svg';
 
 import routeMap from '../../../../reactRoutes/routeMap';
 import { Dashboard } from '../../../api/models';
 import { DashboardLayout } from '../../../models';
 import {
   labelCreateADashboard,
+  labelDataDisplayedForRepresentativeUse,
+  labelSaveYourDashboardForThumbnail,
   labelWelcomeToDashboardInterface
 } from '../../../translatedLabels';
 import DashboardCardActions from '../DashboardCardActions/DashboardCardActions';
@@ -31,6 +40,7 @@ const DashboardsOverview = (): ReactElement => {
 
   const viewMode = useAtomValue(viewModeAtom);
   const search = useAtomValue(searchAtom);
+  const user = useAtomValue(userAtom);
 
   const { isEmptyList, dashboards, data, isLoading } = useDashboardsOverview();
   const { createDashboard } = useDashboardConfig();
@@ -52,12 +62,23 @@ const DashboardsOverview = (): ReactElement => {
     [viewMode]
   );
 
+  const fallbackThumbnail = useMemo(
+    () =>
+      equals(user.themeMode, 'light')
+        ? thumbnailFallbackLight
+        : thumbnailFallbackDark,
+    [user.themeMode]
+  );
+
   const emptyStateLabels = {
     actions: {
       create: t(labelCreateADashboard)
     },
     title: t(labelWelcomeToDashboardInterface)
   };
+
+  const getThumbnailSrc = (dashboard): string =>
+    `img/media/${dashboard.thumbnail?.directory}/${dashboard.thumbnail?.name}?${new Date().getTime()}`;
 
   if (isCardsView && isLoading && isNil(data)) {
     return <DashboardsOverviewSkeleton />;
@@ -78,19 +99,48 @@ const DashboardsOverview = (): ReactElement => {
   }
 
   const GridTable = (
-    <DataTable isEmpty={isEmptyList} variant="grid">
-      {dashboards.map((dashboard) => (
-        <DataTable.Item
-          hasCardAction
-          Actions={<DashboardCardActions dashboard={dashboard} />}
-          description={dashboard.description ?? undefined}
-          hasActions={hasEditPermission(dashboard)}
-          key={dashboard.id}
-          title={dashboard.name}
-          onClick={navigateToDashboard(dashboard)}
-        />
-      ))}
-    </DataTable>
+    <div>
+        <Box className={classes.warningContainer}>
+          <InfoOutlinedIcon color='primary'/>
+          <Typography className={classes.warning} >
+            {t(labelDataDisplayedForRepresentativeUse)}
+          </Typography>
+        </Box>
+        <DataTable isEmpty={isEmptyList} variant="grid">
+          {dashboards.map((dashboard) => (
+            <div className={classes.dashboardItemContainer} key={dashboard.id}>
+              <DataTable.Item
+                hasCardAction
+                Actions={<DashboardCardActions dashboard={dashboard} />}
+                description={dashboard.description ?? undefined}
+                hasActions={hasEditPermission(dashboard)}
+                thumbnail={
+                  dashboard.thumbnail
+                    ? getThumbnailSrc(dashboard)
+                    : fallbackThumbnail
+                }
+                title={dashboard.name}
+                onClick={navigateToDashboard(dashboard)}
+              />
+              {!dashboard.thumbnail && (
+                <Box className={classes.thumbnailFallbackIcon}>
+                  <Tooltip
+                    followCursor={false}
+                    label={t(labelSaveYourDashboardForThumbnail)}
+                    placement="top"
+                  >
+                    <InfoOutlinedIcon
+                      color="primary"
+                      data-testid="thumbnail-fallback"
+                    />
+                  </Tooltip>
+                </Box>
+              )}
+            </div>
+          ))}
+        </DataTable>
+
+    </div>
   );
 
   return (

@@ -50,6 +50,7 @@ final class DashboardResponseDto
      *      role: DashboardSharingRole
      *     }>
      * } $shares
+     * @param ThumbnailResponseDto $thumbnail
      */
     public function __construct(
         public int $id = 0,
@@ -60,7 +61,8 @@ final class DashboardResponseDto
         public DateTimeImmutable $createdAt = new DateTimeImmutable(),
         public DateTimeImmutable $updatedAt = new DateTimeImmutable(),
         public DashboardSharingRole $ownRole = DashboardSharingRole::Viewer,
-        public array $shares = ['contacts' => [], 'contact_groups' => []]
+        public array $shares = ['contacts' => [], 'contact_groups' => []],
+        public ?ThumbnailResponseDto $thumbnail = null
     ) {
     }
 }

@@ -9,14 +9,12 @@ import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-a
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import statuschartWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithStatusChartWidget.json';
-import twoStatuschartWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwoStatusChartWidgets.json';
 
 const greenCssBackground = 'background: rgb(136, 185, 34)';
 const orangeCssBackground = 'background: rgb(253, 155, 39)';
 const redCssBackground = 'background: rgb(255, 102, 102)';
 const greyCssBackground = 'background: rgb(227, 227, 227)';
 const blueCssBackground = 'background: rgb(30, 190, 179)';
-
 
 const hostGroupName = 'Linux-Servers';
 
@@ -150,8 +148,9 @@ before(() => {
     { name: services.serviceOk.name, status: 'ok' }
   ]);
 
-  cy.scheduleHostCheck({ host: services.serviceOk.host })
-    .scheduleHostCheck({ host: services.serviceCritical.host });
+  cy.scheduleHostCheck({ host: services.serviceOk.host }).scheduleHostCheck({
+    host: services.serviceCritical.host
+  });
 
   ['Disk-/', 'Load', 'Memory', 'Ping'].forEach((service) => {
     cy.scheduleServiceCheck({ host: 'Centreon-Server', service });
@@ -346,7 +345,12 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
 });
 
 Given('a dashboard that includes a configured Status Chart widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    statuschartWidget,
+    'centreon-widget-statuschart',
+    '/widgets/statuschart'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
 });
@@ -373,7 +377,13 @@ Then('the unit of the resources already displayed should be updated', () => {
 });
 
 Given('a dashboard featuring two Status Chart widgets', () => {
-  cy.insertDashboardWithWidget(dashboards.default, twoStatuschartWidgets);
+  cy.insertDashboardWithDoubleWidget(
+    dashboards.default,
+    statuschartWidget,
+    statuschartWidget,
+    'centreon-widget-statuschart',
+    '/widgets/statuschart'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.wait('@getDashboard');
   cy.wait('@getServiceStatus');
@@ -391,17 +401,17 @@ When('the dashboard administrator user deletes one of the widgets', () => {
 
 Then('only the contents of the other widget are displayed', () => {
   cy.verifyLegendItemStyle(
-    1,
+    0,
     [
       greenCssBackground,
       redCssBackground,
       greyCssBackground,
       blueCssBackground
     ],
-    ['3', '0', '0', '0']
+    ['100.0%', '0', '0', '0']
   );
   cy.verifyLegendItemStyle(
-    0,
+    1,
     [
       greenCssBackground,
       orangeCssBackground,
@@ -414,7 +424,12 @@ Then('only the contents of the other widget are displayed', () => {
 });
 
 Given('a dashboard having a configured Status Chart widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    statuschartWidget,
+    'centreon-widget-statuschart',
+    '/widgets/statuschart'
+  );
 });
 
 When(
@@ -443,7 +458,12 @@ Then('a second Status Chart widget is displayed on the dashboard', () => {
 Given(
   'a dashboard administrator user configuring a Status Chart widget',
   () => {
-    cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
+    cy.insertDashboardWithWidget(
+      dashboards.default,
+      statuschartWidget,
+      'centreon-widget-statuschart',
+      '/widgets/statuschart'
+    );
     cy.editDashboard(dashboards.default.name);
     cy.editWidget(1);
   }
@@ -474,7 +494,12 @@ Then(
 );
 
 Given('a dashboard with a Status Chart widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    statuschartWidget,
+    'centreon-widget-statuschart',
+    '/widgets/statuschart'
+  );
   cy.editDashboard(dashboards.default.name);
 });
 

@@ -23,7 +23,7 @@ declare(strict_types = 1);
 
 namespace Core\Media\Infrastructure\API\Exception;
 
-class AddMediaException extends \Exception
+class MediaException extends \Exception
 {
     /**
      * @param string $propertyName
@@ -33,6 +33,14 @@ class AddMediaException extends \Exception
     public static function wrongFileType(string $propertyName): self
     {
         return new self(sprintf(_('[%s] The property does not contain the file'), $propertyName));
+    }
+
+    /**
+     * @return self
+     */
+    public static function moreThanOneFileNotAllowed(): self
+    {
+        return new self(_('On media update, only one file is allowed'));
     }
 
     /**
@@ -48,7 +56,7 @@ class AddMediaException extends \Exception
     /**
      * @param string $propertyName
      *
-     * @return AddMediaException
+     * @return MediaException
      */
     public static function propertyNotPresent(string $propertyName): self
     {
@@ -58,7 +66,7 @@ class AddMediaException extends \Exception
     /**
      * @param string $filename
      *
-     * @return AddMediaException
+     * @return MediaException
      */
     public static function errorUploadingFile(string $filename): self
     {
