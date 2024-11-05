@@ -180,23 +180,12 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
         }
     }
 
+    /**
+     * @inheritDoc
+     */
     public function linkToHost(int $hostId, array $categoryIds): void
     {
-        try {
-            $this->writeHostCategoryRepository->linkToHost($hostId, $categoryIds);
-            $actionLog = new ActionLog(
-                objectType: 'host',
-                objectId: $hostId,
-                objectName: 'host',
-                actionType: ActionLog::ACTION_TYPE_CHANGE,
-                contactId: $this->user->getId(),
-            );
-            $this->writeActionLogRepository->addAction($actionLog);
-        } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-
-            throw $ex;
-        }
+        $this->writeHostCategoryRepository->linkToHost($hostId, $categoryIds);
     }
 
     /**
@@ -204,21 +193,7 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
      */
     public function unlinkFromHost(int $hostId, array $categoryIds): void
     {
-        try {
-            $this->writeHostCategoryRepository->unlinkFromHost($hostId, $categoryIds);
-            $actionLog = new ActionLog(
-                objectType: 'host',
-                objectId: $hostId,
-                objectName: 'host',
-                actionType: ActionLog::ACTION_TYPE_CHANGE,
-                contactId: $this->user->getId(),
-            );
-            $this->writeActionLogRepository->addAction($actionLog);
-        } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-
-            throw $ex;
-        }
+        $this->writeHostCategoryRepository->unlinkFromHost($hostId, $categoryIds);
     }
 
     /**
@@ -234,7 +209,7 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
      *    hc_comment?: string
      * }
      */
-    public static function getHostCategoryDiff(
+    private function getHostCategoryDiff(
         HostCategory $initialHostCategory,
         HostCategory $updatedHostCategory
     ): array {
