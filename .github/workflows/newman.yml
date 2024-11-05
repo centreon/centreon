@@ -48,7 +48,7 @@ on:
         required: true
       jira_user:
         required: true
-      jira_token_test:
+      jira_api_token:
         required: true
       jira_base_url:
         required: true
@@ -248,7 +248,7 @@ jobs:
 
             response=$(curl --request GET \
               --url "$jira_issue_url" \
-              --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+              --user "${{ secrets.jira_user_email }}:${{ secrets.jira_api_token }}" \
               --header 'Accept: application/json')
 
             summary=$(echo "$response" | jq -r '.fields.summary')
@@ -285,7 +285,7 @@ jobs:
               # Adding a new test case
               response=$(curl --request POST \
                 --url 'https://centreon.atlassian.net/rest/api/2/issue' \
-                --user '${{ secrets.jira_user }}:${{ secrets.jira_token_test }}' \
+                --user '${{ secrets.jira_user_email }}:${{ secrets.jira_api_token }}' \
                 --header 'Accept: application/json' \
                 --header 'Content-Type: application/json' \
                 --data '{
@@ -637,7 +637,7 @@ jobs:
                     echo "Processing issue ID: $issue_id"
                     jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
 
-                    command="curl --request GET --url '$jira_issue_url' --user '${{ secrets.jira_user }}:${{ secrets.jira_token_test }}' --header 'Accept: application/json' -o response.json"
+                    command="curl --request GET --url '$jira_issue_url' --user '${{ secrets.jira_user_email }}:${{ secrets.jira_api_token }}' --header 'Accept: application/json' -o response.json"
                     retry_command 5 "$command"
                     response_code=$(jq -r '.statusCode' response.json)
 
@@ -717,7 +717,7 @@ jobs:
             # Make a GET request to get information about available transitions
             get_response=$(curl --request GET \
               --url "https://centreon.atlassian.net/rest/api/2/issue/${test_issue_id}/transitions?expand=transitions.fields" \
-              --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+              --user "${{ secrets.jira_user_email }}:${{ secrets.jira_api_token }}" \
               --header 'Accept: application/json')
 
             # Extract the transition ID from the response
@@ -730,7 +730,7 @@ jobs:
               for transition_id in "${transition_ids[@]}"; do
                 curl --request POST \
                   --url "https://centreon.atlassian.net/rest/api/2/issue/${test_issue_id}/transitions?expand=transitions.fields" \
-                  --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+                  --user "${{ secrets.jira_user_email }}:${{ secrets.jira_api_token }}" \
                   --header 'Accept: application/json' \
                   --header 'Content-Type: application/json' \
                   --data '{
