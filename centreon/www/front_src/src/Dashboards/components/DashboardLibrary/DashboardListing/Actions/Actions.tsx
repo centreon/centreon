@@ -15,7 +15,9 @@ const Actions = ({ openConfig }: { openConfig: () => void }): JSX.Element => {
   return (
     <Box className={classes.actions}>
       {!isViewer && <AddDashboard openConfig={openConfig} />}
-      <Filter />
+      <Box className={classes.filter}>
+        <Filter />
+      </Box>
       <ViewMode />
     </Box>
   );

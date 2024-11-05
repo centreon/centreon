@@ -56,4 +56,12 @@ interface WriteDashboardRepositoryInterface
      * @throws \Throwable
      */
     public function update(Dashboard $dashboard): void;
+
+    /**
+     * @param int $dashboardId
+     * @param int $thumbnailId
+     *
+     * @throws \Throwable
+     */
+    public function addThumbnailRelation(int $dashboardId, int $thumbnailId): void;
 }
