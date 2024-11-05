@@ -50,6 +50,7 @@ services:
             - '../../src/Core/AgentConfiguration/*'
             - '../../src/Core/Security/Vault/*'
             - '../../src/Core/Contact/*'
+            - '../../src/Core/HostCategory'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
