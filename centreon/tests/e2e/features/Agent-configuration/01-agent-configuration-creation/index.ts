@@ -189,7 +189,7 @@ When('the user confirms the cancellation', () => {
 });
 
 Then('the creation form is closed', () => {
-  cy.contains('Add poller/agent configuration').should('not.exist');
+  cy.get('*[role="dialog"]').should('not.exist');
 });
 
 Then('the agent has not been created', () => {
