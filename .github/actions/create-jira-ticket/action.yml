@@ -27,46 +27,49 @@ runs:
     - name: Get ticket elements from context
       id: get_context
       run: |
-        # Change context elements (summary, parent epic, etc.) that is checked depending on the ticket labels in the input
+        # Safely set/unset IFS in order to parse the table of labels properly
+        [ -n "${IFS+set}" ] && saved_IFS=$IFS
         IFS=', ' read -a ticket_labels <<< $(echo "${{ inputs.ticket_labels }}" | tr -d "[],'")
+        unset IFS
+        [ -n "${saved_IFS+set}" ] && { IFS=$saved_IFS; unset saved_IFS; }
+
+        # Change context elements (summary, parent epic, etc.) that is checked depending on the ticket labels in the input
         if [[ "${ticket_labels[@]}" =~ "Veracode" ]]; then
           parent_epic_id=83818
           parent_epic_key="AT-268"
           ticket_summary="PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}"
-        elif [[ "${ticket_labels[@]}" =~ "Nightly" ]]; then
-          parent_epic_id=206242
-          parent_epic_key="MON-151547"
-          ticket_summary="$(date '+%Y-%m-%d') ${{ inputs.module_name }}-${{ github.ref_name }} nightly build failure"
-        else
-          echo "::error::Cannot find a valid labelling for the ticket."
-          exit 1
-        fi
 
-        echo "parent_epic_id=$parent_epic_id" >> $GITHUB_OUTPUT
-        echo "parent_epic_key=$parent_epic_key" >> $GITHUB_OUTPUT
-        echo "ticket_summary=$ticket_summary" >> $GITHUB_OUTPUT
-
-        if [[ "${ticket_labels[@]}" =~ "Veracode" ]]; then
           JSON_TEMPLATE_FILE="./.github/actions/create-jira-ticket/veracode-ticket-template.json"
           sed -i \
             -e 's|@PULL_REQUEST_NUMBER@|${{ github.event.pull_request.number }}|g' \
             -e 's|@PULL_REQUEST_URL@|${{ github.event.pull_request.html_url }}|g' $JSON_TEMPLATE_FILE
         elif [[ "${ticket_labels[@]}" =~ "Nightly" ]]; then
+          parent_epic_id=206242
+          parent_epic_key="MON-151547"
+          ticket_summary="$(date '+%Y-%m-%d') ${{ inputs.module_name }}-${{ github.ref_name }} nightly build failure"
+
           JSON_TEMPLATE_FILE="./.github/actions/create-jira-ticket/nightly-ticket-template.json"
           sed -i \
             -e 's|@MODULE_NAME@|${{ inputs.module_name }}|g' \
-            -e "s|@DATE@|$(date '+%Y-%m-%d')|g" \
-            -e 's|@RUN_URL@|${{ steps.get_context.outputs.run_url }}|g' $JSON_TEMPLATE_FILE
+            -e "s|@DATE@|$(date '+%Y-%m-%d')|g" $JSON_TEMPLATE_FILE
+        else
+          echo "::error::Cannot find a valid labelling for the ticket."
+          exit 1
         fi
+
         sed -i \
           -e 's|@GITHUB_BRANCH@|${{ github.base_ref || github.ref_name }}|g' \
           -e 's|@GITHUB_SERVER_URL@|${{ github.server_url }}|g' \
           -e 's|@GITHUB_REPOSITORY@|${{ github.repository }}|g' \
           -e 's|@GITHUB_RUN_ID@|${{ github.run_id }}|g' \
           -e 's|@GITHUB_RUN_ATTEMPT@|${{ github.run_attempt }}|g' $JSON_TEMPLATE_FILE
-        cat $JSON_TEMPLATE_FILE
+
+        echo "parent_epic_id=$parent_epic_id" >> $GITHUB_OUTPUT
+        echo "parent_epic_key=$parent_epic_key" >> $GITHUB_OUTPUT
+        echo "ticket_summary=$ticket_summary" >> $GITHUB_OUTPUT
         echo "json_template_file=$JSON_TEMPLATE_FILE" >> $GITHUB_OUTPUT
 
+        cat $JSON_TEMPLATE_FILE
         cat $GITHUB_OUTPUT
       shell: bash
       env:
