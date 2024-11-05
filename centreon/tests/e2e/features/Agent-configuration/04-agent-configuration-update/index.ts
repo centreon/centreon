@@ -67,7 +67,7 @@ When('the user clicks on the line of the agent configuration', () => {
   cy.wait('@getAgentsDetails');
 });
 
-Then('a pop up is displayed with all of the agent informations', () => {
+Then('a pop up is displayed with all of the agent information', () => {
   cy.contains('Update poller/agent configuration').should('be.visible');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).should('have.value', 'Telegraf');
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('have.value', 'telegraf-001');
@@ -80,7 +80,7 @@ Then('a pop up is displayed with all of the agent informations', () => {
   cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).should('have.value', 'my-conf-private-key-name-001');
 });
 
-When('the user updates some informations', () => {
+When('the user updates some information', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).clear().type('telegraf-001-updated');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-1').click();
@@ -101,7 +101,7 @@ Then('the form is closed', () => {
   cy.contains('Update poller/agent configuration').should('not.exist');
 });
 
-Then('the informations are successfully saved', () => {
+Then('the information are successfully saved', () => {
   cy.get('*[role="rowgroup"]')
     .should('contain', 'telegraf-001-updated');
   cy.get('*[role="rowgroup"]')

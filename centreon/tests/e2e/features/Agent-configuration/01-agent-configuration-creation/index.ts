@@ -44,7 +44,7 @@ Then('a pop-up menu with the form is displayed', () => {
   cy.contains('Add poller/agent configuration').should('be.visible');
 });
 
-When('the user fills in all the informations', () => {
+When('the user fills in all the information', () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
   cy.contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-001');
@@ -68,7 +68,7 @@ Then('the first agent is displayed in the Agents Configuration page', () => {
     .should('contain', 'telegraf-001');
 });
 
-When('the user fills in the mandatory informations', () => {
+When('the user fills in the mandatory information', () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
   cy.contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-002');
@@ -121,7 +121,7 @@ Then('the third agent is displayed in the Agents Configuration page', () => {
     .should('contain', 'centreon-agent-001');
 });
 
-When("the user doesn't fill in all the mandatory informations", () => {
+When("the user doesn't fill in all the mandatory information", () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
   cy.contains('Telegraf').click();
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
@@ -137,7 +137,7 @@ Then('the user cannot click on Create', () => {
   cy.getByTestId({ testId: 'SaveIcon' }).parents('button').should('be.disabled');
 });
 
-When("the user doesn't fill in correct type of informations", () => {
+When("the user doesn't fill in correct type of information", () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
   cy.contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-003');
@@ -161,7 +161,7 @@ Then('the form displayed an error', () => {
   cy.getByTestId({ testId: 'Private key file name' }).eq(2).contains('Invalid filename');
 });
 
-When('the user fills in the needed informations', () => {
+When('the user fills in the needed information', () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
   cy.contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-004');
@@ -184,8 +184,8 @@ Then('a pop-up appears to confirm cancellation', () => {
   cy.contains('If you click on Discard, your changes will not be saved.').should('be.visible');
 });
 
-When('the user confirms the the cancellation', () => {
-  cy.getByLabel({ label: 'Discard', tag: 'button' }).click()
+When('the user confirms the cancellation', () => {
+  cy.getByLabel({ label: 'Discard', tag: 'button' }).click();
 });
 
 Then('the creation form is closed', () => {
@@ -200,4 +200,14 @@ Then('the agent has not been created', () => {
 Then('the form fields are empty', () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).should('be.empty');
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('be.empty');
+});
+
+When('the user clicks on Save in the cancellation pop-up', () => {
+  cy.getByLabel({ label: 'Save', tag: 'button' }).click();
+  cy.wait('@addAgents');
+});
+
+Then('the agent has been created', () => {
+  cy.get('*[role="rowgroup"]')
+  .should('contain', 'telegraf-004');
 });

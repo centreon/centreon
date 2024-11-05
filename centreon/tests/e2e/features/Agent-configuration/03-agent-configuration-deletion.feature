@@ -5,7 +5,7 @@ Feature: Delete a Agent Configuration
   To delete the agent configuration
 
   @TEST_MON-151997
-  Scenario: Delete a agent configuration
+  Scenario: Delete an agent configuration
     Given a non-admin user is in the Agents Configuration page
     And an already existing agent configuration
     When the user deletes the agent configuration

@@ -85,7 +85,7 @@ When('the user clicks on the line of the agent configuration', () => {
   cy.wait('@getAgentsDetails');
 });
 
-Then('a pop up is displayed with all of the agent informations', () => {
+Then('a pop up is displayed with all of the agent information', () => {
   cy.contains('Update poller/agent configuration').should('be.visible');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).should('have.value', 'Telegraf');
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('have.value', 'telegraf-001');

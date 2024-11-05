@@ -11,8 +11,8 @@ Feature: Access a Agent Configuration
     Then the user sees the Agents Configuration page
 
   @TEST_MON-151996
-  Scenario: List all informations of a agent configuration
+  Scenario: List all information of an agent configuration
     Given a non-admin user is in the Agents Configuration page
     And an already existing agent configuration
     When the user clicks on the line of the agent configuration
-    Then a pop up is displayed with all of the agent informations
+    Then a pop up is displayed with all of the agent information

@@ -4,28 +4,28 @@ Feature: Check permissions on Agent Configuration
   I want to check which actions are possible with different rights
 
   @TEST_MON-152000
-  Scenario: Create a agent configuration with an admin user
+  Scenario: Create an agent configuration with an admin user
     Given an admin user is in the Agents Configuration page
     When the user clicks on Add
     Then a pop-up menu with the form is displayed
-    When the admin user fills in all the informations
+    When the admin user fills in all the information
     And the user clicks on Save
     Then the creation form is closed
     And the first configuration is displayed in the Agents Configuration page
 
   @TEST_MON-152001
-  Scenario: Update a agent configuration with an admin user
+  Scenario: Update an agent configuration with an admin user
     Given an admin user is in the Agents Configuration page
     And a agent configuration is already created
     When the user clicks on the line of the Agents Configuration
-    Then a pop up is displayed with all of the agent informations
+    Then a pop up is displayed with all of the agent information
     When the user modifies the configuration
     And the user clicks on Save
     Then the update form is closed
     And the updated configuration is displayed correctly in the Agents Configuration page
 
   @TEST_MON-152002
-  Scenario: Delete a agent configuration with an admin user
+  Scenario: Delete an agent configuration with an admin user
     Given an admin user is in the Agents Configuration page
     And a agent configuration is already created
     When the user deletes the Agents Configuration
@@ -51,18 +51,18 @@ Feature: Check permissions on Agent Configuration
     And the user can update the Agents Configuration
 
   @TEST_MON-152005
-  Scenario: Create a agent configuration with a non-admin user with filters on Pollers
+  Scenario: Create an agent configuration with a non-admin user with filters on Pollers
     Given a non-admin user is in the Agents Configuration page
     And an already existing agent configuration is displayed
     When the user adds a second agent configuration
     Then only the filtered pollers are listed in the Pollers field
-    When the non-admin user fills in all the informations
+    When the non-admin user fills in all the information
     And the user clicks on Save
     Then the creation form is closed
     And the second configuration is displayed in the Agents Configuration page
 
   @TEST_MON-152006
-  Scenario: Delete a agent configuration with a non-admin user with filters on Pollers
+  Scenario: Delete an agent configuration with a non-admin user with filters on Pollers
     Given a non-admin user is in the Agents Configuration page
     And an already existing agent configuration is displayed
     When the user deletes the Agents Configuration

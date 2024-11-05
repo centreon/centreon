@@ -57,7 +57,7 @@ Then('a pop-up menu with the form is displayed', () => {
   cy.contains('Add poller/agent configuration').should('be.visible');
 });
 
-When('the admin user fills in all the informations', () => {
+When('the admin user fills in all the information', () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
   cy.contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-001');
@@ -95,7 +95,7 @@ When('the user clicks on the line of the Agents Configuration', () => {
   cy.wait('@getAgentsDetails');
 });
 
-Then('a pop up is displayed with all of the agent informations', () => {
+Then('a pop up is displayed with all of the agent information', () => {
   cy.contains('Update poller/agent configuration').should('be.visible');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).should('have.value', 'Telegraf');
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('have.value', 'telegraf-001');
@@ -293,7 +293,7 @@ Then('only the filtered pollers are listed in the Pollers field', () => {
   cy.get('[class^="MuiPopper-root MuiAutocomplete-popper"]').contains('Poller-1');
 });
 
-When('the non-admin user fills in all the informations', () => {
+When('the non-admin user fills in all the information', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-002');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
