@@ -112,7 +112,13 @@ const BreadcrumbTrail = ({ breadcrumbsByPath, path }: Props): JSX.Element => {
         <IconButton
           size="small"
           onClick={copyBreadcrumb}
-          icon={<ContentCopyIcon fontSize="small" color="primary" />}
+          icon={
+            <ContentCopyIcon
+              fontSize="small"
+              color="primary"
+              data-testid={labelCopyBreadcrumb}
+            />
+          }
           data-is-hovered={isHovered}
           className={classes.breadcrumbCopyIcon}
           sx={{
