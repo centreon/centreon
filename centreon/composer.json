@@ -139,13 +139,13 @@
     "platform": {
       "php": "8.2"
     },
+    "preferred-install": {
+      "*": "dist"
+    },
     "allow-plugins": {
       "pestphp/pest-plugin": false,
       "symfony/flex": false,
       "dealerdirect/phpcodesniffer-composer-installer": true
-    },
-    "preferred-install": {
-      "*": "dist"
     }
   },
   "scripts": {
