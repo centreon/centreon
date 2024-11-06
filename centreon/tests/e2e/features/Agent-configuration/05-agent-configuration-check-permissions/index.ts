@@ -134,7 +134,7 @@ Then('the updated configuration is displayed correctly in the Agents Configurati
 
 When('the user deletes the Agents Configuration', () => {
   cy.getByTestId({ testId: 'DeleteOutlineIcon' }).eq(0).click();
-  cy.get('[class^="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary"]').click();
+  cy.contains('button', 'Delete').click();
   cy.wait('@deleteAgents');
 });
 
@@ -241,8 +241,8 @@ Then('a pop up is displayed with all of the agent configuration information with
   cy.contains('Update poller/agent configuration').should('be.visible');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).should('have.value', 'Telegraf');
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('have.value', 'telegraf-001');
-  cy.get('[class^="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeSmall"]').eq(0).should('have.text', 'Central');
-  cy.get('[class^="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeSmall"]').eq(1).should('have.text', 'Poller-1');
+  cy.contains('button', 'Central').should('be.visible');
+  cy.contains('button', 'Poller-1').should('be.visible');
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).should('have.value', 'my-otel-certificate-name-001');
   cy.getByLabel({ label: 'CA file name', tag: 'input' }).should('have.value', 'ca-file-name-001');
   cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).should('have.value', 'my-otel-private-key-name-001');
