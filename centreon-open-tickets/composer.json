@@ -1,21 +1,19 @@
 {
   "name": "centreon/centreon-open-tickets",
   "description": "Module dedicated to open case on various Ticket systems",
-  "version": "24.10.0",
+  "version": "24.10",
   "type": "project",
   "keywords": [
     "centreon",
     "centreon-open-tickets"
   ],
   "license": "GPL-2.0-only",
-  "require": {
-    "centreon/centreon": "dev-MON-146850-php82",
-    "ext-openssl": "*",
-    "ext-json": "*"
-  },
   "require-dev": {
+    "ext-json": "*",
+    "ext-openssl": "*",
     "beberlei/assert": "^3.3",
-    "centreon/centreon-test-lib": "dev-MON-147667-upgrade-to-php-8.2",
+    "centreon/centreon": "@dev",
+    "centreon/centreon-test-lib": "dev-master",
     "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
     "friendsofphp/php-cs-fixer": "3.64.*",
     "pestphp/pest": "^1.21",
@@ -48,6 +46,9 @@
       "symfony/flex": false,
       "pestphp/pest-plugin": true,
       "dealerdirect/phpcodesniffer-composer-installer": true
+    },
+    "preferred-install": {
+      "*": "dist"
     }
   },
   "scripts": {
@@ -59,8 +60,8 @@
     "phpcs:unstrict:exec": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --diff",
     "phpcs:strict:ci": "@phpcs:strict",
     "phpcs:unstrict:ci": "@phpcs:unstrict",
-    "phpstan": "phpstan analyse -c phpstan.neon --level=2 --memory-limit=512M --debug",
-    "phpstan:core": "phpstan analyse -c phpstan.core.neon --level=9 --memory-limit=512M --debug",
+    "phpstan": "phpstan analyse -c phpstan.neon --level=2 --memory-limit=1G --debug",
+    "phpstan:core": "phpstan analyse -c phpstan.core.neon --level=9 --memory-limit=1G --debug",
     "phpstan:ci": "@phpstan --no-progress",
     "phpstan:core:ci": "@phpstan:core --no-progress",
     "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",

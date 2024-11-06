@@ -1,13 +1,11 @@
 {
   "name": "centreon/centreon-dsm",
-  "version": "23.04.0",
+  "version": "24.10",
   "type": "project",
   "license": "GPL-2.0-only",
-  "require": {
-    "centreon/centreon": "dev-MON-146850-php82"
-  },
   "require-dev": {
-    "centreon/centreon-test-lib": "dev-MON-147667-upgrade-to-php-8.2",
+    "centreon/centreon": "@dev",
+    "centreon/centreon-test-lib": "dev-master",
     "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
     "friendsofphp/php-cs-fixer": "3.64.*",
     "phpcompatibility/php-compatibility": "9.3.*",
@@ -31,6 +29,9 @@
       "symfony/flex": false,
       "dealerdirect/phpcodesniffer-composer-installer": true,
       "pestphp/pest-plugin": true
+    },
+    "preferred-install": {
+      "*": "dist"
     }
   },
   "scripts": {
