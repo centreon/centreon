@@ -1,6 +1,6 @@
 {
   "name": "centreon/centreon-awie",
-  "version": "24.10.0",
+  "version": "24.10",
   "type": "project",
   "license": "Apache-2.0",
   "require-dev": {
@@ -34,6 +34,9 @@
       "symfony/flex": false,
       "dealerdirect/phpcodesniffer-composer-installer": true,
       "pestphp/pest-plugin": true
+    },
+    "preferred-install": {
+      "*": "dist"
     }
   },
   "scripts": {

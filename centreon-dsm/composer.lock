@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9f2cc6f08fb41dce3d959a562d4a6556",
+    "content-hash": "c5b68c960da5a9bd22c46275c9b1b496",
     "packages": [],
     "packages-dev": [
         {
@@ -344,11 +344,11 @@
         },
         {
             "name": "centreon/centreon",
-            "version": "24.10.0",
+            "version": "24.10",
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "42225fd55dd7d86edb64ff54333039bd2add19ae"
+                "reference": "882a58575656345f80388d445f06fe7656aeaa85"
             },
             "require": {
                 "beberlei/assert": "^3.3",
@@ -487,10 +487,6 @@
                 ]
             },
             "scripts": {
-                "auto-scripts": {
-                    "cache:clear": "symfony-cmd",
-                    "assets:install %PUBLIC_DIR%": "symfony-cmd"
-                },
                 "test": [
                     "pest --do-not-cache-result"
                 ],
@@ -11810,7 +11806,9 @@
     },
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "ext-pdo": "*"
+    },
     "platform-dev": [],
     "platform-overrides": {
         "php": "8.2"

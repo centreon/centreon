@@ -1,6 +1,6 @@
 {
   "name": "centreon/centreon-dsm",
-  "version": "24.10.0",
+  "version": "24.10",
   "type": "project",
   "license": "GPL-2.0-only",
   "require-dev": {
@@ -29,6 +29,9 @@
       "symfony/flex": false,
       "dealerdirect/phpcodesniffer-composer-installer": true,
       "pestphp/pest-plugin": true
+    },
+    "preferred-install": {
+      "*": "dist"
     }
   },
   "scripts": {

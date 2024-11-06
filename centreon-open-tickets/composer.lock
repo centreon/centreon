@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c48ab8d7cfb90c20620b60b2ab6e81ec",
+    "content-hash": "7d11356d17a8c24d2b65d8cd67a5183a",
     "packages": [],
     "packages-dev": [
         {
@@ -344,11 +344,11 @@
         },
         {
             "name": "centreon/centreon",
-            "version": "24.10.0",
+            "version": "24.10",
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "42225fd55dd7d86edb64ff54333039bd2add19ae"
+                "reference": "882a58575656345f80388d445f06fe7656aeaa85"
             },
             "require": {
                 "beberlei/assert": "^3.3",
@@ -487,10 +487,6 @@
                 ]
             },
             "scripts": {
-                "auto-scripts": {
-                    "cache:clear": "symfony-cmd",
-                    "assets:install %PUBLIC_DIR%": "symfony-cmd"
-                },
                 "test": [
                     "pest --do-not-cache-result"
                 ],
@@ -11855,15 +11851,16 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "centreon/centreon": 20,
         "centreon/centreon-test-lib": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "ext-pdo": "*"
+    },
     "platform-dev": {
-        "ext-openssl": "*",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-openssl": "*"
     },
     "platform-overrides": {
         "php": "8.2"
