@@ -46,16 +46,6 @@ env:
   widgets_directory: centreon/www/widgets
 
 jobs:
-  get-environment:
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
-
-      - uses: ./.github/workflows/get-environment.yml
-        with:
-          version_file: centreon/www/install/insertBaseConf.sql
-          nightly_manual_trigger: ${{ inputs.nightly_manual_trigger }}
-
   changes:
     needs: [get-environment]
     runs-on: ubuntu-24.04
@@ -125,6 +115,12 @@ jobs:
         shell: bash
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  get-environment:
+    uses: ./.github/workflows/get-environment.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+      nightly_manual_trigger: ${{ inputs.nightly_manual_trigger }}
 
   gherkin-lint:
     runs-on: ubuntu-24.04
