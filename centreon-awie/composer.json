@@ -19,12 +19,12 @@
     "platform": {
       "php": "8.1"
     },
+    "preferred-install": {
+      "*": "dist"
+    },
     "allow-plugins": {
       "pestphp/pest-plugin": true,
       "symfony/flex": true
-    },
-    "preferred-install": {
-      "*": "dist"
     }
   },
   "scripts": {
