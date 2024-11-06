@@ -248,7 +248,7 @@ jobs:
               console.log(nightly_manual_trigger);
               if (typeof nightly_manual_trigger === 'undefined' || nightly_manual_trigger === '') {
                 return 'false';
-              } else if (context.eventName === 'schedule' || context.eventName === 'workflow_dispatch' && NIGHTLY_MANUAL_TRIGGER === 'true' ) {
+              } else if (context.eventName === 'schedule' || context.eventName === 'workflow_dispatch' && nightly_manual_trigger === 'true' ) {
                 return 'true';
               }
               return 'false';
