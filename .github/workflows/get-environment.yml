@@ -244,6 +244,7 @@ jobs:
         with:
           script: |
             const getNightlyInput = () => {
+              const nightly_manual_trigger = process.env.NIGHTLY_MANUAL_TRIGGER;
               console.log(NIGHTLY_MANUAL_TRIGGER);
               if (typeof NIGHTLY_MANUAL_TRIGGER === 'undefined' || NIGHTLY_MANUAL_TRIGGER === '') {
                 return 'false';
