@@ -4,14 +4,15 @@
   "type": "project",
   "license": "Apache-2.0",
   "require-dev": {
-    "centreon/centreon": "@dev",
+    "ext-json": "*",
     "behat/behat": "^3.10",
     "behat/mink-selenium2-driver": "^1.5",
+    "centreon/centreon": "@dev",
+    "centreon/centreon-test-lib": "24.04.x-dev",
     "friends-of-behat/mink": "^1.9",
     "friends-of-behat/mink-extension": "^2.5",
-    "centreon/centreon-test-lib": "24.04.x-dev",
-    "squizlabs/php_codesniffer": "3.5.8",
-    "psr/container": "1.1.1"
+    "psr/container": "1.1.1",
+    "squizlabs/php_codesniffer": "3.5.8"
   },
   "repositories": [
     {
