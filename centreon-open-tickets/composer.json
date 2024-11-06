@@ -23,11 +23,11 @@
     "platform": {
       "php": "8.1"
     },
-    "allow-plugins": {
-      "symfony/flex": false
-    },
     "preferred-install": {
       "*": "dist"
+    },
+    "allow-plugins": {
+      "symfony/flex": false
     }
   },
   "scripts": {
