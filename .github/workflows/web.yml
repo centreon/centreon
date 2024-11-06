@@ -656,6 +656,7 @@ jobs:
       database_image: bitnami/${{ matrix.database }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
       major_version: ${{ needs.get-environment.outputs.major_version }}
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
       stability: ${{ needs.get-environment.outputs.stability }}
       xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
 
