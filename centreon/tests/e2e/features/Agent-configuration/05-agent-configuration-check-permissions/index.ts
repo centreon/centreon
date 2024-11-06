@@ -241,8 +241,8 @@ Then('a pop up is displayed with all of the agent configuration information with
   cy.contains('Update poller/agent configuration').should('be.visible');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).should('have.value', 'Telegraf');
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('have.value', 'telegraf-001');
-  cy.contains('button', 'Central').should('be.visible');
-  cy.contains('button', 'Poller-1').should('be.visible');
+  cy.get('[class^="MuiChip-label MuiChip-labelMedium"]').eq(0).should('have.text', 'Central');
+  cy.get('[class^="MuiChip-label MuiChip-labelMedium"]').eq(1).should('have.text', 'Poller-1');
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).should('have.value', 'my-otel-certificate-name-001');
   cy.getByLabel({ label: 'CA file name', tag: 'input' }).should('have.value', 'ca-file-name-001');
   cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).should('have.value', 'my-otel-private-key-name-001');
