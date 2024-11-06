@@ -22,6 +22,9 @@
     "allow-plugins": {
       "pestphp/pest-plugin": true,
       "symfony/flex": true
+    },
+    "preferred-install": {
+      "*": "dist"
     }
   },
   "scripts": {
