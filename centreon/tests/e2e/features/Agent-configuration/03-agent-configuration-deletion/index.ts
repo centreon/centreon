@@ -62,7 +62,7 @@ When('the user deletes the agent configuration', () => {
 });
 
 When('the user confirms on the pop-up', () => {
-  cy.get('[class^="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary"]').click();
+  cy.contains('button', 'Delete').click();
   cy.wait('@deleteAgents');
 });
 
