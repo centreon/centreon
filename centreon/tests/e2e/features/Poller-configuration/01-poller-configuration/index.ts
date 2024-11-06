@@ -204,10 +204,10 @@ Then('the selected pollers are {string}', (poller_action: string) => {
 
 Then('no poller names are displayed', () => {
   cy.waitForElementInIframe('#main-content', 'form span[class="selection"]').then(() => {
-  cy.getIframeBody()
-    .find('form span[class="selection"]')
-    .eq(0)
-    .should('have.value', '');
+    cy.getIframeBody()
+      .find('form span[class="selection"]')
+      .eq(0)
+      .should('have.value', '');
   });
 });
 
