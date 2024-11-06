@@ -1,7 +1,7 @@
 {
   "name": "centreon/centreon-open-tickets",
   "description": "Module dedicated to open case on various Ticket systems",
-  "version": "24.10.0",
+  "version": "24.11",
   "type": "project",
   "keywords": [
     "centreon",

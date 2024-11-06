@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9f2cc6f08fb41dce3d959a562d4a6556",
+    "content-hash": "57680a5ba6c7f57466b04873e18d2e33",
     "packages": [],
     "packages-dev": [
         {
@@ -344,11 +344,11 @@
         },
         {
             "name": "centreon/centreon",
-            "version": "24.10.0",
+            "version": "24.11",
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "42225fd55dd7d86edb64ff54333039bd2add19ae"
+                "reference": "a3be61f614e028af46f2e9d55b7507b20289d8f9"
             },
             "require": {
                 "beberlei/assert": "^3.3",
