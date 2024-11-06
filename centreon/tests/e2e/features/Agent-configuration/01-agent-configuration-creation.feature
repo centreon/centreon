@@ -18,17 +18,25 @@ Feature: Create a new Agent Configuration
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add
     Then a pop-up menu with the form is displayed
+    When the user selects the centreon agent
+    Then the connection initiated by poller field must be disabled
+    When the user enables the connection initiated by poller
+    Then a new parameters group is displayed for host
+    When the user disables the connection initiated by poller
+    Then the group of parameters for host disappears
     When the user fills in the mandatory information
     And the user clicks on Create
     Then the second agent is displayed in the Agents Configuration page
-    
+
   @TEST_MON-151991
   Scenario: Add a centreon agent with multiple hosts
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add
     Then a pop-up menu with the form is displayed
     When the user selects the centreon agent
-    And the user clicks to add a second host
+    And the user enables the connection initiated by poller
+    Then a new parameters group is displayed for host
+    When the user clicks to add a second host
     Then a second group of parameters for hosts is displayed
     When the user fills in the centreon agent parameters
     And the user clicks on Create
@@ -77,4 +85,3 @@ Feature: Create a new Agent Configuration
     And the agent has been created
     When the user clicks on Add
     Then the form fields are empty
-    When
