@@ -347,7 +347,7 @@
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "9847a9c7f082f49d47839710ba6924dffe834559"
+                "reference": "a65719312690e7e5556b4473d9176a2aae94909a"
             },
             "require": {
                 "beberlei/assert": "^3.3",

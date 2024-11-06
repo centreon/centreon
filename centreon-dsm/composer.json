@@ -4,6 +4,7 @@
   "type": "project",
   "license": "GPL-2.0-only",
   "require-dev": {
+    "ext-json": "*",
     "centreon/centreon": "@dev",
     "centreon/centreon-test-lib": "dev-master",
     "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
