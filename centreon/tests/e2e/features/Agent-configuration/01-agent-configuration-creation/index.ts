@@ -1,7 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
-  // cy.startContainers();
+  cy.startContainers();
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/ac-acl-user.json');
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
@@ -25,7 +25,7 @@ beforeEach(() => {
 });
 
 after(() => {
-  // cy.stopContainers();
+  cy.stopContainers();
 });
 
 Given('a non-admin user is in the Agents Configuration page', () => {
@@ -125,7 +125,7 @@ Then('a second group of parameters for hosts is displayed', () => {
 });
 
 When('the user fills in the centreon agent parameters', () => {
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type('centreon-agent-02');
+  cy.getByLabel({ label: 'Name', tag: 'input' }).type('centreon-agent-002');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-2').click();
   cy.contains('Poller-3').click();

@@ -64,7 +64,7 @@ When('the user deletes the agent configuration', () => {
 });
 
 When('the user confirms on the pop-up', () => {
-  cy.get('[class^="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary"]').click();
+  cy.contains('button', 'Delete').click();
   cy.wait('@deleteAgents');
 });
 
@@ -74,7 +74,7 @@ Then('the agent configuration is no longer displayed in the listing page', () =>
 });
 
 When('the user cancel on the pop-up', () => {
-  cy.get('[class^="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-mcvclk-button"]').click();
+  cy.contains('button', 'Cancel').click();
 });
 
 Then('the agent configuration is still displayed in the listing page', () => {
