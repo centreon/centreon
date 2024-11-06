@@ -79,5 +79,7 @@ When('the user cancel on the pop-up', () => {
 
 Then('the agent configuration is still displayed in the listing page', () => {
   cy.get('*[role="rowgroup"]')
-  .should('contain', 'telegraf-001');
+    .should('contain', 'telegraf-001');
+  cy.get('*[role="rowgroup"]')
+    .should('contain', 'Telegraf');
 });

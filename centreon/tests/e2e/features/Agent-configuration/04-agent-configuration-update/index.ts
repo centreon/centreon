@@ -108,4 +108,6 @@ Then('the information are successfully saved', () => {
     .should('contain', 'telegraf-001-updated');
   cy.get('*[role="rowgroup"]')
     .should('contain', '2 pollers');
+  cy.get('*[role="rowgroup"]')
+    .should('contain', 'Telegraf');
 });
