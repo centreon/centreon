@@ -31,13 +31,13 @@
     "platform": {
       "php": "8.2"
     },
+    "preferred-install": {
+      "*": "dist"
+    },
     "allow-plugins": {
       "symfony/flex": false,
       "dealerdirect/phpcodesniffer-composer-installer": true,
       "pestphp/pest-plugin": true
-    },
-    "preferred-install": {
-      "*": "dist"
     }
   },
   "scripts": {
