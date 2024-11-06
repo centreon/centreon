@@ -10,12 +10,17 @@ export const useStatusGridCondensedStyles = makeStyles()((theme) => ({
     height: '100%'
   },
   count: {
-    height: '32%',
-    textAlign: 'center',
-    width: '60%'
+    height: '35%',
+    width: '100%'
+  },
+  countParentSize: {
+    display: 'flex',
+    alignItems: 'flex-end',
+    justifyContent: 'center'
   },
   countText: {
     fontWeight: theme.typography.fontWeightBold,
+    textAlign: 'center',
     lineHeight: 1
   },
   countTextContainer: {
