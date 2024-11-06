@@ -1,6 +1,6 @@
 {
     "name": "centreon/centreon-awie",
-    "version": "23.04.0",
+    "version": "24.04",
     "type": "project",
     "license": "Apache-2.0",
     "scripts": {
@@ -11,25 +11,25 @@
         "type": "path",
         "url": "../centreon"
     }],
-    "require": {
-        "centreon/centreon": "dev-develop"
-    },
     "require-dev": {
         "behat/behat": "^3.10",
         "behat/mink-selenium2-driver": "^1.5",
+        "centreon/centreon": "@dev",
         "friends-of-behat/mink": "^1.9",
         "friends-of-behat/mink-extension": "^2.5",
-        "centreon/centreon-test-lib": "dev-master",
+        "centreon/centreon-test-lib": "24.04.x-dev",
         "squizlabs/php_codesniffer": "3.5.8",
         "psr/container": "1.1.1"
     },
     "config": {
         "secure-http": false,
+        "sort-packages": true,
         "platform": {
             "php": "8.1"
         },
         "allow-plugins": {
-            "symfony/flex": false
+            "symfony/flex": false,
+            "pestphp/pest-plugin": true
         }
     }
 }

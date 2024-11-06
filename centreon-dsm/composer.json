@@ -1,6 +1,6 @@
 {
   "name": "centreon/centreon-dsm",
-  "version": "23.04.0",
+  "version": "24.04",
   "type": "project",
   "license": "GPL-2.0-only",
   "scripts": {
@@ -11,15 +11,14 @@
     "type": "path",
     "url": "../centreon"
   }],
-  "require": {
-    "centreon/centreon": "dev-develop"
-  },
   "require-dev": {
+    "centreon/centreon": "@dev",
     "squizlabs/php_codesniffer": "^3.5",
     "phpstan/phpstan": "^1.10"
   },
   "config": {
     "secure-http": false,
+    "sort-packages": true,
     "platform": {
       "php": "8.1"
     },
