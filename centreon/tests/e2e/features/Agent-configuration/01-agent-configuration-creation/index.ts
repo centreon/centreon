@@ -38,7 +38,7 @@ Given('a non-admin user is in the Agents Configuration page', () => {
 });
 
 When('the user clicks on Add', () => {
-  cy.getByTestId({ testId: 'AddIcon' }).click();
+  cy.contains('button', 'Add poller/agent configuration').click();
 });
 
 Then('a pop-up menu with the form is displayed', () => {
@@ -77,13 +77,12 @@ When('the user selects the centreon agent', () => {
 });
 
 Then('the connection initiated by poller field must be disabled', () => {
-  cy.get('[class^="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary"]').should('exist');
-  cy.get('[class^="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked Mui-checked"]').should('not.exist');
+  cy.get('[class*="Mui-checked Mui-checked"]').should('not.exist');
 });
 
 When('the user enables the connection initiated by poller', () => {
-  cy.get('[class^="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary"]').click();
-  cy.get('[class^="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked Mui-checked"]').should('exist');
+  cy.getByLabel({ label: 'Connection initiated by poller', tag: 'input' }).click();
+  cy.get('[class*="Mui-checked Mui-checked"]').should('exist');
 });
 
 Then('a new parameters group is displayed for host', () => {
@@ -91,8 +90,8 @@ Then('a new parameters group is displayed for host', () => {
 });
 
 When('the user disables the connection initiated by poller', () => {
-  cy.get('[class^="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked Mui-checked"]').click();
-  cy.get('[class^="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary"]').should('exist');
+  cy.getByLabel({ label: 'Connection initiated by poller', tag: 'input' }).click();
+  cy.get('[class*="Mui-checked Mui-checked"]').should('not.exist');
 });
 
 Then('the group of parameters for host disappears', () => {
