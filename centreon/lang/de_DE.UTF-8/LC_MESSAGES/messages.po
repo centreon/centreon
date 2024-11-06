@@ -17370,6 +17370,14 @@ msgstr "Erweiterter Modus"
 # msgid "Clock / Timer"
 # msgstr ""
 
+# msgid "Breadcrumb copied"
+# msgstr ""
+
+# msgid "Failed to copy breadcrumb"
+# msgstr ""
+
+# msgid "Copy breadcrumb"
+
 # msgid "Thumbnails show a snapshot of your data, taken when the dashboard is saved"
 # msgstr ""
 
