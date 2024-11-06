@@ -960,6 +960,7 @@ class CentreonConfigCentreonBroker
      * @param int $configId
      * @param string $configKey
      * @param int $fieldIndex
+     * @param int $configGroupId
      * @return string|null
      */
     private function findOriginalValueWithFieldIndex(int $configId, string $configKey, int $fieldIndex, int $configGroupId): ?string
@@ -973,7 +974,7 @@ class CentreonConfigCentreonBroker
         );
         $stmt->bindValue(':configId', $configId, \PDO::PARAM_INT);
         $stmt->bindValue(':configKey', $configKey, \PDO::PARAM_STR);
-        $stmt->bindValue(':fieldIndex', $fieldIndex, \PDO::PARAM_STR);
+        $stmt->bindValue(':fieldIndex', $fieldIndex, \PDO::PARAM_INT);
         $stmt->bindValue(':configGroupId', $configGroupId, \PDO::PARAM_INT);
         $stmt->execute();
 
