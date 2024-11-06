@@ -18174,6 +18174,15 @@ msgstr ""
 #  msgid "Ticket management"
 #  msgstr ""
 
+# msgid "Breadcrumb copied"
+# msgstr ""
+
+# msgid "Failed to copy breadcrumb"
+# msgstr ""
+
+# msgid "Copy breadcrumb"
+# msgstr ""
+
 # msgid "Displays the time according to the selected time zone, or a timer."
 # msgstr ""
 
