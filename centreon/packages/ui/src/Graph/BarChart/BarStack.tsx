@@ -1,9 +1,10 @@
 import { memo } from 'react';
 
-import { scaleBand } from '@visx/scale';
+import { ScaleType, scaleBand } from '@visx/scale';
 import { BarRounded } from '@visx/shape';
 import { dec, equals, gt, pick } from 'ramda';
 
+import { BarGroupBar, SeriesPoint, StackKey } from '@visx/shape/lib/types';
 import { BarStyle } from './models';
 import { UseBarStackProps, useBarStack } from './useBarStack';
 
@@ -27,6 +28,41 @@ const getPadding = ({ padding, size, isNegativeValue }): number => {
   }
 
   return padding + size;
+};
+
+interface GetFirstBarHeightProps {
+  bar: Omit<BarGroupBar<StackKey>, 'key' | 'value'> & {
+    bar: SeriesPoint<unknown>;
+    key: StackKey;
+  };
+  isHorizontal: boolean;
+  barWidth: number;
+  y: number;
+  isFirstBar: boolean;
+  yScale: ScaleType;
+}
+
+const getFirstBarHeight = ({
+  bar,
+  isHorizontal,
+  barWidth,
+  y,
+  isFirstBar,
+  yScale
+}: GetFirstBarHeightProps): number => {
+  if (!isFirstBar || !isHorizontal) {
+    return isHorizontal ? Math.abs(bar.height) : barWidth;
+  }
+
+  if (equals(bar.height, 0)) {
+    return 0;
+  }
+
+  if (isHorizontal) {
+    return Math.abs(bar.width) - (y - yScale(0.001));
+  }
+
+  return barWidth;
 };
 
 const BarStack = ({
@@ -73,7 +109,20 @@ const BarStack = ({
                 {...barRoundedProps}
                 data-testid={`stacked-bar-${bar.key}-${bar.index}-${bar.bar[1]}`}
                 fill={bar.color}
-                height={isHorizontal ? Math.abs(bar.height) : barWidth}
+                height={getFirstBarHeight({
+                  bar,
+                  barWidth,
+                  y: isHorizontal
+                    ? getPadding({
+                        isNegativeValue,
+                        padding: bar.y,
+                        size: bar.height
+                      })
+                    : barPadding,
+                  isFirstBar: shouldApplyRadiusOnBottom,
+                  isHorizontal,
+                  yScale
+                })}
                 key={`bar-stack-${barStack.index}-${bar.index}`}
                 opacity={barStyle.opacity ?? 1}
                 radius={barWidth * barStyle.radius}
