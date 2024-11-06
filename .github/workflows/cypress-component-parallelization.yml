@@ -294,4 +294,4 @@ jobs:
           jira_user_email: ${{ secrets.jira_user_email }}
           jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
-          ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.workflow }}']"
+          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.workflow }}"]'

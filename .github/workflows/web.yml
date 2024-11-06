@@ -115,7 +115,7 @@ jobs:
           jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
           jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
           module_name: "centreon-web"
-          ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.job }}']"
+          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
 
   # dispatch-to-maintained-branches:
   #   if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' }}
@@ -166,7 +166,7 @@ jobs:
   #         jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
   #         jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
   #         module_name: "centreon-web"
-  #         ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.job }}']"
+  #         ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
 
   # backend-dependencies:
   #   needs: [get-environment]
@@ -515,7 +515,7 @@ jobs:
   #         jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
   #         jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
   #         module_name: "centreon-web"
-  #         ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.job }}']"
+  #         ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
 
   # dockerize:
   #   runs-on: ubuntu-24.04
@@ -659,7 +659,7 @@ jobs:
   #         jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
   #         jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
   #         module_name: "centreon-web"
-  #         ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.job }}']"
+  #         ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
 
   # create-xray-test-plan-and-test-execution:
   #   needs: [get-environment, dockerize]
@@ -976,7 +976,7 @@ jobs:
   #         jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
   #         jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
   #         module_name: "centreon-web"
-  #         ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.job }}']"
+  #         ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
 
   # deliver-deb:
   #   runs-on: [self-hosted, common]
@@ -1020,7 +1020,7 @@ jobs:
   #         jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
   #         jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
   #         module_name: "centreon-web"
-  #         ticket_labels: "['Nightly', 'Pipeline', 'nightly-${{ github.ref_name }}', '${{ github.job }}']"
+  #         ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
 
   # promote:
   #   needs: [get-environment, deliver-deb, deliver-rpm]
