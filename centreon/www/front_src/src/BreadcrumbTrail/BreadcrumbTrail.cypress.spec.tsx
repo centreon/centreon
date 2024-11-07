@@ -5,7 +5,9 @@ import { ListingVariant, ThemeMode, userAtom } from '@centreon/ui-context';
 
 import navigationAtom from '../Navigation/navigationAtoms';
 
-import Breadcrumbs from '.';
+import { SnackbarProvider } from '@centreon/ui';
+import Breadcrumbs, { router } from '.';
+import { labelBreadcrumbCopied, labelCopyBreadcrumb } from './translatedLabels';
 
 const initializeComponent = (fixture = 'menuData'): void => {
   cy.fixture(fixture).then((data) => {
@@ -24,13 +26,25 @@ const initializeComponent = (fixture = 'menuData'): void => {
     });
     store.set(navigationAtom, data);
 
+    cy.stub(router, 'useLocation').returns({
+      pathname: '/monitoring/resources'
+    });
+
+    cy.window()
+      .its('navigator.clipboard')
+      .then((clipboard) => {
+        cy.stub(clipboard, 'writeText').as('writeText');
+      });
+
     cy.mount({
       Component: (
-        <BrowserRouter>
-          <Provider store={store}>
-            <Breadcrumbs path="/monitoring/resources" />
-          </Provider>
-        </BrowserRouter>
+        <SnackbarProvider>
+          <BrowserRouter>
+            <Provider store={store}>
+              <Breadcrumbs />
+            </Provider>
+          </BrowserRouter>
+        </SnackbarProvider>
       )
     });
   });
@@ -55,6 +69,25 @@ describe('BreadcrumbTrail', () => {
     initializeComponent('menuDataWithAdditionalLabel');
 
     cy.contains('BETA').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('copies the breadcrumb when the breadcrumd is being hovered and an icon is clicked', () => {
+    initializeComponent();
+
+    cy.contains('Monitoring').realHover();
+
+    cy.findByLabelText(labelCopyBreadcrumb).should('have.css', 'opacity', '1');
+
+    cy.findByLabelText(labelCopyBreadcrumb).click();
+
+    cy.contains(labelBreadcrumbCopied).should('be.visible');
+
+    cy.get('@writeText').should(
+      'have.been.calledWith',
+      'Monitoring > Resources Status'
+    );
 
     cy.makeSnapshot();
   });
