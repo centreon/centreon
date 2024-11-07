@@ -46,7 +46,7 @@ beforeEach(() => {
     url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
   }).as('addContactToDashboardShareList');
   cy.intercept({
-    method: 'PATCH',
+    method: 'POST',
     url: `/centreon/api/latest/configuration/dashboards/*`
   }).as('updateDashboard');
   cy.loginByTypeOfUser({
