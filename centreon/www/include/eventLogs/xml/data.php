@@ -142,10 +142,10 @@ $inputDefinitions = [
     'id' => ['sanitize' => true, 'default' => '-1'],
     'num' => ['default' => 0, 'filter' => FILTER_VALIDATE_INT],
     'limit' => ['default' => $defaultLimit, 'filter' => FILTER_VALIDATE_INT],
-    'StartDate' => ['default' => ''],
-    'EndDate' => ['default' => ''],
-    'StartTime' => ['default' => ''],
-    'EndTime' => ['default' => ''],
+    'StartDate' => ['sanitize' => true, 'default' => ''],
+    'EndDate' => ['sanitize' => true, 'default' => ''],
+    'StartTime' => ['sanitize' => true, 'default' => ''],
+    'EndTime' => ['sanitize' => true, 'default' => ''],
     'period' => ['default' => -1, 'filter' => FILTER_VALIDATE_INT],
     'engine' => ['default' => 'false'],
     'up' => ['default' => 'true'],
@@ -333,8 +333,7 @@ if ($export) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_BUSINESS_LOG,
             'Error while fetching hosts',
-            [],
-            $e
+            $e->getOptions()
         );
     }
 }
@@ -645,18 +644,28 @@ $sqlQuery = "
     $limitClause
 ";
 
+$countQuery = "
+    SELECT COUNT(*)
+    $fromClause
+    " . implode(' ', $joinClauses) . "
+    $whereClause
+";
+
 $paginator = new Paginator((int)$num, (int)$limit);
 try {
+    // Execute the count query
+    $countqueryValues = $queryValues;
+    unset($countqueryValues[':limit'], $countqueryValues[':offset']);
+    $countStatement = $pearDBO->prepareQuery($countQuery);
+    $pearDBO->executePreparedQuery($countStatement, $countqueryValues, true);
+    $totalRows = $pearDBO->fetchColumn($countStatement);
+    $paginator = $paginator->withTotalRecordCount((int)$totalRows);
+    $pearDBO->closeQuery($countStatement);
+
     // Prepare and execute the query using CentreonDB methods
     $statement = $pearDBO->prepareQuery($sqlQuery);
     $pearDBO->executePreparedQuery($statement, $queryValues, true);
     $rows = $statement->rowCount();
-
-    $result = $pearDBO->executeQuery('SELECT FOUND_ROWS()');
-    if ($result) {
-        $totalRows = $pearDBO->fetchColumn($result);
-        $paginator = $paginator->withTotalRecordCount((int)$totalRows);
-    }
 
     // If the current page is out of bounds, adjust it
     if (!$export && 0 === $rows && $paginator->isOutOfUpperBound()) {
@@ -675,8 +684,7 @@ try {
     CentreonLog::create()->error(
         CentreonLog::TYPE_BUSINESS_LOG,
         'Error while fetching logs',
-        [],
-        $e
+        $e->getOptions()
     );
 }
 
@@ -763,30 +771,45 @@ foreach (array_slice($logs, 0, $limit) as $log) {
     $buffer->endElement();
 
     if (!strncmp($log["host_name"], "_Module_Meta", strlen("_Module_Meta"))) {
-        preg_match('/meta_([0-9]*)/', $log["service_description"], $matches);
-        try {
-            $statement = $pearDB->prepareQuery(
-                <<<SQL
-                    SELECT meta_name
-                    FROM meta_service
-                    WHERE meta_id = :meta_id
-                SQL
-            );
-            $pearDB->executePreparedQuery($statement, [':meta_id' => [$matches[1], \PDO::PARAM_INT]], true);
-            $meta = $pearDB->fetch($statement);
-            $pearDB->closeQuery($statement);
-        } catch (CentreonDbException $e) {
-            CentreonLog::create()->error(
+        if (preg_match('/meta_([0-9]*)/', $log["service_description"], $matches)) {
+            try {
+                $statement = $pearDB->prepareQuery(
+                    <<<SQL
+                        SELECT meta_name
+                        FROM meta_service
+                        WHERE meta_id = :meta_id
+                    SQL
+                );
+                $pearDB->executePreparedQuery($statement, [':meta_id' => [$matches[1], \PDO::PARAM_INT]], true);
+                $meta = $pearDB->fetch($statement);
+                $pearDB->closeQuery($statement);
+
+                $buffer->writeElement("host_name", "Meta", false);
+                $buffer->writeElement("real_service_name", $log["service_description"], false);
+                $buffer->writeElement("service_description", $meta["meta_name"], false);
+                unset($meta);
+            } catch (CentreonDbException $e) {
+                CentreonLog::create()->error(
+                    CentreonLog::TYPE_BUSINESS_LOG,
+                    'Error while fetching meta_services',
+                    $e->getOptions()
+                );
+            }
+        } else {
+            // Log case where meta pattern is not found in service description
+            CentreonLog::create()->info(
                 CentreonLog::TYPE_BUSINESS_LOG,
-                'Error while fetching meta_services',
-                [],
-                $e
+                "No meta pattern found in service_description: " . $log["service_description"]
             );
+
+            // Default output when meta pattern is missing
+            $buffer->writeElement("host_name", $log["host_name"], false);
+            if ($export) {
+                $buffer->writeElement("address", $HostCache[$log["host_name"]], false);
+            }
+            $buffer->writeElement("service_description", $log["service_description"], false);
+            $buffer->writeElement("real_service_name", $log["service_description"], false);
         }
-        $buffer->writeElement("host_name", "Meta", false);
-        $buffer->writeElement("real_service_name", $log["service_description"], false);
-        $buffer->writeElement("service_description", $meta["meta_name"], false);
-        unset($meta);
     } else {
         $buffer->writeElement("host_name", $log["host_name"], false);
         if ($export) {
