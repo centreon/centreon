@@ -92,7 +92,7 @@ jobs:
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
-      nightly_manual_trigger: ${{ inputs.nightly_manual_trigger }}
+      nightly_manual_trigger: ${{ inputs.nightly_manual_trigger || false }}
 
   gherkin-lint:
     runs-on: ubuntu-24.04
