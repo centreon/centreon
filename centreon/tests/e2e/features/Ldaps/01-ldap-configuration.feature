@@ -5,7 +5,7 @@ Feature: LdapConfiguration
 
   Background:
     Given an admin user is logged in a Centreon server
-  
+
   @TEST_MON-152401
   Scenario: Creating LDAP configuration
     When the user adds a new LDAP configuration
