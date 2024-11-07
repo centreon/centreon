@@ -13,8 +13,6 @@ on:
         required: true
         default: false
         type: boolean
-  schedule:
-    - cron: "0 3 * * 1-5"
   pull_request:
     types:
       - opened
@@ -47,23 +45,6 @@ on:
       - "!centreon/packages/**"
 
 jobs:
-  dispatch-to-maintained-branches:
-    if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' }}
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
-
-      - run: |
-          NIGHTLY_TARGETS=("dev-23.04.x" "dev-23.10.x" "dev-24.04.x" "dev-24.10.x")
-          for target in "${NIGHTLY_TARGETS[@]}"; do
-            echo "[INFO] - Dispatching nightly run to $target branch."
-            gh workflow run web-analysis.yml -r "$target" -f nightly_manual_trigger=true
-          done
-        shell: bash
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   get-environment:
     uses: ./.github/workflows/get-environment.yml
     with:
