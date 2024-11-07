@@ -17,4 +17,4 @@ Feature: AliasContactModification
   Scenario: Check modified contact by adding an accent to the alias still able to log in Centreon Web
     Given the contact alias contains an accent
     When the contact fill login field and Password
-    Then the contact is logged to Centreon Web
+    Then the contact is logged in to Centreon Web
