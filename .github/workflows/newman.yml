@@ -28,6 +28,9 @@ on:
       major_version:
         required: true
         type: string
+      is_nightly:
+        required: true
+        type: string
       stability:
         required: true
         type: string
@@ -70,7 +73,9 @@ jobs:
 
   associate-test-cases:
     runs-on: ubuntu-24.04
-    if: ${{ inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
+    if: |
+      inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) &&
+      inputs.is_nightly == 'true'
     outputs:
       test_execution_id: ${{ steps.get-test-ids.outputs.test_execution_id }}
       test_plan_id: ${{ steps.get-test-ids.outputs.test_plan_id }}
@@ -582,7 +587,9 @@ jobs:
           done
 
       - name: Change test execution status
-        if: ${{ inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
+        if: |
+          inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) &&
+          inputs.is_nightly == 'true'
         run: |
             retry_command() {
               local max_attempts=$1
@@ -696,7 +703,9 @@ jobs:
             done
 
       - name: Perform Jira Transitions
-        if: ${{ inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
+        if: |
+          inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) &&
+          inputs.is_nightly == 'true'
         run: |
           transition_ids=("61" "81" "21" "31")
           issue_ids="${{ needs.associate-test-cases.outputs.api-issue-ids }}"
