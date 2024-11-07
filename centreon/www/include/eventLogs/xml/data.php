@@ -284,7 +284,7 @@ if ($EndDate != "") {
 // Setting the startDate/Time using the user's chosen period
 $period = 86400;
 if ($auto_period > 0 || $start === 0) {
-    $period = (int)$auto_period;
+    $period = $auto_period;
     $start = time() - $period;
     $end = time();
 }
