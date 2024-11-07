@@ -20,6 +20,7 @@ interface Props extends Omit<UseBarStackProps, 'xScale'> {
   barStyle: BarStyle;
   barWidth: number;
   isTooltipHidden: boolean;
+  neutralValue: number;
 }
 
 const getPadding = ({ padding, size, isNegativeValue }): number => {
@@ -40,6 +41,7 @@ interface GetFirstBarHeightProps {
   y: number;
   isFirstBar: boolean;
   yScale: ScaleType;
+  neutralValue: number;
 }
 
 const getFirstBarHeight = ({
@@ -48,7 +50,8 @@ const getFirstBarHeight = ({
   barWidth,
   y,
   isFirstBar,
-  yScale
+  yScale,
+  neutralValue
 }: GetFirstBarHeightProps): number => {
   if (!isFirstBar || !isHorizontal) {
     return isHorizontal ? Math.abs(bar.height) : barWidth;
@@ -59,7 +62,7 @@ const getFirstBarHeight = ({
   }
 
   if (isHorizontal) {
-    return Math.abs(bar.width) - (y - yScale(0.001));
+    return Math.abs(bar.width) - (y - yScale(neutralValue));
   }
 
   return barWidth;
@@ -74,7 +77,8 @@ const BarStack = ({
   barPadding,
   barIndex,
   isTooltipHidden,
-  barStyle = { opacity: 1, radius: 0.2 }
+  barStyle = { opacity: 1, radius: 0.2 },
+  neutralValue
 }: Props): JSX.Element => {
   const {
     BarStackComponent,
@@ -121,7 +125,8 @@ const BarStack = ({
                     : barPadding,
                   isFirstBar: shouldApplyRadiusOnBottom,
                   isHorizontal,
-                  yScale
+                  yScale,
+                  neutralValue
                 })}
                 key={`bar-stack-${barStack.index}-${bar.index}`}
                 opacity={barStyle.opacity ?? 1}

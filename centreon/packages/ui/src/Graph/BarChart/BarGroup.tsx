@@ -27,6 +27,7 @@ interface Props {
   timeSeries: Array<TimeValue>;
   xScale;
   yScalesPerUnit: Record<string, ScaleLinear<number, number>>;
+  scaleType?: 'linear' | 'logarithmic';
 }
 
 const BarGroup = ({
@@ -37,7 +38,8 @@ const BarGroup = ({
   xScale,
   yScalesPerUnit,
   isTooltipHidden,
-  barStyle
+  barStyle,
+  scaleType
 }: Props): JSX.Element => {
   const isHorizontal = equals(orientation, 'horizontal');
 
@@ -185,6 +187,7 @@ const BarGroup = ({
                   lines={linesBar}
                   timeSeries={timeSeriesBar}
                   yScale={yScalesPerUnit[bar.key.replace('stacked-', '')]}
+                  neutralValue={equals(scaleType, 'logarithmic') ? 0.001 : 0}
                 />
               ) : (
                 <BarStack
@@ -198,6 +201,7 @@ const BarGroup = ({
                   lines={[linesBar]}
                   timeSeries={timeSeriesBar}
                   yScale={yScalesPerUnit[linesBar.unit]}
+                  neutralValue={equals(scaleType, 'logarithmic') ? 0.001 : 0}
                 />
               );
             })}
