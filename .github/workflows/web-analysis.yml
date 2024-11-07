@@ -1,4 +1,5 @@
 name: web-analysis
+run-name: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.nightly_manual_trigger == 'true')) && format('web-analysis nightly {0}', github.ref_name) || '' }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -7,7 +8,7 @@ concurrency:
 on:
   workflow_dispatch:
     inputs:
-      is_nightly:
+      nightly_manual_trigger:
         description: 'Set to true for nightly run'
         required: true
         default: false
@@ -57,7 +58,7 @@ jobs:
           NIGHTLY_TARGETS=("dev-23.04.x" "dev-23.10.x" "dev-24.04.x" "dev-24.10.x")
           for target in "${NIGHTLY_TARGETS[@]}"; do
             echo "[INFO] - Dispatching nightly run to $target branch."
-            gh workflow run web-analysis.yml -r "$target" -f is_nightly=true
+            gh workflow run web-analysis.yml -r "$target" -f nightly_manual_trigger=true
           done
         shell: bash
     env:
