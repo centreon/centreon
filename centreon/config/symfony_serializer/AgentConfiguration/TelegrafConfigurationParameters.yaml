@@ -1,0 +1,4 @@
+Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters:
+  attributes:
+    parameters:
+      groups: ['AgentConfiguration:Read']
