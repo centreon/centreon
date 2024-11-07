@@ -41,6 +41,7 @@ jobs:
       version_file: centreon-awie/www/modules/centreon-awie/conf.php
 
   changes:
+    needs: [get-environment]
     runs-on: ubuntu-22.04
     outputs:
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
