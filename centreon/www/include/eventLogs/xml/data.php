@@ -119,10 +119,7 @@ function getInput($key, $sanitize = false, $default = null, $filter = null)
     $value = $_GET[$key] ?? $_POST[$key] ?? $default;
 
     if ($filter !== null && $value !== null) {
-        $value = filter_var($value, $filter, FILTER_NULL_ON_FAILURE);
-        if ($value === null) {
-            $value = $default;
-        }
+        $value = filter_var($value, $filter, FILTER_NULL_ON_FAILURE) ?? $default;
     }
 
     if ($sanitize && $value !== null) {
