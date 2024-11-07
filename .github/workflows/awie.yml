@@ -84,7 +84,7 @@ jobs:
   package:
     needs: [get-environment, backend-lint]
     if: ${{ needs.get-environment.outputs.stability != 'stable' }}
-
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -105,8 +105,6 @@ jobs:
           - package_extension: deb
             image: packaging-nfpm-jammy
             distrib: jammy
-
-    runs-on: ubuntu-24.04
 
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
