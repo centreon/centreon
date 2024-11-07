@@ -7,8 +7,6 @@ concurrency:
 
 on:
   workflow_dispatch:
-<<<<<<< HEAD
-=======
     inputs:
       nightly_manual_trigger:
         description: 'Set to true for nightly run'
@@ -17,7 +15,6 @@ on:
         type: boolean
   schedule:
     - cron: "0 3 * * 1-5"
->>>>>>> 00af69a38b (enh(ci): use get-environment to properly filter nightly status (#5626))
   pull_request:
     types:
       - opened
@@ -50,8 +47,6 @@ on:
       - "!centreon/packages/**"
 
 jobs:
-<<<<<<< HEAD
-=======
   dispatch-to-maintained-branches:
     if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' }}
     runs-on: ubuntu-22.04
@@ -69,7 +64,6 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
->>>>>>> 00af69a38b (enh(ci): use get-environment to properly filter nightly status (#5626))
   get-environment:
     uses: ./.github/workflows/get-environment.yml
     with:
