@@ -183,7 +183,7 @@ jobs:
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
   deliver-rpm:
-    needs: [get-environment, package]
+    needs: [changes, get-environment, package]
     if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && needs.changes.outputs.trigger_delivery == 'true' }}
     runs-on: [self-hosted, common]
 
@@ -208,7 +208,7 @@ jobs:
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   deliver-deb:
-    needs: [get-environment, package]
+    needs: [changes, get-environment, package]
     if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && needs.changes.outputs.trigger_delivery == 'true' }}
     runs-on: [self-hosted, common]
 
