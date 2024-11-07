@@ -18,6 +18,12 @@ import { Line, TimeValue } from '../common/timeSeries/models';
 import BarStack from './BarStack';
 import { BarStyle } from './models';
 
+// Minimum value for logarithmic scale to avoid log(0)
+const minLogScaleValue = 0.001;
+
+const getNeutralValue = (scaleType?: 'linear' | 'logarithmic') =>
+  equals(scaleType, 'logarithmic') ? minLogScaleValue : 0;
+
 interface Props {
   barStyle: BarStyle;
   isTooltipHidden: boolean;
@@ -144,6 +150,8 @@ const BarGroup = ({
     [isHorizontal, placeholderScale, xScale, metricScale]
   );
 
+  const neutralValue = useMemo(() => getNeutralValue(scaleType), [scaleType]);
+
   return (
     <BarComponent<TimeValue>
       color={colorScale}
@@ -187,7 +195,7 @@ const BarGroup = ({
                   lines={linesBar}
                   timeSeries={timeSeriesBar}
                   yScale={yScalesPerUnit[bar.key.replace('stacked-', '')]}
-                  neutralValue={equals(scaleType, 'logarithmic') ? 0.001 : 0}
+                  neutralValue={neutralValue}
                 />
               ) : (
                 <BarStack
@@ -201,7 +209,7 @@ const BarGroup = ({
                   lines={[linesBar]}
                   timeSeries={timeSeriesBar}
                   yScale={yScalesPerUnit[linesBar.unit]}
-                  neutralValue={equals(scaleType, 'logarithmic') ? 0.001 : 0}
+                  neutralValue={neutralValue}
                 />
               );
             })}
@@ -219,7 +227,8 @@ const propsToMemoize = [
   'lines',
   'secondUnit',
   'isCenteredZero',
-  'barStyle'
+  'barStyle',
+  'scaleType'
 ];
 
 export default memo(BarGroup, (prevProps, nextProps) => {

@@ -176,7 +176,8 @@ const propsToMemoize = [
   'barPadding',
   'barIndex',
   'isTooltipHidden',
-  'barStyle'
+  'barStyle',
+  'neutralValue'
 ];
 
 export default memo(BarStack, (prevProps, nextProps) => {
