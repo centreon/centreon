@@ -26,6 +26,7 @@ namespace Core\HostTemplate\Infrastructure\API\AddHostTemplate;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplatePresenterInterface;
 use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplateResponse;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
@@ -64,7 +65,7 @@ class AddHostTemplateSaasPresenter extends AbstractPresenter implements AddHostT
                         'is_locked' => $response->isLocked,
                         'categories' => $response->categories,
                         'templates' => $response->templates,
-                        'event_handler_enabled' => $response->eventHandlerEnabled,
+                        'event_handler_enabled' => YesNoDefaultConverter::toInt($response->eventHandlerEnabled),
                         'event_handler_command_id' => $response->eventHandlerCommandId,
                         'macros' => array_map(
                             function ($macro) {

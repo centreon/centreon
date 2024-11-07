@@ -106,11 +106,9 @@
         },
         "event_handler_enabled": {
           "type": [
-            "null",
             "integer"
           ],
           "enum": [
-            null,
             0,
             1,
             2
