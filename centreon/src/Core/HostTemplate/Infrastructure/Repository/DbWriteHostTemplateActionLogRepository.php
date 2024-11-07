@@ -213,6 +213,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
             $hostTemplatePropertiesArray[$property->getName()] = $value;
         }
 
+        /** @var array<string,int|bool|string> $hostTemplatePropertiesArray */
         return $hostTemplatePropertiesArray;
     }
 }

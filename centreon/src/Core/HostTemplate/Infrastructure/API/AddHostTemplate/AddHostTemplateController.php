@@ -27,6 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplate;
 use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplateRequest;
@@ -236,7 +237,7 @@ final class AddHostTemplateController extends AbstractController
             $dto->templates = $data['templates'] ?? [];
             $dto->macros = $data['macros'] ?? [];
             $dto->iconId = $data['icon_id'] ?? null;
-            $dto->eventHandlerEnabled = $data['event_handler_enabled'] ?? 2;
+            $dto->eventHandlerEnabled = YesNoDefaultConverter::fromScalar($data['event_handler_enabled']) ?? 2;
             $dto->eventHandlerCommandId = $data['event_handler_command_id'] ?? null;
 
             $useCase($dto, $presenter);

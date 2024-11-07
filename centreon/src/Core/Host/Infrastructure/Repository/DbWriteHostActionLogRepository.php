@@ -311,6 +311,7 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
             $hostPropertiesArray[$mappedName] = $value;
         }
 
+        /** @var array<string,int|bool|string> $hostPropertiesArray */
         return $hostPropertiesArray;
     }
 }
