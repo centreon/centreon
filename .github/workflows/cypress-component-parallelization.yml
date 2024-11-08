@@ -20,6 +20,9 @@ on:
         required: true
         type: string
         description: 'The frontend dependencies lock file path'
+      is_nightly:
+        required: true
+        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
@@ -284,8 +287,8 @@ jobs:
     needs: [cypress-component-coverage-report, cypress-component-test-report, cypress-component-test-run, regroup-artifacts]
     runs-on: ubuntu-24.04
     if: |
-      github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
-      (failure() || cancelled()) && github.run_attempt == 1
+      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
+      (failure() || cancelled())
     steps:
       - name: Create Jira ticket if nightly build failure
         uses: ./.github/actions/create-jira-ticket

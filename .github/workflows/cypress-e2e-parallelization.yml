@@ -53,6 +53,9 @@ on:
         required: false
         type: string # Set as string instead of boolean to avoid mixing types between workflows and actions
         default: 'false'
+      is_nightly:
+        required: true
+        type: string
     secrets:
       registry_username:
         required: true
@@ -335,8 +338,8 @@ jobs:
     needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report, regroup-artifacts]
     runs-on: ubuntu-24.04
     if: |
-      github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
-      (failure() || cancelled()) && github.run_attempt == 1
+      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
+      (failure() || cancelled())
     steps:
       - name: Create Jira ticket if nightly build failure
         uses: ./.github/actions/create-jira-ticket

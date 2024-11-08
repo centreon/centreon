@@ -808,8 +808,8 @@ jobs:
     needs: [newman-test-run, synchronize-with-xray, regroup-artifacts]
     runs-on: ubuntu-24.04
     if: |
-      github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
-      (failure() || cancelled()) && github.run_attempt == 1
+      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
+      (failure() || cancelled())
     steps:
       - run: exit 1
         shell: bash
@@ -818,8 +818,8 @@ jobs:
     needs: [newman-test-run, synchronize-with-xray, regroup-artifacts, fail-nightly]
     runs-on: ubuntu-24.04
     if: |
-      github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
-      (failure() || cancelled()) && github.run_attempt == 1
+      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
+      (failure() || cancelled())
     steps:
       - name: Create Jira ticket if nightly build failure
         uses: ./.github/actions/create-jira-ticket

@@ -153,8 +153,8 @@ jobs:
 
       - name: Create Jira ticket if nightly build failure
         if: |
-          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
-          failure() && github.run_attempt == 1
+          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
+          failure()
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -287,6 +287,7 @@ jobs:
       module_name: centreon
       specs_path: www/**
       dependencies_lock_file: centreon/pnpm-lock.yaml
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
 
   backend-unit-test:
     runs-on: ubuntu-24.04
@@ -502,8 +503,8 @@ jobs:
 
       - name: Create Jira ticket if nightly build failure
         if: |
-          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
-          failure() && github.run_attempt == 1
+          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
+          failure()
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -646,8 +647,8 @@ jobs:
 
       - name: Create Jira ticket if nightly build failure
         if: |
-          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
-          failure() && github.run_attempt == 1
+          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
+          failure()
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -727,6 +728,7 @@ jobs:
       os: ${{ matrix.operating_system }}
       features_path: features
       test_tags: ${{ matrix.test_tags }}
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
     secrets:
       registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
@@ -761,6 +763,7 @@ jobs:
       dependencies_lock_file: centreon/pnpm-lock.yaml
       xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
       is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
     secrets:
       registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
@@ -964,8 +967,8 @@ jobs:
 
       - name: Create Jira ticket if nightly build failure
         if: |
-          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
-          failure() && github.run_attempt == 1
+          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
+          failure()
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -1008,8 +1011,8 @@ jobs:
 
       - name: Create Jira ticket if nightly build failure
         if: |
-          github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true') &&
-          failure() && github.run_attempt == 1
+          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
+          failure()
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
