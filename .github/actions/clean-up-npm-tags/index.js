@@ -23,7 +23,7 @@ const checkAndCleanUpTag = async ({ dependency, branch }) => {
     `${dependency}: ${branch} branch not found. Cleaning the NPM tag up...`
   );
 
-  shell.execSync(`npm dist-tag rm @centreon/${dependency} ${branch}`);
+  process.execSync(`npm dist-tag rm @centreon/${dependency} ${branch}`);
   core.info(`${dependency}: ${branch} tag removed`);
   return;
 };
