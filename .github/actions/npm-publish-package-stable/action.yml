@@ -14,8 +14,8 @@ inputs:
   package:
     description: The frontend package
     required: true
-  version:
-    description: The version
+  tag:
+    description: The tag version
     default: latest
   release_branch:
     description: The release branch
@@ -58,7 +58,7 @@ runs:
 
     - name: Configure tag
       run: |
-        echo "TAG=${{ inputs.version }}" >> $GITHUB_ENV
+        echo "TAG=${{ inputs.tag }}" >> $GITHUB_ENV
       shell: bash
 
     - name: Bump NPM package version
