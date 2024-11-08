@@ -49,3 +49,4 @@ jobs:
           dependencies_lock_file: centreon/pnpm-lock.yaml
           pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
           project_token: ${{ secrets.CHROMATIC_TOKEN }}
+          tag: ${{ env.base_branch }}
