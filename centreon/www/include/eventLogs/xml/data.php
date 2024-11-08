@@ -113,7 +113,26 @@ $defaultLimit = $centreon->optGen['maxViewConfiguration'] > 1
     ? (int) $centreon->optGen['maxViewConfiguration']
     : 30;
 
-// Define a function to get and sanitize inputs where necessary
+/**
+ * Retrieves and optionally sanitizes a value from GET or POST input, with fallback defaults.
+ *
+ * This function checks for a specified key in the `$_GET` or `$_POST` arrays,
+ * applying optional sanitization and filtering if required. It supports a
+ * fallback default value if the key does not exist in either array.
+ *
+ * @param string $key The name of the input key to retrieve from `$_GET` or `$_POST`.
+ * @param bool $sanitize If true, applies HTML sanitization to the value.
+ * @param mixed $default A default value returned if the key does not exist in the inputs.
+ * @param int|null $filter Optional filter constant for input validation, e.g., `FILTER_VALIDATE_INT`.
+ *
+ * @return mixed The sanitized and filtered input value, or the default value if the key is not found.
+ *
+ * Usage:
+ * ```php
+ * $name = getInput('name', true, 'Guest');
+ * $age = getInput('age', false, 0, FILTER_VALIDATE_INT);
+ * ```
+ */
 function getInput($key, $sanitize = false, $default = null, $filter = null)
 {
     $value = $_GET[$key] ?? $_POST[$key] ?? $default;
@@ -247,7 +266,16 @@ $start = 0;
 $end = time();
 
 if ($engine == "true") {
-    $ok = $up = $unknown = $unreachable = $down = $warning = $critical = $acknowledgement = $oh = $alert = "false";
+    $ok = "false";
+    $up = "false";
+    $unknown = "false";
+    $unreachable = "false";
+    $down = "false";
+    $warning = "false";
+    $critical = "false";
+    $acknowledgement = "false";
+    $oh = "false";
+    $alert = "false";
 }
 
 if ($StartDate != "" && $StartTime == "") {
@@ -420,10 +448,14 @@ $msgConditions = [];
 
 if ($notification == 'true') {
     if (!empty($host_msg_status_set)) {
-        $msgConditions[] = "(logs.msg_type = 3 AND logs.status IN (" . implode(',', $host_msg_status_set) . "))";
+        [$bindValues, $bindQuery] = createMultipleBindQuery($host_msg_status_set, ':host_msg_status_set_', \PDO::PARAM_INT);
+        $msgConditions[] = "(logs.msg_type = 3 AND logs.status IN ($bindQuery))";
+        $queryValues = array_merge($queryValues, $bindValues);
     }
     if (!empty($svc_msg_status_set)) {
-        $msgConditions[] = "(logs.msg_type = 2 AND logs.status IN (" . implode(',', $svc_msg_status_set) . "))";
+        [$bindValues, $bindQuery] = createMultipleBindQuery($svc_msg_status_set, ':svc_msg_status_set_', \PDO::PARAM_INT);
+        $msgConditions[] = "(logs.msg_type = 2 AND logs.status IN ($bindQuery))";
+        $queryValues = array_merge($queryValues, $bindValues);
     }
 }
 if ($alert == 'true') {
@@ -432,16 +464,20 @@ if ($alert == 'true') {
     $alertMsgTypesSvc = [0, 10, 11];
 
     if (!empty($host_msg_status_set)) {
-        $alertConditions[] = "(logs.msg_type IN (" . implode(',', $alertMsgTypesHost) . ") AND logs.status IN (" . implode(',', $host_msg_status_set) . "))";
+        [$bindValuesHost, $bindQueryHost] = createMultipleBindQuery($host_msg_status_set, ':host_msg_status_set_', \PDO::PARAM_INT);
+        [$bindValuesAlert, $bindQueryAlert] = createMultipleBindQuery($alertMsgTypesHost, ':alertMsgTypesHost_', \PDO::PARAM_INT);
+        $alertConditions[] = "(logs.msg_type IN ($bindQueryAlert) AND logs.status IN ($bindQueryHost))";
+        $queryValues = array_merge($queryValues, $bindValuesHost, $bindValuesAlert);
     }
     if (!empty($svc_msg_status_set)) {
-        $alertConditions[] = "(logs.msg_type IN (" . implode(',', $alertMsgTypesSvc) . ") AND logs.status IN (" . implode(',', $svc_msg_status_set) . "))";
+        [$bindValuesSvc, $bindQuerySvc] = createMultipleBindQuery($svc_msg_status_set, ':svc_msg_status_set_', \PDO::PARAM_INT);
+        [$bindValuesAlert, $bindQueryAlert] = createMultipleBindQuery($alertMsgTypesSvc, ':alertMsgTypesSvc_', \PDO::PARAM_INT);
+        $alertConditions[] = "(logs.msg_type IN ($bindQueryAlert) AND logs.status IN ($bindQuerySvc))";
+        $queryValues = array_merge($queryValues, $bindValuesSvc, $bindValuesAlert);
     }
     if ($oh == 'true') {
-        // Apply 'logs.type = :logType' only to alert conditions
-        foreach ($alertConditions as &$condition) {
-            $condition = '(' . $condition . ' AND logs.type = :logType)';
-        }
+        // Apply 'logs.type = :logType' only to alert conditions with $oh = true
+        $whereClauses[] = 'logs.type = :logType';
         $queryValues[':logType'] = [TYPE_HARD, \PDO::PARAM_INT];
     }
     // Add alert conditions to msgConditions
@@ -504,14 +540,9 @@ foreach ($tab_id as $openidItem) {
 if (in_array('true', [$up, $down, $unreachable, $ok, $warning, $critical, $unknown, $acknowledgement])) {
 
     if (!empty($tab_host_ids)) {
-        $hostPlaceholders = [];
-        foreach ($tab_host_ids as $index => $hostId) {
-            $paramName = ':hostId' . $index;
-            $hostPlaceholders[] = $paramName;
-            $queryValues[$paramName] = [$hostId, \PDO::PARAM_INT];
-        }
-        $hostPlaceholdersString = implode(', ', $hostPlaceholders);
-        $hostServiceConditions[] = "(logs.host_id IN ($hostPlaceholdersString) AND (logs.service_id IS NULL OR logs.service_id = 0))";
+        [$bindValues, $bindQuery] = createMultipleBindQuery($tab_host_ids, ':tab_host_ids_', \PDO::PARAM_INT);
+        $hostServiceConditions[] = "(logs.host_id IN ($bindQuery) AND (logs.service_id IS NULL OR logs.service_id = 0))";
+        $queryValues = array_merge($queryValues, $bindValues);
     }
 
     if (!empty($tab_svc)) {
@@ -581,9 +612,6 @@ if (!$is_admin) {
     $selectClause .= "DISTINCT ";
 }
 
-// Add SQL_CALC_FOUND_ROWS
-$selectClause .= "SQL_CALC_FOUND_ROWS ";
-
 // Add the select fields
 $selectClause .= implode(", ", $selectFields);
 
@@ -593,17 +621,12 @@ $joinClauses = [];
 if ($engine == "true" && !empty($openid)) {
     $pollerIds = array_filter(explode(',', $openid), 'is_numeric');
     if (!empty($pollerIds)) {
-        $pollerPlaceholders = [];
-        foreach ($pollerIds as $index => $pollerId) {
-            $paramName = ':pollerId' . $index;
-            $pollerPlaceholders[] = $paramName;
-            $queryValues[$paramName] = [$pollerId, \PDO::PARAM_INT];
-        }
-        $pollerPlaceholdersString = implode(', ', $pollerPlaceholders);
+        [$bindValues, $bindQuery] = createMultipleBindQuery($pollerIds, ':pollerIds_', \PDO::PARAM_INT);
         $joinClauses[] = "
-            INNER JOIN instances i ON i.name = logs.instance_name
-            AND i.instance_id IN ($pollerPlaceholdersString)
+        INNER JOIN instances i ON i.name = logs.instance_name
+        AND i.instance_id IN ($bindQuery)
         ";
+        $queryValues = array_merge($queryValues, $bindValues);
     }
     if ($str_unitH != "") {
         $str_unitH = "(logs.host_id IN ($str_unitH) AND (logs.service_id IS NULL OR logs.service_id = 0))";
