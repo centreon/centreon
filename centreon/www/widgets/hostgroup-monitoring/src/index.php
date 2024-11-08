@@ -97,161 +97,192 @@ $hostStateLabels = [0 => "Up", 1 => "Down", 2 => "Unreachable", 4 => "Pending"];
 
 $serviceStateLabels = [0 => "Ok", 1 => "Warning", 2 => "Critical", 3 => "Unknown", 4 => "Pending"];
 
-$query = <<<'SQL_WRAP'
-    SELECT SQL_CALC_FOUND_ROWS DISTINCT
-        1 AS REALTIME, name, hostgroup_id
-    FROM hostgroups 
-    SQL_WRAP;
+try {
+    $query = <<<'SQL_WRAP'
+        SELECT SQL_CALC_FOUND_ROWS DISTINCT
+            1 AS REALTIME, name, hostgroup_id
+        FROM hostgroups 
+        SQL_WRAP;
 
-if (isset($preferences['hg_name_search']) && $preferences['hg_name_search'] != "") {
-    $tab = explode(" ", $preferences['hg_name_search']);
-    $op = $tab[0];
-    if (isset($tab[1])) {
-        $search = $tab[1];
+    $bindParams = [];
+    if (isset($preferences['hg_name_search']) && trim($preferences['hg_name_search']) !== '') {
+        $tab = explode(" ", $preferences['hg_name_search']);
+        $op = $tab[0];
+        if (isset($tab[1])) {
+            $search = $tab[1];
+        }
+        if ($op && isset($search) && trim($search) !== '') {
+            $query = CentreonUtils::conditionBuilder(
+                $query,
+                "name " . CentreonUtils::operandToMysqlFormat($op) . " :search "
+            );
+            $bindParams['search'] = [$search, PDO::PARAM_STR];
+        }
     }
-    if ($op && isset($search) && $search != "") {
-        $query = CentreonUtils::conditionBuilder(
-            $query,
-            "name " . CentreonUtils::operandToMysqlFormat($op) . " '" . $dbb->escape($search) . "' "
-        );
+
+    if (!$centreon->user->admin) {
+        $query = CentreonUtils::conditionBuilder($query, "name IN (:hostgroups)");
+        $bindParams['hostgroups'] = [$aclObj->getHostGroupsString("NAME"), PDO::PARAM_STR];
     }
-}
 
-if (!$centreon->user->admin) {
-    $query = CentreonUtils::conditionBuilder($query, "name IN (" . $aclObj->getHostGroupsString("NAME") . ")");
-}
+    $orderby = "name ASC";
+    if (isset($preferences['order_by']) && trim($preferences['order_by']) !== "") {
+        $orderby = $preferences['order_by'];
+    }
 
-$orderby = "name ASC";
-if (isset($preferences['order_by']) && trim($preferences['order_by']) != "") {
-    $orderby = $preferences['order_by'];
-}
+    $query .= "ORDER BY :orderby LIMIT :offset, :entries";
 
-$query .= "ORDER BY $orderby";
-$query .= " LIMIT " . ($page * $preferences['entries']) . "," . $preferences['entries'];
-$res = $dbb->query($query);
-$nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
-$data = [];
-$detailMode = false;
-if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
-    $detailMode = true;
-}
+    $statement = $dbb->prepareQuery($query);
 
-$kernel = \App\Kernel::createForWeb();
-$resourceController = $kernel->getContainer()->get(
-    \Centreon\Application\Controller\MonitoringResourceController::class
-);
+    $bindParams = ['orderby' => [$orderby, PDO::PARAM_STR]];
+    $bindParams['offset'] = [$page * $preferences['entries'], PDO::PARAM_INT];
+    $bindParams['entries'] = [$preferences['entries'], PDO::PARAM_INT];
 
-$buildHostgroupUri = function (array $hostgroup, array $types, array $statuses) use ($resourceController) {
-    return $resourceController->buildListingUri(
-        [
-            'filter' => json_encode(
-                [
-                    'criterias' => [
-                        [
-                            'name' => 'host_groups',
-                            'value' => $hostgroup,
-                        ],
-                        [
-                            'name' => 'resource_types',
-                            'value' => $types,
-                        ],
-                        [
-                            'name' => 'statuses',
-                            'value' => $statuses,
-                        ]
-                    ],
-                ]
-            )
-        ]
+    $dbb->executePreparedQuery($statement, $bindParams, true);
+
+    $nbRows = (int) $dbb->executeQuery('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
+    $data = [];
+    $detailMode = false;
+    if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
+        $detailMode = true;
+    }
+
+    $kernel = \App\Kernel::createForWeb();
+    $resourceController = $kernel->getContainer()->get(
+        \Centreon\Application\Controller\MonitoringResourceController::class
     );
-};
 
-$buildParameter = function (string $id, string $name) {
-    return [
-        'id' => $id,
-        'name' => $name,
-    ];
-};
+    $buildHostgroupUri = function (array $hostgroup, array $types, array $statuses) use ($resourceController) {
+        $filter = [
+            'criterias' => [
+                [
+                    'name' => 'host_groups',
+                    'value' => $hostgroup,
+                ],
+                [
+                    'name' => 'resource_types',
+                    'value' => $types,
+                ],
+                [
+                    'name' => 'statuses',
+                    'value' => $statuses,
+                ]
+            ],
+        ];
 
-$hostType = $buildParameter('host', 'Host');
-$serviceType = $buildParameter('service', 'Service');
-$okStatus = $buildParameter('OK', 'Ok');
-$warningStatus = $buildParameter('WARNING', 'Warning');
-$criticalStatus = $buildParameter('CRITICAL', 'Critical');
-$unknownStatus = $buildParameter('UNKNOWN', 'Unknown');
-$pendingStatus = $buildParameter('PENDING', 'Pending');
-$upStatus = $buildParameter('UP', 'Up');
-$downStatus = $buildParameter('DOWN', 'Down');
-$unreachableStatus = $buildParameter('UNREACHABLE', 'Unreachable');
+        try {
+             $encodedFilter = json_encode($filter, JSON_THROW_ON_ERROR);
 
-while ($row = $res->fetch()) {
-    $hostgroup = [
-        'id' => (int)$row['hostgroup_id'],
-        'name' => $row['name'],
-    ];
+            return $resourceController->buildListingUri(
+                [
+                    'filter' => $encodedFilter,
+                ]
+            );
+        } catch (JsonException $e) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: "Error while handling hostgroup monitoring data: " . $e->getMessage(),
+                exception: $e
+            );
+            throw new \Exception('Error while handling hostgroup monitoring data: ' . $e->getMessage());
+        }
+    };
 
-    $hostgroupServicesUri = $useDeprecatedPages
-        ? '../../main.php?p=20201&search=&o=svc&hg=' . $hostgroup['id']
-        : $buildHostgroupUri([$hostgroup], [$serviceType], []);
+    $buildParameter = function (string $id, string $name) {
+        return [
+            'id' => $id,
+            'name' => $name,
+        ];
+    };
 
-    $hostgroupOkServicesUri = $useDeprecatedPages
-        ? $hostgroupServicesUri . '&statusFilter=ok'
-        : $buildHostgroupUri([$hostgroup], [$serviceType], [$okStatus]);
+    $hostType = $buildParameter('host', 'Host');
+    $serviceType = $buildParameter('service', 'Service');
+    $okStatus = $buildParameter('OK', 'Ok');
+    $warningStatus = $buildParameter('WARNING', 'Warning');
+    $criticalStatus = $buildParameter('CRITICAL', 'Critical');
+    $unknownStatus = $buildParameter('UNKNOWN', 'Unknown');
+    $pendingStatus = $buildParameter('PENDING', 'Pending');
+    $upStatus = $buildParameter('UP', 'Up');
+    $downStatus = $buildParameter('DOWN', 'Down');
+    $unreachableStatus = $buildParameter('UNREACHABLE', 'Unreachable');
 
-    $hostgroupWarningServicesUri = $useDeprecatedPages
-        ? $hostgroupServicesUri . '&statusFilter=warning'
-        : $buildHostgroupUri([$hostgroup], [$serviceType], [$warningStatus]);
+    while ($row = $dbb->fetch($statement)) {
+        $hostgroup = [
+            'id' => (int) $row['hostgroup_id'],
+            'name' => HtmlSanitizer::createFromString($row['name'])->sanitize()->getString(),
+        ];
 
-    $hostgroupCriticalServicesUri = $useDeprecatedPages
-        ? $hostgroupServicesUri . '&statusFilter=critical'
-        : $buildHostgroupUri([$hostgroup], [$serviceType], [$criticalStatus]);
+        $hostgroupServicesUri = $useDeprecatedPages
+            ? '../../main.php?p=20201&search=&o=svc&hg=' . $hostgroup['id']
+            : $buildHostgroupUri([$hostgroup], [$serviceType], []);
 
-    $hostgroupUnknownServicesUri = $useDeprecatedPages
-        ? $hostgroupServicesUri . '&statusFilter=unknown'
-        : $buildHostgroupUri([$hostgroup], [$serviceType], [$unknownStatus]);
+        $hostgroupOkServicesUri = $useDeprecatedPages
+            ? $hostgroupServicesUri . '&statusFilter=ok'
+            : $buildHostgroupUri([$hostgroup], [$serviceType], [$okStatus]);
 
-    $hostgroupPendingServicesUri = $useDeprecatedPages
-        ? $hostgroupServicesUri . '&statusFilter=pending'
-        : $buildHostgroupUri([$hostgroup], [$serviceType], [$pendingStatus]);
+        $hostgroupWarningServicesUri = $useDeprecatedPages
+            ? $hostgroupServicesUri . '&statusFilter=warning'
+            : $buildHostgroupUri([$hostgroup], [$serviceType], [$warningStatus]);
 
-    $hostgroupHostsUri = $useDeprecatedPages
-        ? '../../main.php?p=20202&search=&hostgroups=' . $hostgroup['id'] . '&o=h_'
-        : $buildHostgroupUri([$hostgroup], [$hostType], []);
+        $hostgroupCriticalServicesUri = $useDeprecatedPages
+            ? $hostgroupServicesUri . '&statusFilter=critical'
+            : $buildHostgroupUri([$hostgroup], [$serviceType], [$criticalStatus]);
 
-    $hostgroupUpHostsUri = $useDeprecatedPages
-        ? $hostgroupHostsUri . 'up'
-        : $buildHostgroupUri([$hostgroup], [$hostType], [$upStatus]);
+        $hostgroupUnknownServicesUri = $useDeprecatedPages
+            ? $hostgroupServicesUri . '&statusFilter=unknown'
+            : $buildHostgroupUri([$hostgroup], [$serviceType], [$unknownStatus]);
 
-    $hostgroupDownHostsUri = $useDeprecatedPages
-        ? $hostgroupHostsUri . 'down'
-        : $buildHostgroupUri([$hostgroup], [$hostType], [$downStatus]);
+        $hostgroupPendingServicesUri = $useDeprecatedPages
+            ? $hostgroupServicesUri . '&statusFilter=pending'
+            : $buildHostgroupUri([$hostgroup], [$serviceType], [$pendingStatus]);
 
-    $hostgroupUnreachableHostsUri = $useDeprecatedPages
-        ? $hostgroupHostsUri . 'unreachable'
-        : $buildHostgroupUri([$hostgroup], [$hostType], [$unreachableStatus]);
+        $hostgroupHostsUri = $useDeprecatedPages
+            ? '../../main.php?p=20202&search=&hostgroups=' . $hostgroup['id'] . '&o=h_'
+            : $buildHostgroupUri([$hostgroup], [$hostType], []);
 
-    $hostgroupPendingHostsUri = $useDeprecatedPages
-        ? $hostgroupHostsUri . 'pending'
-        : $buildHostgroupUri([$hostgroup], [$hostType], [$pendingStatus]);
+        $hostgroupUpHostsUri = $useDeprecatedPages
+            ? $hostgroupHostsUri . 'up'
+            : $buildHostgroupUri([$hostgroup], [$hostType], [$upStatus]);
 
-    $data[$row['name']] = [
-        'name' => $row['name'],
-        'hg_id' => $row['hostgroup_id'],
-        'hg_uri' => $hostgroupServicesUri,
-        'hg_service_uri' => $hostgroupServicesUri,
-        'hg_service_ok_uri' => $hostgroupOkServicesUri,
-        'hg_service_warning_uri' => $hostgroupWarningServicesUri,
-        'hg_service_critical_uri' => $hostgroupCriticalServicesUri,
-        'hg_service_unknown_uri' => $hostgroupUnknownServicesUri,
-        'hg_service_pending_uri' => $hostgroupPendingServicesUri,
-        'hg_host_uri' => $hostgroupHostsUri,
-        'hg_host_up_uri' => $hostgroupUpHostsUri,
-        'hg_host_down_uri' => $hostgroupDownHostsUri,
-        'hg_host_unreachable_uri' => $hostgroupUnreachableHostsUri,
-        'hg_host_pending_uri' => $hostgroupPendingHostsUri,
-        'host_state' => [],
-        'service_state' => [],
-    ];
+        $hostgroupDownHostsUri = $useDeprecatedPages
+            ? $hostgroupHostsUri . 'down'
+            : $buildHostgroupUri([$hostgroup], [$hostType], [$downStatus]);
+
+        $hostgroupUnreachableHostsUri = $useDeprecatedPages
+            ? $hostgroupHostsUri . 'unreachable'
+            : $buildHostgroupUri([$hostgroup], [$hostType], [$unreachableStatus]);
+
+        $hostgroupPendingHostsUri = $useDeprecatedPages
+            ? $hostgroupHostsUri . 'pending'
+            : $buildHostgroupUri([$hostgroup], [$hostType], [$pendingStatus]);
+
+        $data[$row['name']] = [
+            'name' => $row['name'],
+            'hg_id' => $row['hostgroup_id'],
+            'hg_uri' => $hostgroupServicesUri,
+            'hg_service_uri' => $hostgroupServicesUri,
+            'hg_service_ok_uri' => $hostgroupOkServicesUri,
+            'hg_service_warning_uri' => $hostgroupWarningServicesUri,
+            'hg_service_critical_uri' => $hostgroupCriticalServicesUri,
+            'hg_service_unknown_uri' => $hostgroupUnknownServicesUri,
+            'hg_service_pending_uri' => $hostgroupPendingServicesUri,
+            'hg_host_uri' => $hostgroupHostsUri,
+            'hg_host_up_uri' => $hostgroupUpHostsUri,
+            'hg_host_down_uri' => $hostgroupDownHostsUri,
+            'hg_host_unreachable_uri' => $hostgroupUnreachableHostsUri,
+            'hg_host_pending_uri' => $hostgroupPendingHostsUri,
+            'host_state' => [],
+            'service_state' => [],
+        ];
+    }
+} catch (CentreonDbException $e) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: "Error while fetching hostgroup monitoring data: " . $e->getMessage(),
+        exception: $e
+    );
+
+    throw new \Exception("Error while fetching hostgroup monitoring data: " . $e->getMessage());
 }
 $hgMonObj->getHostStates($data, $centreon->user->admin, $aclObj, $preferences, $detailMode);
 $hgMonObj->getServiceStates($data, $centreon->user->admin, $aclObj, $preferences, $detailMode);

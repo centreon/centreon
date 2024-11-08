@@ -17847,3 +17847,6 @@ msgstr "Retractar"
 
 msgid "Sticky for any non-OK status"
 msgstr "Sticky para cualquier estado que no sea OK"
+
+# msgid "There are errors in the form."
+# msgstr ""
