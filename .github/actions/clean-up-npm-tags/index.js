@@ -28,29 +28,33 @@ const checkAndCleanUpTag = async ({ dependency, branch }) => {
   return;
 };
 
-const run = () => {
+const run = async () => {
   core.info('Logging in to NPM registry...');
   execSync(
     `npm config set "//registry.npmjs.org/:_authToken" "${core.getInput('npm_token')}"`
   );
   core.info('Logged in');
 
-  packages.forEach(async (dependency) => {
-    const packageInformations = await getPackageInformations(dependency);
-    core.debug(`Processing tags for ${dependency}...`);
+  await Promise.all(
+    packages.map(async (dependency) => {
+      const packageInformations = await getPackageInformations(dependency);
+      core.debug(`Processing tags for ${dependency}...`);
 
-    const distTags = packageInformations['dist-tags'];
+      const distTags = packageInformations['dist-tags'];
 
-    const branchNamesFromTags = Object.keys(distTags);
+      const branchNamesFromTags = Object.keys(distTags);
 
-    let chainedPromise = Promise.resolve();
-    branchNamesFromTags.forEach((branch) => {
-      chainedPromise = chainedPromise.then(() => {
-        return checkAndCleanUpTag({ dependency, branch });
+      let chainedPromise = Promise.resolve();
+      branchNamesFromTags.forEach((branch) => {
+        chainedPromise = chainedPromise.then(() => {
+          return checkAndCleanUpTag({ dependency, branch });
+        });
       });
-    });
-    core.debug(`${dependency} tags processed...`);
-  });
+      core.debug(`${dependency} tags processed...`);
+    })
+  );
 };
 
-run();
+run().finally(() => {
+  execSync('npm config delete "//registry.npmjs.org/:_authToken"');
+});
