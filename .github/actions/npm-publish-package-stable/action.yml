@@ -24,7 +24,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+    - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
       with:
         node-version: 20
 
@@ -62,6 +62,7 @@ runs:
       shell: bash
 
     - name: Bump NPM package version
+      if: ${{ steps.get-latest-npm-branch-version.outputs.skip-bump-version != 1 }}
       run: |
         npm version patch --legacy-peer-deps
         VERSION=$(node -p "require('./package.json').version")
@@ -71,7 +72,7 @@ runs:
       shell: bash
 
     - name: Publish package to NPM (${{ env.TAG }})
-      uses: JS-DevTools/npm-publish@v2
+      uses: JS-DevTools/npm-publish@19c28f1ef146469e409470805ea4279d47c3d35c # v3.1.1
       with:
         access: public
         package: ${{ env.directory }}/package.json
