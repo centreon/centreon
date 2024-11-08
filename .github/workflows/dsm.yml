@@ -78,6 +78,7 @@ jobs:
       base_directory: centreon-dsm
       spec_file: centreon-dsm/packaging/centreon-dsm.spectemplate
       package_extension: ${{ matrix.package_extension }}
+      distrib: ${{ matrix.distrib }}
       image_name: ${{ matrix.image }}
       module_name: dsm
       major_version: ${{ needs.get-environment.outputs.major_version }}
