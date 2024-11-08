@@ -30,7 +30,10 @@ trait SqlMultipleBindTrait
      * @param string $prefix
      * @param int $bindType (optional)
      *
-     * @return array{0: array<string, mixed>, 1: string}
+     * @return array{
+     *     0: array<string, int|string|array{0: int|string, 1: int}>,
+     *     1: string
+     * }
      */
     protected function createMultipleBindQuery(array $list, string $prefix, ?int $bindType = null): array
     {
