@@ -226,23 +226,13 @@ class CentreonAuthLDAP
             //getting user's email
             $userEmail = $this->contactInfos['contact_email'];
             try {
-                if (isset($userInfos[$this->ldap->getAttrName('user', 'email')])) {
-                    if (is_array($userInfos[$this->ldap->getAttrName('user', 'email')])) {
-                        // Get the first if there are multiple entries
-                        if (
-                            $userInfos[$this->ldap->getAttrName('user', 'email')][0]
-                            && trim($userInfos[$this->ldap->getAttrName('user', 'email')][0]) !== ''
-                        ) {
-                            $userEmail = $userInfos[$this->ldap->getAttrName('user', 'email')][0];
-                        }
-                    } elseif (
-                        is_string($userInfos[$this->ldap->getAttrName('user', 'email')])
-                        && trim($userInfos[$this->ldap->getAttrName('user', 'email')]) !== ''
-                    ) {
-                        $userEmail = $userInfos[$this->ldap->getAttrName('user', 'email')];
-                    } else {
-                        throw new Exception('User email must be a string or an array of strings.');
-                    }
+                $ldapEmailValue = $userInfos[$this->ldap->getAttrName('user', 'email')];
+                if (isset($ldapEmailValue)) {
+                    $userEmail = (trim(is_array($ldapEmailValue) ? current($ldapEmailValue) : $ldapEmailValue));
+                }
+
+                if ($userEmail === '') {
+                    throw new Exception('User email must be a non-empty string');
                 }
             } catch (Exception $ex) {
                 $this->CentreonLog->insertLog(
@@ -254,18 +244,22 @@ class CentreonAuthLDAP
             }
             //getting user's pager
             $userPager = $this->contactInfos['contact_pager'];
-            if (
-                isset($userInfos[$this->ldap->getAttrName('user', 'pager')])
-                && trim($userInfos[$this->ldap->getAttrName('user', 'pager')]) != ''
-            ) {
-                if (is_array($userInfos[$this->ldap->getAttrName('user', 'pager')])) {
-                    // Get the first if there are multiple entries
-                    if ($userInfos[$this->ldap->getAttrName('user', 'pager')][0]) {
-                        $userPager = $userInfos[$this->ldap->getAttrName('user', 'pager')][0];
-                    }
-                } elseif ($userInfos[$this->ldap->getAttrName('user', 'pager')]) {
-                    $userPager = $userInfos[$this->ldap->getAttrName('user', 'pager')];
+            try {
+                $ldapUserPager = $userInfos[$this->ldap->getAttrName('user', 'pager')];
+                if (isset($ldapUserPager)) {
+                    $userPager = (trim(is_array($ldapUserPager) ? current($ldapUserPager) : $ldapUserPager));
                 }
+
+                if ($userPager === '') {
+                    throw new Exception('User pager must be a non-empty string');
+                }
+            } catch (Exception $ex) {
+                $this->CentreonLog->insertLog(
+                    3,
+                    'LDAP AUTH - Error : Invalid user pager : ' . $ex->getMessage()
+                );
+
+                return false;
             }
 
             /**
