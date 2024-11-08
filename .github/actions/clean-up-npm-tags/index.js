@@ -2,7 +2,7 @@ const core = require('@actions/core');
 const fetch = require('node-fetch');
 const process = require('child_process');
 
-const packages = ['js-config', 'ui-context'];
+const packages = ['js-config', 'ui-context', 'ui'];
 
 const getPackageInformations = async (dependency) => {
   const response = await fetch(
