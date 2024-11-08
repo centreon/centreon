@@ -62,7 +62,7 @@ runs:
       shell: bash
 
     - name: Bump NPM package version for develop
-      if: ${{ github.ref_name === 'develop' }}
+      if: ${{ github.ref_name == 'develop' }}
       run: |
         npm version patch --legacy-peer-deps
         VERSION=$(node -p "require('./package.json').version")
