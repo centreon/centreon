@@ -48,7 +48,7 @@ Then('a pop-up menu with the form is displayed', () => {
 
 When('the user fills in all the information', () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.get('*[role="dialog"]').children('*[role="combobox"]').contains('Telegraf').click();
+  cy.get('*[role="dialog"]').contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-001');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
@@ -74,7 +74,7 @@ Then('the first agent is displayed in the Agents Configuration page', () => {
 
 When('the user selects the centreon agent', () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.get('*[role="dialog"]').children('*[role="combobox"]').contains('Centreon Monitoring Agent').click();
+  cy.get('*[role="dialog"]').contains('Centreon Monitoring Agent').click();
 });
 
 Then('the connection initiated by poller field must be disabled', () => {
@@ -149,7 +149,7 @@ Then('the third agent is displayed in the Agents Configuration page', () => {
 
 When("the user doesn't fill in all the mandatory information", () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.get('*[role="dialog"]').children('*[role="combobox"]').contains('Telegraf').click();
+  cy.get('*[role="dialog"]').contains('Telegraf').click();
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-1').click();
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('my-otel-certificate-name-002');
@@ -165,7 +165,7 @@ Then('the user cannot click on Create', () => {
 
 When("the user doesn't fill in correct type of information", () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.get('*[role="dialog"]').children('*[role="combobox"]').contains('Telegraf').click();
+  cy.get('*[role="dialog"]').contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-003');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-1').click();
@@ -189,7 +189,7 @@ Then('the form displayed an error', () => {
 
 When('the user fills in the needed information', () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.get('*[role="dialog"]').children('*[role="combobox"]').contains('Telegraf').click();
+  cy.get('*[role="dialog"]').contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-004');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-4').click();
