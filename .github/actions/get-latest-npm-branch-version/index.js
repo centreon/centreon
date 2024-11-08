@@ -22,8 +22,8 @@ try {
       const firstMonthVersion = `${year}.${month}.0`;
 
       if (compareVersions(latestPackageVersion, firstMonthVersion) === -1) {
-        core.setOutput("package_version", '24.11.3');
-        // core.setOutput("skip-bump-version", 1);
+        core.setOutput("package_version", latestPackageVersion);
+        core.setOutput("skip-bump-version", 1);
         return;
       }
     }
@@ -33,7 +33,7 @@ try {
       return;
     }
 
-    core.setOutput("package_version", '24.11.3' || '')
+    core.setOutput("package_version", latestPackageVersion || '')
   });
 } catch (error) {
   core.setFailed(error.message);

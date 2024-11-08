@@ -70,7 +70,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
 
-      - uses: ./.github/actions/npm-publish-package-stable
+      - uses: ./.github/actions/npm-publish-package-beta
         with:
           directory: ${{ env.directory }}
           pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
