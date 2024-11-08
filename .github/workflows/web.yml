@@ -301,6 +301,7 @@ jobs:
       base_directory: centreon
       spec_file: centreon/packaging/centreon.spectemplate
       package_extension: ${{ matrix.package_extension }}
+      distrib: ${{ matrix.distrib }}
       frontend_index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
       frontend_index_file: centreon/www/index.html
       frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static

@@ -10,6 +10,9 @@ inputs:
   package_extension:
     description: The package extension (deb or rpm)
     required: true
+  distrib:
+    description: The distribution
+    required: true
   frontend_index_cache_key:
     description: The index.html cache key
   frontend_index_file:
@@ -150,7 +153,7 @@ runs:
     - name: Upload package artifacts
       uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
       with:
-        name: packages-${{ inputs.package_extension }}
+        name: packages-${{ inputs.package_extension }}-${{ inputs.distrib }}
         path: ./*.${{ inputs.package_extension }}
         retention-days: 1
 

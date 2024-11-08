@@ -82,6 +82,7 @@ jobs:
       base_directory: centreon-awie
       spec_file: centreon-awie/packaging/centreon-awie.spectemplate
       package_extension: ${{ matrix.package_extension }}
+      distrib: ${{ matrix.distrib }}
       image_name: ${{ matrix.image }}
       module_name: awie
       major_version: ${{ needs.get-environment.outputs.major_version }}

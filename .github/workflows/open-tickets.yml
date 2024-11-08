@@ -77,6 +77,7 @@ jobs:
       base_directory: centreon-open-tickets
       spec_file: centreon-open-tickets/packaging/centreon-open-tickets.spectemplate
       package_extension: ${{ matrix.package_extension }}
+      distrib: ${{ matrix.distrib }}
       image_name: ${{ matrix.image }}
       module_name: open-tickets
       major_version: ${{ needs.get-environment.outputs.major_version }}

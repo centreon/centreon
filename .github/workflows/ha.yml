@@ -59,6 +59,7 @@ jobs:
       base_directory: centreon-ha
       spec_file: centreon-ha/packaging/centreon-ha.spectemplate
       package_extension: ${{ matrix.package_extension }}
+      distrib: ${{ matrix.distrib }}
       image_name: ${{ matrix.image }}
       module_name: ha
       major_version: ${{ needs.get-environment.outputs.major_version }}
