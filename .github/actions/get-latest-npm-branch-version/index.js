@@ -22,7 +22,7 @@ try {
       const firstMonthVersion = `${year}.${month}.0`;
 
       if (compareVersions(latestPackageVersion, firstMonthVersion) === -1) {
-        core.setOutput("package_version", latestPackageVersion);
+        core.setOutput("package_version", firstMonthVersion);
         core.setOutput("skip-bump-version", 1);
         return;
       }
