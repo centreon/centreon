@@ -60,7 +60,7 @@ Then('a pop-up menu with the form is displayed', () => {
 
 When('the admin user fills in all the information', () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.get('*[role="dialog"]').contains('Telegraf').click();
+  cy.get('*[role="listbox"]').contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-001');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
@@ -181,7 +181,7 @@ Given('an agent configuration already created linked with two pollers', () => {
   cy.get('*[role="dialog"]').should('be.visible');
   cy.get('*[role="dialog"]').contains('Add poller/agent configuration');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.get('*[role="dialog"]').contains('Telegraf').click();
+  cy.get('*[role="listbox"]').contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-001');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
@@ -299,7 +299,7 @@ Given('an already existing agent configuration is displayed', () => {
 When('the user adds a second agent configuration', () => {
   cy.contains('button', 'Add poller/agent configuration').click();
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.get('*[role="dialog"]').contains('Telegraf').click();
+  cy.get('*[role="listbox"]').contains('Telegraf').click();
 });
 
 Then('only the filtered pollers are listed in the Pollers field', () => {

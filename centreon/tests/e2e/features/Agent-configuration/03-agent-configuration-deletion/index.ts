@@ -42,7 +42,7 @@ Given('an already existing agent configuration', () => {
   cy.get('*[role="dialog"]').should('be.visible');
   cy.get('*[role="dialog"]').contains('Add poller/agent configuration');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.get('*[role="dialog"]').contains('Telegraf').click();
+  cy.get('*[role="listbox"]').contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-001');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
