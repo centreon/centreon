@@ -33,17 +33,21 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Application\Type\NoValue;
+use Core\Dashboard\Application\Event\DashboardUpdatedEvent;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardPanelRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardPanelRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
+use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\ThumbnailRequestDto;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Refresh;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final class PartialUpdateDashboard
 {
@@ -60,6 +64,7 @@ final class PartialUpdateDashboard
         private readonly DashboardRights $rights,
         private readonly ContactInterface $contact,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly EventDispatcherInterface $dispatcher,
         private readonly bool $isCloudPlatform
     ) {
     }
@@ -94,6 +99,11 @@ final class PartialUpdateDashboard
                 );
             }
 
+            // dispatch DashboardUpdatedEvent that will be handled by a subscriber
+            if (! $request->thumbnail instanceof NoValue) {
+                $this->updateOrCreateDashboardThumbnail($dashboardId, $request->thumbnail);
+            }
+
             $presenter->presentResponse($response);
         } catch (AssertionFailedException $ex) {
             $presenter->presentResponse(new InvalidArgumentResponse($ex));
@@ -108,12 +118,41 @@ final class PartialUpdateDashboard
     }
 
     /**
+     * @param int $dashboardId
+     * @param ThumbnailRequestDto $request
+     * @throws FileException
+     * @throws \Throwable
+     */
+    private function updateOrCreateDashboardThumbnail(int $dashboardId, ThumbnailRequestDto $request): void
+    {
+        $thumbnail = $this->readDashboardRepository->findThumbnailByDashboardId($dashboardId);
+
+        if ($thumbnail !== null) {
+            $event = new DashboardUpdatedEvent(
+                dashboardId: $dashboardId,
+                directory: $thumbnail->getDirectory(),
+                content: $request->content,
+                filename: $thumbnail->getFilename(),
+                thumbnailId: $thumbnail->getId()
+            );
+        } else {
+            $event = new DashboardUpdatedEvent(
+                dashboardId: $dashboardId,
+                directory: $request->directory,
+                content: $request->content,
+                filename: $request->name
+            );
+        }
+
+        $this->dispatcher->dispatch($event);
+    }
+
+    /**
      * @param PartialUpdateDashboardRequest $request
      * @param int $dashboardId
      *
-     * @throws \Throwable
      * @throws DashboardException
-     *
+     * @throws \Throwable
      * @return NoContentResponse|NotFoundResponse
      */
     private function partialUpdateDashboardAsAdmin(
@@ -124,7 +163,6 @@ final class PartialUpdateDashboard
         if (null === $dashboard) {
             return new NotFoundResponse('Dashboard');
         }
-
         $this->updateDashboardAndSave($dashboard, $request);
 
         return new NoContentResponse();
@@ -134,9 +172,8 @@ final class PartialUpdateDashboard
      * @param PartialUpdateDashboardRequest $request
      * @param int $dashboardId
      *
-     * @throws \Throwable
      * @throws DashboardException
-     *
+     * @throws \Throwable
      * @return NoContentResponse|NotFoundResponse|ForbiddenResponse
      */
     private function partialUpdateDashboardAsContact(
@@ -207,7 +244,6 @@ final class PartialUpdateDashboard
      * @param PartialUpdateDashboardRequest $request
      *
      * @throws AssertionFailedException
-     *
      * @return Dashboard
      */
     private function getUpdatedDashboard(Dashboard $dashboard, PartialUpdateDashboardRequest $request): Dashboard

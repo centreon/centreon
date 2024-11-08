@@ -64,6 +64,7 @@ export type Dashboard = NamedEntity & {
   ownRole: DashboardRole;
   panels?: Array<DashboardPanel>;
   shares: Shares;
+  thumbnail?: { id: number; name: string; directory: string } | null;
   refresh: {
     type: 'global' | 'manual';
     interval: number | null;
@@ -77,6 +78,7 @@ export type PublicDashboard = NamedEntity & {
     type: 'global' | 'manual';
     interval: number | null;
   };
+  thumbnail?: { id: number; name: string; directory: string } | null;
 };
 
 export interface FormattedShare {
