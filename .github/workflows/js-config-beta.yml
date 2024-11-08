@@ -21,7 +21,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
 
-      - uses: ./.github/actions/npm-publish-package-beta
+      - uses: ./.github/actions/npm-publish-package-stable
         with:
           directory: ${{ env.directory }}
           pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
