@@ -97,6 +97,7 @@ jobs:
           base_directory: ${{ inputs.base_directory }}
           spec_file: ${{ inputs.spec_file }}
           package_extension: ${{ inputs.package_extension }}
+          distrib: ${{ inputs.distrib }}
           frontend_index_cache_key: ${{ inputs.frontend_index_cache_key }}
           frontend_index_file: ${{ inputs.frontend_index_file }}
           frontend_static_cache_key: ${{ inputs.frontend_static_cache_key }}
