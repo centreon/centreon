@@ -50,16 +50,17 @@ Given('an admin user is in the Agents Configuration page', () => {
 });
 
 When('the user clicks on Add', () => {
-  cy.getByTestId({ testId: 'AddIcon' }).click();
+  cy.contains('button', 'Add poller/agent configuration').click();
 });
 
 Then('a pop-up menu with the form is displayed', () => {
-  cy.contains('Add poller/agent configuration').should('be.visible');
+  cy.get('*[role="dialog"]').should('be.visible');
+  cy.get('*[role="dialog"]').contains('Add poller/agent configuration');
 });
 
 When('the admin user fills in all the information', () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.contains('Telegraf').click();
+  cy.get('*[role="dialog"]').children().contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-001');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
@@ -77,7 +78,7 @@ When('the user clicks on Save', () => {
 
 Then('the creation form is closed', () => {
   cy.wait('@addAgents');
-  cy.contains('Add poller/agent configuration').should('not.exist');
+  cy.get('*[role="dialog"]').should('not.exist');
 });
 
 Then('the first configuration is displayed in the Agents Configuration page', () => {
@@ -100,6 +101,7 @@ When('the user clicks on the line of the Agents Configuration', () => {
 });
 
 Then('a pop up is displayed with all of the agent information', () => {
+  cy.get('*[role="dialog"]').should('be.visible');
   cy.contains('Update poller/agent configuration').should('be.visible');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).should('have.value', 'Telegraf');
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('have.value', 'telegraf-001');
@@ -126,6 +128,7 @@ When('the user modifies the configuration', () => {
 
 Then('the update form is closed', () => {
   cy.wait('@updateAgents');
+  cy.get('*[role="dialog"]').should('not.exist');
   cy.contains('Update poller/agent configuration').should('not.exist');
 });
 
@@ -174,9 +177,11 @@ Given('a non-admin user is logged in', () => {
 Given('an agent configuration already created linked with two pollers', () => {
   cy.visit('/centreon/configuration/pollers/agent-configurations');
   cy.wait('@getAgentsPage');
-  cy.getByTestId({ testId: 'AddIcon' }).click();
+  cy.contains('button', 'Add poller/agent configuration').click();
+  cy.get('*[role="dialog"]').should('be.visible');
+  cy.get('*[role="dialog"]').contains('Add poller/agent configuration');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.contains('Telegraf').click();
+  cy.get('*[role="dialog"]').children().contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-001');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
@@ -246,6 +251,7 @@ Then('the user can view the agent configuration linked to the pollers', () => {
 });
 
 Then('a pop up is displayed with all of the agent configuration information with the 2 pollers', () => {
+  cy.get('*[role="dialog"]').should('be.visible');
   cy.contains('Update poller/agent configuration').should('be.visible');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).should('have.value', 'Telegraf');
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('have.value', 'telegraf-001');
@@ -264,6 +270,7 @@ When('the user can update the Agents Configuration', () => {
   cy.getByTestId({ testId: 'CancelIcon' }).eq(0).click();
   cy.getByTestId({ testId: 'SaveIcon' }).click();
   cy.wait('@updateAgents');
+  cy.get('*[role="dialog"]').should('not.exist');
   cy.contains('Update poller/agent configuration').should('not.exist');
   cy.get('*[role="rowgroup"]')
     .should('contain', 'telegraf-001-updated');
@@ -290,9 +297,9 @@ Given('an already existing agent configuration is displayed', () => {
 });
 
 When('the user adds a second agent configuration', () => {
-  cy.getByTestId({ testId: 'AddIcon' }).click();
+  cy.contains('button', 'Add poller/agent configuration').click();
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.contains('Telegraf').click();
+  cy.get('*[role="dialog"]').children().contains('Telegraf').click();
 });
 
 Then('only the filtered pollers are listed in the Pollers field', () => {
