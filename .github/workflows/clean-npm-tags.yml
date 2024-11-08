@@ -2,9 +2,8 @@ name: clean-npm-tags
 
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - '.github/workflows/clean-npm-tags.yml'
+  schedule:
+    - cron: "0 6 * * 1-5"
 
 jobs:
   clean-npm-tags:
