@@ -1,6 +1,5 @@
-const core = require('@actions/core');
-const fetch = require('node-fetch');
-const process = require('child_process');
+import { execSync } from 'child_process';
+import core from '@actions/core';
 
 const packages = ['js-config', 'ui-context', 'ui'];
 
@@ -24,14 +23,14 @@ const checkAndCleanUpTag = async ({ dependency, branch }) => {
     `${dependency}: ${branch} branch not found on Github. Cleaning up the NPM tag...`
   );
 
-  process.execSync(`npm dist-tag rm @centreon/${dependency} ${branch}`);
+  execSync(`npm dist-tag rm @centreon/${dependency} ${branch}`);
   core.info(`${dependency}: ${branch} tag removed.`);
   return;
 };
 
 const run = () => {
   core.info('Logging in to NPM registry...');
-  process.execSync(
+  execSync(
     `npm config set "//registry.npmjs.org/:_authToken" "${core.getInput('npm_token')}"`
   );
   core.info('Logged in');
