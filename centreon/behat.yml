@@ -111,10 +111,6 @@ default:
       paths: [ "%paths.base%/features/LdapManualImport.feature" ]
       contexts: [ LdapManualImportContext ]
 
-    massive_change_services:
-      paths: [ "%paths.base%/features/MassiveChangeServices.feature" ]
-      contexts: [ MassiveChangeServicesContext ]
-
     virtual_metric_handle:
       paths: [ "%paths.base%/features/VirtualMetricHandle.feature" ]
       contexts: [ VirtualMetricHandleContext ]
@@ -170,10 +166,6 @@ default:
     test_clapi:
       paths: [ "%paths.base%/features/Clapi.feature" ]
       contexts: [ ClapiContext ]
-
-    traps_snmp_group_configuration:
-      paths: [ "%paths.base%/features/TrapsSNMPGroupConfiguration.feature" ]
-      contexts: [ TrapsSNMPGroupConfigurationContext ]
 
     uri:
       paths: [ "%paths.base%/features/URI.feature" ]

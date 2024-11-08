@@ -1,0 +1,26 @@
+post:
+  tags:
+    - Media
+  summary: "Update the media content on the file system"
+  description: |
+    Updates on the file system the contents of the file linked to the provided media ID
+  requestBody:
+    required: true
+    content:
+      multipart/form-data:
+        schema:
+          $ref: 'Schema/UpdateMediaRequest.yaml'
+  responses:
+    '201':
+      description: "Object created"
+      content:
+        application/json:
+          schema:
+            type: object
+            $ref: 'Schema/UpdateMediaResponse.yaml'
+    '400':
+      $ref: '../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

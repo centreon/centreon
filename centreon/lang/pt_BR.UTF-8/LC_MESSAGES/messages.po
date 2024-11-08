@@ -18165,11 +18165,32 @@ msgstr ""
 #  msgid "Web page preview"
 #  msgstr ""
 
+# msgid "Save your dashboard to generate a thumbnail"
+# msgstr ""
+
 #  msgid "If ticket management is enabled, only the “by service” view is available."
 #  msgstr ""
 
 #  msgid "Ticket management"
 #  msgstr ""
+
+# msgid "Breadcrumb copied"
+# msgstr ""
+
+# msgid "Failed to copy breadcrumb"
+# msgstr ""
+
+# msgid "Copy breadcrumb"
+# msgstr ""
+
+# msgid "Displays the time according to the selected time zone, or a timer."
+# msgstr ""
+
+# msgid "Clock / Timer"
+# msgstr ""
+
+# msgid "Thumbnails show a snapshot of your data, taken when the dashboard is saved"
+# msgstr ""
 
 # msgid "Agent configuration"
 # msgstr ""
