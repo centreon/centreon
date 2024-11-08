@@ -21,8 +21,6 @@ try {
       const month = new Date().getMonth() + 1;
       const firstMonthVersion = `${year}.${month}.0`;
 
-      console.log(firstMonthVersion, latestPackageVersion);
-
       if (compareVersions(latestPackageVersion, firstMonthVersion) === -1) {
         core.setOutput("package_version", firstMonthVersion);
         core.setOutput("skip-bump-version", 1);
