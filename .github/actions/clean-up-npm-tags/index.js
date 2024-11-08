@@ -36,23 +36,20 @@ const run = () => {
   );
   core.info('Logged in');
 
-  let chainedPromisPackages = Promise.resolve();
-  packages.forEach((dependency) => {
+  packages.forEach(async (dependency) => {
+    const packageInformations = await getPackageInformations(dependency);
     core.debug(`Processing tags for ${dependency}...`);
-    chainedPromisPackages = chainedPromisPackages
-      .then(() => getPackageInformations(dependency))
-      .then((packageInformations) => {
-        const distTags = packageInformations['dist-tags'];
 
-        const branchNamesFromTags = Object.keys(distTags);
+    const distTags = packageInformations['dist-tags'];
 
-        let chainedPromise = Promise.resolve();
-        branchNamesFromTags.forEach((branch) => {
-          chainedPromise = chainedPromise.then(() => {
-            return checkAndCleanUpTag({ dependency, branch });
-          });
-        });
+    const branchNamesFromTags = Object.keys(distTags);
+
+    let chainedPromise = Promise.resolve();
+    branchNamesFromTags.forEach((branch) => {
+      chainedPromise = chainedPromise.then(() => {
+        return checkAndCleanUpTag({ dependency, branch });
       });
+    });
     core.debug(`${dependency} tags processed...`);
   });
 };
