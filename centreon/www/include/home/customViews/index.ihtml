@@ -875,8 +875,10 @@ jQuery(function () {
             }
           },
           load: function(event, ui) {
-              // Call toggleEdit with defaultShow after document is ready with a delay
-              setTimeout(() => { toggleEdit(defaultShow)},100);
+              // Call toggleEdit with defaultShow after document is ready
+              jQuery(document).ready(()=>{
+                toggleEdit(defaultShow)
+              })
           },
           activate: function( event, ui ) {
             tabLoops++;
