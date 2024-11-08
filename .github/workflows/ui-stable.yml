@@ -34,6 +34,7 @@ jobs:
           npm_token: ${{ secrets.NPM_TOKEN }}
           release_branch: ${{ env.base_branch }}
           package: ${{ env.package }}
+          tag: ${{ env.base_branch }}
 
   publish-snapshots:
     runs-on: ubuntu-22.04
@@ -49,4 +50,3 @@ jobs:
           dependencies_lock_file: centreon/pnpm-lock.yaml
           pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
           project_token: ${{ secrets.CHROMATIC_TOKEN }}
-          tag: ${{ env.base_branch }}
