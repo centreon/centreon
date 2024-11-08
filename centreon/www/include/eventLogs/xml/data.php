@@ -46,13 +46,12 @@ require_once _CENTREON_PATH_ . "www/class/centreon.class.php";
 require_once __DIR__ . '/../../../../bootstrap.php';
 require_once __DIR__ . '/../Paginator.php';
 require_once __DIR__ . '/PaginationRenderer.php';
-require_once __DIR__ . '/../../../class/centreonDB.class.php';
 require_once __DIR__ . '/../../../class/centreonLog.class.php';
 require_once __DIR__ . '/../../../class/exceptions/CentreonDbException.php';
 
 // Connect to DB
-$pearDB = new CentreonDB(CentreonDB::LABEL_DB_CONFIGURATION);
-$pearDBO = new CentreonDB(CentreonDB::LABEL_DB_REALTIME);
+$pearDB = $dependencyInjector['configuration_db'];
+$pearDBO = $dependencyInjector['realtime_db'];
 
 // Include Centreon Log
 $centreonLog = new CentreonLog();
