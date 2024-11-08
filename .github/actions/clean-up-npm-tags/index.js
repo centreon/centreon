@@ -11,18 +11,21 @@ const getPackageInformations = async (dependency) => {
   return await response.json();
 };
 
-const checkAndCleanUpTag = async (branch) => {
+const checkAndCleanUpTag = async ({ dependency, branch }) => {
+  core.info(`${dependency}: Retrieving branch for ${branch}...`);
   const d = await fetch(`https://github.com/centreon/centreon/tree/${branch}`);
-
-  core.info(`status: ${d.status}, branch: ${branch}`);
 
   if (d.status !== 404) {
     return;
   }
 
-  return 'branch found';
+  core.info(
+    `${dependency}: ${branch} branch not found. Cleaning the NPM tag up...`
+  );
 
-  // npm dist-tag rm @centreon/${{ inputs.package }} ${{ github.head_ref || github.ref_name }}
+  shell.execSync(`npm dist-tag rm @centreon/${dependency} ${branch}`);
+  core.info(`${dependency}: ${branch} tag removed`);
+  return;
 };
 
 const run = () => {
@@ -45,7 +48,7 @@ const run = () => {
         let chainedPromise = Promise.resolve();
         branchNamesFromTags.forEach((branch) => {
           chainedPromise = chainedPromise.then(() => {
-            return checkAndCleanUpTag(branch);
+            return checkAndCleanUpTag({ dependency, branch });
           });
         });
       });
