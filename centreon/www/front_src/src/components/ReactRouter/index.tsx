@@ -108,7 +108,7 @@ const getExternalPageRoutes = ({
             <Route
               element={
                 <PageContainer>
-                  <BreadcrumbTrail path={route} />
+                  <BreadcrumbTrail />
                   {ChildrenComponent ? (
                     <Remote
                       component={component}
@@ -183,7 +183,7 @@ const ReactRouterContent = ({
                   element={
                     isAllowed ? (
                       <PageContainer>
-                        <BreadcrumbTrail path={path} />
+                        <BreadcrumbTrail />
                         <Comp />
                       </PageContainer>
                     ) : (
