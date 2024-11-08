@@ -33,7 +33,7 @@ try {
       return;
     }
 
-    core.setOutput("package_version", latestPackageVersion || '')
+    core.setOutput("package_version", '24.11.3' || '')
   });
 } catch (error) {
   core.setFailed(error.message);
