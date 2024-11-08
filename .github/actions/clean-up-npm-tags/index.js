@@ -14,7 +14,7 @@ const getPackageInformations = async (dependency) => {
 const checkAndCleanUpTag = async (branch) => {
   const d = await fetch(`https://github.com/centreon/centreon/tree/${branch}`);
 
-  core.debug(`status: ${d.status}, branch: ${branch}`);
+  core.info(`status: ${d.status}, branch: ${branch}`);
 
   if (d.status !== 404) {
     return;
@@ -26,11 +26,11 @@ const checkAndCleanUpTag = async (branch) => {
 };
 
 const run = () => {
-  core.debug('Logging in to NPM registry...');
+  core.info('Logging in to NPM registry...');
   process.execSync(
     `npm config set "//registry.npmjs.org/:_authToken" "${core.getInput('npm_token')}"`
   );
-  core.debug('Logged in');
+  core.info('Logged in');
 
   let chainedPromisPackages = Promise.resolve();
   packages.forEach((dependency) => {
