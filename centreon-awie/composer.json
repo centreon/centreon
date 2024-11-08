@@ -1,9 +1,10 @@
 {
   "name": "centreon/centreon-awie",
-  "version": "24.10.0",
+  "version": "24.10",
   "type": "project",
   "license": "Apache-2.0",
   "require-dev": {
+    "ext-json": "*",
     "behat/behat": "^3.10",
     "behat/mink-selenium2-driver": "^1.5",
     "centreon/centreon": "@dev",
@@ -29,6 +30,9 @@
     "sort-packages": true,
     "platform": {
       "php": "8.2"
+    },
+    "preferred-install": {
+      "*": "dist"
     },
     "allow-plugins": {
       "symfony/flex": false,
