@@ -53,9 +53,6 @@ require_once __DIR__ . '/../../../class/exceptions/CentreonDbException.php';
 $pearDB = $dependencyInjector['configuration_db'];
 $pearDBO = $dependencyInjector['realtime_db'];
 
-// Include Centreon Log
-$centreonLog = new CentreonLog();
-
 // Check Session
 CentreonSession::start();
 if (!CentreonSession::checkSession(session_id(), $pearDB)) {
@@ -290,7 +287,7 @@ if ($StartDate != "") {
     if ($dateTime !== false) {
         $start = $dateTime->getTimestamp();
     } else {
-        $centreonLog::create()->error(
+        CentreonLog::create()->error(
             CentreonLog::TYPE_BUSINESS_LOG,
             "Invalid date format: $StartDate $StartTime"
         );
@@ -301,7 +298,7 @@ if ($EndDate != "") {
     if ($dateTime !== false) {
         $end = $dateTime->getTimestamp();
     } else {
-        $centreonLog->error(
+        CentreonLog::create()->error(
             CentreonLog::TYPE_BUSINESS_LOG,
             "Invalid date format: $EndDate $EndTime"
         );
