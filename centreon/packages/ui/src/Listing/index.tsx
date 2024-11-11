@@ -61,7 +61,7 @@ import {
   SortOrder
 } from './models';
 import { subItemsPivotsAtom } from './tableAtoms';
-import { labelNoResultFound } from './translatedLabels';
+import { labelNoResultFound as defaultLabelNoResultFound } from './translatedLabels';
 import useStyleTable from './useStyleTable';
 
 const subItemPrefixKey = 'listing';
@@ -140,6 +140,7 @@ export interface Props<TRow> {
   viewerModeConfiguration?: ViewerModeConfiguration;
   widthToMoveTablePagination?: number;
   isActionBarVisible: boolean;
+  labelNoResultFound?: string | JSX.Element;
 }
 
 const defaultColumnConfiguration = {
@@ -199,7 +200,8 @@ const Listing = <
     labelCollapse: 'Collapse',
     labelExpand: 'Expand'
   },
-  isActionBarVisible = true
+  isActionBarVisible = true,
+  labelNoResultFound = defaultLabelNoResultFound
 }: Props<TRow>): JSX.Element => {
   const currentVisibleColumns = getVisibleColumns({
     columnConfiguration,
@@ -526,33 +528,32 @@ const Listing = <
         className={classes.container}
         ref={containerRef as RefObject<HTMLDivElement>}
       >
-        {
-          isActionBarVisible && 
-            <div
-              className={classes.actionBar}
-              ref={actionBarRef as RefObject<HTMLDivElement>}
-            >
-              <ListingActionBar
-                actions={actions}
-                actionsBarMemoProps={actionsBarMemoProps}
-                columnConfiguration={columnConfiguration}
-                columns={columns}
-                currentPage={currentPage}
-                customPaginationClassName={customPaginationClassName}
-                limit={limit}
-                listingVariant={listingVariant}
-                moveTablePagination={moveTablePagination}
-                paginated={paginated}
-                totalRows={totalRows}
-                viewerModeConfiguration={viewerModeConfiguration}
-                widthToMoveTablePagination={widthToMoveTablePagination}
-                onLimitChange={changeLimit}
-                onPaginate={onPaginate}
-                onResetColumns={onResetColumns}
-                onSelectColumns={onSelectColumns}
-              />
-            </div>
-        }
+        {isActionBarVisible && (
+          <div
+            className={classes.actionBar}
+            ref={actionBarRef as RefObject<HTMLDivElement>}
+          >
+            <ListingActionBar
+              actions={actions}
+              actionsBarMemoProps={actionsBarMemoProps}
+              columnConfiguration={columnConfiguration}
+              columns={columns}
+              currentPage={currentPage}
+              customPaginationClassName={customPaginationClassName}
+              limit={limit}
+              listingVariant={listingVariant}
+              moveTablePagination={moveTablePagination}
+              paginated={paginated}
+              totalRows={totalRows}
+              viewerModeConfiguration={viewerModeConfiguration}
+              widthToMoveTablePagination={widthToMoveTablePagination}
+              onLimitChange={changeLimit}
+              onPaginate={onPaginate}
+              onResetColumns={onResetColumns}
+              onSelectColumns={onSelectColumns}
+            />
+          </div>
+        )}
 
         <ParentSize
           parentSizeStyles={{
@@ -704,7 +705,11 @@ const Listing = <
                       (loading ? (
                         <SkeletonLoader rows={limit} />
                       ) : (
-                        <EmptyResult label={t(labelNoResultFound)} />
+                        <EmptyResult
+                          label={
+                            labelNoResultFound || t(defaultLabelNoResultFound)
+                          }
+                        />
                       ))}
                   </TableBody>
                 </Table>
