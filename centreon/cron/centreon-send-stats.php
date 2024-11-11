@@ -123,6 +123,7 @@ if ($isRemote === false) {
         $authentication['api_token'] = $oStatistics->getApiTokensInfo();
         $additional = [];
         $acc = $oStatistics->getAccData();
+        $pac = $oStatistics->getAgentConfigurationData();
 
         /*
          * Only send statistics if user using a free version has enabled this option
@@ -137,7 +138,7 @@ if ($isRemote === false) {
         }
 
         // Construct the object gathering datas
-        $data = array(
+        $data = [
             'timestamp' => "$timestamp",
             'UUID' => $uuid,
             'versions' => $versions,
@@ -145,13 +146,14 @@ if ($isRemote === false) {
             'timezone' => $timezone,
             'authentication' => $authentication,
             'additional' => $additional,
-            'acc' => $acc
-        );
+            'acc' => $acc,
+            'poller-agent-configuration' => $pac
+        ];
 
         if ( isset($options["d"]) || isset($options["debug"]) ) {
             echo json_encode($data, JSON_PRETTY_PRINT) . "\n";
         } else {
-            $returnData = $http->call(CENTREON_STATS_URL, 'POST', $data, array(), true);
+            $returnData = $http->call(CENTREON_STATS_URL, 'POST', $data, [], true);
             logger(
                 sprintf(
                     'Response from [%s] : %s,body : %s',

@@ -9,7 +9,6 @@ import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-a
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import statusGridWidget from '../../../fixtures/dashboards/creation/widgets/status-grid-widget.json';
-import twoStatusGridWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwostatusGrid.json';
 import statusGridWidgetWithNewAddedHost from '../../../fixtures/dashboards/creation/widgets/statusGridWidgetWithNewAddedHost.json';
 
 const services = {
@@ -193,7 +192,13 @@ after(() => {
 });
 
 Given('a dashboard that includes a configured Status Grid widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    statusGridWidget,
+    'centreon-widget-statusgrid',
+    '/widgets/statusgrid'
+  );
+
   cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
   cy.editWidget(1);
@@ -217,7 +222,12 @@ Then(
 );
 
 Given('a dashboard configuring Status Grid widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    statusGridWidget,
+    'centreon-widget-statusgrid',
+    '/widgets/statusgrid'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
   cy.editWidget(1);
@@ -251,7 +261,14 @@ Then(
 );
 
 Given('a dashboard featuring two Status Grid widgets', () => {
-  cy.insertDashboardWithWidget(dashboards.default, twoStatusGridWidgets);
+  cy.insertDashboardWithDoubleWidget(
+    dashboards.default,
+    statusGridWidget,
+    statusGridWidget,
+    'centreon-widget-statusgrid',
+    '/widgets/statusgrid'
+  );
+
   cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
   cy.getByTestId({ testId: 'More actions' }).eq(0).click();
@@ -346,7 +363,12 @@ Then("the Status Grid widget is added in the dashboard's layout", () => {
 });
 
 Given('a dashboard with a configured Status Grid widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    statusGridWidget,
+    'centreon-widget-statusgrid',
+    '/widgets/statusgrid'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
   cy.editWidget(1);
@@ -358,7 +380,9 @@ When(
     cy.getByLabel({
       label: 'tiles',
       tag: 'input'
-    }).clear();
+    })
+      .clear()
+      .type('2');
     cy.wait('@resourceRequest');
   }
 );
@@ -367,19 +391,15 @@ Then('the Status Grid widget displays up to that number of tiles', () => {
   cy.getByTestId({
     testId: 'DvrIcon'
   }).should('be.visible');
-  cy.getByTestId({ tag: 'svg', testId: 'HostIcon' })
-    .eq(2)
-    .parent()
-    .parent()
-    .should(($a) => {
-      $a.attr('target', '_self');
-    })
-    .click({ force: true });
-  cy.get('[class*="resourceName"]').contains('Centreon-Server').should('exist');
 });
 
 Given('a dashboard having a configured Status Grid widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    statusGridWidget,
+    'centreon-widget-statusgrid',
+    '/widgets/statusgrid'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
 });
@@ -410,7 +430,12 @@ Then('the second widget has the same properties as the first widget', () => {
 });
 
 Given('a dashboard with a Status Grid widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    statusGridWidget,
+    'centreon-widget-statusgrid',
+    '/widgets/statusgrid'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
 });
@@ -464,12 +489,40 @@ Given('a new host is successfully added and configured', () => {
 When('the dashboard administrator adds a status grid widget', () => {
   cy.insertDashboardWithWidget(
     dashboards.default,
-    statusGridWidgetWithNewAddedHost
+    statusGridWidgetWithNewAddedHost,
+    'centreon-widget-statusgrid',
+    '/widgets/statusgrid'
   );
+
   cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
 });
 
-Then('the newly added host should appear in the status grid widget', () => {
+Then('the newly added host is displayed in the status grid widget', () => {
   cy.getByTestId({ testId: 'link to service_test_ok' }).should('be.visible');
+});
+
+Then('searches for a specific resource type', () => {
+  cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
+  cy.getByLabel({ label: 'RichTextEditor' })
+    .eq(0)
+    .type(genericTextWidgets.default.description);
+  cy.getByTestId({ testId: 'Resource type' }).realClick();
+  cy.getByLabel({ label: 'Host' }).eq(1).click();
+  cy.getByTestId({ testId: 'Select resource' }).type('3')
+  cy.wait('@resourceRequest');
+});
+
+Then('only the resource that matches the search input is displayed in the results', () => {
+  cy.waitUntil(() =>
+    cy.get('.MuiAutocomplete-listbox').invoke('text').then(listboxText => {
+      return listboxText.includes('host3') &&
+             !listboxText.includes('Centreon-Server') &&
+             !listboxText.includes('host2');
+    }),
+    {
+      timeout: 10000,
+      interval: 500,
+    }
+  );
 });

@@ -38,6 +38,7 @@ use Core\Security\Authentication\Domain\Provider\OpenIdProvider;
 use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Exception;
 use Pimple\Container;
@@ -68,6 +69,7 @@ class OpenId implements ProviderAuthenticationInterface
      * @throws SSOAuthenticationException
      * @throws AclConditionsException
      * @throws AuthenticationConditionsException
+     * @throws OpenIdConfigurationException
      */
     public function authenticateOrFail(LoginRequest $request): void
     {

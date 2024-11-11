@@ -7,18 +7,18 @@ on:
       - dev-[2-9][0-9].[0-9][0-9].x
 
 jobs:
-  get-version:
-    uses: ./.github/workflows/get-version.yml
+  get-environment:
+    uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
   synchronize-jira-xray:
-    needs: [get-version]
-    runs-on: ubuntu-22.04
+    needs: [get-environment]
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
         with:
           fetch-depth: 0
 
@@ -28,7 +28,7 @@ jobs:
           run_install: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
         with:
           node-version: 20
 
@@ -53,10 +53,10 @@ jobs:
       - name: Run Script on Changed Feature Files
         if: env.CHANGED_FILES != ''
         run: |
-          echo "The target version for this script is : ${{ needs.get-version.outputs.major_version }}"
+          echo "The target version for this script is : ${{ needs.get-environment.outputs.major_version }}"
           for file in $CHANGED_FILES; do
             echo "Running script for $file on branch ${{ github.ref_name }}"
-            node .github/scripts/synchronize_jira_xray.js "$file" ${{ github.ref_name }} ${{ needs.get-version.outputs.major_version }}
+            node .github/scripts/synchronize_jira_xray.js "$file" ${{ github.ref_name }} ${{ needs.get-environment.outputs.major_version }}
           done
         env:
           XRAY_JIRA_USER_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}

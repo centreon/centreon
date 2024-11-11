@@ -72,61 +72,68 @@ $sgMonObj = new HostgroupMonitoring($dbb);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 
-$hostStateLabels = array(
-    0 => "Up",
-    1 => "Down",
-    2 => "Unreachable",
-    4 => "Pending"
-);
+$hostStateLabels = [0 => "Up", 1 => "Down", 2 => "Unreachable", 4 => "Pending"];
 
-$serviceStateLabels = array(
-    0 => "Ok",
-    1 => "Warning",
-    2 => "Critical",
-    3 => "Unknown",
-    4 => "Pending"
-);
+$serviceStateLabels = [0 => "Ok", 1 => "Warning", 2 => "Critical", 3 => "Unknown", 4 => "Pending"];
+try {
+    $query = <<<'SQL_WRAP'
+        SELECT SQL_CALC_FOUND_ROWS DISTINCT
+            1 AS REALTIME,
+            name
+        FROM hostgroups 
+        SQL_WRAP;
 
-$query = <<<'SQL'
-    SELECT SQL_CALC_FOUND_ROWS DISTINCT
-        1 AS REALTIME,
-        name
-    FROM hostgroups 
-    SQL;
-
-
-if (isset($preferences['hg_name_search']) && $preferences['hg_name_search'] != "") {
-    $tab = explode(" ", $preferences['hg_name_search']);
-    $op = $tab[0];
-    if (isset($tab[1])) {
-        $search = $tab[1];
+    $bindParams = [];
+    if (isset($preferences['hg_name_search']) && trim($preferences['hg_name_search']) !== '') {
+        $tab = explode(" ", $preferences['hg_name_search']);
+        $op = $tab[0];
+        if (isset($tab[1])) {
+            $search = $tab[1];
+        }
+        if ($op && isset($search) && trim($search) !== '') {
+            $query = CentreonUtils::conditionBuilder(
+                $query,
+                "name " . CentreonUtils::operandToMysqlFormat($op) . " :search "
+            );
+            $bindParams[':search'] = [$search, PDO::PARAM_STR];
+        }
     }
-    if ($op && isset($search) && $search != "") {
-        $query = CentreonUtils::conditionBuilder(
-            $query,
-            "name " . CentreonUtils::operandToMysqlFormat($op) . " '" . $dbb->escape($search) . "' "
-        );
+
+    if (!$centreon->user->admin) {
+        $query = CentreonUtils::conditionBuilder($query, "name IN (:hostgroups)");
+        $bindParams[':hostgroups'] = [$aclObj->getHostGroupsString("NAME"), PDO::PARAM_STR];
     }
-}
-if (!$centreon->user->admin) {
-    $query = CentreonUtils::conditionBuilder($query, "name IN (" . $aclObj->getHostGroupsString("NAME") . ")");
-}
-$orderby = "name ASC";
+    $orderby = "name ASC";
 
-if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
-    $orderby = $preferences['order_by'];
-}
-$query .= "ORDER BY $orderby";
+    if (isset($preferences['order_by']) && trim($preferences['order_by']) !== '') {
+        $orderby = $preferences['order_by'];
+    }
+    $bindParams[':orderby'] = [$orderby, PDO::PARAM_STR];
 
-$res = $dbb->query($query);
-$nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
-$detailMode = false;
-if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
-    $detailMode = true;
-}
-$data = array();
-while ($row = $res->fetch(\PDO::FETCH_ASSOC)) {
-    $data[$row['name']]['name'] = $row['name'];
+    $query .= "ORDER BY :orderby";
+
+    $statement = $dbb->prepareQuery($query);
+
+    $dbb->executePreparedQuery($statement, $bindParams, true);
+
+    $nbRows = (int) $dbb->executeQuery('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
+    $detailMode = false;
+    if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
+        $detailMode = true;
+    }
+    $data = [];
+    while ($row = $dbb->fetch($statement)) {
+        $name = HtmlSanitizer::createFromString($row['name'])->sanitize()->getString();
+        $data[$name]['name'] = $name;
+    }
+} catch (CentreonDbException $e) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: "Error fetching hostgroup monitoring usage data for export: " . $e->getMessage(),
+        exception: $e
+    );
+
+    throw new \Exception("Error fetching hostgroup monitoring usage data for export: " . $e->getMessage());
 }
 
 $sgMonObj->getHostStates($data, $centreon->user->admin, $aclObj, $preferences, $detailMode);

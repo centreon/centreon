@@ -1,0 +1,16 @@
+# https://editorconfig.org/
+
+root = true
+
+# Global rules
+[*]
+charset = utf-8
+end_of_line = lf
+
+# Rules for php files
+[*.php]
+insert_final_newline = true
+
+# Tab indentation (no size specified)
+[Makefile]
+indent_style = tab

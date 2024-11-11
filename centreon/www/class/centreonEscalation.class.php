@@ -34,14 +34,19 @@
  */
 
 /**
+ * Class
  *
+ * @class CentreonEscalation
  */
 class CentreonEscalation
 {
+    /** @var CentreonDB */
     protected $db;
 
-    /*
-     * constructor
+    /**
+     * CentreonEscalation constructor
+     *
+     * @param CentreonDB $pearDB
      */
     public function __construct($pearDB)
     {
@@ -50,12 +55,12 @@ class CentreonEscalation
 
     /**
      *
-     * @param integer $field
+     * @param int $field
      * @return array
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'escalation';
         $parameters['currentObject']['id'] = 'esc_id';
         $parameters['currentObject']['name'] = 'esc_name';
@@ -113,12 +118,14 @@ class CentreonEscalation
     /**
      * @param array $values
      * @param array $options
+     *
      * @return array
+     * @throws PDOException
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
         global $centreon;
-        $items = array();
+        $items = [];
 
         # get list of authorized host categories
         if (!$centreon->user->access->admin) {
@@ -126,7 +133,7 @@ class CentreonEscalation
         }
 
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if (!empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':hc' . $v . ',';
@@ -143,7 +150,7 @@ class CentreonEscalation
 
         $stmt = $this->db->prepare($query);
 
-        if (!empty($queryValues)) {
+        if ($queryValues !== []) {
             foreach ($queryValues as $key => $id) {
                 $stmt->bindValue(':' . $key, $id, PDO::PARAM_INT);
             }
@@ -157,11 +164,7 @@ class CentreonEscalation
                 $hide = true;
             }
 
-            $items[] = array(
-                'id' => $row['hc_id'],
-                'text' => $row['hc_name'],
-                'hide' => $hide
-            );
+            $items[] = ['id' => $row['hc_id'], 'text' => $row['hc_name'], 'hide' => $hide];
         }
 
         return $items;

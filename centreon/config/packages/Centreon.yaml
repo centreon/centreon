@@ -37,14 +37,18 @@ services:
         exclude:
             - '../../src/Core/Media/*'
             - '../../src/Core/Command/*'
+            - '../../src/Core/Dashboard/*'
             - '../../src/Core/ResourceAccess/*'
             - '../../src/Core/TimePeriod/*'
             - '../../src/Core/Service/*'
             - '../../src/Core/HostGroup/*'
+            - '../../src/Core/HostTemplate/*'
             - '../../src/Core/ServiceGroup/*'
+            - '../../src/Core/ServiceTemplate/*'
             - '../../src/Core/Host/*'
             - '../../src/Core/Broker/*'
             - '../../src/Core/AdditionalConnectorConfiguration/*'
+            - '../../src/Core/AgentConfiguration/*'
             - '../../src/Core/Security/Vault/*'
             - '../../src/Core/Contact/*'
         bind:
@@ -52,8 +56,6 @@ services:
 
     Logger:
         class: Centreon\Domain\Log\Logger
-
-
 
     Core\Common\Infrastructure\FeatureFlags:
         arguments: ['%env(bool:IS_CLOUD_PLATFORM)%', '%env(file:resolve:FILE_FEATURE_FLAGS)%']

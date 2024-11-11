@@ -1,17 +1,57 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
+  checkHostsAreMonitored,
   checkMetricsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import topBottomWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTopBottomWidget.json';
-import dashbboardWithTwoTopBottomWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwoTopBottomWidgets.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 
 const hostName = 'Centreon-Server';
 const hostGroupName = 'Linux-Servers';
+
+const services = {
+  serviceCritical: {
+    host: 'host3',
+    name: 'service3',
+    template: 'SNMP-Linux-Load-Average'
+  },
+  serviceOk: { host: 'host2', name: 'service_test_ok', template: 'Ping-LAN' },
+  serviceWarning: {
+    host: 'host2',
+    name: 'service2',
+    template: 'SNMP-Linux-Memory'
+  }
+};
+const resultsToSubmit = [
+  {
+    host: services.serviceWarning.host,
+    output: 'submit_status_2',
+    service: services.serviceCritical.name,
+    status: 'critical'
+  },
+  {
+    host: services.serviceWarning.host,
+    output: 'submit_status_2',
+    service: services.serviceWarning.name,
+    status: 'warning'
+  },
+  {
+    host: services.serviceWarning.host,
+    output: 'submit_status_2',
+    service: services.serviceOk.name,
+    status: 'ok'
+  },
+  {
+    host: services.serviceCritical.host,
+    output: 'submit_status_2',
+    service: services.serviceOk.name,
+    status: 'ok'
+  }
+];
 
 before(() => {
   cy.startContainers();
@@ -19,7 +59,6 @@ before(() => {
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-widget-metrics.json'
   );
-  cy.applyAcl();
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -40,11 +79,82 @@ before(() => {
     method: 'POST',
     url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
   }).as('addContactToDashboardShareList');
+  cy.addHost({
+    hostGroup: 'Linux-Servers',
+    name: services.serviceOk.host,
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: services.serviceOk.name,
+      template: services.serviceOk.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: 'service2',
+      template: services.serviceWarning.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: services.serviceCritical.name,
+      template: services.serviceCritical.template
+    })
+    .applyPollerConfiguration();
 
-  cy.loginAsAdminViaApiV2()
-    .scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' })
-    .logoutViaAPI();
+  cy.addHost({
+    hostGroup: 'Linux-Servers',
+    name: services.serviceCritical.host,
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: services.serviceOk.name,
+      template: services.serviceOk.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: 'service2',
+      template: services.serviceWarning.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: services.serviceCritical.name,
+      template: services.serviceCritical.template
+    })
+    .applyPollerConfiguration();
 
+  cy.loginByTypeOfUser({
+    jsonName: 'admin'
+  });
+
+  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' });
+
+  checkHostsAreMonitored([
+    { name: services.serviceOk.host },
+    { name: services.serviceCritical.host }
+  ]);
+  checkServicesAreMonitored([
+    { name: services.serviceCritical.name },
+    { name: services.serviceOk.name }
+  ]);
+  cy.submitResults(resultsToSubmit);
+  checkServicesAreMonitored([
+    { name: services.serviceCritical.name, status: 'critical' },
+    { name: services.serviceOk.name, status: 'ok' }
+  ]);
+  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' })
   checkServicesAreMonitored([
     {
       name: 'Ping',
@@ -58,6 +168,8 @@ before(() => {
       service: 'Ping'
     }
   ]);
+  cy.logoutViaAPI();
+  cy.applyAcl();
 });
 
 beforeEach(() => {
@@ -85,6 +197,10 @@ beforeEach(() => {
     method: 'PATCH',
     url: `/centreon/api/latest/configuration/dashboards/*`
   }).as('updateDashboard');
+  cy.intercept({
+    method: 'GET',
+    url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
+  }).as('resourceRequest');
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
@@ -165,7 +281,12 @@ Then("the Top Bottom metric widget is added in the dashboard's layout", () => {
 });
 
 Given('a dashboard configured with a Top Bottom widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    topBottomWidget,
+    'centreon-widget-topbottom',
+    '/widgets/topbottom'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
   cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('be.visible');
@@ -220,7 +341,12 @@ Then(
 );
 
 Given('a dashboard having a configured Top Bottom widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    topBottomWidget,
+    'centreon-widget-topbottom',
+    '/widgets/topbottom'
+  );
   cy.visitDashboard(dashboards.default.name);
 });
 
@@ -244,9 +370,12 @@ Then('a second Top Bottom widget is displayed on the dashboard', () => {
 });
 
 Given('a dashboard featuring two Top Bottom widgets', () => {
-  cy.insertDashboardWithWidget(
+  cy.insertDashboardWithDoubleWidget(
     dashboards.default,
-    dashbboardWithTwoTopBottomWidgets
+    topBottomWidget,
+    topBottomWidget,
+    'centreon-widget-topbottom',
+    '/widgets/topbottom'
   );
   cy.editDashboard(dashboards.default.name);
   cy.wait('@dashboardMetricsTop');
@@ -267,7 +396,12 @@ Then('only the contents of the other widget are displayed', () => {
 });
 
 Given('a dashboard with a configured Top Bottom widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    topBottomWidget,
+    'centreon-widget-topbottom',
+    '/widgets/topbottom'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
 });
@@ -292,7 +426,12 @@ Then(
 );
 
 Given('a dashboard containing a Top Bottom widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    topBottomWidget,
+    'centreon-widget-topbottom',
+    '/widgets/topbottom'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
 });
@@ -324,7 +463,12 @@ Then(
 );
 
 Given('a dashboard featuring a configured Top Bottom widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    topBottomWidget,
+    'centreon-widget-topbottom',
+    '/widgets/topbottom'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
 });
@@ -371,7 +515,12 @@ Then(
 );
 
 Given('a dashboard with a Top bottom widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    topBottomWidget,
+    'centreon-widget-topbottom',
+    '/widgets/topbottom'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.contains('Centreon-Server_Ping').should('be.visible');
 });
@@ -392,3 +541,80 @@ Then(
     cy.contains('Centreon-Server').should('exist');
   }
 );
+
+Then('enters a search term for a specific host', () => {
+  cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
+  cy.getByLabel({ label: 'RichTextEditor' })
+    .eq(0)
+    .type(genericTextWidgets.default.description);
+  cy.getByTestId({ testId: 'Resource type' }).realClick();
+  cy.getByLabel({ label: 'Host' }).click();
+  cy.getByTestId({ testId: 'Select resource' }).type('3')
+  cy.wait('@resourceRequest');
+});
+
+Then('only the hosts that match the search input are displayed in the search results', () => {
+  cy.waitUntil(() =>
+    cy.get('.MuiAutocomplete-listbox').invoke('text').then(listboxText => {
+      return listboxText.includes('host3') &&
+             !listboxText.includes('Centreon-Server') &&
+             !listboxText.includes('host2');
+    }),
+    {
+      timeout: 10000,
+      interval: 500,
+    }
+  );
+});
+
+When('the dashboard administrator enters a search term for a specific service', () => {
+  cy.contains('host3').click();
+  cy.getByTestId({ testId: 'Add filter' }).realClick();
+  cy.getByTestId({ testId: 'Resource type' }).eq(1).realClick();
+  cy.getByLabel({ label: 'Service' }).click();
+  cy.getByTestId({ testId: 'Select resource' }).eq(1).type('2')
+});
+
+Then('only the services that match the search input are displayed in the search results', () => {
+  cy.waitUntil(() =>
+    cy.get('.MuiAutocomplete-listbox').invoke('text').then(listboxText => {
+      return listboxText.includes('service2') &&
+             !listboxText.includes('service3') &&
+             !listboxText.includes('service_test_ok');
+    }),
+    {
+      timeout: 10000,
+      interval: 500,
+    }
+  );
+});
+
+Then('searches for Centreon Server hosts', () => {
+  cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
+  cy.getByLabel({ label: 'RichTextEditor' })
+    .eq(0)
+    .type(genericTextWidgets.default.description);
+  cy.getByTestId({ testId: 'Resource type' }).realClick();
+  cy.getByLabel({ label: 'Host' }).click();
+  cy.getByTestId({ testId: 'Select resource' }).type('Centreon-Server')
+  cy.contains('Centreon-Server').click()
+});
+
+When('the dashboard administrator enters a search term for a specific metrics', () => {
+  cy.getByTestId({ testId: 'Select metric' }).type('rta')
+});
+
+Then('only the metrics that match the search input are displayed in the search results', () => {
+  cy.waitUntil(() =>
+    cy.get('*[class$="-listBox"]').invoke('text').then(listboxText => {
+      return listboxText.includes('rta (ms)') &&
+             !listboxText.includes('pl (%)') &&
+             !listboxText.includes('rtmax (ms)') &&
+             !listboxText.includes('rtmin (ms)');
+    }),
+    {
+      timeout: 10000,
+      interval: 500,
+    }
+  );
+});

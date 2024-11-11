@@ -1,9 +1,7 @@
-/* eslint-disable import/no-unresolved */
-
-import widgetDataProperties from 'centreon-widgets/centreon-widget-data/properties.json';
 import { Formik } from 'formik';
 import { Provider, createStore } from 'jotai';
 import { difference, includes, pluck, reject } from 'ramda';
+import widgetDataProperties from '../../../../Widgets/centreon-widget-data/properties.json';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 

@@ -72,7 +72,7 @@ $widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' 
  * Sanitize and concatenate selected resources for the query
  */
 // Check returned combinations
-if (false !== strpos($_GET['list'], ',')) {
+if (str_contains($_GET['list'], ',')) {
     $resources = explode(',', $_GET['list']);
 } else {
     $resources[] = $_GET['list'];
@@ -80,7 +80,7 @@ if (false !== strpos($_GET['list'], ',')) {
 // Check combinations consistency and split them in an [hostId, serviceId] array
 $exportList = [];
 foreach ($resources as $resource) {
-    if (false !== strpos($resource, '\;')) {
+    if (str_contains($resource, '\;')) {
         continue;
     } else {
         $exportList[] = explode(';', $resource);
@@ -123,14 +123,8 @@ $dbb = $dependencyInjector['realtime_db'];
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 
-$aStateType = array("1" => "H", "0" => "S");
-$stateLabels = array(
-    0 => "Ok",
-    1 => "Warning",
-    2 => "Critical",
-    3 => "Unknown",
-    4 => "Pending"
-);
+$aStateType = ["1" => "H", "0" => "S"];
+$stateLabels = [0 => "Ok", 1 => "Warning", 2 => "Critical", 3 => "Unknown", 4 => "Pending"];
 
 // Build Query
 $query = "SELECT SQL_CALC_FOUND_ROWS
@@ -220,7 +214,7 @@ if (isset($preferences['service_description_search']) && $preferences['service_d
         $query = CentreonUtils::conditionBuilder($query, $serviceDescriptionCondition);
     }
 }
-$stateTab = array();
+$stateTab = [];
 if (isset($preferences['svc_ok']) && $preferences['svc_ok']) {
     $stateTab[] = 0;
 }
@@ -242,7 +236,7 @@ if (isset($preferences['hide_down_host']) && $preferences['hide_down_host']) {
 if (isset($preferences['hide_unreachable_host']) && $preferences['hide_unreachable_host']) {
     $query = CentreonUtils::conditionBuilder($query, " h.state != 2 ");
 }
-if (count($stateTab)) {
+if ($stateTab !== []) {
     $query = CentreonUtils::conditionBuilder($query, " s.state IN (" . implode(',', $stateTab) . ")");
 }
 if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgement_filter']) {
@@ -379,7 +373,7 @@ unset($parameter, $mainQueryParameters);
 $res->execute();
 
 $nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
-$data = array();
+$data = [];
 $outputLength = $preferences['output_length'] ?? 50;
 $commentLength = $preferences['comment_length'] ?? 50;
 
@@ -389,7 +383,7 @@ while ($row = $res->fetch()) {
     foreach ($row as $key => $value) {
         if ($key == "last_check") {
             $gmt = new CentreonGMT($db);
-            $gmt->getMyGMTFromSession(session_id(), $db);
+            $gmt->getMyGMTFromSession(session_id());
             $value = $gmt->getDate("Y-m-d H:i:s", $value);
         } elseif ($key == "last_state_change" || $key == "last_hard_state_change") {
             $value = time() - $value;

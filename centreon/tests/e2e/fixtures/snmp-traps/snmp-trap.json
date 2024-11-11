@@ -1,0 +1,59 @@
+{
+    "snmp1":{
+        "name": "atrapName",
+        "oid": "1.2.3",
+        "vendor": "Cisco",
+        "output": "trapOutputMessage",
+        "rule":
+            {
+                "string" : "@trapRule@",
+                "regexp" : "/ruleRegexp/",
+                "status" : "Critical",
+                "severity" : "serviceCategoryName (3)"
+        }
+    },
+    "snmp2":{
+        "name": "atrapNameChanged",
+        "oid": ".1.2.3.4",
+        "vendor": "HP",
+        "output": "trapOutputMessagechanged",
+        "status": "Critical",
+        "severity": "serviceCategoryName (3)",
+        "mode": 1,
+        "behavior": "If match, disable submit",
+        "rule":
+            {
+                "string" : "@trapRuleModified@",
+                "regexp" : "/ruleRegexpM/",
+                "status" : "Critical",
+                "severity" : "serviceCategoryName (3)"
+        },
+        "submit": 0,
+        "reschedule": 1,
+        "execute_command": 1,
+        "special_command": "trapCommand",
+        "comments": "trapComments",
+        "hostName": "hostName" ,
+        "serviceName": "serviceName",
+        "service_templates": "serviceTemplateName",
+        "routing": 1,
+        "routing_definition": "trapRouteDefinition",
+        "filter_services": "trapFilterServices",
+        "insert_information": 1,
+        "timeout": "66",
+        "execution_interval": "44",
+        "execution_type": 2,
+        "execution_method": 0,
+        "check_downtime": 2,
+        "output_transform": "trapOutputTransform",
+        "custom_code": "trapCustomCode"
+    },
+    "snmpGroup1":{
+        "name": "default-trap-grp",
+        "traps":["Cisco - ccmCTIDRolledOver", "Dell - alertBatteryWarning"]
+    },
+    "snmpGroup2":{
+        "name": "trap-grp-test",
+        "traps":["Dell - alertPowerSupplyFailure", "Dell - adDiagStarted"]
+    }
+}

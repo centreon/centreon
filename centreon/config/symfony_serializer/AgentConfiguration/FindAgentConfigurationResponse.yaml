@@ -1,0 +1,6 @@
+Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration:
+  attributes:
+    agentConfiguration:
+      groups: ['AgentConfiguration:Read']
+    pollers:
+      groups: ['AgentConfiguration:Read']

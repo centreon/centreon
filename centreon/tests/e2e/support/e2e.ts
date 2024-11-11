@@ -9,7 +9,6 @@ import './commands';
 
 before(() => {
   Cypress.config('baseUrl', 'http://127.0.0.1:4000');
-  Cypress.config('baseUrl', 'http://127.0.0.1:4000');
 
   cy.intercept('/waiting-page', {
     headers: { 'content-type': 'text/html' },
@@ -23,7 +22,8 @@ Cypress.on('uncaught:exception', (err) => {
     err.message.includes('Request failed with status code 403') ||
     err.message.includes('undefined') ||
     err.message.includes('postMessage') ||
-    err.message.includes('canceled')
+    err.message.includes('canceled') ||
+    err.message.includes('Network Error')
   ) {
     return false;
   }

@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindDashboard;
 
-use Core\Dashboard\Application\UseCase\FindDashboard\Response\{PanelResponseDto, RefreshResponseDto, UserResponseDto};
+use Core\Dashboard\Application\UseCase\FindDashboard\Response\{PanelResponseDto, RefreshResponseDto, ThumbnailResponseDto, UserResponseDto};
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardPanel;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
@@ -100,6 +100,14 @@ final class FindDashboardFactory
         $response->refresh = new RefreshResponseDto();
         $response->refresh->refreshType = $dashboard->getRefresh()->getRefreshType();
         $response->refresh->refreshInterval = $dashboard->getRefresh()->getRefreshInterval();
+
+        if ($dashboard->getThumbnail() !== null) {
+            $response->thumbnail = new ThumbnailResponseDto(
+                $dashboard->getThumbnail()->getId(),
+                $dashboard->getThumbnail()->getFilename(),
+                $dashboard->getThumbnail()->getDirectory()
+            );
+        }
 
         return $response;
     }

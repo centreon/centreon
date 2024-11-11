@@ -57,53 +57,43 @@ try {
 
     $tpl->assign(
         'msg',
-        array(
-            "addL" => "main.php?p=" . $p . "&o=a",
-            "addT" => _("Add"),
-            "delConfirm" => _("Do you confirm the deletion ?")
-        )
+        ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
     );
 
     /*
      * Toolbar select
      */
-    foreach (array('o1', 'o2') as $option) {
-        $attrs1 = array(
-            'onchange' => "javascript: " .
-                " var bChecked = isChecked(); " .
-                " if (this.form.elements['" . $option . "'].selectedIndex != 0 && !bChecked) {" .
-                " alert('" . _("Please select one or more items") . "'); return false;} " .
-                "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('"
-                . _("Do you confirm the duplication ?") . "')) {" .
-                "   setO(this.form.elements['" . $option . "'].value); submit();} " .
-                "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('"
-                . _("Do you confirm the deletion ?") . "')) {" .
-                "   setO(this.form.elements['" . $option . "'].value); submit();} " .
-                "else if (this.form.elements['" . $option . "'].selectedIndex == 3) {" .
-                "   setO(this.form.elements['" . $option . "'].value); submit();} " .
-                "this.form.elements['" . $option . "'].selectedIndex = 0"
-        );
+    foreach (['o1', 'o2'] as $option) {
+        $attrs1 = ['onchange' => "javascript: " .
+            " var bChecked = isChecked(); " .
+            " if (this.form.elements['" . $option . "'].selectedIndex != 0 && !bChecked) {" .
+            " alert('" . _("Please select one or more items") . "'); return false;} " .
+            "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('"
+            . _("Do you confirm the duplication ?") . "')) {" .
+            "   setO(this.form.elements['" . $option . "'].value); submit();} " .
+            "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('"
+            . _("Do you confirm the deletion ?") . "')) {" .
+            "   setO(this.form.elements['" . $option . "'].value); submit();} " .
+            "else if (this.form.elements['" . $option . "'].selectedIndex == 3) {" .
+            "   setO(this.form.elements['" . $option . "'].value); submit();} " .
+            "this.form.elements['" . $option . "'].selectedIndex = 0"];
 
         $form->addElement(
             'select',
             $option,
             null,
-            array(
-                null => _("More actions..."),
-                "m" => _("Duplicate"),
-                "d" => _("Delete")
-            ),
+            [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
             $attrs1
         );
-        $form->setDefaults(array($option => null));
+        $form->setDefaults([$option => null]);
         $o1 = $form->getElement($option);
         $o1->setValue(null);
         $o1->setSelected(null);
     }
 
-    $elemArr = array();
+    $elemArr = [];
     $j = 0;
-    $attrsText = array("size" => "2");
+    $attrsText = ["size" => "2"];
     $nbConnectors = count($connectorsList);
     $centreonToken = createCSRFToken();
 
@@ -111,7 +101,7 @@ try {
         $result = $connectorsList[$i];
         $moptions = "";
         $MyOption = $form->addElement('text', "options[" . $result['id'] . "]", _("Options"), $attrsText);
-        $form->setDefaults(array("options[" . $result['id'] . "]" => '1'));
+        $form->setDefaults(["options[" . $result['id'] . "]" => '1']);
         $selectedElements = $form->addElement('checkbox', "select[" . $result['id'] . "]");
         if ($result) {
             if ($lvl_access == "w") {
@@ -139,16 +129,7 @@ try {
                 $moptions = "&nbsp;";
             }
 
-            $elemArr[$j] = array(
-                "RowMenu_select" => $selectedElements->toHtml(),
-                "RowMenu_link" => "main.php?p=" . $p . "&o=c&id=" . $result['id'],
-                "RowMenu_name" => CentreonUtils::escapeSecure($result["name"]),
-                "RowMenu_description" => CentreonUtils::escapeSecure($result['description']),
-                "RowMenu_command_line" => CentreonUtils::escapeSecure($result['command_line']),
-                "RowMenu_enabled" => $result['enabled'] ? _("Enabled") : _("Disabled"),
-                "RowMenu_badge" => $result['enabled'] ? "service_ok" : "service_critical",
-                "RowMenu_options" => $moptions
-            );
+            $elemArr[$j] = ["RowMenu_select" => $selectedElements->toHtml(), "RowMenu_link" => "main.php?p=" . $p . "&o=c&id=" . $result['id'], "RowMenu_name" => CentreonUtils::escapeSecure($result["name"]), "RowMenu_description" => CentreonUtils::escapeSecure($result['description']), "RowMenu_command_line" => CentreonUtils::escapeSecure($result['command_line']), "RowMenu_enabled" => $result['enabled'] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $result['enabled'] ? "service_ok" : "service_critical", "RowMenu_options" => $moptions];
         }
         $j++;
     }

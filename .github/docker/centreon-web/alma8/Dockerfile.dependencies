@@ -3,7 +3,7 @@ ARG VERSION
 FROM almalinux:8
 
 ARG VERSION
-ARG RELEASE_CLOUD
+ARG IS_CLOUD
 
 RUN --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_USERNAME \
     --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_PASSWORD \
@@ -13,15 +13,17 @@ RUN --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_USERNAME \
 # install and configure repositories #
 ######################################
 
+echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf
+
 dnf install -y dnf-plugins-core
 
 dnf config-manager --set-enabled powertools
 
 dnf install -y epel-release
 
-if [[ ${RELEASE_CLOUD} -eq 1 ]]; then
-  dnf config-manager --add-repo https://$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal/24.09/el8/centreon-24.09-internal.repo
-  sed -i "s#packages.centreon.com/rpm-standard-internal#$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-24.09-internal.repo
+if [[ "${IS_CLOUD}" == "true" ]]; then
+  dnf config-manager --add-repo https://$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal/24.11/el8/centreon-24.11-internal.repo
+  sed -i "s#packages.centreon.com/rpm-standard-internal#$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-24.11-internal.repo
 else
   dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${VERSION}/el8/centreon-${VERSION}.repo
 fi
@@ -44,7 +46,6 @@ dnf install -y \
   lua \
   openpgm \
   net-snmp \
-  net-snmp-perl \
   net-snmp-utils \
   openssl \
   python3 \
@@ -64,24 +65,9 @@ dnf install -y \
   perl-DBD-MySQL \
   perl-DBD-SQLite \
   perl-DBI \
-  perl-EV \
-  perl-FFI-CheckLib \
-  perl-FFI-Platypus \
   perl-HTML-Parser \
-  perl-NetAddr-IP \
   perl-Net-Curl \
-  perl-Net-DNS \
-  perl-Net-HTTP \
-  perl-Net-Ping \
-  perl-Pod-Parser \
-  perl-Specio \
-  perl-Test-Simple \
-  perl-Unicode-Collate \
-  perl-XML-LibXML \
-  perl-XML-SAX \
-  perl-XML-Twig \
-  perl-UUID \
-  perltidy
+  perl-Env
 
 #############################
 # install test dependencies #
@@ -95,7 +81,7 @@ dnf install -y libfaketime
 
 dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm
 dnf module reset -y php
-dnf module install -y php:remi-8.1
+dnf module install -y php:remi-8.2
 
 dnf install -y \
   php-common \
@@ -114,75 +100,7 @@ dnf install -y \
   php-pear \
   php-json
 
-#################################
-# install and configure mariadb #
-#################################
-
-# curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
-#   | bash -s -- --os-type=rhel --skip-check-installed --os-version=8 --mariadb-server-version="mariadb-10.11"
-
-cat <<EOT >> /etc/yum.repos.d/mariadb.repo
-[mariadb-main]
-name = MariaDB Server
-baseurl = https://dlm.mariadb.com/repo/mariadb-server/10.11/yum/rhel/8/x86_64
-gpgkey = file:///etc/pki/rpm-gpg/MariaDB-Server-GPG-KEY
-gpgcheck = 1
-enabled = 1
-module_hotfixes = 1
-EOT
-
-rpm --import https://rpm.mariadb.org/RPM-GPG-KEY-MariaDB
-
-dnf install -y mariadb-server mariadb
-
-echo "[server]
-log_output=FILE
-general_log_file        = /var/lib/mysql/queries.log
-general_log             = 0
-slow_query_log_file     = /var/lib/mysql/slow_queries.log
-slow_query_log          = 1
-innodb_file_per_table   = 1
-innodb_flush_method     = O_DIRECT
-innodb_fast_shutdown    = 0
-innodb_log_file_size    = 16M
-skip-name-resolve       = 1
-key_buffer_size         = 16M
-read_buffer_size        = 60K
-sort_buffer_size        = 1M
-innodb_buffer_pool_size = 64M
-tmp_table_size          = 8M
-max_allowed_packet      = 16M
-thread_stack            = 192K
-thread_cache_size       = 8
-table_open_cache        = 2000
-table_definition_cache  = 1400
-performance_schema      = ON
-open_files_limit        = 32000
-" > /etc/my.cnf.d/container.cnf
-
-################################
-# install collect dependencies #
-################################
-
-dnf install -y \
-  centreon-engine \
-  centreon-plugin-Applications-Databases-Mysql \
-  centreon-plugin-Applications-Monitoring-Centreon-Central \
-  centreon-plugin-Applications-Monitoring-Centreon-Database \
-  centreon-plugin-Applications-Monitoring-Centreon-Map4-Jmx \
-  centreon-plugin-Applications-Monitoring-Centreon-Poller \
-  centreon-plugin-Applications-Protocol-Dns \
-  centreon-plugin-Applications-Protocol-Ftp \
-  centreon-plugin-Applications-Protocol-Http \
-  centreon-plugin-Applications-Protocol-Ldap \
-  centreon-plugin-Hardware-Printers-Generic-Snmp \
-  centreon-plugin-Hardware-Ups-Standard-Rfc1628-Snmp \
-  centreon-plugin-Network-Cisco-Standard-Snmp \
-  centreon-plugin-Operatingsystems-Linux-Snmp \
-  centreon-plugin-Operatingsystems-Windows-Snmp \
-  nagios-plugins \
-  nagios-plugins-dhcp \
-  nagios-plugins-icmp
+sed -i "s#apache,nginx#apache#g" /etc/php-fpm.d/www.conf
 
 dnf clean all --enablerepo=*
 
