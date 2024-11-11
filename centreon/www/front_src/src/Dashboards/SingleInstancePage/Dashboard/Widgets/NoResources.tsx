@@ -4,8 +4,10 @@ import { Box, Typography } from '@mui/material';
 
 import { labelPreviewRemainsEmpty } from './translatedLabels';
 
-const NoResources = (): JSX.Element => {
+const NoResources = ({ label }: { label?: string }): JSX.Element => {
   const { t } = useTranslation();
+
+  const labelPreview = label || labelPreviewRemainsEmpty;
 
   return (
     <Box
@@ -16,7 +18,7 @@ const NoResources = (): JSX.Element => {
         justifyContent: 'center'
       }}
     >
-      <Typography variant="h5">{t(labelPreviewRemainsEmpty)}</Typography>
+      <Typography variant="h5">{t(labelPreview)}</Typography>
     </Box>
   );
 };
