@@ -67,7 +67,7 @@ const Switch = ({
         label={t(label) as string}
       />
     ),
-    memoProps: [value, disabled, additionalMemoProps]
+    memoProps: [value, disabled, additionalMemoProps, values]
   });
 };
 
