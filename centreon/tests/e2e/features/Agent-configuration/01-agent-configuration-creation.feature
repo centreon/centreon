@@ -35,7 +35,7 @@ Feature: Create a new Agent Configuration
     Then a pop-up menu with the form is displayed
     When the user selects the centreon agent
     And the user enables the connection initiated by the poller
-    Then a new parameters group is displayed for host
+    Then a new parameters group is displayed for the host
     When the user clicks to add a second host
     Then a second group of parameters for hosts is displayed
     When the user fills in the centreon agent parameters
