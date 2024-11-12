@@ -320,7 +320,7 @@ describe('Agent configurations', () => {
     cy.contains('poller6').click();
     cy.contains(labelClear).click({ force: true });
     cy.contains('poller6').should('not.exist');
-    cy.contains('Centreom Monitoring Agent').should('not.exist');
+    cy.contains('Centreon Monitoring Agent').should('not.exist');
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
       expect(decodeURIComponent(request.url.search)).equals(
