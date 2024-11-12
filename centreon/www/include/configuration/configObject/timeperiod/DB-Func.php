@@ -419,7 +419,7 @@ function insertTimePeriodInAPI(array $ret = []): int|null
             customContext: ['form_data' => $formData, 'base_path' => $basePath],
             exception: $th
         );
-        
+
         echo "<div class='msg' align='center'>" . _($th->getMessage()) . '</div>';
 
         return null;
@@ -459,12 +459,12 @@ function insertTimeperiodByApi(array $formData, string $basePath): int
         $url,
         [
             'headers' => $headers,
-            'body' => json_encode($payload),
+            'body' => json_encode(value: $payload, flags: JSON_THROW_ON_ERROR),
         ],
     );
 
     if ($response->getStatusCode() !== 201) {
-        $content = json_decode($response->getContent(false));
+        $content = json_decode(json: $response->getContent(false), flags: JSON_THROW_ON_ERROR);
 
         throw new Exception($content->message ?? 'Unexpected return status');
     }
@@ -503,7 +503,7 @@ function updateTimeperiodInAPI($tp_id = null): bool
             customContext: ['form_data' => $formData, 'base_path' => $basePath],
             exception: $th
         );
-        
+
         echo "<div class='msg' align='center'>" . _($th->getMessage()) . '</div>';
 
         return false;
@@ -542,7 +542,7 @@ function updateTimeperiodByApi(array $formData, string $basePath): void
         $url,
         [
             'headers' => $headers,
-            'body' => json_encode($payload),
+            'body' => json_encode(value: $payload, flags: JSON_THROW_ON_ERROR),
         ],
     );
 
@@ -573,7 +573,7 @@ function deleteTimePeriodInAPI(array $timeperiods = []): bool
             customContext: ['timeperiods' => $timeperiods, 'base_path' => $basePath],
             exception: $th
         );
-        
+
         echo "<div class='msg' align='center'>" . _($th->getMessage()) . '</div>';
 
         return false;
@@ -608,7 +608,7 @@ function deleteTimePeriodByAPI(string $basePath, array $timePeriodIds): void
         $response = $client->request('DELETE', $url, ['headers' => $headers]);
 
         if ($response->getStatusCode() !== 204) {
-            $content = json_decode($response->getContent(false));
+            $content = json_decode(json: $response->getContent(false), flags: JSON_THROW_ON_ERROR);
 
             throw new Exception($content->message ?? 'Unexpected return status');
         }
