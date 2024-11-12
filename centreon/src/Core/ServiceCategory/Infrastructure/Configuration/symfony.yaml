@@ -1,0 +1,20 @@
+services:
+    _defaults:
+        public: false
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
+
+    Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface:
+      class: Core\ServiceCategory\Infrastructure\Repository\DbWriteServiceCategoryRepository
+
+    Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface:
+      class: Core\ServiceCategory\Infrastructure\Repository\DbReadServiceCategoryRepository
+
+    Core\ServiceCategory\Infrastructure\Repository\DbWriteServiceCategoryActionLogRepository:
+        decorates: Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface
+        arguments:
+        - '@.inner'
+        - '@Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface'
+        - '@Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface'
+        - '@Centreon\Domain\Contact\Interfaces\ContactInterface'
+        - '@Centreon\Infrastructure\DatabaseConnection'
