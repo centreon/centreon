@@ -86,7 +86,7 @@ When('the user enables the connection initiated by poller option', () => {
   cy.get('[class*="Mui-checked Mui-checked"]').should('exist');
 });
 
-Then('a new parameters group is displayed for host', () => {
+Then('a new parameters group is displayed for the host', () => {
   cy.get('[class$="hostConfigurations"]').find('[class^="MuiDivider-root MuiDivider-fullWidth"]').should('have.length', 1);
 });
 
