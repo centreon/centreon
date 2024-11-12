@@ -17719,6 +17719,18 @@ msgstr "Modo avanzado"
 # msgid "Clock / Timer"
 # msgstr ""
 
+# msgid "Breadcrumb copied"
+# msgstr ""
+
+# msgid "Failed to copy breadcrumb"
+# msgstr ""
+
+# msgid "Copy breadcrumb"
+# msgstr ""
+
+# msgid "Thumbnails show a snapshot of your data, taken when the dashboard is saved"
+# msgstr ""
+
 # msgid "Agent configuration"
 # msgstr ""
 
@@ -17829,3 +17841,6 @@ msgstr "Retractar"
 
 #  msgid "Poller ID #%d is the only one linked to poller/agent configuration ID #%d"
 #  msgstr ""
+
+msgid "Sticky for any non-OK status"
+msgstr "Sticky para cualquier estado que no sea OK"

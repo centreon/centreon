@@ -18171,6 +18171,24 @@ msgstr ""
 #  msgid "Ticket management"
 #  msgstr ""
 
+# msgid "Breadcrumb copied"
+# msgstr ""
+
+# msgid "Failed to copy breadcrumb"
+# msgstr ""
+
+# msgid "Copy breadcrumb"
+# msgstr ""
+
+# msgid "Displays the time according to the selected time zone, or a timer."
+# msgstr ""
+
+# msgid "Clock / Timer"
+# msgstr ""
+
+# msgid "Thumbnails show a snapshot of your data, taken when the dashboard is saved"
+# msgstr ""
+
 # msgid "Agent configuration"
 # msgstr ""
 
@@ -18281,3 +18299,6 @@ msgstr ""
 
 #  msgid "Poller ID #%d is the only one linked to poller/agent configuration ID #%d"
 #  msgstr ""
+
+# msgid "Sticky for any non-OK status"
+# msgstr ""

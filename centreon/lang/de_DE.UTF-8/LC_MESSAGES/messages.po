@@ -17367,6 +17367,17 @@ msgstr "Erweiterter Modus"
 # msgid "Clock / Timer"
 # msgstr ""
 
+# msgid "Breadcrumb copied"
+# msgstr ""
+
+# msgid "Failed to copy breadcrumb"
+# msgstr ""
+
+# msgid "Copy breadcrumb"
+
+# msgid "Thumbnails show a snapshot of your data, taken when the dashboard is saved"
+# msgstr ""
+
 # msgid "Agent configuration"
 # msgstr ""
 
@@ -17477,3 +17488,7 @@ msgstr "Erweiterter Modus"
 
 #  msgid "Poller ID #%d is the only one linked to poller/agent configuration ID #%d"
 #  msgstr ""
+
+# msgid "Sticky for any non-OK status"
+# msgstr ""
+
