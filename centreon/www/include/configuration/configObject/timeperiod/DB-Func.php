@@ -411,10 +411,15 @@ function insertTimePeriodInAPI(array $ret = []): int|null
     $formData = $ret === [] ? $form->getSubmitValues() : $ret;
 
     try {
-        $timeperiodId = insertTimeperiodByApi($formData, $basePath);
-
-        return $timeperiodId;
+        return insertTimeperiodByApi($formData, $basePath);
     } catch (Throwable $th) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error while inserting timeperiod by api : {$th->getMessage()}",
+            customContext: ['form_data' => $formData, 'base_path' => $basePath],
+            exception: $th
+        );
+        
         echo "<div class='msg' align='center'>" . _($th->getMessage()) . '</div>';
 
         return null;
@@ -427,8 +432,7 @@ function insertTimePeriodInAPI(array $ret = []): int|null
  * @param array $formData
  * @param string $basePath
  *
- * @throws LogicException
- * @throws Exception
+ * @throws Throwable
  *
  * @return int
  */
@@ -493,6 +497,13 @@ function updateTimeperiodInAPI($tp_id = null): bool
 
         return true;
     } catch (Throwable $th) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error while updating timeperiod by api : {$th->getMessage()}",
+            customContext: ['form_data' => $formData, 'base_path' => $basePath],
+            exception: $th
+        );
+        
         echo "<div class='msg' align='center'>" . _($th->getMessage()) . '</div>';
 
         return false;
@@ -504,8 +515,7 @@ function updateTimeperiodInAPI($tp_id = null): bool
  * @param array $formData
  * @param string $basePath
  *
- * @throws LogicException
- * @throws Exception
+ * @throws Throwable
  *
  * @return void
  */
@@ -557,6 +567,13 @@ function deleteTimePeriodInAPI(array $timeperiods = []): bool
 
         return true;
     } catch (Throwable $th) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error while deleting timeperiod by api : {$th->getMessage()}",
+            customContext: ['timeperiods' => $timeperiods, 'base_path' => $basePath],
+            exception: $th
+        );
+        
         echo "<div class='msg' align='center'>" . _($th->getMessage()) . '</div>';
 
         return false;
@@ -567,7 +584,7 @@ function deleteTimePeriodInAPI(array $timeperiods = []): bool
  * @param string $basePath
  * @param int[] $timePeriodIds
  *
- * @throws Exception
+ * @throws Throwable
  */
 function deleteTimePeriodByAPI(string $basePath, array $timePeriodIds): void
 {
