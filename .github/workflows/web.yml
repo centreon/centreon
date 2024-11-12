@@ -110,6 +110,7 @@ jobs:
       - name: Check current day of the week
         id: day_check
         run: echo "day_of_week=$(date +%u)" >> $GITHUB_OUTPUT
+        shell: bash
 
       - if: ${{ steps.day_check.outputs.day_of_week == '1' }}
         run: |
