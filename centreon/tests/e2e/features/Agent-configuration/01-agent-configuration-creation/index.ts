@@ -95,7 +95,7 @@ When('the user disables the connection initiated by poller option', () => {
   cy.get('[class*="Mui-checked Mui-checked"]').should('not.exist');
 });
 
-Then('the group of parameters for host disappears', () => {
+Then('the group of parameters for the host disappears', () => {
   cy.get('[class$="hostConfigurations"]').should('not.exist');
 });
 
