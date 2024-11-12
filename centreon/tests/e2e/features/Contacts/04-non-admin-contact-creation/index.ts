@@ -86,7 +86,7 @@ Then(
   'the admin can log in to Centreon Web with the duplicated contact account',
   () => {
     cy.logout();
-    cy.loginByDuplicatedUser('user-with-access-to-allmodules');
+    cy.loginByDuplicatedOrUpdatedUser('user-with-access-to-allmodules', 'user-with-access-to-allmodules_1');
     cy.url().should('include', '/centreon/monitoring/resources');
   }
 );
