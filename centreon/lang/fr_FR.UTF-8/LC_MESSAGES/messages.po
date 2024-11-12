@@ -19600,20 +19600,8 @@ msgstr "Erreur durant la récupération de multiples configurations collecteur/a
 msgid "Sticky for any non-OK status"
 msgstr "Sticky pour tout statut non-OK"
 
-msgid "Time periode"
-msgstr "Période de temps"
-
 msgid "Select a Business Activity to display the preview."
 msgstr "Sélectionnez une activité métier pour afficher l'aperçu."
-
-msgid "Displays the distribution of current statuses on a BA, as a chronological timeline for a given time period."
-msgstr "Affiche la répartition des statuts actuels sur une BA, sous forme de frise chronologique pour une période donnée."
-
-msgid "Business Activity status timeline"
-msgstr "Chronologie de statut d'une activité métier"
-
-msgid "Reporting period"
-msgstr "Période de rapport"
 
 msgid "year"
 msgstr "année"
@@ -19626,6 +19614,3 @@ msgstr "heure"
 
 msgid "minute"
 msgstr "minute"
-
-msgid "See more on the {{ page }} page"
-msgstr "Voir plus dans la page {{ page }}"
