@@ -90,7 +90,7 @@ Then('a new parameters group is displayed for the host', () => {
   cy.get('[class$="hostConfigurations"]').find('[class^="MuiDivider-root MuiDivider-fullWidth"]').should('have.length', 1);
 });
 
-When('the user disables the connection initiated by poller', () => {
+When('the user disables the connection initiated by poller option', () => {
   cy.getByLabel({ label: 'Connection initiated by poller', tag: 'input' }).click();
   cy.get('[class*="Mui-checked Mui-checked"]').should('not.exist');
 });
