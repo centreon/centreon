@@ -2,7 +2,7 @@ export const labelDiscard = 'Discard';
 export const labelResolve = 'Resolve';
 export const labelIfYouClickOnDiscard =
   'If you click on Discard, your changes will not be saved.';
-export const labelThereAreErrorsInTheForm = 'There are errors in the form';
+export const labelThereAreErrorsInTheForm = 'There are errors in the form.';
 export const labelDoYouWantToQuitWithoutResolving =
   'Do you want to quit the form without resolving the errors?';
 export const labelDoYouWantToSaveChanges = 'Do you want to save the changes?';

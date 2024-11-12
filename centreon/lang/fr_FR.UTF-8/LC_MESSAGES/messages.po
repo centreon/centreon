@@ -19593,3 +19593,6 @@ msgstr "Copier le fil d'Ariane"
 
 msgid "Sticky for any non-OK status"
 msgstr "Sticky pour tout statut non-OK"
+
+msgid "There are errors in the form."
+msgstr "Il y a des erreurs dans le formulaire."
