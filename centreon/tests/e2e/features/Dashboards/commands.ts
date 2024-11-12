@@ -443,6 +443,50 @@ Cypress.Commands.add('patchServiceWithHost', (hostId, serviceId) => {
   });
 });
 
+Cypress.Commands.add('addMultipleHosts', (numberOfHosts = 20, hostData = {}) => {
+  const defaultHostData = {
+    address: '127.0.0.1',
+    alias: 'generic-active-host',
+    groups: [53],
+    macros: [
+      {
+        description: 'Some text to describe the macro',
+        is_password: false,
+        name: 'MacroName',
+        value: 'macroValue'
+      }
+    ],
+    monitoring_server_id: 1,
+    name: 'generic-active-host',
+    templates: [2]
+  };
+
+  const hostPromises = [];
+  for (let i = 0; i < numberOfHosts; i++) {
+    const uniqueHostData = {
+      ...defaultHostData,
+      ...hostData,
+      name: `${defaultHostData.name}-${i + 1}`,
+      alias: `${defaultHostData.alias}-${i + 1}`
+    };
+
+    const requestBody = { ...uniqueHostData };
+
+    hostPromises.push(
+      cy.request({
+        body: requestBody,
+        method: 'POST',
+        url: '/centreon/api/latest/configuration/hosts'
+      }).then((response) => {
+        expect(response.status).to.eq(201);
+        return response.body.id;
+      })
+    );
+  }
+
+  return Cypress.Promise.all(hostPromises);
+});
+
 Cypress.Commands.add(
   'waitForElementToBeVisible',
   (selector, timeout = 50000, interval = 2000) => {
