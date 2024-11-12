@@ -225,19 +225,15 @@ class CentreonAuthLDAP
 
             //getting user's email
             $userEmail = $this->contactInfos['contact_email'];
-            try {
-                $ldapEmailValue = $userInfos[$this->ldap->getAttrName('user', 'email')];
-                if (isset($ldapEmailValue)) {
-                    $userEmail = (trim(is_array($ldapEmailValue) ? current($ldapEmailValue) : $ldapEmailValue));
-                }
+            $ldapEmailValue = $userInfos[$this->ldap->getAttrName('user', 'email')];
+            if (isset($ldapEmailValue)) {
+                $userEmail = (trim(is_array($ldapEmailValue) ? current($ldapEmailValue) : $ldapEmailValue));
+            }
 
-                if ($userEmail === '') {
-                    throw new Exception('User email must be a non-empty string');
-                }
-            } catch (Exception $ex) {
-                $this->CentreonLog->insertLog(
-                    3,
-                    'LDAP AUTH - Error : Invalid user email : ' . $ex->getMessage()
+            if ($userEmail === '') {
+                CentreonLog::create()->error(
+                    logTypeId: CentreonLog::TYPE_LDAP,
+                    message: 'LDAP AUTH - Error : Invalid user pager : User pager must be a non-empty string',
                 );
 
                 return false;
