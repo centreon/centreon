@@ -26,6 +26,7 @@ class ActionLog
 {
     public const ACTION_TYPE_ADD = 'a';
     public const ACTION_TYPE_CHANGE = 'c';
+    public const ACTION_TYPE_MASS_CHANGE = 'mc';
     public const ACTION_TYPE_DELETE = 'd';
     public const ACTION_TYPE_ENABLE = 'enable';
     public const ACTION_TYPE_DISABLE = 'disable';
@@ -56,7 +57,6 @@ class ActionLog
     public const OBJECT_TYPE_MANUFACTURER = 'manufacturer';
     public const OBJECT_TYPE_HOSTCATEGORIES = 'hostcategories';
     public const OBJECT_TYPE_SERVICECATEGORIES = 'servicecategories';
-
     public const AVAILABLE_OBJECT_TYPES = [
         self::OBJECT_TYPE_COMMAND,
         self::OBJECT_TYPE_TIMEPERIOD,
@@ -85,6 +85,7 @@ class ActionLog
         self::OBJECT_TYPE_HOSTCATEGORIES,
         self::OBJECT_TYPE_SERVICECATEGORIES,
     ];
+
     private ?int $id = null;
 
     private \DateTime $creationDate;

@@ -33,6 +33,8 @@
 *
 */
 
+use Core\ActionLog\Domain\Model\ActionLog;
+
 if (!isset($centreon)) {
     exit();
 }
@@ -111,7 +113,12 @@ function deleteTimeperiodInDB($timeperiods = [])
         $dbResult2 = $pearDB->query("SELECT tp_name FROM `timeperiod` WHERE `tp_id` = '" . $key . "' LIMIT 1");
         $row = $dbResult2->fetch();
         $dbResult = $pearDB->query("DELETE FROM timeperiod WHERE tp_id = '" . $key . "'");
-        $centreon->CentreonLogAction->insertLog("timeperiod", $key, $row['tp_name'], "d");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_TIMEPERIOD,
+            object_id: $key,
+            object_name: $row['tp_name'],
+            action_type: ActionLog::ACTION_TYPE_DELETE
+        );
     }
 }
 
@@ -158,7 +165,13 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
                     'timeperiod_id' => $key
                 ];
                 $tpId = duplicateTimePeriod($params);
-                $centreon->CentreonLogAction->insertLog("timeperiod", $tpId, $tp_name, "a", $fields);
+                $centreon->CentreonLogAction->insertLog(
+                    object_type: ActionLog::OBJECT_TYPE_TIMEPERIOD,
+                    object_id: $tpId,
+                    object_name: $tp_name,
+                    action_type: ActionLog::ACTION_TYPE_ADD,
+                    fields: $fields
+                );
             }
         }
     }
@@ -233,11 +246,11 @@ function updateTimeperiod($tp_id, $params = [])
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
-        "timeperiod",
-        $tp_id,
-        htmlentities($ret["tp_name"], ENT_QUOTES, "UTF-8"),
-        "c",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_TIMEPERIOD,
+        object_id: $tp_id,
+        object_name: $ret["tp_name"],
+        action_type: ActionLog::ACTION_TYPE_CHANGE,
+        fields: $fields
     );
 }
 
@@ -334,11 +347,11 @@ function insertTimeperiod($ret = [], $exceptions = null)
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
-        "timeperiod",
-        $tp_id["MAX(tp_id)"],
-        htmlentities($ret["tp_name"], ENT_QUOTES, "UTF-8"),
-        "a",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_TIMEPERIOD,
+        object_id: $tp_id["MAX(tp_id)"],
+        object_name: htmlentities($ret["tp_name"], ENT_QUOTES, "UTF-8"),
+        action_type: ActionLog::ACTION_TYPE_ADD,
+        fields: $fields
     );
 
     return ($tp_id["MAX(tp_id)"]);
