@@ -41,7 +41,6 @@ use Core\ServiceTemplate\Infrastructure\Model\NotificationTypeConverter;
 class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB implements WriteServiceTemplateRepositoryInterface
 {
     use LoggerTrait;
-    public const SERVICE_TEMPLATE_OBJECT_TYPE = 'service';
 
     /**
      * @param WriteServiceTemplateRepositoryInterface $writeServiceTemplateRepository
@@ -68,7 +67,7 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
             $this->writeServiceTemplateRepository->deleteById($serviceTemplateId);
 
             $actionLog = new ActionLog(
-                self::SERVICE_TEMPLATE_OBJECT_TYPE,
+                ActionLog::OBJECT_TYPE_SERVICE,
                 $serviceTemplateId,
                 $serviceTemplate ? $serviceTemplate->getName() : '',
                 ActionLog::ACTION_TYPE_DELETE,
@@ -88,7 +87,7 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
             $serviceTemplateId = $this->writeServiceTemplateRepository->add($newServiceTemplate);
 
             $actionLog = new ActionLog(
-                self::SERVICE_TEMPLATE_OBJECT_TYPE,
+                ActionLog::OBJECT_TYPE_SERVICE,
                 $serviceTemplateId,
                 $newServiceTemplate->getName(),
                 ActionLog::ACTION_TYPE_ADD,
@@ -124,14 +123,16 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
         try {
             $currentServiceTemplate = $this->readServiceTemplateRepository->findById($serviceTemplate->getId());
 
-            $currentServiceTemplateDetails = $currentServiceTemplate ? $this->getServiceTemplatePropertiesAsArray($currentServiceTemplate) : [];
+            $currentServiceTemplateDetails = $currentServiceTemplate 
+                ? $this->getServiceTemplatePropertiesAsArray($currentServiceTemplate) 
+                : [];
             $updatedServiceTemplateDetails = $this->getServiceTemplatePropertiesAsArray($serviceTemplate);
             $diff = array_diff_assoc($updatedServiceTemplateDetails, $currentServiceTemplateDetails);
 
             $this->writeServiceTemplateRepository->update($serviceTemplate);
 
             $actionLog = new ActionLog(
-                self::SERVICE_TEMPLATE_OBJECT_TYPE,
+                ActionLog::OBJECT_TYPE_SERVICE,
                 $serviceTemplate->getId(),
                 $serviceTemplate->getName(),
                 ActionLog::ACTION_TYPE_CHANGE,

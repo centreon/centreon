@@ -30,6 +30,61 @@ class ActionLog
     public const ACTION_TYPE_ENABLE = 'enable';
     public const ACTION_TYPE_DISABLE = 'disable';
 
+    public const OBJECT_TYPE_COMMAND = 'command';
+    public const OBJECT_TYPE_TIMEPERIOD = 'timeperiod';
+    public const OBJECT_TYPE_CONTACT = 'contact';
+    public const OBJECT_TYPE_CONTACTGROUP = 'contactgroup';
+    public const OBJECT_TYPE_HOST = 'host';
+    public const OBJECT_TYPE_HOSTGROUP = 'hostgroup';
+    public const OBJECT_TYPE_SERVICE = 'service';
+    public const OBJECT_TYPE_SERVICEGROUP = 'servicegroup';
+    public const OBJECT_TYPE_TRAPS = 'traps';
+    public const OBJECT_TYPE_ESCALATION = 'escalation';
+    public const OBJECT_TYPE_HOST_DEPENDENCY = 'host dependency';
+    public const OBJECT_TYPE_HOSTGROUP_DEPENDENCY = 'hostgroup dependency';
+    public const OBJECT_TYPE_SERVICE_DEPENDENCY = 'service dependency';
+    public const OBJECT_TYPE_SERVICEGROUP_DEPENDENCY = 'servicegroup dependency';
+    public const OBJECT_TYPE_POLLER = 'poller';
+    public const OBJECT_TYPE_ENGINE = 'engine';
+    public const OBJECT_TYPE_BROKER = 'broker';
+    public const OBJECT_TYPE_RESOURCES = 'resources';
+    public const OBJECT_TYPE_META = 'meta';
+    public const OBJECT_TYPE_ACCESS_GROUP = 'access group';
+    public const OBJECT_TYPE_MENU_ACCESS = 'menu access';
+    public const OBJECT_TYPE_RESOURCE_ACCESS = 'resource access';
+    public const OBJECT_TYPE_ACTION_ACCESS = 'action access';
+    public const OBJECT_TYPE_MANUFACTURER = 'manufacturer';
+    public const OBJECT_TYPE_HOSTCATEGORIES = 'hostcategories';
+    public const OBJECT_TYPE_SERVICECATEGORIES = 'servicecategories';
+
+    public const AVAILABLE_OBJECT_TYPES = [
+        self::OBJECT_TYPE_COMMAND,
+        self::OBJECT_TYPE_TIMEPERIOD,
+        self::OBJECT_TYPE_CONTACT,
+        self::OBJECT_TYPE_CONTACTGROUP,
+        self::OBJECT_TYPE_HOST,
+        self::OBJECT_TYPE_HOSTGROUP,
+        self::OBJECT_TYPE_SERVICE,
+        self::OBJECT_TYPE_SERVICEGROUP,
+        self::OBJECT_TYPE_TRAPS,
+        self::OBJECT_TYPE_ESCALATION,
+        self::OBJECT_TYPE_HOST_DEPENDENCY,
+        self::OBJECT_TYPE_HOSTGROUP_DEPENDENCY,
+        self::OBJECT_TYPE_SERVICE_DEPENDENCY,
+        self::OBJECT_TYPE_SERVICEGROUP_DEPENDENCY,
+        self::OBJECT_TYPE_POLLER,
+        self::OBJECT_TYPE_ENGINE,
+        self::OBJECT_TYPE_BROKER,
+        self::OBJECT_TYPE_RESOURCES,
+        self::OBJECT_TYPE_META,
+        self::OBJECT_TYPE_ACCESS_GROUP,
+        self::OBJECT_TYPE_MENU_ACCESS,
+        self::OBJECT_TYPE_RESOURCE_ACCESS,
+        self::OBJECT_TYPE_ACTION_ACCESS,
+        self::OBJECT_TYPE_MANUFACTURER,
+        self::OBJECT_TYPE_HOSTCATEGORIES,
+        self::OBJECT_TYPE_SERVICECATEGORIES,
+    ];
     private ?int $id = null;
 
     private \DateTime $creationDate;

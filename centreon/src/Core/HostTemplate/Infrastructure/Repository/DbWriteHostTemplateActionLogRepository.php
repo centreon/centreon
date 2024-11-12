@@ -74,9 +74,9 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
             }
 
             $this->writeHostTemplateRepository->delete($hostTemplateId);
-            
+
             $actionLog = new ActionLog(
-                self::HOST_TEMPLATE_OBJECT_TYPE,
+                ActionLog::OBJECT_TYPE_HOST,
                 $hostTemplateId,
                 $hostTemplate->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
@@ -100,15 +100,15 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
             if ($hostTemplateId === 0) {
                 throw new RepositoryException('Host template ID cannot be 0');
             }
-            
+
             $actionLog = new ActionLog(
-                self::HOST_TEMPLATE_OBJECT_TYPE,
+                ActionLog::OBJECT_TYPE_HOST,
                 $hostTemplateId,
                 $hostTemplate->getName(),
                 ActionLog::ACTION_TYPE_ADD,
                 $this->contact->getId()
             );
-            
+
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
 
@@ -141,7 +141,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
             $this->writeHostTemplateRepository->update($hostTemplate);
 
             $actionLog = new ActionLog(
-                self::HOST_TEMPLATE_OBJECT_TYPE,
+                ActionLog::OBJECT_TYPE_HOST,
                 $hostTemplate->getId(),
                 $hostTemplate->getName(),
                 ActionLog::ACTION_TYPE_CHANGE,
