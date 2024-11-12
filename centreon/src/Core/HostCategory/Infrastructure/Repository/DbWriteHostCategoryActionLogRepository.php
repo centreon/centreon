@@ -76,6 +76,8 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            throw $ex;
         }
     }
 
