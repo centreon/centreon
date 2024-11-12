@@ -4,9 +4,9 @@ before(() => {
   cy.startContainers();
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/ac-acl-user.json');
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-3.json'); 
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-4.json'); 
+  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json');
+  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-3.json');
+  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-4.json');
 });
 
 beforeEach(() => {
@@ -81,7 +81,7 @@ Then('the connection initiated by poller field must be disabled', () => {
   cy.get('[class*="Mui-checked Mui-checked"]').should('not.exist');
 });
 
-When('the user enables the connection initiated by poller option', () => {
+When('the user enables the connection initiated by the poller option', () => {
   cy.getByLabel({ label: 'Connection initiated by poller', tag: 'input' }).click();
   cy.get('[class*="Mui-checked Mui-checked"]').should('exist');
 });
