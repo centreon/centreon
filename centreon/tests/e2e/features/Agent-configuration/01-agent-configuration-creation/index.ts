@@ -81,7 +81,7 @@ Then('the connection initiated by poller field must be disabled', () => {
   cy.get('[class*="Mui-checked Mui-checked"]').should('not.exist');
 });
 
-When('the user enables the connection initiated by poller', () => {
+When('the user enables the connection initiated by poller option', () => {
   cy.getByLabel({ label: 'Connection initiated by poller', tag: 'input' }).click();
   cy.get('[class*="Mui-checked Mui-checked"]').should('exist');
 });
