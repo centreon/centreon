@@ -244,19 +244,15 @@ class CentreonAuthLDAP
             }
             //getting user's pager
             $userPager = $this->contactInfos['contact_pager'];
-            try {
-                $ldapUserPager = $userInfos[$this->ldap->getAttrName('user', 'pager')];
-                if (isset($ldapUserPager)) {
-                    $userPager = (trim(is_array($ldapUserPager) ? current($ldapUserPager) : $ldapUserPager));
-                }
+            $ldapUserPager = $userInfos[$this->ldap->getAttrName('user', 'pager')];
+            if (isset($ldapUserPager)) {
+                $userPager = (trim(is_array($ldapUserPager) ? current($ldapUserPager) : $ldapUserPager));
+            }
 
-                if ($userPager === '') {
-                    throw new Exception('User pager must be a non-empty string');
-                }
-            } catch (Exception $ex) {
-                $this->CentreonLog->insertLog(
-                    3,
-                    'LDAP AUTH - Error : Invalid user pager : ' . $ex->getMessage()
+            if ($userPager === '') {
+                CentreonLog::create()->error(
+                    logTypeId: CentreonLog::TYPE_LDAP,
+                    message: 'LDAP AUTH - Error : Invalid user pager : User pager must be a non-empty string',
                 );
 
                 return false;
