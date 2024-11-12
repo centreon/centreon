@@ -59,7 +59,7 @@ interface Props extends LineChartProps {
   transformMatrix?: {
     fx?: (pointX: number) => number;
     fy?: (pointY: number) => number;
-  }
+  };
 }
 
 const filterLines = (lines: Array<Line>, displayThreshold): Array<Line> => {

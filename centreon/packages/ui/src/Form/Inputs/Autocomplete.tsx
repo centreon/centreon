@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, isNil, map, not, path, prop, type } from 'ramda';
+import { path, equals, isNil, map, not, prop, type } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { FormHelperText, Stack } from '@mui/material';
@@ -188,7 +188,9 @@ const Autocomplete = ({
           value={getValues() ?? null}
           onChange={changeValues}
           onTextChange={textChange}
-          style={{ width: autocomplete?.fullWidth ?? true ? 'auto' : '180px' }}
+          style={{
+            width: (autocomplete?.fullWidth ?? true) ? 'auto' : '180px'
+          }}
         />
         {inputErrors && (
           <Stack>

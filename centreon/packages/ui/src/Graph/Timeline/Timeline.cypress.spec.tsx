@@ -66,32 +66,22 @@ const TooltipContent = ({ start, end, color, duration }: Tooltip) => (
 const store = createStore();
 store.set(userAtom, { timezone: 'Europe/Paris', locale: 'en' });
 
-const initialize = (): void => {
+const initialize = (displayDefaultTooltip = true): void => {
   cy.mount({
     Component: (
       <Provider store={store}>
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '70vh',
-            width: '100%'
+            height: '100px',
+            width: '70%'
           }}
         >
-          <div
-            style={{
-              height: '100px',
-              width: '70%'
-            }}
-          >
-            <Timeline
-              data={data}
-              startDate={startDate}
-              endDate={endDate}
-              TooltipContent={TooltipContent}
-            />
-          </div>
+          <Timeline
+            data={data}
+            startDate={startDate}
+            endDate={endDate}
+            TooltipContent={displayDefaultTooltip ? undefined : TooltipContent}
+          />
         </div>
       </Provider>
     )
@@ -99,34 +89,60 @@ const initialize = (): void => {
 };
 
 describe('Timeline', () => {
-  beforeEach(initialize);
-
   it('checks that the correct number of bars are rendered', () => {
-    cy.get('rect').should('have.length', data.length);
+    initialize();
+
+    cy.get('path').should('have.length', data.length);
 
     cy.makeSnapshot();
   });
 
   it('checks that each bar has the correct color', () => {
+    initialize();
+
     data.forEach(({ color }, index) => {
-      cy.get('rect').eq(index).should('have.attr', 'fill', color);
+      cy.get('path').eq(index).should('have.attr', 'fill', color);
     });
   });
 
   it('displays tooltip with correct information when hovered over a bar', () => {
-    cy.get('rect').first().trigger('mouseover');
+    initialize(false);
+
+    cy.get('path').first().trigger('mouseover');
 
     cy.get('[data-testid="tooltip-content"]').within(() => {
-      cy.contains('09/09/2024 10:57 AM');
-      cy.contains('09/09/2024 11:15 AM');
-      cy.contains('green');
-      cy.contains('17 minutes');
+      cy.contains('09/09/2024 10:57 AM').should('be.visible');
+      cy.contains('09/09/2024 11:15 AM').should('be.visible');
+      cy.contains('green').should('be.visible');
+      cy.contains('17 minutes').should('be.visible');
+    });
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the default tooltip with correct information when hovered over a bar', () => {
+    initialize();
+
+    cy.get('path').first().trigger('mouseover');
+
+    cy.get('[role="tooltip"]').within(() => {
+      cy.contains('09/09/2024 10:57 AM')
+        .should('be.visible')
+        .and('have.css', 'color', 'rgb(0, 128, 0)');
+      cy.contains('09/09/2024 11:15 AM')
+        .should('be.visible')
+        .and('have.css', 'color', 'rgb(0, 128, 0)');
+      cy.contains('17 minutes')
+        .should('be.visible')
+        .and('have.css', 'color', 'rgb(0, 128, 0)');
     });
 
     cy.makeSnapshot();
   });
 
   it('displays correct tick labels on the x-axis', () => {
+    initialize();
+
     cy.get('.visx-axis-bottom .visx-axis-tick').first().contains('11:00');
   });
 });

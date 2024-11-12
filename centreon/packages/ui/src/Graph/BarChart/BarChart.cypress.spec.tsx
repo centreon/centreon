@@ -30,7 +30,7 @@ const initialize = ({
   tooltip,
   axis,
   orientation,
-  barStyle,
+  barStyle
 }: Pick<
   BarChartProps,
   'data' | 'legend' | 'axis' | 'barStyle' | 'orientation' | 'tooltip' | 'start'

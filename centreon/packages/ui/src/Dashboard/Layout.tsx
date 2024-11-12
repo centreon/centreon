@@ -4,10 +4,7 @@ import { useSetAtom } from 'jotai';
 import GridLayout, { Layout, WidthProvider } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 
-import {
-  ParentSize,
-  useMemoComponent
-} from '..';
+import { ParentSize, useMemoComponent } from '..';
 
 import { Box } from '@mui/material';
 import { useDashboardLayoutStyles } from './Dashboard.styles';
@@ -33,10 +30,10 @@ const bottom = (layout: Array<Layout>): number => {
   layout.forEach((panel) => {
     bottomY = panel.y + panel.h;
     if (bottomY > max) max = bottomY;
-  })
+  });
 
   return max;
-}
+};
 
 const DashboardLayout = <T extends Layout>({
   children,
@@ -67,14 +64,10 @@ const DashboardLayout = <T extends Layout>({
   }, []);
 
   const containerHeight = useMemo((): number | undefined => {
-      const nbRow = bottom(getLayout(layout));
-      const containerPaddingY = 4
-      return (
-        nbRow * rowHeight +
-        (nbRow - 1) * 20 +
-        containerPaddingY * 2
-      );
-    }, [layout, rowHeight])
+    const nbRow = bottom(getLayout(layout));
+    const containerPaddingY = 4;
+    return nbRow * rowHeight + (nbRow - 1) * 20 + containerPaddingY * 2;
+  }, [layout, rowHeight]);
 
   useEffect(() => {
     window.addEventListener('resize', resize);
@@ -86,36 +79,41 @@ const DashboardLayout = <T extends Layout>({
 
   return useMemoComponent({
     Component: (
-      <Box ref={dashboardContainerRef} sx={{ overflowY: 'auto', overflowX: 'hidden' }}>
-          <ParentSize>
-            {({ width, height }): JSX.Element => (
-              <Box className={classes.container}>
-                {displayGrid && (
-                  <Grid
-                    columns={columns}
-                    height={(containerHeight || 0) > height ? containerHeight : height}
-                    width={width}
-                    containerRef={dashboardContainerRef}
-                  />
-                )}
-                <ReactGridLayout
-                  cols={columns}
-                  containerPadding={[4, 0]}
-                  layout={getLayout(layout)}
-                  margin={[20, 20]}
-                  resizeHandles={['s', 'e', 'se']}
-                  rowHeight={rowHeight}
+      <Box
+        ref={dashboardContainerRef}
+        sx={{ overflowY: 'auto', overflowX: 'hidden' }}
+      >
+        <ParentSize>
+          {({ width, height }): JSX.Element => (
+            <Box className={classes.container}>
+              {displayGrid && (
+                <Grid
+                  columns={columns}
+                  height={
+                    (containerHeight || 0) > height ? containerHeight : height
+                  }
                   width={width}
-                  onLayoutChange={changeLayout}
-                  onResizeStart={startResize}
-                  onResizeStop={stopResize}
-                >
-                  {children}
-                </ReactGridLayout>
-              </Box>
-            )}
-          </ParentSize>
-        </Box>
+                  containerRef={dashboardContainerRef}
+                />
+              )}
+              <ReactGridLayout
+                cols={columns}
+                containerPadding={[4, 0]}
+                layout={getLayout(layout)}
+                margin={[20, 20]}
+                resizeHandles={['s', 'e', 'se']}
+                rowHeight={rowHeight}
+                width={width}
+                onLayoutChange={changeLayout}
+                onResizeStart={startResize}
+                onResizeStop={stopResize}
+              >
+                {children}
+              </ReactGridLayout>
+            </Box>
+          )}
+        </ParentSize>
+      </Box>
     ),
     memoProps: [columns, layout, displayGrid, isStatic, ...additionalMemoProps]
   });

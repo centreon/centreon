@@ -1,5 +1,5 @@
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, includes, path, split, type } from 'ramda';
+import { path, equals, includes, split, type } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {

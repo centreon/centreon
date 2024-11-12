@@ -63,7 +63,7 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
         opacity: 1
       },
       position: 'relative',
-      height: '100%',
+      height: '100%'
     }
   })
 );

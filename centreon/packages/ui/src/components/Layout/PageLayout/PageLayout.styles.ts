@@ -5,7 +5,6 @@ export const useStyles = makeStyles()((theme) => ({
     height: '100%',
     display: 'grid',
     gridTemplateRows: 'auto 1fr',
-    height: '100%',
     overflow: 'hidden'
   },
   pageLayoutActions: {
@@ -25,7 +24,7 @@ export const useStyles = makeStyles()((theme) => ({
       backgroundColor: theme.palette.layout.body.background
     },
     '&[data-has-actions="true"]': {
-      gridTemplateRows: 'min-content auto',
+      gridTemplateRows: 'min-content auto'
     },
     display: 'grid',
     gridTemplateRows: 'auto',
