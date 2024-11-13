@@ -146,6 +146,15 @@ before(() => {
     { name: services.serviceCritical.name, status: 'critical' },
     { name: services.serviceOk.name, status: 'ok' }
   ]);
+
+  cy.scheduleHostCheck({ host: services.serviceOk.host }).scheduleHostCheck({
+    host: services.serviceCritical.host
+  });
+
+  ['Disk-/', 'Load', 'Memory', 'Ping'].forEach((service) => {
+    cy.scheduleServiceCheck({ host: 'Centreon-Server', service });
+  });
+
   checkMetricsAreMonitored([
     {
       host: 'Centreon-Server',
