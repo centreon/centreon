@@ -88,18 +88,11 @@ export const useInputs = (): {
                         confCertificate: ''
                       }
                     : {
-                        isReverse: true,
+                        isReverse: false,
                         otelPublicCertificate: '',
                         otelCaCertificate: null,
                         otelPrivateKey: '',
-                        hosts: [
-                          {
-                            address: '',
-                            port: '',
-                            pollerCaCertificate: '',
-                            pollerCaName: ''
-                          }
-                        ]
+                        hosts: []
                       }
                 });
                 setTouched({}, false);
@@ -150,7 +143,26 @@ export const useInputs = (): {
                     fieldName: 'configuration.isReverse',
                     hideInput: (values) =>
                       equals(values?.type?.id, AgentType.Telegraf),
-                    label: t(labelConnectionInitiatedByPoller)
+                    label: t(labelConnectionInitiatedByPoller),
+                    change: ({ value, values, setValues }) => {
+                      setValues({
+                        ...values,
+                        configuration: {
+                          ...values.configuration,
+                          isReverse: value,
+                          hosts: value
+                            ? [
+                                {
+                                  address: '',
+                                  port: '',
+                                  pollerCaCertificate: '',
+                                  pollerCaName: ''
+                                }
+                              ]
+                            : []
+                        }
+                      });
+                    }
                   }
                 ]
               }

@@ -19614,3 +19614,6 @@ msgstr "heure"
 
 msgid "minute"
 msgstr "minute"
+
+msgid "There are errors in the form."
+msgstr "Il y a des erreurs dans le formulaire."
