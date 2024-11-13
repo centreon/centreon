@@ -107,8 +107,14 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
-      - run: |
-          NIGHTLY_TARGETS=("dev-23.04.x" "dev-23.10.x" "dev-24.04.x" "dev-24.10.x")
+      - name: Check current day of the week
+        id: day_check
+        run: echo "day_of_week=$(date +%u)" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - if: ${{ steps.day_check.outputs.day_of_week == '1' }}
+        run: |
+          NIGHTLY_TARGETS=("dev-22.10.x" "dev-23.04.x" "dev-23.10.x" "dev-24.04.x" "dev-24.10.x")
           for target in "${NIGHTLY_TARGETS[@]}"; do
             echo "[INFO] - Dispatching nightly run to $target branch."
             gh workflow run web.yml -r "$target" -f nightly_manual_trigger=true
