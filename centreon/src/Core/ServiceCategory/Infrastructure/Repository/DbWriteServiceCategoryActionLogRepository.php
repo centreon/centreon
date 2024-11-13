@@ -116,6 +116,4 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
     {
         $this->writeServiceCategoryRepository->unlinkFromService($serviceId, $serviceCategoriesIds);
     }
-
-
 }

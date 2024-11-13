@@ -30,7 +30,6 @@ class ActionLog
     public const ACTION_TYPE_DELETE = 'd';
     public const ACTION_TYPE_ENABLE = 'enable';
     public const ACTION_TYPE_DISABLE = 'disable';
-
     public const OBJECT_TYPE_COMMAND = 'command';
     public const OBJECT_TYPE_TIMEPERIOD = 'timeperiod';
     public const OBJECT_TYPE_CONTACT = 'contact';
