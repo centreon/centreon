@@ -22,10 +22,7 @@ const Action = ({ row }: Props): JSX.Element => {
   const askBeforeDelete = (): void => {
     setItemToDelete({
       agent: isNotNil(row.internalListingParentId)
-        ? {
-            id: row?.internalListingParentRow?.id,
-            name: row?.internalListingParentRow?.name
-          }
+        ? pick(['id', 'name'], row.internalListingParentRow)
         : pick(['id', 'name'], row),
       poller: isNotNil(row.internalListingParentId)
         ? pick(['id', 'name'], row)
