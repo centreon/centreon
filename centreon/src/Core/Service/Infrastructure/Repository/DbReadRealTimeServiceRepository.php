@@ -136,7 +136,33 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
     public function findUniqueServiceNamesByRequestParameters(RequestParametersInterface $requestParameters): array
     {
         $sqlTranslator = $this->prepareSqlRequestParametersTranslator($requestParameters);
-        $request = $this->returnBaseQuery();
+        $request = <<<'SQL'
+            SELECT SQL_CALC_FOUND_ROWS
+                services.name AS `name`
+            FROM `:dbstg`.resources AS services
+            INNER JOIN `:dbstg`.resources AS hosts
+                ON hosts.id = services.parent_id
+            LEFT JOIN `:dbstg`.resources_tags AS rtags_host_groups
+                ON hosts.resource_id = rtags_host_groups.resource_id
+            LEFT JOIN `:dbstg`.tags host_groups
+                ON rtags_host_groups.tag_id = host_groups.tag_id
+                AND host_groups.type = 1
+            LEFT JOIN `:dbstg`.resources_tags AS rtags_host_categories
+                ON hosts.resource_id = rtags_host_categories.resource_id
+            LEFT JOIN `:dbstg`.tags host_categories
+                ON rtags_host_categories.tag_id = host_categories.tag_id
+                AND host_categories.type = 3
+            LEFT JOIN `:dbstg`.resources_tags AS rtags_service_groups
+                ON services.resource_id = rtags_service_groups.resource_id
+            LEFT JOIN `:dbstg`.tags service_groups
+                ON rtags_service_groups.tag_id = service_groups.tag_id
+                AND service_groups.type = 0
+            LEFT JOIN `:dbstg`.resources_tags AS rtags_service_categories
+                ON services.resource_id = rtags_service_categories.resource_id
+            LEFT JOIN `:dbstg`.tags service_categories
+                ON rtags_service_categories.tag_id = service_categories.tag_id
+                AND service_categories.type = 2
+            SQL;
         $request .= $search = $sqlTranslator->translateSearchParameterToSql();
         $request .= $search !== null ? ' AND services.type = 0 ' : ' WHERE services.type = 0';
 
@@ -155,7 +181,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         $sqlTranslator->calculateNumberOfRows($this->db);
 
-        return $statement->fetchAll(\PDO::FETCH_COLUMN, 1);
+        return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
     }
 
     /**
@@ -173,18 +199,42 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         $sqlTranslator = $this->prepareSqlRequestParametersTranslator($requestParameters);
 
-        $request = $this->returnBaseQuery();
-        $request .= <<<'SQL'
-                INNER JOIN `:dbstg`.centreon_acl acls
-                    ON acls.host_id = services.parent_id
-                    AND acls.service_id = services.id
+        $request = <<<'SQL'
+            SELECT SQL_CALC_FOUND_ROWS
+                services.name AS `name`
+            FROM `:dbstg`.resources AS services
+            INNER JOIN `:dbstg`.resources AS hosts
+                ON hosts.id = services.parent_id
+            LEFT JOIN `:dbstg`.resources_tags AS rtags_host_groups
+                ON hosts.resource_id = rtags_host_groups.resource_id
+            LEFT JOIN `:dbstg`.tags host_groups
+                ON rtags_host_groups.tag_id = host_groups.tag_id
+                AND host_groups.type = 1
+            LEFT JOIN `:dbstg`.resources_tags AS rtags_host_categories
+                ON hosts.resource_id = rtags_host_categories.resource_id
+            LEFT JOIN `:dbstg`.tags host_categories
+                ON rtags_host_categories.tag_id = host_categories.tag_id
+                AND host_categories.type = 3
+            LEFT JOIN `:dbstg`.resources_tags AS rtags_service_groups
+                ON services.resource_id = rtags_service_groups.resource_id
+            LEFT JOIN `:dbstg`.tags service_groups
+                ON rtags_service_groups.tag_id = service_groups.tag_id
+                AND service_groups.type = 0
+            LEFT JOIN `:dbstg`.resources_tags AS rtags_service_categories
+                ON services.resource_id = rtags_service_categories.resource_id
+            LEFT JOIN `:dbstg`.tags service_categories
+                ON rtags_service_categories.tag_id = service_categories.tag_id
+                AND service_categories.type = 2
+            INNER JOIN `:dbstg`.centreon_acl acls
+                ON acls.host_id = services.parent_id
+                AND acls.service_id = services.id
             SQL;
 
         $request .= $search = $sqlTranslator->translateSearchParameterToSql();
         $request .= $search !== null ? ' AND services.type = 0 ' : ' WHERE services.type = 0 ';
         $request .= " AND acls.group_id IN ({$bindQuery})";
 
-        $request .= ' GROUP BY services.id, services.name, services.status ';
+        $request .= ' GROUP BY services.name ';
 
         $sort = $sqlTranslator->translateSortParameterToSql();
 
@@ -199,7 +249,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         $statement->execute();
 
-        return $statement->fetchAll(\PDO::FETCH_COLUMN, 1);
+        return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
     }
 
     /**
