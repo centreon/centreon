@@ -418,8 +418,6 @@ describe('Dashboard', () => {
       cy.findAllByLabelText(labelSave).eq(1).should('be.disabled');
 
       cy.contains('Text for the new widget').should('be.visible');
-
-      cy.makeSnapshot();
     });
   });
 
