@@ -61,6 +61,10 @@ const getFirstBarHeight = ({
     return 0;
   }
 
+  if (isHorizontal && bar.height < 0) {
+    return bar.height;
+  }
+
   if (isHorizontal) {
     return Math.abs(bar.width) - (y - yScale(neutralValue));
   }
@@ -141,15 +145,7 @@ const BarStack = ({
                         size: bar.width
                       })
                 }
-                y={
-                  isHorizontal
-                    ? getPadding({
-                        isNegativeValue,
-                        padding: bar.y,
-                        size: bar.height
-                      })
-                    : barPadding
-                }
+                y={isHorizontal ? bar.y : barPadding}
                 onMouseEnter={
                   isTooltipHidden
                     ? undefined
