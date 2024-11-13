@@ -348,7 +348,7 @@
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "882a58575656345f80388d445f06fe7656aeaa85"
+                "reference": "1cd3a6943db3ed2bb29ea5389523337c6a82a1c8"
             },
             "require": {
                 "beberlei/assert": "^3.3",
@@ -381,7 +381,7 @@
                 "psr/container": "1.1.1",
                 "sensio/framework-extra-bundle": "^6.2",
                 "smarty-gettext/smarty-gettext": "^1.6",
-                "smarty/smarty": "^v4.3",
+                "smarty/smarty": "^v4.5",
                 "symfony/config": "6.4.*",
                 "symfony/console": "6.4.*",
                 "symfony/dependency-injection": "6.4.*",
