@@ -4,7 +4,7 @@
 OPTIONS="hst:v:r:l:p:d:V:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
-declare -A SUPPORTED_VERSION=([21.10]=1 [22.04]=1 [22.10]=1 [23.04]=1 [23.10]=1 [24.04]=1 [24.07]=1 [24.09]=1 [24.10]=1)
+declare -A SUPPORTED_VERSION=([21.10]=1 [22.04]=1 [22.10]=1 [23.04]=1 [23.10]=1 [24.04]=1 [24.07]=1 [24.09]=1 [24.10]=1 [24.11]=1)
 declare -A SUPPORTED_REPOSITORY=([testing]=1 [unstable]=1 [stable]=1)
 declare -A SUPPORTED_DBMS=([MariaDB]=1 [MySQL]=1)
 default_timeout_in_sec=5
