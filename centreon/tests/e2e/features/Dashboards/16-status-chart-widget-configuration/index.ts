@@ -430,10 +430,10 @@ Then('only the contents of the other widget are displayed', () => {
     .then((text) => {
       const labelValue = parseInt(text, 10);
       const styleMap = {
-        0: ['3', '1', '1', '0', '5'],
-        1: ['3', '1', '1', '1', '4'],
-        2: ['3', '1', '1', '2', '3'],
-        3: ['3', '1', '1', '3', '2']
+        0: ['30.0%', '10.0%', '10.0%', '0.0%', '50.0%'],
+        1: ['30.0%', '10.0%', '10.0%', '30.0%', '40.0%'],
+        2: ['30.0%', '10.0%', '10.0%', '20.0%', '30.0%'],
+        3: ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
       };
       const styles = styleMap[labelValue] || styleMap[3];
       cy.verifyLegendItemStyle(
