@@ -31,6 +31,7 @@ import {
   labelDNSIP,
   labelDelete,
   labelDeleteAgent,
+  labelDeletePoller,
   labelHostConfigurations,
   labelInvalidFilename,
   labelName,
@@ -376,6 +377,39 @@ describe('Agent configurations', () => {
     cy.contains(/^Delete$/).click();
 
     cy.waitForRequest('@deleteAgent');
+
+    cy.contains(labelDeleteAgent).should('not.exist');
+    cy.waitForRequest('@getAgentConfigurations');
+
+    cy.makeSnapshot();
+  });
+
+  it('deletes an agent when the corresponding icon is clicked and the corresponding is clicked', () => {
+    initialize({});
+
+    cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
+      expect(decodeURIComponent(request.url.search)).equals(
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":""}}]}'
+      );
+    });
+
+    cy.findByTestId('Expand 0').click();
+
+    cy.contains('poller 1').should('be.visible');
+    cy.contains('poller 2').should('be.visible');
+
+    cy.findAllByTitle(labelDelete).eq(1).click();
+
+    cy.contains(labelDeletePoller).should('be.visible');
+    cy.contains('You are going to delete the').should('be.visible');
+    cy.contains('AC 0').should('be.visible');
+    cy.contains(
+      'agent configuration. All configuration parameters for this poller will be deleted. This action cannot be undone.'
+    ).should('be.visible');
+
+    cy.contains(/^Delete$/).click();
+
+    cy.waitForRequest('@deletePoller');
 
     cy.contains(labelDeleteAgent).should('not.exist');
     cy.waitForRequest('@getAgentConfigurations');
