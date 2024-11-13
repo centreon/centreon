@@ -4,6 +4,9 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
 
+    Core\ServiceCategory\:
+      resource: '../../../../Core/ServiceCategory/*'
+
     Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface:
       class: Core\ServiceCategory\Infrastructure\Repository\DbWriteServiceCategoryRepository
 

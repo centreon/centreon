@@ -40,8 +40,8 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
 
     public function __construct(
         private readonly WriteServiceCategoryRepositoryInterface $writeServiceCategoryRepository,
-        private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
+        private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
         private readonly ContactInterface $user,
         DatabaseConnection $db
     ) {
@@ -60,7 +60,7 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
             }
             $this->writeServiceCategoryRepository->deleteById($serviceCategoryId);
             $actionLog = new ActionLog(
-                objectType: 'service_category',
+                objectType: ActionLog::OBJECT_TYPE_SERVICECATEGORIES,
                 objectId: $serviceCategoryId,
                 objectName: $serviceCategory->getName(),
                 actionType: ActionLog::ACTION_TYPE_DELETE,
@@ -85,7 +85,7 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
                 throw new RepositoryException('Service Category ID cannot be 0');
             }
             $actionLog = new ActionLog(
-                objectType: 'service_category',
+                objectType: ActionLog::OBJECT_TYPE_SERVICECATEGORIES,
                 objectId: $serviceCategoryId,
                 objectName: $serviceCategory->getName(),
                 actionType: ActionLog::ACTION_TYPE_ADD,
