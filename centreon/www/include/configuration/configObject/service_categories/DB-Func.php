@@ -184,13 +184,17 @@ function multipleServiceCategorieInDB($sc = [], $nbrDup = [])
                             VALUES (:serviceId, :maxId)
                         SQL
                     );
+                    $foundServiceIds = [];
                     while ($serviceId = $selectServiceIdsStatement->fetchColumn()) {
                         $insertNewRelationStatement->bindValue(':serviceId', $serviceId, \PDO::PARAM_INT);
                         $insertNewRelationStatement->bindValue(':maxId', $maxId['maxid'], \PDO::PARAM_INT);
                         $insertNewRelationStatement->execute();
                         $foundServiceIds[] = $serviceId;
                     }
-                    $fields["sc_services"] = implode(", ", $foundServiceIds);
+                    if (! empty($foundServiceIds)) {
+                        $fields["sc_services"] = implode(", ", $foundServiceIds);
+                    }
+
                     $centreon->CentreonLogAction->insertLog(
                         object_type: ActionLog::OBJECT_TYPE_SERVICECATEGORIES,
                         object_id: $maxId['maxid'],
