@@ -42,7 +42,7 @@ const ACListing = ({ rows, total, isLoading }: Props): JSX.Element => {
   };
 
   return (
-    <>
+    <div style={{ width: '100%', minHeight: '75vh' }}>
       <Listing
         actions={<Actions />}
         columns={columns}
@@ -66,7 +66,7 @@ const ACListing = ({ rows, total, isLoading }: Props): JSX.Element => {
         onSort={changeSort}
       />
       <DeleteModal />
-    </>
+    </div>
   );
 };
 

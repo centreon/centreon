@@ -25,36 +25,38 @@ const Filters = (): JSX.Element => {
 
   return (
     <PopoverMenu title={t(labelFilters)} icon={<Tune />}>
-      <div className={classes.filtersContainer}>
-        <MultiAutocompleteField
-          options={agentTypeOptions}
-          value={agentTypes}
-          onChange={changeEntries('agentTypes')}
-          label={t(labelAgentTypes)}
-          chipProps={{
-            onDelete: deleteEntry('agentTypes')
-          }}
-        />
-        <MultiConnectedAutocompleteField
-          chipProps={{
-            onDelete: deleteEntry('pollers')
-          }}
-          dataTestId={labelPollers}
-          getEndpoint={getPollersEndpoint}
-          label={t(labelPollers)}
-          value={pollers}
-          field="name"
-          onChange={changeEntries('pollers')}
-        />
-        <Button
-          onClick={clearFilters}
-          variant="ghost"
-          className={classes.clearButton}
-          size="small"
-        >
-          {t(labelClear)}
-        </Button>
-      </div>
+      {(): JSX.Element => (
+        <div className={classes.filtersContainer}>
+          <MultiAutocompleteField
+            options={agentTypeOptions}
+            value={agentTypes}
+            onChange={changeEntries('agentTypes')}
+            label={t(labelAgentTypes)}
+            chipProps={{
+              onDelete: deleteEntry('agentTypes')
+            }}
+          />
+          <MultiConnectedAutocompleteField
+            chipProps={{
+              onDelete: deleteEntry('pollers')
+            }}
+            dataTestId={labelPollers}
+            getEndpoint={getPollersEndpoint}
+            label={t(labelPollers)}
+            value={pollers}
+            field="name"
+            onChange={changeEntries('pollers')}
+          />
+          <Button
+            onClick={clearFilters}
+            variant="ghost"
+            className={classes.clearButton}
+            size="small"
+          >
+            {t(labelClear)}
+          </Button>
+        </div>
+      )}
     </PopoverMenu>
   );
 };

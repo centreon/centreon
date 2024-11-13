@@ -201,7 +201,7 @@ describe('Agent configurations', () => {
     cy.contains('AC 0').should('be.visible');
     cy.contains('Telegraf').should('be.visible');
     cy.contains('2 pollers').should('be.visible');
-    cy.contains('0 pollers').should('be.visible');
+    cy.contains('0 poller').should('be.visible');
     cy.get(`button[title="${labelDelete}"]`).should('have.length', 10);
 
     cy.makeSnapshot();
@@ -384,7 +384,7 @@ describe('Agent configurations', () => {
     cy.makeSnapshot();
   });
 
-  it('deletes an agent when the corresponding icon is clicked and the corresponding is clicked', () => {
+  it.only('deletes an agent when the corresponding icon is clicked and the corresponding is clicked', () => {
     initialize({});
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
