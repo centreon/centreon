@@ -43,10 +43,6 @@ default:
       paths: [ "%paths.base%/features/LimitMetricInChart.feature" ]
       contexts: [ LimitMetricInChartContext ]
 
-    show_disabled_hosts_services:
-      paths: [ "%paths.base%/features/ShowDisabledHostsServices.feature" ]
-      contexts: [ ShowDisabledHostsServicesContext ]
-
     downtime_start_and_stop:
       paths: [ "%paths.base%/features/DowntimeStartAndStop.feature" ]
       contexts: [ DowntimeStartAndStopContext ]
@@ -98,14 +94,6 @@ default:
     rest_api:
       paths: [ "%paths.base%/features/RestApi.feature" ]
       contexts: [ RestApiContext ]
-
-    special_characters_in_contact:
-      paths: [ "%paths.base%/features/SpecialCharactersInContact.feature" ]
-      contexts: [ SpecialCharactersInContactContext ]
-
-    ldap_configuration:
-      paths: [ "%paths.base%/features/LdapConfiguration.feature" ]
-      contexts: [ LdapConfigurationContext ]
 
     ldap_manual_import:
       paths: [ "%paths.base%/features/LdapManualImport.feature" ]

@@ -1,21 +1,25 @@
-import { Box, Typography, TypographyProps } from '@mui/material';
+import { forwardRef, type ForwardedRef } from 'react';
 
-const EllipsisTypography = ({
-  containerClassname,
-  ...props
-}: TypographyProps & { containerClassname?: string }): JSX.Element => {
-  return (
-    <Box className={containerClassname} sx={{ width: '100%' }}>
-      <Typography
-        sx={{
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap'
-        }}
-        {...props}
-      />
-    </Box>
-  );
-};
+import { Box, Typography, type TypographyProps } from '@mui/material';
+
+const EllipsisTypography = forwardRef(
+  (
+    { containerClassname, ...props }: TypographyProps & { containerClassname?: string },
+    ref?: ForwardedRef<HTMLSpanElement>) => {
+    return (
+      <Box className={containerClassname} sx={{ width: '100%' }}>
+        <Typography
+          ref={ref}
+          sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+          }}
+          {...props}
+        />
+      </Box>
+    );
+  }
+);
 
 export default EllipsisTypography;
