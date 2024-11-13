@@ -745,7 +745,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
   moveTablePagination,
   widthToMoveTablePagination,
   listingVariant,
-  labelNoResultFound
+  labelNoResultFound,
   ...props
 }: MemoizedListingProps<TRow>): JSX.Element =>
   useMemoComponent({
