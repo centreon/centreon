@@ -4,6 +4,8 @@
 *.md                                    @centreon/owners-doc
 *.mdx                                   @centreon/owners-doc
 
+**/www/widgets/                         @centreon/owners-react
+
 **/config/                              @centreon/owners-php
 **/composer.*                           @centreon/owners-php
 **/tests/api/                           @centreon/owners-php
@@ -18,7 +20,6 @@
 *.xsl                                   @centreon/owners-php
 
 **/www/front_src/                       @centreon/owners-react
-**/www/widgets/                         @centreon/owners-react
 **/cypress/**                           @centreon/owners-react
 centreon/cypress                        @centreon/owners-react
 package.json                            @centreon/owners-react
