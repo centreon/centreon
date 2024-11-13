@@ -2,11 +2,21 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
   cy.startContainers();
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/ac-acl-user.json');
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json');
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-3.json');
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-4.json');
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/config-ACL/ac-acl-user.json'
+  );
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/pollers/poller-1.json'
+  );
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/pollers/poller-2.json'
+  );
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/pollers/poller-3.json'
+  );
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/pollers/poller-4.json'
+  );
 });
 
 beforeEach(() => {
@@ -52,12 +62,22 @@ When('the user fills in all the information', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-001');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
-  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('my-otel-certificate-name-001');
-  cy.getByLabel({ label: 'CA file name', tag: 'input' }).type('ca-file-name-001');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).type('my-otel-private-key-name-001');
+  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type(
+    'my-otel-certificate-name-001'
+  );
+  cy.getByLabel({ label: 'CA file name', tag: 'input' }).type(
+    'ca-file-name-001'
+  );
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' })
+    .eq(0)
+    .type('my-otel-private-key-name-001');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type('my-certificate-name-001');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).type('my-otel-private-key-name-001');
+  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type(
+    'my-certificate-name-001'
+  );
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' })
+    .eq(1)
+    .type('my-otel-private-key-name-001');
 });
 
 When('the user clicks on Create', () => {
@@ -66,10 +86,8 @@ When('the user clicks on Create', () => {
 
 Then('the first agent is displayed in the Agents Configuration page', () => {
   cy.wait('@addAgents');
-  cy.get('*[role="rowgroup"]')
-    .should('contain', 'telegraf-001');
-  cy.get('*[role="rowgroup"]')
-    .should('contain', 'Telegraf');
+  cy.get('*[role="rowgroup"]').should('contain', 'telegraf-001');
+  cy.get('*[role="rowgroup"]').should('contain', 'Telegraf');
 });
 
 When('the user selects the centreon agent', () => {
@@ -82,16 +100,24 @@ Then('the connection initiated by poller field must be disabled', () => {
 });
 
 When('the user enables the connection initiated by the poller option', () => {
-  cy.getByLabel({ label: 'Connection initiated by poller', tag: 'input' }).click();
+  cy.getByLabel({
+    label: 'Connection initiated by poller',
+    tag: 'input'
+  }).click();
   cy.get('[class*="Mui-checked Mui-checked"]').should('exist');
 });
 
 Then('a new parameters group is displayed for the host', () => {
-  cy.get('[class$="hostConfigurations"]').find('[class^="MuiDivider-root MuiDivider-fullWidth"]').should('have.length', 1);
+  cy.get('[class$="hostConfigurations"]')
+    .find('[class^="MuiDivider-root MuiDivider-fullWidth"]')
+    .should('have.length', 1);
 });
 
 When('the user disables the connection initiated by poller option', () => {
-  cy.getByLabel({ label: 'Connection initiated by poller', tag: 'input' }).click();
+  cy.getByLabel({
+    label: 'Connection initiated by poller',
+    tag: 'input'
+  }).click();
   cy.get('[class*="Mui-checked Mui-checked"]').should('not.exist');
 });
 
@@ -103,17 +129,21 @@ When('the user fills in the mandatory information', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('centreon-agent-001');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-1').click();
-  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('my-otel-certificate-name-002');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).type('my-otel-private-key-name-002');
-  cy.getByLabel({ label: 'CA file name', tag: 'input' }).eq(0).type('my-ca-file-002');
+  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type(
+    'my-otel-certificate-name-002'
+  );
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).type(
+    'my-otel-private-key-name-002'
+  );
+  cy.getByLabel({ label: 'CA file name', tag: 'input' })
+    .eq(0)
+    .type('my-ca-file-002');
 });
 
 Then('the second agent is displayed in the Agents Configuration page', () => {
   cy.wait('@addAgents');
-  cy.get('*[role="rowgroup"]')
-    .should('contain', 'centreon-agent-001');
-  cy.get('*[role="rowgroup"]')
-    .should('contain', 'Centreon Monitoring Agent');
+  cy.get('*[role="rowgroup"]').should('contain', 'centreon-agent-001');
+  cy.get('*[role="rowgroup"]').should('contain', 'Centreon Monitoring Agent');
 });
 
 When('the user clicks to add a second host', () => {
@@ -121,7 +151,9 @@ When('the user clicks to add a second host', () => {
 });
 
 Then('a second group of parameters for hosts is displayed', () => {
-  cy.get('[class$="hostConfigurations"]').find('[class^="MuiDivider-root MuiDivider-fullWidth"]').should('have.length', 2);
+  cy.get('[class$="hostConfigurations"]')
+    .find('[class^="MuiDivider-root MuiDivider-fullWidth"]')
+    .should('have.length', 2);
 });
 
 When('the user fills in the centreon agent parameters', () => {
@@ -129,22 +161,28 @@ When('the user fills in the centreon agent parameters', () => {
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-2').click();
   cy.contains('Poller-3').click();
-  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('my-otel-certificate-name-003');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).type('my-otel-private-key-name-003');
-  cy.getByLabel({ label: 'CA file name', tag: 'input' }).eq(0).type('my-ca-file-003');
+  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type(
+    'my-otel-certificate-name-003'
+  );
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).type(
+    'my-otel-private-key-name-003'
+  );
+  cy.getByLabel({ label: 'CA file name', tag: 'input' })
+    .eq(0)
+    .type('my-ca-file-003');
   cy.getByLabel({ label: 'Add host', tag: 'input' }).eq(0).click();
   cy.contains('Centreon-Server').click();
   cy.getByLabel({ label: 'DNS/IP', tag: 'input' }).eq(1).type('10.0.0.0');
   cy.getByTestId({ testId: 'Port' }).eq(1).type('4317');
-  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).eq(1).type('my-certificate-name-003');
+  cy.getByLabel({ label: 'Certificate file name', tag: 'input' })
+    .eq(1)
+    .type('my-certificate-name-003');
 });
 
 Then('the third agent is displayed in the Agents Configuration page', () => {
   cy.wait('@addAgents');
-  cy.get('*[role="rowgroup"]')
-    .should('contain', 'centreon-agent-002');
-  cy.get('*[role="rowgroup"]')
-    .should('contain', 'Centreon Monitoring Agent');
+  cy.get('*[role="rowgroup"]').should('contain', 'centreon-agent-002');
+  cy.get('*[role="rowgroup"]').should('contain', 'Centreon Monitoring Agent');
 });
 
 When("the user doesn't fill in all the mandatory information", () => {
@@ -152,15 +190,25 @@ When("the user doesn't fill in all the mandatory information", () => {
   cy.get('*[role="listbox"]').contains('Telegraf').click();
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-1').click();
-  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('my-otel-certificate-name-002');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).type('my-otel-private-key-name-002');
+  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type(
+    'my-otel-certificate-name-002'
+  );
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' })
+    .eq(0)
+    .type('my-otel-private-key-name-002');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type('my-certificate-name-002');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).type('my-otel-private-key-name-002');
+  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type(
+    'my-certificate-name-002'
+  );
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' })
+    .eq(1)
+    .type('my-otel-private-key-name-002');
 });
 
 Then('the user cannot click on Create', () => {
-  cy.getByTestId({ testId: 'SaveIcon' }).parents('button').should('be.disabled');
+  cy.getByTestId({ testId: 'SaveIcon' })
+    .parents('button')
+    .should('be.disabled');
 });
 
 When("the user doesn't fill in correct type of information", () => {
@@ -169,22 +217,42 @@ When("the user doesn't fill in correct type of information", () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-003');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-1').click();
-  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('my-otel-certificate-name-001.crt');
-  cy.getByLabel({ label: 'CA file name', tag: 'input' }).type('ca-file-name-001.crt');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).type('my-otel-private-key-name-001.key');
+  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type(
+    'my-otel-certificate-name-001.crt'
+  );
+  cy.getByLabel({ label: 'CA file name', tag: 'input' }).type(
+    'ca-file-name-001.crt'
+  );
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' })
+    .eq(0)
+    .type('my-otel-private-key-name-001.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).clear().type('700000');
-  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type('my-certificate-name-001.crt');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).type('my-otel-private-key-name-001.key');
+  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type(
+    'my-certificate-name-001.crt'
+  );
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' })
+    .eq(1)
+    .type('my-otel-private-key-name-001.key');
   cy.getByLabel({ label: 'Name', tag: 'input' }).click();
 });
 
 Then('the form displayed an error', () => {
-  cy.getByTestId({ testId: 'Public certificate file name' }).contains('Invalid filename');
+  cy.getByTestId({ testId: 'Public certificate file name' }).contains(
+    'Invalid filename'
+  );
   cy.getByTestId({ testId: 'CA file name' }).contains('Invalid filename');
-  cy.getByTestId({ testId: 'Private key file name' }).eq(0).contains('Invalid filename');
-  cy.getByTestId({ testId: 'Port' }).contains('Port number must be at most 65535');
-  cy.getByTestId({ testId: 'Certificate file name' }).contains('Invalid filename');
-  cy.getByTestId({ testId: 'Private key file name' }).eq(2).contains('Invalid filename');
+  cy.getByTestId({ testId: 'Private key file name' })
+    .eq(0)
+    .contains('Invalid filename');
+  cy.getByTestId({ testId: 'Port' }).contains(
+    'Port number must be at most 65535'
+  );
+  cy.getByTestId({ testId: 'Certificate file name' }).contains(
+    'Invalid filename'
+  );
+  cy.getByTestId({ testId: 'Private key file name' })
+    .eq(2)
+    .contains('Invalid filename');
 });
 
 When('the user fills in the needed information', () => {
@@ -193,12 +261,22 @@ When('the user fills in the needed information', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-004');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-4').click();
-  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('my-otel-certificate-name-001');
-  cy.getByLabel({ label: 'CA file name', tag: 'input' }).type('ca-file-name-001');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).type('my-otel-private-key-name-001');
+  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type(
+    'my-otel-certificate-name-001'
+  );
+  cy.getByLabel({ label: 'CA file name', tag: 'input' }).type(
+    'ca-file-name-001'
+  );
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' })
+    .eq(0)
+    .type('my-otel-private-key-name-001');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type('my-certificate-name-001');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).type('my-otel-private-key-name-001');
+  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type(
+    'my-certificate-name-001'
+  );
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' })
+    .eq(1)
+    .type('my-otel-private-key-name-001');
 });
 
 When('the user clicks on the Cancel button of the creation form', () => {
@@ -206,8 +284,14 @@ When('the user clicks on the Cancel button of the creation form', () => {
 });
 
 Then('a pop-up appears to confirm cancellation', () => {
-  cy.get('*[role="dialog"]').eq(1).children().contains('Do you want to save the changes?');
-  cy.get('*[role="dialog"]').eq(1).children().contains('If you click on Discard, your changes will not be saved.');
+  cy.get('*[role="dialog"]')
+    .eq(1)
+    .children()
+    .contains('Do you want to save the changes?');
+  cy.get('*[role="dialog"]')
+    .eq(1)
+    .children()
+    .contains('If you click on Discard, your changes will not be saved.');
 });
 
 When('the user confirms the cancellation', () => {
@@ -219,8 +303,7 @@ Then('the creation form is closed', () => {
 });
 
 Then('the agent has not been created', () => {
-  cy.get('*[role="rowgroup"]')
-  .should('not.contain', 'telegraf-004');
+  cy.get('*[role="rowgroup"]').should('not.contain', 'telegraf-004');
 });
 
 Then('the form fields are empty', () => {
@@ -234,8 +317,52 @@ When('the user clicks on Save in the cancellation pop-up', () => {
 });
 
 Then('the agent has been created', () => {
-  cy.get('*[role="rowgroup"]')
-    .should('contain', 'telegraf-004');
-  cy.get('*[role="rowgroup"]')
-    .should('contain', 'Telegraf');
+  cy.get('*[role="rowgroup"]').should('contain', 'telegraf-004');
+  cy.get('*[role="rowgroup"]').should('contain', 'Telegraf');
+});
+
+When('the user select CMA type', () => {});
+
+When('the user fills all the CMA type mandatory fields', () => {});
+
+When('the user select Telegraf type', () => {});
+
+When('the user fills all the Telegraf mandatory fields', () => {});
+
+When('the user clicks on cancel', () => {});
+
+Then('a pop-up is displayed', () => {});
+
+Then(
+  'the title of this pop-up is "Do you want to save the changes?"',
+  () => {}
+);
+
+Then(
+  'the message body of this pop-up is "If you click on Discard, your changes will not be saved."',
+  () => {}
+);
+
+When("the user doesn't fill some CMA type mandatory fields", () => {});
+
+Then(
+  'the title of this pop-up is "Do you want to resolve the errors?"',
+  () => {}
+);
+
+Then(
+  'the message body of this pop-up is "There are errors in the form. Do you want to quit the form without resolving the errors?"',
+  () => {}
+);
+
+Then('this pop-up contains two buttons "Resolve" and "Discard"', () => {
+
+});
+
+When("the user doesn't fill some Telegraf type mandatory fields", () => {
+
+});
+
+When('the user clicks outside the form', () => {
+
 });
