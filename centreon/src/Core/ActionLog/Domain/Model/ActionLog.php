@@ -35,6 +35,7 @@ class ActionLog
     public const OBJECT_TYPE_CONTACT = 'contact';
     public const OBJECT_TYPE_CONTACTGROUP = 'contactgroup';
     public const OBJECT_TYPE_HOST = 'host';
+    public const OBJECT_TYPE_HOST_TEMPLATE = 'host';
     public const OBJECT_TYPE_HOSTGROUP = 'hostgroup';
     public const OBJECT_TYPE_SERVICE = 'service';
     public const OBJECT_TYPE_SERVICEGROUP = 'servicegroup';

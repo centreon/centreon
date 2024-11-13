@@ -43,7 +43,6 @@ use Core\HostTemplate\Domain\Model\NewHostTemplate;
 class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB implements WriteHostTemplateRepositoryInterface
 {
     use LoggerTrait;
-    public const HOST_TEMPLATE_OBJECT_TYPE = 'host';
 
     /**
      * @param WriteHostTemplateRepositoryInterface $writeHostTemplateRepository
@@ -76,7 +75,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
             $this->writeHostTemplateRepository->delete($hostTemplateId);
 
             $actionLog = new ActionLog(
-                ActionLog::OBJECT_TYPE_HOST,
+                ActionLog::OBJECT_TYPE_HOST_TEMPLATE,
                 $hostTemplateId,
                 $hostTemplate->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
@@ -102,7 +101,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
             }
 
             $actionLog = new ActionLog(
-                ActionLog::OBJECT_TYPE_HOST,
+                ActionLog::OBJECT_TYPE_HOST_TEMPLATE,
                 $hostTemplateId,
                 $hostTemplate->getName(),
                 ActionLog::ACTION_TYPE_ADD,
@@ -141,7 +140,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
             $this->writeHostTemplateRepository->update($hostTemplate);
 
             $actionLog = new ActionLog(
-                ActionLog::OBJECT_TYPE_HOST,
+                ActionLog::OBJECT_TYPE_HOST_TEMPLATE,
                 $hostTemplate->getId(),
                 $hostTemplate->getName(),
                 ActionLog::ACTION_TYPE_CHANGE,
@@ -195,7 +194,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
             if ($value instanceof YesNoDefault) {
                 $value = YesNoDefaultConverter::toString($value);
             }
-            
+
             if ($value instanceof SnmpVersion) {
                 $value = $value->value;
             }
