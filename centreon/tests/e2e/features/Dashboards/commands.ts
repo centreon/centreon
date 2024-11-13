@@ -443,48 +443,69 @@ Cypress.Commands.add('patchServiceWithHost', (hostId, serviceId) => {
   });
 });
 
-Cypress.Commands.add('addMultipleHosts', (numberOfHosts = 20, hostData = {}) => {
-  const defaultHostData = {
-    address: '127.0.0.1',
-    alias: 'generic-active-host',
-    groups: [53],
-    macros: [
-      {
-        description: 'Some text to describe the macro',
-        is_password: false,
-        name: 'MacroName',
-        value: 'macroValue'
-      }
-    ],
-    monitoring_server_id: 1,
-    name: 'generic-active-host',
-    templates: [2]
+Cypress.Commands.add('addNewServiceAndReturnId', (hostId: number, serviceData = {}) => {
+  const defaultServiceData = {
+    name: 'generic-service',
+    host_id: hostId,
+    geo_coords: '48.10,12.5',
+    comment: 'string',
+    service_template_id: 5,
+    check_command_id: null,
+    check_command_args: [],
+    max_check_attempts: 1,
   };
 
-  const hostPromises = [];
+  const requestBody = { ...defaultServiceData, ...serviceData, host_id: hostId };
+
+  cy.request({
+    body: requestBody,
+    method: 'POST',
+    url: '/centreon/api/latest/configuration/services'
+  }).then((response) => {
+    expect(response.status).to.eq(201);
+    return response.body.id;
+  });
+});
+
+
+
+Cypress.Commands.add('addMultipleHosts', (numberOfHosts = 20): Cypress.Chainable<{ hostIds: number[]; serviceIds: number[] }> => {
+  const hostIds: number[] = [];
+  const serviceIds: number[] = [];
+
+  let chain = cy.wrap(null);
+
   for (let i = 0; i < numberOfHosts; i++) {
     const uniqueHostData = {
-      ...defaultHostData,
-      ...hostData,
-      name: `${defaultHostData.name}-${i + 1}`,
-      alias: `${defaultHostData.alias}-${i + 1}`
+      name: `generic-active-host-${i + 1}`,
+      alias: `generic-active-host-alias-${i + 1}`,
     };
 
-    const requestBody = { ...uniqueHostData };
+    const uniqueServiceData = {
+      name: `service-${i + 1}`,
+      geo_coords: '48.10,12.5',
+    };
 
-    hostPromises.push(
-      cy.request({
-        body: requestBody,
-        method: 'POST',
-        url: '/centreon/api/latest/configuration/hosts'
-      }).then((response) => {
-        expect(response.status).to.eq(201);
-        return response.body.id;
-      })
-    );
+    chain = chain.then(() => {
+      return cy.addNewHostAndReturnId(uniqueHostData)
+        .then((hostId: number) => {
+          hostIds.push(hostId);
+
+          return cy.addNewServiceAndReturnId(hostId, uniqueServiceData)
+            .then((serviceId: number | null) => {
+              if (serviceId !== null) {
+                serviceIds.push(serviceId);
+              }
+              return cy.wrap(null);
+            });
+        });
+    });
   }
 
-  return Cypress.Promise.all(hostPromises);
+  return chain.then(() => {
+    cy.log('All hosts and services have been created and associated.');
+    return cy.wrap({ hostIds, serviceIds });
+  });
 });
 
 Cypress.Commands.add(
@@ -563,6 +584,51 @@ interface HostDataType {
   timezone_id: number;
 }
 
+interface ServiceDataType {
+  name: string;
+  host_id: number;
+  geo_coords: string;
+  comment: string;
+  service_template_id: number | null;
+  check_command_id: number | null;
+  check_command_args: Array<string>;
+  check_timeperiod_id: number | null;
+  max_check_attempts: number;
+  normal_check_interval: number;
+  retry_check_interval: number;
+  active_check_enabled: number;
+  passive_check_enabled: number;
+  volatility_enabled: number;
+  notification_enabled: number;
+  is_contact_additive_inheritance: boolean;
+  is_contact_group_additive_inheritance: boolean;
+  notification_interval: number;
+  notification_timeperiod_id: number;
+  notification_type: number;
+  first_notification_delay: number;
+  recovery_notification_delay: number;
+  acknowledgement_timeout: number;
+  freshness_checked: number;
+  freshness_threshold: number;
+  flap_detection_enabled: number;
+  low_flap_threshold: number;
+  high_flap_threshold: number;
+  event_handler_enabled: number;
+  event_handler_command_id: number;
+  event_handler_command_args: Array<string>;
+  graph_template_id: number | null;
+  note: string;
+  note_url: string;
+  action_url: string;
+  icon_id: number | null;
+  icon_alternative: string;
+  severity_id: number;
+  is_activated: boolean;
+  service_categories: Array<number>;
+  service_groups: Array<number>;
+  macros: Array<object>;
+}
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -582,6 +648,7 @@ declare global {
         widgetName: string,
         widgetType: string
       ) => Cypress.Chainable;
+      addMultipleHosts(numberOfHosts?: number): Chainable<{ hostIds: number[]; serviceIds: number[] }>;
       insertDashboardWithWidget: (
         dashboard: Dashboard,
         patchBody: Record<string, any>,
@@ -592,6 +659,7 @@ declare global {
         hostId: string,
         serviceId: string
       ) => Cypress.Chainable;
+      addNewServiceAndReturnId(hostId: number, serviceData?: Partial<ServiceDataType>): Chainable<number>;
       verifyDuplicatesGraphContainer: (metrics) => Cypress.Chainable;
       verifyGraphContainer: (metrics) => Cypress.Chainable;
       verifyLegendItemStyle: (

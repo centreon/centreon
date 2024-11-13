@@ -147,15 +147,6 @@ before(() => {
     { name: services.serviceCritical.name, status: 'critical' },
     { name: services.serviceOk.name, status: 'ok' }
   ]);
-
-  cy.scheduleHostCheck({ host: services.serviceOk.host }).scheduleHostCheck({
-    host: services.serviceCritical.host
-  });
-
-  ['Disk-/', 'Load', 'Memory', 'Ping'].forEach((service) => {
-    cy.scheduleServiceCheck({ host: 'Centreon-Server', service });
-  });
-
   checkMetricsAreMonitored([
     {
       host: 'Centreon-Server',
@@ -163,7 +154,6 @@ before(() => {
       service: 'Ping'
     }
   ]);
-
   cy.logoutViaAPI();
   cy.applyAcl();
 });
@@ -206,7 +196,7 @@ beforeEach(() => {
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
   cy.loginByTypeOfUser({
-    jsonName: dashboardAdministratorUser.login,
+    jsonName: 'admin',
     loginViaApi: false
   });
 });
@@ -522,5 +512,44 @@ Then(
   'the user should be redirected to the resource status screen and all the resources must be displayed',
   () => {
     cy.contains('host2').should('exist');
+  }
+);
+
+Given(
+  "the dashboard administrator adds more than 20 hosts",
+  () => {
+    cy.addMultipleHosts();
+    cy.navigateTo({
+      page: 'Resources Status',
+      rootItemNumber: 1,
+    });
+    cy.waitForElementToBeVisible('[data-testid="CloseIcon"]')
+    cy.getByTestId({ testId: 'CloseIcon' }).click()
+    cy.exportConfig();
+    cy.waitUntil(
+    () => {
+      return cy
+        .getByLabel({ label: 'Up status hosts', tag: 'a' })
+        .invoke('text')
+        .then((text) => {
+          if (text !== '23') {
+            cy.getByTestId({ testId: 'RefreshIcon' }).click();
+            cy.getByLabel({ label: 'Select all' }).click()
+            cy.getByLabel({ label: 'Forced check' }).click()
+            cy.getByLabel({ label: 'Select all' }).click()
+          }
+
+          return text === '23';
+        });
+    },
+    { interval: 20000, timeout: 600000 }
+  );
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    statuschartWidget,
+    'centreon-widget-statuschart',
+    '/widgets/statuschart'
+  );
+  cy.editDashboard(dashboards.default.name);
   }
 );
