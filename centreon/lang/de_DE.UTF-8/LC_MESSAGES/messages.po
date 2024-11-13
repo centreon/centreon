@@ -17494,3 +17494,6 @@ msgstr "Erweiterter Modus"
 
 # msgid "Sticky for any non-OK status"
 # msgstr ""
+
+# msgid "There are errors in the form."
+# msgstr ""

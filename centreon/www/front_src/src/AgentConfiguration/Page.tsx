@@ -9,7 +9,7 @@ import ACListing from './Listing/Listing';
 import { openFormModalAtom } from './atoms';
 import { useGetAgentConfigurations } from './hooks/useGetAgentConfigurations';
 import {
-  labelAddNewAgent,
+  labelAddAgentConfiguration,
   labelAgentsConfigurations,
   labelWelcomeDescription,
   labelWelcomeToTheAgentsConfigurationPage
@@ -49,7 +49,7 @@ const AgentConfigurationPage = (): JSX.Element => {
                 title: t(labelWelcomeToTheAgentsConfigurationPage),
                 description: t(labelWelcomeDescription),
                 actions: {
-                  create: t(labelAddNewAgent)
+                  create: t(labelAddAgentConfiguration)
                 }
               }}
               onCreate={add}

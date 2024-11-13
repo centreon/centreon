@@ -4,9 +4,9 @@ before(() => {
   cy.startContainers();
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/ac-acl-user.json');
   cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json'); 
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-3.json'); 
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-4.json'); 
+  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-2.json');
+  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-3.json');
+  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-4.json');
 });
 
 beforeEach(() => {
@@ -38,16 +38,17 @@ Given('a non-admin user is in the Agents Configuration page', () => {
 });
 
 When('the user clicks on Add', () => {
-  cy.getByTestId({ testId: 'AddIcon' }).click();
+  cy.contains('button', 'Add poller/agent configuration').click();
 });
 
 Then('a pop-up menu with the form is displayed', () => {
-  cy.contains('Add poller/agent configuration').should('be.visible');
+  cy.get('*[role="dialog"]').should('be.visible');
+  cy.get('*[role="dialog"]').contains('Add poller/agent configuration');
 });
 
 When('the user fills in all the information', () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.contains('Telegraf').click();
+  cy.get('*[role="listbox"]').contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-001');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
@@ -67,30 +68,52 @@ Then('the first agent is displayed in the Agents Configuration page', () => {
   cy.wait('@addAgents');
   cy.get('*[role="rowgroup"]')
     .should('contain', 'telegraf-001');
+  cy.get('*[role="rowgroup"]')
+    .should('contain', 'Telegraf');
+});
+
+When('the user selects the centreon agent', () => {
+  cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
+  cy.get('*[role="listbox"]').contains('Centreon Monitoring Agent').click();
+});
+
+Then('the connection initiated by poller field must be disabled', () => {
+  cy.get('[class*="Mui-checked Mui-checked"]').should('not.exist');
+});
+
+When('the user enables the connection initiated by the poller option', () => {
+  cy.getByLabel({ label: 'Connection initiated by poller', tag: 'input' }).click();
+  cy.get('[class*="Mui-checked Mui-checked"]').should('exist');
+});
+
+Then('a new parameters group is displayed for the host', () => {
+  cy.get('[class$="hostConfigurations"]').find('[class^="MuiDivider-root MuiDivider-fullWidth"]').should('have.length', 1);
+});
+
+When('the user disables the connection initiated by poller option', () => {
+  cy.getByLabel({ label: 'Connection initiated by poller', tag: 'input' }).click();
+  cy.get('[class*="Mui-checked Mui-checked"]').should('not.exist');
+});
+
+Then('the group of parameters for the host disappears', () => {
+  cy.get('[class$="hostConfigurations"]').should('not.exist');
 });
 
 When('the user fills in the mandatory information', () => {
-  cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.contains('Telegraf').click();
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-002');
+  cy.getByLabel({ label: 'Name', tag: 'input' }).type('centreon-agent-001');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-1').click();
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('my-otel-certificate-name-002');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).type('my-otel-private-key-name-002');
-  cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type('my-certificate-name-002');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).type('my-otel-private-key-name-002');
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).type('my-otel-private-key-name-002');
+  cy.getByLabel({ label: 'CA file name', tag: 'input' }).eq(0).type('my-ca-file-002');
 });
 
 Then('the second agent is displayed in the Agents Configuration page', () => {
   cy.wait('@addAgents');
   cy.get('*[role="rowgroup"]')
-    .should('contain', 'telegraf-002');
-});
-
-When('the user selects the centreon agent', () => {
-  cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.contains('Centreon Monitoring Agent').click();
+    .should('contain', 'centreon-agent-001');
+  cy.get('*[role="rowgroup"]')
+    .should('contain', 'Centreon Monitoring Agent');
 });
 
 When('the user clicks to add a second host', () => {
@@ -102,7 +125,7 @@ Then('a second group of parameters for hosts is displayed', () => {
 });
 
 When('the user fills in the centreon agent parameters', () => {
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type('centreon-agent-001');
+  cy.getByLabel({ label: 'Name', tag: 'input' }).type('centreon-agent-002');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-2').click();
   cy.contains('Poller-3').click();
@@ -119,12 +142,14 @@ When('the user fills in the centreon agent parameters', () => {
 Then('the third agent is displayed in the Agents Configuration page', () => {
   cy.wait('@addAgents');
   cy.get('*[role="rowgroup"]')
-    .should('contain', 'centreon-agent-001');
+    .should('contain', 'centreon-agent-002');
+  cy.get('*[role="rowgroup"]')
+    .should('contain', 'Centreon Monitoring Agent');
 });
 
 When("the user doesn't fill in all the mandatory information", () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.contains('Telegraf').click();
+  cy.get('*[role="listbox"]').contains('Telegraf').click();
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-1').click();
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('my-otel-certificate-name-002');
@@ -140,7 +165,7 @@ Then('the user cannot click on Create', () => {
 
 When("the user doesn't fill in correct type of information", () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.contains('Telegraf').click();
+  cy.get('*[role="listbox"]').contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-003');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-1').click();
@@ -150,7 +175,7 @@ When("the user doesn't fill in correct type of information", () => {
   cy.getByLabel({ label: 'Port', tag: 'input' }).clear().type('700000');
   cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type('my-certificate-name-001.crt');
   cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).type('my-otel-private-key-name-001.key');
-  cy.contains('Add poller/agent configuration').click();
+  cy.getByLabel({ label: 'Name', tag: 'input' }).click();
 });
 
 Then('the form displayed an error', () => {
@@ -164,7 +189,7 @@ Then('the form displayed an error', () => {
 
 When('the user fills in the needed information', () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.contains('Telegraf').click();
+  cy.get('*[role="listbox"]').contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-004');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-4').click();
@@ -181,8 +206,8 @@ When('the user clicks on the Cancel button of the creation form', () => {
 });
 
 Then('a pop-up appears to confirm cancellation', () => {
-  cy.contains('Do you want to save the changes?').should('be.visible');
-  cy.contains('If you click on Discard, your changes will not be saved.').should('be.visible');
+  cy.get('*[role="dialog"]').eq(1).children().contains('Do you want to save the changes?');
+  cy.get('*[role="dialog"]').eq(1).children().contains('If you click on Discard, your changes will not be saved.');
 });
 
 When('the user confirms the cancellation', () => {
@@ -210,5 +235,7 @@ When('the user clicks on Save in the cancellation pop-up', () => {
 
 Then('the agent has been created', () => {
   cy.get('*[role="rowgroup"]')
-  .should('contain', 'telegraf-004');
+    .should('contain', 'telegraf-004');
+  cy.get('*[role="rowgroup"]')
+    .should('contain', 'Telegraf');
 });
