@@ -1,6 +1,7 @@
 import { useFetchQuery } from '@centreon/ui';
 import { useSetAtom } from 'jotai';
 import { equals, isNotNil } from 'ramda';
+import { useEffect } from 'react';
 import { agentTypes } from '../Form/useInputs';
 import { agentConfigurationDecoder } from '../api/decoders';
 import { getAgentConfigurationEndpoint } from '../api/endpoints';
@@ -36,9 +37,12 @@ export const useGetAgentConfiguration = (
     }
   });
 
-  if (data && enabled) {
+  useEffect(() => {
+    if (!data || !enabled) {
+      return;
+    }
     setAgentTypeForm(data.type);
-  }
+  }, [data, enabled]);
 
   return {
     initialValues: data ? adaptAgentConfigurationToForm(data) : undefined,
