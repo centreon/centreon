@@ -745,6 +745,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
   moveTablePagination,
   widthToMoveTablePagination,
   listingVariant,
+  labelNoResultFound
   ...props
 }: MemoizedListingProps<TRow>): JSX.Element =>
   useMemoComponent({
@@ -767,6 +768,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
         sortOrder={sortOrder}
         totalRows={totalRows}
         widthToMoveTablePagination={widthToMoveTablePagination}
+        labelNoResultFound={labelNoResultFound}
         {...props}
       />
     ),
@@ -789,7 +791,8 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
       sortOrder,
       sortField,
       innerScrollDisabled,
-      listingVariant
+      listingVariant,
+      labelNoResultFound
     ]
   });
 
