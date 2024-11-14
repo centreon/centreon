@@ -16,15 +16,15 @@ on:
   schedule:
     - cron: "0 3 * * 1-5"
   pull_request:
-    # paths:
-    #   - "centreon/**"
-    #   - "!centreon/cypress/**"
-    #   - "!centreon/features/**"
-    #   - "!centreon/lighthouse/**"
-    #   - "!centreon/tests/**"
-    #   - "!centreon/.veracode-exclusions"
-    #   - "!centreon/veracode.json"
-    #   - "!centreon/packages/**"
+    paths:
+      - "centreon/**"
+      - "!centreon/cypress/**"
+      - "!centreon/features/**"
+      - "!centreon/lighthouse/**"
+      - "!centreon/tests/**"
+      - "!centreon/.veracode-exclusions"
+      - "!centreon/veracode.json"
+      - "!centreon/packages/**"
   push:
     branches:
       - develop
@@ -214,143 +214,143 @@ jobs:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
 
-  # frontend-web-lint:
-  #   runs-on: ubuntu-24.04
-  #   needs: [changes, get-environment]
-  #   if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+  frontend-web-lint:
+    runs-on: ubuntu-24.04
+    needs: [changes, get-environment]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
 
-  #   steps:
-  #     - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+    steps:
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
-  #     - uses: ./.github/actions/frontend-lint
-  #       with:
-  #         frontend_directory: ${{ env.base_directory }}
-  #         module_name: centreon
-  #         dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-  #         pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-  #         lint_path: ./www/front_src/
+      - uses: ./.github/actions/frontend-lint
+        with:
+          frontend_directory: ${{ env.base_directory }}
+          module_name: centreon
+          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
+          pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          lint_path: ./www/front_src/
 
-  # frontend-unit-test:
-  #   runs-on: ubuntu-24.04
-  #   needs: [changes, get-environment]
-  #   if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+  frontend-unit-test:
+    runs-on: ubuntu-24.04
+    needs: [changes, get-environment]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
 
-  #   steps:
-  #     - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+    steps:
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
-  #     - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
-  #       with:
-  #         version: 8
-  #         run_install: false
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        with:
+          version: 8
+          run_install: false
 
-  #     - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
-  #       with:
-  #         node-version: 20
-  #         cache: pnpm
-  #         cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
+      - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
 
-  #     - name: Install dependencies
-  #       run: pnpm install --frozen-lockfile
-  #       working-directory: centreon
-  #       env:
-  #         CYPRESS_INSTALL_BINARY: "0"
-  #         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
-  #         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: centreon
+        env:
+          CYPRESS_INSTALL_BINARY: "0"
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
-  #     - name: Unit test
-  #       run: pnpm t --silent --reporter=jest-junit
-  #       working-directory: centreon
+      - name: Unit test
+        run: pnpm t --silent --reporter=jest-junit
+        working-directory: centreon
 
-  #     - if: failure()
-  #       uses: ./.github/actions/publish-report
-  #       with:
-  #         path: "centreon/junit.xml"
+      - if: failure()
+        uses: ./.github/actions/publish-report
+        with:
+          path: "centreon/junit.xml"
 
-  # frontend-component-test:
-  #   needs: [changes, get-environment]
-  #   if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
-  #   uses: ./.github/workflows/cypress-component-parallelization.yml
-  #   secrets:
-  #     AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
-  #     AWS_SECRET_ACCESS_KEY: ${{ secrets.LIGHTHOUSE_SECRET }}
-  #   with:
-  #     name: centreon
-  #     module_name: centreon
-  #     specs_path: www/**
-  #     dependencies_lock_file: centreon/pnpm-lock.yaml
+  frontend-component-test:
+    needs: [changes, get-environment]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+    uses: ./.github/workflows/cypress-component-parallelization.yml
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.LIGHTHOUSE_SECRET }}
+    with:
+      name: centreon
+      module_name: centreon
+      specs_path: www/**
+      dependencies_lock_file: centreon/pnpm-lock.yaml
 
-  # backend-unit-test:
-  #   runs-on: ubuntu-24.04
-  #   needs: [changes, get-environment]
-  #   if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+  backend-unit-test:
+    runs-on: ubuntu-24.04
+    needs: [changes, get-environment]
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
 
-  #   steps:
-  #     - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+    steps:
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
-  #     - name: Setup PHP
-  #       uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
-  #       with:
-  #         php-version: 8.2
-  #         coverage: none
-  #       env:
-  #         runner: ubuntu-24.04
+      - name: Setup PHP
+        uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
+        with:
+          php-version: 8.2
+          coverage: none
+        env:
+          runner: ubuntu-24.04
 
-  #     - name: Install dependencies
-  #       uses: ramsey/composer-install@57532f8be5bda426838819c5ee9afb8af389d51a # v3.0.0
-  #       with:
-  #         working-directory: centreon
-  #         composer-options: "--optimize-autoloader"
+      - name: Install dependencies
+        uses: ramsey/composer-install@57532f8be5bda426838819c5ee9afb8af389d51a # v3.0.0
+        with:
+          working-directory: centreon
+          composer-options: "--optimize-autoloader"
 
-  #     - name: Unit test
-  #       run: XDEBUG_MODE=coverage composer run-script test:ci
-  #       working-directory: centreon
+      - name: Unit test
+        run: XDEBUG_MODE=coverage composer run-script test:ci
+        working-directory: centreon
 
-  #     - if: failure()
-  #       uses: ./.github/actions/publish-report
-  #       with:
-  #         path: "centreon/build/phpunit.xml"
-  #         format: "php-junit"
+      - if: failure()
+        uses: ./.github/actions/publish-report
+        with:
+          path: "centreon/build/phpunit.xml"
+          format: "php-junit"
 
-  # backend-lint:
-  #   runs-on: ubuntu-24.04
-  #   needs: [changes, get-environment]
-  #   if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+  backend-lint:
+    runs-on: ubuntu-24.04
+    needs: [changes, get-environment]
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
 
-  #   steps:
-  #     - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+    steps:
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
-  #     - name: Setup PHP
-  #       uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
-  #       with:
-  #         php-version: 8.2
-  #         coverage: none
-  #       env:
-  #         runner: ubuntu-24.04
+      - name: Setup PHP
+        uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
+        with:
+          php-version: 8.2
+          coverage: none
+        env:
+          runner: ubuntu-24.04
 
-  #     - name: Install Dependencies
-  #       run: composer install --optimize-autoloader
-  #       working-directory: centreon
-  #       shell: bash
+      - name: Install Dependencies
+        run: composer install --optimize-autoloader
+        working-directory: centreon
+        shell: bash
 
-  #     - name: Run of php-cs-fixer with strict_type
-  #       run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff
-  #       working-directory: centreon
+      - name: Run of php-cs-fixer with strict_type
+        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff
+        working-directory: centreon
 
-  #     - name: Run of php-cs-fixer without strict_type
-  #       run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
-  #       working-directory: centreon
+      - name: Run of php-cs-fixer without strict_type
+        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
+        working-directory: centreon
 
-  #     - name: Run of phpstan on /src at level 4
-  #       run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.neon
-  #       working-directory: centreon
+      - name: Run of phpstan on /src at level 4
+        run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.neon
+        working-directory: centreon
 
-  #     - name: Run of phpstan on /src/Core at level 8 + Centreon Custom Rules
-  #       run: vendor/bin/phpstan analyse --no-progress --level=8 --configuration=phpstan.core.neon
-  #       working-directory: centreon
+      - name: Run of phpstan on /src/Core at level 8 + Centreon Custom Rules
+        run: vendor/bin/phpstan analyse --no-progress --level=8 --configuration=phpstan.core.neon
+        working-directory: centreon
 
-  #     - name: Run of phpstan on /tests at level 2
-  #       run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.test.neon
-  #       working-directory: centreon
+      - name: Run of phpstan on /tests at level 2
+        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.test.neon
+        working-directory: centreon
 
   package:
     needs:
@@ -359,12 +359,12 @@ jobs:
         get-environment,
         translation-build,
         backend-dependencies,
-        # backend-lint,
-        # backend-unit-test,
+        backend-lint,
+        backend-unit-test,
         frontend-web-build,
-        # frontend-web-lint,
-        # frontend-unit-test,
-        # frontend-component-test,
+        frontend-web-lint,
+        frontend-unit-test,
+        frontend-component-test,
       ]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
 
@@ -490,13 +490,6 @@ jobs:
           rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
           stability: ${{ needs.get-environment.outputs.stability }}
-
-      - name: Check centreon-poller dependencies
-        if: ${{ matrix.package_extension == 'rpm' }}
-        run: |
-          rpm -qp centreon-poller*.rpm --recommends
-          exit 1
-        shell: bash
 
   dockerize:
     runs-on: ubuntu-24.04
