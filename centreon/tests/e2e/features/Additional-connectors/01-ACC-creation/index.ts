@@ -230,9 +230,7 @@ When('the user confirms the the cancellation', () => {
 });
 
 Then('the creation form is closed', () => {
-  cy.contains('Create additional connector configuration').should(
-    'not.be.visible'
-  );
+  cy.contains('Create additional connector configuration').should('not.exist');
 });
 
 Then('the additional connector configuration has not been created', () => {
