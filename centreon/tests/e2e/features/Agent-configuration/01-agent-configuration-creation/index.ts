@@ -1,4 +1,7 @@
+/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+
+import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
 
 before(() => {
   cy.startContainers();
@@ -59,25 +62,7 @@ Then('a pop-up menu with the form is displayed', () => {
 When('the user fills in all the information', () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
   cy.get('*[role="listbox"]').contains('Telegraf').click();
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-001');
-  cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
-  cy.contains('Central').click();
-  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type(
-    'my-otel-certificate-name-001'
-  );
-  cy.getByLabel({ label: 'CA file name', tag: 'input' }).type(
-    'ca-file-name-001'
-  );
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' })
-    .eq(0)
-    .type('my-otel-private-key-name-001');
-  cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type(
-    'my-certificate-name-001'
-  );
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' })
-    .eq(1)
-    .type('my-otel-private-key-name-001');
+  cy.FillTelegrafMandatoryFields(agentsConfiguration.telegraf1);
 });
 
 When('the user clicks on Create', () => {
@@ -321,48 +306,82 @@ Then('the agent has been created', () => {
   cy.get('*[role="rowgroup"]').should('contain', 'Telegraf');
 });
 
-When('the user select CMA type', () => {});
-
 When('the user fills all the CMA type mandatory fields', () => {});
 
-When('the user select Telegraf type', () => {});
+When('the user select Telegraf type', () => {
+  cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
+  cy.get('*[role="listbox"]').contains('Telegraf').click();
+});
 
-When('the user fills all the Telegraf mandatory fields', () => {});
+When('the user fills all the Telegraf mandatory fields', () => {
+  cy.FillTelegrafMandatoryFields(agentsConfiguration.telegraf1);
+});
 
-When('the user clicks on cancel', () => {});
+When('the user clicks on cancel', () => {
+  cy.contains('button', 'Cancel').click();
+});
 
-Then('a pop-up is displayed', () => {});
+Then('a pop-up is displayed', () => {
+  cy.get('div[role="dialog"]').eq(1).should('be.visible');
+});
 
-Then(
-  'the title of this pop-up is "Do you want to save the changes?"',
-  () => {}
-);
+Then('the title of this pop-up is "Do you want to save the changes?"', () => {
+  cy.get('div[class*="-modalHeader"]')
+    .eq(1)
+    .within(() => {
+      cy.get('h2').should('contain.text', 'Do you want to save the changes?');
+    });
+});
 
 Then(
   'the message body of this pop-up is "If you click on Discard, your changes will not be saved."',
-  () => {}
+  () => {
+    cy.get('div[class*="-modalBody"]')
+      .eq(1)
+      .should(
+        'contain.text',
+        'If you click on Discard, your changes will not be saved.'
+      );
+  }
 );
 
-When("the user doesn't fill some CMA type mandatory fields", () => {});
+When("the user doesn't fill some CMA type mandatory fields", () => {
+  cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
+  cy.FillOnlySomeCMAMandatoryFields(agentsConfiguration.CMA1);
+});
 
-Then(
-  'the title of this pop-up is "Do you want to resolve the errors?"',
-  () => {}
-);
+Then('the title of this pop-up is "Do you want to resolve the errors?"', () => {
+  cy.get('div[class*="-modalHeader"]')
+    .eq(1)
+    .within(() => {
+      cy.get('h2').should('contain.text', 'Do you want to resolve the errors?');
+    });
+});
 
 Then(
   'the message body of this pop-up is "There are errors in the form. Do you want to quit the form without resolving the errors?"',
-  () => {}
+  () => {
+    cy.get('div[class*="-modalBody"]')
+      .eq(1)
+      .should(
+        'contain.text',
+        'There are errors in the form. Do you want to quit the form without resolving the errors?'
+      );
+  }
 );
 
 Then('this pop-up contains two buttons "Resolve" and "Discard"', () => {
-
+  cy.get('div[class*="-modalActions"]').within(() => {
+    cy.get('button').contains('Discard').should('exist');
+    cy.get('button').contains('Resolve').should('exist');
+    cy.get('button').should('have.length', 2);
+  });
 });
 
 When("the user doesn't fill some Telegraf type mandatory fields", () => {
-
+  cy.FillOnlySomeTelegrafMandatoryFields(agentsConfiguration.telegraf1);
 });
 
 When('the user clicks outside the form', () => {
-
+  cy.get('body').click(0, 0);
 });

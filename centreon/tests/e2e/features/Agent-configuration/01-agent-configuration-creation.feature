@@ -91,8 +91,8 @@ Feature: Create a new Agent Configuration
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add
     Then a pop-up menu with the form is displayed
-    When the user select CMA type
-    And the user fills all the CMA type mandatory fields
+    When the user selects the centreon agent
+    And the user fills in the mandatory information
     And the user clicks on cancel
     Then a pop-up is displayed
     And the title of this pop-up is "Do you want to save the changes?"
@@ -115,7 +115,7 @@ Feature: Create a new Agent Configuration
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add
     Then a pop-up menu with the form is displayed
-    When the user select CMA type
+    When the user selects the centreon agent
     And the user doesn't fill some CMA type mandatory fields
     And the user clicks on cancel
     Then a pop-up is displayed
@@ -141,7 +141,7 @@ Feature: Create a new Agent Configuration
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add
     Then a pop-up menu with the form is displayed
-    When the user select CMA type
+    When the user selects the centreon agent
     And the user doesn't fill some CMA type mandatory fields
     And the user clicks outside the form
     Then a pop-up is displayed
