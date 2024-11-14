@@ -1,5 +1,5 @@
 name: web
-run-name: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) && format('web nightly {0}', github.ref_name) || '' }}
+run-name: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.nightly_manual_trigger == 'true')) && format('web nightly {0}', github.ref_name) || '' }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -8,8 +8,8 @@ concurrency:
 on:
   workflow_dispatch:
     inputs:
-      is_nightly:
-        description: 'Set to true for nightly run'
+      nightly_manual_trigger:
+        description: 'Set to true to trigger a nightly run'
         required: true
         default: false
         type: boolean
@@ -47,6 +47,7 @@ env:
 
 jobs:
   changes:
+    needs: [get-environment]
     runs-on: ubuntu-24.04
     outputs:
       has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes }}
@@ -92,34 +93,22 @@ jobs:
               - '**/tests/e2e/**/*.feature'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
+  get-environment:
+    uses: ./.github/workflows/get-environment.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+      nightly_manual_trigger: ${{ inputs.nightly_manual_trigger || false }}
+
   gherkin-lint:
     runs-on: ubuntu-24.04
     needs: [changes]
     if: ${{ needs.changes.outputs.has_features_changes == 'true' }}
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - uses: ./.github/actions/gherkin-lint
         with:
           features_path: centreon/tests/e2e/features
-
-  dispatch-to-maintained-branches:
-    if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' }}
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v4
-
-      - run: |
-          gh workflow run web.yml -r "dev-23.10.x" -f is_nightly=true
-        shell: bash
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  get-environment:
-    uses: ./.github/workflows/get-environment.yml
-    with:
-      version_file: centreon/www/install/insertBaseConf.sql
 
   frontend-web-build:
     needs: [get-environment]
@@ -184,8 +173,8 @@ jobs:
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ needs.get-environment.outputs.major_version }}
       credentials:
-        username: ${{ secrets.DOCKER_REGISTRY_ID }}
-        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+        username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+        password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -398,8 +387,8 @@ jobs:
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
       credentials:
-        username: ${{ secrets.DOCKER_REGISTRY_ID }}
-        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+        username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+        password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
     name: package ${{ matrix.distrib }}
 
@@ -559,8 +548,8 @@ jobs:
         uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-          username: ${{ secrets.DOCKER_REGISTRY_ID }}
-          password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+          username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
 
       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
         uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
@@ -656,12 +645,13 @@ jobs:
       database_image: bitnami/mariadb:10.11
       dependencies_lock_file: centreon/pnpm-lock.yaml
       major_version: ${{ needs.get-environment.outputs.major_version }}
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
       stability: ${{ needs.get-environment.outputs.stability }}
       xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
 
     secrets:
-      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+      registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
       client_id: ${{ secrets.XRAY_CLIENT_ID }}
       client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
       jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
@@ -685,8 +675,8 @@ jobs:
       features_path: tests/api/features
       config_file: tests/api/behat.yml
     secrets:
-      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+      registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   legacy-e2e-test:
@@ -707,8 +697,8 @@ jobs:
       os: ${{ matrix.operating_system }}
       features_path: features
     secrets:
-      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+      registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   create-xray-test-plan-and-test-execution:
@@ -755,8 +745,8 @@ jobs:
       dependencies_lock_file: centreon/pnpm-lock.yaml
       xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
     secrets:
-      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+      registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
       xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
       xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
 
@@ -772,8 +762,8 @@ jobs:
         uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-          username: ${{ secrets.DOCKER_REGISTRY_ID }}
-          password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
       - name: Run Lighthouse
         uses: ./.github/actions/lighthouse-performance-testing
