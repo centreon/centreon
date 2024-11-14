@@ -111,18 +111,7 @@ Then('the group of parameters for the host disappears', () => {
 });
 
 When('the user fills in the mandatory information', () => {
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type('centreon-agent-001');
-  cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
-  cy.contains('Poller-1').click();
-  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type(
-    'my-otel-certificate-name-002'
-  );
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).type(
-    'my-otel-private-key-name-002'
-  );
-  cy.getByLabel({ label: 'CA file name', tag: 'input' })
-    .eq(0)
-    .type('my-ca-file-002');
+  cy.FillCMAMandatoryFields(agentsConfiguration.CMA1);
 });
 
 Then('the second agent is displayed in the Agents Configuration page', () => {
@@ -306,67 +295,58 @@ Then('the agent has been created', () => {
   cy.get('*[role="rowgroup"]').should('contain', 'Telegraf');
 });
 
-When('the user fills all the CMA type mandatory fields', () => {});
+When(
+  'the user fills in the {string} mandatory fields',
+  (agent_type: string) => {
+    if (agent_type.includes('Agent')) {
+      cy.FillCMAMandatoryFields(agentsConfiguration.CMA1);
+    } else {
+      cy.FillTelegrafMandatoryFields(agentsConfiguration.telegraf1);
+    }
+  }
+);
 
-When('the user select Telegraf type', () => {
+When('the user selects the {string} type', (agentType: string) => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.get('*[role="listbox"]').contains('Telegraf').click();
+  cy.get('*[role="listbox"]').contains(agentType).click();
 });
 
 When('the user fills all the Telegraf mandatory fields', () => {
   cy.FillTelegrafMandatoryFields(agentsConfiguration.telegraf1);
 });
 
-When('the user clicks on cancel', () => {
-  cy.contains('button', 'Cancel').click();
+When('the user {string} the form', (action: string) => {
+  if (action.includes('cancel')) {
+    cy.contains('button', 'Cancel').click();
+  } else {
+    cy.get('body').click(0, 0);
+  }
 });
 
 Then('a pop-up is displayed', () => {
   cy.get('div[role="dialog"]').eq(1).should('be.visible');
 });
 
-Then('the title of this pop-up is "Do you want to save the changes?"', () => {
+Then('the title of this pop-up is {string}', (popupTitle: string) => {
   cy.get('div[class*="-modalHeader"]')
     .eq(1)
     .within(() => {
-      cy.get('h2').should('contain.text', 'Do you want to save the changes?');
+      cy.get('h2').should('contain.text', popupTitle);
     });
 });
 
-Then(
-  'the message body of this pop-up is "If you click on Discard, your changes will not be saved."',
-  () => {
-    cy.get('div[class*="-modalBody"]')
-      .eq(1)
-      .should(
-        'contain.text',
-        'If you click on Discard, your changes will not be saved.'
-      );
-  }
-);
-
-When("the user doesn't fill some CMA type mandatory fields", () => {
-  cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
-  cy.FillOnlySomeCMAMandatoryFields(agentsConfiguration.CMA1);
+Then('the message body of this pop-up is {string}', (popupMessage: string) => {
+  cy.get('div[class*="-modalBody"]').eq(1).should('contain.text', popupMessage);
 });
 
-Then('the title of this pop-up is "Do you want to resolve the errors?"', () => {
-  cy.get('div[class*="-modalHeader"]')
-    .eq(1)
-    .within(() => {
-      cy.get('h2').should('contain.text', 'Do you want to resolve the errors?');
-    });
-});
-
-Then(
-  'the message body of this pop-up is "There are errors in the form. Do you want to quit the form without resolving the errors?"',
-  () => {
-    cy.get('div[class*="-modalBody"]')
-      .eq(1)
-      .should(
-        'contain.text',
-        'There are errors in the form. Do you want to quit the form without resolving the errors?'
-      );
+When(
+  "the user doesn't fill some {string} mandatory fields",
+  (agentType: string) => {
+    if (agentType.includes('Agent')) {
+      cy.FillOnlySomeCMAMandatoryFields(agentsConfiguration.CMA1);
+    } else {
+      cy.FillOnlySomeTelegrafMandatoryFields(agentsConfiguration.telegraf1);
+    }
   }
 );
 
@@ -376,12 +356,4 @@ Then('this pop-up contains two buttons "Resolve" and "Discard"', () => {
     cy.get('button').contains('Resolve').should('exist');
     cy.get('button').should('have.length', 2);
   });
-});
-
-When("the user doesn't fill some Telegraf type mandatory fields", () => {
-  cy.FillOnlySomeTelegrafMandatoryFields(agentsConfiguration.telegraf1);
-});
-
-When('the user clicks outside the form', () => {
-  cy.get('body').click(0, 0);
 });

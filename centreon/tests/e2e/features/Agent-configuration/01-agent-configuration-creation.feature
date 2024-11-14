@@ -87,77 +87,38 @@ Feature: Create a new Agent Configuration
     Then the form fields are empty
 
   @TEST_MON-152745
-  Scenario: Verification of the pop-up displayed when canceling a PAC form creation with CMA type and all mandatory informations
+  Scenario Outline: Verification of the pop-up displayed when user '<action>' a PAC form creation with '<agent_type>' type and all mandatory informations
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add
     Then a pop-up menu with the form is displayed
-    When the user selects the centreon agent
-    And the user fills in the mandatory information
-    And the user clicks on cancel
+    When the user selects the '<agent_type>' type
+    And the user fills in the '<agent_type>' mandatory fields
+    And the user '<action>' the form
     Then a pop-up is displayed
-    And the title of this pop-up is "Do you want to save the changes?"
-    And the message body of this pop-up is "If you click on Discard, your changes will not be saved."
-
-  @TEST_MON-152747
-  Scenario: Verification of the pop-up displayed when canceling a PAC form creation with Telegraf type and all mandatory informations
-    Given a non-admin user is in the Agents Configuration page
-    When the user clicks on Add
-    Then a pop-up menu with the form is displayed
-    When the user select Telegraf type
-    And the user fills all the Telegraf mandatory fields
-    And the user clicks on cancel
-    Then a pop-up is displayed
-    And the title of this pop-up is "Do you want to save the changes?"
-    And the message body of this pop-up is "If you click on Discard, your changes will not be saved."
+    And the title of this pop-up is '<popup_title>'
+    And the message body of this pop-up is '<popup_message>'
+    Examples:
+      | action           | agent_type | popup_title                    | popup_message                                                             |
+      | clicks on cancel | Centreon Monitoring Agent | Do you want to save the changes? | If you click on Discard, your changes will not be saved. |
+      | clicks on cancel | Telegraf | Do you want to save the changes? | If you click on Discard, your changes will not be saved. |
+      | clicks outside | Centreon Monitoring Agent | Do you want to save the changes? | If you click on Discard, your changes will not be saved. |
+      | clicks outside  | Telegraf | Do you want to save the changes? | If you click on Discard, your changes will not be saved. |
 
   @TEST_MON-152759
-  Scenario: Verification of the pop-up displayed when canceling a PAC form creation with CMA type and missing mandatory informations
+  Scenario Outline: Verification of the pop-up displayed when user '<action>' a PAC form creation with '<agent_type>' type and missing mandatory informations
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add
     Then a pop-up menu with the form is displayed
-    When the user selects the centreon agent
-    And the user doesn't fill some CMA type mandatory fields
-    And the user clicks on cancel
+    When the user selects the '<agent_type>' type
+    And the user doesn't fill some '<agent_type>' mandatory fields
+    And the user '<action>' the form
     Then a pop-up is displayed
     And the title of this pop-up is "Do you want to resolve the errors?"
     And the message body of this pop-up is "There are errors in the form. Do you want to quit the form without resolving the errors?"
     And this pop-up contains two buttons "Resolve" and "Discard"
-
-  @TEST_MON-152762
-  Scenario: Verification of the pop-up displayed when canceling a PAC form creation with Telegraf type and missing mandatory informations
-    Given a non-admin user is in the Agents Configuration page
-    When the user clicks on Add
-    Then a pop-up menu with the form is displayed
-    When the user select Telegraf type
-    And the user doesn't fill some Telegraf type mandatory fields
-    And the user clicks on cancel
-    Then a pop-up is displayed
-    And the title of this pop-up is "Do you want to resolve the errors?"
-    And the message body of this pop-up is "There are errors in the form. Do you want to quit the form without resolving the errors?"
-    And this pop-up contains two buttons "Resolve" and "Discard"
-
-  @TEST_MON-152763
-  Scenario: Verification of the pop-up displayed when clicking outside a PAC form creation with CMA type and missing mandatory informations
-    Given a non-admin user is in the Agents Configuration page
-    When the user clicks on Add
-    Then a pop-up menu with the form is displayed
-    When the user selects the centreon agent
-    And the user doesn't fill some CMA type mandatory fields
-    And the user clicks outside the form
-    Then a pop-up is displayed
-    And the title of this pop-up is "Do you want to resolve the errors?"
-    And the message body of this pop-up is "There are errors in the form. Do you want to quit the form without resolving the errors?"
-    And this pop-up contains two buttons "Resolve" and "Discard"
-
-  @TEST_MON-152764
-  Scenario: Verification of the pop-up displayed when clicking outside a PAC form creation with Telegraf type and missing mandatory informations
-    Given a non-admin user is in the Agents Configuration page
-    When the user clicks on Add
-    Then a pop-up menu with the form is displayed
-    When the user select Telegraf type
-    And the user doesn't fill some Telegraf type mandatory fields
-    And the user clicks outside the form
-    Then a pop-up is displayed
-    And the title of this pop-up is "Do you want to resolve the errors?"
-    And the message body of this pop-up is "There are errors in the form. Do you want to quit the form without resolving the errors?"
-    And this pop-up contains two buttons "Resolve" and "Discard"
+    Examples:
+      | action           | agent_type | popup_title                    | popup_message                                                             |
+      | clicks on cancel | Centreon Monitoring Agent | Do you want to resolve the errors? | There are errors in the form. Do you want to quit the form without resolving the errors? |
+      | clicks on cancel | Telegraf | Do you want to resolve the errors? | There are errors in the form. Do you want to quit the form without resolving the errors? |
+      | clicks outside | Centreon Monitoring Agent | Do you want to resolve the errors? | There are errors in the form. Do you want to quit the form without resolving the errors? |
+      | clicks outside  | Telegraf | Do you want to resolve the errors? | There are errors in the form. Do you want to quit the form without resolving the errors? |
