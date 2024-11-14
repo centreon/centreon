@@ -8,7 +8,7 @@
         "certfFileName": "my-certificate-name-001"
     },
     "CMA1": {
-        "name": "CMA-001",
+        "name": "centreon-agent-001",
         "pollerName": "Poller-1",
         "publicCertfFileName": "my-otel-certificate-name-002",
         "caFileName": "ca-file-name-002",
