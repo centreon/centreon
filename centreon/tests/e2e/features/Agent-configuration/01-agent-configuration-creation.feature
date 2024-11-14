@@ -113,8 +113,8 @@ Feature: Create a new Agent Configuration
     And the user doesn't fill some '<agent_type>' mandatory fields
     And the user '<action>' the form
     Then a pop-up is displayed
-    And the title of this pop-up is "Do you want to resolve the errors?"
-    And the message body of this pop-up is "There are errors in the form. Do you want to quit the form without resolving the errors?"
+    And the title of this pop-up is '<popup_title>'
+    And the message body of this pop-up is '<popup_message>'
     And this pop-up contains two buttons "Resolve" and "Discard"
     Examples:
       | action           | agent_type | popup_title                    | popup_message                                                             |
