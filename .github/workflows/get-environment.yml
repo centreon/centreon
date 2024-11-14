@@ -4,6 +4,9 @@ on:
       version_file:
         required: true
         type: string
+      nightly_manual_trigger:
+        required: false
+        type: boolean
     outputs:
       latest_major_version:
         description: "latest major version"
@@ -35,6 +38,9 @@ on:
       is_targeting_feature_branch:
         description: "if it is a PR, check if targeting a feature branch"
         value: ${{ jobs.get-environment.outputs.is_targeting_feature_branch }}
+      is_nightly:
+        description: "if the current workflow run is considered a nightly"
+        value: ${{ jobs.get-environment.outputs.is_nightly }}
 
 jobs:
   get-environment:
@@ -50,6 +56,7 @@ jobs:
       release_type: ${{ steps.get_release_type.outputs.release_type }}
       os_and_database_matrix: ${{ steps.get_os_database_matrix.outputs.result }}
       is_targeting_feature_branch: ${{ steps.get_stability.outputs.is_targeting_feature_branch }}
+      is_nightly: ${{ steps.get_nightly_status.outputs.is_nightly }}
 
     steps:
       - name: Checkout sources (current branch)
@@ -225,6 +232,26 @@ jobs:
 
             return false;
 
+      - name: Detect nightly status
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        id: get_nightly_status
+        env:
+          NIGHTLY_MANUAL_TRIGGER: ${{ inputs.nightly_manual_trigger }}
+        with:
+          script: |
+            const getNightlyInput = () => {
+              const nightly_manual_trigger = process.env.NIGHTLY_MANUAL_TRIGGER;
+              console.log(nightly_manual_trigger);
+              if (typeof nightly_manual_trigger === 'undefined' || nightly_manual_trigger === '') {
+                return 'false';
+              } else if (context.eventName === 'schedule' || context.eventName === 'workflow_dispatch' && nightly_manual_trigger === 'true' ) {
+                return 'true';
+              }
+              return 'false';
+            };
+
+            core.setOutput('is_nightly', getNightlyInput());
+
       - name: Detect operating systems and databases to test
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         id: get_os_database_matrix
@@ -260,7 +287,7 @@ jobs:
               };
             }
 
-            if (context.eventName === 'schedule' || ${{ contains(github.event.pull_request.labels.*.name, 'system') && 'true' || 'false' }}) {
+            if (${{ steps.get_nightly_status.outputs.is_nightly }} == 'true' || ${{ contains(github.event.pull_request.labels.*.name, 'system') && 'true' || 'false' }}) {
               matrix = {
                 ...matrix,
                 "operating_systems": [alma9_mariadb, alma8_mariadb, bookworm_mysql],
@@ -288,6 +315,7 @@ jobs:
               ['stability', '${{ steps.get_stability.outputs.stability }}'],
               ['release_type', '${{ steps.get_release_type.outputs.release_type || '<em>not defined because this is not a release</em>' }}'],
               ['is_targeting_feature_branch', '${{ steps.get_stability.outputs.is_targeting_feature_branch }}'],
+              ['is_nightly', '${{ steps.get_nightly_status.outputs.is_nightly }}']
             ];
 
             outputTable.push(['target_stability', '${{ steps.get_stability.outputs.target_stability || '<em>not defined because current run is not triggered by pull request event</em>' }}']);
