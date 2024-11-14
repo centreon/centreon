@@ -498,7 +498,7 @@ function set_required_prerequisite() {
 						$PKG_MGR module install php:remi-8.1 -y -q
 						$PKG_MGR module enable php:remi-8.1 -y -q
 						;;
-					"24.10")
+					"24.1"[0-2])
 						install_remi_repo
 						log "INFO" "Installing PHP 8.2 and enable it"
 						$PKG_MGR module reset php -y -q
@@ -552,7 +552,7 @@ function set_required_prerequisite() {
 						$PKG_MGR module install php:8.1 -y -q
 						$PKG_MGR module enable php:8.1 -y -q
 						;;
-					"24.10")
+					"24.1"[0-2])
 						#install_remi_repo
 						log "INFO" "Installing PHP 8.2 and enable it"
 						$PKG_MGR module reset php -y -q
@@ -603,7 +603,7 @@ function set_required_prerequisite() {
 				PHP_SERVICE_UNIT="php8.1-fpm"
 				;;
 			12)
-				if ! [[ "$version" == "24.04" || "$version" == "24.10" ]]; then
+				if ! [[ "$version" == "24.04" || "$version" =~ "24.1"[0-2] ]]; then
 					error_and_exit "For Debian $detected_os_version, only Centreon versions >= 24.04 are compatible. You chose $version"
 				elif [[ "$version" == "24.04" ]];then
 					PHP_SERVICE_UNIT="php8.1-fpm"
@@ -657,7 +657,7 @@ function set_required_prerequisite() {
 					echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
 					wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
 					;;
-				"24.10")
+				"24.1"[0-2])
 					echo "Installing php from official os repositories."
 					;;
 			esac
