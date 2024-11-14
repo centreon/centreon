@@ -620,5 +620,29 @@ export default (): void => {
         cy.matchImageSnapshot();
       });
     });
+
+    describe('Ask Before quit popup', () => {
+      it('displays a modal when the form is updated with errors and the cancel button is clicked', () => {
+        initializeModal({ variant: 'update' });
+
+        cy.get('input[name="port"]').clear();
+        cy.contains(labelCancel).click();
+
+        cy.contains('Do you want to resolve the errors?').should('be.visible');
+
+        cy.makeSnapshot();
+      });
+
+      it('displays a modal when the form is updated and the cancel button is clicked', () => {
+        initializeModal({ variant: 'update' });
+
+        cy.findAllByTestId(labelName).eq(1).type('New name');
+        cy.contains(labelCancel).click({ force: true });
+
+        cy.contains('Do you want to save the changes?').should('be.visible');
+
+        cy.makeSnapshot();
+      });
+    });
   });
 };
