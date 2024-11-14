@@ -5,7 +5,6 @@ import {
   checkServicesAreMonitored,
   checkMetricsAreMonitored
 } from '../../../commons';
-import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import statuschartWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithStatusChartWidget.json';
@@ -163,7 +162,6 @@ before(() => {
       service: 'Ping'
     }
   ]);
-
   cy.logoutViaAPI();
   cy.applyAcl();
 });
@@ -206,7 +204,7 @@ beforeEach(() => {
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
   cy.loginByTypeOfUser({
-    jsonName: dashboardAdministratorUser.login,
+    jsonName: 'admin',
     loginViaApi: false
   });
 });
@@ -400,7 +398,7 @@ When('the dashboard administrator user deletes one of the widgets', () => {
 });
 
 Then('only the contents of the other widget are displayed', () => {
-  cy.verifyLegendItemStyle(
+   cy.verifyLegendItemStyle(
     0,
     [
       greenCssBackground,
@@ -494,7 +492,7 @@ Then(
 );
 
 Given('a dashboard with a Status Chart widget', () => {
-  cy.insertDashboardWithWidget(
+   cy.insertDashboardWithWidget(
     dashboards.default,
     statuschartWidget,
     'centreon-widget-statuschart',
@@ -522,5 +520,48 @@ Then(
   'the user should be redirected to the resource status screen and all the resources must be displayed',
   () => {
     cy.contains('host2').should('exist');
+  }
+);
+
+Given('the dashboard administrator adds more than 20 hosts', () => {
+  cy.addMultipleHosts();
+  cy.navigateTo({
+    page: 'Resources Status',
+    rootItemNumber: 1
+  });
+  cy.waitForElementToBeVisible('[data-testid="CloseIcon"]');
+  cy.getByTestId({ testId: 'CloseIcon' }).click();
+  cy.exportConfig();
+  cy.waitUntil(
+    () => {
+      return cy
+        .getByLabel({ label: 'Up status hosts', tag: 'a' })
+        .invoke('text')
+        .then((text) => {
+          if (text !== '23') {
+            cy.getByTestId({ testId: 'RefreshIcon' }).click();
+            cy.getByLabel({ label: 'Select all' }).click();
+            cy.getByLabel({ label: 'Forced check' }).click();
+            cy.getByLabel({ label: 'Select all' }).click();
+          }
+
+          return text === '23';
+        });
+    },
+    { interval: 20000, timeout: 600000 }
+  );
+});
+
+Then(
+  'the number of hosts is evaluated to be 23',
+  () => {
+    cy.get('[data-testid="pieChart"]')
+    .eq(0)
+    .find('text tspan')
+    .invoke('text')
+    .then((text) => {
+      cy.log(text);
+      expect(text.trim()).to.eq('23hosts');
+   });
   }
 );
