@@ -273,7 +273,7 @@ jobs:
             };
             const bookworm_mysql = {
               "operating_system": "bookworm",
-              "database": "mysql:8.3",
+              "database": "mysql:8.0",
               "test_tags": "not @ignore"
             };
 
