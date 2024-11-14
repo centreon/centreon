@@ -55,7 +55,7 @@ const ConnectedAutocompleteField = (
     field,
     labelKey,
     open,
-    conditionField = 'id',
+    conditionField = 'name',
     searchConditions = [],
     getRenderedOptionText = (option): string => option.name?.toString(),
     getRequestHeaders,
