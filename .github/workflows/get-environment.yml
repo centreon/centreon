@@ -291,7 +291,7 @@ jobs:
               };
             }
 
-            if (${{ steps.get_nightly_status.outputs.is_nightly }} == 'true' || ${{ contains(github.event.pull_request.labels.*.name, 'system') && 'true' || 'false' }}) {
+            if ('${{ steps.get_nightly_status.outputs.is_nightly }}' == 'true' || ${{ contains(github.event.pull_request.labels.*.name, 'system') && 'true' || 'false' }}) {
               matrix = {
                 ...matrix,
                 "operating_systems": [alma9_mariadb, alma8_mariadb, bookworm_mysql],
