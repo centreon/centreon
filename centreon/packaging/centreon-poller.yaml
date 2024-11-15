@@ -44,6 +44,11 @@ contents:
       group: "centreon"
       mode: 0775
 
+  - dst: /usr/lib/centreon/plugins
+    type: dir
+    file_info:
+      mode: 0755
+
   - src: "../bin/{registerServerTopology.sh,registerServerTopologyTemplate}"
     dst: "/usr/share/centreon/bin/"
     file_info:
