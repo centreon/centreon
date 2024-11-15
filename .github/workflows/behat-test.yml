@@ -76,7 +76,9 @@ jobs:
           echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
 
   behat-test-run:
-    if: ${{ needs.behat-test-list.outputs.features != '' && toJson(fromJson(needs.behat-test-list.outputs.features)) != '[]' }}
+    if: |
+      needs.behat-test-list.outputs.features != '' &&
+      toJson(fromJson(needs.behat-test-list.outputs.features)) != '[]'
     needs: [behat-test-list]
     runs-on: ubuntu-24.04
     strategy:
@@ -234,7 +236,8 @@ jobs:
     needs: [behat-test-run, behat-test-report, regroup-artifacts]
     runs-on: ubuntu-24.04
     if: |
-      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
+      inputs.is_nightly == 'true' &&
+      github.run_attempt == 1 &&
       (failure() || cancelled())
     steps:
       - name: Checkout sources

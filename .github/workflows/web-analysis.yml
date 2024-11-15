@@ -48,7 +48,10 @@ on:
 
 jobs:
   dispatch-to-maintained-branches:
-    if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' }}
+    if: |
+      github.run_attempt == 1 &&
+      github.event_name == 'schedule' &&
+      github.ref_name == 'develop'
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout sources
@@ -71,7 +74,9 @@ jobs:
 
   veracode-analysis:
     needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.is_targeting_feature_branch != 'true' && github.event.pull_request.draft != 'true' }}
+    if: |
+      needs.get-environment.outputs.is_targeting_feature_branch != 'true' &&
+      github.event.pull_request.draft != 'true'
     uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: "centreon"

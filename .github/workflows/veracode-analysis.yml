@@ -100,6 +100,7 @@ jobs:
             "${{ github.event.pull_request.draft }}" == "false" ]]
           then
             # skip pull-request "ready-to-review" and not targeting a (un)stable branch
+            # avoid unconsistent diffs due to missing baseline files (e.g sub-feature targeting feature PR)
             for HEAD_BRANCH in "${HEAD_BRANCHES[@]}"; do
               if [[ "$HEAD_BRANCH" == "${{ github.base_ref }}" ]]; then
                 SKIP_ANALYSIS="false"
@@ -108,8 +109,7 @@ jobs:
             done
             [ "$SKIP_ANALYSIS" == "true" ] && echo "::notice::PR targets a feature branch. Skipping"
           elif [[ "$DEVELOPMENT_STAGE" != "Development" ]]; then
-            # skip development branches using workflow dispatch
-            SKIP_ANALYSIS="false" && echo "::notice::PR targets a development branch using a workflow dispatch. Skipping"
+            SKIP_ANALYSIS="false"
           fi
 
           echo "fail_build=$FAIL_BUILD" >> $GITHUB_OUTPUT
@@ -261,7 +261,9 @@ jobs:
 
       - name: Create jira ticket
         # In case of QG failure, a ticket must be created
-        if: needs.build.outputs.enable_qg == 'false' || ( needs.build.outputs.development_stage == 'Development' && failure() )
+        if: |
+          needs.build.outputs.enable_qg == 'false' ||
+          ( needs.build.outputs.development_stage == 'Development' && failure() )
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.jira_base_url }}
@@ -272,7 +274,9 @@ jobs:
 
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
-        if: success() && needs.build.outputs.development_stage != 'Development'
+        if: |
+          success() &&
+          needs.build.outputs.development_stage != 'Development'
         run: |
           BRANCHES=(develop master dev-${{ inputs.major_version }}.x ${{ inputs.major_version }}.x)
           for BRANCH in "${BRANCHES[@]}"; do
@@ -330,7 +334,9 @@ jobs:
 
       - name: Promote Scan
         # only develop will be promoted to policy scan
-        if: success() && github.ref_name == 'develop'
+        if: |
+          success() &&
+          github.ref_name == 'develop'
         env:
           VERACODE_API_ID: "${{ secrets.veracode_api_id }}"
           VERACODE_API_SECRET: "${{ secrets.veracode_api_key }}"

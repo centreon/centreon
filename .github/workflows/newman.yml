@@ -365,7 +365,10 @@ jobs:
 
   newman-test-run:
     needs: [newman-test-list, associate-test-cases]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: |
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -592,7 +595,8 @@ jobs:
 
       - name: Change test execution status
         if: |
-          inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) &&
+          inputs.os == 'alma9' &&
+          contains(fromJson('["testing", "unstable"]'), inputs.stability) &&
           inputs.is_nightly == 'true'
         run: |
             retry_command() {
@@ -708,7 +712,8 @@ jobs:
 
       - name: Perform Jira Transitions
         if: |
-          inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) &&
+          inputs.os == 'alma9' &&
+          contains(fromJson('["testing", "unstable"]'), inputs.stability) &&
           inputs.is_nightly == 'true'
         run: |
           transition_ids=("61" "81" "21" "31")
@@ -808,7 +813,8 @@ jobs:
     needs: [newman-test-run, synchronize-with-xray, regroup-artifacts]
     runs-on: ubuntu-24.04
     if: |
-      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
+      inputs.is_nightly == 'true' &&
+      github.run_attempt == 1 &&
       (failure() || cancelled())
     steps:
       - name: Create Jira ticket if nightly build failure
