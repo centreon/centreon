@@ -547,7 +547,7 @@ function updateTimeperiodByApi(array $formData, string $basePath): void
     );
 
     if ($response->getStatusCode() !== 204) {
-        $content = json_decode($response->getContent(false));
+        $content = json_decode(json: $response->getContent(false), flags: JSON_THROW_ON_ERROR);
 
         throw new Exception($content->message ?? 'Unexpected return status');
     }
