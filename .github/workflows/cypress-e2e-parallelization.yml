@@ -101,7 +101,9 @@ jobs:
           echo "features=$(cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-e2e-test-run:
-    if: ${{ needs.cypress-e2e-test-list.outputs.features != '' && toJson(fromJson(needs.cypress-e2e-test-list.outputs.features)) != '[]' }}
+    if: |
+      needs.cypress-e2e-test-list.outputs.features != '' &&
+      toJson(fromJson(needs.cypress-e2e-test-list.outputs.features)) != '[]'
     needs: [cypress-e2e-test-list]
     runs-on: ubuntu-24.04
     strategy:
@@ -241,7 +243,9 @@ jobs:
   # This action is only for NIGHTLY and testing branches
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
-    if: ${{ always() && (inputs.stability == 'testing' || github.event_name == 'schedule') }}
+    if: |
+      always() &&
+      (inputs.stability == 'testing' || github.event_name == 'schedule')
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
@@ -338,7 +342,8 @@ jobs:
     needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report, regroup-artifacts]
     runs-on: ubuntu-24.04
     if: |
-      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
+      inputs.is_nightly == 'true' &&
+      github.run_attempt == 1 &&
       (failure() || cancelled())
     steps:
       - name: Create Jira ticket if nightly build failure

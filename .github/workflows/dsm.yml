@@ -144,7 +144,7 @@ jobs:
     if: |
       contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
       github.event_name != 'workflow_dispatch' &&
-      github.event.pull_request.base.repo.name  == 'centreon'
+      github.repository == 'centreon/centreon'
 
     steps:
       - name: Checkout sources
@@ -164,9 +164,9 @@ jobs:
     needs: [get-environment, package]
     if: |
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-      github.event.pull_request.base.repo.name  == 'centreon'
+      github.repository == 'centreon/centreon'
     runs-on: [self-hosted, common]
-    environment: ${{ needs.get-version.outputs.environment }}
+    environment: ${{ needs.get-environment.outputs.pull_request_environment }}
 
     strategy:
       matrix:
@@ -192,9 +192,9 @@ jobs:
     needs: [get-environment, package]
     if: |
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-      github.event.pull_request.base.repo.name  == 'centreon'
+      github.repository == 'centreon/centreon'
     runs-on: [self-hosted, common]
-    environment: ${{ needs.get-version.outputs.environment }}
+    environment: ${{ needs.get-environment.outputs.pull_request_environment }}
 
     strategy:
       matrix:
@@ -222,7 +222,7 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      github.event.pull_request.base.repo.name  == 'centreon'
+      github.repository == 'centreon/centreon'
     runs-on: [self-hosted, common]
     strategy:
       matrix:

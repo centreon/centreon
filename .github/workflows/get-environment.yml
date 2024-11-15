@@ -41,10 +41,14 @@ on:
       is_nightly:
         description: "if the current workflow run is considered a nightly"
         value: ${{ jobs.get-environment.outputs.is_nightly }}
+      pull_request_environment:
+        description: "Pull request environment"
+        value: ${{ jobs.get-environment.outputs.pull_request_environment }}
 
 jobs:
   get-environment:
     runs-on: ubuntu-24.04
+    environment: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.fork && 'external_contributor' || 'internal_contributor' }}
     outputs:
       latest_major_version: ${{ steps.latest_major_version.outputs.latest_major_version }}
       is_cloud: ${{ steps.detect_cloud_version.outputs.result }}
@@ -57,8 +61,20 @@ jobs:
       os_and_database_matrix: ${{ steps.get_os_database_matrix.outputs.result }}
       is_targeting_feature_branch: ${{ steps.get_stability.outputs.is_targeting_feature_branch }}
       is_nightly: ${{ steps.get_nightly_status.outputs.is_nightly }}
+      pull_request_environment: ${{ steps.pull_request_environment.outputs.pull_request_environment }}
 
     steps:
+      - name: Get pull request environment
+        id: pull_request_environment
+        run: |
+          PULL_REQUEST_ENVIRONMENT="internal_contributor"
+          if [[ "${{ github.event_name }}" == "pull_request_target" && "${{ github.event.pull_request.head.repo.fork }}" == "true" ]]; then
+            PULL_REQUEST_ENVIRONMENT="external_contributor"
+          fi
+          echo "Pull request environment is $PULL_REQUEST_ENVIRONMENT"
+          echo "pull_request_environment=$PULL_REQUEST_ENVIRONMENT" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Checkout sources (current branch)
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 

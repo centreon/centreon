@@ -111,7 +111,7 @@ jobs:
       github.run_attempt == 1 &&
       github.event_name == 'schedule' &&
       github.ref_name == 'develop' &&
-      github.event.pull_request.base.repo.name == 'centreon'
+      github.repository == 'centreon/centreon'
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
@@ -163,8 +163,10 @@ jobs:
 
       - name: Create Jira ticket if nightly build failure
         if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure()
+          needs.get-environment.outputs.is_nightly == 'true' &&
+          github.run_attempt == 1 &&
+          failure() &&
+          github.repository == 'centreon/centreon'
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -342,7 +344,8 @@ jobs:
   backend-lint:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
-    if: needs.changes.outputs.has_backend_changes == 'true' &&
+    if: |
+      needs.changes.outputs.has_backend_changes == 'true' &&
       needs.get-environment.outputs.stability != 'stable'
 
     steps:
@@ -526,8 +529,10 @@ jobs:
 
       - name: Create Jira ticket if nightly build failure
         if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure()
+          needs.get-environment.outputs.is_nightly == 'true' &&
+          github.run_attempt == 1 &&
+          failure() &&
+          github.repository == 'centreon/centreon'
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -674,8 +679,10 @@ jobs:
 
       - name: Create Jira ticket if nightly build failure
         if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure()
+          needs.get-environment.outputs.is_nightly == 'true' &&
+          github.run_attempt == 1 &&
+          failure() &&
+          github.repository == 'centreon/centreon'
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -691,7 +698,7 @@ jobs:
       !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled') &&
       ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' ) &&
-      github.event.pull_request.base.repo.name  == 'centreon'
+      github.repository == 'centreon/centreon'
     strategy:
       fail-fast: false
       matrix:
@@ -858,7 +865,7 @@ jobs:
       - name: Publish report to S3
         if: |
           github.event_name == 'push' &&
-          github.event.pull_request.base.repo.name  == 'centreon'
+          github.repository == 'centreon/centreon'
         uses: ./.github/actions/lighthouse-to-s3
         with:
           report_path: centreon/lighthouse/report/lighthouseci-index.html
@@ -888,7 +895,7 @@ jobs:
       !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled') &&
       github.event_name != 'workflow_dispatch' &&
-      github.event.pull_request.base.repo.name  == 'centreon'
+      github.repository == 'centreon/centreon'
 
     steps:
       - name: Checkout sources
@@ -921,7 +928,7 @@ jobs:
       !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled') &&
       github.event_name != 'workflow_dispatch' &&
-      github.event.pull_request.base.repo.name  == 'centreon'
+      github.repository == 'centreon/centreon'
     steps:
       - name: Checkout sources
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
@@ -1012,8 +1019,8 @@ jobs:
       !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled') &&
       needs.changes.outputs.trigger_delivery == 'true' &&
-      github.event.pull_request.base.repo.name  == 'centreon'
-    environment: ${{ needs.get-version.outputs.environment }}
+      github.repository == 'centreon/centreon'
+    environment: ${{ needs.get-environment.outputs.pull_request_environment }}
 
     strategy:
       matrix:
@@ -1037,8 +1044,10 @@ jobs:
 
       - name: Create Jira ticket if nightly build failure
         if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure()
+          needs.get-environment.outputs.is_nightly == 'true' &&
+          github.run_attempt == 1 &&
+          failure() &&
+          github.repository == 'centreon/centreon'
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -1063,8 +1072,8 @@ jobs:
       !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled') &&
       needs.changes.outputs.trigger_delivery == 'true' &&
-      github.event.pull_request.base.repo.name  == 'centreon'
-    environment: ${{ needs.get-version.outputs.environment }}
+      github.repository == 'centreon/centreon'
+    environment: ${{ needs.get-environment.outputs.pull_request_environment }}
 
     strategy:
       matrix:
@@ -1088,8 +1097,10 @@ jobs:
 
       - name: Create Jira ticket if nightly build failure
         if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure()
+          needs.get-environment.outputs.is_nightly == 'true' &&
+          github.run_attempt == 1 &&
+          failure() &&
+          github.repository == 'centreon/centreon'
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -1101,12 +1112,12 @@ jobs:
   promote:
     needs: [get-environment, deliver-deb, deliver-rpm]
     if: |
-      (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
+      (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) &&
+      github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      github.event.pull_request.base.repo.name  == 'centreon' &&
-      needs.get-version.outputs.environment == 'internal_contributor'
+      github.repository == 'centreon/centreon'
     runs-on: [self-hosted, common]
 
     strategy:

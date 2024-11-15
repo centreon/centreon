@@ -19,7 +19,7 @@ jobs:
   release:
     if: |
       github.event.pull_request.merged == true &&
-      github.event.pull_request.base.repo.name  == 'centreon'
+      github.repository == 'centreon/centreon'
     runs-on: ubuntu-24.04
     steps:
       - name: Check base_ref

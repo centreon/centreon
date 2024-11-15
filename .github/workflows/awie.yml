@@ -35,7 +35,13 @@ env:
   module: awie
 
 jobs:
+  get-environment:
+    uses: ./.github/workflows/get-environment.yml
+    with:
+      version_file: centreon-awie/www/modules/centreon-awie/conf.php
+
   changes:
+    needs: [get-environment]
     runs-on: ubuntu-24.04
     outputs:
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
@@ -66,14 +72,11 @@ jobs:
           has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
           has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
 
-  get-environment:
-    uses: ./.github/workflows/get-environment.yml
-    with:
-      version_file: centreon-awie/www/modules/centreon-awie/conf.php
-
   veracode-analysis:
     needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.is_targeting_feature_branch != 'true' && github.event.pull_request.draft != 'true' }}
+    if: |
+      needs.get-environment.outputs.is_targeting_feature_branch != 'true' &&
+      github.event.pull_request.draft != 'true'
     uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: centreon-awie
@@ -166,7 +169,9 @@ jobs:
   deliver-sources:
     runs-on: [self-hosted, common]
     needs: [get-environment, package]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+    if: |
+      contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
+      github.event_name != 'workflow_dispatch'
 
     steps:
       - name: Checkout sources
@@ -187,9 +192,9 @@ jobs:
     if: |
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
       needs.changes.outputs.trigger_delivery == 'true' &&
-      github.event.pull_request.base.repo.name  == 'centreon'
+      github.repository == 'centreon/centreon'
     runs-on: [self-hosted, common]
-    environment: ${{ needs.get-version.outputs.environment }}
+    environment: ${{ needs.get-environment.outputs.pull_request_environment }}
 
     strategy:
       matrix:
@@ -214,11 +219,11 @@ jobs:
   deliver-deb:
     needs: [changes, get-environment, package]
     if: |
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)
-      && needs.changes.outputs.trigger_delivery == 'true' &&
-      github.event.pull_request.base.repo.name  == 'centreon'
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      needs.changes.outputs.trigger_delivery == 'true' &&
+      github.repository == 'centreon/centreon'
     runs-on: [self-hosted, common]
-    environment: ${{ needs.get-version.outputs.environment }}
+    environment: ${{ needs.get-environment.outputs.pull_request_environment }}
 
     strategy:
       matrix:
@@ -243,11 +248,12 @@ jobs:
   promote:
     needs: [get-environment, deliver-rpm, deliver-deb]
     if: |
-      (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
+      (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) &&
+      github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      github.event.pull_request.base.repo.name  == 'centreon'
+      github.repository == 'centreon/centreon'
     runs-on: [self-hosted, common]
     strategy:
       matrix:
