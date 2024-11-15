@@ -41,6 +41,9 @@ on:
       is_nightly:
         description: "if the current workflow run is considered a nightly"
         value: ${{ jobs.get-environment.outputs.is_nightly }}
+      skip_workflow:
+        description: "if the current workflow should be skipped"
+        value: ${{ jobs.get-environment.outputs.skip_workflow }}
 
 jobs:
   get-environment:
@@ -57,6 +60,7 @@ jobs:
       os_and_database_matrix: ${{ steps.get_os_database_matrix.outputs.result }}
       is_targeting_feature_branch: ${{ steps.get_stability.outputs.is_targeting_feature_branch }}
       is_nightly: ${{ steps.get_nightly_status.outputs.is_nightly }}
+      skip_workflow: ${{ steps.skip_workflow.outputs.result }}
 
     steps:
       - name: Checkout sources (current branch)
@@ -69,6 +73,12 @@ jobs:
           ref: develop
           path: centreon-develop
           sparse-checkout: .version
+
+      - name: Check if current workflow should be skipped
+        id: skip_workflow
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: return "${{ github.event_name }}" === "pull_request" && ${{ contains(github.event.pull_request.labels.*.name, format('skip-workflow-{0}', github.workflow)) }};
 
       - name: Store latest major version
         id: latest_major_version
@@ -319,7 +329,8 @@ jobs:
               ['stability', '${{ steps.get_stability.outputs.stability }}'],
               ['release_type', '${{ steps.get_release_type.outputs.release_type || '<em>not defined because this is not a release</em>' }}'],
               ['is_targeting_feature_branch', '${{ steps.get_stability.outputs.is_targeting_feature_branch }}'],
-              ['is_nightly', '${{ steps.get_nightly_status.outputs.is_nightly }}']
+              ['is_nightly', '${{ steps.get_nightly_status.outputs.is_nightly }}'],
+              ['skip_workflow', '${{ steps.skip_workflow.outputs.result }}']
             ];
 
             outputTable.push(['target_stability', '${{ steps.get_stability.outputs.target_stability || '<em>not defined because current run is not triggered by pull request event</em>' }}']);
