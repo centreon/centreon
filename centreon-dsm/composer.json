@@ -1,9 +1,10 @@
 {
   "name": "centreon/centreon-dsm",
-  "version": "24.10.0",
+  "version": "24.10",
   "type": "project",
   "license": "GPL-2.0-only",
   "require-dev": {
+    "ext-json": "*",
     "centreon/centreon": "@dev",
     "centreon/centreon-test-lib": "24.10.x-dev",
     "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
@@ -24,6 +25,9 @@
     "sort-packages": true,
     "platform": {
       "php": "8.2"
+    },
+    "preferred-install": {
+      "*": "dist"
     },
     "allow-plugins": {
       "symfony/flex": false,
