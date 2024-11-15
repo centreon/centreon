@@ -67,6 +67,12 @@ jobs:
           file: .github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.dependencies
           target: web_dependencies_collect
           context: .
+          build-args: |
+            "VERSION=${{ needs.get-environment.outputs.major_version }}"
+            "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
           pull: false
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect-${{ matrix.distrib }}:${{ needs.get-environment.outputs.stability == 'unstable' && needs.get-environment.outputs.major_version || github.head_ref || github.ref_name }}
+          secrets: |
+            "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
+            "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
