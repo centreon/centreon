@@ -1,6 +1,7 @@
 {
   "name": "centreon/centreon",
   "description": "Centreon - IT and Application monitoring software",
+  "version": "24.10",
   "type": "project",
   "license": "GPL-2.0-only",
   "require": {
@@ -34,7 +35,6 @@
     "pimple/pimple": "^3.2",
     "psr/container": "1.1.1",
     "sensio/framework-extra-bundle": "^6.2",
-    "smarty/smarty": "^v4.5",
     "smarty-gettext/smarty-gettext": "^1.6",
     "smarty/smarty": "^v4.3",
     "symfony/config": "6.4.*",
@@ -72,7 +72,7 @@
   "require-dev": {
     "behat/behat": "^3.10",
     "behat/mink-selenium2-driver": "1.6.*",
-    "centreon/centreon-test-lib": "dev-MON-147667-upgrade-to-php-8.2",
+    "centreon/centreon-test-lib": "dev-master",
     "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
     "friends-of-behat/mink": "^1.9",
     "friends-of-behat/mink-extension": "^2.5",
@@ -140,6 +140,9 @@
     "platform": {
       "php": "8.2"
     },
+    "preferred-install": {
+      "*": "dist"
+    },
     "allow-plugins": {
       "pestphp/pest-plugin": false,
       "symfony/flex": false,
@@ -147,10 +150,6 @@
     }
   },
   "scripts": {
-    "auto-scripts": {
-      "cache:clear": "symfony-cmd",
-      "assets:install %PUBLIC_DIR%": "symfony-cmd"
-    },
     "test": "pest --do-not-cache-result",
     "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml --no-interaction",
     "phpcs:strict": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff",

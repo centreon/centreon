@@ -14,6 +14,7 @@ import {
 } from './api/endpoints';
 import {
   labelAction,
+  labelAdd,
   labelAddAHost,
   labelAddAgentConfiguration,
   labelAddHost,
@@ -193,7 +194,7 @@ describe('Agent configurations', () => {
     });
 
     cy.contains(labelAgentsConfigurations).should('be.visible');
-    cy.get('button').contains(labelAddAgentConfiguration).should('be.visible');
+    cy.get('button').contains(labelAdd).should('be.visible');
     cy.contains(labelName).should('be.visible');
     cy.contains(labelAgentType).should('be.visible');
     cy.contains(labelPoller).should('be.visible');
@@ -201,7 +202,7 @@ describe('Agent configurations', () => {
     cy.contains('AC 0').should('be.visible');
     cy.contains('Telegraf').should('be.visible');
     cy.contains('2 pollers').should('be.visible');
-    cy.contains('0 pollers').should('be.visible');
+    cy.contains('0 poller').should('be.visible');
     cy.get(`button[title="${labelDelete}"]`).should('have.length', 10);
 
     cy.makeSnapshot();
@@ -422,9 +423,9 @@ describe('Agent configurations modal', () => {
   it('does not validate the form when fields contain errors', () => {
     initialize({});
 
-    cy.contains(labelAddAgentConfiguration).click();
+    cy.contains(labelAdd).click();
 
-    cy.contains(labelAddAgentConfiguration).should('be.visible');
+    cy.contains(labelAdd).should('be.visible');
 
     cy.findByLabelText(labelAgentType).click();
     cy.get('[data-option-index="0"]').click();
@@ -452,7 +453,7 @@ describe('Agent configurations modal', () => {
   it('discards the form when the cancel button is clicked and the corresponding button is clicked', () => {
     initialize({});
 
-    cy.contains(labelAddAgentConfiguration).click();
+    cy.contains(labelAdd).click();
 
     cy.findByLabelText(labelName).type('agent');
 
@@ -467,14 +468,14 @@ describe('Agent configurations modal', () => {
   it('resolves the form when the cancel button is clicked and the corresponding button is clicked', () => {
     initialize({});
 
-    cy.contains(labelAddAgentConfiguration).click();
+    cy.contains(labelAdd).click();
 
     cy.findByLabelText(labelName).type('agent');
 
     cy.contains(labelCancel).click();
     cy.contains('Resolve').click();
 
-    cy.contains(labelAddAgentConfiguration).should('exist');
+    cy.contains(labelAdd).should('exist');
     cy.contains('Resolve').should('not.exist');
 
     cy.makeSnapshot();
@@ -483,7 +484,7 @@ describe('Agent configurations modal', () => {
   it('sends the form when fields are valid and the corresponding button is clicked', () => {
     initialize({});
 
-    cy.contains(labelAddAgentConfiguration).click();
+    cy.contains(labelAdd).click();
 
     cy.findByLabelText(labelAgentType).click();
     cy.get('[data-option-index="0"]').click();
@@ -553,7 +554,7 @@ describe('Agent configurations modal', () => {
   it('displays the CMA form when the CMA agent type is selected', () => {
     initialize({});
 
-    cy.contains(labelAddAgentConfiguration).click();
+    cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
     cy.get('[data-option-index="1"]').click();
 
@@ -571,7 +572,7 @@ describe('Agent configurations modal', () => {
   it('resets the form when a different agent type is selected', () => {
     initialize({});
 
-    cy.contains(labelAddAgentConfiguration).click();
+    cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
     cy.get('[data-option-index="1"]').click();
     cy.findByLabelText(labelName).type('My agent');
@@ -597,7 +598,7 @@ describe('Agent configurations modal', () => {
   it('does not validate the form when there is no host configuration', () => {
     initialize({});
 
-    cy.contains(labelAddAgentConfiguration).click();
+    cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
     cy.get('[data-option-index="1"]').click();
     cy.findByLabelText(labelConnectionInitiatedByPoller).click();
@@ -617,7 +618,7 @@ describe('Agent configurations modal', () => {
   it('validates the form when fields are filled and the reverse switch is unchecked', () => {
     initialize({});
 
-    cy.contains(labelAddAgentConfiguration).click();
+    cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
     cy.get('[data-option-index="1"]').click();
     cy.findByLabelText(labelName).type('My agent');
@@ -649,7 +650,7 @@ describe('Agent configurations modal', () => {
   it('configures the host address and port when a host is selected', () => {
     initialize({});
 
-    cy.contains(labelAddAgentConfiguration).click();
+    cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
     cy.get('[data-option-index="1"]').click();
     cy.findByLabelText(labelConnectionInitiatedByPoller).click();
@@ -668,7 +669,7 @@ describe('Agent configurations modal', () => {
   it('splits the address and the port when a full address is pasted in the address field', () => {
     initialize({});
 
-    cy.contains(labelAddAgentConfiguration).click();
+    cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
     cy.get('[data-option-index="1"]').click();
     cy.findByLabelText(labelConnectionInitiatedByPoller).click();
@@ -682,7 +683,7 @@ describe('Agent configurations modal', () => {
   it('adds a new host configuration when the corresponding button is clicked', () => {
     initialize({});
 
-    cy.contains(labelAddAgentConfiguration).click();
+    cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
     cy.get('[data-option-index="1"]').click();
     cy.findByLabelText(labelConnectionInitiatedByPoller).click();
@@ -697,7 +698,7 @@ describe('Agent configurations modal', () => {
   it('removes a host configuration when the corresponding button is clicked', () => {
     initialize({});
 
-    cy.contains(labelAddAgentConfiguration).click();
+    cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
     cy.get('[data-option-index="1"]').click();
     cy.findByLabelText(labelConnectionInitiatedByPoller).click();
@@ -714,7 +715,7 @@ describe('Agent configurations modal', () => {
   it('sends the CMA agent type when the form is valid and the save button is clicked', () => {
     initialize({});
 
-    cy.contains(labelAddAgentConfiguration).click();
+    cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
     cy.get('[data-option-index="1"]').click();
     cy.findByLabelText(labelConnectionInitiatedByPoller).click();

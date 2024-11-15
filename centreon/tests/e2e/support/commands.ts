@@ -11,6 +11,7 @@ import '../features/Backup-configuration/commands';
 import '../features/Hosts/commands';
 import '../features/Contacts/commands';
 import '../features/Ldaps/commands';
+import '../features/Services-configuration/commands';
 import '../features/Agent-configuration/commands';
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
