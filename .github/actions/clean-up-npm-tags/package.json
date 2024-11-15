@@ -1,0 +1,14 @@
+{
+  "name": "clean-up-npm-tags",
+  "version": "1.0.0",
+  "description": "This module will clean up unused NPM tags.",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "centreon",
+  "type": "module",
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "node-fetch": "2"
+  }
+}
