@@ -62,12 +62,12 @@ Feature: Create a new Additional Connector Configuration
 
   @ignore
   @TEST_MON-152805
-  Scenario: Verification on fields (vCenter name / URL / Username / Password) on ACC Form
+  Scenario: Verification on fields (vCenter name, URL, Username, Password, Port) on ACC Form
     Given a non-admin user is in the Additional Connector Configuration page
     When the user clicks on Add
     Then a pop-up menu with the form is displayed
-    And fields (vCenter name / URL / Username / Password / Port) are not on readonly
-    And fields (vCenter name / URL / Username / Password) have the right values as placeholder
+    And fields (vCenter name, URL, Username, Password, Port) are not on readonly
+    And fields (vCenter name, URL, Username, Password, Port) have the right labels
 
   @TEST_MON-152806
   Scenario Outline: Verification of the pop-up displayed when user '<action>' an ACC form creation with all mandatory informations

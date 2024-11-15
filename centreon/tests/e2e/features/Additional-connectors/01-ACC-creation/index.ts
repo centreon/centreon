@@ -251,13 +251,43 @@ Then('the form fields are empty', () => {
 });
 
 Then(
-  'fields (vCenter name / URL / Username / Password / Port) are not on readonly',
-  () => {}
+  'fields (vCenter name, URL, Username, Password, Port) are not on readonly',
+  () => {
+    cy.get('#vCenternamevalue')
+      .should('not.have.attr', 'readonly')
+      .should('not.be.disabled');
+
+    cy.get('#URLvalue')
+      .should('not.have.attr', 'readonly')
+      .should('not.be.disabled');
+
+    cy.get('#Usernamevalue')
+      .should('not.have.attr', 'readonly')
+      .should('not.be.disabled');
+
+    cy.get('#Passwordvalue')
+      .should('not.have.attr', 'readonly')
+      .should('not.be.disabled');
+
+    cy.get('#Portvalue')
+      .should('not.have.attr', 'readonly')
+      .should('not.be.disabled');
+  }
 );
 
 Then(
-  'fields (vCenter name / URL / Username / Password) have the right values as placeholder',
-  () => {}
+  'fields (vCenter name, URL, Username, Password, Port) have the right labels',
+  () => {
+    cy.get('label[for="vCenternamevalue"]').should('have.text', 'vCenter name');
+
+    cy.get('label[for="URLvalue"').should('have.text', 'URL');
+
+    cy.get('label[for="Usernamevalue"').should('have.text', 'Username');
+
+    cy.get('label[for="Username"').should('have.text', 'Password');
+
+    cy.get('label[for="Portvalue"').should('have.text', 'Port');
+  }
 );
 
 When('the user {string} the form', (action: string) => {
