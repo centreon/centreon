@@ -32,6 +32,12 @@ Cypress.Commands.add(
       });
     }
   );
+
+  Cypress.Commands.add('exportConfig', () => {
+    cy.getByTestId({ testId: 'ExpandMoreIcon' }).eq(0).click();
+    cy.getByTestId({ testId: 'Export configuration' }).click();
+    cy.getByTestId({ testId: 'Confirm' }).click();
+  });
   
   
   declare global {
@@ -41,6 +47,7 @@ Cypress.Commands.add(
           iframeSelector: string,
           elementSelector: string
         ) => Cypress.Chainable;
+        exportConfig: () => Cypress.Chainable;
       }
     }
   }
