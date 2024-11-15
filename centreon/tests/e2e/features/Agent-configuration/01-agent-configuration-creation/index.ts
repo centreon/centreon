@@ -227,18 +227,6 @@ Then('the form displayed an error', () => {
   cy.getByTestId({ testId: 'Private key file name' })
     .eq(2)
     .contains('Invalid filename');
-  cy.getByTestId({ testId: 'Private key file name' })
-    .eq(0)
-    .contains('Invalid filename');
-  cy.getByTestId({ testId: 'Port' }).contains(
-    'Port number must be at most 65535'
-  );
-  cy.getByTestId({ testId: 'Certificate file name' }).contains(
-    'Invalid filename'
-  );
-  cy.getByTestId({ testId: 'Private key file name' })
-    .eq(2)
-    .contains('Invalid filename');
 });
 
 When('the user fills in the needed information', () => {
@@ -257,12 +245,6 @@ When('the user fills in the needed information', () => {
     .eq(0)
     .type('my-otel-private-key-name-001');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type(
-    'my-certificate-name-001'
-  );
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' })
-    .eq(1)
-    .type('my-otel-private-key-name-001');
   cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type(
     'my-certificate-name-001'
   );
