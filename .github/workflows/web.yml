@@ -572,7 +572,7 @@ jobs:
         id: from_image_version
         run: |
           FROM_IMAGE_VERSION="${{ needs.get-environment.outputs.major_version }}"
-          FROM_IMAGE="centreon-web-dependencies-${{ matrix.operating_system }}"
+          FROM_IMAGE="centreon-web-dependencies-collect-${{ matrix.operating_system }}"
           IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.head_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
           if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
             FROM_IMAGE_VERSION="${{ github.head_ref || github.ref_name }}"

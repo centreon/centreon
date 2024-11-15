@@ -1,6 +1,6 @@
 ARG VERSION
 
-FROM almalinux:8
+FROM almalinux:8 AS web_dependencies
 
 ARG VERSION
 ARG IS_CLOUD
@@ -109,3 +109,17 @@ EOF
 COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
 
 COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/
+
+FROM web_dependencies AS web_dependencies_collect
+
+RUN bash -e <<EOF
+
+dnf install -y \
+  centreon-gorgone \
+  centreon-engine \
+  centreon-broker-cbmod \
+  centreon-broker-cbd
+
+dnf clean all --enablerepo=*
+
+EOF

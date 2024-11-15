@@ -1,10 +1,10 @@
 ARG VERSION
 
-FROM debian:bookworm
+FROM debian:bookworm AS web_dependencies
 
 ARG VERSION
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN bash -e <<EOF
 
@@ -102,3 +102,19 @@ EOF
 COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
 
 COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/
+
+FROM web_dependencies AS web_dependencies_collect
+
+RUN bash -e <<EOF
+
+apt-get update
+
+apt-get install -y \
+  centreon-gorgone \
+  centreon-engine \
+  centreon-broker-cbmod \
+  centreon-broker-cbd
+
+apt-get clean
+
+EOF
