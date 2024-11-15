@@ -531,6 +531,7 @@ overrides:
       - php8.2-zip
       - php8.2-snmp
       - php8.2-ldap
+      - php8.2-readline
       - php8.2-sqlite3
       - php-pear
       - rrdtool
