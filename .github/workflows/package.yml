@@ -74,6 +74,11 @@ on:
         type: string
         description: The package files cache key
         required: true
+      is_nightly:
+        type: boolean
+        description: Nightly context or not
+        required: true
+
     secrets:
       registry_username:
         required: true
@@ -119,6 +124,7 @@ jobs:
           release: ${{ inputs.release }}
           commit_hash: ${{ inputs.commit_hash }}
           cache_key: unsigned-${{ inputs.cache_key }}
+          is_nightly: ${{ inputs.is_nightly }}
 
       - if: ${{ inputs.package_extension == 'deb' }}
         uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
