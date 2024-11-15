@@ -716,6 +716,7 @@ jobs:
       os: ${{ matrix.operating_system }}
       features_path: tests/api/features
       config_file: tests/api/behat.yml
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
     secrets:
       registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
@@ -723,7 +724,6 @@ jobs:
       jira_base_url: ${{ secrets.JIRA_BASE_URL }}
       jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
 
   legacy-e2e-test:
     needs: [get-environment, changes, dockerize]
