@@ -18,6 +18,12 @@ import { Line, TimeValue } from '../common/timeSeries/models';
 import BarStack from './BarStack';
 import { BarStyle } from './models';
 
+// Minimum value for logarithmic scale to avoid log(0)
+const minLogScaleValue = 0.001;
+
+const getNeutralValue = (scaleType?: 'linear' | 'logarithmic') =>
+  equals(scaleType, 'logarithmic') ? minLogScaleValue : 0;
+
 interface Props {
   barStyle: BarStyle;
   isTooltipHidden: boolean;
@@ -27,6 +33,7 @@ interface Props {
   timeSeries: Array<TimeValue>;
   xScale;
   yScalesPerUnit: Record<string, ScaleLinear<number, number>>;
+  scaleType?: 'linear' | 'logarithmic';
 }
 
 const BarGroup = ({
@@ -37,7 +44,8 @@ const BarGroup = ({
   xScale,
   yScalesPerUnit,
   isTooltipHidden,
-  barStyle
+  barStyle,
+  scaleType
 }: Props): JSX.Element => {
   const isHorizontal = equals(orientation, 'horizontal');
 
@@ -142,6 +150,8 @@ const BarGroup = ({
     [isHorizontal, placeholderScale, xScale, metricScale]
   );
 
+  const neutralValue = useMemo(() => getNeutralValue(scaleType), [scaleType]);
+
   return (
     <BarComponent<TimeValue>
       color={colorScale}
@@ -185,6 +195,7 @@ const BarGroup = ({
                   lines={linesBar}
                   timeSeries={timeSeriesBar}
                   yScale={yScalesPerUnit[bar.key.replace('stacked-', '')]}
+                  neutralValue={neutralValue}
                 />
               ) : (
                 <BarStack
@@ -198,6 +209,7 @@ const BarGroup = ({
                   lines={[linesBar]}
                   timeSeries={timeSeriesBar}
                   yScale={yScalesPerUnit[linesBar.unit]}
+                  neutralValue={neutralValue}
                 />
               );
             })}
@@ -215,7 +227,8 @@ const propsToMemoize = [
   'lines',
   'secondUnit',
   'isCenteredZero',
-  'barStyle'
+  'barStyle',
+  'scaleType'
 ];
 
 export default memo(BarGroup, (prevProps, nextProps) => {
