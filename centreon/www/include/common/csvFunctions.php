@@ -23,7 +23,7 @@
  *
  * @return Generator
  */
-function readLine(string &$text): Generator
+function readCsvLine(string &$text): Generator
 {
     $len = strlen($text);
     $cursor = 0;
@@ -54,7 +54,7 @@ function csvToArray(&$text, bool $useCsvHeaderAsKey, string $delimiter = ';'): a
     $delimiterNumber = 0;
     $data = [];
     $headers = [];
-    foreach (readLine($text) as $line) {
+    foreach (readCsvLine($text) as $line) {
         if ($lineNumber++ === 0) {
             $headers = explode($delimiter, $line);
             $delimiterNumber = count($headers);
