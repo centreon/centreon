@@ -222,7 +222,7 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      github.event.pull_request.base.repo.name  == 'centreon'
+      github.repository == 'centreon/centreon'
     runs-on: [self-hosted, common]
     strategy:
       matrix:
