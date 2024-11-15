@@ -768,7 +768,6 @@ jobs:
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
-
           password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
       - name: Run Lighthouse
