@@ -618,15 +618,14 @@ jobs:
       package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma8' && 'rpm-el8' || matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-bullseye') }}
       package_directory: centreon/tests/e2e/fixtures/packages
       dependencies_lock_file: centreon/pnpm-lock.yaml
-      xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
-      is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
     secrets:
       registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
-      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
-      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
-      artifactory_internal_repo_username: ${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}
-      artifactory_internal_repo_password: ${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}
+      client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+      jira_user: ${{ secrets.JIRA_USER }}
+      jira_token_test: ${{ secrets.JIRA_TOKEN_TEST }}
       jira_base_url: ${{ secrets.JIRA_BASE_URL }}
       jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
