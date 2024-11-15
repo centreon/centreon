@@ -229,6 +229,7 @@ try {
     chdir(_CENTREON_PATH_ . "www");
     $nagiosCFGPath = _CENTREON_CACHEDIR_ . "/config/engine/";
     $centreonBrokerPath = _CENTREON_CACHEDIR_ . "/config/broker/";
+    $vmWareConfigPath = _CENTREON_CACHEDIR_ . "/config/vmware/";
 
     /*  Set new error handler */
     set_error_handler($log_error);
@@ -248,6 +249,7 @@ try {
     foreach ($tab_server as $host) {
         if (isset($pollers) && ($pollers == 0 || in_array($host['id'], $pollers))) {
             $listBrokerFile = glob($centreonBrokerPath . $host['id'] . "/*.{xml,json,cfg,sql}", GLOB_BRACE);
+            $listVmWareFile = glob($vmWareConfigPath . $host['id'] . "/*.json", GLOB_BRACE);
             if (isset($host['localhost']) && $host['localhost'] == 1) {
                 /*
                  * Check if monitoring engine's configuration directory existss
@@ -331,6 +333,24 @@ try {
                             } elseif (posix_getuid() === fileowner($targetFilePath)) {
                                 @chmod($targetFilePath, 0664);
                             }
+                        }
+                    }
+                }
+                /**
+                 * VMWare configuration
+                 */
+                if (count($listVmWareFile) > 0) {
+                    foreach ($listVmWareFile as $fileCfg) {
+                        $succeded = copy($fileCfg, _CENTREON_ETC_ . '/' . 'centreon_vmware.json');
+                        if (! $succeded) {
+                            throw new Exception(sprintf(
+                                "Could not write to VMWare's configuration file '%s' for monitoring server '%s'."
+                                    . "Please add writing permissions for the webserver's user",
+                                basename($fileCfg),
+                                $host['name']
+                            ));
+                        } elseif (posix_getuid() === fileowner($targetFilePath)) {
+                            @chmod($targetFilePath, 0664);
                         }
                     }
                 }
