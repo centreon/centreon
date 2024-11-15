@@ -35,9 +35,10 @@ const Timeline = ({
   endDate,
   width,
   height,
-  TooltipContent
+  TooltipContent,
+  tooltipClassName
 }: Props) => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
   const { format } = useLocaleDateTimeFormat();
   const { timezone } = useAtomValue(userAtom);
 
@@ -77,7 +78,7 @@ const Timeline = ({
         <Tooltip
           hasCaret
           classes={{
-            tooltip: classes.tooltip
+            tooltip: cx(classes.tooltip, tooltipClassName)
           }}
           followCursor={false}
           key={`rect-${start}--${end}`}

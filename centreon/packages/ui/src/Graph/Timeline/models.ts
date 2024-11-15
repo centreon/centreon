@@ -16,4 +16,5 @@ export interface TimelineProps {
   startDate: string;
   endDate: string;
   TooltipContent?: (props: Tooltip) => JSX.Element;
+  tooltipClassName?: string;
 }
