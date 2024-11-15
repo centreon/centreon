@@ -37,8 +37,6 @@ on:
         required: true
         type: string
         description: "The frontend dependencies lock file path"
-<<<<<<< HEAD
-=======
       xray_keys_and_ids:
         description: "The test execution and the test plan keys and ids"
         required: true
@@ -51,7 +49,6 @@ on:
       is_nightly:
         required: true
         type: string
->>>>>>> c63671c8ea (feat(ci): automate ticket creation on scheduled build failure (#5587))
     secrets:
       registry_username:
         required: true
@@ -65,8 +62,6 @@ on:
         required: true
       jira_token_test:
         required: true
-<<<<<<< HEAD
-=======
       artifactory_internal_repo_username:
         required: false
       artifactory_internal_repo_password:
@@ -77,7 +72,6 @@ on:
         required: true
       jira_api_token:
         required: true
->>>>>>> c63671c8ea (feat(ci): automate ticket creation on scheduled build failure (#5587))
 
 jobs:
   cypress-e2e-test-list:
@@ -348,35 +342,9 @@ jobs:
           path: mochawesome.json
           format: cypress
           urlFilePrefix: centreon
-<<<<<<< HEAD
-=======
-
-  regroup-artifacts:
-    needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report]
-    if: always()
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        type_of_report: [test-results, test-reports, xray-reports]
-    steps:
-      - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
-        if: ${{ ( contains(needs.cypress-e2e-test-run.result, 'failure') && ( matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'xray-reports' }}
-        with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
-          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
-          delete-merged: false # cannot be set to true due to random fails: Failed to DeleteArtifact: Unable to make request: ECONNRESET
-          retention-days: 1
-
-      - name: Delete merged artifacts
-        uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
-        with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
-          failOnError: false
 
   create-jira-nightly-ticket:
-    needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report, regroup-artifacts]
+    needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report]
     runs-on: ubuntu-24.04
     if: |
       inputs.is_nightly == 'true' && github.run_attempt == 1 &&
@@ -390,4 +358,3 @@ jobs:
           jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
           ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "cypress-e2e"]'
->>>>>>> c63671c8ea (feat(ci): automate ticket creation on scheduled build failure (#5587))
