@@ -114,7 +114,8 @@ dnf install -y \
   centreon-gorgone \
   centreon-engine \
   centreon-broker-cbmod \
-  centreon-broker-cbd
+  centreon-broker-cbd \
+  centreon-connector
 
 dnf clean all --enablerepo=*
 
