@@ -1,21 +1,19 @@
 {
   "name": "centreon/centreon-open-tickets",
   "description": "Module dedicated to open case on various Ticket systems",
-  "version": "24.10.0",
+  "version": "24.10",
   "type": "project",
   "keywords": [
     "centreon",
     "centreon-open-tickets"
   ],
   "license": "GPL-2.0-only",
-  "require": {
-    "centreon/centreon": "dev-MON-146850-php82",
-    "ext-openssl": "*",
-    "ext-json": "*"
-  },
   "require-dev": {
+    "ext-json": "*",
+    "ext-openssl": "*",
     "beberlei/assert": "^3.3",
-    "centreon/centreon-test-lib": "dev-MON-147667-upgrade-to-php-8.2",
+    "centreon/centreon": "@dev",
+    "centreon/centreon-test-lib": "dev-master",
     "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
     "friendsofphp/php-cs-fixer": "3.64.*",
     "pestphp/pest": "^1.21",
@@ -43,6 +41,9 @@
     "sort-packages": true,
     "platform": {
       "php": "8.2"
+    },
+    "preferred-install": {
+      "*": "dist"
     },
     "allow-plugins": {
       "symfony/flex": false,
