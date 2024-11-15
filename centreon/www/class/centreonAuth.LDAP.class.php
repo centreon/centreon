@@ -234,6 +234,7 @@ class CentreonAuthLDAP
                 CentreonLog::create()->error(
                     logTypeId: CentreonLog::TYPE_LDAP,
                     message: 'LDAP AUTH - Error : Invalid user pager : User pager must be a non-empty string',
+                    customContext: ['contact_id' => $this->contactInfos['contact_id']]
                 );
 
                 return false;
