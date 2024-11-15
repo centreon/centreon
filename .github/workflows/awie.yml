@@ -35,20 +35,53 @@ env:
   module: awie
 
 jobs:
-  get-version:
-    uses: ./.github/workflows/get-version.yml
+  get-environment:
+    uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon-awie/www/modules/centreon-awie/conf.php
 
+  changes:
+    needs: [get-environment]
+    runs-on: ubuntu-22.04
+    outputs:
+      has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
+      has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
+      trigger_delivery: ${{ steps.changes_trigger_checks.outputs.trigger_delivery }}
+      trigger_api_testing: ${{ steps.changes_trigger_checks.outputs.trigger_api_testing }}
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        id: filter
+        with:
+          filters: |
+            has_backend_changes:
+              - 'centreon-awie/*.php'
+              - 'centreon-awie/!(features)/*.php'
+              - 'centreon-awie/phpstan*'
+              - 'centreon-awie/ruleset.xml'
+              - 'centreon-awie/libinstall/**'
+              - 'centreon-awie/www/modules/centreon-awie/**'
+            has_test_changes:
+              - 'centreon-awie/features/**'
+
+      - uses: ./.github/actions/changes-trigger-checks
+        id: changes_trigger_checks
+        with:
+          has_frontend_changes: 'false'
+          has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
+          has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
+
   veracode-analysis:
-    needs: [get-version]
+    needs: [get-environment]
+    if: ${{ needs.get-environment.outputs.is_targeting_feature_branch != 'true' && github.event.pull_request.draft != 'true' }}
     uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: centreon-awie
       module_name: centreon-awie
-      major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ needs.get-version.outputs.minor_version }}
-      stability: ${{ needs.get-version.outputs.stability }}
+      major_version: ${{ needs.get-environment.outputs.major_version }}
+      minor_version: ${{ needs.get-environment.outputs.minor_version }}
+      stability: ${{ needs.get-environment.outputs.stability }}
     secrets:
       veracode_api_id: ${{ secrets.VERACODE_API_ID }}
       veracode_api_key: ${{ secrets.VERACODE_API_KEY }}
@@ -58,9 +91,9 @@ jobs:
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   backend-lint:
-    runs-on: ubuntu-22.04
-    needs: [get-version]
-
+    runs-on: ubuntu-24.04
+    needs: [changes, get-environment]
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
@@ -70,7 +103,7 @@ jobs:
           php-version: 8.2
           coverage: none
         env:
-          runner: ubuntu-22.04
+          runner: ubuntu-24.04
 
       - name: Install Dependencies
         run: composer install --optimize-autoloader
@@ -82,8 +115,8 @@ jobs:
         working-directory: centreon-awie
 
   package:
-    needs: [get-version, backend-lint]
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
+    needs: [get-environment, backend-lint]
+    if: ${{ needs.get-environment.outputs.stability != 'stable' }}
 
     strategy:
       fail-fast: false
@@ -100,10 +133,10 @@ jobs:
             image: packaging-nfpm-bookworm
             distrib: bookworm
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     container:
-      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
       credentials:
         username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
         password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
@@ -120,21 +153,21 @@ jobs:
           nfpm_file_pattern: "centreon-awie/packaging/*.yaml"
           distrib: ${{ matrix.distrib }}
           package_extension: ${{ matrix.package_extension }}
-          major_version: ${{ needs.get-version.outputs.major_version }}
-          minor_version: ${{ needs.get-version.outputs.minor_version }}
-          release: ${{ needs.get-version.outputs.release }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          minor_version: ${{ needs.get-environment.outputs.minor_version }}
+          release: ${{ needs.get-environment.outputs.release }}
           arch: all
           commit_hash: ${{ github.sha }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
           rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
           rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
-          stability: ${{ needs.get-version.outputs.stability }}
+          stability: ${{ needs.get-environment.outputs.stability }}
 
   deliver-sources:
     runs-on: [self-hosted, common]
-    needs: [get-version, package]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+    needs: [get-environment, package]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' }}
 
     steps:
       - name: Checkout sources
@@ -146,15 +179,14 @@ jobs:
           bucket_directory: centreon-awie
           module_directory: centreon-awie
           module_name: centreon-awie
-          major_version: ${{ needs.get-version.outputs.major_version }}
-          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          minor_version: ${{ needs.get-environment.outputs.minor_version }}
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
   deliver-rpm:
-    needs: [get-version, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    needs: [changes, get-environment, package]
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && needs.changes.outputs.trigger_delivery == 'true' }}
     runs-on: [self-hosted, common]
-    environment: ${{ needs.get-version.outputs.environment }}
 
     strategy:
       matrix:
@@ -169,18 +201,17 @@ jobs:
         with:
           module_name: awie
           distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-version.outputs.major_version }}
+          version: ${{ needs.get-environment.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-          stability: ${{ needs.get-version.outputs.stability }}
-          release_type: ${{ needs.get-version.outputs.release_type }}
-          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   deliver-deb:
-    needs: [get-version, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    needs: [changes, get-environment, package]
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && needs.changes.outputs.trigger_delivery == 'true' }}
     runs-on: [self-hosted, common]
-    environment: ${{ needs.get-version.outputs.environment }}
 
     strategy:
       matrix:
@@ -195,17 +226,17 @@ jobs:
         with:
           module_name: awie
           distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-version.outputs.major_version }}
+          version: ${{ needs.get-environment.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
-          stability: ${{ needs.get-version.outputs.stability }}
-          release_type: ${{ needs.get-version.outputs.release_type }}
-          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   promote:
-    needs: [get-version, deliver-rpm, deliver-deb]
+    needs: [get-environment, deliver-rpm, deliver-deb]
     if: |
-      (contains(fromJson('["stable", "testing"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch') &&
+      (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled')
@@ -224,9 +255,9 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           module: awie
           distrib: ${{ matrix.distrib }}
-          major_version: ${{ needs.get-version.outputs.major_version }}
-          minor_version: ${{ needs.get-version.outputs.minor_version }}
-          stability: ${{ needs.get-version.outputs.stability }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          minor_version: ${{ needs.get-environment.outputs.minor_version }}
+          stability: ${{ needs.get-environment.outputs.stability }}
           github_ref_name: ${{ github.ref_name }}
-          release_type: ${{ needs.get-version.outputs.release_type }}
-          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}

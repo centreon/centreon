@@ -40,11 +40,10 @@ if (!isset($centreon)) {
 
 include "./include/common/autoNumLimit.php";
 
-$search = \HtmlAnalyzer::sanitizeAndRemoveTags(
-    $_POST['searchN'] ?? $_GET['searchN'] ?? null
-);
+$search = $_POST['searchN'] ?? $_GET['searchN'] ?? null;
 
-if (isset($_POST['searchN']) || isset($_GET['searchN'])) {
+if (! is_null($search)) {
+    $search = HtmlSanitizer::createFromString($search)->sanitize()->getString();
     //saving filters values
     $centreon->historySearch[$url] = [];
     $centreon->historySearch[$url]['search'] = $search;
@@ -54,8 +53,8 @@ if (isset($_POST['searchN']) || isset($_GET['searchN'])) {
 }
 
 $SearchTool = '';
-if ($search) {
-    $SearchTool .= " WHERE nagios_name LIKE '%" . htmlentities($search, ENT_QUOTES, "UTF-8") . "%' ";
+if (! is_null($search)) {
+    $SearchTool .= " WHERE nagios_name LIKE '%{$search}%' ";
 }
 
 $aclCond = "";
@@ -70,7 +69,7 @@ if (!$centreon->user->admin && count($allowedMainConf)) {
 $nagios_servers = [null => ""];
 $dbResult = $pearDB->query("SELECT * FROM nagios_server ORDER BY name");
 while ($nagios_server = $dbResult->fetch()) {
-    $nagios_servers[$nagios_server["id"]] = $nagios_server["name"];
+    $nagios_servers[$nagios_server["id"]] = HtmlSanitizer::createFromString($nagios_server["name"])->sanitize()->getString();
 }
 $dbResult->closeCursor();
 

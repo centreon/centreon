@@ -70,7 +70,8 @@ export const labelVcenterNameMustBeUnique =
 
 export const labelDoYouWantToQuitWithoutSaving =
   'Do you want to quit without saving the changes?';
-export const labelYourFormHasUnsavedChanges = 'Your form has unsaved changes';
+export const labelYourFormHasUnsavedChanges =
+  'Your form has unsaved changes. Do you want to quit the form without saving the changes?';
 export const labelConfirm = 'Confirm';
 export const labelParameters = 'Parameters';
 export const labelParametersTooltip = 'Parameters tooltip';
