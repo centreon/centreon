@@ -60,7 +60,6 @@ Feature: Create a new Additional Connector Configuration
     When the user clicks on Add
     Then the form fields are empty
 
-  @ignore
   @TEST_MON-152805
   Scenario: Verification on fields (vCenter name, URL, Username, Password, Port) on ACC Form
     Given a non-admin user is in the Additional Connector Configuration page
