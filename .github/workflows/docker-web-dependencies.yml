@@ -15,7 +15,7 @@ on:
 jobs:
   get-environment:
     if: |
-      github.event.pull_request.base.repo.name == 'centreon' ||
+      github.event.pull_request.base.repo.full_name == 'centreon/centreon' ||
       github.repository == 'centreon/centreon'
     uses: ./.github/workflows/get-environment.yml
     with:
