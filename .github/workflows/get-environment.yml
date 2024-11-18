@@ -84,7 +84,7 @@ jobs:
           script: |
             const fs = require('fs');
 
-            const workflowFilePath = '${{ github.workflow_ref }}'.split('@').shift();
+            const workflowFilePath = '${{ github.workflow_ref }}'.replace('${{ github.repository }}/', '').split('@').shift();
             console.log(workflowFilePath);
 
             if (fs.existsSync(workflowFilePath)) {
