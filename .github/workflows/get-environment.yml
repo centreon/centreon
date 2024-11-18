@@ -90,12 +90,8 @@ jobs:
             console.log(workflowFilePath);
 
             if (fs.existsSync(workflowFilePath)) {
-              // let workflowFileContent = yaml.load(fileContent);
-              // console.log(workflowFileContent.on);
-
               const workflowFileContent = fs.readFileSync(workflowFilePath, 'utf8');
               const workflowFileContentLines = workflowFileContent.split('\n');
-              // console.log(workflowFileContentLines);
 
               let hasReadOn = false;
               let hasReadPullRequest = false;
@@ -156,7 +152,7 @@ jobs:
             const label = '${{ format('skip-workflow-{0}', github.workflow) }}';
             if ('${{ steps.get_push_changes.outputs.any_changed }}' === 'true') {
               try {
-                await github.issues.removeLabel({
+                await github.rest.issues.removeLabel({
                   name: label,
                   owner,
                   repo,
@@ -164,7 +160,6 @@ jobs:
                 });
               } catch (e) {
                 core.warning(`failed to remove label: ${label}: ${e}`);
-                remaining.push(label);
               }
             }
 
