@@ -448,8 +448,6 @@ class CentreonDB extends PDO
                 ],
                 $e
             );
-        } finally {
-            $this->closeQuery($pdoStatement);
         }
     }
 
