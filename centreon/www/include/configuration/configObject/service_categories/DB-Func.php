@@ -212,6 +212,7 @@ function multipleServiceCategorieInDB($sc = [], $nbrDup = [])
                         );
 
                         throw $ex;
+                    }
                 }
             }
         }
