@@ -83,7 +83,8 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            // const yaml = require('js-yaml');
+
+            let paths = [];
 
             const workflowFilePath = '${{ github.workflow_ref }}'.replace('${{ github.repository }}/', '').split('@').shift();
             console.log(workflowFilePath);
@@ -96,18 +97,25 @@ jobs:
               const workflowFileContentLines = workflowFileContent.split('\n');
               // console.log(workflowFileContentLines);
 
-              const prPathsStartPattern = /^\s{6}-\s(.+)$/;
+              let hasReadOn = false;
+              let hasReadPullRequest = false;
               let hasReadPaths = false;
-              let paths = [];
               for (const line of workflowFileContentLines) {
-                console.log(line);
-                if (line.includes('paths:')) {
+                if (line.match(/^on:\s*$/)) {
+                  hasReadOn = true;
+                  continue;
+                }
+                if (line.match(/^pull_request(_target)?:\s*$/)) {
+                  hasReadPullRequest = true;
+                  continue;
+                }
+                if (line.match(/^\s{4}paths:\s*$/)) {
                   hasReadPaths = true;
                   continue;
                 }
 
-                if (hasReadPaths) {
-                  const matches = line.match(/^\s{4}-\s(.+)$/);
+                if (hasReadOn && hasReadPullRequest && hasReadPaths) {
+                  const matches = line.match(/^\s{6}-\s['"](.+)['"]\s*$/);
                   if (matches) {
                     paths.push(matches[1].trim());
                   } else {
@@ -115,19 +123,13 @@ jobs:
                   }
                 }
               }
-
-              /*
-              const paths = workflowFileContentLines
-                .filter((line) => line.includes('paths:'))
-                .map((line) => line.split(':').pop().trim())
-                .map((line) => line.replace(/['"]+/g, ''))
-                .map((line) => line.split(',').map((path) => path.trim()))
-                .flat();
-              */
-
-              console.log(paths);
-
             }
+
+            if (paths.length === 0) {
+              paths = ['**'];
+            }
+
+            console.log(paths);
 
             // console.log(context.payload);
 
