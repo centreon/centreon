@@ -66,7 +66,7 @@ jobs:
       - name: Checkout sources (current branch)
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
         with:
-          fetch-depth: 1
+          fetch-depth: 0
 
       # get latest major version to detect cloud / on-prem versions
       - name: Checkout sources (develop branch)
@@ -88,20 +88,20 @@ jobs:
       - if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, format('skip-workflow-{0}', github.workflow)) }}
         name: Get push changes
         id: get_push_changes
-        uses: dorny/paths-filter@v3
-        with:
-          list-files: json
-          filters: |
-            changed:
-              - '**'
-          base: ${{ github.event.pull_request.after }}
-          ref: ${{ github.event.pull_request.before }}
-        # uses: tj-actions/changed-files@v45
+        # uses: dorny/paths-filter@v3
         # with:
-        #   fetch_depth: 1
-        #   since_last_remote_commit: true
-        #   json: true
-        #   escape_json: false
+        #   list-files: json
+        #   filters: |
+        #     changed:
+        #       - '**'
+        #   base: ${{ github.event.pull_request.after }}
+        #   ref: ${{ github.event.pull_request.before }}
+        uses: tj-actions/changed-files@v45
+        with:
+          fetch_depth: 1
+          since_last_remote_commit: true
+          json: true
+          escape_json: false
 
       - if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, format('skip-workflow-{0}', github.workflow)) }}
         name: Check if current workflow should be skipped
@@ -109,8 +109,8 @@ jobs:
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
-            console.log(${{ steps.get_push_changes.outputs.changed_files }});
-            // console.log(${{ steps.get_push_changes.outputs.all_changed_files }});
+            // console.log(${{ steps.get_push_changes.outputs.changed_files }});
+            console.log(${{ steps.get_push_changes.outputs.all_changed_files }});
             return "${{ github.event_name }}" === "pull_request" && ${{ contains(github.event.pull_request.labels.*.name, format('skip-workflow-{0}', github.workflow)) }};
 
       - name: Store latest major version
