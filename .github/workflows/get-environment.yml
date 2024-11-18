@@ -153,6 +153,20 @@ jobs:
           script: |
             // console.log(${{ steps.get_push_changes.outputs.changed_files }});
             console.log(${{ steps.get_push_changes.outputs.all_changed_files }});
+            const label = '${{ format('skip-workflow-{0}', github.workflow) }}';
+            if ('${{ steps.get_push_changes.outputs.changed_files }}' === 'true') {
+              try {
+                await github.issues.removeLabel({
+                  name: label,
+                  owner,
+                  repo,
+                  issue_number: context.issue.number
+                });
+              } catch (e) {
+                core.warning(`failed to remove label: ${label}: ${e}`);
+                remaining.push(label);
+              }
+            }
 
             return "${{ github.event_name }}" === "pull_request" && ${{ contains(github.event.pull_request.labels.*.name, format('skip-workflow-{0}', github.workflow)) }};
 
