@@ -150,8 +150,7 @@ jobs:
           json: true
           escape_json: false
           # files: ${{ steps.get_workflow_triggered_paths.outputs.result }}
-          files: |
-            .github/workflows/docker-web-dependencies.yml
+          files: ".github/workflows/docker-web-dependencies.yml;toto"
           files_separator: ';'
 
 
