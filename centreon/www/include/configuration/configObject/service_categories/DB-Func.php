@@ -298,7 +298,7 @@ function disableServiceCategorieInDB(?int $serviceCategoryId = null, array $serv
         foreach (array_keys($serviceCategories) as $serviceCategoryId) {
             $pearDB->executePreparedQuery($updateStatement, ['serviceCategoryId' => $serviceCategoryId]);
             $pearDB->executePreparedQuery($selectStatement, ['serviceCategoryId' => $serviceCategoryId]);
-
+    
             $result = $selectStatement->fetch();
             $centreon->CentreonLogAction->insertLog(
                 object_type: ActionLog::OBJECT_TYPE_SERVICECATEGORIES,
@@ -311,7 +311,7 @@ function disableServiceCategorieInDB(?int $serviceCategoryId = null, array $serv
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
             message: $ex->getMessage(),
-            customContext: ['service_category_id' => $implode(', ', $serviceCategories)],
+            customContext: ['service_category_id' => implode(', ', $serviceCategories)],
             exception: $ex,
         );
 
@@ -468,7 +468,7 @@ function deleteServiceCategorieInDB($serviceCategoryIds = null)
                 ?: throw new \Exception("Invalid service category id");
 
             $pearDB->executePreparedQuery($selectStatement, ['serviceCategoryId' => $serviceCategoryId]);
-            $result = $selectStatement->
+            $result = $selectStatement->fetch();
             $pearDB->executePreparedQuery($deleteStatement, ['sc_id' => $serviceCategoryId]);
             $centreon->CentreonLogAction->insertLog(
                 object_type: ActionLog::OBJECT_TYPE_SERVICECATEGORIES,
