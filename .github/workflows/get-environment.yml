@@ -152,6 +152,7 @@ jobs:
           files: ${{ steps.get_workflow_triggered_paths.outputs.result }}
           files_separator: ';'
 
+
       - if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, format('skip-workflow-{0}', github.workflow)) }}
         name: Check if current workflow should be skipped
         id: skip_workflow
