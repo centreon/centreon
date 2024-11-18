@@ -45,7 +45,6 @@ jobs:
       module_name: centreon/packages/ui
       specs_path: src/**
       dependencies_lock_file: centreon/pnpm-lock.yaml
-      is_nightly: 'false'
 
   unit-test:
     runs-on: ubuntu-22.04
