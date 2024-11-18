@@ -87,8 +87,7 @@ jobs:
         id: get_push_changes
         uses: tj-actions/changed-files@v45
         with:
-          # fetch_depth: 20
-          use_rest_api: true
+          fetch_depth: 1
           since_last_remote_commit: true
           json: true
           escape_json: false
