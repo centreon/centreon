@@ -56,7 +56,7 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
         try {
             $serviceCategory = $this->readServiceCategoryRepository->findById($serviceCategoryId);
             if ($serviceCategory === null) {
-                throw new RepositoryException('Service category not found');
+                return;
             }
             $this->writeServiceCategoryRepository->deleteById($serviceCategoryId);
             $actionLog = new ActionLog(
@@ -68,7 +68,9 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
-            $this->error("Error while deleting a service category : {$ex->getMessage()}", ['serviceCategoryId' => $serviceCategoryId, 'trace' => $ex->getTraceAsString()]);
+            $this->error(
+                "Error while deleting a service category",
+                ['serviceCategoryId' => $serviceCategoryId, 'trace' => (string) $ex]);
 
             throw $ex;
         }
@@ -95,7 +97,9 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
 
             return $serviceCategoryId;
         } catch (\Throwable $ex) {
-            $this->error("Error while adding a service category : {$ex->getMessage()}", ['serviceCategory' => $serviceCategory, 'trace' => $ex->getTraceAsString()]);
+            $this->error(
+                "Error while adding a service category",
+                ['serviceCategory' => $serviceCategory, 'trace' => (string) $ex]);
 
             throw $ex;
         }
