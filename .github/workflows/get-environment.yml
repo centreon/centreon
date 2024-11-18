@@ -136,21 +136,12 @@ jobs:
       - if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, format('skip-workflow-{0}', github.workflow)) }}
         name: Get push changes
         id: get_push_changes
-        # uses: dorny/paths-filter@v3
-        # with:
-        #   list-files: json
-        #   filters: |
-        #     changed:
-        #       - '**'
-        #   base: ${{ github.event.pull_request.after }}
-        #   ref: ${{ github.event.pull_request.before }}
         uses: tj-actions/changed-files@v45
         with:
           since_last_remote_commit: true
           json: true
           escape_json: false
           files: ${{ join(fromJSON(steps.get_workflow_triggered_paths.outputs.result), ';') }}
-          #files: ".github/docker/centreon-web/**/Dockerfile.dependencies;.github/workflows/docker-web-dependencies.yml"
           files_separator: ';'
 
 
