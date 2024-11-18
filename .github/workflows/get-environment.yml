@@ -83,28 +83,49 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const yaml = require('js-yaml');
+            // const yaml = require('js-yaml');
 
             const workflowFilePath = '${{ github.workflow_ref }}'.replace('${{ github.repository }}/', '').split('@').shift();
             console.log(workflowFilePath);
 
             if (fs.existsSync(workflowFilePath)) {
-              let workflowFileContent = yaml.load(fileContent);
-              console.log(workflowFileContent.on);
-              /*
+              // let workflowFileContent = yaml.load(fileContent);
+              // console.log(workflowFileContent.on);
+
               const workflowFileContent = fs.readFileSync(workflowFilePath, 'utf8');
               const workflowFileContentLines = workflowFileContent.split('\n');
               console.log(workflowFileContentLines);
 
+              const prPathsStartPattern = /^\s{4}-\s(.+)$/;
+              let hasReadPaths = false;
+              let paths = [];
+              for (const line of workflowFileContentLines) {
+                if (line.includes('paths:')) {
+                  hasReadPaths = true;
+                  continue;
+                }
+
+                if (hasReadPaths) {
+                  const matches = line.match(/^\s{4}-\s(.+)$/);
+                  if (matches) {
+                    paths.push(matches[1].trim());
+                  } else {
+                    break;
+                  }
+                }
+              }
+
+              /*
               const paths = workflowFileContentLines
                 .filter((line) => line.includes('paths:'))
                 .map((line) => line.split(':').pop().trim())
                 .map((line) => line.replace(/['"]+/g, ''))
                 .map((line) => line.split(',').map((path) => path.trim()))
                 .flat();
+              */
 
               console.log(paths);
-              */
+
             }
 
             // console.log(context.payload);
