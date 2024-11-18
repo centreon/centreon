@@ -94,9 +94,9 @@ jobs:
 
               const workflowFileContent = fs.readFileSync(workflowFilePath, 'utf8');
               const workflowFileContentLines = workflowFileContent.split('\n');
-              console.log(workflowFileContentLines);
+              // console.log(workflowFileContentLines);
 
-              const prPathsStartPattern = /^\s{4}-\s(.+)$/;
+              const prPathsStartPattern = /^\s{6}-\s(.+)$/;
               let hasReadPaths = false;
               let paths = [];
               for (const line of workflowFileContentLines) {
