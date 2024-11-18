@@ -151,8 +151,6 @@ jobs:
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
-            console.log(${{ steps.get_push_changes.outputs.all_changed_files }});
-
             if ('${{ steps.has_skip_label.outputs.result }}' === 'false') {
               return false;
             }
@@ -166,9 +164,11 @@ jobs:
                   repo: context.repo.repo,
                   issue_number: context.issue.number
                 });
+                core.notice(`label ${label} removed because changes were detected on last push.`);
               } catch (e) {
-                core.warning(`failed to remove label: ${label}: ${e}`);
+                core.warning(`failed to remove label ${label}: ${e}`);
               }
+
               return false;
             }
 
