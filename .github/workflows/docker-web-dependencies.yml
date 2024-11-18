@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - '.github/docker/centreon-web/**/Dockerfile.dependencies'
+      - '.github/docker/centreon-web/**/Dockerfile.toto'
   schedule:
     - cron: '0 2 * * *'
 
