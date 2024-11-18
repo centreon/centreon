@@ -81,16 +81,23 @@ jobs:
         with:
           script: |
             console.log('${{ github.workflow_ref }}');
+            console.log(context.payload);
 
       - if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, format('skip-workflow-{0}', github.workflow)) }}
         name: Get push changes
         id: get_push_changes
-        uses: tj-actions/changed-files@v45
+        uses: dorny/paths-filter@v3
         with:
-          fetch_depth: 1
-          since_last_remote_commit: true
-          json: true
-          escape_json: false
+          filters: |
+            centreon-develop/.version
+          base: ''
+          ref: ${{ github.ref }}
+        # uses: tj-actions/changed-files@v45
+        # with:
+        #   fetch_depth: 1
+        #   since_last_remote_commit: true
+        #   json: true
+        #   escape_json: false
 
       - if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, format('skip-workflow-{0}', github.workflow)) }}
         name: Check if current workflow should be skipped
