@@ -137,7 +137,8 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
     {
         $sqlTranslator = $this->prepareSqlRequestParametersTranslator($requestParameters);
         $request = <<<'SQL'
-            SELECT services.name AS `name`
+            SELECT services.name AS `name`,
+                COUNT(*) OVER() AS `total_rows`
             FROM `:dbstg`.resources AS services
             INNER JOIN `:dbstg`.resources AS hosts
                 ON hosts.id = services.parent_id
@@ -178,9 +179,10 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         $statement->execute();
 
-        $serviceNames = $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
+        $results = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        $serviceNames = array_column($results, 'name');
+        $numberOfRows = $results !== [] ? $results[0]['total_rows'] : 0;
 
-        $numberOfRows = count($serviceNames);
         $sqlTranslator->setNumberOfRows($numberOfRows);
 
         return $serviceNames;
@@ -202,8 +204,8 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
         $sqlTranslator = $this->prepareSqlRequestParametersTranslator($requestParameters);
 
         $request = <<<'SQL'
-            SELECT SQL_CALC_FOUND_ROWS
-                services.name AS `name`
+            SELECT services.name AS `name`,
+                COUNT(*) OVER() AS `total_rows`
             FROM `:dbstg`.resources AS services
             INNER JOIN `:dbstg`.resources AS hosts
                 ON hosts.id = services.parent_id
@@ -251,9 +253,10 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         $statement->execute();
 
-        $serviceNames = $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
+        $results = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        $serviceNames = array_column($results, 'name');
+        $numberOfRows = $results !== [] ? $results[0]['total_rows'] : 0;
 
-        $numberOfRows = count($serviceNames);
         $sqlTranslator->setNumberOfRows($numberOfRows);
 
         return $serviceNames;
