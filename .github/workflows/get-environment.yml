@@ -93,8 +93,8 @@ jobs:
           filters: |
             changed:
               - '**'
-          base: ${{ github.event.pull_request.before }}
-          ref: ${{ github.ref }}
+          base: ${{ github.event.pull_request.after }}
+          ref: ${{ github.event.pull_request.before }}
         # uses: tj-actions/changed-files@v45
         # with:
         #   fetch_depth: 1
