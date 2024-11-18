@@ -149,7 +149,7 @@ jobs:
           since_last_remote_commit: true
           json: true
           escape_json: false
-          files: ${{ join(steps.get_workflow_triggered_paths.outputs.result, ';') }}
+          files: ${{ join(fromJSON(steps.get_workflow_triggered_paths.outputs.result), ';') }}
           #files: ".github/docker/centreon-web/**/Dockerfile.dependencies;.github/workflows/docker-web-dependencies.yml"
           files_separator: ';'
 
