@@ -82,7 +82,24 @@ jobs:
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
-            console.log('${{ github.workflow_ref }}');
+            const path = require('path');
+
+            const workflowPath = '${{ github.workflow_ref }}'.split('@').shift();
+
+            if (fs.existsSync(workflowFilePath)) {
+              const workflowFileContent = fs.readFileSync(workflowFilePath, 'utf8');
+              const workflowFileContentLines = workflowFileContent.split('\n');
+
+              const paths = workflowFileContentLines
+                .filter((line) => line.includes('paths:'))
+                .map((line) => line.split(':').pop().trim())
+                .map((line) => line.replace(/['"]+/g, ''))
+                .map((line) => line.split(',').map((path) => path.trim()))
+                .flat();
+
+              console.log(paths);
+            }
+
             console.log(context.payload);
 
       - if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, format('skip-workflow-{0}', github.workflow)) }}
@@ -98,7 +115,6 @@ jobs:
         #   ref: ${{ github.event.pull_request.before }}
         uses: tj-actions/changed-files@v45
         with:
-          fetch_depth: 1
           since_last_remote_commit: true
           json: true
           escape_json: false
