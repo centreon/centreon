@@ -302,7 +302,7 @@ function enableHostInDB($host_id = null, $host_arr = [])
             object_type: ActionLog::OBJECT_TYPE_HOST,
             object_id: $hostId,
             object_name: $hostName,
-            action_type: "enable"
+            action_type: ActionLog::ACTION_TYPE_ENABLE
         );
     }
 }

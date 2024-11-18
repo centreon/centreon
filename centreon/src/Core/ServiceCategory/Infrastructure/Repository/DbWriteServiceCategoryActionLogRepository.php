@@ -68,7 +68,7 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error("Error while deleting a service category : {$ex->getMessage()}", ['serviceCategoryId' => $serviceCategoryId,'trace' => $ex->getTraceAsString()]);
 
             throw $ex;
         }
@@ -95,7 +95,7 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
 
             return $serviceCategoryId;
         } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error("Error while adding a service category : {$ex->getMessage()}", ['serviceCategory' => $serviceCategory,'trace' => $ex->getTraceAsString()]);
 
             throw $ex;
         }

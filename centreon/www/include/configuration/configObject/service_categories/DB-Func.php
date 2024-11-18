@@ -210,10 +210,10 @@ function multipleServiceCategorieInDB($sc = [], $nbrDup = [])
     $centreon->user->access->updateACL();
 }
 
-function enableServiceCategorieInDB(?int $serviceCategoryId = null, $serviceCategories = [])
+function enableServiceCategorieInDB(?int $serviceCategoryId = null, array $serviceCategories = [])
 {
 
-    if (! $serviceCategoryId && ! count($serviceCategories)) {
+    if (! $serviceCategoryId && empty($serviceCategories)) {
         return;
     }
 
@@ -251,9 +251,9 @@ function enableServiceCategorieInDB(?int $serviceCategoryId = null, $serviceCate
     }
 }
 
-function disableServiceCategorieInDB(?int $serviceCategoryId = null, $serviceCategories = [])
+function disableServiceCategorieInDB(?int $serviceCategoryId = null, array $serviceCategories = [])
 {
-    if (! $serviceCategoryId && ! count($serviceCategories)) {
+    if (! $serviceCategoryId && empty($serviceCategories)) {
         return;
     }
 
@@ -418,7 +418,7 @@ function deleteServiceCategorieInDB($serviceCategoryIds = null)
 {
     global $pearDB, $centreon;
 
-    if (! $serviceCategoryIds) {
+    if (is_null($serviceCategoryIds)) {
         return;
     }
 
