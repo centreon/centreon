@@ -83,11 +83,15 @@ jobs:
         with:
           script: |
             const fs = require('fs');
+            const yaml = require('js-yaml');
 
             const workflowFilePath = '${{ github.workflow_ref }}'.replace('${{ github.repository }}/', '').split('@').shift();
             console.log(workflowFilePath);
 
             if (fs.existsSync(workflowFilePath)) {
+              let workflowFileContent = yaml.load(fileContent);
+              console.log(workflowFileContent.on);
+              /*
               const workflowFileContent = fs.readFileSync(workflowFilePath, 'utf8');
               const workflowFileContentLines = workflowFileContent.split('\n');
               console.log(workflowFileContentLines);
@@ -100,6 +104,7 @@ jobs:
                 .flat();
 
               console.log(paths);
+              */
             }
 
             // console.log(context.payload);
