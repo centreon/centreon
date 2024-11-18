@@ -146,7 +146,6 @@ jobs:
           files: ${{ join(fromJSON(steps.get_workflow_triggered_paths.outputs.result), ';') }}
           files_separator: ';'
 
-
       - if: ${{ steps.has_skip_label.outputs.result == 'true' }}
         name: Check if current workflow should be skipped
         id: skip_workflow
