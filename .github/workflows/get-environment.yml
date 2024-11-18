@@ -84,7 +84,7 @@ jobs:
           script: |
             const fs = require('fs');
 
-            const workflowPath = '${{ github.workflow_ref }}'.split('@').shift();
+            const workflowFilePath = '${{ github.workflow_ref }}'.split('@').shift();
 
             if (fs.existsSync(workflowFilePath)) {
               const workflowFileContent = fs.readFileSync(workflowFilePath, 'utf8');
