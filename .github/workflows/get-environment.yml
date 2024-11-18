@@ -6,7 +6,7 @@ on:
         type: string
       nightly_manual_trigger:
         required: false
-        type: boolean
+        type: string
     outputs:
       latest_major_version:
         description: "latest major version"

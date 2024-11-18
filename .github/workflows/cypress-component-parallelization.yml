@@ -22,7 +22,7 @@ on:
         description: 'The frontend dependencies lock file path'
       is_nightly:
         required: true
-        type: boolean
+        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
