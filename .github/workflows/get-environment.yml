@@ -85,10 +85,12 @@ jobs:
             const fs = require('fs');
 
             const workflowFilePath = '${{ github.workflow_ref }}'.split('@').shift();
+            console.log(workflowFilePath);
 
             if (fs.existsSync(workflowFilePath)) {
               const workflowFileContent = fs.readFileSync(workflowFilePath, 'utf8');
               const workflowFileContentLines = workflowFileContent.split('\n');
+              console.log(workflowFileContentLines);
 
               const paths = workflowFileContentLines
                 .filter((line) => line.includes('paths:'))
@@ -100,7 +102,7 @@ jobs:
               console.log(paths);
             }
 
-            console.log(context.payload);
+            // console.log(context.payload);
 
       - if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, format('skip-workflow-{0}', github.workflow)) }}
         name: Get push changes
