@@ -89,8 +89,9 @@ jobs:
         uses: dorny/paths-filter@v3
         with:
           filters: |
-            centreon-develop/.version
-          base: ''
+            changed:
+              - '**'
+          base: ${{ github.event.pull_request.before }}
           ref: ${{ github.ref }}
         # uses: tj-actions/changed-files@v45
         # with:
