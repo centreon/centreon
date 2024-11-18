@@ -137,8 +137,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
     {
         $sqlTranslator = $this->prepareSqlRequestParametersTranslator($requestParameters);
         $request = <<<'SQL'
-            SELECT SQL_CALC_FOUND_ROWS
-                services.name AS `name`
+            SELECT services.name AS `name`
             FROM `:dbstg`.resources AS services
             INNER JOIN `:dbstg`.resources AS hosts
                 ON hosts.id = services.parent_id
@@ -179,9 +178,12 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         $statement->execute();
 
-        $sqlTranslator->calculateNumberOfRows($this->db);
+        $serviceNames = $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
 
-        return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
+        $numberOfRows = count($serviceNames);
+        $sqlTranslator->setNumberOfRows($numberOfRows);
+
+        return $serviceNames;
     }
 
     /**
@@ -249,7 +251,12 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         $statement->execute();
 
-        return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
+        $serviceNames = $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
+
+        $numberOfRows = count($serviceNames);
+        $sqlTranslator->setNumberOfRows($numberOfRows);
+
+        return $serviceNames;
     }
 
     /**
