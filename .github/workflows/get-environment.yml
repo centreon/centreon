@@ -105,7 +105,7 @@ jobs:
                   hasReadOn = true;
                   continue;
                 }
-                if (line.match(/^pull_request(_target)?:\s*$/)) {
+                if (line.match(/^\s{2}pull_request(_target)?:\s*$/)) {
                   hasReadPullRequest = true;
                   continue;
                 }
