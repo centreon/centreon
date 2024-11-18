@@ -89,6 +89,7 @@ jobs:
         with:
           since_last_remote_commit: true
           json: true
+          escape_json: false
 
       - if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, format('skip-workflow-{0}', github.workflow)) }}
         name: Check if current workflow should be skipped
