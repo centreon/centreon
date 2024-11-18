@@ -100,6 +100,7 @@ jobs:
               let hasReadPaths = false;
               let paths = [];
               for (const line of workflowFileContentLines) {
+                console.log(line);
                 if (line.includes('paths:')) {
                   hasReadPaths = true;
                   continue;
