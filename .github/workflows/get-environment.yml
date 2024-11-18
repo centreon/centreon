@@ -131,7 +131,7 @@ jobs:
 
             console.log(paths);
 
-            return paths.join(';');
+            return paths;
 
       - if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, format('skip-workflow-{0}', github.workflow)) }}
         name: Get push changes
@@ -149,8 +149,8 @@ jobs:
           since_last_remote_commit: true
           json: true
           escape_json: false
-          # files: ${{ steps.get_workflow_triggered_paths.outputs.result }}
-          files: ".github/docker/centreon-web/**/Dockerfile.dependencies;.github/workflows/docker-web-dependencies.yml"
+          files: ${{ join(steps.get_workflow_triggered_paths.outputs.result, ';') }}
+          #files: ".github/docker/centreon-web/**/Dockerfile.dependencies;.github/workflows/docker-web-dependencies.yml"
           files_separator: ';'
 
 

@@ -10,6 +10,7 @@ on:
     paths:
       - '.github/docker/centreon-web/**/Dockerfile.dependencies'
       - '.github/workflows/docker-web-dependencies.yml'
+
   schedule:
     - cron: '0 2 * * *'
 
