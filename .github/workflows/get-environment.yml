@@ -154,7 +154,7 @@ jobs:
             console.log(${{ steps.get_push_changes.outputs.all_changed_files }});
 
             const label = '${{ format('skip-workflow-{0}', github.workflow) }}';
-            if ('${{ steps.get_push_changes.outputs.changed_files }}' === 'true') {
+            if ('${{ steps.get_push_changes.outputs.any_changed }}' === 'true') {
               try {
                 await github.issues.removeLabel({
                   name: label,
