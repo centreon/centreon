@@ -93,7 +93,6 @@ jobs:
             let paths = [];
 
             const workflowFilePath = '${{ github.workflow_ref }}'.replace('${{ github.repository }}/', '').split('@').shift();
-            console.log(workflowFilePath);
 
             if (fs.existsSync(workflowFilePath)) {
               const workflowFileContent = fs.readFileSync(workflowFilePath, 'utf8');
