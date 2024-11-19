@@ -199,7 +199,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
     }
 
     /**
-     * @param SqlRequestParametesTranslator $sqlTranslator
+     * @param SqlRequestParametersTranslator $sqlTranslator
      * @param bool $calculateNumberOfRows
      * @param int[] $accessGroupIds
      * @param string $aclBindQuery
