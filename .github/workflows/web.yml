@@ -240,8 +240,6 @@ jobs:
         with:
           path: "centreon/junit.xml"
 
-<<<<<<< HEAD
-=======
       - name: Create Jira ticket if nightly build failure
         if: |
           needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
@@ -255,7 +253,6 @@ jobs:
           module_name: "centreon-web"
           ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
 
->>>>>>> a1c828b4bc ('backport' elements of #5749)
   frontend-component-test:
     needs: [changes, get-environment]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable'}}
@@ -303,8 +300,6 @@ jobs:
           path: "centreon/build/phpunit.xml"
           format: "php-junit"
 
-<<<<<<< HEAD
-=======
       - name: Create Jira ticket if nightly build failure
         if: |
           needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
@@ -359,7 +354,6 @@ jobs:
         run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.test.neon
         working-directory: centreon
 
->>>>>>> a1c828b4bc ('backport' elements of #5749)
   package:
     needs:
       [
@@ -389,7 +383,6 @@ jobs:
             image: packaging-bullseye
             distrib: bullseye
 
-<<<<<<< HEAD
     uses: ./.github/workflows/package.yml
     with:
       base_directory: centreon
@@ -416,137 +409,6 @@ jobs:
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
       registry_private_username: ${{ secrets.HARBOR_CENTREON_PRIVATE_USERNAME }}
       registry_private_token: ${{ secrets.HARBOR_CENTREON_PRIVATE_TOKEN }}
-=======
-    runs-on: ubuntu-24.04
-
-    container:
-      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
-      credentials:
-        username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
-        password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
-
-    name: package ${{ matrix.distrib }}
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-
-      - name: Restore translation from cache
-        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
-        with:
-          path: centreon/www/locale
-          key: ${{ github.sha }}-${{ github.run_id }}-translation
-          fail-on-cache-miss: true
-
-      - name: Restore web index.html from cache
-        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
-        with:
-          path: centreon/www/index.html
-          key: ${{ github.sha }}-${{ github.run_id }}-index
-          fail-on-cache-miss: true
-
-      - name: Restore web frontend from cache
-        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
-        with:
-          path: centreon/www/static
-          key: ${{ github.sha }}-${{ github.run_id }}-static
-          fail-on-cache-miss: true
-
-      - name: Restore widget frontend from cache
-        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
-        with:
-          path: centreon/www/widgets/src
-          key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
-          fail-on-cache-miss: true
-
-      - name: Move widgets directory
-        run: mv centreon/www/widgets/src/* centreon/www/widgets/
-        shell: bash
-
-      - name: Restore vendor directory from cache
-        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
-        with:
-          path: centreon/vendor
-          key: ${{ github.sha }}-${{ github.run_id }}-vendor
-          fail-on-cache-miss: true
-
-      - name: Set perl vendor lib path according to distrib
-        run: |
-          if [[ "${{ matrix.package_extension }}" == "deb" ]]; then
-            PERL_VENDORLIB="/usr/share/perl5"
-          else
-            PERL_VENDORLIB="/usr/share/perl5/vendor_perl"
-          fi
-          echo "PERL_VENDORLIB=$PERL_VENDORLIB" >> $GITHUB_ENV
-        shell: bash
-
-      - name: Create centreon web configuration file
-        run: mv centreon/config/centreon.config.php.template centreon/config/centreon.config.php
-        shell: bash
-
-      - name: Remove compilation related files
-        run: |
-          rm -rf centreon/www/front_src
-          rm -rf centreon/www/widgets/src
-          find centreon/www/widgets/ -maxdepth 1 -type f ! -name "*.php" ! -name "*.ts" -delete
-        shell: bash
-
-      - name: Replace macros in source code
-        run: |
-          MACRO_REPLACEMENT_FILE="centreon/packaging/src/centreon-macroreplacement.txt"
-          if [[ "${{ matrix.package_extension }}" == "rpm" ]]; then
-            APACHE_USER="apache"
-          else
-            APACHE_USER="www-data"
-          fi
-          echo "s#@WEB_USER@#$APACHE_USER#g" >> $MACRO_REPLACEMENT_FILE
-
-          find ./centreon -type f -not -path "./vendor/*" | grep -v $MACRO_REPLACEMENT_FILE | xargs --delimiter='\n' sed -i -f $MACRO_REPLACEMENT_FILE
-        shell: bash
-
-      - name: Generate selinux binaries
-        if: ${{ matrix.package_extension == 'rpm' }}
-        run: |
-          cd centreon/selinux
-          sed -i "s/@VERSION@/${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}/g" *.te
-          make -f /usr/share/selinux/devel/Makefile
-        shell: bash
-
-      - name: Remove selinux packaging files on debian
-        if: ${{ matrix.package_extension == 'deb' }}
-        run: rm -f centreon/packaging/*-selinux.yaml
-        shell: bash
-
-      - name: Package Centreon
-        uses: ./.github/actions/package-nfpm
-        with:
-          nfpm_file_pattern: "centreon/packaging/*.yaml"
-          distrib: ${{ matrix.distrib }}
-          package_extension: ${{ matrix.package_extension }}
-          major_version: ${{ needs.get-environment.outputs.major_version }}
-          minor_version: ${{ needs.get-environment.outputs.minor_version }}
-          release: ${{ needs.get-environment.outputs.release }}
-          arch: all
-          commit_hash: ${{ github.sha }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
-          rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
-          rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
-          rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-
-      - name: Create Jira ticket if nightly build failure
-        if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure() &&
-          startsWith(github.ref_name, 'dev')
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-          module_name: "centreon-web"
-          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
->>>>>>> a1c828b4bc ('backport' elements of #5749)
 
   dockerize:
     runs-on: ubuntu-24.04
@@ -676,36 +538,10 @@ jobs:
           path: /tmp/cache/docker-image
           key: docker-image-${{ matrix.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
 
-<<<<<<< HEAD
   api-integration-test:
     needs: [dockerize, changes, get-environment]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable'}}
     uses: ./.github/workflows/behat-test.yml
-=======
-      - name: Create Jira ticket if nightly build failure
-        if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure() &&
-          startsWith(github.ref_name, 'dev')
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-          module_name: "centreon-web"
-          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
-
-  create-xray-test-plan-and-test-execution:
-    needs: [get-environment, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
-    name: create-xray-test-plan-and-test-execution-${{ matrix.operating_system }}
-
-    uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
->>>>>>> a1c828b4bc ('backport' elements of #5749)
     with:
       name: api
       module_name: centreon
