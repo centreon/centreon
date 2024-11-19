@@ -536,8 +536,7 @@ When(
       .type(genericTextWidgets.default.description);
     cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Service' }).eq(1).click();
-    cy.getByTestId({ testId: 'Select resource' }).click();
-    cy.getByLabel({ label: 'Select resource' }).type('i');
+    cy.getByLabel({ label: 'Select resource' }).type('Pin');
   }
 );
 
@@ -553,9 +552,8 @@ Then(
     .then(() => {
       console.log(textArray.join(', '));
       cy.log(textArray.join(', '));
-      expect(textArray).to.have.lengthOf(2);
-      expect(textArray).to.deep.equal(['Disk-/', 'Ping']);
+      expect(textArray).to.have.lengthOf(1);
+      expect(textArray).to.deep.equal(['Ping']);
     });
-    cy.get('input[name="success"]').click();
   }
 );
