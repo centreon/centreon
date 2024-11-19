@@ -526,3 +526,36 @@ Then('only the resource that matches the search input is displayed in the result
     }
   );
 });
+
+When(
+  'the dashboard administrator selects a service by typing a single character',
+  () => {
+    cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
+    cy.getByLabel({ label: 'RichTextEditor' })
+      .eq(0)
+      .type(genericTextWidgets.default.description);
+    cy.getByTestId({ testId: 'Resource type' }).realClick();
+    cy.getByLabel({ label: 'Service' }).eq(1).click();
+    cy.getByTestId({ testId: 'Select resource' }).click();
+    cy.getByLabel({ label: 'Select resource' }).type('i');
+  }
+);
+
+Then(
+  'only the services containing the typed character should be displayed in the list',
+  () => {
+    let textArray: string[] = [];
+    cy.get('ul.MuiAutocomplete-listbox')
+    .find('li')
+    .each(($el) => {
+      textArray.push($el.find('p').text());
+    })
+    .then(() => {
+      console.log(textArray.join(', '));
+      cy.log(textArray.join(', '));
+      expect(textArray).to.have.lengthOf(2);
+      expect(textArray).to.deep.equal(['Disk-/', 'Ping']);
+    });
+    cy.get('input[name="success"]').click();
+  }
+);
