@@ -95,13 +95,16 @@ const WidgetLineChart = ({
       timePeriod: panelOptions.timeperiod
     });
 
+  console.log(graphData);
+
+  const isMetaServiceSelected = getIsMetaServiceSelected(panelData.resources);
+
   const formattedThresholds = useThresholds({
     data: graphData,
     metricName: head(metricNames),
-    thresholds: panelOptions.threshold
+    thresholds: panelOptions.threshold,
+    isMetaServiceSelected
   });
-
-  const isMetaServiceSelected = getIsMetaServiceSelected(panelData.resources);
 
   if (!areResourcesOk || (!isMetaServiceSelected && isMetricsEmpty)) {
     return <NoResources />;

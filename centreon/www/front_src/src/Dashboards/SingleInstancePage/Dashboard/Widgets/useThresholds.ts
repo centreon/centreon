@@ -56,7 +56,11 @@ const useThresholds = ({
   }
 
   if (isEmpty(data?.metrics)) {
-    return undefined;
+    return {
+      enabled: false,
+      critical: [],
+      warning: []
+    };
   }
 
   const warningThresholds = isDefaultWarning

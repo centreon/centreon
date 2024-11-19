@@ -108,9 +108,11 @@ const Graph = ({
   const filteredGraphData = graphData
     ? {
         ...graphData,
-        metrics: graphData.metrics.filter((metric) =>
-          equals(metricId, metric.metric_id)
-        )
+        metrics: isMetaServiceSelected
+          ? graphData.metrics
+          : graphData.metrics.filter((metric) =>
+              equals(metricId, metric.metric_id)
+            )
       }
     : graphData;
 
