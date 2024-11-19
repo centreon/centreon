@@ -237,7 +237,7 @@ final class AddHostTemplateController extends AbstractController
             $dto->templates = $data['templates'] ?? [];
             $dto->macros = $data['macros'] ?? [];
             $dto->iconId = $data['icon_id'] ?? null;
-            $dto->eventHandlerEnabled = YesNoDefaultConverter::fromScalar($data['event_handler_enabled']) ?? 2;
+            $dto->eventHandlerEnabled = YesNoDefaultConverter::fromScalar($data['event_handler_enabled'] ?? 2);
             $dto->eventHandlerCommandId = $data['event_handler_command_id'] ?? null;
 
             $useCase($dto, $presenter);
