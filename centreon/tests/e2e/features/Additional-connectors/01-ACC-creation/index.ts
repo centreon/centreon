@@ -1,3 +1,4 @@
+/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
@@ -62,7 +63,7 @@ When('the user fills in all the informations', () => {
   );
   cy.get('#mui-component-select-type').should('contain', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
-  cy.contains('Central').click();
+  cy.get('ul.MuiAutocomplete-listbox').find('li').first().click();
   cy.get('#Usernamevalue').type('admin');
   cy.get('#Passwordvalue').type('Abcde!2021');
   cy.get('#vCenternamevalue').clear().type('vCenter-001');
@@ -177,7 +178,7 @@ When("the user doesn't fill in correct type of informations", () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('a');
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
-  cy.contains('Poller-3').click();
+  cy.get('ul.MuiAutocomplete-listbox').find('li').first().click();
   cy.get('#Usernamevalue').type('admin');
   cy.get('#Passwordvalue').type('Abcde!2021');
   cy.get('#vCenternamevalue').clear().type('vCenter-002');
@@ -202,7 +203,7 @@ When('the user fills in the needed informations', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('Connector-004');
   cy.get('#mui-component-select-type').should('contain', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
-  cy.contains('Poller-3').click();
+  cy.get('ul.MuiAutocomplete-listbox').find('li').first().click();
   cy.get('#Usernamevalue').type('admin');
   cy.get('#Passwordvalue').type('Abcde!2021');
   cy.get('#vCenternamevalue').clear().type('vCenter-003');
@@ -247,4 +248,69 @@ Then('the form fields are empty', () => {
   cy.get('#vCenternamevalue').should('have.value', 'my_vcenter');
   cy.get('#URLvalue').should('have.value', 'https://<ip_hostname>/sdk');
   cy.get('#Portvalue').should('have.value', '5700');
+});
+
+Then(
+  'fields "vCenter name, URL, Username, Password, Port" are not on readonly',
+  () => {
+    cy.get('#vCenternamevalue').should('not.have.attr', 'readonly');
+
+    cy.get('#URLvalue').should('not.have.attr', 'readonly');
+
+    cy.get('#Usernamevalue').should('not.have.attr', 'readonly');
+
+    cy.get('#Passwordvalue').should('not.have.attr', 'readonly');
+
+    cy.get('#Portvalue').should('not.have.attr', 'readonly');
+  }
+);
+
+Then(
+  'fields "vCenter name, URL, Username, Password, Port" have the right labels',
+  () => {
+    cy.get('label[for="vCenternamevalue"]').should(
+      'include.text',
+      'vCenter name'
+    );
+
+    cy.get('label[for="URLvalue"').should('include.text', 'URL');
+
+    cy.get('label[for="Usernamevalue"').should('include.text', 'Username');
+
+    cy.get('label[for="Passwordvalue"').should('include.text', 'Password');
+
+    cy.get('label[for="Portvalue"').should('include.text', 'Port');
+  }
+);
+
+When('the user {string} the form', (action: string) => {
+  if (action.includes('cancel')) {
+    cy.contains('button', 'Cancel').click();
+  } else {
+    cy.get('body').click(0, 0);
+  }
+});
+
+Then('a pop-up is displayed', () => {
+  cy.get('div[role="dialog"]').eq(1).should('be.visible');
+});
+
+Then('the title of this pop-up is {string}', (popupTitle: string) => {
+  cy.get('div[class*="-modalHeader"]')
+    .eq(1)
+    .within(() => {
+      cy.get('h2').should('contain.text', popupTitle);
+    });
+});
+
+Then('the message body of this pop-up is {string}', (popupMessage: string) => {
+  cy.get('div[class*="-modalBody"]').eq(1).should('contain.text', popupMessage);
+});
+
+Then('this pop-up contains two buttons "Resolve" and "Discard"', () => {
+  cy.get('div[class*="-modalActions"]').within(() => {
+    cy.get('button').contains('Discard').should('exist');
+    cy.get('button').contains('Resolve').should('exist');
+    cy.get('button').should('have.length', 2);
+  });
 });
