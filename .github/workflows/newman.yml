@@ -804,18 +804,8 @@ jobs:
           name: newman-${{ inputs.os }}-html-reports-*
           failOnError: false
 
-  fail-nightly:
-    needs: [newman-test-run, synchronize-with-xray, regroup-artifacts]
-    runs-on: ubuntu-24.04
-    if: |
-      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
-      (failure() || cancelled())
-    steps:
-      - run: exit 1
-        shell: bash
-
   create-jira-nightly-ticket:
-    needs: [newman-test-run, synchronize-with-xray, regroup-artifacts, fail-nightly]
+    needs: [newman-test-run, synchronize-with-xray, regroup-artifacts]
     runs-on: ubuntu-24.04
     if: |
       inputs.is_nightly == 'true' && github.run_attempt == 1 &&

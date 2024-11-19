@@ -79,7 +79,7 @@ interface Props {
   transformMatrix?: {
     fx?: (pointX: number) => number;
     fy?: (pointY: number) => number;
-  }
+  };
 }
 
 const InteractionWithGraph = ({
