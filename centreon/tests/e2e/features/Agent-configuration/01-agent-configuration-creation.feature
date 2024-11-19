@@ -85,3 +85,40 @@ Feature: Create a new Agent Configuration
     And the agent has been created
     When the user clicks on Add
     Then the form fields are empty
+
+  @TEST_MON-152745
+  Scenario Outline: Verification of the pop-up displayed when user '<action>' a PAC form creation with '<agent_type>' type and all mandatory informations
+    Given a non-admin user is in the Agents Configuration page
+    When the user clicks on Add
+    Then a pop-up menu with the form is displayed
+    When the user selects the '<agent_type>' type
+    And the user fills in the '<agent_type>' mandatory fields
+    And the user '<action>' the form
+    Then a pop-up is displayed
+    And the title of this pop-up is '<popup_title>'
+    And the message body of this pop-up is '<popup_message>'
+    Examples:
+      | action           | agent_type | popup_title                    | popup_message                                                             |
+      | clicks on cancel | Centreon Monitoring Agent | Do you want to save the changes? | If you click on Discard, your changes will not be saved. |
+      | clicks on cancel | Telegraf | Do you want to save the changes? | If you click on Discard, your changes will not be saved. |
+      | clicks outside | Centreon Monitoring Agent | Do you want to save the changes? | If you click on Discard, your changes will not be saved. |
+      | clicks outside  | Telegraf | Do you want to save the changes? | If you click on Discard, your changes will not be saved. |
+
+  @TEST_MON-152759
+  Scenario Outline: Verification of the pop-up displayed when user '<action>' a PAC form creation with '<agent_type>' type and missing mandatory informations
+    Given a non-admin user is in the Agents Configuration page
+    When the user clicks on Add
+    Then a pop-up menu with the form is displayed
+    When the user selects the '<agent_type>' type
+    And the user doesn't fill some '<agent_type>' mandatory fields
+    And the user '<action>' the form
+    Then a pop-up is displayed
+    And the title of this pop-up is '<popup_title>'
+    And the message body of this pop-up is '<popup_message>'
+    And this pop-up contains two buttons "Resolve" and "Discard"
+    Examples:
+      | action           | agent_type | popup_title                    | popup_message                                                             |
+      | clicks on cancel | Centreon Monitoring Agent | Do you want to resolve the errors? | There are errors in the form. Do you want to quit the form without resolving the errors? |
+      | clicks on cancel | Telegraf | Do you want to resolve the errors? | There are errors in the form. Do you want to quit the form without resolving the errors? |
+      | clicks outside | Centreon Monitoring Agent | Do you want to resolve the errors? | There are errors in the form. Do you want to quit the form without resolving the errors? |
+      | clicks outside  | Telegraf | Do you want to resolve the errors? | There are errors in the form. Do you want to quit the form without resolving the errors? |
