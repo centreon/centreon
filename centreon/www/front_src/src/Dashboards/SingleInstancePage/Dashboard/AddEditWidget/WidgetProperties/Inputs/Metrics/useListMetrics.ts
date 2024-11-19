@@ -12,7 +12,7 @@ import {
 } from 'ramda';
 
 import {
-  ListingModel,
+  type ListingModel,
   buildListingEndpoint,
   resourceTypeQueryParameter,
   useFetchQuery
@@ -20,7 +20,11 @@ import {
 
 import { serviceMetricsDecoder } from '../../../api/decoders';
 import { metricsEndpoint } from '../../../api/endpoints';
-import { Metric, ServiceMetric, WidgetDataResource } from '../../../models';
+import type {
+  Metric,
+  ServiceMetric,
+  WidgetDataResource
+} from '../../../models';
 
 interface Props {
   resources: Array<WidgetDataResource>;

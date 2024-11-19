@@ -15,19 +15,17 @@ import {
 import {
   BarChart,
   LineChart,
-  LineChartData,
+  type LineChartData,
   useGraphQuery,
   useRefreshInterval
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import NoResources from '../../NoResources';
-import { CommonWidgetProps, Data } from '../../models';
+import type { CommonWidgetProps, Data } from '../../models';
 import useThresholds from '../../useThresholds';
 import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
-
-import { graphEndpoint } from './api/endpoints';
-import { PanelOptions } from './models';
+import type { PanelOptions } from './models';
 
 const forceStackedMetrics = (data?: LineChartData): LineChartData | undefined =>
   data && {
@@ -75,9 +73,11 @@ const WidgetLineChart = ({
 
   const { graphData, start, end, isGraphLoading, isMetricsEmpty } =
     useGraphQuery({
+      baaso: 'http://localhost:3000/',
       baseEndpoint: getWidgetEndpoint({
         dashboardId,
-        defaultEndpoint: graphEndpoint,
+        defaultEndpoint:
+          'centreon/api/latest/monitoring/dashboard/metrics/performances/data',
         isOnPublicPage,
         playlistHash,
         widgetId: id
