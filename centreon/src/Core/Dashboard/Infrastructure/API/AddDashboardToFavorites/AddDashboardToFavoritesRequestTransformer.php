@@ -21,17 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindDashboards;
+namespace Core\Dashboard\Infrastructure\API\AddDashboardToFavorites;
 
-use Core\Dashboard\Application\UseCase\FindDashboards\Response\DashboardResponseDto;
+use Core\Dashboard\Application\UseCase\AddDashboardToFavorites\AddDashboardToFavoritesRequest;
 
-final class FindDashboardsResponse
+abstract readonly class AddDashboardToFavoritesRequestTransformer
 {
     /**
-     * @param DashboardResponseDto[] $dashboards
+     * @param AddDashboardToFavoritesInput $input
+     * @return AddDashboardToFavoritesRequest
      */
-    public function __construct(
-        public array $dashboards = []
-    ) {
+    public static function transform(AddDashboardToFavoritesInput $input): AddDashboardToFavoritesRequest
+    {
+        return new AddDashboardToFavoritesRequest(dashboardId: (int) $input->dashboardId);
     }
 }

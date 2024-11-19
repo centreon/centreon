@@ -21,17 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindDashboards;
+namespace Core\UserProfile\Application\Repository;
 
-use Core\Dashboard\Application\UseCase\FindDashboards\Response\DashboardResponseDto;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Core\UserProfile\Domain\Model\UserProfile;
 
-final class FindDashboardsResponse
+interface ReadUserProfileRepositoryInterface
 {
     /**
-     * @param DashboardResponseDto[] $dashboards
+     * @param ContactInterface $contact
+     * @return null|UserProfile
      */
-    public function __construct(
-        public array $dashboards = []
-    ) {
-    }
+    public function findByContact(ContactInterface $contact): ?UserProfile;
 }

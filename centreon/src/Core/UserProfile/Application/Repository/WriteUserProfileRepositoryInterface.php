@@ -21,17 +21,30 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindDashboards;
+namespace Core\UserProfile\Application\Repository;
 
-use Core\Dashboard\Application\UseCase\FindDashboards\Response\DashboardResponseDto;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 
-final class FindDashboardsResponse
+interface WriteUserProfileRepositoryInterface
 {
     /**
-     * @param DashboardResponseDto[] $dashboards
+     * @param int $profileId
+     * @param int $dashboardId
+     * @throws \Throwable
      */
-    public function __construct(
-        public array $dashboards = []
-    ) {
-    }
+    public function addDashboardAsFavorites(int $profileId, int $dashboardId): void;
+
+    /**
+     * @param int $profileId
+     * @param int $dashboardId
+     */
+    public function removeDashboardFromFavorites(int $profileId, int $dashboardId): void;
+
+    /**
+     * @param ContactInterface $contact
+     *
+     * @throws \Throwable
+     * @return int
+     */
+    public function addDefaultProfileForUser(ContactInterface $contact): int;
 }

@@ -21,39 +21,36 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Infrastructure\API\FindDashboard;
+namespace Core\Dashboard\Infrastructure\API\FindFavoriteDashboards;
 
 use Centreon\Application\Controller\AbstractController;
-use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboard;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Dashboard\Application\UseCase\FindFavoriteDashboards\FindFavoriteDashboards;
+use Core\Infrastructure\Common\Api\StandardPresenter;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted(
     'dashboard_access',
     null,
-    'You do not have sufficient rights to access the dashboard'
+    'You do not have sufficient rights to list the dashboards'
 )]
-final class FindDashboardController extends AbstractController
+final class FindFavoriteDashboardsController extends AbstractController
 {
-    /**
-     * @param int $dashboardId
-     * @param FindDashboard $useCase
-     * @param FindDashboardPresenter $presenter
-     *
-     * @throws AccessDeniedException
-     *
-     * @return Response
-     */
     public function __invoke(
-        int $dashboardId,
-        FindDashboard $useCase,
-        FindDashboardPresenter $presenter,
+        FindFavoriteDashboards $useCase,
+        StandardPresenter $presenter
     ): Response {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
+        $response = $useCase();
 
-        $useCase($dashboardId, $presenter);
+        if ($response instanceof ResponseStatusInterface) {
+            return $this->createResponse($response);
+        }
 
-        return $presenter->show();
+        return JsonResponse::fromJsonString(
+            $presenter->present($response, ['groups' => ['FavoriteDashboards:Read']])
+        );
+ 
     }
 }

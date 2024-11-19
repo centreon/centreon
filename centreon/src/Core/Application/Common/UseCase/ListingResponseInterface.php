@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,11 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Dashboard\Application\UseCase\FindDashboards;
+namespace Core\Application\Common\UseCase;
 
-use Core\Dashboard\Application\UseCase\FindDashboards\Response\DashboardResponseDto;
-
-final class FindDashboardsResponse
+interface ListingResponseInterface extends StandardResponseInterface
 {
-    /**
-     * @param DashboardResponseDto[] $dashboards
-     */
-    public function __construct(
-        public array $dashboards = []
-    ) {
-    }
+    public function getData(): mixed;
 }

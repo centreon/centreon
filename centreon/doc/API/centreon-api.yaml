@@ -1531,6 +1531,10 @@ paths:
     $ref: './latest/onPremise/Configuration/Dashboard/Dashboards.yaml'
   /configuration/dashboards/{dashboard_id}:
     $ref: './latest/onPremise/Configuration/Dashboard/Dashboard.yaml'
+  /configuration/dashboards/{dashboard_id}/favorites:
+    $ref: './latest/onPremise/Configuration/Dashboard/DeleteDashboardFromFavorites.yaml'
+  /configuration/dashboards/favorites:
+    $ref: './latest/onPremise/Configuration/Dashboard/FavoriteDashboards.yaml'
   /configuration/dashboards/{dashboard_id}/shares:
     $ref: './latest/onPremise/Configuration/Dashboard/ShareDashboard.yaml'
   /configuration/dashboards/{dashboard_id}/access_rights/contacts/{contact_id}:
