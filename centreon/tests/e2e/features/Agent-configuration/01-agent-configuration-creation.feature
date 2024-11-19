@@ -102,7 +102,7 @@ Feature: Create a new Agent Configuration
       | clicks on cancel | Centreon Monitoring Agent | Do you want to save the changes? | If you click on Discard, your changes will not be saved. |
       | clicks on cancel | Telegraf | Do you want to save the changes? | If you click on Discard, your changes will not be saved. |
       | clicks outside | Centreon Monitoring Agent | Do you want to save the changes? | If you click on Discard, your changes will not be saved. |
-      | clicks outside  | Telegraf | Do you want to save the changes? | If you click on Discard, your changes will not be saved. |
+      | clicks outside | Telegraf | Do you want to save the changes? | If you click on Discard, your changes will not be saved. |
 
   @TEST_MON-152759
   Scenario Outline: Verification of the pop-up displayed when user '<action>' a PAC form creation with '<agent_type>' type and missing mandatory informations
@@ -121,4 +121,4 @@ Feature: Create a new Agent Configuration
       | clicks on cancel | Centreon Monitoring Agent | Do you want to resolve the errors? | There are errors in the form. Do you want to quit the form without resolving the errors? |
       | clicks on cancel | Telegraf | Do you want to resolve the errors? | There are errors in the form. Do you want to quit the form without resolving the errors? |
       | clicks outside | Centreon Monitoring Agent | Do you want to resolve the errors? | There are errors in the form. Do you want to quit the form without resolving the errors? |
-      | clicks outside  | Telegraf | Do you want to resolve the errors? | There are errors in the form. Do you want to quit the form without resolving the errors? |
+      | clicks outside | Telegraf | Do you want to resolve the errors? | There are errors in the form. Do you want to quit the form without resolving the errors? |
