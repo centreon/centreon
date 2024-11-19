@@ -264,7 +264,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
                 AND service_categories.type = 2
             {$aclJoin}
             {$search}
-            {$typeSerch}
+            {$typeSearch}
             {$aclSearch}
             {$sort}
             {$limit}
