@@ -60,7 +60,7 @@ Feature: Configuring resource table widget
     When the dashboard administrator clicks on a random resource from the resource table
     And the dashboard administrator clicks on the downtime button and submits
     And the dashboard administrator clicks on the downtime filter
-    Then the resources set to downtime should be displayed
+    Then the resources set to in downtime should be displayed
 
   @TEST_MON-146676
   Scenario: Set a resource status to acknowledged
@@ -68,4 +68,4 @@ Feature: Configuring resource table widget
     When the dashboard administrator clicks on a random resource from the resource table
     And the dashboard administrator clicks on the acknowledge button and submits
     And the dashboard administrator clicks on the acknowledge filter
-    Then the resources set to acknowledge should be displayed
+    Then the resources set to acknowledged should be displayed

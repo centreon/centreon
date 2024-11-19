@@ -38,6 +38,7 @@
 
 use App\Kernel;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
+use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Pimple\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -78,6 +79,7 @@ require_once __DIR__ . '/timeperiod.class.php';
 require_once __DIR__ . '/timezone.class.php';
 require_once __DIR__ . '/vault.class.php';
 require_once __DIR__ . '/AdditionalConnectorVmWareV6.class.php';
+require_once __DIR__ . '/AgentConfiguration.php';
 
 /**
  * Class
@@ -102,6 +104,10 @@ class Generate
     /** @var Container|null */
     protected $dependencyInjector = null;
 
+    private ReadAccRepositoryInterface $readAdditionalConnectorRepository;
+
+    private ReadAgentConfigurationRepositoryInterface $readAgentConfigurationRepository;
+
     /**
      * Generate constructor
      *
@@ -111,6 +117,12 @@ class Generate
     {
         $this->dependencyInjector = $dependencyInjector;
         $this->backend_instance = Backend::getInstance($this->dependencyInjector);
+        $kernel = Kernel::createForWeb();
+        $this->readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
+            ?? throw new \Exception('ReadAccRepositoryInterface not found');
+        $this->readAgentConfigurationRepository = $kernel->getContainer()
+            ->get(ReadAgentConfigurationRepositoryInterface::class)
+            ?? throw new \Exception('ReadAccRepositoryInterface not found');
     }
 
     /**
@@ -296,12 +308,13 @@ class Generate
         Engine::getInstance($this->dependencyInjector)->reset();
         Broker::getInstance($this->dependencyInjector)->reset();
 
-        $kernel = Kernel::createForWeb();
-        $readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
-            ?? throw new \Exception('ReadAccRepositoryInterface not found');
         (new AdditionalConnectorVmWareV6(
             Backend::getInstance($this->dependencyInjector),
-            $readAdditionalConnectorRepository
+            $this->readAdditionalConnectorRepository
+        ))->reset();
+        (new AgentConfiguration(
+            Backend::getInstance($this->dependencyInjector),
+            $this->readAgentConfigurationRepository
         ))->reset();
         $this->resetModuleObjects();
     }
@@ -325,8 +338,16 @@ class Generate
         $readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
             ?? throw new \Exception('ReadAccRepositoryInterface not found');
         (new AdditionalConnectorVmWareV6(
-            Backend::getInstance($this->dependencyInjector),
+            $this->backend_instance,
             $readAdditionalConnectorRepository
+        ))->generateFromPollerId($this->current_poller['id']);
+        $readAgentConfigurationRepository = $kernel->getContainer()->get(
+            ReadAgentConfigurationRepositoryInterface::class
+        )
+            ?? throw new \Exception('ReadAgentConfigurationRepositoryInterface not found');
+        (new AgentConfiguration(
+            Backend::getInstance($this->dependencyInjector),
+            $readAgentConfigurationRepository
         ))->generateFromPollerId($this->current_poller['id']);
 
         Vault::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);

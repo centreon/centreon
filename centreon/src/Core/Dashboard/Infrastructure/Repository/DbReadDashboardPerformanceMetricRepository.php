@@ -36,7 +36,6 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
 {
     /**
      * @param DatabaseConnection $db
-     * @param SqlRequestParametersTranslator $sqlRequestTranslator
      * @param array<
      *  string, array{
      *    request: string,
@@ -46,11 +45,9 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      */
     public function __construct(
         DatabaseConnection $db,
-        private readonly SqlRequestParametersTranslator $sqlRequestTranslator,
         private array $subRequestsInformation = []
     ) {
         $this->db = $db;
-        $this->sqlRequestTranslator->setConcordanceArray(['current_value' => 'm.current_value']);
     }
 
     /**
@@ -433,7 +430,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         }, []);
 
         if (! empty($subRequestForTags)) {
-            $subRequests = array_map(fn ($subRequestForTag) => $subRequestForTag['request'], $subRequestForTags);
+            $subRequests = array_map(fn($subRequestForTag) => $subRequestForTag['request'], $subRequestForTags);
             $request .= ' INNER JOIN (';
             $request .= implode(' INTERSECT ', $subRequests);
             $request .= ') AS t ON t.resource_id = r.resource_id';
@@ -456,6 +453,9 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         array $accessGroups = [],
         bool $hasMetricName = false
     ): string {
+        $sqlRequestTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlRequestTranslator->setConcordanceArray(['current_value' => 'm.current_value']);
+
         $request
             = <<<'SQL_WRAP'
                     SELECT SQL_CALC_FOUND_ROWS DISTINCT
@@ -467,7 +467,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 SQL_WRAP;
 
         $accessGroupIds = array_map(
-            fn ($accessGroup) => $accessGroup->getId(),
+            fn($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -500,9 +500,10 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 SQL;
         }
 
-        $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
+        $sortRequest = $sqlRequestTranslator->translateSortParameterToSql();
+
         $request .= $sortRequest ?? ' ORDER BY m.metric_id ASC';
-        $request .= $this->sqlRequestTranslator->translatePaginationToSql();
+        $request .= $sqlRequestTranslator->translatePaginationToSql();
 
         return $request;
     }
@@ -531,7 +532,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
             }
         }
         $boundValues = array_merge(...$boundValues);
-        foreach ($boundValues as $bindToken => $bindValueInformation){
+        foreach ($boundValues as $bindToken => $bindValueInformation) {
             foreach ($bindValueInformation as $bindValue => $paramType) {
                 $statement->bindValue($bindToken, $bindValue, $paramType);
             }

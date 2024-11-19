@@ -198,7 +198,7 @@ const initialize = ({ options, data, isPublic = false }: Props): void => {
       <TestQueryProvider>
         <Provider store={store}>
           <BrowserRouter>
-            <div style={{ height: '100vh', width: '100vw' }}>
+            <div style={{ height: '400px', width: '1000px' }}>
               <Widget
                 dashboardId={1}
                 globalRefreshInterval={{

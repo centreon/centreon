@@ -1,8 +1,8 @@
+/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
-import hostGroups from '../../../fixtures/hostGroups/hostGroup.json';
-
 import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
+
+import hostGroups from '../../../fixtures/host-groups/host-group.json';
 
 const services = {
   serviceCritical: {

@@ -5,18 +5,15 @@ import {
   checkServicesAreMonitored,
   checkMetricsAreMonitored
 } from '../../../commons';
-import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import statuschartWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithStatusChartWidget.json';
-import twoStatuschartWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwoStatusChartWidgets.json';
 
 const greenCssBackground = 'background: rgb(136, 185, 34)';
 const orangeCssBackground = 'background: rgb(253, 155, 39)';
 const redCssBackground = 'background: rgb(255, 102, 102)';
 const greyCssBackground = 'background: rgb(227, 227, 227)';
 const blueCssBackground = 'background: rgb(30, 190, 179)';
-
 
 const hostGroupName = 'Linux-Servers';
 
@@ -150,8 +147,9 @@ before(() => {
     { name: services.serviceOk.name, status: 'ok' }
   ]);
 
-  cy.scheduleHostCheck({ host: services.serviceOk.host })
-    .scheduleHostCheck({ host: services.serviceCritical.host });
+  cy.scheduleHostCheck({ host: services.serviceOk.host }).scheduleHostCheck({
+    host: services.serviceCritical.host
+  });
 
   ['Disk-/', 'Load', 'Memory', 'Ping'].forEach((service) => {
     cy.scheduleServiceCheck({ host: 'Centreon-Server', service });
@@ -164,7 +162,6 @@ before(() => {
       service: 'Ping'
     }
   ]);
-
   cy.logoutViaAPI();
   cy.applyAcl();
 });
@@ -207,7 +204,7 @@ beforeEach(() => {
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
   cy.loginByTypeOfUser({
-    jsonName: dashboardAdministratorUser.login,
+    jsonName: 'admin',
     loginViaApi: false
   });
 });
@@ -346,7 +343,12 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
 });
 
 Given('a dashboard that includes a configured Status Chart widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    statuschartWidget,
+    'centreon-widget-statuschart',
+    '/widgets/statuschart'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
 });
@@ -373,7 +375,13 @@ Then('the unit of the resources already displayed should be updated', () => {
 });
 
 Given('a dashboard featuring two Status Chart widgets', () => {
-  cy.insertDashboardWithWidget(dashboards.default, twoStatuschartWidgets);
+  cy.insertDashboardWithDoubleWidget(
+    dashboards.default,
+    statuschartWidget,
+    statuschartWidget,
+    'centreon-widget-statuschart',
+    '/widgets/statuschart'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.wait('@getDashboard');
   cy.wait('@getServiceStatus');
@@ -390,18 +398,18 @@ When('the dashboard administrator user deletes one of the widgets', () => {
 });
 
 Then('only the contents of the other widget are displayed', () => {
-  cy.verifyLegendItemStyle(
-    1,
+   cy.verifyLegendItemStyle(
+    0,
     [
       greenCssBackground,
       redCssBackground,
       greyCssBackground,
       blueCssBackground
     ],
-    ['3', '0', '0', '0']
+    ['100.0%', '0', '0', '0']
   );
   cy.verifyLegendItemStyle(
-    0,
+    1,
     [
       greenCssBackground,
       orangeCssBackground,
@@ -414,7 +422,12 @@ Then('only the contents of the other widget are displayed', () => {
 });
 
 Given('a dashboard having a configured Status Chart widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    statuschartWidget,
+    'centreon-widget-statuschart',
+    '/widgets/statuschart'
+  );
 });
 
 When(
@@ -443,7 +456,12 @@ Then('a second Status Chart widget is displayed on the dashboard', () => {
 Given(
   'a dashboard administrator user configuring a Status Chart widget',
   () => {
-    cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
+    cy.insertDashboardWithWidget(
+      dashboards.default,
+      statuschartWidget,
+      'centreon-widget-statuschart',
+      '/widgets/statuschart'
+    );
     cy.editDashboard(dashboards.default.name);
     cy.editWidget(1);
   }
@@ -474,7 +492,12 @@ Then(
 );
 
 Given('a dashboard with a Status Chart widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
+   cy.insertDashboardWithWidget(
+    dashboards.default,
+    statuschartWidget,
+    'centreon-widget-statuschart',
+    '/widgets/statuschart'
+  );
   cy.editDashboard(dashboards.default.name);
 });
 
@@ -497,5 +520,48 @@ Then(
   'the user should be redirected to the resource status screen and all the resources must be displayed',
   () => {
     cy.contains('host2').should('exist');
+  }
+);
+
+Given('the dashboard administrator adds more than 20 hosts', () => {
+  cy.addMultipleHosts();
+  cy.navigateTo({
+    page: 'Resources Status',
+    rootItemNumber: 1
+  });
+  cy.waitForElementToBeVisible('[data-testid="CloseIcon"]');
+  cy.getByTestId({ testId: 'CloseIcon' }).click();
+  cy.exportConfig();
+  cy.waitUntil(
+    () => {
+      return cy
+        .getByLabel({ label: 'Up status hosts', tag: 'a' })
+        .invoke('text')
+        .then((text) => {
+          if (text !== '23') {
+            cy.getByTestId({ testId: 'RefreshIcon' }).click();
+            cy.getByLabel({ label: 'Select all' }).click();
+            cy.getByLabel({ label: 'Forced check' }).click();
+            cy.getByLabel({ label: 'Select all' }).click();
+          }
+
+          return text === '23';
+        });
+    },
+    { interval: 20000, timeout: 600000 }
+  );
+});
+
+Then(
+  'the number of hosts is evaluated to be 23',
+  () => {
+    cy.get('[data-testid="pieChart"]')
+    .eq(0)
+    .find('text tspan')
+    .invoke('text')
+    .then((text) => {
+      cy.log(text);
+      expect(text.trim()).to.eq('23hosts');
+   });
   }
 );

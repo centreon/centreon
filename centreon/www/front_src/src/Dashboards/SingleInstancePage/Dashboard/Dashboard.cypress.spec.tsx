@@ -11,57 +11,58 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
-    DashboardGlobalRole,
-    ListingVariant,
-    additionalResourcesAtom,
-    federatedWidgetsAtom,
-    platformVersionsAtom,
-    refreshIntervalAtom,
-    userAtom
+  DashboardGlobalRole,
+  ListingVariant,
+  additionalResourcesAtom,
+  federatedWidgetsAtom,
+  platformVersionsAtom,
+  refreshIntervalAtom,
+  userAtom
 } from '@centreon/ui-context';
 
 import { federatedWidgetsPropertiesAtom } from '../../../federatedModules/atoms';
 import {
-    dashboardSharesEndpoint,
-    dashboardsContactsEndpoint,
-    dashboardsEndpoint,
-    getDashboardEndpoint
+  dashboardSharesEndpoint,
+  dashboardsContactsEndpoint,
+  dashboardsEndpoint,
+  getDashboardEndpoint
 } from '../../api/endpoints';
 import { DashboardRole } from '../../api/models';
 import {
-    labelAddAContact,
-    labelDelete,
-    labelSharesSaved
+  labelAddAContact,
+  labelDashboardUpdated,
+  labelDelete,
+  labelSharesSaved,
+  labelUpdate
 } from '../../translatedLabels';
-
-import { dashboardAtom } from './atoms';
 import Dashboard from './Dashboard';
+import { internalWidgetComponents } from './Widgets/widgets';
+import { dashboardAtom } from './atoms';
 import { routerParams } from './hooks/useDashboardDetails';
 import { saveBlockerHooks } from './hooks/useDashboardSaveBlocker';
 import {
-    labelAddAWidget,
-    labelCancel,
-    labelDeleteWidget,
-    labelDoYouWantToSaveChanges,
-    labelDuplicate,
-    labelEditDashboard,
-    labelEditWidget,
-    labelGlobalRefreshInterval,
-    labelIfYouClickOnDiscard,
-    labelInterval,
-    labelManualRefreshOnly,
-    labelMoreActions,
-    labelPleaseContactYourAdministrator,
-    labelSave,
-    labelTitle,
-    labelViewProperties,
-    labelWidgetType,
-    labelYourRightsOnlyAllowToView
+  labelAddAWidget,
+  labelCancel,
+  labelDeleteWidget,
+  labelDoYouWantToSaveChanges,
+  labelDuplicate,
+  labelEditDashboard,
+  labelEditWidget,
+  labelGlobalRefreshInterval,
+  labelIfYouClickOnDiscard,
+  labelInterval,
+  labelManualRefreshOnly,
+  labelMoreActions,
+  labelPleaseContactYourAdministrator,
+  labelSave,
+  labelTitle,
+  labelViewProperties,
+  labelWidgetType,
+  labelYourDashboardHasBeenSaved,
+  labelYourRightsOnlyAllowToView
 } from './translatedLabels';
-import { internalWidgetComponents } from './Widgets/widgets';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {
-
   const store = createStore();
   store.set(federatedWidgetsAtom, internalWidgetComponents);
   store.set(federatedWidgetsPropertiesAtom, [
@@ -186,10 +187,13 @@ const initializeAndMount = ({
   });
 
   cy.interceptAPIRequest({
-    alias: 'patchDashboardDetails',
-    method: Method.PATCH,
+    alias: 'updateDashboard',
+    method: Method.POST,
     path: getDashboardEndpoint('1'),
-    statusCode: 201
+    statusCode: 201,
+    response: {
+      id: 1
+    }
   });
 
   cy.fixture('Dashboards/dashboards.json').then((dashboards) => {
@@ -576,6 +580,36 @@ describe('Dashboard', () => {
       cy.contains(labelManualRefreshOnly).should('be.visible');
 
       cy.findByLabelText(labelInterval).should('have.value', '15');
+
+      cy.makeSnapshot();
+    });
+
+    it('edits the dashboards when the refresh type and refresh are updated and the save button is clicked', () => {
+      initializeAndMount(editorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.findByLabelText('edit').click();
+
+      cy.contains(labelGlobalRefreshInterval).should('be.visible');
+      cy.contains(labelManualRefreshOnly).should('be.visible');
+
+      cy.findByLabelText(labelInterval).type('15');
+      cy.contains(labelManualRefreshOnly).click();
+      cy.findByLabelText(labelUpdate).click();
+
+      cy.waitForRequest('@updateDashboard').then(({ request }) => {
+        expect(request.body).to.deep.equal({
+          name: 'My Dashboard',
+          description: 'my description',
+          'refresh[type]': 'manual',
+          'refresh[interval]': '1515'
+        });
+      });
+
+      cy.contains(labelDashboardUpdated).should('be.visible');
+
+      cy.makeSnapshot();
     });
   });
 
@@ -629,9 +663,34 @@ describe('Dashboard', () => {
     cy.makeSnapshot();
   });
 
+  it('saves an empty dashbord when widgets are removed and the save button is clicked', () => {
+    initializeAndMount(editorRoles);
+
+    cy.findAllByLabelText(labelMoreActions).eq(0).click();
+    cy.contains(labelDeleteWidget).click();
+    cy.findByLabelText(labelDelete).click();
+    cy.findAllByLabelText(labelMoreActions).eq(0).click();
+    cy.contains(labelDeleteWidget).click();
+    cy.findByLabelText(labelDelete).click();
+    cy.findByLabelText(labelMoreActions).click();
+    cy.contains(labelDeleteWidget).click();
+    cy.findByLabelText(labelDelete).click();
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@updateDashboard').then(({ request }) => {
+      expect(request.body['panels[]']).equal('');
+      expect(request.body['thumbnail[directory]']).equal('dashboards');
+      expect(request.body['thumbnail[name]']).equal('dashboard-1.png');
+    });
+
+    cy.contains(labelYourDashboardHasBeenSaved).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
   describe('Route blocking', () => {
     it('saves changes when a dashboard is being edited, a dashboard is updated, the user goes to another page and the corresponding button is clicked', () => {
-      const { proceedNavigation } = initializeAndMount({
+      initializeAndMount({
         ...editorRoles,
         isBlocked: true
       });
@@ -646,8 +705,18 @@ describe('Dashboard', () => {
 
       cy.findByTestId('confirm').click();
 
-      cy.waitForRequest('@patchDashboardDetails').then(() => {
-        expect(proceedNavigation).to.have.been.calledWith();
+      cy.waitForRequest('@updateDashboard').then(({ request }) => {
+        const formData = new URLSearchParams(request.body);
+
+        const formDataObj = {};
+        formData.forEach((value, key) => {
+          formDataObj[key] = value;
+        });
+
+        expect(formDataObj).to.include({
+          'thumbnail[directory]': 'dashboards',
+          'thumbnail[name]': 'dashboard-1.png'
+        });
       });
 
       cy.makeSnapshot();

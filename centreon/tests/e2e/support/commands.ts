@@ -9,6 +9,10 @@ import '../features/Dashboards/commands';
 import '../features/Resources-Access-Management/commands';
 import '../features/Backup-configuration/commands';
 import '../features/Hosts/commands';
+import '../features/Contacts/commands';
+import '../features/Ldaps/commands';
+import '../features/Services-configuration/commands';
+import '../features/Agent-configuration/commands';
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
   return cy.get(refreshButton).click();
@@ -84,6 +88,10 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add("enterIframe", (iframeSelector): Cypress.Chainable => {
+  return cy.get(iframeSelector)
+    .its("0.contentDocument");
+});
 
 declare global {
   namespace Cypress {
@@ -101,6 +109,7 @@ declare global {
         paramName,
         paramValue,
       }: Serviceparams) => Cypress.Chainable;
+      enterIframe: () => Cypress.Chainable;
     }
   }
 }

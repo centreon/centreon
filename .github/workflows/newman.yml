@@ -1,3 +1,5 @@
+name: newman-test
+
 on:
   workflow_call:
     inputs:
@@ -28,6 +30,9 @@ on:
       major_version:
         required: true
         type: string
+      is_nightly:
+        required: true
+        type: string
       stability:
         required: true
         type: string
@@ -44,14 +49,16 @@ on:
         required: true
       client_secret:
         required: true
-      jira_user:
+      jira_base_url:
         required: true
-      jira_token_test:
+      jira_user_email:
+        required: true
+      jira_api_token:
         required: true
 
 jobs:
   newman-test-list:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     outputs:
       collections: ${{ steps.set_collections.outputs.collections }}
@@ -69,8 +76,10 @@ jobs:
           cat $GITHUB_OUTPUT
 
   associate-test-cases:
-    runs-on: ubuntu-22.04
-    if: ${{ inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
+    runs-on: ubuntu-24.04
+    if: |
+      inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) &&
+      inputs.is_nightly == 'true'
     outputs:
       test_execution_id: ${{ steps.get-test-ids.outputs.test_execution_id }}
       test_plan_id: ${{ steps.get-test-ids.outputs.test_plan_id }}
@@ -240,7 +249,7 @@ jobs:
 
             response=$(curl --request GET \
               --url "$jira_issue_url" \
-              --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+              --user "${{ secrets.jira_user_email }}:${{ secrets.jira_api_token }}" \
               --header 'Accept: application/json')
 
             summary=$(echo "$response" | jq -r '.fields.summary')
@@ -277,7 +286,7 @@ jobs:
               # Adding a new test case
               response=$(curl --request POST \
                 --url 'https://centreon.atlassian.net/rest/api/2/issue' \
-                --user '${{ secrets.jira_user }}:${{ secrets.jira_token_test }}' \
+                --user '${{ secrets.jira_user_email }}:${{ secrets.jira_api_token }}' \
                 --header 'Accept: application/json' \
                 --header 'Content-Type: application/json' \
                 --data '{
@@ -357,7 +366,7 @@ jobs:
   newman-test-run:
     needs: [newman-test-list, associate-test-cases]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -515,7 +524,7 @@ jobs:
   synchronize-with-xray:
     needs: [newman-test-run, associate-test-cases]
     if: always()
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
@@ -582,7 +591,9 @@ jobs:
           done
 
       - name: Change test execution status
-        if: ${{ inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
+        if: |
+          inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) &&
+          inputs.is_nightly == 'true'
         run: |
             retry_command() {
               local max_attempts=$1
@@ -629,7 +640,7 @@ jobs:
                     echo "Processing issue ID: $issue_id"
                     jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
 
-                    command="curl --request GET --url '$jira_issue_url' --user '${{ secrets.jira_user }}:${{ secrets.jira_token_test }}' --header 'Accept: application/json' -o response.json"
+                    command="curl --request GET --url '$jira_issue_url' --user '${{ secrets.jira_user_email }}:${{ secrets.jira_api_token }}' --header 'Accept: application/json' -o response.json"
                     retry_command 5 "$command"
                     response_code=$(jq -r '.statusCode' response.json)
 
@@ -696,7 +707,9 @@ jobs:
             done
 
       - name: Perform Jira Transitions
-        if: ${{ inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
+        if: |
+          inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) &&
+          inputs.is_nightly == 'true'
         run: |
           transition_ids=("61" "81" "21" "31")
           issue_ids="${{ needs.associate-test-cases.outputs.api-issue-ids }}"
@@ -709,7 +722,7 @@ jobs:
             # Make a GET request to get information about available transitions
             get_response=$(curl --request GET \
               --url "https://centreon.atlassian.net/rest/api/2/issue/${test_issue_id}/transitions?expand=transitions.fields" \
-              --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+              --user "${{ secrets.jira_user_email }}:${{ secrets.jira_api_token }}" \
               --header 'Accept: application/json')
 
             # Extract the transition ID from the response
@@ -722,7 +735,7 @@ jobs:
               for transition_id in "${transition_ids[@]}"; do
                 curl --request POST \
                   --url "https://centreon.atlassian.net/rest/api/2/issue/${test_issue_id}/transitions?expand=transitions.fields" \
-                  --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+                  --user "${{ secrets.jira_user_email }}:${{ secrets.jira_api_token }}" \
                   --header 'Accept: application/json' \
                   --header 'Content-Type: application/json' \
                   --data '{
@@ -774,7 +787,7 @@ jobs:
   regroup-artifacts:
     needs: [newman-test-run]
     if: always()
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Merge Artifacts
@@ -790,3 +803,19 @@ jobs:
         with:
           name: newman-${{ inputs.os }}-html-reports-*
           failOnError: false
+
+  create-jira-nightly-ticket:
+    needs: [newman-test-run, synchronize-with-xray, regroup-artifacts]
+    runs-on: ubuntu-24.04
+    if: |
+      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
+      (failure() || cancelled())
+    steps:
+      - name: Create Jira ticket if nightly build failure
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.jira_base_url }}
+          jira_user_email: ${{ secrets.jira_user_email }}
+          jira_api_token: ${{ secrets.jira_api_token }}
+          module_name: "centreon-web"
+          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "newman"]'

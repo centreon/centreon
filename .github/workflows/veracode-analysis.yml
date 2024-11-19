@@ -247,12 +247,13 @@ jobs:
       - name: Create jira ticket
         # In case of QG failure, a ticket must be created
         if: needs.build.outputs.enable_qg == 'false' || ( needs.build.outputs.development_stage == 'Development' && failure() )
-        uses: ./.github/actions/veracode-create-jira-ticket
+        uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.jira_base_url }}
           jira_user_email: ${{ secrets.jira_user_email }}
           jira_api_token: ${{ secrets.jira_api_token }}
           module_name: ${{ inputs.module_name }}
+          ticket_labels: "['Veracode', 'Pipeline']"
 
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
@@ -272,7 +273,7 @@ jobs:
     needs: [pipeline-scan]
     name: Clean artifact
     if: success() || failure()
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
@@ -284,7 +285,7 @@ jobs:
     name: Run a sandbox scan
     # only stable and unstable maintenances branches will produce a report
     if: needs.build.outputs.development_stage != 'Development'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Get build binary
@@ -332,7 +333,7 @@ jobs:
     name: Run a SCA scan
     # only stable and unstable maintenance branches will produce a report
     if: needs.build.outputs.development_stage != 'Development'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
 
     steps:

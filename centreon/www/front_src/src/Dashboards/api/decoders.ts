@@ -5,6 +5,7 @@ import { JsonDecoder } from 'ts.data.json';
 
 import { buildListingDecoder } from '@centreon/ui';
 
+import { Thumbnail } from '../SingleInstancePage/Dashboard/models';
 import {
   ContactType,
   Dashboard,
@@ -97,6 +98,16 @@ export const dashboardEntityDecoder = {
     {
       contactGroups: 'contact_groups'
     }
+  ),
+  thumbnail: JsonDecoder.optional(
+    JsonDecoder.object<Thumbnail>(
+      {
+        id: JsonDecoder.number,
+        name: JsonDecoder.string,
+        directory: JsonDecoder.string
+      },
+      'thumbnail'
+    )
   ),
   updatedAt: JsonDecoder.string,
   updatedBy: JsonDecoder.nullable(
