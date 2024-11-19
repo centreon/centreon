@@ -350,8 +350,8 @@ try {
                                 basename($fileCfg),
                                 $host['name']
                             ));
-                        } elseif (posix_getuid() === fileowner($targetFilePath)) {
-                            @chmod($targetFilePath, 0664);
+                        } elseif (posix_getuid() === fileowner(_CENTREON_ETC_ . '/' . 'centreon_vmware.json')) {
+                            @chmod(_CENTREON_ETC_ . '/' . 'centreon_vmware.json', 0664);
                         }
                     }
                 }
