@@ -7,16 +7,20 @@ import {
   groupBy,
   identity,
   includes,
+  intersection,
   isEmpty,
+  last,
   map,
   pipe,
   pluck,
-  toPairs
+  reject,
+  toPairs,
+  toUpper
 } from 'ramda';
 
 import { SeverityCode, centreonBaseURL } from '@centreon/ui';
 
-import { Resource, SeverityStatus } from './models';
+import { Resource, SeverityStatus, Status } from './models';
 
 export const areResourcesFullfilled = (
   resourcesDataset: Array<Resource>
@@ -444,4 +448,50 @@ export const getResourcesSearchQueryParameters = (
     resourcesCustomParameters,
     resourcesSearchConditions: flatten(resourcesSearchConditions)
   };
+};
+
+export const getStatusNamesPerResourceType = (
+  resourceType: string
+): Array<Status> => {
+  if (equals(resourceType, 'host')) {
+    return ['down', 'unreachable', 'up', 'pending'];
+  }
+
+  return ['critical', 'warning', 'unknown', 'ok', 'pending'];
+};
+
+export const getStatusesByResourcesAndResourceType = ({
+  statuses,
+  resources,
+  resourceType
+}) => {
+  const lastSelectedResourceType = pipe(
+    pluck('resourceType'),
+    reject((type) => equals(type, '')),
+    last
+  )(resources);
+
+  const isBVResourceType = equals(lastSelectedResourceType, 'business-view');
+  const isBAResourceType = equals(
+    lastSelectedResourceType,
+    'business-activity'
+  );
+
+  const formattedStatuses = formatStatus(statuses);
+
+  const resourceTypeToUse =
+    isBVResourceType || isBAResourceType
+      ? lastSelectedResourceType
+      : resourceType;
+
+  const statusesByResourceType = map(
+    toUpper,
+    getStatusNamesPerResourceType(resourceTypeToUse)
+  );
+
+  const statusesToUse = intersection(statusesByResourceType, formattedStatuses);
+
+  console.log(statusesByResourceType, formattedStatuses, statusesToUse);
+
+  return statusesToUse;
 };
