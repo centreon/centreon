@@ -526,33 +526,32 @@ const Listing = <
         className={classes.container}
         ref={containerRef as RefObject<HTMLDivElement>}
       >
-        {
-          isActionBarVisible && 
-            <div
-              className={classes.actionBar}
-              ref={actionBarRef as RefObject<HTMLDivElement>}
-            >
-              <ListingActionBar
-                actions={actions}
-                actionsBarMemoProps={actionsBarMemoProps}
-                columnConfiguration={columnConfiguration}
-                columns={columns}
-                currentPage={currentPage}
-                customPaginationClassName={customPaginationClassName}
-                limit={limit}
-                listingVariant={listingVariant}
-                moveTablePagination={moveTablePagination}
-                paginated={paginated}
-                totalRows={totalRows}
-                viewerModeConfiguration={viewerModeConfiguration}
-                widthToMoveTablePagination={widthToMoveTablePagination}
-                onLimitChange={changeLimit}
-                onPaginate={onPaginate}
-                onResetColumns={onResetColumns}
-                onSelectColumns={onSelectColumns}
-              />
-            </div>
-        }
+        {isActionBarVisible && (
+          <div
+            className={classes.actionBar}
+            ref={actionBarRef as RefObject<HTMLDivElement>}
+          >
+            <ListingActionBar
+              actions={actions}
+              actionsBarMemoProps={actionsBarMemoProps}
+              columnConfiguration={columnConfiguration}
+              columns={columns}
+              currentPage={currentPage}
+              customPaginationClassName={customPaginationClassName}
+              limit={limit}
+              listingVariant={listingVariant}
+              moveTablePagination={moveTablePagination}
+              paginated={paginated}
+              totalRows={totalRows}
+              viewerModeConfiguration={viewerModeConfiguration}
+              widthToMoveTablePagination={widthToMoveTablePagination}
+              onLimitChange={changeLimit}
+              onPaginate={onPaginate}
+              onResetColumns={onResetColumns}
+              onSelectColumns={onSelectColumns}
+            />
+          </div>
+        )}
 
         <ParentSize
           parentSizeStyles={{
