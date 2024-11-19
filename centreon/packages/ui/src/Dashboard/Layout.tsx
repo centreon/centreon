@@ -67,7 +67,7 @@ const DashboardLayout = <T extends Layout>({
     const nbRow = bottom(getLayout(layout));
     const containerPaddingY = 4;
     return nbRow * rowHeight + (nbRow - 1) * 20 + containerPaddingY * 2;
-  }, [layout, rowHeight]);
+  }, [layout, rowHeight]) ?? 0;
 
   useEffect(() => {
     window.addEventListener('resize', resize);
@@ -90,10 +90,9 @@ const DashboardLayout = <T extends Layout>({
                 <Grid
                   columns={columns}
                   height={
-                    (containerHeight || 0) > height ? containerHeight : height
+                    containerHeight > height ? containerHeight : height
                   }
                   width={width}
-                  containerRef={dashboardContainerRef}
                 />
               )}
               <ReactGridLayout
