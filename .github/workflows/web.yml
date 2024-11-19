@@ -162,7 +162,7 @@ jobs:
         if: |
           needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
           failure() &&
-          startsWith(github.ref_name || github.base_ref, 'dev')
+          startsWith(github.ref_name, 'dev')
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -513,7 +513,7 @@ jobs:
         if: |
           needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
           failure() &&
-          startsWith(github.ref_name || github.base_ref, 'dev')
+          startsWith(github.ref_name, 'dev')
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -658,7 +658,7 @@ jobs:
         if: |
           needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
           failure() &&
-          startsWith(github.ref_name || github.base_ref, 'dev')
+          startsWith(github.ref_name, 'dev')
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -979,7 +979,7 @@ jobs:
         if: |
           needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
           failure() &&
-          startsWith(github.ref_name || github.base_ref, 'dev')
+          startsWith(github.ref_name, 'dev')
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -1024,7 +1024,7 @@ jobs:
         if: |
           needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
           failure() &&
-          startsWith(github.ref_name || github.base_ref, 'dev')
+          startsWith(github.ref_name, 'dev')
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
