@@ -33,6 +33,7 @@ import {
 import { additionalResourcesAtom } from '@centreon/ui-context';
 
 import { baseEndpoint } from '../../../../../../../api/endpoint';
+import { getIsMetaServiceSelected } from '../../../../Widgets/utils';
 import {
   labelHost,
   labelHostCategory,
@@ -291,7 +292,17 @@ const useResources = ({
 
   const changeResource = (index: number) => (_, resource: SelectEntry) => {
     const selectedResource = resource ? pick(['id', 'name'], resource) : {};
+    const isMetaService = getIsMetaServiceSelected(
+      values.data?.resources || []
+    );
 
+    if (isMetaService) {
+      setFieldValue(
+        'data.services',
+        [pick(['id', 'name', 'uuid'], resource)],
+        false
+      );
+    }
     setFieldValue(`data.${propertyName}.${index}.resources`, [
       selectedResource
     ]);

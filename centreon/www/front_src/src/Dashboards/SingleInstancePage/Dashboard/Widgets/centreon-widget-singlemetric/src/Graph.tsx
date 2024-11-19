@@ -61,6 +61,8 @@ const Graph = ({
     refreshIntervalCustom
   });
 
+  const isMetaServiceSelected = getIsMetaServiceSelected(resources);
+
   const metricId = metrics[0]?.id;
   const metricName = metrics[0]?.name;
 
@@ -89,12 +91,11 @@ const Graph = ({
     data: graphData,
     displayAsRaw,
     metricName,
-    thresholds: threshold
+    thresholds: threshold,
+    isMetaServiceSelected
   });
 
   const areResourcesOk = areResourcesFullfilled(resources);
-
-  const isMetaServiceSelected = getIsMetaServiceSelected(resources);
 
   if (
     !areResourcesOk ||
