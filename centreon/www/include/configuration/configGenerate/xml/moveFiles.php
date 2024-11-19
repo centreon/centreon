@@ -341,11 +341,12 @@ try {
                  */
                 if (count($listVmWareFile) > 0) {
                     foreach ($listVmWareFile as $fileCfg) {
-                        $succeded = copy($fileCfg, _CENTREON_ETC_ . '/' . 'centreon_vmware.json');
-                        if (! $succeded) {
+                        if (! copy($fileCfg, _CENTREON_ETC_ . '/' . 'centreon_vmware.json')) {
                             throw new Exception(sprintf(
-                                "Could not write to VMWare's configuration file '%s' for monitoring server '%s'."
-                                    . "Please add writing permissions for the webserver's user",
+                                <<<'MSG'
+                                    Could not write to VMWare's configuration file '%s' for monitoring server '%s'.
+                                    Please add writing permissions for the webserver's user.
+                                    MSG;,
                                 basename($fileCfg),
                                 $host['name']
                             ));
