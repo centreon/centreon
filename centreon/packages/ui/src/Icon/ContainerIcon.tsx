@@ -11,5 +11,10 @@ const icon = (
 );
 
 export const ContainerIcon = (props: SvgIconProps): JSX.Element => (
-  <BaseIcon {...props} dataTestId='ContainerIcon' Icon={icon} viewBox="6 156 600 600" />
+  <BaseIcon
+    {...props}
+    dataTestId="ContainerIcon"
+    Icon={icon}
+    viewBox="6 156 600 600"
+  />
 );
