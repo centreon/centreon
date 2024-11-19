@@ -3170,8 +3170,10 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
                 $formData['macroInput'] ?? [],
                 $formData['macroValue'] ?? []
             ),
-            'event_handler_enabled' => (int) $formData['host_event_handler_enabled']['host_event_handler_enabled'],
-            'event_handler_command_id' => '' !== $formData['command_command_id2']
+            'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
+                ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
+                : null,
+            'event_handler_command_id' => isset($formData['command_command_id2']) && '' !== $formData['command_command_id2']
                 ? (int) $formData['command_command_id2']
                 : null,
         ];

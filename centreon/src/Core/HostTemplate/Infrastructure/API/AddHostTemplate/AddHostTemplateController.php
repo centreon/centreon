@@ -155,7 +155,7 @@ final class AddHostTemplateController extends AbstractController
             $dto->flapDetectionEnabled = $data['flap_detection_enabled'] ?? 2;
             $dto->lowFlapThreshold = $data['low_flap_threshold'] ?? null;
             $dto->highFlapThreshold = $data['high_flap_threshold'] ?? null;
-            $dto->eventHandlerEnabled = $data['event_handler_enabled'] ?? 2;
+            $dto->eventHandlerEnabled = YesNoDefaultConverter::fromScalar($data['event_handler_enabled'] ?? 2);
             $dto->eventHandlerCommandId = $data['event_handler_command_id'] ?? null;
             $dto->eventHandlerCommandArgs = $data['event_handler_command_args'] ?? [];
             $dto->noteUrl = $data['note_url'] ?? '';
@@ -237,7 +237,7 @@ final class AddHostTemplateController extends AbstractController
             $dto->templates = $data['templates'] ?? [];
             $dto->macros = $data['macros'] ?? [];
             $dto->iconId = $data['icon_id'] ?? null;
-            $dto->eventHandlerEnabled = YesNoDefaultConverter::fromScalar($data['event_handler_enabled']) ?? 2;
+            $dto->eventHandlerEnabled = YesNoDefaultConverter::fromScalar($data['event_handler_enabled'] ?? 2);
             $dto->eventHandlerCommandId = $data['event_handler_command_id'] ?? null;
 
             $useCase($dto, $presenter);
