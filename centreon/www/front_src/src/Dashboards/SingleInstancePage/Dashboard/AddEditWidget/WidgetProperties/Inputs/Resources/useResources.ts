@@ -279,6 +279,17 @@ const useResources = ({
   const changeResources =
     (index: number) => (_, resources: Array<SelectEntry>) => {
       const selectedResources = map(pick(['id', 'name']), resources || []);
+      const isMetaService = getIsMetaServiceSelected(
+        values.data?.resources || []
+      );
+
+      if (isMetaService) {
+        setFieldValue(
+          'data.services',
+          pick(['id', 'name', 'uuid'], resources),
+          false
+        );
+      }
 
       setFieldValue(
         `data.${propertyName}.${index}.resources`,

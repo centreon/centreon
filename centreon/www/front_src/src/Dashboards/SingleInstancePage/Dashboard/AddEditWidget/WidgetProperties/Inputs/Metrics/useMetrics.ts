@@ -32,6 +32,7 @@ import {
 } from '../../../models';
 import { getDataProperty } from '../utils';
 
+import { getIsMetaServiceSelected } from '../../../../Widgets/utils';
 import { useListMetrics } from './useListMetrics';
 import { useRenderOptions } from './useRenderOptions';
 
@@ -305,13 +306,19 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
   );
 
   useEffect(() => {
+    const isMetaServiceOnly = getIsMetaServiceSelected(resources);
+
+    if (isMetaServiceOnly || isEmpty(resources)) {
+      return;
+    }
+
     const services = map(
       pick(['uuid', 'id', 'name', 'parentName']),
       servicesMetrics?.result || []
     );
 
     setFieldValue('data.services', services);
-  }, [values?.data?.[propertyName]]);
+  }, [values?.data?.[propertyName], resources]);
 
   return {
     changeMetric,
