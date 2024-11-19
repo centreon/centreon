@@ -266,6 +266,7 @@ function testServiceExistence($name = null, $hPars = [], $hgPars = [], $returnId
             $id = $arr["service_id"];
         }
         $hPars = $arr["service_hPars"] ?? [];
+        $hPars = is_array($hPars) ? $hPars : [$hPars];
         $hgPars = $arr["service_hgPars"] ?? [];
     }
 
