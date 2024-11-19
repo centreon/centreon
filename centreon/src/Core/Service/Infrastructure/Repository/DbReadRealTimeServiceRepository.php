@@ -237,7 +237,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
                 SQL; 
         }
 
-        $request = <<<SQL
+        return <<<SQL
             SELECT {$select}
             FROM `:dbstg`.resources AS services
             INNER JOIN `:dbstg`.resources AS hosts
@@ -269,8 +269,6 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
             {$sort}
             {$limit}
             SQL;
-
-        return $request;
     }
 
     /**
