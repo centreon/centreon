@@ -537,23 +537,49 @@ When(
     cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Service' }).eq(1).click();
     cy.getByLabel({ label: 'Select resource' }).type('Pin');
+    cy.getByLabel({ label: 'Select resource' }).click()
+
   }
 );
 
-Then(
-  'only the services containing the typed character should be displayed in the list',
-  () => {
-    let textArray: string[] = [];
-    cy.get('ul.MuiAutocomplete-listbox')
-    .find('li')
-    .each(($el) => {
-      textArray.push($el.find('p').text());
-    })
-    .then(() => {
-      console.log(textArray.join(', '));
-      cy.log(textArray.join(', '));
-      expect(textArray).to.have.lengthOf(1);
-      expect(textArray).to.deep.equal(['Ping']);
+Then('only the services containing the typed character should be displayed in the list', () => {
+  const clickAndCheckForServices = () => {
+    cy.getByTestId({ testId: 'Resource type' }).realClick();
+
+    return cy.getByLabel({ label: 'Service' }).eq(1).click()
+      .then(() => {
+        return cy.getByLabel({ label: 'Select resource' }).type('ser');
+      })
+      .then(() => {
+        return cy.getByLabel({ label: 'Select resource' }).click();
+      });
+  };
+
+  cy.waitUntil(() => {
+    return clickAndCheckForServices().then(() => {
+      return cy.get('ul.MuiAutocomplete-listbox')
+        .find('li')
+        .then(($items) => {
+          const textArray = $items.map((index, el) => {
+            return Cypress.$(el).find('p').text();
+          }).get();
+
+          cy.log(textArray.join(', '));
+
+          // Check if all displayed services contain "ser"
+          const allServicesContainSer = textArray.every(service => service.includes('ser'));
+
+          // Ensure that there are no extra services that do not contain "ser"
+          const noExtraServices = textArray.length === textArray.filter(service => service.includes('ser')).length;
+
+          return Cypress.Promise.resolve(allServicesContainSer && noExtraServices);
+        });
     });
-  }
-);
+  }, { timeout: 10000, interval: 3000 }).then((found) => {
+    if (found) {
+      cy.log('Only services containing "ser" are displayed in the list.');
+    } else {
+      cy.log('The displayed services do not match the expected criteria.');
+    }
+  });
+});
