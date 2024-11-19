@@ -125,7 +125,8 @@ const WidgetLineChart = ({
     legend: {
       display: panelOptions.showLegend,
       mode: panelOptions.legendDisplayMode,
-      placement: panelOptions.legendPlacement
+      placement: panelOptions.legendPlacement,
+      height: 72
     },
     loading: isGraphLoading,
     start,
@@ -168,6 +169,7 @@ const WidgetLineChart = ({
           showPoints: panelOptions.showPoints
         }}
         {...commonProperties}
+        // limitLegend={1}
       />
     );
   }
