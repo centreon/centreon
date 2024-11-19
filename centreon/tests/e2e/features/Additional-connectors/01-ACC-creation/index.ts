@@ -63,7 +63,7 @@ When('the user fills in all the informations', () => {
   );
   cy.get('#mui-component-select-type').should('contain', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
-  cy.contains('Central').click();
+  cy.get('ul.MuiAutocomplete-listbox').find('li').first().click();
   cy.get('#Usernamevalue').type('admin');
   cy.get('#Passwordvalue').type('Abcde!2021');
   cy.get('#vCenternamevalue').clear().type('vCenter-001');
@@ -178,7 +178,7 @@ When("the user doesn't fill in correct type of informations", () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('a');
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
-  cy.contains('Poller-3').click();
+  cy.get('ul.MuiAutocomplete-listbox').find('li').first().click();
   cy.get('#Usernamevalue').type('admin');
   cy.get('#Passwordvalue').type('Abcde!2021');
   cy.get('#vCenternamevalue').clear().type('vCenter-002');
@@ -203,7 +203,7 @@ When('the user fills in the needed informations', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('Connector-004');
   cy.get('#mui-component-select-type').should('contain', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
-  cy.contains('Poller-3').click();
+  cy.get('ul.MuiAutocomplete-listbox').find('li').first().click();
   cy.get('#Usernamevalue').type('admin');
   cy.get('#Passwordvalue').type('Abcde!2021');
   cy.get('#vCenternamevalue').clear().type('vCenter-003');
