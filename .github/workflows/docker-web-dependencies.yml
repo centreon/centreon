@@ -22,8 +22,8 @@ jobs:
       version_file: centreon/www/install/insertBaseConf.sql
 
   dockerize:
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
     needs: [get-environment]
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
     runs-on: ubuntu-24.04
 
     strategy:

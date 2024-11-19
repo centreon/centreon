@@ -63,10 +63,16 @@ jobs:
       skip_workflow: ${{ steps.skip_workflow.outputs.result }}
 
     steps:
+      - name: Check if PR has skip label
+        id: has_skip_label
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: return ${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) && contains(github.event.pull_request.labels.*.name, format('skip-workflow-{0}', github.workflow)) && 'true' || 'false' }};
+
       - name: Checkout sources (current branch)
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
         with:
-          fetch-depth: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, format('skip-workflow-{0}', github.workflow)) && 100 || 1 }}
+          fetch-depth: ${{ steps.has_skip_label.outputs.result == 'true' && 100 || 1 }}
 
       # get latest major version to detect cloud / on-prem versions
       - name: Checkout sources (develop branch)
@@ -75,12 +81,6 @@ jobs:
           ref: develop
           path: centreon-develop
           sparse-checkout: .version
-
-      - name: Check if PR has skip label
-        id: has_skip_label
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          script: return ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, format('skip-workflow-{0}', github.workflow)) && 'true' || 'false' }};
 
       - if: ${{ steps.has_skip_label.outputs.result == 'true' }}
         name: Get workflow triggered paths
@@ -145,18 +145,17 @@ jobs:
           files: ${{ join(fromJSON(steps.get_workflow_triggered_paths.outputs.result), ';') }}
           files_separator: ';'
 
-      - if: ${{ steps.has_skip_label.outputs.result == 'true' }}
-        name: Check if current workflow should be skipped
+      - name: Check if current workflow should be skipped
         id: skip_workflow
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
-            if ('${{ steps.has_skip_label.outputs.result }}' === 'false') {
+            if (${{ steps.has_skip_label.outputs.result }} === false) {
               return false;
             }
 
             const label = '${{ format('skip-workflow-{0}', github.workflow) }}';
-            if ('${{ steps.get_push_changes.outputs.any_changed }}' === 'true') {
+            if (${{ steps.get_push_changes.outputs.any_changed }} === true) {
               try {
                 await github.rest.issues.removeLabel({
                   name: label,

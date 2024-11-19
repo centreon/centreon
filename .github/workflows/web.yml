@@ -131,8 +131,8 @@ jobs:
 
   gherkin-lint:
     runs-on: ubuntu-24.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_test_changes == 'true' }}
+    needs: [get-environment, changes]
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_test_changes == 'true' }}
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
@@ -142,6 +142,7 @@ jobs:
 
   frontend-web-build:
     needs: [get-environment]
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
     runs-on: ubuntu-24.04
 
     steps:
@@ -171,6 +172,7 @@ jobs:
 
   backend-dependencies:
     needs: [get-environment]
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
     runs-on: ubuntu-24.04
 
     steps:
@@ -196,6 +198,7 @@ jobs:
 
   translation-build:
     needs: [get-environment]
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
 
     runs-on: ubuntu-24.04
     container:
@@ -229,7 +232,7 @@ jobs:
   frontend-web-lint:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
@@ -245,7 +248,7 @@ jobs:
   frontend-unit-test:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
@@ -280,7 +283,7 @@ jobs:
 
   frontend-component-test:
     needs: [changes, get-environment]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
     uses: ./.github/workflows/cypress-component-parallelization.yml
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
@@ -298,7 +301,7 @@ jobs:
   backend-unit-test:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
@@ -330,7 +333,7 @@ jobs:
   backend-lint:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
@@ -382,7 +385,7 @@ jobs:
         frontend-unit-test,
         frontend-component-test,
       ]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
 
     strategy:
       fail-fast: false
@@ -522,7 +525,7 @@ jobs:
   dockerize:
     runs-on: ubuntu-24.04
     needs: [get-environment, package]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
 
     env:
       project: centreon-web
@@ -665,7 +668,7 @@ jobs:
 
   create-xray-test-plan-and-test-execution:
     needs: [get-environment, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
     strategy:
       fail-fast: false
       matrix:
@@ -685,7 +688,7 @@ jobs:
 
   newman-test:
     needs: [get-environment, changes, create-xray-test-plan-and-test-execution, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_api_testing == 'true' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_api_testing == 'true' }}
     strategy:
       fail-fast: false
       matrix:
@@ -718,7 +721,7 @@ jobs:
 
   legacy-e2e-test:
     needs: [get-environment, changes, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false
       matrix:
@@ -745,7 +748,7 @@ jobs:
 
   e2e-test:
     needs: [get-environment, dockerize, create-xray-test-plan-and-test-execution]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false
       matrix:
@@ -784,7 +787,7 @@ jobs:
   performances-test:
     runs-on: ubuntu-24.04
     needs: [get-environment, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false
       matrix:
@@ -837,7 +840,7 @@ jobs:
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
 
     steps:
       - name: Checkout sources
@@ -864,7 +867,7 @@ jobs:
   publish-openapi-documentation:
     runs-on: [self-hosted, infra]
     needs: [get-environment]
-    if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
@@ -949,7 +952,7 @@ jobs:
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_delivery == 'true' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_delivery == 'true' }}
 
     strategy:
       matrix:
@@ -993,7 +996,7 @@ jobs:
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_delivery == 'true' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_delivery == 'true' }}
 
     strategy:
       matrix:
@@ -1030,6 +1033,7 @@ jobs:
   promote:
     needs: [get-environment, deliver-deb, deliver-rpm]
     if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
       (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&

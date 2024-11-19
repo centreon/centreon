@@ -24,6 +24,7 @@ jobs:
 
   dockerize:
     needs: [get-environment]
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
 
     strategy:
       fail-fast: false
