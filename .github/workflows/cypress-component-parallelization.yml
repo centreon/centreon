@@ -288,7 +288,8 @@ jobs:
     runs-on: ubuntu-24.04
     if: |
       inputs.is_nightly == 'true' && github.run_attempt == 1 &&
-      (failure() || cancelled())
+      (failure() || cancelled()) &&
+      startsWith(github.ref_name || github.base_ref, 'dev')
     steps:
       - name: Create Jira ticket if nightly build failure
         uses: ./.github/actions/create-jira-ticket
