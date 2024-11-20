@@ -4,8 +4,8 @@ export const useStyles = makeStyles()((theme) => ({
   pageLayout: {
     display: 'grid',
     gridTemplateRows: 'auto 1fr',
-    height: '100%',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    height: '100%'
   },
   pageLayoutActions: {
     '& > span': {
