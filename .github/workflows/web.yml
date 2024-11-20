@@ -50,9 +50,9 @@ jobs:
     needs: [get-environment]
     runs-on: ubuntu-24.04
     outputs:
-      has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes || true }}
-      has_backend_changes: ${{ steps.filter.outputs.has_backend_changes || true }}
-      has_test_changes: ${{ steps.filter.outputs.has_test_changes || true }}
+      has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes || 'true' }}
+      has_backend_changes: ${{ steps.filter.outputs.has_backend_changes || 'true' }}
+      has_test_changes: ${{ steps.filter.outputs.has_test_changes || 'true' }}
       trigger_delivery: ${{ steps.changes_trigger_checks.outputs.trigger_delivery }}
       trigger_api_testing: ${{ steps.changes_trigger_checks.outputs.trigger_api_testing }}
     steps:
@@ -96,9 +96,9 @@ jobs:
       - uses: ./.github/actions/changes-trigger-checks
         id: changes_trigger_checks
         with:
-          has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes || true }}
-          has_backend_changes: ${{ steps.filter.outputs.has_backend_changes || true }}
-          has_test_changes: ${{ steps.filter.outputs.has_test_changes || true }}
+          has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes || 'true' }}
+          has_backend_changes: ${{ steps.filter.outputs.has_backend_changes || 'true' }}
+          has_test_changes: ${{ steps.filter.outputs.has_test_changes || 'true' }}
 
   dispatch-to-maintained-branches:
     if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' }}
