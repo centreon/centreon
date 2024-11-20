@@ -41,7 +41,7 @@ export const useTimeline = (): UseTimelineState => {
         },
         {
           value: diffDuration.months(),
-          unit: pluralizedT({ label: labelMonth, count: diffDuration.hours() })
+          unit: pluralizedT({ label: labelMonth, count: diffDuration.months() })
         },
         {
           value: diffDuration.days(),
