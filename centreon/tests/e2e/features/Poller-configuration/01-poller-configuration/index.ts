@@ -203,7 +203,7 @@ Then('the selected pollers are {string}', (poller_action: string) => {
 });
 
 Then('no poller names are displayed', () => {
-   cy.waitForElementInIframe('#main-content', 'form span[class="selection"]').then(() => {
+  cy.waitForElementInIframe('#main-content', 'span.selection span.select2-selection--multiple input[placeholder="Pollers"]').then(() => {
     cy.getIframeBody()
       .find('form span[class="selection"]')
       .eq(0)
