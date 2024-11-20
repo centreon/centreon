@@ -51,11 +51,8 @@ Then(
       page: 'Logs',
       rootItemNumber: 4
     });
-    cy.reload();
+    cy.wait('@getTimeZone');
     cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(1)
       .contains('span.badge.service_ok', 'Added')
       .should('exist');
 
@@ -110,11 +107,8 @@ Then(
       page: 'Logs',
       rootItemNumber: 4
     });
-    cy.reload();
+    cy.wait('@getTimeZone');
     cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(1)
       .contains('span.badge.service_warning', 'Changed')
       .should('exist');
 
@@ -162,11 +156,8 @@ Then(
       page: 'Logs',
       rootItemNumber: 4
     });
-    cy.reload();
+    cy.wait('@getTimeZone');
     cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(1)
       .contains('span.badge.service_critical', 'Deleted')
       .should('exist');
 
