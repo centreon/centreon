@@ -8,8 +8,8 @@ import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { SeverityStatus, StatusDetail, StatusType } from '../../../models';
 import {
-  getStatusesByResourcesAndResourceType,
   getStatusNameByStatusSeverityandResourceType,
+  getStatusesByResourcesAndResourceType,
   getWidgetEndpoint,
   severityCodeBySeverityStatus
 } from '../../../utils';

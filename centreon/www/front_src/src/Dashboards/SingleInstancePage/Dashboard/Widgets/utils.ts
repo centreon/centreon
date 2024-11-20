@@ -491,7 +491,5 @@ export const getStatusesByResourcesAndResourceType = ({
 
   const statusesToUse = intersection(statusesByResourceType, formattedStatuses);
 
-  console.log(statusesByResourceType, formattedStatuses, statusesToUse);
-
   return statusesToUse;
 };
