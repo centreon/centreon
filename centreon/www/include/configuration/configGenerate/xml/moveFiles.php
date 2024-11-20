@@ -339,21 +339,26 @@ try {
                 /**
                  * VMWare configuration
                  */
-                if (count($listVmWareFile) > 0) {
-                    foreach ($listVmWareFile as $fileCfg) {
-                        if (! copy($fileCfg, _CENTREON_ETC_ . '/' . 'centreon_vmware.json')) {
-                            throw new Exception(sprintf(
-                                <<<'MSG'
-                                    Could not write to VMWare's configuration file '%s' for monitoring server '%s'.
-                                    Please add writing permissions for the webserver's user.
-                                    MSG,
-                                basename($fileCfg),
-                                $host['name']
-                            ));
-                        } elseif (posix_getuid() === fileowner(_CENTREON_ETC_ . '/' . 'centreon_vmware.json')) {
-                            @chmod(_CENTREON_ETC_ . '/' . 'centreon_vmware.json', 0664);
-                        }
-                    }
+                if (count($listVmWareFile) > 1) {
+                    throw new Exception(
+                        sprintf(
+                            <<<'MSG'
+                            There are more than one VMWare configuration file for monitoring engine '%s'.
+                            Please check it's path or create it
+                            MSG,
+                            $host['name']
+                        )
+                    );
+                }
+                if (! copy($listVmWareFile[0], _CENTREON_ETC_ . '/' . 'centreon_vmware.json')) {
+                    throw new Exception(sprintf(
+                        <<<'MSG'
+                            Could not write to VMWare's configuration file '%s' for monitoring server '%s'.
+                            Please add writing permissions for the webserver's user.
+                            MSG,
+                        basename($fileCfg),
+                        $host['name']
+                    ));
                 }
             } else {
                 passthru(
