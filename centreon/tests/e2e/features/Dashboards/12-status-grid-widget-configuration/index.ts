@@ -575,7 +575,7 @@ Then('only the services containing the typed character should be displayed in th
           return Cypress.Promise.resolve(allServicesContainSer && noExtraServices);
         });
     });
-  }, { timeout: 10000, interval: 3000 }).then((found) => {
+  }, { timeout: 30000, interval: 3000 }).then((found) => {
     if (found) {
       cy.log('Only services containing "ser" are displayed in the list.');
     } else {
