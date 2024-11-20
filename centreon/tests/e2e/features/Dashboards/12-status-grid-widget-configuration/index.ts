@@ -551,6 +551,13 @@ Then('only the services containing the typed character should be displayed in th
         return cy.getByLabel({ label: 'Select resource' }).type('ser');
       })
       .then(() => {
+        // Intercept the API call immediately after typing
+        cy.intercept('GET', '**/centreon/api/latest/monitoring/services/names**').as('getServices');
+
+        // Wait for the API call to complete
+        cy.wait('@getServices');
+
+        // Click on the selection field to open the list
         return cy.getByLabel({ label: 'Select resource' }).click();
       });
   };
