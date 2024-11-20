@@ -27,14 +27,16 @@ import {
   Metric,
   ServiceMetric,
   Widget,
-  WidgetDataResource,
-  WidgetResourceType
+  WidgetDataResource
 } from '../../../models';
 import { getDataProperty } from '../utils';
 
 import { getIsMetaServiceSelected } from '../../../../Widgets/utils';
 import { useListMetrics } from './useListMetrics';
 import { useRenderOptions } from './useRenderOptions';
+
+export const formatMetricName = (metric: FormMetric): string =>
+  `${metric.name} ${metric.unit ? `(${metric.unit})` : ''}`;
 
 interface UseMetricsOnlyState {
   changeMetric: (_, newMetric: SelectEntry | null) => void;
@@ -43,7 +45,6 @@ interface UseMetricsOnlyState {
   error?: string;
   getOptionLabel: (metric: FormMetric) => string;
   getTagLabel: (metric: FormMetric) => string;
-  hasMetaService: boolean;
   hasMultipleUnitsSelected: boolean;
   hasNoResources: () => boolean;
   hasTooManyMetrics: boolean;
@@ -71,14 +72,6 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
   const resources = (
     resourcesInputKey ? values.data?.[resourcesInputKey] : []
   ) as Array<WidgetDataResource>;
-
-  const hasMetaService = useMemo(
-    () =>
-      resources.some(({ resourceType }) =>
-        equals(resourceType, WidgetResourceType.metaService)
-      ),
-    [resources]
-  );
 
   const value = useMemo<Array<FormMetric> | undefined>(
     () => getDataProperty({ obj: values, propertyName }),
@@ -190,7 +183,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
         metricResources
       );
 
-      return `${metric.name} (${metric.unit})/${resourcesWithoutExcludedMetrics.length}`;
+      return `${formatMetricName(metric)}/${resourcesWithoutExcludedMetrics.length}`;
     },
     [getResourcesByMetricName]
   );
@@ -200,7 +193,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
       return '';
     }
 
-    return `${metric.name} (${metric.unit})`;
+    return formatMetricName(metric);
   }, []);
 
   const getNumberOfResourcesRelatedToTheMetric = useCallback(
@@ -248,12 +241,25 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
 
   useEffect(
     () => {
+      const isMetaServiceOnly = getIsMetaServiceSelected(resources);
+
       if (isNil(servicesMetrics)) {
         return;
       }
 
-      if (isEmpty(resources) || hasMetaService) {
+      if (isEmpty(resources)) {
         setFieldValue(`data.${propertyName}`, []);
+
+        return;
+      }
+
+      if (isMetaServiceOnly && (isNil(value) || isEmpty(value))) {
+        setFieldValue(
+          `data.${propertyName}`,
+          widgetProperties?.singleMetricSelection && !isEmpty(metrics)
+            ? [metrics[0]]
+            : metrics
+        );
 
         return;
       }
@@ -302,7 +308,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
           : intersectionFilteredExcludedMetrics
       );
     },
-    useDeepCompare([servicesMetrics, resources, hasMetaService])
+    useDeepCompare([servicesMetrics, resources])
   );
 
   useEffect(() => {
@@ -327,7 +333,6 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     error,
     getOptionLabel,
     getTagLabel,
-    hasMetaService,
     hasMultipleUnitsSelected,
     hasNoResources,
     hasTooManyMetrics,

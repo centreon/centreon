@@ -51,8 +51,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
     hasMultipleUnitsSelected,
     metricWithSeveralResources,
     renderOptionsForSingleMetric,
-    renderOptionsForMultipleMetricsAndResources,
-    hasMetaService
+    renderOptionsForMultipleMetricsAndResources
   } = useMetrics(propertyName);
 
   const { canEditField } = useCanEditProperties();
@@ -75,10 +74,6 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
       </>
     )
   ];
-
-  if (hasMetaService) {
-    return null;
-  }
 
   const header = (
     <div className={classes.resourcesHeader}>

@@ -97,10 +97,6 @@ const useGraphQuery = ({
   bypassQueryParams = false,
   prefix
 }: UseMetricsQueryProps): UseMetricsQueryState => {
-  const isMetaServiceSelected =
-    equals(resources.length, 1) &&
-    equals(resources[0].resourceType, WidgetResourceType.metaService);
-
   const timePeriodToUse = equals(timePeriod?.timePeriodType, -1)
     ? {
         end: timePeriod.end,
@@ -113,11 +109,9 @@ const useGraphQuery = ({
     : getStartEndFromTimePeriod(timePeriodToUse as number);
 
   const definedMetrics = metrics.filter((metric) => metric);
-  const formattedDefinedMetrics = isMetaServiceSelected
-    ? 'metric_names[]=value'
-    : definedMetrics
-        .map((metric) => `metric_names[]=${encodeURIComponent(metric.name)}`)
-        .join('&');
+  const formattedDefinedMetrics = definedMetrics
+    .map((metric) => `metric_names[]=${encodeURIComponent(metric.name)}`)
+    .join('&');
 
   const prefixQuery = prefix ? [prefix] : [];
 
@@ -156,9 +150,7 @@ const useGraphQuery = ({
       refreshCount || 0
     ],
     queryOptions: {
-      enabled:
-        areResourcesFullfilled(resources) &&
-        (isMetaServiceSelected || !isEmpty(definedMetrics)),
+      enabled: areResourcesFullfilled(resources) && !isEmpty(definedMetrics),
       refetchInterval: refreshInterval,
       suspense: false
     },

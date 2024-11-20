@@ -15,11 +15,7 @@ import {
   Metric,
   Resource
 } from '../../models';
-import {
-  areResourcesFullfilled,
-  getIsMetaServiceSelected,
-  getWidgetEndpoint
-} from '../../utils';
+import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
 
 import { metricsTopDecoder } from './api/decoder';
 import { metricsTopEndpoint } from './api/endpoint';
@@ -66,13 +62,9 @@ const useTopBottom = ({
     refreshIntervalCustom
   });
 
-  const isMetaServiceSelected = getIsMetaServiceSelected(resources);
-
   const metricName = metrics?.[0]?.name;
 
-  const formattedMetricName = isMetaServiceSelected
-    ? 'value'
-    : encodeURIComponent(metricName);
+  const formattedMetricName = encodeURIComponent(metricName);
 
   const { data: metricsTop, isFetching } = useFetchQuery<MetricsTop>({
     decoder: metricsTopDecoder,
@@ -113,10 +105,8 @@ const useTopBottom = ({
     ],
     queryOptions: {
       enabled:
-       
         areResourcesFullfilled(resources) &&
-        (isMetaServiceSelected ||
-        !!metricName) &&
+        !!metricName &&
         topBottomSettings.numberOfValues > 0,
       refetchInterval: refreshIntervalToUse,
       suspense: false
@@ -125,7 +115,7 @@ const useTopBottom = ({
 
   return {
     isLoading: isFetching && !metricsTop,
-    isMetricEmpty: !isMetaServiceSelected && isNil(metricName),
+    isMetricEmpty: isNil(metricName),
     metricsTop
   };
 };

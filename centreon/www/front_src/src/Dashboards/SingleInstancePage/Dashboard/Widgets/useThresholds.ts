@@ -39,21 +39,12 @@ const useThresholds = ({
   thresholds,
   data,
   metricName = '',
-  displayAsRaw,
-  isMetaServiceSelected
+  displayAsRaw
 }: Props): UseThresholdsState | undefined => {
   const { t } = useTranslation();
 
   const isDefaultWarning = equals(thresholds.warningType, 'default');
   const isDefaultCritical = equals(thresholds.criticalType, 'default');
-
-  if (isMetaServiceSelected) {
-    return {
-      enabled: false,
-      critical: [],
-      warning: []
-    };
-  }
 
   if (isEmpty(data?.metrics)) {
     return {
