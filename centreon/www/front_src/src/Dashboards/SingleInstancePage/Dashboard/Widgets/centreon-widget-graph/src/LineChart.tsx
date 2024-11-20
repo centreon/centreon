@@ -25,6 +25,7 @@ import NoResources from '../../NoResources';
 import type { CommonWidgetProps, Data } from '../../models';
 import useThresholds from '../../useThresholds';
 import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
+import { graphEndpoint } from './api/endpoints';
 import type { PanelOptions } from './models';
 
 const forceStackedMetrics = (data?: LineChartData): LineChartData | undefined =>
@@ -73,11 +74,11 @@ const WidgetLineChart = ({
 
   const { graphData, start, end, isGraphLoading, isMetricsEmpty } =
     useGraphQuery({
-      baaso: 'http://localhost:3000/',
+      // baaso: "http://localhost:3000/",
       baseEndpoint: getWidgetEndpoint({
         dashboardId,
-        defaultEndpoint:
-          'centreon/api/latest/monitoring/dashboard/metrics/performances/data',
+        defaultEndpoint: graphEndpoint,
+        // "centreon/api/latest/monitoring/dashboard/metrics/performances/data",
         isOnPublicPage,
         playlistHash,
         widgetId: id
@@ -169,7 +170,6 @@ const WidgetLineChart = ({
           showPoints: panelOptions.showPoints
         }}
         {...commonProperties}
-        // limitLegend={1}
       />
     );
   }
