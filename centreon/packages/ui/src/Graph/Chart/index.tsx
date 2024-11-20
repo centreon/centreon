@@ -37,7 +37,7 @@ interface Props extends Partial<LineChartProps> {
   transformMatrix?: {
     fx?: (pointX: number) => number;
     fy?: (pointY: number) => number;
-  }
+  };
 }
 
 const WrapperChart = ({

@@ -1,3 +1,5 @@
+name: newman-test
+
 on:
   workflow_call:
     inputs:
@@ -47,9 +49,11 @@ on:
         required: true
       client_secret:
         required: true
-      jira_user:
+      jira_base_url:
         required: true
-      jira_token_test:
+      jira_user_email:
+        required: true
+      jira_api_token:
         required: true
 
 jobs:
@@ -245,7 +249,7 @@ jobs:
 
             response=$(curl --request GET \
               --url "$jira_issue_url" \
-              --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+              --user "${{ secrets.jira_user_email }}:${{ secrets.jira_api_token }}" \
               --header 'Accept: application/json')
 
             summary=$(echo "$response" | jq -r '.fields.summary')
@@ -282,7 +286,7 @@ jobs:
               # Adding a new test case
               response=$(curl --request POST \
                 --url 'https://centreon.atlassian.net/rest/api/2/issue' \
-                --user '${{ secrets.jira_user }}:${{ secrets.jira_token_test }}' \
+                --user '${{ secrets.jira_user_email }}:${{ secrets.jira_api_token }}' \
                 --header 'Accept: application/json' \
                 --header 'Content-Type: application/json' \
                 --data '{
@@ -636,7 +640,7 @@ jobs:
                     echo "Processing issue ID: $issue_id"
                     jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
 
-                    command="curl --request GET --url '$jira_issue_url' --user '${{ secrets.jira_user }}:${{ secrets.jira_token_test }}' --header 'Accept: application/json' -o response.json"
+                    command="curl --request GET --url '$jira_issue_url' --user '${{ secrets.jira_user_email }}:${{ secrets.jira_api_token }}' --header 'Accept: application/json' -o response.json"
                     retry_command 5 "$command"
                     response_code=$(jq -r '.statusCode' response.json)
 
@@ -718,7 +722,7 @@ jobs:
             # Make a GET request to get information about available transitions
             get_response=$(curl --request GET \
               --url "https://centreon.atlassian.net/rest/api/2/issue/${test_issue_id}/transitions?expand=transitions.fields" \
-              --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+              --user "${{ secrets.jira_user_email }}:${{ secrets.jira_api_token }}" \
               --header 'Accept: application/json')
 
             # Extract the transition ID from the response
@@ -731,7 +735,7 @@ jobs:
               for transition_id in "${transition_ids[@]}"; do
                 curl --request POST \
                   --url "https://centreon.atlassian.net/rest/api/2/issue/${test_issue_id}/transitions?expand=transitions.fields" \
-                  --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+                  --user "${{ secrets.jira_user_email }}:${{ secrets.jira_api_token }}" \
                   --header 'Accept: application/json' \
                   --header 'Content-Type: application/json' \
                   --data '{
@@ -799,3 +803,19 @@ jobs:
         with:
           name: newman-${{ inputs.os }}-html-reports-*
           failOnError: false
+
+  create-jira-nightly-ticket:
+    needs: [newman-test-run, synchronize-with-xray, regroup-artifacts]
+    runs-on: ubuntu-24.04
+    if: |
+      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
+      (failure() || cancelled())
+    steps:
+      - name: Create Jira ticket if nightly build failure
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.jira_base_url }}
+          jira_user_email: ${{ secrets.jira_user_email }}
+          jira_api_token: ${{ secrets.jira_api_token }}
+          module_name: "centreon-web"
+          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "newman"]'

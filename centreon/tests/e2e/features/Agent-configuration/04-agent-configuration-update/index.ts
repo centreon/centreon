@@ -43,10 +43,11 @@ Given('a non-admin user is in the Agents Configuration page', () => {
 });
 
 Given('an already existing agent configuration', () => {
-  cy.getByTestId({ testId: 'AddIcon' }).click();
-  cy.contains('Add poller/agent configuration').should('be.visible');
+  cy.contains('button', 'Add poller/agent configuration').click();
+  cy.get('*[role="dialog"]').should('be.visible');
+  cy.get('*[role="dialog"]').contains('Add poller/agent configuration');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.contains('Telegraf').click();
+  cy.get('*[role="listbox"]').contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-001');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
@@ -60,6 +61,8 @@ Given('an already existing agent configuration', () => {
   cy.wait('@addAgents');
   cy.get('*[role="rowgroup"]')
     .should('contain', 'telegraf-001');
+  cy.get('*[role="rowgroup"]')
+    .should('contain', 'Telegraf');
 });
 
 When('the user clicks on the line of the agent configuration', () => {
@@ -68,6 +71,7 @@ When('the user clicks on the line of the agent configuration', () => {
 });
 
 Then('a pop up is displayed with all of the agent information', () => {
+  cy.get('*[role="dialog"]').should('be.visible');
   cy.contains('Update poller/agent configuration').should('be.visible');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).should('have.value', 'Telegraf');
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('have.value', 'telegraf-001');
@@ -98,6 +102,7 @@ When('the user clicks on Save', () => {
 });
 
 Then('the form is closed', () => {
+  cy.get('*[role="dialog"]').should('not.exist');
   cy.contains('Update poller/agent configuration').should('not.exist');
 });
 
@@ -106,4 +111,6 @@ Then('the information are successfully saved', () => {
     .should('contain', 'telegraf-001-updated');
   cy.get('*[role="rowgroup"]')
     .should('contain', '2 pollers');
+  cy.get('*[role="rowgroup"]')
+    .should('contain', 'Telegraf');
 });
