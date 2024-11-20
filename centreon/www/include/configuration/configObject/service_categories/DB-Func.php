@@ -206,7 +206,7 @@ function multipleServiceCategorieInDB($sc = [], $nbrDup = [])
                     } catch (CentreonDbException $ex) {
                         CentreonLog::create()->error(
                             logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-                            message: $ex->getMessage(),
+                            message: "Error while duplicating service categories: " . $ex->getMessage(),
                             customContext: ['service_category_id' => $scId],
                             exception: $ex,
                         );
@@ -262,7 +262,7 @@ function enableServiceCategorieInDB(?int $serviceCategoryId = null, array $servi
     } catch(CentreonDbException $ex) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: $ex->getMessage(),
+            message: "Error while enabling service category: " . $ex->getMessage(),
             customContext: ['service_category_id' => $serviceCategoryId],
             exception: $ex,
         );
@@ -311,7 +311,7 @@ function disableServiceCategorieInDB(?int $serviceCategoryId = null, array $serv
     } catch (CentreonDbException $ex) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: $ex->getMessage(),
+            message: "Error while disabling service category: " . $ex->getMessage(),
             customContext: ['service_category_id' => implode(', ', array_keys($serviceCategories))],
             exception: $ex,
         );
@@ -482,7 +482,7 @@ function deleteServiceCategorieInDB($serviceCategoryIds = null)
     } catch(CentreonDbException $ex) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: $ex->getMessage(),
+            message: "Error while deleting service categories: " . $ex->getMessage(),
             customContext: ['service_category_id' => implode(', ', $serviceCategoryIds)],
             exception: $ex,
         );
