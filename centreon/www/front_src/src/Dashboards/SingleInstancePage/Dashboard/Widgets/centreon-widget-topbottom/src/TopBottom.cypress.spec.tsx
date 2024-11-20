@@ -56,7 +56,13 @@ const widgetData: Data = {
 };
 
 const metaServiceData: Data = {
-  metrics: [],
+  metrics: [
+    {
+      id: 1,
+      name: 'free',
+      unit: ''
+    }
+  ],
   resources: [
     {
       resourceType: 'meta-service',
