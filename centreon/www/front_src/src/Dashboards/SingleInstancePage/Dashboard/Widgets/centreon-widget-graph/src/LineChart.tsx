@@ -95,8 +95,6 @@ const WidgetLineChart = ({
       timePeriod: panelOptions.timeperiod
     });
 
-  console.log(graphData);
-
   const isMetaServiceSelected = getIsMetaServiceSelected(panelData.resources);
 
   const formattedThresholds = useThresholds({
