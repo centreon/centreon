@@ -13,7 +13,11 @@ info:
     + Added new filters for /monitoring/resources /monitoring/resources/hosts related to Open Tickets
     + Added new key 'extra' that contains extra data from modules installed for resources endpoints
     + Update /configuration/contacts/groups endpoint by adding new listing properties
-
+    + Content-type changed from application/json to multipart/form-data for dashboard partial update endpoint which is now a POST and not a PATCH
+    + Added new 'thumbnail' key to dashboard listing endpoint, that contains thumbnail information
+    + Added new 'thumbnail' key to dashboard update payload endpoint, that contains thumbnail information
+    + Added new 'thumbnail_data' key to dashboard update payload endpoint, that contains thumbnail contents
+    +
     # Information
     All dates are in **ISO 8601** format
     # Authentication
@@ -28,7 +32,7 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: "24.04"
+  version: "24.10"
 externalDocs:
   description: You can contact us on our community platform The Watch
   url: 'https://thewatch.centreon.com/'
@@ -986,6 +990,8 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /configuration/medias:
     $ref: './latest/onPremise/Configuration/Media/AddAndFindMedia.yaml'
+  /configuration/medias/{media_id}/content:
+    $ref: './latest/onPremise/Configuration/Media/UpdateMedia.yaml'
   /configuration/proxy:
     get:
       tags:

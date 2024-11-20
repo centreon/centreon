@@ -51,7 +51,6 @@ const Filter = (): JSX.Element => {
     <SearchField
       debounced
       fullWidth
-      className={classes.filter}
       dataTestId={t(labelSearch)}
       placeholder={t(labelSearch)}
       value={inputValue}

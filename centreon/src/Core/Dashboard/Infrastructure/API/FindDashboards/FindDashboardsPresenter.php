@@ -27,6 +27,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboardsPresenterInterface;
 use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboardsResponse;
+use Core\Dashboard\Application\UseCase\FindDashboards\Response\ThumbnailResponseDto;
 use Core\Dashboard\Application\UseCase\FindDashboards\Response\UserResponseDto;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
@@ -60,6 +61,7 @@ final class FindDashboardsPresenter extends DefaultPresenter implements FindDash
                     'updated_at' => $this->formatDateToIso8601($dashboard->updatedAt),
                     'own_role' => DashboardSharingRoleConverter::toString($dashboard->ownRole),
                     'shares' => $this->formatShares($dashboard->shares),
+                    'thumbnail' => $this->formatThumbnail($dashboard->thumbnail),
                 ];
             }
 
@@ -83,6 +85,23 @@ final class FindDashboardsPresenter extends DefaultPresenter implements FindDash
             'id' => $dto->id,
             'name' => $dto->name,
         ] : null;
+    }
+
+    /**
+     * @param null|ThumbnailResponseDto $dto
+     *
+     * @return null|array{id:int, name:string, directory:string}
+     */
+    private function formatThumbnail(?ThumbnailResponseDto $dto): ?array
+    {
+        return $dto
+            ? [
+                'id' => $dto->id,
+                'name' => $dto->name,
+                'directory' => $dto->directory,
+            ]
+            : null;
+
     }
 
     /**

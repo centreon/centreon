@@ -1,3 +1,5 @@
+name: cypress-e2e-test
+
 on:
   workflow_call:
     inputs:
@@ -51,6 +53,9 @@ on:
         required: false
         type: string # Set as string instead of boolean to avoid mixing types between workflows and actions
         default: 'false'
+      is_nightly:
+        required: true
+        type: string
     secrets:
       registry_username:
         required: true
@@ -64,6 +69,12 @@ on:
         required: false
       artifactory_internal_repo_password:
         required: false
+      jira_base_url:
+        required: true
+      jira_user_email:
+        required: true
+      jira_api_token:
+        required: true
 
 jobs:
   cypress-e2e-test-list:
@@ -322,3 +333,19 @@ jobs:
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
           failOnError: false
+
+  create-jira-nightly-ticket:
+    needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report, regroup-artifacts]
+    runs-on: ubuntu-24.04
+    if: |
+      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
+      (failure() || cancelled())
+    steps:
+      - name: Create Jira ticket if nightly build failure
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.jira_base_url }}
+          jira_user_email: ${{ secrets.jira_user_email }}
+          jira_api_token: ${{ secrets.jira_api_token }}
+          module_name: "centreon-web"
+          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "cypress-e2e"]'

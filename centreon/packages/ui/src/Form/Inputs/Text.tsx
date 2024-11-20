@@ -2,11 +2,11 @@ import { ChangeEvent, useCallback, useState } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
 import {
+  path,
   equals,
   gt,
   isEmpty,
   not,
-  path,
   split,
   type as variableType
 } from 'ramda';
