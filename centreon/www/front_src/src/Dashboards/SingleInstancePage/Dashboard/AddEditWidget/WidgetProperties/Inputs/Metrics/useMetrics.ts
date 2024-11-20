@@ -36,7 +36,7 @@ import { useListMetrics } from './useListMetrics';
 import { useRenderOptions } from './useRenderOptions';
 
 export const formatMetricName = (metric: FormMetric): string =>
-  `${metric.name} ${metric.unit ? `(${metric.unit})` : ''}`;
+  `${metric.name}${metric.unit ? ` (${metric.unit})` : ''}`;
 
 interface UseMetricsOnlyState {
   changeMetric: (_, newMetric: SelectEntry | null) => void;

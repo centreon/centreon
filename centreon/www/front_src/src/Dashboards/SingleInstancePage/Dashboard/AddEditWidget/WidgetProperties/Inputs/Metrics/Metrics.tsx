@@ -92,6 +92,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
         {widgetProperties?.singleMetricSelection &&
         widgetProperties?.singleResourceSelection ? (
           <SingleAutocompleteField
+            forceInputRenderValue
             className={classes.resources}
             disabled={
               !canEditField || isLoadingMetrics || !canDisplayMetricsSelection

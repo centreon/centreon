@@ -96,6 +96,8 @@ const useShareInput = (endpoints: Endpoints): UseShareInputState => {
     setSelectedContact(null);
   }, [contactType]);
 
+  console.log(selectedContact);
+
   return {
     add,
     changeIdValue,

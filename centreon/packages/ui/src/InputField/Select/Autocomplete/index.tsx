@@ -38,6 +38,7 @@ export type Props = {
   onTextChange?;
   placeholder?: string | undefined;
   required?: boolean;
+  forceInputRenderValue?: boolean;
 } & Omit<
   AutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>,
   'renderInput'
@@ -161,6 +162,7 @@ const AutocompleteField = forwardRef(
       autoSizeDefaultWidth = 0,
       autoSizeCustomPadding,
       getOptionItemLabel = (option) => option?.name,
+      forceInputRenderValue = false,
       ...autocompleteProps
     }: Props,
     ref?: ForwardedRef<HTMLDivElement>
@@ -223,7 +225,13 @@ const AutocompleteField = forwardRef(
             'aria-label': label,
             'data-testid': dataTestId || label,
             id: getNormalizedId(label || ''),
-            value: getOptionItemLabel(autocompleteProps?.value || undefined),
+            ...(forceInputRenderValue
+              ? {
+                  value: getOptionItemLabel(
+                    autocompleteProps?.value || undefined
+                  )
+                }
+              : {}),
             ...autocompleteProps?.inputProps
           }}
           label={label}
@@ -231,7 +239,9 @@ const AutocompleteField = forwardRef(
           required={required}
           value={
             inputValue ||
-            getOptionItemLabel(autocompleteProps?.value || undefined) ||
+            (forceInputRenderValue
+              ? getOptionItemLabel(autocompleteProps?.value || undefined)
+              : undefined) ||
             undefined
           }
           onChange={onTextChange}
