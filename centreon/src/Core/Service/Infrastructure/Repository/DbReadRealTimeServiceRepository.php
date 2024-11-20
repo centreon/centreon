@@ -219,7 +219,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
         $aclSearch = '';
 
         if ($calculateNumberOfRows) {
-            $select = ' COUNT(*)';
+            $select = ' COUNT(*) OVER(), services.name AS `name`';
             $limit = '';
         } else {
             $select = ' services.name AS `name`';
@@ -266,6 +266,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
             {$search}
             {$typeSearch}
             {$aclSearch}
+            GROUP BY services.name
             {$sort}
             {$limit}
             SQL;
