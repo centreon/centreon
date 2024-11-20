@@ -45,6 +45,7 @@ services:
             - '../../src/Core/Host/*'
             - '../../src/Core/Broker/*'
             - '../../src/Core/HostSeverity/*'
+            - '../../src/Core/TimePeriod/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
