@@ -1,4 +1,4 @@
-import { MutableRefObject, ReactElement, useMemo } from 'react';
+import { ReactElement, useMemo } from 'react';
 
 import { scaleLinear } from '@visx/scale';
 import { Grid as VisxGrid } from '@visx/visx';
@@ -13,7 +13,6 @@ interface Props {
   columns: number;
   height: number;
   width: number;
-  containerRef: MutableRefObject<HTMLDivElement | null>;
 }
 
 const Grid = ({ width, height, columns }: Props): ReactElement => {
