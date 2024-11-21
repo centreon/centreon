@@ -125,8 +125,7 @@ const WidgetLineChart = ({
     legend: {
       display: panelOptions.showLegend,
       mode: panelOptions.legendDisplayMode,
-      placement: panelOptions.legendPlacement,
-      height: 72
+      placement: panelOptions.legendPlacement
     },
     loading: isGraphLoading,
     start,
