@@ -1,14 +1,14 @@
 import { useMemo } from 'react';
 
 import { scaleLinear } from '@visx/scale';
-import { T, equals, gt, lt } from 'ramda';
+import { T, equals } from 'ramda';
 
 import { Box } from '@mui/material';
 
 import { Tooltip } from '../../components';
 
 import { useHeatMapStyles } from './HeatMap.styles';
-import { HeatMapProps } from './model';
+import type { HeatMapProps } from './model';
 
 const gap = 8;
 const maxTileSize = 120;
@@ -33,31 +33,15 @@ const ResponsiveHeatMap = <TData,>({
     const scaleWidth = scaleLinear({
       clamp: true,
       domain: [680, 1056],
-      range: [76, maxTileSize]
+      range: [smallestTileSize, maxTileSize]
     });
     const tileWidth = scaleWidth(width);
 
-    const tilesLength = tiles.length;
-
-    const maxTotalTilesWidth =
-      tilesLength * maxTileSize + (tilesLength - 1) * gap;
-    const theoricalTotalTilesWidth =
-      tilesLength * tileWidth + (tilesLength - 1) * gap;
-
-    if (
-      (lt(height, maxTileSize) ||
-        (lt(width, 680) && gt(maxTotalTilesWidth, width))) &&
-      !tileSizeFixed
-    ) {
-      return smallestTileSize;
+    if (!tileSizeFixed) {
+      return tileWidth;
     }
-
-    if (lt(theoricalTotalTilesWidth, width)) {
-      return maxTileSize;
-    }
-
-    return tileSizeFixed ? maxTileSize : tileWidth;
-  }, [width, tiles, height]);
+    return maxTileSize;
+  }, [width, height]);
 
   const isSmallestSize = equals(tileSize, smallestTileSize);
 
