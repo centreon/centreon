@@ -148,11 +148,12 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
             if ($property->getName() === 'isActivated') {
                 $serviceCategoryAsArray[self::SERVICE_CATEGORY_PROPERTIES_MAP[$property->getName()]]
                     = $property->getValue($serviceCategory) ? '1' : '0';
+            } else {
+                $serviceCategoryAsArray[self::SERVICE_CATEGORY_PROPERTIES_MAP[$property->getName()]]
+                    = is_string($property->getValue($serviceCategory))
+                        ? $property->getValue($serviceCategory)
+                        : throw new RepositoryException('Property value is not a string');
             }
-            $serviceCategoryAsArray[self::SERVICE_CATEGORY_PROPERTIES_MAP[$property->getName()]]
-                = is_string($property->getValue($serviceCategory))
-                    ? $property->getValue($serviceCategory)
-                    : throw new RepositoryException('Property value is not a string');
         }
 
         return $serviceCategoryAsArray;
