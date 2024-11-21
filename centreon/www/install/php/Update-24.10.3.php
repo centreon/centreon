@@ -50,8 +50,6 @@ $fixNamingOfAccTopology = function (CentreonDB $pearDB) use (&$errorMessage): vo
 
 
 try {
-    $addDisableServiceCheckColumn($pearDB);
-
     // Transactional queries
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
