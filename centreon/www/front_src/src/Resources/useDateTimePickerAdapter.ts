@@ -230,11 +230,11 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       const start = dateByTimeZone.isUTC()
         ? dateByTimeZone.utc().startOf('month').startOf('week')
         : dateByTimeZone.startOf('month').startOf('week');
-
-      return [0, 1, 2, 3, 4, 5, 6].map((numebrOfDays) =>{
-        let dayOfWeek = start.add(numebrOfDays, 'day')
-        return dayOfWeek.locale(locale).format('dd')
-      })
+      
+            return [0, 1, 2, 3, 4, 5, 6].map((numebrOfDays) =>{
+              const dayOfWeek = start.add(numebrOfDays, 'day');
+              
+                return dayOfWeek.locale(locale).format('dd')});
     };
 
     public getChunkFromArray = ({ array, size }: Chunk): Array<unknown> => {
