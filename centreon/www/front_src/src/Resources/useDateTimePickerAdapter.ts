@@ -226,13 +226,32 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     };
 
     public getWeekdays = (date: dayjs.Dayjs): Array<string> => {
-      const dateByTimeZone = dayjs(date).tz(timezone);
-      const start = dateByTimeZone.isUTC()
-        ? dateByTimeZone.utc().startOf('month').startOf('week')
-        : dateByTimeZone.startOf('month').startOf('week');
+            const isMorning = equals(dayjs().tz(timezone).format('a'), 'am');
+
+      const startOfWeek = date.startOf('month').startOf('week');
+      const endOfWeek = date.endOf('month').endOf('week');
+
+
+      const customStart = isMorning
+        ? startOfWeek.startOf('day')
+        : startOfWeek.endOf('day');
+
+
+
+      const start = startOfWeek.endOf('day');
+      const currentStart = start.isUTC()
+        ? start.tz(timezone, true)
+        : customStart;
+
+
+      
+      // const dateByTimeZone = dayjs(date).tz(timezone);
+      // const start = dateByTimeZone.isUTC()
+      //   ? dateByTimeZone.utc().startOf('month').startOf('week')
+      //   : dateByTimeZone.startOf('month').startOf('week');
 
       return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
-        this.formatByString(start.add(diff, 'day'), 'dd')
+        this.formatByString(currentStart.add(diff, 'day'), 'dd')
       );
     };
 
