@@ -36,6 +36,7 @@ services:
         exclude:
             - '../../src/Core/TimePeriod/*'
             - '../../src/Core/HostSeverity/*'
+            - '../../src/Core/ServiceSeverity/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
