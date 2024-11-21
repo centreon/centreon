@@ -32,7 +32,7 @@ Feature: Hosts Severities changes log
     Given a user is logged in a Centreon server via APIv2
     And an enabled host severity is configured via APIv2
     When an apiV2 call is made to "Disable" the configured host severity
-    Then a new "DISABLED" ligne of log is getting added to the page Administration > Logs 
+    Then a new "DISABLED" ligne of log is getting added to the page Administration > Logs
 
   @TEST_MON-153307
   Scenario: A call to the endpoint "Enable" a host severity insert log changes
