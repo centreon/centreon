@@ -31,7 +31,7 @@ $errorMessage = '';
 // ACC
 $fixNamingOfAccTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to update table topology';
-    $constraintStatement = $pearDB->prepareQuery(
+    $constraintStatement = $pearDB->executeQuery(
         <<<'SQL'
             UPDATE `topology`
             SET `topology_name` = 'Additional connector configurations'
