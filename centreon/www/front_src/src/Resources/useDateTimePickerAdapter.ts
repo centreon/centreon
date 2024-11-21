@@ -234,8 +234,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       return [0, 1, 2, 3, 4, 5, 6].map((numebrOfDays) =>{
         const dayOfWeek = start.add(numebrOfDays, 'day');
         return dayOfWeek.locale(locale).format('dd')}
-      };
-      );
+      });
     };
 
     public getChunkFromArray = ({ array, size }: Chunk): Array<unknown> => {
