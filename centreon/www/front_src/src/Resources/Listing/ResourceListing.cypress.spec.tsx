@@ -652,6 +652,45 @@ describe('Listing request', () => {
   });
 });
 
+describe('Notification column', () => {
+  it('displays notification column if the cloud notification feature is disabled', () => {
+    store.set(
+      platformFeaturesAtom,
+      getPlatformFeatures({ notification: false })
+    );
+    interceptRequestsAndMountBeforeEach();
+
+    cy.waitFiltersAndListingRequests();
+
+    cy.contains('E0').should('be.visible');
+
+    cy.findByTestId('Add columns').click();
+
+    cy.findByText('Notification (Notif)').should('exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('hides notification column if the cloud notification feature is enabled', () => {
+    store.set(
+      platformFeaturesAtom,
+      getPlatformFeatures({ notification: true })
+    );
+    interceptRequestsAndMountBeforeEach();
+
+    cy.waitFiltersAndListingRequests();
+
+    cy.contains('E0').should('be.visible');
+
+    cy.findByTestId('Add columns').click();
+
+    cy.findByText('Severity (S)').should('exist');
+    cy.findByText('Notification (Notif)').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+});
+
 describe('Display additional columns', () => {
   beforeEach(() => {
     cy.interceptAPIRequest({
@@ -692,6 +731,11 @@ describe('Display additional columns', () => {
   });
 
   it('displays downtime details when the downtime state chip is hovered', () => {
+    store.set(
+      platformFeaturesAtom,
+      getPlatformFeatures({ notification: false })
+    );
+
     cy.waitFiltersAndListingRequests();
 
     const entityInDowntime = entities.find(
@@ -803,44 +847,6 @@ describe('Display additional columns', () => {
   });
 });
 
-describe('Notification column', () => {
-  it('displays notification column if the cloud notification feature is disabled', () => {
-    store.set(
-      platformFeaturesAtom,
-      getPlatformFeatures({ notification: false })
-    );
-    interceptRequestsAndMountBeforeEach();
-
-    cy.waitFiltersAndListingRequests();
-
-    cy.contains('E0').should('be.visible');
-
-    cy.findByTestId('Add columns').click();
-
-    cy.findByText('Notification (Notif)').should('exist');
-
-    cy.makeSnapshot();
-  });
-
-  it('hides notification column if the cloud notification feature is enabled', () => {
-    store.set(
-      platformFeaturesAtom,
-      getPlatformFeatures({ notification: true })
-    );
-    interceptRequestsAndMountBeforeEach();
-
-    cy.waitFiltersAndListingRequests();
-
-    cy.contains('E0').should('be.visible');
-
-    cy.findByTestId('Add columns').click();
-
-    cy.findByText('Severity (S)').should('exist');
-    cy.findByText('Notification (Notif)').should('not.exist');
-
-    cy.makeSnapshot();
-  });
-});
 describe('Tree view : Feature Flag', () => {
   it('hides the tree view icons if the feature is disabled', () => {
     store.set(
@@ -854,5 +860,48 @@ describe('Tree view : Feature Flag', () => {
     cy.findByTestId('tree view').should('not.exist');
 
     cy.makeSnapshot();
+  });
+});
+
+['dark', 'light'].forEach((mode) => {
+  describe(`Resource Listing: rows and picto colors on ${mode} theme`, () => {
+    beforeEach(() => {
+      const userData = renderHook(() => useAtomValue(userAtom));
+      userData.result.current.themeMode = mode;
+
+      store.set(selectedColumnIdsAtom, ['resource', 'state', 'information']);
+      cy.interceptAPIRequest({
+        alias: 'filterRequest',
+        method: Method.GET,
+        path: '**/events-view*',
+        response: fakeData
+      });
+
+      cy.fixture('resources/listing/listingWithInDowntimeAndAck.json').then(
+        (data) => {
+          cy.interceptAPIRequest({
+            alias: 'listing',
+            method: Method.GET,
+            path: '**/resources?*',
+            response: data
+          });
+        }
+      );
+      cy.mount({
+        Component: (
+          <Router>
+            <ListingTestWithJotai />
+          </Router>
+        )
+      });
+    });
+
+    it('displays listing when some resources are in downtime/acknowledged', () => {
+      cy.waitForRequest('@filterRequest');
+      cy.waitForRequest('@listing');
+
+      cy.contains('Memory').should('be.visible');
+      cy.makeSnapshot();
+    });
   });
 });

@@ -114,8 +114,7 @@ When('I select some pollers', () => {
 
 When('I click on the Export configuration button', () => {
   cy.getIframeBody()
-    .find('form button[name="apply_configuration"]')
-    .contains('Export configuration')
+    .find('#exportConfigurationLink')
     .click({ force: true });
 });
 
@@ -124,6 +123,7 @@ Then('I am redirected to generate page', () => {
 });
 
 Then('the selected poller names are displayed', () => {
+  cy.reload()
   cy.get<string>('@pollerName').then((pollerName) => {
     cy.getIframeBody()
       .find('form span[class="selection"]')

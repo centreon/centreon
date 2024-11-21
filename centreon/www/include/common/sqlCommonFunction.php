@@ -21,7 +21,7 @@
 
 declare(strict_types = 1);
 
-require_once _CENTREON_PATH_ . 'src/Core/Common/Infrastructure/Repository/SqlMultipleBindTrait.php';
+require_once _CENTREON_PATH_ . '/src/Core/Common/Infrastructure/Repository/SqlMultipleBindTrait.php';
 
 use \Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 

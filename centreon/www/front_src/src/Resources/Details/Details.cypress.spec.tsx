@@ -135,6 +135,14 @@ const mockAcl = {
 
 const mockRefreshInterval = 60;
 
+const cardsProperties = [
+  { label: labelLastStatusChange, property: 'last_status_change' },
+  { label: labelLastCheck, property: 'last_check' },
+  { label: labelLastCheckWithOkStatus, property: 'last_time_with_no_issue' },
+  { label: labelNextCheck, property: 'next_check' },
+  { label: labelLastNotification, property: 'last_notification' }
+];
+
 const DetailsTest = (): JSX.Element => {
   useDetails();
   useLoadDetails();
@@ -681,5 +689,24 @@ describe('Details', () => {
       .should('be.enabled')
       .click();
     cy.findByTestId('commentArea').should('not.exist');
+  });
+
+  cardsProperties.forEach(({ property, label }) => {
+    it(`masks the card for ${property} when the returned value is 0`, () => {
+      const store = getStore();
+
+      interceptDetailsRequest({
+        alias: 'getDetailsCards',
+        dataPath: 'resources/details/tabs/details/cards.json',
+        store
+      });
+      initialize(store);
+      cy.waitForRequest('@getDetailsCards');
+      cy.contains('Details');
+      cy.contains('Downtime duration');
+      cy.findByText(label).should('not.exist');
+
+      cy.makeSnapshot();
+    });
   });
 });
