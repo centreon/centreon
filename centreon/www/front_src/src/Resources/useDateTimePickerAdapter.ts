@@ -3,9 +3,9 @@ import { useCallback } from 'react';
 
 import DayjsAdapter from '@date-io/dayjs';
 import dayjs from 'dayjs';
+import utcPlugin from 'dayjs/plugin/utc';
 import { useAtomValue } from 'jotai';
 import { equals, isNil, not, pipe } from 'ramda';
-import utcPlugin from 'dayjs/plugin/utc';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
@@ -21,9 +21,9 @@ interface UseDateTimePickerAdapterProps {
 }
 
 enum DSTState {
-  SUMMER,
-  WINTER,
-  NODST
+  SUMMER = 0,
+  WINTER = 1,
+  NODST = 2
 }
 
 interface ToTimezonedDateProps {
@@ -231,8 +231,8 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
         ? dateByTimeZone.utc().startOf('month').startOf('week')
         : dateByTimeZone.startOf('month').startOf('week');
 
-      return [0, 1, 2, 3, 4, 5, 6].map((numebrOfDays) => {
-        const dayOfWeek = start.add(numebrOfDays, 'day');
+      return [0, 1, 2, 3, 4, 5, 6].map((numberOfDays) => {
+        const dayOfWeek = start.add(numberOfDays, 'day');
 
         return dayOfWeek.locale(locale).format('dd');
       });
