@@ -38,7 +38,6 @@ $fixNamingOfAccTopology = function (CentreonDB $pearDB) use (&$errorMessage): vo
             WHERE `topology_url` = '/configuration/additional-connector-configurations'
             SQL
     );
-    $pearDB->executePreparedQuery($constraintStatement);
 };
 
 
