@@ -231,11 +231,13 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
           ? dateByTimeZone.utc().startOf('month').startOf('week')
           : dateByTimeZone.startOf('month').startOf('week');
 
-        return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
-          format({
-            date: firstDay.add(diff, 'day'),
-            formatString: 'dd'
-          })
+      return ['lundi', 'lundi', 'lundi', 'lundi', 'lundi', 'lundi', 'lundi']
+
+        // return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
+        //   format({
+        //     date: firstDay.add(diff, 'day'),
+        //     formatString: 'dd'
+        //   })
         );
 
 
