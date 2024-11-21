@@ -225,8 +225,8 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       return date.tz(timezone).daysInMonth();
     };
 
-    public getWeekdays = (): Array<string> => {
-      const dateByTimeZone = dayjs().locale(locale).tz(timezone);
+    public getWeekdays = (date: dayjs.Dayjs): Array<string> => {
+      const dateByTimeZone = dayjs(date).locale(locale).tz(timezone);
       const start = dateByTimeZone.isUTC()
         ? dateByTimeZone.utc().startOf('month').startOf('week')
         : dateByTimeZone.startOf('month').startOf('week');
