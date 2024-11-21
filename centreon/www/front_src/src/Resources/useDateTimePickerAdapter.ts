@@ -225,12 +225,13 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       return date.tz(timezone).daysInMonth();
     };
 
-    public getWeekdays = (date: dayjs.Dayjs): Array<string> => {
-            const isMorning = equals(dayjs().tz(timezone).format('a'), 'am');
+    public getWeekdays = (): Array<string> => {
+      const date = dayjs().tz(timezone)
 
       const startOfWeek = date.startOf('month').startOf('week');
       const endOfWeek = date.endOf('month').endOf('week');
 
+      const isMorning = equals(dayjs().tz(timezone).format('a'), 'am');
 
       const customStart = isMorning
         ? startOfWeek.startOf('day')
