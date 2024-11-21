@@ -226,23 +226,17 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     };
 
     public getWeekdays = (): Array<string> => {
-      const date = dayjs().tz(timezone)
+      const dateByTimeZone = dayjs().tz(timezone)
+        const firstDay = dateByTimeZone.isUTC()
+          ? dateByTimeZone.utc().startOf('month').startOf('week')
+          : dateByTimeZone.startOf('month').startOf('week');
 
-      const startOfWeek = date.startOf('month').startOf('week');
-      const endOfWeek = date.endOf('month').endOf('week');
-
-      const isMorning = equals(dayjs().tz(timezone).format('a'), 'am');
-
-      const customStart = isMorning
-        ? startOfWeek.startOf('day')
-        : startOfWeek.endOf('day');
-
-
-
-      const start = startOfWeek.endOf('day');
-      const currentStart = start.isUTC()
-        ? start.tz(timezone, true)
-        : customStart;
+        return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
+          format({
+            date: firstDay.add(diff, 'day'),
+            formatString: 'dd'
+          })
+        );
 
 
       
@@ -251,9 +245,9 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       //   ? dateByTimeZone.utc().startOf('month').startOf('week')
       //   : dateByTimeZone.startOf('month').startOf('week');
 
-      return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
-        this.formatByString(currentStart.add(diff, 'day'), 'dd')
-      );
+      // return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
+      //   this.formatByString(currentStart.add(diff, 'day'), 'dd')
+      // );
     };
 
     public getChunkFromArray = ({ array, size }: Chunk): Array<unknown> => {
