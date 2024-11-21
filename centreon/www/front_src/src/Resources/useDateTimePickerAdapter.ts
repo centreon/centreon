@@ -247,7 +247,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
         : dateByTimeZone.startOf('month').startOf('week');
 
       return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
-        this.formatByString(currentStart.add(diff, 'day',true), 'dd')
+        this.formatByString(start.add(diff, 'day',true), 'dd')
       );
     };
 
