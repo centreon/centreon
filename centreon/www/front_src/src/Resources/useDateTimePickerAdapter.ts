@@ -231,7 +231,6 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
           ? dateByTimeZone.utc().startOf('month').startOf('week')
           : dateByTimeZone.startOf('month').startOf('week');
 
-      return ['lundi', 'lundi', 'lundi', 'lundi', 'lundi', 'lundi', 'lundi']
 
         // return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
         //   format({
@@ -247,9 +246,9 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       //   ? dateByTimeZone.utc().startOf('month').startOf('week')
       //   : dateByTimeZone.startOf('month').startOf('week');
 
-      // return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
-      //   this.formatByString(currentStart.add(diff, 'day'), 'dd')
-      // );
+      return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
+        this.formatByString(currentStart.add(diff, 'day',true), 'dd')
+      );
     };
 
     public getChunkFromArray = ({ array, size }: Chunk): Array<unknown> => {
