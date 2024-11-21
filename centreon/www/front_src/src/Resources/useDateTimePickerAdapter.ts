@@ -21,9 +21,9 @@ interface UseDateTimePickerAdapterProps {
 }
 
 enum DSTState {
-  SUMMER = 0,
-  WINTER = 1,
-  NODST = 2
+  SUMMER,
+  WINTER,
+  NODST
 }
 
 interface ToTimezonedDateProps {
