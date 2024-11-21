@@ -238,7 +238,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
         //     date: firstDay.add(diff, 'day'),
         //     formatString: 'dd'
         //   })
-        );
+        // );
 
 
       
