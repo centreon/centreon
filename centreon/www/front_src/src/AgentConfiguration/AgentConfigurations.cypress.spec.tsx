@@ -202,7 +202,7 @@ describe('Agent configurations', () => {
     cy.contains('Telegraf').should('be.visible');
     cy.contains('2 pollers').should('be.visible');
     cy.contains('0 poller').should('be.visible');
-    cy.get(`button[title="${labelDelete}"]`).should('have.length', 10);
+    cy.get(`button[data-testid="${labelDelete}"]`).should('have.length', 10);
 
     cy.makeSnapshot();
   });
@@ -340,7 +340,7 @@ describe('Agent configurations', () => {
       );
     });
 
-    cy.findAllByTitle(labelDelete).eq(0).click();
+    cy.get(`button[data-testid="${labelDelete}"]`).first().click();
 
     cy.contains(labelDeleteAgent).should('be.visible');
     cy.contains('You are going to delete the').should('be.visible');
@@ -365,7 +365,7 @@ describe('Agent configurations', () => {
       );
     });
 
-    cy.findAllByTitle(labelDelete).eq(0).click();
+    cy.get(`button[data-testid="${labelDelete}"]`).first().click();
 
     cy.contains(labelDeleteAgent).should('be.visible');
     cy.contains('You are going to delete the').should('be.visible');
@@ -398,7 +398,7 @@ describe('Agent configurations', () => {
     cy.contains('poller 1').should('be.visible');
     cy.contains('poller 2').should('be.visible');
 
-    cy.findAllByTitle(labelDelete).eq(1).click();
+    cy.get(`button[data-testid="${labelDelete}"]`).eq(1).click();
 
     cy.contains(labelDeletePoller).should('be.visible');
     cy.contains('You are going to delete the').should('be.visible');
