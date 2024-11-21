@@ -37,6 +37,11 @@ use Core\ServiceCategory\Domain\Model\NewServiceCategory;
 class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB implements WriteServiceCategoryRepositoryInterface
 {
     use LoggerTrait;
+    public const SERVICE_CATEGORY_PROPERTIES_MAP = [
+        'name' => 'sc_name',
+        'alias' => 'sc_alias',
+        'isActivated' => 'sc_activate',
+    ];
 
     public function __construct(
         private readonly WriteServiceCategoryRepositoryInterface $writeServiceCategoryRepository,
@@ -93,7 +98,10 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
                 actionType: ActionLog::ACTION_TYPE_ADD,
                 contactId: $this->user->getId()
             );
-            $this->writeActionLogRepository->addAction($actionLog);
+            $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
+            $actionLog->setId($actionLogId);
+            $details = $this->getServiceCategoryAsArray($serviceCategory);
+            $this->writeActionLogRepository->addActionDetails($actionLog, $details);
 
             return $serviceCategoryId;
         } catch (\Throwable $ex) {
@@ -119,5 +127,34 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
     public function unlinkFromService(int $serviceId, array $serviceCategoriesIds): void
     {
         $this->writeServiceCategoryRepository->unlinkFromService($serviceId, $serviceCategoriesIds);
+    }
+
+    /**
+     * Format the Service Category as property => value array.
+     *
+     * @param NewServiceCategory $serviceCategory
+     *
+     * @return array<string, string>
+     */
+    private function getServiceCategoryAsArray(
+        NewServiceCategory $serviceCategory,
+    ): array {
+        $reflection = new \ReflectionClass($serviceCategory);
+        $properties = $reflection->getProperties();
+
+        $serviceCategoryAsArray = [];
+        foreach ($properties as $property) {
+            $property->setAccessible(true);
+            if ($property->getName() === 'isActivated') {
+                $serviceCategoryAsArray[self::SERVICE_CATEGORY_PROPERTIES_MAP[$property->getName()]]
+                    = $property->getValue($serviceCategory) ? '1' : '0';
+            }
+            $serviceCategoryAsArray[self::SERVICE_CATEGORY_PROPERTIES_MAP[$property->getName()]]
+                = is_string($property->getValue($serviceCategory))
+                    ? $property->getValue($serviceCategory)
+                    : throw new RepositoryException('Property value is not a string');
+        }
+
+        return $serviceCategoryAsArray;
     }
 }
