@@ -227,7 +227,7 @@ class CentreonAuthLDAP
             $userEmail = $this->contactInfos['contact_email'];
             $ldapEmailValue = $userInfos[$this->ldap->getAttrName('user', 'email')];
             if (isset($ldapEmailValue)) {
-                $userEmail = (trim(is_array($ldapEmailValue) ? current($ldapEmailValue) : $ldapEmailValue));
+                $userEmail = (trim(is_array($ldapEmailValue) && $ldapEmailValue !== [] ? current($ldapEmailValue) : $ldapEmailValue));
             }
 
             if ($userEmail === '') {
