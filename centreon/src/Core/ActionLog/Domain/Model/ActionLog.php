@@ -29,6 +29,7 @@ class ActionLog
     public const ACTION_TYPE_DELETE = 'd';
     public const ACTION_TYPE_ENABLE = 'enable';
     public const ACTION_TYPE_DISABLE = 'disable';
+    public const OBJECT_TYPE_SERVICE_SEVERITY = 'serviceseverity';
 
     private ?int $id = null;
 
