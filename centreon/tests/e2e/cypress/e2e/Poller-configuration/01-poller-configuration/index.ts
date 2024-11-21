@@ -112,16 +112,16 @@ When('I select some pollers', () => {
 
 When('I click on the Export configuration button', () => {
   cy.getIframeBody()
-    .find('form button[name="apply_configuration"]')
-    .contains('Export configuration')
+    .find('#exportConfigurationLink')
     .click();
 });
 
 Then('I am redirected to generate page', () => {
-  cy.url().should('include', `/centreon/main.php?p=60902&poller=`);
+  cy.url({ timeout: 10000 }).should('include', `/centreon/main.php?p=60902&poller=`);
 });
 
 Then('the selected poller names are displayed', () => {
+  cy.reload()
   cy.get<string>('@pollerName').then((pollerName) => {
     cy.getIframeBody()
       .find('form span[class="selection"]')
@@ -187,6 +187,7 @@ Then('the selected pollers are {string}', (poller_action: string) => {
 });
 
 Then('no poller names are displayed', () => {
+  cy.waitForElementInIframe('#main-content','form span[class="selection"]')
   cy.getIframeBody()
     .find('form span[class="selection"]')
     .eq(0)
