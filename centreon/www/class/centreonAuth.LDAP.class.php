@@ -243,7 +243,7 @@ class CentreonAuthLDAP
             $userPager = $this->contactInfos['contact_pager'];
             $ldapUserPager = $userInfos[$this->ldap->getAttrName('user', 'pager')];
             if (isset($ldapUserPager)) {
-                $userPager = (trim(is_array($ldapUserPager) ? current($ldapUserPager) : $ldapUserPager));
+                $userPager = (trim(is_array($ldapUserPager) && $ldapUserPager) !== [] ? current($ldapUserPager) : $ldapUserPager));
             }
 
             if ($userPager === '') {
