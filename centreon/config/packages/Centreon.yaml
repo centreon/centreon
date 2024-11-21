@@ -33,6 +33,8 @@ services:
 
     Core\:
         resource: '../../src/Core/*'
+        exclude:
+            - '../../src/Core/TimePeriod/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
@@ -503,3 +505,6 @@ services:
     Core\Notification\Infrastructure\Repository\DbReadNotifiableResourceRepository:
         arguments:
             $notifiableResourceRequestProviders: !tagged_iterator 'configuration.notification.notifiable.resource.request.provider'
+
+imports:
+    - { resource: ../../src/Core/**/Infrastructure/Configuration/symfony.yaml }
