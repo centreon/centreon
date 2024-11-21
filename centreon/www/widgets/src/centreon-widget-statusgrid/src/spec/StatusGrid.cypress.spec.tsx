@@ -6,7 +6,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom, userAtom } from '@centreon/ui-context';
 
-import { StatusGridWrapper } from '..';
+import { StatusGridWrapper as Widget } from '..';
 import {
   labelNoHostsFound,
   labelNoServicesFound

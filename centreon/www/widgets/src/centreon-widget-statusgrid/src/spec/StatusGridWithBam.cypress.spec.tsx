@@ -11,7 +11,7 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
-import { StatusGridWrapper } from '..';
+import { StatusGridWrapper as Widget } from '..';
 import { getPublicWidgetEndpoint } from '../../../utils';
 import { getStatusesEndpoint } from '../StatusGridCondensed/api/endpoints';
 import { Data, PanelOptions } from '../StatusGridStandard/models';
