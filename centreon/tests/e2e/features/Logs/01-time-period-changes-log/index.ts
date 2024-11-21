@@ -23,14 +23,12 @@ afterEach(() => {
   cy.stopContainers();
 });
 
-Given('a user is logged in a Centreon server', () => {
-  cy.loginByTypeOfUser({
-    jsonName: 'admin',
-    loginViaApi: false
-  });
+Given('a user is logged in a Centreon server via APIv2', () => {
+  cy.loginAsAdminViaApiV2();
+  cy.visit('/').url().should('include', '/monitoring/resources');
 });
 
-When('a call to the endpoint "Add" a time period is done', () => {
+When('a call to the endpoint "Add" a time period is done via APIv2', () => {
   cy.addTimePeriodViaApi(periods.default);
 });
 
@@ -77,24 +75,43 @@ Then(
       .eq(0)
       .should('contain.text', periods.default.name);
     cy.getIframeBody().contains('td', 'Create by admin').should('exist');
-    cy.getIframeBody().contains('td', periods.default.name).should('exist');
-    cy.getIframeBody().contains('td', periods.default.alias).should('exist');
-    cy.getIframeBody().contains('td', 'monday').should('exist');
-    cy.getIframeBody().contains('td', 'tuesday').should('exist');
-    cy.getIframeBody().contains('td', 'wednesday').should('exist');
-    cy.getIframeBody().contains('td', 'thursday').should('exist');
-    cy.getIframeBody().contains('td', 'friday').should('exist');
-    cy.getIframeBody().contains('td', 'saturday').should('exist');
-    cy.getIframeBody().contains('td', 'sunday').should('exist');
+    cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
+    cy.checkLogDetails(1, 1, 'name', '', periods.default.name);
+    cy.checkLogDetails(1, 2, 'alias', '', periods.default.alias);
+    cy.checkLogDetails(1, 3, 'monday', '', periods.default.days[0].time_range);
+    cy.checkLogDetails(1, 4, 'tuesday', '', periods.default.days[1].time_range);
+    cy.checkLogDetails(
+      1,
+      5,
+      'wednesday',
+      '',
+      periods.default.days[2].time_range
+    );
+    cy.checkLogDetails(
+      1,
+      6,
+      'thursday',
+      '',
+      periods.default.days[3].time_range
+    );
+    cy.checkLogDetails(1, 7, 'friday', '', periods.default.days[4].time_range);
+    cy.checkLogDetails(
+      1,
+      8,
+      'saturday',
+      '',
+      periods.default.days[5].time_range
+    );
+    cy.checkLogDetails(1, 9, 'sunday', '', periods.default.days[6].time_range);
   }
 );
 
-Given('a time period is configured', () => {
+Given('a time period is configured via APIv2', () => {
   cy.addTimePeriodViaApi(periods.default);
 });
 
 When(
-  'a call to the endpoint "Update" a time period is done on the configured time period',
+  'a call to the endpoint "Update" a time period is done on the configured time period via APIv2',
   () => {
     cy.updateTimePeriodViaApi(periods.default.name, periods.time_period1);
   }
@@ -133,17 +150,26 @@ Then(
       .eq(0)
       .should('contain.text', periods.time_period1.name);
     cy.getIframeBody().contains('td', 'Change by admin').should('exist');
-    cy.getIframeBody()
-      .contains('td', periods.time_period1.name)
-      .should('exist');
-    cy.getIframeBody()
-      .contains('td', periods.time_period1.alias)
-      .should('exist');
+    cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
+    cy.checkLogDetails(
+      1,
+      1,
+      'name',
+      periods.default.name,
+      periods.time_period1.name
+    );
+    cy.checkLogDetails(
+      1,
+      2,
+      'alias',
+      periods.default.alias,
+      periods.time_period1.alias
+    );
   }
 );
 
 When(
-  'a call to the endpoint "Delete" a time period is done on the configured time period',
+  'a call to the endpoint "Delete" a time period is done on the configured time period via APIv2',
   () => {
     cy.deleteTimePeriodViaApi(periods.default.name);
   }

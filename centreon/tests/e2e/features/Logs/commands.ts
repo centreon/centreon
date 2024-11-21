@@ -48,6 +48,25 @@ Cypress.Commands.add('deleteTimePeriodViaApi', (name: string) => {
   });
 });
 
+Cypress.Commands.add('checkLogDetails',(tableIndex: number, trIndex:number, firstTd:string, secondTd:string, thirdTd:string) => {
+  cy.getIframeBody()
+      .find('table.ListTable')
+      .eq(tableIndex)
+      .find('tbody tr')
+      .eq(trIndex)
+      .find('td')
+      .should('have.length', 3)
+      .eq(0)
+      .should('contain.text', firstTd)
+      .parent()
+      .find('td')
+      .eq(1)
+      .should('contain.text', secondTd)
+      .parent() 
+      .find('td')
+      .eq(2)
+      .should('contain.text', thirdTd);
+});
 
 
 interface IDyas {
@@ -74,6 +93,7 @@ declare global {
       addTimePeriodViaApi: (body: TimePeriod) => Cypress.Chainable;
       updateTimePeriodViaApi: (name: string, body: TimePeriod) => Cypress.Chainable;
       deleteTimePeriodViaApi: (name: string) => Cypress.Chainable;
+      checkLogDetails: (tableIndex: number, trIndex:number, firstTd:string, secondTd:string, thirdTd:string) => Cypress.Chainable;
     }
   }
 }
