@@ -233,7 +233,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
       return [0, 1, 2, 3, 4, 5, 6].map((numebrOfDays) =>{
         let dayOfWeek = start.add(numebrOfDays, 'day')
-        return dayOfWeek.format('dd')
+        return dayOfWeek.locale(locale).format('dd')
       })
     };
 
