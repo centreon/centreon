@@ -226,21 +226,6 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     };
 
     public getWeekdays = (): Array<string> => {
-      // const dateByTimeZone = dayjs().tz(timezone)
-      //   const firstDay = dateByTimeZone.isUTC()
-      //     ? dateByTimeZone.utc().startOf('month').startOf('week')
-      //     : dateByTimeZone.startOf('month').startOf('week');
-
-
-        // return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
-        //   format({
-        //     date: firstDay.add(diff, 'day'),
-        //     formatString: 'dd'
-        //   })
-        // );
-
-
-      
       const dateByTimeZone = dayjs().tz(timezone);
       const start = dateByTimeZone.isUTC()
         ? dateByTimeZone.utc().startOf('month').startOf('week')
@@ -250,8 +235,6 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
         let dayOfWeek = start.add(numebrOfDays, 'day')
         return dayOfWeek.format('dd')
       })
-                                       
-      
     };
 
     public getChunkFromArray = ({ array, size }: Chunk): Array<unknown> => {
