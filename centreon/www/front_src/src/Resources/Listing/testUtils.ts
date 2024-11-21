@@ -1,12 +1,12 @@
 import * as Ramda from 'ramda';
 
 import type { Column } from '@centreon/ui';
-import { PlatformFeatures } from '@centreon/ui-context';
+import type { PlatformFeatures } from '@centreon/ui-context';
 
-import { Resource, ResourceType } from '../models';
 import { resourcesToAcknowledgeAtom } from '../Actions/actionsAtoms';
+import { type Resource, ResourceType } from '../models';
 
-import { getColumns, defaultSelectedColumnIds } from './columns';
+import { defaultSelectedColumnIds, getColumns } from './columns';
 
 export const columns = getColumns({
   actions: {
@@ -772,4 +772,27 @@ export const retrievedListingByHosts = {
       uuid: 'h15'
     }
   ]
+};
+
+export const acls = {
+  actions: {
+    host: {
+      acknowledgement: true,
+      check: true,
+      comment: true,
+      disacknowledgement: true,
+      downtime: true,
+      forced_check: true,
+      submit_status: true
+    },
+    service: {
+      acknowledgement: true,
+      check: true,
+      comment: true,
+      disacknowledgement: true,
+      downtime: true,
+      forced_check: true,
+      submit_status: true
+    }
+  }
 };

@@ -5,6 +5,7 @@ import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-a
 import topBottomWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTopBottomWidget.json';
 import dashbboardWithTwoTopBottomWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwoTopBottomWidgets.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
+import { checkMetricsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
 
 before(() => {
   cy.startWebContainer();
@@ -39,6 +40,23 @@ before(() => {
     method: 'POST',
     url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
   }).as('addContactToDashboardShareList');
+  cy.loginAsAdminViaApiV2()
+  .scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' })
+  .logoutViaAPI();
+
+  checkServicesAreMonitored([
+    {
+      name: 'Ping',
+      status: 'ok'
+    }
+  ]);
+  checkMetricsAreMonitored([
+    {
+      host: 'Centreon-Server',
+      name: 'rta',
+      service: 'Ping'
+    }
+  ]);
 });
 
 beforeEach(() => {

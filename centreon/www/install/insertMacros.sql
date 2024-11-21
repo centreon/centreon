@@ -28,8 +28,6 @@ INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 24, '$LASTHOSTUNR
 INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 25, '$HOSTOUTPUT$');
 INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 26, '$HOSTPERFDATA$');
 INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 27, '$HOSTCHECKCOMMAND$');
-INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 28, '$HOSTACKAUTHOR$');
-INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 29, '$HOSTACKCOMMENT$');
 INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 30, '$HOSTACTIONURL$');
 INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 31, '$HOSTNOTESURL$');
 INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 32, '$HOSTNOTES$');
@@ -56,8 +54,6 @@ INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 52, '$SERVICEOUTP
 INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 53, '$LONGSERVICEOUTPUT$');
 INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 54, '$SERVICEPERFDATA$');
 INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 55, '$SERVICECHECKCOMMAND$');
-INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 56, '$SERVICEACKAUTHOR$');
-INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 57, '$SERVICEACKCOMMENT$');
 INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 58, '$SERVICEACTIONURL$');
 INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 59, '$SERVICENOTESURL$');
 INSERT INTO `nagios_macro` (`macro_id`, `macro_name`) VALUES ( 60, '$SERVICENOTES$');
@@ -112,3 +108,7 @@ INSERT INTO `nagios_macro` (`macro_name`) VALUES ('$_SERVICECRITICALITY_LEVEL$')
 INSERT INTO `nagios_macro` (`macro_name`) VALUES ('$_HOSTCRITICALITY_ID$');
 INSERT INTO `nagios_macro` (`macro_name`) VALUES ('$_SERVICECRITICALITY_ID$');
 INSERT INTO `nagios_macro` (`macro_name`) VALUES ('$HOSTTIMEZONE$');
+INSERT INTO `nagios_macro` (`macro_name`) VALUES ('$NOTIFICATIONAUTHOR$');
+INSERT INTO `nagios_macro` (`macro_name`) VALUES ('$NOTIFICATIONAUTHORNAME$');
+INSERT INTO `nagios_macro` (`macro_name`) VALUES ('$NOTIFICATIONAUTHORALIAS$');
+INSERT INTO `nagios_macro` (`macro_name`) VALUES ('$NOTIFICATIONCOMMENT$');

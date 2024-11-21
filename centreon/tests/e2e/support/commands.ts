@@ -95,6 +95,46 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add(
+  'fetchHostData',
+  ({ database, query }: requestOnDatabaseProps): void => {
+    const command = `docker exec -i ${Cypress.env(
+      'dockerName'
+    )} mysql -ucentreon -pcentreon ${database} -e "${query}"`;
+
+    cy.exec(command, { failOnNonZeroExit: true, log: true }).then(
+      ({ code, stdout, stderr }) => {
+        if (!stderr && code === 0) {
+          cy.log('Request on database done');
+
+          const outputLines = stdout.split('\n').filter(Boolean);
+          cy.log('Output Lines:', outputLines);
+
+          if (outputLines.length < 2) {
+            return cy.wrap([]);
+          }
+
+          const columns = outputLines[0].split('\t');
+          const rows = outputLines.slice(1).map((line) => {
+            const values = line.split('\t');
+            return columns.reduce((acc, col, idx) => {
+              acc[col] = values[idx];
+              return acc;
+            }, {});
+          });
+
+          cy.log('Query Result:', JSON.stringify(rows));
+
+          return cy.wrap(rows);
+        }
+        cy.log("Can't execute command on database : ", stderr);
+
+        return cy.wrap(false);
+      }
+    );
+  }
+);
+
+Cypress.Commands.add(
   'isInProfileMenu',
   (targetedMenu: string): Cypress.Chainable => {
     cy.get('header svg[aria-label="Profile"]').click();
@@ -364,6 +404,10 @@ declare global {
       removeACL: () => Cypress.Chainable;
       removeResourceData: () => Cypress.Chainable;
       requestOnDatabase: ({
+        database,
+        query
+      }: requestOnDatabaseProps) => Cypress.Chainable;
+      fetchHostData: ({
         database,
         query
       }: requestOnDatabaseProps) => Cypress.Chainable;

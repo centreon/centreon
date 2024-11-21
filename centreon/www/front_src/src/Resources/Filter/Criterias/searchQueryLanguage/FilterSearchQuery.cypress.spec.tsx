@@ -3,7 +3,7 @@ import { concat, pipe, prop, toLower } from 'ramda';
 import { labelSoft } from '../../../translatedLabels';
 import { selectableResourceTypes, selectableStatuses } from '../models';
 
-import { build, parse, getAutocompleteSuggestions } from './index';
+import { build, getAutocompleteSuggestions, parse } from './index';
 
 const search =
   'type:host,service state:unhandled status:ok,up status_type:soft host_group:Linux-Servers monitoring_server:Central host_category:Linux h.name:centreon parent_name:Centreon name:Service';
@@ -46,7 +46,7 @@ const parsedSearch = [
     name: 'host_groups',
     object_type: 'host_groups',
     type: 'multi_select',
-    value: [{ id: 0, name: 'Linux-Servers' }]
+    value: [{ formattedName: 'Linux-Servers', id: 0, name: 'Linux-Servers' }]
   },
   {
     name: 'service_groups',
@@ -58,13 +58,13 @@ const parsedSearch = [
     name: 'monitoring_servers',
     object_type: 'monitoring_servers',
     type: 'multi_select',
-    value: [{ id: 0, name: 'Central' }]
+    value: [{ formattedName: 'Central', id: 0, name: 'Central' }]
   },
   {
     name: 'host_categories',
     object_type: 'host_categories',
     type: 'multi_select',
-    value: [{ id: 0, name: 'Linux' }]
+    value: [{ formattedName: 'Linux', id: 0, name: 'Linux' }]
   },
   {
     name: 'service_categories',
@@ -102,6 +102,7 @@ const parsedSearch = [
     type: 'multi_select',
     value: [
       {
+        formattedName: 'Centreon',
         id: 0,
         name: 'Centreon'
       }
@@ -113,6 +114,7 @@ const parsedSearch = [
     type: 'multi_select',
     value: [
       {
+        formattedName: 'Service',
         id: 0,
         name: 'Service'
       }

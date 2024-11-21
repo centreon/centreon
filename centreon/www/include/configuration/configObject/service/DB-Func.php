@@ -1086,6 +1086,9 @@ function insertServiceInDB($ret = array(), $macro_on_demand = null)
     global $centreon;
 
     $tmp_fields = insertService($ret, $macro_on_demand);
+    if (! isset($tmp_fields['service_id'])) {
+        return null;
+    }
     $service_id = $tmp_fields['service_id'];
     updateServiceContactGroup($service_id, $ret);
     updateServiceContact($service_id, $ret);
@@ -1975,25 +1978,39 @@ function updateServiceNotifOptionInterval_MC($service_id = null)
     }
 }
 
-function updateServiceNotifOptionTimeperiod($service_id = null, $ret = array())
+/**
+ * @param int $serviceId
+ * @param array $ret
+ *
+ * @throws CentreonDbException
+ */
+function updateServiceNotifOptionTimeperiod(int $serviceId, $ret = array())
 {
-    global $form, $pearDB;
+    global $pearDB;
 
-    if (!$service_id) {
-        return;
+    try {
+        $queryParams = [];
+        $request = <<<'SQL'
+            UPDATE `service` SET `timeperiod_tp_id2` = :timeperiod_tp_id2
+            WHERE `service_id` = :service_id
+            SQL;
+
+        $stmt = $pearDB->prepareQuery($request);
+        $queryParams['service_id'] = $serviceId;
+
+        $queryParams['timeperiod_tp_id2'] = $ret['timeperiod_tp_id2'] ?? null;
+
+        $pearDB->executePreparedQuery($stmt, $queryParams);
+    } catch (CentreonDbException $ex) {
+        CentreonLog::create()->error(
+            CentreonLog::LEVEL_ERROR,
+            'Error while updating service notification timeperiod: ' . $ex->getMessage(),
+            ['service_id' => $serviceId, 'ret' => $ret],
+            $ex
+        );
+
+        throw $ex;
     }
-
-    if (isset($ret["timeperiod_tp_id2"])) {
-        $ret = $ret["timeperiod_tp_id2"];
-    } else {
-        $ret = $form->getSubmitValue("timeperiod_tp_id2");
-    }
-
-    $rq = "UPDATE service SET ";
-    $rq .= "timeperiod_tp_id2 = ";
-    isset($ret) && $ret != null ? $rq .= "'" . $ret . "' " : $rq .= "NULL ";
-    $rq .= "WHERE service_id = '" . $service_id . "'";
-    $dbResult = $pearDB->query($rq);
 }
 
 // For massive change. incremental mode

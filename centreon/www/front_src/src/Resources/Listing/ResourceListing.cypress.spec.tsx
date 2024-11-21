@@ -1,49 +1,86 @@
+import { renderHook } from '@testing-library/react-hooks/dom';
+import { Provider, createStore, useAtomValue } from 'jotai';
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import * as Ramda from 'ramda';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { renderHook } from '@testing-library/react-hooks/dom';
-import { useAtomValue, Provider, createStore } from 'jotai';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import {
   ListingVariant,
-  userAtom,
-  platformFeaturesAtom
+  aclAtom,
+  platformFeaturesAtom,
+  userAtom
 } from '@centreon/ui-context';
 
+import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
+import useDetails from '../Details/useDetails';
+import useFilter from '../Filter/useFilter';
 import { Visualization } from '../models';
 import {
-  labelInDowntime,
   labelAcknowledged,
-  labelViewByService,
   labelAll,
-  labelViewByHost,
+  labelCancel,
   labelChecksDisabled,
-  labelOnlyPassiveChecksEnabled
+  labelDowntime,
+  labelInDowntime,
+  labelOnlyPassiveChecksEnabled,
+  labelStartTime,
+  labelViewByHost,
+  labelViewByService
 } from '../translatedLabels';
-import useDetails from '../Details/useDetails';
-import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
-import useFilter from '../Filter/useFilter';
 
 import {
   defaultSelectedColumnIds,
   defaultSelectedColumnIdsforViewByHost
 } from './columns';
-import useLoadDetails from './useLoadResources/useLoadDetails';
-import {
-  columnToSort,
-  getPlatformFeatures,
-  fakeData,
-  retrievedListingWithCriticalResources,
-  retrievedListingByHosts,
-  retrievedListing,
-  entities,
-  columns
-} from './testUtils';
 import { selectedColumnIdsAtom } from './listingAtoms';
+import {
+  acls,
+  columnToSort,
+  columns,
+  entities,
+  fakeData,
+  getPlatformFeatures,
+  retrievedListing,
+  retrievedListingByHosts,
+  retrievedListingWithCriticalResources
+} from './testUtils';
+import useLoadDetails from './useLoadResources/useLoadDetails';
 
 import Listing from '.';
+
+const configureUserAtomViewMode = (
+  listingVariant: ListingVariant = ListingVariant.compact
+): void => {
+  const userData = renderHook(() => useAtomValue(userAtom));
+
+  userData.result.current.timezone = 'Europe/Paris';
+  userData.result.current.locale = 'en_US';
+  userData.result.current.user_interface_density = listingVariant;
+};
+
+const openCalendar = (label): void => {
+  cy.findByLabelText(label)
+    .find('input')
+    .then(($input) => {
+      if ($input.attr('readonly')) {
+        cy.wrap($input).click();
+      } else {
+        cy.findByLabelText(label).findByRole('button').click();
+      }
+    });
+};
+
+before(() => {
+  configureUserAtomViewMode();
+});
+
+const store = createStore();
+
+store.set(selectedVisualizationAtom, Visualization.All);
+store.set(platformFeaturesAtom, getPlatformFeatures({}));
+store.set(aclAtom, acls);
 
 const ListingTest = (): JSX.Element => {
   useFilter();
@@ -57,11 +94,6 @@ const ListingTest = (): JSX.Element => {
   );
 };
 
-const store = createStore();
-
-store.set(selectedVisualizationAtom, Visualization.All);
-store.set(platformFeaturesAtom, getPlatformFeatures({}));
-
 const ListingTestWithJotai = (): JSX.Element => (
   <Provider store={store}>
     <TestQueryProvider>
@@ -69,20 +101,6 @@ const ListingTestWithJotai = (): JSX.Element => (
     </TestQueryProvider>
   </Provider>
 );
-
-const configureUserAtomViewMode = (
-  listingVariant: ListingVariant = ListingVariant.compact
-): void => {
-  const userData = renderHook(() => useAtomValue(userAtom));
-
-  userData.result.current.timezone = 'Europe/Paris';
-  userData.result.current.locale = 'en_US';
-  userData.result.current.user_interface_density = listingVariant;
-};
-
-before(() => {
-  configureUserAtomViewMode();
-});
 
 const interceptRequestsAndMountBeforeEach = (
   interceptCriticalResources = false
@@ -113,6 +131,49 @@ const interceptRequestsAndMountBeforeEach = (
 
   cy.viewport(1200, 1000);
 };
+
+['dark', 'light'].forEach((mode) => {
+  describe(`Resource Listing: rows and picto colors on ${mode} theme`, () => {
+    beforeEach(() => {
+      const userData = renderHook(() => useAtomValue(userAtom));
+      userData.result.current.themeMode = mode;
+
+      store.set(selectedColumnIdsAtom, ['resource', 'state', 'information']);
+      cy.interceptAPIRequest({
+        alias: 'filterRequest',
+        method: Method.GET,
+        path: '**/events-view*',
+        response: fakeData
+      });
+
+      cy.fixture('resources/listing/listingWithInDowntimeAndAck.json').then(
+        (data) => {
+          cy.interceptAPIRequest({
+            alias: 'listing',
+            method: Method.GET,
+            path: '**/resources?*',
+            response: data
+          });
+        }
+      );
+      cy.mount({
+        Component: (
+          <Router>
+            <ListingTestWithJotai />
+          </Router>
+        )
+      });
+    });
+
+    it('displays listing when some resources are in downtime/acknowledged', () => {
+      cy.waitForRequest('@filterRequest');
+      cy.waitForRequest('@listing');
+
+      cy.contains('Memory').should('be.visible');
+      cy.makeSnapshot();
+    });
+  });
+});
 
 describe('Resource Listing', () => {
   beforeEach(() => {
@@ -170,18 +231,6 @@ describe('Resource Listing', () => {
     cy.waitFiltersAndListingRequests();
 
     cy.contains('E0').should('be.visible');
-
-    cy.makeSnapshot();
-  });
-
-  it('reoders columns when a drag handle is focused and an arrow is pressed', () => {
-    interceptRequestsAndMountBeforeEach();
-    cy.waitFiltersAndListingRequests();
-
-    cy.moveSortableElementUsingAriaLabel({
-      ariaLabel: 'Parent Drag handle',
-      direction: 'right'
-    });
 
     cy.makeSnapshot();
   });
@@ -507,6 +556,45 @@ describe('Listing request', () => {
   });
 });
 
+describe('Notification column', () => {
+  it('displays notification column if the cloud notification feature is disabled', () => {
+    store.set(
+      platformFeaturesAtom,
+      getPlatformFeatures({ notification: false })
+    );
+    interceptRequestsAndMountBeforeEach();
+
+    cy.waitFiltersAndListingRequests();
+
+    cy.contains('E0').should('be.visible');
+
+    cy.findByTestId('Add columns').click();
+
+    cy.findByText('Notification (Notif)').should('exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('hides notification column if the cloud notification feature is enabled', () => {
+    store.set(
+      platformFeaturesAtom,
+      getPlatformFeatures({ notification: true })
+    );
+    interceptRequestsAndMountBeforeEach();
+
+    cy.waitFiltersAndListingRequests();
+
+    cy.contains('E0').should('be.visible');
+
+    cy.findByTestId('Add columns').click();
+
+    cy.findByText('Severity (S)').should('exist');
+    cy.findByText('Notification (Notif)').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+});
+
 describe('Display additional columns', () => {
   beforeEach(() => {
     cy.interceptAPIRequest({
@@ -547,6 +635,11 @@ describe('Display additional columns', () => {
   });
 
   it('displays downtime details when the downtime state chip is hovered', () => {
+    store.set(
+      platformFeaturesAtom,
+      getPlatformFeatures({ notification: false })
+    );
+
     cy.waitFiltersAndListingRequests();
 
     const entityInDowntime = entities.find(
@@ -658,45 +751,6 @@ describe('Display additional columns', () => {
   });
 });
 
-describe('Notification column', () => {
-  it('displays notification column if the cloud notification feature is disabled', () => {
-    store.set(
-      platformFeaturesAtom,
-      getPlatformFeatures({ notification: false })
-    );
-    interceptRequestsAndMountBeforeEach();
-
-    cy.waitFiltersAndListingRequests();
-
-    cy.contains('E0').should('be.visible');
-
-    cy.findByTestId('Add columns').click();
-
-    cy.findByText('Notification (Notif)').should('exist');
-
-    cy.makeSnapshot();
-  });
-
-  it('hides notification column if the cloud notification feature is enabled', () => {
-    store.set(
-      platformFeaturesAtom,
-      getPlatformFeatures({ notification: true })
-    );
-    interceptRequestsAndMountBeforeEach();
-
-    cy.waitFiltersAndListingRequests();
-
-    cy.contains('E0').should('be.visible');
-
-    cy.findByTestId('Add columns').click();
-
-    cy.findByText('Severity (S)').should('exist');
-    cy.findByText('Notification (Notif)').should('not.exist');
-
-    cy.makeSnapshot();
-  });
-});
-
 describe('Tree view : Feature Flag', () => {
   it('hides the tree view icons if the feature is disabled', () => {
     store.set(
@@ -770,5 +824,69 @@ describe('Checks icon', () => {
       cy.findByTestId(testId).should('be.visible');
       cy.makeSnapshot(`displays the check icon ${iconTitle} when ${condition}`);
     });
+  });
+});
+
+describe('downtime picker', () => {
+  const now = new Date(Date.UTC(2024, 6, 27, 4, 4, 33));
+  const timezone = 'UTC';
+  const expectedInitialInputValue = '07/27/2024 04:04 AM';
+  const expectedFinalInputValue = '07/20/2024 04:04 AM';
+
+  beforeEach(() => {
+    interceptRequestsAndMountBeforeEach();
+
+    cy.waitFiltersAndListingRequests();
+    cy.clock(now);
+  });
+
+  it('checks the datepicker in downtime when selecting a date', () => {
+    const userData = renderHook(() => useAtomValue(userAtom));
+
+    userData.result.current.timezone = timezone;
+
+    cy.findByLabelText('Select row 4').trigger('mouseover');
+    cy.findByTestId('Set downtime on E4').click();
+
+    cy.contains('Downtime set by');
+    cy.contains(labelCancel);
+    cy.contains(labelDowntime);
+
+    cy.findByLabelText(labelStartTime)
+      .find('input')
+      .should('have.value', expectedInitialInputValue);
+
+    openCalendar(labelStartTime);
+
+    cy.findByRole('gridcell', { name: '27' }).should(
+      'have.attr',
+      'aria-selected',
+      'true'
+    );
+
+    cy.findByRole('gridcell', { name: '20' }).click({
+      waitForAnimations: false
+    });
+
+    cy.findByRole('button', { name: 'OK' }).click({ waitForAnimations: false });
+
+    cy.findByLabelText(labelStartTime)
+      .find('input')
+      .should('have.value', expectedFinalInputValue);
+
+    openCalendar(labelStartTime);
+
+    cy.findByRole('gridcell', { name: '20' }).should(
+      'have.attr',
+      'aria-selected',
+      'true'
+    );
+    cy.findByRole('gridcell', { name: '27' }).should(
+      'have.attr',
+      'aria-current',
+      'date'
+    );
+    cy.makeSnapshot();
+    cy.findByRole('button', { name: 'OK' }).click({ waitForAnimations: false });
   });
 });

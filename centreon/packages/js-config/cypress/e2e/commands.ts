@@ -479,10 +479,22 @@ Cypress.Commands.add('getTimeFromHeader', (): Cypress.Chainable => {
     });
 });
 
+Cypress.Commands.add('loginAsAdminViaApiV2', (): Cypress.Chainable => {
+  return cy.request({
+    body: {
+      login: 'admin',
+      password: 'Centreon!2021'
+    },
+    method: 'POST',
+    url: apiLoginV2
+  });
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
       clickSubRootMenuItem: (page: string) => Cypress.Chainable;
+      loginAsAdminViaApiV2: () => Cypress.Chainable;
       copyFromContainer: (
         props: CopyFromContainerProps,
         options?: Partial<Cypress.ExecOptions>

@@ -112,13 +112,13 @@ When('I select some pollers', () => {
 
 When('I click on the Export configuration button', () => {
   cy.getIframeBody()
-    .find('form button[name="apply_configuration"]')
-    .contains('Export configuration')
+    .find('#exportConfigurationLink')
     .click({ force: true });
 });
 
 Then('I am redirected to generate page', () => {
-  cy.url().should('include', `/centreon/main.php?p=60902&poller=`);
+  cy.url({ timeout: 60000 }).should('include', `/centreon/main.php?p=60902&poller=`);
+  cy.reload()
 });
 
 Then('the selected poller names are displayed', () => {

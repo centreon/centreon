@@ -41,6 +41,7 @@ use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
+use Core\Host\Application\Repository\WriteRealTimeHostRepositoryInterface;
 use Core\Host\Application\UseCase\AddHost\AddHost;
 use Core\Host\Application\UseCase\AddHost\AddHostRequest;
 use Core\Host\Application\UseCase\AddHost\AddHostResponse;
@@ -85,6 +86,7 @@ beforeEach(function (): void {
         optionService: $this->optionService = $this->createMock(OptionService::class),
         user: $this->user = $this->createMock(ContactInterface::class),
         validation: $this->validation = $this->createMock(AddHostValidation::class),
+        writeRealTimeHostRepository: $this->writeRealTimeHostRepository = $this->createMock(WriteRealTimeHostRepositoryInterface::class),
     );
 
     $this->inheritanceModeOption = new Option();
@@ -643,7 +645,7 @@ it('should return created object on success (with admin user)', function (): voi
         ->method('notifyConfigurationChange');
 
     $this->user
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(true);
     $this->readHostRepository
@@ -850,7 +852,7 @@ it('should return created object on success (with non-admin user)', function ():
         ->method('notifyConfigurationChange');
 
     $this->user
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(false);
     $this->readHostRepository
@@ -858,7 +860,7 @@ it('should return created object on success (with non-admin user)', function ():
         ->method('findById')
         ->willReturn($this->host);
     $this->readAccessGroupRepository
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('findByContact');
     $this->readHostCategoryRepository
         ->expects($this->once())

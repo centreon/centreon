@@ -1,0 +1,20 @@
+{
+  "result": [
+    {
+      "id": 1,
+      "name": "Poller test",
+      "address": null,
+      "is_running": true,
+      "last_alive": 1727092481,
+      "version": "24.09.0",
+      "description": null
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 10,
+    "search": {},
+    "sort_by": {},
+    "total": 1
+  }
+}

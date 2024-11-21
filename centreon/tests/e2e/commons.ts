@@ -22,6 +22,7 @@ const pollingCheckTimeout = 60000;
 const maxSteps = pollingCheckTimeout / stepWaitingTime;
 const waitToExport = 5000;
 
+
 const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
 const versionApi = 'latest';
@@ -30,6 +31,7 @@ const apiLogout = '/centreon/api/latest/authentication/logout';
 
 let servicesFoundStepCount = 0;
 let hostsFoundStepCount = 0;
+let metricsFoundStepCount = 0;
 
 const getStatusNumberFromString = (status: string): number => {
   const statuses = {
@@ -112,7 +114,22 @@ interface MonitoredService {
   name: string;
   output?: string;
   status?: string;
+  statusType?: string;
 }
+
+
+const getStatusTypeNumberFromString = (statusType: string): number => {
+  const statusesType = {
+    hard: '1',
+    soft: '0'
+  };
+
+  if (statusType in statusesType) {
+    return statusesType[statusType];
+  }
+
+  throw new Error(`Status type ${statusType} does not exist`);
+};
 
 const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
   cy.log('Checking services in database');
@@ -402,16 +419,77 @@ const configureACLGroups = (path: string): Cypress.Chainable => {
     .should('have.value', 'ACL Group test');
 };
 
+interface MonitoredMetric {
+  host: string;
+  name: string;
+  service: string;
+}
+
+const checkMetricsAreMonitored = (metrics: Array<MonitoredMetric>): void => {
+  cy.log('Checking metrics in database');
+
+  let query =
+    'SELECT COUNT(m.metric_id) AS count_metrics FROM metrics m, index_data idata WHERE m.index_id = idata.id AND (';
+  const conditions: Array<string> = [];
+  metrics.forEach(({ host, name, service }) => {
+    conditions.push(
+      `(idata.host_name = '${host}' AND idata.service_description = '${service}' AND m.metric_name = '${name}')`
+    );
+  });
+  query += conditions.join(' OR ');
+  query += ')';
+  cy.log(query);
+
+  const command = `docker exec -i ${Cypress.env('dockerName')} mysql -ucentreon -pcentreon centreon_storage -e "${query}"`;
+
+  cy.exec(command).then(({ code, stdout, stderr }) => {
+    if (stderr) {
+      throw new Error(`Database command execution failed: ${stderr}`);
+    }
+
+    // Split stdout lines and extract the metric count
+    const outputLines = stdout.split('\n').filter(Boolean); // Remove empty lines
+    cy.log('Output Lines:', outputLines);
+
+    if (outputLines.length < 2) {
+      throw new Error('No results returned from the query');
+    }
+
+    const foundMetricCount = parseInt(outputLines[1], 10) || 0; // The count will be in the second line
+
+    cy.log('Metric count in database', foundMetricCount);
+    cy.log('Metric database check step count', metricsFoundStepCount);
+
+    metricsFoundStepCount += 1;
+
+    if (foundMetricCount >= metrics.length) {
+      metricsFoundStepCount = 0; // Reset the step count if all metrics are found
+      return null; // Exit the function
+    }
+
+    if (metricsFoundStepCount < maxSteps) {
+      cy.wait(stepWaitingTime);
+      return cy.wrap(null).then(() => checkMetricsAreMonitored(metrics)); // Recursive call
+    }
+
+    throw new Error(
+      `Metrics ${metrics.map(({ name }) => name).join()} are not monitored after ${pollingCheckTimeout}ms`
+    );
+  });
+};
+
 export {
   ActionClapi,
   SubmitResult,
   checkThatConfigurationIsExported,
   checkHostsAreMonitored,
   checkServicesAreMonitored,
+  checkMetricsAreMonitored,
   getStatusNumberFromString,
   submitResultsViaClapi,
   updateFixturesResult,
   apiBase,
+  getStatusTypeNumberFromString,
   apiActionV1,
   applyConfigurationViaClapi,
   versionApi,

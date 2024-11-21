@@ -121,7 +121,7 @@
     "@mui/material": "^5.11.12",
     "@mui/styles": "^5.10.10",
     "@mui/system": "^5.10.13",
-    "@mui/x-date-pickers": "^6.2.1",
+    "@mui/x-date-pickers": "6.20.2",
     "@react-spring/web": "^9.7.3",
     "@simonsmith/cypress-image-snapshot": "6.0.1",
     "@tanstack/react-query": "^4.14.6",

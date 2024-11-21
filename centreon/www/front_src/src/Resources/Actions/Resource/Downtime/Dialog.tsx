@@ -1,50 +1,46 @@
-import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
+import type { FormikErrors, FormikHandlers, FormikValues } from 'formik';
 import { useAtomValue } from 'jotai';
-import { FormikErrors, FormikHandlers, FormikValues } from 'formik';
 import { isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
-  LocalizationProvider,
-  DesktopDateTimePicker
-} from '@mui/x-date-pickers';
-import {
+  Alert,
   Checkbox,
   FormControlLabel,
   FormHelperText,
-  Alert,
   Stack
 } from '@mui/material';
 import { Box } from '@mui/system';
-
 import {
-  Dialog,
-  TextField,
-  SelectField,
-  useDateTimePickerAdapter
-} from '@centreon/ui';
+  DesktopDateTimePicker,
+  LocalizationProvider
+} from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
+import { Dialog, SelectField, TextField } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
+import type { Resource } from '../../../models';
 import {
   labelCancel,
   labelComment,
   labelDowntime,
   labelDuration,
+  labelEndTime,
   labelFixed,
   labelHours,
   labelMinutes,
   labelSeconds,
   labelSetDowntime,
   labelSetDowntimeOnServices,
-  labelTo,
-  labelUnit,
   labelStartTime,
-  labelEndTime
+  labelTo,
+  labelUnit
 } from '../../../translatedLabels';
-import { Resource } from '../../../models';
 import useAclQuery from '../aclQuery';
 
-import { DowntimeFormValues } from '.';
+import type { DowntimeFormValues } from '.';
 
 const maxEndDate = new Date('2100-01-01');
 
@@ -75,9 +71,7 @@ const DialogDowntime = ({
 
   const { getDowntimeDeniedTypeAlert, canDowntimeServices } = useAclQuery();
 
-  const { locale } = useAtomValue(userAtom);
-
-  const { Adapter } = useDateTimePickerAdapter();
+  const { locale, timezone } = useAtomValue(userAtom);
 
   const open = resources.length > 0;
 
@@ -113,7 +107,7 @@ const DialogDowntime = ({
     >
       <LocalizationProvider
         adapterLocale={locale.substring(0, 2)}
-        dateAdapter={Adapter}
+        dateAdapter={AdapterDayjs}
       >
         {deniedTypeAlert && <Alert severity="warning">{deniedTypeAlert}</Alert>}
         <Stack spacing={2}>
@@ -130,6 +124,7 @@ const DialogDowntime = ({
                   'aria-label': t(labelStartTime) as string
                 }
               }}
+              timezone={timezone}
               value={dayjs(values.startTime)}
               onChange={changeTime('startTime')}
             />
@@ -140,9 +135,11 @@ const DialogDowntime = ({
                   'aria-label': t(labelEndTime) as string
                 }
               }}
+              timezone={timezone}
               value={dayjs(values.endTime)}
               onChange={changeTime('endTime')}
             />
+
             {isNil(errors?.startTime) ? (
               <div />
             ) : (
@@ -161,9 +158,11 @@ const DialogDowntime = ({
           <Stack>
             <FormHelperText>{t(labelDuration)}</FormHelperText>
 
-            <Stack alignItems="center" direction="row" spacing={1}>
+            <Stack alignItems="center" direction="row" spacing={0.5}>
               <TextField
+                autoSize
                 ariaLabel={t(labelDuration) as string}
+                autoSizeDefaultWidth={168}
                 dataTestId={labelDuration}
                 disabled={values.fixed}
                 error={errors?.duration?.value}
@@ -171,38 +170,46 @@ const DialogDowntime = ({
                 value={values.duration.value}
                 onChange={handleChange('duration.value')}
               />
-              <SelectField
-                dataTestId={labelUnit}
-                disabled={values.fixed}
-                options={[
-                  {
-                    id: 'seconds',
-                    name: t(labelSeconds)
-                  },
-                  {
-                    id: 'minutes',
-                    name: t(labelMinutes)
-                  },
-                  {
-                    id: 'hours',
-                    name: t(labelHours)
+
+              <Stack
+                direction="row"
+                justifyContent="flex-end"
+                spacing={1}
+                width="100%"
+              >
+                <SelectField
+                  dataTestId={labelUnit}
+                  disabled={values.fixed}
+                  options={[
+                    {
+                      id: 'seconds',
+                      name: t(labelSeconds)
+                    },
+                    {
+                      id: 'minutes',
+                      name: t(labelMinutes)
+                    },
+                    {
+                      id: 'hours',
+                      name: t(labelHours)
+                    }
+                  ]}
+                  selectedOptionId={values.duration.unit}
+                  onChange={handleChange('duration.unit')}
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={values.fixed}
+                      color="primary"
+                      inputProps={{ 'aria-label': t(labelFixed) as string }}
+                      size="small"
+                      onChange={handleChange('fixed')}
+                    />
                   }
-                ]}
-                selectedOptionId={values.duration.unit}
-                onChange={handleChange('duration.unit')}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={values.fixed}
-                    color="primary"
-                    inputProps={{ 'aria-label': t(labelFixed) as string }}
-                    size="small"
-                    onChange={handleChange('fixed')}
-                  />
-                }
-                label={t(labelFixed) as string}
-              />
+                  label={t(labelFixed) as string}
+                />
+              </Stack>
             </Stack>
           </Stack>
           <TextField
