@@ -53,6 +53,7 @@ services:
             - '../../src/Core/Security/Vault/*'
             - '../../src/Core/Contact/*'
             - '../../src/Core/ServiceSeverity/*'
+            - '../../src/Core/HostSeverity/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
