@@ -86,14 +86,14 @@ Then(
       4,
       'hc_severity_level',
       '',
-      `'${severities.default.level}'`
+      `${severities.default.level}`
     );
     cy.checkLogDetails(
       1,
-      4,
+      5,
       'hc_severity_icon',
       '',
-      `'${severities.default.icon_id}'`
+      `${severities.default.icon_id}`
     );
   }
 );
@@ -129,7 +129,7 @@ Then(
 When(
   'an apiV2 call is made to "Update" the parameters of the configured host severity',
   () => {
-    cy.updateHostSeverityViaApi(1, severities.changed_severity);
+    cy.updateHostSeverityViaAPIv2(1, severities.changed_severity);
   }
 );
 
@@ -189,7 +189,7 @@ Given('an enabled host severity is configured via APIv2', () => {
 });
 
 When('an apiV2 call is made to "Disable" the configured host severity', () => {
-  cy.updateHostSeverityViaApi(1, severities.disabled_severity);
+  cy.updateHostSeverityViaAPIv2(1, severities.disabled_severity);
 });
 
 Then(
