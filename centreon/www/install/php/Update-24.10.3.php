@@ -30,14 +30,6 @@ $errorMessage = '';
 
 // ACC
 $fixNamingOfAccTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to retrieve data from informations table';
-    $statement = $pearDB->executeQuery(
-        <<<'SQL'
-            SELECT `value` FROM `informations` WHERE `key` = 'isCentral'
-            SQL
-    );
-    $isCentral = $statement->fetch(PDO::FETCH_COLUMN);
-
     $errorMessage = 'Unable to update table topology';
     $constraintStatement = $pearDB->prepareQuery(
         <<<'SQL'
