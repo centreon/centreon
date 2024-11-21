@@ -40,7 +40,20 @@ jobs:
       release_cloud: ${{ steps.get_version.outputs.release_cloud}}
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          ref: develop
+          path: centreon-develop
+          sparse-checkout: .version
+
+      - name: store latest major version
+        id: latest_major_version
+        run: |
+          . centreon-develop/.version
+          echo "latest_major_version=$MAJOR" >> $GITHUB_OUTPUT
+        shell: bash
 
       - uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.29.0
         if: ${{ endsWith(inputs.version_file, '.php') }}
@@ -115,10 +128,14 @@ jobs:
           GITHUB_RELEASE_CLOUD=0
           GITHUB_RELEASE_TYPE=$(echo $BRANCHNAME |cut -d '-' -f 1)
 
+          if [[ "$MAJOR" == "${{ steps.latest_major_version.outputs.latest_major_version }}" ]]; then
+            GITHUB_RELEASE_CLOUD=1
+          fi
+
           case "$BRANCHNAME" in
             master)
               echo "release=1" >> $GITHUB_OUTPUT
-              echo "release_cloud=1" >> $GITHUB_OUTPUT
+              GITHUB_RELEASE_CLOUD=1
               echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               ;;
             [2-9][0-9].[0-9][0-9].x)
@@ -128,12 +145,11 @@ jobs:
               ;;
             develop)
               echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
-              echo "release_cloud=1" >> $GITHUB_OUTPUT
+              GITHUB_RELEASE_CLOUD=1
               echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               ;;
             dev-[2-9][0-9].[0-9][0-9].x)
               echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
-              echo "release_cloud=0" >> $GITHUB_OUTPUT
               echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               ;;
             release* | hotfix*)
@@ -156,10 +172,8 @@ jobs:
                 # Github ouputs
                 echo "release=`echo $GITHUB_RELEASE_BRANCH_PR_NUMBER`.`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
                 echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
-                echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
               else
                 echo "release=1" >> $GITHUB_OUTPUT
-                echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
                 echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               fi
               ;;
@@ -171,14 +185,15 @@ jobs:
 
               # Check if pull request branch targeting develop
               if [[ "$GITHUB_BRANCH_BASE_REF_NAME" == "develop" ]] && [[ "$GITHUB_BRANCH_PR_STATE" == "OPEN" ]]; then
-                echo "release_cloud=1" >> $GITHUB_OUTPUT
+                GITHUB_RELEASE_CLOUD=1
                 echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               else
-                echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
                 echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               fi
               ;;
           esac
+
+          echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
 
           case "$BRANCHNAME" in
             develop | dev-[2-9][0-9].[0-9][0-9].x)

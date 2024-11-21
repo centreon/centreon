@@ -109,23 +109,6 @@ jobs:
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
-  veracode-analysis:
-    needs: [get-version]
-    uses: ./.github/workflows/veracode-analysis.yml
-    with:
-      module_directory: centreon
-      module_name: centreon-web
-      major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ needs.get-version.outputs.minor_version }}
-      stability: ${{ needs.get-version.outputs.stability }}
-    secrets:
-      veracode_api_id: ${{ secrets.VERACODE_API_ID_WEB }}
-      veracode_api_key: ${{ secrets.VERACODE_API_KEY_WEB_2 }}
-      veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
-      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-
   frontend-build:
     runs-on: ubuntu-22.04
 
@@ -323,6 +306,8 @@ jobs:
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      registry_private_username: ${{ secrets.HARBOR_CENTREON_PRIVATE_USERNAME }}
+      registry_private_token: ${{ secrets.HARBOR_CENTREON_PRIVATE_TOKEN }}
 
   dockerize:
     runs-on: ubuntu-22.04
@@ -335,6 +320,10 @@ jobs:
           - project: centreon-web
             distrib: alma8
             distrib_rpm: el8
+            module_name: web
+          - project: centreon-web
+            distrib: centos7
+            distrib_rpm: el7
             module_name: web
 
     steps:
@@ -724,8 +713,12 @@ jobs:
           release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   promote:
-    needs: [get-version]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+    needs: [get-version, deliver-deb, deliver-rpm]
+    if: |
+      (contains(fromJson('["stable", "testing"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch') &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
     runs-on: [self-hosted, common]
     strategy:
       matrix:
