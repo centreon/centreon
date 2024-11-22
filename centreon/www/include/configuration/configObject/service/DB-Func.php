@@ -40,6 +40,7 @@ if (!isset($centreon)) {
 
 use App\Kernel;
 Use Centreon\Domain\Log\Logger;
+use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
@@ -355,7 +356,12 @@ function enableServiceInDB($service_id = null, $service_arr = [])
         $serviceDescription = $selectStatement->fetchColumn();
 
         signalConfigurationChange('service', (int) $serviceId);
-        $centreon->CentreonLogAction->insertLog("service", $serviceId, $serviceDescription, "enable");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_SERVICE,
+            object_id: $serviceId,
+            object_name: $serviceDescription,
+            action_type: ActionLog::ACTION_TYPE_ENABLE
+        );
     }
 }
 
@@ -375,7 +381,12 @@ function disableServiceInDB($service_id = null, $service_arr = [])
         $row = $dbResult2->fetch();
 
         signalConfigurationChange('service', (int) $serviceId, [], false);
-        $centreon->CentreonLogAction->insertLog("service", $serviceId, $row['service_description'], "disable");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_SERVICE,
+            object_id: $serviceId,
+            object_name: $row['service_description'],
+            action_type: ActionLog::ACTION_TYPE_DISABLE
+        );
     }
 }
 
@@ -438,10 +449,15 @@ function deleteServiceInDB($services = [])
         $query = "SELECT service_description FROM `service` WHERE `service_id` = '" . $serviceId . "' LIMIT 1";
         $dbResult3 = $pearDB->query($query);
         $svcname = $dbResult3->fetch();
-        $centreon->CentreonLogAction->insertLog("service", $serviceId, $svcname['service_description'], "d");
         $pearDB->query("DELETE FROM service WHERE service_id = '" . $serviceId . "'");
         $pearDB->query("DELETE FROM on_demand_macro_service WHERE svc_svc_id = '" . $serviceId . "'");
         $pearDB->query("DELETE FROM contact_service_relation WHERE service_service_id = '" . $serviceId . "'");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_SERVICE,
+            object_id: $serviceId,
+            object_name: $svcname['service_description'],
+            action_type: ActionLog::ACTION_TYPE_DELETE
+        );
 
         signalConfigurationChange('service', (int) $serviceId, $previousPollerIds);
     }
@@ -942,11 +958,11 @@ function multipleServiceInDB(
                             $row2 = $statement->fetch(PDO::FETCH_ASSOC);
                             $description = $row2['service_description'];
                             $centreon->CentreonLogAction->insertLog(
-                                "service",
-                                $maxId["MAX(service_id)"],
-                                $description,
-                                "a",
-                                $fields
+                                object_type: ActionLog::OBJECT_TYPE_SERVICE,
+                                object_id: $maxId["MAX(service_id)"],
+                                object_name: $description,
+                                action_type: ActionLog::ACTION_TYPE_ADD,
+                                fields: $fields
                             );
                         }
 
@@ -986,7 +1002,7 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     //Retrieve vault path before updating values in database.
     $vaultPath = null;
     if ($vaultConfiguration !== null ){
-        $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $service_id);
+        $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $serviceId);
     }
 
     $ret["service_description"] = $service->checkIllegalChar($ret["service_description"]);
@@ -1094,7 +1110,7 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
                 $writeVaultRepository,
                 $logger,
                 $vaultPath,
-                (int) $service_id,
+                (int) $serviceId,
                 $service->getFormattedMacros(),
             );
         } catch (\Throwable $ex) {
@@ -1111,11 +1127,11 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
-        "service",
-        $serviceId,
-        CentreonDB::escape($ret["service_description"]),
-        "c",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_SERVICE,
+        object_id: $serviceId,
+        object_name: $ret["service_description"],
+        action_type: ActionLog::ACTION_TYPE_CHANGE,
+        fields: $fields
     );
 }
 
@@ -1143,7 +1159,7 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     //Retrieve UUID for vault path before updating values in database.
     $uuid = null;
     if ($vaultConfiguration !== null ){
-        $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $service_id);
+        $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $serviceId);
     }
 
     if (isset($ret["sg_name"])) {
@@ -1242,7 +1258,7 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
                 $logger,
                 $uuidGenerator,
                 $uuid,
-                (int) $service_id,
+                (int) $serviceId,
                 $service->getFormattedMacros()
             );
         } catch (\Throwable $ex) {
@@ -1253,11 +1269,11 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
-        "service",
-        $serviceId,
-        CentreonDB::escape($ret["service_description"] ?? ""),
-        "mc",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_SERVICE,
+        object_id: $serviceId,
+        object_name: $ret["service_description"] ?? "",
+        action_type: ActionLog::ACTION_TYPE_MASS_CHANGE,
+        fields: $fields
     );
 }
 
@@ -1901,11 +1917,11 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($submittedValues);
     $centreon->CentreonLogAction->insertLog(
-        "service",
-        $service_id["MAX(service_id)"],
-        CentreonDB::escape($submittedValues["service_description"]),
-        "a",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_SERVICE,
+        object_id: $service_id["MAX(service_id)"],
+        object_name: $submittedValues["service_description"],
+        action_type: ActionLog::ACTION_TYPE_ADD,
+        fields: $fields
     );
 
     return (["service_id" => $service_id["MAX(service_id)"], "fields" => $fields]);
@@ -2147,11 +2163,11 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($submittedValues);
     $centreon->CentreonLogAction->insertLog(
-        "service",
-        $service_id["MAX(service_id)"],
-        CentreonDB::escape($submittedValues["service_description"]),
-        "a",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_SERVICE,
+        object_id: $service_id["MAX(service_id)"],
+        object_name: $submittedValues["service_description"],
+        action_type: ActionLog::ACTION_TYPE_ADD,
+        fields: $fields
     );
 
     return (["service_id" => $service_id["MAX(service_id)"], "fields" => $fields]);
@@ -2462,11 +2478,11 @@ function updateService($service_id = null, $from_MC = false, $params = [])
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
-        "service",
-        $service_id,
-        CentreonDB::escape($ret["service_description"]),
-        "c",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_SERVICE,
+        object_id: $service_id,
+        object_name: $ret["service_description"],
+        action_type: ActionLog::ACTION_TYPE_CHANGE,
+        fields: $fields
     );
 }
 
@@ -2703,11 +2719,11 @@ function updateService_MC($service_id = null, $params = [])
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
-        "service",
-        $service_id,
-        CentreonDB::escape($ret["service_description"] ?? ""),
-        "mc",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_SERVICE,
+        object_id: $service_id,
+        object_name: $ret["service_description"] ?? "",
+        action_type: ActionLog::ACTION_TYPE_MASS_CHANGE,
+        fields: $fields
     );
 }
 

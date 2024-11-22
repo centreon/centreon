@@ -17707,7 +17707,22 @@ msgstr "Modo avanzado"
 #  msgid "Web page preview"
 #  msgstr ""
 
+# msgid "Save your dashboard to generate a thumbnail"
+# msgstr ""
+
 #  msgid "If ticket management is enabled, only the “by service” view is available."
+#  msgstr ""
+
+#  msgid "year"
+#  msgstr ""
+
+#  msgid "month"
+#  msgstr ""
+
+#  msgid "hour"
+#  msgstr ""
+
+#  msgid "minute"
 #  msgstr ""
 
 #  msgid "Ticket management"
@@ -17717,6 +17732,18 @@ msgstr "Modo avanzado"
 # msgstr ""
 
 # msgid "Clock / Timer"
+# msgstr ""
+
+# msgid "Breadcrumb copied"
+# msgstr ""
+
+# msgid "Failed to copy breadcrumb"
+# msgstr ""
+
+# msgid "Copy breadcrumb"
+# msgstr ""
+
+# msgid "Thumbnails show a snapshot of your data, taken when the dashboard is saved"
 # msgstr ""
 
 # msgid "Agent configuration"
@@ -17832,3 +17859,6 @@ msgstr "Retractar"
 
 msgid "Sticky for any non-OK status"
 msgstr "Sticky para cualquier estado que no sea OK"
+
+# msgid "There are errors in the form."
+# msgstr ""

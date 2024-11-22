@@ -137,4 +137,21 @@ function submitForm() {
     .click();
 }
 
-export { submitForm, TrapsSNMPConfiguration, UpdateTrapsSNMPConfiguration };
+const CreateOrUpdateTrapGroup = (body: TrapGroup): Cypress.Chainable => {
+  cy.waitForElementInIframe("#main-content", 'input[name="name"]');
+  cy.getIframeBody().find('input[name="name"]').clear().type(body.name);
+  cy.getIframeBody().find('span[class="clearAllSelect2"]').click();
+  cy.getIframeBody().find('input[class="select2-search__field"]').click();
+  cy.wait('@listTraps');
+  cy.getIframeBody().find(`div[title="${body.traps[0]}"]`).click();
+  cy.getIframeBody().find('input[class="select2-search__field"]').click();
+  cy.getIframeBody().find(`div[title="${body.traps[1]}"]`).click();
+  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(1).click();
+};
+
+interface TrapGroup {
+  name: string,
+  traps: string[]
+}
+
+export { submitForm, TrapsSNMPConfiguration, UpdateTrapsSNMPConfiguration, CreateOrUpdateTrapGroup };

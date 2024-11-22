@@ -28,7 +28,7 @@ jobs:
                  https://api.github.com/repos/centreon/centreon-on-demand/dispatches \
                  -d '{"event_type": "destroy-nightly-platform",
                     "client_payload": {
-                        "workspace_to_destroy_id": 0,
+                        "workspace_to_destroy_id": "0",
                         "confirm": true
                       }
                     }'

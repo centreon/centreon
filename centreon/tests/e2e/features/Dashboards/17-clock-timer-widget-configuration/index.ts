@@ -131,7 +131,12 @@ Then("the Clock timer widget is added in the dashboard's layout", () => {
 });
 
 Given('a dashboard with a Clock Timer widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, clockTimerWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    clockTimerWidget,
+    'centreon-widget-clock',
+    '/widgets/clock'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
 });
@@ -176,7 +181,7 @@ When(
   }
 );
 
-Then('timezone should be updating in the widget', () => {
+Then('the timezone should be updated in the widget', () => {
   cy.get('p[class$="timezone"]')
     .eq(1)
     .invoke('text')
