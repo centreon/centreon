@@ -1,10 +1,14 @@
 import { makeStyles } from 'tss-react/mui';
 
-export const useTileStyles = makeStyles()((theme) => ({
+interface Props {
+  tileSize: number;
+}
+
+export const useTileStyles = makeStyles<Props>()((theme, { tileSize }) => ({
   container: {
     cursor: 'pointer',
     height: '100%',
-    paddingTop: theme.spacing(4.5),
+    paddingTop: tileSize / 2,
     position: 'relative',
     width: '100%'
   },

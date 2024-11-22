@@ -7,7 +7,7 @@ import { Box, CardActionArea, Typography } from '@mui/material';
 
 import { EllipsisTypography, HostIcon, ServiceIcon } from '@centreon/ui';
 
-import { Resource } from '../../../models';
+import type { Resource } from '../../../models';
 import { getResourcesUrl } from '../../../utils';
 
 import {
@@ -18,7 +18,7 @@ import {
 } from './Icons';
 import State from './State';
 import { useTileStyles } from './StatusGrid.styles';
-import { IndicatorType, ResourceData } from './models';
+import { IndicatorType, type ResourceData } from './models';
 import { labelSeeMore } from './translatedLabels';
 import { getLink } from './utils';
 
@@ -29,6 +29,7 @@ interface Props {
   resources: Array<Resource>;
   statuses: Array<string>;
   type: string;
+  tileSize: number;
 }
 
 export const router = {
@@ -42,10 +43,11 @@ const Tile = ({
   type,
   statuses,
   resources,
-  isBAResourceType
+  isBAResourceType,
+  tileSize
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
-  const { classes } = useTileStyles();
+  const { classes } = useTileStyles({ tileSize });
 
   const Icon = cond([
     [equals(IndicatorType.BusinessActivity), always(BAIcon)],
@@ -95,7 +97,19 @@ const Tile = ({
             color="primary"
             fontSize={isSmallestSize ? 'medium' : 'large'}
           />
-          {!isSmallestSize && <Typography>{t(labelSeeMore)}</Typography>}
+          {!isSmallestSize && (
+            <Typography
+              style={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                maxHeight: tileSize / 2,
+                wordWrap: 'break-word',
+                maxWidth: tileSize
+              }}
+            >
+              {t(labelSeeMore)}
+            </Typography>
+          )}
         </CardActionArea>
       </Link>
     );

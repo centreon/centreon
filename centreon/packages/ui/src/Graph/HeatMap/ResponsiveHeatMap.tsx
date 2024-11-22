@@ -46,7 +46,6 @@ const ResponsiveHeatMap = <TData,>({
   }, [width, height, tileSizeFixed]);
 
   const isSmallestSize = equals(tileSize, smallestTileSize);
-
   if (equals(width, 0)) {
     return null;
   }
@@ -86,7 +85,13 @@ const ResponsiveHeatMap = <TData,>({
             position="right-start"
           >
             <div className={classes.heatMapTileContent}>
-              {children({ backgroundColor, data, id, isSmallestSize })}
+              {children({
+                backgroundColor,
+                data,
+                id,
+                isSmallestSize,
+                tileSize
+              })}
             </div>
           </Tooltip>
         </Box>
