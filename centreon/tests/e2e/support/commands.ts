@@ -4,6 +4,7 @@ import 'cypress-wait-until';
 import '@centreon/js-config/cypress/e2e/commands';
 import { refreshButton } from '../features/Resources-status/common';
 import '../features/Dashboards/commands';
+import '../features/Hosts/commands';
 import '../features/HostGroups/commands';
 
 
@@ -81,6 +82,11 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add("enterIframe", (iframeSelector): Cypress.Chainable => {
+  return cy.get(iframeSelector)
+    .its("0.contentDocument");
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -97,6 +103,7 @@ declare global {
         paramName,
         paramValue,
       }: Serviceparams) => Cypress.Chainable;
+      enterIframe: (iframeSelector: string) => Cypress.Chainable;
     }
   }
 }
