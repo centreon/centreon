@@ -455,6 +455,7 @@ class CentreonDB extends PDO
         try {
             return $pdoStatement->fetchColumn($column);
         } catch (PDOException $e) {
+            $this->closeQuery($pdoStatement);
             $message = "Error while fetching all the rows by column: {$e->getMessage()}";
             $this->writeDbLog($message, ['column' => $column], query: $pdoStatement->queryString, exception: $e);
             throw new CentreonDbException(
@@ -466,8 +467,6 @@ class CentreonDB extends PDO
                 ],
                 $e
             );
-        } finally {
-            $this->closeQuery($pdoStatement);
         }
     }
 

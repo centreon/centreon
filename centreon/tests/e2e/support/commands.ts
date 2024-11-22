@@ -4,6 +4,9 @@ import 'cypress-wait-until';
 import '@centreon/js-config/cypress/e2e/commands';
 import { refreshButton } from '../features/Resources-status/common';
 import '../features/Dashboards/commands';
+import '../features/Hosts/commands';
+import '../features/HostGroups/commands';
+
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
   return cy.get(refreshButton).click();
@@ -60,6 +63,11 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
   });
 });
 
+Cypress.Commands.add("enterIframe", (iframeSelector): Cypress.Chainable => {
+  return cy.get(iframeSelector)
+    .its("0.contentDocument");
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -71,6 +79,7 @@ declare global {
       removeResourceData: () => Cypress.Chainable;
       startOpenIdProviderContainer: () => Cypress.Chainable;
       stopOpenIdProviderContainer: () => Cypress.Chainable;
+      enterIframe: (iframeSelector: string) => Cypress.Chainable;
     }
   }
 }
