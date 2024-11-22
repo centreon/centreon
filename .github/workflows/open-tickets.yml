@@ -224,7 +224,7 @@ jobs:
       - name: Get FROM image tag
         id: from_image_version
         run: |
-          FROM_IMAGE_VERSION="${{ needs.get-environment.outputs.major_version }}"
+          FROM_IMAGE_VERSION=$(git ls-remote -h https://github.com/centreon/centreon.git | grep -E "refs/heads/dev-${{ needs.get-environment.outputs.major_version }}\.x$" >/dev/null 2>&1 && echo "dev-${{ needs.get-environment.outputs.major_version }}.x" || echo develop)
           FROM_IMAGE="centreon-web-${{ matrix.operating_system }}"
           IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.head_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
           if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
