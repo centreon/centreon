@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { renderHook } from '@testing-library/react-hooks/dom';
 import dayjs from 'dayjs';
 import localizedFormatPlugin from 'dayjs/plugin/localizedFormat';
@@ -14,8 +12,8 @@ import { useLocaleDateTimeFormat } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import { CustomTimePeriodProperty } from './Details/tabs/Graph/models';
-import useDateTimePickerAdapter from './useDateTimePickerAdapter';
 import DateTimePickerInput from './Graph/Performance/TimePeriods/DateTimePickerInput';
+import useDateTimePickerAdapter from './useDateTimePickerAdapter';
 
 dayjs.extend(timezonePlugin);
 dayjs.extend(utcPlugin);
@@ -236,13 +234,13 @@ const testData = [
     button: 'Next month',
     data: months2023,
     initialDate: '2023-01-01T12:59:41.041Z',
-    timezone: 'Europe/Paris',
+    timezone: 'UTC',
   },
   {
     button: 'Previous month',
     data: month2023Reverse,
     initialDate: '2023-12-01T12:59:41.041Z',
-    timezone: 'Europe/Paris',
+    timezone: 'UTC',
   },
 ];
 
@@ -323,6 +321,7 @@ testData.forEach((item) =>
 
     it(`displays the correct number of days for the current month when the ${item.button} button is clicked`, () => {
       cy.get('input').click();
+
       item.data.forEach((element) => {
         const { lastDay } = Object.values(element)[0];
 

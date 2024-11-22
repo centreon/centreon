@@ -1,9 +1,11 @@
 {
     "name": "centreon/centreon",
+    "version": "22.10",
     "type": "project",
     "license": "GPL-2.0-only",
     "description": "Centreon - IT and Application monitoring software",
     "config": {
+        "sort-package": true,
         "secure-http": false,
         "platform": {
             "php": "8.1"
