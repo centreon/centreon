@@ -195,10 +195,6 @@ default:
       paths: [ "%paths.base%/features/ContactTemplateConfiguration.feature" ]
       contexts: [ ContactTemplateConfigurationContext ]
 
-    service_category_configuration:
-      paths: [ "%paths.base%/features/ServiceCategoryConfiguration.feature" ]
-      contexts: [ ServiceCategoryConfigurationContext ]
-
     escalation_configuration:
       paths: [ "%paths.base%/features/EscalationConfiguration.feature" ]
       contexts: [ EscalationConfigurationContext ]
