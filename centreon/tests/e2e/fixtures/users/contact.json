@@ -1,0 +1,18 @@
+{
+    "default":{
+        "alias": "contact-alias",
+        "name": "contact-name",
+        "email": "contact-email",
+        "pager": "contact-pager",
+        "template": "contact_template",
+        "isNotificationsEnabled": "No"
+    },
+    "contactForUpdate":{
+        "alias": "contact-alias-1",
+        "name": "contact-name-1",
+        "email": "contact-email-1",
+        "pager": "contact-pager-1",
+        "template": "contact_template",
+        "isNotificationsEnabled": "Default"
+    }
+}
