@@ -175,7 +175,7 @@ jobs:
           web_image_version: ${{ env.IMAGE_TAG }}
           openid_image_version: ${{ inputs.major_version }}
           saml_image_version: ${{ inputs.major_version }}
-          module: centreon
+          module: ${{ inputs.module_name }}
           feature_file_path: ${{ matrix.feature }}
           test_tags: ${{ inputs.test_tags }}
           dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
