@@ -11,6 +11,20 @@ Cypress.Commands.add('addTimePeriodViaApi', (payload: TimePeriod) => {
       });
 });
 
+Cypress.Commands.add('addHostSeverityViaAPIv2', (payload: HostSeverity) => {
+  cy.request({
+    body: payload,
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    method: 'POST',
+    url: '/centreon/api/latest/configuration/hosts/severities'
+  }).then((response) => {
+    expect(response.status).to.eq(201);
+  });
+
+});
+
 Cypress.Commands.add('updateTimePeriodViaApi', (name: string, payload: TimePeriod) => {
   cy.requestOnDatabase({
     database: 'centreon',
@@ -27,6 +41,19 @@ Cypress.Commands.add('updateTimePeriodViaApi', (name: string, payload: TimePerio
     }).then((response) => {
       expect(response.status).to.eq(204);
     });
+  });
+});
+
+Cypress.Commands.add('updateHostSeverityViaAPIv2', (id: number, payload: HostSeverity) => {
+  cy.request({
+      body: payload,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: 'PUT',
+      url: `/centreon/api/latest/configuration/hosts/severities/${id}`
+  }).then((response) => {
+      expect(response.status).to.eq(204);
   });
 });
 
@@ -48,24 +75,46 @@ Cypress.Commands.add('deleteTimePeriodViaApi', (name: string) => {
   });
 });
 
+Cypress.Commands.add('deleteHostSeverityViaAPIv2', (id: number) => {
+  cy.request({
+    headers: {
+        'Content-Type': 'application/json'
+      },
+      method: 'DELETE',
+      url: `/centreon/api/latest/configuration/hosts/severities/${id}`
+    }).then((response) => {
+      expect(response.status).to.eq(204);
+  });
+});
+
 Cypress.Commands.add('checkLogDetails',(tableIndex: number, trIndex:number, firstTd:string, secondTd:string, thirdTd:string) => {
-  cy.getIframeBody()
+  const findTableData = (): Cypress.Chainable => {
+    return cy.getIframeBody()
       .find('table.ListTable')
       .eq(tableIndex)
       .find('tbody tr')
       .eq(trIndex)
       .find('td')
-      .should('have.length', 3)
-      .eq(0)
-      .should('contain.text', firstTd)
-      .parent()
-      .find('td')
-      .eq(1)
-      .should('contain.text', secondTd)
-      .parent() 
-      .find('td')
-      .eq(2)
-      .should('contain.text', thirdTd);
+      .then(cy.wrap);
+  };
+
+  findTableData()
+      .should('have.length', 3);
+
+  findTableData()
+     .eq(0)
+     .invoke('text')
+     .should('include', firstTd);
+
+  findTableData()
+    .eq(1)
+    .invoke('text')
+    .should('include', secondTd);
+
+  findTableData()
+    .eq(2)
+    .invoke('text')
+    .should('include', thirdTd);
 });
 
 
@@ -87,6 +136,14 @@ interface TimePeriod {
   exceptions: IEDyas[],
 }
 
+interface HostSeverity {
+  name: string,
+  alias: string,
+  level: number,
+  icon_id: number,
+  is_activated?: boolean
+}
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -94,6 +151,9 @@ declare global {
       updateTimePeriodViaApi: (name: string, body: TimePeriod) => Cypress.Chainable;
       deleteTimePeriodViaApi: (name: string) => Cypress.Chainable;
       checkLogDetails: (tableIndex: number, trIndex:number, firstTd:string, secondTd:string, thirdTd:string) => Cypress.Chainable;
+      addHostSeverityViaAPIv2: (payload: HostSeverity) => Cypress.Chainable;
+      deleteHostSeverityViaAPIv2: (id: number) => Cypress.Chainable;
+      updateHostSeverityViaAPIv2: (id: number, payload: HostSeverity) => Cypress.Chainable;
     }
   }
 }
