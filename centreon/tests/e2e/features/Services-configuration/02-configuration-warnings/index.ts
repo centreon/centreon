@@ -92,17 +92,17 @@ Given('the service has no notification period', () => {
 When('the configuration is exported', () => {
   cy.navigateTo({ page: 'Pollers', rootItemNumber: 3, subMenu: 'Pollers' });
   cy.wait('@getUserTimezone');
-
-  cy.get('iframe#main-content')
-    .its('0.contentDocument.body')
-    .find('h4')
-    .contains('Poller')
-    .should('exist');
+  cy.waitForElementInIframe('#main-content', 'input[name="searchP"]');
+  cy.getIframeBody().find('h4').contains('Poller').should('exist');
   cy.getIframeBody().find('#exportConfigurationLink').should('be.visible');
   cy.getIframeBody().find('#exportConfigurationLink').click();
 
   cy.url().should('include', 'poller=');
   cy.wait('@getUserTimezone');
+  cy.waitForElementInIframe(
+    '#main-content',
+    'input.select2-search__field[placeholder="Pollers"]'
+  );
   cy.getIframeBody()
     .find('input.select2-search__field[placeholder="Pollers"]')
     .click();
