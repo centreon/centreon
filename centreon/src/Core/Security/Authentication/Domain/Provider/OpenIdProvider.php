@@ -49,7 +49,6 @@ use Core\Security\ProviderConfiguration\Domain\SecurityAccess\RolesMapping;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use DateInterval;
 use Exception;
-use Pimple\Container;
 use Security\Domain\Authentication\Interfaces\OpenIdProviderInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -105,7 +104,6 @@ class OpenIdProvider implements OpenIdProviderInterface
      * @param HttpClientInterface $client
      * @param UrlGeneratorInterface $router
      * @param ContactServiceInterface $contactService
-     * @param Container $dependencyInjector
      * @param WriteUserRepositoryInterface $userRepository
      * @param Conditions $conditions
      * @param RolesMapping $rolesMapping
@@ -118,7 +116,6 @@ class OpenIdProvider implements OpenIdProviderInterface
         private HttpClientInterface $client,
         private UrlGeneratorInterface $router,
         private ContactServiceInterface $contactService,
-        private Container $dependencyInjector,
         private WriteUserRepositoryInterface $userRepository,
         private readonly Conditions $conditions,
         private readonly RolesMapping $rolesMapping,
