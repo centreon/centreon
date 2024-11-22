@@ -11,7 +11,7 @@ Cypress.Commands.add('addTimePeriodViaApi', (payload: TimePeriod) => {
       });
 });
 
-Cypress.Commands.add('addSubjectViaAPIv2', (payload: ServiceSeverity, url: string) => {
+Cypress.Commands.add('addSubjectViaAPIv2', (payload: any, url: string) => {
   cy.request({
     body: payload,
     headers: {
@@ -44,7 +44,7 @@ Cypress.Commands.add('updateTimePeriodViaApi', (name: string, payload: TimePerio
   });
 });
 
-Cypress.Commands.add('updateSubjectViaAPIv2', (payload: ServiceSeverity, url: string) => {
+Cypress.Commands.add('updateSubjectViaAPIv2', (payload: any, url: string) => {
   cy.request({
       body: payload,
       headers: {
@@ -136,22 +136,6 @@ interface TimePeriod {
   exceptions: IEDyas[],
 }
 
-interface ServiceSeverity {
-  name: string,
-  alias: string,
-  level: number,
-  icon_id: number,
-  is_activated: boolean,
-}
-
-interface HostSeverity {
-  name: string,
-  alias: string,
-  level: number,
-  icon_id: number,
-  is_activated?: boolean
-}
-
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -159,9 +143,9 @@ declare global {
       updateTimePeriodViaApi: (name: string, body: TimePeriod) => Cypress.Chainable;
       deleteTimePeriodViaApi: (name: string) => Cypress.Chainable;
       checkLogDetails: (tableIndex: number, trIndex:number, firstTd:string, secondTd:string, thirdTd:string) => Cypress.Chainable;
-      addSubjectViaAPIv2: (payload: ServiceSeverity, url: string) => Cypress.Chainable;
+      addSubjectViaAPIv2: (payload: any, url: string) => Cypress.Chainable;
       deleteSubjectViaAPIv2: (url: string) => Cypress.Chainable;
-      updateSubjectViaAPIv2: (payload: ServiceSeverity, url: string) => Cypress.Chainable;
+      updateSubjectViaAPIv2: (payload: any, url: string) => Cypress.Chainable;
     }
   }
 }
