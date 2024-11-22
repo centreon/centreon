@@ -425,30 +425,28 @@ final class AddRule
                 if ($data['dataset_filter'] !== null) {
                     $validateAndBuildDatasetFilter($data['dataset_filter'], null);
                 }
-            } else {
+            } elseif ($parentDatasetFilter === null) {
                 // we want to create the first children
-                if ($parentDatasetFilter === null) {
-                    $filter = new DatasetFilter(
-                        type: $data['type'],
-                        resourceIds: $data['resources'],
-                        validator: $this->datasetValidator
-                    );
-                    $datasetFilter->setDatasetFilter($filter);
-                    if ($data['dataset_filter'] !== null) {
-                        $validateAndBuildDatasetFilter($data['dataset_filter'], $datasetFilter->getDatasetFilter());
-                    }
-                } else {
-                    $childrenDatasetFilter = new DatasetFilter(
-                        type: $data['type'],
-                        resourceIds: $data['resources'],
-                        validator: $this->datasetValidator
-                    );
+                $filter = new DatasetFilter(
+                    type: $data['type'],
+                    resourceIds: $data['resources'],
+                    validator: $this->datasetValidator
+                );
+                $datasetFilter->setDatasetFilter($filter);
+                if ($data['dataset_filter'] !== null) {
+                    $validateAndBuildDatasetFilter($data['dataset_filter'], $datasetFilter->getDatasetFilter());
+                }
+            } else {
+                $childrenDatasetFilter = new DatasetFilter(
+                    type: $data['type'],
+                    resourceIds: $data['resources'],
+                    validator: $this->datasetValidator
+                );
 
-                    $parentDatasetFilter->setDatasetFilter($childrenDatasetFilter);
+                $parentDatasetFilter->setDatasetFilter($childrenDatasetFilter);
 
-                    if ($data['dataset_filter'] !== null) {
-                        $validateAndBuildDatasetFilter($data['dataset_filter'], $childrenDatasetFilter);
-                    }
+                if ($data['dataset_filter'] !== null) {
+                    $validateAndBuildDatasetFilter($data['dataset_filter'], $childrenDatasetFilter);
                 }
             }
         };

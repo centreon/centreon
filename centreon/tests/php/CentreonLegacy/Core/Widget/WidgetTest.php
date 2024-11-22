@@ -34,78 +34,20 @@ class WidgetTest extends \PHPUnit\Framework\TestCase
 
         $this->db = new CentreonDB();
 
-        $configuration = array(
-            'title' => 'My Widget',
-            'author' => 'Centreon',
-            'email' => 'contact@centreon.com',
-            'website' => 'http://www.centreon.com',
-            'description' => 'Widget for displaying host monitoring information',
-            'version' => '1.0.0',
-            'keywords' => 'centreon, widget, host, monitoring',
-            'screenshot' => '',
-            'thumbnail' => './widgets/host-monitoring/resources/centreon-logo.png',
-            'url' => './widgets/host-monitoring/index.php',
-            'preferences' => array(
-                'preference' => array(
-                    array(
-                        '@attributes' => array(
-                            'label' => 'Host Name',
-                            'name' => 'host_name_search',
-                            'defaultValue' => '',
-                            'type' => 'compare',
-                            'header' => 'Filters'
-                        )
-                    ),
-                    array(
-                        '@attributes' => array(
-                            'label' => 'Results',
-                            'name' => 'entries',
-                            'defaultValue' => '10',
-                            'type' => 'range',
-                            'min' => '10',
-                            'max' => '100',
-                            'step' => '10'
-                        )
-                    ),
-                    array(
-                        '@attributes' => array(
-                            'label' => 'Order By',
-                            'name' => 'order_by',
-                            'defaultValue' => '',
-                            'type' => 'sort'
-                        ),
-                        'option' => array(
-                            array(
-                                '@attributes' => array(
-                                    'value' => 'h.name',
-                                    'label' => 'Host Name'
-                                )
-                            ),
-                            array(
-                                '@attributes' => array(
-                                    'value' => 'criticality',
-                                    'label' => 'Severity'
-                                )
-                            )
-                        )
-                    )
-                )
-            ),
-            'autoRefresh' => 0
-        );
+        $configuration = ['title' => 'My Widget', 'author' => 'Centreon', 'email' => 'contact@centreon.com', 'website' => 'http://www.centreon.com', 'description' => 'Widget for displaying host monitoring information', 'version' => '1.0.0', 'keywords' => 'centreon, widget, host, monitoring', 'screenshot' => '', 'thumbnail' => './widgets/host-monitoring/resources/centreon-logo.png', 'url' => './widgets/host-monitoring/index.php', 'preferences' => ['preference' => [['@attributes' => ['label' => 'Host Name', 'name' => 'host_name_search', 'defaultValue' => '', 'type' => 'compare', 'header' => 'Filters']], ['@attributes' => ['label' => 'Results', 'name' => 'entries', 'defaultValue' => '10', 'type' => 'range', 'min' => '10', 'max' => '100', 'step' => '10']], ['@attributes' => ['label' => 'Order By', 'name' => 'order_by', 'defaultValue' => '', 'type' => 'sort'], 'option' => [['@attributes' => ['value' => 'h.name', 'label' => 'Host Name']], ['@attributes' => ['value' => 'criticality', 'label' => 'Severity']]]]]], 'autoRefresh' => 0];
 
-        $this->information = $this->getMockBuilder('CentreonLegacy\Core\Widget\Information')
+        $this->information = $this->getMockBuilder(\CentreonLegacy\Core\Widget\Information::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(array('getConfiguration'))
+            ->onlyMethods(['getConfiguration'])
             ->getMock();
 
         $this->information->expects($this->any())
             ->method('getConfiguration')
             ->willReturn($configuration);
 
-        $this->utils = $this->getMockBuilder('CentreonLegacy\Core\Utils\Utils')
+        $this->utils = $this->getMockBuilder(\CentreonLegacy\Core\Utils\Utils::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(array('buildPath'))
+            ->onlyMethods(['buildPath'])
             ->getMock();
 
         $this->utils->expects($this->any())
@@ -119,7 +61,7 @@ class WidgetTest extends \PHPUnit\Framework\TestCase
         $this->container = null;
     }
 
-    public function testGetWidgetPath()
+    public function testGetWidgetPath(): void
     {
         $widget = new Widget(new Container($this->container), $this->information, 'MyWidget', $this->utils);
         $path = $widget->getWidgetPath('MyWidget');

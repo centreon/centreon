@@ -34,7 +34,7 @@ import {
 } from '../translatedLabels';
 
 import getDefaultCriterias from './Criterias/default';
-import { categoryHostStatus } from './criteriasNewInterface/model';
+import { CategoryHostStatus } from './criteriasNewInterface/model';
 import {
   informationLabel,
   labelShowMoreFilters
@@ -69,7 +69,7 @@ enum Type {
   text = 'text'
 }
 
-interface Filter {
+interface FilterComponent {
   store: ReturnType<typeof createStore>;
 }
 
@@ -341,32 +341,32 @@ const initializeRequests = (): void => {
 
   setupIntercept({
     alias: 'pollersRequest',
-    fixtureFile: 'resources/filter/pollers.json',
-    path: `**/monitoring/servers?*`
+    fixtureFile: 'resources/filter/pollers/pollers.json',
+    path: '**/monitoring/servers?*'
   });
 
   setupIntercept({
     alias: 'hostGroupsRequest',
     fixtureFile: 'resources/filter/hostGroups.json',
-    path: `**/hostgroups?*`
+    path: '**/hostgroups?*'
   });
 
   setupIntercept({
     alias: 'serviceGroupsRequest',
     fixtureFile: 'resources/filter/webAccessServiceGroup.json',
-    path: `**/servicegroups?*`
+    path: '**/servicegroups?*'
   });
 
   setupIntercept({
     alias: 'hostCategoryRequest',
     fixtureFile: 'resources/filter/hostCategory.json',
-    path: `**/monitoring/hosts/categories?*`
+    path: '**/monitoring/hosts/categories?*'
   });
 
   setupIntercept({
     alias: 'hostSeverityRequest',
     fixtureFile: 'resources/filter/hostSeverity.json',
-    path: `**/monitoring/severities/host?*`
+    path: '**/monitoring/severities/host?*'
   });
 };
 
@@ -420,7 +420,7 @@ const initialize = (): void => {
   cy.findByPlaceholderText(labelSearch).clear();
 };
 
-const FilterWrapper = ({ store }: Filter): JSX.Element => {
+const FilterWrapper = ({ store }: FilterComponent): JSX.Element => {
   return (
     <TestQueryProvider>
       <Provider store={store}>
@@ -430,7 +430,7 @@ const FilterWrapper = ({ store }: Filter): JSX.Element => {
   );
 };
 
-const mount = ({ store }: Filter): void => {
+const mount = ({ store }: FilterComponent): void => {
   initializeRequests();
 
   cy.mount({
@@ -476,7 +476,7 @@ views.forEach(({ name, initSearch, ids }) => {
       mount({ store: updatedStore });
     });
 
-    it(`displays the criterias interface `, () => {
+    it('displays the criterias interface ', () => {
       cy.findByLabelText(labelSearchOptions).click();
       cy.findByText(labelShowMoreFilters).click();
 
@@ -489,9 +489,9 @@ views.forEach(({ name, initSearch, ids }) => {
 
       if (equals(name, Visualization.Host)) {
         [
-          categoryHostStatus.UP,
-          categoryHostStatus.DOWN,
-          categoryHostStatus.UNREACHABLE
+          CategoryHostStatus.UP,
+          CategoryHostStatus.DOWN,
+          CategoryHostStatus.UNREACHABLE
         ].forEach((status) => {
           cy.get(`#${status}`).should('not.exist');
         });
@@ -555,7 +555,7 @@ views.forEach(({ name, initSearch, ids }) => {
       });
     });
 
-    it(`syncs the information fields with the search bar`, () => {
+    it('syncs the information fields with the search bar', () => {
       const matchedValue = getSearchValue({
         value: 'information:Information',
         viewName: name
@@ -585,6 +585,159 @@ views.forEach(({ name, initSearch, ids }) => {
       initialize();
     });
   });
+});
+
+//The backend does not consistently handle the creation of resources with spaces
+// (for some resources, it adds an underscore, while for others it does not, such as with pollers..)
+
+describe('Replaces whitespace with the \\s regex pattern', () => {
+  const pollerName = 'Poller test';
+  const searchedValue = 'monitoring_server:Poller\\stest';
+
+  beforeEach(() => {
+    const updatedStore = setView({
+      name: Visualization.All,
+      store: getStore()
+    });
+    mount({ store: updatedStore });
+    setupIntercept({
+      alias: 'pollersWithSpaceOnNameRequest',
+      fixtureFile: 'resources/filter/pollers/pollersWithSpaceOnName.json',
+      path: '**/monitoring/servers?*'
+    });
+  });
+
+  it('replaces whitespace with the \\s regex pattern in the search bar when selecting values from the criterias interface', () => {
+    cy.findByLabelText(labelSearchOptions).click();
+    cy.findByTestId(labelMonitoringServer).click();
+
+    cy.waitForRequest('@pollersWithSpaceOnNameRequest');
+
+    cy.findByRole('option', { name: pollerName }).click();
+    cy.findByTestId(labelMonitoringServer).parent().contains(pollerName);
+    cy.findByPlaceholderText(labelSearch)
+      .invoke('val')
+      .should('equal', `${searchedValue} `);
+
+    cy.makeSnapshot();
+
+    initialize();
+  });
+
+  it('replaces whitespace with the \\s regex pattern in the search bar when selecting values from the suggestions interface', () => {
+    const key = 'monitoring_server:';
+
+    cy.findByPlaceholderText(labelSearch).type(key);
+
+    cy.waitForRequest('@pollersWithSpaceOnNameRequest');
+
+    cy.findByRole('menuitem', { name: pollerName }).click();
+
+    cy.findByPlaceholderText(labelSearch)
+      .invoke('val')
+      .should('equal', searchedValue);
+
+    cy.makeSnapshot();
+
+    cy.findByPlaceholderText(labelSearch).clear();
+  });
+});
+
+const staticFilters = [
+  {
+    criteriaName: 'status_type',
+    criteriaInitialValue: 'HARD',
+    expectedCriteriaValue: 'hard',
+    id: 'Hard',
+    containerId: 'status_types',
+    expectedSuggestedCriteria: ',soft'
+  },
+  {
+    criteriaName: 'type',
+    criteriaInitialValue: 'HOST',
+    expectedCriteriaValue: 'host',
+    id: 'Host',
+    containerId: 'resource_types',
+    expectedSuggestedCriteria: ',service'
+  },
+  {
+    criteriaName: 'state',
+    criteriaInitialValue: 'UNHANDLED',
+    expectedCriteriaValue: 'unhandled',
+    id: 'Unhandled ',
+    containerId: 'states',
+    expectedSuggestedCriteria: ',acknowledged'
+  },
+  {
+    criteriaName: 'status',
+    criteriaInitialValue: 'UP',
+    expectedCriteriaValue: 'up',
+    id: 'Up',
+    containerId: 'statuses-host',
+    expectedSuggestedCriteria: ',down'
+  }
+];
+
+describe('search bar:ignores case sensitivity when searching static filters', () => {
+  beforeEach(() => {
+    const updatedStore = setView({
+      name: Visualization.All,
+      store: getStore()
+    });
+    mount({ store: updatedStore });
+  });
+
+  for (const data of staticFilters) {
+    const {
+      criteriaName,
+      criteriaInitialValue,
+      expectedCriteriaValue,
+      id,
+      containerId,
+      expectedSuggestedCriteria
+    } = data;
+
+    it('ignores case sensitivity when searching static filters', () => {
+      const getSearch = ({ value, name }) => `${name}:${value}`;
+
+      cy.findByPlaceholderText(labelSearch).type(
+        `${getSearch({ value: criteriaInitialValue, name: criteriaName })}{esc}{enter}`
+      );
+
+      cy.findByPlaceholderText(labelSearch)
+        .invoke('val')
+        .should(
+          'equal',
+          `${getSearch({ value: expectedCriteriaValue, name: criteriaName })} `
+        );
+
+      cy.findByLabelText(labelSearchOptions).click();
+
+      cy.findByText(labelShowMoreFilters).click();
+
+      cy.findByTestId(containerId).find(`#${id}`).should('be.checked');
+    });
+
+    it('displays the corresponding suggestoins when searching static filters', () => {
+      cy.findByPlaceholderText(labelSearch).type(
+        `${criteriaName}:${criteriaInitialValue.substring(0, 1)}`
+      );
+      cy.findByRole('menuitem', { name: expectedCriteriaValue });
+
+      cy.makeSnapshot(`suggestion for ${criteriaName} static filter`);
+
+      cy.findByPlaceholderText(labelSearch).clear();
+      cy.findByPlaceholderText(labelSearch).type(
+        `${criteriaName}:${criteriaInitialValue}`
+      );
+      cy.findByRole('menuitem', { name: expectedCriteriaValue }).should(
+        'not.exist'
+      );
+      cy.findByRole('menuitem', { name: expectedSuggestedCriteria }).should(
+        'exist'
+      );
+    });
+  }
 });
 
 describe('Keyboard actions', () => {

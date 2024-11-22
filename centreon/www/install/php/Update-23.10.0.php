@@ -363,7 +363,7 @@ $populateDahsboardTables = function(CentreonDb $pearDB): void {
     }
 };
 
-$renameLegacyDashboardInTopology = function (CentreonDB $pearDB) {
+$renameLegacyDashboardInTopology = function (CentreonDB $pearDB): void {
     $pearDB->query(
         <<<'SQL'
             UPDATE `topology` SET `topology_name` = 'Availability'

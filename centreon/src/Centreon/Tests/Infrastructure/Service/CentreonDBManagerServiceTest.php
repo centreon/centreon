@@ -75,14 +75,14 @@ class CentreonDBManagerServiceTest extends TestCase
 
     public function testGetAdapter(): void
     {
-        (function () {
+        (function (): void {
             $adapter = $this->service->getAdapter('configuration_db');
 
             $this->assertInstanceOf(CentreonDBAdapter::class, $adapter);
             $this->assertEquals($this->db1, $adapter->getCentreonDBInstance());
         })();
 
-        (function () {
+        (function (): void {
             $adapter = $this->service->getAdapter('realtime_db');
 
             $this->assertInstanceOf(CentreonDBAdapter::class, $adapter);

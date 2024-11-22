@@ -41,13 +41,13 @@ use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerforman
 use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetricResponse;
 use Tests\Core\Metric\Infrastructure\API\DownloadPerformanceMetrics\DownloadPerformanceMetricsPresenterStub;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->hostId = 1;
     $this->serviceId = 2;
     $this->indexId = 15;
 });
 
-it('returns an error response if the user does not have access to the correct topology', function () {
+it('returns an error response if the user does not have access to the correct topology', function (): void {
     $indexDataRepository = $this->createMock(ReadIndexDataRepositoryInterface::class);
     $metricRepository = $this->createMock(ReadMetricRepositoryInterface::class);
     $performanceDataRepository = $this->createMock(ReadPerformanceDataRepositoryInterface::class);
@@ -140,7 +140,7 @@ it(
 
 it(
     'validate presenter response',
-    function (iterable $performanceData, DownloadPerformanceMetricResponse $expectedResponse) {
+    function (iterable $performanceData, DownloadPerformanceMetricResponse $expectedResponse): void {
         $indexDataRepository = $this->createMock(ReadIndexDataRepositoryInterface::class);
         $indexDataRepository
             ->expects($this->once())

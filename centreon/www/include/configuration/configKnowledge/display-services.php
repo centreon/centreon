@@ -239,11 +239,7 @@ try {
         $tplStr = "";
         $tplArr = $proc->getMyServiceTemplateModels($value['id']);
         $key_nospace = str_replace(" ", "_", $key);
-        if ($proc->serviceHasProcedure($key_nospace, $tplArr) == true) {
-            $diff[$key] = 1;
-        } else {
-            $diff[$key] = 0;
-        }
+        $diff[$key] = $proc->serviceHasProcedure($key_nospace, $tplArr) == true ? 1 : 0;
 
         if (!empty($templatesHasNoProcedure)) {
             if (

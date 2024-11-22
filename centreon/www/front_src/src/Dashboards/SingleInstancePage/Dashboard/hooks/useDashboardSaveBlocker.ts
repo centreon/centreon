@@ -1,16 +1,16 @@
 import { useRef } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useBlocker } from 'react-router-dom';
 import { equals } from 'ramda';
+import { useBlocker } from 'react-router-dom';
 
 import { federatedWidgetsAtom } from '@centreon/ui-context';
 
-import { isEditingAtom, isRedirectionBlockedAtom } from '../atoms';
 import { DashboardPanel } from '../../../api/models';
+import { isEditingAtom, isRedirectionBlockedAtom } from '../atoms';
 
-import useDashboardDirty from './useDashboardDirty';
 import { formatPanel } from './useDashboardDetails';
+import useDashboardDirty from './useDashboardDirty';
 
 export interface UseDashboardSaveBlockerState {
   blockNavigation?: () => void;

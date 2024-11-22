@@ -1,0 +1,5 @@
+FindAgentConfigurations:
+  methods: GET
+  path: /configuration/agent-configurations
+  controller: 'Core\AgentConfiguration\Infrastructure\API\FindAgentConfigurations\FindAgentConfigurationsController'
+  condition: "request.attributes.get('version') >= 24.10"

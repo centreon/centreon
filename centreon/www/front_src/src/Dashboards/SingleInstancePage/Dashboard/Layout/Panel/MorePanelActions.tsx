@@ -1,30 +1,30 @@
-import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 
-import { Menu } from '@mui/material';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { Menu } from '@mui/material';
 
 import { ActionsList, ActionsListActionDivider } from '@centreon/ui';
 
+import useWidgetForm from '../../AddEditWidget/useWidgetModal';
+import {
+  dashboardAtom,
+  switchPanelsEditionModeDerivedAtom,
+  widgetToDeleteAtom
+} from '../../atoms';
+import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
+import { Panel } from '../../models';
 import {
   labelDeleteWidget,
   labelDuplicate,
   labelEditWidget,
   labelViewProperties
 } from '../../translatedLabels';
-import {
-  dashboardAtom,
-  switchPanelsEditionModeDerivedAtom,
-  widgetToDeleteAtom
-} from '../../atoms';
-import useWidgetForm from '../../AddEditWidget/useWidgetModal';
-import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
-import { Panel } from '../../models';
 
 interface Props {
   anchor: HTMLElement | null;

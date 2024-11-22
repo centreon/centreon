@@ -33,7 +33,7 @@
  *
  */
 
-require_once realpath(dirname(__FILE__) . "/../../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
 
 require_once("./class/centreonDB.class.php");
 
@@ -62,8 +62,8 @@ if (isset($sid)) {
 
 $dir = "./img/media/";
 
-$rejectedDir = array("." => 1, ".." => 1);
-$allowedExt = array("jpg" => 1, "jpeg" => 1, "png" => 1, "gif" => 1, "gd2" => 1);
+$rejectedDir = ["." => 1, ".." => 1];
+$allowedExt = ["jpg" => 1, "jpeg" => 1, "png" => 1, "gif" => 1, "gd2" => 1];
 
 $dirCreated = 0;
 $regCounter = 0;

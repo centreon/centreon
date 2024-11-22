@@ -1,8 +1,8 @@
 import { createContext } from 'react';
 
 import { FilterState } from '../../Filter/useFilter';
-import { ActionsState } from '../useActions';
 import { ListingState } from '../../Listing/useListing';
+import { ActionsState } from '../useActions';
 import { DetailsState } from '../useLoadDetails';
 
 export type ResourceContext = Partial<FilterState> &

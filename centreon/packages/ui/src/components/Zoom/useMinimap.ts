@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
 
+import { Point } from '@visx/point';
 import { ProvidedZoom, Translate } from '@visx/zoom/lib/types';
 import { equals, gt, isNil, pick } from 'ramda';
-import { Point } from '@visx/point';
 
 import { ZoomState } from './models';
 

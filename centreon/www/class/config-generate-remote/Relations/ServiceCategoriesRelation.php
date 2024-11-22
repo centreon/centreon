@@ -21,11 +21,21 @@
 namespace ConfigGenerateRemote\Relations;
 
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use Exception;
 
+/**
+ * Class
+ *
+ * @class ServiceCategoriesRelation
+ * @package ConfigGenerateRemote\Relations
+ */
 class ServiceCategoriesRelation extends AbstractObject
 {
+    /** @var string */
     protected $table = 'service_categories_relation';
+    /** @var string */
     protected $generateFilename = 'service_categories_relation.infile';
+    /** @var string[] */
     protected $attributesWrite = [
         'sc_id',
         'service_service_id',
@@ -34,11 +44,13 @@ class ServiceCategoriesRelation extends AbstractObject
     /**
      * Add relation
      *
-     * @param integer $scId
-     * @param integer $serviceId
+     * @param int $scId
+     * @param int $serviceId
+     *
      * @return void
+     * @throws Exception
      */
-    public function addRelation(int $scId, int $serviceId)
+    public function addRelation(int $scId, int $serviceId): void
     {
         $relation = [
             'sc_id' => $scId,

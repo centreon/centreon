@@ -37,10 +37,15 @@
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationManufacturer
+ */
 class CentreonConfigurationManufacturer extends CentreonConfigurationObjects
 {
     /**
-     * CentreonConfigurationManufacturer constructor.
+     * CentreonConfigurationManufacturer constructor
      */
     public function __construct()
     {
@@ -54,13 +59,9 @@ class CentreonConfigurationManufacturer extends CentreonConfigurationObjects
      */
     public function getList()
     {
-        $queryValues = array();
+        $queryValues = [];
         // Check for select2 'q' argument
-        if (isset($this->arguments['q'])) {
-            $queryValues['name'] = '%' . (string)$this->arguments['q'] . '%';
-        } else {
-            $queryValues['name'] = '%%';
-        }
+        $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
 
         $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT id, name FROM traps_vendor ' .
             'WHERE name LIKE :name ' .
@@ -87,14 +88,11 @@ class CentreonConfigurationManufacturer extends CentreonConfigurationObjects
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $manufacturerList = array();
+        $manufacturerList = [];
         while ($data = $stmt->fetch()) {
-            $manufacturerList[] = array('id' => $data['id'], 'text' => $data['name']);
+            $manufacturerList[] = ['id' => $data['id'], 'text' => $data['name']];
         }
 
-        return array(
-            'items' => $manufacturerList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $manufacturerList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

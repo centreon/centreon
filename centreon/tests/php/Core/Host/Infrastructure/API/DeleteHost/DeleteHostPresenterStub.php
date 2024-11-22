@@ -28,7 +28,7 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 
 class DeleteHostPresenterStub extends AbstractPresenter
 {
-    public ?ResponseStatusInterface $response;
+    public ?ResponseStatusInterface $response = null;
 
     public function setResponseStatus(?ResponseStatusInterface $responseStatus): void
     {

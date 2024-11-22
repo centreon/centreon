@@ -2,10 +2,10 @@ import { Box } from '@mui/material';
 
 import useIsViewerUser from '../useIsViewerUser';
 
-import Filter from './Filter';
 import AddDashboard from './AddDashboard';
-import { useActionsStyles } from './useActionsStyles';
+import Filter from './Filter';
 import ViewMode from './ViewMode';
+import { useActionsStyles } from './useActionsStyles';
 
 const Actions = ({ openConfig }: { openConfig: () => void }): JSX.Element => {
   const { classes } = useActionsStyles();
@@ -15,7 +15,9 @@ const Actions = ({ openConfig }: { openConfig: () => void }): JSX.Element => {
   return (
     <Box className={classes.actions}>
       {!isViewer && <AddDashboard openConfig={openConfig} />}
-      <Filter />
+      <Box className={classes.filter}>
+        <Filter />
+      </Box>
       <ViewMode />
     </Box>
   );

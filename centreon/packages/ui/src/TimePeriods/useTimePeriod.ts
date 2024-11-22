@@ -2,14 +2,14 @@ import { useEffect } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 
-import {
-  customTimePeriodAtom,
-  getDatesDerivedAtom,
-  selectedTimePeriodAtom,
-  errorTimePeriodAtom,
-  adjustTimePeriodDerivedAtom
-} from './timePeriodsAtoms';
 import { WrapperTimePeriodProps } from './models';
+import {
+  adjustTimePeriodDerivedAtom,
+  customTimePeriodAtom,
+  errorTimePeriodAtom,
+  getDatesDerivedAtom,
+  selectedTimePeriodAtom
+} from './timePeriodsAtoms';
 
 const useTimePeriod = ({
   getParameters,

@@ -1,18 +1,18 @@
 import { SeverityCode } from '@centreon/ui';
-import type { SelectEntry, SubMenuProps, CounterProps } from '@centreon/ui';
+import type { CounterProps, SelectEntry, SubMenuProps } from '@centreon/ui';
 
+import getDefaultCriterias from '../../../Resources/Filter/Criterias/default';
+import type { HostStatusResponse } from '../../api/decoders';
 import {
-  getHostResourcesUrl,
-  upCriterias,
-  unreachableCriterias,
   downCriterias,
+  getHostResourcesUrl,
+  hostCriterias,
   pendingCriterias,
   unhandledStateCriterias,
-  hostCriterias
+  unreachableCriterias,
+  upCriterias
 } from '../getResourcesUrl';
-import getDefaultCriterias from '../../../Resources/Filter/Criterias/default';
 import type { Adapter } from '../useResourceCounters';
-import type { HostStatusResponse } from '../../api/decoders';
 import {
   formatCount,
   formatUnhandledOverTotal,
@@ -20,15 +20,15 @@ import {
 } from '../utils';
 
 import {
-  labelDownStatusHosts,
-  labelUnreachableStatusHosts,
-  labelUpStatusHosts,
   labelAll,
   labelDown,
+  labelDownStatusHosts,
+  labelHosts,
   labelPending,
   labelUnreachable,
+  labelUnreachableStatusHosts,
   labelUp,
-  labelHosts
+  labelUpStatusHosts
 } from './translatedLabels';
 
 export interface HostPropsAdapterOutput {

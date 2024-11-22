@@ -26,7 +26,7 @@ namespace Core\AdditionalConnectorConfiguration\Infrastructure\Repository\Vault;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadVaultAccRepositoryInterface;
 use Core\AdditionalConnectorConfiguration\Domain\Model\AccParametersInterface;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
-use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6Parameters;
+use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6\VmWareV6Parameters;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;

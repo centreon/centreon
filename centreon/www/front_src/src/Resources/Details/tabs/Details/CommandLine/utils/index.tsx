@@ -1,4 +1,4 @@
-import { filter, equals, isNil, find, pipe, head } from 'ramda';
+import { equals, filter, find, head, isNil, pipe } from 'ramda';
 import commandParser from 'string-argv';
 
 const isShortArgument = (argument: string): boolean => {

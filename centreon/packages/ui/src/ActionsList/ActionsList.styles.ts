@@ -1,5 +1,5 @@
-import { makeStyles } from 'tss-react/mui';
 import { equals } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { Theme } from '@mui/material';
 

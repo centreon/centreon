@@ -1,9 +1,9 @@
+import { FormikValues, useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-import { FormikValues, useFormikContext } from 'formik';
 
-import { labelDuplicate } from '../../../translatedLabels';
 import { DuplicateButton, useDuplicate } from '../../../Actions/Duplicate';
+import { labelDuplicate } from '../../../translatedLabels';
 
 const useStyle = makeStyles<{ disabled: boolean }>()((theme, { disabled }) => ({
   icon: {

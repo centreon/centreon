@@ -32,9 +32,9 @@ use Centreon\Domain\Common\Assertion\Assertion;
  */
 class MetaServiceMetric
 {
-    public const MAX_METRIC_NAME_LENGTH = 255,
-                 MIN_METRIC_NAME_LENGTH = 1,
-                 MAX_METRIC_UNIT_NAME_LENGTH = 32;
+    public const MAX_METRIC_NAME_LENGTH = 255;
+    public const MIN_METRIC_NAME_LENGTH = 1;
+    public const MAX_METRIC_UNIT_NAME_LENGTH = 32;
     /**
      * @var int ID of the Metric
      */

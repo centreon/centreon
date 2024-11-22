@@ -38,17 +38,17 @@ if (!isset($centreon)) {
     exit();
 }
 
-isset($_GET["hc_id"]) ? $hG = $_GET["hc_id"] : $hG = null;
-isset($_POST["hc_id"]) ? $hP = $_POST["hc_id"] : $hP = null;
-$hG ? $hc_id = $hG : $hc_id = $hP;
+$hG = $_GET["hc_id"] ?? null;
+$hP = $_POST["hc_id"] ?? null;
+$hc_id = $hG ?: $hP;
 
-isset($_GET["select"]) ? $cG = $_GET["select"] : $cG = null;
-isset($_POST["select"]) ? $cP = $_POST["select"] : $cP = null;
-$cG ? $select = $cG : $select = $cP;
+$cG = $_GET["select"] ?? null;
+$cP = $_POST["select"] ?? null;
+$select = $cG ?: $cP;
 
-isset($_GET["dupNbr"]) ? $cG = $_GET["dupNbr"] : $cG = null;
-isset($_POST["dupNbr"]) ? $cP = $_POST["dupNbr"] : $cP = null;
-$cG ? $dupNbr = $cG : $dupNbr = $cP;
+$cG = $_GET["dupNbr"] ?? null;
+$cP = $_POST["dupNbr"] ?? null;
+$dupNbr = $cG ?: $cP;
 
 /*
  * Path to the configuration dir
@@ -96,7 +96,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            enableHostCategoriesInDB(null, isset($select) ? $select : []);
+            enableHostCategoriesInDB(null, $select ?? []);
         } else {
             unvalidFormMessage();
         }
@@ -116,7 +116,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            disableHostCategoriesInDB(null, isset($select) ? $select : []);
+            disableHostCategoriesInDB(null, $select ?? []);
         } else {
             unvalidFormMessage();
         }
@@ -126,7 +126,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            multipleHostCategoriesInDB(isset($select) ? $select : [], $dupNbr);
+            multipleHostCategoriesInDB($select ?? [], $dupNbr);
         } else {
             unvalidFormMessage();
         }
@@ -136,7 +136,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteHostCategoriesInDB(isset($select) ? $select : []);
+            deleteHostCategoriesInDB($select ?? []);
         } else {
             unvalidFormMessage();
         }

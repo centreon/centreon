@@ -1,14 +1,14 @@
 import { Children } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { not, path, split, remove, inc, is } from 'ramda';
+import { path, inc, is, not, remove, split } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import { IconButton } from '../../..';
 import { getInput } from '..';
+import { IconButton } from '../../..';
 import { InputPropsWithoutGroup } from '../models';
 
 interface StylesProps {

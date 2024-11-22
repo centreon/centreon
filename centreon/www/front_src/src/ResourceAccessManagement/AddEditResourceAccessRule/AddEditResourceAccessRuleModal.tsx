@@ -1,22 +1,22 @@
 import { ReactElement, useMemo } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { useAtom, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 
 import { Modal } from '@centreon/ui/components';
 
+import { isCloseModalConfirmationDialogOpenAtom, isDirtyAtom } from '../atom';
 import {
   labelCreateResourceAccessRule,
   labelEditResourceAccessRule
 } from '../translatedLabels';
-import { isCloseModalConfirmationDialogOpenAtom, isDirtyAtom } from '../atom';
 
-import useResourceAccessRuleModal from './useResourceAccessRuleModal';
-import useModalStyles from './Modal.styles';
-import { Form } from './Form';
 import CloseModalConfirmationDialog from './CloseModalConfirmationDialog';
+import { Form } from './Form';
+import useModalStyles from './Modal.styles';
+import useResourceAccessRuleModal from './useResourceAccessRuleModal';
 
 const AddEditResourceAccessRuleModal = (): ReactElement => {
   const { t } = useTranslation();

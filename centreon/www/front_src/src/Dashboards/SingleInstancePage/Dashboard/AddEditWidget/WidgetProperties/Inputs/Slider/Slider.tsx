@@ -6,12 +6,12 @@ import { Slider as MuiSlider, Typography } from '@mui/material';
 
 import { NumberField } from '@centreon/ui';
 
-import { WidgetPropertyProps } from '../../../models';
 import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import { WidgetPropertyProps } from '../../../models';
 
-import { useSlider } from './useSlider';
 import { useSliderStyles } from './Slider.styles';
+import { useSlider } from './useSlider';
 
 const Slider = ({
   propertyName,

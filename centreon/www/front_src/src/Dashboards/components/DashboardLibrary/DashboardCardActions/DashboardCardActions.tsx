@@ -1,13 +1,13 @@
 import { useTranslation } from 'react-i18next';
 
-import { Menu } from '@mui/material';
 import {
   Delete as DeleteIcon,
-  Settings as SettingsIcon,
-  Share as ShareIcon,
   ContentCopy as DuplicateIcon,
-  MoreHoriz as MoreIcon
+  MoreHoriz as MoreIcon,
+  Settings as SettingsIcon,
+  Share as ShareIcon
 } from '@mui/icons-material';
+import { Menu } from '@mui/material';
 
 import {
   ActionsList,

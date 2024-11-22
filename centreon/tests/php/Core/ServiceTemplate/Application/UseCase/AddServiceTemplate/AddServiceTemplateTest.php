@@ -485,7 +485,7 @@ it('should present a ConflictResponse when the host template IDs are not valid',
         );
 });
 
-it('should present a ConflictResponse when the service category IDs are not valid', function () {
+it('should present a ConflictResponse when the service category IDs are not valid', function (): void {
     $request = new AddServiceTemplateRequest();
     $request->name = 'fake_name';
     $request->alias = 'fake_alias';
@@ -534,7 +534,7 @@ it('should present a ConflictResponse when the service category IDs are not vali
         );
 });
 
-it('should present a ConflictResponse when the service group IDs are not valid', function () {
+it('should present a ConflictResponse when the service group IDs are not valid', function (): void {
     $request = new AddServiceTemplateRequest();
     $request->name = 'fake_name';
     $request->alias = 'fake_alias';
@@ -584,7 +584,7 @@ it('should present a ConflictResponse when the service group IDs are not valid',
         );
 });
 
-it('should present a ConflictResponse when trying to set service group IDs without host template IDs', function () {
+it('should present a ConflictResponse when trying to set service group IDs without host template IDs', function (): void {
     $request = new AddServiceTemplateRequest();
     $request->name = 'fake_name';
     $request->alias = 'fake_alias';

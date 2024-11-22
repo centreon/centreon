@@ -1,28 +1,27 @@
-import * as React from 'react';
-
 import {
-  remove,
-  equals,
-  pipe,
-  type,
-  last,
-  inc,
   F,
-  length,
+  equals,
+  findIndex,
+  inc,
   isEmpty,
   isNil,
+  last,
+  length,
   not,
-  findIndex,
+  pipe,
+  pluck,
   propEq,
-  pluck
+  remove,
+  type
 } from 'ramda';
 
 import { Typography } from '@mui/material';
 
-import { ConnectedAutoCompleteFieldProps } from '../Connected';
 import { Props as SingleAutocompletefieldProps } from '..';
 import TextField from '../../../Text';
+import { ConnectedAutoCompleteFieldProps } from '../Connected';
 
+import { ChangeEvent, useEffect, useState } from 'react';
 import SortableList, { DraggableSelectEntry } from './SortableList';
 
 export interface ItemActionProps {
@@ -61,13 +60,13 @@ const DraggableAutocomplete = (
       | ConnectedAutoCompleteFieldProps<string>
       | SingleAutocompletefieldProps
     )): JSX.Element => {
-    const [selectedValues, setSelectedValues] = React.useState<
+    const [selectedValues, setSelectedValues] = useState<
       Array<DraggableSelectEntry>
     >(initialValues || []);
-    const [totalValues, setTotalValues] = React.useState<number>(
+    const [totalValues, setTotalValues] = useState<number>(
       length(initialValues || [])
     );
-    const [inputText, setInputText] = React.useState<string | null>(null);
+    const [inputText, setInputText] = useState<string | null>(null);
 
     const onChangeSelectedValuesOrder = (newSelectedValues): void => {
       setSelectedValues(newSelectedValues);
@@ -144,7 +143,7 @@ const DraggableAutocomplete = (
       );
     };
 
-    const changeInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const changeInput = (e: ChangeEvent<HTMLInputElement>): void => {
       if (pipe(isNil, not)(e)) {
         setInputText(e.target.value);
       }
@@ -193,7 +192,7 @@ const DraggableAutocomplete = (
       />
     );
 
-    React.useEffect(() => {
+    useEffect(() => {
       if (isNil(initialValues)) {
         return;
       }

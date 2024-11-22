@@ -1,10 +1,10 @@
 import { RefObject, useEffect, useRef } from 'react';
 
-import { isNil, propEq, findIndex, equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { equals, findIndex, isNil, propEq } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import { useTheme, alpha, Skeleton } from '@mui/material';
+import { Skeleton, alpha, useTheme } from '@mui/material';
 
 import { MemoizedPanel as Panel, Tab } from '@centreon/ui';
 import { featureFlagsDerivedAtom } from '@centreon/ui-context';
@@ -12,14 +12,6 @@ import { featureFlagsDerivedAtom } from '@centreon/ui-context';
 import { rowColorConditions } from '../colors';
 
 import Header from './Header';
-import { ResourceDetails } from './models';
-import {
-  TabById,
-  detailsTabId,
-  notificationsTabId,
-  tabs as initialTabs
-} from './tabs';
-import { Tab as TabModel, TabId } from './tabs/models';
 import {
   clearSelectedResourceDerivedAtom,
   detailsAtom,
@@ -27,6 +19,14 @@ import {
   panelWidthStorageAtom,
   selectResourceDerivedAtom
 } from './detailsAtoms';
+import { ResourceDetails } from './models';
+import {
+  TabById,
+  detailsTabId,
+  tabs as initialTabs,
+  notificationsTabId
+} from './tabs';
+import { TabId, Tab as TabModel } from './tabs/models';
 
 export interface DetailsSectionProps {
   details?: ResourceDetails;

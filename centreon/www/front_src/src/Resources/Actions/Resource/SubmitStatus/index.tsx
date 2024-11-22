@@ -5,29 +5,29 @@ import { useTranslation } from 'react-i18next';
 import { Grid } from '@mui/material';
 
 import {
-  useSnackbar,
   Dialog,
   SelectField,
+  TextField,
   useRequest,
-  TextField
+  useSnackbar
 } from '@centreon/ui';
 
 import { Resource } from '../../../models';
 import {
   labelCancel,
-  labelSubmit,
-  labelSubmitStatus,
+  labelCritical,
+  labelDown,
+  labelOk,
+  labelOutput,
+  labelPerformanceData,
   labelStatus,
   labelStatusSubmitted,
-  labelPerformanceData,
-  labelOutput,
-  labelUp,
-  labelDown,
+  labelSubmit,
+  labelSubmitStatus,
+  labelUnknown,
   labelUnreachable,
-  labelOk,
-  labelWarning,
-  labelCritical,
-  labelUnknown
+  labelUp,
+  labelWarning
 } from '../../../translatedLabels';
 
 import { submitResourceStatus } from './api';

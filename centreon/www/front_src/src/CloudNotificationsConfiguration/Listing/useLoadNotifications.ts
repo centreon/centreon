@@ -5,9 +5,9 @@ import { useFetchQuery } from '@centreon/ui';
 import {
   limitAtom,
   pageAtom,
+  searchAtom,
   sortFieldAtom,
-  sortOrderAtom,
-  searchAtom
+  sortOrderAtom
 } from '../atom';
 import { NotificationsListingType } from '../models';
 

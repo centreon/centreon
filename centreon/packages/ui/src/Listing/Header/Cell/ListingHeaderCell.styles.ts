@@ -68,4 +68,4 @@ const useStyles = makeStyles<StylesProps>()(
   })
 );
 
-export { useStyles, StylesProps };
+export { useStyles, type StylesProps };

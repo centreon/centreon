@@ -113,7 +113,7 @@ function schedule_check(bool $isService, bool $isForced, bool $autoCloseActionPo
 
     $path = $centreon_path . "www/widgets/open-tickets/src/";
     $template = new Smarty();
-    $template = initSmartyTpl($path . 'templates/', $template, "./", $centreon_path);
+    $template = initSmartyTpl($path . 'templates/', $template, "./");
     $template->assign('selection', $selection);
     $template->assign('titleLabel', _("Scheduling checks"));
     $template->assign('forced', $isForced);
@@ -127,11 +127,7 @@ function format_popup()
     global $cmd, $widgetId, $rule, $preferences, $centreon, $centreon_path;
 
     $uniq_id = uniqid();
-    if ($cmd == 3) {
-        $title = _("Open Service Ticket");
-    } else {
-        $title = _("Open Host Ticket");
-    }
+    $title = $cmd == 3 ? _("Open Service Ticket") : _("Open Host Ticket");
 
     $result = $rule->getFormatPopupProvider(
         $preferences['rule'],

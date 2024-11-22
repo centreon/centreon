@@ -5,12 +5,12 @@ import { Box } from '@mui/material';
 import type { ComponentColumnProps } from '@centreon/ui';
 
 import { DeleteButton, useDelete } from '../../Actions/Delete';
+import { DuplicateButton, useDuplicate } from '../../Actions/Duplicate';
+import { DeleteType } from '../../models';
 import {
   labelDeleteNotification,
   labelDuplicate
 } from '../../translatedLabels';
-import { DeleteType } from '../../models';
-import { DuplicateButton, useDuplicate } from '../../Actions/Duplicate';
 
 import useStyles from './Actions.styles';
 

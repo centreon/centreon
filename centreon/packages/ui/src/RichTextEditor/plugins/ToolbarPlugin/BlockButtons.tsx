@@ -2,6 +2,13 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
+  $createHeadingNode,
+  $isHeadingNode,
+  HeadingTagType
+} from '@lexical/rich-text';
+import { $setBlocksType } from '@lexical/selection';
+import { $findMatchingParent, mergeRegister } from '@lexical/utils';
+import {
   $createParagraphNode,
   $getSelection,
   $isRangeSelection,
@@ -9,14 +16,7 @@ import {
   COMMAND_PRIORITY_CRITICAL,
   SELECTION_CHANGE_COMMAND
 } from 'lexical';
-import {
-  $createHeadingNode,
-  $isHeadingNode,
-  HeadingTagType
-} from '@lexical/rich-text';
-import { $setBlocksType } from '@lexical/selection';
 import { T, always, cond, equals, isNil } from 'ramda';
-import { $findMatchingParent, mergeRegister } from '@lexical/utils';
 import { useTranslation } from 'react-i18next';
 
 import TextSizeIcon from '@mui/icons-material/TextFields';

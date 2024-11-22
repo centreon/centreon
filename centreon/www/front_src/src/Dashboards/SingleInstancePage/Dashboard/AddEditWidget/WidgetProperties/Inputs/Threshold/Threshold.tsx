@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import { useTranslation } from 'react-i18next';
 
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import {
   Box,
   FormControlLabel,
@@ -9,20 +10,19 @@ import {
   RadioGroup,
   Typography
 } from '@mui/material';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import { Tooltip } from '@centreon/ui/components';
 
-import { WidgetPropertyProps } from '../../../models';
+import { WidgetSwitch } from '..';
+import Subtitle from '../../../../components/Subtitle';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import {
   labelShowThresholds,
   labelThresholds,
   labelThresholdsAreAutomaticallyHidden
 } from '../../../../translatedLabels';
-import { WidgetSwitch } from '..';
+import { WidgetPropertyProps } from '../../../models';
 import { useThresholdStyles } from '../Inputs.styles';
-import Subtitle from '../../../../components/Subtitle';
-import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 
 import useThreshold from './useThreshold';
 

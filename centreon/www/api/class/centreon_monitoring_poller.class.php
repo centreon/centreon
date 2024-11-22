@@ -37,15 +37,18 @@
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonMonitoringPoller
+ */
 class CentreonMonitoringPoller extends CentreonConfigurationObjects
 {
-    /**
-     * @var CentreonDB
-     */
+    /** @var CentreonDB */
     protected $pearDBMonitoring;
 
     /**
-     * CentreonMonitoringPoller constructor.
+     * CentreonMonitoringPoller constructor
      */
     public function __construct()
     {
@@ -61,14 +64,10 @@ class CentreonMonitoringPoller extends CentreonConfigurationObjects
     {
         global $centreon;
 
-        $queryValues = array();
+        $queryValues = [];
 
         // Check for select2 'q' argument
-        if (isset($this->arguments['q'])) {
-            $queryValues['name'] = '%' . (string)$this->arguments['q'] . '%';
-        } else {
-            $queryValues['name'] = '%%';
-        }
+        $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
 
         $queryPoller = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT instance_id, name FROM instances ' .
             'WHERE name LIKE :name AND deleted=0 ';
@@ -106,13 +105,10 @@ class CentreonMonitoringPoller extends CentreonConfigurationObjects
             throw new \Exception("An error occured");
         }
 
-        $pollerList = array();
+        $pollerList = [];
         while ($data = $stmt->fetch()) {
-            $pollerList[] = array('id' => $data['instance_id'], 'text' => $data['name']);
+            $pollerList[] = ['id' => $data['instance_id'], 'text' => $data['name']];
         }
-        return array(
-            'items' => $pollerList,
-            'total' => (int) $this->pearDBMonitoring->numberRows()
-        );
+        return ['items' => $pollerList, 'total' => (int) $this->pearDBMonitoring->numberRows()];
     }
 }

@@ -19,8 +19,7 @@ import { Box, Typography } from '@mui/material';
 import { formatMetricValueWithUnit } from '@centreon/ui';
 import { Tooltip } from '@centreon/ui/components';
 
-import { getDataProperty, getProperty } from '../utils';
-import { Metric, RadioOptions, ServiceMetric } from '../../../models';
+import { WidgetTextField } from '..';
 import {
   labelCriticalThreshold,
   labelCustom,
@@ -30,8 +29,9 @@ import {
   labelThresholds,
   labelWarningThreshold
 } from '../../../../translatedLabels';
-import { WidgetTextField } from '..';
+import { Metric, RadioOptions, ServiceMetric } from '../../../models';
 import { useThresholdStyles } from '../Inputs.styles';
+import { getDataProperty, getProperty } from '../utils';
 
 interface UseThresholdProps {
   propertyName: string;

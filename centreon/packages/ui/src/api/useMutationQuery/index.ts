@@ -1,16 +1,16 @@
 import { useEffect } from 'react';
 
 import {
-  useMutation,
   UseMutationOptions,
-  UseMutationResult
+  UseMutationResult,
+  useMutation
 } from '@tanstack/react-query';
-import { JsonDecoder } from 'ts.data.json';
 import { includes, omit } from 'ramda';
+import { JsonDecoder } from 'ts.data.json';
 
-import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
 import useSnackbar from '../../Snackbar/useSnackbar';
 import { useDeepCompare } from '../../utils';
+import { CatchErrorProps, ResponseError, customFetch } from '../customFetch';
 import { errorLog } from '../logger';
 
 export enum Method {

@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { atom, useSetAtom, createStore, Provider } from 'jotai';
+import { Provider, atom, createStore, useSetAtom } from 'jotai';
 
 import { Button } from '../../Button';
 

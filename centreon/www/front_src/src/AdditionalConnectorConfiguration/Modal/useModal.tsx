@@ -1,25 +1,25 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
-import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
+import { AdditionalConnectorListItem } from '../Listing/models';
+import { adaptFormDataToApiPayload } from '../api/adapters';
 import {
-  labelAdditionalConnectorCreated,
-  labelAdditionalConnectorUpdated
-} from '../translatedLabels';
+  additionalConnectorsEndpoint,
+  getAdditionalConnectorEndpoint
+} from '../api/endpoints';
 import {
   dialogStateAtom,
   isCloseModalDialogOpenAtom,
   isFormDirtyAtom
 } from '../atoms';
-import { AdditionalConnectorListItem } from '../Listing/models';
 import {
-  additionalConnectorsEndpoint,
-  getAdditionalConnectorEndpoint
-} from '../api/endpoints';
-import { adaptFormDataToApiPayload } from '../api/adapters';
+  labelAdditionalConnectorCreated,
+  labelAdditionalConnectorUpdated
+} from '../translatedLabels';
 
 import { AdditionalConnectorConfiguration } from './models';
 
@@ -69,6 +69,7 @@ const useAdditionalConnectorModal = (): UseConnectorConfig => {
     onSuccess: () => {
       showSuccessMessage(t(requestData.labelOnSuccess));
       queryClient.invalidateQueries({ queryKey: ['listConnectors'] });
+      queryClient.resetQueries({ queryKey: ['getOnACC'] });
     }
   });
 

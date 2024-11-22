@@ -117,7 +117,8 @@ class SAML implements ProviderAuthenticationInterface
         $this->loginLogger->info(Provider::SAML, 'authenticate the user through SAML');
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
-        $this->auth = $auth = new Auth($this->formatter->format($customConfiguration));
+        $this->auth = new Auth($this->formatter->format($customConfiguration));
+        $auth = $this->auth;
         $auth->processResponse($_SESSION['AuthNRequestID'] ?? null);
         $errors = $auth->getErrors();
         if (! empty($errors)) {
@@ -443,11 +444,7 @@ class SAML implements ProviderAuthenticationInterface
         $this->info('SAML SLS invoked');
 
         $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
-        if (isset($_SESSION, $_SESSION['LogoutRequestID'])) {
-            $requestID = $_SESSION['LogoutRequestID'];
-        } else {
-            $requestID = null;
-        }
+        $requestID = isset($_SESSION, $_SESSION['LogoutRequestID']) ? $_SESSION['LogoutRequestID'] : null;
 
         $auth->processSLO(true, $requestID, false, null, true);
 

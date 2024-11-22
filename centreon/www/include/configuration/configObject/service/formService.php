@@ -796,7 +796,7 @@ if ($form_service_type === 'BYHOST') {
         $defaultDataset = [];
         if ($service_id !== false) {
             $hostsBounded = findHostsOfService($service_id);
-            $defaultDataset = (! empty($hostsBounded))
+            $defaultDataset = ($hostsBounded !== [])
                 ? ['0' => $hostsBounded[0]]
                 : [];
         };
@@ -807,7 +807,9 @@ if ($form_service_type === 'BYHOST') {
             [],
             array_merge($attributes['hosts_cloud_specific'], ['defaultDataset' => $defaultDataset])
         );
-        $form->addRule('service_hPars', _("Host / Service Required"), 'required');
+        if ($o !== SERVICE_MASSIVE_CHANGE) {
+            $form->addRule('service_hPars', _("Host / Service Required"), 'required');
+        }
     } else {
         if (isset($service['service_hPars']) && count($service['service_hPars']) > 1) {
             $sgReadOnly = true;
@@ -1072,11 +1074,7 @@ if ($o !== SERVICE_MASSIVE_CHANGE) {
 
     $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required fields'));
 } elseif ($o === SERVICE_MASSIVE_CHANGE) {
-    if ($form->getSubmitValue('submitMC')) {
-        $from_list_menu = false;
-    } else {
-        $from_list_menu = true;
-    }
+    $from_list_menu = $form->getSubmitValue('submitMC') ? false : true;
 }
 
 if (isset($service['service_template_model_stm_id']) && ($service['service_template_model_stm_id'] === '')) {

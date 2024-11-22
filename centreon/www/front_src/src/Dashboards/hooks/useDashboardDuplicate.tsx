@@ -1,17 +1,17 @@
-import { useTranslation } from 'react-i18next';
-import { omit } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { omit } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { useFetchQuery } from '@centreon/ui';
 
+import { dashboardsEndpoint } from '../api/endpoints';
+import { Dashboard } from '../api/models';
 import { useCreateDashboard } from '../api/useCreateDashboard';
+import { dashboardToDuplicateAtom } from '../atoms';
 import {
   labelDashboardDuplicated,
   labelFailedToDuplicateDashboard
 } from '../translatedLabels';
-import { dashboardToDuplicateAtom } from '../atoms';
-import { dashboardsEndpoint } from '../api/endpoints';
-import { Dashboard } from '../api/models';
 
 type UseDashboardForm = (name) => void;
 

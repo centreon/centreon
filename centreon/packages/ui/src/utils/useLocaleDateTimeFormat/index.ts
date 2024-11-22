@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
 import humanizeDuration from 'humanize-duration';
 import { useAtomValue } from 'jotai';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
 
 import { userAtom } from '@centreon/ui-context';
 

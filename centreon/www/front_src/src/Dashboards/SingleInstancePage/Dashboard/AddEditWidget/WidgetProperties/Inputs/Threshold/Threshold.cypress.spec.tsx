@@ -1,6 +1,7 @@
 import { Formik } from 'formik';
 import { Provider, createStore } from 'jotai';
 
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
   labelCriticalThreshold,
   labelShowThresholds,
@@ -8,7 +9,6 @@ import {
   labelWarningThreshold
 } from '../../../../translatedLabels';
 import { ServiceMetric } from '../../../models';
-import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
 import Threshold from './Threshold';
 

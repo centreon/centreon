@@ -1,7 +1,7 @@
 /* eslint-disable hooks/sort */
 import { useState } from 'react';
 
-import { cond, gt, always, T, isEmpty, not } from 'ramda';
+import { T, always, cond, gt, isEmpty, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Box } from '@mui/material';
@@ -10,24 +10,23 @@ import { Variant } from '@mui/material/styles/createTypography';
 import { Group, InputType } from '@centreon/ui';
 
 import {
-  labelSelectResourcesAndEvents,
-  labelNotificationSettings,
-  labelEmailTemplateForTheNotificationMessage,
-  labelSubject,
-  labelNotificationChannels,
-  labelHostGroups,
-  labelServiceGroups,
-  labelTimePeriod,
-  labelSearchHostGroups,
-  labelSearchServiceGroups,
-  labelContacts,
-  labelSearchContacts,
-  labelSearchBusinessViews,
   labelBusinessViews,
   labelBusinessViewsEvents,
-  labelSelectTimePeriod
+  labelContacts,
+  labelEmailTemplateForTheNotificationMessage,
+  labelHostGroups,
+  labelNotificationChannels,
+  labelNotificationSettings,
+  labelSearchBusinessViews,
+  labelSearchContacts,
+  labelSearchHostGroups,
+  labelSearchServiceGroups,
+  labelSelectResourcesAndEvents,
+  labelSelectTimePeriod,
+  labelServiceGroups,
+  labelSubject,
+  labelTimePeriod
 } from '../../translatedLabels';
-import { hostEvents, serviceEvents } from '../utils';
 import {
   availableTimePeriodsEndpoint,
   businessViewsEndpoint,
@@ -35,6 +34,7 @@ import {
   serviceGroupsEndpoint,
   usersEndpoint
 } from '../api/endpoints';
+import { hostEvents, serviceEvents } from '../utils';
 
 import { EmailBody } from './Channel';
 import { useStyles } from './Inputs.styles';

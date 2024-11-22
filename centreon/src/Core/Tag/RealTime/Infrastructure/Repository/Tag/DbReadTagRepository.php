@@ -83,7 +83,7 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
 
         // Handle sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY name ASC';
+        $request .= $sortRequest ?? ' ORDER BY name ASC';
 
         // Handle pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();
@@ -212,7 +212,7 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
 
         // Handle sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $sort = $sortRequest !== null ? $sortRequest : ' ORDER BY name ASC';
+        $sort = $sortRequest ?? ' ORDER BY name ASC';
 
         // Handle pagination
         $pagination = $this->sqlRequestTranslator->translatePaginationToSql();

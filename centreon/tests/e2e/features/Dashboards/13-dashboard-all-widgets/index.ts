@@ -8,6 +8,7 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkHostsAreMonitored,
+  checkMetricsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
@@ -55,6 +56,7 @@ const resultsToSubmit = [
     status: 'ok'
   }
 ];
+
 before(() => {
   cy.intercept({
     method: 'GET',
@@ -77,7 +79,7 @@ before(() => {
     url: /\/centreon\/api\/latest\/monitoring\/dashboard\/metrics\/top\?.*$/
   }).as('dashboardMetricsTop');
   cy.intercept({
-    method: 'PATCH',
+    method: 'POST',
     url: `/centreon/api/latest/configuration/dashboards/*`
   }).as('updateDashboard');
   cy.startContainers();
@@ -145,6 +147,8 @@ before(() => {
     jsonName: 'admin'
   });
 
+  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' });
+
   checkHostsAreMonitored([
     { name: services.serviceOk.host },
     { name: services.serviceCritical.host }
@@ -158,7 +162,13 @@ before(() => {
     { name: services.serviceCritical.name, status: 'critical' },
     { name: services.serviceOk.name, status: 'ok' }
   ]);
-
+  checkMetricsAreMonitored([
+    {
+      host: 'Centreon-Server',
+      name: 'rta',
+      service: 'Ping'
+    }
+  ]);
   cy.logoutViaAPI();
   cy.applyAcl();
 });
@@ -335,7 +345,7 @@ When(
     cy.get('.react-grid-item').eq(1).realClick();
 
     cy.getByTestId({ testId: 'save_dashboard' }).click();
-    cy.wait('@updateDashboard');
+    cy.waitForElementToBeVisible('[class*="graphContainer"]')
   }
 );
 

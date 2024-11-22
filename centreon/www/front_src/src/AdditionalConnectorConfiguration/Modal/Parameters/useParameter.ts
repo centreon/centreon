@@ -1,9 +1,9 @@
 import { useFormikContext } from 'formik';
-import { equals, includes, path, split } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { path, equals, includes, split } from 'ramda';
 
-import { AdditionalConnectorConfiguration, ParameterKeys } from '../models';
 import { dialogStateAtom } from '../../atoms';
+import { AdditionalConnectorConfiguration, ParameterKeys } from '../models';
 
 interface UseParameterState {
   changeParameterValue: (event) => void;

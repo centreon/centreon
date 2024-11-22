@@ -85,7 +85,7 @@ describe('HeatMap', () => {
 
     cy.findByTestId(dataIds[0]).trigger('mouseover');
 
-    cy.contains(`This is the tooltip for Server-Service Counter-53`).should(
+    cy.contains('This is the tooltip for Server-Service Counter-53').should(
       'be.visible'
     );
   });
@@ -102,13 +102,13 @@ describe('HeatMap', () => {
 
     cy.findByTestId(dataIds[0]).trigger('mouseover');
 
-    cy.contains(`This is the tooltip for Server-Service Counter-53`).should(
+    cy.contains('This is the tooltip for Server-Service Counter-53').should(
       'not.exist'
     );
 
     cy.findByTestId(dataIds[1]).trigger('mouseover');
 
-    cy.contains(`This is the tooltip for Server-Service Counter-779`).should(
+    cy.contains('This is the tooltip for Server-Service Counter-779').should(
       'be.visible'
     );
   });

@@ -52,47 +52,41 @@ $hostObj = new CentreonHost($pearDB);
 /*
  * ACL Actions
  */
-$GroupListofUser = array();
+$GroupListofUser = [];
 $GroupListofUser = $centreon->user->access->getAccessGroups();
 
 /*
  * Init Table status
  */
-$tab_status_service = array("0" => "OK", "1" => "WARNING", "2" => "CRITICAL", "3" => "UNKNOWN", "4" => "PENDING");
-$tab_host_status = array(0 => "UP", 1 => "DOWN", 2 => "UNREACHABLE");
-$tab_host_statusid = array("UP" => 0, "DOWN" => 1, "UNREACHABLE" => 2);
+$tab_status_service = ["0" => "OK", "1" => "WARNING", "2" => "CRITICAL", "3" => "UNKNOWN", "4" => "PENDING"];
+$tab_host_status = [0 => "UP", 1 => "DOWN", 2 => "UNREACHABLE"];
+$tab_host_statusid = ["UP" => 0, "DOWN" => 1, "UNREACHABLE" => 2];
 
-$tab_color_host = array('up' => 'host_up', 'down' => 'host_down', 'unreachable' => 'host_unreachable');
-$tab_color_service = array(
-    "OK" => 'service_ok',
-    "WARNING" => 'service_warning',
-    "CRITICAL" => 'service_critical',
-    "UNKNOWN" => 'service_unknown',
-    "PENDING" => 'pending'
-);
+$tab_color_host = ['up' => 'host_up', 'down' => 'host_down', 'unreachable' => 'host_unreachable'];
+$tab_color_service = ["OK" => 'service_ok', "WARNING" => 'service_warning', "CRITICAL" => 'service_critical', "UNKNOWN" => 'service_unknown', "PENDING" => 'pending'];
 
 
-$en_acknowledge_text = array("1" => _("Delete Problem Acknowledgement"), "0" => _("Acknowledge Host Problem"));
-$en_acknowledge = array("1" => "0", "0" => "1");
-$en_inv = array("1" => "1", "0" => "0");
-$en_inv_text = array("1" => _("Disable"), "0" => _("Enable"));
-$color_onoff = array("1" => "host_up", "0" => "host_down");
-$color_onoff_inv = array("0" => "host_up", "1" => "host_up");
-$en_disable = array("1" => _("Enabled"), "0" => _("Disabled"));
-$img_en = array("0" => "'./img/icons/enabled.png'", "1" => "'./img/icons/disabled.png'");
+$en_acknowledge_text = ["1" => _("Delete Problem Acknowledgement"), "0" => _("Acknowledge Host Problem")];
+$en_acknowledge = ["1" => "0", "0" => "1"];
+$en_inv = ["1" => "1", "0" => "0"];
+$en_inv_text = ["1" => _("Disable"), "0" => _("Enable")];
+$color_onoff = ["1" => "host_up", "0" => "host_down"];
+$color_onoff_inv = ["0" => "host_up", "1" => "host_up"];
+$en_disable = ["1" => _("Enabled"), "0" => _("Disabled")];
+$img_en = ["0" => "'./img/icons/enabled.png'", "1" => "'./img/icons/disabled.png'"];
 
-$tab_status_type = array("1" => "HARD", "0" => "SOFT");
+$tab_status_type = ["1" => "HARD", "0" => "SOFT"];
 
 $allActions = false;
 if (count($GroupListofUser) > 0 && $is_admin == 0) {
-    $authorized_actions = array();
+    $authorized_actions = [];
     $authorized_actions = $centreon->user->access->getActions();
 }
 
 if (isset($_GET["host_name"]) && $_GET["host_name"]) {
     $host_name = $_GET["host_name"];
     if (isset($_REQUEST['cmd'])) {
-        $host_name = utf8_decode($host_name);
+        $host_name = mb_convert_encoding($host_name, 'ISO-8859-1');
     }
 } else {
     foreach ($_GET["select"] as $key => $value) {
@@ -118,11 +112,11 @@ if (!$is_admin) {
 if (!$is_admin && !$haveAccess) {
     include_once("alt_error.php");
 } else {
-    $tab_status = array();
+    $tab_status = [];
 
     $path = "./include/monitoring/objectDetails/";
 
-    $en = array("0" => _("No"), "1" => _("Yes"));
+    $en = ["0" => _("No"), "1" => _("Yes")];
 
     /*
      * Smarty template Init
@@ -148,7 +142,7 @@ if (!$is_admin && !$haveAccess) {
         $DBRESULT->closeCursor();
 
         /* Get service categories */
-        $hostIds = array($host_id);
+        $hostIds = [$host_id];
         $hostTemplates = $hostObj->getTemplateChain($host_id);
         foreach ($hostTemplates as $hostTemplate) {
             $hostIds[] = $hostTemplate['host_id'];
@@ -199,9 +193,9 @@ if (!$is_admin && !$haveAccess) {
                 $centreon->user->access->getAccessGroupsString() . ')' : '') .
             " ORDER BY current_state DESC, service_description ASC";
         $DBRESULT = $pearDBO->query($rq);
-        $services = array();
+        $services = [];
         $class = 'list_one';
-        $graphs = array();
+        $graphs = [];
         while ($row = $DBRESULT->fetchRow()) {
             $row["last_check"] = $centreon->CentreonGMT->getDate(_("Y/m/d - H:i:s"), $row["last_check"]);
             $row["current_state"] = $tab_status_service[$row['current_state']];
@@ -231,17 +225,15 @@ if (!$is_admin && !$haveAccess) {
                 $DBRESULT2 = $pearDBO->query($request2);
                 while ($dataG = $DBRESULT2->fetchRow()) {
                     if (!isset($graphs[$row["host_id"]])) {
-                        $graphs[$row["host_id"]] = array();
+                        $graphs[$row["host_id"]] = [];
                     }
                     $graphs[$row["host_id"]][$dataG["service_id"]] = $dataG["id"];
                 }
                 if (!isset($graphs[$row["host_id"]])) {
-                    $graphs[$row["host_id"]] = array();
+                    $graphs[$row["host_id"]] = [];
                 }
             }
-            $row["svc_index"] = (isset($graphs[$row["host_id"]][$row["service_id"]])
-                ? $graphs[$row["host_id"]][$row["service_id"]]
-                : 0
+            $row["svc_index"] = ($graphs[$row["host_id"]][$row["service_id"]] ?? 0
             );
 
             $duration = "";
@@ -252,7 +244,7 @@ if (!$is_admin && !$haveAccess) {
             }
             $row["duration"] = $duration;
 
-            ($class == 'list_one') ? $class = 'list_two' : $class = 'list_one';
+            $class = ($class == 'list_one') ? 'list_two' : 'list_one';
 
             // Set Data
             $services[] = $row;
@@ -407,7 +399,7 @@ if (!$is_admin && !$haveAccess) {
         /*
          * Get comments for hosts
          */
-        $tabCommentHosts = array();
+        $tabCommentHosts = [];
         $rq2 = "SELECT cmt.entry_time as comment_time, cmt.comment_id, cmt.author AS author_name,
          cmt.data AS comment_data, cmt.persistent AS is_persistent, h.name AS host_name " .
             " FROM comments cmt, hosts h " .
@@ -434,7 +426,7 @@ if (!$is_admin && !$haveAccess) {
         unset($data);
 
         /* Get Graphs Listing */
-        $graphLists = array();
+        $graphLists = [];
         $query = "SELECT DISTINCT i.id, i.host_name, i.service_description, i.host_id, i.service_id " .
             " FROM index_data i, metrics m, hosts h, services s" . ((!$is_admin) ? ', centreon_acl acl' : '') .
             " WHERE m.index_id = i.id " .
@@ -680,7 +672,7 @@ if (!$is_admin && !$haveAccess) {
             $tpl->assign(
                 "tab_comments_host",
                 array_map(
-                    array("CentreonUtils", "escapeSecure"),
+                    ["CentreonUtils", "escapeSecure"],
                     $tabCommentHosts
                 )
             );

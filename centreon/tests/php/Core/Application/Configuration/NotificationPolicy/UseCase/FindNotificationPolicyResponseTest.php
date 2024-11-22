@@ -29,7 +29,7 @@ use Core\Domain\Configuration\Notification\Model\HostNotification;
 use Core\Domain\Configuration\Notification\Model\ServiceNotification;
 use Core\Domain\Configuration\TimePeriod\Model\TimePeriod;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $hostNotification = new HostNotification(new Timeperiod(1, '24x7', '24/24 7/7'));
     $hostNotification->addEvent(HostNotification::EVENT_HOST_DOWN);
 
@@ -48,7 +48,7 @@ beforeEach(function () {
     $this->contactGroup = new NotifiedContactGroup(3, 'cg3', 'cg 3');
 });
 
-it('converts given host notification models to array', function () {
+it('converts given host notification models to array', function (): void {
     $response = new FindNotificationPolicyResponse(
         [$this->contact],
         [$this->contactGroup],
@@ -93,7 +93,7 @@ it('converts given host notification models to array', function () {
     expect($response->isNotificationEnabled)->toBe(true);
 });
 
-it('converts given service notification models to array', function () {
+it('converts given service notification models to array', function (): void {
     $response = new FindNotificationPolicyResponse(
         [$this->contact],
         [$this->contactGroup],

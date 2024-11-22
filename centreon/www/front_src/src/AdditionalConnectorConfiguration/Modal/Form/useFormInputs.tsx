@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 import { InputProps, InputType } from '@centreon/ui';
 
+import { getPollersForConnectorTypeEndpoint } from '../../api/endpoints';
 import {
   labelDescription,
   labelName,
@@ -12,11 +13,10 @@ import {
   labelSelectType,
   labelType
 } from '../../translatedLabels';
-import { getPollersForConnectorTypeEndpoint } from '../../api/endpoints';
-import { useFormStyles } from '../useModalStyles';
+import ConnectorType from '../ConnectorType/ConnectorType';
 import Parameters from '../Parameters/Parameters';
 import Port from '../Parameters/Port';
-import ConnectorType from '../ConnectorType/ConnectorType';
+import { useFormStyles } from '../useModalStyles';
 
 interface FormInputsState {
   inputs: Array<InputProps>;

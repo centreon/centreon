@@ -1,15 +1,15 @@
 import { makeStyles } from 'tss-react/mui';
 
-import {
-  Typography,
-  AccordionSummary,
-  AccordionDetails,
-  Accordion,
-  styled,
-  AccordionProps,
-  AccordionSummaryProps
-} from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionProps,
+  AccordionSummary,
+  AccordionSummaryProps,
+  Typography,
+  styled
+} from '@mui/material';
 
 const useStyles = makeStyles()((theme) => ({
   details: {

@@ -53,9 +53,10 @@ beforeEach(function (): void {
     $this->presenter = $this->createMock(PartialUpdateOpenIdConfigurationPresenterInterface::class);
     $this->readOpenIdRepository = $this->createMock(ReadOpenIdConfigurationRepositoryInterface::class);
     $this->contactTemplateRepository = $this->createMock(ReadContactTemplateRepositoryInterface::class);
+
     $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);
     $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class);
-    $this->contactGroup = new ContactGroup(1, 'contact_group');
+    $this->contactGroup = new ContactGroup(1, 'contact_group', 'contact_group');
     $this->contactTemplate = new ContactTemplate(1, 'contact_template');
     $this->providerFactory = $this->createMock(ProviderAuthenticationFactoryInterface::class);
     $this->provider = $this->createMock(ProviderAuthenticationInterface::class);

@@ -303,7 +303,7 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
      */
     public function findHostTemplateServices(array $hostTemplateIds): array
     {
-        if (empty($hostTemplateIds)) {
+        if ($hostTemplateIds === []) {
             return [];
         }
         $request = $this->translateDbName(

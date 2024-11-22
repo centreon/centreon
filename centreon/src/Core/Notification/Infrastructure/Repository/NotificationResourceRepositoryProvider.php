@@ -41,7 +41,7 @@ class NotificationResourceRepositoryProvider implements NotificationResourceRepo
         iterable $repositories
     ) {
         $reposAsArray = is_array($repositories) ? $repositories : iterator_to_array($repositories);
-        if (count($reposAsArray) === 0) {
+        if ($reposAsArray === []) {
             throw new \InvalidArgumentException('There must be at least one notification resource provider');
         }
         $this->repositories = $reposAsArray;

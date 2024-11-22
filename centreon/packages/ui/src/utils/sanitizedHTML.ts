@@ -1,5 +1,5 @@
-import sanitizeHtml, { IOptions } from 'sanitize-html';
-import ReactHtmlParser from 'react-html-parser';
+import ReactHtmlParser from 'html-react-parser';
+import sanitizeHtml, { type IOptions } from 'sanitize-html';
 
 interface UseSanitizedHTMLProps {
   initialContent: string;

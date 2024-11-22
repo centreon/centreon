@@ -25,7 +25,7 @@ const LargeText = (): JSX.Element => (
 const tenElements = new Array(10).fill(0);
 
 const generateSubItems = (): Array<unknown> => {
-  return tenElements.map((__, subIndex) => ({
+  return tenElements.map((_, subIndex) => ({
     active: false,
     description: `Sub item ${subIndex * 10} description`,
     disableCheckbox: false,
@@ -205,7 +205,7 @@ describe('Listing', () => {
     it('collapses the row when the corresponding icon is clicked', () => {
       mountListingForSubItems({});
 
-      cy.findByLabelText(`Expand 0`).click();
+      cy.findByLabelText('Expand 0').click();
 
       cy.contains('Sub item 10').should('be.visible');
 

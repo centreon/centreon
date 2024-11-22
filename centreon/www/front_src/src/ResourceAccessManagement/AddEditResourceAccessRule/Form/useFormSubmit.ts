@@ -1,18 +1,18 @@
-import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { equals } from 'ramda';
 import { useAtom, useAtomValue } from 'jotai';
+import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
 import { editedResourceAccessRuleIdAtom, modalStateAtom } from '../../atom';
 import { ModalMode, ResourceAccessRule } from '../../models';
-import { resourceAccessRuleEndpoint } from '../api/endpoints';
 import {
   labelResourceAccessRuleAddedSuccess,
   labelResourceAccessRuleEditedSuccess
 } from '../../translatedLabels';
 import { adaptResourceAccessRule } from '../api/adapters';
+import { resourceAccessRuleEndpoint } from '../api/endpoints';
 
 interface UseFormState {
   submit: (

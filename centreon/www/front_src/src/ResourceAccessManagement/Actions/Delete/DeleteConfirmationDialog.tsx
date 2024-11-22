@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
 import { isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { ConfirmDialog } from '@centreon/ui';
 

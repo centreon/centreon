@@ -61,7 +61,7 @@ class HostgroupMonitoring
     public function getHostStates(&$data, $admin, $aclObj, $preferences, $detailFlag = false)
     {
         if (!count($data)) {
-            return array();
+            return [];
         }
         $query = "SELECT 1 AS REALTIME, h.host_id, h.state, h.name, h.alias, hhg.hostgroup_id, hg.name as hgname
             FROM hosts_hostgroups hhg, hosts h, hostgroups hg
@@ -78,7 +78,7 @@ class HostgroupMonitoring
             $k = $row['hgname'];
             if ($detailFlag === true) {
                 if (!isset($data[$k]['host_state'][$row['name']])) {
-                    $data[$k]['host_state'][$row['name']] = array();
+                    $data[$k]['host_state'][$row['name']] = [];
                 }
                 foreach ($row as $key => $val) {
                     $data[$k]['host_state'][$row['name']][$key] = $val;
@@ -104,7 +104,7 @@ class HostgroupMonitoring
     public function getServiceStates(&$data, $admin, $aclObj, $preferences, $detailFlag = false)
     {
         if (!count($data)) {
-            return array();
+            return [];
         }
         $query = "SELECT DISTINCT 1 AS REALTIME,
                 h.host_id, s.state, h.name, s.service_id, s.description, hhg.hostgroup_id, hg.name as hgname,
@@ -130,13 +130,13 @@ class HostgroupMonitoring
             $k = $row['hgname'];
             if ($detailFlag === true) {
                 if (!isset($data[$k]['service_state'][$row['host_id']])) {
-                    $data[$k]['service_state'][$row['host_id']] = array();
+                    $data[$k]['service_state'][$row['host_id']] = [];
                 }
                 if (
                     isset($data[$k]['service_state'][$row['host_id']])
                     && !isset($data[$k]['service_state'][$row['host_id']][$row['service_id']])
                 ) {
-                    $data[$k]['service_state'][$row['host_id']][$row['service_id']] = array();
+                    $data[$k]['service_state'][$row['host_id']][$row['service_id']] = [];
                 }
                 foreach ($row as $key => $val) {
                     $data[$k]['service_state'][$row['host_id']][$row['service_id']][$key] = $val;

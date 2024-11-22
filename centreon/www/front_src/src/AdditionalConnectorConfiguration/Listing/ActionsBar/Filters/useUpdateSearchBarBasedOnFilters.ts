@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 
-import { complement, isEmpty, pluck } from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { complement, isEmpty, pluck } from 'ramda';
 
 import { filtersAtom, searchAtom } from '../../atom';
 
@@ -12,7 +12,10 @@ const useUpdateSearchBarBasedOnFilters = (): void => {
   const { name, pollers, types } = filters;
 
   const pollersNames = useMemo(() => pluck('name', pollers), [pollers]);
-  const typesNames = useMemo(() => pluck('name', types), [types]);
+  const typesNames = useMemo(
+    () => pluck('name', types).map((name) => name.replace(' ', '_')),
+    [types]
+  );
 
   const namePart = useMemo(() => (name ? `name:${name}` : ''), [name]);
   const typesPart = useMemo(

@@ -46,7 +46,7 @@ if (!$centreon->user->admin &&
 }
 
 const PASSWORD_REPLACEMENT_VALUE_FORM = '**********';
-$initialValues = array();
+$initialValues = [];
 
 /*
 $instances = $acl->getPollerAclConf(array('fields' => array('id', 'name'),
@@ -72,9 +72,9 @@ if (($o == MACRO_MODIFY || $o == MACRO_WATCH) && is_int($resourceId)) {
 /**
  * Var information to format the element
  */
-$attrsText = array("size" => "35");
-$attrsTextarea = array("rows" => "5", "cols" => "40");
-$attrsAdvSelect = array("style" => "width: 220px; height: 220px;");
+$attrsText = ["size" => "35"];
+$attrsTextarea = ["rows" => "5", "cols" => "40"];
+$attrsAdvSelect = ["style" => "width: 220px; height: 220px;"];
 $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />' .
     '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
@@ -108,21 +108,15 @@ $form->addElement(
     $isPassword ? ['disabled' => 'disabled'] : ['onClick' => 'javascript:change_macro_input_type(this)']
 );
 
-$attrPoller = array(
-    'datasourceOrigin' => 'ajax',
-    'allowClear' => false,
-    'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_poller&action=list',
-    'multiple' => true,
-    'linkedObject' => 'centreonInstance'
-);
+$attrPoller = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_poller&action=list', 'multiple' => true, 'linkedObject' => 'centreonInstance'];
 /* Host Parents */
 $route = './api/internal.php?object=centreon_configuration_poller&action=defaultValues' .
     '&target=resources&field=instance_id&id=' . $resourceId;
 $attrPoller1 = array_merge(
     $attrPoller,
-    array('defaultDatasetRoute' => $route)
+    ['defaultDatasetRoute' => $route]
 );
-$form->addElement('select2', 'instance_id', _("Linked Instances"), array(), $attrPoller1);
+$form->addElement('select2', 'instance_id', _("Linked Instances"), [], $attrPoller1);
 
 /**
  * Further information
@@ -131,14 +125,14 @@ $form->addElement('header', 'furtherInfos', _("Additional Information"));
 $rsActivation[] = $form->createElement('radio', 'resource_activate', null, _("Enabled"), '1');
 $rsActivation[] = $form->createElement('radio', 'resource_activate', null, _("Disabled"), '0');
 $form->addGroup($rsActivation, 'resource_activate', _("Status"), '&nbsp;');
-$form->setDefaults(array('resource_activate' => '1'));
+$form->setDefaults(['resource_activate' => '1']);
 $form->addElement('textarea', 'resource_comment', _("Comment"), $attrsTextarea);
 
-$tab = array();
+$tab = [];
 $tab[] = $form->createElement('radio', 'action', null, _("List"), '1');
 $tab[] = $form->createElement('radio', 'action', null, _("Form"), '0');
 $form->addGroup($tab, 'action', _("Post Validation"), '&nbsp;');
-$form->setDefaults(array('action' => '1'));
+$form->setDefaults(['action' => '1']);
 
 $form->addElement('hidden', 'resource_id');
 $redirect = $form->addElement('hidden', 'o');
@@ -177,20 +171,20 @@ if ($o == MACRO_WATCH) {
             "button",
             "change",
             _("Modify"),
-            array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&resource_id=" . $resourceId . "'")
+            ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&resource_id=" . $resourceId . "'"]
         );
     }
     $form->setDefaults($rs);
     $form->freeze();
 } elseif ($o == MACRO_MODIFY) {
     // Modify a Resources CFG information
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $form->setDefaults($rs);
 } elseif ($o == MACRO_ADD) {
     // Add a Resources CFG information
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 }
 
 $valid = false;
@@ -212,7 +206,7 @@ if ($form->validate()) {
         "button",
         "change",
         _("Modify"),
-        array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&resource_id=" . $rsObj->getValue() . "'")
+        ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&resource_id=" . $rsObj->getValue() . "'"]
     );
     $valid = true;
 }

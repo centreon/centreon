@@ -35,14 +35,37 @@
 
 require_once __DIR__ . "/../Params.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonWidgetParamsBoolean
+ */
 class CentreonWidgetParamsBoolean extends CentreonWidgetParams
 {
+    /** @var HTML_QuickForm_Element */
+    public $element;
+
+    /**
+     * CentreonWidgetParamsBoolean Constructor
+     *
+     * @param CentreonDB $db
+     * @param HTML_Quickform $quickform
+     * @param int $userId
+     *
+     * @throws PDOException
+     */
     public function __construct($db, $quickform, $userId)
     {
         parent::__construct($db, $quickform, $userId);
     }
 
-    public function init($params)
+    /**
+     * @param array $params
+     *
+     * @return void
+     * @throws HTML_QuickForm_Error
+     */
+    public function init($params): void
     {
         parent::init($params);
         if (isset($this->quickform)) {
@@ -54,7 +77,14 @@ class CentreonWidgetParamsBoolean extends CentreonWidgetParams
         }
     }
 
-    public function setValue($params)
+    /**
+     * @param array $params
+     *
+     * @return void
+     * @throws HTML_QuickForm_Error
+     * @throws PDOException
+     */
+    public function setValue($params): void
     {
         $userPref = $this->getUserPreferences($params);
         $cbVal = false;

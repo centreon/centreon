@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\Converter;
 
-use Core\Notification\Domain\Model\NotificationServiceEvent;
+use Core\Notification\Domain\Model\ServiceEvent;
 
 class NotificationServiceEventConverter
 {
@@ -41,7 +41,7 @@ class NotificationServiceEventConverter
      * Convert an array of NotificationServiceEvent to a string.
      * ex: [NotificationServiceEvent::Ok, NotificationServiceEvent::Unknown] => 'o,u'.
      *
-     * @param NotificationServiceEvent[] $events
+     * @param ServiceEvent[] $events
      *
      * @return string
      */
@@ -50,10 +50,10 @@ class NotificationServiceEventConverter
         $eventsAsBitFlags = [];
         foreach ($events as $event) {
             $eventsAsBitFlags[] = match ($event) {
-                NotificationServiceEvent::Ok => self::CASE_OK_AS_STR,
-                NotificationServiceEvent::Warning => self::CASE_WARNING_AS_STR,
-                NotificationServiceEvent::Critical => self::CASE_CRITICAL_AS_STR,
-                NotificationServiceEvent::Unknown => self::CASE_UNKNOWN_AS_STR,
+                ServiceEvent::Ok => self::CASE_OK_AS_STR,
+                ServiceEvent::Warning => self::CASE_WARNING_AS_STR,
+                ServiceEvent::Critical => self::CASE_CRITICAL_AS_STR,
+                ServiceEvent::Unknown => self::CASE_UNKNOWN_AS_STR,
             };
         }
 
@@ -66,7 +66,7 @@ class NotificationServiceEventConverter
      *
      * @param string $legacyStr
      *
-     * @return NotificationServiceEvent[]
+     * @return ServiceEvent[]
      */
     public static function fromString(string $legacyStr): array
     {
@@ -79,10 +79,10 @@ class NotificationServiceEventConverter
         $events = [];
         foreach ($legacyValues as $value) {
             $events[] = match ($value) {
-                self::CASE_OK_AS_STR => NotificationServiceEvent::Ok,
-                self::CASE_WARNING_AS_STR => NotificationServiceEvent::Warning,
-                self::CASE_CRITICAL_AS_STR => NotificationServiceEvent::Critical,
-                self::CASE_UNKNOWN_AS_STR => NotificationServiceEvent::Unknown,
+                self::CASE_OK_AS_STR => ServiceEvent::Ok,
+                self::CASE_WARNING_AS_STR => ServiceEvent::Warning,
+                self::CASE_CRITICAL_AS_STR => ServiceEvent::Critical,
+                self::CASE_UNKNOWN_AS_STR => ServiceEvent::Unknown,
                 default => throw new \LogicException('Should never occur, only for phpstan')
             };
         }
@@ -93,17 +93,17 @@ class NotificationServiceEventConverter
     /**
      * Convert a NotificationServiceEvent into bitFlags.
      *
-     * @param NotificationServiceEvent $event
+     * @param ServiceEvent $event
      *
      * @return int
      */
-    public static function toBit(NotificationServiceEvent $event): int
+    public static function toBit(ServiceEvent $event): int
     {
         return match ($event) {
-            NotificationServiceEvent::Ok => self::CASE_OK_AS_BIT,
-            NotificationServiceEvent::Warning => self::CASE_WARNING_AS_BIT,
-            NotificationServiceEvent::Critical => self::CASE_CRITICAL_AS_BIT,
-            NotificationServiceEvent::Unknown => self::CASE_UNKNOWN_AS_BIT,
+            ServiceEvent::Ok => self::CASE_OK_AS_BIT,
+            ServiceEvent::Warning => self::CASE_WARNING_AS_BIT,
+            ServiceEvent::Critical => self::CASE_CRITICAL_AS_BIT,
+            ServiceEvent::Unknown => self::CASE_UNKNOWN_AS_BIT,
         };
     }
 
@@ -114,7 +114,7 @@ class NotificationServiceEventConverter
      *
      * @throws \Throwable
      *
-     * @return NotificationServiceEvent[]
+     * @return ServiceEvent[]
      */
     public static function fromBitFlags(int $bitFlags): array
     {
@@ -123,7 +123,7 @@ class NotificationServiceEventConverter
         }
 
         $enums = [];
-        foreach (NotificationServiceEvent::cases() as $enum) {
+        foreach (ServiceEvent::cases() as $enum) {
             if ($bitFlags & self::toBit($enum)) {
                 $enums[] = $enum;
             }
@@ -136,7 +136,7 @@ class NotificationServiceEventConverter
      * Convert an array of NotificationServiceEvent into a bitFlags
      * If the array contains NotificationServiceEvent::None or is empty, an empty bitFlags will be returned.
      *
-     * @param NotificationServiceEvent[] $enums
+     * @param ServiceEvent[] $enums
      *
      * @return int
      */

@@ -1,18 +1,12 @@
-/* eslint-disable import/no-unresolved */
+import widgetGenericTextProperties from './Widgets/centreon-widget-generictext/properties.json';
+import widgetInputProperties from './Widgets/centreon-widget-input/properties.json';
+import widgetTextProperties from './Widgets/centreon-widget-text/properties.json';
 
-import { createStore, Provider } from 'jotai';
-// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-text/moduleFederation.json'.
-import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
-// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-input/moduleFederation.json'.
-import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
-import widgetTextProperties from 'centreon-widgets/centreon-widget-text/properties.json';
-import widgetInputProperties from 'centreon-widgets/centreon-widget-input/properties.json';
-import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-generictext/moduleFederation.json';
-import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
+import { Provider, createStore } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
-import { isOnPublicPageAtom, federatedWidgetsAtom } from '@centreon/ui-context';
+import { federatedWidgetsAtom, isOnPublicPageAtom } from '@centreon/ui-context';
 
 import {
   getDashboardEndpoint,
@@ -23,25 +17,11 @@ import DashboardLayout from './DashboardLayout';
 import { labelEditDashboard } from './translatedLabels';
 
 import { federatedWidgetsPropertiesAtom } from 'www/front_src/src/federatedModules/atoms';
+import { internalWidgetComponents } from './Widgets/widgets';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {
-  const federatedWidgets = [
-    {
-      ...widgetTextConfiguration,
-      moduleFederationName: 'centreon-widget-text/src'
-    },
-    {
-      ...widgetInputConfiguration,
-      moduleFederationName: 'centreon-widget-input/src'
-    },
-    {
-      ...widgetGenericTextConfiguration,
-      moduleFederationName: 'centreon-widget-generictext/src'
-    }
-  ];
-
   const store = createStore();
-  store.set(federatedWidgetsAtom, federatedWidgets);
+  store.set(federatedWidgetsAtom, internalWidgetComponents);
   store.set(federatedWidgetsPropertiesAtom, [
     widgetTextProperties,
     widgetInputProperties,
@@ -101,8 +81,6 @@ describe('DashboardLayout', () => {
 
     cy.contains('Widget text').should('be.visible');
     cy.contains('Generic text').should('be.visible');
-
-    cy.makeSnapshot();
   });
 
   it('sends a request to the public API when the dashboard is displayed in a public page', () => {

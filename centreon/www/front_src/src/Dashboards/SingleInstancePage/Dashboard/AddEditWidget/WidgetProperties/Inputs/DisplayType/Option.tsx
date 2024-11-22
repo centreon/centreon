@@ -1,9 +1,9 @@
+import parse from 'html-react-parser';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import parse from 'html-react-parser';
 
-import { Card, CardActionArea, SvgIcon } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { Card, CardActionArea, SvgIcon } from '@mui/material';
 
 import { Tooltip } from '@centreon/ui/components';
 

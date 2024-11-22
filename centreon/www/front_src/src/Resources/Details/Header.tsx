@@ -1,33 +1,33 @@
+import { path, hasPath, isNil, not, prop } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { hasPath, isNil, not, path, prop } from 'ramda';
 import { useNavigate } from 'react-router-dom';
 import { makeStyles } from 'tss-react/mui';
 
-import { Grid, Typography, Link, Tooltip, Skeleton } from '@mui/material';
+import ReportIcon from '@mui/icons-material/Assessment';
+import LogsIcon from '@mui/icons-material/Assignment';
 import CopyIcon from '@mui/icons-material/FileCopy';
 import SettingsIcon from '@mui/icons-material/Settings';
-import LogsIcon from '@mui/icons-material/Assignment';
-import ReportIcon from '@mui/icons-material/Assessment';
+import { Grid, Link, Skeleton, Tooltip, Typography } from '@mui/material';
 import Divider from '@mui/material/Divider';
 
 import {
-  StatusChip,
-  SeverityCode,
   IconButton,
+  SeverityCode,
+  StatusChip,
   useCopyToClipboard
 } from '@centreon/ui';
 
+import { replaceBasename } from '../helpers';
+import { ResourceUris } from '../models';
 import {
   labelActionNotPermitted,
   labelConfigure,
   labelCopyLink,
   labelLinkCopied,
+  labelSomethingWentWrong,
   labelViewLogs,
-  labelViewReport,
-  labelSomethingWentWrong
+  labelViewReport
 } from '../translatedLabels';
-import { ResourceUris } from '../models';
-import { replaceBasename } from '../helpers';
 
 import { ResourceDetails } from './models';
 import SelectableResourceName from './tabs/Details/SelectableResourceName';

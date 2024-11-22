@@ -39,7 +39,7 @@ jobs:
           script: |
             await exec.exec("sleep 20s");
 
-            for (let i = 0; i < 60; i++) {
+            for (let i = 0; i < 120; i++) {
               const failure = [];
               const cancelled = [];
               const pending = [];
@@ -47,7 +47,7 @@ jobs:
               const result = await github.rest.checks.listSuitesForRef({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                ref: "${{ github.event.pull_request.head.sha }}"
+                ref: "${{ github.head_ref }}"
               });
               result.data.check_suites.forEach(({ app: { slug }, conclusion, id}) => {
                 if (slug === 'github-actions') {
@@ -86,8 +86,10 @@ jobs:
                 core.summary.addList(failedCheckRuns);
                 core.summary.write()
 
-                core.setFailed(`${failure.length} workflow(s) failed`);
-                return;
+                if (failedCheckRuns.length > 0) {
+                  core.setFailed(`${failedCheckRuns.length} job(s) failed`);
+                  return;
+                }
               }
 
               if (pending.length === 1) {

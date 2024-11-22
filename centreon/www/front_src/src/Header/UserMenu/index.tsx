@@ -1,41 +1,41 @@
 import { MouseEvent, RefObject, useEffect, useRef, useState } from 'react';
 
+import { __, equals, gt, isNil, not } from 'ramda';
 import { useTranslation, withTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { equals, gt, isNil, not, __ } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
+import CheckIcon from '@mui/icons-material/Check';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
+import LogoutIcon from '@mui/icons-material/Logout';
+import UserIcon from '@mui/icons-material/Person';
+import SettingsIcon from '@mui/icons-material/Settings';
 import {
-  Box,
   Badge,
-  Tooltip,
+  Box,
+  Fade,
   List,
   ListItem,
+  ListItemButton,
   ListItemText,
   Popper,
-  ListItemButton,
-  Fade
+  Tooltip
 } from '@mui/material';
-import UserIcon from '@mui/icons-material/Person';
-import FileCopyIcon from '@mui/icons-material/FileCopy';
-import CheckIcon from '@mui/icons-material/Check';
-import LogoutIcon from '@mui/icons-material/Logout';
-import SettingsIcon from '@mui/icons-material/Settings';
-import FullscreenIcon from '@mui/icons-material/Fullscreen';
 
 import {
   MenuSkeleton,
   getData,
-  useRequest,
+  useFullscreen,
   useLocaleDateTimeFormat,
-  useFullscreen
+  useRequest
 } from '@centreon/ui';
 import { ThemeMode } from '@centreon/ui-context';
 
-import Clock from '../Clock';
 import useNavigation from '../../Navigation/useNavigation';
-import { userEndpoint } from '../api/endpoints';
 import routeMap from '../../reactRoutes/routeMap';
+import Clock from '../Clock';
+import { userEndpoint } from '../api/endpoints';
 
 import SwitchMode from './SwitchThemeMode';
 import {
@@ -249,7 +249,7 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
   };
 
   const onCopy = (): void => {
-    if (autologinNode && autologinNode.current) {
+    if (autologinNode?.current) {
       autologinNode.current.select();
       window.document.execCommand('copy');
       setCopied(true);

@@ -2,15 +2,15 @@ import { isNil, propEq } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import {
-  Select,
-  MenuItem,
+  Divider,
   FormControl,
-  InputLabel,
-  Theme,
-  SelectProps,
   FormHelperText,
+  InputLabel,
   ListSubheader,
-  Divider
+  MenuItem,
+  Select,
+  SelectProps,
+  Theme
 } from '@mui/material';
 
 import { getNormalizedId } from '../../utils';

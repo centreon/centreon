@@ -66,13 +66,12 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
                 AND hosts.enabled = 1
                 AND hosts.name NOT LIKE "_Module_%"
             SQL;
-        $request .= ' GROUP BY hosts.name';
+
+        $request .= ' GROUP BY hosts.id, hosts.name, hosts.status ';
 
         $sort = $sqlTranslator->translateSortParameterToSql();
 
-        $request .= $sort !== null ? $sort : ' ORDER BY hosts.name ASC';
-
-        $request .= $sqlTranslator->translatePaginationToSql();
+        $request .= $sort ?? ' ORDER BY hosts.name ASC';
 
         $statement = $this->db->prepare($this->translateDbName($request));
         $sqlTranslator->bindSearchValues($statement);
@@ -114,9 +113,7 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
 
         $sort = $sqlTranslator->translateSortParameterToSql();
 
-        $request .= $sort !== null ? $sort : ' ORDER BY hosts.name ASC';
-
-        $request .= $sqlTranslator->translatePaginationToSql();
+        $request .= $sort ?? ' ORDER BY hosts.name ASC';
 
         $statement = $this->db->prepare($this->translateDbName($request));
         $sqlTranslator->bindSearchValues($statement);

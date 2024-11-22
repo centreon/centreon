@@ -1,20 +1,18 @@
 import { ReactElement } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { keys } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { TextField } from '@centreon/ui';
 import { ItemComposition } from '@centreon/ui/components';
+import { Parameter as ParameterModel } from '../models';
 
-import { labelValue, labelName } from '../../translatedLabels';
-import { Parameter } from '../models';
-
-import { useParameterStyles } from './useParametersStyles';
 import useParameter from './useParameter';
+import { useParameterStyles } from './useParametersStyles';
 
 interface Props {
   index: number;
-  parameter: Parameter;
+  parameter: ParameterModel;
 }
 
 const Parameter = ({ parameter, index }: Props): ReactElement => {
@@ -40,17 +38,10 @@ const Parameter = ({ parameter, index }: Props): ReactElement => {
               key={name}
             >
               <TextField
-                disabled
-                fullWidth
-                dataTestId={name}
-                label={t(labelName)}
-                value={t(name)}
-              />
-              <TextField
                 fullWidth
                 dataTestId={`${name}_value`}
                 error={getError?.(name)}
-                label={t(labelValue)}
+                label={t(name)}
                 name={name}
                 required={getIsFieldRequired(name)}
                 type={getFieldType(name)}

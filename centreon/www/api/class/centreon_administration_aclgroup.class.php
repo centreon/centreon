@@ -36,14 +36,19 @@
 
 require_once __DIR__ . '/centreon_configuration_objects.class.php';
 
+/**
+ * Class
+ *
+ * @class CentreonAdministrationAclgroup
+ */
 class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
 {
     public const ADMIN_ACL_GROUP = 'customer_admin_acl';
 
     /**
-     * @throws RestBadRequestException
-     *
      * @return array
+     * @throws PDOException
+     * @throws RestBadRequestException
      */
     public function getList()
     {
@@ -112,12 +117,12 @@ class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
             $queryValues['limit'] = $limit;
         }
 
-        $query = <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS
-                    ag.acl_group_id,
-                    ag.acl_group_name
-                FROM acl_groups ag
-            SQL;
+        $query = <<<'SQL_WRAP'
+            SELECT SQL_CALC_FOUND_ROWS
+                ag.acl_group_id,
+                ag.acl_group_name
+            FROM acl_groups ag
+        SQL_WRAP;
 
         $query .= ! $isUserAdmin
             ? <<<'SQL'

@@ -6,9 +6,9 @@ import { Box } from '@mui/system';
 import {
   labelAnd,
   labelCentreon,
-  labelDevelopedBy,
+  labelCentreonWebsite,
   labelCommunity,
-  labelCentreonWebsite
+  labelDevelopedBy
 } from '../translatedLabels';
 
 const Community = (): JSX.Element => {

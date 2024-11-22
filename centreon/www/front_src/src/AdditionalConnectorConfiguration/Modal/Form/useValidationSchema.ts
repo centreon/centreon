@@ -1,6 +1,6 @@
-import { string, object, number, array } from 'yup';
-import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { array, number, object, string } from 'yup';
 
 import {
   labelAtLeastOneVCenterIsRequired,
@@ -67,7 +67,7 @@ const useValidationSchema = ({ variant }: Props): { validationSchema } => {
     port: number()
       .required(t(labelRequired))
       .integer(t(labelInvalidPortNumber))
-      .min(0, t(labelInvalidPortNumber))
+      .min(1, t(labelInvalidPortNumber))
       .max(65535, t(labelInvalidPortNumber)),
     vcenters: array()
       .of(vcenterSchema)

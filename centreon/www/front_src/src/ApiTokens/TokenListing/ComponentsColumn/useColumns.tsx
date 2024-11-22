@@ -9,12 +9,12 @@ import {
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
+import Title from '../Title';
 import { selectedColumnIdsAtom } from '../atoms';
 import { Row } from '../models';
-import Title from '../Title';
 
-import Activate from './Activate';
 import ActionsColumn from './ActionsColumn';
+import Activate from './Activate';
 import { Column, UseColumns, defaultSelectedColumnIds } from './models';
 
 const dateFormat = 'L';

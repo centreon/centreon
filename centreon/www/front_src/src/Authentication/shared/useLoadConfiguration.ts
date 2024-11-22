@@ -2,8 +2,8 @@ import { JsonDecoder } from 'ts.data.json';
 
 import { useFetchQuery } from '@centreon/ui';
 
-import { Provider } from '../models';
 import { authenticationProvidersEndpoint } from '../api/endpoints';
+import { Provider } from '../models';
 
 interface UseLoadConfigurationState<T> {
   initialConfiguration?: T;

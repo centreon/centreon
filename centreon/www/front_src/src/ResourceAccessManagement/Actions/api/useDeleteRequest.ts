@@ -1,16 +1,17 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
 import {
   complement,
   equals,
   includes,
   isEmpty,
+  isNil,
   last,
   length,
   prop,
   propEq,
   split
 } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
   Method,
@@ -20,16 +21,16 @@ import {
 } from '@centreon/ui';
 
 import {
+  DeleteResourceAccessRuleType,
+  DeleteType,
+  ResourceAccessRuleType
+} from '../../models';
+import {
   labelFailedToDeleteRule,
   labelFailedToDeleteSelectedRules,
   labelResourceAccessRuleDeletedSuccess,
   labelResourceAccessRulesDeletedSuccess
 } from '../../translatedLabels';
-import {
-  DeleteResourceAccessRuleType,
-  DeleteType,
-  ResourceAccessRuleType
-} from '../../models';
 
 import {
   deleteMultipleRulesEndpoint,
@@ -76,35 +77,35 @@ const useDeleteRequest = ({
     method: fetchMethod,
     onSettled,
     onSuccess: (response) => {
-      const { statusCode, data } = response as ResponseError;
-      if (equals(statusCode, 207)) {
-        const successfulResponses = data.filter(propEq(204, 'status'));
-        const failedResponses = data.filter(complement(propEq(204, 'status')));
-        const failedResponsesIds = failedResponses
-          .map(prop('href'))
-          .map((item: string) =>
-            parseInt(last(split('/', item)) as string, 10)
-          );
+      const { data } = response as ResponseError;
 
-        if (isEmpty(successfulResponses)) {
-          showErrorMessage(t(labelFailed));
+      const successfullResponses =
+        data?.filter(propEq(204, 'status')) || isNil(data);
+      const failedResponses = data?.filter(complement(propEq(204, 'status')));
+      const failedResponsesIds = failedResponses
+        .map(prop('href'))
+        .map((item: string) =>
+          Number.parseInt(last(split('/', item)) as string, 10)
+        );
 
-          return;
-        }
+      if (isEmpty(successfullResponses)) {
+        showErrorMessage(t(labelFailed));
 
-        if (length(successfulResponses) < length(data)) {
-          const failedResponsesNames = selectedRows
-            ?.filter((item) => includes(item.id, failedResponsesIds))
-            .map((item) => item.name);
+        return;
+      }
 
-          showWarningMessage(
-            `${labelFailedToDeleteSelectedRules}: ${failedResponsesNames.join(
-              ', '
-            )}`
-          );
+      if (length(successfullResponses) < length(data)) {
+        const failedResponsesNames = selectedRows
+          ?.filter((item) => includes(item.id, failedResponsesIds))
+          .map((item) => item.name);
 
-          return;
-        }
+        showWarningMessage(
+          `${labelFailedToDeleteSelectedRules}: ${failedResponsesNames.join(
+            ', '
+          )}`
+        );
+
+        return;
       }
 
       showSuccessMessage(t(labelSuccess));

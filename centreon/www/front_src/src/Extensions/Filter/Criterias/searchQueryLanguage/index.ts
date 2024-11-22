@@ -1,4 +1,6 @@
+import pluralize from 'pluralize';
 import {
+  __,
   allPass,
   compose,
   concat,
@@ -26,26 +28,24 @@ import {
   split,
   startsWith,
   trim,
-  without,
-  __
+  without
 } from 'ramda';
-import pluralize from 'pluralize';
 
 import type { SelectEntry } from '@centreon/ui';
 
+import getDefaultCriterias from '../default';
 import {
   Criteria,
   criteriaValueNameById,
   selectableCriterias
 } from '../models';
-import getDefaultCriterias from '../default';
 
 import {
-  CriteriaId,
-  criteriaNameToQueryLanguageName,
-  criteriaNameSortOrder,
-  CriteriaValueSuggestionsProps,
   AutocompleteSuggestionProps,
+  CriteriaId,
+  CriteriaValueSuggestionsProps,
+  criteriaNameSortOrder,
+  criteriaNameToQueryLanguageName,
   getSelectableCriteriasByName
 } from './models';
 

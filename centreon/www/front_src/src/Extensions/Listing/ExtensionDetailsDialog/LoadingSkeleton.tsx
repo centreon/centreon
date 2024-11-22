@@ -1,6 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 
-import { useTheme, Skeleton, SkeletonProps } from '@mui/material';
+import { Skeleton, SkeletonProps, useTheme } from '@mui/material';
 
 import { headerHeight } from '../../../Header';
 

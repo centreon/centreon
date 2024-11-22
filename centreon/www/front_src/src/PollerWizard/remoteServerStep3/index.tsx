@@ -1,19 +1,19 @@
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
 import { equals, not } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { centreonBaseURL, postData, useRequest } from '@centreon/ui';
 
 import WizardFormSetupStatus from '../../components/WizardFormSetupStatus';
 import routeMap from '../../reactRoutes/routeMap';
-import { remoteServerAtom, RemoteServerData } from '../pollerAtoms';
+import { exportTaskEndpoint } from '../api/endpoints';
+import { RemoteServerData, remoteServerAtom } from '../pollerAtoms';
 import {
   labelExportGenerationTimeout,
   labelFinalStep
 } from '../translatedLabels';
-import { exportTaskEndpoint } from '../api/endpoints';
 
 const RemoteServerWizardStepThree = (): JSX.Element => {
   const { t } = useTranslation();

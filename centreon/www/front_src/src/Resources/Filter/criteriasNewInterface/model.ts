@@ -2,14 +2,14 @@ import { SelectEntry } from '@centreon/ui';
 
 import { ResourceType } from '../../models';
 import {
-  labelPending,
-  labelUp,
-  labelDown,
-  labelUnreachable,
-  labelOk,
-  labelWarning,
   labelCritical,
-  labelUnknown
+  labelDown,
+  labelOk,
+  labelPending,
+  labelUnknown,
+  labelUnreachable,
+  labelUp,
+  labelWarning
 } from '../../translatedLabels';
 import {
   Criteria,
@@ -40,14 +40,14 @@ export enum ExtendedCriteria {
   serviceSeverityLevels = CriteriaNames.serviceSeverityLevels,
   hostSeverityLevels = CriteriaNames.hostSeverityLevels
 }
-export enum categoryHostStatus {
+export enum CategoryHostStatus {
   UP = labelUp,
   DOWN = labelDown,
   PENDING = labelPending,
   UNREACHABLE = labelUnreachable
 }
 
-export enum categoryServiceStatus {
+export enum CategoryServiceStatus {
   OK = labelOk,
   WARNING = labelWarning,
   CRITICAL = labelCritical,

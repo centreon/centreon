@@ -98,7 +98,7 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
         ->toBe(AccException::accessNotAllowed()->getMessage());
 });
 
-it('should present a NotFoundResponse when the host template does not exist', function (): void {
+it('should present a NotFoundResponse when the Additional Connector Configuration does not exist', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')

@@ -2,7 +2,7 @@ import { TFunction } from 'i18next';
 
 import { ChannelsEnum, ResourcesTypeEnum } from '../../models';
 import { labelIncludeServicesForTheseHosts } from '../../translatedLabels';
-import { SlackIcon, EmailIcon, SmsIcon } from '../FormInputs/Channel/Icons';
+import { EmailIcon, SlackIcon, SmsIcon } from '../FormInputs/Channel/Icons';
 import { NotificationType } from '../models';
 import {
   defaultEmailBody,

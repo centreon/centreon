@@ -1,14 +1,14 @@
 import { lazy, useEffect } from 'react';
 
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { not, startsWith, tail } from 'ramda';
-import { createStore } from 'jotai';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { createStore } from 'jotai';
+import { not, startsWith, tail } from 'ramda';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 
 import { Module } from '@centreon/ui';
 
-import routeMap from '../reactRoutes/routeMap';
 import AuthenticationDenied from '../FallbackPages/AuthenticationDenied';
+import routeMap from '../reactRoutes/routeMap';
 
 const LoginPage = lazy(() => import('../Login'));
 const ResetPasswordPage = lazy(() => import('../ResetPassword'));

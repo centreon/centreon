@@ -5,7 +5,7 @@ import { Box } from '@mui/material';
 
 import { ComponentColumnProps, usePluralizedTranslation } from '@centreon/ui';
 
-import { DashboardRole, ContactType } from '../../../../api/models';
+import { ContactType, DashboardRole } from '../../../../api/models';
 import { labelShares } from '../translatedLabels';
 
 import { useColumnStyles } from './useColumnStyles';

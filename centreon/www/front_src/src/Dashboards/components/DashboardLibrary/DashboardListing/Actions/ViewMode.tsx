@@ -1,16 +1,16 @@
-import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import { Box } from '@mui/material';
 import ListIcon from '@mui/icons-material/FormatListBulleted';
 import CardsIcon from '@mui/icons-material/GridViewOutlined';
+import { Box } from '@mui/material';
 
 import { IconButton } from '@centreon/ui';
 
-import { labelCardsView, labelListView } from '../translatedLabels';
 import { viewModeAtom } from '../atom';
 import { ViewMode as ViewModeType } from '../models';
+import { labelCardsView, labelListView } from '../translatedLabels';
 
 import { useActionsStyles } from './useActionsStyles';
 

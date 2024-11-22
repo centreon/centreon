@@ -1,4 +1,4 @@
-import { includes, map, prop, reject, sortBy, toLower, compose } from 'ramda';
+import { compose, includes, map, prop, reject, sortBy, toLower } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { Chip, ChipProps, Tooltip } from '@mui/material';

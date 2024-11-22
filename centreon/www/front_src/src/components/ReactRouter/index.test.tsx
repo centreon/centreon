@@ -1,22 +1,22 @@
 import { Provider, createStore } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
-import {
-  render,
-  RenderResult,
-  waitFor,
-  screen
-} from '@centreon/ui/test/testRenderer';
 import { federatedModulesAtom } from '@centreon/ui-context';
+import {
+  RenderResult,
+  render,
+  screen,
+  waitFor
+} from '@centreon/ui/test/testRenderer';
 
+import { labelYouAreNotAllowedToSeeThisPage } from '../../FallbackPages/NotAllowedPage/translatedLabels';
 import { labelThisPageCouldNotBeFound } from '../../FallbackPages/NotFoundPage/translatedLabels';
-import navigationAtom from '../../Navigation/navigationAtoms';
 import {
   retrievedNavigation,
   retrievedNavigationWithAnEmptySet
 } from '../../Navigation/mocks';
+import navigationAtom from '../../Navigation/navigationAtoms';
 import { retrievedFederatedModule } from '../../federatedModules/mocks';
-import { labelYouAreNotAllowedToSeeThisPage } from '../../FallbackPages/NotAllowedPage/translatedLabels';
 
 import ReactRouter from '.';
 

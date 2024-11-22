@@ -2,6 +2,7 @@ import { ChangeEvent, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
 
+import { equals } from 'ramda';
 import { Widget } from '../../../models';
 import { getProperty } from '../utils';
 
@@ -28,10 +29,11 @@ const useTopBottomSettings = (
   ) as TopBottomSettingsValue;
 
   const changeNumberOfValues = (event: ChangeEvent<HTMLInputElement>): void => {
-    setFieldValue(
-      `options.${propertyName}.numberOfValues`,
-      Number(event.target.value)
-    );
+    const value = equals(Number(event.target.value), 0)
+      ? 1
+      : Number(event.target.value);
+
+    setFieldValue(`options.${propertyName}.numberOfValues`, value);
     setFieldTouched(`options.${propertyName}.numberOfValues`, true, false);
   };
 

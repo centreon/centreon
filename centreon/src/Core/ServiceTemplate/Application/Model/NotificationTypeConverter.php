@@ -29,14 +29,14 @@ use Core\ServiceTemplate\Domain\Model\NotificationType;
 
 class NotificationTypeConverter
 {
-    public const NONE_AS_BIT = 0b000000,
-                 WARNING_AS_BIT = 0b000001,
-                 UNKNOWN_AS_BIT = 0b000010,
-                 CRITICAL_AS_BIT = 0b000100,
-                 RECOVERY_AS_BIT = 0b001000,
-                 FLAPPING_AS_BIT = 0b010000,
-                 DOWNTIME_SCHEDULED_AS_BIT = 0b100000,
-                 ALL_TYPE = 0b111111;
+    public const NONE_AS_BIT = 0b000000;
+    public const WARNING_AS_BIT = 0b000001;
+    public const UNKNOWN_AS_BIT = 0b000010;
+    public const CRITICAL_AS_BIT = 0b000100;
+    public const RECOVERY_AS_BIT = 0b001000;
+    public const FLAPPING_AS_BIT = 0b010000;
+    public const DOWNTIME_SCHEDULED_AS_BIT = 0b100000;
+    public const ALL_TYPE = 0b111111;
 
     /**
      * @param int $bitFlag

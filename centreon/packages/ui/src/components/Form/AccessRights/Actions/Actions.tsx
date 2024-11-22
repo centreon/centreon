@@ -5,8 +5,8 @@ import { CircularProgress } from '@mui/material';
 import { Button } from '../../..';
 import { AccessRightInitialValues, Labels } from '../models';
 
-import { useActions } from './useActions';
 import { useActionsStyles } from './Actions.styles';
+import { useActions } from './useActions';
 
 interface Props {
   cancel?: ({ dirty, values }) => void;

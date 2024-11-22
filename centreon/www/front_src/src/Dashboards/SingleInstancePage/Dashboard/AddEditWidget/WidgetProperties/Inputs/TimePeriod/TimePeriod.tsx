@@ -1,27 +1,30 @@
 import { useMemo } from 'react';
 
-import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
+dayjs.extend(isSameOrAfter);
 
 import { Typography } from '@mui/material';
 
 import { SelectField, SimpleCustomTimePeriod } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
+import Subtitle from '../../../../components/Subtitle';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import { labelTimePeriod } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
-import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
-import Subtitle from '../../../../components/Subtitle';
 
-import useTimePeriod from './useTimePeriod';
 import { useTimePeriodStyles } from './TimePeriod.styles';
+import useTimePeriod from './useTimePeriod';
 
 const TimePeriod = ({
   propertyName,
   isInGroup
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useTimePeriodStyles();
+
   const { t } = useTranslation();
 
   const {

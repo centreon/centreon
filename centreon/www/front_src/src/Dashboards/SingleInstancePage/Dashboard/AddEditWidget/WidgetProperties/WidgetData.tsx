@@ -1,8 +1,8 @@
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { labelDatasetSelection } from '../../translatedLabels';
 import Title from '../../../../components/Title';
+import { labelDatasetSelection } from '../../translatedLabels';
 
 import { useWidgetInputs } from './useWidgetInputs';
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';

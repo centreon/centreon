@@ -1,34 +1,34 @@
 import { useMemo } from 'react';
 
-import { FormikValues, useFormikContext } from 'formik';
-import { useTranslation } from 'react-i18next';
-import { isNil, lte, not } from 'ramda';
 import dayjs from 'dayjs';
+import { FormikValues, useFormikContext } from 'formik';
+import { isNil, lte, not } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import { FormHelperText, FormLabel, useTheme } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
 
-import TimeInputs from '../TimeInputs';
-import {
-  labelTimeThatMustPassBeforeNewConnection,
-  labelGood,
-  labelStrong,
-  labelThisWillNotBeUsedBecauseNumberOfAttemptsIsNotDefined,
-  labelWeak
-} from '../translatedLabels';
 import StrengthProgress from '../StrengthProgress';
+import TimeInputs from '../TimeInputs';
+import { TimeInputConfiguration } from '../models';
 import {
   goodBlockingDuration,
   sevenDays,
   strongBlockingDuration,
   weakBlockingDuration
 } from '../timestamps';
-import { TimeInputConfiguration } from '../models';
+import {
+  labelGood,
+  labelStrong,
+  labelThisWillNotBeUsedBecauseNumberOfAttemptsIsNotDefined,
+  labelTimeThatMustPassBeforeNewConnection,
+  labelWeak
+} from '../translatedLabels';
 
-import { getField } from './utils';
 import { attemptsFieldName } from './Attempts';
+import { getField } from './utils';
 
 const blockingDurationFieldName = 'blockingDuration';
 

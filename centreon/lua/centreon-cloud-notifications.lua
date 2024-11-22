@@ -167,7 +167,7 @@ end
 --  notification ID.
 --  @param id The notification ID we know from the first API configuration.
 --  @return A table with the notification content.
-local function get_notification(id)
+local function get_notification_rule(id)
   local content = {}
   local loop = true
   while loop do
@@ -190,6 +190,87 @@ local function get_notification(id)
     ok, err = c:perform()
     if not ok then
       broker_log:error(0, "Unable to call the API to get the notification " .. id .. ": " .. tostring(err))
+    end
+    local resp_code = c:getinfo(cURL.INFO_RESPONSE_CODE)
+    broker_log:info(2, "response code: " .. resp_code)
+    if resp_code == 401 then
+      broker_log:info(1, "Expired token. Trying to get a new one")
+      login()
+    else
+      loop = false
+    end
+    c:close()
+  end
+  return content
+end
+
+
+--- Get the notification configuration from the API. The parameter is the
+--  notification ID.
+--  @param id The notification ID we know from the first API configuration.
+--  @return A table with the notification content.
+local function get_notification(id)
+  local content = {}
+  local loop = true
+  while loop do
+    local c = cURL.easy{
+      url = data.base_url .. "/configuration/notifications/" .. id,
+      post = false,
+      httpheader = {
+        'Content-Type: application/json',
+        'x-AUTH-TOKEN: ' .. tostring(data.token),
+      },
+      writefunction = function(resp)
+        content = broker.json_decode(resp)
+        if content then
+          broker_log:info(2, resp)
+        else
+          broker_log:error(0, "Unable to decode the message '" .. tostring(resp) .. "'")
+        end
+      end,
+    }
+    ok, err = c:perform()
+    if not ok then
+      broker_log:error(0, "Unable to call the API to get the notif " .. id .. ": " .. tostring(err))
+    end
+    local resp_code = c:getinfo(cURL.INFO_RESPONSE_CODE)
+    broker_log:info(2, "response code: " .. resp_code)
+    if resp_code == 401 then
+      broker_log:info(1, "Expired token. Trying to get a new one")
+      login()
+    else
+      loop = false
+    end
+    c:close()
+  end
+  return content
+end
+
+--- Get the time periods from the API.
+--  @return A table with the time periods content.
+local function get_time_period(id)
+  local content = {}
+  local loop = true
+  while loop do
+    local c = cURL.easy{
+      url = data.base_url .. "/configuration/timeperiods/" .. id,
+      post = false,
+      httpheader = {
+        'Content-Type: application/json',
+        'x-AUTH-TOKEN: ' .. tostring(data.token),
+      },
+      writefunction = function(resp)
+        content = broker.json_decode(resp)
+        if content then
+          broker_log:info(2, resp)
+        else
+          broker_log:error(0, "Unable to decode the message '" .. tostring(resp) .. "'")
+        end
+      end,
+    }
+    ok, err = c:perform()
+    if not ok then
+      broker_log:error(0, "Unable to call the API to get time period : " .. tostring(err))
     end
     local resp_code = c:getinfo(cURL.INFO_RESPONSE_CODE)
     broker_log:info(2, "response code: " .. resp_code)
@@ -384,6 +465,12 @@ function init(conf)
   end
 end
 
+local function is_notifiable(notification)
+    local notif = get_notification(notification.notification_id)
+    local time_period = get_time_period(notif.timeperiod.id)
+    return time_period.in_period == true
+end
+
 function write(d)
   local now = os.time()
   if now >= data.last_refresh + data.refresh_delay then
@@ -394,7 +481,7 @@ function write(d)
   -- PbServiceStatus
   if d._type == 65565 then
     -- Notification is done only on resources not in downtime and not acknowledged.
-    if d.scheduled_downtime_depth == 0 and d.acknowledgement_type == 0 then
+    if (d.scheduled_downtime_depth == 0 or d.scheduled_downtime_depth == nil) and (d.acknowledgement_type == 0 or d.acknowledgement_type == nil) then
       -- Look for the host containing this service in the notification configuration
       local host = data.host[d.host_id]
       if host then
@@ -417,14 +504,22 @@ function write(d)
               broker_log:info(2, "Notification on service (" .. d.host_id .. "," .. d.service_id ..
                                  ") --- state: " .. d.state ..
                                  " ; notification_id: " .. svc.notification_id)
-              local notif = get_notification(svc.notification_id)
+              local notif = get_notification_rule(svc.notification_id)
+              if is_notifiable(notif) == false then
+                goto continue
+              end
+
               if notif and notif.channels and notif.channels.email then
                 notif = notif.channels.email
                 send_mail(notif, d, svc, hostname)
               end
             end
           end
+
+          ::continue::
         end
+      else
+        broker_log:info(2, "host " .. d.host_id .. " not found")
       end
     else
       if d.scheduled_downtime_depth > 0 then
@@ -436,7 +531,7 @@ function write(d)
   -- PbHostStatus
   elseif d._type == 65568 then
     -- Notification is done only on resources not in downtime and not acknowledged.
-    if d.scheduled_downtime_depth == 0 and d.acknowledgement_type == 0 then
+    if (d.scheduled_downtime_depth == 0 or d.scheduled_downtime_depth == nil) and (d.acknowledgement_type == 0 or d.acknowledgement_type == nil) then
       -- Looking for the host in the notification configuration
       local hst = data.host[d.host_id]
       -- We check that
@@ -456,7 +551,12 @@ function write(d)
             broker_log:info(2, "Notification on host " .. d.host_id ..
                                " --- notification_id: " .. hnotif.notification_id ..
                                " state: " .. d.state)
-            local notif = get_notification(hnotif.notification_id)
+
+            local notif = get_notification_rule(hnotif.notification_id)
+            if is_notifiable(notif) == false then
+            	goto continue
+            end
+
             if notif.channels and notif.channels.email then
               notif = notif.channels.email
               local host = {
@@ -466,7 +566,11 @@ function write(d)
               send_mail(notif, d, host)
             end
           end
+
+          ::continue::
         end
+      else
+        broker_log:info(2, "host " .. d.host_id .. " not found")
       end
     else
       if d.scheduled_downtime_depth > 0 then

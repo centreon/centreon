@@ -527,6 +527,7 @@ ENGINECFG;setparam;Centreon Engine Central;nagios_activate;1
 ENGINECFG;setparam;Centreon Engine Central;event_broker_options;-1
 ENGINECFG;setparam;Centreon Engine Central;enable_predictive_host_dependency_checks;2
 ENGINECFG;setparam;Centreon Engine Central;enable_predictive_service_dependency_checks;2
+ENGINECFG;setparam;Centreon Engine Central;host_down_disable_service_checks;0
 ENGINECFG;setparam;Centreon Engine Central;cached_host_check_horizon;60
 ENGINECFG;setparam;Centreon Engine Central;enable_environment_macros;2
 ENGINECFG;setparam;Centreon Engine Central;debug_file;/var/log/centreon-engine/centengine.debug

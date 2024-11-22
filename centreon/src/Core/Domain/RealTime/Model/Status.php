@@ -25,13 +25,13 @@ namespace Core\Domain\RealTime\Model;
 
 abstract class Status
 {
-    public const STATUS_ORDER_HIGH = 1,
-                 STATUS_ORDER_MEDIUM = 2,
-                 STATUS_ORDER_LOW = 3,
-                 STATUS_ORDER_PENDING = 4,
-                 STATUS_ORDER_OK = 5;
-    public const STATUS_NAME_PENDING = 'PENDING',
-                 STATUS_CODE_PENDING = 4;
+    public const STATUS_ORDER_HIGH = 1;
+    public const STATUS_ORDER_MEDIUM = 2;
+    public const STATUS_ORDER_LOW = 3;
+    public const STATUS_ORDER_PENDING = 4;
+    public const STATUS_ORDER_OK = 5;
+    public const STATUS_NAME_PENDING = 'PENDING';
+    public const STATUS_CODE_PENDING = 4;
 
     /** @var int|null */
     protected $order;

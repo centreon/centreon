@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { useAtom, PrimitiveAtom } from 'jotai';
+import { PrimitiveAtom, useAtom } from 'jotai';
 import { equals, pick, type } from 'ramda';
 
 import { Modal } from '..';

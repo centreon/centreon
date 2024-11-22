@@ -1,9 +1,9 @@
 import { MemoizedListing } from '@centreon/ui';
 
 import ActionsBar from './ActionsBar/ActionsBar';
-import useListing from './useListing';
 import DeleteConnectorDialog from './Columns/Actions/DeleteDialog';
 import useColumns from './Columns/columns';
+import useListing from './useListing';
 
 const Listing = (): JSX.Element => {
   const { columns } = useColumns();

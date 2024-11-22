@@ -19,6 +19,9 @@ inputs:
     required: false
     default: 'false'
     description: 'Generates new code coverages bas stats or not'
+outputs:
+  has_new_code_coverage:
+    description: 'This tells if a new code coverages file has been generated'
 
 runs:
   using: 'node20'

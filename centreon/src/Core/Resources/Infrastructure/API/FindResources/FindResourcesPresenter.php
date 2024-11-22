@@ -38,8 +38,8 @@ use Core\Resources\Infrastructure\API\ExtraDataNormalizer\ExtraDataNormalizerInt
 class FindResourcesPresenter extends AbstractPresenter implements FindResourcesPresenterInterface
 {
     use HttpUrlTrait, PresenterTrait;
-    private const IMAGE_DIRECTORY = '/img/media/',
-                  SERVICE_RESOURCE_TYPE = 'service';
+    private const IMAGE_DIRECTORY = '/img/media/';
+    private const SERVICE_RESOURCE_TYPE = 'service';
 
     /**
      * @param HypermediaCreator $hypermediaCreator
@@ -178,7 +178,7 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
                     'tries' => $resource->tries,
                     'information' => $resource->information,
                     'performance_data' => null,
-                    'is_notification_enabled' => false,
+                    'is_notification_enabled' => $resource->areNotificationsEnabled,
                     'severity' => $severity,
                     'links' => $links,
                     'extra' => $resource->resourceId !== null

@@ -40,7 +40,10 @@ const ExtendedFilter = ({ data, changeCriteria }: Props): JSX.Element => {
             filterName={item.name as ExtendedCriteria}
             key={item.name}
           />
-          <Divider className={classes.dividerInputs} />
+          <Divider
+            className={classes.dividerInputs}
+            key={`${item.name}-divider`}
+          />
         </>
       ))}
 

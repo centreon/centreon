@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $getSelection,
   $isElementNode,
@@ -7,18 +8,17 @@ import {
   ElementFormatType,
   FORMAT_ELEMENT_COMMAND
 } from 'lexical';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { equals } from 'ramda';
 
-import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
+import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
-import { OverridableComponent } from '@mui/material/OverridableComponent';
 import { SvgIconTypeMap } from '@mui/material';
+import { OverridableComponent } from '@mui/material/OverridableComponent';
 
 import { Menu } from '../../../components';
-import { getSelectedNode } from '../../utils/getSelectedNode';
 import { labelAlignPicker } from '../../translatedLabels';
+import { getSelectedNode } from '../../utils/getSelectedNode';
 
 import { useStyles } from './ToolbarPlugin.styles';
 

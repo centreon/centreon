@@ -30,7 +30,7 @@ use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccReposito
 use Core\AdditionalConnectorConfiguration\Domain\Model\Acc;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Poller;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
-use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6Parameters;
+use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6\VmWareV6Parameters;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
@@ -173,7 +173,7 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
 
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
 
-        $request = <<<'SQL'
+        $request = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS
                 ng.`id`,
                 ng.`name`
@@ -182,7 +182,7 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
                 ON rel.poller_id = ng.id
             LEFT JOIN `:db`.`additional_connector_configuration` acc
                 ON rel.acc_id = acc.id
-            SQL;
+            SQL_WRAP;
 
         // Search
         $request .= $search = $sqlTranslator?->translateSearchParameterToSql();
@@ -371,7 +371,7 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
             'poller.name' => 'ns.name',
         ]);
 
-        $request = <<<'SQL'
+        $request = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS
                 acc.*
             FROM `:db`.`additional_connector_configuration` acc
@@ -379,7 +379,7 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
                 ON  acc.id = rel.acc_id
             INNER JOIN `:db`.`nagios_server` ns
                 ON rel.poller_id = ns.id
-            SQL;
+            SQL_WRAP;
 
         // Search
         $request .= $sqlTranslator->translateSearchParameterToSql();
@@ -522,6 +522,37 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
         }
 
         return $additionalConnectors;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByPollerAndType(int $pollerId, string $type): ?Acc
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    acc.*
+                FROM `:db`.`additional_connector_configuration` acc
+                JOIN `:db`.`acc_poller_relation` rel
+                    ON acc.id = rel.acc_id
+                WHERE rel.poller_id = :poller_id
+                AND  acc.type = :type
+                LIMIT 1
+                SQL
+        ));
+
+        $statement->bindValue(':poller_id', $pollerId, \PDO::PARAM_INT);
+        $statement->bindValue(':type', $type, \PDO::PARAM_STR);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        foreach ($statement as $result) {
+            /** @var _Acc $result */
+            return $this->createFromArray($result);
+        }
+
+        return null;
     }
 
     /**

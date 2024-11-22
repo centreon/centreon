@@ -1,24 +1,24 @@
 import { useMemo } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { isEmpty, isNotNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
+  Checkbox,
   FormControlLabel,
   FormGroup,
-  Checkbox,
   Typography
 } from '@mui/material';
 
 import { Button } from '@centreon/ui/components';
 
-import { WidgetPropertyProps } from '../../../models';
-import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import Subtitle from '../../../../components/Subtitle';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import { WidgetPropertyProps } from '../../../models';
 import { useResourceStyles } from '../Inputs.styles';
 
-import { useCheckboxes } from './useCheckboxes';
 import { labelSelectAll, labelUnselectAll } from './translatedLabels';
+import { useCheckboxes } from './useCheckboxes';
 
 const WidgetCheckboxes = ({
   propertyName,

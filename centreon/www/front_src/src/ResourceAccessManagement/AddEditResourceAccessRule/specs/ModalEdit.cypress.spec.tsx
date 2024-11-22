@@ -5,54 +5,54 @@ import { Provider, createStore } from 'jotai';
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { platformVersionsAtom } from '@centreon/ui-context';
 
+import { AddEditResourceAccessRuleModal } from '..';
 import {
   editedResourceAccessRuleIdAtom,
   modalStateAtom,
   resourceAccessRulesNamesAtom
 } from '../../atom';
-import { AddEditResourceAccessRuleModal } from '..';
 import { ModalMode } from '../../models';
 import {
-  findBusinessViewsEndpoint,
-  resourceAccessRuleEndpoint
-} from '../api/endpoints';
-import {
+  labelAddFilter,
+  labelAddNewDataset,
+  labelAddResourceDatasets,
+  labelAllBusinessViews,
+  labelAllContactGroups,
+  labelAllContacts,
+  labelAllHostGroups,
+  labelAllHostGroupsSelected,
+  labelAllResourcesSelected,
+  labelBusinessView,
   labelContactsAndContactGroups,
   labelDescription,
+  labelDoYouWantToQuitWithoutSaving,
   labelEditResourceAccessRule,
   labelExit,
   labelName,
   labelNameAlreadyExists,
   labelRequired,
   labelResourceAccessRuleEditedSuccess,
-  labelAddResourceDatasets,
   labelRuleProperies,
   labelSave,
-  labelSelectResourceType,
-  labelAllResourcesSelected,
   labelSelectResource,
-  labelAddFilter,
-  labelAddNewDataset,
-  labelAllHostGroups,
-  labelAllHostGroupsSelected,
-  labelBusinessView,
-  labelAllBusinessViews,
-  labelAllContacts,
-  labelAllContactGroups,
-  labelYourFormHasUnsavedChanges,
-  labelDoYouWantToQuitWithoutSaving
+  labelSelectResourceType,
+  labelYourFormHasUnsavedChanges
 } from '../../translatedLabels';
 import { query } from '../FormInitialValues/useFormInitialValues';
+import {
+  findBusinessViewsEndpoint,
+  resourceAccessRuleEndpoint
+} from '../api/endpoints';
 
 import {
   editedRuleFormData,
+  editedRuleFormDataWithAllContactsAndContactGroups,
   editedRuleFormDataiWithAllBusinessViews,
   editedRuleFormDataiWithBusinessViews,
   findBusinessViewsResponse,
   findResourceAccessRuleResponse,
-  platformVersions,
-  editedRuleFormDataWithAllContactsAndContactGroups,
-  findResourceAccessRuleResponseDecoded
+  findResourceAccessRuleResponseDecoded,
+  platformVersions
 } from './testUtils';
 
 const store = createStore();

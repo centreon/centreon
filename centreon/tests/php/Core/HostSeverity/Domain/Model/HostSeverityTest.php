@@ -135,7 +135,7 @@ it('should throw an exception when host severity level is too low', function ():
         ->getMessage()
 );
 
-it('should throw an exception when host severity name is set empty', function () {
+it('should throw an exception when host severity name is set empty', function (): void {
     $hostSeverity = new HostSeverity(
         1,
         $this->severityName,
@@ -150,7 +150,7 @@ it('should throw an exception when host severity name is set empty', function ()
         ->getMessage()
 );
 
-it('should throw an exception when host severity name is set too long', function () {
+it('should throw an exception when host severity name is set too long', function (): void {
     $hostSeverity = new HostSeverity(
         1,
         $this->severityName,
@@ -169,7 +169,7 @@ it('should throw an exception when host severity name is set too long', function
     )->getMessage()
 );
 
-it('should throw an exception when host severity alias is set empty', function () {
+it('should throw an exception when host severity alias is set empty', function (): void {
     $hostSeverity = new HostSeverity(
         1,
         $this->severityName,
@@ -184,7 +184,7 @@ it('should throw an exception when host severity alias is set empty', function (
         ->getMessage()
 );
 
-it('should throw an exception when host severity alias is set too long', function () {
+it('should throw an exception when host severity alias is set too long', function (): void {
     $hostSeverity = new HostSeverity(
         1,
         $this->severityName,
@@ -203,7 +203,7 @@ it('should throw an exception when host severity alias is set too long', functio
     )->getMessage()
 );
 
-it('should throw an exception when host severity level is set too high', function () {
+it('should throw an exception when host severity level is set too high', function (): void {
     $hostSeverity = new HostSeverity(
         1,
         $this->severityName,
@@ -218,7 +218,7 @@ it('should throw an exception when host severity level is set too high', functio
         ->getMessage()
 );
 
-it('should throw an exception when host severity level is set too low', function () {
+it('should throw an exception when host severity level is set too low', function (): void {
     $hostSeverity = new HostSeverity(
         1,
         $this->severityName,

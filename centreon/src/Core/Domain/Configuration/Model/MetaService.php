@@ -27,20 +27,20 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class MetaService
 {
-    public const CALCULTATION_TYPE_AVERAGE = 'average',
-                 CALCULTATION_TYPE_MINIMUM = 'minimum',
-                 CALCULTATION_TYPE_MAXIMUM = 'maximum',
-                 CALCULTATION_TYPE_SUM = 'sum';
+    public const CALCULTATION_TYPE_AVERAGE = 'average';
+    public const CALCULTATION_TYPE_MINIMUM = 'minimum';
+    public const CALCULTATION_TYPE_MAXIMUM = 'maximum';
+    public const CALCULTATION_TYPE_SUM = 'sum';
     public const AVAILABLE_CALCULATION_TYPES = [
         self::CALCULTATION_TYPE_AVERAGE,
         self::CALCULTATION_TYPE_MAXIMUM,
         self::CALCULTATION_TYPE_MINIMUM,
         self::CALCULTATION_TYPE_SUM,
     ];
-    public const DATA_SOURCE_GAUGE = 'gauge',
-                 DATA_SOURCE_COUNTER = 'counter',
-                 DATA_SOURCE_DERIVE = 'derive',
-                 DATA_SOURCE_ABSOLUTE = 'absolute';
+    public const DATA_SOURCE_GAUGE = 'gauge';
+    public const DATA_SOURCE_COUNTER = 'counter';
+    public const DATA_SOURCE_DERIVE = 'derive';
+    public const DATA_SOURCE_ABSOLUTE = 'absolute';
     public const AVAILABLE_DATA_SOURCE_TYPES = [
         self::DATA_SOURCE_ABSOLUTE,
         self::DATA_SOURCE_COUNTER,

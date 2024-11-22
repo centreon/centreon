@@ -42,7 +42,7 @@ const nestedObjectToArray = (
     ];
   }
 
-  datasets = [
+  const newDatasets = [
     ...datasets,
     {
       allOfResourceType: isEmpty(element.resources),
@@ -51,7 +51,7 @@ const nestedObjectToArray = (
     }
   ];
 
-  return nestedObjectToArray(prop('datasetFilter', element), datasets);
+  return nestedObjectToArray(prop('datasetFilter', element), newDatasets);
 };
 
 const formatDatasetFilter = (datasetFilter: DatasetFilter): Array<Dataset> => {

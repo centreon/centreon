@@ -1,12 +1,11 @@
-/* eslint-disable react/no-array-index-key */
 import { ReactElement } from 'react';
 
-import { equals } from 'ramda';
+import { equals, keys } from 'ramda';
 
 import { Divider } from '@mui/material';
 
-import DeleteParameterGroupButton from './DeleteButton';
 import AddParameterGroupButton from './AddButton';
+import DeleteParameterGroupButton from './DeleteButton';
 import Parameter from './Parameter';
 import useParameters from './useParameters';
 import { useParametersStyles } from './useParametersStyles';
@@ -20,7 +19,10 @@ const Parameters = (): ReactElement => {
   return (
     <div>
       {parameters?.map((parameter, index) => (
-        <div className={classes.parametersContainer} key={`${index}-parameter`}>
+        <div
+          className={classes.parametersContainer}
+          key={`${keys(parameter)}-parameter`}
+        >
           <div className={classes.parametersComposition}>
             <Parameter index={index} parameter={parameter} />
             {parameters.length > 1 && (

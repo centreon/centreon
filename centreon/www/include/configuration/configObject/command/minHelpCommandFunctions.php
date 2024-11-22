@@ -43,13 +43,7 @@ declare(strict_types=1);
 function isCommandInAllowedResources(CentreonDB $pearDB, string $command): bool
 {
     $allowedResources = getAllResources($pearDB);
-
-    foreach ($allowedResources as $path) {
-        if (substr($command, 0, strlen($path)) === $path) {
-            return true;
-        }
-    }
-    return false;
+    return in_array(substr($command, 0, strlen($path)), $allowedResources, true);
 }
 
 /**

@@ -4,8 +4,8 @@ import {
   CriteriaById,
   CriteriaNames,
   selectableResourceTypes,
-  selectableStates,
   selectableStateTypes,
+  selectableStates,
   selectableStatuses
 } from '../models';
 
@@ -41,15 +41,15 @@ export interface AutocompleteSuggestionProps {
 }
 
 export enum SearchableFields {
-  'alias' = 'alias',
-  'fqdn' = 'fqdn',
+  alias = 'alias',
+  fqdn = 'fqdn',
   'h.address' = 'h.address',
   'h.alias' = 'h.alias',
   'h.name' = 'h.name',
-  'information' = 'information',
-  'name' = 'name',
-  'parent_alias' = 'parent_alias',
-  'parent_name' = 'parent_name',
+  information = 'information',
+  name = 'name',
+  parent_alias = 'parent_alias',
+  parent_name = 'parent_name',
   's.description' = 's.description'
 }
 

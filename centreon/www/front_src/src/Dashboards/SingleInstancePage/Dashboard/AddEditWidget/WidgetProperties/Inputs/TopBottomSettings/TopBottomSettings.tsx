@@ -9,21 +9,21 @@ import {
   Typography
 } from '@mui/material';
 
+import Subtitle from '../../../../components/Subtitle';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import {
   labelBottom,
   labelDisplay,
   labelHosts,
-  labelTop,
+  labelNumberOfValues,
   labelShowValueLabels,
-  labelNumberOfValues
+  labelTop
 } from '../../../../translatedLabels';
-import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import { WidgetPropertyProps } from '../../../models';
 import WidgetSwitch from '../Switch';
-import Subtitle from '../../../../components/Subtitle';
 
-import useTopBottomSettings from './useTopBottomSettings';
 import { useTopBottomSettingsStyles } from './TopBottomSettings.styles';
+import useTopBottomSettings from './useTopBottomSettings';
 
 const TopBottomSettings = ({
   propertyName,
@@ -49,7 +49,7 @@ const TopBottomSettings = ({
           inputProps={{
             'aria-label': t(labelNumberOfValues) as string,
             max: 50,
-            min: 3
+            min: 1
           }}
           size="compact"
           type="number"

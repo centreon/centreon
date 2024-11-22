@@ -1,0 +1,86 @@
+{
+    "id": 1,
+    "name": "My Dashboard",
+    "description": "my description",
+    "created_at": "",
+    "updated_at": "",
+    "shares": {
+      "contacts": [
+        {
+          "id": 1,
+          "name": "Arnaud",
+          "email": "arnaud@centreon.com",
+          "role": "editor"
+        }
+      ],
+      "contact_groups": [
+        {
+          "id": 1,
+          "name": "Guest",
+          "email": "",
+          "role": "viewer"
+        }
+      ]
+    },
+    "created_by": {
+      "id": 1,
+      "name": "Arnaud"
+    },
+    "updated_by": {
+      "id": 1,
+      "name": "Arnaud"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "name": "centreon-widget-webpage",
+        "widget_type": "/widgets/webpage",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "width": 6,
+          "height": 7,
+          "min_width": 6,
+          "min_height": 7
+        },
+        "widget_settings": {
+          "options": {
+            "name": null,
+            "description": {
+              "enabled": true,
+              "content": null
+            },
+            "url": "https://docs.centreon.com/fr/"
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "centreon-widget-webpage",
+        "widget_type": "/widgets/webpage",
+        "layout": {
+          "x": 45,
+          "y": 0,
+          "width": 6,
+          "height": 7,
+          "min_width": 6,
+          "min_height": 7
+        },
+        "widget_settings": {
+          "options": {
+            "name": null,
+            "description": {
+              "enabled": true,
+              "content": null
+            },
+            "url": "https://react.dev/"
+          }
+        }
+      }
+    ],
+    "own_role": "viewer",
+    "refresh": {
+      "type": "global",
+      "interval": null
+    }
+  }

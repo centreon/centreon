@@ -1,7 +1,7 @@
 import { Image, ImageVariant } from '@centreon/ui';
 
-import slackIcon from './Icons/slack.svg';
 import emailIcon from './Icons/email.svg';
+import slackIcon from './Icons/slack.svg';
 import smsIcon from './Icons/sms.svg';
 
 export const SlackIcon = (): JSX.Element => {

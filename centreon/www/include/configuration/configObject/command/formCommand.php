@@ -57,7 +57,7 @@ require_once _CENTREON_PATH_ . "www/include/configuration/configObject/command/j
  * Database retrieve information for Command
  */
 $plugins_list = return_plugin($oreon->optGen["nagios_path_plugins"]);
-$cmd = array();
+$cmd = [];
 
 $nbRow = "10";
 $strArgDesc = "";
@@ -112,7 +112,7 @@ if (count($aMacroDescription) > 0) {
 /*
  * Resource Macro
  */
-$resource = array();
+$resource = [];
 $query = "SELECT DISTINCT `resource_name`, `resource_comment` FROM `cfg_resource` ORDER BY `resource_name`";
 $DBRESULT = $pearDB->query($query);
 while ($row = $DBRESULT->fetchRow()) {
@@ -127,7 +127,7 @@ $DBRESULT->closeCursor();
 /*
  * Connectors
  */
-$connectors = array();
+$connectors = [];
 $DBRESULT = $pearDB->query("SELECT `id`, `name` FROM `connector` WHERE `enabled` = '1' ORDER BY `name`");
 while ($row = $DBRESULT->fetchRow()) {
     $connectors[$row["id"]] = $row["name"];
@@ -138,7 +138,7 @@ $DBRESULT->closeCursor();
 /*
  * Graphs Template comes from DB -> Store in $graphTpls Array
  */
-$graphTpls = array(null => null);
+$graphTpls = [null => null];
 $DBRESULT = $pearDB->query("SELECT `graph_id`, `name` FROM `giv_graphs_template` ORDER BY `name`");
 while ($graphTpl = $DBRESULT->fetchRow()) {
     $graphTpls[$graphTpl["graph_id"]] = $graphTpl["name"];
@@ -149,7 +149,7 @@ $DBRESULT->closeCursor();
 /*
  * Nagios Macro
  */
-$macros = array();
+$macros = [];
 $DBRESULT = $pearDB->query("SELECT `macro_name` FROM `nagios_macro` ORDER BY `macro_name`");
 while ($row = $DBRESULT->fetchRow()) {
     $macros[$row["macro_name"]] = $row["macro_name"];
@@ -157,11 +157,11 @@ while ($row = $DBRESULT->fetchRow()) {
 unset($row);
 $DBRESULT->closeCursor();
 
-$attrsText = array("size" => "35");
-$attrsTextarea = array("rows" => "9", "cols" => "80", "id" => "command_line");
-$attrsTextarea2 = array("rows" => "$nbRow", "cols" => "100", "id" => "listOfArg");
-$attrsTextarea3 = array("rows" => "5", "cols" => "50", "id" => "command_comment");
-$attrsTextarea4 = array("rows" => "$nbRowMacro", "cols" => "100", "id" => "listOfMacros");
+$attrsText = ["size" => "35"];
+$attrsTextarea = ["rows" => "9", "cols" => "80", "id" => "command_line"];
+$attrsTextarea2 = ["rows" => "$nbRow", "cols" => "100", "id" => "listOfArg"];
+$attrsTextarea3 = ["rows" => "5", "cols" => "50", "id" => "command_comment"];
+$attrsTextarea4 = ["rows" => "$nbRowMacro", "cols" => "100", "id" => "listOfMacros"];
 
 /*
  * Form begin
@@ -202,16 +202,16 @@ if (! $isCloudPlatform) {
     $form->addGroup($cmdType, 'command_type', _("Command Type"), '&nbsp;&nbsp;');
 
     if ($type !== false) {
-        $form->setDefaults(array('command_type' => $type));
+        $form->setDefaults(['command_type' => $type]);
     } else {
-        $form->setDefaults(array('command_type' => '2'));
+        $form->setDefaults(['command_type' => '2']);
     }
 }
 
 if (isset($cmd['connector_id']) && is_numeric($cmd['connector_id'])) {
-    $form->setDefaults(array('connectors' => $cmd['connector_id']));
+    $form->setDefaults(['connectors' => $cmd['connector_id']]);
 } else {
-    $form->setDefaults(array('connectors' => ""));
+    $form->setDefaults(['connectors' => ""]);
 }
 
 $form->addElement('text', 'command_name', _("Command Name"), $attrsText);
@@ -221,19 +221,19 @@ $form->addElement('checkbox', 'enable_shell', _("Enable shell"), null, $attrsTex
 
 $form->addElement('textarea', 'listOfArg', _("Argument Descriptions"), $attrsTextarea2)->setAttribute("readonly");
 $form->addElement('select', 'graph_id', _("Graph template"), $graphTpls);
-$form->addElement('button', 'desc_arg', _("Describe arguments"), array("onClick" => "goPopup();"));
-$form->addElement('button', 'clear_arg', _("Clear arguments"), array("onClick" => "clearArgs();"));
+$form->addElement('button', 'desc_arg', _("Describe arguments"), ["onClick" => "goPopup();"]);
+$form->addElement('button', 'clear_arg', _("Clear arguments"), ["onClick" => "clearArgs();"]);
 $form->addElement('textarea', 'command_comment', _("Comment"), $attrsTextarea2);
-$form->addElement('button', 'desc_macro', _("Describe macros"), array("onClick" => "manageMacros();"));
+$form->addElement('button', 'desc_macro', _("Describe macros"), ["onClick" => "manageMacros();"]);
 $form->addElement('textarea', 'listOfMacros', _("Macros Descriptions"), $attrsTextarea4)->setAttribute("readonly");
 
 $cmdActivation[] = $form->createElement('radio', 'command_activate', null, _("Enabled"), '1');
 $cmdActivation[] = $form->createElement('radio', 'command_activate', null, _("Disabled"), '0');
 $form->addGroup($cmdActivation, 'command_activate', _("Status"), '&nbsp;');
-$form->setDefaults(array('command_activate' => '1'));
+$form->setDefaults(['command_activate' => '1']);
 
-$form->setDefaults(array("listOfArg" => $strArgDesc));
-$form->setDefaults(array("listOfMacros" => $sStrMcro));
+$form->setDefaults(["listOfArg" => $strArgDesc]);
+$form->setDefaults(["listOfMacros" => $sStrMcro]);
 
 $connectors[null] = _("Select a connector...");
 $form->addElement('select', 'resource', null, $resource);
@@ -290,10 +290,8 @@ if ($o == "w") {
             "button",
             "change",
             _("Modify"),
-            array(
-                "onClick" => "javascript:window.location.href='?p=" . $p .
-                    "&o=c&command_id=" . $command_id . "&type=" . $type . "'"
-            )
+            ["onClick" => "javascript:window.location.href='?p=" . $p .
+                "&o=c&command_id=" . $command_id . "&type=" . $type . "'"]
         );
     }
     $form->setDefaults($cmd);
@@ -302,33 +300,45 @@ if ($o == "w") {
     /*
      * Modify a Command information
      */
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $form->setDefaults($cmd);
 } elseif ($o == "a") {
     /*
      * Add a Command information
      */
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 }
 
-$tpl->assign('msg', array("comment" => _("Commands definitions can contain Macros but they have to be valid.")));
+$tpl->assign('msg', ["comment" => _("Commands definitions can contain Macros but they have to be valid.")]);
 $tpl->assign('cmd_help', _("Plugin Help"));
 $tpl->assign("is_cloud_platform", $isCloudPlatform);
 
 $valid = false;
+$errorMessage = '';
 if ($form->validate()) {
-    $cmdObj = $form->getElement('command_id');
-    if ($form->getSubmitValue("submitA")) {
-        $cmdObj->setValue(insertCommandInDB());
-    } elseif ($form->getSubmitValue("submitC")) {
-        updateCommandInDB($cmdObj->getValue());
-    }
+    try {
+        $cmdObj = $form->getElement('command_id');
+        if ($form->getSubmitValue("submitA")) {
+            $cmdObj->setValue(insertCommandInDB());
+        } elseif ($form->getSubmitValue("submitC")) {
+            updateCommandInDB($cmdObj->getValue());
+        }
 
-    $o = null;
-    $cmdObj = $form->getElement('command_id');
-    $valid = true;
+        $o = null;
+        $cmdObj = $form->getElement('command_id');
+        $valid = true;
+    } catch (Throwable $e) {
+        $valid = false;
+        $errorMessage = 'Type of command is undefined';
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: $e->getMessage(),
+            customContext: ['cmd_id' => $cmdObj->getValue()],
+            exception: $e
+        );
+    }
 }
 
 ?>
@@ -386,8 +396,13 @@ if ($valid) {
      */
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
     $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
-    $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
+    if (! empty($errorMessage)) {
+        $renderer->setErrorTemplate('<font color="red">{$errorMessage}</font><br />{$html}');
+    } else {
+        $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
+    }
     $form->accept($renderer);
+    $tpl->assign('errorMessage', $errorMessage);
     $tpl->assign('form', $renderer->toArray());
     $tpl->assign('o', $o);
     $tpl->assign('arg_desc_label', _("Argument Descriptions"));

@@ -11,6 +11,10 @@ const host = 'Centreon-Server';
 
 before(() => {
   cy.startContainers();
+
+  cy.loginAsAdminViaApiV2()
+    .scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' })
+    .logoutViaAPI();
 });
 
 beforeEach(() => {

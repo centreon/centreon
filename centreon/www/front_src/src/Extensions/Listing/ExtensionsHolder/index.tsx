@@ -1,37 +1,37 @@
-import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { useAtomValue } from 'jotai';
 import { equals, isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
+import InstallIcon from '@mui/icons-material/Add';
+import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
 import UpdateIcon from '@mui/icons-material/SystemUpdateAlt';
-import CheckIcon from '@mui/icons-material/Check';
-import InstallIcon from '@mui/icons-material/Add';
-import Stack from '@mui/material/Stack';
 import {
+  Button,
   Card,
   CardActions,
   CardContent,
-  Paper,
-  Button,
-  Typography,
-  Grid,
   Chip,
+  Divider,
+  Grid,
   LinearProgress,
-  Divider
+  Paper,
+  Typography
 } from '@mui/material';
+import Stack from '@mui/material/Stack';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
-import { Entity, ExtensionsStatus, LicenseProps } from '../models';
 import {
-  labelLicenseRequired,
   labelLicenseEndDate,
   labelLicenseExpired,
-  labelLicenseNotValid
+  labelLicenseNotValid,
+  labelLicenseRequired
 } from '../../translatedLabels';
+import { Entity, ExtensionsStatus, LicenseProps } from '../models';
 
 const useStyles = makeStyles()((theme) => ({
   contentWrapper: {
@@ -130,7 +130,7 @@ const ExtensionsHolder = ({
   const { toDate } = useLocaleDateTimeFormat();
 
   const parseDescription = (description): string => {
-    return description.replace(/^centreon\s+(\w+)/i, (_, $1) => $1);
+    return description.replace(/^centreon\s+(\w+)/i, (_, v) => v);
   };
 
   const getPropsFromLicense = (licenseInfo): LicenseProps | undefined => {

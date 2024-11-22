@@ -20,20 +20,40 @@
 
 namespace ConfigGenerateRemote;
 
-use \PDO;
+use Exception;
+use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractService;
 
+/**
+ * Class
+ *
+ * @class ServiceTemplate
+ * @package ConfigGenerateRemote
+ */
 class ServiceTemplate extends AbstractService
 {
+
+    /** @var */
+    public $loop_stpl;
+    /** @var array|null */
     protected $hosts = null;
+    /** @var string */
     protected $table = 'service';
+    /** @var string */
     protected $generateFilename = 'serviceTemplates.infile';
+    /** @var array */
     public $serviceCache = [];
+    /** @var int|null */
     public $currentHostId = null;
+    /** @var string|null */
     public $currentHostName = null;
+    /** @var string|null */
     public $currentServiceDescription = null;
+    /** @var int|null */
     public $currentServiceId = null;
+    /** @var array */
     protected $loopTpl = [];
+    /** @var string */
     protected $attributesSelect = '
         service_id,
         service_template_model_stm_id,
@@ -65,6 +85,7 @@ class ServiceTemplate extends AbstractService
         service_acknowledgement_timeout,
         graph_id
     ';
+    /** @var string[] */
     protected $attributesWrite = [
         'service_id',
         'service_template_model_stm_id',
@@ -94,10 +115,10 @@ class ServiceTemplate extends AbstractService
     /**
      * Get linked service groups and generate relations
      *
-     * @param integer $serviceId
+     * @param int $serviceId
      * @return void
      */
-    private function getServiceGroups(int $serviceId)
+    private function getServiceGroups(int $serviceId): void
     {
         $host = Host::getInstance($this->dependencyInjector);
         $servicegroup = ServiceGroup::getInstance($this->dependencyInjector);
@@ -123,10 +144,10 @@ class ServiceTemplate extends AbstractService
     /**
      * Get service template from id
      *
-     * @param integer $serviceId
+     * @param int $serviceId
      * @return void
      */
-    private function getServiceFromId(int $serviceId)
+    private function getServiceFromId(int $serviceId): void
     {
         if (is_null($this->stmtService)) {
             $this->stmtService = $this->backendInstance->db->prepare(
@@ -146,7 +167,7 @@ class ServiceTemplate extends AbstractService
     /**
      * Get severity from service id
      *
-     * @param integer $serviceId
+     * @param int $serviceId
      * @return void|int
      */
     private function getSeverity(int $serviceId)
@@ -166,8 +187,10 @@ class ServiceTemplate extends AbstractService
     /**
      * Generate service template
      *
-     * @param null|integer $serviceId
+     * @param null|int $serviceId
+     *
      * @return void
+     * @throws Exception
      */
     public function generateFromServiceId(?int $serviceId)
     {
@@ -227,7 +250,7 @@ class ServiceTemplate extends AbstractService
      *
      * @return void
      */
-    public function resetLoop()
+    public function resetLoop(): void
     {
         $this->loopTpl = [];
     }
@@ -235,8 +258,10 @@ class ServiceTemplate extends AbstractService
     /**
      * Reset object
      *
-     * @param boolean $createfile
+     * @param bool $createfile
+     *
      * @return void
+     * @throws Exception
      */
     public function reset($createfile = false): void
     {

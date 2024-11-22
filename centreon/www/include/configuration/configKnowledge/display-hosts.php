@@ -167,11 +167,7 @@ try {
     foreach ($selection as $key => $value) {
         $tplStr = "";
         $tplArr = $proc->getMyHostMultipleTemplateModels($value);
-        if ($proc->hostHasProcedure($key, $tplArr) == true) {
-            $diff[$key] = 1;
-        } else {
-            $diff[$key] = 0;
-        }
+        $diff[$key] = $proc->hostHasProcedure($key, $tplArr) == true ? 1 : 0;
         if (!empty($templatesHasNoProcedure)) {
             if ($diff[$key] == 1 || $proc->hostHasProcedure($key, $tplArr, PROCEDURE_INHERITANCE_MODE) == true) {
                 $rows--;

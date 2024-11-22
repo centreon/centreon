@@ -1,0 +1,29 @@
+{
+    "default":{
+        "name": "vmtestname",
+        "linkedHostServices": "Centreon-Server - Ping",
+        "knownMetric": "rta",
+        "unit": "%",
+        "warning_threshold": "200",
+        "critical_threshold": "400",
+        "comments": "comment!"
+    },
+    "vmForDuplication":{
+        "name": "vmtestname_1",
+        "linkedHostServices": "Centreon-Server - Ping",
+        "knownMetric": "rta",
+        "unit": "%",
+        "warning_threshold": "200",
+        "critical_threshold": "400",
+        "comments": "comment!"
+    },
+    "vmForUpdate":{
+        "name": "vmtestnameChanged",
+        "linkedHostServices": "Centreon-Server - Ping",
+        "knownMetric": "pl",
+        "unit": "%",
+        "warning_threshold": "100",
+        "critical_threshold": "200",
+        "comments": "Used for modification!"
+    }
+}

@@ -77,7 +77,7 @@ if (false === $hostId) {
 
 // Init GMT class
 $centreonGMT = new CentreonGMT($db);
-$centreonGMT->getMyGMTFromSession($sid, $db);
+$centreonGMT->getMyGMTFromSession($sid);
 
 // Start Buffer
 $xml = new CentreonXML();
@@ -136,7 +136,7 @@ while ($row = $res->fetch()) {
     $xml->writeElement('duration', CentreonDuration::toString($row['duration']));
     $xml->writeElement('fixed', $row['fixed'] ? _('Yes') : _('No'));
     $xml->endElement();
-    $rowClass == 'list_one' ? $rowClass = 'list_two' : $rowClass = 'list_one';
+    $rowClass = $rowClass == 'list_one' ? 'list_two' : 'list_one';
 }
 
 // End buffer

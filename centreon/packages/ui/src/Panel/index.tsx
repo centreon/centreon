@@ -1,16 +1,18 @@
-/* eslint-disable react/no-unused-prop-types */
-// There is an issue about using forwardRef: https://github.com/yannickcr/eslint-plugin-react/issues/2760
-
-import * as React from 'react';
-
 import { isEmpty, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Paper, Slide, Divider, AppBar, Tabs } from '@mui/material';
 import IconClose from '@mui/icons-material/Clear';
+import { AppBar, Divider, Paper, Slide, Tabs } from '@mui/material';
 
 import { IconButton } from '..';
 
+import {
+  ReactElement,
+  RefObject,
+  forwardRef,
+  useCallback,
+  useEffect
+} from 'react';
 import { minTabHeight } from './Tab';
 
 interface StylesProps extends Pick<Props, 'headerBackgroundColor' | 'width'> {
@@ -86,20 +88,20 @@ export interface Tab {
 
 export interface Props {
   className?: string;
-  header?: React.ReactElement;
+  header?: ReactElement;
   headerBackgroundColor?: string;
   labelClose?: string;
   minWidth?: number;
   onClose?: () => void;
   onResize?: (newWidth: number) => void;
   onTabSelect?: (event, id: number) => void;
-  selectedTab: React.ReactElement;
+  selectedTab: ReactElement;
   selectedTabId?: number;
   tabs?: Array<JSX.Element>;
   width?: number;
 }
 
-const Panel = React.forwardRef(
+const Panel = forwardRef(
   (
     {
       header,
@@ -133,7 +135,7 @@ const Panel = React.forwardRef(
       }
     };
 
-    React.useEffect(() => {
+    useEffect(() => {
       window.addEventListener('resize', resizeWindow);
 
       return (): void => {
@@ -151,7 +153,7 @@ const Panel = React.forwardRef(
       document.removeEventListener('mousemove', moveMouse, true);
     };
 
-    const moveMouse = React.useCallback((e) => {
+    const moveMouse = useCallback((e) => {
       e.preventDefault();
 
       const maxWidth = getMaxWidth();
@@ -183,7 +185,7 @@ const Panel = React.forwardRef(
       >
         <Paper className={cx(classes.container, className)} elevation={2}>
           {!isNil(onResize) && (
-            <div className={classes.dragger} role="none" onMouseDown={resize} />
+            <div className={classes.dragger} onMouseDown={resize} />
           )}
           {header && (
             <>
@@ -224,7 +226,7 @@ const Panel = React.forwardRef(
             </AppBar>
             <div
               className={classes.contentContainer}
-              ref={ref as React.RefObject<HTMLDivElement>}
+              ref={ref as RefObject<HTMLDivElement>}
             >
               <div className={classes.content} id="panel-content">
                 {selectedTab}

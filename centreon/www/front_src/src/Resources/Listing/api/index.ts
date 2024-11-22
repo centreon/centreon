@@ -4,7 +4,7 @@ import { getData } from '@centreon/ui';
 
 import { ResourceListing } from '../../models';
 
-import { buildResourcesEndpoint, ListResourcesProps } from './endpoint';
+import { ListResourcesProps, buildResourcesEndpoint } from './endpoint';
 
 const listResources =
   (cancelToken: CancelToken) =>

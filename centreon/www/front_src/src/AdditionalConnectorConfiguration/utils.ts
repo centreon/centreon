@@ -13,7 +13,7 @@ export const defaultParameters = {
 export const availableConnectorTypes = [{ id: 1, name: 'vmware_v6' }];
 
 export const findConnectorTypeById = (id): NamedEntity | undefined => {
-  return find(propEq(parseInt(id, 10), 'id'), availableConnectorTypes);
+  return find(propEq(Number.parseInt(id, 10), 'id'), availableConnectorTypes);
 };
 
 export const filtersDefaultValue = {

@@ -27,7 +27,7 @@ use Core\AdditionalConnectorConfiguration\Application\Exception\AccException;
 use Core\AdditionalConnectorConfiguration\Application\UseCase\AddAcc\AddAccRequest;
 use Core\AdditionalConnectorConfiguration\Application\UseCase\UpdateAcc\UpdateAccRequest;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
-use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6Parameters;
+use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6\VmWareV6Parameters;
 
 /**
  * @phpstan-import-type _VmWareV6Parameters from VmWareV6Parameters

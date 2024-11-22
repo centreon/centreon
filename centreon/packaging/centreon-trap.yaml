@@ -76,12 +76,14 @@ overrides:
     depends:
       - centreon-perl-libs = ${VERSION}-${RELEASE}${DIST}
       - net-snmp
+      - perl(SNMP)
     replaces:
       - centreon-trap-central
       - centreon-trap-poller
   deb:
     depends:
       - centreon-perl-libs (= ${VERSION}-${RELEASE}${DIST})
+      - libsnmp-perl
       - snmptrapd
       - snmpd
 

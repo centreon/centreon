@@ -441,7 +441,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             'name' => 'c.contact_name',
         ]);
 
-        $query = <<<'SQL'
+        $query = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS
                 GROUP_CONCAT(topology.topology_name) as topologies,
                 c.contact_name,
@@ -466,7 +466,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                         ON topology.topology_id = acltr.topology_topology_id
                     LEFT JOIN `:db`.topology parent
                         ON topology.topology_parent = parent.topology_page
-            SQL;
+            SQL_WRAP;
 
         $searchRequest = $sqlTranslator->translateSearchParameterToSql();
         $query .= $searchRequest !== null
@@ -602,7 +602,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             'name' => 'cg.cg_name',
         ]);
 
-        $query = <<<'SQL'
+        $query = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS GROUP_CONCAT(topology.topology_name) as topologies, cg.cg_name, cg.cg_id
                 FROM `:db`.contactgroup cg
                     LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
@@ -615,7 +615,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                         ON topology.topology_id = acltr.topology_topology_id
                     INNER JOIN `:db`.topology parent
                         ON topology.topology_parent = parent.topology_page
-            SQL;
+            SQL_WRAP;
 
         $searchRequest = $sqlTranslator->translateSearchParameterToSql();
         $query .= $searchRequest !== null
@@ -823,22 +823,22 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             'name' => 'cg.cg_name',
         ]);
 
-        $query = <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS GROUP_CONCAT(topology.topology_name) as topologies, cg.cg_name, cg.cg_id
-                FROM `:db`.contactgroup cg
-                    LEFT JOIN `:db`.contactgroup_contact_relation cgcr
-                        ON cgcr.contactgroup_cg_id = cg.cg_id
-                    LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
-                        ON gcgr.cg_cg_id = cg.cg_id
-                    LEFT JOIN `:db`.acl_group_topology_relations agtr
-                        ON agtr.acl_group_id = gcgr.acl_group_id
-                    LEFT JOIN `:db`.acl_topology_relations acltr
-                        ON acltr.acl_topo_id = agtr.acl_topology_id
-                    INNER JOIN `:db`.topology
-                        ON topology.topology_id = acltr.topology_topology_id
-                    INNER JOIN `:db`.topology parent
-                        ON topology.topology_parent = parent.topology_page
-            SQL;
+        $query = <<<'SQL_WRAP'
+            SELECT SQL_CALC_FOUND_ROWS GROUP_CONCAT(topology.topology_name) as topologies, cg.cg_name, cg.cg_id
+            FROM `:db`.contactgroup cg
+                LEFT JOIN `:db`.contactgroup_contact_relation cgcr
+                    ON cgcr.contactgroup_cg_id = cg.cg_id
+                LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
+                    ON gcgr.cg_cg_id = cg.cg_id
+                LEFT JOIN `:db`.acl_group_topology_relations agtr
+                    ON agtr.acl_group_id = gcgr.acl_group_id
+                LEFT JOIN `:db`.acl_topology_relations acltr
+                    ON acltr.acl_topo_id = agtr.acl_topology_id
+                INNER JOIN `:db`.topology
+                    ON topology.topology_id = acltr.topology_topology_id
+                INNER JOIN `:db`.topology parent
+                    ON topology.topology_parent = parent.topology_page
+            SQL_WRAP;
 
         $searchRequest = $sqlTranslator->translateSearchParameterToSql();
         $query .= $searchRequest !== null

@@ -1,9 +1,9 @@
 import {
+  RenderResult,
   fireEvent,
   getFetchCall,
   mockResponse,
   render,
-  RenderResult,
   resetMocks,
   waitFor
 } from '../../../../../../test/testRenderer';

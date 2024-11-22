@@ -1,6 +1,6 @@
 <?php
 
-$help = array();
+$help = [];
 $help['img_name'] = dgettext('help', 'Enter a new name for the image.');
 $help['img_dir'] = dgettext(
     'help',

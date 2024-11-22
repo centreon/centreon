@@ -1,7 +1,7 @@
 import { Shape } from '@visx/visx';
 import { ScaleTime } from 'd3-scale';
-import { max, pick, prop } from 'ramda';
 import { useAtom, useAtomValue } from 'jotai';
+import { max, pick, prop } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { useLocaleDateTimeFormat, useMemoComponent } from '@centreon/ui';

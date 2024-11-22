@@ -1,12 +1,12 @@
 import { equals } from 'ramda';
 
+import { ComplexContent, SimpleContent } from './stories/contents';
 import {
   ComplexData,
-  complexData,
   SimpleData,
+  complexData,
   simpleData
 } from './stories/datas';
-import { ComplexContent, SimpleContent } from './stories/contents';
 
 import { Node, StandaloneTree, TreeProps } from '.';
 

@@ -40,7 +40,7 @@ use Tests\Core\Domain\Configuration\MetaServiceTest as MetaServiceConfigurationT
 use Core\Application\Configuration\MetaService\Repository\ReadMetaServiceRepositoryInterface as
     ReadMetaServiceConfigurationRepositoryInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->repository = $this->createMock(ReadMetaServiceRepositoryInterface::class);
     $this->configurationRepository = $this->createMock(ReadMetaServiceConfigurationRepositoryInterface::class);
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
@@ -51,7 +51,7 @@ beforeEach(function () {
     $this->contact = $this->createMock(ContactInterface::class);
 });
 
-it('should present a NotFoundResponse if meta service configuration not found as admin', function () {
+it('should present a NotFoundResponse if meta service configuration not found as admin', function (): void {
     $findMetaService = new FindMetaService(
         $this->repository,
         $this->configurationRepository,
@@ -80,7 +80,7 @@ it('should present a NotFoundResponse if meta service configuration not found as
     );
 });
 
-it('should present a NotFoundResponse if meta service configuration not found as non-admin', function () {
+it('should present a NotFoundResponse if meta service configuration not found as non-admin', function (): void {
     $findMetaService = new FindMetaService(
         $this->repository,
         $this->configurationRepository,
@@ -109,7 +109,7 @@ it('should present a NotFoundResponse if meta service configuration not found as
     );
 });
 
-it('should present a NotFoundResponse if metaservice requested is not found as admin', function () {
+it('should present a NotFoundResponse if metaservice requested is not found as admin', function (): void {
     $findMetaService = new FindMetaService(
         $this->repository,
         $this->configurationRepository,
@@ -145,7 +145,7 @@ it('should present a NotFoundResponse if metaservice requested is not found as a
     );
 });
 
-it('should present a NotFoundResponse if metaservice requested is not found as non-admin', function () {
+it('should present a NotFoundResponse if metaservice requested is not found as non-admin', function (): void {
     $findMetaService = new FindMetaService(
         $this->repository,
         $this->configurationRepository,
@@ -179,7 +179,7 @@ it('should present a NotFoundResponse if metaservice requested is not found as n
     );
 });
 
-it('should find the metaservice as non-admin', function () {
+it('should find the metaservice as non-admin', function (): void {
     $metaServiceConfiguration = MetaServiceConfigurationTest::createMetaServiceModel();
     $metaService = (MetaServiceTest::createMetaServiceModel())
         ->setIsInDowntime(true)

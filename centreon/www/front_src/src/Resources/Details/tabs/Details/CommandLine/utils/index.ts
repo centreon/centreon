@@ -1,12 +1,12 @@
 import {
-  filter,
   equals,
-  isNil,
+  filter,
   find,
-  pipe,
   head,
-  startsWith,
-  not
+  isNil,
+  not,
+  pipe,
+  startsWith
 } from 'ramda';
 import commandParser from 'string-argv';
 

@@ -57,14 +57,14 @@ class CentreonOpenticketHistory extends CentreonWebService
          *   ]
          * }
          */
-        $result = array('code' => 0, 'message' => 'history saved');
+        $result = ['code' => 0, 'message' => 'history saved'];
 
         if (!isset($this->arguments['ticket_id'])
             || !isset($this->arguments['user'])
             || !isset($this->arguments['subject'])
             || !is_array($this->arguments['links'])
         ) {
-            $result = array('code' => 1, 'message' => 'parameters missing');
+            $result = ['code' => 1, 'message' => 'parameters missing'];
             return $result;
         }
         $timestamp = time();
@@ -72,7 +72,7 @@ class CentreonOpenticketHistory extends CentreonWebService
             $timestamp = $this->arguments['timestamp'];
         }
 
-        $links_ok = array();
+        $links_ok = [];
         $stmt_host = $this->pearDBMonitoring->prepare('SELECT host_id FROM hosts WHERE name = ?');
         $stmt_service = $this->pearDBMonitoring->prepare(
             'SELECT hosts.host_id, services.service_id
@@ -85,24 +85,24 @@ class CentreonOpenticketHistory extends CentreonWebService
             if (isset($link['hostname']) && isset($link['service_description'])) {
                 $res = $this->pearDBMonitoring->execute(
                     $stmt_service,
-                    array($link['hostname'], $link['service_description'])
+                    [$link['hostname'], $link['service_description']]
                 );
                 if ($row = $stmt_service->fetch()) {
                     $links_ok[] = array_merge(
                         $link,
-                        array('service_id' => $row['service_id'], 'host_id' => $row['host_id'])
+                        ['service_id' => $row['service_id'], 'host_id' => $row['host_id']]
                     );
                 }
             } elseif (isset($link['hostname'])) {
-                $res = $this->pearDBMonitoring->execute($stmt_host, array($link['hostname']));
+                $res = $this->pearDBMonitoring->execute($stmt_host, [$link['hostname']]);
                 if ($row = $stmt_host->fetch()) {
-                    $links_ok[] = array_merge($link, array('host_id' => $row['host_id']));
+                    $links_ok[] = array_merge($link, ['host_id' => $row['host_id']]);
                 }
             }
         }
 
         if (count($links_ok) == 0) {
-            $result = array('code' => 1, 'message' => 'links parameters missing or wrong');
+            $result = ['code' => 1, 'message' => 'links parameters missing or wrong'];
             return $result;
         }
 
@@ -116,14 +116,14 @@ class CentreonOpenticketHistory extends CentreonWebService
             ")"
         );
         if (true === PEAR::isError($res)) {
-            $result = array('code' => 1, 'message' => 'cannot insert in database');
+            $result = ['code' => 1, 'message' => 'cannot insert in database'];
             return $result;
         }
 
         /* Get Autoincrement */
         $res = $this->pearDBMonitoring->query("SELECT LAST_INSERT_ID() AS last_id");
         if (true === PEAR::isError($res) || !($row = $res->fetch())) {
-            $result = array('code' => 1, 'message' => 'database issue');
+            $result = ['code' => 1, 'message' => 'database issue'];
             return $result;
         }
         $auto_ticket = $row['last_id'];
@@ -136,7 +136,7 @@ class CentreonOpenticketHistory extends CentreonWebService
             ")"
         );
         if (true === PEAR::isError($res)) {
-            $result = array('code' => 1, 'message' => 'cannot insert in database');
+            $result = ['code' => 1, 'message' => 'cannot insert in database'];
             return $result;
         }
 
@@ -157,7 +157,7 @@ class CentreonOpenticketHistory extends CentreonWebService
                 ")"
             );
             if (true === PEAR::isError($res)) {
-                $result = array('code' => 1, 'message' => 'cannot insert in database');
+                $result = ['code' => 1, 'message' => 'cannot insert in database'];
                 return $result;
             }
         }

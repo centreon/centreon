@@ -1,4 +1,5 @@
 import {
+  T,
   always,
   cond,
   equals,
@@ -7,8 +8,7 @@ import {
   identity,
   includes,
   map,
-  pipe,
-  T
+  pipe
 } from 'ramda';
 
 import { SelectEntry } from '..';

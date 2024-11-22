@@ -3,10 +3,10 @@ import { Zoom as VisxZoom } from '@visx/zoom';
 import { ParentSize } from '../..';
 
 import ZoomContent from './ZoomContent';
-import { MinimapPosition } from './models';
+import type { MinimapPosition } from './models';
 
 export interface ZoomProps {
-  children: JSX.Element | (({ width, height }) => JSX.Element);
+  children: JSX.Element | (({ width, height, transformMatrix }) => JSX.Element);
   id?: number | string;
   minimapPosition?: MinimapPosition;
   scaleMax?: number;

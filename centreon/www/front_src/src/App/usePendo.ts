@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-import { gte, isNil, not } from 'ramda';
-import { atomWithStorage } from 'jotai/utils';
 import { useAtom } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
+import { gte, isNil, not } from 'ramda';
 
 import { getData, useRequest } from '@centreon/ui';
 
 import initPendo from './initPendo';
-import { CeipData } from './models';
+import type { CeipData } from './models';
 
 const oneDayInMs = 24 * 60 * 60 * 1000;
 
@@ -77,7 +77,7 @@ const usePendo = (): void => {
       }
 
       initPendo(centreonPlatformData);
-    } catch (e) {
+    } catch (_error) {
       setIsCeipEnabled(true);
     }
   };

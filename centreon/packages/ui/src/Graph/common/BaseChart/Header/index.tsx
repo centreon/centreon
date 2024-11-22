@@ -2,8 +2,8 @@ import Typography from '@mui/material/Typography';
 
 import { useMemoComponent } from '@centreon/ui';
 
-import { ussHeaderChartStyles } from './useHeaderStyles';
 import { LineChartHeader } from './models';
+import { ussHeaderChartStyles } from './useHeaderStyles';
 
 interface Props {
   header?: LineChartHeader;

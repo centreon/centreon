@@ -1,5 +1,5 @@
-import { equals } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
 
 import { Visualization } from '../../models';
 import { selectedVisualizationAtom } from '../actionsAtoms';

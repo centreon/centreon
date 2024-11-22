@@ -1,15 +1,15 @@
-import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router-dom';
-import { replace } from 'ramda';
 import i18next from 'i18next';
+import { Provider, createStore } from 'jotai';
+import { replace } from 'ramda';
 import { initReactI18next } from 'react-i18next';
+import { BrowserRouter } from 'react-router-dom';
 
-import { SnackbarProvider, TestQueryProvider, Method } from '@centreon/ui';
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { platformVersionsAtom } from '@centreon/ui-context';
 
-import { areUserParametersLoadedAtom } from '../Main/useUser';
-import { platformInstallationStatusAtom } from '../Main/atoms/platformInstallationStatusAtom';
 import { externalTranslationEndpoint } from '../App/endpoint';
+import { platformInstallationStatusAtom } from '../Main/atoms/platformInstallationStatusAtom';
+import { areUserParametersLoadedAtom } from '../Main/useUser';
 import { userEndpoint } from '../api/endpoint';
 
 import {

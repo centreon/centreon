@@ -2,8 +2,8 @@ import { Dispatch, SetStateAction } from 'react';
 
 import { useAtom } from 'jotai';
 
-import { Resource } from '../models';
 import { selectedResourcesAtom } from '../Actions/actionsAtoms';
+import { Resource } from '../models';
 
 type SetResourcesDispatch = Dispatch<SetStateAction<Array<Resource>>>;
 

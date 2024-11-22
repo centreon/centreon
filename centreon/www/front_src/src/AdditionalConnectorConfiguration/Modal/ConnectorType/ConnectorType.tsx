@@ -1,7 +1,7 @@
 import { ReactElement } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { useFormikContext } from 'formik';
+import { useTranslation } from 'react-i18next';
 
 import { SelectField } from '@centreon/ui';
 

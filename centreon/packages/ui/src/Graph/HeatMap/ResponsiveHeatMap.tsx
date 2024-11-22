@@ -7,8 +7,8 @@ import { Box } from '@mui/material';
 
 import { Tooltip } from '../../components';
 
-import { HeatMapProps } from './model';
 import { useHeatMapStyles } from './HeatMap.styles';
+import { HeatMapProps } from './model';
 
 const gap = 8;
 const maxTileSize = 120;

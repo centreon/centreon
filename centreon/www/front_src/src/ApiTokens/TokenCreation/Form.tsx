@@ -2,9 +2,9 @@ import { useState } from 'react';
 
 import dayjs from 'dayjs';
 import { useFormikContext } from 'formik';
+import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 
 import {
   Dialog,
@@ -18,6 +18,7 @@ import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
 import { getEndpointConfiguredUser } from '../api/endpoints';
+import { Parameters } from '../api/models';
 import {
   labelCancel,
   labelClose,
@@ -27,12 +28,12 @@ import {
   labelUser
 } from '../translatedLabels';
 
+import InputCalendar from './InputCalendar/inputCalendar';
 import Title from './Title';
 import TokenInput from './TokenInput';
 import { CreatedToken, dataDuration } from './models';
 import { useStyles } from './tokenCreation.styles';
 import useCreateTokenFormValues from './useTokenFormValues';
-import InputCalendar from './InputCalendar/inputCalendar';
 
 interface Props {
   closeDialog: () => void;
@@ -77,12 +78,13 @@ const FormCreation = ({
   const platformFeatures = useAtomValue(platformFeaturesAtom);
   const { canManageApiTokens, isAdmin } = useAtomValue(userAtom);
 
-  const getUsersEndpoint = (): string =>
+  const getUsersEndpoint = (parameters: Parameters): string =>
     platformFeatures?.isCloudPlatform && !isAdmin
       ? getEndpointConfiguredUser({
+          ...parameters,
           search: { regex: { fields: ['is_admin'], value: '0' } }
         })
-      : getEndpointConfiguredUser({});
+      : getEndpointConfiguredUser(parameters);
 
   const close = (): void => {
     resetForm();

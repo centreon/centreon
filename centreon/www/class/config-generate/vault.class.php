@@ -19,24 +19,52 @@
  *
  */
 
+use App\Kernel;
+use Centreon\Domain\Log\Logger;
+use Pimple\Container;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
+/**
+ * Class
+ *
+ * @class Vault
+ */
 class Vault extends AbstractObjectJSON
 {
+    /** @var null */
     protected $vaultConfiguration = null;
 
-    public function __construct(\Pimple\Container $dependencyInjector)
+    /**
+     * Vault constructor
+     *
+     * @param Container $dependencyInjector
+     *
+     * @throws LogicException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
 
         // Get Centeron Vault Storage configuration
-        $kernel = \App\Kernel::createForWeb();
+        $kernel = Kernel::createForWeb();
         $readVaultConfigurationRepository = $kernel->getContainer()->get(
             Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
         );
         $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-        $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+        $logger = $kernel->getContainer()->get(Logger::class);
         $this->vaultConfiguration = $readVaultConfigurationRepository->find();
     }
 
+    /**
+     * @param $poller_id
+     * @param $localhost
+     *
+     * @return void
+     * @throws RuntimeException
+     */
     private function generate($poller_id, $localhost): void
     {
         if ($this->vaultConfiguration === null) {
@@ -56,6 +84,12 @@ class Vault extends AbstractObjectJSON
     }
 
 
+    /**
+     * @param $poller
+     *
+     * @return void
+     * @throws RuntimeException
+     */
     public function generateFromPoller($poller): void
     {
         $this->generate($poller['id'], $poller['localhost']);

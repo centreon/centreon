@@ -91,7 +91,7 @@ switch ($o) {
     case IMAGE_DELETE:
         // If one data are not correctly typed in array, it will be set to false
         $selectIds = filter_var_array(
-            $_GET["select"] ?? $_POST["select"] ?? array(),
+            $_GET["select"] ?? $_POST["select"] ?? [],
             FILTER_VALIDATE_INT
         );
         purgeOutdatedCSRFTokens();

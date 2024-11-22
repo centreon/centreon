@@ -38,8 +38,8 @@
 #
 ## Database retrieve information for Dependency
 #
-$dep = array();
-$initialValues = array();
+$dep = [];
+$initialValues = [];
 if (($o == MODIFY_DEPENDENCY || $o == WATCH_DEPENDENCY) && $dep_id) {
     $DBRESULT = $pearDB->prepare('SELECT * FROM dependency WHERE dep_id = :dep_id LIMIT 1');
     $DBRESULT->bindValue(':dep_id', $dep_id, PDO::PARAM_INT);
@@ -71,20 +71,15 @@ if (($o == MODIFY_DEPENDENCY || $o == WATCH_DEPENDENCY) && $dep_id) {
 /*
  * Var information to format the element
  */
-$attrsText = array("size" => "30");
-$attrsText2 = array("size" => "10");
-$attrsAdvSelect = array("style" => "width: 300px; height: 150px;");
-$attrsTextarea = array("rows" => "3", "cols" => "30");
+$attrsText = ["size" => "30"];
+$attrsText2 = ["size" => "10"];
+$attrsAdvSelect = ["style" => "width: 300px; height: 150px;"];
+$attrsTextarea = ["rows" => "3", "cols" => "30"];
 $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />' .
     '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
 $route = './include/common/webServices/rest/internal.php?object=centreon_configuration_servicegroup&action=list';
-$attrServicegroups = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $route,
-    'multiple' => true,
-    'linkedObject' => 'centreonServicegroups'
-);
+$attrServicegroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $route, 'multiple' => true, 'linkedObject' => 'centreonServicegroups'];
 
 /*
  * Form begin
@@ -105,99 +100,99 @@ $form->addElement('header', 'information', _("Information"));
 $form->addElement('text', 'dep_name', _("Name"), $attrsText);
 $form->addElement('text', 'dep_description', _("Description"), $attrsText);
 
-$tab = array();
+$tab = [];
 $tab[] = $form->createElement('radio', 'inherits_parent', null, _("Yes"), '1');
 $tab[] = $form->createElement('radio', 'inherits_parent', null, _("No"), '0');
 $form->addGroup($tab, 'inherits_parent', _("Parent relationship"), '&nbsp;');
-$form->setDefaults(array('inherits_parent' => '1'));
+$form->setDefaults(['inherits_parent' => '1']);
 
-$tab = array();
+$tab = [];
 $tab[] = $form->createElement(
     'checkbox',
     'o',
     '&nbsp;',
     _("Ok"),
-    array('id' => 'nOk', 'onClick' => 'applyNotificationRules(this);')
+    ['id' => 'nOk', 'onClick' => 'applyNotificationRules(this);']
 );
 $tab[] = $form->createElement(
     'checkbox',
     'w',
     '&nbsp;',
     _("Warning"),
-    array('id' => 'nWarning', 'onClick' => 'applyNotificationRules(this);')
+    ['id' => 'nWarning', 'onClick' => 'applyNotificationRules(this);']
 );
 $tab[] = $form->createElement(
     'checkbox',
     'u',
     '&nbsp;',
     _("Unknown"),
-    array('id' => 'nUnknown', 'onClick' => 'applyNotificationRules(this);')
+    ['id' => 'nUnknown', 'onClick' => 'applyNotificationRules(this);']
 );
 $tab[] = $form->createElement(
     'checkbox',
     'c',
     '&nbsp;',
     _("Critical"),
-    array('id' => 'nCritical', 'onClick' => 'applyNotificationRules(this);')
+    ['id' => 'nCritical', 'onClick' => 'applyNotificationRules(this);']
 );
 $tab[] = $form->createElement(
     'checkbox',
     'p',
     '&nbsp;',
     _("Pending"),
-    array('id' => 'nPending', 'onClick' => 'applyNotificationRules(this);')
+    ['id' => 'nPending', 'onClick' => 'applyNotificationRules(this);']
 );
 $tab[] = $form->createElement(
     'checkbox',
     'n',
     '&nbsp;',
     _("None"),
-    array('id' => 'nNone', 'onClick' => 'applyNotificationRules(this);')
+    ['id' => 'nNone', 'onClick' => 'applyNotificationRules(this);']
 );
 $form->addGroup($tab, 'notification_failure_criteria', _("Notification Failure Criteria"), '&nbsp;&nbsp;');
 
-$tab = array();
+$tab = [];
 $tab[] = $form->createElement(
     'checkbox',
     'o',
     '&nbsp;',
     _("Ok"),
-    array('id' => 'eOk', 'onClick' => 'applyExecutionRules(this);')
+    ['id' => 'eOk', 'onClick' => 'applyExecutionRules(this);']
 );
 $tab[] = $form->createElement(
     'checkbox',
     'w',
     '&nbsp;',
     _("Warning"),
-    array('id' => 'eWarning', 'onClick' => 'applyExecutionRules(this);')
+    ['id' => 'eWarning', 'onClick' => 'applyExecutionRules(this);']
 );
 $tab[] = $form->createElement(
     'checkbox',
     'u',
     '&nbsp;',
     _("Unknown"),
-    array('id' => 'eUnknown', 'onClick' => 'applyExecutionRules(this);')
+    ['id' => 'eUnknown', 'onClick' => 'applyExecutionRules(this);']
 );
 $tab[] = $form->createElement(
     'checkbox',
     'c',
     '&nbsp;',
     _("Critical"),
-    array('id' => 'eCritical', 'onClick' => 'applyExecutionRules(this);')
+    ['id' => 'eCritical', 'onClick' => 'applyExecutionRules(this);']
 );
 $tab[] = $form->createElement(
     'checkbox',
     'p',
     '&nbsp;',
     _("Pending"),
-    array('id' => 'ePending', 'onClick' => 'applyExecutionRules(this);')
+    ['id' => 'ePending', 'onClick' => 'applyExecutionRules(this);']
 );
 $tab[] = $form->createElement(
     'checkbox',
     'n',
     '&nbsp;',
     _("None"),
-    array('id' => 'eNone', 'onClick' => 'applyExecutionRules(this);')
+    ['id' => 'eNone', 'onClick' => 'applyExecutionRules(this);']
 );
 $form->addGroup($tab, 'execution_failure_criteria', _("Execution Failure Criteria"), '&nbsp;&nbsp;');
 
@@ -205,17 +200,17 @@ $query = './include/common/webServices/rest/internal.php?object=centreon_configu
     '&action=defaultValues&target=dependency&field=dep_sgParents&id=' . $dep_id;
 $attrServicegroup1 = array_merge(
     $attrServicegroups,
-    array('defaultDatasetRoute' => $query)
+    ['defaultDatasetRoute' => $query]
 );
-$form->addElement('select2', 'dep_sgParents', _("Servicegroups"), array(), $attrServicegroup1);
+$form->addElement('select2', 'dep_sgParents', _("Servicegroups"), [], $attrServicegroup1);
 
 $route = './include/common/webServices/rest/internal.php?object=centreon_configuration_servicegroup' .
     '&action=defaultValues&target=dependency&field=dep_sgChilds&id=' . $dep_id;
 $attrServicegroup2 = array_merge(
     $attrServicegroups,
-    array('defaultDatasetRoute' => $route)
+    ['defaultDatasetRoute' => $route]
 );
-$form->addElement('select2', 'dep_sgChilds', _("Dependent Servicegroups"), array(), $attrServicegroup2);
+$form->addElement('select2', 'dep_sgChilds', _("Dependent Servicegroups"), [], $attrServicegroup2);
 
 $form->addElement('textarea', 'dep_comment', _("Comments"), $attrsTextarea);
 
@@ -262,21 +257,21 @@ if ($o == WATCH_DEPENDENCY) {
             "button",
             "change",
             _("Modify"),
-            array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&dep_id=" . $dep_id . "'")
+            ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&dep_id=" . $dep_id . "'"]
         );
     }
     $form->setDefaults($dep);
     $form->freeze();
 } elseif ($o == MODIFY_DEPENDENCY) {
     # Modify a Dependency information
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $form->setDefaults($dep);
 } elseif ($o == ADD_DEPENDENCY) {
     # Add a Dependency information
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
-    $form->setDefaults(array('inherits_parent', '0'));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
+    $form->setDefaults(['inherits_parent', '0']);
 }
 $tpl->assign(
     "helpattr",

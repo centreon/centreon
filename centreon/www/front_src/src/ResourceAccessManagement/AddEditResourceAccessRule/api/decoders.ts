@@ -1,10 +1,10 @@
 import { JsonDecoder } from 'ts.data.json';
 
 import {
+  DatasetFilter,
   GetResourceAccessRule,
   NamedEntity,
-  ResourceTypeEnum,
-  DatasetFilter
+  ResourceTypeEnum
 } from '../../models';
 
 const datasetFilter: JsonDecoder.Decoder<DatasetFilter> =

@@ -1,27 +1,28 @@
 import { Provider, createStore } from 'jotai';
 
-import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { platformVersionsAtom } from '@centreon/ui-context';
 
+import Form from '..';
+import { panelWidthStorageAtom } from '../../atom';
 import {
-  labelDelete,
-  labelSave,
-  labelDuplicate,
   labelActiveOrInactive,
   labelChangeName,
-  labelSearchHostGroups,
-  labelSearchServiceGroups,
-  labelSuccessfulNotificationAdded,
   labelClosePanel,
+  labelDelete,
   labelDoYouWantToQuitWithoutSaving,
-  labelYourFormHasUnsavedChanges,
+  labelDuplicate,
   labelNotificationName,
-  labelSubject,
+  labelSave,
   labelSearchBusinessViews,
   labelSearchContacts,
-  labelSelectTimePeriod
+  labelSearchHostGroups,
+  labelSearchServiceGroups,
+  labelSelectTimePeriod,
+  labelSubject,
+  labelSuccessfulNotificationAdded,
+  labelYourFormHasUnsavedChanges
 } from '../../translatedLabels';
-import { panelWidthStorageAtom } from '../../atom';
 import {
   availableTimePeriodsEndpoint,
   hostsGroupsEndpoint,
@@ -29,17 +30,16 @@ import {
   serviceGroupsEndpoint,
   usersEndpoint
 } from '../api/endpoints';
-import Form from '..';
 import { defaultEmailSubject } from '../utils';
 
 import {
-  usersResponse,
-  hostGroupsResponse,
-  serviceGroupsResponse,
-  platformVersions,
-  formData,
   emailBodyText,
-  timePeriodsResponse
+  formData,
+  hostGroupsResponse,
+  platformVersions,
+  serviceGroupsResponse,
+  timePeriodsResponse,
+  usersResponse
 } from './testUtils';
 
 const store = createStore();

@@ -1,5 +1,5 @@
+import { animated, to, useTransition } from '@react-spring/web';
 import { PieArcDatum, ProvidedProps } from '@visx/shape/lib/shapes/Pie';
-import { useTransition, to, animated } from '@react-spring/web';
 import { equals, includes, isNil, pluck } from 'ramda';
 
 import { Typography } from '@mui/material';

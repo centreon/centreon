@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 
+import dayjs from 'dayjs';
 import {
   equals,
   flatten,
@@ -10,7 +11,6 @@ import {
   pipe,
   pluck
 } from 'ramda';
-import dayjs from 'dayjs';
 
 import { LineChartData, buildListingEndpoint, useFetchQuery } from '../..';
 

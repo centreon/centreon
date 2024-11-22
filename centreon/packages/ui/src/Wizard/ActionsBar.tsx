@@ -1,6 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 
-import { Grid, Button, Typography, CircularProgress } from '@mui/material';
+import { Button, CircularProgress, Grid, Typography } from '@mui/material';
 
 import { ActionsBarProps } from './models';
 

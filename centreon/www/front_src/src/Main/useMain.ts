@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { useAtom, useSetAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { and, includes, isEmpty, isNil, not, or } from 'ramda';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -10,15 +10,15 @@ import { userAtom } from '@centreon/ui-context';
 import { platformInstallationStatusDecoder } from '../api/decoders';
 import { platformInstallationStatusEndpoint } from '../api/endpoint';
 import { PlatformInstallationStatus } from '../api/models';
-import reactRoutes from '../reactRoutes/routeMap';
 import useFederatedModules from '../federatedModules/useFederatedModules';
 import useFederatedWidgets from '../federatedModules/useFederatedWidgets';
+import reactRoutes from '../reactRoutes/routeMap';
 
 import { platformInstallationStatusAtom } from './atoms/platformInstallationStatusAtom';
-import useUser, { areUserParametersLoadedAtom } from './useUser';
-import usePlatformVersions from './usePlatformVersions';
 import useInitializeTranslation from './useInitializeTranslation';
 import usePlatformFeatures from './usePlatformFeatures';
+import usePlatformVersions from './usePlatformVersions';
+import useUser, { areUserParametersLoadedAtom } from './useUser';
 
 export const router = {
   useNavigate

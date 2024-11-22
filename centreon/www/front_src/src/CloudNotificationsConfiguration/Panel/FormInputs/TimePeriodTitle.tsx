@@ -4,8 +4,8 @@ import HelpIcon from '@mui/icons-material/HelpOutline';
 import { Box, Tooltip } from '@mui/material';
 
 import {
-  labelTimePeriod,
-  labelTimePeridoTooltip
+  labelTimePeridoTooltip,
+  labelTimePeriod
 } from '../../translatedLabels';
 
 import { useStyles } from './Inputs.styles';

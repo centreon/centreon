@@ -71,6 +71,13 @@ contents:
       group: centreon
       mode: 2775
 
+  - dst: "/var/cache/centreon/config/vmware"
+    type: dir
+    file_info:
+      owner: centreon
+      group: centreon
+      mode: 2775
+
   - src: "../www/install/var/config.yaml"
     dst: "/etc/centreon/config.yaml"
     file_info:

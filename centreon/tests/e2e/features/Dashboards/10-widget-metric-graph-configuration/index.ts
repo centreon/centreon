@@ -10,7 +10,6 @@ import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-a
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import metricsGraphWidget from '../../../fixtures/dashboards/creation/widgets/metricsGraphWidget.json';
-import metricsGraphDoubleWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwometricsGraphWidget.json';
 import metricsGraphWithMultipleHosts from '../../../fixtures/dashboards/creation/widgets/metricsGraphWithMultipleHosts.json';
 import metricsGraphWithMultipleMetrics from '../../../fixtures/dashboards/creation/widgets/dashboardWithMetricsGraphWidgetWithMultipleMetrics.json';
 
@@ -134,6 +133,8 @@ before(() => {
   cy.loginByTypeOfUser({
     jsonName: 'admin'
   });
+
+  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' });
 
   checkHostsAreMonitored([
     { name: services.serviceOk.host },
@@ -292,7 +293,12 @@ Then('the information about the selected metric is displayed', () => {
 });
 
 Given('a dashboard featuring having Metrics Graph widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    metricsGraphWidget,
+    'centreon-widget-graph',
+    '/widgets/graph'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.wait('@performanceData');
   cy.editWidget(1);
@@ -364,7 +370,12 @@ Then(
 );
 
 Given('a dashboard that includes a configured Metrics Graph widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    metricsGraphWidget,
+    'centreon-widget-graph',
+    '/widgets/graph'
+  );
   cy.visitDashboard(dashboards.default.name);
 });
 
@@ -395,7 +406,13 @@ Then('the second widget has the same properties as the first widget', () => {
 });
 
 Given('a dashboard featuring two Metrics Graph widgets', () => {
-  cy.insertDashboardWithWidget(dashboards.default, metricsGraphDoubleWidget);
+  cy.insertDashboardWithDoubleWidget(
+    dashboards.default,
+    metricsGraphWidget,
+    metricsGraphWidget,
+    'centreon-widget-graph',
+    '/widgets/graph'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.getByTestId({ testId: 'More actions' }).eq(0).click();
   cy.wait('@performanceData');
@@ -424,7 +441,12 @@ Then(
 );
 
 Given('a dashboard featuring a configured Metrics Graph widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    metricsGraphWidget,
+    'centreon-widget-graph',
+    '/widgets/graph'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
   cy.wait('@performanceData');
@@ -465,7 +487,12 @@ Then('the thresholds are automatically hidden', () => {
 });
 
 Given('a dashboard with a configured Metrics Graph widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    metricsGraphWidget,
+    'centreon-widget-graph',
+    '/widgets/graph'
+  );
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
   cy.wait('@performanceData');
@@ -478,22 +505,20 @@ When('the dashboard administrator selects more than two metric units', () => {
 });
 
 Then(
-  'a message should be displayed indicating that the user can only select a maximum of two metric units',
+  'a message should be displayed indicating that thresholds are disabled',
   () => {
-    cy.contains('span', 'You can select a maximum of 2 metric units.').should(
-      'exist'
-    );
     cy.contains(
-      'span',
-      'Thresholds are automatically hidden as soon as you select 2 metric units.'
+      'Thresholds are automatically hidden when you select several metrics with different units.'
     ).should('exist');
   }
 );
 
-Given('a dashboard having Metrics Graph widget with multiple hosts', () => {
+Given('a dashboard having a Metrics Graph widget with multiple hosts', () => {
   cy.insertDashboardWithWidget(
     dashboards.default,
-    metricsGraphWithMultipleHosts
+    metricsGraphWithMultipleHosts,
+    'centreon-widget-graph',
+    '/widgets/graph'
   );
   cy.editDashboard(dashboards.default.name);
   cy.editWidget(1);
@@ -520,7 +545,9 @@ Given(
   () => {
     cy.insertDashboardWithWidget(
       dashboards.default,
-      metricsGraphWithMultipleMetrics
+      metricsGraphWithMultipleMetrics,
+      'centreon-widget-graph',
+      '/widgets/graph'
     );
     cy.editDashboard(dashboards.default.name);
     cy.getByTestId({ testId: 'More actions' }).click();
@@ -648,10 +675,24 @@ When(
 );
 
 Then('the graph should be displayed as a bar chart', () => {
-  cy.get('rect[data-testid*="single-bar-"]').each(($el) => {
-    const height = $el.attr('height');
-    if (height !== '0') {
-      cy.wrap($el).should('exist');
-    }
-  });
+  cy.get('path[data-testid*="stacked-bar-"]').should('exist');
+});
+
+When(
+  'the dashboard administrator selects a custom time period for the graph',
+  () => {
+    cy.contains('Last hour').click({ force: true });
+    cy.contains('Customize').click({ force: true });
+  }
+);
+
+Then('the graph updates to reflect data for the selected time period', () => {
+  cy.getByLabel({
+    label: 'From',
+    tag: 'div'
+  }).should('be.visible');
+  cy.getByLabel({
+    label: 'to',
+    tag: 'div'
+  }).should('be.visible');
 });

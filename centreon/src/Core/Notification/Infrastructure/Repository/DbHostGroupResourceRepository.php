@@ -26,11 +26,12 @@ namespace Core\Notification\Infrastructure\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
 use Core\Notification\Domain\Model\ConfigurationResource;
-use Core\Notification\Domain\Model\NotificationHostEvent;
+use Core\Notification\Domain\Model\HostEvent;
 use Core\Notification\Domain\Model\NotificationResource;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\SqlConcatenator;
@@ -38,8 +39,9 @@ use Utility\SqlConcatenator;
 class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements NotificationResourceRepositoryInterface
 {
     use LoggerTrait;
-    private const RESOURCE_TYPE = NotificationResource::HOSTGROUP_RESOURCE_TYPE;
-    private const EVENT_ENUM = NotificationHostEvent::class;
+    use SqlMultipleBindTrait;
+    private const RESOURCE_TYPE = NotificationResource::TYPE_HOST_GROUP;
+    private const EVENT_ENUM = HostEvent::class;
     private const EVENT_ENUM_CONVERTER = NotificationHostEventConverter::class;
 
     public function __construct(DatabaseConnection $db)
@@ -299,7 +301,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
     /**
      * @inheritDoc
      */
-    public function findResourcesCountByNotificationIdsAndAccessGroups(
+    public function countResourcesByNotificationIdsAndAccessGroups(
         array $notificationIds,
         array $accessGroups
     ): array {
@@ -307,16 +309,31 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
             static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
-        $concatenator = $this->getConcatenatorForFindResourcesCountQuery($accessGroupIds)
-            ->storeBindValueMultiple(':notification_ids', $notificationIds, \PDO::PARAM_INT)
-            ->appendWhere(
-                <<<'SQL'
-                        WHERE notification_id IN (:notification_ids)
-                    SQL
-            );
 
-        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
-        $concatenator->bindValuesToStatement($statement);
+        [$bindNotificationValues, $subNotificationQuery] = $this->createMultipleBindQuery($notificationIds, ':nid_');
+        [$bindAccessGroupValues, $subAccessGroupQuery] = $this->createMultipleBindQuery($accessGroupIds, ':aid_');
+
+        $statement = $this->db->prepare(
+            $this->translateDbName(<<<SQL
+                SELECT notification_id, COUNT(DISTINCT rel.hg_id)
+                FROM `:db`.notification_hg_relation rel
+                INNER JOIN `:db`.acl_resources_hg_relations arhr
+                    ON rel.hg_id = arhr.hg_hg_id
+                INNER JOIN `:db`.acl_resources res
+                    ON arhr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                WHERE ag.acl_group_id IN ({$subAccessGroupQuery})
+                    AND notification_id IN ({$subNotificationQuery})
+                GROUP BY notification_id
+                SQL
+            )
+        );
+        foreach ([...$bindNotificationValues, ...$bindAccessGroupValues] as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
         $statement->execute();
 
         $result = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
@@ -327,18 +344,21 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
     /**
      * @inheritDoc
      */
-    public function findResourcesCountByNotificationIds(array $notificationIds): array
+    public function countResourcesByNotificationIds(array $notificationIds): array
     {
-        $concatenator = $this->getConcatenatorForFindResourcesCountQuery([])
-            ->storeBindValueMultiple(':notification_ids', $notificationIds, \PDO::PARAM_INT)
-            ->appendWhere(
-                <<<'SQL'
-                        WHERE notification_id IN (:notification_ids)
-                    SQL
-            );
-
-        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
-        $concatenator->bindValuesToStatement($statement);
+        [$bindNotificationValues, $subNotificationQuery] = $this->createMultipleBindQuery($notificationIds, ':id_');
+        $statement = $this->db->prepare(
+            $this->translateDbName(<<<SQL
+                SELECT notification_id, COUNT(DISTINCT rel.hg_id)
+                FROM `:db`.notification_hg_relation rel
+                WHERE notification_id IN ({$subNotificationQuery})
+                GROUP BY notification_id
+                SQL
+            )
+        );
+        foreach ($bindNotificationValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
         $statement->execute();
 
         $result = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
@@ -496,52 +516,6 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
                 <<<'SQL'
                     INNER JOIN `:db`.hostgroup hg
                         ON rel.hg_id = hg.hg_id
-                    SQL
-            );
-
-        if ([] !== $accessGroupIds) {
-            $concatenator->appendJoins(
-                <<<'SQL'
-                    INNER JOIN `:db`.acl_resources_hg_relations arhr
-                        ON rel.hg_id = arhr.hg_hg_id
-                    INNER JOIN `:db`.acl_resources res
-                        ON arhr.acl_res_id = res.acl_res_id
-                    INNER JOIN `:db`.acl_res_group_relations argr
-                        ON res.acl_res_id = argr.acl_res_id
-                    INNER JOIN `:db`.acl_groups ag
-                        ON argr.acl_group_id = ag.acl_group_id
-                    SQL
-            )->appendWhere(
-                <<<'SQL'
-                    WHERE ag.acl_group_id IN (:accessGroupIds)
-                    SQL
-            )->storeBindValueMultiple(':accessGroupIds', $accessGroupIds, \PDO::PARAM_INT);
-        }
-
-        return $concatenator;
-    }
-
-    /**
-     * @param int[] $accessGroupIds
-     *
-     * @return SqlConcatenator
-     */
-    private function getConcatenatorForFindResourcesCountQuery(array $accessGroupIds): SqlConcatenator
-    {
-        $concatenator = (new SqlConcatenator())
-            ->defineSelect(
-                <<<'SQL'
-                    SELECT
-                    notification_id, COUNT(DISTINCT rel.hg_id)
-                    SQL
-            )->defineFrom(
-                <<<'SQL'
-                    FROM
-                        `:db`.notification_hg_relation rel
-                    SQL
-            )->defineGroupBy(
-                <<<'SQL'
-                        GROUP BY notification_id
                     SQL
             );
 

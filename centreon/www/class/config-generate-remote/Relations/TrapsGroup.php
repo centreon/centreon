@@ -20,32 +20,53 @@
 
 namespace ConfigGenerateRemote\Relations;
 
-use \PDO;
+use Exception;
+use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use Pimple\Container;
 
+/**
+ * Class
+ *
+ * @class TrapsGroup
+ * @package ConfigGenerateRemote\Relations
+ */
 class TrapsGroup extends AbstractObject
 {
+    /** @var */
+    public $trapgroupCache;
+    /** @var */
+    public $serviceLinkedCache;
+    /** @var int */
     private $useCache = 1;
+    /** @var int */
     private $doneCache = 0;
 
+    /** @var array */
     private $trapGroupCache = [];
+    /** @var array */
     private $trapLinkedCache = [];
 
+    /** @var string */
     protected $table = 'traps_group';
+    /** @var string */
     protected $generateFilename = 'traps_group.infile';
+    /** @var null */
     protected $stmtTrap = null;
 
+    /** @var string[] */
     protected $attributesWrite = [
         'traps_group_id',
         'traps_group_name'
     ];
 
+
     /**
-     * Constructor
+     * TrapsGroup constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->buildCache();
@@ -56,7 +77,7 @@ class TrapsGroup extends AbstractObject
      *
      * @return void
      */
-    private function cacheTrapGroup()
+    private function cacheTrapGroup(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT *
@@ -75,7 +96,7 @@ class TrapsGroup extends AbstractObject
      *
      * @return void
      */
-    private function cacheTrapLinked()
+    private function cacheTrapLinked(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT traps_group_id, traps_id
@@ -110,12 +131,14 @@ class TrapsGroup extends AbstractObject
     /**
      * Generate trap group
      *
-     * @param integer $trapId
+     * @param int $trapId
      * @param array $trapLinkedCache
      * @param array $object
+     *
      * @return void
+     * @throws Exception
      */
-    public function generateObject(int $trapId, array $trapLinkedCache, array &$object)
+    public function generateObject(int $trapId, array $trapLinkedCache, array &$object): void
     {
         foreach ($trapLinkedCache as $trapGroupId) {
             trapsGroupRelation::getInstance($this->dependencyInjector)->addRelation($trapId, $trapGroupId);
@@ -129,8 +152,10 @@ class TrapsGroup extends AbstractObject
     /**
      * Get trap linked trap groups
      *
-     * @param integer $trapId
+     * @param int $trapId
+     *
      * @return void
+     * @throws Exception
      */
     public function getTrapGroupsByTrapId(int $trapId)
     {

@@ -1,4 +1,7 @@
 {$form.javascript}
+{if $errorMessage}
+<div class='msg' align='center'>{$errorMessage}</div>;
+{/if}
 <form {$form.attributes}>
     <div id="validFormTop">
         {if $o == "a" || $o == "c"}

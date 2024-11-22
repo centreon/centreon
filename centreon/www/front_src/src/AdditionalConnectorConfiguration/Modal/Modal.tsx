@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Modal } from '@centreon/ui/components';
 
@@ -28,7 +28,7 @@ const AdditionalConnectorModal = (): JSX.Element => {
       size="large"
       onClose={closeDialog}
     >
-      <Modal.Header>{t(labelHeader)}</Modal.Header>
+      <Modal.Header data-testid="Modal-header">{t(labelHeader)}</Modal.Header>
       <Modal.Body>
         <AdditionalConnectorForm
           connectorId={connector?.id}

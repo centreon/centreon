@@ -141,11 +141,7 @@ try {
     foreach ($selection as $key => $value) {
         $tplStr = "";
         $tplArr = $proc->getMyServiceTemplateModels($value);
-        if ($proc->serviceTemplateHasProcedure($key, $tplArr) == true) {
-            $diff[$key] = 1;
-        } else {
-            $diff[$key] = 0;
-        }
+        $diff[$key] = $proc->serviceTemplateHasProcedure($key, $tplArr) == true ? 1 : 0;
 
         if (!empty($templatesHasNoProcedure)) {
             if (

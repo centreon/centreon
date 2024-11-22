@@ -37,15 +37,18 @@
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationHosttemplate
+ */
 class CentreonConfigurationHosttemplate extends CentreonConfigurationObjects
 {
-    /**
-     * @var CentreonDB
-     */
+    /** @var CentreonDB */
     protected $pearDBMonitoring;
 
     /**
-     * CentreonConfigurationHosttemplate constructor.
+     * CentreonConfigurationHosttemplate constructor
      */
     public function __construct()
     {
@@ -55,18 +58,15 @@ class CentreonConfigurationHosttemplate extends CentreonConfigurationObjects
 
     /**
      * @return array
+     * @throws PDOException
      * @throws RestBadRequestException
      */
     public function getList()
     {
-        $queryValues = array();
+        $queryValues = [];
 
         // Check for select2 'q' argument
-        if (isset($this->arguments['q'])) {
-            $queryValues['hostName'] = '%' . (string)$this->arguments['q'] . '%';
-        } else {
-            $queryValues['hostName'] = '%%';
-        }
+        $queryValues['hostName'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
 
         $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT h.host_name, h.host_id FROM host h ' .
             'WHERE h.host_register = "0" ' .
@@ -94,17 +94,11 @@ class CentreonConfigurationHosttemplate extends CentreonConfigurationObjects
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $hostList = array();
+        $hostList = [];
         while ($data = $stmt->fetch()) {
-            $hostList[] = array(
-                'id' => htmlentities($data['host_id']),
-                'text' => $data['host_name']
-            );
+            $hostList[] = ['id' => htmlentities($data['host_id']), 'text' => $data['host_name']];
         }
 
-        return array(
-            'items' => $hostList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $hostList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

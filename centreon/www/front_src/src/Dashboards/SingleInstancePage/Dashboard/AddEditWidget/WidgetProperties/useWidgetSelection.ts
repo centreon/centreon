@@ -1,5 +1,7 @@
-import { ChangeEvent, useState } from 'react';
+import { type ChangeEvent, useState } from 'react';
 
+import { useFormikContext } from 'formik';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   equals,
   filter,
@@ -10,28 +12,29 @@ import {
   map,
   propEq,
   reduce,
+  reject,
   toPairs
 } from 'ramda';
-import { useFormikContext } from 'formik';
-import { useAtomValue, useSetAtom } from 'jotai';
 
-import { SelectEntry } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 import { federatedWidgetsAtom } from '@centreon/ui-context';
 
-import {
+import { federatedWidgetsPropertiesAtom } from '../../../../../federatedModules/atoms';
+import type {
   FederatedModule,
   FederatedWidgetOption,
   FederatedWidgetProperties
 } from '../../../../../federatedModules/models';
-import { Widget } from '../models';
-import { federatedWidgetsPropertiesAtom } from '../../../../../federatedModules/atoms';
+import { isGenericText } from '../../utils';
 import {
   customBaseColorAtom,
-  singleResourceSelectionAtom,
   singleMetricSelectionAtom,
+  singleResourceSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
-import { isGenericText } from '../../utils';
+import type { Widget } from '../models';
+
+import { platformFeaturesAtom } from '@centreon/ui-context';
 
 interface UseWidgetSelectionState {
   options: Array<SelectEntry>;
@@ -52,29 +55,33 @@ export const getDefaultValues = (
     return {};
   }
 
-  return Object.entries(options).reduce((acc, [key, value]) => {
-    if (!has('when', value.defaultValue)) {
+  return Object.entries(options?.elements ?? options).reduce(
+    (acc, [key, value]) => {
+      if (!has('when', value.defaultValue)) {
+        return {
+          ...acc,
+          [key]: value.defaultValue
+        };
+      }
+
       return {
         ...acc,
-        [key]: value.defaultValue
+        [key]: equals(
+          options[value.defaultValue.when].defaultValue,
+          value.defaultValue.is
+        )
+          ? value.defaultValue.then
+          : value.defaultValue.otherwise
       };
-    }
-
-    return {
-      ...acc,
-      [key]: equals(
-        options[value.defaultValue.when].defaultValue,
-        value.defaultValue.is
-      )
-        ? value.defaultValue.then
-        : value.defaultValue.otherwise
-    };
-  }, {});
+    },
+    {}
+  );
 };
 
 const useWidgetSelection = (): UseWidgetSelectionState => {
   const [search, setSearch] = useState('');
 
+  const platformFeatures = useAtomValue(platformFeaturesAtom);
   const federatedWidgets = useAtomValue(federatedWidgetsAtom);
   const federatedWidgetsProperties = useAtomValue(
     federatedWidgetsPropertiesAtom
@@ -86,9 +93,15 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
 
   const { setValues, values, setTouched } = useFormikContext<Widget>();
 
+  const isCloudPlatform = platformFeatures?.isCloudPlatform;
+
+  const availableWidgetsProperties = reject((widget) => {
+    return isCloudPlatform && widget?.availableOnPremOnly;
+  }, federatedWidgetsProperties || []);
+
   const filteredWidgets = filter(
     ({ title }) => title?.includes(search),
-    federatedWidgetsProperties || []
+    availableWidgetsProperties || []
   );
 
   const formattedWidgets = map(
@@ -128,7 +141,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
 
     const selectedWidgetProperties = find(
       propEq(widget.id, 'moduleName'),
-      federatedWidgetsProperties || []
+      availableWidgetsProperties || []
     ) as FederatedWidgetProperties;
 
     setWidgetProperties(selectedWidgetProperties);

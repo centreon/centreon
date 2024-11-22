@@ -46,7 +46,7 @@ class DbReadNotifiableResourceRepository extends AbstractRepositoryRDB implement
         $requestProvidersAsArray = \is_array($notifiableResourceRequestProviders)
             ? $notifiableResourceRequestProviders
             : \iterator_to_array($notifiableResourceRequestProviders);
-        if (\count($requestProvidersAsArray) === 0) {
+        if ($requestProvidersAsArray === []) {
             throw new \InvalidArgumentException('There must be at least one notifiable resource request provider');
         }
         $this->notifiableResourceRequestProviders = $requestProvidersAsArray;

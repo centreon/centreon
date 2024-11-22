@@ -1,7 +1,7 @@
 import { MemoizedListing } from '@centreon/ui';
 
-import useListing from './useListing';
 import { HeaderActions } from './Header';
+import useListing from './useListing';
 
 const ResourceAccessRulesListing = (): JSX.Element => {
   const {

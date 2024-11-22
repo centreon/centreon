@@ -1,5 +1,5 @@
-import { find, propEq } from 'ramda';
 import dayjs from 'dayjs';
+import { find, propEq } from 'ramda';
 
 import {
   CustomTimePeriod,

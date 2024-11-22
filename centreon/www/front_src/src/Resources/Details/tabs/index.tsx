@@ -1,18 +1,18 @@
-import { lazy, Suspense } from 'react';
+import { Suspense, lazy } from 'react';
 
-import { isNil, find, propEq, invertObj, path, equals } from 'ramda';
+import { path, equals, find, invertObj, isNil, propEq } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import {
   labelDetails,
   labelGraph,
-  labelTimeline,
-  labelServices,
   labelMetrics,
-  labelNotification
+  labelNotification,
+  labelServices,
+  labelTimeline
 } from '../../translatedLabels';
-import { ResourceDetails } from '../models';
 import DetailsLoadingSkeleton from '../LoadingSkeleton';
+import { ResourceDetails } from '../models';
 
 import { Tab, TabId } from './models';
 

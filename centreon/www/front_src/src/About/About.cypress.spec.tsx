@@ -1,10 +1,10 @@
-import { Provider, createStore, useAtomValue } from 'jotai';
 import { renderHook } from '@testing-library/react';
+import { Provider, createStore, useAtomValue } from 'jotai';
 
 import {
   ThemeMode,
-  userAtom,
-  platformVersionsAtom
+  platformVersionsAtom,
+  userAtom
 } from '@centreon/ui-context';
 
 import { PlatformVersions } from '../api/models';

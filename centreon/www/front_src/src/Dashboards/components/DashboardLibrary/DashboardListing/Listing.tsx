@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { MemoizedListing, sanitizedHTML } from '@centreon/ui';
 import { Modal } from '@centreon/ui/components';
 
-import { Dashboard } from '../../../api/models';
 import { List } from '../../../api/meta.models';
+import { Dashboard } from '../../../api/models';
 import {
   labelCancel,
   labelDelete,
@@ -13,10 +13,10 @@ import {
   labelYouAreGoingToDeleteUser
 } from '../../../translatedLabels';
 
-import useColumns from './Columns/useColumns';
 import { Actions } from './Actions';
-import useListing from './useListing';
+import useColumns from './Columns/useColumns';
 import { askBeforeRevokeAtom } from './atom';
+import useListing from './useListing';
 
 interface ListingProp {
   customListingComponent?: JSX.Element;

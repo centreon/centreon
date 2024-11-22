@@ -5,14 +5,14 @@ import { equals, has } from 'ramda';
 
 import { Zoom } from '../../components';
 
+import { ComplexContent, SimpleContent } from './stories/contents';
 import {
   ComplexData,
+  SimpleData,
   complexData,
   moreComplexData,
-  SimpleData,
   simpleData
 } from './stories/datas';
-import { ComplexContent, SimpleContent } from './stories/contents';
 
 import { StandaloneTree, Tree, TreeProps } from '.';
 

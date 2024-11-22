@@ -49,7 +49,30 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
     /**
      * @var array<string, string>
      */
-    private $downtimeConcordanceArray;
+    private $downtimeConcordanceArray = [
+        // Relation for downtime
+        'id' => 'dwt.downtime_id',
+        'entry_time' => 'dwt.entry_time',
+        'is_cancelled' => 'dwt.cancelled',
+        'comment' => 'dwt.comment_data',
+        'deletion_time' => 'dwt.deletion_time',
+        'duration' => 'dwt.duration',
+        'end_time' => 'dwt.end_time',
+        'is_fixed' => 'dwt.fixed',
+        'start_time' => 'dwt.start_time',
+        // Relation for host
+        'host.id' => 'hosts.host_id',
+        'host.name' => 'hosts.name',
+        'host.alias' => 'hosts.alias',
+        'host.address' => 'hosts.address',
+        'host.display_name' => 'hosts.display_name',
+        'host.state' => 'h.state',
+        // Relation for poller
+        'poller.id' => 'hosts.instance_id',
+        // Relation for contact
+        'contact.id' => 'contact.contact_id',
+        'contact.name' => 'contact.contact_name',
+    ];
 
     public function __construct(
         DatabaseConnection $db,
@@ -57,31 +80,6 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
     ) {
         $this->db = $db;
         $this->sqlRequestTranslator = $sqlRequestTranslator;
-
-        $this->downtimeConcordanceArray = [
-            // Relation for downtime
-            'id' => 'dwt.downtime_id',
-            'entry_time' => 'dwt.entry_time',
-            'is_cancelled' => 'dwt.cancelled',
-            'comment' => 'dwt.comment_data',
-            'deletion_time' => 'dwt.deletion_time',
-            'duration' => 'dwt.duration',
-            'end_time' => 'dwt.end_time',
-            'is_fixed' => 'dwt.fixed',
-            'start_time' => 'dwt.start_time',
-            // Relation for host
-            'host.id' => 'hosts.host_id',
-            'host.name' => 'hosts.name',
-            'host.alias' => 'hosts.alias',
-            'host.address' => 'hosts.address',
-            'host.display_name' => 'hosts.display_name',
-            'host.state' => 'h.state',
-            // Relation for poller
-            'poller.id' => 'hosts.instance_id',
-            // Relation for contact
-            'contact.id' => 'contact.contact_id',
-            'contact.name' => 'contact.contact_name',
-        ];
     }
 
     /**
@@ -275,7 +273,7 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
         $downtimeConcordanceArray = $this->downtimeConcordanceArray;
         $searchParameters = $this->sqlRequestTranslator->getRequestParameters()->extractSearchNames();
         $shouldJoinService = false;
-        if (count(array_intersect($searchParameters, array_keys($serviceConcordanceArray))) > 0) {
+        if (array_intersect($searchParameters, array_keys($serviceConcordanceArray)) !== []) {
             $shouldJoinService = true;
             $downtimeConcordanceArray = array_merge($downtimeConcordanceArray, $serviceConcordanceArray);
         }

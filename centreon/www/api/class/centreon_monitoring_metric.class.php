@@ -35,17 +35,20 @@
 
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once _CENTREON_PATH_ . "/www/class/centreonGraphService.class.php";
-require_once dirname(__FILE__) . "/centreon_configuration_objects.class.php";
+require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonMonitoringMetric
+ */
 class CentreonMonitoringMetric extends CentreonConfigurationObjects
 {
-    /**
-     * @var CentreonDB
-     */
+    /** @var CentreonDB */
     protected $pearDBMonitoring;
 
     /**
-     * CentreonMonitoringMetric constructor.
+     * CentreonMonitoringMetric constructor
      */
     public function __construct()
     {
@@ -54,72 +57,86 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
     }
 
     /**
-     * @return array
+     * @return array{items: array{id: string, text: string}, total: int}
+     *
      * @throws Exception
      */
-    public function getList()
+    public function getList(): array
     {
         global $centreon;
 
-        $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT(`metric_name`)
-            COLLATE utf8_bin as "metric_name" FROM `metrics` as m ';
+        $configurationDbName = db;
+
+        $aclSubQuery = '';
+        $whereClause = '';
+        $limitClause = '';
 
         $queryValues = [];
 
-        /**
-         * If ACLs on, then only return metrics linked to services that the user can see.
-         */
-        if (!$centreon->user->admin) {
-            $query .= 'INNER JOIN index_data i
-                  ON i.id = m.index_id
-                INNER JOIN centreon_acl acl
-                  ON acl.host_id = i.host_id
-                  AND acl.service_id = i.service_id
-                INNER JOIN `' . db . '`.acl_groups acg
-                  ON acg.acl_group_id = acl.group_id
-                  AND acg.acl_group_activate = "1"
-                  AND (
-                    acg.acl_group_id IN (
-                        SELECT acl_group_id FROM `' . db . '`.acl_group_contacts_relations
-                        WHERE contact_contact_id = :contact_id
-                    ) OR acl_group_id IN (
-                        SELECT acl_group_id FROM `' . db . '`.acl_group_contactgroups_relations agcr
-                        INNER JOIN `' . db . '`.contactgroup_contact_relation cgcr
-                            ON cgcr.contactgroup_cg_id = agcr.cg_cg_id
-                        WHERE cgcr.contact_contact_id = :contact_id
+        if (! $centreon->user->admin) {
+            $aclSubQuery = <<<SQL
+                INNER JOIN `index_data` i
+                    ON i.`id` = m.`index_id`
+                INNER JOIN `centreon_acl` acl
+                    ON acl.`host_id` = i.`host_id`
+                    AND acl.`service_id` = i.`service_id`
+                INNER JOIN {$configurationDbName}.`acl_groups` ag
+                    ON ag.`acl_group_id` = acl.`group_id`
+                    AND ag.acl_group_activate = '1'
+                    AND (`acl_group_id` IN (SELECT `acl_group_id`
+                            FROM {$configurationDbName}.`acl_group_contacts_relations`
+                            WHERE `contact_contact_id` = :contact_id)
+                        OR `acl_group_id` IN (SELECT `acl_group_id`
+                            FROM {$configurationDbName}.`acl_group_contactgroups_relations` acgr
+                            INNER JOIN {$configurationDbName}.`contactgroup_contact_relation` cgcr
+                                ON cgcr.`contactgroup_cg_id` = acgr.cg_cg_id
+                            WHERE cgcr.`contact_contact_id` = :contact_id
+                        )
                     )
-                  )';
-            $queryValues[':contact_id'] = [$centreon->user->user_id, \PDO::PARAM_INT];
+                SQL;
+
+            $queryValues[':contact_id'] = [$centreon->user->user_id, PDO::PARAM_INT];
         }
 
         if (isset($this->arguments['q'])) {
-            $query .= 'WHERE metric_name LIKE :name ';
-            $queryValues[':name'] = ['%' . (string)$this->arguments['q'] . '%', \PDO::PARAM_STR];
-        }
+            $whereClause = <<<'SQL'
+                WHERE `metric_name` LIKE :name
+                SQL;
 
-        $query .= ' ORDER BY `metric_name` COLLATE utf8_general_ci ';
+            $queryValues[':name'] = ['%' . (string)$this->arguments['q'] . '%', PDO::PARAM_STR];
+        }
 
         if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
             if (
                 filter_var(($limit = $this->arguments['page_limit']), FILTER_VALIDATE_INT) === false
                 || filter_var(($page = $this->arguments['page']), FILTER_VALIDATE_INT) === false
             ) {
-                throw new \InvalidArgumentException('Pagination parameters must be integers');
+                throw new InvalidArgumentException('Pagination parameters must be integers');
             }
 
             if ($page < 1) {
-                throw new \InvalidArgumentException('Page number must be greater than zero');
+                throw new InvalidArgumentException('Page number must be greater than zero');
             }
 
             $offset = ($page - 1) * $limit;
-            $query .= 'LIMIT :offset, :limit';
-            $queryValues[':offset'] = [$offset, \PDO::PARAM_INT];
-            $queryValues[':limit'] = [$limit, \PDO::PARAM_INT];
+            $limitClause = 'LIMIT :offset, :limit';
+
+            $queryValues[':offset'] = [$offset, PDO::PARAM_INT];
+            $queryValues[':limit'] = [$limit, PDO::PARAM_INT];
         }
+
+        $query = <<<SQL
+            SELECT SQL_CALC_FOUND_ROWS DISTINCT `metric_name`
+            FROM `metrics` m
+            {$aclSubQuery}
+            {$whereClause}
+            ORDER BY `metric_name`
+            {$limitClause}
+            SQL;
 
         $stmt = $this->pearDBMonitoring->prepare($query);
         foreach ($queryValues as $name => $parameters) {
-            list($value, $type) = $parameters;
+            [$value, $type] = $parameters;
             $stmt->bindValue($name, $value, $type);
         }
         $stmt->execute();
@@ -127,14 +144,14 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
         $metrics = [];
         while ($row = $stmt->fetch()) {
             $metrics[] = [
-                'id' => $row['metric_name'],
-                'text' => $row['metric_name']
+                'id' => (string) $row['metric_name'],
+                'text' => (string) $row['metric_name']
             ];
         }
 
         return [
             'items' => $metrics,
-            'total' => (int) $this->pearDBMonitoring->numberRows()
+            'total' => (int) $this->pearDBMonitoring->numberRows(),
         ];
     }
 
@@ -183,15 +200,15 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
         }
 
         if (false === isset($this->arguments['ids'])) {
-            self::sendResult(array());
+            self::sendResult([]);
         }
 
         /* Get the list of service ID */
         $ids = explode(',', $this->arguments['ids']);
-        $result = array();
+        $result = [];
 
         foreach ($ids as $id) {
-            list($hostId, $serviceId) = explode('_', $id);
+            [$hostId, $serviceId] = explode('_', $id);
             if (false === is_numeric($hostId) || false === is_numeric($serviceId)) {
                 throw new RestBadRequestException("Bad parameters");
             }
@@ -208,7 +225,7 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
                 $stmt->bindParam(':serviceId', $serviceId, PDO::PARAM_INT);
                 $dbResult = $stmt->execute();
                 if (!$dbResult) {
-                    throw new \Exception("An error occured");
+                    throw new Exception("An error occured");
                 }
                 if (0 == $stmt->rowCount()) {
                     throw new RestForbiddenException("Access denied");
@@ -229,13 +246,13 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
             $graph->createLegend();
 
             $serviceData = $graph->getData($rows);
-
             /* Replace NaN */
-            for ($i = 0; $i < count($serviceData); $i++) {
+            $counter = count($serviceData);
+            for ($i = 0; $i < $counter; $i++) {
                 if (isset($serviceData[$i]['data'])) {
                     $times = array_keys($serviceData[$i]['data']);
                     $values = array_map(
-                        array($this, "convertNaN"),
+                        [$this, "convertNaN"],
                         array_values($serviceData[$i]['data'])
                     );
                 }
@@ -245,22 +262,16 @@ class CentreonMonitoringMetric extends CentreonConfigurationObjects
                 $serviceData[$i]['type'] = $serviceData[$i]['graph_type'];
                 unset($serviceData[$i]['graph_type']);
             }
-            $result[] = array(
-                'service_id' => $id,
-                'data' => $serviceData,
-                'times' => $times,
-                'size' => $rows
-            );
+            $result[] = ['service_id' => $id, 'data' => $serviceData, 'times' => $times, 'size' => $rows];
         }
         return $result;
     }
-
 
     /**
      * Function for test is a value is NaN
      *
      * @param mixed $element The element to test
-     * @return mixed null if NaN else the element
+     * @return mixed|null null if NaN else the element
      */
     protected function convertNaN($element)
     {

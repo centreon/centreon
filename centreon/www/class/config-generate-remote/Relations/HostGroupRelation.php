@@ -21,11 +21,21 @@
 namespace ConfigGenerateRemote\Relations;
 
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use Exception;
 
+/**
+ * Class
+ *
+ * @class HostGroupRelation
+ * @package ConfigGenerateRemote\Relations
+ */
 class HostGroupRelation extends AbstractObject
 {
+    /** @var string */
     protected $table = 'hostgroup_relation';
+    /** @var string */
     protected $generateFilename = 'hostgroup_relation.infile';
+    /** @var string[] */
     protected $attributesWrite = [
         'host_host_id',
         'hostgroup_hg_id',
@@ -34,9 +44,11 @@ class HostGroupRelation extends AbstractObject
     /**
      * Add relation
      *
-     * @param integer $hgId
-     * @param integer $hostId
+     * @param int $hgId
+     * @param int $hostId
+     *
      * @return void
+     * @throws Exception
      */
     public function addRelation(int $hgId, int $hostId)
     {

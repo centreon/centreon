@@ -11,8 +11,9 @@ import utcPlugin from 'dayjs/plugin/utc';
 import { ParentSize } from '..';
 import LoadingSkeleton from '../LoadingSkeleton';
 
-import { WrapperTimePeriodProps } from './models';
+import { memo } from 'react';
 import TimePeriods from './TimePeriods';
+import type { WrapperTimePeriodProps } from './models';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(utcPlugin);
@@ -34,4 +35,4 @@ const WrapperTimePeriods = ({
   </ParentSize>
 );
 
-export default WrapperTimePeriods;
+export default memo(WrapperTimePeriods);

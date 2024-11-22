@@ -1,13 +1,12 @@
-/* eslint-disable react/no-array-index-key */
-import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
-  MenuList,
-  MenuItem,
-  ListItemText,
-  ListItemIcon,
   Divider,
+  ListItemIcon,
+  ListItemText,
+  MenuItem,
+  MenuList,
   SvgIconTypeMap
 } from '@mui/material';
 import { OverridableComponent } from '@mui/material/OverridableComponent';
@@ -50,6 +49,7 @@ const ActionsList = ({
     <MenuList className={cx(classes.list, className)}>
       {actions?.map((action, idx) => {
         if (equals(action, ActionsListActionDivider.divider)) {
+          // biome-ignore lint/suspicious/noArrayIndexKey:
           return <Divider key={`divider_${idx}`} />;
         }
 

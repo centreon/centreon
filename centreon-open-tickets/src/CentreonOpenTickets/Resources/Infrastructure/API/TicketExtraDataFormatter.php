@@ -30,7 +30,6 @@ final class TicketExtraDataFormatter implements ExtraDataNormalizerInterface
 
 {
     use PresenterTrait;
-
     private const EXTRA_DATA_SOURCE_NAME = 'open_tickets';
 
     /**
@@ -51,8 +50,8 @@ final class TicketExtraDataFormatter implements ExtraDataNormalizerInterface
             'tickets' => [
                 'id' => $data['id'],
                 'subject' => $data['subject'],
-                'created_at' => $this->formatDateToIso8601($data['created_at'])
-            ]
+                'created_at' => $this->formatDateToIso8601($data['created_at']),
+            ],
         ];
     }
 

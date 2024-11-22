@@ -1,34 +1,33 @@
+import { useAtomValue } from 'jotai';
+import { equals, head } from 'ramda';
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
-import { equals, head } from 'ramda';
-import { useAtomValue } from 'jotai';
 
 import { CircularProgress, Typography } from '@mui/material';
 
-import { Avatar } from '@centreon/ui/components';
 import { MultiAutocompleteField, SingleAutocompleteField } from '@centreon/ui';
+import { Avatar } from '@centreon/ui/components';
 
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import {
   labelAvailable,
   labelIsTheSelectedResource,
   labelMetrics,
   labelSelectMetric,
   labelThresholdsAreAutomaticallyHidden,
-  labelYouCanSelectUpToTwoMetricUnits,
   labelYouHaveTooManyMetrics
 } from '../../../../translatedLabels';
-import { WidgetPropertyProps } from '../../../models';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
+import { widgetPropertiesAtom } from '../../../atoms';
+import { WidgetPropertyProps } from '../../../models';
 import { useResourceStyles } from '../Inputs.styles';
 import {
   areResourcesFullfilled,
   isAtLeastOneResourceFullfilled
 } from '../utils';
-import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
-import { widgetPropertiesAtom } from '../../../atoms';
 
-import useMetrics from './useMetrics';
 import { useMetricsStyles } from './Metrics.styles';
+import useMetrics from './useMetrics';
 
 const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
   const { classes } = useResourceStyles();
@@ -49,11 +48,10 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
     deleteMetricItem,
     error,
     isTouched,
-    hasReachedTheLimitOfUnits,
+    hasMultipleUnitsSelected,
     metricWithSeveralResources,
     renderOptionsForSingleMetric,
     renderOptionsForMultipleMetricsAndResources,
-    getMetricOptionDisabled,
     hasMetaService
   } = useMetrics(propertyName);
 
@@ -127,7 +125,6 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
             disabled={
               !canEditField || isLoadingMetrics || !canDisplayMetricsSelection
             }
-            getOptionDisabled={getMetricOptionDisabled}
             getOptionLabel={getOptionLabel}
             getOptionTooltipLabel={getOptionLabel}
             getTagLabel={getTagLabel}
@@ -161,12 +158,8 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
             {content}
           </Typography>
         ))}
-        {hasReachedTheLimitOfUnits && (
-          <div>
-            <span>{t(labelYouCanSelectUpToTwoMetricUnits)}</span>
-            <br />
-            <span>{t(labelThresholdsAreAutomaticallyHidden)}</span>
-          </div>
+        {hasMultipleUnitsSelected && (
+          <Typography>{t(labelThresholdsAreAutomaticallyHidden)}</Typography>
         )}
       </div>
     </div>

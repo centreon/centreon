@@ -37,7 +37,7 @@ use Core\HostCategory\Domain\Model\HostCategory;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->writeHostCategoryRepository = $this->createMock(WriteHostCategoryRepositoryInterface::class);
     $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
@@ -55,7 +55,7 @@ beforeEach(function () {
     $this->hostCategory = new HostCategory(1, $this->request->name, $this->request->alias);
 });
 
-it('should present an ErrorResponse when a generic exception is thrown', function () {
+it('should present an ErrorResponse when a generic exception is thrown', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -87,7 +87,7 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
         ->toBe(HostCategoryException::writingActionsNotAllowed()->getMessage());
 });
 
-it('should present an InvalidArgumentResponse when name is already used', function () {
+it('should present an InvalidArgumentResponse when name is already used', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -105,7 +105,7 @@ it('should present an InvalidArgumentResponse when name is already used', functi
         ->toBe(HostCategoryException::hostNameAlreadyExists()->getMessage());
 });
 
-it('should present an ErrorResponse when an exception is thrown', function () {
+it('should present an ErrorResponse when an exception is thrown', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -127,7 +127,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->toBe(HostCategoryException::addHostCategory(new \Exception())->getMessage());
 });
 
-it('should present an ErrorResponse if the newly created host category cannot be retrieved', function () {
+it('should present an ErrorResponse if the newly created host category cannot be retrieved', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -153,7 +153,7 @@ it('should present an ErrorResponse if the newly created host category cannot be
         ->toBe(HostCategoryException::errorWhileRetrievingObject()->getMessage());
 });
 
-it('should return created object on success', function () {
+it('should return created object on success', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')

@@ -1,16 +1,16 @@
-import { ColumnType, Column } from '@centreon/ui';
+import { Column, ColumnType } from '@centreon/ui';
 
 import {
-  labelName,
-  labelChannels,
-  labelUsers,
-  labelResources,
-  labelPeriod,
   labelActions,
-  labelStatus
+  labelChannels,
+  labelName,
+  labelPeriod,
+  labelResources,
+  labelStatus,
+  labelUsers
 } from '../../translatedLabels';
-import { FormatChannels, formatResourcesForListing } from '../utils';
 import { Actions, Activate } from '../Actions';
+import { FormatChannels, formatResourcesForListing } from '../utils';
 
 export const defaultQueryParams = {
   limit: 10,

@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import { always, and, equals, ifElse, isNil } from 'ramda';
 
 import {
@@ -11,8 +9,8 @@ import {
 
 import { Props as ListingProps } from '../..';
 import { Column } from '../../models';
-import HeaderLabel from '../_internals/Label';
 import { DraggableIconButton } from '../_internals/DraggableIconButton';
+import HeaderLabel from '../_internals/Label';
 
 import { StylesProps, useStyles } from './ListingHeaderCell.styles';
 

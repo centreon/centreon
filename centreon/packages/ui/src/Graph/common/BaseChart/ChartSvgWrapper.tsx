@@ -3,8 +3,8 @@ import { MutableRefObject } from 'react';
 import { Group } from '@visx/visx';
 import { equals } from 'ramda';
 
-import { margin } from '../../LineChart/common';
-import { LineChartAxis } from '../../LineChart/models';
+import { margin } from '../../Chart/common';
+import { ChartAxis } from '../../Chart/models';
 import Axes from '../Axes';
 import Grids from '../Grids';
 import { Line, TimeValue } from '../timeSeries/models';
@@ -12,7 +12,8 @@ import { Line, TimeValue } from '../timeSeries/models';
 import { extraMargin } from './useComputeBaseChartDimensions';
 
 interface Props {
-  axis?: LineChartAxis;
+  allUnits: Array<string>;
+  axis?: ChartAxis;
   base?: number;
   children: JSX.Element;
   displayedLines: Array<Line>;
@@ -42,7 +43,8 @@ const ChartSvgWrapper = ({
   timeSeries,
   axis,
   children,
-  orientation = 'horizontal'
+  orientation = 'horizontal',
+  allUnits
 }: Props): JSX.Element => {
   const isHorizontal = equals(orientation, 'horizontal');
 
@@ -64,13 +66,14 @@ const ChartSvgWrapper = ({
           />
         )}
         <Axes
+          allUnits={allUnits}
           data={{
             baseAxis: base,
             lines: displayedLines,
             timeSeries,
             ...axis
           }}
-          height={graphHeight - margin.top}
+          height={graphHeight}
           leftScale={leftScale}
           orientation={orientation}
           rightScale={rightScale}

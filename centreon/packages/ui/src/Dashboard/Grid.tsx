@@ -1,7 +1,7 @@
-import { useMemo, ReactElement } from 'react';
+import { ReactElement, useMemo } from 'react';
 
-import { Grid as VisxGrid } from '@visx/visx';
 import { scaleLinear } from '@visx/scale';
+import { Grid as VisxGrid } from '@visx/visx';
 
 import { useTheme } from '@mui/material';
 
@@ -44,19 +44,19 @@ const Grid = ({ width, height, columns }: Props): ReactElement => {
     .fill(0)
     .map((_, index) => index * tick);
 
+  const yTickValues = Array(numberOfRows)
+    .fill(0)
+    .map((_, index) => index);
+
   return useMemoComponent({
     Component: (
       <svg style={{ height, position: 'absolute', width }}>
-        <VisxGrid.GridColumns
+        <VisxGrid.Grid
+          columnTickValues={xTickValues}
+          rowTickValues={yTickValues}
           height={height}
-          scale={xScale}
-          stroke={theme.palette.divider}
-          tickValues={xTickValues}
-          width={width}
-        />
-        <VisxGrid.GridRows
-          height={height}
-          scale={yScale}
+          yScale={yScale}
+          xScale={xScale}
           stroke={theme.palette.divider}
           top={-10}
           width={width}

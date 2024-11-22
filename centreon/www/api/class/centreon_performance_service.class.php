@@ -39,25 +39,30 @@ require_once _CENTREON_PATH_ . "/www/class/centreonACL.class.php";
 require_once _CENTREON_PATH_ . "/www/class/centreonHook.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonPerformanceService
+ */
 class CentreonPerformanceService extends CentreonConfigurationObjects
 {
-    /**
-     * @var CentreonDB
-     */
+    /** @var array */
+    public $arguments;
+    /** @var CentreonDB */
     protected $pearDBMonitoring;
 
     /**
-     * CentreonPerformanceService constructor.
+     * CentreonPerformanceService constructor
      */
     public function __construct()
     {
-        global $pearDBO;
         parent::__construct();
         $this->pearDBMonitoring = new CentreonDB('centstorage');
     }
 
     /**
      * @return array
+     * @throws PDOException
      * @throws RestBadRequestException
      */
     public function getList()
@@ -67,9 +72,9 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
         $userId = $centreon->user->user_id;
         $isAdmin = $centreon->user->admin;
         $additionalTables = '';
-        $additionalValues = array();
+        $additionalValues = [];
         $additionalCondition = '';
-        $bindParams = array();
+        $bindParams = [];
         $excludeAnomalyDetection = false;
 
         /* Get ACL if user is not admin */
@@ -78,11 +83,7 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
             $acl = new CentreonACL($userId, $isAdmin);
         }
 
-        if (false === isset($this->arguments['q'])) {
-            $bindParams[':fullName'] = '%%';
-        } else {
-            $bindParams[':fullName'] = '%' . (string)$this->arguments['q'] . '%';
-        }
+        $bindParams[':fullName'] = false === isset($this->arguments['q']) ? '%%' : '%' . (string)$this->arguments['q'] . '%';
 
         if (isset($this->arguments['e']) && strcmp('anomaly', $this->arguments['e']) == 0) {
             $excludeAnomalyDetection = true;
@@ -120,7 +121,7 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
         if (isset($this->arguments['hostgroup'])) {
             $additionalCondition .= 'AND (hg.host_id = i.host_id ' .
                 'AND hg.hostgroup_id IN (';
-            $params = array();
+            $params = [];
             foreach ($this->arguments['hostgroup'] as $k => $v) {
                 if (!is_numeric($v)) {
                     throw new \RestBadRequestException('Error, host group id must be numerical');
@@ -134,7 +135,7 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
         if (isset($this->arguments['servicegroup'])) {
             $additionalCondition .= 'AND (sg.host_id = i.host_id AND sg.service_id = i.service_id ' .
                 'AND sg.servicegroup_id IN (';
-            $params = array();
+            $params = [];
             foreach ($this->arguments['servicegroup'] as $k => $v) {
                 if (!is_numeric($v)) {
                     throw new \RestBadRequestException('Error, service group id must be numerical');
@@ -147,7 +148,7 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
 
         if (isset($this->arguments['host'])) {
             $additionalCondition .= 'AND i.host_id IN (';
-            $params = array();
+            $params = [];
             foreach ($this->arguments['host'] as $k => $v) {
                 if (!is_numeric($v)) {
                     throw new \RestBadRequestException('Error, host id must be numerical');
@@ -214,23 +215,20 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
             }
         }
         $stmt->execute();
-        $serviceList = array();
+        $serviceList = [];
         while ($data = $stmt->fetch()) {
             $serviceCompleteName = $data['fullname'];
             $serviceCompleteId = $data['host_id'] . '-' . $data['service_id'];
-            $serviceList[] = array('id' => htmlentities($serviceCompleteId), 'text' => $serviceCompleteName);
+            $serviceList[] = ['id' => htmlentities($serviceCompleteId), 'text' => $serviceCompleteName];
         }
-        return array(
-            'items' => $serviceList,
-            'total' => (int) $this->pearDBMonitoring->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn()
-        );
+        return ['items' => $serviceList, 'total' => (int) $this->pearDBMonitoring->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn()];
     }
 
     /**
      * @param $additionalTables
      * @param $additionalCondition
      * @param $additionalValues
-     * @param null $aclObj
+     * @param CentreonACL|null $aclObj
      * @return array
      * @throws RestBadRequestException
      */
@@ -254,13 +252,13 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
         /* First, get virtual services for metaservices */
         $metaServiceCondition = '';
         $metaValues = $additionalValues;
-        if (isset($aclObj) && !is_null($aclObj)) {
+        if (isset($aclObj)) {
             $metaServices = $aclObj->getMetaServices();
-            $virtualServices = array();
+            $virtualServices = [];
             foreach ($metaServices as $metaServiceId => $metaServiceName) {
                 $virtualServices[] = 'meta_' . $metaServiceId;
             }
-            if (count($virtualServices)) {
+            if ($virtualServices !== []) {
                 $metaServiceCondition = 'AND s.description IN (';
                 $explodedValues = '';
                 foreach ($virtualServices as $k => $v) {
@@ -325,6 +323,6 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
             }
         }
 
-        return array('query' => $virtualServicesCondition, 'value' => $metaValues);
+        return ['query' => $virtualServicesCondition, 'value' => $metaValues];
     }
 }

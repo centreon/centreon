@@ -1,10 +1,10 @@
 import { ComponentType, LazyExoticComponent, useMemo, useRef } from 'react';
 
-import { useLocation } from 'react-router-dom';
 import { fromPairs, replace } from 'ramda';
+import { useLocation } from 'react-router-dom';
 
-import { routes } from './routes';
 import { ComponentProps, Parameters } from './models';
+import { routes } from './routes';
 
 const getURLMatchRegExp = (url: string): RegExp => {
   const regexp = replace(/\[(\w+|\w+(-|_)\w+)\]/g, '(\\w+)', url);

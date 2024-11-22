@@ -1,31 +1,42 @@
-import { createStore, Provider } from 'jotai';
-import { BrowserRouter } from 'react-router-dom';
-import { initReactI18next } from 'react-i18next';
 import i18next from 'i18next';
+import { Provider, createStore } from 'jotai';
+import { initReactI18next } from 'react-i18next';
+import { BrowserRouter } from 'react-router-dom';
 
+import { Method } from '@centreon/js-config/cypress/component/commands';
+import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
   DashboardGlobalRole,
   ListingVariant,
-  userAtom,
-  platformVersionsAtom
+  platformVersionsAtom,
+  userAtom
 } from '@centreon/ui-context';
-import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
-import { Method } from '@centreon/js-config/cypress/component/commands';
 
 import { labelMoreActions } from '../Resources/translatedLabels';
 
 import { DashboardsPage } from './DashboardsPage';
-import { DashboardRole } from './api/models';
 import {
+  dashboardSharesEndpoint,
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
-  dashboardSharesEndpoint,
   getDashboardAccessRightsContactGroupEndpoint,
   getDashboardEndpoint,
   playlistsByDashboardEndpoint
 } from './api/endpoints';
+import { DashboardRole } from './api/models';
+import { viewModeAtom } from './components/DashboardLibrary/DashboardListing/atom';
+import { ViewMode } from './components/DashboardLibrary/DashboardListing/models';
 import {
-  labelShareWithContacts,
+  labelCardsView,
+  labelEditProperties,
+  labelEditor,
+  labelListView,
+  labelViewer
+} from './components/DashboardLibrary/DashboardListing/translatedLabels';
+import { DashboardLayout } from './models';
+import { routerHooks } from './routerHooks';
+import {
+  labelAddAContact,
   labelCancel,
   labelCreate,
   labelDashboardDeleted,
@@ -39,21 +50,13 @@ import {
   labelDuplicateDashboard,
   labelName,
   labelSave,
+  labelSaveYourDashboardForThumbnail,
+  labelShareWithContacts,
   labelSharesSaved,
   labelUpdate,
   labelUserDeleted,
-  labelWelcomeToDashboardInterface,
-  labelAddAContact
+  labelWelcomeToDashboardInterface
 } from './translatedLabels';
-import { routerHooks } from './routerHooks';
-import { DashboardLayout } from './models';
-import {
-  labelCardsView,
-  labelEditor,
-  labelEditProperties,
-  labelListView,
-  labelViewer
-} from './components/DashboardLibrary/DashboardListing/translatedLabels';
 
 interface InitializeAndMountProps {
   canAdministrateDashboard?: boolean;
@@ -77,6 +80,8 @@ const initializeAndMount = ({
   store;
 } => {
   const store = createStore();
+
+  store.set(viewModeAtom, ViewMode.List);
 
   store.set(userAtom, {
     alias: 'admin',
@@ -121,7 +126,7 @@ const initializeAndMount = ({
     });
   });
 
-  cy.fixture(`Dashboards/contacts.json`).then((response) => {
+  cy.fixture('Dashboards/contacts.json').then((response) => {
     cy.interceptAPIRequest({
       alias: 'getContacts',
       method: Method.GET,
@@ -162,7 +167,7 @@ const initializeAndMount = ({
 
   cy.interceptAPIRequest({
     alias: 'updateDashboard',
-    method: Method.PATCH,
+    method: Method.POST,
     path: `${dashboardsEndpoint}/1`,
     statusCode: 204
   });
@@ -327,7 +332,17 @@ describe('Dashboards', () => {
       );
 
       cy.contains('My Dashboard').should('be.visible');
+      cy.findByTestId('thumbnail-My Dashboard-my description').should(
+        'be.visible'
+      );
       cy.contains('My Dashboard 2').should('be.visible');
+      cy.findByTestId('thumbnail-My Dashboard 2-undefined').should(
+        'be.visible'
+      );
+
+      cy.findAllByTestId('thumbnail-fallback').first().trigger('mouseover');
+
+      cy.contains(labelSaveYourDashboardForThumbnail).should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -605,7 +620,14 @@ describe('Dashboards', () => {
         cy.findByLabelText(labelUpdate).click();
 
         cy.waitForRequest('@updateDashboard').then(({ request }) => {
-          expect(JSON.parse(request.body)).to.deep.equal({
+          const formData = new URLSearchParams(request.body);
+
+          const formDataObj = {};
+          formData.forEach((value, key) => {
+            formDataObj[key] = value;
+          });
+
+          expect(formDataObj).to.deep.equal({
             description: 'New description',
             name: 'New name'
           });

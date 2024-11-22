@@ -199,7 +199,9 @@ Given(
   () => {
     cy.insertDashboardWithWidget(
       dashboards.fromDashboardCreatorUser,
-      textWidget
+      textWidget,
+      'centreon-widget-generictext',
+      '/widgets/generictext'
     );
     cy.visitDashboards();
   }
@@ -207,13 +209,15 @@ Given(
 
 When('the dashboard administrator user starts to edit the dashboard', () => {
   cy.contains(dashboards.fromDashboardCreatorUser.name).click();
+  cy.waitForElementToBeVisible('[data-testid="edit_dashboard"]')
   cy.getByTestId({ testId: 'edit_dashboard' }).click();
   cy.location('search').should('include', 'edit=true');
   cy.get('button[type=button]').contains('Add a widget').should('exist');
 });
 
 Then("creates a new dashboard on the previous dashboard's edition page", () => {
-  cy.getByTestId({ testId: 'ArrowDropDownIcon' }).click();
+  cy.get('button[type=button]').contains('Add a widget').should('be.visible');
+  cy.getByTestId({ testId: 'MenuIcon' }).click();
   cy.contains('Create a dashboard').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(dashboards.default.name);
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(

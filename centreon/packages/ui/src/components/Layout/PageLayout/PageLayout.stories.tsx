@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 
-import { AreaIndicator } from '../AreaIndicator';
 import { Default as DefaultPageHeaderStory } from '../../Header/PageHeader/PageHeader.stories';
+import { AreaIndicator } from '../AreaIndicator';
 
 import { PageLayout } from './index';
 

@@ -2,8 +2,8 @@ import { ReactNode } from 'react';
 
 import { DraggableSyntheticListeners } from '@dnd-kit/core';
 
-import KrilinIndicatorIcon from '@mui/icons-material/DragIndicator';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import KrilinIndicatorIcon from '@mui/icons-material/DragIndicator';
 
 import { IconButton } from '../../../components';
 

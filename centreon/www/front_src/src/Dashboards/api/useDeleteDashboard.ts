@@ -6,8 +6,8 @@ import {
 
 import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 
-import { Dashboard, DeleteDashboardDto, resource } from './models';
 import { getDashboardEndpoint } from './endpoints';
+import { Dashboard, DeleteDashboardDto, resource } from './models';
 
 type UseDeleteDashboard<
   TData extends null = null,

@@ -1,9 +1,8 @@
-import * as React from 'react';
-
 import { makeStyles } from 'tss-react/mui';
 
 import { Box } from '@mui/material';
 
+import { ReactElement, forwardRef } from 'react';
 import { useMemoComponent } from '..';
 
 const useStyles = makeStyles()((theme) => ({
@@ -14,24 +13,22 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 export interface FilterProps {
-  content?: React.ReactElement;
+  content?: ReactElement;
 }
 
-const Filter = React.forwardRef(
-  ({ content }: FilterProps, ref): JSX.Element => {
-    const { classes } = useStyles();
+const Filter = forwardRef(({ content }: FilterProps, ref): JSX.Element => {
+  const { classes } = useStyles();
 
-    return (
-      <Box
-        className={classes.content}
-        component="div"
-        ref={ref as React.RefObject<HTMLDivElement>}
-      >
-        {content}
-      </Box>
-    );
-  }
-);
+  return (
+    <Box
+      className={classes.content}
+      component="div"
+      ref={ref as React.RefObject<HTMLDivElement>}
+    >
+      {content}
+    </Box>
+  );
+});
 
 interface MemoizedFilterProps extends FilterProps {
   memoProps?: Array<unknown>;

@@ -1,5 +1,5 @@
+import { RenderResult, act, render, waitFor } from '@testing-library/react';
 import axios from 'axios';
-import { render, act, waitFor, RenderResult } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
 
 import {
@@ -8,10 +8,10 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
-import useFilter from '../../testUtils/useFilter';
-import useListing from '../useListing';
 import Context, { ResourceContext } from '../../testUtils/Context';
+import useFilter from '../../testUtils/useFilter';
 import useLoadDetails from '../../testUtils/useLoadDetails';
+import useListing from '../useListing';
 
 import useLoadResources from '.';
 

@@ -23,11 +23,21 @@ namespace ConfigGenerateRemote;
 use \PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
 
+/**
+ * Class
+ *
+ * @class Graph
+ * @package ConfigGenerateRemote
+ */
 class Graph extends AbstractObject
 {
+    /** @var array|null */
     private $graphs = null;
+    /** @var string */
     protected $table = 'giv_graphs_template';
+    /** @var string */
     protected $generateFilename = 'graph.infile';
+    /** @var string */
     protected $attributesSelect = '
         graph_id,
         name,
@@ -44,6 +54,7 @@ class Graph extends AbstractObject
         scaled,
         comment
     ';
+    /** @var string[] */
     protected $attributesWrite = [
         'graph_id',
         'name',
@@ -66,7 +77,7 @@ class Graph extends AbstractObject
      *
      * @return void
      */
-    private function getGraph()
+    private function getGraph(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT $this->attributesSelect
@@ -79,8 +90,10 @@ class Graph extends AbstractObject
     /**
      * Generate and get graph from id
      *
-     * @param null|integer $graphId
+     * @param null|int $graphId
+     *
      * @return string|null
+     * @throws \Exception
      */
     public function getGraphFromId(?int $graphId)
     {

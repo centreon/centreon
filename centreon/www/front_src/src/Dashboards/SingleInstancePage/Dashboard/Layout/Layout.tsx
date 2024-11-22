@@ -1,11 +1,11 @@
-import { Layout } from 'react-grid-layout';
-import { lte, isNil, isEmpty } from 'ramda';
+import { isEmpty, isNil, lte } from 'ramda';
+import type { Layout } from 'react-grid-layout';
 
 import { DashboardLayout } from '@centreon/ui';
 
 import { AddWidgetPanel } from '../AddEditWidget';
-import { Panel } from '../models';
 import useLinkToResourceStatus from '../hooks/useLinkToResourceStatus';
+import type { Panel } from '../models';
 
 import DashboardPanel from './Panel/Panel';
 import PanelHeader from './Panel/PanelHeader';
@@ -75,6 +75,7 @@ const PanelsLayout = ({
                   }
                   pageType={getPageType(data)}
                   setRefreshCount={setRefreshCount}
+                  name={name}
                 />
               ) : undefined
             }
@@ -89,6 +90,7 @@ const PanelsLayout = ({
                 id={i}
                 playlistHash={playlistHash}
                 refreshCount={refreshCount}
+                name={name}
               />
             )}
           </DashboardLayout.Item>

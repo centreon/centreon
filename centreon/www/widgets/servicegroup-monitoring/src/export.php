@@ -69,20 +69,9 @@ $preferences = $widgetObj->getWidgetPreferences($widgetId);
 $pearDB = $db;
 $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 
-$hostStateLabels = array(
-    0 => "Up",
-    1 => "Down",
-    2 => "Unreachable",
-    4 => "Pending"
-);
+$hostStateLabels = [0 => "Up", 1 => "Down", 2 => "Unreachable", 4 => "Pending"];
 
-$serviceStateLabels = array(
-    0 => "Ok",
-    1 => "Warning",
-    2 => "Critical",
-    3 => "Unknown",
-    4 => "Pending"
-);
+$serviceStateLabels = [0 => "Ok", 1 => "Warning", 2 => "Critical", 3 => "Unknown", 4 => "Pending"];
 
 $query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, name FROM servicegroups ";
 $whereConditions = [];
@@ -123,7 +112,7 @@ foreach ($whereParams as $key => $value) {
 $stmt->execute();
 
 $nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
-$data = array();
+$data = [];
 $detailMode = false;
 if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
     $detailMode = true;
