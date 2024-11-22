@@ -18,8 +18,8 @@ import {
   labelNoServicesFound
 } from '../../../translatedLabels';
 import { buildResourcesEndpoint, resourcesEndpoint } from '../api/endpoints';
-
 import { getStatusesByResourcesAndResourceType } from '../../../utils';
+
 import HeatMapSkeleton from './LoadingSkeleton';
 import Tile from './Tile';
 import Tooltip from './Tooltip/Tooltip';
@@ -52,8 +52,8 @@ const StatusGrid = ({
   });
 
   const statusesToUse = getStatusesByResourcesAndResourceType({
-    resources,
     resourceType,
+    resources,
     statuses
   });
 

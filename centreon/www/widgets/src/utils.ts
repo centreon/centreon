@@ -420,7 +420,7 @@ export const getStatusesByResourcesAndResourceType = ({
   statuses,
   resources,
   resourceType
-}) => {
+}): Array<string> => {
   const lastSelectedResourceType = pipe(
     pluck('resourceType'),
     reject((type) => equals(type, '')),

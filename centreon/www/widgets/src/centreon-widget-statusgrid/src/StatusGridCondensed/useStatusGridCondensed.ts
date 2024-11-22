@@ -48,8 +48,8 @@ export const useStatusGridCondensed = ({
   });
 
   const statusesToUse = getStatusesByResourcesAndResourceType({
-    resources,
     resourceType,
+    resources,
     statuses
   });
 
