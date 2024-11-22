@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { scaleLinear } from '@visx/scale';
-import { T, equals } from 'ramda';
+import { T, equals, lt } from 'ramda';
 
 import { Box } from '@mui/material';
 
@@ -10,7 +10,6 @@ import { Tooltip } from '../../components';
 import { useHeatMapStyles } from './HeatMap.styles';
 import type { HeatMapProps } from './model';
 
-const gap = 8;
 const maxTileSize = 120;
 const smallestTileSize = 44;
 
@@ -38,10 +37,13 @@ const ResponsiveHeatMap = <TData,>({
     const tileWidth = scaleWidth(width);
 
     if (!tileSizeFixed) {
+      if (lt(height, maxTileSize)) {
+        return smallestTileSize;
+      }
       return tileWidth;
     }
     return maxTileSize;
-  }, [width, height]);
+  }, [width, height, tileSizeFixed]);
 
   const isSmallestSize = equals(tileSize, smallestTileSize);
 
