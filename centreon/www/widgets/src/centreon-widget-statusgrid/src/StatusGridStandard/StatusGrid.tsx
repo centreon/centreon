@@ -12,22 +12,19 @@ import {
   useRefreshInterval
 } from '@centreon/ui';
 
-import {
-  buildResourcesEndpoint,
-  hostsEndpoint,
-  resourcesEndpoint
-} from '../api/endpoints';
 import { NoResourcesFound } from '../../../NoResourcesFound';
 import {
   labelNoHostsFound,
   labelNoServicesFound
 } from '../../../translatedLabels';
+import { buildResourcesEndpoint, resourcesEndpoint } from '../api/endpoints';
 
-import { ResourceData, ResourceStatus, StatusGridProps } from './models';
-import Tile from './Tile';
+import { getStatusesByResourcesAndResourceType } from '../../../utils';
 import HeatMapSkeleton from './LoadingSkeleton';
-import { getColor } from './utils';
+import Tile from './Tile';
 import Tooltip from './Tooltip/Tooltip';
+import { ResourceData, ResourceStatus, StatusGridProps } from './models';
+import { getColor } from './utils';
 
 const StatusGrid = ({
   globalRefreshInterval,
@@ -54,17 +51,21 @@ const StatusGrid = ({
     refreshIntervalCustom
   });
 
+  const statusesToUse = getStatusesByResourcesAndResourceType({
+    resources,
+    resourceType,
+    statuses
+  });
+
   const { data, isLoading } = useFetchQuery<ListingModel<ResourceStatus>>({
     getEndpoint: () =>
       buildResourcesEndpoint({
-        baseEndpoint: equals(resourceType, 'host')
-          ? hostsEndpoint
-          : resourcesEndpoint,
+        baseEndpoint: resourcesEndpoint,
         limit: tiles,
         resources,
         sortBy,
         states: [],
-        statuses,
+        statuses: statusesToUse,
         type: resourceType
       }),
     getQueryKey: () => [
