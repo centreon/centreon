@@ -290,6 +290,60 @@ jobs:
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
+  create-xray-test-plan-and-test-execution:
+    needs: [get-environment, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
+    name: create-xray-test-plan-and-test-execution-${{ matrix.operating_system }}
+
+    uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
+    with:
+      major_version: ${{ needs.get-environment.outputs.major_version }}
+      minor_version: ${{ needs.get-environment.outputs.minor_version }}
+      os: ${{ matrix.operating_system }}
+    secrets:
+      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+      xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+
+  e2e-test:
+   needs: [get-environment, dockerize,  create-xray-test-plan-and-test-execution]
+   if: ${{ needs.get-environment.outputs.stability != 'stable' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+   strategy:
+     fail-fast: false
+     matrix:
+       include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).main }}
+   uses: ./.github/workflows/cypress-e2e-parallelization.yml
+   with:
+    name: e2e
+    module_name: centreon-open-tickets
+    database_image: ${{ vars.DOCKER_PROXY_REGISTRY_URL }}/bitnami/mariadb:10.11
+    image_name: centreon-open-tickets
+    os: ${{ matrix.operating_system }}
+    features_path: tests/e2e/features
+    major_version: ${{ needs.get-environment.outputs.major_version }}
+    minor_version: ${{ needs.get-environment.outputs.minor_version }}
+    stability: ${{ needs.get-environment.outputs.stability }}
+    package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma8' && 'rpm-el8' || matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-bullseye') }}
+    package_directory: centreon-open-tickets/tests/e2e/fixtures/packages
+    dependencies_lock_file: centreon-open-tickets/www/modules/centreon-open-tickets/react/pnpm-lock.yaml
+    xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
+    is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+   secrets:
+     registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+     registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+     xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
+     xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+     artifactory_internal_repo_username: ${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}
+     artifactory_internal_repo_password: ${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}
+     jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+     jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+     jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+
   deliver-rpm:
     needs: [get-environment, package]
     if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) }}
