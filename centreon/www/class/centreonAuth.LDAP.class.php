@@ -246,16 +246,6 @@ class CentreonAuthLDAP
                 $userPager = (trim(is_array($ldapUserPager) && $ldapUserPager !== [] ? current($ldapUserPager) : $ldapUserPager));
             }
 
-            if ($userPager === '') {
-                CentreonLog::create()->error(
-                    logTypeId: CentreonLog::TYPE_LDAP,
-                    message: 'LDAP AUTH - Error : Invalid user pager : User pager must be a non-empty string',
-                    customContext: ['contact_id' => $this->contactInfos['contact_id']]
-                );
-
-                return false;
-            }
-
             /**
              * Searching if the user already exist in the DB and updating OR adding him
              */
