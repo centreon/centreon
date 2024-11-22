@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
-import { dec, equals, isEmpty } from 'ramda';
 import dayjs from 'dayjs';
+import { dec, equals, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -20,9 +20,9 @@ import {
   usePluralizedTranslation
 } from '@centreon/ui';
 
+import { Resource } from '../../../../models';
 import { useHostTooltipContentStyles } from '../../StatusGridStandard/StatusGrid.styles';
 import { getColor } from '../../StatusGridStandard/utils';
-import { Resource } from '../../../../models';
 import {
   labelAreWorkingFine,
   labelNoResourceFoundWithThisStatus,
@@ -56,7 +56,7 @@ const ResourcesTooltip = ({
   const { format } = useLocaleDateTimeFormat();
 
   const isSuccessStatus = ['ok', 'up'].includes(status);
-  const getIsUnknownStatus = (severity) =>
+  const getIsUnknownStatus = (severity): boolean =>
     equals(severity, 6) || equals(severity, 3);
 
   const hasNoResource = !count;
