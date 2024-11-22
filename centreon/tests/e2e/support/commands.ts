@@ -5,6 +5,7 @@ import '@centreon/js-config/cypress/e2e/commands';
 import { refreshButton } from '../features/Resources-status/common';
 import '../features/Dashboards/commands';
 import '../features/Hosts/commands';
+import '../features/HostGroups/commands';
 
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
