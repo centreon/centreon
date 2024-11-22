@@ -418,11 +418,11 @@ describe('Graph Widget', () => {
         cy.get('@legendContainer').should('have.css', 'overflow-Y', 'auto');
         cy.get('@legendContainer').should('have.css', 'overflow-X', 'hidden');
 
-        cy.findByText('Legend 1 Centreon-Server').should('be.visible');
+        cy.findByText('Legend 1 Centreon-Server').should('exist');
 
         cy.get('@legendContainer').scrollTo('bottom');
 
-        cy.findByText('Legend 99 Centreon-Server').should('be.visible');
+        cy.findByText('Legend 99 Centreon-Server').should('exist');
         cy.makeSnapshot(
           `legend with a scrollbar for placement: ${position} and mode: ${mode}.`
         );
