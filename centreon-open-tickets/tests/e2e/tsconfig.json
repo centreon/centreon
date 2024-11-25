@@ -14,8 +14,5 @@
   },
   "include": [
     "**/*.ts",
-    "**/*.js",
-    "support/**/*.ts",
-    "plugins/**/*.ts"
   ]
 }

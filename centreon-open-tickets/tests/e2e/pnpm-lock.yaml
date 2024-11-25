@@ -54,7 +54,7 @@ devDependencies:
     specifier: ^1.13.0
     version: 1.13.0(cypress@13.16.0)
   cypress-terminal-report:
-    specifier: ^5.3.10
+    specifier: ^5.3.12
     version: 5.3.12(cypress@13.16.0)
   cypress-wait-until:
     specifier: ^3.0.2
