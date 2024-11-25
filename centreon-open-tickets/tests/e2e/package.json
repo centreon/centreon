@@ -50,7 +50,8 @@
     "webpack": "^5.90.3",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
-    "@swc/core": "^1.4.8"
+    "@swc/core": "^1.4.8",
+    "@bahmutov/cypress-esbuild-preprocessor": "^2.2.0"
   },
   "cypress-cucumber-preprocessor": {
     "filterSpecs": false,

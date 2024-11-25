@@ -8,6 +8,9 @@ devDependencies:
   '@badeball/cypress-cucumber-preprocessor':
     specifier: ^20.1.2
     version: 20.1.2(cypress@13.16.0)(typescript@5.7.2)
+  '@bahmutov/cypress-esbuild-preprocessor':
+    specifier: ^2.2.0
+    version: 2.2.3(esbuild@0.24.0)
   '@esbuild-plugins/node-globals-polyfill':
     specifier: ^0.2.3
     version: 0.2.3(esbuild@0.24.0)
@@ -210,6 +213,17 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - typescript
+    dev: true
+
+  /@bahmutov/cypress-esbuild-preprocessor@2.2.3(esbuild@0.24.0):
+    resolution: {integrity: sha512-YdrZxCULKC3k5H5bjBeL6boadcsSXsdnJf6GQGHMRcqzUFzDQC1sZGNblauJzUU34XbA4Sko5ym4KajKf4WwAw==}
+    peerDependencies:
+      esbuild: '>=0.17.0'
+    dependencies:
+      debug: 4.3.7(supports-color@8.1.1)
+      esbuild: 0.24.0
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /@balena/dockerignore@1.0.2:
