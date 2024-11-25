@@ -61,7 +61,7 @@ import {
   SortOrder
 } from './models';
 import { subItemsPivotsAtom } from './tableAtoms';
-import { labelNoResultFound } from './translatedLabels';
+import { labelNoResultFound as defaultLabelNoResultFound } from './translatedLabels';
 import useStyleTable from './useStyleTable';
 
 const subItemPrefixKey = 'listing';
@@ -140,6 +140,7 @@ export interface Props<TRow> {
   viewerModeConfiguration?: ViewerModeConfiguration;
   widthToMoveTablePagination?: number;
   isActionBarVisible: boolean;
+  labelNoResultFound?: string | JSX.Element;
 }
 
 const defaultColumnConfiguration = {
@@ -199,7 +200,8 @@ const Listing = <
     labelCollapse: 'Collapse',
     labelExpand: 'Expand'
   },
-  isActionBarVisible = true
+  isActionBarVisible = true,
+  labelNoResultFound = defaultLabelNoResultFound
 }: Props<TRow>): JSX.Element => {
   const currentVisibleColumns = getVisibleColumns({
     columnConfiguration,
@@ -703,7 +705,11 @@ const Listing = <
                       (loading ? (
                         <SkeletonLoader rows={limit} />
                       ) : (
-                        <EmptyResult label={t(labelNoResultFound)} />
+                        <EmptyResult
+                          label={
+                            labelNoResultFound || t(defaultLabelNoResultFound)
+                          }
+                        />
                       ))}
                   </TableBody>
                 </Table>
@@ -739,6 +745,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
   moveTablePagination,
   widthToMoveTablePagination,
   listingVariant,
+  labelNoResultFound,
   ...props
 }: MemoizedListingProps<TRow>): JSX.Element =>
   useMemoComponent({
@@ -761,6 +768,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
         sortOrder={sortOrder}
         totalRows={totalRows}
         widthToMoveTablePagination={widthToMoveTablePagination}
+        labelNoResultFound={labelNoResultFound}
         {...props}
       />
     ),
@@ -783,7 +791,8 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
       sortOrder,
       sortField,
       innerScrollDisabled,
-      listingVariant
+      listingVariant,
+      labelNoResultFound
     ]
   });
 
