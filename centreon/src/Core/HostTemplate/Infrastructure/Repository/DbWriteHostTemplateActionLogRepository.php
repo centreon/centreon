@@ -43,7 +43,6 @@ use Core\HostTemplate\Domain\Model\NewHostTemplate;
 class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB implements WriteHostTemplateRepositoryInterface
 {
     use LoggerTrait;
-    public const HOST_TEMPLATE_OBJECT_TYPE = 'host';
 
     /**
      * @param WriteHostTemplateRepositoryInterface $writeHostTemplateRepository
@@ -74,9 +73,9 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
             }
 
             $this->writeHostTemplateRepository->delete($hostTemplateId);
-            
+
             $actionLog = new ActionLog(
-                self::HOST_TEMPLATE_OBJECT_TYPE,
+                ActionLog::OBJECT_TYPE_HOST_TEMPLATE,
                 $hostTemplateId,
                 $hostTemplate->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
@@ -102,7 +101,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
             }
             
             $actionLog = new ActionLog(
-                self::HOST_TEMPLATE_OBJECT_TYPE,
+                ActionLog::OBJECT_TYPE_HOST_TEMPLATE,
                 $hostTemplateId,
                 $hostTemplate->getName(),
                 ActionLog::ACTION_TYPE_ADD,
@@ -141,7 +140,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
             $this->writeHostTemplateRepository->update($hostTemplate);
 
             $actionLog = new ActionLog(
-                self::HOST_TEMPLATE_OBJECT_TYPE,
+                ActionLog::OBJECT_TYPE_HOST_TEMPLATE,
                 $hostTemplate->getId(),
                 $hostTemplate->getName(),
                 ActionLog::ACTION_TYPE_CHANGE,
