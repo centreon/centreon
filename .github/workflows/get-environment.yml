@@ -155,7 +155,7 @@ jobs:
             }
 
             const label = '${{ format('skip-workflow-{0}', github.workflow) }}';
-            if (${{ steps.get_push_changes.outputs.any_changed }} === true) {
+            if ('${{ steps.get_push_changes.outputs.any_changed }}' === 'true') {
               try {
                 await github.rest.issues.removeLabel({
                   name: label,
