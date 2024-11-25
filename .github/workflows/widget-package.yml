@@ -56,6 +56,7 @@ jobs:
       release: ${{ inputs.release }}
       commit_hash: ${{ inputs.commit_hash }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+      is_nightly: false
     secrets:
       registry_username: ${{ secrets.registry_username }}
       registry_password: ${{ secrets.registry_password }}
