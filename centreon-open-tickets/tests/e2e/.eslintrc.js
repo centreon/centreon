@@ -1,6 +1,6 @@
 module.exports = {
   extends: [
-    '../../../centreon/packages/js-config/eslint/react/typescript.eslintrc.js',
-    'plugin:cypress/recommended'
-  ]
+    './node_modules/@centreon/js-config/eslint/react/typescript.eslintrc.js',
+    'plugin:cypress/recommended',
+  ],
 };
