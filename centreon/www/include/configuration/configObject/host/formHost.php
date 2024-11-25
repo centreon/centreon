@@ -800,7 +800,7 @@ $form->addElement('textarea', 'host_comment', _('Comments'), $attrsTextarea);
 
 $form->addElement('select2', 'host_hgs', _('Host Groups'), [], $attributes['host_groups']);
 
-if ($isCloudPlatform) {
+if ($isCloudPlatform && $o !== HOST_MASSIVE_CHANGE) {
     $form->addRule('host_hgs', _('Mandatory field for ACL purpose.'), 'required');
 }
 
