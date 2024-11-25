@@ -47,7 +47,10 @@
     "swc-loader": "^0.2.3",
     "tar-fs": "^3.0.5",
     "testcontainers": "^10.7.2",
-    "webpack": "^5.90.3"
+    "webpack": "^5.90.3",
+    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
+    "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
+    "@swc/core": "^1.4.8"
   },
   "cypress-cucumber-preprocessor": {
     "filterSpecs": false,
