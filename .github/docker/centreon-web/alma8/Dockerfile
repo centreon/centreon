@@ -1,7 +1,7 @@
 ARG REGISTRY_URL=docker.centreon.com/centreon
 ARG FROM_IMAGE_VERSION=develop
 
-FROM ${REGISTRY_URL}/centreon-web-dependencies-alma8:${FROM_IMAGE_VERSION}
+FROM ${REGISTRY_URL}/centreon-web-dependencies-collect-alma8:${FROM_IMAGE_VERSION}
 
 ARG STABILITY
 
