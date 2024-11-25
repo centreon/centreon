@@ -1,7 +1,7 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import severities from '../../../fixtures/host-categories/severity.json';
+import severities from '../../../fixtures/services/severity.json';
 
 beforeEach(() => {
   cy.startContainers();
@@ -24,31 +24,34 @@ Given('a user is logged in a Centreon server via APIv2', () => {
   cy.visit('/').url().should('include', '/monitoring/resources');
 });
 
-When('an apiV2 call is made to "Add" a host severity', () => {
+When('an apiV2 call is made to "Add" a service severity', () => {
   cy.addSubjectViaAPIv2(
-    severities.default,
-    '/centreon/api/latest/configuration/hosts/severities'
+    severities.enabled_severity,
+    'centreon/api/latest/configuration/services/severities'
   );
-});
-
-Then('a new severity is displayed on the hosts severities page', () => {
-  cy.navigateTo({
-    page: 'Categories',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${severities.default.name}")`
-  );
-  cy.getIframeBody()
-    .contains('a', severities.default.name)
-    .should('be.visible');
 });
 
 Then(
-  'a new "ADDED" ligne of log is getting added to the page Administration > Logs',
+  'a new service severity is displayed on the service severities page',
+  () => {
+    cy.navigateTo({
+      page: 'Categories',
+      rootItemNumber: 3,
+      subMenu: 'Services'
+    });
+    cy.wait('@getTimeZone');
+    cy.waitForElementInIframe(
+      '#main-content',
+      `a:contains("${severities.enabled_severity.name}")`
+    );
+    cy.getIframeBody()
+      .contains('a', severities.enabled_severity.name)
+      .should('be.visible');
+  }
+);
+
+Then(
+  'a new "Added" ligne of log is getting added to the page Administration > Logs',
   () => {
     cy.navigateTo({
       page: 'Logs',
@@ -63,14 +66,14 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'hostseverity');
+      .should('contain.text', 'serviceseverity');
   }
 );
 
 Then(
   'the informations of the log are the same as those passed to the endpoint',
   () => {
-    cy.getIframeBody().contains(severities.default.name).click();
+    cy.getIframeBody().contains(severities.enabled_severity.name).click();
     cy.waitForElementInIframe(
       '#main-content',
       'a[href="./main.php?p=508"].btc.bt_success'
@@ -78,44 +81,53 @@ Then(
     cy.getIframeBody()
       .find('td.ListColHeaderCenter')
       .eq(0)
-      .should('contain.text', severities.default.name);
+      .should('contain.text', severities.enabled_severity.name);
     cy.getIframeBody().contains('td', 'Create by admin').should('exist');
     cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
-    cy.checkLogDetails(1, 1, 'hc_activate', '', '1');
-    cy.checkLogDetails(1, 2, 'hc_name', '', severities.default.name);
-    cy.checkLogDetails(1, 3, 'hc_alias', '', severities.default.alias);
+    cy.checkLogDetails(1, 1, 'sc_activate', '', '1');
+    cy.checkLogDetails(1, 2, 'sc_name', '', severities.enabled_severity.name);
+    cy.checkLogDetails(
+      1,
+      3,
+      'sc_description',
+      '',
+      severities.enabled_severity.alias
+    );
     cy.checkLogDetails(
       1,
       4,
-      'hc_severity_level',
+      'sc_severity_level',
       '',
-      `${severities.default.level}`
+      `${severities.enabled_severity.level}`
     );
     cy.checkLogDetails(
       1,
       5,
-      'hc_severity_icon',
+      'sc_severity_icon',
       '',
-      `${severities.default.icon_id}`
+      `${severities.enabled_severity.icon_id}`
     );
   }
 );
 
-Given('a host severity is configured via APIv2', () => {
+Given('a service severity is configured via APIv2', () => {
   cy.addSubjectViaAPIv2(
-    severities.default,
-    '/centreon/api/latest/configuration/hosts/severities'
+    severities.enabled_severity,
+    '/centreon/api/latest/configuration/services/severities'
   );
 });
 
-When('an apiV2 call is made to "Delete" the configured host severity', () => {
-  cy.deleteSubjectViaAPIv2(
-    '/centreon/api/latest/configuration/hosts/severities/1'
-  );
-});
+When(
+  'an apiV2 call is made to "Delete" the configured service severity',
+  () => {
+    cy.deleteSubjectViaAPIv2(
+      '/centreon/api/latest/configuration/services/severities/5'
+    );
+  }
+);
 
 Then(
-  'a new "DELETED" ligne of log is getting added to the page Administration > Log',
+  'a new "Deleted" ligne of log is getting added to the page Administration > Log',
   () => {
     cy.navigateTo({
       page: 'Logs',
@@ -130,22 +142,22 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'hostseverity');
+      .should('contain.text', 'serviceseverity');
   }
 );
 
 When(
-  'an apiV2 call is made to "Update" the parameters of the configured host severity',
+  'an apiV2 call is made to "Update" the parameters of the configured severity',
   () => {
     cy.updateSubjectViaAPIv2(
       severities.changed_severity,
-      '/centreon/api/latest/configuration/hosts/severities/1'
+      '/centreon/api/latest/configuration/services/severities/5'
     );
   }
 );
 
 Then(
-  'a new "CHANGED" ligne of log is getting added to the page Administration > Logs',
+  'a new "Changed" ligne of log is getting added to the page Administration > Logs',
   () => {
     cy.navigateTo({
       page: 'Logs',
@@ -160,12 +172,12 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'hostseverity');
+      .should('contain.text', 'serviceseverity');
   }
 );
 
 Then(
-  'the informations of the log are the same as those of the updated host severity',
+  'the informations of the log are the same as those of the updated service severity',
   () => {
     cy.getIframeBody().contains(severities.changed_severity.name).click();
     cy.waitForElementInIframe(
@@ -181,33 +193,43 @@ Then(
     cy.checkLogDetails(
       1,
       1,
-      'hc_name',
-      severities.default.name,
+      'sc_name',
+      severities.enabled_severity.name,
       severities.changed_severity.name
     );
     cy.checkLogDetails(
       1,
       2,
-      'hc_alias',
-      severities.default.alias,
+      'sc_description',
+      severities.enabled_severity.alias,
       severities.changed_severity.alias
+    );
+    cy.checkLogDetails(
+      1,
+      3,
+      'sc_severity_level',
+      `${severities.enabled_severity.level}`,
+      `${severities.changed_severity.level}`
     );
   }
 );
 
-Given('an enabled host severity is configured via APIv2', () => {
+Given('an enabled service severity is configured via APIv2', () => {
   cy.addSubjectViaAPIv2(
-    severities.default,
-    '/centreon/api/latest/configuration/hosts/severities'
+    severities.enabled_severity,
+    '/centreon/api/latest/configuration/services/severities'
   );
 });
 
-When('an apiV2 call is made to "Disable" the configured host severity', () => {
-  cy.updateSubjectViaAPIv2(
-    severities.disabled_severity,
-    '/centreon/api/latest/configuration/hosts/severities/1'
-  );
-});
+When(
+  'an apiV2 call is made to "Disable" the configured service severity',
+  () => {
+    cy.updateSubjectViaAPIv2(
+      severities.disabled_severity,
+      '/centreon/api/latest/configuration/services/severities/5'
+    );
+  }
+);
 
 Then(
   'a new "DISABLED" ligne of log is getting added to the page Administration > Logs',
@@ -225,23 +247,26 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'hostseverity');
+      .should('contain.text', 'serviceseverity');
   }
 );
 
-Given('a disabled host severity is configured via APIv2', () => {
+Given('a disabled service severity is configured via APIv2', () => {
   cy.addSubjectViaAPIv2(
     severities.disabled_severity,
-    '/centreon/api/latest/configuration/hosts/severities'
+    '/centreon/api/latest/configuration/services/severities'
   );
 });
 
-When('an apiV2 call is made to "Enable" the configured host severity', () => {
-  cy.updateSubjectViaAPIv2(
-    severities.enabled_severity,
-    '/centreon/api/latest/configuration/hosts/severities/1'
-  );
-});
+When(
+  'an apiV2 call is made to "Enable" the configured service severity',
+  () => {
+    cy.updateSubjectViaAPIv2(
+      severities.enabled_severity,
+      '/centreon/api/latest/configuration/services/severities/5'
+    );
+  }
+);
 
 Then(
   'a new "ENABLED" ligne of log is getting added to the page Administration > Logs',
@@ -259,6 +284,6 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'hostseverity');
+      .should('contain.text', 'serviceseverity');
   }
 );
