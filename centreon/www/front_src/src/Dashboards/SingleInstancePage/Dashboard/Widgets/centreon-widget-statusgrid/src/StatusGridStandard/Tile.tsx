@@ -9,7 +9,6 @@ import { EllipsisTypography, HostIcon, ServiceIcon } from '@centreon/ui';
 
 import type { Resource } from '../../../models';
 import { getResourcesUrl } from '../../../utils';
-
 import {
   AnomalyDetectionIcon,
   BAIcon,
@@ -29,7 +28,8 @@ interface Props {
   resources: Array<Resource>;
   statuses: Array<string>;
   type: string;
-  tileSize: number;
+  tileSize?: number;
+  isSmallWrapper?: boolean;
 }
 
 export const router = {
@@ -44,10 +44,11 @@ const Tile = ({
   statuses,
   resources,
   isBAResourceType,
-  tileSize
+  tileSize,
+  isSmallWrapper
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
-  const { classes } = useTileStyles({ tileSize });
+  const { classes } = useTileStyles({ tileSize, isSmallWrapper });
 
   const Icon = cond([
     [equals(IndicatorType.BusinessActivity), always(BAIcon)],
@@ -95,18 +96,10 @@ const Tile = ({
         >
           <DvrIcon
             color="primary"
-            fontSize={isSmallestSize ? 'medium' : 'large'}
+            fontSize={isSmallWrapper ? 'medium' : 'large'}
           />
           {!isSmallestSize && (
-            <Typography
-              style={{
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                maxHeight: tileSize / 2,
-                wordWrap: 'break-word',
-                maxWidth: tileSize
-              }}
-            >
+            <Typography className={classes.seeMoreLabel} variant="body2">
               {t(labelSeeMore)}
             </Typography>
           )}

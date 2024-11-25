@@ -12,6 +12,7 @@ import type { HeatMapProps } from './model';
 
 const maxTileSize = 120;
 const smallestTileSize = 44;
+const median = 868;
 
 const ResponsiveHeatMap = <TData,>({
   width,
@@ -46,6 +47,8 @@ const ResponsiveHeatMap = <TData,>({
   }, [width, height, tileSizeFixed]);
 
   const isSmallestSize = equals(tileSize, smallestTileSize);
+  const isSmallWrapper = lt(width, median);
+
   if (equals(width, 0)) {
     return null;
   }
@@ -90,7 +93,8 @@ const ResponsiveHeatMap = <TData,>({
                 data,
                 id,
                 isSmallestSize,
-                tileSize
+                tileSize,
+                isSmallWrapper
               })}
             </div>
           </Tooltip>
