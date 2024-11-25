@@ -2,15 +2,15 @@ import { makeStyles } from 'tss-react/mui';
 
 interface Props {
   tileSize?: number;
-  isSmallWrapper?: boolean;
+  isMediumSize?: boolean;
 }
 
 export const useTileStyles = makeStyles<Props>()(
-  (theme, { tileSize = 0, isSmallWrapper } = {}) => ({
+  (theme, { tileSize = 0, isMediumSize } = {}) => ({
     container: {
       cursor: 'pointer',
       height: '100%',
-      paddingTop: tileSize / 2,
+      paddingTop: theme.spacing(4.5),
       position: 'relative',
       width: '100%'
     },
@@ -70,7 +70,7 @@ export const useTileStyles = makeStyles<Props>()(
     seeMoreLabel: {
       overflow: 'hidden',
       display: '-webkit-box',
-      WebkitLineClamp: isSmallWrapper ? 1 : 3,
+      WebkitLineClamp: isMediumSize ? 1 : 3,
       WebkitBoxOrient: 'vertical',
       width: tileSize
     }

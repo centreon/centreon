@@ -1,18 +1,19 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { scaleLinear } from '@visx/scale';
-import { T, equals, lt } from 'ramda';
+import { T, equals, gt, lt } from 'ramda';
 
 import { Box } from '@mui/material';
 
 import { Tooltip } from '../../components';
 
 import { useHeatMapStyles } from './HeatMap.styles';
-import type { HeatMapProps } from './model';
+import { HeatMapProps } from './model';
 
+const gap = 8;
 const maxTileSize = 120;
 const smallestTileSize = 44;
-const median = 868;
+const toleratedRangeWidth = 10;
 
 const ResponsiveHeatMap = <TData,>({
   width,
@@ -28,26 +29,51 @@ const ResponsiveHeatMap = <TData,>({
   width: number;
 }): JSX.Element | null => {
   const { classes, cx } = useHeatMapStyles();
+  const previouseTileSize = useRef(0);
 
   const tileSize = useMemo(() => {
     const scaleWidth = scaleLinear({
       clamp: true,
       domain: [680, 1056],
-      range: [smallestTileSize, maxTileSize]
+      range: [76, maxTileSize]
     });
     const tileWidth = scaleWidth(width);
 
-    if (!tileSizeFixed) {
-      if (lt(height, maxTileSize)) {
-        return smallestTileSize;
-      }
-      return tileWidth;
+    const tilesLength = tiles.length;
+
+    const maxTotalTilesWidth =
+      tilesLength * maxTileSize + (tilesLength - 1) * gap;
+    const theoricalTotalTilesWidth =
+      tilesLength * tileWidth + (tilesLength - 1) * gap;
+
+    const canUpdateTileSize =
+      Math.abs(tileWidth - previouseTileSize.current) > toleratedRangeWidth;
+
+    if (!canUpdateTileSize) {
+      return previouseTileSize.current;
     }
-    return maxTileSize;
-  }, [width, height, tileSizeFixed]);
+
+    if (
+      (lt(height, maxTileSize) ||
+        (lt(width, 680) && gt(maxTotalTilesWidth, width))) &&
+      !tileSizeFixed
+    ) {
+      return smallestTileSize;
+    }
+
+    if (lt(theoricalTotalTilesWidth, width)) {
+      return maxTileSize;
+    }
+
+    return tileSizeFixed ? maxTileSize : tileWidth;
+  }, [width, tiles, height]);
 
   const isSmallestSize = equals(tileSize, smallestTileSize);
-  const isSmallWrapper = lt(width, median);
+  const isMediumSize = !isSmallestSize && lt(tileSize, 90);
+
+  useEffect(() => {
+    previouseTileSize.current = tileSize;
+  }, [tileSize]);
 
   if (equals(width, 0)) {
     return null;
@@ -94,7 +120,7 @@ const ResponsiveHeatMap = <TData,>({
                 id,
                 isSmallestSize,
                 tileSize,
-                isSmallWrapper
+                isMediumSize
               })}
             </div>
           </Tooltip>

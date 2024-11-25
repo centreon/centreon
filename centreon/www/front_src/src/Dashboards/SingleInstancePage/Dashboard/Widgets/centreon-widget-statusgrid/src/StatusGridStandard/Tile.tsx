@@ -29,7 +29,7 @@ interface Props {
   statuses: Array<string>;
   type: string;
   tileSize?: number;
-  isSmallWrapper?: boolean;
+  isMediumSize?: boolean;
 }
 
 export const router = {
@@ -45,10 +45,13 @@ const Tile = ({
   resources,
   isBAResourceType,
   tileSize,
-  isSmallWrapper
+  isMediumSize
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
-  const { classes } = useTileStyles({ tileSize, isSmallWrapper });
+  const { classes } = useTileStyles({
+    tileSize,
+    isMediumSize
+  });
 
   const Icon = cond([
     [equals(IndicatorType.BusinessActivity), always(BAIcon)],
@@ -96,10 +99,10 @@ const Tile = ({
         >
           <DvrIcon
             color="primary"
-            fontSize={isSmallWrapper ? 'medium' : 'large'}
+            fontSize={isMediumSize ? 'medium' : 'large'}
           />
           {!isSmallestSize && (
-            <Typography className={classes.seeMoreLabel} variant="body2">
+            <Typography className={classes.seeMoreLabel}>
               {t(labelSeeMore)}
             </Typography>
           )}

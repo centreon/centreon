@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import type { ReactElement } from 'react';
 
 interface Tile<TData> {
   backgroundColor: string;
@@ -11,7 +11,7 @@ interface ChildrenProps<TData> {
   data: TData;
   id: string;
   isSmallestSize: boolean;
-  isSmallWrapper?: boolean;
+  isMediumSize?: boolean;
   tileSize?: number;
 }
 
@@ -23,7 +23,7 @@ export interface HeatMapProps<TData> {
     data,
     isSmallestSize,
     tileSize,
-    isSmallWrapper
+    isMediumSize
   }: ChildrenProps<TData>) => ReactElement | boolean | null;
   displayTooltipCondition?: (data: TData) => boolean;
   tileSizeFixed?: boolean;
