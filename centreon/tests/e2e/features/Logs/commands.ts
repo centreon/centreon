@@ -11,14 +11,14 @@ Cypress.Commands.add('addTimePeriodViaApi', (payload: TimePeriod) => {
       });
 });
 
-Cypress.Commands.add('addHostSeverityViaAPIv2', (payload: HostSeverity) => {
+Cypress.Commands.add('addSubjectViaAPIv2', (payload: any, url: string) => {
   cy.request({
     body: payload,
     headers: {
       'Content-Type': 'application/json'
     },
     method: 'POST',
-    url: '/centreon/api/latest/configuration/hosts/severities'
+    url: url
   }).then((response) => {
     expect(response.status).to.eq(201);
   });
@@ -44,15 +44,15 @@ Cypress.Commands.add('updateTimePeriodViaApi', (name: string, payload: TimePerio
   });
 });
 
-Cypress.Commands.add('updateHostSeverityViaAPIv2', (id: number, payload: HostSeverity) => {
+Cypress.Commands.add('updateSubjectViaAPIv2', (payload: any, url: string) => {
   cy.request({
       body: payload,
       headers: {
         'Content-Type': 'application/json'
       },
       method: 'PUT',
-      url: `/centreon/api/latest/configuration/hosts/severities/${id}`
-  }).then((response) => {
+      url: url
+    }).then((response) => {
       expect(response.status).to.eq(204);
   });
 });
@@ -75,13 +75,13 @@ Cypress.Commands.add('deleteTimePeriodViaApi', (name: string) => {
   });
 });
 
-Cypress.Commands.add('deleteHostSeverityViaAPIv2', (id: number) => {
+Cypress.Commands.add('deleteSubjectViaAPIv2', (url: string) => {
   cy.request({
-    headers: {
+      headers: {
         'Content-Type': 'application/json'
       },
       method: 'DELETE',
-      url: `/centreon/api/latest/configuration/hosts/severities/${id}`
+      url: url
     }).then((response) => {
       expect(response.status).to.eq(204);
   });
@@ -136,14 +136,6 @@ interface TimePeriod {
   exceptions: IEDyas[],
 }
 
-interface HostSeverity {
-  name: string,
-  alias: string,
-  level: number,
-  icon_id: number,
-  is_activated?: boolean
-}
-
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -151,9 +143,9 @@ declare global {
       updateTimePeriodViaApi: (name: string, body: TimePeriod) => Cypress.Chainable;
       deleteTimePeriodViaApi: (name: string) => Cypress.Chainable;
       checkLogDetails: (tableIndex: number, trIndex:number, firstTd:string, secondTd:string, thirdTd:string) => Cypress.Chainable;
-      addHostSeverityViaAPIv2: (payload: HostSeverity) => Cypress.Chainable;
-      deleteHostSeverityViaAPIv2: (id: number) => Cypress.Chainable;
-      updateHostSeverityViaAPIv2: (id: number, payload: HostSeverity) => Cypress.Chainable;
+      addSubjectViaAPIv2: (payload: any, url: string) => Cypress.Chainable;
+      deleteSubjectViaAPIv2: (url: string) => Cypress.Chainable;
+      updateSubjectViaAPIv2: (payload: any, url: string) => Cypress.Chainable;
     }
   }
 }
