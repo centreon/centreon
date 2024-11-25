@@ -23,7 +23,8 @@
     "cypress-wait-until": "^3.0.2",
     "path": "^0.12.7",
     "shell-exec": "^1.1.2",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "cypress-terminal-report": "^5.3.10"
   },
   "cypress-cucumber-preprocessor": {
     "filterSpecs": false,
