@@ -62,6 +62,7 @@ jobs:
       - uses: ./.github/actions/changes-trigger-checks
         id: changes_trigger_checks
         with:
+          is_nightly: 'false'
           has_frontend_changes: 'false'
           has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
           has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
