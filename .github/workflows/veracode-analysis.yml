@@ -253,7 +253,7 @@ jobs:
           jira_user_email: ${{ secrets.jira_user_email }}
           jira_api_token: ${{ secrets.jira_api_token }}
           module_name: ${{ inputs.module_name }}
-          ticket_labels: "['Veracode', 'Pipeline']"
+          ticket_labels: '["Veracode", "Pipeline"]'
 
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
