@@ -249,7 +249,7 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
     /**
      * Format the Host Category as property => value array.
      *
-     * @param NewhostCategory $hostCategory
+     * @param NewHostCategory $hostCategory
      *
      * @return array<string, string>
      */
