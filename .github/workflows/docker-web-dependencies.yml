@@ -9,6 +9,9 @@ on:
   pull_request:
     paths:
       - '.github/docker/centreon-web/**/Dockerfile.dependencies'
+  push:
+    paths:
+      - '.github/docker/centreon-web/**/Dockerfile.dependencies'
   schedule:
     - cron: '0 2 * * *'
 
@@ -20,6 +23,7 @@ jobs:
 
   dockerize:
     needs: [get-environment]
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
     runs-on: ubuntu-24.04
 
     strategy:
@@ -46,6 +50,7 @@ jobs:
           DOCKER_BUILD_CHECKS_ANNOTATIONS: false
         with:
           file: .github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.dependencies
+          target: web_dependencies
           context: .
           build-args: |
             "VERSION=${{ needs.get-environment.outputs.major_version }}"
@@ -53,6 +58,25 @@ jobs:
           pull: true
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ needs.get-environment.outputs.stability == 'unstable' && needs.get-environment.outputs.major_version || github.head_ref || github.ref_name }}
+          secrets: |
+            "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
+            "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
+
+      - uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
+        env:
+          DOCKER_BUILD_RECORD_UPLOAD: false
+          DOCKER_BUILD_SUMMARY: false
+          DOCKER_BUILD_CHECKS_ANNOTATIONS: false
+        with:
+          file: .github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.dependencies
+          target: web_dependencies_collect
+          context: .
+          build-args: |
+            "VERSION=${{ needs.get-environment.outputs.major_version }}"
+            "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
+          pull: false
+          push: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect-${{ matrix.distrib }}:${{ needs.get-environment.outputs.stability == 'unstable' && needs.get-environment.outputs.major_version || github.head_ref || github.ref_name }}
           secrets: |
             "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
             "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"

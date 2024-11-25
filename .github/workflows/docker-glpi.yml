@@ -18,6 +18,7 @@ jobs:
 
   dockerize:
     needs: [get-environment]
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
     runs-on: ubuntu-24.04
 
     steps:
