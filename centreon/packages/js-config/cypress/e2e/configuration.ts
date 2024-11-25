@@ -51,7 +51,7 @@ export default ({
       setupNodeEvents: async (cypressOn, config) => {
         const on = require('cypress-on-fix')(cypressOn)
         installLogsPrinter(on);
-        await esbuildPreprocessor(on, config);
+        // await esbuildPreprocessor(on, config);
         tasks(on);
 
         return plugins(on, config);
