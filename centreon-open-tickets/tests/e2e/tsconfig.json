@@ -1,15 +1,21 @@
 {
-  "extends": "@centreon/js-config/tsconfig/index",
+  "extends": "../../../centreon/packages/js-config/tsconfig/index",
   "compilerOptions": {
     "baseUrl": ".",
     "esModuleInterop": true,
+    "target": "ES2020",
+    "module": "commonjs",
     "types": ["cypress", "cypress-wait-until", "node"],
-    "resolveJsonModule": true,
     "paths": {
-      "@badeball/cypress-cucumber-preprocessor/*": ["./node_modules/@badeball/cypress-cucumber-preprocessor/dist/subpath-entrypoints/*"]
-    }
+      "*": ["node_modules/*"]
+    },
+    "skipLibCheck": true,
+    "strict": true
   },
   "include": [
-    "**/*.ts"
+    "**/*.ts",
+    "**/*.js",
+    "support/**/*.ts",
+    "plugins/**/*.ts"
   ]
 }

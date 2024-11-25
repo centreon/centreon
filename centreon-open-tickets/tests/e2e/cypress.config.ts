@@ -1,4 +1,4 @@
-import configuration from './configuration';
+import configuration from '../../../centreon/packages/js-config/cypress/e2e/configuration';
 
 export default configuration({
   env: {
