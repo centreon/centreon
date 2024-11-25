@@ -1,6 +1,5 @@
 ARG VERSION
 
-
 FROM almalinux:9 AS web_dependencies
 
 ARG VERSION
