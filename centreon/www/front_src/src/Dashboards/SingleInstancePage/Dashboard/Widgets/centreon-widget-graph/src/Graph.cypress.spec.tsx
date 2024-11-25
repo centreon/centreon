@@ -431,7 +431,7 @@ describe('Graph Widget', () => {
       );
       expect(searchParameters.get('metrics_names')).to.equal(null);
     });
-  };
+  });
 
   legendProperties.forEach(({ mode, positions }) => {
     positions.forEach((position) => {
