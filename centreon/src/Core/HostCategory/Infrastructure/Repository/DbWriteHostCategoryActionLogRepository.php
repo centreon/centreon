@@ -67,7 +67,7 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
             }
             $this->writeHostCategoryRepository->deleteById($hostCategoryId);
             $actionLog = new ActionLog(
-                objectType: 'hostcategory',
+                objectType: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
                 objectId: $hostCategoryId,
                 objectName: $hostCategory->getName(),
                 actionType: ActionLog::ACTION_TYPE_DELETE,
@@ -92,13 +92,17 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
                 throw new RepositoryException('Host Category ID cannot be 0');
             }
             $actionLog = new ActionLog(
-                objectType: 'hostcategory',
+                objectType: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
                 objectId: $hostCategoryId,
                 objectName: $hostCategory->getName(),
                 actionType: ActionLog::ACTION_TYPE_ADD,
                 contactId: $this->user->getId(),
             );
-            $this->writeActionLogRepository->addAction($actionLog);
+            $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
+            $actionLog->setId($actionLogId);
+            $this->writeActionLogRepository->addActionDetails(
+                $actionLog, $this->getNewHostCategoryAsArray($hostCategory)
+            );
 
             return $hostCategoryId;
         } catch (\Throwable $ex) {
@@ -127,7 +131,7 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
                 // If only this property has been changed, we log a specific action
                 if (count($diff) === 1) {
                     $actionLog = new ActionLog(
-                        objectType: 'hostcategory',
+                        objectType: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
                         objectId: $hostCategory->getId(),
                         objectName: $hostCategory->getName(),
                         actionType: $diff['hc_activate']
@@ -140,7 +144,7 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
                 // If additional properties has changed, we log both a change and enable/disable action
                 if (count($diff) > 1) {
                     $actionLog = new ActionLog(
-                        objectType: 'hostcategory',
+                        objectType: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
                         objectId: $hostCategory->getId(),
                         objectName: $hostCategory->getName(),
                         actionType: $diff['hc_activate']
@@ -150,7 +154,7 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
                     );
                     $this->writeActionLogRepository->addAction($actionLog);
                     $actionLog = new ActionLog(
-                        objectType: 'hostcategory',
+                        objectType: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
                         objectId: $hostCategory->getId(),
                         objectName: $hostCategory->getName(),
                         actionType: ActionLog::ACTION_TYPE_CHANGE,
@@ -166,7 +170,7 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
 
             // If more than one property has changed, we log a change action
             $actionLog = new ActionLog(
-                objectType: 'hostcategory',
+                objectType: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
                 objectId: $hostCategory->getId(),
                 objectName: $hostCategory->getName(),
                 actionType: ActionLog::ACTION_TYPE_CHANGE,
@@ -240,5 +244,35 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
         }
 
         return $diff;
+    }
+
+    /**
+     * Format the Host Category as property => value array.
+     *
+     * @param NewhostCategory $hostCategory
+     *
+     * @return array<string, string>
+     */
+    private function getNewHostCategoryAsArray(
+        NewHostCategory $hostCategory,
+    ): array {
+        $reflection = new \ReflectionClass($hostCategory);
+        $properties = $reflection->getProperties();
+
+        $hostCategoryAsArray = [];
+        foreach ($properties as $property) {
+            $property->setAccessible(true);
+            if ($property->getName() === 'isActivated') {
+                $hostCategoryAsArray[self::HOST_CATEGORY_PROPERTIES_MAP[$property->getName()]]
+                    = $property->getValue($hostCategory) ? '1' : '0';
+            } else {
+                $hostCategoryAsArray[self::HOST_CATEGORY_PROPERTIES_MAP[$property->getName()]]
+                    = is_string($property->getValue($hostCategory))
+                        ? $property->getValue($hostCategory)
+                        : throw new RepositoryException('Property value is not a string');
+            }
+        }
+
+        return $hostCategoryAsArray;
     }
 }
