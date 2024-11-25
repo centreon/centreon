@@ -1,7 +1,4 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-const validUrl = 'https://docs.centreon.com/fr/';
-const invalidUrl = 'http://docss.Centreon.com/fr/';
-const iframeContent = 'Bienvenue dans la Documentation Centreon !';
 
 before(() => {
   cy.intercept({
@@ -62,6 +59,26 @@ after(() => {
 });
 
 Given(
+  "a dashboard in the dashboard administrator user's dashboard library",
+  () => {
+  cy.loginByTypeOfUser({
+    jsonName: 'admin',
+    loginViaApi: false
+  });
+  }
+);
+
+When(
+  "a dashboard in the dashboard administrator user's dashboard library",
+  () => {
+  cy.loginByTypeOfUser({
+    jsonName: 'admin',
+    loginViaApi: false
+  });
+  }
+);
+
+Then(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
   cy.loginByTypeOfUser({
