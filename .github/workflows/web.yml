@@ -96,6 +96,7 @@ jobs:
       - uses: ./.github/actions/changes-trigger-checks
         id: changes_trigger_checks
         with:
+          is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
           has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes || 'true' }}
           has_backend_changes: ${{ steps.filter.outputs.has_backend_changes || 'true' }}
           has_test_changes: ${{ steps.filter.outputs.has_test_changes || 'true' }}
@@ -161,7 +162,8 @@ jobs:
       - name: Create Jira ticket if nightly build failure
         if: |
           needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure()
+          failure() &&
+          startsWith(github.ref_name, 'dev')
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -296,7 +298,7 @@ jobs:
       module_name: centreon
       specs_path: www/**
       dependencies_lock_file: centreon/pnpm-lock.yaml
-      is_nightly: ${{ needs.get-environment.outputs.is_nightly == 'true' }}
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
 
   backend-unit-test:
     runs-on: ubuntu-24.04
@@ -513,7 +515,8 @@ jobs:
       - name: Create Jira ticket if nightly build failure
         if: |
           needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure()
+          failure() &&
+          startsWith(github.ref_name, 'dev')
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -657,7 +660,8 @@ jobs:
       - name: Create Jira ticket if nightly build failure
         if: |
           needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure()
+          failure() &&
+          startsWith(github.ref_name, 'dev')
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -977,7 +981,8 @@ jobs:
       - name: Create Jira ticket if nightly build failure
         if: |
           needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure()
+          failure() &&
+          startsWith(github.ref_name, 'dev')
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -1021,7 +1026,8 @@ jobs:
       - name: Create Jira ticket if nightly build failure
         if: |
           needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-          failure()
+          failure() &&
+          startsWith(github.ref_name, 'dev')
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
