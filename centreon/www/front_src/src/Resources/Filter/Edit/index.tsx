@@ -80,7 +80,7 @@ const EditFiltersPanel = (): JSX.Element => {
 
     const activeId = path(['active', 'id'], event);
     const destinationIndex = path(
-      ['active', 'data', 'current', 'sortable', 'index'],
+      ['over', 'data', 'current', 'sortable', 'index'],
       event
     ) as number;
 
