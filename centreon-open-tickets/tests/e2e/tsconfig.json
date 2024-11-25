@@ -8,7 +8,8 @@
     "types": ["cypress", "cypress-wait-until", "node"],
     "paths": {
       "*": ["node_modules/*"],
-      "@badeball/cypress-cucumber-preprocessor/*": ["./node_modules/@badeball/cypress-cucumber-preprocessor/dist/subpath-entrypoints/*"]
+      "@badeball/cypress-cucumber-preprocessor/*": ["./node_modules/@badeball/cypress-cucumber-preprocessor/dist/subpath-entrypoints/*"],
+      "@bahmutov/cypress-esbuild-preprocessor": ["./node_modules/@bahmutov/cypress-esbuild-preprocessor"]
     },
     "skipLibCheck": true,
     "strict": true
