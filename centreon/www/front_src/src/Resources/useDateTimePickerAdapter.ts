@@ -3,11 +3,14 @@ import { useCallback } from 'react';
 
 import DayjsAdapter from '@date-io/dayjs';
 import dayjs from 'dayjs';
+import utcPlugin from 'dayjs/plugin/utc';
 import { useAtomValue } from 'jotai';
 import { equals, isNil, not, pipe } from 'ramda';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
+
+dayjs.extend(utcPlugin);
 
 interface UseDateTimePickerAdapterProps {
   Adapter;
@@ -223,11 +226,16 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     };
 
     public getWeekdays = (): Array<string> => {
-      const start = dayjs().locale(locale).tz(timezone).startOf('week');
+      const dateByTimeZone = dayjs().tz(timezone);
+      const start = dateByTimeZone.isUTC()
+        ? dateByTimeZone.utc().startOf('month').startOf('week')
+        : dateByTimeZone.startOf('month').startOf('week');
 
-      return [0, 1, 2, 3, 4, 5, 6].map((diff) =>
-        this.formatByString(start.add(diff, 'day'), 'dd')
-      );
+      return [0, 1, 2, 3, 4, 5, 6].map((numberOfDays) => {
+        const dayOfWeek = start.add(numberOfDays, 'day');
+
+        return dayOfWeek.locale(locale).format('dd');
+      });
     };
 
     public getChunkFromArray = ({ array, size }: Chunk): Array<unknown> => {

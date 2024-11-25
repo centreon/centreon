@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9ca5201c11268615ce83362b0d8b3327",
+    "content-hash": "39327500f7f47cf4565562708b91b175",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -6879,12 +6879,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "0c66b4be9c296fc2820c350a9deb7a16054167eb"
+                "reference": "c524733598a236d74c25da5a3afce1d0af4aaddc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/0c66b4be9c296fc2820c350a9deb7a16054167eb",
-                "reference": "0c66b4be9c296fc2820c350a9deb7a16054167eb",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/c524733598a236d74c25da5a3afce1d0af4aaddc",
+                "reference": "c524733598a236d74c25da5a3afce1d0af4aaddc",
                 "shasum": ""
             },
             "require": {
@@ -6935,7 +6935,7 @@
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
                 "source": "https://github.com/centreon/centreon-test-lib/tree/23.04.x"
             },
-            "time": "2024-09-03T09:54:03+00:00"
+            "time": "2024-10-11T08:01:22+00:00"
         },
         {
             "name": "composer/pcre",
@@ -10952,12 +10952,12 @@
             "version": "3.6.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
+                "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
                 "reference": "5e4e71592f69da17871dba6e80dd51bce74a351a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/5e4e71592f69da17871dba6e80dd51bce74a351a",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/5e4e71592f69da17871dba6e80dd51bce74a351a",
                 "reference": "5e4e71592f69da17871dba6e80dd51bce74a351a",
                 "shasum": ""
             },
@@ -11001,6 +11001,20 @@
                 "source": "https://github.com/squizlabs/PHP_CodeSniffer",
                 "wiki": "https://github.com/squizlabs/PHP_CodeSniffer/wiki"
             },
+            "funding": [
+                {
+                    "url": "https://github.com/PHPCSStandards",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/jrfnl",
+                    "type": "github"
+                },
+                {
+                    "url": "https://opencollective.com/php_codesniffer",
+                    "type": "open_collective"
+                }
+            ],
             "time": "2021-12-12T21:44:58+00:00"
         },
         {
