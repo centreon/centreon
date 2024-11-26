@@ -1041,8 +1041,8 @@ jobs:
       !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled') &&
       needs.changes.outputs.trigger_delivery == 'true' &&
-      github.repository == 'centreon/centreon'
-    environment: ${{ needs.get-environment.outputs.pull_request_environment }}
+      github.repository == 'centreon/centreon' &&
+      needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
 
     strategy:
       matrix:
@@ -1096,8 +1096,8 @@ jobs:
       !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled') &&
       needs.changes.outputs.trigger_delivery == 'true' &&
-      github.repository == 'centreon/centreon'
-    environment: ${{ needs.get-environment.outputs.pull_request_environment }}
+      github.repository == 'centreon/centreon' &&
+      needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
 
     strategy:
       matrix:
