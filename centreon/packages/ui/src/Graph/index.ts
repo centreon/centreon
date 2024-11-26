@@ -9,6 +9,7 @@ export { Text as GraphText } from './Text';
 export { HeatMap } from './HeatMap';
 export { BarStack } from './BarStack';
 export { PieChart } from './PieChart';
+export { Timeline } from './Timeline';
 export * from './Tree';
 export type { LineChartData } from './common/models';
 export * from './common/timeSeries';

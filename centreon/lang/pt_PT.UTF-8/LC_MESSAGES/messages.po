@@ -18151,6 +18151,18 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "If ticket management is enabled, only the “by service” view is available."
 #  msgstr ""
 
+#  msgid "year"
+#  msgstr ""
+
+#  msgid "month"
+#  msgstr ""
+
+#  msgid "hour"
+#  msgstr ""
+
+#  msgid "minute"
+#  msgstr ""
+
 #  msgid "Ticket management"
 #  msgstr ""
 
@@ -18158,6 +18170,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 # msgid "Clock / Timer"
+# msgstr ""
+
+# msgid "Select a Business Activity to display the preview."
 # msgstr ""
 
 # msgid "Breadcrumb copied"
@@ -18284,4 +18299,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgstr ""
 
 # msgid "Sticky for any non-OK status"
+# msgstr ""
+
+# msgid "There are errors in the form."
 # msgstr ""

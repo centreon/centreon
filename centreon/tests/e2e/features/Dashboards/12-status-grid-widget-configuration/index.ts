@@ -526,3 +526,62 @@ Then('only the resource that matches the search input is displayed in the result
     }
   );
 });
+
+When(
+  'the dashboard administrator selects a service by typing a single character',
+  () => {
+    cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
+    cy.getByLabel({ label: 'RichTextEditor' })
+      .eq(0)
+      .type(genericTextWidgets.default.description);
+    cy.getByTestId({ testId: 'Resource type' }).realClick();
+    cy.getByLabel({ label: 'Service' }).eq(1).click();
+    cy.getByLabel({ label: 'Select resource' }).type('Pin');
+    cy.getByLabel({ label: 'Select resource' }).click()
+
+  }
+);
+
+Then('only the services containing the typed character should be displayed in the list', () => {
+  const clickAndCheckForServices = () => {
+    cy.getByTestId({ testId: 'Resource type' }).realClick();
+
+    return cy.getByLabel({ label: 'Service' }).eq(1).click()
+      .then(() => {
+        return cy.getByLabel({ label: 'Select resource' }).type('ser');
+      })
+      .then(() => {
+        cy.intercept('GET', '**/centreon/api/latest/monitoring/services/names**').as('getServices');
+        cy.wait('@getServices');
+        return cy.getByLabel({ label: 'Select resource' }).click();
+      });
+  };
+
+  cy.waitUntil(() => {
+    return clickAndCheckForServices().then(() => {
+      return cy.get('ul.MuiAutocomplete-listbox')
+        .find('li')
+        .then(($items) => {
+          const textArray = $items.map((index, el) => {
+            return Cypress.$(el).find('p').text();
+          }).get();
+
+          cy.log(textArray.join(', '));
+
+          // Check if all displayed services contain "ser"
+          const allServicesContainSer = textArray.every(service => service.includes('ser'));
+
+          // Ensure that there are no extra services that do not contain "ser"
+          const noExtraServices = textArray.length === textArray.filter(service => service.includes('ser')).length;
+
+          return Cypress.Promise.resolve(allServicesContainSer && noExtraServices);
+        });
+    });
+  }, { timeout: 30000, interval: 3000 }).then((found) => {
+    if (found) {
+      cy.log('Only services containing "ser" are displayed in the list.');
+    } else {
+      cy.log('The displayed services do not match the expected criteria.');
+    }
+  });
+});

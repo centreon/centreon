@@ -444,6 +444,86 @@ Cypress.Commands.add('patchServiceWithHost', (hostId, serviceId) => {
 });
 
 Cypress.Commands.add(
+  'addNewServiceAndReturnId',
+  (hostId: number, serviceData = {}) => {
+    const defaultServiceData = {
+      check_command_args: [],
+      check_command_id: null,
+      comment: 'string',
+      geo_coords: '48.10,12.5',
+      host_id: hostId,
+      max_check_attempts: 1,
+      name: 'generic-service',
+      service_template_id: 5
+    };
+
+    const requestBody = {
+      ...defaultServiceData,
+      ...serviceData,
+      host_id: hostId
+    };
+
+    cy.request({
+      body: requestBody,
+      method: 'POST',
+      url: '/centreon/api/latest/configuration/services'
+    }).then((response) => {
+      expect(response.status).to.eq(201);
+      return response.body.id;
+    });
+  }
+);
+
+Cypress.Commands.add(
+  'addMultipleHosts',
+  (
+    numberOfHosts = 20
+  ): Cypress.Chainable<{
+    hostIds: Array<number>;
+    serviceIds: Array<number>;
+  }> => {
+    const hostIds: Array<number> = [];
+    const serviceIds: Array<number> = [];
+
+    let chain = cy.wrap(null);
+
+    for (let i = 0; i < numberOfHosts; i++) {
+      const uniqueHostData = {
+        alias: `generic-active-host-alias-${i + 1}`,
+        name: `generic-active-host-${i + 1}`
+      };
+
+      const uniqueServiceData = {
+        geo_coords: '48.10,12.5',
+        name: `service-${i + 1}`
+      };
+
+      chain = chain.then(() => {
+        return cy
+          .addNewHostAndReturnId(uniqueHostData)
+          .then((hostId: number) => {
+            hostIds.push(hostId);
+
+            return cy
+              .addNewServiceAndReturnId(hostId, uniqueServiceData)
+              .then((serviceId: number | null) => {
+                if (serviceId !== null) {
+                  serviceIds.push(serviceId);
+                }
+                return cy.wrap(null);
+              });
+          });
+      });
+    }
+
+    return chain.then(() => {
+      cy.log('All hosts and services have been created and associated.');
+      return cy.wrap({ hostIds, serviceIds });
+    });
+  }
+);
+
+Cypress.Commands.add(
   'waitForElementToBeVisible',
   (selector, timeout = 50000, interval = 2000) => {
     cy.waitUntil(
@@ -519,12 +599,64 @@ interface HostDataType {
   timezone_id: number;
 }
 
+interface ServiceDataType {
+  acknowledgement_timeout: number;
+  action_url: string;
+  active_check_enabled: number;
+  check_command_args: Array<string>;
+  check_command_id: number | null;
+  check_timeperiod_id: number | null;
+  comment: string;
+  event_handler_command_args: Array<string>;
+  event_handler_command_id: number;
+  event_handler_enabled: number;
+  first_notification_delay: number;
+  flap_detection_enabled: number;
+  freshness_checked: number;
+  freshness_threshold: number;
+  notification_enabled: number;
+  is_contact_additive_inheritance: boolean;
+  is_contact_group_additive_inheritance: boolean;
+  notification_interval: number;
+  notification_timeperiod_id: number;
+  notification_type: number;
+  retry_check_interval: number;
+  recovery_notification_delay: number;
+  low_flap_threshold: number;
+  passive_check_enabled: number;
+  macros: Array<object>;
+  geo_coords: string;
+  name: string;
+  high_flap_threshold: number;
+  normal_check_interval: number;
+  max_check_attempts: number;
+  service_template_id: number | null;
+  graph_template_id: number | null;
+  note: string;
+  note_url: string;
+  host_id: number;
+  icon_id: number | null;
+  icon_alternative: string;
+  severity_id: number;
+  is_activated: boolean;
+  service_categories: Array<number>;
+  service_groups: Array<number>;
+  volatility_enabled: number;
+}
+
 declare global {
   namespace Cypress {
     interface Chainable {
+      addMultipleHosts(
+        numberOfHosts?: number
+      ): Chainable<{ hostIds: Array<number>; serviceIds: Array<number> }>;
       addNewHostAndReturnId: (
         hostData?: Partial<HostDataType>
       ) => Cypress.Chainable;
+      addNewServiceAndReturnId(
+        hostId: number,
+        serviceData?: Partial<ServiceDataType>
+      ): Chainable<number>;
       applyAcl: () => Cypress.Chainable;
       editDashboard: (name: string) => Cypress.Chainable;
       editWidget: (nameOrPosition: string | number) => Cypress.Chainable;
@@ -538,16 +670,16 @@ declare global {
         widgetName: string,
         widgetType: string
       ) => Cypress.Chainable;
+      patchServiceWithHost: (
+        hostId: string,
+        serviceId: string
+      ) => Cypress.Chainable;
       insertDashboardWithWidget: (
         dashboard: Dashboard,
         patchBody: Record<string, any>,
         widgetName: string,
         widgetType: string
       ) => Chainable<any>;
-      patchServiceWithHost: (
-        hostId: string,
-        serviceId: string
-      ) => Cypress.Chainable;
       verifyDuplicatesGraphContainer: (metrics) => Cypress.Chainable;
       verifyGraphContainer: (metrics) => Cypress.Chainable;
       verifyLegendItemStyle: (

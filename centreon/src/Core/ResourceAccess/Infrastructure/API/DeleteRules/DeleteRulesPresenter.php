@@ -25,7 +25,6 @@ namespace Core\ResourceAccess\Infrastructure\API\DeleteRules;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Application\Common\UseCase\MultiStatusResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -67,7 +66,7 @@ final class DeleteRulesPresenter extends AbstractPresenter implements DeleteRule
                 }, $response->responseStatuses),
             ];
 
-            $this->present(new MultiStatusResponse($multiStatusResponse));
+            $this->present($multiStatusResponse);
         } else {
             $this->setResponseStatus($response);
         }

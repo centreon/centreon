@@ -244,16 +244,6 @@ jobs:
           cd /tmp/backup && zip "$ZIPNAME" *
           aws s3 cp "/tmp/backup/$ZIPNAME" "$BACKUP_LOCATION/$ZIPNAME"
 
-      - name: Create jira ticket
-        # In case of QG failure, a ticket must be created
-        if: needs.build.outputs.enable_qg == 'false' || ( needs.build.outputs.development_stage == 'Development' && failure() )
-        uses: ./.github/actions/veracode-create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.jira_base_url }}
-          jira_user_email: ${{ secrets.jira_user_email }}
-          jira_api_token: ${{ secrets.jira_api_token }}
-          module_name: ${{ inputs.module_name }}
-
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
         if: success() && needs.build.outputs.development_stage != 'Development'
@@ -267,6 +257,24 @@ jobs:
               aws s3 cp "/tmp/results.json" "$BUCKET/results.json"
             fi
           done
+
+  create-jira-nightly-ticket:
+    runs-on: ubuntu-24.04
+    needs: [build, pipeline-scan]
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+
+      - name: Create jira ticket
+        # In case of QG failure, a ticket must be created
+        if: needs.build.outputs.enable_qg == 'false' || ( needs.build.outputs.development_stage == 'Development' && failure() )
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.jira_base_url }}
+          jira_user_email: ${{ secrets.jira_user_email }}
+          jira_api_token: ${{ secrets.jira_api_token }}
+          module_name: ${{ inputs.module_name }}
+          ticket_labels: '["Veracode", "Pipeline"]'
 
   clean-artifact:
     needs: [pipeline-scan]
