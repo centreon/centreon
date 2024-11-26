@@ -1,6 +1,7 @@
 import { omit } from 'ramda';
 
-import { alpha, useTheme } from '@mui/system';
+import { useTheme } from '@mui/material';
+import { alpha } from '@mui/system';
 
 import Bar from '../Bar';
 

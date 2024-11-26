@@ -36,6 +36,11 @@ properties:
     description: If the current user is an administrator
     example: true
 
+  can_manage_api_tokens:
+    type: boolean
+    description: If the current user has ACL action "Manage API Tokens"
+    example: true
+
   use_deprecated_pages:
     type: boolean
     description: Indicates if user wants to use deprecated monitoring pages

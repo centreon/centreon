@@ -1,42 +1,42 @@
 import { Provider, createStore } from 'jotai';
 
-import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
+import Form from '..';
+import { platformVersionsAtom } from '../../../Main/atoms/platformVersionsAtom';
+import { panelWidthStorageAtom } from '../../atom';
 import {
-  labelDelete,
-  labelSave,
-  labelDuplicate,
   labelActiveOrInactive,
   labelChangeName,
+  labelClosePanel,
+  labelDelete,
+  labelDoYouWantToQuitWithoutSaving,
+  labelDuplicate,
+  labelNotificationName,
+  labelSave,
+  labelSearchBusinessViews,
+  labelSearchContacts,
   labelSearchHostGroups,
   labelSearchServiceGroups,
-  labelSuccessfulNotificationAdded,
-  labelClosePanel,
-  labelDoYouWantToQuitWithoutSaving,
-  labelYourFormHasUnsavedChanges,
-  labelNotificationName,
   labelSubject,
-  labelSearchBusinessViews,
-  labelSearchContacts
+  labelSuccessfulNotificationAdded,
+  labelYourFormHasUnsavedChanges
 } from '../../translatedLabels';
-import { panelWidthStorageAtom } from '../../atom';
-import { platformVersionsAtom } from '../../../Main/atoms/platformVersionsAtom';
 import {
   hostsGroupsEndpoint,
   notificationEndpoint,
   serviceGroupsEndpoint,
   usersEndpoint
 } from '../api/endpoints';
-import Form from '..';
 import { defaultEmailSubject } from '../utils';
 
 import {
-  usersResponse,
-  hostGroupsResponse,
-  serviceGroupsResponse,
-  platformVersions,
+  emailBodyText,
   formData,
-  emailBodyText
+  hostGroupsResponse,
+  platformVersions,
+  serviceGroupsResponse,
+  usersResponse
 } from './testUtils';
 
 const store = createStore();
@@ -126,8 +126,6 @@ describe('Create Panel', () => {
     cy.findByLabelText(labelNotificationName).should('have.attr', 'required');
 
     cy.get('#panel-content').scrollTo('top');
-
-    cy.makeSnapshot();
   });
 
   it('confirms that the Save button is correctly activated when all required fields are filled, and the form is error-free, allowing the user to save the form data', () => {
@@ -139,8 +137,6 @@ describe('Create Panel', () => {
     cy.get('#panel-content').scrollTo('top');
 
     cy.findByLabelText(labelSave).should('not.be.disabled');
-
-    cy.makeSnapshot();
   });
 
   it('sends a request to add a new notification with the form values when the Confirm button is clicked', () => {
@@ -158,8 +154,6 @@ describe('Create Panel', () => {
     });
 
     cy.findByText(labelSuccessfulNotificationAdded).should('be.visible');
-
-    cy.makeSnapshot();
   });
 
   it('confirms that the Close button triggers the display of a confirmation dialog if the user has made some changes to the form', () => {
@@ -173,16 +167,12 @@ describe('Create Panel', () => {
 
     cy.findByText(labelYourFormHasUnsavedChanges);
     cy.findByText(labelDoYouWantToQuitWithoutSaving);
-
-    cy.makeSnapshot();
   });
 
   it('displays the Email Subject field with the default initial value', () => {
     cy.get('#panel-content').scrollTo('bottom');
 
     cy.findByLabelText(labelSubject).should('have.value', defaultEmailSubject);
-
-    cy.makeSnapshot();
   });
 
   it('displays the Email Body field with the default initial value', () => {
@@ -191,8 +181,6 @@ describe('Create Panel', () => {
     emailBodyText.forEach((text) => {
       cy.findByTestId('EmailBody').contains(text);
     });
-
-    cy.makeSnapshot();
   });
 });
 
@@ -204,7 +192,5 @@ describe('Create Panel: Business Views', () => {
 
   it('dispalys the businessViews field when the BAM module is installed', () => {
     cy.findByTestId(labelSearchBusinessViews).should('be.visible');
-
-    cy.makeSnapshot();
   });
 });

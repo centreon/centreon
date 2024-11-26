@@ -49,7 +49,7 @@
                             <img src ='../../img/media/{$elem.icon_image}' width='16' height='16' style ='padding-right:5px;' />
                         {/if}
                         <span class="state_badge {$elem.hcolor}"></span>
-                        <a href='../../main.php?p=20202&o=hd&host_name={$elem.encoded_hostname}' target=_blank>{$elem.hostname}</a>
+                        <a href={$elem.h_details_uri} target=_blank>{$elem.hostname}</a>
                     </td>
                     <td class='ListColRight'>
                         <div style='float: right;'>
@@ -79,7 +79,7 @@
                 {if $preferences.display_status == 0}
                     <div class="{$elem.color}">
                 {/if}
-        <a href='../../main.php?p=202&o=svcd&host_name={$elem.encoded_hostname}&service_description={$elem.encoded_description}' target=_blank>{$elem.description}</a>
+        <a href={$elem.s_details_uri} target=_blank>{$elem.description}</a>
         {if $preferences.display_status == 0}
                     </div>
                 {/if}

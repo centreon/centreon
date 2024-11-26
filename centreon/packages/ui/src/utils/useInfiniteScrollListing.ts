@@ -60,7 +60,12 @@ export const useInfiniteScrollListing = <T>({
         customQueryParameters,
         parameters: { limit, page: params?.page || page, ...parameters }
       }),
-    getQueryKey: () => [queryKeyName, page],
+    getQueryKey: () => [
+      queryKeyName,
+      page,
+      JSON.stringify(parameters),
+      JSON.stringify(customQueryParameters)
+    ],
     isPaginated: true,
     queryOptions: {
       enabled,

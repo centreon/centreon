@@ -7,5 +7,5 @@ module.exports = defineCypressConfig({
     }
   },
   specPattern: './src/**/*.cypress.spec.tsx',
-  useVite: true
+  webpackConfig: require('../../rspack.config.cypress')
 });

@@ -1,11 +1,10 @@
-import * as React from 'react';
 import { useMemo } from 'react';
 
 import {
+  CssBaseline,
   ThemeProvider as MuiThemeProvider,
   StyledEngineProvider,
-  createTheme,
-  CssBaseline
+  createTheme
 } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';

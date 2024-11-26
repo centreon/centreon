@@ -167,7 +167,7 @@ class CentreonLogAction
             $list_actions[$i]["action_log_date"] = date("Y/m/d H:i", $data["action_log_date"]);
             $list_actions[$i]["object_type"] = $data["object_type"];
             $list_actions[$i]["object_id"] = $data["object_id"];
-            $list_actions[$i]["object_name"] = $data["object_name"];
+            $list_actions[$i]["object_name"] = HtmlSanitizer::createFromString($data["object_name"])->sanitize()->getString();
             $list_actions[$i]["action_type"] = $this->replaceActiontype($data["action_type"]);
             if ($data["log_contact_id"] != 0) {
                 $list_actions[$i]["log_contact_id"] = $this->getContactname($data["log_contact_id"]);
@@ -189,15 +189,19 @@ class CentreonLogAction
         global $pearDBO;
 
         /* Get Hosts */
-        $query = "SELECT a.action_log_id, field_value 
-                    FROM log_action a, log_action_modification m 
-                    WHERE m.action_log_id = a.action_log_id 
-                    AND field_name LIKE 'service_hPars' 
-                    AND object_id = :service_id
-                    AND object_type = 'service' 
-                    AND field_value <> ''
-                    ORDER BY action_log_date DESC 
-                    LIMIT 1";
+        $query = <<<'SQL'
+            SELECT a.action_log_id,
+                m.field_value
+            FROM log_action a
+            INNER JOIN log_action_modification m
+                ON m.action_log_id = a.action_log_id
+            WHERE object_id = :service_id
+                AND object_type = 'service'
+                AND (field_name = 'service_hPars' OR field_name = 'hostId')
+                AND field_value <> ''
+            ORDER BY action_log_date DESC
+            LIMIT 1
+            SQL;
         $statement = $pearDBO->prepare($query);
         $statement->bindValue(':service_id', $service_id, PDO::PARAM_INT);
         $statement->execute();
@@ -238,7 +242,15 @@ class CentreonLogAction
             return $info['host_name'];
         }
 
-        $statement = $pearDBO->prepare("SELECT object_id, object_name FROM log_action WHERE object_type = 'service' AND object_id = :host_id");
+        $statement = $pearDBO->prepare(
+            <<<'SQL'
+                SELECT object_id,
+                    object_name
+                FROM log_action
+                WHERE object_type = 'host'
+                    AND object_id = :host_id
+                SQL
+        );
         $statement->bindValue(':host_id', $host_id, PDO::PARAM_INT);
         $statement->execute();
         $info = $statement->fetch(PDO::FETCH_ASSOC);
@@ -357,7 +369,7 @@ class CentreonLogAction
                     $list_modifications[$i]["action_log_id"] = $field["action_log_id"];
                     $list_modifications[$i]["field_name"] = $field["field_name"];
                     $list_modifications[$i]["field_value_before"] = "";
-                    $list_modifications[$i]["field_value_after"] = $field["field_value"];
+                    $list_modifications[$i]["field_value_after"] = HtmlSanitizer::createFromString($field["field_value"])->sanitize()->getString();
                     foreach ($macroPasswordRef as $macroPasswordId) {
                         // handle the display modification for the fields macroOldValue_n while nothing was set before
                         if (strpos($field["field_name"], 'macroOldValue_' . $macroPasswordId) !== false) {
@@ -366,9 +378,9 @@ class CentreonLogAction
                     }
                 } elseif (isset($ref[$field["field_name"]]) && $ref[$field["field_name"]] != $field["field_value"]) {
                     $list_modifications[$i]["action_log_id"] = $field["action_log_id"];
-                    $list_modifications[$i]["field_name"] = $field["field_name"];
+                    $list_modifications[$i]["field_name"] = HtmlSanitizer::createFromString($ref[$field["field_name"]])->sanitize()->getString();
                     $list_modifications[$i]["field_value_before"] = $ref[$field["field_name"]];
-                    $list_modifications[$i]["field_value_after"] = $field["field_value"];
+                    $list_modifications[$i]["field_value_after"] = HtmlSanitizer::createFromString($field["field_value"])->sanitize()->getString();
                     foreach ($macroPasswordRef as $macroPasswordId) {
                         // handle the display modification for the fields macroOldValue_n for "Before" and "After" value
                         if (strpos($field["field_name"], 'macroOldValue_' . $macroPasswordId) !== false) {
@@ -377,7 +389,7 @@ class CentreonLogAction
                         }
                     }
                 }
-                $ref[$field["field_name"]] = $field["field_value"];
+                $ref[$field["field_name"]] = HtmlSanitizer::createFromString($field["field_value"])->sanitize()->getString();
                 $i++;
             }
         }

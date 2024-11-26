@@ -148,14 +148,14 @@ $tabAction["enable"] = _("Enabled");
 $tabAction["disable"] = _("Disabled");
 $tabAction["d"] = _("Deleted");
 
-$badge = array(
+$badge = [
     _("Added") => "ok",
     _("Changed") => "warning",
     _("Mass Change") => 'warning',
     _("Deleted") => 'critical',
     _("Enabled") => 'ok',
     _("Disabled") => 'critical'
-);
+];
 
 $tpl->assign("object_id", _("Object ID"));
 $tpl->assign("action", _("Action"));
@@ -181,9 +181,16 @@ foreach ($objects_type_tab as $key => $name) {
 
 $tpl->assign("obj_type", $options);
 
-$logQuery = "SELECT SQL_CALC_FOUND_ROWS object_id, object_type, object_name, "
-    . "action_log_date, action_type, log_contact_id, action_log_id "
-    . "FROM log_action";
+$logQuery = <<<'SQL'
+    SELECT SQL_CALC_FOUND_ROWS object_id,
+        object_type,
+        object_name,
+        action_log_date,
+        action_type,
+        log_contact_id,
+        action_log_id
+    FROM log_action
+    SQL;
 
 $valuesToBind = [];
 if (!empty($searchO) || !empty($searchU) || $otype != 0) {
@@ -240,6 +247,22 @@ if ($prepareSelect->execute()) {
                 CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
             );
 
+            $author = empty($contactList[$res['log_contact_id']])
+                ? _("unknown")
+                : $contactList[$res['log_contact_id']];
+
+            $element = [
+                'date' => $res['action_log_date'] ?? null,
+                'type' => $res['object_type'] ?? null,
+                'object_name' => $objectName ?? null,
+                'action_log_id' => $res['action_log_id'] ?? null,
+                'object_id' => $res['object_id'] ?? null,
+                'modification_type' => $tabAction[$res['action_type']] ?? null,
+                'author' => $author ?? null,
+                'change' => $tabAction[$res['action_type']] ?? null,
+                'badge' => $badge[$tabAction[$res['action_type']]] ?? null,
+            ];
+
             if ($res['object_type'] == "service") {
                 $tmp = $centreon->CentreonLogAction->getHostId($res['object_id']);
                 if ($tmp != -1) {
@@ -279,100 +302,27 @@ if ($prepareSelect->execute()) {
                         }
                     }
                 }
-            }
 
-            if ($res['object_type'] == "service") {
                 if (isset($host_name) && $host_name != '') {
-                    $elemArray[] = array(
-                        "date" => $res['action_log_date'],
-                        "type" => $res['object_type'],
-                        "object_name" => $objectName,
-                        "action_log_id" => $res['action_log_id'],
-                        "object_id" => $res['object_id'],
-                        "modification_type" => $tabAction[$res['action_type']],
-                        "author" => $contactList[$res['log_contact_id']],
-                        "change" => $tabAction[$res['action_type']],
-                        "host" => $host_name,
-                        "badge" => $badge[$tabAction[$res['action_type']]]
-                    );
+                    $element['host'] = $host_name;
                 } elseif (isset($hosts) && count($hosts) != 1) {
-                    $elemArray[] = array(
-                        "date" => $res['action_log_date'],
-                        "type" => $res['object_type'],
-                        "object_name" => $objectName,
-                        "action_log_id" => $res['action_log_id'],
-                        "object_id" => $res['object_id'],
-                        "modification_type" => $tabAction[$res['action_type']],
-                        "author" => $contactList[$res['log_contact_id']],
-                        "change" => $tabAction[$res['action_type']],
-                        "hosts" => $hosts,
-                        "badge" => $badge[$tabAction[$res['action_type']]]
-                    );
+                    $element['hosts'] = $hosts;
                 } elseif (isset($hg_name) && $hg_name != '') {
-                    $elemArray[] = array(
-                        "date" => $res['action_log_date'],
-                        "type" => $res['object_type'],
-                        "object_name" => $objectName,
-                        "action_log_id" => $res['action_log_id'],
-                        "object_id" => $res['object_id'],
-                        "modification_type" => $tabAction[$res['action_type']],
-                        "author" => $contactList[$res['log_contact_id']],
-                        "change" => $tabAction[$res['action_type']],
-                        "hostgroup" => $hg_name,
-                        "badge" => $badge[$tabAction[$res['action_type']]]
-                    );
+                    $element['hostgroup'] = $hg_name;
                 } elseif (isset($hostgroups) && count($hostgroups) != 1) {
-                    $elemArray[] = array(
-                        "date" => $res['action_log_date'],
-                        "type" => $res['object_type'],
-                        "object_name" => $objectName,
-                        "action_log_id" => $res['action_log_id'],
-                        "object_id" => $res['object_id'],
-                        "modification_type" => $tabAction[$res['action_type']],
-                        "author" => $contactList[$res['log_contact_id']],
-                        "change" => $tabAction[$res['action_type']],
-                        "hostgroups" => $hostgroups,
-                        "badge" => $badge[$tabAction[$res['action_type']]]
-                    );
+                    $element['hostgroups'] = $hostgroups;
                 } else {
-                    if (empty($contactList[$res['log_contact_id']])) {
-                        $author = _("unknown");
-                    } else {
-                        $author = $contactList[$res['log_contact_id']];
-                    }
-
                     // as the relation may have been deleted since the event,
                     // some relations can't be found for this service, while events have been saved for it in the DB
-                    $elemArray[] = array(
-                        "date" => $res['action_log_date'],
-                        "type" => $res['object_type'],
-                        "object_name" => $objectName,
-                        "action_log_id" => $res['action_log_id'],
-                        "object_id" => $res['object_id'],
-                        "modification_type" => $tabAction[$res['action_type']],
-                        "author" => $author,
-                        "change" => $tabAction[$res['action_type']],
-                        "host" => "<i>Linked resource has changed</i>",
-                        "badge" => $badge[$tabAction[$res['action_type']]]
-                    );
+                    $element['host'] = "<i>Linked resource has changed</i>";
                 }
                 unset($host_name);
                 unset($hg_name);
                 unset($hosts);
                 unset($hostgroups);
-            } else {
-                $elemArray[] = array(
-                    "date" => $res['action_log_date'],
-                    "type" => $res['object_type'],
-                    "object_name" => $objectName,
-                    "action_log_id" => $res['action_log_id'],
-                    "object_id" => $res['object_id'],
-                    "modification_type" => $tabAction[$res['action_type']],
-                    "author" => $contactList[$res['log_contact_id']],
-                    "change" => $tabAction[$res['action_type']],
-                    "badge" => $badge[$tabAction[$res['action_type']]]
-                );
             }
+
+            $elemArray[] = $element;
         }
     }
 }

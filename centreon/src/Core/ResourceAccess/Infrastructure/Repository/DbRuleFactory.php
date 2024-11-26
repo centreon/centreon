@@ -70,7 +70,9 @@ class DbRuleFactory
             id: $record['id'],
             name: $record['name'],
             description: (string) $record['description'],
+            applyToAllContacts: $record['all_contacts'] === 1,
             linkedContacts: $linkedContactIds,
+            applyToAllContactGroups: $record['all_contact_groups'] === 1,
             linkedContactGroups: $linkedContactGroupIds,
             datasets: $datasetFilters,
             isEnabled: (bool) $record['is_enabled']

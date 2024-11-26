@@ -22,10 +22,14 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\MetaServiceConfiguration\UseCase\V2110;
 
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Exception\EntityNotFoundException;
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\MetaServiceConfiguration\Exception\MetaServiceConfigurationException;
 use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfigurationServiceInterface;
 use Centreon\Domain\MetaServiceConfiguration\UseCase\V2110\FindOneMetaServiceConfigurationResponse;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * This class is designed to represent a use case to find all host categories.
@@ -34,6 +38,8 @@ use Centreon\Domain\MetaServiceConfiguration\UseCase\V2110\FindOneMetaServiceCon
  */
 class FindOneMetaServiceConfiguration
 {
+    use LoggerTrait;
+
     /**
      * @var MetaServiceConfigurationServiceInterface
      */
@@ -65,16 +71,36 @@ class FindOneMetaServiceConfiguration
      */
     public function execute(int $metaId): FindOneMetaServiceConfigurationResponse
     {
-        $response = new FindOneMetaServiceConfigurationResponse();
-        $metaServiceConfiguration = ($this->contact->isAdmin())
-            ? $this->metaServiceConfigurationService->findWithoutAcl($metaId)
-            : $this->metaServiceConfigurationService->findWithAcl($metaId);
+        try {
+            if (
+                ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_META_SERVICES_READ)
+                && ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_META_SERVICES_WRITE)
+            ) {
+                throw new AccessDeniedException(
+                    'Insufficient rights (required: ROLE_CONFIGURATION_META_SERVICES_READ or ROLE_CONFIGURATION_META_SERVICES_WRITE)'
+                );
+            }
 
-        if (is_null($metaServiceConfiguration)) {
-            throw MetaServiceConfigurationException::findOneMetaServiceConfigurationNotFound($metaId);
+            $response = new FindOneMetaServiceConfigurationResponse();
+            $metaServiceConfiguration = ($this->contact->isAdmin())
+                ? $this->metaServiceConfigurationService->findWithoutAcl($metaId)
+                : $this->metaServiceConfigurationService->findWithAcl($metaId);
+
+            if (is_null($metaServiceConfiguration)) {
+                throw MetaServiceConfigurationException::findOneMetaServiceConfigurationNotFound($metaId);
+            }
+
+            $response->setMetaServiceConfiguration($metaServiceConfiguration);
+
+            return $response;
+        } catch (AccessDeniedException $ex) {
+            $this->error('Insufficient right for user', ['user_id' => $this->contact->getId()]);
+
+            throw new AccessDeniedException($ex->getMessage());
+        } catch (MetaServiceConfigurationException $ex) {
+            $this->error('Meta service configuration not found', ['meta_id' => $metaId]);
+
+            throw new EntityNotFoundException($ex->getMessage());
         }
-
-        $response->setMetaServiceConfiguration($metaServiceConfiguration);
-        return $response;
     }
 }

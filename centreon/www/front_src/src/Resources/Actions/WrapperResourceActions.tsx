@@ -1,8 +1,6 @@
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { useMediaQuery, useTheme } from '@mui/material';
-
 import { useSnackbar } from '@centreon/ui';
 
 import {
@@ -13,23 +11,25 @@ import {
 } from '../translatedLabels';
 
 import ResourceActions from './Resource';
-import useMediaQueryListing from './Resource/useMediaQueryListing';
 import { selectedResourcesAtom } from './actionsAtoms';
 import {
   Action,
   CheckActionModel,
   MainActionModel,
+  MoreSecondaryActions,
   SecondaryActions
 } from './model';
 
-const WrapperResourceActions = (): JSX.Element => {
-  const theme = useTheme();
-  const { t } = useTranslation();
-  const { applyBreakPoint } = useMediaQueryListing();
-  const { showSuccessMessage } = useSnackbar();
+interface Props {
+  displayCondensed?: boolean;
+}
 
-  const displayCondensed =
-    Boolean(useMediaQuery(theme.breakpoints.down(1024))) || applyBreakPoint;
+const WrapperResourceActions = ({
+  displayCondensed = false,
+  renderMoreSecondaryActions
+}: Props & MoreSecondaryActions): JSX.Element => {
+  const { t } = useTranslation();
+  const { showSuccessMessage } = useSnackbar();
 
   const [selectedResources, setSelectedResources] = useAtom(
     selectedResourcesAtom
@@ -78,6 +78,7 @@ const WrapperResourceActions = (): JSX.Element => {
     <ResourceActions
       displayCondensed={displayCondensed}
       mainActions={{ actions: mainActions }}
+      renderMoreSecondaryActions={renderMoreSecondaryActions}
       resources={selectedResources}
       secondaryActions={secondaryActions as SecondaryActions}
       success={initialize}

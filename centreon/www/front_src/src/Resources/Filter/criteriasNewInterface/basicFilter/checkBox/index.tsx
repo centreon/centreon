@@ -158,6 +158,7 @@ const CheckBoxSection = ({
   return (
     <CheckboxGroup
       className={classes.checkbox}
+      dataTestId={`${filterName}-${resourceType}`}
       direction="horizontal"
       formGroupProps={formGroupProps}
       labelProps={labelProps}

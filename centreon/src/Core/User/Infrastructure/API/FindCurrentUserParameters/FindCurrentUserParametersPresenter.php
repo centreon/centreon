@@ -60,6 +60,7 @@ class FindCurrentUserParametersPresenter extends DefaultPresenter
                 'is_admin' => $data->isAdmin,
                 'use_deprecated_pages' => $data->useDeprecatedPages,
                 'is_export_button_enabled' => $data->isExportButtonEnabled,
+                'can_manage_api_tokens' => $data->canManageApiTokens,
                 'theme' => UserThemeConverter::toString($data->theme),
                 'user_interface_density' => UserInterfaceDensityConverter::toString($data->userInterfaceDensity),
                 'default_page' => $data->defaultPage,

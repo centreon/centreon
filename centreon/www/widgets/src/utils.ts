@@ -9,7 +9,9 @@ import {
   identity,
   includes,
   pipe,
-  map
+  map,
+  toPairs,
+  pluck
 } from 'ramda';
 
 import { SeverityCode, centreonBaseURL } from '@centreon/ui';
@@ -274,4 +276,128 @@ export const severityStatusBySeverityCode = {
   [SeverityCode.OK]: SeverityStatus.Success,
   [SeverityCode.None]: SeverityStatus.Undefined,
   [SeverityCode.Pending]: SeverityStatus.Pending
+};
+
+interface GetPublicWidgetEndpointProps {
+  dashboardId: number | string;
+  extraQueryParameters?: string;
+  playlistHash?: string;
+  widgetId: string;
+}
+
+export const getPublicWidgetEndpoint = ({
+  playlistHash,
+  dashboardId,
+  widgetId,
+  extraQueryParameters = ''
+}: GetPublicWidgetEndpointProps): string =>
+  `/it-edition-extensions/monitoring/dashboards/playlists/${playlistHash}/dashboards/${dashboardId}/widgets/${widgetId}${extraQueryParameters}`;
+
+export const getWidgetEndpoint = ({
+  playlistHash,
+  dashboardId,
+  widgetId,
+  isOnPublicPage,
+  defaultEndpoint,
+  extraQueryParameters
+}: Omit<GetPublicWidgetEndpointProps, 'extraQueryParameters'> & {
+  defaultEndpoint: string;
+  extraQueryParameters?: Record<string, string | number | object>;
+  isOnPublicPage: boolean;
+}): string => {
+  if (isOnPublicPage && playlistHash) {
+    const extraqueryParametersStringified = extraQueryParameters
+      ? toPairs(extraQueryParameters).reduce(
+          (acc, [key, value]) =>
+            `${acc}&${key as string}=${encodeURIComponent(JSON.stringify(value))}`,
+          '?'
+        )
+      : '';
+
+    return getPublicWidgetEndpoint({
+      dashboardId,
+      extraQueryParameters: extraqueryParametersStringified,
+      playlistHash,
+      widgetId
+    });
+  }
+
+  return defaultEndpoint;
+};
+
+export const getBAStatusBySeverityCode = {
+  [SeverityCode.High]: 'critical',
+  [SeverityCode.Medium]: 'warning',
+  [SeverityCode.OK]: 'ok',
+  [SeverityCode.None]: 'unknown',
+  [SeverityCode.Pending]: 'pending'
+};
+
+export const getBAsURL = (severityCode: number): string => {
+  const status = getBAStatusBySeverityCode[severityCode];
+
+  return `/main.php?p=20701&status=${status}`;
+};
+
+export const indicatorsURL = '/main.php?p=62606';
+
+const resourceTypesCustomParameters = [
+  'host-group',
+  'host-category',
+  'service-group',
+  'service-category'
+];
+const resourcesSearchMapping = {
+  host: 'parent_name',
+  'meta-service': 'name',
+  service: 'name'
+};
+const resourceTypesSearchParameters = ['host', 'service', 'meta-service'];
+const categories = ['host-category', 'service-category'];
+
+export const getResourcesSearchQueryParameters = (
+  resources: Array<Resource> = []
+): {
+  resourcesCustomParameters: Array<{
+    name: string;
+    value: Array<string>;
+  }>;
+  resourcesSearchConditions: Array<{
+    field;
+    values: {
+      $rg: string;
+    };
+  }>;
+} => {
+  const resourcesToApplyToCustomParameters = resources.filter(
+    ({ resourceType }) => includes(resourceType, resourceTypesCustomParameters)
+  );
+  const resourcesToApplyToSearchParameters = resources.filter(
+    ({ resourceType }) => includes(resourceType, resourceTypesSearchParameters)
+  );
+
+  const resourcesSearchConditions = resourcesToApplyToSearchParameters.map(
+    ({ resourceType, resources: resourcesToApply }) => {
+      return resourcesToApply.map((resource) => ({
+        field: resourcesSearchMapping[resourceType],
+        values: {
+          $rg: `^${resource.name}$`
+        }
+      }));
+    }
+  );
+
+  const resourcesCustomParameters = resourcesToApplyToCustomParameters.map(
+    ({ resourceType, resources: resourcesToApply }) => ({
+      name: includes(resourceType, categories)
+        ? `${resourceType.replace('-', '_')}_names`
+        : `${resourceType.replace('-', '')}_names`,
+      value: pluck('name', resourcesToApply)
+    })
+  );
+
+  return {
+    resourcesCustomParameters,
+    resourcesSearchConditions: flatten(resourcesSearchConditions)
+  };
 };

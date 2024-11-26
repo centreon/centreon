@@ -22,10 +22,15 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\MetaServiceConfiguration\UseCase\V2110;
 
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfigurationServiceInterface;
 use Centreon\Domain\MetaServiceConfiguration\UseCase\V2110\FindMetaServicesConfigurationsResponse;
 use Centreon\Domain\MetaServiceConfiguration\Exception\MetaServiceConfigurationException;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * This class is designed to represent a use case to find all host categories.
@@ -34,42 +39,71 @@ use Centreon\Domain\MetaServiceConfiguration\Exception\MetaServiceConfigurationE
  */
 class FindMetaServicesConfigurations
 {
-    /**
-     * @var MetaServiceConfigurationServiceInterface
-     */
-    private $metaServiceConfigurationService;
-    /**
-     * @var ContactInterface
-     */
-    private $contact;
+    use LoggerTrait;
+
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     /**
      * FindMetaServiceConfiguration constructor.
      *
      * @param MetaServiceConfigurationServiceInterface $metaServiceConfigurationService
      * @param ContactInterface $contact
+     * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
+     * @param bool $isCloudPlatform
      */
     public function __construct(
-        MetaServiceConfigurationServiceInterface $metaServiceConfigurationService,
-        ContactInterface $contact
+        private readonly MetaServiceConfigurationServiceInterface $metaServiceConfigurationService,
+        private readonly ContactInterface $contact,
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
+        private readonly bool $isCloudPlatform
     ) {
-        $this->metaServiceConfigurationService = $metaServiceConfigurationService;
-        $this->contact = $contact;
     }
 
     /**
      * Execute the use case for which this class was designed.
      *
      * @return FindMetaServicesConfigurationsResponse
-     * @throws MetaServiceConfigurationException
+     * @throws AccessDeniedException|MetaServiceConfigurationException
      */
     public function execute(): FindMetaServicesConfigurationsResponse
     {
+        if (
+            ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_META_SERVICES_READ)
+            && ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_META_SERVICES_WRITE)
+        ) {
+            $this->error('Insufficient right for user', ['user_id' => $this->contact->getId()]);
+
+            throw new AccessDeniedException(
+                'Insufficient rights (required: ROLE_CONFIGURATION_META_SERVICES_READ or ROLE_CONFIGURATION_META_SERVICES_WRITE)'
+            );
+        }
+
         $response = new FindMetaServicesConfigurationsResponse();
-        $metaServicesConfigurations = ($this->contact->isAdmin())
+        $metaServicesConfigurations = ($this->isUserAdmin())
             ? $this->metaServiceConfigurationService->findAllWithoutAcl()
             : $this->metaServiceConfigurationService->findAllWithAcl();
         $response->setMetaServicesConfigurations($metaServicesConfigurations);
+
         return $response;
     }
+
+   /**
+     * Indicates if the current user is admin or not (cloud + onPremise context).
+     *
+     * @return bool
+     */
+   private function isUserAdmin(): bool
+   {
+       if ($this->contact->isAdmin()) {
+           return true;
+       }
+
+       $userAccessGroupNames = array_map(
+           static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+           $this->accessGroupRepository->findByContact($this->contact)
+       );
+
+       return ! empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS))
+           && $this->isCloudPlatform;
+   }
 }

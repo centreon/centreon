@@ -34,6 +34,8 @@ trait SqlMultipleBindTrait
     protected function createMultipleBindQuery(array $list, string $prefix): array
     {
         $bindValues = [];
+        $list = array_values($list); // Reset index to avoid SQL injection
+
         foreach ($list as $index => $id) {
             $bindValues[$prefix . $index] = $id;
         }
