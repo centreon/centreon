@@ -96,10 +96,10 @@ jobs:
 #   delivery-rpm:
 #     needs: [get-environment, package]
 #     if: |
-#        contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-#        github.repository == 'centreon/centreon'
+#       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+#       github.repository == 'centreon/centreon' &&
+#       needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
 #     runs-on: [self-hosted, common]
-#     environment: ${{ needs.get-environment.outputs.pull_request_environment }}
 
 #     strategy:
 #       matrix:
@@ -124,11 +124,11 @@ jobs:
 #   deliver-deb:
 #     needs: [get-environment, package]
 #     if: |
-#        needs.get-environment.outputs.is_cloud == 'false' &&
-#        contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-#        github.repository == 'centreon/centreon'
+#       needs.get-environment.outputs.is_cloud == 'false' &&
+#       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+#       github.repository == 'centreon/centreon' &&
+#       needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
 #     runs-on: [self-hosted, common]
-#     environment: ${{ needs.get-environment.outputs.pull_request_environment }}
 
 #     strategy:
 #       matrix:
@@ -152,11 +152,11 @@ jobs:
 #   promote:
 #     needs: [get-environment]
 #     if: |
-#        contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
-#        github.event_name != 'workflow_dispatch' &&
-#        github.repository == 'centreon/centreon'
+#       contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
+#       github.event_name != 'workflow_dispatch' &&
+#       github.repository == 'centreon/centreon' &&
+#       needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
 #     runs-on: [self-hosted, common]
-#     environment: ${{ needs.get-environment.outputs.pull_request_environment }}
 #     strategy:
 #       matrix:
 #         distrib: [el8, el9, bookworm]
