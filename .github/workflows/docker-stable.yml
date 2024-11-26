@@ -29,7 +29,8 @@ jobs:
       !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled') &&
       needs.get-environment.outputs.stability == 'stable' &&
-      github.ref_name == 'master'
+      github.ref_name == 'master' &&
+      needs.get-version.outputs.pull_request_environment == 'internal_contributor'
 
     env:
       project: centreon-web
