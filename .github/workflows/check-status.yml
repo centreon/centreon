@@ -61,12 +61,12 @@ jobs:
               const pending = [];
 
               const result = await github.rest.checks.listSuitesForRef({
-                owner: context.payload.pull_request.head.repo.owner.login,
-                repo: context.payload.pull_request.head.repo.name,
-                ref: context.payload.pull_request.head.ref
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: "${{ github.head_ref }}"
               });
-              result.data.check_suites.forEach(({ app: { slug }, conclusion, id}) => {
-                if (slug === 'github-actions') {
+              result.data.check_suites.forEach(({ app: { slug }, conclusion, id, head_branch }) => {
+                if (slug === 'github-actions' && head_branch == context.payload.pull_request.head.ref ) {
                   if (conclusion === 'failure' || conclusion === 'cancelled') {
                     failure.push(id);
                   } else if (conclusion === null) {
