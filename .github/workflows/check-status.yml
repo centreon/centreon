@@ -60,12 +60,12 @@ jobs:
               const cancelled = [];
               const pending = [];
             
-              console.log(github.payload);
+              console.log(context.payload);
 
               const result = await github.rest.checks.listSuitesForRef({
-                owner: github.payload.head.owner.login,
-                repo: github.payload.head.repo.name,
-                ref: github.payload.head_ref
+                owner: context.payload.event.pull_request.head.owner.login,
+                repo: context.payload.event.pull_request.head.repo.name,
+                ref: context.payload.head_ref
               });
               result.data.check_suites.forEach(({ app: { slug }, conclusion, id}) => {
                 if (slug === 'github-actions') {
