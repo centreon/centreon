@@ -63,11 +63,12 @@ const DashboardLayout = <T extends Layout>({
     setIsResizingItem(null);
   }, []);
 
-  const containerHeight = useMemo((): number | undefined => {
-    const nbRow = bottom(getLayout(layout));
-    const containerPaddingY = 4;
-    return nbRow * rowHeight + (nbRow - 1) * 20 + containerPaddingY * 2;
-  }, [layout, rowHeight]) ?? 0;
+  const containerHeight =
+    useMemo((): number | undefined => {
+      const nbRow = bottom(getLayout(layout));
+      const containerPaddingY = 4;
+      return nbRow * rowHeight + (nbRow - 1) * 20 + containerPaddingY * 2;
+    }, [layout, rowHeight]) ?? 0;
 
   useEffect(() => {
     window.addEventListener('resize', resize);
@@ -89,9 +90,7 @@ const DashboardLayout = <T extends Layout>({
               {displayGrid && (
                 <Grid
                   columns={columns}
-                  height={
-                    containerHeight > height ? containerHeight : height
-                  }
+                  height={containerHeight > height ? containerHeight : height}
                   width={width}
                 />
               )}
