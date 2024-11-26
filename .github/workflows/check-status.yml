@@ -61,8 +61,8 @@ jobs:
               const pending = [];
 
               const result = await github.rest.checks.listSuitesForRef({
-                owner: context.payload.pull_request.head.repo.owner.login,
-                repo: context.payload.pull_request.head.repo.name,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
                 ref: "${{ github.head_ref }}"
               });
               result.data.check_suites.forEach(({ app: { slug }, conclusion, id, head_branch }) => {
