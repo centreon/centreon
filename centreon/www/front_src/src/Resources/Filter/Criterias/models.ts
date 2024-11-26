@@ -15,6 +15,7 @@ import {
   labelHostSeverity,
   labelHostSeverityLevel,
   labelInDowntime,
+  labelInFlapping,
   labelMetaService,
   labelMonitoringServer,
   labelName,
@@ -79,6 +80,7 @@ const criteriaValueNameById = {
   hard: labelHard,
   host: labelHost,
   in_downtime: labelInDowntime,
+  in_flapping: labelInFlapping,
   metaservice: labelMetaService,
   service: labelService,
   soft: labelSoft,
@@ -103,7 +105,18 @@ const inDowntimeState = {
   name: criteriaValueNameById[inDowntimeStateId]
 };
 
-const selectableStates = [unhandledState, acknowledgedState, inDowntimeState];
+const inFlappingStateId = 'in_flapping';
+const inFlappingState = {
+  id: inFlappingStateId,
+  name: criteriaValueNameById[inFlappingStateId]
+};
+
+const selectableStates = [
+  unhandledState,
+  acknowledgedState,
+  inDowntimeState,
+  inFlappingState
+];
 
 const hostResourceTypeId = 'host';
 const hostResourceType = {
