@@ -16,7 +16,6 @@ jobs:
   publish-new-npm-beta-version:
     runs-on: ubuntu-22.04
     if: |
-      github.event.pull_request.base.repo.name == 'centreon' ||
       github.repository == 'centreon/centreon'
 
     steps:
