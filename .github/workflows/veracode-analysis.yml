@@ -258,7 +258,7 @@ jobs:
             fi
           done
 
-  create-jira-nightly-ticket:
+  create-jira-veracode-ticket:
     runs-on: ubuntu-24.04
     needs: [build, pipeline-scan]
     steps:
