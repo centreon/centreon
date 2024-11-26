@@ -15,7 +15,7 @@ on:
         type: boolean
   schedule:
     - cron: "0 3 * * 1-5"
-  pull_request:
+  pull_request_target:
     paths:
       - "centreon/**"
       - "!centreon/cypress/**"
@@ -46,6 +46,12 @@ env:
   widgets_directory: centreon/www/widgets
 
 jobs:
+  get-environment:
+    uses: ./.github/workflows/get-environment.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+      nightly_manual_trigger: ${{ inputs.nightly_manual_trigger || false }}
+
   changes:
     needs: [get-environment]
     runs-on: ubuntu-24.04
@@ -102,7 +108,11 @@ jobs:
           has_test_changes: ${{ steps.filter.outputs.has_test_changes || 'true' }}
 
   dispatch-to-maintained-branches:
-    if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' }}
+    if: |
+      github.run_attempt == 1 &&
+      github.event_name == 'schedule' &&
+      github.ref_name == 'develop' &&
+      github.repository == 'centreon/centreon'
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
@@ -123,12 +133,6 @@ jobs:
         shell: bash
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  get-environment:
-    uses: ./.github/workflows/get-environment.yml
-    with:
-      version_file: centreon/www/install/insertBaseConf.sql
-      nightly_manual_trigger: ${{ inputs.nightly_manual_trigger || false }}
 
   gherkin-lint:
     runs-on: ubuntu-24.04
@@ -161,9 +165,11 @@ jobs:
 
       - name: Create Jira ticket if nightly build failure
         if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
+          needs.get-environment.outputs.is_nightly == 'true' &&
+          github.run_attempt == 1 &&
           failure() &&
-          startsWith(github.ref_name, 'dev')
+          startsWith(github.ref_name, 'dev') &&
+          github.repository == 'centreon/centreon'
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -234,7 +240,10 @@ jobs:
   frontend-web-lint:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.changes.outputs.has_frontend_changes == 'true' &&
+      needs.get-environment.outputs.stability != 'stable'
 
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
@@ -250,7 +259,10 @@ jobs:
   frontend-unit-test:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.changes.outputs.has_frontend_changes == 'true' &&
+      needs.get-environment.outputs.stability != 'stable'
 
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
@@ -285,7 +297,10 @@ jobs:
 
   frontend-component-test:
     needs: [changes, get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.changes.outputs.has_frontend_changes == 'true' &&
+      needs.get-environment.outputs.stability != 'stable'
     uses: ./.github/workflows/cypress-component-parallelization.yml
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
@@ -303,7 +318,10 @@ jobs:
   backend-unit-test:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.changes.outputs.has_backend_changes == 'true' &&
+      needs.get-environment.outputs.stability != 'stable'
 
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
@@ -335,7 +353,10 @@ jobs:
   backend-lint:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.changes.outputs.has_backend_changes == 'true' &&
+      needs.get-environment.outputs.stability != 'stable'
 
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
@@ -387,7 +408,12 @@ jobs:
         frontend-unit-test,
         frontend-component-test,
       ]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.outputs.stability != 'stable'
 
     strategy:
       fail-fast: false
@@ -514,9 +540,11 @@ jobs:
 
       - name: Create Jira ticket if nightly build failure
         if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
+          needs.get-environment.outputs.is_nightly == 'true' &&
+          github.run_attempt == 1 &&
           failure() &&
-          startsWith(github.ref_name, 'dev')
+          startsWith(github.ref_name, 'dev') &&
+          github.repository == 'centreon/centreon'
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -528,7 +556,12 @@ jobs:
   dockerize:
     runs-on: ubuntu-24.04
     needs: [get-environment, package]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.outputs.stability != 'stable'
 
     env:
       project: centreon-web
@@ -659,9 +692,11 @@ jobs:
 
       - name: Create Jira ticket if nightly build failure
         if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
+          needs.get-environment.outputs.is_nightly == 'true' &&
+          github.run_attempt == 1 &&
           failure() &&
-          startsWith(github.ref_name, 'dev')
+          startsWith(github.ref_name, 'dev') &&
+          github.repository == 'centreon/centreon'
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -672,7 +707,13 @@ jobs:
 
   create-xray-test-plan-and-test-execution:
     needs: [get-environment, dockerize]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' ) &&
+      github.repository == 'centreon/centreon'
     strategy:
       fail-fast: false
       matrix:
@@ -692,7 +733,12 @@ jobs:
 
   newman-test:
     needs: [get-environment, changes, create-xray-test-plan-and-test-execution, dockerize]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_api_testing == 'true' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      needs.changes.outputs.trigger_api_testing == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -725,7 +771,13 @@ jobs:
 
   legacy-e2e-test:
     needs: [get-environment, changes, dockerize]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      needs.changes.outputs.has_backend_changes == 'true' &&
+      needs.get-environment.outputs.stability != 'stable'
     strategy:
       fail-fast: false
       matrix:
@@ -752,7 +804,12 @@ jobs:
 
   e2e-test:
     needs: [get-environment, dockerize, create-xray-test-plan-and-test-execution]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.outputs.stability != 'stable'
     strategy:
       fail-fast: false
       matrix:
@@ -791,7 +848,12 @@ jobs:
   performances-test:
     runs-on: ubuntu-24.04
     needs: [get-environment, dockerize]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.outputs.stability != 'stable'
     strategy:
       fail-fast: false
       matrix:
@@ -820,7 +882,9 @@ jobs:
           dependencies_lock_file: centreon/pnpm-lock.yaml
 
       - name: Publish report to S3
-        if: ${{ github.event_name == 'push' }}
+        if: |
+          github.event_name == 'push' &&
+          github.repository == 'centreon/centreon'
         uses: ./.github/actions/lighthouse-to-s3
         with:
           report_path: centreon/lighthouse/report/lighthouseci-index.html
@@ -844,7 +908,14 @@ jobs:
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      !cancelled() &&
+      contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      github.event_name != 'workflow_dispatch' &&
+      github.repository == 'centreon/centreon'
 
     steps:
       - name: Checkout sources
@@ -871,7 +942,14 @@ jobs:
   publish-openapi-documentation:
     runs-on: [self-hosted, infra]
     needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      !cancelled() &&
+      contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      github.event_name != 'workflow_dispatch' &&
+      github.repository == 'centreon/centreon'
     steps:
       - name: Checkout sources
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
@@ -954,9 +1032,17 @@ jobs:
         get-environment,
         e2e-test,
         performances-test,
-        legacy-e2e-test,
+        legacy-e2e-test
       ]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_delivery == 'true' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      !cancelled() &&
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      needs.changes.outputs.trigger_delivery == 'true' &&
+      github.repository == 'centreon/centreon' &&
+      needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
 
     strategy:
       matrix:
@@ -980,9 +1066,11 @@ jobs:
 
       - name: Create Jira ticket if nightly build failure
         if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
+          needs.get-environment.outputs.is_nightly == 'true' &&
+          github.run_attempt == 1 &&
           failure() &&
-          startsWith(github.ref_name, 'dev')
+          startsWith(github.ref_name, 'dev') &&
+          github.repository == 'centreon/centreon'
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -999,9 +1087,17 @@ jobs:
         get-environment,
         e2e-test,
         performances-test,
-        legacy-e2e-test,
+        legacy-e2e-test
       ]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_delivery == 'true' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      !cancelled() &&
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      needs.changes.outputs.trigger_delivery == 'true' &&
+      github.repository == 'centreon/centreon' &&
+      needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
 
     strategy:
       matrix:
@@ -1025,9 +1121,11 @@ jobs:
 
       - name: Create Jira ticket if nightly build failure
         if: |
-          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
+          needs.get-environment.outputs.is_nightly == 'true' &&
+          github.run_attempt == 1 &&
           failure() &&
-          startsWith(github.ref_name, 'dev')
+          startsWith(github.ref_name, 'dev') &&
+          github.repository == 'centreon/centreon'
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -1040,11 +1138,14 @@ jobs:
     needs: [get-environment, deliver-deb, deliver-rpm]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
+      (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) &&
+      github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      github.repository == 'centreon/centreon'
     runs-on: [self-hosted, common]
+
     strategy:
       matrix:
         distrib: [el8, el9, bookworm]

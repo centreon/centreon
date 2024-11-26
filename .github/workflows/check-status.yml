@@ -13,8 +13,24 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
       - hotfix-*
       - release-*
+      - MON-146261-external-contrib-using-env-rebase_2
 
 jobs:
+  context:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
+      - name: Dump env
+        run: |
+          envMe="${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.fork && 'external_contributor' || 'internal_contributor' }}"
+          echo "environment: $envMe"
+          echo "repo = ${{ github.repository }}"
+        shell: bash
+
   check-status:
     runs-on: ubuntu-24.04
     steps:
