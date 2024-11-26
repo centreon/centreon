@@ -11,6 +11,20 @@ Cypress.Commands.add('addTimePeriodViaApi', (payload: TimePeriod) => {
       });
 });
 
+Cypress.Commands.add('addSubjectViaAPIv2', (payload: any, url: string) => {
+  cy.request({
+    body: payload,
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    method: 'POST',
+    url: url
+  }).then((response) => {
+    expect(response.status).to.eq(201);
+  });
+
+});
+
 Cypress.Commands.add('updateTimePeriodViaApi', (name: string, payload: TimePeriod) => {
   cy.requestOnDatabase({
     database: 'centreon',
@@ -27,6 +41,19 @@ Cypress.Commands.add('updateTimePeriodViaApi', (name: string, payload: TimePerio
     }).then((response) => {
       expect(response.status).to.eq(204);
     });
+  });
+});
+
+Cypress.Commands.add('updateSubjectViaAPIv2', (payload: any, url: string) => {
+  cy.request({
+      body: payload,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: 'PUT',
+      url: url
+    }).then((response) => {
+      expect(response.status).to.eq(204);
   });
 });
 
@@ -48,24 +75,46 @@ Cypress.Commands.add('deleteTimePeriodViaApi', (name: string) => {
   });
 });
 
+Cypress.Commands.add('deleteSubjectViaAPIv2', (url: string) => {
+  cy.request({
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: 'DELETE',
+      url: url
+    }).then((response) => {
+      expect(response.status).to.eq(204);
+  });
+});
+
 Cypress.Commands.add('checkLogDetails',(tableIndex: number, trIndex:number, firstTd:string, secondTd:string, thirdTd:string) => {
-  cy.getIframeBody()
+  const findTableData = (): Cypress.Chainable => {
+    return cy.getIframeBody()
       .find('table.ListTable')
       .eq(tableIndex)
       .find('tbody tr')
       .eq(trIndex)
       .find('td')
-      .should('have.length', 3)
-      .eq(0)
-      .should('contain.text', firstTd)
-      .parent()
-      .find('td')
-      .eq(1)
-      .should('contain.text', secondTd)
-      .parent() 
-      .find('td')
-      .eq(2)
-      .should('contain.text', thirdTd);
+      .then(cy.wrap);
+  };
+
+  findTableData()
+      .should('have.length', 3);
+
+  findTableData()
+     .eq(0)
+     .invoke('text')
+     .should('include', firstTd);
+
+  findTableData()
+    .eq(1)
+    .invoke('text')
+    .should('include', secondTd);
+
+  findTableData()
+    .eq(2)
+    .invoke('text')
+    .should('include', thirdTd);
 });
 
 
@@ -94,6 +143,9 @@ declare global {
       updateTimePeriodViaApi: (name: string, body: TimePeriod) => Cypress.Chainable;
       deleteTimePeriodViaApi: (name: string) => Cypress.Chainable;
       checkLogDetails: (tableIndex: number, trIndex:number, firstTd:string, secondTd:string, thirdTd:string) => Cypress.Chainable;
+      addSubjectViaAPIv2: (payload: any, url: string) => Cypress.Chainable;
+      deleteSubjectViaAPIv2: (url: string) => Cypress.Chainable;
+      updateSubjectViaAPIv2: (payload: any, url: string) => Cypress.Chainable;
     }
   }
 }
