@@ -32,6 +32,7 @@ jobs:
         shell: bash
 
   check-status:
+    environment: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.fork && 'external_contributor' || 'internal_contributor' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check workflow statuses and display token usage
