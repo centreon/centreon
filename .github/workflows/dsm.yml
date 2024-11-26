@@ -229,6 +229,7 @@ jobs:
       ! contains(needs.*.result, 'cancelled') &&
       github.repository == 'centreon/centreon'
     runs-on: [self-hosted, common]
+    environment: ${{ needs.get-environment.outputs.pull_request_environment }}
     strategy:
       matrix:
         distrib: [el8, el9, bookworm]
