@@ -26,7 +26,7 @@ jobs:
       - name: Dump env
         run: |
           envMe="${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.fork && 'external_contributor' || 'internal_contributor' }}"
-          echo "environment: $envMe" 
+          echo "environment: $envMe"
           echo "repo = ${{ github.repository }}"
         shell: bash
 
