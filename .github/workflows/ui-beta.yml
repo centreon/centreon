@@ -68,7 +68,6 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [lint, unit-test, cypress-component-testing]
     if: |
-      github.event.pull_request.base.repo.name == 'centreon' ||
       github.repository == 'centreon/centreon'
 
     steps:
