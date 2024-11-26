@@ -65,7 +65,7 @@ jobs:
               console.log(context.payload);
 
               const result = await github.rest.checks.listSuitesForRef({
-                owner: context.payload.pull_request.head.repo.owner,
+                owner: context.payload.pull_request.head.repo.owner.login,
                 repo: context.payload.pull_request.head.repo.name,
                 ref: context.payload.pull_request.head.ref
               });
