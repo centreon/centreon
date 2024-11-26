@@ -423,7 +423,8 @@ scripts:
 overrides:
   rpm:
     depends:
-      - centreon-common = ${VERSION}-${RELEASE}${DIST}
+      - centreon-common >= ${MAJOR_VERSION}
+      - centreon-common < ${NEXT_MAJOR_VERSION}
       - centreon-perl-libs = ${VERSION}-${RELEASE}${DIST}
       - centreon-poller = ${VERSION}-${RELEASE}${DIST}
       - centreon-broker-cbd >= ${MAJOR_VERSION}
@@ -509,7 +510,8 @@ overrides:
 
   deb:
     depends:
-      - centreon-common (= ${VERSION}-${RELEASE}${DIST})
+      - centreon-common (>= ${MAJOR_VERSION}~)"
+      - centreon-common (<< ${NEXT_MAJOR_VERSION}~)"
       - centreon-perl-libs (= ${VERSION}-${RELEASE}${DIST})
       - centreon-poller (= ${VERSION}-${RELEASE}${DIST})
       - "centreon-broker-cbd (>= ${MAJOR_VERSION}~)"
