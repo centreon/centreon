@@ -59,10 +59,6 @@ jobs:
               const failure = [];
               const cancelled = [];
               const pending = [];
-            
-              console.log(context.payload.pull_request.head.user);
-              console.log(context.payload.pull_request.head.repo);
-              console.log(context.payload);
 
               const result = await github.rest.checks.listSuitesForRef({
                 owner: context.payload.pull_request.head.repo.owner.login,
