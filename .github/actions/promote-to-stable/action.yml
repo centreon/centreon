@@ -130,7 +130,12 @@ runs:
         # Define ROOT_REPO_PATH for debian
         # There is no cloud ROOT_REPO_PATH for debian, only onprem
         # Should there be a need to deploy debian to cloud repositories, please use the same condition as RPM promotion
-        ROOT_REPO_PATH="apt-standard-${{ inputs.major_version }}"
+        # Handle either standard debian or ubuntu repository path
+        if [[ "${{ inputs.distrib }}" == "jammy" ]]; then
+          ROOT_REPO_PATH="ubuntu-standard-${{ inputs.major_version }}"
+        else
+          ROOT_REPO_PATH="apt-standard-${{ inputs.major_version }}"
+        fi
 
         echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
 
