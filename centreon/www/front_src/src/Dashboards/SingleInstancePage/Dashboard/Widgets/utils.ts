@@ -425,7 +425,7 @@ export const getResourcesSearchQueryParameters = (
       return resourcesToApply.map((resource) => ({
         field: resourcesSearchMapping[resourceType],
         values: {
-          $rg: `^${resource.name}$`
+          $rg: `^${resource.name}$`.replace('/', '\\/')
         }
       }));
     }
