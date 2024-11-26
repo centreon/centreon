@@ -52,7 +52,7 @@ Then(
 );
 
 Then(
-  'a new "ADDED" ligne of log is getting added to the page Administration > Logs',
+  'a new "ADDED" line of log is getting added to the page Administration > Logs',
   () => {
     cy.navigateTo({
       page: 'Logs',
@@ -108,7 +108,7 @@ When(
 );
 
 Then(
-  'a new "DELETED" ligne of log is getting added to the page Administration > Log',
+  'a new "DELETED" line of log is getting added to the page Administration > Log',
   () => {
     cy.navigateTo({
       page: 'Logs',
@@ -148,7 +148,7 @@ When('the user changes some properties of the configured service category from U
 });
 
 Then(
-  'a new "CHANGED" ligne of log is getting added to the page Administration > Logs',
+  'a new "CHANGED" line of log is getting added to the page Administration > Logs',
   () => {
     cy.navigateTo({
       page: 'Logs',
@@ -217,7 +217,7 @@ When(
 );
 
 Then(
-  'a new "DISABLED" ligne of log is getting added to the page Administration > Logs',
+  'a new "DISABLED" line of log is getting added to the page Administration > Logs',
   () => {
     cy.navigateTo({
       page: 'Logs',
@@ -262,7 +262,7 @@ When(
 );
 
 Then(
-  'a new "ENABLED" ligne of log is getting added to the page Administration > Logs',
+  'a new "ENABLED" line of log is getting added to the page Administration > Logs',
   () => {
     cy.navigateTo({
       page: 'Logs',
