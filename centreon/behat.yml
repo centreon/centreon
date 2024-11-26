@@ -127,10 +127,6 @@ default:
       paths: [ "%paths.base%/features/LdapManualImport.feature" ]
       contexts: [ LdapManualImportContext ]
 
-    modify_default_page_connexion:
-      paths: [ "%paths.base%/features/ModifyDefaultPageConnection.feature" ]
-      contexts: [ ModifyDefaultPageConnectionContext ]
-
     massive_change_hosts:
       paths: [ "%paths.base%/features/MassiveChangeHosts.feature" ]
       contexts: [ MassiveChangeHostsContext ]
