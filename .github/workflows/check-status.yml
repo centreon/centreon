@@ -5,7 +5,7 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  pull_request_target:
+  pull_request:
     branches:
       - develop
       - dev-[2-9][0-9].[0-9][0-9].x
@@ -32,7 +32,6 @@ jobs:
         shell: bash
 
   check-status:
-    environment: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.fork && 'external_contributor' || 'internal_contributor' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check workflow statuses and display token usage
