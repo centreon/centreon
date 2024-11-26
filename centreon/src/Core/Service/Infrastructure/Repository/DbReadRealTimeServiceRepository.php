@@ -150,7 +150,9 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
         $countStatement->execute();
 
         $serviceNames = $selectStatement->fetchAll(\PDO::FETCH_COLUMN, 0);
-        $numberOfRows = current($countStatement->fetchAll(\PDO::FETCH_COLUMN, 0));
+        $numberOfRows = $countStatement->fetchAll(\PDO::FETCH_COLUMN, 0)
+            ? current($countStatement->fetchAll(\PDO::FETCH_COLUMN, 0))
+            : 0;
 
         $countSqlTranslator->setNumberOfRows($numberOfRows);
 
@@ -191,7 +193,9 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
         $countStatement->execute();
         
         $serviceNames = $selectStatement->fetchAll(\PDO::FETCH_COLUMN, 0);
-        $numberOfRows = current($countStatement->fetchAll(\PDO::FETCH_COLUMN, 0));
+        $numberOfRows = $countStatement->fetchAll(\PDO::FETCH_COLUMN, 0)
+            ? current($countStatement->fetchAll(\PDO::FETCH_COLUMN, 0))
+            : 0;
 
         $countSqlTranslator->setNumberOfRows($numberOfRows);
 
