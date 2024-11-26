@@ -58,8 +58,8 @@ overrides:
       - perl-centreon-base
   deb:
     depends:
-      - centreon-common (>= ${MAJOR_VERSION}~)"
-      - centreon-common (<< ${NEXT_MAJOR_VERSION}~)"
+      - "centreon-common (>= ${MAJOR_VERSION}~)"
+      - "centreon-common (<< ${NEXT_MAJOR_VERSION}~)"
       - libconfig-inifiles-perl
       - libcrypt-des-perl
       - librrds-perl
