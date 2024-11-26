@@ -303,9 +303,9 @@ jobs:
     needs: [get-environment, package]
     if: |
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-      github.repository == 'centreon/centreon'
+      github.repository == 'centreon/centreon' &&
+      needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
     runs-on: [self-hosted, common]
-    environment: ${{ needs.get-environment.outputs.pull_request_environment }}
 
     strategy:
       matrix:
@@ -331,9 +331,9 @@ jobs:
     needs: [get-environment, package]
     if: |
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-      github.repository == 'centreon/centreon'
+      github.repository == 'centreon/centreon' &&
+      needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
     runs-on: [self-hosted, common]
-    environment: ${{ needs.get-environment.outputs.pull_request_environment }}
 
     strategy:
       matrix:
@@ -362,7 +362,8 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      github.repository == 'centreon/centreon'
+      github.repository == 'centreon/centreon' &&
+      needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
     runs-on: [self-hosted, common]
     strategy:
       matrix:

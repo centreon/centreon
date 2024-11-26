@@ -195,9 +195,9 @@ jobs:
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
       needs.changes.outputs.trigger_delivery == 'true' &&
-      github.repository == 'centreon/centreon'
+      github.repository == 'centreon/centreon' &&
+      needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
     runs-on: [self-hosted, common]
-    environment: ${{ needs.get-environment.outputs.pull_request_environment }}
 
     strategy:
       matrix:
@@ -225,9 +225,9 @@ jobs:
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
       needs.changes.outputs.trigger_delivery == 'true' &&
-      github.repository == 'centreon/centreon'
+      github.repository == 'centreon/centreon' &&
+      needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
     runs-on: [self-hosted, common]
-    environment: ${{ needs.get-environment.outputs.pull_request_environment }}
 
     strategy:
       matrix:
