@@ -82,7 +82,7 @@ const EditFiltersPanel = (): JSX.Element => {
     const destinationIndex = path(
       ['over', 'data', 'current', 'sortable', 'index'],
       event
-    ) as number;
+    );
 
     sendRequest({ id: activeId, order: destinationIndex + 1 });
   };
