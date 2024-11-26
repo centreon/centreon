@@ -44,6 +44,9 @@ on:
       pull_request_environment:
         description: "Pull request environment"
         value: ${{ jobs.get-environment.outputs.pull_request_environment }}
+      skip_workflow:
+        description: "if the current workflow should be skipped"
+        value: ${{ jobs.get-environment.outputs.skip_workflow }}
 
 jobs:
   get-environment:
@@ -62,6 +65,7 @@ jobs:
       is_targeting_feature_branch: ${{ steps.get_stability.outputs.is_targeting_feature_branch }}
       is_nightly: ${{ steps.get_nightly_status.outputs.is_nightly }}
       pull_request_environment: ${{ steps.pull_request_environment.outputs.pull_request_environment }}
+      skip_workflow: ${{ steps.skip_workflow.outputs.result }}
 
     steps:
       - name: Get pull request environment
@@ -75,8 +79,16 @@ jobs:
           echo "pull_request_environment=$PULL_REQUEST_ENVIRONMENT" >> $GITHUB_OUTPUT
         shell: bash
 
+      - name: Check if PR has skip label
+        id: has_skip_label
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: return ${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) && contains(github.event.pull_request.labels.*.name, format('skip-workflow-{0}', github.workflow)) && 'true' || 'false' }};
+
       - name: Checkout sources (current branch)
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        with:
+          fetch-depth: ${{ steps.has_skip_label.outputs.result == 'true' && 100 || 1 }}
 
       # get latest major version to detect cloud / on-prem versions
       - name: Checkout sources (develop branch)
@@ -85,6 +97,97 @@ jobs:
           ref: develop
           path: centreon-develop
           sparse-checkout: .version
+
+      - if: ${{ steps.has_skip_label.outputs.result == 'true' }}
+        name: Get workflow triggered paths
+        id: get_workflow_triggered_paths
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const fs = require('fs');
+
+            let paths = [];
+
+            const workflowFilePath = '${{ github.workflow_ref }}'.replace('${{ github.repository }}/', '').split('@').shift();
+
+            if (fs.existsSync(workflowFilePath)) {
+              const workflowFileContent = fs.readFileSync(workflowFilePath, 'utf8');
+              const workflowFileContentLines = workflowFileContent.split('\n');
+
+              let hasReadOn = false;
+              let hasReadPullRequest = false;
+              let hasReadPaths = false;
+              for (const line of workflowFileContentLines) {
+                if (line.match(/^on:\s*$/)) {
+                  hasReadOn = true;
+                  continue;
+                }
+                if (line.match(/^\s{2}pull_request(_target)?:\s*$/)) {
+                  hasReadPullRequest = true;
+                  continue;
+                }
+                if (line.match(/^\s{4}paths:\s*$/)) {
+                  hasReadPaths = true;
+                  continue;
+                }
+
+                if (hasReadOn && hasReadPullRequest && hasReadPaths) {
+                  const matches = line.match(/^\s{6}-\s['"](.+)['"]\s*$/);
+                  if (matches) {
+                    paths.push(matches[1].trim());
+                  } else {
+                    break;
+                  }
+                }
+              }
+            }
+
+            if (paths.length === 0) {
+              paths = ['**'];
+            }
+
+            console.log(paths);
+
+            return paths;
+
+      - if: ${{ steps.has_skip_label.outputs.result == 'true' }}
+        name: Get push changes
+        id: get_push_changes
+        uses: tj-actions/changed-files@v45
+        with:
+          since_last_remote_commit: true
+          json: true
+          escape_json: false
+          files: ${{ join(fromJSON(steps.get_workflow_triggered_paths.outputs.result), ';') }}
+          files_separator: ';'
+
+      - name: Check if current workflow should be skipped
+        id: skip_workflow
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            if (${{ steps.has_skip_label.outputs.result }} === false) {
+              return false;
+            }
+
+            const label = '${{ format('skip-workflow-{0}', github.workflow) }}';
+            if ('${{ steps.get_push_changes.outputs.any_changed }}' === 'true') {
+              try {
+                await github.rest.issues.removeLabel({
+                  name: label,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number
+                });
+                core.notice(`label ${label} removed because changes were detected on last push.`);
+              } catch (e) {
+                core.warning(`failed to remove label ${label}: ${e}`);
+              }
+
+              return false;
+            }
+
+            return true;
 
       - name: Store latest major version
         id: latest_major_version
@@ -335,7 +438,8 @@ jobs:
               ['stability', '${{ steps.get_stability.outputs.stability }}'],
               ['release_type', '${{ steps.get_release_type.outputs.release_type || '<em>not defined because this is not a release</em>' }}'],
               ['is_targeting_feature_branch', '${{ steps.get_stability.outputs.is_targeting_feature_branch }}'],
-              ['is_nightly', '${{ steps.get_nightly_status.outputs.is_nightly }}']
+              ['is_nightly', '${{ steps.get_nightly_status.outputs.is_nightly }}'],
+              ['skip_workflow', '${{ steps.skip_workflow.outputs.result }}']
             ];
 
             outputTable.push(['target_stability', '${{ steps.get_stability.outputs.target_stability || '<em>not defined because current run is not triggered by pull request event</em>' }}']);

@@ -24,7 +24,8 @@
         "useExhaustiveDependencies": "off",
         "noUnknownUnit": "error",
         "noUnknownProperty": "error",
-        "noUnknownFunction": "error"
+        "noUnknownFunction": "error",
+        "useIsNan": "error"
       },
       "nursery": {
         "noRestrictedImports": {
@@ -54,11 +55,7 @@
           "level": "error",
           "options": {
             "strictCase": false,
-            "filenameCases": [
-              "camelCase",
-              "PascalCase",
-              "kebab-case"
-            ]
+            "filenameCases": ["camelCase", "PascalCase", "kebab-case"]
           }
         },
         "useNamingConvention": {
@@ -67,10 +64,7 @@
             "strictCase": false,
             "conventions": [
               {
-                "formats": [
-                  "camelCase",
-                  "PascalCase"
-                ],
+                "formats": ["camelCase", "PascalCase"],
                 "selector": {
                   "kind": "variable"
                 }
@@ -79,17 +73,13 @@
                 "selector": {
                   "kind": "interface"
                 },
-                "formats": [
-                  "PascalCase"
-                ]
+                "formats": ["PascalCase"]
               },
               {
                 "selector": {
                   "kind": "enum"
                 },
-                "formats": [
-                  "PascalCase"
-                ]
+                "formats": ["PascalCase"]
               },
               {
                 "selector": {
@@ -102,11 +92,7 @@
                 "selector": {
                   "kind": "functionParameter"
                 },
-                "formats": [
-                  "snake_case",
-                  "PascalCase",
-                  "camelCase"
-                ]
+                "formats": ["snake_case", "PascalCase", "camelCase"]
               },
               {
                 "match": ".*",

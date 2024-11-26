@@ -21,11 +21,13 @@ import {
   labelNoKPIFound,
   labelNoServicesFound
 } from '../../../translatedLabels';
-import { getWidgetEndpoint } from '../../../utils';
+import {
+  getStatusesByResourcesAndResourceType,
+  getWidgetEndpoint
+} from '../../../utils';
 import {
   buildBAsEndpoint,
   buildResourcesEndpoint,
-  hostsEndpoint,
   resourcesEndpoint
 } from '../api/endpoints';
 
@@ -83,6 +85,12 @@ const StatusGrid = ({
     'business-activity'
   );
 
+  const statusesToUse = getStatusesByResourcesAndResourceType({
+    resources,
+    resourceType,
+    statuses
+  });
+
   const getLabelNoResourceFound = (): string => {
     if (isBAResourceType) {
       return t(labelNoKPIFound);
@@ -109,18 +117,16 @@ const StatusGrid = ({
                 limit: tiles,
                 resources: last(panelData?.resources)?.resources,
                 sortBy,
-                statuses,
+                statuses: statusesToUse,
                 type: lastSelectedResourceType
               })
             : buildResourcesEndpoint({
-                baseEndpoint: equals(resourceType, 'host')
-                  ? hostsEndpoint
-                  : resourcesEndpoint,
+                baseEndpoint: resourcesEndpoint,
                 limit: tiles,
                 resources,
                 sortBy,
                 states: [],
-                statuses,
+                statuses: statusesToUse,
                 type: resourceType
               }),
         isOnPublicPage,
