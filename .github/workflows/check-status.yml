@@ -59,10 +59,12 @@ jobs:
               const failure = [];
               const cancelled = [];
               const pending = [];
+            
+              console.log(github.payload);
 
               const result = await github.rest.checks.listSuitesForRef({
-                owner: github.payload.event.pull_request.head.owner.login,
-                repo: github.payload.event.pull_request.head.repo.name,
+                owner: github.payload.head.owner.login,
+                repo: github.payload.head.repo.name,
                 ref: github.payload.head_ref
               });
               result.data.check_suites.forEach(({ app: { slug }, conclusion, id}) => {
