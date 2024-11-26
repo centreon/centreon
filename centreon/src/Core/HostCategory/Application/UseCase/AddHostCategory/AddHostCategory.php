@@ -96,7 +96,7 @@ final class AddHostCategory
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(
-                new ErrorResponse((string) $ex)
+                new ErrorResponse($ex->getMessage())
             );
             $this->error($ex->getMessage());
         }
