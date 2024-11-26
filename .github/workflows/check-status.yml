@@ -63,7 +63,7 @@ jobs:
               const result = await github.rest.checks.listSuitesForRef({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                ref: "${{ github.head_ref }}"
+                ref: "${{ github.event.pull_request.head.sha }}"
               });
               result.data.check_suites.forEach(({ app: { slug }, conclusion, id, head_branch }) => {
                 if (slug === 'github-actions' && head_branch == context.payload.pull_request.head.ref ) {
