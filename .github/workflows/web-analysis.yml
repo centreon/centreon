@@ -23,10 +23,13 @@ on:
       - ready_for_review
     paths:
       - "centreon/**"
+      - "!centreon/cypress/**"
       - "!centreon/features/**"
+      - "!centreon/lighthouse/**"
       - "!centreon/tests/**"
       - "!centreon/.veracode-exclusions"
       - "!centreon/veracode.json"
+      - "!centreon/packages/**"
   push:
     branches:
       - develop
@@ -68,9 +71,7 @@ jobs:
 
   veracode-analysis:
     needs: [get-environment]
-    if: |
-      needs.get-environment.outputs.is_targeting_feature_branch != 'true' &&
-      github.event.pull_request.draft != 'true'
+    if: ${{ needs.get-environment.outputs.is_targeting_feature_branch != 'true' && github.event.pull_request.draft != 'true' }}
     uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: "centreon"
