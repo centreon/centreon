@@ -251,7 +251,7 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
      *
      * @param NewHostCategory $hostCategory
      *
-     * @return array<string, string|null>
+     * @return array<string, string>
      */
     private function getNewHostCategoryAsArray(
         NewHostCategory $hostCategory,
