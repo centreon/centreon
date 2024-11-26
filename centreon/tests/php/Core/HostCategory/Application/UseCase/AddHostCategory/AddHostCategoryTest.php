@@ -71,7 +71,7 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->getResponseStatus()->getMessage())
         ->toBe(HostCategoryException::addHostCategory(new \Exception())->getMessage());
-})->skip();
+});
 
 it('should present a ForbiddenResponse when a user has insufficient rights', function (): void {
     $this->user
@@ -125,7 +125,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->getResponseStatus()?->getMessage())
         ->toBe(HostCategoryException::addHostCategory(new \Exception())->getMessage());
-})->skip();
+});
 
 it('should present an ErrorResponse if the newly created host category cannot be retrieved', function (): void {
     $this->user

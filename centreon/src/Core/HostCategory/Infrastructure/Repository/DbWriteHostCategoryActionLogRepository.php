@@ -251,7 +251,7 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
      *
      * @param NewHostCategory $hostCategory
      *
-     * @return array<string, string>
+     * @return array<string, string|null>
      */
     private function getNewHostCategoryAsArray(
         NewHostCategory $hostCategory,
@@ -265,6 +265,9 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
             if ($property->getName() === 'isActivated') {
                 $hostCategoryAsArray[self::HOST_CATEGORY_PROPERTIES_MAP[$property->getName()]]
                     = $property->getValue($hostCategory) ? '1' : '0';
+            } elseif ($property->getName() === 'comment') {
+                $hostCategoryAsArray[self::HOST_CATEGORY_PROPERTIES_MAP[$property->getName()]]
+                    = $property->getValue($hostCategory) ?? '';
             } else {
                 $hostCategoryAsArray[self::HOST_CATEGORY_PROPERTIES_MAP[$property->getName()]]
                     = is_string($property->getValue($hostCategory))
