@@ -1,4 +1,4 @@
-FROM almalinux:9 AS web_fresh
+FROM almalinux:9 AS web_dependencies
 
 RUN bash -e <<EOF
 
@@ -163,3 +163,18 @@ EOF
 COPY --chmod=755 ./.github/docker/init/systemctl /bin/systemctl
 
 COPY --chmod=755 ./.github/docker/init/* /etc/init.d/
+
+FROM web_dependencies AS web_dependencies_collect
+
+RUN bash -e <<EOF
+
+dnf install -y \
+  centreon-gorgone \
+  centreon-engine \
+  centreon-broker-cbmod \
+  centreon-broker-cbd \
+  centreon-connector
+
+dnf clean all --enablerepo=*
+
+EOF

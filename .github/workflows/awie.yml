@@ -61,7 +61,7 @@ jobs:
   package:
     needs: [get-environment]
 
-    if: ${{ needs.get-environment.outputs.stability != 'stable' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.get-environment.outputs.stability != 'stable' }}
 
     strategy:
       fail-fast: true
@@ -90,6 +90,7 @@ jobs:
       release: ${{ needs.get-environment.outputs.release }}
       commit_hash: ${{ github.sha }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+      is_nightly: false
     secrets:
       registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
@@ -99,7 +100,7 @@ jobs:
   deliver-sources:
     runs-on: [self-hosted, common]
     needs: [get-environment, package]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' }}
 
     steps:
       - name: Checkout sources
@@ -117,7 +118,9 @@ jobs:
 
   deliver-rpm:
     needs: [get-environment, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)
     runs-on: [self-hosted, common]
 
     strategy:
@@ -142,7 +145,9 @@ jobs:
 
   deliver-deb:
     needs: [get-environment, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)
     runs-on: [self-hosted, common]
 
     strategy:
@@ -168,6 +173,7 @@ jobs:
   promote:
     needs: [get-environment, deliver-rpm, deliver-deb]
     if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
       (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
