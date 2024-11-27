@@ -37,6 +37,7 @@ use Core\Dashboard\Application\UseCase\DeleteDashboard\DeleteDashboard;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
+use Core\Media\Application\Repository\WriteMediaRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
@@ -48,6 +49,7 @@ beforeEach(function (): void {
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->mediaRepository = $this->createMock(WriteMediaRepositoryInterface::class),
         $this->isCloudPlatform = false
     );
 
