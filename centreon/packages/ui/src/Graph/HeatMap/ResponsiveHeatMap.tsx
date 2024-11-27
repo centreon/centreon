@@ -71,9 +71,6 @@ const ResponsiveHeatMap = <TData,>({
   const isSmallestSize = equals(tileSize, smallestTileSize);
   const isMediumSize = !isSmallestSize && lt(tileSize, 90);
 
-  useEffect(() => {
-    previouseTileSize.current = tileSize;
-  }, [tileSize]);
 
   if (equals(width, 0)) {
     return null;
