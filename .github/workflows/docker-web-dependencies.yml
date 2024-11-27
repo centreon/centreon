@@ -55,12 +55,8 @@ jobs:
           DOCKER_BUILD_SUMMARY: false
           DOCKER_BUILD_CHECKS_ANNOTATIONS: false
         with:
-<<<<<<< HEAD
           file: .github/docker/Dockerfile.centreon-web-dependencies-${{ matrix.distrib }}
-=======
-          file: .github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.dependencies
           target: web_dependencies
->>>>>>> 4f4f9d51f9 (enh(ci): install gorgone and collect in web dependencies container (#5877))
           context: .
           pull: true
           push: true
