@@ -41,8 +41,7 @@ interface Props {
   options: PanelOptions;
 }
 const platformFeatures = {
-  featureFlags: {
-  },
+  featureFlags: {},
   isCloudPlatform: false
 };
 
