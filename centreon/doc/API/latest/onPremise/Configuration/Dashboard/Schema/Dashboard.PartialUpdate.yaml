@@ -1,7 +1,6 @@
 type: object
 
 properties:
-
   name:
     type: string
     maxLength: 200
@@ -33,3 +32,22 @@ properties:
         type: integer
         nullable: true
         example: 10
+
+  thumbnail:
+    type: object
+    properties:
+      id:
+        type: integer
+        nullable: true
+        example: 1
+      name:
+        type: string
+        example: 'cat.png'
+      directory:
+        type: string
+        example: 'dashboard'
+
+  thumbnail_data:
+    type: string
+    format: binary
+
