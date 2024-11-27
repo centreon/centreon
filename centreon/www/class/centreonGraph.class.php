@@ -320,13 +320,20 @@ class CentreonGraph
             }
             $DBRESULT->closeCursor();
 
-            foreach ($odsm as $mid => $val) {
-                if (!isset($metrics_cache[$mid])) {
-                    $DBRESULT = $this->DB->query(
-                        "INSERT INTO `ods_view_details`
-                            (`metric_id`, `contact_id`, `all_user`, `index_id`)
-                            VALUES ('" . $mid . "', '" . $this->user_id . "', '0', '" . $this->index . "');"
-                    );
+            $insertViewDetailsStatement = $this->DB->prepareQuery(
+                <<<SQL
+                    INSERT INTO `ods_view_details`
+                    (`metric_id`, `contact_id`, `all_user`, `index_id`)
+                    VALUES (:metric_id, :user_id, '0', :index_id)
+                    SQL
+            );
+            foreach (array_keys($odsm) as $mid) {
+                if (! isset($metrics_cache[$mid])) {
+                    $DBRESULT = $this->DB->executePreparedQuery($insertViewDetailsStatement, [
+                        ':metric_id' => $mid,
+                        ':user_id' => $this->user_id,
+                        ':index_id' => $this->index
+                    ]);
                 }
             }
         }
@@ -1560,10 +1567,17 @@ class CentreonGraph
         }
         $lRndcolor = $this->getRandomWebColor();
         if (is_int($metricId)) {
-            $this->DB->query(
-                'INSERT INTO `ods_view_details` (rnd_color, index_id, metric_id) '
-                . 'VALUES ("' . $lRndcolor . '", ' . $this->index . ', ' . $metricId  . ')'
+            $insertViewDetailsStatement = $this->DB->prepareQuery(
+                <<<SQL
+                    INSERT INTO `ods_view_details` (rnd_color, index_id, metric_id)
+                    VALUES (:rnd_color, :index_id, :metric_id)
+                    SQL
             );
+            $this->DB->executePreparedQuery($insertViewDetailsStatement, [
+                'rnd_color' => $lRndcolor,
+                'index_id' => $this->index,
+                'metric_id' => $metricId,
+            ]);
         }
         return $lRndcolor;
     }
@@ -1696,11 +1710,19 @@ class CentreonGraph
                 /*
                  * Find Host/Service For this metric_id
                  */
-                $l_poqy = $this->DBC->query(
-                    "SELECT host_id, service_id FROM index_data WHERE id = '" . $lVmetric["index_id"] . "'"
+                $selectIndexDataStatement = $this->DBC->prepareQuery(
+                    <<<SQL
+                    SELECT host_id, service_id FROM index_data WHERE id = :indexId
+                    SQL
                 );
-                $l_indd = $l_poqy->fetch();
-                $l_poqy->closeCursor();
+                $this->DBC->executePreparedQuery(
+                    $selectIndexDataStatement,
+                    [
+                        'indexId' => $lVmetric["index_id"]
+                    ]
+                );
+                $l_indd = $this->DBC->fetch($selectIndexDataStatement);
+                $this->DBC->closeQuery($selectIndexDataStatement);
                 /* Check for real or virtual metric(s) in the RPN function */
                 $l_mlist = preg_split("/\,/", $lVmetric["rpn_function"]);
                 foreach ($l_mlist as $l_mnane) {
