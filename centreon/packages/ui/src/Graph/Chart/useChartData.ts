@@ -4,6 +4,7 @@ import {
   compose,
   flatten,
   groupBy,
+  isEmpty,
   isNil,
   lensPath,
   pipe,
@@ -36,6 +37,11 @@ const useGraphData = ({ data, end, start }: Props): GraphDataResult => {
     if (isNil(data)) {
       return data;
     }
+
+    if (isEmpty(data.metrics) || isEmpty(data.times)) {
+      return undefined;
+    }
+
     const metricsGroupedByColor = groupBy(
       (metric) => metric.ds_data.ds_color_line
     )(data?.metrics || []);
