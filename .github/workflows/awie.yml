@@ -94,7 +94,7 @@ jobs:
   backend-lint:
     runs-on: ubuntu-24.04
     needs: [get-environment, changes]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_backend_changes == 'true' }}
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
@@ -117,7 +117,7 @@ jobs:
 
   package:
     needs: [get-environment, backend-lint]
-    if: ${{ needs.get-environment.outputs.stability != 'stable' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.get-environment.outputs.stability != 'stable' }}
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -172,7 +172,7 @@ jobs:
   deliver-sources:
     runs-on: [self-hosted, common]
     needs: [get-environment, package]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' }}
 
     steps:
       - name: Checkout sources
@@ -191,6 +191,7 @@ jobs:
   deliver-rpm:
     needs: [get-environment, changes, package]
     if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.changes.outputs.trigger_delivery == 'true' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)
     runs-on: [self-hosted, common]
@@ -218,6 +219,7 @@ jobs:
   deliver-deb:
     needs: [get-environment, changes, package]
     if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.changes.outputs.trigger_delivery == 'true' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)
     runs-on: [self-hosted, common]
@@ -245,6 +247,7 @@ jobs:
   promote:
     needs: [get-environment, deliver-rpm, deliver-deb]
     if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
       (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
