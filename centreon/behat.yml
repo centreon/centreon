@@ -143,10 +143,6 @@ default:
       paths: [ "%paths.base%/features/LdapManualImport.feature" ]
       contexts: [ LdapManualImportContext ]
 
-    modify_default_page_connexion:
-      paths: [ "%paths.base%/features/ModifyDefaultPageConnection.feature" ]
-      contexts: [ ModifyDefaultPageConnectionContext ]
-
     non_admin_contact_creation:
       paths: [ "%paths.base%/features/NonAdminContactCreation.feature" ]
       contexts: [ NonAdminContactCreationContext ]
@@ -175,10 +171,6 @@ default:
       paths: [ "%paths.base%/features/ServiceGroupConfiguration.feature" ]
       contexts: [ ServiceGroupConfigurationContext ]
 
-    service_configuration:
-      paths: [ "%paths.base%/features/ServiceConfiguration.feature" ]
-      contexts: [ ServiceConfigurationContext ]
-
     host_group_service_configuration:
       paths: [ "%paths.base%/features/HostGroupServiceConfiguration.feature" ]
       contexts: [ HostGroupServiceConfigurationContext ]
@@ -190,10 +182,6 @@ default:
     contact_template_configuration:
       paths: [ "%paths.base%/features/ContactTemplateConfiguration.feature" ]
       contexts: [ ContactTemplateConfigurationContext ]
-
-    service_category_configuration:
-      paths: [ "%paths.base%/features/ServiceCategoryConfiguration.feature" ]
-      contexts: [ ServiceCategoryConfigurationContext ]
 
     escalation_configuration:
       paths: [ "%paths.base%/features/EscalationConfiguration.feature" ]
