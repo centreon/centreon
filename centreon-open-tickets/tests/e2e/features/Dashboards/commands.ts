@@ -1,30 +1,4 @@
 /* eslint-disable @typescript-eslint/no-namespace */
-Cypress.Commands.add(
-  'waitUntilForDashboardRoles',
-  (accessRightsTestId, expectedElementCount) => {
-    const openModalAndCheck: () => Cypress.Chainable<boolean> = () => {
-      cy.getByTestId({ testId: accessRightsTestId }).invoke('show').click();
-      cy.getByTestId({ testId: 'ArrowDropDownIcon' })
-        .eq(1)
-        .should('be.visible');
-
-      return cy
-        .get('[data-testid="ArrowDropDownIcon"]')
-        .should('be.visible')
-        .then(($element) => {
-          cy.getByLabel({ label: 'close', tag: 'button' }).click();
-
-          return cy.wrap($element.length === expectedElementCount);
-        });
-    };
-
-    return cy.waitUntil(() => openModalAndCheck(), {
-      errorMsg: 'The element does not exist',
-      interval: 3000,
-      timeout: 30000
-    });
-  }
-);
 
 Cypress.Commands.add('visitDashboards', () => {
   cy.intercept({
@@ -43,15 +17,50 @@ Cypress.Commands.add('visitDashboards', () => {
   cy.wait('@listAllDashboards');
 });
 
-Cypress.Commands.add('grantClipboardPermissions', () => {
-  Cypress.automation('remote:debugger:protocol', {
-    command: 'Browser.grantPermissions',
-    params: {
-      permissions: ['clipboardReadWrite', 'clipboardSanitizedWrite'],
-      origin: window.location.origin,
-    },
-  });
+Cypress.Commands.add('visitDashboard', (name) => {
+  cy.visitDashboards();
+  cy.contains(name).click();
+
+  cy.url().should('match', /\/home\/dashboards\/library\/\d+$/);
 });
+
+Cypress.Commands.add(
+  'waitForElementInIframe',
+  (iframeSelector, elementSelector) => {
+    cy.waitUntil(
+      () =>
+        cy.get(iframeSelector).then(($iframe) => {
+          const iframeBody = $iframe[0].contentDocument.body;
+          if (iframeBody) {
+            const $element = Cypress.$(iframeBody).find(elementSelector);
+
+            return $element.length > 0 && $element.is(':visible');
+          }
+
+          return false;
+        }),
+      {
+        errorMsg: 'The element is not visible within the iframe',
+        interval: 5000,
+        timeout: 100000
+      }
+    ).then((isVisible) => {
+      if (!isVisible) {
+        throw new Error('The element is not visible');
+      }
+    });
+  }
+);
+
+Cypress.Commands.add('enterIframe', (iframeSelector) => {
+  cy.get(iframeSelector)
+    .its('0.contentDocument')
+    .should('exist')
+    .its('body')
+    .should('not.be.undefined')
+    .then(cy.wrap);
+});
+
 
 declare global {
   namespace Cypress {
@@ -61,7 +70,12 @@ declare global {
         expectedElementCount: number
       ) => Cypress.Chainable;
       visitDashboards: () => Cypress.Chainable;
-      grantClipboardPermissions: () => Cypress.Chainable;
+      visitDashboard: (name: string) => Cypress.Chainable;
+      waitForElementInIframe: (
+        iframeSelector: string,
+        elementSelector: string
+      ) => Cypress.Chainable;
+      enterIframe: (iframeSelector: string) => Cypress.Chainable;
     }
   }
 }

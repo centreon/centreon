@@ -1,7 +1,7 @@
 {
-  "name": "centreon-it-edition-extensions",
+  "name": "centreon-open-tickets",
   "version": "22.10.0",
-  "description": "Cypress end-to-end tests for centreon-it-edition-extensions",
+  "description": "Cypress end-to-end tests for centreon-open-tickets",
   "scripts": {
     "update:deps": "pnpx npm-check-updates -i --format group",
     "cypress:run": "cross-env TESTCONTAINERS_RYUK_DISABLED=true cypress run --env tags='not @ignore' --config-file cypress.config.ts --browser=chrome --e2e",
