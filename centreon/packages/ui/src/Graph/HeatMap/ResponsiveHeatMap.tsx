@@ -29,7 +29,7 @@ const ResponsiveHeatMap = <TData,>({
   width: number;
 }): JSX.Element | null => {
   const { classes, cx } = useHeatMapStyles();
-  const previouseTileSize = useRef(0);
+  const previousTileSize = useRef(0);
 
   const tileSize = useMemo(() => {
     const scaleWidth = scaleLinear({
