@@ -15,7 +15,7 @@ on:
 env:
   directory: "centreon/packages/ui"
   package: "ui"
-  base_branch: develop
+  base_branch: dev-24.10.x
 
 jobs:
   lint:

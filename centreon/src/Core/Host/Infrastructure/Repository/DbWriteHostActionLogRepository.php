@@ -45,6 +45,49 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
 {
     use LoggerTrait;
     public const HOST_OBJECT_TYPE = 'host';
+    public const HOST_PROPERTIES_MAP = [
+        'name' => 'host_name',
+        'alias' => 'host_alias',
+        'address' => 'host_address',
+        'monitoringServerId' => 'nagios_server_id',
+        'activeCheckEnabled' => 'host_active_checks_enabled',
+        'passiveCheckEnabled' => 'host_passive_checks_enabled',
+        'notificationEnabled' => 'host_notifications_enabled',
+        'freshnessChecked' => 'host_check_freshness',
+        'flapDetectionEnabled' => 'host_flap_detection_enabled',
+        'eventHandlerEnabled' => 'host_event_handler_enabled',
+        'isActivated' => 'host_activate',
+        'snmpVersion' => 'host_snmp_version',
+        'snmpCommunity' => 'host_snmp_community',
+        'timezoneId' => 'host_location',
+        'checkCommandId' => 'command_command_id',
+        'checkTimeperiodId' => 'timeperiod_tp_id',
+        'maxCheckAttempts' => 'host_max_check_attempts',
+        'normalCheckInterval' => 'host_check_interval',
+        'retryCheckInterval' => 'host_retry_check_interval',
+        'checkCommandArgs' => 'command_command_id_arg1',
+        'noteUrl' => 'ehi_notes_url',
+        'note' => 'ehi_notes',
+        'actionUrl' => 'ehi_action_url',
+        'iconAlternative' => 'ehi_icon_image_alt',
+        'comment' => 'host_comment',
+        'eventHandlerCommandArgs' => 'command_command_id_arg2',
+        'notificationTimeperiodId' => 'timeperiod_tp_id2',
+        'eventHandlerCommandId' => 'command_command_id2',
+        'geoCoordinates' => 'geo_coords',
+        'notificationOptions' => 'host_notifOpts',
+        'iconId' => 'ehi_icon_image',
+        'notificationInterval' => 'host_notification_interval',
+        'firstNotificationDelay' => 'host_first_notification_delay',
+        'recoveryNotificationDelay' => 'host_recovery_notification_delay',
+        'acknowledgementTimeout' => 'host_acknowledgement_timeout',
+        'freshnessThreshold' => 'host_freshness_threshold',
+        'lowFlapThreshold' => 'host_low_flap_threshold',
+        'highFlapThreshold' => 'host_high_flap_threshold',
+        'severityId' => 'severity_id',
+        'addInheritedContactGroup' => 'cg_additive_inheritance',
+        'addInheritedContact' => 'contact_additive_inheritance',
+    ];
 
     /**
      * @param WriteHostRepositoryInterface $writeHostRepository
@@ -235,6 +278,9 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
         $hostReflection = new \ReflectionClass($host);
 
         foreach ($hostReflection->getProperties() as $property) {
+            $propertyName = $property->getName();
+
+            $mappedName = self::HOST_PROPERTIES_MAP[$propertyName] ?? $propertyName;
             $value = $property->getValue($host);
             if ($value === null) {
                 $value = '';
@@ -262,7 +308,7 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
                 }
             }
 
-            $hostPropertiesArray[$property->getName()] = $value;
+            $hostPropertiesArray[$mappedName] = $value;
         }
 
         return $hostPropertiesArray;

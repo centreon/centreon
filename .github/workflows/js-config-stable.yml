@@ -15,7 +15,7 @@ on:
 env:
   directory: "centreon/packages/js-config"
   package: "js-config"
-  base_branch: develop
+  base_branch: dev-24.10.x
 
 jobs:
   publish-new-npm-version:
@@ -31,3 +31,4 @@ jobs:
           npm_token: ${{ secrets.NPM_TOKEN }}
           release_branch: ${{ env.base_branch }}
           package: ${{ env.package }}
+          tag: ${{ env.base_branch }}

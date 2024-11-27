@@ -845,3 +845,46 @@ describe('Notification column', () => {
     cy.makeSnapshot();
   });
 });
+
+['dark', 'light'].forEach((mode) => {
+  describe(`Resource Listing: rows and picto colors on ${mode} theme`, () => {
+    beforeEach(() => {
+      const userData = renderHook(() => useAtomValue(userAtom));
+      userData.result.current.themeMode = mode;
+
+      store.set(selectedColumnIdsAtom, ['resource', 'state', 'information']);
+      cy.interceptAPIRequest({
+        alias: 'filterRequest',
+        method: Method.GET,
+        path: '**/events-view*',
+        response: fakeData
+      });
+
+      cy.fixture('resources/listing/listingWithInDowntimeAndAck.json').then(
+        (data) => {
+          cy.interceptAPIRequest({
+            alias: 'listing',
+            method: Method.GET,
+            path: '**/resources?*',
+            response: data
+          });
+        }
+      );
+      cy.mount({
+        Component: (
+          <Router>
+            <ListingTestWithJotai />
+          </Router>
+        )
+      });
+    });
+
+    it('displays listing when some resources are in downtime/acknowledged', () => {
+      cy.waitForRequest('@filterRequest');
+      cy.waitForRequest('@listing');
+
+      cy.contains('Memory').should('be.visible');
+      cy.makeSnapshot();
+    });
+  });
+});

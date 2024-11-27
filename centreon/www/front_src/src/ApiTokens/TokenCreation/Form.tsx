@@ -27,6 +27,7 @@ import {
   labelUser
 } from '../translatedLabels';
 
+import { Parameters } from '../api/models';
 import InputCalendar from './InputCalendar/inputCalendar';
 import Title from './Title';
 import TokenInput from './TokenInput';
@@ -77,12 +78,13 @@ const FormCreation = ({
   const platformFeatures = useAtomValue(platformFeaturesAtom);
   const { canManageApiTokens, isAdmin } = useAtomValue(userAtom);
 
-  const getUsersEndpoint = (): string =>
+  const getUsersEndpoint = (parameters: Parameters): string =>
     platformFeatures?.isCloudPlatform && !isAdmin
       ? getEndpointConfiguredUser({
+          ...parameters,
           search: { regex: { fields: ['is_admin'], value: '0' } }
         })
-      : getEndpointConfiguredUser({});
+      : getEndpointConfiguredUser(parameters);
 
   const close = (): void => {
     resetForm();

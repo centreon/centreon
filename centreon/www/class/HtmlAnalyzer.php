@@ -25,6 +25,8 @@ declare(strict_types=1);
  * Class
  *
  * @class HtmlAnalyzer
+ *
+ * @deprecated Instead used {@see HtmlSanitizer}
  */
 class HtmlAnalyzer
 {

@@ -14,15 +14,15 @@ on:
   workflow_dispatch:
 
 jobs:
-  get-version:
-    uses: ./.github/workflows/get-version.yml
+  get-environment:
+    uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
   dockerize-stable:
-    needs: [get-version]
-    runs-on: ubuntu-22.04
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability == 'stable' && github.ref_name == 'master' }}
+    needs: [get-environment]
+    runs-on: ubuntu-24.04
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability == 'stable' && github.ref_name == 'master' }}
 
     env:
       project: centreon-web
@@ -30,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-version.outputs.os_and_database_matrix).operating_systems }}
+        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
 
     name: dockerize ${{ matrix.operating_system }}
 
@@ -81,7 +81,7 @@ jobs:
           context: .
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "VERSION=${{ needs.get-version.outputs.major_version }}"
+            "VERSION=${{ needs.get-environment.outputs.major_version }}"
             "MYDUMPER_VERSION=0.16.3-5"
           pull: true
           push: false

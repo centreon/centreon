@@ -178,26 +178,15 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
 
 
         if (preg_match("/^.*;.*(?:\n|$)/", $contents)) {
-            $result = parseCsv($contents);
+            $result = csvToArray($contents, true);
             if ($result === false) {
                 throw new RestInternalServerErrorException($contents);
             }
 
             $lastRecord = end($result);
-            if ($lastRecord && str_starts_with($lastRecord[0], 'Return code end :')) {
+            if ($lastRecord && str_starts_with($lastRecord[0] ?? '', 'Return code end :')) {
                 array_pop($result);
             }
-
-            $headersNr = count($result[0]);
-            foreach ($result as &$record) {
-                if (count($record) > $headersNr) {
-                    $record[$headersNr - 1] = implode(';', array_slice($record, $headersNr - 1));
-                    $record = array_slice($record, 0, $headersNr);
-                }
-            }
-
-            csvToAssociativeArray($result);
-
         } else {
             $result = [];
             foreach (explode("\n", $contents) as &$line) {

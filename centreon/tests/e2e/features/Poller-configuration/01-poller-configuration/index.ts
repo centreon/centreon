@@ -114,8 +114,7 @@ When('I select some pollers', () => {
 
 When('I click on the Export configuration button', () => {
   cy.getIframeBody()
-    .find('form button[name="apply_configuration"]')
-    .contains('Export configuration')
+    .find('#exportConfigurationLink')
     .click({ force: true });
 });
 
@@ -124,6 +123,7 @@ Then('I am redirected to generate page', () => {
 });
 
 Then('the selected poller names are displayed', () => {
+  cy.reload()
   cy.get<string>('@pollerName').then((pollerName) => {
     cy.getIframeBody()
       .find('form span[class="selection"]')
@@ -203,10 +203,11 @@ Then('the selected pollers are {string}', (poller_action: string) => {
 });
 
 Then('no poller names are displayed', () => {
-  cy.getIframeBody()
-    .find('form span[class="selection"]')
-    .eq(0)
-    .should('have.value', '');
+    cy.waitForElementInIframe('#main-content', 'span.selection span.select2-selection--multiple input[placeholder="Pollers"]').then(() => {
+      cy.getIframeBody()
+        .find('span.selection span.select2-selection--multiple input[placeholder="Pollers"]')
+        .should('have.value', '');
+    });
 });
 
 Then(
