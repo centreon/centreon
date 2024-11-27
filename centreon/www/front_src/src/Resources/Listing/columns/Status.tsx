@@ -1,5 +1,5 @@
 import { useSetAtom } from 'jotai';
-import { equals, isNil, path, pathEq } from 'ramda';
+import { path, equals, isNil, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 

@@ -121,7 +121,7 @@ export const featuresFlagDecoder = JsonDecoder.object<FeatureFlags>(
   },
   'Feature flags',
   {
-    adExclusionPeriods: 'ad_exclusion_periods',
+    adExclusionPeriods: 'ad_exclusion_periods'
   }
 );
 
