@@ -1,3 +1,4 @@
+import { ResourceType } from '@centreon/ui';
 import type { FormikValues } from 'formik';
 import type { TFunction } from 'i18next';
 import {
@@ -22,7 +23,6 @@ import {
   object,
   string
 } from 'yup';
-import { Resource, ResourceType } from '@centreon/ui';
 
 import {
   type FederatedWidgetOption,
