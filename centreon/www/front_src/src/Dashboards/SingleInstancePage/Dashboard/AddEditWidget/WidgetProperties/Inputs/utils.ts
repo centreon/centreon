@@ -10,7 +10,6 @@ import {
   pluck,
   split
 } from 'ramda';
-
 import {
   type AnyObjectSchema,
   type AnySchema,
@@ -23,6 +22,8 @@ import {
   object,
   string
 } from 'yup';
+import { Resource, ResourceType } from '@centreon/ui';
+
 import {
   type FederatedWidgetOption,
   FederatedWidgetOptionType
@@ -235,3 +236,9 @@ export const areResourcesFullfilled = (
     ({ resourceType, resources }) =>
       !isEmpty(resourceType) && !isEmpty(resources)
   );
+
+export const getIsMetaServiceSelected = (
+  resources: Array<WidgetDataResource> = []
+): boolean =>
+  equals(resources.length, 1) &&
+  equals(resources[0].resourceType, ResourceType.metaService);
