@@ -24,7 +24,8 @@ contents:
 overrides:
   rpm:
     depends:
-      - centreon-common = ${VERSION}-${RELEASE}${DIST}
+      - centreon-common >= ${MAJOR_VERSION}
+      - centreon-common < ${NEXT_MAJOR_VERSION}
       - perl-interpreter
       - perl(DBI)
       - perl(FindBin)
@@ -57,7 +58,8 @@ overrides:
       - perl-centreon-base
   deb:
     depends:
-      - centreon-common (= ${VERSION}-${RELEASE}${DIST})
+      - "centreon-common (>= ${MAJOR_VERSION}~)"
+      - "centreon-common (<< ${NEXT_MAJOR_VERSION}~)"
       - libconfig-inifiles-perl
       - libcrypt-des-perl
       - librrds-perl
