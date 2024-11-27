@@ -8,6 +8,7 @@ import '../features/Api-Token/commands';
 import '../features/Dashboards/commands';
 import '../features/Resources-Access-Management/commands';
 import '../features/Backup-configuration/commands';
+import '../features/Hosts/commands';
 import '../features/HostGroups/commands';
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
