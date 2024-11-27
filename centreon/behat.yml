@@ -11,10 +11,6 @@ default:
   gherkin:
     cache: ~
   suites:
-    configuration_warnings:
-      paths: [ "%paths.base%/features/ConfigurationWarnings.feature" ]
-      contexts: [ ConfigurationWarningsContext ]
-
     generate_service_contact_configuration:
       paths: [ "%paths.base%/features/GenerateServiceContact.feature" ]
       contexts: [ GenerateServiceContactContext ]
@@ -119,10 +115,6 @@ default:
       paths: [ "%paths.base%/features/ContactConfiguration.feature" ]
       contexts: [ ContactConfigurationContext ]
 
-    host_category_configuration:
-      paths: [ "%paths.base%/features/HostCategoryConfiguration.feature" ]
-      contexts: [ HostCategoryConfigurationContext ]
-
     contact_group_configuration:
       paths: [ "%paths.base%/features/ContactGroupConfiguration.feature" ]
       contexts: [ ContactGroupConfigurationContext ]
@@ -142,10 +134,6 @@ default:
     non_admin_contact_creation:
       paths: [ "%paths.base%/features/NonAdminContactCreation.feature" ]
       contexts: [ NonAdminContactCreationContext ]
-
-    time_period_configuration:
-      paths: [ "%paths.base%/features/TimePeriodConfiguration.feature" ]
-      contexts: [ TimePeriodConfigurationContext ]
 
     massive_change_hosts:
       paths: [ "%paths.base%/features/MassiveChangeHosts.feature" ]
