@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 
 import { scaleLinear } from '@visx/scale';
 import { T, equals, gt, lt } from 'ramda';
