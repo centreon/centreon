@@ -41,11 +41,11 @@ interface ConnectionInterface
      *
      * @param ConnectionConfig $params
      *
-     * @return object
+     * @return ConnectionInterface
      *
      * @throws ConnectionException
      */
-    public static function createFromConfig(ConnectionConfig $params): object;
+    public static function createFromConfig(ConnectionConfig $params): ConnectionInterface;
 
     /**
      * Return the database name if it exists

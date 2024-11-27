@@ -65,7 +65,7 @@ class DbalConnectionAdapter implements ConnectionInterface
      *
      * @throws ConnectionException
      */
-    public static function createFromConfig(ConnectionConfig $params): object
+    public static function createFromConfig(ConnectionConfig $params): DbalConnectionAdapter
     {
         $arr_params = [
             'dbname' => $params->getDatabaseName(),
