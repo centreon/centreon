@@ -184,7 +184,7 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
             }
 
             $lastRecord = end($result);
-            if ($lastRecord && str_starts_with($lastRecord[0], 'Return code end :')) {
+            if ($lastRecord && str_starts_with($lastRecord[0] ?? '', 'Return code end :')) {
                 array_pop($result);
             }
         } else {
