@@ -47,10 +47,10 @@ const ResponsiveHeatMap = <TData,>({
       tilesLength * tileWidth + (tilesLength - 1) * gap;
 
     const canUpdateTileSize =
-      Math.abs(tileWidth - previouseTileSize.current) > toleratedRangeWidth;
+      Math.abs(tileWidth - previousTileSize.current) > toleratedRangeWidth;
 
     if (!canUpdateTileSize) {
-      return previouseTileSize.current;
+      return previousTileSize.current;
     }
 
     if (
