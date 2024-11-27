@@ -1,0 +1,57 @@
+[
+    {
+        "action": "ADD",
+        "object": "CONTACT",
+        "values": "user-with-access-to-allmodules;user-with-access-to-allmodules;user-with-access-to-allmodules@centreon.test;Centreon@2021!;0;1;en_US;local"
+    },
+    {
+        "action":"SETPARAM",
+        "object":"CONTACT",
+        "values":"user-with-access-to-allmodules;reach_api;1"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLMENU",
+        "values": "name-non-admin-ACLMENU;alias-non-admin-ACLMENU"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "name-non-admin-ACLMENU;1;Home"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "name-non-admin-ACLMENU;1;Monitoring"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "name-non-admin-ACLMENU;1;Reporting"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "name-non-admin-ACLMENU;1;Configuration"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "name-non-admin-ACLMENU;1;Administration"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLGROUP",
+        "values": "name-non-admin-ACLGROUP;alias-non-admin-ACLGROUP"
+    },
+    {
+        "action": "ADDMENU",
+        "object": "ACLGROUP",
+        "values": "name-non-admin-ACLGROUP;name-non-admin-ACLMENU"
+    },
+    {
+        "action": "SETCONTACT",
+        "object": "ACLGROUP",
+        "values": "name-non-admin-ACLGROUP;user-with-access-to-allmodules;"
+    }
+]
