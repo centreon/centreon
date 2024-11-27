@@ -1,6 +1,9 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
+import {
+  checkMetricsAreMonitored
+} from '../../../common';
 
 before(() => {
   cy.intercept({
@@ -16,6 +19,21 @@ before(() => {
     useSlim: false,
     profiles:['glpi']
   });
+   cy.loginByTypeOfUser({
+    jsonName: 'admin'
+  });
+
+  ['Disk-/', 'Load', 'Memory', 'Ping'].forEach((service) => {
+    cy.scheduleServiceCheck({ host: 'Centreon-Server', service });
+  });
+  checkMetricsAreMonitored([
+    {
+      host: 'Centreon-Server',
+      name: 'rta',
+      service: 'Ping'
+    }
+  ]);
+  cy.logoutViaAPI();
 });
 
 beforeEach(() => {
