@@ -2,8 +2,50 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import {
+  checkHostsAreMonitored,
+  checkServicesAreMonitored,
   checkMetricsAreMonitored
 } from '../../../common';
+
+const services = {
+  serviceCritical: {
+    host: 'host3',
+    name: 'service3',
+    template: 'SNMP-Linux-Load-Average'
+  },
+  serviceOk: { host: 'host2', name: 'service_test_ok', template: 'Ping-LAN' },
+  serviceWarning: {
+    host: 'host2',
+    name: 'service2',
+    template: 'SNMP-Linux-Memory'
+  }
+};
+const resultsToSubmit = [
+  {
+    host: services.serviceWarning.host,
+    output: 'submit_status_2',
+    service: services.serviceCritical.name,
+    status: 'critical'
+  },
+  {
+    host: services.serviceWarning.host,
+    output: 'submit_status_2',
+    service: services.serviceWarning.name,
+    status: 'warning'
+  },
+  {
+    host: services.serviceWarning.host,
+    output: 'submit_status_2',
+    service: services.serviceOk.name,
+    status: 'ok'
+  },
+  {
+    host: services.serviceCritical.host,
+    output: 'submit_status_2',
+    service: services.serviceOk.name,
+    status: 'ok'
+  }
+];
 
 before(() => {
   cy.intercept({
@@ -19,13 +61,83 @@ before(() => {
     useSlim: false,
     profiles:['glpi']
   });
-   cy.loginByTypeOfUser({
+  cy.addHost({
+    hostGroup: 'Linux-Servers',
+    name: services.serviceOk.host,
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: services.serviceOk.name,
+      template: services.serviceOk.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: 'service2',
+      template: services.serviceWarning.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: services.serviceCritical.name,
+      template: services.serviceCritical.template
+    })
+    .applyPollerConfiguration();
+
+  cy.addHost({
+    hostGroup: 'Linux-Servers',
+    name: services.serviceCritical.host,
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: services.serviceOk.name,
+      template: services.serviceOk.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: 'service2',
+      template: services.serviceWarning.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: services.serviceCritical.name,
+      template: services.serviceCritical.template
+    })
+    .applyPollerConfiguration();
+
+  cy.loginByTypeOfUser({
     jsonName: 'admin'
   });
 
   ['Disk-/', 'Load', 'Memory', 'Ping'].forEach((service) => {
     cy.scheduleServiceCheck({ host: 'Centreon-Server', service });
   });
+
+  checkHostsAreMonitored([
+    { name: services.serviceOk.host },
+    { name: services.serviceCritical.host }
+  ]);
+  checkServicesAreMonitored([
+    { name: services.serviceCritical.name },
+    { name: services.serviceOk.name }
+  ]);
+  cy.submitResults(resultsToSubmit);
+  checkServicesAreMonitored([
+    { name: services.serviceCritical.name, status: 'critical' },
+    { name: services.serviceOk.name, status: 'ok' }
+  ]);
   checkMetricsAreMonitored([
     {
       host: 'Centreon-Server',
@@ -33,7 +145,7 @@ before(() => {
       service: 'Ping'
     }
   ]);
-  cy.logoutViaAPI();
+  cy.logoutViaAPI();;
 });
 
 beforeEach(() => {
