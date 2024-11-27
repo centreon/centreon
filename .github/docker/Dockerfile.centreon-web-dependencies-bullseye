@@ -172,7 +172,7 @@ apt-get install -y \
   centreon-gorgone \
   centreon-engine \
   centreon-broker-cbmod \
-  centreon-broker-cbd \
+  centreon-broker \
   centreon-connector
 
 apt-get clean
