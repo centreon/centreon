@@ -1,8 +1,8 @@
-FROM debian:bullseye AS web_fresh
+FROM debian:bullseye AS web_dependencies
 
 ARG VERSION
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN <<EOF
 
@@ -161,3 +161,20 @@ COPY --chmod=755 ./.github/docker/init/systemctl /bin/systemctl
 COPY --chmod=755 ./.github/docker/init/* /etc/init.d/
 
 RUN sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql
+
+FROM web_dependencies AS web_dependencies_collect
+
+RUN bash -e <<EOF
+
+apt-get update
+
+apt-get install -y \
+  centreon-gorgone \
+  centreon-engine \
+  centreon-broker-cbmod \
+  centreon-broker-cbd \
+  centreon-connector
+
+apt-get clean
+
+EOF

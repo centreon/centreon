@@ -24,7 +24,11 @@ jobs:
 
   dockerize:
     needs: [get-environment]
+<<<<<<< HEAD
     runs-on: ubuntu-24.04
+=======
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
+>>>>>>> 4f4f9d51f9 (enh(ci): install gorgone and collect in web dependencies container (#5877))
 
     strategy:
       matrix:
