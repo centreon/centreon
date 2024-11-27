@@ -21,18 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Adaptation\Database;
+namespace Adaptation\Database;
 
-use Core\Adaptation\Database\Enum\ParameterType;
-use Core\Adaptation\Database\Exception\ConnectionException;
-use Core\Adaptation\Database\Model\ConnectionConfig;
+use Adaptation\Database\Enum\ParameterType;
+use Adaptation\Database\Exception\ConnectionException;
+use Adaptation\Database\Model\ConnectionConfig;
 use Traversable;
 
 /**
  * Interface
  *
  * @class ConnectionInterface
- * @package Core\Adaptation\Database
+ * @package Adaptation\Database
  */
 interface ConnectionInterface
 {

@@ -21,15 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Adaptation\Database\Model;
+namespace Adaptation\Database\Model;
 
-use Core\Adaptation\Database\Enum\ConnectionDriver;
+use Adaptation\Database\Enum\ConnectionDriver;
 
 /**
  * Class
  *
  * @class ConnectionConfig
- * @package Core\Adaptation\Database\Model
+ * @package Adaptation\Database\Model
  */
 final readonly class ConnectionConfig
 {

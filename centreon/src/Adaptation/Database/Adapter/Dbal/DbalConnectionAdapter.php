@@ -21,24 +21,24 @@
 
 declare(strict_types=1);
 
-namespace Core\Adaptation\Database\Adapter\Dbal;
+namespace Adaptation\Database\Adapter\Dbal;
 
-use Core\Adaptation\Database\ConnectionInterface;
-use Core\Adaptation\Database\Enum\ConnectionDriver;
-use Core\Adaptation\Database\Enum\ParameterType;
-use Core\Adaptation\Database\Exception\ConnectionException;
-use Core\Adaptation\Database\Model\ConnectionConfig;
 use Doctrine\DBAL\Connection as DBALConnection;
 use Doctrine\DBAL\DriverManager as DBALDriverManager;
 use Doctrine\DBAL\Exception as DBALException;
 use PDO;
+use Adaptation\Database\ConnectionInterface;
+use Adaptation\Database\Enum\ConnectionDriver;
+use Adaptation\Database\Enum\ParameterType;
+use Adaptation\Database\Exception\ConnectionException;
+use Adaptation\Database\Model\ConnectionConfig;
 use Traversable;
 
 /**
  * Class
  *
  * @class   DbalConnectionAdapter
- * @package Core\Adaptation\Database\Adapter\Dbal
+ * @package Adaptation\Database\Adapter\Dbal
  */
 class DbalConnectionAdapter implements ConnectionInterface
 {

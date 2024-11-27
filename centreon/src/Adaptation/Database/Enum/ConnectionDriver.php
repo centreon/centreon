@@ -21,13 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\Adaptation\Database\Enum;
+namespace Adaptation\Database\Enum;
 
 /**
  * Enum
  *
  * @class ConnectionDriver
- * @package Core\Adaptation\Database\Enum
+ * @package Adaptation\Database\Enum
  * @todo to complete with others database drivers like mysqli, pdo_pgsql, pdo_sqlite,...
  */
 enum ConnectionDriver: string

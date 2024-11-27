@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Adaptation\Database\Exception;
+namespace Adaptation\Database\Exception;
 
 use Throwable;
 
@@ -29,7 +29,7 @@ use Throwable;
  * Class
  *
  * @class ConnectionException
- * @package Core\Adaptation\Database\Exception
+ * @package Adaptation\Database\Exception
  */
 class ConnectionException extends DatabaseException
 {

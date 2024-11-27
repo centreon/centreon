@@ -21,13 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\Adaptation\Database\Enum;
+namespace Adaptation\Database\Enum;
 
 /**
  * Enum
  *
  * @class ParameterType
- * @package Core\Adaptation\Database
+ * @package Adaptation\Database
  */
 enum ParameterType: int
 {
