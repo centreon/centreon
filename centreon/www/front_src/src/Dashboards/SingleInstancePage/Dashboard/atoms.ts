@@ -1,18 +1,15 @@
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import {
-  collectBy,
   equals,
   find,
   inc,
+  isEmpty,
   length,
   lensIndex,
   lensProp,
-  lte,
   map,
-  prop,
   propEq,
-  reduce,
   reject,
   set
 } from 'ramda';
@@ -88,7 +85,7 @@ const getPanelIndex = ({ id, layout }: GetPanelProps): number =>
 export const panelsLengthAtom = atom(0);
 
 const strictMinWidgetSize = 2;
-const preferredWidgetSize = 3;
+const preferredWidgetSize = 4;
 
 export const addPanelDerivedAtom = atom(
   null,
@@ -110,27 +107,23 @@ export const addPanelDerivedAtom = atom(
 
     const increasedPanelsLength = inc(panelsLength);
 
+    const columnsFromScreenSize = getColumnsFromScreenSize();
+
     const id =
       fixedId ||
       `panel_${panelConfiguration.path}_${length(
         dashboard.layout
       )}_${increasedPanelsLength}`;
 
-    const columnsFromScreenSize = getColumnsFromScreenSize();
-    const maxPanelWidth = equals(columnsFromScreenSize, 1)
-      ? preferredWidgetSize
-      : columnsFromScreenSize;
-
     const panelWidth =
-      width || panelConfiguration?.panelMinWidth || maxPanelWidth;
+      width || panelConfiguration?.panelDefaultWidth || preferredWidgetSize;
 
-    const widgetHeight =
-      height ||
-      Math.max(panelConfiguration?.panelMinHeight || 1, preferredWidgetSize);
+    const panelHeight =
+      height || panelConfiguration?.panelDefaultHeight || preferredWidgetSize;
 
     const basePanelLayout = {
       data,
-      h: widgetHeight,
+      h: panelHeight,
       i: id,
       minH: panelConfiguration?.panelMinHeight || strictMinWidgetSize,
       minW: panelConfiguration?.panelMinWidth || strictMinWidgetSize,
@@ -140,38 +133,38 @@ export const addPanelDerivedAtom = atom(
       static: false
     };
 
-    const collectPanelsByLine = collectBy(prop('y'), dashboard.layout);
+    const maxHeight = Math.max(...map(({ y, h }) => y + h, dashboard.layout));
 
-    const lineWithEngouhSpaceToReceivePanel = collectPanelsByLine.findIndex(
-      (panels) => {
-        const widthsCumulated = reduce(
-          (widthAccumulator, { w }) => widthAccumulator + w,
-          0,
-          panels
-        );
+    let x = 0;
+    let y = 0;
+    let locked = false;
 
-        return lte(widthsCumulated + panelWidth, maxPanelWidth);
-      }
-    );
+    Array(maxHeight)
+      .fill(0)
+      .forEach((_, positionY) => {
+        Array(columnsFromScreenSize)
+          .fill(0)
+          .forEach((_, positionX) => {
+            if (locked) {
+              return;
+            }
+            const collidesWithPanel = dashboard.layout.filter(
+              ({ x, y, w, h }) => {
+                if (positionX + panelWidth <= x) return false;
+                if (positionX >= x + w) return false;
+                if (positionY + panelHeight <= y) return false;
+                if (positionY >= y + h) return false;
+                return true;
+              }
+            );
 
-    const shouldAddPanelAtTheBottom = equals(
-      lineWithEngouhSpaceToReceivePanel,
-      -1
-    );
-
-    const x = shouldAddPanelAtTheBottom
-      ? 0
-      : reduce(
-          (widthAccumulator, { w }) => widthAccumulator + w,
-          0,
-          collectPanelsByLine[lineWithEngouhSpaceToReceivePanel]
-        );
-
-    const maxHeight = reduce(
-      (heightAccumulator, { y, h }) => heightAccumulator + y + h,
-      0,
-      dashboard.layout
-    );
+            if (isEmpty(collidesWithPanel)) {
+              x = positionX;
+              y = positionY;
+              locked = true;
+            }
+          });
+      });
 
     const newLayout = [
       ...dashboard.layout,
@@ -179,9 +172,7 @@ export const addPanelDerivedAtom = atom(
         ...basePanelLayout,
         w: panelWidth,
         x,
-        y: shouldAddPanelAtTheBottom
-          ? maxHeight
-          : collectPanelsByLine[lineWithEngouhSpaceToReceivePanel][0].y
+        y
       }
     ];
 
