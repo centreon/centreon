@@ -65,6 +65,11 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
   });
 });
 
+Cypress.Commands.add("enterIframe", (iframeSelector): Cypress.Chainable => {
+  return cy.get(iframeSelector)
+    .its("0.contentDocument");
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -76,6 +81,7 @@ declare global {
       removeResourceData: () => Cypress.Chainable;
       startOpenIdProviderContainer: () => Cypress.Chainable;
       stopOpenIdProviderContainer: () => Cypress.Chainable;
+      enterIframe: (iframeSelector: string) => Cypress.Chainable;
     }
   }
 }
