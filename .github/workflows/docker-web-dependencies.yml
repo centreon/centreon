@@ -64,7 +64,7 @@ jobs:
           DOCKER_BUILD_SUMMARY: false
           DOCKER_BUILD_CHECKS_ANNOTATIONS: false
         with:
-          file: .github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.dependencies
+          file: .github/docker/Dockerfile.centreon-web-dependencies-${{ matrix.distrib }}
           target: web_dependencies_collect
           context: .
           build-args: |
