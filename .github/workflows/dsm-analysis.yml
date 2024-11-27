@@ -1,5 +1,5 @@
-name: awie-analysis
-run-name: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.nightly_manual_trigger == 'true')) && format('awie-analysis nightly {0}', github.ref_name) || '' }}
+name: dsm-analysis
+run-name: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.nightly_manual_trigger == 'true')) && format('dsm-analysis nightly {0}', github.ref_name) || '' }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -22,11 +22,9 @@ on:
       - reopened
       - ready_for_review
     paths:
-      - "centreon-awie/**"
-      - "!centreon-awie/features/**"
-      - "!centreon-awie/behat.yml"
-      - "!centreon-awie/veracode.json"
-      - "!centreon-awie/.veracode-exclusions"
+      - "centreon-dsm/**"
+      - "!centreon-dsm/veracode.json"
+      - "!centreon-dsm/.veracode-exclusions"
   push:
     branches:
       - develop
@@ -34,14 +32,12 @@ on:
       - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - "centreon-awie/**"
-      - "!centreon-awie/features/**"
-      - "!centreon-awie/behat.yml"
-      - "!centreon-awie/veracode.json"
-      - "!centreon-awie/.veracode-exclusions"
+      - "centreon-dsm/**"
+      - "!centreon-dsm/veracode.json"
+      - "!centreon-dsm/.veracode-exclusions"
 
 env:
-  module: awie
+  module: dsm
 
 jobs:
   dispatch-to-maintained-branches:
@@ -58,7 +54,7 @@ jobs:
           NIGHTLY_TARGETS=("dev-23.04.x" "dev-23.10.x" "dev-24.04.x" "dev-24.10.x")
           for target in "${NIGHTLY_TARGETS[@]}"; do
             echo "[INFO] - Dispatching nightly run to $target branch."
-            gh workflow run awie-analysis.yml -r "$target" -f nightly_manual_trigger=true
+            gh workflow run dsm-analysis.yml -r "$target" -f nightly_manual_trigger=true
           done
         shell: bash
     env:
@@ -67,15 +63,15 @@ jobs:
   get-environment:
     uses: ./.github/workflows/get-environment.yml
     with:
-      version_file: centreon-awie/www/modules/centreon-awie/conf.php
+      version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
 
   veracode-analysis:
     needs: [get-environment]
     if: ${{ needs.get-environment.outputs.is_targeting_feature_branch != 'true' && github.event.pull_request.draft != 'true' }}
     uses: ./.github/workflows/veracode-analysis.yml
     with:
-      module_directory: centreon-awie
-      module_name: centreon-awie
+      module_directory: centreon-dsm
+      module_name: centreon-dsm
       major_version: ${{ needs.get-environment.outputs.major_version }}
       minor_version: ${{ needs.get-environment.outputs.minor_version }}
       stability: ${{ needs.get-environment.outputs.stability }}
