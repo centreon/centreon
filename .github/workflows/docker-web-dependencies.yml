@@ -9,6 +9,12 @@ on:
   pull_request:
     paths:
       - '.github/docker/centreon-web/**/Dockerfile.dependencies'
+  push:
+    paths:
+      - '.github/docker/centreon-web/**/Dockerfile.dependencies'
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
   schedule:
     - cron: '0 2 * * *'
 
@@ -20,6 +26,7 @@ jobs:
 
   dockerize:
     needs: [get-environment]
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
     runs-on: ubuntu-24.04
 
     strategy:
@@ -42,6 +49,7 @@ jobs:
       - uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
         with:
           file: .github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.dependencies
+          target: web_dependencies
           context: .
           build-args: |
             "VERSION=${{ needs.get-environment.outputs.major_version }}"
