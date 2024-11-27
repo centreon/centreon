@@ -15,10 +15,6 @@ on:
       - release-*
 
 jobs:
-  context:
-    runs-on: ubuntu-24.04
-    steps:
-
   check-status:
     runs-on: ubuntu-24.04
     steps:
