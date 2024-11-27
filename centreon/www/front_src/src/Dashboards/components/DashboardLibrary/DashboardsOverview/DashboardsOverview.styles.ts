@@ -18,14 +18,14 @@ export const useStyles = makeStyles()((theme) => ({
     top: theme.spacing(1),
     width: theme.spacing(3)
   },
-  warningContainer:{
+  warningContainer: {
     display: 'flex',
-    gap: theme.spacing(.5),
-    margin : theme.spacing(2, 0)
+    gap: theme.spacing(0.5),
+    margin: theme.spacing(2, 0)
   },
-  warning:{
+  warning: {
     color: theme.palette.action.disabled,
     fontWeight: theme.typography.h6.fontWeight,
-    fontSize : theme.typography.body1.fontSize
+    fontSize: theme.typography.body1.fontSize
   }
 }));
