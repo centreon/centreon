@@ -38,17 +38,13 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon/**"
-      - "!centreon/cypress/**"
-      - "!centreon/features/**"
-      - "!centreon/lighthouse/**"
-      - "!centreon/tests/**"
-      - "!centreon/.veracode-exclusions"
-      - "!centreon/veracode.json"
-      - "!centreon/packages/**"
 
 jobs:
   dispatch-to-maintained-branches:
-    if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' }}
+    if: |
+      github.run_attempt == 1 &&
+      github.event_name == 'schedule' &&
+      github.ref_name == 'develop'
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout sources
