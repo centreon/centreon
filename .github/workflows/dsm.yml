@@ -56,7 +56,6 @@ jobs:
 
   package:
     needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
 
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.get-environment.outputs.stability != 'stable' }}
 
