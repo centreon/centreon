@@ -28,9 +28,15 @@ export interface Panel extends ReactGridLayout.Layout {
   panelConfiguration: PanelConfiguration;
   refreshCount?: number;
 }
+export interface Thumbnail {
+  id: number;
+  name: string;
+  directory: string
+}
 
 export interface Dashboard {
   layout: Array<Panel>;
+  thumbnail?: Thumbnail| null;
 }
 
 export interface PanelDetailsToAPI extends NamedEntity {

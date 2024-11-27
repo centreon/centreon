@@ -186,21 +186,37 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
             $accessGroups
         );
 
-        $concatenator = $this->findServicesRequest($accessGroupIds);
-        $concatenator->defineSelect('SELECT 1');
-        $concatenator->appendJoins(
-            <<<'SQL'
-                JOIN `:dbstg`.centreon_acl acl
-                    ON service.service_id = acl.service_id
-                SQL
-        );
-        $concatenator->appendWhere('acl.group_id IN (:access_group_ids)');
-        $concatenator->appendWhere('service.service_id = :service_id');
-        $concatenator->storeBindValue(':service_id', $serviceId, \PDO::PARAM_INT);
-        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT);
+        $bindValuesArray = [];
+        foreach ($accessGroupIds as $index => $id) {
+            $bindValuesArray[':access_group_id_' . $index] = $id;
+        }
+        $bindParamsAsString = implode(',', array_keys($bindValuesArray));
 
-        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
-        $concatenator->bindValuesToStatement($statement);
+        $subRequest = $this->generateServiceCategoryAclSubRequest($accessGroupIds);
+        $categoryAcls = empty($subRequest)
+            ? ''
+            : <<<SQL
+                AND scr.sc_id IN ({$subRequest})
+                SQL;
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT 1
+                FROM `:db`.`service` s
+                LEFT JOIN `:db`.`service_categories_relation` scr
+                    ON scr.`service_service_id` = s.`service_id`
+                JOIN `:dbstg`.`centreon_acl` acl
+                WHERE acl.`group_id` IN ({$bindParamsAsString})
+                    AND s.`service_id` = :service_id
+                    AND s.`service_register` = '1'
+                    {$categoryAcls}
+                SQL
+        ));
+        $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
+        foreach ($bindValuesArray as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+
         $statement->execute();
 
         return (bool) $statement->fetchColumn();

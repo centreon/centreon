@@ -55,10 +55,13 @@ export const customFetch = <T>({
       ? `${baseEndpoint}${endpoint}`
       : endpoint;
 
+  const isFormData = payload instanceof FormData;
+
   const options = isMutation
     ? {
         ...defaultOptions,
-        body: payload instanceof FormData ? payload : JSON.stringify(payload)
+        body: isFormData ? payload : JSON.stringify(payload),
+        headers: isFormData ? undefined : headers
       }
     : defaultOptions;
 
