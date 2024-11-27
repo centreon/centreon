@@ -329,7 +329,7 @@ class CentreonGraph
             );
             foreach (array_keys($odsm) as $mid) {
                 if (! isset($metrics_cache[$mid])) {
-                    $DBRESULT = $this->DB->executePreparedQuery($insertViewDetailsStatement, [
+                    $this->DB->executePreparedQuery($insertViewDetailsStatement, [
                         ':metric_id' => $mid,
                         ':user_id' => $this->user_id,
                         ':index_id' => $this->index
