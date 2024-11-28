@@ -38,9 +38,7 @@
     "on",
     {
       "tags": [
-        "@ignore",
-        "@update",
-        "@upgrade"
+        "@ignore"
       ],
       "patterns": [
         "^@REQ_MON-[1-9]\\d+$",
