@@ -33,8 +33,6 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon-open-tickets/**"
-      - "!centreon-open-tickets/veracode.json"
-      - "!centreon-open-tickets/.veracode-exclusions"
 
 env:
   module: open-tickets
