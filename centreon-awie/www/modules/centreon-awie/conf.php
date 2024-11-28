@@ -1,6 +1,5 @@
 <?php
 
-
 /*
  * Copyright 2021 Centreon
  *
