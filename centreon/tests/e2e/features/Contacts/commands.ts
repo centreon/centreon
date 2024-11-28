@@ -90,12 +90,12 @@
       cy.exportConfig();
   });
   
-  Cypress.Commands.add('loginByDuplicatedUser', (jsonName: string) =>{
+  Cypress.Commands.add('loginByDuplicatedOrUpdatedUser', (jsonName: string, login: string) =>{
       cy.visit(`${Cypress.config().baseUrl}`)
         .fixture(`users/${jsonName}.json`)
         .then((credential) => {
           cy.getByLabel({ label: 'Alias', tag: 'input' }).type(
-            `{selectAll}{backspace}${credential.login}_1`
+            `{selectAll}{backspace}${login}`
           );
           cy.getByLabel({ label: 'Password', tag: 'input' }).type(
             `{selectAll}{backspace}${credential.password}`
@@ -146,7 +146,7 @@
         addOrUpdateContact: (body: Contact) => Cypress.Chainable;
         addOrUpdateContactGroup: (body: ContactGroup) => Cypress.Chainable;
         addOrUpdateContactTemplate: (body: ContactTemplate) => Cypress.Chainable;
-        loginByDuplicatedUser: (jsonName: string) => Cypress.Chainable;
+        loginByDuplicatedOrUpdatedUser: (jsonName: string, login: string) => Cypress.Chainable;
       }
     }
   }

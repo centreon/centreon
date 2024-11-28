@@ -49,23 +49,34 @@ jobs:
         run: |
           # Quality gate settings
           ENABLE_QG="true"
-          if [[ "${{ vars.VERACODE_QUALITY_GATE }}" == "false" ]] || [[ -n "${{ vars.VERACODE_EXCEPTION_ON_PR }}" && "${{ vars.VERACODE_EXCEPTION_ON_PR }}" == "${{ github.event.pull_request.number }}" ]]; then
+          if [[ "${{ vars.VERACODE_QUALITY_GATE }}" == "false" ]] ||
+            [[ -n "${{ vars.VERACODE_EXCEPTION_ON_PR }}" && "${{ vars.VERACODE_EXCEPTION_ON_PR }}" == "${{ github.event.pull_request.number }}" ]]
+          then
             ENABLE_QG="false"
           fi
 
           # Setting run options
           CHECK_BRANCH=`echo "${{ github.ref_name }}" | cut -d'/' -f2`
-          if [[ $CHECK_BRANCH != "merge" && '${{ github.event_name }}' != 'pull_request' && '${{ inputs.stability }}' == 'stable' ]]; then
+          if [[ $CHECK_BRANCH != "merge" &&
+            "${{ github.event_name }}" != "pull_request_target" &&
+            "${{ inputs.stability }}" == "stable" ]]
+          then
             # e.g master
             FAIL_BUILD="false"
             DEVELOPMENT_STAGE="Release"
             DISPLAY_SUMMARY="false"
-          elif [[ $CHECK_BRANCH != "merge" && '${{ github.event_name }}' != 'pull_request' && '${{ inputs.stability }}' == 'unstable' ]]; then
+          elif [[ $CHECK_BRANCH != "merge" &&
+            "${{ github.event_name }}" != "pull_request_target" &&
+            "${{ inputs.stability }}" == "unstable" ]]
+          then
             # e.g develop
             FAIL_BUILD="$ENABLE_QG"
             DEVELOPMENT_STAGE="Testing"
             DISPLAY_SUMMARY="false"
-          elif [[ $CHECK_BRANCH == "merge" && -n '${{ github.head_ref }}' && '${{ github.head_ref }}' =~ ^release-[2-9][0-9].[0-9][0-9]-next ]]; then
+          elif [[ $CHECK_BRANCH == "merge" &&
+            -n "${{ github.head_ref }}" &&
+            "${{ github.head_ref }}" =~ ^release-[2-9][0-9].[0-9][0-9]-next ]]
+          then
             # e.g release-23.04-next
             FAIL_BUILD="false"
             DEVELOPMENT_STAGE="Development"
@@ -83,8 +94,13 @@ jobs:
           HEAD_BRANCHES=(develop master dev-${{ inputs.major_version }}.x ${{ inputs.major_version }}.x)
 
           # skip draft pull-request
-          if [[ "${{ github.event_name }}" == "pull_request" && -n "${{ github.event.pull_request.number }}" && -n "${{ github.event.pull_request.draft }}" && "${{ github.event.pull_request.draft }}" == "false" ]]; then
+          if [[ ("${{ github.event_name }}" == "pull_request" || "${{ github.event_name }}" == "pull_request_target") &&
+            -n "${{ github.event.pull_request.number }}" &&
+            -n "${{ github.event.pull_request.draft }}" &&
+            "${{ github.event.pull_request.draft }}" == "false" ]]
+          then
             # skip pull-request "ready-to-review" and not targeting a (un)stable branch
+            # avoid unconsistent diffs due to missing baseline files (e.g sub-feature targeting feature PR)
             for HEAD_BRANCH in "${HEAD_BRANCHES[@]}"; do
               if [[ "$HEAD_BRANCH" == "${{ github.base_ref }}" ]]; then
                 SKIP_ANALYSIS="false"
@@ -93,7 +109,6 @@ jobs:
             done
             [ "$SKIP_ANALYSIS" == "true" ] && echo "::notice::PR targets a feature branch. Skipping"
           elif [[ "$DEVELOPMENT_STAGE" != "Development" ]]; then
-            # skip development branches using workflow dispatch
             SKIP_ANALYSIS="false"
           fi
 
@@ -244,19 +259,11 @@ jobs:
           cd /tmp/backup && zip "$ZIPNAME" *
           aws s3 cp "/tmp/backup/$ZIPNAME" "$BACKUP_LOCATION/$ZIPNAME"
 
-      - name: Create jira ticket
-        # In case of QG failure, a ticket must be created
-        if: needs.build.outputs.enable_qg == 'false' || ( needs.build.outputs.development_stage == 'Development' && failure() )
-        uses: ./.github/actions/veracode-create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.jira_base_url }}
-          jira_user_email: ${{ secrets.jira_user_email }}
-          jira_api_token: ${{ secrets.jira_api_token }}
-          module_name: ${{ inputs.module_name }}
-
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
-        if: success() && needs.build.outputs.development_stage != 'Development'
+        if: |
+          success() &&
+          needs.build.outputs.development_stage != 'Development'
         run: |
           BRANCHES=(develop master dev-${{ inputs.major_version }}.x ${{ inputs.major_version }}.x)
           for BRANCH in "${BRANCHES[@]}"; do
@@ -267,6 +274,24 @@ jobs:
               aws s3 cp "/tmp/results.json" "$BUCKET/results.json"
             fi
           done
+
+  create-jira-veracode-ticket:
+    runs-on: ubuntu-24.04
+    needs: [build, pipeline-scan]
+    if: ${{ needs.build.outputs.enable_qg == 'false' || ( needs.build.outputs.development_stage == 'Development' && failure() ) }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+
+      - name: Create jira ticket
+        # In case of QG failure, a ticket must be created
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.jira_base_url }}
+          jira_user_email: ${{ secrets.jira_user_email }}
+          jira_api_token: ${{ secrets.jira_api_token }}
+          module_name: ${{ inputs.module_name }}
+          ticket_labels: '["Veracode", "Pipeline"]'
 
   clean-artifact:
     needs: [pipeline-scan]
@@ -314,7 +339,9 @@ jobs:
 
       - name: Promote Scan
         # only develop will be promoted to policy scan
-        if: success() && github.ref_name == 'develop'
+        if: |
+          success() &&
+          github.ref_name == 'develop'
         env:
           VERACODE_API_ID: "${{ secrets.veracode_api_id }}"
           VERACODE_API_SECRET: "${{ secrets.veracode_api_key }}"

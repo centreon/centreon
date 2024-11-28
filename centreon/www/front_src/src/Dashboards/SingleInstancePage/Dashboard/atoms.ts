@@ -34,6 +34,7 @@ export const dashboardAtom = atom<Dashboard>({
 });
 
 export const isEditingAtom = atom(false);
+
 export const widgetToDeleteAtom = atom<Partial<SelectEntry> | null>(null);
 export const isRedirectionBlockedAtom = atom(false);
 

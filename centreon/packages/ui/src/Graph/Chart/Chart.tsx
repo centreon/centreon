@@ -7,7 +7,7 @@ import {
 } from 'react';
 
 import { useAtom } from 'jotai';
-import { equals, flatten, isNil, pluck, reject } from 'ramda';
+import { equals, flatten, isEmpty, isNil, pluck, reject } from 'ramda';
 
 import { ClickAwayListener, Skeleton } from '@mui/material';
 
@@ -59,14 +59,21 @@ interface Props extends LineChartProps {
   transformMatrix?: {
     fx?: (pointX: number) => number;
     fy?: (pointY: number) => number;
-  }
+  };
 }
 
-const filterLines = (lines: Array<Line>, displayThreshold): Array<Line> => {
+const filterLines = (
+  lines: Array<Line>,
+  displayThreshold: boolean
+): Array<Line> => {
   if (!displayThreshold) {
     return lines;
   }
   const lineOriginMetric = findLineOfOriginMetricThreshold(lines);
+
+  if (isEmpty(lineOriginMetric)) {
+    return lines;
+  }
 
   const findLinesUpperLower = lines.map((line) =>
     equals(line.name, lowerLineName) || equals(line.name, upperLineName)

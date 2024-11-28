@@ -18145,7 +18145,22 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "Web page preview"
 #  msgstr ""
 
+# msgid "Save your dashboard to generate a thumbnail"
+# msgstr ""
+
 #  msgid "If ticket management is enabled, only the “by service” view is available."
+#  msgstr ""
+
+#  msgid "year"
+#  msgstr ""
+
+#  msgid "month"
+#  msgstr ""
+
+#  msgid "hour"
+#  msgstr ""
+
+#  msgid "minute"
 #  msgstr ""
 
 #  msgid "Ticket management"
@@ -18155,6 +18170,21 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 # msgid "Clock / Timer"
+# msgstr ""
+
+# msgid "Select a Business Activity to display the preview."
+# msgstr ""
+
+# msgid "Breadcrumb copied"
+# msgstr ""
+
+# msgid "Failed to copy breadcrumb"
+# msgstr ""
+
+# msgid "Copy breadcrumb"
+# msgstr ""
+
+# msgid "Thumbnails show a snapshot of your data, taken when the dashboard is saved"
 # msgstr ""
 
 # msgid "Agent configuration"
@@ -18269,4 +18299,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgstr ""
 
 # msgid "Sticky for any non-OK status"
+# msgstr ""
+
+# msgid "There are errors in the form."
 # msgstr ""

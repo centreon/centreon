@@ -1,3 +1,5 @@
+name: frontend-component-test
+
 on:
   workflow_call:
     inputs:
@@ -18,10 +20,19 @@ on:
         required: true
         type: string
         description: 'The frontend dependencies lock file path'
+      is_nightly:
+        required: false
+        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
       AWS_SECRET_ACCESS_KEY:
+        required: true
+      jira_base_url:
+        required: true
+      jira_user_email:
+        required: true
+      jira_api_token:
         required: true
 
 jobs:
@@ -201,7 +212,9 @@ jobs:
       - name: Check Code coverage
         id: checkCodeCoverage
         uses: ./.github/actions/code-coverage-gate-keeper
-        if: ${{ (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'develop') || github.ref_name == 'develop' }}
+        if: |
+          (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'develop') ||
+          github.ref_name == 'develop'
         with:
           module_path: ${{ inputs.module_name }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -210,7 +223,10 @@ jobs:
           generateNewCodeCoverages: ${{ github.ref_name == 'develop' && github.event.inputs.is_nightly == 'false' }}
 
       - name: Send new dynamic code coverages
-        if: ${{ github.ref_name == 'develop' && github.event.inputs.is_nightly == 'false' && steps.checkCodeCoverage.outputs.has_new_code_coverage }}
+        if: |
+          github.ref_name == 'develop' &&
+          github.event.inputs.is_nightly == 'false' &&
+          steps.checkCodeCoverage.outputs.has_new_code_coverage
         run: |
           aws s3 cp /tmp/newBaseCodeCoverages.json s3://centreon-lighthouse-report/baseCodeCoverages.json
         shell: bash
@@ -271,3 +287,24 @@ jobs:
         with:
           name: ${{ inputs.name }}-component-${{ matrix.type_of_report }}-*
           failOnError: false
+
+  create-jira-nightly-ticket:
+    needs: [cypress-component-coverage-report, cypress-component-test-report, cypress-component-test-run, regroup-artifacts]
+    runs-on: ubuntu-24.04
+    if: |
+      inputs.is_nightly == 'true' &&
+      github.run_attempt == 1 &&
+      (failure() || cancelled()) &&
+      startsWith(github.ref_name, 'dev')
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+
+      - name: Create Jira ticket if nightly build failure
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.jira_base_url }}
+          jira_user_email: ${{ secrets.jira_user_email }}
+          jira_api_token: ${{ secrets.jira_api_token }}
+          module_name: "centreon-web"
+          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "cypress-e2e"]'

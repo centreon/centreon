@@ -14,8 +14,8 @@ inputs:
   package:
     description: The frontend package
     required: true
-  version:
-    description: The version
+  tag:
+    description: The tag version
     default: latest
   release_branch:
     description: The release branch
@@ -58,13 +58,24 @@ runs:
 
     - name: Configure tag
       run: |
-        echo "TAG=${{ inputs.version }}" >> $GITHUB_ENV
+        echo "TAG=${{ inputs.tag }}" >> $GITHUB_ENV
       shell: bash
 
-    - name: Bump NPM package version
-      if: ${{ steps.get-latest-npm-branch-version.outputs.skip-bump-version != 1 }}
+    - name: Bump NPM package version for develop
+      if: ${{ steps.get-latest-npm-branch-version.outputs.skip-bump-version != 1 && github.ref_name == 'develop' }}
       run: |
         npm version patch --legacy-peer-deps
+        VERSION=$(node -p "require('./package.json').version")
+        rm ../../package-lock.json
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+      working-directory: ${{ env.directory }}
+      shell: bash
+
+    - name: Bump NPM package version for legacy versions
+      if: ${{ steps.get-latest-npm-branch-version.outputs.skip-bump-version != 1 && startsWith(github.ref_name, 'dev-') }}
+      run: |
+        PREID=$(echo "${{ github.ref_name }}" | sed "s/\./-/g")
+        npm version prerelease --preid $PREID --legacy-peer-deps
         VERSION=$(node -p "require('./package.json').version")
         rm ../../package-lock.json
         echo "VERSION=$VERSION" >> $GITHUB_ENV

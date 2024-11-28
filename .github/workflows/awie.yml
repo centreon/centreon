@@ -6,7 +6,7 @@ concurrency:
 
 on:
   workflow_dispatch:
-  pull_request:
+  pull_request_target:
     types:
       - opened
       - synchronize
@@ -35,7 +35,13 @@ env:
   module: awie
 
 jobs:
+  get-environment:
+    uses: ./.github/workflows/get-environment.yml
+    with:
+      version_file: centreon-awie/www/modules/centreon-awie/conf.php
+
   changes:
+    needs: [get-environment]
     runs-on: ubuntu-24.04
     outputs:
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
@@ -62,18 +68,16 @@ jobs:
       - uses: ./.github/actions/changes-trigger-checks
         id: changes_trigger_checks
         with:
+          is_nightly: 'false'
           has_frontend_changes: 'false'
           has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
           has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
 
-  get-environment:
-    uses: ./.github/workflows/get-environment.yml
-    with:
-      version_file: centreon-awie/www/modules/centreon-awie/conf.php
-
   veracode-analysis:
     needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.is_targeting_feature_branch != 'true' && github.event.pull_request.draft != 'true' }}
+    if: |
+      needs.get-environment.outputs.is_targeting_feature_branch != 'true' &&
+      github.event.pull_request.draft != 'true'
     uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: centreon-awie
@@ -92,7 +96,7 @@ jobs:
   backend-lint:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_backend_changes == 'true' }}
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
@@ -115,7 +119,7 @@ jobs:
 
   package:
     needs: [get-environment, backend-lint]
-    if: ${{ needs.get-environment.outputs.stability != 'stable' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.get-environment.outputs.stability != 'stable' }}
 
     strategy:
       fail-fast: false
@@ -166,7 +170,12 @@ jobs:
   deliver-sources:
     runs-on: [self-hosted, common]
     needs: [get-environment, package]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
+      github.event_name != 'workflow_dispatch' &&
+      github.repository == 'centreon/centreon' &&
+      needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
 
     steps:
       - name: Checkout sources
@@ -184,7 +193,12 @@ jobs:
 
   deliver-rpm:
     needs: [changes, get-environment, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && needs.changes.outputs.trigger_delivery == 'true' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      needs.changes.outputs.trigger_delivery == 'true' &&
+      github.repository == 'centreon/centreon' &&
+      needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
     runs-on: [self-hosted, common]
 
     strategy:
@@ -209,7 +223,12 @@ jobs:
 
   deliver-deb:
     needs: [changes, get-environment, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && needs.changes.outputs.trigger_delivery == 'true' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      needs.changes.outputs.trigger_delivery == 'true' &&
+      github.repository == 'centreon/centreon' &&
+      needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
     runs-on: [self-hosted, common]
 
     strategy:
@@ -235,10 +254,14 @@ jobs:
   promote:
     needs: [get-environment, deliver-rpm, deliver-deb]
     if: |
-      (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) &&
+      github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      github.repository == 'centreon/centreon' &&
+      needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
     runs-on: [self-hosted, common]
     strategy:
       matrix:

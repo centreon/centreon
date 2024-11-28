@@ -21,7 +21,7 @@ import {
   labelSeeMore,
   labelValue
 } from '../StatusGridStandard/translatedLabels';
-import { hostsEndpoint, resourcesEndpoint } from '../api/endpoints';
+import { resourcesEndpoint } from '../api/endpoints';
 
 import {
   condensedOptions,
@@ -58,7 +58,7 @@ const initialize = ({ options, data, isPublic = false }: Props): void => {
       <TestQueryProvider>
         <Provider store={store}>
           <BrowserRouter>
-            <div style={{ height: '100vh', width: '100vw' }}>
+            <div style={{ height: '400px', width: '1000px' }}>
               <Widget
                 dashboardId={1}
                 globalRefreshInterval={{
@@ -93,7 +93,7 @@ const hostsRequests = (noValues = false): void => {
     cy.interceptAPIRequest({
       alias: 'getHostResources',
       method: Method.GET,
-      path: `./api/latest${hostsEndpoint}?**`,
+      path: `./api/latest${resourcesEndpoint}?**`,
       response: noValues ? emptyData : data
     });
 
@@ -274,7 +274,7 @@ describe('View by host', () => {
 
       cy.contains('Passive_server_1').trigger('mouseover');
 
-      cy.waitForRequest('@getHostTooltipDetails');
+      cy.waitForRequest('@getHostResources');
       cy.waitForRequest('@getDowntime');
 
       cy.get('[data-resourceName="Passive_server_1"]').should(

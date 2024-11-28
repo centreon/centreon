@@ -14,16 +14,15 @@ import {
 } from './api/endpoints';
 import {
   labelAction,
+  labelAdd,
   labelAddAHost,
   labelAddAgentConfiguration,
   labelAddHost,
-  labelAddNewAgent,
   labelAgentConfigurationCreated,
   labelAgentConfigurationUpdated,
   labelAgentType,
   labelAgentTypes,
   labelAgentsConfigurations,
-  labelCMA,
   labelCaCertificate,
   labelCancel,
   labelCertificate,
@@ -180,7 +179,7 @@ describe('Agent configurations', () => {
 
     cy.contains(labelAgentsConfigurations).should('be.visible');
     cy.contains(labelWelcomeToTheAgentsConfigurationPage).should('be.visible');
-    cy.get('button').contains(labelAddNewAgent).should('be.visible');
+    cy.get('button').contains(labelAddAgentConfiguration).should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -195,16 +194,16 @@ describe('Agent configurations', () => {
     });
 
     cy.contains(labelAgentsConfigurations).should('be.visible');
-    cy.get('button').contains(labelAddNewAgent).should('be.visible');
+    cy.get('button').contains(labelAdd).should('be.visible');
     cy.contains(labelName).should('be.visible');
     cy.contains(labelAgentType).should('be.visible');
     cy.contains(labelPoller).should('be.visible');
     cy.contains(labelAction).should('be.visible');
     cy.contains('AC 0').should('be.visible');
-    cy.contains('telegraf').should('be.visible');
+    cy.contains('Telegraf').should('be.visible');
     cy.contains('2 pollers').should('be.visible');
-    cy.contains('0 pollers').should('be.visible');
-    cy.get(`button[title="${labelDelete}"]`).should('have.length', 10);
+    cy.contains('0 poller').should('be.visible');
+    cy.get(`button[data-testid="${labelDelete}"]`).should('have.length', 10);
 
     cy.makeSnapshot();
   });
@@ -241,7 +240,7 @@ describe('Agent configurations', () => {
     cy.findAllByTestId('Search').eq(0).type('My agent');
     cy.findByLabelText('Filters').click();
     cy.findByLabelText(labelAgentTypes).click({ force: true });
-    cy.contains('Telegraf').click();
+    cy.get('[data-option-index="1"]').click();
     cy.findByLabelText(labelPollers).click({ force: true });
 
     cy.waitForRequest('@getFilterPollers');
@@ -292,12 +291,12 @@ describe('Agent configurations', () => {
 
     cy.findByLabelText('Filters').click();
     cy.findByLabelText(labelAgentTypes).click({ force: true });
-    cy.contains('Telegraf').click();
+    cy.get('[data-option-index="1"]').click();
 
     cy.findByTestId('CancelIcon').click();
     cy.findByLabelText('Filters').click();
 
-    cy.contains('Telegraf').should('not.exist');
+    cy.contains('Centreon Monitoring Agent').should('not.exist');
 
     cy.makeSnapshot();
   });
@@ -314,7 +313,7 @@ describe('Agent configurations', () => {
     cy.findAllByTestId('Search').eq(0).type('My agent');
     cy.findByLabelText('Filters').click();
     cy.findByLabelText(labelAgentTypes).click({ force: true });
-    cy.contains('Telegraf').click();
+    cy.get('[data-option-index="1"]').click();
     cy.findByLabelText(labelPollers).click({ force: true });
 
     cy.waitForRequest('@getFilterPollers');
@@ -322,7 +321,7 @@ describe('Agent configurations', () => {
     cy.contains('poller6').click();
     cy.contains(labelClear).click({ force: true });
     cy.contains('poller6').should('not.exist');
-    cy.contains('Telegraf').should('not.exist');
+    cy.contains('Centreon Monitoring Agent').should('not.exist');
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
       expect(decodeURIComponent(request.url.search)).equals(
@@ -342,7 +341,7 @@ describe('Agent configurations', () => {
       );
     });
 
-    cy.findAllByTitle(labelDelete).eq(0).click();
+    cy.get(`button[data-testid="${labelDelete}"]`).first().click();
 
     cy.contains(labelDeleteAgent).should('be.visible');
     cy.contains('You are going to delete the').should('be.visible');
@@ -367,7 +366,7 @@ describe('Agent configurations', () => {
       );
     });
 
-    cy.findAllByTitle(labelDelete).eq(0).click();
+    cy.get(`button[data-testid="${labelDelete}"]`).first().click();
 
     cy.contains(labelDeleteAgent).should('be.visible');
     cy.contains('You are going to delete the').should('be.visible');
@@ -400,7 +399,7 @@ describe('Agent configurations', () => {
     cy.contains('poller 1').should('be.visible');
     cy.contains('poller 2').should('be.visible');
 
-    cy.findAllByTitle(labelDelete).eq(1).click();
+    cy.get(`button[data-testid="${labelDelete}"]`).eq(1).click();
 
     cy.contains(labelDeletePoller).should('be.visible');
     cy.contains('You are going to delete the').should('be.visible');
@@ -424,12 +423,12 @@ describe('Agent configurations modal', () => {
   it('does not validate the form when fields contain errors', () => {
     initialize({});
 
-    cy.contains(labelAddNewAgent).click();
+    cy.contains(labelAdd).click();
 
-    cy.contains(labelAddAgentConfiguration).should('be.visible');
+    cy.contains(labelAdd).should('be.visible');
 
     cy.findByLabelText(labelAgentType).click();
-    cy.contains('Telegraf').click();
+    cy.get('[data-option-index="0"]').click();
     cy.findByLabelText(labelName).focus();
     cy.findByLabelText(labelName).blur();
     cy.findByLabelText(labelPollers).focus();
@@ -454,14 +453,14 @@ describe('Agent configurations modal', () => {
   it('discards the form when the cancel button is clicked and the corresponding button is clicked', () => {
     initialize({});
 
-    cy.contains(labelAddNewAgent).click();
+    cy.contains(labelAdd).click();
 
     cy.findByLabelText(labelName).type('agent');
 
     cy.contains(labelCancel).click();
     cy.contains('Discard').click();
 
-    cy.contains(labelAddAgentConfiguration).should('not.exist');
+    cy.findByLabelText(labelName).should('not.exist');
 
     cy.makeSnapshot();
   });
@@ -469,14 +468,14 @@ describe('Agent configurations modal', () => {
   it('resolves the form when the cancel button is clicked and the corresponding button is clicked', () => {
     initialize({});
 
-    cy.contains(labelAddNewAgent).click();
+    cy.contains(labelAdd).click();
 
     cy.findByLabelText(labelName).type('agent');
 
     cy.contains(labelCancel).click();
     cy.contains('Resolve').click();
 
-    cy.contains(labelAddAgentConfiguration).should('exist');
+    cy.contains(labelAdd).should('exist');
     cy.contains('Resolve').should('not.exist');
 
     cy.makeSnapshot();
@@ -485,10 +484,10 @@ describe('Agent configurations modal', () => {
   it('sends the form when fields are valid and the corresponding button is clicked', () => {
     initialize({});
 
-    cy.contains(labelAddNewAgent).click();
+    cy.contains(labelAdd).click();
 
     cy.findByLabelText(labelAgentType).click();
-    cy.contains('Telegraf').click();
+    cy.get('[data-option-index="0"]').click();
     cy.findByLabelText(labelName).type('agent');
     cy.findByLabelText(labelPollers).click();
     cy.contains('poller1').click();
@@ -555,23 +554,17 @@ describe('Agent configurations modal', () => {
   it('displays the CMA form when the CMA agent type is selected', () => {
     initialize({});
 
-    cy.contains(labelAddNewAgent).click();
+    cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
-    cy.contains(labelCMA).click();
+    cy.get('[data-option-index="1"]').click();
 
-    cy.findByLabelText(labelConnectionInitiatedByPoller).should('be.checked');
+    cy.findByLabelText(labelConnectionInitiatedByPoller).should(
+      'not.be.checked'
+    );
     cy.contains(labelOTLPReceiver).should('be.visible');
-    cy.contains(labelHostConfigurations).should('be.visible');
     cy.findByLabelText(labelPublicCertificate).should('have.value', '');
     cy.findAllByLabelText(labelCaCertificate).eq(0).should('have.value', '');
-    cy.findAllByLabelText(labelCaCertificate).eq(1).should('have.value', '');
     cy.findByLabelText(labelPrivateKey).should('have.value', '');
-    cy.findByLabelText(labelAddHost).should('be.visible');
-    cy.findByLabelText(labelDNSIP).should('have.value', '');
-    cy.findByTestId(labelPort).should('have.value', '');
-    cy.contains(labelAddAHost).should('exist');
-    cy.findByLabelText(labelCertificate).should('have.value', '');
-    cy.findByTestId('delete-host-configuration-0').should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -579,9 +572,9 @@ describe('Agent configurations modal', () => {
   it('resets the form when a different agent type is selected', () => {
     initialize({});
 
-    cy.contains(labelAddNewAgent).click();
+    cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
-    cy.contains(labelCMA).click();
+    cy.get('[data-option-index="1"]').click();
     cy.findByLabelText(labelName).type('My agent');
     cy.findByLabelText(labelPublicCertificate).type('something').clear();
     cy.findByLabelText(labelPublicCertificate).blur();
@@ -591,7 +584,7 @@ describe('Agent configurations modal', () => {
     cy.contains(labelInvalidFilename).should('be.visible');
 
     cy.findByLabelText(labelAgentType).click();
-    cy.contains('Telegraf').click();
+    cy.get('[data-option-index="0"]').click();
 
     cy.contains(labelHostConfigurations).should('not.exist');
     cy.contains(labelRequired).should('not.exist');
@@ -605,9 +598,10 @@ describe('Agent configurations modal', () => {
   it('does not validate the form when there is no host configuration', () => {
     initialize({});
 
-    cy.contains(labelAddNewAgent).click();
+    cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
-    cy.contains(labelCMA).click();
+    cy.get('[data-option-index="1"]').click();
+    cy.findByLabelText(labelConnectionInitiatedByPoller).click();
     cy.findByTestId('delete-host-configuration-0').click();
     cy.findByLabelText(labelName).type('My agent');
     cy.findByLabelText(labelPublicCertificate).type('test');
@@ -624,11 +618,10 @@ describe('Agent configurations modal', () => {
   it('validates the form when fields are filled and the reverse switch is unchecked', () => {
     initialize({});
 
-    cy.contains(labelAddNewAgent).click();
+    cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
-    cy.contains(labelCMA).click();
+    cy.get('[data-option-index="1"]').click();
     cy.findByLabelText(labelName).type('My agent');
-    cy.contains(labelConnectionInitiatedByPoller).click();
     cy.findByLabelText(labelPollers).click();
     cy.contains('poller1').click();
     cy.findByLabelText(labelPublicCertificate).type('test');
@@ -646,14 +639,7 @@ describe('Agent configurations modal', () => {
           otel_ca_certificate: 'test',
           otel_public_certificate: 'test',
           otel_private_key: 'key',
-          hosts: [
-            {
-              address: '',
-              port: '',
-              poller_ca_certificate: null,
-              poller_ca_name: null
-            }
-          ]
+          hosts: []
         }
       });
     });
@@ -664,9 +650,10 @@ describe('Agent configurations modal', () => {
   it('configures the host address and port when a host is selected', () => {
     initialize({});
 
-    cy.contains(labelAddNewAgent).click();
+    cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
-    cy.contains(labelCMA).click();
+    cy.get('[data-option-index="1"]').click();
+    cy.findByLabelText(labelConnectionInitiatedByPoller).click();
     cy.findByLabelText(labelAddHost).click();
 
     cy.waitForRequest('@getHosts');
@@ -682,9 +669,10 @@ describe('Agent configurations modal', () => {
   it('splits the address and the port when a full address is pasted in the address field', () => {
     initialize({});
 
-    cy.contains(labelAddNewAgent).click();
+    cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
-    cy.contains(labelCMA).click();
+    cy.get('[data-option-index="1"]').click();
+    cy.findByLabelText(labelConnectionInitiatedByPoller).click();
     cy.findByLabelText(labelDNSIP).type('127.0.0.1:8');
     cy.findByLabelText(labelDNSIP).should('have.value', '127.0.0.1');
     cy.findByTestId(labelPort).find('input').should('have.value', '8');
@@ -695,9 +683,10 @@ describe('Agent configurations modal', () => {
   it('adds a new host configuration when the corresponding button is clicked', () => {
     initialize({});
 
-    cy.contains(labelAddNewAgent).click();
+    cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
-    cy.contains(labelCMA).click();
+    cy.get('[data-option-index="1"]').click();
+    cy.findByLabelText(labelConnectionInitiatedByPoller).click();
 
     cy.contains(labelAddAHost).click();
 
@@ -709,9 +698,10 @@ describe('Agent configurations modal', () => {
   it('removes a host configuration when the corresponding button is clicked', () => {
     initialize({});
 
-    cy.contains(labelAddNewAgent).click();
+    cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
-    cy.contains(labelCMA).click();
+    cy.get('[data-option-index="1"]').click();
+    cy.findByLabelText(labelConnectionInitiatedByPoller).click();
 
     cy.contains(labelAddAHost).click();
 
@@ -725,9 +715,10 @@ describe('Agent configurations modal', () => {
   it('sends the CMA agent type when the form is valid and the save button is clicked', () => {
     initialize({});
 
-    cy.contains(labelAddNewAgent).click();
+    cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
-    cy.contains(labelCMA).click();
+    cy.get('[data-option-index="1"]').click();
+    cy.findByLabelText(labelConnectionInitiatedByPoller).click();
     cy.findByLabelText(labelName).type('My agent');
     cy.findByLabelText(labelPollers).click();
     cy.contains('poller1').click();
