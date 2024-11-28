@@ -87,6 +87,62 @@ export const panelsLengthAtom = atom(0);
 const strictMinWidgetSize = 2;
 const preferredWidgetSize = 4;
 
+interface PanelPosition {
+  x: number;
+  y: number;
+}
+
+interface GetNewPanelPositionProps {
+  maxHeight: number;
+  columns: number;
+  panelWidth: number;
+  panelHeight: number;
+  dashboard: Dashboard;
+}
+
+const getNewPanelPosition = ({
+  maxHeight,
+  columns,
+  dashboard,
+  panelWidth,
+  panelHeight
+}: GetNewPanelPositionProps): PanelPosition => {
+  let position: PanelPosition | undefined = undefined;
+
+  if (equals(maxHeight, 0)) {
+    return { x: 0, y: 0 };
+  }
+
+  Array(maxHeight)
+    .fill(0)
+    .forEach((_, positionY) => {
+      Array(columns)
+        .fill(0)
+        .forEach((_, positionX) => {
+          if (!position) {
+            const collidesWithPanel = dashboard.layout.filter(
+              ({ x, y, w, h }) => {
+                if (positionX + panelWidth <= x) return false;
+                if (positionX >= x + w) return false;
+                if (positionY + panelHeight <= y) return false;
+                if (positionY >= y + h) return false;
+                return true;
+              }
+            );
+
+            if (
+              isEmpty(collidesWithPanel) &&
+              positionX + panelWidth <= columns
+            ) {
+              position = { x: positionX, y: positionY };
+            }
+          }
+        });
+    });
+
+  return position || { x: 0, y: maxHeight + 1 };
+};
+
 export const addPanelDerivedAtom = atom(
   null,
   (
@@ -133,46 +189,26 @@ export const addPanelDerivedAtom = atom(
       static: false
     };
 
-    const maxHeight = Math.max(...map(({ y, h }) => y + h, dashboard.layout));
+    const maxHeight = Math.max(
+      ...map(({ y, h }) => y + h, dashboard.layout),
+      0
+    );
 
-    let x = 0;
-    let y = 0;
-    let locked = false;
-
-    Array(maxHeight)
-      .fill(0)
-      .forEach((_, positionY) => {
-        Array(columnsFromScreenSize)
-          .fill(0)
-          .forEach((_, positionX) => {
-            if (locked) {
-              return;
-            }
-            const collidesWithPanel = dashboard.layout.filter(
-              ({ x, y, w, h }) => {
-                if (positionX + panelWidth <= x) return false;
-                if (positionX >= x + w) return false;
-                if (positionY + panelHeight <= y) return false;
-                if (positionY >= y + h) return false;
-                return true;
-              }
-            );
-
-            if (isEmpty(collidesWithPanel)) {
-              x = positionX;
-              y = positionY;
-              locked = true;
-            }
-          });
-      });
+    const panelPosition = getNewPanelPosition({
+      dashboard,
+      maxHeight,
+      columns: columnsFromScreenSize,
+      panelWidth,
+      panelHeight
+    });
 
     const newLayout = [
       ...dashboard.layout,
       {
         ...basePanelLayout,
         w: panelWidth,
-        x,
-        y
+        x: panelPosition.x,
+        y: panelPosition.y
       }
     ];
 
