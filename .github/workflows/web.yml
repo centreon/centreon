@@ -103,7 +103,7 @@ jobs:
 
       - uses: ./.github/actions/gherkin-lint
         with:
-          features_path: centreon/tests/e2e/features
+          features_path: centreon/tests/e2e/cypress/e2e
 
   frontend-build:
     needs: [get-environment]
