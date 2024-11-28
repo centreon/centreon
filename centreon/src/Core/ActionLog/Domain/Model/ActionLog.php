@@ -30,6 +30,7 @@ class ActionLog
     public const ACTION_TYPE_ENABLE = 'enable';
     public const ACTION_TYPE_DISABLE = 'disable';
     public const OBJECT_TYPE_SERVICE_SEVERITY = 'serviceseverity';
+    public const OBJECT_TYPE_HOST_SEVERITY = 'hostseverity';
 
     private ?int $id = null;
 

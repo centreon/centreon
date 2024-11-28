@@ -1,0 +1,25 @@
+services:
+  _defaults:
+    public: false
+    autowire: true      # Automatically injects dependencies in your services.
+    autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
+
+  Core\HostSeverity\:
+    resource: '../../../../Core/HostSeverity/*'
+    bind:
+      $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
+
+  Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface:
+    class: Core\HostSeverity\Infrastructure\Repository\DbReadHostSeverityRepository
+
+  Core\HostSeverity\Application\Repository\WriteHostSeverityRepositoryInterface:
+    class: Core\HostSeverity\Infrastructure\Repository\DbWriteHostSeverityRepository
+
+  Core\HostSeverity\Infrastructure\Repository\DbWriteHostSeverityActionLogRepository:
+    decorates: Core\HostSeverity\Application\Repository\WriteHostSeverityRepositoryInterface
+    arguments:
+      - '@.inner'
+      - '@Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface'
+      - '@Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface'
+      - '@Centreon\Domain\Contact\Interfaces\ContactInterface'
+      - '@Centreon\Infrastructure\DatabaseConnection'
