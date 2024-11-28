@@ -78,6 +78,12 @@ on:
         required: true
       registry_private_token:
         required: true
+      jira_base_url:
+        required: false
+      jira_user_email:
+        required: false
+      jira_api_token:
+        required: false
 
 jobs:
   package:
