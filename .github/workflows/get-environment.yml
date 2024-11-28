@@ -94,7 +94,6 @@ jobs:
                   issue_number: context.issue.number
                 });
                 labels.data.forEach(({ name }) => {
-                  console.log(name);
                   if (name === '${{ format('skip-workflow-{0}', github.workflow) }}') {
                     hasSkipLabel = true;
                   }
@@ -105,7 +104,6 @@ jobs:
             }
 
             return hasSkipLabel;
-            // return ${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) && contains(github.event.pull_request.labels.*.name, format('skip-workflow-{0}', github.workflow)) && 'true' || 'false' }};
 
       - name: Checkout sources (current branch)
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
