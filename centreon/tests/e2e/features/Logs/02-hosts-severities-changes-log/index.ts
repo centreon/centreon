@@ -55,6 +55,10 @@ Then(
       rootItemNumber: 4
     });
     cy.wait('@getTimeZone');
+    cy.waitForElementInIframe(
+      '#main-content',
+      'span[class*="badge service_ok"]'
+    );
     cy.getIframeBody()
       .contains('span.badge.service_ok', 'Added')
       .should('exist');
@@ -122,6 +126,10 @@ Then(
       rootItemNumber: 4
     });
     cy.wait('@getTimeZone');
+    cy.waitForElementInIframe(
+      '#main-content',
+      'span[class*="badge service_critical"]'
+    );
     cy.getIframeBody()
       .contains('span.badge.service_critical', 'Deleted')
       .should('exist');
@@ -152,6 +160,10 @@ Then(
       rootItemNumber: 4
     });
     cy.wait('@getTimeZone');
+    cy.waitForElementInIframe(
+      '#main-content',
+      'span[class*="badge service_warning"]'
+    );
     cy.getIframeBody()
       .contains('span.badge.service_warning', 'Changed')
       .should('exist');
@@ -217,6 +229,10 @@ Then(
       rootItemNumber: 4
     });
     cy.wait('@getTimeZone');
+    cy.waitForElementInIframe(
+      '#main-content',
+      'span[class*="badge service_critical"]'
+    );
     cy.getIframeBody()
       .contains('span.badge.service_critical', 'Disabled')
       .should('exist');
@@ -251,6 +267,10 @@ Then(
       rootItemNumber: 4
     });
     cy.wait('@getTimeZone');
+    cy.waitForElementInIframe(
+      '#main-content',
+      'span[class*="badge service_ok"]'
+    );
     cy.getIframeBody()
       .contains('span.badge.service_ok', 'Enabled')
       .should('exist');
