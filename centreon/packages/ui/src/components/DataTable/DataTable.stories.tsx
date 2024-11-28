@@ -48,6 +48,23 @@ export const AsEmptyState: Story = {
   }
 };
 
+export const AsEmptyStateWithDescription: Story = {
+  args: {
+    children: (
+      <DataTable.EmptyState
+        labels={{
+          actions: {
+            create: 'Create item'
+          },
+          title: 'No items found',
+          description: 'Description'
+        }}
+      />
+    ),
+    isEmpty: true
+  }
+};
+
 export const withFixedHeightContainer: Story = {
   args: { ...Default.args },
   render: (args) => (

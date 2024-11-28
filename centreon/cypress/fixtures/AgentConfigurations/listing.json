@@ -1,0 +1,150 @@
+{
+  "result": [
+    {
+      "id": 0,
+      "name": "AC 0",
+      "type": "telegraf",
+      "pollers": [
+        {
+          "id": 1,
+          "name": "poller 1"
+        },
+        {
+          "id": 2,
+          "name": "poller 2"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "name": "AC 1",
+      "type": "telegraf",
+      "pollers": []
+    },
+    {
+      "id": 2,
+      "name": "AC 2",
+      "type": "telegraf",
+      "pollers": [
+        {
+          "id": 1,
+          "name": "poller 1"
+        },
+        {
+          "id": 2,
+          "name": "poller 2"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "AC 3",
+      "type": "telegraf",
+      "pollers": [
+        {
+          "id": 1,
+          "name": "poller 1"
+        },
+        {
+          "id": 2,
+          "name": "poller 2"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "AC 4",
+      "type": "telegraf",
+      "pollers": [
+        {
+          "id": 1,
+          "name": "poller 1"
+        },
+        {
+          "id": 2,
+          "name": "poller 2"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "AC 5",
+      "type": "telegraf",
+      "pollers": [
+        {
+          "id": 1,
+          "name": "poller 1"
+        },
+        {
+          "id": 2,
+          "name": "poller 2"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "AC 6",
+      "type": "telegraf",
+      "pollers": [
+        {
+          "id": 1,
+          "name": "poller 1"
+        },
+        {
+          "id": 2,
+          "name": "poller 2"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "AC 7",
+      "type": "telegraf",
+      "pollers": [
+        {
+          "id": 1,
+          "name": "poller 1"
+        },
+        {
+          "id": 2,
+          "name": "poller 2"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "AC 8",
+      "type": "telegraf",
+      "pollers": [
+        {
+          "id": 1,
+          "name": "poller 1"
+        },
+        {
+          "id": 2,
+          "name": "poller 2"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "AC 9",
+      "type": "telegraf",
+      "pollers": [
+        {
+          "id": 1,
+          "name": "poller 1"
+        },
+        {
+          "id": 2,
+          "name": "poller 2"
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "total": 20,
+    "limit": 10,
+    "page": 1
+  }
+}
