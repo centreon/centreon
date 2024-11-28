@@ -66,9 +66,10 @@ on:
         description: The package files cache key
         required: true
       is_nightly:
-        type: boolean
+        type: string
         description: Nightly context or not
-        required: true
+        required: false
+
     secrets:
       registry_username:
         required: true
