@@ -17,7 +17,7 @@ const useStyles = makeStyles()((theme) => ({
   logo: {
     alignSelf: 'flex-end',
     height: theme.spacing(11),
-    width: '22rem'
+    width: '239px'
   },
   message: {
     color: theme.palette.text.primary
