@@ -46,16 +46,16 @@ inputs:
     required: true
   is_nightly:
     description: Nightly context or not
-    required: true
+    required: false
   jira_base_url:
-    required: true
     description: jira base url
+    required: false
   jira_user_email:
-    required: true
     description: jira user email
+    required: false
   jira_api_token:
-    required: true
     description: jira api token
+    required: false
 
 runs:
   using: composite
