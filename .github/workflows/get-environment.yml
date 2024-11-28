@@ -86,14 +86,19 @@ jobs:
           script: |
             let hasSkipLabel = false;
 
-            if (${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) }} === true) {
+            if (${{ contains(fromJSON('["pull_requests", "pull_request_targets"]') , github.event_name) }} === true) {
               try {
                 const labels = await github.rest.issues.listLabelsOnIssue({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: context.issue.number
                 });
-                console.log(labels);
+                labels.data.forEach({ name } => {
+                  if (name === '${{ format('skip-workflow-{0}', github.workflow) }}') {
+                    hasSkipLabel = true;
+                  }
+                })
+                console.log(labels?.data);
               } catch (e) {
                 core.warning(`failed to list labels: ${e}`);
               }
