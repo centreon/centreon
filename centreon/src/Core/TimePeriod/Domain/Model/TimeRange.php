@@ -31,6 +31,11 @@ use Core\TimePeriod\Domain\Exception\TimeRangeException;
  */
 class TimeRange implements \Stringable
 {
+    /**
+     * @var string TIME_RANGE_FULL_DAY_ALIAS The time range for the entire day in DOC
+     */
+    private const TIME_RANGE_FULL_DAY_ALIAS = '00:00-00:00';
+
     /** @var string Comma-delimited time range (00:00-12:00) for a particular day of the week. */
     private string $timeRange;
 
@@ -62,6 +67,14 @@ class TimeRange implements \Stringable
     }
 
     /**
+     * @return array<array{start: string, end: string}>
+     */
+    public function getRanges(): array
+    {
+        return $this->extractRange($this->timeRange);
+    }
+
+    /**
      * Check the format of the time range(s).
      * 00:00-12:00,13:00-14:00,...
      *
@@ -71,6 +84,7 @@ class TimeRange implements \Stringable
      */
     private function isValidTimeRangeFormat(string $timeRange): bool
     {
+
         return (bool) preg_match(
             "/^((?'time_range'(?'time'(([[0-1][0-9]|2[0-3]):[0-5][0-9]))-((?&time)|24:00))(,(?&time_range))*)$/",
             $timeRange
@@ -89,6 +103,9 @@ class TimeRange implements \Stringable
     private function areTimeRangesOrderedWithoutOverlap(string $timeRanges): bool
     {
         $previousEndTime = null;
+        if ($timeRanges === self::TIME_RANGE_FULL_DAY_ALIAS) {
+            return true;
+        }
         foreach (explode(',', $timeRanges) as $timeRange) {
             [$start, $end] = explode('-', $timeRange);
             // The start of a new time range cannot be less than or equal to the end of the previous time range
@@ -103,5 +120,33 @@ class TimeRange implements \Stringable
         }
 
         return true;
+    }
+
+    /**
+     * @param string $rule
+     *
+     * @return array<array{start: string, end: string}>
+     */
+    private function extractRange(string $rule): array
+    {
+        return $this->extractRanges($rule);
+    }
+
+    /**
+     * @param string $rule
+     *
+     * @return array<array{start: string, end: string}>
+     */
+    private function extractRanges(string $rule): array
+    {
+        $timePeriodRanges = explode(',', trim($rule));
+
+        $timeRanges = [];
+        foreach ($timePeriodRanges as $timePeriodRange) {
+            [$start, $end] = explode('-', trim($timePeriodRange));
+            $timeRanges[] = ['start' => $start, 'end' => $end];
+        }
+
+        return $timeRanges;
     }
 }
