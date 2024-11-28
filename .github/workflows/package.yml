@@ -69,7 +69,6 @@ on:
         type: string
         description: Nightly context or not
         required: false
-
     secrets:
       registry_username:
         required: true
