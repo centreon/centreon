@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
             if ($service === null) {
                 throw new RepositoryException(sprintf('Cannot find service to delete (ID: %d).', $serviceId));
             }
-            
+
             $this->writeServiceRepository->delete($serviceId);
 
             $actionLog = new ActionLog(
@@ -88,7 +88,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
 
             throw $ex;
         }
-    } 
+    }
 
     /**
      * @inheritDoc
@@ -102,7 +102,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                 if ($service === null) {
                     throw new RepositoryException(sprintf('Cannot find service to delete (ID: %d).', $serviceId));
                 }
-                
+
                 $this->writeServiceRepository->delete($serviceId);
 
                 $actionLog = new ActionLog(
