@@ -251,3 +251,8 @@ jobs:
           github_ref_name: ${{ github.ref_name }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+
+  set-skip-label:
+    needs: [get-environment, deliver-rpm, deliver-deb, promote]
+    if: needs.get-environment.outputs.skip_workflow == 'false'
+    uses: ./.github/workflows/set-pull-request-skip-label.yml
