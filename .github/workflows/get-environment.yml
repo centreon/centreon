@@ -86,7 +86,7 @@ jobs:
           script: |
             let hasSkipLabel = false;
 
-            if (${{ contains(fromJSON('["pull_requests", "pull_request_targets"]') , github.event_name) }} === true) {
+            if (${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) }} === true) {
               try {
                 const labels = await github.rest.issues.listLabelsOnIssue({
                   owner: context.repo.owner,
@@ -94,6 +94,7 @@ jobs:
                   issue_number: context.issue.number
                 });
                 labels.data.forEach(({ name }) => {
+                  console.log(name);
                   if (name === '${{ format('skip-workflow-{0}', github.workflow) }}') {
                     hasSkipLabel = true;
                   }
