@@ -20,7 +20,7 @@ const internalWidgets: Array<
   ...testWidgets,
   {
     name: 'batree',
-    panelMinHeight: 5,
+    panelMinHeight: 6,
     panelMinWidth: 6,
     panelDefaultWidth: 6,
     panelDefaultHeight: 6
