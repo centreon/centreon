@@ -112,6 +112,23 @@ $insertAgentConfigurationTopology = function (CentreonDB $pearDB) use (&$errorMe
     }
 };
 
+/**
+ * Updates the display name and description for the connections_count field in the cb_field table.
+ * @param CentreonDB $pearDB
+ * @throws Exception
+ */
+$updateConnectionsCountDescription = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to update description in cb_field table';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE `cb_field`
+            SET `displayname` = "Number of connections to the database",
+                `description` = "1: all queries are sent through one connection\n 2: one connection for data_bin and logs, one for the rest\n 3: one connection for data_bin, one for logs, one for the rest"
+            WHERE `fieldname` = "connections_count"
+        SQL
+    );
+};
+
 try {
     $createAgentConfiguration($pearDB);
     $createDashboardThumbnailTable($pearDB);
@@ -122,6 +139,7 @@ try {
     }
 
     $insertAgentConfigurationTopology($pearDB);
+    $updateConnectionsCountDescription($pearDB);
 
     $pearDB->commit();
 } catch (Exception $e) {

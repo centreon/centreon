@@ -1,3 +1,4 @@
+import { ResourceType } from '@centreon/ui';
 import type { FormikValues } from 'formik';
 import type { TFunction } from 'i18next';
 import {
@@ -10,7 +11,6 @@ import {
   pluck,
   split
 } from 'ramda';
-
 import {
   type AnyObjectSchema,
   type AnySchema,
@@ -23,6 +23,7 @@ import {
   object,
   string
 } from 'yup';
+
 import {
   type FederatedWidgetOption,
   FederatedWidgetOptionType
@@ -235,3 +236,9 @@ export const areResourcesFullfilled = (
     ({ resourceType, resources }) =>
       !isEmpty(resourceType) && !isEmpty(resources)
   );
+
+export const getIsMetaServiceSelected = (
+  resources: Array<WidgetDataResource> = []
+): boolean =>
+  equals(resources.length, 1) &&
+  equals(resources[0].resourceType, ResourceType.metaService);
