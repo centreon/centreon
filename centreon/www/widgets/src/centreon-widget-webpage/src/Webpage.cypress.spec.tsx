@@ -4,15 +4,18 @@ import { createStore } from 'jotai';
 import Widget from '.';
 import { labelWebPagePreview } from './translatedLabels';
 
-const initialize = ({   widgetId = "1" , url,globalRefreshInterval = {
-  interval: null,
-  type: 'manual',
-
-} }): void => {
+const initialize = ({
+  widgetId = '1',
+  url,
+  globalRefreshInterval = {
+    interval: null,
+    type: 'manual'
+  }
+}): void => {
   const store = createStore();
 
-  cy.clock(); 
-  
+  cy.clock();
+
   cy.mount({
     Component: (
       <div style={{ height: '100vh', position: 'relative', width: '100%' }}>
@@ -21,8 +24,7 @@ const initialize = ({   widgetId = "1" , url,globalRefreshInterval = {
           globalRefreshInterval={globalRefreshInterval}
           hasDescription={false}
           id={widgetId}
-          panelOptions={{ url 
-           }}
+          panelOptions={{ url }}
           queryClient={new QueryClient()}
           refreshCount={0}
           store={store}
@@ -81,8 +83,15 @@ describe('Web page', () => {
   });
 
   it('transforms a URL correctly when missing http prefix', () => {
-    initialize({ url: 'docs.centreon.com', globalRefreshInterval: { interval: null, type: 'manual' } });
+    initialize({
+      url: 'docs.centreon.com',
+      globalRefreshInterval: { interval: null, type: 'manual' }
+    });
 
-    cy.findByTestId('Webpage Display').should('have.attr', 'src', 'http://docs.centreon.com');
+    cy.findByTestId('Webpage Display').should(
+      'have.attr',
+      'src',
+      'http://docs.centreon.com'
+    );
   });
 });

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,32 @@
 require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 
-//error specific content
+$centreonLog = CentreonLog::create();
+
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 24.10.3: ';
 $errorMessage = '';
+
+$createDashboardThumbnailTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add table dashboard_thumbnail_relation';
+    $pearDB->executeQuery(
+        <<<SQL
+            CREATE TABLE IF NOT EXISTS `dashboard_thumbnail_relation` (
+              `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+              `dashboard_id` INT UNSIGNED NOT NULL,
+              `img_id` int(11) NOT NULL,
+              PRIMARY KEY (`id`),
+              UNIQUE KEY `dashboard_thumbnail_relation_unique` (`dashboard_id`,`img_id`),
+              CONSTRAINT `dashboard_thumbnail_relation_dashboard_id`
+                FOREIGN KEY (`dashboard_id`)
+                REFERENCES `dashboard` (`id`) ON DELETE CASCADE,
+              CONSTRAINT `dashboard_thumbnail_relation_img_id`
+                FOREIGN KEY (`img_id`)
+                REFERENCES `view_img` (`img_id`) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        SQL
+    );
+};
 
 // Agent Configuration
 $createAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
@@ -89,26 +112,26 @@ $insertAgentConfigurationTopology = function (CentreonDB $pearDB) use (&$errorMe
     }
 };
 
-// DDL statements
-$addAllContactsColumnToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to add the colum all_contacts to the table acl_groups';
-    if (! $pearDB->isColumnExist(table: 'acl_groups', column: 'all_contacts')) {
-        $pearDB->exec('ALTER TABLE `acl_groups` ADD COLUMN `all_contacts` TINYINT(1) DEFAULT 0 NOT NULL');
-    }
-};
-
-$addAllContactGroupsColumnToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to add the colum all_contact_groups to the table acl_groups';
-    if (! $pearDB->isColumnExist(table: 'acl_groups', column: 'all_contact_groups')) {
-        $pearDB->exec('ALTER TABLE `acl_groups` ADD COLUMN `all_contact_groups` TINYINT(1) DEFAULT 0 NOT NULL');
-    }
+/**
+ * Updates the display name and description for the connections_count field in the cb_field table.
+ * @param CentreonDB $pearDB
+ * @throws Exception
+ */
+$updateConnectionsCountDescription = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to update description in cb_field table';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE `cb_field`
+            SET `displayname` = "Number of connections to the database",
+                `description` = "1: all queries are sent through one connection\n 2: one connection for data_bin and logs, one for the rest\n 3: one connection for data_bin, one for logs, one for the rest"
+            WHERE `fieldname` = "connections_count"
+        SQL
+    );
 };
 
 try {
     $createAgentConfiguration($pearDB);
-    // DDL statements
-    $addAllContactsColumnToAclGroups($pearDB);
-    $addAllContactGroupsColumnToAclGroups($pearDB);
+    $createDashboardThumbnailTable($pearDB);
 
     // Transactional queries
     if (! $pearDB->inTransaction()) {
@@ -116,27 +139,22 @@ try {
     }
 
     $insertAgentConfigurationTopology($pearDB);
+    $updateConnectionsCountDescription($pearDB);
 
     $pearDB->commit();
-} catch (\Exception $e) {
-    CentreonLog::create()->error(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: $versionOfTheUpgrade . $errorMessage,
-        customContext: ['trace' => $e->getTraceAsString()],
-        exception: $e
-    );
-
+} catch (Exception $e) {
     if ($pearDB->inTransaction()) {
-        try {
-            $pearDB->rollBack();
-        } catch (PDOException $e) {
-            CentreonLog::create()->error(
-                logTypeId: CentreonLog::TYPE_UPGRADE,
-                message: "{$versionOfTheUpgrade} error while rolling back the upgrade operation",
-                exception: $e
-            );
-        }
+        $pearDB->rollBack();
     }
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    $centreonLog->log(
+        CentreonLog::TYPE_UPGRADE,
+        CentreonLog::LEVEL_ERROR,
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . (int) $e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString()
+    );
+
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

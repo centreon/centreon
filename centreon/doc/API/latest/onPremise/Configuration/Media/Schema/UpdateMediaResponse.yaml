@@ -1,0 +1,18 @@
+type: object
+properties:
+  id:
+    type: integer
+    nullable: true
+    example: 1
+  filename:
+    type: string
+    nullable: false
+    example: "centreon_logo.jpg"
+  directory:
+    type: string
+    nullable: false
+    example: "logos"
+  md5:
+    type: string
+    nullable: false
+    example: "f7d5fc06a33946703054046c7174bbf4"
