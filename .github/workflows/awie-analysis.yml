@@ -35,10 +35,6 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon-awie/**"
-      - "!centreon-awie/features/**"
-      - "!centreon-awie/behat.yml"
-      - "!centreon-awie/veracode.json"
-      - "!centreon-awie/.veracode-exclusions"
 
 env:
   module: awie
