@@ -97,33 +97,6 @@ jobs:
       version_file: centreon/www/install/insertBaseConf.sql
       nightly_manual_trigger: ${{ inputs.nightly_manual_trigger || false }}
 
-  dispatch-to-maintained-branches:
-    if: |
-      github.run_attempt == 1 &&
-      github.event_name == 'schedule' &&
-      github.ref_name == 'develop' &&
-      github.repository == 'centreon/centreon'
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
-
-      - name: Check current day of the week
-        id: day_check
-        run: echo "day_of_week=$(date +%u)" >> $GITHUB_OUTPUT
-        shell: bash
-
-      - if: ${{ steps.day_check.outputs.day_of_week == '1' }}
-        run: |
-          NIGHTLY_TARGETS=("dev-22.10.x" "dev-23.04.x" "dev-23.10.x" "dev-24.04.x" "dev-24.10.x")
-          for target in "${NIGHTLY_TARGETS[@]}"; do
-            echo "[INFO] - Dispatching nightly run to $target branch."
-            gh workflow run web.yml -r "$target" -f nightly_manual_trigger=true
-          done
-        shell: bash
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   gherkin-lint:
     runs-on: ubuntu-24.04
     needs: [get-environment, changes]
@@ -974,6 +947,35 @@ jobs:
           github_ref_name: ${{ github.ref_name }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+
+  deploy-platform-nightly:
+    needs:
+      [
+        get-environment,
+        api-integration-test,
+        e2e-test,
+        performances-test,
+        legacy-e2e-test,
+        deliver-rpm
+      ]
+    if: ${{ github.event_name == 'schedule' && contains(fromJson('["unstable"]'), needs.get-environment.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Trigger platform deployment
+        uses: ./.github/actions/nightly-platform-deploy
+        with:
+          ref: main
+          bu: RD
+          poller_number: 1
+          system_name: Alma8
+          centreon_branch: develop
+          configured_resources: false
+          install_business_modules: false
+          instance_password: ${{ secrets.COD_NIGHTLY_INSTANCE_ADMIN_PWD }}
+          cod_service_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   set-skip-label:
     needs: [get-environment, deliver-deb, deliver-rpm, promote]
