@@ -112,6 +112,9 @@ jobs:
           commit_hash: ${{ inputs.commit_hash }}
           cache_key: unsigned-${{ inputs.cache_key }}
           is_nightly: ${{ inputs.is_nightly }}
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
       - if: ${{ inputs.package_extension == 'deb' }}
         uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
