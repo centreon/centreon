@@ -17,12 +17,12 @@ import { getColor } from './utils';
 
 interface Props {
   data: ResourceData | null;
+  isMediumSize?: boolean;
   isSmallestSize: boolean;
   resources: Array<Resource>;
   statuses: Array<string>;
-  type: string;
   tileSize?: number;
-  isMediumSize?: boolean;
+  type: string;
 }
 
 export const router = {
@@ -30,13 +30,13 @@ export const router = {
 };
 
 const Tile = ({
+  isMediumSize,
   isSmallestSize,
   data,
   type,
   statuses,
   resources,
-  tileSize,
-  isMediumSize
+  tileSize
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
   const { classes } = useTileStyles({
@@ -71,7 +71,7 @@ const Tile = ({
             color="primary"
             fontSize={isMediumSize ? 'medium' : 'large'}
           />
-            {!isSmallestSize && (
+          {!isSmallestSize && (
             <Typography className={classes.seeMoreLabel}>
               {t(labelSeeMore)}
             </Typography>
