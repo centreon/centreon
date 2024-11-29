@@ -163,8 +163,8 @@ jobs:
           dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
           index_file: ${{ env.base_directory }}/www/index.html
           static_directory: ${{ env.base_directory }}/www/static
-          index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
-          static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
+          index_cache_key: ${{ github.event.pull_request.head.sha }}-${{ github.run_id }}-index
+          static_cache_key: ${{ github.event.pull_request.head.sha }}-${{ github.run_id }}-static
           build_command: pnpm centreon:build
 
       - name: Create Jira ticket if nightly build failure
@@ -206,7 +206,7 @@ jobs:
         uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ${{ env.base_directory }}/vendor
-          key: ${{ github.sha }}-${{ github.run_id }}-vendor
+          key: ${{ github.event.pull_request.head.sha }}-${{ github.run_id }}-vendor
 
   translation-build:
     needs: [get-environment]
@@ -239,7 +239,7 @@ jobs:
       - uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ${{ env.base_directory }}/www/locale
-          key: ${{ github.sha }}-${{ github.run_id }}-translation
+          key: ${{ github.event.pull_request.head.sha }}-${{ github.run_id }}-translation
 
   frontend-web-lint:
     runs-on: ubuntu-24.04
@@ -454,28 +454,28 @@ jobs:
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: centreon/www/locale
-          key: ${{ github.sha }}-${{ github.run_id }}-translation
+          key: ${{ github.event.pull_request.head.sha }}-${{ github.run_id }}-translation
           fail-on-cache-miss: true
 
       - name: Restore web index.html from cache
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: centreon/www/index.html
-          key: ${{ github.sha }}-${{ github.run_id }}-index
+          key: ${{ github.event.pull_request.head.sha }}-${{ github.run_id }}-index
           fail-on-cache-miss: true
 
       - name: Restore web frontend from cache
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: centreon/www/static
-          key: ${{ github.sha }}-${{ github.run_id }}-static
+          key: ${{ github.event.pull_request.head.sha }}-${{ github.run_id }}-static
           fail-on-cache-miss: true
 
       - name: Restore vendor directory from cache
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: centreon/vendor
-          key: ${{ github.sha }}-${{ github.run_id }}-vendor
+          key: ${{ github.event.pull_request.head.sha }}-${{ github.run_id }}-vendor
           fail-on-cache-miss: true
 
       - name: Set perl vendor lib path according to distrib
@@ -535,8 +535,8 @@ jobs:
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
           release: ${{ needs.get-environment.outputs.release }}
           arch: all
-          commit_hash: ${{ github.sha }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+          commit_hash: ${{ github.event.pull_request.head.sha }}
+          cache_key: ${{ github.event.pull_request.head.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
           rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
           rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
@@ -635,7 +635,7 @@ jobs:
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ./*.${{ steps.matrix_include.outputs.package_extension }}
-          key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
+          key: ${{ github.event.pull_request.head.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
           fail-on-cache-miss: true
 
       - run: |
@@ -831,7 +831,7 @@ jobs:
       major_version: ${{ needs.get-environment.outputs.major_version }}
       minor_version: ${{ needs.get-environment.outputs.minor_version }}
       stability: ${{ needs.get-environment.outputs.stability }}
-      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma8' && 'rpm-el8' || matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-bookworm' ) }}
+      package_cache_key: ${{ format('{0}-{1}-{2}', github.event.pull_request.head.sha, github.run_id, matrix.operating_system == 'alma8' && 'rpm-el8' || matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-bookworm' ) }}
       package_directory: centreon/tests/e2e/fixtures/packages
       test_tags: ${{ needs.changes.outputs.has_upgrade_changes == 'true' && matrix.test_tags || format('{0} and not @update and not @upgrade', matrix.test_tags) }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
@@ -932,13 +932,13 @@ jobs:
           bucket_directory: centreon
           module_directory: centreon
           module_name: centreon-web
-          frontend_index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
+          frontend_index_cache_key: ${{ github.event.pull_request.head.sha }}-${{ github.run_id }}-index
           frontend_index_file: centreon/www/index.html
-          frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
+          frontend_static_cache_key: ${{ github.event.pull_request.head.sha }}-${{ github.run_id }}-static
           frontend_static_directory: centreon/www/static
-          backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
+          backend_vendor_cache_key: ${{ github.event.pull_request.head.sha }}-${{ github.run_id }}-vendor
           backend_vendor_directory: centreon/vendor
-          translation_cache_key: ${{ github.sha }}-${{ github.run_id }}-translation
+          translation_cache_key: ${{ github.event.pull_request.head.sha }}-${{ github.run_id }}-translation
           translation_directory: centreon/www/locale
           major_version: ${{ needs.get-environment.outputs.major_version }}
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
@@ -1064,7 +1064,7 @@ jobs:
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-environment.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          cache_key: ${{ github.event.pull_request.head.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           stability: ${{ needs.get-environment.outputs.stability }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
@@ -1119,7 +1119,7 @@ jobs:
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-environment.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          cache_key: ${{ github.event.pull_request.head.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-environment.outputs.stability }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
