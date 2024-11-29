@@ -64,6 +64,8 @@ const useTopBottom = ({
 
   const metricName = metrics?.[0]?.name;
 
+  const formattedMetricName = encodeURIComponent(metricName);
+
   const { data: metricsTop, isFetching } = useFetchQuery<MetricsTop>({
     decoder: metricsTopDecoder,
     getEndpoint: () =>
@@ -87,7 +89,7 @@ const useTopBottom = ({
                 : 'ASC'
             }
           }
-        })}&metric_name=${encodeURIComponent(metricName)}`,
+        })}${`&metric_name=${formattedMetricName}`}`,
         isOnPublicPage,
         playlistHash,
         widgetId: id
