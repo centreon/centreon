@@ -21,6 +21,8 @@ interface Props {
   resources: Array<Resource>;
   statuses: Array<string>;
   type: string;
+  tileSize?: number;
+  isMediumSize?: boolean;
 }
 
 export const router = {
@@ -32,10 +34,15 @@ const Tile = ({
   data,
   type,
   statuses,
-  resources
+  resources,
+  tileSize,
+  isMediumSize
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
-  const { classes } = useTileStyles();
+  const { classes } = useTileStyles({
+    tileSize,
+    isMediumSize
+  });
   const theme = useTheme();
 
   const getLinkToResourceStatus = ({ isForOneResource }): string =>
@@ -62,9 +69,13 @@ const Tile = ({
         >
           <DvrIcon
             color="primary"
-            fontSize={isSmallestSize ? 'medium' : 'large'}
+            fontSize={isMediumSize ? 'medium' : 'large'}
           />
-          {!isSmallestSize && <Typography>{t(labelSeeMore)}</Typography>}
+            {!isSmallestSize && (
+            <Typography className={classes.seeMoreLabel}>
+              {t(labelSeeMore)}
+            </Typography>
+          )}
         </CardActionArea>
       </Link>
     );
