@@ -5,35 +5,35 @@ import { flatten, gt, isNil, lte, pluck, reduce } from 'ramda';
 
 import { ClickAwayListener, Fade, Skeleton, useTheme } from '@mui/material';
 
+import { Tooltip as MuiTooltip } from '../../components/Tooltip';
+import { Thresholds as ThresholdsModel } from '../common/models';
 import { getLeftScale, getRightScale, getXScale } from '../common/timeSeries';
 import { Line } from '../common/timeSeries/models';
-import { Thresholds as ThresholdsModel } from '../common/models';
-import { Tooltip as MuiTooltip } from '../../components/Tooltip';
 
 import Axes from './BasicComponents/Axes';
 import Grids from './BasicComponents/Grids';
 import Lines from './BasicComponents/Lines';
 import { canDisplayThreshold } from './BasicComponents/Lines/Threshold/models';
+import { CurveType } from './BasicComponents/Lines/models';
+import Thresholds from './BasicComponents/Thresholds';
 import useFilterLines from './BasicComponents/useFilterLines';
-import { useStyles } from './LineChart.styles';
 import Header from './Header';
 import InteractionWithGraph from './InteractiveComponents';
+import GraphValueTooltip from './InteractiveComponents/GraphValueTooltip/GraphValueTooltip';
 import GraphTooltip from './InteractiveComponents/Tooltip';
 import useGraphTooltip from './InteractiveComponents/Tooltip/useGraphTooltip';
 import Legend from './Legend';
+import { legendWidth } from './Legend/Legend.styles';
+import { useStyles } from './LineChart.styles';
 import { margin } from './common';
 import {
   Data,
   GlobalAreaLines,
   GraphInterval,
-  LineChartProps,
-  LegendModel
+  LegendModel,
+  LineChartProps
 } from './models';
 import { useIntersection } from './useLineChartIntersection';
-import { CurveType } from './BasicComponents/Lines/models';
-import Thresholds from './BasicComponents/Thresholds';
-import { legendWidth } from './Legend/Legend.styles';
-import GraphValueTooltip from './InteractiveComponents/GraphValueTooltip/GraphValueTooltip';
 
 const extraMargin = 10;
 
@@ -292,6 +292,7 @@ const LineChart = ({
         <div ref={legendRef}>
           <Legend
             base={baseAxis}
+            height={graphHeight}
             limitLegend={limitLegend}
             lines={newLines}
             renderExtraComponent={legend?.renderExtraComponent}

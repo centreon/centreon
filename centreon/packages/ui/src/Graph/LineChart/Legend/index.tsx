@@ -11,13 +11,14 @@ import { Line } from '../../common/timeSeries/models';
 import { labelAvg, labelMax, labelMin } from '../translatedLabels';
 
 import { useStyles } from './Legend.styles';
+import LegendContent from './LegendContent';
 import LegendHeader from './LegendHeader';
 import { GetMetricValueProps, LegendDisplayMode } from './models';
 import useLegend from './useLegend';
-import LegendContent from './LegendContent';
 
 interface Props {
   base: number;
+  height?: number;
   limitLegend?: false | number;
   lines: Array<Line>;
   renderExtraComponent?: ReactNode;
@@ -33,9 +34,13 @@ const MainLegend = ({
   limitLegend = false,
   renderExtraComponent,
   setLinesGraph,
-  shouldDisplayLegendInCompactMode
+  shouldDisplayLegendInCompactMode,
+  height
 }: Props): JSX.Element => {
-  const { classes, cx } = useStyles({ limitLegendRows: Boolean(limitLegend) });
+  const { classes, cx } = useStyles({
+    height,
+    limitLegendRows: Boolean(limitLegend)
+  });
   const theme = useTheme();
 
   const { selectMetricLine, clearHighlight, highlightLine, toggleMetricLine } =
@@ -145,7 +150,8 @@ const Legend = (props: Props): JSX.Element => {
     limitLegend,
     lines,
     base,
-    shouldDisplayLegendInCompactMode
+    shouldDisplayLegendInCompactMode,
+    height
   } = props;
 
   return useMemoComponent({
@@ -155,7 +161,8 @@ const Legend = (props: Props): JSX.Element => {
       base,
       toggable,
       limitLegend,
-      shouldDisplayLegendInCompactMode
+      shouldDisplayLegendInCompactMode,
+      height
     ]
   });
 };
