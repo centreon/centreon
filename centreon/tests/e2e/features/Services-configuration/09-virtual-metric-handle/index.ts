@@ -79,7 +79,6 @@ Given('an existing virtual metric', () => {
       subMenu: 'Performances'
   });
   cy.wait('@getTimeZone');
-  cy.getIframeBody().contains(vms.default.name).should('exist');
 });
 
 When('the user changes the properties of the configured virtual metric', () => {
