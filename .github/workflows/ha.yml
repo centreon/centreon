@@ -6,7 +6,7 @@ concurrency:
 
 on:
   workflow_dispatch:
-  pull_request:
+  pull_request_target:
     types:
       - opened
       - synchronize
@@ -36,7 +36,9 @@ jobs:
 
 #   package:
 #     needs: [get-environment]
-#     if: ${{ needs.get-environment.outputs.stability != 'stable' }}
+#     if: |
+#        needs.get-environment.outputs.stability != 'stable' &&
+#        github.repository == 'centreon/centreon'
 
 #     strategy:
 #       fail-fast: true
@@ -72,7 +74,11 @@ jobs:
 #   deliver-sources:
 #     runs-on: [self-hosted, common]
 #     needs: [get-environment, package]
-#     if: ${{ contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+#     if: |
+#        contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
+#        github.event_name != 'workflow_dispatch' &&
+#        github.repository == 'centreon/centreon' &&
+#        needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
 
 #     steps:
 #       - name: Checkout sources
@@ -90,7 +96,10 @@ jobs:
 
 #   delivery-rpm:
 #     needs: [get-environment, package]
-#     if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) }}
+#     if: |
+#       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+#       github.repository == 'centreon/centreon' &&
+#       needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
 #     runs-on: [self-hosted, common]
 
 #     strategy:
@@ -115,7 +124,11 @@ jobs:
 
 #   deliver-deb:
 #     needs: [get-environment, package]
-#     if: ${{ needs.get-environment.outputs.is_cloud == 'false' && contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) }}
+#     if: |
+#       needs.get-environment.outputs.is_cloud == 'false' &&
+#       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+#       github.repository == 'centreon/centreon' &&
+#       needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
 #     runs-on: [self-hosted, common]
 
 #     strategy:
@@ -139,7 +152,11 @@ jobs:
 
 #   promote:
 #     needs: [get-environment]
-#     if: ${{ contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+#     if: |
+#       contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
+#       github.event_name != 'workflow_dispatch' &&
+#       github.repository == 'centreon/centreon' &&
+#       needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
 #     runs-on: [self-hosted, common]
 #     strategy:
 #       matrix:
