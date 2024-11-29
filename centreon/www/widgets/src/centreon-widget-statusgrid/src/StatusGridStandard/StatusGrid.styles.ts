@@ -20,7 +20,7 @@ export const useTileStyles = makeStyles<Props>()(
       height: '100%'
     },
     resourceName: {
-       fontWeight: theme.typography.fontWeightMedium
+      fontWeight: theme.typography.fontWeightMedium
     },
     seeMoreContainer: {
       alignItems: 'center',
@@ -50,8 +50,8 @@ export const useTileStyles = makeStyles<Props>()(
       top: '10%',
       width: theme.spacing(1.5)
     }
-  }));
-
+  })
+  );
 
 export const useHostTooltipContentStyles = makeStyles()((theme) => ({
   body: {
