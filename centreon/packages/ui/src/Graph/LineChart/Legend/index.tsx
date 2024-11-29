@@ -18,7 +18,7 @@ import useLegend from './useLegend';
 
 interface Props {
   base: number;
-  height?: number;
+  height?: number | null;
   limitLegend?: false | number;
   lines: Array<Line>;
   renderExtraComponent?: ReactNode;

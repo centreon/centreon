@@ -292,7 +292,7 @@ const LineChart = ({
         <div ref={legendRef}>
           <Legend
             base={baseAxis}
-            height={graphHeight}
+            height={height}
             limitLegend={limitLegend}
             lines={newLines}
             renderExtraComponent={legend?.renderExtraComponent}
