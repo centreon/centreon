@@ -10,8 +10,8 @@ interface ChildrenProps<TData> {
   backgroundColor: string;
   data: TData;
   id: string;
-  isSmallestSize: boolean;
   isMediumSize?: boolean;
+  isSmallestSize: boolean;
   tileSize?: number;
 }
 
