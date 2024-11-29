@@ -42,8 +42,8 @@ try {
     $viewObj = new CentreonCustomView($centreon, $db);
 
     /*
-	 * Smarty
-	 */
+     * Smarty
+     */
     $path = "./include/home/customViews/";
 
     /*
@@ -52,6 +52,7 @@ try {
     $template = new Smarty();
     $template = initSmartyTpl($path, $template, "./");
 
+    // Assign permissions and other variables to the template
     $aclEdit = $centreon->user->access->page('10301', true);
     $template->assign('aclEdit', $aclEdit);
 
@@ -88,6 +89,7 @@ try {
         $rotationTimer = $contactParameters['widget_view_rotation'];
     }
 
+    // Assign views to template
     $i = 1;
     $indexTab = array(0 => -1);
 
@@ -101,7 +103,6 @@ try {
         }
         $views[$key]['default'] = "";
         if ($viewObj->getDefaultViewId() == $key) {
-            $views[$key]['default'] = sprintf(" (%s)", _('default'));
             $views[$key]['default'] = '<span class="ui-icon ui-icon-star" style="float:left;"></span>';
         }
     }
@@ -379,9 +380,11 @@ try {
 } catch (CentreonCustomViewException $e) {
     echo $e->getMessage() . "<br/>";
 }
+
+// Initialize $modeEdit based on session variable
 $modeEdit = 'false';
 if (isset($_SESSION['customview_edit_mode'])) {
-    $modeEdit = ($_SESSION['customview_edit_mode'] == "true") ? 'true' : 'false';
+    $modeEdit = ($_SESSION['customview_edit_mode'] === 'true') ? 'true' : 'false';
 }
 
 ?>
