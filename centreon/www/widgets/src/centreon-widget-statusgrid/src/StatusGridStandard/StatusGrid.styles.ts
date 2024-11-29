@@ -51,7 +51,7 @@ export const useTileStyles = makeStyles<Props>()(
       width: theme.spacing(1.5)
     }
   })
-  );
+);
 
 export const useHostTooltipContentStyles = makeStyles()((theme) => ({
   body: {
