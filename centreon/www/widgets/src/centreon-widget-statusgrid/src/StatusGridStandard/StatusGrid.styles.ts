@@ -13,15 +13,15 @@ export const useTileStyles = makeStyles<Props>()(
       paddingTop: theme.spacing(1.5),
       position: 'relative',
       width: '100%'
-     },
-     link: {
+    },
+    link: {
       all: 'unset',
       display: 'block',
       height: '100%'
-     },
-     resourceName: {
+    },
+    resourceName: {
        fontWeight: theme.typography.fontWeightMedium
-     },
+    },
     seeMoreContainer: {
       alignItems: 'center',
       display: 'flex',
@@ -51,6 +51,7 @@ export const useTileStyles = makeStyles<Props>()(
       width: theme.spacing(1.5)
     }
   }));
+
 
 export const useHostTooltipContentStyles = makeStyles()((theme) => ({
   body: {
