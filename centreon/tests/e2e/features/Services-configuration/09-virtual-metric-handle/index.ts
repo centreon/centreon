@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable cypress/unsafe-to-chain-command */
-import { After, Before, Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import {Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import vms from '../../../fixtures/services/virtual-metric.json';
 
@@ -21,7 +21,7 @@ const checkFirstVMFromListing = () => {
     );
 };
 
-Before(() => {
+before(() => {
   cy.startContainers();
 });
 
@@ -40,7 +40,7 @@ beforeEach(() => {
   }).as('getListOfMetricsByService');
 });
 
-After(() => {
+after(() => {
   cy.stopContainers();
 });
 
