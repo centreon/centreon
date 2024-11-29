@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef} from 'react';
 
 import { scaleLinear } from '@visx/scale';
 import { T, equals, gt, lt } from 'ramda';
@@ -40,8 +40,7 @@ const ResponsiveHeatMap = <TData,>({
     const maxTotalTilesWidth =
       tilesLength * maxTileSize + (tilesLength - 1) * gap;
     const theoricalTotalTilesWidth =
-      tilesLength * tileWidth + (tilesLength - 1) * gap;
-  
+      tilesLength * tileWidth + (tilesLength - 1) * gap; 
     const canUpdateTileSize =
       Math.abs(tileWidth - previousTileSize.current) > toleratedRangeWidth;
 
@@ -107,9 +106,9 @@ const ResponsiveHeatMap = <TData,>({
                 backgroundColor,
                 data,
                 id,
+                isMediumSize,
                 isSmallestSize,
-                tileSize,
-                isMediumSize
+                tileSize
               })}
             </div>
           </Tooltip>
