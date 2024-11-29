@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable cypress/unsafe-to-chain-command */
-import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { After, Before, Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import vms from '../../../fixtures/services/virtual-metric.json';
 
@@ -21,8 +21,11 @@ const checkFirstVMFromListing = () => {
     );
 };
 
-beforeEach(() => {
+Before(() => {
   cy.startContainers();
+});
+
+beforeEach(() => {
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -37,7 +40,7 @@ beforeEach(() => {
   }).as('getListOfMetricsByService');
 });
 
-afterEach(() => {
+After(() => {
   cy.stopContainers();
 });
 
@@ -69,18 +72,17 @@ Then('all properties are saved', () => {
 });
 
 Given('an existing virtual metric', () => {
-    cy.navigateTo({
-        page: 'Virtual Metrics',
-        rootItemNumber: 1,
-        subMenu: 'Performances'
-      });
-      cy.wait('@getTimeZone');
-      cy.getIframeBody().contains('a', 'Add').click();
-      cy.addOrUpdateVirtualMetric(vms.default);
+  cy.visit('/').url().should('include', '/monitoring/resources');
+  cy.navigateTo({
+      page: 'Virtual Metrics',
+      rootItemNumber: 1,
+      subMenu: 'Performances'
+  });
+  cy.wait('@getTimeZone');
+  cy.getIframeBody().contains(vms.default.name).should('exist');
 });
 
 When('the user changes the properties of the configured virtual metric', () => {
-    cy.getIframeBody().contains(vms.default.name).should('exist');
     cy.getIframeBody().contains(vms.default.name).click();
     cy.addOrUpdateVirtualMetric(vms.vmForUpdate);
 });
@@ -118,5 +120,5 @@ When('the user deletes the configured virtual metric', () => {
 });
 
 Then('the virtual metric disappears from the Virtual metrics list', () => {
-  cy.getIframeBody().contains(vms.default.name).should('not.exist');
+  cy.getIframeBody().contains(vms.vmForUpdate.name).should('not.exist');
 });
