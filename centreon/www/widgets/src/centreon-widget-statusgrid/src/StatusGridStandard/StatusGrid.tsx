@@ -161,13 +161,15 @@ const StatusGrid = ({
       tiles={[...resourceTiles, seeMoreTile].filter((v) => v)}
       tooltipContent={Tooltip(resourceType)}
     >
-      {({ isSmallestSize, data: resourceData }) => (
+      {({ isSmallestSize, data: resourceData, tileSize, isMediumSize }) => (
         <Tile
           data={resourceData}
           isSmallestSize={isSmallestSize}
           resources={resources}
           statuses={statuses}
           type={resourceType}
+          tileSize={tileSize}
+          isMediumSize={isMediumSize}
         />
       )}
     </HeatMap>
