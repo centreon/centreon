@@ -29,7 +29,7 @@
     "psr/container": "1.1.1",
     "sensio/framework-extra-bundle": "^6.2",
     "smarty-gettext/smarty-gettext": "^1.6",
-    "smarty/smarty": "^v4.3",
+    "smarty/smarty": "^v4.5",
     "symfony/config": "6.4.*",
     "symfony/console": "6.4.*",
     "symfony/dependency-injection": "6.4.*",
