@@ -41,6 +41,9 @@ on:
       is_nightly:
         description: "if the current workflow run is considered a nightly"
         value: ${{ jobs.get-environment.outputs.is_nightly }}
+      pull_request_environment:
+        description: "Pull request environment"
+        value: ${{ jobs.get-environment.outputs.pull_request_environment }}
       skip_workflow:
         description: "if the current workflow should be skipped"
         value: ${{ jobs.get-environment.outputs.skip_workflow }}
@@ -48,6 +51,7 @@ on:
 jobs:
   get-environment:
     runs-on: ubuntu-24.04
+    environment: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.fork && 'external_contributor' || 'internal_contributor' }}
     outputs:
       latest_major_version: ${{ steps.latest_major_version.outputs.latest_major_version }}
       is_cloud: ${{ steps.detect_cloud_version.outputs.result }}
@@ -60,14 +64,46 @@ jobs:
       os_and_database_matrix: ${{ steps.get_os_database_matrix.outputs.result }}
       is_targeting_feature_branch: ${{ steps.get_stability.outputs.is_targeting_feature_branch }}
       is_nightly: ${{ steps.get_nightly_status.outputs.is_nightly }}
+      pull_request_environment: ${{ steps.pull_request_environment.outputs.pull_request_environment }}
       skip_workflow: ${{ steps.skip_workflow.outputs.result }}
 
     steps:
+      - name: Get pull request environment
+        id: pull_request_environment
+        run: |
+          PULL_REQUEST_ENVIRONMENT="internal_contributor"
+          if [[ "${{ github.event_name }}" == "pull_request_target" && "${{ github.event.pull_request.head.repo.fork }}" == "true" ]]; then
+            PULL_REQUEST_ENVIRONMENT="external_contributor"
+          fi
+          echo "Pull request environment is $PULL_REQUEST_ENVIRONMENT"
+          echo "pull_request_environment=$PULL_REQUEST_ENVIRONMENT" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Check if PR has skip label
         id: has_skip_label
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
-          script: return ${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) && contains(github.event.pull_request.labels.*.name, format('skip-workflow-{0}', github.workflow)) && 'true' || 'false' }};
+          script: |
+            let hasSkipLabel = false;
+
+            if (${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) }} === true) {
+              try {
+                const labels = await github.rest.issues.listLabelsOnIssue({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number
+                });
+                labels.data.forEach(({ name }) => {
+                  if (name === '${{ format('skip-workflow-{0}', github.workflow) }}') {
+                    hasSkipLabel = true;
+                  }
+                });
+              } catch (e) {
+                core.warning(`failed to list labels: ${e}`);
+              }
+            }
+
+            return hasSkipLabel;
 
       - name: Checkout sources (current branch)
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
@@ -180,7 +216,7 @@ jobs:
           echo "latest_major_version=$MAJOR" >> $GITHUB_OUTPUT
         shell: bash
 
-      - if: ${{ github.event_name == 'pull_request' }}
+      - if: ${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) }}
         name: Get nested pull request path
         id: pr_path
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
@@ -229,7 +265,7 @@ jobs:
             core.setOutput('stability', getStability('${{ github.head_ref || github.ref_name }}'));
 
             let isTargetingFeatureBranch = false;
-            if ("${{ github.event_name }}" === "pull_request") {
+            if (${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) }} === true) {
               let targetStability = 'canary';
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               prPath.shift(); // remove current branch
@@ -320,7 +356,7 @@ jobs:
               return true;
             }
 
-            if ("${{ github.event_name }}" === "pull_request") {
+            if (${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) }} === true) {
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               const finalTargetBranch = prPath.pop();
               if (['develop', 'master'].includes(finalTargetBranch)) {
@@ -432,7 +468,7 @@ jobs:
               .addHeading(`${context.workflow} environment outputs`)
               .addTable(outputTable);
 
-            if ("${{ github.event_name }}" === "pull_request") {
+            if (${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) }} === true) {
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               const mainBranchName = prPath.pop();
               let codeBlock = `
