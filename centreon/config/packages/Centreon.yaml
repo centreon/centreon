@@ -43,8 +43,11 @@ services:
             - '../../src/Core/HostTemplate/*'
             - '../../src/Core/ServiceGroup/*'
             - '../../src/Core/ServiceCategory/*'
+            - '../../src/Core/ServiceTemplate/*'
             - '../../src/Core/Host/*'
             - '../../src/Core/Broker/*'
+            - '../../src/Core/HostSeverity/*'
+            - '../../src/Core/ServiceSeverity/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
