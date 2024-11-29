@@ -418,7 +418,6 @@ describe('Graph Widget', () => {
     cy.makeSnapshot();
   });
 
-
   legendProperties.forEach(({ mode, positions }) => {
     positions.forEach((position) => {
       it(`displays the legend with a scrollbar for placement: ${position} and mode: ${mode}.`, () => {
@@ -450,6 +449,8 @@ describe('Graph Widget', () => {
           `legend with a scrollbar for placement: ${position} and mode: ${mode}.`
         );
       });
+    });
+  });
 
   it('sends a request with meta-service when the corresponding data is provided', () => {
     initializeComponent({
@@ -463,7 +464,6 @@ describe('Graph Widget', () => {
         '{"$and":[{"metaservice.id":{"$in":[1]}}]}'
       );
       expect(searchParameters.get('metrics_names')).to.equal(null);
-
     });
   });
 });
