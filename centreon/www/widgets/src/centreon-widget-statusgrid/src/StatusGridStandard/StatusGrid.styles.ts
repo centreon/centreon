@@ -5,7 +5,8 @@ interface Props {
   tileSize?: number;
 }
 
-export const useTileStyles = makeStyles<Props>()((theme) => ({
+export const useTileStyles = makeStyles<Props>()(
+  (theme, { tileSize = 0, isMediumSize } = {}) => ({
   container: {
     cursor: 'pointer',
     height: '100%',
