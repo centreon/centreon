@@ -1,8 +1,8 @@
 import { makeStyles } from 'tss-react/mui';
 
 interface Props {
-  tileSize?: number;
   isMediumSize?: boolean;
+  tileSize?: number;
 }
 
 export const useTileStyles = makeStyles<Props>()((theme) => ({
@@ -29,6 +29,13 @@ export const useTileStyles = makeStyles<Props>()((theme) => ({
     justifyContent: 'center',
     width: '100%'
   },
+  seeMoreLabel: {
+    WebkitBoxOrient: 'vertical',
+    WebkitLineClamp: isMediumSize ? 1 : 3,
+    display: '-webkit-box',
+    overflow: 'hidden',
+    width: tileSize
+  },
   statusTile: {
     '&[data-mode="compact"]': {
       height: theme.spacing(1.25),
@@ -41,13 +48,6 @@ export const useTileStyles = makeStyles<Props>()((theme) => ({
     right: '10%',
     top: '10%',
     width: theme.spacing(1.5)
-  },
-  seeMoreLabel: {
-    overflow: 'hidden',
-    display: '-webkit-box',
-    WebkitLineClamp: isMediumSize ? 1 : 3,
-    WebkitBoxOrient: 'vertical',
-    width: tileSize
   }
 }));
 
