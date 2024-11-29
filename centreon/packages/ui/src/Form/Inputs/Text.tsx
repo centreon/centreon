@@ -2,11 +2,11 @@ import { ChangeEvent, useCallback, useState } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
 import {
-  path,
   equals,
   gt,
   isEmpty,
   not,
+  path,
   split,
   type as variableType
 } from 'ramda';
@@ -42,7 +42,9 @@ const Text = ({
     touched,
     errors,
     handleBlur,
-    setFieldTouched
+    setFieldTouched,
+    setValues,
+    setTouched
   } = useFormikContext<FormikValues>();
 
   const fieldNamePath = split('.', fieldName);
@@ -50,7 +52,14 @@ const Text = ({
   const changeText = (event: ChangeEvent<HTMLInputElement>): void => {
     const { value } = event.target;
     if (change) {
-      change({ setFieldValue, value, setFieldTouched });
+      change({
+        setFieldValue,
+        value,
+        setFieldTouched,
+        setValues,
+        values,
+        setTouched
+      });
 
       return;
     }
@@ -113,7 +122,7 @@ const Text = ({
   return useMemoComponent({
     Component: (
       <TextField
-        fullWidth
+        fullWidth={text?.fullWidth ?? true}
         EndAdornment={EndAdornment}
         ariaLabel={t(label) || ''}
         autoFocus={autoFocus}

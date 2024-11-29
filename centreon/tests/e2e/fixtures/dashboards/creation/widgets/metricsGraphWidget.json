@@ -1,61 +1,45 @@
 {
-    "panels":[
+   "data": {
+     "resources": [
        {
-          "layout":{
-             "height":4,
-             "min_height":4,
-             "min_width":6,
-             "width":6,
-             "x":0,
-             "y":0
-          },
-          "name":"centreon-widget-graph",
-          "widget_settings":{
-             "data":{
-                "resources":[
-                   {
-                      "resourceType":"host-group",
-                      "resources":[
-                         {
-                            "id":53,
-                            "name":"Linux-Servers"
-                         }
-                      ]
-                   }
-                ],
-                "metrics":[
-                   {
-                      "criticalHighThreshold":400,
-                      "criticalLowThreshold":0,
-                      "id":1,
-                      "name":"rta",
-                      "unit":"ms",
-                      "warningHighThreshold":200,
-                      "warningLowThreshold":0
-                   }
-                ]
-             },
-             "options":{
-                "timeperiod":{
-                   "start":null,
-                   "end":null,
-                   "timePeriodType":1
-                },
-                "threshold":{
-                   "enabled":true,
-                   "customCritical":null,
-                   "criticalType":"default",
-                   "customWarning":null,
-                   "warningType":"default"
-                },
-                "refreshInterval":"default",
-                "description":{
-                   "content":"{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
-                   "enabled":true
-                }
-             }
-          },
-          "widget_type":"/widgets/graph"
+         "resourceType": "host-group",
+         "resources": [
+           {
+             "id": 53,
+             "name": "Linux-Servers"
+           }
+         ]
        }
-    ]
+     ],
+     "metrics": [
+       {
+         "criticalHighThreshold": 400,
+         "criticalLowThreshold": 0,
+         "id": 1,
+         "name": "rta",
+         "unit": "ms",
+         "warningHighThreshold": 200,
+         "warningLowThreshold": 0
+       }
+     ]
+   },
+   "options": {
+     "timeperiod": {
+       "start": null,
+       "end": null,
+       "timePeriodType": 1
+     },
+     "threshold": {
+       "enabled": true,
+       "customCritical": null,
+       "criticalType": "default",
+       "customWarning": null,
+       "warningType": "default"
+     },
+     "refreshInterval": "default",
+     "description": {
+       "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+       "enabled": true
+     }
+   }
  }
