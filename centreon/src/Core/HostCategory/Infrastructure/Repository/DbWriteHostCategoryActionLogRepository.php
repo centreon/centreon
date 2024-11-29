@@ -233,7 +233,10 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
                     $diff[self::HOST_CATEGORY_PROPERTIES_MAP[$property->getName()]] = $value2 ? '1' : '0';
                     continue;
                 }
-
+                if ($property->getName() === 'comment') {
+                    $diff[self::HOST_CATEGORY_PROPERTIES_MAP[$property->getName()]] = $value2 ?? '';
+                    continue;
+                }
                 if ((string) $property->getType() === 'string') {
                     $diff[self::HOST_CATEGORY_PROPERTIES_MAP[$property->getName()]] = is_string($value2)
                         ? $value2
