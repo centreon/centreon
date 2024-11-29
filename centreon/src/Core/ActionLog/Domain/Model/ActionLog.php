@@ -57,6 +57,8 @@ class ActionLog
     public const OBJECT_TYPE_MANUFACTURER = 'manufacturer';
     public const OBJECT_TYPE_HOSTCATEGORIES = 'hostcategories';
     public const OBJECT_TYPE_SERVICECATEGORIES = 'servicecategories';
+    public const OBJECT_TYPE_SERVICE_SEVERITY = 'serviceseverity';
+    public const OBJECT_TYPE_HOST_SEVERITY = 'hostseverity';
     public const AVAILABLE_OBJECT_TYPES = [
         self::OBJECT_TYPE_COMMAND,
         self::OBJECT_TYPE_TIMEPERIOD,
@@ -84,6 +86,8 @@ class ActionLog
         self::OBJECT_TYPE_MANUFACTURER,
         self::OBJECT_TYPE_HOSTCATEGORIES,
         self::OBJECT_TYPE_SERVICECATEGORIES,
+        self::OBJECT_TYPE_SERVICE_SEVERITY,
+        self::OBJECT_TYPE_HOST_SEVERITY
     ];
 
     private ?int $id = null;

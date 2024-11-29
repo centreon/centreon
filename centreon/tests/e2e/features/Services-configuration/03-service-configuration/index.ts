@@ -66,6 +66,7 @@ When('the user changes the properties of a service', () => {
 });
 
 Then('the properties are updated', () => {
+  cy.waitForElementInIframe('#main-content', 'a:contains("test")');
   cy.enterIframe('iframe#main-content')
     .find('table.ListTable')
     .find('tr.list_one')
@@ -117,14 +118,12 @@ When('the user duplicates a service', () => {
       'onchange',
       "javascript: { setO(this.form.elements['o2'].value); this.form.submit(); }"
     );
-  cy.enterIframe('iframe#main-content')
-    .find('table.ToolbarTable tbody')
-    .find('td.Toolbar_TDSelectAction_Bottom')
-    .find('select')
-    .select('Duplicate');
+  cy.getIframeBody().find('select[name="o2"]').eq(0).select('Duplicate');
+  cy.exportConfig();
 });
 
 Then('the new service has the same properties', () => {
+  cy.waitForElementInIframe('#main-content', 'a:contains("test_1")');
   cy.enterIframe('iframe#main-content')
     .find('table.ListTable')
     .find('tr.list_two')
@@ -175,11 +174,8 @@ When('the user deletes a service', () => {
       'onchange',
       "javascript: { setO(this.form.elements['o2'].value); this.form.submit(); }"
     );
-  cy.enterIframe('iframe#main-content')
-    .find('table.ToolbarTable tbody')
-    .find('td.Toolbar_TDSelectAction_Bottom')
-    .find('select')
-    .select('Delete');
+  cy.getIframeBody().find('select[name="o2"]').eq(0).select('Delete');
+  cy.exportConfig();
 });
 
 Then('the deleted service is not displayed in the service list', () => {

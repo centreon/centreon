@@ -38,7 +38,7 @@ use Centreon\Domain\Monitoring\Metric\Interfaces\MetricRepositoryInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsData;
-use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsDataRequest;
+use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsDataRequestDto;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsDataResponse;
 
 beforeEach(function (): void {
@@ -54,8 +54,7 @@ beforeEach(function (): void {
 
 it('should present a ForbiddenResponse when the user does not has sufficient rights', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
-    $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricNames = ["rta"];
+    $request =  new FindPerformanceMetricsDataRequestDto(new \DateTime(), new \DateTime(), ['rta']);
     $useCase = new FindPerformanceMetricsData(
         $this->nonAdminUser,
         $this->requestParameters,
@@ -81,8 +80,7 @@ it('should present a ForbiddenResponse when the user does not has sufficient rig
 
 it('should present an ErrorResponse when an error occurs', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
-    $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricNames = ["rta","pl"];
+    $request =  new FindPerformanceMetricsDataRequestDto(new \DateTime(), new \DateTime(), ['rta', 'pl']);
     $useCase = new FindPerformanceMetricsData(
         $this->nonAdminUser,
         $this->requestParameters,
@@ -112,8 +110,7 @@ it('should present an ErrorResponse when an error occurs', function (): void {
 
 it('should get the metrics with access group management when the user is not admin', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
-    $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricNames = ["rta","pl"];
+    $request =  new FindPerformanceMetricsDataRequestDto(new \DateTime(), new \DateTime(), ['rta','pl']);
     $useCase = new FindPerformanceMetricsData(
         $this->nonAdminUser,
         $this->requestParameters,
@@ -138,8 +135,7 @@ it('should get the metrics with access group management when the user is not adm
 
 it('should get the metrics without access group management when the user is admin', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
-    $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricNames = ["rta","pl"];
+    $request =  new FindPerformanceMetricsDataRequestDto(new \DateTime(), new \DateTime(), ['rta','pl']);
     $useCase = new FindPerformanceMetricsData(
         $this->adminUser,
         $this->requestParameters,
@@ -164,8 +160,7 @@ it('should get the metrics without access group management when the user is admi
 
 it('should take account of access groups to retrieve metrics when the user is not admin', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
-    $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricNames = ["rta","pl"];
+    $request =  new FindPerformanceMetricsDataRequestDto(new \DateTime(), new \DateTime(), ['rta','pl']);
     $useCase = new FindPerformanceMetricsData(
         $this->adminUser,
         $this->requestParameters,
@@ -190,8 +185,7 @@ it('should take account of access groups to retrieve metrics when the user is no
 
 it('should present a FindPerformanceMetricsDataResponse when metrics are correctly retrieve', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
-    $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricNames = ["pl"];
+    $request =  new FindPerformanceMetricsDataRequestDto(new \DateTime(), new \DateTime(), ['pl']);
     $useCase = new FindPerformanceMetricsData(
         $this->adminUser,
         $this->requestParameters,

@@ -19474,20 +19474,8 @@ msgstr "Horloge / Minuteur"
 msgid "Thumbnails show a snapshot of your data, taken when the dashboard is saved"
 msgstr "Les vignettes affichent un instantané de vos données, pris au moment de la sauvegarde."
 
-# msgid "Displays the time according to the selected time zone, or a timer."
-# msgstr ""
-
 msgid "Poller/agent configuration"
 msgstr "Configuration collecteur/agent"
-
-msgid "Breadcrumb copied"
-msgstr "Fil d'Ariane copié"
-
-msgid "Failed to copy breadcrumb"
-msgstr "Échec de la copie du fil d'Ariane"
-
-msgid "Copy breadcrumb"
-msgstr "Copier le fil d'Ariane"
 
 msgid "Welcome to the poller/agent configuration page"
 msgstr "Bienvenue sur la page des configurations collecteur/agent"
@@ -19599,5 +19587,18 @@ msgstr "L'ID de collecteur #%d est le seul lié à l'ID de configuration collect
 
 msgid "Error while retrieving multiple poller/agent configurations"
 msgstr "Erreur durant la récupération de multiples configurations collecteur/agent"
+
+msgid "Breadcrumb copied"
+msgstr "Fil d'Ariane copié"
+
+msgid "Failed to copy breadcrumb"
+msgstr "Échec de la copie du fil d'Ariane"
+
+msgid "Copy breadcrumb"
+msgstr "Copier le fil d'Ariane"
+
 msgid "Sticky for any non-OK status"
 msgstr "Sticky pour tout statut non-OK"
+
+msgid "There are errors in the form."
+msgstr "Il y a des erreurs dans le formulaire."

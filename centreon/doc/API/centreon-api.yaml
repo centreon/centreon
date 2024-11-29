@@ -260,6 +260,12 @@ paths:
     $ref: "./latest/onPremise/Configuration/AdditionalConnectorConfiguration/DeleteUpdateAndFindAcc.yaml"
   /configuration/additional-connector-configurations/pollers/{type}:
     $ref: "./latest/onPremise/Configuration/AdditionalConnectorConfiguration/FindPollers.yaml"
+  /configuration/agent-configurations:
+    $ref: "./latest/onPremise/Configuration/AgentConfiguration/AddOrFindAc.yaml"
+  /configuration/agent-configurations/{ac_id}:
+    $ref: "./latest/onPremise/Configuration/AgentConfiguration/DeleteAndUpdateAndFindDetailAc.yaml"
+  /configuration/agent-configurations/{ac_id}/pollers/{poller_id}:
+    $ref: "./latest/onPremise/Configuration/AgentConfiguration/DeleteAcPollerLink.yaml"
   /configuration/broker/{brokerId}/{tag}:
     $ref: "./latest/onPremise/Configuration/Broker/AddBrokerInputOutput.yaml"
   /configuration/broker/{brokerId}/outputs/{outputId}/file:
