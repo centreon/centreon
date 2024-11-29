@@ -1700,7 +1700,7 @@ class CentreonGraph
         /*
          * There is only one metric_id
          */
-        if ($statement->rowCount() == 1) {
+        if ($statement->rowCount() === 1) {
             $lVmetric = $this->DB->fetch($statement);
             $this->DB->closeQuery($statement);
             if (!isset($this->mlist["v" . $lVmetric["metric_id"]])) {
@@ -1745,7 +1745,7 @@ class CentreonGraph
                             'vMetricName' => $l_mnane
                         ]
                     );
-                    if ($checkRealMetricStatement->rowCount() == 1) {
+                    if ($checkRealMetricStatement->rowCount() === 1) {
                         /* Find a real metric in the RPN function */
                         $l_rmetric = $this->DB->fetch($checkRealMetricStatement);
                         $this->DB->closeQuery($checkRealMetricStatement);
@@ -1761,7 +1761,7 @@ class CentreonGraph
                                 $this->rmetrics[$l_pointer]["need"] = 0;
                             }
                         }
-                    } elseif ($checkRealMetricStatement->rowCount() == 0) {
+                    } elseif ($checkRealMetricStatement->rowCount() === 0) {
                         /* key : id or vname and iid */
                         $this->DB->closeQuery($checkRealMetricStatement);
                         $this->manageVMetric(null, $l_mnane, $lVmetric["index_id"]);
