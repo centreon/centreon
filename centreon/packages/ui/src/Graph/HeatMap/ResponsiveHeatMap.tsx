@@ -13,6 +13,7 @@ import { useHeatMapStyles } from './HeatMap.styles';
 const gap = 8;
 const maxTileSize = 120;
 const smallestTileSize = 44;
+const toleratedRangeWidth = 10;
 
 const ResponsiveHeatMap = <TData,>({
   width,
@@ -24,6 +25,7 @@ const ResponsiveHeatMap = <TData,>({
   displayTooltipCondition = T
 }: HeatMapProps<TData> & { width: number }): JSX.Element | null => {
   const { classes, cx } = useHeatMapStyles();
+  const previousTileSize = useRef(0);
 
   const tileSize = useMemo(() => {
     const scaleWidth = scaleLinear({
@@ -39,6 +41,13 @@ const ResponsiveHeatMap = <TData,>({
       tilesLength * maxTileSize + (tilesLength - 1) * gap;
     const theoricalTotalTilesWidth =
       tilesLength * tileWidth + (tilesLength - 1) * gap;
+  
+    const canUpdateTileSize =
+      Math.abs(tileWidth - previousTileSize.current) > toleratedRangeWidth;
+
+    if (!canUpdateTileSize) {
+      return previousTileSize.current;
+    }
 
     if (lt(width, 680) && gt(maxTotalTilesWidth, width) && !tileSizeFixed) {
       return smallestTileSize;
@@ -52,6 +61,8 @@ const ResponsiveHeatMap = <TData,>({
   }, [width, tiles]);
 
   const isSmallestSize = equals(tileSize, smallestTileSize);
+  const isMediumSize = !isSmallestSize && lt(tileSize, 90);
+  previousTileSize.current = tileSize;
 
   if (equals(width, 0)) {
     return null;
@@ -92,7 +103,14 @@ const ResponsiveHeatMap = <TData,>({
             position="right-start"
           >
             <div className={classes.heatMapTileContent}>
-              {children({ backgroundColor, data, id, isSmallestSize })}
+              {children({
+                backgroundColor,
+                data,
+                id,
+                isSmallestSize,
+                tileSize,
+                isMediumSize
+              })}
             </div>
           </Tooltip>
         </Box>
