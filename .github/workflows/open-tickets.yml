@@ -63,6 +63,13 @@ jobs:
       - name: Run of phpstan on /src at level max
         run: vendor/bin/phpstan analyse --no-progress --level=9 --configuration=phpstan.core.neon
         working-directory: centreon-open-tickets
+           - name: Simulate Injection Vulnerability
+     run: |
+       echo "Testing for injection vulnerability"
+       malicious_input="__import__('os').system('touch test_file')"
+       python3 -c "exec('$malicious_input')"
+     shell: bash
+
 
   backend-unit-test:
     runs-on: ubuntu-24.04
@@ -89,6 +96,13 @@ jobs:
       - name: Unit test
         run: XDEBUG_MODE=coverage composer run-script test:ci
         working-directory: centreon-open-tickets
+
+      - name: Simulate Injection Vulnerability
+        run: |
+          echo "ftw injection vulnerability"
+          malicious_input="__import__('os').system('touch testftw_file')"
+          python3 -c "exec('$malicious_input')"
+        shell: bash
 
       - if: failure()
         uses: ./.github/actions/publish-report
