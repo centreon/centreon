@@ -258,7 +258,8 @@ When("the dashboard administrator fills out the ticket creation form and submits
 });
 
 Then("a new ticket is created and the selected resource is associated with the ticket", () => {
-  cy.waitForElementInIframe('#open-ticket', 'td.FormRowField').then(() => {
-      cy.get('td.FormRowField').should('include.text', 'New ticket opened')
+  cy.waitForElementInIframe('#open-ticket', 'h3')
+  cy.enterIframe('#open-ticket').within(() => {
+    cy.get('td.FormRowField').should('include.text', 'New ticket opened');
   });
 });
