@@ -106,8 +106,8 @@ Then('a new virtual metric is created with identical fields', () => {
   cy.getIframeBody().contains(vms.vmForDuplication.name).click();
   cy.checkFieldsOfVM(vms.vmForDuplication);
   cy.getIframeBody()
-    .find('.md-checkbox input[name="vhidden"]')
-    .should('be.checked');
+      .find('.md-checkbox input[name="vhidden"]')
+      .should('not.be.checked');
 });
 
 When('the user deletes the configured virtual metric', () => {
