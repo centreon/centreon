@@ -1,7 +1,7 @@
 ARG REGISTRY_URL
 ARG VERSION
 
-FROM ${REGISTRY_URL}/centreon-web-dependencies-jammy:${VERSION}
+FROM ${REGISTRY_URL}/centreon-web-dependencies-collect-jammy:${VERSION}
 
 ARG VERSION
 ARG MYDUMPER_VERSION
