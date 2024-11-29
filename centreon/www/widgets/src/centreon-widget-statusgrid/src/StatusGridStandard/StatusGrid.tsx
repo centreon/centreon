@@ -164,12 +164,12 @@ const StatusGrid = ({
       {({ isSmallestSize, data: resourceData, tileSize, isMediumSize }) => (
         <Tile
           data={resourceData}
+          isMediumSize={isMediumSize}
           isSmallestSize={isSmallestSize}
           resources={resources}
           statuses={statuses}
-          type={resourceType}
           tileSize={tileSize}
-          isMediumSize={isMediumSize}
+          type={resourceType}
         />
       )}
     </HeatMap>
