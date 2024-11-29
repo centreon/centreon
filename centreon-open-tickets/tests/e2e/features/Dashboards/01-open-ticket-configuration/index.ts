@@ -262,9 +262,13 @@ Then("a new ticket is created and the selected resource is associated with the t
       cy.get('#open-ticket').then(($iframe) => {
         const iframeBody = $iframe[0].contentDocument.body;
         cy.wrap(iframeBody)
-          .find('td.FormRowField')
-          .should('have.text')
-          .and('include', 'New ticket opened');
+          .get('table.table')
+          .find('tr')
+          .should(($rows) => {
+              const rowTexts = $rows.map((i, row) => Cypress.$(row).text()).get();
+              const hasMatch = rowTexts.some((text) => text.includes('New ticket opened'));
+              expect(hasMatch).to.be.true;
+        });
       });
   });
 });
