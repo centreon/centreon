@@ -335,7 +335,7 @@ class OpenIdProvider implements OpenIdProviderInterface
 
         // Get the status code and throw an Exception if not a 200
         $statusCode = $response->getStatusCode();
-        $content = json_decode($response->getContent(false), true) ?: [];
+        $content = json_decode($response->getContent(false), true, 512, JSON_THROW_ON_ERROR) ?: [];
         if ($statusCode !== Response::HTTP_OK) {
             $this->logErrorForInvalidStatusCode($statusCode, Response::HTTP_OK);
             $this->logErrorInLoginLogFile('Refresh Token Request Error:', $content);
@@ -484,7 +484,7 @@ class OpenIdProvider implements OpenIdProviderInterface
 
         // Get the status code and throw an Exception if not a 200
         $statusCode = $response->getStatusCode();
-        $content = json_decode($response->getContent(false), true) ?: [];
+        $content = json_decode($response->getContent(false), true, 512, JSON_THROW_ON_ERROR) ?: [];
         if ($statusCode !== Response::HTTP_OK) {
             $this->logErrorForInvalidStatusCode($statusCode, Response::HTTP_OK);
             $this->logErrorInLoginLogFile('Connection Token Request Error: ', $content);
@@ -616,7 +616,7 @@ class OpenIdProvider implements OpenIdProviderInterface
         }
 
         $statusCode = $response->getStatusCode();
-        $content = json_decode($response->getContent(false), true) ?: [];
+        $content = json_decode($response->getContent(false), true, 512, JSON_THROW_ON_ERROR) ?: [];
         if ($statusCode !== Response::HTTP_OK) {
             $this->logErrorForInvalidStatusCode($statusCode, Response::HTTP_OK);
             $this->logErrorInLoginLogFile('Introspection Token Info: ', $content);
@@ -685,7 +685,7 @@ class OpenIdProvider implements OpenIdProviderInterface
         }
 
         $statusCode = $response->getStatusCode();
-        $content = json_decode($response->getContent(false), true) ?: [];
+        $content = json_decode($response->getContent(false), true, 512, JSON_THROW_ON_ERROR) ?: [];
         if ($statusCode !== Response::HTTP_OK) {
             $this->logErrorForInvalidStatusCode($statusCode, Response::HTTP_OK);
             $this->logErrorInLoginLogFile('User Information Info: ', $content);
@@ -1010,7 +1010,7 @@ class OpenIdProvider implements OpenIdProviderInterface
         }
         CentreonLog::create()->debug(
             CentreonLog::TYPE_LOGIN,
-            "[Openid] {$message} " . json_encode($content)
+            "[Openid] {$message} " . json_encode($content, JSON_THROW_ON_ERROR)
         );
         $this->debug('Authentication information : ', $content);
     }
@@ -1025,7 +1025,8 @@ class OpenIdProvider implements OpenIdProviderInterface
     {
         CentreonLog::create()->info(
             CentreonLog::TYPE_LOGIN,
-            "[Openid] {$message}" . ($content !== null ? ' : ' . json_encode($content) : '')
+            "[Openid] {$message}" . ($content !== null ? ' : ' . json_encode($content, JSON_THROW_ON_ERROR) : ''),
+            $content
         );
 
         $this->info("{$message} : ", $content ?: []);
@@ -1045,7 +1046,9 @@ class OpenIdProvider implements OpenIdProviderInterface
                 "[Openid] {$message}",
                 $exception::class,
                 $exception->getMessage()
-            )
+            ),
+            ['exception' => $exception],
+            $exception
         );
     }
 
