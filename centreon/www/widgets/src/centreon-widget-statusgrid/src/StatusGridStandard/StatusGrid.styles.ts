@@ -1,6 +1,11 @@
 import { makeStyles } from 'tss-react/mui';
 
-export const useTileStyles = makeStyles()((theme) => ({
+interface Props {
+  tileSize?: number;
+  isMediumSize?: boolean;
+}
+
+export const useTileStyles = makeStyles<Props>()((theme) => ({
   container: {
     cursor: 'pointer',
     height: '100%',
@@ -36,6 +41,13 @@ export const useTileStyles = makeStyles()((theme) => ({
     right: '10%',
     top: '10%',
     width: theme.spacing(1.5)
+  },
+  seeMoreLabel: {
+    overflow: 'hidden',
+    display: '-webkit-box',
+    WebkitLineClamp: isMediumSize ? 1 : 3,
+    WebkitBoxOrient: 'vertical',
+    width: tileSize
   }
 }));
 
