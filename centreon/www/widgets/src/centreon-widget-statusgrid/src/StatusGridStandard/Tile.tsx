@@ -40,8 +40,8 @@ const Tile = ({
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
   const { classes } = useTileStyles({
-    tileSize,
-    isMediumSize
+    isMediumSize,
+    tileSize
   });
   const theme = useTheme();
 
