@@ -46,7 +46,16 @@ inputs:
     required: true
   is_nightly:
     description: Nightly context or not
-    required: true
+    required: false
+  jira_base_url:
+    description: jira base url
+    required: false
+  jira_user_email:
+    description: jira user email
+    required: false
+  jira_api_token:
+    description: jira api token
+    required: false
 
 runs:
   using: composite
@@ -169,8 +178,8 @@ runs:
         failure()
       uses: ./.github/actions/create-jira-ticket
       with:
-        jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-        jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-        jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+        jira_base_url: ${{ inputs.jira_base_url }}
+        jira_user_email: ${{ inputs.jira_user_email }}
+        jira_api_token: ${{ inputs.jira_api_token }}
         module_name: "centreon-web"
         ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "package"]'
