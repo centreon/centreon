@@ -6,7 +6,7 @@ concurrency:
 
 on:
   workflow_dispatch:
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - synchronize
@@ -122,12 +122,7 @@ jobs:
   deliver-sources:
     runs-on: [self-hosted, common]
     needs: [get-environment, package]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
-      github.event_name != 'workflow_dispatch' &&
-      github.repository == 'centreon/centreon' &&
-      needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch'}}
 
     steps:
       - name: Checkout sources
@@ -145,11 +140,7 @@ jobs:
 
   deliver-rpm:
     needs: [get-environment, package]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-      github.repository == 'centreon/centreon' &&
-      needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) }}
     runs-on: [self-hosted, common]
 
     strategy:
@@ -174,11 +165,7 @@ jobs:
 
   deliver-deb:
     needs: [get-environment, package]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-      github.repository == 'centreon/centreon' &&
-      needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) }}
     runs-on: [self-hosted, common]
 
     strategy:
@@ -207,9 +194,7 @@ jobs:
       (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      github.repository == 'centreon/centreon' &&
-      needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
+      ! contains(needs.*.result, 'cancelled')
     runs-on: [self-hosted, common]
     strategy:
       matrix:
