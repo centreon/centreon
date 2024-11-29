@@ -258,17 +258,7 @@ When("the dashboard administrator fills out the ticket creation form and submits
 });
 
 Then("a new ticket is created and the selected resource is associated with the ticket", () => {
-    cy.waitForElementInIframe('#open-ticket', 'td.FormRowField').then(() => {
-      cy.get('#open-ticket').then(($iframe) => {
-        const iframeBody = $iframe[0].contentDocument.body;
-        cy.wrap(iframeBody)
-          .get('table.table')
-          .find('tr')
-          .should(($rows) => {
-              const rowTexts = $rows.map((i, row) => Cypress.$(row).text()).get();
-              const hasMatch = rowTexts.some((text) => text.includes('New ticket opened'));
-              expect(hasMatch).to.be.true;
-        });
-      });
+  cy.waitForElementInIframe('#open-ticket', 'td.FormRowField').then(() => {
+      cy.get('td.FormRowField').should('include.text', 'New ticket opened')
   });
 });
