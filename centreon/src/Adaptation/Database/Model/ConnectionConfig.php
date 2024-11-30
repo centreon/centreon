@@ -28,7 +28,7 @@ use Adaptation\Database\Enum\ConnectionDriver;
 /**
  * Class
  *
- * @class ConnectionConfig
+ * @class   ConnectionConfig
  * @package Adaptation\Database\Model
  */
 final readonly class ConnectionConfig
@@ -36,13 +36,13 @@ final readonly class ConnectionConfig
     /**
      * ConnectionConfig constructor
      *
-     * @param string $host
-     * @param string $user
-     * @param string $password
-     * @param string $databaseName
+     * @param string           $host
+     * @param string           $user
+     * @param string           $password
+     * @param string           $databaseName
      * @param ConnectionDriver $driver
-     * @param string $charset
-     * @param int $port
+     * @param string           $charset
+     * @param int              $port
      */
     public function __construct(
         private string $host,

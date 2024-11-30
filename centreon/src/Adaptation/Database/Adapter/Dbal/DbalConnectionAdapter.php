@@ -23,9 +23,13 @@ declare(strict_types=1);
 
 namespace Adaptation\Database\Adapter\Dbal;
 
-use Doctrine\DBAL\Connection as DBALConnection;
-use Doctrine\DBAL\DriverManager as DBALDriverManager;
-use Doctrine\DBAL\Exception as DBALException;
+use Adaptation\Database\ExpressionBuilderInterface;
+use Adaptation\Database\QueryBuilderInterface;
+use Doctrine\DBAL\Connection as DoctrineDbalConnection;
+use Doctrine\DBAL\DriverManager as DoctrineDbalDriverManager;
+use Doctrine\DBAL\Exception as DoctrineDbalException;
+use Doctrine\DBAL\Query\Expression\ExpressionBuilder as DoctrineDbalExpressionBuilder;
+use Doctrine\DBAL\Query\QueryBuilder as DoctrineDbalQueryBuilder;
 use PDO;
 use Adaptation\Database\ConnectionInterface;
 use Adaptation\Database\Enum\ConnectionDriver;
@@ -39,21 +43,25 @@ use Traversable;
  *
  * @class   DbalConnectionAdapter
  * @package Adaptation\Database\Adapter\Dbal
+ * @implements ConnectionInterface
+ * @see     DoctrineDbalConnection
  */
-class DbalConnectionAdapter implements ConnectionInterface
+final class DbalConnectionAdapter implements ConnectionInterface
 {
     /**
-     * By default, the queries are buffered
+     * By default, the queries are buffered.
      *
      * @var bool
      */
     private bool $isBufferedQueryActive = true;
 
     /**
-     * @param DBALConnection $dbalConnection
+     * DbalConnectionAdapter constructor
+     *
+     * @param DoctrineDbalConnection $dbalConnection
      */
     public function __construct(
-        private readonly DBALConnection $dbalConnection
+        private readonly DoctrineDbalConnection $dbalConnection
     ) {}
 
     /**
@@ -65,7 +73,7 @@ class DbalConnectionAdapter implements ConnectionInterface
      *
      * @throws ConnectionException
      */
-    public static function createFromConfig(ConnectionConfig $params): DbalConnectionAdapter
+    public static function createFromConfig(ConnectionConfig $params): ConnectionInterface
     {
         $arr_params = [
             'dbname' => $params->getDatabaseName(),
@@ -81,16 +89,40 @@ class DbalConnectionAdapter implements ConnectionInterface
             $arr_params['port'] = $params->getPort();
         }
         try {
-            $dbalConnection = DBALDriverManager::getConnection($arr_params);
+            $dbalConnection = DoctrineDbalDriverManager::getConnection($arr_params);
 
-            return new self($dbalConnection);
-        } catch (DBALException $e) {
+            return new DbalConnectionAdapter($dbalConnection);
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::connectionFailed($e);
         }
     }
 
     /**
-     * Return the database name if it exists
+     * Creates a new instance of a SQL query builder.
+     *
+     * @return DbalQueryBuilderAdapter
+     */
+    public function createQueryBuilder(): QueryBuilderInterface
+    {
+        $dbalQueryBuilder = new DoctrineDbalQueryBuilder($this->dbalConnection);
+
+        return new DbalQueryBuilderAdapter($dbalQueryBuilder);
+    }
+
+    /**
+     * Creates an expression builder for the connection.
+     *
+     * @return DbalExpressionBuilderAdapter
+     */
+    public function createExpressionBuilder(): ExpressionBuilderInterface
+    {
+        $dbalExpressionBuilder = new DoctrineDbalExpressionBuilder($this->dbalConnection);
+
+        return new DbalExpressionBuilderAdapter($dbalExpressionBuilder);
+    }
+
+    /**
+     * Return the database name if it exists.
      *
      * @return string|null
      *
@@ -100,13 +132,13 @@ class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->getDatabase();
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::getDatabaseFailed($e);
         }
     }
 
     /**
-     * To get the used native connection by DBAL (PDO, mysqli, ...)
+     * To get the used native connection by DBAL (PDO, mysqli, ...).
      *
      * @return object|resource
      *
@@ -116,7 +148,7 @@ class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->getNativeConnection();
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::getNativeConnectionFailed($e);
         }
     }
@@ -133,13 +165,13 @@ class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return (string) $this->dbalConnection->lastInsertId();
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::getLastInsertFailed($e);
         }
     }
 
     /**
-     * Check if a connection with the database exist
+     * Check if a connection with the database exist.
      *
      * @return bool
      */
@@ -179,7 +211,7 @@ class DbalConnectionAdapter implements ConnectionInterface
     // ----------------------------------------- CRUD METHODS -----------------------------------------
 
     /**
-     * To execute all queries except the queries getting results
+     * To execute all queries except the queries getting results.
      *
      * Executes an SQL statement with the given parameters and returns the number of affected rows.
      *
@@ -192,7 +224,7 @@ class DbalConnectionAdapter implements ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types
      *
@@ -213,7 +245,7 @@ class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return (int) $this->dbalConnection->executeStatement($query, $params, $types);
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -225,7 +257,7 @@ class DbalConnectionAdapter implements ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}
      *
@@ -250,7 +282,7 @@ class DbalConnectionAdapter implements ConnectionInterface
 
         try {
             return (int) $this->dbalConnection->executeStatement($query, $params, $types);
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -262,7 +294,7 @@ class DbalConnectionAdapter implements ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}
      *
@@ -287,7 +319,7 @@ class DbalConnectionAdapter implements ConnectionInterface
 
         try {
             return (int) $this->dbalConnection->executeStatement($query, $params, $types);
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -299,7 +331,7 @@ class DbalConnectionAdapter implements ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}
      *
@@ -324,7 +356,7 @@ class DbalConnectionAdapter implements ConnectionInterface
 
         try {
             return (int) $this->dbalConnection->executeStatement($query, $params, $types);
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -338,7 +370,7 @@ class DbalConnectionAdapter implements ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -360,7 +392,7 @@ class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->fetchAssociative($query, $params, $types);
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -373,7 +405,7 @@ class DbalConnectionAdapter implements ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -395,7 +427,7 @@ class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->fetchNumeric($query, $params, $types);
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -408,7 +440,7 @@ class DbalConnectionAdapter implements ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -430,7 +462,7 @@ class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->fetchOne($query, $params, $types);
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -442,7 +474,7 @@ class DbalConnectionAdapter implements ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -464,7 +496,7 @@ class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->fetchAllNumeric($query, $params, $types);
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -476,7 +508,7 @@ class DbalConnectionAdapter implements ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -498,7 +530,7 @@ class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->fetchAllAssociative($query, $params, $types);
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -511,7 +543,7 @@ class DbalConnectionAdapter implements ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -533,7 +565,7 @@ class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->fetchAllKeyValue($query, $params, $types);
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -547,7 +579,7 @@ class DbalConnectionAdapter implements ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -569,7 +601,7 @@ class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->fetchAllAssociativeIndexed($query, $params, $types);
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -581,7 +613,7 @@ class DbalConnectionAdapter implements ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -603,7 +635,7 @@ class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->fetchFirstColumn($query, $params, $types);
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -617,7 +649,7 @@ class DbalConnectionAdapter implements ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -639,7 +671,7 @@ class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->iterateNumeric($query, $params, $types);
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -652,7 +684,7 @@ class DbalConnectionAdapter implements ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -674,7 +706,7 @@ class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->iterateAssociative($query, $params, $types);
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -687,7 +719,7 @@ class DbalConnectionAdapter implements ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -709,7 +741,7 @@ class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->iterateKeyValue($query, $params, $types);
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -723,7 +755,7 @@ class DbalConnectionAdapter implements ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -745,7 +777,7 @@ class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->iterateAssociativeIndexed($query, $params, $types);
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -757,7 +789,7 @@ class DbalConnectionAdapter implements ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -779,7 +811,7 @@ class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->iterateColumn($query, $params, $types);
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -818,7 +850,7 @@ class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             $this->dbalConnection->setAutoCommit($autoCommit);
-        } catch (\Doctrine\DBAL\ConnectionException | DBALException\DriverException $e) {
+        } catch (\Doctrine\DBAL\ConnectionException | DoctrineDbalException\DriverException $e) {
             throw ConnectionException::setAutoCommitFailed($e);
         }
     }
@@ -857,13 +889,13 @@ class DbalConnectionAdapter implements ConnectionInterface
                 }
             }
             $this->dbalConnection->beginTransaction();
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::startTransactionFailed($e);
         }
     }
 
     /**
-     * To validate a transaction
+     * To validate a transaction.
      *
      * @return void
      *
@@ -873,13 +905,13 @@ class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             $this->dbalConnection->commit();
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::commitTransactionFailed($e);
         }
     }
 
     /**
-     * To cancel a transaction
+     * To cancel a transaction.
      *
      * @return void
      *
@@ -889,7 +921,7 @@ class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             $this->dbalConnection->rollBack();
-        } catch (DBALException $e) {
+        } catch (DoctrineDbalException $e) {
             throw ConnectionException::rollbackTransactionFailed($e);
         }
     }
@@ -897,9 +929,9 @@ class DbalConnectionAdapter implements ConnectionInterface
     // ------------------------------------- UNBUFFERED QUERIES -----------------------------------------
 
     /**
-     * Checks that the connection instance allows the use of unbuffered queries
+     * Checks that the connection instance allows the use of unbuffered queries.
      *
-     * For the moment, only pdo_mysql
+     * For the moment, only pdo_mysql.
      *
      * @throws ConnectionException
      *

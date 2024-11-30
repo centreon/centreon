@@ -28,7 +28,7 @@ use Throwable;
 /**
  * Class
  *
- * @class ConnectionException
+ * @class   ConnectionException
  * @package Adaptation\Database\Exception
  */
 class ConnectionException extends DatabaseException
@@ -139,9 +139,9 @@ class ConnectionException extends DatabaseException
 
     /**
      * @param Throwable $e
-     * @param string $query
-     * @param array $queryParams
-     * @param array $queryParamTypes
+     * @param string    $query
+     * @param array     $queryParams
+     * @param array     $queryParamTypes
      *
      * @return ConnectionException
      */
@@ -178,7 +178,8 @@ class ConnectionException extends DatabaseException
             "Error while setting auto-commit option",
             self::ERROR_CODE_DATABASE,
             [],
-            $e);
+            $e
+        );
     }
 
     /**

@@ -26,9 +26,9 @@ namespace Adaptation\Database\Enum;
 /**
  * Enum
  *
- * @class ConnectionDriver
+ * @class   ConnectionDriver
  * @package Adaptation\Database\Enum
- * @todo to complete with others database drivers like mysqli, pdo_pgsql, pdo_sqlite,...
+ * @todo    to complete with others database drivers like mysqli, pdo_pgsql, pdo_sqlite,...
  */
 enum ConnectionDriver: string
 {

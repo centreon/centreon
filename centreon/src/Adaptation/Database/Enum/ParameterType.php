@@ -26,7 +26,7 @@ namespace Adaptation\Database\Enum;
 /**
  * Enum
  *
- * @class ParameterType
+ * @class   ParameterType
  * @package Adaptation\Database
  */
 enum ParameterType: int

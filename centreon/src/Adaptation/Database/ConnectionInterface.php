@@ -31,7 +31,7 @@ use Traversable;
 /**
  * Interface
  *
- * @class ConnectionInterface
+ * @class   ConnectionInterface
  * @package Adaptation\Database
  */
 interface ConnectionInterface
@@ -48,7 +48,17 @@ interface ConnectionInterface
     public static function createFromConfig(ConnectionConfig $params): ConnectionInterface;
 
     /**
-     * Return the database name if it exists
+     * Creates a new instance of a SQL query builder.
+     */
+    public function createQueryBuilder(): QueryBuilderInterface;
+
+    /**
+     * Creates an expression builder for the connection.
+     */
+    public function createExpressionBuilder(): ExpressionBuilderInterface;
+
+    /**
+     * Return the database name if it exists.
      *
      * @return string|null
      *
@@ -57,7 +67,7 @@ interface ConnectionInterface
     public function getDatabaseName(): ?string;
 
     /**
-     * To get the used native connection by DBAL (PDO, mysqli, ...)
+     * To get the used native connection by DBAL (PDO, mysqli, ...).
      *
      * @return object|resource
      *
@@ -76,7 +86,7 @@ interface ConnectionInterface
     public function getLastInsertId(): string;
 
     /**
-     * Check if a connection with the database exist
+     * Check if a connection with the database exist.
      *
      * @return bool
      */
@@ -104,7 +114,7 @@ interface ConnectionInterface
     // ----------------------------------------- CRUD METHODS -----------------------------------------
 
     /**
-     * To execute all queries except the queries getting results
+     * To execute all queries except the queries getting results.
      *
      * Executes an SQL statement with the given parameters and returns the number of affected rows.
      *
@@ -117,7 +127,7 @@ interface ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types
      *
@@ -134,7 +144,7 @@ interface ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}
      *
@@ -151,7 +161,7 @@ interface ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}
      *
@@ -168,7 +178,7 @@ interface ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}
      *
@@ -187,7 +197,7 @@ interface ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -205,7 +215,7 @@ interface ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -223,7 +233,7 @@ interface ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -240,7 +250,7 @@ interface ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -257,7 +267,7 @@ interface ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -275,7 +285,7 @@ interface ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -294,7 +304,7 @@ interface ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -311,7 +321,7 @@ interface ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -330,7 +340,7 @@ interface ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -348,7 +358,7 @@ interface ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -366,7 +376,7 @@ interface ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -385,7 +395,7 @@ interface ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -402,7 +412,7 @@ interface ConnectionInterface
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query
+     * @param string                   $query
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
@@ -465,7 +475,7 @@ interface ConnectionInterface
     public function startTransaction(): void;
 
     /**
-     * To validate a transaction
+     * To validate a transaction.
      *
      * @return void
      *
@@ -474,7 +484,7 @@ interface ConnectionInterface
     public function commit(): void;
 
     /**
-     * To cancel a transaction
+     * To cancel a transaction.
      *
      * @return void
      *
@@ -485,9 +495,7 @@ interface ConnectionInterface
     // ------------------------------------- UNBUFFERED QUERIES -----------------------------------------
 
     /**
-     * Checks that the connection instance allows the use of unbuffered queries
-     *
-     * For the moment, only pdo_mysql
+     * Checks that the connection instance allows the use of unbuffered queries.
      *
      * @throws ConnectionException
      */

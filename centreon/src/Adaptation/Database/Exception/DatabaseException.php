@@ -29,7 +29,7 @@ use Throwable;
 /**
  * Class
  *
- * @class DatabaseException
+ * @class   DatabaseException
  * @package Adaptation\Database\Exception
  */
 abstract class DatabaseException extends Exception
@@ -47,10 +47,10 @@ abstract class DatabaseException extends Exception
     /**
      * DatabaseException constructor.
      *
-     * @param string $message
-     * @param int $code
+     * @param string              $message
+     * @param int                 $code
      * @param array<string,mixed> $options
-     * @param Throwable|null $previous
+     * @param Throwable|null      $previous
      */
     public function __construct(string $message, int $code, array $options = [], ?Throwable $previous = null)
     {
@@ -103,7 +103,7 @@ abstract class DatabaseException extends Exception
 
     /**
      * @param string $key
-     * @param mixed $value
+     * @param mixed  $value
      *
      * @return void
      */

@@ -86,8 +86,7 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
-            $this->error("Error while deleting host severity : {$ex->getMessage()}",
-            ['hostSeverity' => $hostSeverity, 'trace' => $ex->getTraceAsString()]);
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
 
             throw $ex;
         }
