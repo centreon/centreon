@@ -16,15 +16,16 @@ on:
   schedule:
     - cron: "0 3 * * 1-5"
   pull_request:
-    # pathss:
-    #   - "centreon/**"
-    #   - "!centreon/cypress/**"
-    #   - "!centreon/features/**"
-    #   - "!centreon/lighthouse/**"
-    #   - "!centreon/tests/**"
-    #   - "!centreon/.veracode-exclusions"
-    #   - "!centreon/veracode.json"
-    #   - "!centreon/packages/**"
+    paths:
+      - "**"
+      - "centreon/**"
+      - "!centreon/cypress/**"
+      - "!centreon/features/**"
+      - "!centreon/lighthouse/**"
+      - "!centreon/tests/**"
+      - "!centreon/.veracode-exclusions"
+      - "!centreon/veracode.json"
+      - "!centreon/packages/**"
   push:
     branches:
       - develop
