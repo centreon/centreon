@@ -20,9 +20,9 @@ sleep 10
 vault secrets enable -path=centreon kv
 vault auth enable -address=https://0.0.0.0:8200 approle
 
-mkdir -p /etc/vault.d
+# mkdir -p /etc/vault.d
 
-cat <<EOM >>/etc/vault.d/vault.hcl
+cat <<EOM >>/vault/config/vault.hcl
 listener "tcp" {
   address       = "0.0.0.0:8200"
 }
@@ -32,7 +32,7 @@ cluster_addr  = "https://0.0.0.0:8201"
 ui            = true
 EOM
 
-cat <<EOM >>/etc/vault.d/central_policy.hcl
+cat <<EOM >>/vault/config/central_policy.hcl
 path "centreon/*" {
   capabilities = ["create", "read", "update", "patch", "delete", "list"]
 }
@@ -69,4 +69,4 @@ tail -f /vault/logs/vault.log
 
 curl --insecure --request POST \
        --data '{"role_id": "db02de05-fa39-4855-059b-67221c5c2f63", "secret_id": "6a174c20-f6de-a53c-74d2-6018fcceff64"}' \
-       https://vault:8200/v1/auth/approle/login
+       https://localhost:8200/v1/auth/approle/login
