@@ -8,6 +8,9 @@
 # . /tmp/shared-volume/vault-ids
 
 if [ ! -z ${VAULT_HOST} ] && getent hosts ${VAULT_HOST}; then
+  sed -i 's@"vault": [0-3]@"vault": 3@' /usr/share/centreon/config/features.json
+  sed -i 's@"vault_broker": [0-3]@"vault_broker": 3@' /usr/share/centreon/config/features.json
+  sed -i 's@"vault_gorgone": [0-3]@"vault_gorgone": 3@' /usr/share/centreon/config/features.json
   sed -i 's/default_options:/&\n            verify_host: false/' /usr/share/centreon/config/packages/framework.yaml
   sed -i 's/default_options:/&\n            verify_peer: false/' /usr/share/centreon/config/packages/framework.yaml
   sudo -u apache php /usr/share/centreon/bin/console cache:clear
