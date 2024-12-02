@@ -4,7 +4,7 @@ set -x
 # export VAULT_SKIP_VERIFY=true
 # export VAULT_TOKEN=${VAULT_DEV_ROOT_TOKEN_ID}
 
-vault server -dev-tls -non-interactive -tls-skip-verify -log-file=/vault/logs/vault.log &
+vault server -dev-tls -non-interactive -tls-skip-verify -dev-listen-address="0.0.0.0:8200" -log-file=/vault/logs/vault.log &
 # vault secrets enable pki
 # vault write pki/roles/vault-role \
 #     allow_subdomains=true \
@@ -38,7 +38,7 @@ path "centreon/*" {
 }
 EOM
 
-vault policy write central /etc/vault.d/central_policy.hcl
+vault policy write central /vault/config/central_policy.hcl
 vault write auth/approle/role/central token_policies="central" \
   token_ttl=1h token_max_ttl=4h
 
@@ -69,4 +69,4 @@ tail -f /vault/logs/vault.log
 
 curl --insecure --request POST \
        --data '{"role_id": "db02de05-fa39-4855-059b-67221c5c2f63", "secret_id": "6a174c20-f6de-a53c-74d2-6018fcceff64"}' \
-       https://localhost:8200/v1/auth/approle/login
+       https://vault:8200/v1/auth/approle/login
