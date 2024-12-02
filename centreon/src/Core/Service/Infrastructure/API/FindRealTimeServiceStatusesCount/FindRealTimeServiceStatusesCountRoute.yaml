@@ -1,0 +1,5 @@
+FindRealTimeServiceStatusesCount:
+  methods: GET
+  path: /monitoring/services/status
+  controller: 'Core\Service\Infrastructure\API\FindRealTimeServiceStatusesCount\FindRealTimeServiceStatusesCountController'
+  condition: "request.attributes.get('version') >= 24.04"

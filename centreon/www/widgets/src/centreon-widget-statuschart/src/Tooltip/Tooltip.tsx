@@ -11,6 +11,7 @@ import {
   labelStatus,
   lableNoResourceFound
 } from '../translatedLabels';
+import { Resource } from '../../../models';
 
 import { useTooltipContent } from './useTooltip';
 import { useTooltipStyles } from './Tooltip.styles';
@@ -18,6 +19,7 @@ import { useTooltipStyles } from './Tooltip.styles';
 interface Props {
   color: string;
   label: string;
+  resources: Array<Resource>;
   title: string;
   total: number;
   value: number;
@@ -28,7 +30,8 @@ const TooltipContent = ({
   color,
   value,
   total,
-  title
+  title,
+  resources: resourcesOptions
 }: Props): JSX.Element => {
   const { classes } = useTooltipStyles();
 
@@ -36,6 +39,7 @@ const TooltipContent = ({
   const { format } = useLocaleDateTimeFormat();
 
   const { elementRef, isLoading, resources } = useTooltipContent({
+    resources: resourcesOptions,
     status: label,
     type: title.slice(0, -1)
   });

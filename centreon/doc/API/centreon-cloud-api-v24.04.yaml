@@ -4,6 +4,14 @@ info:
   description: |
     # New features
     +
+    + Added an endpoint to list all resource access rules (GET)
+    + Added an endpoint to create a resource access rule (POST)
+    + Added an endpoint to update a resource access rule (PUT)
+    + Added an endpoint to partially update a resource access rule (PATCH)
+    + Added an endpoint to get a resource access rule (GET)
+    + Added an endpoint to delete a resource access rule (DELETE)
+    + Added an endpoint to delete multiple resource access rules (POST)
+    + Added endpoint to deploy services in a host based on associated host template(s)
     # Updated features
     +
     +
@@ -21,10 +29,9 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: "24.04"
 externalDocs:
-  description: You can contact us on our community Slack
-  url: 'https://centreon.slack.com/messages/CCRGLQSE5'
+  description: You can contact us on our community platform The Watch
+  url: 'https://thewatch.centreon.com/'
 servers:
   - url: '{protocol}://{server}:{port}/centreon/api/{version}'
     variables:
@@ -70,6 +77,8 @@ paths:
     $ref: './latest/Cloud/Configuration/HostTemplate/AddAndFindHostTemplates.yaml'
   /configuration/hosts/templates/{host_template_id}:
     $ref: './latest/Cloud/Configuration/HostTemplate/PartialUpdateHostTemplate.yaml'
+  /configuration/hosts/{host_id}/services/deploy:
+    $ref: './latest/Cloud/Configuration/Service/DeployServices.yaml'
   /configuration/services:
     $ref: "./latest/Cloud/Configuration/Service/AddAndFindServices.yaml"
   /configuration/services/{service_id}:

@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Domain\MonitoringServer\UseCase;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use Centreon\Domain\Repository\RepositoryException;
@@ -31,18 +32,25 @@ use Centreon\Domain\MonitoringServer\UseCase\GenerateConfiguration;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
 use Centreon\Domain\MonitoringServer\Exception\ConfigurationMonitoringServerException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 class GenerateConfigurationTest extends TestCase
 {
-    /**
-     * @var MonitoringServerRepositoryInterface&MockObject
-     */
+    /** @var MonitoringServerRepositoryInterface&MockObject */
     private $monitoringServerRepository;
 
-    /**
-     * @var MonitoringServerConfigurationRepositoryInterface&MockObject
-     */
+    /** @var MonitoringServerConfigurationRepositoryInterface&MockObject */
     private $monitoringServerConfigurationRepository;
+
+    /** @var ReadAccessGroupRepositoryInterface&MockObject */
+    private $readAccessGroupsRepository;
+
+    /** @var ContactInterface&MockObject */
+    private $user;
+
+    /** @var AccessGroup&MockObject */
+    private $accessGroup;
 
     /**
      * @var MonitoringServer
@@ -54,12 +62,26 @@ class GenerateConfigurationTest extends TestCase
         $this->monitoringServerRepository = $this->createMock(MonitoringServerRepositoryInterface::class);
         $this->monitoringServerConfigurationRepository =
             $this->createMock(MonitoringServerConfigurationRepositoryInterface::class);
+        $this->readAccessGroupsRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+        $this->user = $this->createMock(ContactInterface::class);
+
+        $this->accessGroup = (new AccessGroup(2, 'nonAdmin', 'nonAdmin'));
 
         $this->monitoringServer = (new MonitoringServer())->setId(1);
     }
 
     public function testErrorRetrievingMonitoringServerException(): void
     {
+        $this->user
+            ->expects($this->any())
+            ->method('hasTopologyRole')
+            ->willReturn(true);
+
+        $this->user
+            ->expects($this->once())
+            ->method('isAdmin')
+            ->willReturn(true);
+
         $this->monitoringServerRepository
             ->expects($this->once())
             ->method('findServer')
@@ -71,7 +93,9 @@ class GenerateConfigurationTest extends TestCase
         );
         $useCase = new GenerateConfiguration(
             $this->monitoringServerRepository,
-            $this->monitoringServerConfigurationRepository
+            $this->monitoringServerConfigurationRepository,
+            $this->readAccessGroupsRepository,
+            $this->user
         );
         $useCase->execute($this->monitoringServer->getId());
     }
@@ -79,6 +103,16 @@ class GenerateConfigurationTest extends TestCase
     public function testErrorOnGeneration(): void
     {
         $repositoryException = new RepositoryException('Test exception message');
+
+        $this->user
+            ->expects($this->any())
+            ->method('hasTopologyRole')
+            ->willReturn(true);
+
+        $this->user
+            ->expects($this->once())
+            ->method('isAdmin')
+            ->willReturn(true);
 
         $this->monitoringServerRepository
             ->expects($this->once())
@@ -92,7 +126,9 @@ class GenerateConfigurationTest extends TestCase
 
         $useCase = new GenerateConfiguration(
             $this->monitoringServerRepository,
-            $this->monitoringServerConfigurationRepository
+            $this->monitoringServerConfigurationRepository,
+            $this->readAccessGroupsRepository,
+            $this->user
         );
         $this->expectException(ConfigurationMonitoringServerException::class);
         $this->expectExceptionMessage(ConfigurationMonitoringServerException::errorOnGeneration(
@@ -103,8 +139,18 @@ class GenerateConfigurationTest extends TestCase
         $useCase->execute($this->monitoringServer->getId());
     }
 
-    public function testSuccess(): void
+    public function testSuccessAsAdminUser(): void
     {
+        $this->user
+            ->expects($this->any())
+            ->method('hasTopologyRole')
+            ->willReturn(true);
+
+        $this->user
+            ->expects($this->once())
+            ->method('isAdmin')
+            ->willReturn(true);
+
         $this->monitoringServerRepository
             ->expects($this->once())
             ->method('findServer')
@@ -122,7 +168,50 @@ class GenerateConfigurationTest extends TestCase
 
         $useCase = new GenerateConfiguration(
             $this->monitoringServerRepository,
-            $this->monitoringServerConfigurationRepository
+            $this->monitoringServerConfigurationRepository,
+            $this->readAccessGroupsRepository,
+            $this->user
+        );
+        $useCase->execute($this->monitoringServer->getId());
+    }
+
+    public function testSuccessAsNonAdminUser(): void
+    {
+        $this->user
+            ->expects($this->any())
+            ->method('hasTopologyRole')
+            ->willReturn(true);
+
+        $this->user
+            ->expects($this->once())
+            ->method('isAdmin')
+            ->willReturn(false);
+
+        $this->readAccessGroupsRepository
+            ->expects($this->once())
+            ->method('findByContact')
+            ->willReturn([$this->accessGroup]);
+
+        $this->monitoringServerRepository
+            ->expects($this->once())
+            ->method('findByIdAndAccessGroups')
+            ->willReturn($this->monitoringServer);
+
+        $this->monitoringServerConfigurationRepository
+            ->expects($this->once())
+            ->method('generateConfiguration')
+            ->with($this->monitoringServer->getId());
+
+        $this->monitoringServerConfigurationRepository
+            ->expects($this->once())
+            ->method('moveExportFiles')
+            ->with($this->monitoringServer->getId());
+
+        $useCase = new GenerateConfiguration(
+            $this->monitoringServerRepository,
+            $this->monitoringServerConfigurationRepository,
+            $this->readAccessGroupsRepository,
+            $this->user
         );
         $useCase->execute($this->monitoringServer->getId());
     }

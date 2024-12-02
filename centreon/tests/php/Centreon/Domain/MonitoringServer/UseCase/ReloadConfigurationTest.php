@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Domain\MonitoringServer\UseCase;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use Centreon\Domain\Repository\RepositoryException;
@@ -31,6 +32,7 @@ use Centreon\Domain\MonitoringServer\UseCase\ReloadConfiguration;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
 use Centreon\Domain\MonitoringServer\Exception\ConfigurationMonitoringServerException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 class ReloadConfigurationTest extends TestCase
 {
@@ -39,14 +41,16 @@ class ReloadConfigurationTest extends TestCase
      */
     private $monitoringServerRepository;
 
-    /**
-     * @var MonitoringServerConfigurationRepositoryInterface&MockObject
-     */
+    /** @var MonitoringServerConfigurationRepositoryInterface&MockObject */
     private $monitoringServerConfigurationRepository;
 
-    /**
-     * @var MonitoringServer
-     */
+    /** @var ReadAccessGroupRepositoryInterface&MockObject */
+    private $readAccessGroupRepository;
+
+    /** @var ContactInterface&MockObject */
+    private $user;
+
+    /** @var MonitoringServer */
     private $monitoringServer;
 
     protected function setUp(): void
@@ -54,14 +58,26 @@ class ReloadConfigurationTest extends TestCase
         $this->monitoringServerRepository = $this->createMock(MonitoringServerRepositoryInterface::class);
         $this->monitoringServerConfigurationRepository =
             $this->createMock(MonitoringServerConfigurationRepositoryInterface::class);
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+        $this->user = $this->createMock(ContactInterface::class);
 
         $this->monitoringServer = (new MonitoringServer())->setId(1);
     }
 
     public function testErrorRetrievingMonitoringServerException(): void
     {
+        $this->user
+            ->expects($this->any())
+            ->method('hasTopologyRole')
+            ->willReturn(true);
+
+        $this->user
+            ->expects($this->any())
+            ->method('isAdmin')
+            ->willReturn(true);
+
         $this->monitoringServerRepository
-            ->expects($this->once())
+            ->expects($this->any())
             ->method('findServer')
             ->willReturn(null);
 
@@ -71,7 +87,9 @@ class ReloadConfigurationTest extends TestCase
         );
         $useCase = new ReloadConfiguration(
             $this->monitoringServerRepository,
-            $this->monitoringServerConfigurationRepository
+            $this->monitoringServerConfigurationRepository,
+            $this->readAccessGroupRepository,
+            $this->user
         );
         $useCase->execute($this->monitoringServer->getId());
     }
@@ -80,8 +98,18 @@ class ReloadConfigurationTest extends TestCase
     {
         $repositoryException = new RepositoryException('Test exception message');
 
+        $this->user
+            ->expects($this->any())
+            ->method('hasTopologyRole')
+            ->willReturn(true);
+
+        $this->user
+            ->expects($this->any())
+            ->method('isAdmin')
+            ->willReturn(true);
+
         $this->monitoringServerRepository
-            ->expects($this->once())
+            ->expects($this->any())
             ->method('findServer')
             ->willReturn($this->monitoringServer);
 
@@ -92,7 +120,9 @@ class ReloadConfigurationTest extends TestCase
 
         $useCase = new ReloadConfiguration(
             $this->monitoringServerRepository,
-            $this->monitoringServerConfigurationRepository
+            $this->monitoringServerConfigurationRepository,
+            $this->readAccessGroupRepository,
+            $this->user
         );
         $this->expectException(ConfigurationMonitoringServerException::class);
         $this->expectExceptionMessage(ConfigurationMonitoringServerException::errorOnReload(
@@ -105,6 +135,16 @@ class ReloadConfigurationTest extends TestCase
 
     public function testSuccess(): void
     {
+        $this->user
+            ->expects($this->any())
+            ->method('hasTopologyRole')
+            ->willReturn(true);
+
+        $this->user
+            ->expects($this->any())
+            ->method('isAdmin')
+            ->willReturn(true);
+
         $this->monitoringServerRepository
             ->expects($this->once())
             ->method('findServer')
@@ -117,7 +157,9 @@ class ReloadConfigurationTest extends TestCase
 
         $useCase = new ReloadConfiguration(
             $this->monitoringServerRepository,
-            $this->monitoringServerConfigurationRepository
+            $this->monitoringServerConfigurationRepository,
+            $this->readAccessGroupRepository,
+            $this->user
         );
         $useCase->execute($this->monitoringServer->getId());
     }

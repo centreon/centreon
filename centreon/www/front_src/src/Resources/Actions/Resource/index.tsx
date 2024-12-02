@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { useAtom } from 'jotai';
-import { all, equals, head, pathEq } from 'ramda';
+import { all, equals, find, head, pathEq, propEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -13,7 +13,7 @@ import { PopoverMenu, SeverityCode, useCancelTokenSource } from '@centreon/ui';
 
 import AddCommentForm from '../../Graph/Performance/Graph/AddCommentForm';
 import IconDowntime from '../../icons/Downtime';
-import { Resource } from '../../models';
+import { type Resource, ResourceType } from '../../models';
 import {
   labelAcknowledge,
   labelAddComment,
@@ -29,19 +29,20 @@ import {
 } from '../actionsAtoms';
 import {
   Action,
-  CheckActionModel,
-  ExtraActionsInformation,
+  type CheckActionModel,
+  type ExtraActionsInformation,
+  type MoreSecondaryActions,
   ResourceActions
 } from '../model';
 
 import AcknowledgeForm from './Acknowledge';
-import useAclQuery from './aclQuery';
 import ActionMenuItem from './ActionMenuItem';
 import CheckActionButton from './Check';
 import DisacknowledgeForm from './Disacknowledge';
 import DowntimeForm from './Downtime';
 import ResourceActionButton from './ResourceActionButton';
 import SubmitStatusForm from './SubmitStatus';
+import useAclQuery from './aclQuery';
 
 const useStyles = makeStyles()((theme) => ({
   action: {
@@ -58,8 +59,9 @@ const ResourceActions = ({
   success,
   mainActions,
   secondaryActions,
-  displayCondensed = false
-}: ResourceActions): JSX.Element => {
+  displayCondensed = false,
+  renderMoreSecondaryActions
+}: ResourceActions & MoreSecondaryActions): JSX.Element => {
   const { classes, cx } = useStyles();
   const { t } = useTranslation();
   const { cancel } = useCancelTokenSource();
@@ -217,11 +219,16 @@ const ResourceActions = ({
 
   const hasSelectedResources = resources.length > 0;
   const hasOneResourceSelected = resources.length === 1;
+  const hasADResource = find(
+    propEq(ResourceType.anomalyDetection, 'type'),
+    resources
+  );
 
   const disableSubmitStatus =
     !hasOneResourceSelected ||
     !canSubmitStatus(resources) ||
-    !head(resources)?.has_passive_checks_enabled;
+    !head(resources)?.has_passive_checks_enabled ||
+    hasADResource;
 
   const disableAddComment = !hasOneResourceSelected || !canComment(resources);
 
@@ -293,7 +300,7 @@ const ResourceActions = ({
           </div>
         )}
         {displayCheck && (
-          <div className={classes.action}>
+          <div className={cx({ [classes.action]: !displayCondensed })}>
             <CheckActionButton
               displayCondensed={displayCondensed}
               resources={resources}
@@ -379,6 +386,7 @@ const ResourceActions = ({
                   prepareToAddComment();
                 }}
               />
+              {renderMoreSecondaryActions?.({ close })}
             </>
           )}
         </PopoverMenu>

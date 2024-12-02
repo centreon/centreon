@@ -9,7 +9,9 @@ const getWidgets = () => {
     .filter((value) => value.isDirectory())
     .map(({ name }) => name)
     .filter((name) =>
-      name !== 'node_modules' && widgets.length > 0 ? widgets.includes(replace('centreon-widget-', '', name)) : true
+      name !== 'node_modules' && widgets.length > 0
+        ? widgets.includes(replace('centreon-widget-', '', name))
+        : name.match(/^centreon-widget/)
     );
 };
 
@@ -18,48 +20,52 @@ const getWebpackBuildConfiguration = () => {
 
   if (buildMode === 'development') {
     return {
-      config: 'webpack.config.dev.js',
+      config: 'rspack.config.dev.js',
       mode: 'development',
-      watch: false
+      watch: false,
+      analyze: false
     };
   }
 
   if (buildMode === 'watch') {
     return {
-      config: 'webpack.config.dev.js',
+      config: 'rspack.config.dev.js',
       mode: 'development',
-      watch: true
+      watch: true,
+      analyze: false
     };
   }
 
   if (buildMode === 'analyze') {
     return {
-      config: 'webpack.config.analyze.js',
+      config: 'rspack.config.js',
       mode: 'production',
-      watch: false
+      watch: false,
+      analyze: true
     };
   }
 
   return {
-    config: 'webpack.config.prod.js',
+    config: 'rspack.config.js',
     mode: 'production',
-    watch: false
+    watch: false,
+    analyze: false
   };
 };
 
 getWidgets().forEach((widgetName) => {
-  const { config, mode, watch } = getWebpackBuildConfiguration();
+  const { config, mode, watch, analyze } = getWebpackBuildConfiguration();
   console.log(`Bundling ${widgetName} in ${mode}...`);
   exec(
-    `node ./node_modules/webpack/bin/webpack.js --mode ${mode} --config ${config} --env widgetName=${widgetName} ${
-      watch ? '--watch' : ''
-    }`,
+    `rspack build -m ${mode} -c ./${config} --env widgetName=${widgetName} ${
+      watch ? '-w' : ''
+    } ${analyze ? '--analyze' : ''}`,
     (error, stdout) => {
       if (error) {
-        console.error(error);
+        console.error(`${widgetName}: ${error}`);
       }
 
-      console.log(stdout);
+      console.log(`${widgetName}: ${stdout}`);
     }
   );
 });

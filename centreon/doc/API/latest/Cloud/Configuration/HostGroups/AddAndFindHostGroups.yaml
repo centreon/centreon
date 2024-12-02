@@ -11,6 +11,8 @@ get:
     * name
     * alias
     * is_activated
+    * hostcategory.id
+    * hostcategory.name
   parameters:
     - $ref: '../../../../Common/QueryParameter/Limit.yaml'
     - $ref: '../../../../Common/QueryParameter/Page.yaml'

@@ -3,15 +3,15 @@ import { useTranslation } from 'react-i18next';
 import { Divider, Typography } from '@mui/material';
 import { Variant } from '@mui/material/styles/createTypography';
 
-import { InputProps, Group, InputType } from '@centreon/ui';
+import { Group, InputProps, InputType } from '@centreon/ui';
 
 import {
+  labelAddResourceDatasets,
   labelContactGroups,
   labelContacts,
   labelContactsAndContactGroups,
   labelDescription,
   labelName,
-  labelAddResourceDatasets,
   labelRuleProperies,
   labelStatus
 } from '../../translatedLabels';
@@ -105,7 +105,8 @@ const useFormInputs = (): UseFormInputsState => {
                   label: t(labelStatus),
                   type: InputType.Custom
                 }
-              ]
+              ],
+              isColumnDirection: true
             },
             label: t(labelRuleProperies),
             type: InputType.Grid
@@ -132,7 +133,8 @@ const useFormInputs = (): UseFormInputsState => {
                         label: t(labelAddResourceDatasets),
                         type: InputType.Custom
                       }
-                    ]
+                    ],
+                    isColumnDirection: true
                   },
                   label: t(labelAddResourceDatasets),
                   type: InputType.Grid
@@ -187,12 +189,14 @@ const useFormInputs = (): UseFormInputsState => {
                         required: true,
                         type: InputType.MultiConnectedAutocomplete
                       }
-                    ]
+                    ],
+                    isColumnDirection: true
                   },
                   label: t(labelContactsAndContactGroups),
                   type: InputType.Grid
                 }
-              ]
+              ],
+              isColumnDirection: true
             },
             label: '',
             type: InputType.Grid

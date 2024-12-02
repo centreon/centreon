@@ -82,6 +82,8 @@ CREATE TABLE `acl_groups` (
   `acl_group_activate` enum('0','1','2') DEFAULT NULL,
   `cloud_description` TEXT DEFAULT NULL,
   `cloud_specific` boolean NOT NULL DEFAULT 0,
+  `all_contacts` TINYINT DEFAULT 0 NOT NULL,
+  `all_contact_groups` TINYINT DEFAULT 0 NOT NULL,
   PRIMARY KEY (`acl_group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;

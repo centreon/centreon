@@ -35,8 +35,14 @@ use Symfony\Component\HttpFoundation\Response;
  *     name: string,
  *     description: ?string,
  *     is_enabled: bool,
- *     contacts: non-empty-list<int>,
- *     contact_groups: non-empty-list<int>,
+ *     contacts: array{
+ *      ids: list<int>,
+ *      all: bool
+ *     },
+ *     contact_groups: array{
+ *      ids: list<int>,
+ *      all: bool
+ *     },
  *     dataset_filters: non-empty-list<array{
  *      type:string,
  *      resources: list<int>,
@@ -57,7 +63,7 @@ final class UpdateRuleController extends AbstractController
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
         /** @var _UpdateRequestData $data */
-        $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/UpdateRuleSchema.yaml');
+        $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/UpdateRuleSchema.json');
         $useCase($this->createDtoFromData($ruleId, $data), $presenter);
 
         return $presenter->show();
@@ -76,8 +82,10 @@ final class UpdateRuleController extends AbstractController
         $dto->name = $data['name'];
         $dto->description = $data['description'] ?? '';
         $dto->isEnabled = $data['is_enabled'];
-        $dto->contactIds = $data['contacts'];
-        $dto->contactGroupIds = $data['contact_groups'];
+        $dto->contactIds = $data['contacts']['ids'];
+        $dto->contactGroupIds = $data['contact_groups']['ids'];
+        $dto->applyToAllContacts = $data['contacts']['all'];
+        $dto->applyToAllContactGroups = $data['contact_groups']['all'];
         $dto->datasetFilters = $data['dataset_filters'];
 
         return $dto;

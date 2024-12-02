@@ -91,8 +91,7 @@ const Check = ({
       <ButtonGroup
         className={cx(classes.buttonGroup, {
           [classes.container]: !displayCondensed,
-          [classes.disabled]: disabledButton && !displayCondensed,
-          [classes.condensed]: displayCondensed
+          [classes.disabled]: disabledButton && !displayCondensed
         })}
         onClick={handleClick}
       >

@@ -1,6 +1,6 @@
 import { buildListingEndpoint } from '@centreon/ui';
 
-import { BuildListEndpoint, DeleteTokenEndpoint } from './models';
+import { BuildListEndpoint, DeleteTokenEndpoint, Parameters } from './models';
 
 export const baseTokenEndpoint = '/administration/tokens';
 
@@ -26,7 +26,9 @@ export const getEndpointConfiguredUser = (dataConfiguredUser): string => {
   });
 };
 
-export const getEndpointCreatorsToken = (dataCreatorsToken): string => {
+export const getEndpointCreatorsToken = (
+  dataCreatorsToken: Parameters
+): string => {
   return buildListEndpoint({
     endpoint: listTokensEndpoint,
     parameters: { ...dataCreatorsToken, limit: 10 }

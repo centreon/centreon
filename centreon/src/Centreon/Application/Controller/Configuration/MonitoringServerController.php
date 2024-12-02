@@ -66,8 +66,10 @@ class MonitoringServerController extends AbstractController
      * Entry point to find a monitoring server
      *
      * @param RequestParametersInterface $requestParameters
-     * @return View
+     *
      * @throws \Exception
+     *
+     * @return View
      */
     public function findServers(RequestParametersInterface $requestParameters): View
     {
@@ -75,6 +77,7 @@ class MonitoringServerController extends AbstractController
         $context = (new Context())->setGroups([
             MonitoringServer::SERIALIZER_GROUP_MAIN,
         ]);
+
         return $this->view(
             [
                 'result' => $this->monitoringServerService->findServers(),
@@ -216,6 +219,7 @@ class MonitoringServerController extends AbstractController
             if (! $user->isAdmin() && ! $user->hasRole(Contact::ROLE_GENERATE_CONFIGURATION)) {
                 throw new AccessDeniedException('Insufficient rights (required: ROLE_GENERATE_CONFIGURATION)');
             }
+
             $callable();
         } catch (TimeoutException $ex) {
             $this->error($ex->getMessage());

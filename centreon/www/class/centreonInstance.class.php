@@ -321,11 +321,11 @@ class CentreonInstance
             ) {
                 $hide = true;
             }
-            $items[] = array(
+            $items[] = [
                 'id' => $data['id'],
-                'text' => $data['name'],
+                'text' => HtmlSanitizer::createFromString($data['name'])->sanitize()->getString(),
                 'hide' => $hide
-            );
+            ];
         }
 
         return $items;

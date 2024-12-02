@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2005-2015 Centreon
+ * Copyright 2005-2024 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -342,7 +342,9 @@ class CentreonHostgroups
         }
 
         // get list of authorized hostgroups
-        if (!$centreon->user->access->admin) {
+        if (! $centreon->user->access->admin
+            && $centreon->user->access->hasAccessToAllHostGroups === false
+        ) {
             $hgAcl = $centreon->user->access->getHostGroupAclConf(
                 null,
                 'broker',
@@ -384,7 +386,11 @@ class CentreonHostgroups
         while ($row = $stmt->fetch()) {
             // hide unauthorized hostgroups
             $hide = false;
-            if (!$centreon->user->access->admin && !in_array($row['hg_id'], $hgAcl)) {
+            if (
+                ! $centreon->user->access->admin
+                && $centreon->user->access->hasAccessToAllHostGroups === false
+                && ! in_array($row['hg_id'], $hgAcl)
+            ) {
                 $hide = true;
             }
 

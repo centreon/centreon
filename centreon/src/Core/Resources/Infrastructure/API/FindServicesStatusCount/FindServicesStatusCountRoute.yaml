@@ -1,5 +1,0 @@
-FindServicesStatus:
-  methods: GET
-  path: /monitoring/services/status
-  controller: 'Core\Resources\Infrastructure\API\FindServicesStatusCount\FindServicesStatusCountController'
-  condition: "request.attributes.get('version') >= 24.04"

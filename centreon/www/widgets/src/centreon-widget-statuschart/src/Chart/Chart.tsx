@@ -92,6 +92,7 @@ const Chart = ({
             displayLegend={displayLegend}
             displayValues={displayValues}
             title={title}
+            tooltipProps={{ resources }}
             unit={unit}
             variant={displayType as 'pie' | 'donut'}
             onArcClick={({ label: status }) => {
@@ -117,6 +118,7 @@ const Chart = ({
             legendDirection={isHorizontalBar ? 'row' : 'column'}
             size={80}
             title={title}
+            tooltipProps={{ resources }}
             unit={unit}
             variant={displayType as 'horizontal' | 'vertical'}
             onSingleBarClick={({ key: status }) => {

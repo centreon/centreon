@@ -944,7 +944,6 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     }
 
     $ret["service_description"] = $service->checkIllegalChar($ret["service_description"]);
-
     $rq = "UPDATE service SET ";
     $rq .= "service_template_model_stm_id = ";
     isset($ret["service_template_model_stm_id"]) && $ret["service_template_model_stm_id"] != null
@@ -1583,7 +1582,11 @@ function insertServiceInDBForCloud($submittedValues = [], $onDemandMacro = null)
     global $centreon;
 
     $tmp_fields = insertServiceForCloud($submittedValues, $onDemandMacro);
-    $serviceId = $tmp_fields['service_id'];
+    if (! isset($tmp_fields['service_id'])) {
+        return null;
+    }
+
+    $serviceId = (int) $tmp_fields['service_id'];
     updateServiceHost($serviceId, $submittedValues);
     updateServiceServiceGroup($serviceId, $submittedValues);
     insertServiceExtInfos($serviceId, $submittedValues);
@@ -1605,7 +1608,11 @@ function insertServiceInDBForOnPremise($submittedValues = [], $onDemandMacro = n
     global $centreon;
 
     $tmp_fields = insertServiceForOnPremise($submittedValues, $onDemandMacro);
-    $serviceId = $tmp_fields['service_id'];
+    if (! isset($tmp_fields['service_id'])) {
+        return null;
+    }
+
+    $serviceId = (int) $tmp_fields['service_id'];
     updateServiceContactGroup($serviceId, $submittedValues);
     updateServiceContact($serviceId, $submittedValues);
     updateServiceNotifs($serviceId, $submittedValues);
@@ -2315,7 +2322,7 @@ function updateService_MC($service_id = null, $params = array())
     } else {
         $ret = $form->getSubmitValues();
     }
-
+    $isServiceTemplate = isset($ret['service_register']) && $ret['service_register'] === '0';
     if (isset($ret["sg_name"])) {
         $ret["sg_name"] = $centreon->checkIllegalChar($ret["sg_name"]);
     }
@@ -2450,9 +2457,13 @@ function updateService_MC($service_id = null, $params = array())
         $rq .= "geo_coords = '" . $ret["geo_coords"] . "', ";
     }
 
-    $rq .= (isset($ret["service_activate"]["service_activate"]) && $ret["service_activate"]["service_activate"] != null)
-        ? "service_activate = '" . $ret["service_activate"]["service_activate"] . "', "
-        : "service_activate = '1', ";
+    if (!$isServiceTemplate) {
+        if (isset($ret["service_activate"]["service_activate"]) && $ret["service_activate"]["service_activate"] != null) {
+            $rq .= "service_activate = '" . $ret["service_activate"]["service_activate"] . "', ";
+        }
+    } else {
+        $rq .= "service_activate = '1', ";
+    }
 
     if (strcmp("UPDATE service SET ", $rq)) {
         // Delete last ',' in request
@@ -2665,25 +2676,38 @@ function updateServiceNotifOptionInterval_MC($service_id = null)
     }
 }
 
-function updateServiceNotifOptionTimeperiod($service_id = null, $ret = array())
+/**
+ * @param int $serviceId
+ * @param array $ret
+ *
+ * @throws CentreonDbException
+ */
+function updateServiceNotifOptionTimeperiod(int $serviceId, $ret = array())
 {
-    global $form, $pearDB;
+    global $pearDB;
 
-    if (!$service_id) {
-        return;
+    try {
+        $queryParams = [];
+        $request = <<<'SQL'
+            UPDATE `service` SET `timeperiod_tp_id2` = :timeperiod_tp_id2
+            WHERE `service_id` = :service_id
+            SQL;
+        $stmt = $pearDB->prepareQuery($request);
+        $queryParams['service_id'] = $serviceId;
+
+        $queryParams['timeperiod_tp_id2'] = $ret['timeperiod_tp_id2'] ?? null;
+
+        $pearDB->executePreparedQuery($stmt, $queryParams);
+    } catch (CentreonDbException $ex) {
+        CentreonLog::create()->error(
+            CentreonLog::LEVEL_ERROR,
+            'Error while updating service notification timeperiod: ' . $ex->getMessage(),
+            ['service_id' => $serviceId, 'ret' => $ret],
+            $ex
+        );
+
+        throw $ex;
     }
-
-    if (isset($ret["timeperiod_tp_id2"])) {
-        $ret = $ret["timeperiod_tp_id2"];
-    } else {
-        $ret = $form->getSubmitValue("timeperiod_tp_id2");
-    }
-
-    $rq = "UPDATE service SET ";
-    $rq .= "timeperiod_tp_id2 = ";
-    isset($ret) && $ret != null ? $rq .= "'" . $ret . "' " : $rq .= "NULL ";
-    $rq .= "WHERE service_id = '" . $service_id . "'";
-    $dbResult = $pearDB->query($rq);
 }
 
 // For massive change. incremental mode

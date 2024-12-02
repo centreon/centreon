@@ -110,4 +110,15 @@ interface ReadServiceTemplateRepositoryInterface
      * @return ServiceTemplateInheritance[]
      */
     public function findParents(int $serviceTemplateId): array;
+
+    /**
+     * Find service templates associated to given host id.
+     *
+     * @param int $hostId
+     *
+     * @throws \Throwable
+     *
+     * @return ServiceTemplate[]
+     */
+    public function findByHostId(int $hostId): array;
 }

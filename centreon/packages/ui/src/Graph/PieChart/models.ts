@@ -14,6 +14,7 @@ export interface PieProps {
   legendDirection?: 'row' | 'column';
   onArcClick?: (ardata) => void;
   title?: string;
+  tooltipProps?: object;
   unit?: 'percentage' | 'number';
   variant?: 'pie' | 'donut';
 }

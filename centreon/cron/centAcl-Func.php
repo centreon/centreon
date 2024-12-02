@@ -553,3 +553,133 @@ function getModulesExtensionsPaths($db)
 
     return $extensionsPaths;
 }
+
+/**
+ * Get the list of contacts (ids) that are not linked to the acl group id provided.
+ * This method excludes 'service' contacts
+ *
+ * @param int $aclGroupId
+ * @return int[]
+ */
+function getContactsNotLinkedToAclGroup(int $aclGroupId): array
+{
+    global $pearDB;
+
+    $request = <<<'SQL'
+        SELECT
+            contact_id
+        FROM contact
+        WHERE
+            contact_name != 'centreon-gorgone'
+            AND contact_register = '1'
+            AND contact_activate = '1'
+            AND contact_admin = '0'
+            AND contact_id NOT IN (
+                SELECT DISTINCT contact_contact_id FROM acl_group_contacts_relations WHERE acl_group_id = :aclGroupId
+            )
+    SQL;
+
+    $statement = $pearDB->prepare($request);
+    $statement->bindValue(':aclGroupId', $aclGroupId, \PDO::PARAM_INT);
+    $statement->execute();
+
+    return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
+}
+
+/**
+ * Get the list of contact groups (ids) that are not linked to the acl group id provided.
+ *
+ * @param int $aclGroupId
+ * @return int[]
+ */
+function getContactGroupsNotLinkedToAclGroup(int $aclGroupId): array
+{
+    global $pearDB;
+
+    $request = <<<'SQL'
+        SELECT
+            cg_id
+        FROM contactgroup
+        WHERE cg_activate = '1'
+            AND cg_id NOT IN (
+                SELECT DISTINCT cg_cg_id FROM acl_group_contactgroups_relations WHERE acl_group_id = :aclGroupId
+            )
+    SQL;
+
+    $statement = $pearDB->prepare($request);
+    $statement->bindValue(':aclGroupId', $aclGroupId, \PDO::PARAM_INT);
+    $statement->execute();
+
+    return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
+}
+
+/**
+ * @param int $accessGroupId
+ * @param int[] $contactIds
+ */
+function linkContactsToAccessGroup(int $accessGroupId, array $contactIds): void
+{
+    global $pearDB;
+
+    if ([] === $contactIds) {
+        return;
+    }
+
+    $bindValues = [];
+    $subValues = [];
+    foreach ($contactIds as $index => $contactId) {
+        $bindValues[":contact_id_{$index}"] = $contactId;
+        $subValues[] = "(:contact_id_{$index}, :accessGroupId)";
+    }
+
+    $subQueries = implode(', ', $subValues);
+
+    $request = <<<SQL
+        INSERT INTO acl_group_contacts_relations (contact_contact_id, acl_group_id) VALUES $subQueries
+    SQL;
+
+    $statement = $pearDB->prepare($request);
+    $statement->bindValue(':accessGroupId', $accessGroupId, \PDO::PARAM_INT);
+
+    foreach ($bindValues as $bindKey => $bindValue) {
+        $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_INT);
+    }
+
+    $statement->execute();
+}
+
+/**
+ * @param int $accessGroupId
+ * @param int[] $contactGroupIds
+ */
+function linkContactGroupsToAccessGroup(int $accessGroupId, array $contactGroupIds): void
+{
+    global $pearDB;
+
+    if ([] === $contactGroupIds) {
+        return;
+    }
+
+    $bindValues = [];
+    $subValues = [];
+    foreach ($contactGroupIds as $index => $contactGroupId) {
+        $bindValues[":contact_group_id_{$index}"] = $contactGroupId;
+        $subValues[] = "(:contact_group_id_{$index}, :accessGroupId)";
+    }
+
+    $subQueries = implode(', ', $subValues);
+
+    $request = <<<SQL
+        INSERT INTO acl_group_contactgroups_relations (cg_cg_id, acl_group_id) VALUES $subQueries
+    SQL;
+
+    $statement = $pearDB->prepare($request);
+
+    $statement->bindValue(':accessGroupId', $accessGroupId, \PDO::PARAM_INT);
+
+    foreach ($bindValues as $bindKey => $bindValue) {
+        $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_INT);
+    }
+
+    $statement->execute();
+}

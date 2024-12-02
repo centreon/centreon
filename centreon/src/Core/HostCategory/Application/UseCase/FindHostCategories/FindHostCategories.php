@@ -122,7 +122,7 @@ final class FindHostCategories
 
         // If the current user has ACL filter on Host Categories it means that not all categories are visible so
         // we need to apply the ACL
-        if ($this->readHostCategoryRepository->hasAclFilterOnHostCategories($accessGroupIds)) {
+        if ($this->readHostCategoryRepository->hasRestrictedAccessToHostCategories($accessGroupIds)) {
             $categories = $this->readHostCategoryRepository->findAllByAccessGroupIds(
                 $accessGroupIds,
                 $this->requestParameters

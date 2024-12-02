@@ -68,7 +68,7 @@ const useTopBottom = ({
               : 'ASC'
           }
         }
-      })}&metric_name=${metricName}`,
+      })}&metric_name=${encodeURIComponent(metricName)}`,
     getQueryKey: () => [
       'topbottom',
       metricName,

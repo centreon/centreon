@@ -1,0 +1,24 @@
+type: object
+properties:
+  up:
+    type: object
+    properties:
+      total:
+        type: integer
+  down:
+    type: object
+    properties:
+      total:
+        type: integer
+  unreachable:
+    type: object
+    properties:
+      total:
+        type: integer
+  pending:
+    type: object
+    properties:
+      total:
+        type: integer
+  total:
+    type: integer

@@ -1,9 +1,9 @@
-import { SvgIcon, SvgIconProps } from '@mui/material';
+import { SvgIconProps } from '@mui/material';
 
-import { ReactComponent as IconDowntime } from '../../../@assets/icons/downtime.icon.svg';
+import { DowntimeIcon } from '../../../Icon/DowntimeIcon';
 
 const Downtime = (props: SvgIconProps): JSX.Element => (
-  <SvgIcon component={IconDowntime} {...props} />
+  <DowntimeIcon {...props} />
 );
 
 export default Downtime;

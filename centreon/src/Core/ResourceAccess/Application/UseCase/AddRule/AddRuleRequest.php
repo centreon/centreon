@@ -31,6 +31,10 @@ final class AddRuleRequest
 
     public bool $isEnabled = true;
 
+    public bool $applyToAllContacts = false;
+
+    public bool $applyToAllContactGroups = false;
+
     /** @var int[] */
     public array $contactIds = [];
 

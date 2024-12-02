@@ -34,15 +34,12 @@
  *
  */
 
-
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once __DIR__ . "/centreon_configuration_objects.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once __DIR__ . '/centreon_configuration_objects.class.php';
 
 class CentreonConfigurationServicegroup extends CentreonConfigurationObjects
 {
-    /**
-     * @var CentreonDB
-     */
+    /** @var CentreonDB */
     protected $pearDBMonitoring;
 
     /**
@@ -55,147 +52,207 @@ class CentreonConfigurationServicegroup extends CentreonConfigurationObjects
     }
 
     /**
-     * @return array
      * @throws RestBadRequestException
+     *
+     * @return array
      */
     public function getList()
     {
         global $centreon;
+
         $isAdmin = $centreon->user->admin;
         $userId = $centreon->user->user_id;
-        $queryValues = array();
+        $queryValues = [];
+        $aclServicegroups = '';
 
-        // Check for select2 'q' argument
-        if (isset($this->arguments['q'])) {
-            $queryValues['name'] = '%' . (string)$this->arguments['q'] . '%';
-        } else {
-            $queryValues['name'] = '%%';
+        $query = filter_var(
+            $this->arguments['q'] ?? '',
+            FILTER_SANITIZE_FULL_SPECIAL_CHARS
+        );
+
+        $limit = array_key_exists('page_limit', $this->arguments)
+            ? filter_var($this->arguments['page_limit'], FILTER_VALIDATE_INT)
+            : null;
+
+        $page = array_key_exists('page', $this->arguments)
+            ? filter_var($this->arguments['page'], FILTER_VALIDATE_INT)
+            : null;
+
+        if ($limit === false) {
+            throw new RestBadRequestException('Error, limit must be an integer greater than zero');
         }
-        $aclServicegroups = "";
-        if (!$isAdmin) {
+
+        if ($page === false) {
+            throw new RestBadRequestException('Error, page must be an integer greater than zero');
+        }
+
+        $queryValues['serviceGroupName'] = $query !== '' ? '%' . $query . '%' : '%%';
+
+        $range = '';
+        if (
+            $page !== null
+            && $limit !== null
+        ) {
+            $range = ' LIMIT :offset, :limit';
+            $queryValues['offset'] = (int) (($page - 1) * $limit);
+            $queryValues['limit'] = $limit;
+        }
+        // Get ACL if user is not admin or does not have access to all servicegroups
+        if (
+            ! $isAdmin
+            && $centreon->user->access->hasAccessToAllServiceGroups === false
+        ) {
             $acl = new CentreonACL($userId, $isAdmin);
             $aclServicegroups .= ' AND sg_id IN (' . $acl->getServiceGroupsString('ID') . ') ';
         }
-        $queryContact = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT sg_id, sg_name, sg_activate FROM servicegroup ' .
-            'WHERE sg_name LIKE :name ' .
-            $aclServicegroups .
-            'ORDER BY sg_name ';
 
-        if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
-            if (
-                !is_numeric($this->arguments['page'])
-                || !is_numeric($this->arguments['page_limit'])
-                || $this->arguments['page_limit'] < 1
-            ) {
-                throw new \RestBadRequestException('Error, limit must be an integer greater than zero');
-            }
-            $offset = ($this->arguments['page'] - 1) * $this->arguments['page_limit'];
-            $queryContact .= 'LIMIT :offset,:limit';
-            $queryValues['offset'] = (int)$offset;
-            $queryValues['limit'] = (int)$this->arguments['page_limit'];
-        }
+        $request = <<<SQL
+            SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                sg.sg_id,
+                sg.sg_name,
+                sg.sg_activate
+            FROM servicegroup sg
+            WHERE sg_name LIKE :serviceGroupName $aclServicegroups
+            ORDER BY sg.sg_name
+            $range
+        SQL;
 
-        $stmt = $this->pearDB->prepare($queryContact);
-        $stmt->bindParam(':name', $queryValues['name'], PDO::PARAM_STR);
+        $statement = $this->pearDB->prepare($request);
+
+        $statement->bindValue(':serviceGroupName', $queryValues['serviceGroupName'], \PDO::PARAM_STR);
+
         if (isset($queryValues['offset'])) {
-            $stmt->bindParam(':offset', $queryValues["offset"], PDO::PARAM_INT);
-            $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
+            $statement->bindParam(':offset', $queryValues['offset'], \PDO::PARAM_INT);
+            $statement->bindParam(':limit', $queryValues['limit'], \PDO::PARAM_INT);
         }
-        $stmt->execute();
-        $serviceList = array();
-        while ($data = $stmt->fetch()) {
-            $serviceList[] = [
-                'id' => htmlentities($data['sg_id']),
-                'text' => $data['sg_name'],
-                'status' => (bool) $data['sg_activate'],
+        $statement->execute();
+        $serviceGroups = [];
+        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            $serviceGroups[] = [
+                'id' => htmlentities($record['sg_id']),
+                'text' => $record['sg_name'],
+                'status' => (bool) $record['sg_activate'],
             ];
         }
-        return array(
-            'items' => $serviceList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+
+        return [
+            'items' => $serviceGroups,
+            'total' => (int) $this->pearDB->numberRows(),
+        ];
     }
 
     /**
-     * @return array
      * @throws RestBadRequestException
+     *
+     * @return array
      */
     public function getServiceList()
     {
         global $centreon;
-        // Check for select2 'q' argument
-        $queryValues = array();
-        $sgIdList = '';
 
-        // Check for select2 'q' argument
-        if (isset($this->arguments['sgid'])) {
-            $listId = explode(',', $this->arguments['sgid']);
-            foreach ($listId as $key => $idSg) {
-                if (!is_numeric($idSg)) {
-                    throw new \RestBadRequestException('Error, service group id must be numerical');
-                }
-                $sgIdList .= ':sgid' . $idSg . ',';
-                $queryValues['sgid'][$idSg] = (int)$idSg;
-            }
-            $sgIdList = rtrim($sgIdList, ',');
-        } else {
-            $queryValues['sgid'][0] = '""';
-            $sgIdList .= ':sgid0';
-        }
         $isAdmin = $centreon->user->admin;
         $userId = $centreon->user->user_id;
-        $aclServicegroups = "";
-        $aclServices = "";
 
-        /* Get ACL if user is not admin */
-        if (!$isAdmin) {
-            $acl = new CentreonACL($userId, $isAdmin);
-            $aclServicegroups .= ' AND sg.sg_id IN (' . $acl->getServiceGroupsString('ID') . ') ';
-            $aclServices .= ' AND s.service_id IN (' . $acl->getServicesString('ID', $this->pearDBMonitoring) . ') ';
-        }
+        $queryValues = [];
 
-        $queryContact = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT s.service_id, s.service_description, h.host_name, ' .
-            'h.host_id ' .
-            'FROM servicegroup sg ' .
-            'INNER JOIN servicegroup_relation sgr ON sgr.servicegroup_sg_id = sg.sg_id ' .
-            'INNER JOIN service s ON s.service_id = sgr.service_service_id ' .
-            'INNER JOIN host_service_relation hsr ON hsr.service_service_id = s.service_id ' .
-            'INNER JOIN host h ON h.host_id = hsr.host_host_id ' .
-            'WHERE sg.sg_id IN (' . $sgIdList . ') ' .
-            $aclServicegroups . $aclServices;
+        $serviceGroupIdsString = filter_var($this->arguments['sgid'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
-        if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
-            if (
-                !is_numeric($this->arguments['page'])
-                || !is_numeric($this->arguments['page_limit'])
-                || $this->arguments['page_limit'] < 1
-            ) {
-                throw new \RestBadRequestException('Error, limit must be an integer greater than zero');
+        $whereCondition = '';
+
+        // Handle the search by service groups IDs
+        if ($serviceGroupIdsString !== '') {
+            $serviceGroupIds = array_values(explode(',', $serviceGroupIdsString));
+
+            foreach ($serviceGroupIds as $key => $serviceGroupId) {
+                if (! is_numeric($serviceGroupId)) {
+                    throw new RestBadRequestException('Error, service group id must be numerical');
+                }
+                $queryValues[':serviceGroupId' . $key] = (int) $serviceGroupId;
             }
-            $offset = ($this->arguments['page'] - 1) * $this->arguments['page_limit'];
-            $queryContact .= 'LIMIT :offset, :limit';
-            $queryValues['offset'] = (int)$offset;
-            $queryValues['limit'] = (int)$this->arguments['page_limit'];
+
+            $whereCondition .= ' WHERE sg.sg_id IN (' . implode(',', array_keys($queryValues)) . ')';
         }
-        $stmt = $this->pearDB->prepare($queryContact);
-        foreach ($queryValues["sgid"] as $k => $v) {
-            $stmt->bindValue(':sgid' . $k, $v, PDO::PARAM_INT);
+
+        $filters = [];
+        // Get ACL if user is not admin
+        if (! $isAdmin) {
+            $acl = new CentreonACL($userId, $isAdmin);
+            if ($centreon->user->access->hasAccessToAllServiceGroups === false) {
+                $filters[] = ' sg.sg_id IN (' . $acl->getServiceGroupsString() . ') ';
+            }
+
+           $filters[] = ' s.service_id IN (' . $acl->getServicesString($this->pearDBMonitoring) . ') ';
         }
-        if (isset($queryValues['offset'])) {
-            $stmt->bindParam(':offset', $queryValues["offset"], PDO::PARAM_INT);
-            $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
+
+        $request = <<<SQL
+            SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                s.service_id,
+                s.service_description,
+                h.host_name,
+                h.host_id
+            FROM servicegroup sg
+            INNER JOIN servicegroup_relation sgr
+                ON sgr.servicegroup_sg_id = sg.sg_id
+            INNER JOIN service s
+                ON s.service_id = sgr.service_service_id
+            INNER JOIN host_service_relation hsr
+                ON hsr.service_service_id = s.service_id
+            INNER JOIN host h ON h.host_id = hsr.host_host_id
+        SQL;
+
+        if ($filters !== []) {
+            $whereCondition .= empty($whereCondition) ? ' WHERE ' : ' AND ';
+            $whereCondition .= implode(' AND ', $filters);
         }
-        $stmt->execute();
-        $serviceList = array();
-        while ($data = $stmt->fetch()) {
-            $serviceList[] = array(
-                'id' => $data['host_id'] . '_' . $data['service_id'],
-                'text' => $data['host_name'] . ' - ' . $data['service_description']
-            );
+
+        // Handle pagination and limit
+        $limit = array_key_exists('page_limit', $this->arguments)
+            ? filter_var($this->arguments['page_limit'], FILTER_VALIDATE_INT)
+            : null;
+
+        $page = array_key_exists('page', $this->arguments)
+            ? filter_var($this->arguments['page'], FILTER_VALIDATE_INT)
+            : null;
+
+        if ($limit === false) {
+            throw new RestBadRequestException('Error, limit must be an integer greater than zero');
         }
-        return array(
+
+        if ($page === false) {
+            throw new RestBadRequestException('Error, page must be an integer greater than zero');
+        }
+
+        $range = '';
+        if (
+            $page !== null
+            && $limit !== null
+        ) {
+            $range = ' LIMIT :offset, :limit';
+            $queryValues['offset'] = (int) (($page - 1) * $limit);
+            $queryValues['limit'] = $limit;
+        }
+
+        $request .= $whereCondition . $range;
+
+        $statement = $this->pearDB->prepare($request);
+
+        foreach ($queryValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        $serviceList = [];
+        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            $serviceList[] = [
+                'id' => $record['host_id'] . '_' . $record['service_id'],
+                'text' => $record['host_name'] . ' - ' . $record['service_description'],
+            ];
+        }
+
+        return [
             'items' => $serviceList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+            'total' => (int) $this->pearDB->numberRows(),
+        ];
     }
 }

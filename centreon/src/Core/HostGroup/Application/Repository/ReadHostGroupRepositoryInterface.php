@@ -45,13 +45,13 @@ interface ReadHostGroupRepositoryInterface
      * Find All host groups with access groups.
      *
      * @param RequestParametersInterface|null $requestParameters
-     * @param list<AccessGroup> $accessGroups
+     * @param list<int> $accessGroupIds
      *
      * @throws \Throwable
      *
      * @return \Traversable<HostGroup>&\Countable
      */
-    public function findAllByAccessGroups(?RequestParametersInterface $requestParameters, array $accessGroups):
+    public function findAllByAccessGroupIds(?RequestParametersInterface $requestParameters, array $accessGroupIds):
     \Traversable&\Countable;
 
     /**
@@ -179,4 +179,11 @@ interface ReadHostGroupRepositoryInterface
      * @return HostGroupNamesById
      */
     public function findNames(array $hostGroupIds): HostGroupNamesById;
+
+    /**
+     * @param int[] $accessGroupIds
+     *
+     * @return bool
+     */
+    public function hasAccessToAllHostGroups(array $accessGroupIds): bool;
 }

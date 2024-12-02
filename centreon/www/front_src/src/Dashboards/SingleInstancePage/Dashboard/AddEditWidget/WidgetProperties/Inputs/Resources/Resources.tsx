@@ -1,6 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
-import { isNil } from 'ramda';
+import { equals, isNil } from 'ramda';
 
 import { Divider, FormHelperText, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -24,7 +24,7 @@ import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
 import { areResourcesFullfilled } from '../utils';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
-import { WidgetPropertyProps } from '../../../models';
+import { WidgetPropertyProps, WidgetResourceType } from '../../../models';
 
 import useResources from './useResources';
 
@@ -54,7 +54,8 @@ const Resources = ({
     singleMetricSelection,
     singleHostPerMetric,
     isLastResourceInTree,
-    changeIdValue
+    changeIdValue,
+    hasSelectedHostForSingleMetricwidget
   } = useResources({ propertyName, required, restrictedResourceTypes });
 
   const { canEditField } = useCanEditProperties();
@@ -114,8 +115,15 @@ const Resources = ({
                     color: 'primary'
                   }}
                   className={classes.resources}
-                  disableClearable={false}
-                  disabled={!canEditField || !resource.resourceType}
+                  disabled={
+                    !canEditField ||
+                    (equals(
+                      resource.resourceType,
+                      WidgetResourceType.service
+                    ) &&
+                      !hasSelectedHostForSingleMetricwidget) ||
+                    !resource.resourceType
+                  }
                   field={getSearchField(resource.resourceType)}
                   getEndpoint={getResourceResourceBaseEndpoint({
                     index,
