@@ -8,8 +8,9 @@
 # . /tmp/shared-volume/vault-ids
 
 if [ ! -z ${VAULT_HOST} ] && getent hosts ${VAULT_HOST}; then
-  sed -i 's/default_options:/&\n            verify_host: true/' /usr/share/centreon/config/packages/framework.yaml
-  sed -i 's/default_options:/&\n            verify_peer: true/' /usr/share/centreon/config/packages/framework.yaml
+  sed -i 's/default_options:/&\n            verify_host: false/' /usr/share/centreon/config/packages/framework.yaml
+  sed -i 's/default_options:/&\n            verify_peer: false/' /usr/share/centreon/config/packages/framework.yaml
+  sudo -u apache php /usr/share/centreon/bin/console cache:clear
 
   RESPONSE=$(curl -s -w "%{http_code}" -H 'Content-Type:application/json' -H 'Accept:application/json' -d '{"security":{"credentials":{"login":"admin","password":"Centreon!2021"}}}' -L "http://localhost:80/centreon/api/latest/login")
   TOKEN=$(echo "$RESPONSE" | head -c -4 | jq -r '.security.token')
@@ -23,6 +24,6 @@ if [ ! -z ${VAULT_HOST} ] && getent hosts ${VAULT_HOST}; then
   STATUS=$(echo "$RESPONSE" | tr -d '\n' | tail -c 3)
 
   if [[ $STATUS -eq 200 ]]; then
-    sudo -u apache php /usr/share/centreon/bin/console credentials:migrate-vault
+    sudo -u apache php /usr/share/centreon/bin/console vault:migrate-credentials:web
   fi
 fi
