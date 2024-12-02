@@ -84,9 +84,9 @@ const customTimePeriod: FormTimePeriod = {
 
 interface InitializeComponentProps {
   data?: Data;
+  graphDataPath?: string;
   threshold?: FormThreshold;
   timePeriod?: FormTimePeriod;
-  graphDataPath?: string;
 }
 
 const initializeComponent = ({
@@ -212,7 +212,7 @@ describe('Graph Widget', () => {
     });
   });
 
-  it.only(`displays the legend with a scrollbar when there are numerous metrics to show.`, () => {
+  it(`displays the legend with a scrollbar when there are numerous metrics to show.`, () => {
     cy.fixture(
       'Widgets/Graph/legend/serviceMetricsForScrollableLegend.json'
     ).then((data) => {
