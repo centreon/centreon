@@ -31,6 +31,7 @@ use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;
 use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Command\Application\Repository\WriteCommandRepositoryInterface;
 use Core\Command\Domain\Model\Argument;
+use Core\Command\Domain\Model\CommandType;
 use Core\Command\Domain\Model\NewCommand;
 use Core\Command\Infrastructure\Model\CommandTypeConverter;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
@@ -89,7 +90,7 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
         } catch (\Throwable $ex) {
             $this->error(
                 'Error while adding a Command',
-                ['command' => $command->getName() ,'trace' => $ex->getTraceAsString()]
+                ['command' => $command->getName(), 'trace' => $ex->getTraceAsString()]
             );
 
             throw $ex;
@@ -99,7 +100,7 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
     /**
      * @param NewCommand $command
      *
-     * @return array<string,string>
+     * @return array<string, int|string>
      */
     private function getCommandAsArray(NewCommand $command): array
     {
@@ -109,20 +110,16 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
         $commandAsArray = [];
         foreach ($properties as $property) {
             $property->setAccessible(true);
-            match ($property->getName()) {
-                'name', 'commandLine', 'argumentExample' =>
-                    $commandAsArray[self::COMMAND_PROPERTIES_MAP[$property->getName()]]
-                        = (string) $property->getValue($command),
-                'isShellEnabled' => $commandAsArray[self::COMMAND_PROPERTIES_MAP[$property->getName()]]
-                    = $property->getValue($command) ? '1' : '0',
-                'type' => $commandAsArray[self::COMMAND_PROPERTIES_MAP[$property->getName()]]
-                    = CommandTypeConverter::toInt($property->getValue($command)),
-                'arguments' => $commandAsArray[self::COMMAND_PROPERTIES_MAP[$property->getName()]]
-                    = $this->getArgumentsAsString($property->getValue($command)),
-                'macros' => $commandAsArray[self::COMMAND_PROPERTIES_MAP[$property->getName()]]
-                    = $this->getMacrosAsString($property->getValue($command)),
-                'connectorId', 'graphTemplateId' => $commandAsArray[self::COMMAND_PROPERTIES_MAP[$property->getName()]]
-                    = $property->getValue($command) ?? '',
+            $propertyName = $property->getName();
+            $propertyValue = $property->getValue($command);
+            $commandAsArray[self::COMMAND_PROPERTIES_MAP[$propertyName]] = match ($propertyName) {
+                'name', 'commandLine', 'argumentExample' => is_string($propertyValue) ? $propertyValue : '',
+                'isShellEnabled' => $propertyValue ? '1' : '0',
+                'type' => $propertyValue instanceof CommandType ? CommandTypeConverter::toInt($propertyValue) : '',
+                'arguments' => is_array($propertyValue) ? $this->getArgumentsAsString($propertyValue) : '',
+                'macros' => is_array($propertyValue) ? $this->getMacrosAsString($propertyValue) : '',
+                'connectorId', 'graphTemplateId' => is_int($propertyValue) ? $propertyValue  : '',
+                default => '',
             };
         }
 
@@ -131,6 +128,8 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
 
     /**
      * @param Argument[] $arguments
+     *
+     * @return string
      */
     private function getArgumentsAsString(array $arguments): string
     {
@@ -139,7 +138,7 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
             $arguments
         );
         $argumentsAsString = '';
-        if  (! empty($arguments)) {
+        if (! empty($arguments)) {
             $argumentsAsString = implode(' ', $arguments);
         }
 
@@ -148,22 +147,24 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
 
     /**
      * @param NewCommandMacro[] $macros
+     *
      * @return string
      */
     private function getMacrosAsString(array $macros): string
     {
         $macros = array_map(
-            function(NewCommandMacro $macro): string {
+            function (NewCommandMacro $macro): string {
                 $resourceType = $macro->getType() === CommandMacroType::Host
                     ? 'HOST'
                     : 'SERVICE';
+
                 return 'MACRO (' . $resourceType . ') ' . $macro->getName() . ' : '
                     . $macro->getDescription();
             },
             $macros
         );
         $macrosAsString = '';
-        if  (! empty($macros)) {
+        if (! empty($macros)) {
             $macrosAsString = implode(' ', $macros);
         }
 
