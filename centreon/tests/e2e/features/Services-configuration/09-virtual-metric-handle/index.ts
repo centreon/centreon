@@ -118,5 +118,9 @@ When('the user deletes the configured virtual metric', () => {
 });
 
 Then('the virtual metric disappears from the Virtual metrics list', () => {
-  cy.getIframeBody().contains(vms.vmForUpdate.name).should('not.exist');
+  cy.getIframeBody()
+      .find('table.ListTable')
+      .eq(0)
+      .find('tbody tr') 
+      .should('have.length', 3); 
 });
