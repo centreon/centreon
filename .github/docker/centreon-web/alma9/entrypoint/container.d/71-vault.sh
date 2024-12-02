@@ -24,6 +24,7 @@ if [ ! -z ${VAULT_HOST} ] && getent hosts ${VAULT_HOST}; then
   STATUS=$(echo "$RESPONSE" | tr -d '\n' | tail -c 3)
 
   if [[ $STATUS -eq 200 ]]; then
-    sudo -u apache php /usr/share/centreon/bin/console vault:migrate-credentials:web
+    php /usr/share/centreon/bin/migrateCredentials.php
+    # sudo -u apache php /usr/share/centreon/bin/console vault:migrate-credentials:web
   fi
 fi
