@@ -6,7 +6,6 @@ services:
     ports: ["4000:80"]
     depends_on:
       - db
-      - vault
     environment:
       MYSQL_HOST: db
       GLPI_HOST: glpi

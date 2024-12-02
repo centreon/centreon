@@ -16,7 +16,10 @@ vault server -dev-tls -non-interactive -tls-skip-verify -dev-listen-address="0.0
 #     > /opt/vault/tls/vault.json
 # jq -r .data.certificate /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.crt
 # jq -r .data.private_key /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.key
-sleep 10
+
+# wait vault server is completely started
+for i in $(seq 1 30); do grep -q 'successful mount' /vault/logs/vault.log && break || sleep 1; done
+
 vault secrets enable -path=centreon kv
 vault auth enable -address=https://0.0.0.0:8200 approle
 
@@ -65,8 +68,11 @@ vault write auth/approle/login role_id=$VAULT_ROLE_ID secret_id=$VAULT_SECRET_ID
 
 vault audit enable file file_path=/vault/logs/vault_audit.log
 
+touch /tmp/docker.ready
+echo "Vault is ready"
+
 tail -f /vault/logs/vault.log
 
-curl --insecure --request POST \
-       --data '{"role_id": "db02de05-fa39-4855-059b-67221c5c2f63", "secret_id": "6a174c20-f6de-a53c-74d2-6018fcceff64"}' \
-       https://vault:8200/v1/auth/approle/login
+# curl --insecure --request POST \
+#        --data '{"role_id": "db02de05-fa39-4855-059b-67221c5c2f63", "secret_id": "6a174c20-f6de-a53c-74d2-6018fcceff64"}' \
+#        https://vault:8200/v1/auth/approle/login
