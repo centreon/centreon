@@ -40,7 +40,6 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements WriteCommandRepositoryInterface
 {
     use LoggerTrait;
-    private const COMMAND_OBJECT_TYPE = 'command';
     private const COMMAND_PROPERTIES_MAP = [
         'name' => 'command_name',
         'commandLine' => 'command_line',
@@ -71,7 +70,7 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
             }
 
             $actionLog = new ActionLog(
-                objectType: self::COMMAND_OBJECT_TYPE,
+                objectType: ActionLog::OBJECT_TYPE_COMMAND,
                 objectId: $commandId,
                 objectName: $command->getName(),
                 actionType: ActionLog::ACTION_TYPE_ADD,
