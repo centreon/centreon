@@ -47,10 +47,10 @@ jobs:
               const result = await github.rest.checks.listSuitesForRef({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                ref: "${{ github.event.pull_request.head.sha }}"
+                ref: "${{ github.head_ref }}"
               });
-              result.data.check_suites.forEach(({ app: { slug }, conclusion, id, head_branch }) => {
-                if (slug === 'github-actions' && head_branch == context.payload.pull_request.head.ref ) {
+              result.data.check_suites.forEach(({ app: { slug }, conclusion, id}) => {
+                if (slug === 'github-actions') {
                   if (conclusion === 'failure' || conclusion === 'cancelled') {
                     failure.push(id);
                   } else if (conclusion === null) {
