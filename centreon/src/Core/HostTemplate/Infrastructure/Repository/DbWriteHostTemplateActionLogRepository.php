@@ -99,7 +99,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
             if ($hostTemplateId === 0) {
                 throw new RepositoryException('Host template ID cannot be 0');
             }
-            
+
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_HOST_TEMPLATE,
                 $hostTemplateId,
@@ -107,7 +107,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
                 ActionLog::ACTION_TYPE_ADD,
                 $this->contact->getId()
             );
-            
+
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
 
@@ -136,6 +136,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
             $currentHostTemplateDetails = $this->getHostTemplatePropertiesAsArray($currentHostTemplate);
             $updatedHostTemplateDetails = $this->getHostTemplatePropertiesAsArray($hostTemplate);
             $diff = array_diff_assoc($updatedHostTemplateDetails, $currentHostTemplateDetails);
+            // FIXME: $diff variable never used & do we want to always createActionLog even if nothing has changed ?
 
             $this->writeHostTemplateRepository->update($hostTemplate);
 
@@ -194,7 +195,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
             if ($value instanceof YesNoDefault) {
                 $value = YesNoDefaultConverter::toString($value);
             }
-            
+
             if ($value instanceof SnmpVersion) {
                 $value = $value->value;
             }
