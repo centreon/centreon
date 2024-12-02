@@ -32,6 +32,8 @@ use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Command\Application\Repository\WriteCommandRepositoryInterface;
 use Core\Command\Domain\Model\Argument;
 use Core\Command\Domain\Model\NewCommand;
+use Core\Command\Infrastructure\Model\CommandTypeConverter;
+use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\CommandMacro\Domain\Model\NewCommandMacro;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
@@ -77,7 +79,12 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
+            if ($actionLogId === 0) {
+                throw new RepositoryException('Action Log ID cannot be 0');
+            }
+            $actionLog->setId($actionLogId);
 
+            $this->writeActionLogRepository->addActionDetails($actionLog, $this->getCommandAsArray($command));
 
             return $commandId;
         } catch (\Throwable $ex) {
@@ -106,11 +113,11 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
             match ($property->getName()) {
                 'name', 'commandLine', 'argumentExample' =>
                     $commandAsArray[self::COMMAND_PROPERTIES_MAP[$property->getName()]]
-                        = $property->getValue($command),
+                        = (string) $property->getValue($command),
                 'isShellEnabled' => $commandAsArray[self::COMMAND_PROPERTIES_MAP[$property->getName()]]
                     = $property->getValue($command) ? '1' : '0',
                 'type' => $commandAsArray[self::COMMAND_PROPERTIES_MAP[$property->getName()]]
-                    = $property->getValue($command)->getValue(),
+                    = CommandTypeConverter::toInt($property->getValue($command)),
                 'arguments' => $commandAsArray[self::COMMAND_PROPERTIES_MAP[$property->getName()]]
                     = $this->getArgumentsAsString($property->getValue($command)),
                 'macros' => $commandAsArray[self::COMMAND_PROPERTIES_MAP[$property->getName()]]
@@ -147,8 +154,13 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
     private function getMacrosAsString(array $macros): string
     {
         $macros = array_map(
-            fn($macro) => 'MACRO (' . $macro->getType()->value . ') ' . $macro->getName() . ' : '
-                . $macro->getDescription(),
+            function(NewCommandMacro $macro): string {
+                $resourceType = $macro->getType() === CommandMacroType::Host
+                    ? 'HOST'
+                    : 'SERVICE';
+                return 'MACRO (' . $resourceType . ') ' . $macro->getName() . ' : '
+                    . $macro->getDescription();
+            },
             $macros
         );
         $macrosAsString = '';
