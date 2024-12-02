@@ -52,4 +52,6 @@ vault write auth/approle/role/central/custom-secret-id ttl=0 secret_id=$VAULT_SE
 
 vault write auth/approle/login role_id=$VAULT_ROLE_ID secret_id=$VAULT_SECRET_ID
 
-tail -f /dev/null
+vault audit enable file file_path=/vault/logs/vault_audit.log
+
+tail -f /vault/logs/vault_audit.log
