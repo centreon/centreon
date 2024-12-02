@@ -65,7 +65,8 @@ class FindMetricsTopPresenter extends AbstractPresenter implements FindMetricsTo
             return [
                 'id' => $metricInformation->serviceId,
                 'name' => $metricInformation->resourceName,
-                'parent_name' => $metricInformation->parentName,
+                'parent_name' => (bool) preg_match('/^\_Module\_Meta$/', $metricInformation->parentName)
+                    ? '' : $metricInformation->parentName,
                 'uuid' => 'h' . $metricInformation->parentId . '-s' . $metricInformation->serviceId,
                 'current_value' => $metricInformation->currentValue,
                 'warning_high_threshold' => $metricInformation->warningHighThreshold,
