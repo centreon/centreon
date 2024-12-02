@@ -4,7 +4,7 @@ set -x
 # export VAULT_SKIP_VERIFY=true
 # export VAULT_TOKEN=${VAULT_DEV_ROOT_TOKEN_ID}
 
-vault server -dev-tls
+vault server -dev-tls -log-file=/vaut/logs/vault.log
 # vault secrets enable pki
 # vault write pki/roles/vault-role \
 #     allow_subdomains=true \
@@ -54,4 +54,4 @@ vault write auth/approle/login role_id=$VAULT_ROLE_ID secret_id=$VAULT_SECRET_ID
 
 vault audit enable file file_path=/vault/logs/vault_audit.log
 
-tail -f /vault/logs/vault_audit.log
+tail -f /vaut/logs/vault.log
