@@ -36,6 +36,7 @@ use Core\Command\Domain\Model\NewCommand;
 use Core\Command\Infrastructure\Model\CommandTypeConverter;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\CommandMacro\Domain\Model\NewCommandMacro;
+use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
 class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements WriteCommandRepositoryInterface
@@ -113,7 +114,9 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
             $propertyName = $property->getName();
             $propertyValue = $property->getValue($command);
             $commandAsArray[self::COMMAND_PROPERTIES_MAP[$propertyName]] = match ($propertyName) {
-                'name', 'commandLine', 'argumentExample' => is_string($propertyValue) ? $propertyValue : '',
+                'name', 'commandLine', 'argumentExample' => $propertyValue instanceof TrimmedString
+                    ? (string) $propertyValue
+                    : '',
                 'isShellEnabled' => $propertyValue ? '1' : '0',
                 'type' => $propertyValue instanceof CommandType ? CommandTypeConverter::toInt($propertyValue) : '',
                 'arguments' => is_array($propertyValue) ? $this->getArgumentsAsString($propertyValue) : '',
