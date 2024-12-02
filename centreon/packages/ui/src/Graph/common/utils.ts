@@ -8,6 +8,7 @@ import {
   gte,
   head,
   isNil,
+  last,
   length,
   lt,
   lte,

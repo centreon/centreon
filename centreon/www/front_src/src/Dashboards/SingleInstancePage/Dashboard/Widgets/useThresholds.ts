@@ -20,6 +20,7 @@ interface Props {
   displayAsRaw?: boolean;
   metricName?: string;
   thresholds: FormThreshold;
+  isMetaServiceSelected?: boolean;
 }
 
 interface UseThresholdsState {
@@ -46,7 +47,11 @@ const useThresholds = ({
   const isDefaultCritical = equals(thresholds.criticalType, 'default');
 
   if (isEmpty(data?.metrics)) {
-    return undefined;
+    return {
+      enabled: false,
+      critical: [],
+      warning: []
+    };
   }
 
   const warningThresholds = isDefaultWarning

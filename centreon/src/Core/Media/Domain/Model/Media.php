@@ -44,7 +44,7 @@ class Media implements Comparable, Identifiable
         private string $filename,
         private string $directory,
         private ?string $comment,
-        readonly private ?string $data
+        private ?string $data
     ) {
         Assertion::positiveInt($this->id, 'Media::id');
         $this->filename = trim($this->filename);
@@ -104,5 +104,12 @@ class Media implements Comparable, Identifiable
     public function getEqualityHash(): string
     {
         return md5($this->getRelativePath());
+    }
+
+    public function setData(?string $data): self
+    {
+        $this->data = $data;
+
+        return $this;
     }
 }

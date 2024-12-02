@@ -39,6 +39,7 @@ interface Props
   thresholdUnit?: string;
   thresholds?: ThresholdsModel;
   width: number;
+  skipIntersectionObserver?: boolean;
 }
 
 const ResponsiveBarChart = ({
@@ -226,6 +227,7 @@ const ResponsiveBarChart = ({
                 timeSeries={timeSeries}
                 xScale={xScale}
                 yScalesPerUnit={yScalesPerUnit}
+                scaleType={axis?.scale}
               />
               {thresholds?.enabled && (
                 <Thresholds

@@ -18,6 +18,7 @@ import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
 import { getEndpointConfiguredUser } from '../api/endpoints';
+import { Parameters } from '../api/models';
 import {
   labelCancel,
   labelClose,
@@ -77,12 +78,13 @@ const FormCreation = ({
   const platformFeatures = useAtomValue(platformFeaturesAtom);
   const { canManageApiTokens, isAdmin } = useAtomValue(userAtom);
 
-  const getUsersEndpoint = (): string =>
+  const getUsersEndpoint = (parameters: Parameters): string =>
     platformFeatures?.isCloudPlatform && !isAdmin
       ? getEndpointConfiguredUser({
+          ...parameters,
           search: { regex: { fields: ['is_admin'], value: '0' } }
         })
-      : getEndpointConfiguredUser({});
+      : getEndpointConfiguredUser(parameters);
 
   const close = (): void => {
     resetForm();

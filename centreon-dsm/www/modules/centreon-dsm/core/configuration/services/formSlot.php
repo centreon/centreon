@@ -44,11 +44,11 @@ if (! isset($oreon)) {
  * and replaces any spaces in its value with underscores.
  *
  * @global HTML_QuickFormCustom $form The form object containing the submitted values.
- * @param mixed $form
  * @return string the 'pool_name' value with spaces replaced by underscores
  */
-function replaceSpacesWithUnderscores($form)
+function replaceSpacesWithUnderscores()
 {
+    global $form;
     $ret = $form->getSubmitValues();
 
     return str_replace(' ', '_', $ret['pool_name']);
@@ -146,7 +146,7 @@ try {
     }
 
     $form->applyFilter('__ALL__', 'myTrim');
-    $form->applyFilter('pool_name', fn($form) => replaceSpacesWithUnderscores($form));
+    $form->applyFilter('pool_name', 'replaceSpacesWithUnderscores');
     $from_list_menu = false;
     if ($o != 'mc') {
         $form->addRule('pool_name', _('Compulsory Name'), 'required');

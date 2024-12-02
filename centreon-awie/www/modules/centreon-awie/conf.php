@@ -18,7 +18,7 @@
 
 $module_conf['centreon-awie']['rname'] = 'Centreon Api Web Import Export';
 $module_conf['centreon-awie']['name'] = 'centreon-awie';
-$module_conf['centreon-awie']['mod_release'] = '24.10.0';
+$module_conf['centreon-awie']['mod_release'] = '24.11.0';
 $module_conf['centreon-awie']['infos'] = 'The Centreon AWIE (Application Web Import Export) module has been '
     . 'designed to help users configure several Centreon Web platforms in a faster and easier way, thanks to its '
     . 'import/export mechanism.

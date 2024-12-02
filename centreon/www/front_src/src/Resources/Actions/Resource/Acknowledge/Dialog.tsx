@@ -20,7 +20,7 @@ import {
   labelComment,
   labelNotify,
   labelNotifyHelpCaption,
-  labelSticky
+  labelStickyForAnyNonOkStatus
 } from '../../../translatedLabels';
 import useAclQuery from '../aclQuery';
 
@@ -121,12 +121,12 @@ const DialogAcknowledge = ({
               <Checkbox
                 checked={values.isSticky}
                 color="primary"
-                inputProps={{ 'aria-label': t(labelSticky) }}
+                inputProps={{ 'aria-label': t(labelStickyForAnyNonOkStatus) }}
                 size="small"
                 onChange={handleChange('isSticky')}
               />
             }
-            label={t(labelSticky) as string}
+            label={t(labelStickyForAnyNonOkStatus) as string}
           />
         </Grid>
         {hasHosts && (
