@@ -16,7 +16,7 @@ vault server -dev-tls -non-interactive -tls-skip-verify -log-file=/vault/logs/va
 #     > /opt/vault/tls/vault.json
 # jq -r .data.certificate /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.crt
 # jq -r .data.private_key /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.key
-
+sleep 10
 vault secrets enable -path=centreon kv
 vault auth enable approle
 
