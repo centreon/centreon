@@ -1,8 +1,8 @@
 #!/bin/sh
 set -x
-export VAULT_ADDR='https://127.0.0.1:8200'
-export VAULT_SKIP_VERIFY=true
-export VAULT_TOKEN=${VAULT_DEV_ROOT_TOKEN_ID}
+# export VAULT_ADDR='https://127.0.0.1:8200'
+# export VAULT_SKIP_VERIFY=true
+# export VAULT_TOKEN=${VAULT_DEV_ROOT_TOKEN_ID}
 
 vault server -dev-tls
 # vault secrets enable pki
@@ -20,6 +20,7 @@ vault server -dev-tls
 vault secrets enable -path=centreon kv
 vault auth enable approle
 
+mkdir -p /etc/vault.d
 cat <<EOM >>/etc/vault.d/central_policy.hcl
 path "centreon/*" {
   capabilities = ["create", "read", "update", "patch", "delete", "list"]
