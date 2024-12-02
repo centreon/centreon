@@ -87,7 +87,7 @@ class ActionLog
         self::OBJECT_TYPE_HOSTCATEGORIES,
         self::OBJECT_TYPE_SERVICECATEGORIES,
         self::OBJECT_TYPE_SERVICE_SEVERITY,
-        self::OBJECT_TYPE_HOST_SEVERITY
+        self::OBJECT_TYPE_HOST_SEVERITY,
     ];
 
     private ?int $id = null;
