@@ -4,7 +4,7 @@ COPY --chmod=755 ./.github/docker/vault/entrypoint /tmp/entrypoint
 
 USER root
 
-RUN bash -e <<EOF
+RUN sh -e <<EOF
 
 apk update
 apk add jq
