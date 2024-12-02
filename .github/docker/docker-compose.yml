@@ -12,6 +12,7 @@ services:
     environment:
       MYSQL_HOST: db
       GLPI_HOST: glpi
+      VAULT_HOST: vault
     healthcheck:
       test: bash -c "[ -f /tmp/docker.ready ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
       interval: 1s
@@ -42,6 +43,13 @@ services:
     profiles: ["glpi"]
     environment:
       MYSQL_HOST: db
+
+  vault:
+    image: "${VAULT_IMAGE}"
+    env_file:
+      - .env
+    ports: ["8200"]
+    profiles: ["vault"]
 
   openid:
     env_file:
@@ -76,15 +84,3 @@ services:
     image: docker.centreon.com/centreon/mon-mediawiki-22.10:latest
     ports: ["80"]
     profiles: ["mediawiki"]
-
-  vault:
-    volumes:
-      - shared-volume:/tmp/shared-volume
-    image: "${VAULT_IMAGE}"
-    env_file:
-      - .env
-    ports: ["8200"]
-
-volumes:
-  shared-volume:
-    driver: "local"
