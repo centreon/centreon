@@ -18,9 +18,20 @@ vault server -dev-tls -non-interactive -tls-skip-verify -log-file=/vault/logs/va
 # jq -r .data.private_key /opt/vault/tls/vault_data.json > /opt/vault/tls/vault.key
 sleep 10
 vault secrets enable -path=centreon kv
-vault auth enable approle
+vault auth enable -address=https://0.0.0.0:8200 approle
 
 mkdir -p /etc/vault.d
+
+cat <<EOM >>/etc/vault.d/vault.hcl
+listener "tcp" {
+  address       = "0.0.0.0:8200"
+}
+disable_mlock = true
+api_addr      = "https://0.0.0.0:8200"
+cluster_addr  = "https://0.0.0.0:8201"
+ui            = true
+EOM
+
 cat <<EOM >>/etc/vault.d/central_policy.hcl
 path "centreon/*" {
   capabilities = ["create", "read", "update", "patch", "delete", "list"]
@@ -55,3 +66,7 @@ vault write auth/approle/login role_id=$VAULT_ROLE_ID secret_id=$VAULT_SECRET_ID
 vault audit enable file file_path=/vault/logs/vault_audit.log
 
 tail -f /vault/logs/vault.log
+
+curl --insecure --request POST \
+       --data '{"role_id": "db02de05-fa39-4855-059b-67221c5c2f63", "secret_id": "6a174c20-f6de-a53c-74d2-6018fcceff64"}' \
+       https://vault:8200/v1/auth/approle/login
