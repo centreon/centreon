@@ -8,6 +8,9 @@
 # . /tmp/shared-volume/vault-ids
 
 if [ ! -z ${VAULT_HOST} ] && getent hosts ${VAULT_HOST}; then
+  sed -i 's/default_options:/&\n            verify_host: true/' /usr/share/centreon/config/packages/framework.yaml
+  sed -i 's/default_options:/&\n            verify_peer: true/' /usr/share/centreon/config/packages/framework.yaml
+
   RESPONSE=$(curl -s -w "%{http_code}" -H 'Content-Type:application/json' -H 'Accept:application/json' -d '{"security":{"credentials":{"login":"admin","password":"Centreon!2021"}}}' -L "http://localhost:80/centreon/api/latest/login")
   TOKEN=$(echo "$RESPONSE" | head -c -4 | jq -r '.security.token')
 
