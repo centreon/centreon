@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 
 import { Formik } from 'formik';
 import { useAtomValue } from 'jotai';
@@ -6,13 +6,19 @@ import { isNil, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Paper, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 
-import { CentreonLogo } from '@centreon/ui';
+import { CentreonLogo, LoadingSkeleton, WallpaperPage } from '@centreon/ui';
 
 import { MainLoaderWithoutTranslation } from '../Main/MainLoader';
 import routeMap from '../reactRoutes/routeMap';
 
+import { platformVersionsAtom } from '@centreon/ui-context';
+import {
+  labelCentreonWallpaper,
+  labelPoweredByCentreon
+} from '../Login/translatedLabels';
+import useWallpaper from '../Login/useWallpaper';
 import Form from './Form';
 import { ResetPasswordValues } from './models';
 import { passwordResetInformationsAtom } from './passwordResetInformationsAtom';
@@ -20,18 +26,14 @@ import { labelResetYourPassword } from './translatedLabels';
 import useResetPassword, { router } from './useResetPassword';
 
 const useStyles = makeStyles()((theme) => ({
-  container: {
+  form: {
+    width: '100%'
+  },
+  poweredByAndVersion: {
     alignItems: 'center',
-    backgroundColor: theme.palette.background.paper,
     display: 'flex',
     flexDirection: 'column',
-    height: '100vh',
-    justifyContent: 'center',
-    maxWidth: theme.spacing(60),
-    rowGap: theme.spacing(2)
-  },
-  paper: {
-    padding: theme.spacing(4, 3)
+    rowGap: theme.spacing(0.5)
   }
 }));
 
@@ -47,8 +49,11 @@ const ResetPassword = (): JSX.Element | null => {
   const navigate = router.useNavigate();
 
   const passwordResetInformations = useAtomValue(passwordResetInformationsAtom);
+  const platformVersions = useAtomValue(platformVersionsAtom);
 
   const { submitResetPassword, validationSchema } = useResetPassword();
+
+  const wallpaper = useWallpaper();
 
   useEffect(() => {
     if (
@@ -69,18 +74,39 @@ const ResetPassword = (): JSX.Element | null => {
   }
 
   return (
-    <div className={classes.container}>
-      <CentreonLogo />
-      <Paper className={classes.paper}>
-        <Typography variant="h4">{t(labelResetYourPassword)}</Typography>
-        <Formik<ResetPasswordValues>
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={submitResetPassword}
+    <div>
+      <Suspense fallback={<LoadingSkeleton />}>
+        <WallpaperPage
+          wallpaperAlt={t(labelCentreonWallpaper)}
+          wallpaperSource={wallpaper}
         >
-          <Form />
-        </Formik>
-      </Paper>
+          <>
+            <CentreonLogo />
+            <div className={classes.form}>
+              <Typography variant="h5">{t(labelResetYourPassword)}</Typography>
+              <Formik<ResetPasswordValues>
+                initialValues={initialValues}
+                validationSchema={validationSchema}
+                onSubmit={submitResetPassword}
+              >
+                <Form />
+              </Formik>
+            </div>
+            <div className={classes.poweredByAndVersion}>
+              <Typography variant="body2">
+                {t(labelPoweredByCentreon)}
+              </Typography>
+              {isNil(platformVersions) ? (
+                <LoadingSkeleton variant="text" width="40%" />
+              ) : (
+                <Typography variant="body2">
+                  v. {platformVersions?.web.version}
+                </Typography>
+              )}
+            </div>
+          </>
+        </WallpaperPage>
+      </Suspense>
     </div>
   );
 };
