@@ -19,29 +19,28 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
-namespace Core\Common\Infrastructure\Repository;
+namespace Core\ActionLog\Application\Repository;
 
-trait SqlMultipleBindTrait
+use Core\ActionLog\Domain\Model\ActionLog;
+
+interface WriteActionLogRepositoryInterface
 {
     /**
-     * @param array<int|string, int|string> $list
-     * @param string $prefix
-     * @param int $bindType (optional)
+     * @param ActionLog $actionLog
      *
-     * @return array{
-     *     0: array<string, int|string|array{0: int|string, 1: int}>,
-     *     1: string
-     * }
+     * @throws \Throwable
+     *
+     * @return int
      */
-    protected function createMultipleBindQuery(array $list, string $prefix, ?int $bindType = null): array
-    {
-        $bindValues = [];
-        foreach ($list as $index => $id) {
-            $bindValues[$prefix . $index] = ($bindType === null) ? $id : [$id, $bindType];
-        }
+    public function addAction(ActionLog $actionLog): int;
 
-        return [$bindValues, implode(', ', array_keys($bindValues))];
-    }
+    /**
+     * @param ActionLog $actionLog
+     * @param array<string, string|int|bool> $details
+     *
+     * @throws \Throwable
+     */
+    public function addActionDetails(ActionLog $actionLog, array $details): void;
 }
