@@ -1022,7 +1022,11 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     isset($ret["timeperiod_tp_id"]) && $ret["timeperiod_tp_id"] != null
         ? $rq .= "'" . $ret["timeperiod_tp_id"] . "', "
         : $rq .= "NULL, ";
-    $rq .= "command_command_id2 = null, ";
+
+    $rq .= "command_command_id2 = ";
+    isset($ret["command_command_id2"]) && $ret["command_command_id2"] != null
+        ? $rq .= "'" . $ret["command_command_id2"] . "', "
+        : $rq .= "NULL, ";
 
     // If we are doing a MC, we don't have to set name and alias field
     if (!$massiveChange) {
@@ -1050,7 +1054,11 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
         : $rq .= "NULL, ";
     $rq .= "service_passive_checks_enabled = '2', service_obsess_over_service = '2', ";
     $rq .= "service_check_freshness = '2', service_freshness_threshold = null, ";
-    $rq .= "service_event_handler_enabled = '2', ";
+    $rq .= "service_event_handler_enabled = ";
+    isset($ret["service_event_handler_enabled"]["service_event_handler_enabled"])
+    && $ret["service_event_handler_enabled"]["service_event_handler_enabled"] != 2
+        ? $rq .= "'" . $ret["service_event_handler_enabled"]["service_event_handler_enabled"] . "', "
+        : $rq .= "'2', ";
     $rq .= "service_low_flap_threshold = null, service_high_flap_threshold = null, ";
     $rq .= "service_flap_detection_enabled = '2', service_retain_status_information = '2', ";
     $rq .= "service_retain_nonstatus_information = '2', service_notifications_enabled = '2', ";
@@ -1187,7 +1195,11 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     if (isset($ret["timeperiod_tp_id"]) && $ret["timeperiod_tp_id"] != null) {
         $rq .= "timeperiod_tp_id = '" . $ret["timeperiod_tp_id"] . "', ";
     }
-    $rq .= 'command_command_id2 = null, ';
+
+    $rq .= "command_command_id2 = ";
+    isset($ret["command_command_id2"]) && $ret["command_command_id2"] != null
+        ? $rq .= "'" . $ret["command_command_id2"] . "', "
+        : $rq .= "NULL, ";
 
     if (isset($ret["service_alias"]) && $ret["service_alias"] != null) {
         $rq .= "service_alias = '" . $ret["service_alias"] . "', ";
@@ -1207,7 +1219,14 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     $rq .= "service_acknowledgement_timeout = null, service_is_volatile = '2', ";
     $rq .= "service_active_checks_enabled = '2', service_passive_checks_enabled = '2', ";
     $rq .= "service_obsess_over_service = '2', service_check_freshness = '2', ";
-    $rq .= "service_freshness_threshold = null, service_event_handler_enabled = '2', ";
+    $rq .= "service_freshness_threshold = null, ";
+
+    $rq .= "service_event_handler_enabled = ";
+    isset($ret["service_event_handler_enabled"]["service_event_handler_enabled"])
+    && $ret["service_event_handler_enabled"]["service_event_handler_enabled"] != 2
+        ? $rq .= "'" . $ret["service_event_handler_enabled"]["service_event_handler_enabled"] . "', "
+        : $rq .= "'2', ";
+
     $rq .= 'service_low_flap_threshold = null, service_high_flap_threshold = null, ';
     $rq .= "service_flap_detection_enabled = '2', service_retain_status_information = '2', ";
     $rq .= "service_retain_nonstatus_information = '2', ";
@@ -1798,7 +1817,11 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     isset($submittedValues["timeperiod_tp_id"]) && $submittedValues["timeperiod_tp_id"] != null
         ? $request .= "'" . $submittedValues["timeperiod_tp_id"] . "', "
         : $request .= "NULL, ";
-    $request .= 'null, '; // command_command_id2 = null
+
+    isset($submittedValues["command_command_id2"]) && $submittedValues["command_command_id2"] != null
+        ? $request .= "'" . $submittedValues["command_command_id2"] . "', "
+        : $request .= "NULL, ";
+
     $request .= 'null, '; // timeperiod_tp_id2 => null
     isset($submittedValues["service_description"]) && $submittedValues["service_description"] != null
         ? $request .= "'" . CentreonDB::escape($submittedValues["service_description"]) . "', "
@@ -1824,7 +1847,12 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     $request .= "'2', ";  // service_obsess_over_service = '2' (default)
     $request .= "'2', ";  // service_check_freshness = '2' (default)
     $request .= 'null, '; // service_freshness_threshold = null
-    $request .= "'2', ";  // service_event_handler_enabled = '2' (default)
+
+    isset($submittedValues["service_event_handler_enabled"]["service_event_handler_enabled"])
+    && $submittedValues["service_event_handler_enabled"]["service_event_handler_enabled"] != 2
+        ? $request .= "'" . $submittedValues["service_event_handler_enabled"]["service_event_handler_enabled"] . "', "
+        : $request .= "'2', ";
+
     $request .= 'null, '; // service_low_flap_threshold = null
     $request .= 'null, '; // service_high_flap_threshold = null
     $request .= "'2', ";  // service_flap_detection_enabled = '2' (default)

@@ -104,6 +104,22 @@
                 "type": "integer"
             }
         },
+        "event_handler_enabled": {
+          "type": [
+            "integer"
+          ],
+          "enum": [
+            0,
+            1,
+            2
+          ]
+        },
+        "event_handler_command_id": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
         "macros": {
             "type": "array",
             "items": {
