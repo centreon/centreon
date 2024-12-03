@@ -1,22 +1,40 @@
 import { Modal } from '@centreon/ui/components';
 import { equals } from 'ramda';
 import { useState } from 'react';
-import { labelCancel } from '../../translatedLabels';
-import CheckBoxCriter from './CheckBoxCriter';
+import {
+  labelAllColumns,
+  labelAllPages,
+  labelCancel,
+  labelCurrentPageOnly,
+  labelExport,
+  labelExportToCSV,
+  labelSelecetPages,
+  labelSelectColumns,
+  labelVisibleColumnsOnly
+} from '../../translatedLabels';
+import CheckBoxScope from './CheckBoxScope';
+import InformationsLine from './InformationsLine';
+import Warning from './Warning';
+import useExportCsvStyles from './exportCsv.styles';
+import { CheckedValue } from './models';
 import useExportCSV from './useExportCsv';
 
-const labelVisibleColumnsOnly = 'Visible columns only';
-const labelAllColumns = 'All columns';
-const labelAllPages = 'All pages';
-const labelCurrentPageOnly = 'Current page only';
+interface Props {
+  onCancel: () => void;
+}
 
-const ModalExport = ({ onCancel }) => {
+const ModalExport = ({ onCancel }: Props) => {
+  const { classes } = useExportCsvStyles();
   const [allPages, setAllPages] = useState(true);
   const [allColumns, setAllColumns] = useState(true);
 
   const exportCsv = useExportCSV({ allColumns, allPages });
 
-  const getCheckedValue = ({ defaultLabel, label, value }) => {
+  const getCheckedValue = ({
+    defaultLabel,
+    label,
+    value
+  }: CheckedValue): boolean => {
     return equals(defaultLabel, label) ? value : false;
   };
 
@@ -39,40 +57,40 @@ const ModalExport = ({ onCancel }) => {
   };
 
   return (
-    <Modal open>
-      <Modal.Header>title</Modal.Header>
+    <Modal open hasCloseButton={false}>
+      <Modal.Header>{labelExportToCSV}</Modal.Header>
       <Modal.Body>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', flexDirection: 'row' }}>
-            <div style={{ flex: 0.5 }}>
-              <CheckBoxCriter
-                defaultLabel={labelAllColumns}
+        <div className={classes.container}>
+          <div className={classes.subContainer}>
+            <div className={classes.checkBoxContainer}>
+              <CheckBoxScope
+                defaultCheckedLabel={{ label: labelAllColumns, value: true }}
                 labels={{
                   firstLabel: labelVisibleColumnsOnly,
                   secondLabel: labelAllColumns
                 }}
-                title="Select columns"
+                title={labelSelectColumns}
                 getData={getSelectedColumnsData}
               />
-              <CheckBoxCriter
-                defaultLabel={labelAllPages}
+              <div className={classes.spacing} />
+              <CheckBoxScope
+                defaultCheckedLabel={{ label: labelAllPages, value: true }}
                 labels={{
                   firstLabel: labelCurrentPageOnly,
                   secondLabel: labelAllPages
                 }}
-                title="Select Pages"
+                title={labelSelecetPages}
                 getData={getSelectedPagesData}
               />
             </div>
-            <div style={{ background: 'grey', flex: 0.5 }}>
-              expliquation about lines
-            </div>
+            <InformationsLine data="" />
           </div>
-          <div> warning</div>
+          <div className={classes.spacing} />
+          <Warning />
         </div>
       </Modal.Body>
       <Modal.Actions
-        labels={{ cancel: labelCancel, confirm: 'confirm' }}
+        labels={{ cancel: labelCancel, confirm: labelExport }}
         onConfirm={exportCsv}
         onCancel={onCancel}
       />

@@ -10,7 +10,7 @@ import useMediaQueryListing from './Resource/useMediaQueryListing';
 import ResourceActionsSkeleton from './ResourceActionsSkeleton';
 import VisualizationActions from './Visualization';
 import { useStyles } from './Visualization/Visualization.styles';
-import MemoizedExportCsv from './exportToCsv/MemoizedExportCsv';
+import ExportCsv from './exportToCsv';
 import { Type } from './model';
 
 const WrapperResourceActions = lazy(() => import('./WrapperResourceActions'));
@@ -65,7 +65,7 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
         })}
       >
         <VisualizationActions displayCondensed={displayCondensed} />
-        <MemoizedExportCsv />
+        <ExportCsv />
       </Grid>
     </Grid>
   );

@@ -1,3 +1,3 @@
-import MemoizedExportCsv from './MemoizedExportCsv';
+import ExportCsv from './ExportCsv';
 
-export default MemoizedExportCsv;
+export default ExportCsv;

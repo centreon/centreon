@@ -52,6 +52,7 @@ import {
   pageAtom,
   sendingAtom
 } from '../listingAtoms';
+import useGetCriteriaName from './useGetCriteriaName';
 import { getSearch } from './utils';
 
 export interface LoadResources {
@@ -63,6 +64,8 @@ const defaultSecondSortCriteria = { [secondSortField]: SortOrder.desc };
 
 const useLoadResources = (): LoadResources => {
   const { t } = useTranslation();
+
+  const { getCriteriaNames } = useGetCriteriaName();
 
   const { sendRequest, sending } = useRequest<ResourceListing>({
     getErrorMessage: ifElse(
@@ -151,14 +154,6 @@ const useLoadResources = (): LoadResources => {
         | undefined;
 
       return criteriaValue?.map(prop('id'));
-    };
-
-    const getCriteriaNames = (name: string): Array<string> => {
-      const criteriaValue = getCriteriaValue(name) as
-        | Array<SelectEntry>
-        | undefined;
-
-      return (criteriaValue || []).map(prop('name')) as Array<string>;
     };
 
     const getCriteriaLevels = (name: string): Array<number> => {

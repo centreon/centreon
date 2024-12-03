@@ -3,15 +3,15 @@ import SaveIcon from '@mui/icons-material/SaveAlt';
 import { useState } from 'react';
 import ModalExport from './ModalExport';
 
-const MemoizedExportCsv = () => {
-  const [displayModalExport, setDisplayModalExport] = useState(false);
+const ExportCsv = () => {
+  const [display, setDisplay] = useState(false);
 
   const openModalExport = () => {
-    setDisplayModalExport(true);
+    setDisplay(true);
   };
 
   const closeModalExport = () => {
-    setDisplayModalExport(false);
+    setDisplay(false);
   };
 
   return (
@@ -19,9 +19,9 @@ const MemoizedExportCsv = () => {
       <IconButton onClick={openModalExport}>
         <SaveIcon />
       </IconButton>
-      {displayModalExport && <ModalExport onCancel={closeModalExport} />}
+      {display && <ModalExport onCancel={closeModalExport} />}
     </>
   );
 };
 
-export default MemoizedExportCsv;
+export default ExportCsv;
