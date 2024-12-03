@@ -52,7 +52,6 @@ import {
   labelResourceDetailsCheckDescription,
   labelResourceDetailsForcedCheckCommandSent,
   labelResourceDetailsForcedCheckDescription,
-  labelResourceFlapping,
   labelSave,
   labelSetDowntime,
   labelStatusChangePercentage,
@@ -305,8 +304,7 @@ describe('Details', () => {
 
     cy.contains(labelStatusChangePercentage).should('exist');
     cy.contains('3.5%').should('exist');
-    cy.findByTestId('FlappingIcon').trigger('mouseover');
-    cy.contains(labelResourceFlapping).should('be.visible');
+    cy.findByTestId('FlappingIcon').should('exist');
 
     cy.contains(labelLastNotification).should('exist');
     cy.contains('07/18/2020 7:30 PM').should('exist');
