@@ -10,11 +10,7 @@ import {
   Typography
 } from '@mui/material';
 
-import {
-  MultiConnectedAutocompleteField,
-  SelectField,
-  SingleConnectedAutocompleteField
-} from '@centreon/ui';
+import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
 import { Avatar, ItemComposition } from '@centreon/ui/components';
 
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
@@ -27,7 +23,7 @@ import {
   labelSelectResourceType
 } from '../../../../translatedLabels';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
-import { WidgetPropertyProps, WidgetResourceType } from '../../../models';
+import { WidgetPropertyProps } from '../../../models';
 import { useResourceStyles } from '../Inputs.styles';
 import { areResourcesFullfilled } from '../utils';
 
@@ -112,7 +108,7 @@ const Resources = ({
                 getResourceStatic(resource.resourceType) ||
                 hideResourceDeleteButton()
               }
-              key={`${index}${resource.resources[0]}`}
+              key={`${index}${resource.resourceType}`}
               labelDelete={t(labelDelete)}
               onDeleteItem={deleteResource(index)}
             >
@@ -129,66 +125,36 @@ const Resources = ({
                 selectedOptionId={resource.resourceType}
                 onChange={changeResourceType(index)}
               />
-              {singleResourceSelection ? (
-                <SingleConnectedAutocompleteField
-                  changeIdValue={changeIdValue(resource.resourceType)}
-                  chipProps={{
-                    color: 'primary'
-                  }}
-                  className={classes.resources}
-                  disableClearable={singleResourceSelection}
-                  disabled={
-                    !canEditField ||
-                    isValidatingResources ||
-                    (equals(
-                      resource.resourceType,
-                      WidgetResourceType.service
-                    ) &&
-                      !hasSelectedHostForSingleMetricwidget) ||
-                    !resource.resourceType
-                  }
-                  field={getSearchField(resource.resourceType)}
-                  getEndpoint={getResourceResourceBaseEndpoint({
-                    index,
-                    resourceType: resource.resourceType
-                  })}
-                  label={t(labelSelectAResource)}
-                  limitTags={2}
-                  queryKey={`${resource.resourceType}-${index}`}
-                  value={resource.resources[0] || undefined}
-                  onChange={changeResource(index)}
-                />
-              ) : (
-                <MultiConnectedAutocompleteField
-                  changeIdValue={changeIdValue(resource.resourceType)}
-                  chipProps={{
-                    color: 'primary',
-                    onDelete: (_, option): void =>
-                      deleteResourceItem({
-                        index,
-                        option,
-                        resources: resource.resources
-                      })
-                  }}
-                  className={classes.resources}
-                  disabled={
-                    !canEditField ||
-                    isValidatingResources ||
-                    !resource.resourceType
-                  }
-                  field={getSearchField(resource.resourceType)}
-                  getEndpoint={getResourceResourceBaseEndpoint({
-                    index,
-                    resourceType: resource.resourceType
-                  })}
-                  label={t(labelSelectAResource)}
-                  limitTags={2}
-                  placeholder=""
-                  queryKey={`${resource.resourceType}-${index}`}
-                  value={resource.resources || []}
-                  onChange={changeResources(index)}
-                />
-              )}
+              <MultiConnectedAutocompleteField
+                exclusionField="name"
+                changeIdValue={changeIdValue(resource.resourceType)}
+                chipProps={{
+                  color: 'primary',
+                  onDelete: (_, option): void =>
+                    deleteResourceItem({
+                      index,
+                      option,
+                      resources: resource.resources
+                    })
+                }}
+                className={classes.resources}
+                disabled={
+                  !canEditField ||
+                  isValidatingResources ||
+                  !resource.resourceType
+                }
+                field={getSearchField(resource.resourceType)}
+                getEndpoint={getResourceResourceBaseEndpoint({
+                  index,
+                  resourceType: resource.resourceType
+                })}
+                label={t(labelSelectAResource)}
+                limitTags={2}
+                placeholder=""
+                queryKey={`${resource.resourceType}-${index}`}
+                value={resource.resources || []}
+                onChange={changeResources(index)}
+              />
             </ItemComposition.Item>
           ))}
         </ItemComposition>
