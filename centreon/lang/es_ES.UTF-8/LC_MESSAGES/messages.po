@@ -14301,7 +14301,7 @@ msgstr "Permitir certificado autofirmado"
 #  msgid "End time"
 #  msgstr ""
 
-#  msgid "This Resource is flapping"
+#  msgid "This resource is flapping"
 #  msgstr ""
 
 #  msgid "Show criterias filters"

@@ -22,7 +22,9 @@ const PercentStateChangeCard = ({ details }: Props): JSX.Element => {
 
   return (
     <div className={classes.percentStateCard}>
-      <DetailsLine line={`${details.percent_state_change?.toFixed(3)}%`} />
+      <DetailsLine
+        line={`${Number(details.percent_state_change?.toFixed(3))}%`}
+      />
       {details.flapping && <FlappingChip />}
     </div>
   );

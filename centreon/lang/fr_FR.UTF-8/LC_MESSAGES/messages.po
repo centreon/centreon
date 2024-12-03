@@ -15152,8 +15152,8 @@ msgstr "La date de fin doit être supérieure à la date de début"
 msgid "End time"
 msgstr "Heure de fin"
 
-msgid "This Resource is flapping"
-msgstr "Cette Ressource est bagottante"
+msgid "This resource is flapping"
+msgstr "Cette ressource est bagottante"
 
 msgid "Show criterias filters"
 msgstr "Montrer les critères de filtre"
