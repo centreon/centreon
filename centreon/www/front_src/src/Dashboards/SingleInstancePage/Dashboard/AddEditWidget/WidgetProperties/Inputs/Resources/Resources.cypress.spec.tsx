@@ -401,6 +401,7 @@ describe('Resources tree', () => {
     cy.findByTestId(labelSelectAResource).click();
     cy.waitForRequest('@getMetaService');
     cy.contains('Meta service 0').click();
+    cy.findByTestId(labelSelectAResource).blur();
 
     cy.contains(labelAddFilter).should('be.disabled');
 
