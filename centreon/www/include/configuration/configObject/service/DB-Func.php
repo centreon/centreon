@@ -267,6 +267,7 @@ function testServiceExistence($name = null, $hPars = [], $hgPars = [], $returnId
             $id = $arr["service_id"];
         }
         $hPars = $arr["service_hPars"] ?? [];
+        $hPars = is_array($hPars) ? $hPars : [$hPars];
         $hgPars = $arr["service_hgPars"] ?? [];
     }
 
@@ -1060,7 +1061,11 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     isset($ret["geo_coords"]) && $ret["geo_coords"] != null
         ? $rq .= "'" . CentreonDB::escape($ret["geo_coords"]) . "', "
         : $rq .= "NULL, ";
-    $rq .= "command_command_id_arg = null, ";
+    $ret["command_command_id_arg"] = getCommandArgs($_POST, $ret);
+    $rq .= "command_command_id_arg = ";
+    isset($ret["command_command_id_arg"]) && $ret["command_command_id_arg"] != null
+        ? $rq .= "'" . CentreonDB::escape($ret["command_command_id_arg"]) . "', "
+        : $rq .= "NULL, ";
     $rq .= "command_command_id_arg2 = null, service_register = ";
     isset($ret["service_register"]) && $ret["service_register"] != null
         ? $rq .= "'" . $ret["service_register"] . "', "
@@ -1166,6 +1171,12 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
         $ret["sg_name"] = $centreon->checkIllegalChar($ret["sg_name"]);
     }
 
+    if (isset($ret["command_command_id_arg"]) && $ret["command_command_id_arg"] != null) {
+        $ret["command_command_id_arg"] = str_replace("\n", "//BR//", $ret["command_command_id_arg"]);
+        $ret["command_command_id_arg"] = str_replace("\t", "//T//", $ret["command_command_id_arg"]);
+        $ret["command_command_id_arg"] = str_replace("\r", "//R//", $ret["command_command_id_arg"]);
+    }
+
     $rq = "UPDATE service SET ";
     if (isset($ret["service_template_model_stm_id"]) && $ret["service_template_model_stm_id"] != null) {
         $rq .= "service_template_model_stm_id = '" . $ret["service_template_model_stm_id"] . "', ";
@@ -1205,7 +1216,12 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     $rq .= 'service_stalking_options = null, service_comment = null, ';
 
 
-    $rq .= 'command_command_id_arg = null, command_command_id_arg2 = null, ';
+    $ret["command_command_id_arg"] = getCommandArgs($_POST, $ret);
+    $rq .= "command_command_id_arg = ";
+    isset($ret["command_command_id_arg"]) && $ret["command_command_id_arg"] != null
+        ? $rq .= "'" . CentreonDB::escape($ret["command_command_id_arg"]) . "', "
+        : $rq .= "NULL, ";
+    $rq .= "command_command_id_arg2 = null, ";
     if (isset($ret["service_register"]) && $ret["service_register"] != null) {
         $rq .= "service_register = '" . $ret["service_register"] . "', ";
     }
@@ -1828,7 +1844,10 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     isset($submittedValues["geo_coords"]) && $submittedValues["geo_coords"] != null
         ? $request .= "'" . CentreonDB::escape($submittedValues["geo_coords"]) . "', "
         : $request .= "NULL, ";
-    $request .= "null, "; // command_command_id_arg = null
+    $submittedValues['command_command_id_arg'] = getCommandArgs($_POST, $submittedValues);
+    isset($submittedValues["command_command_id_arg"]) && $submittedValues["command_command_id_arg"] != null
+        ? $request .= "'" . CentreonDB::escape($submittedValues["command_command_id_arg"]) . "', "
+        : $request .= "NULL, ";
     $request .= 'null, '; // command_command_id_arg2 = null
     isset($submittedValues["service_register"]) && $submittedValues["service_register"] != null
         ? $request .= "'" . $submittedValues["service_register"] . "', "

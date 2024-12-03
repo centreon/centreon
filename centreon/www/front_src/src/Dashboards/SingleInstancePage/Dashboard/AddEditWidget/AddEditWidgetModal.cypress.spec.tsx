@@ -839,7 +839,7 @@ describe('AddEditWidgetModal', () => {
         );
       });
 
-      it('hides metrics field when the Meta service resource type is selected and the Meta service is chosen', () => {
+      it('does not hide metrics field when the Meta service resource type is selected and the Meta service is chosen', () => {
         cy.findByLabelText(labelWidgetType).click();
         cy.contains('Generic data for single metric (example)').click();
 
@@ -851,7 +851,7 @@ describe('AddEditWidgetModal', () => {
         cy.waitForRequest('@getMetaService');
         cy.contains('Meta service 0').click();
 
-        cy.contains(labelMetrics).should('not.exist');
+        cy.contains(labelMetrics).should('be.visible');
 
         cy.makeSnapshot();
       });

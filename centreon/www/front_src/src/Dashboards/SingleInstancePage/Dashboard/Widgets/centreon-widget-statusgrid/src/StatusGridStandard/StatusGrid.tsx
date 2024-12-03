@@ -8,7 +8,7 @@ import { useTheme } from '@mui/material';
 
 import {
   HeatMap,
-  ListingModel,
+  type ListingModel,
   useFetchQuery,
   useRefreshInterval
 } from '@centreon/ui';
@@ -36,9 +36,9 @@ import Tile from './Tile';
 import Tooltip from './Tooltip/Tooltip';
 import {
   IndicatorType,
-  ResourceData,
-  ResourceStatus,
-  StatusGridProps
+  type ResourceData,
+  type ResourceStatus,
+  type StatusGridProps
 } from './models';
 import { getColor } from './utils';
 
@@ -227,7 +227,7 @@ const StatusGrid = ({
       tiles={[...resourceTiles, seeMoreTile].filter((v) => v)}
       tooltipContent={isOnPublicPage ? undefined : Tooltip()}
     >
-      {({ isSmallestSize, data: resourceData }) => (
+      {({ isSmallestSize, data: resourceData, tileSize, isMediumSize }) => (
         <Tile
           data={resourceData}
           isBAResourceType={isBVResourceType || isBAResourceType}
@@ -235,6 +235,8 @@ const StatusGrid = ({
           resources={resources}
           statuses={statuses}
           type={resourceData?.type}
+          tileSize={tileSize}
+          isMediumSize={isMediumSize}
         />
       )}
     </HeatMap>
