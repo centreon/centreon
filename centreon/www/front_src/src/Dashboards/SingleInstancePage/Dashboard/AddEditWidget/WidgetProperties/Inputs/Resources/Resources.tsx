@@ -126,7 +126,7 @@ const Resources = ({
                 onChange={changeResourceType(index)}
               />
               <MultiConnectedAutocompleteField
-                exclusionField="name"
+                exclusionOptionProperty="name"
                 changeIdValue={changeIdValue(resource.resourceType)}
                 chipProps={{
                   color: 'primary',

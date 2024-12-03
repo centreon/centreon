@@ -34,7 +34,7 @@ export interface ConnectedAutoCompleteFieldProps<TData> {
   allowUniqOption?: boolean;
   baseEndpoint?: string;
   changeIdValue: (item: TData) => number | string;
-  exclusionField?: keyof SelectEntry;
+  exclusionOptionProperty?: keyof SelectEntry;
   field: string;
   getEndpoint: ({ search, page }) => string;
   getRenderedOptionText: (option: TData) => string;
@@ -55,7 +55,7 @@ const ConnectedAutocompleteField = (
     field,
     labelKey,
     open,
-    exclusionField = 'id',
+    exclusionOptionProperty = 'id',
     searchConditions = [],
     getRenderedOptionText = (option): string => option.name?.toString(),
     getRequestHeaders,
@@ -138,7 +138,7 @@ const ConnectedAutocompleteField = (
         field,
         values: {
           $ni: map(
-            prop(exclusionField),
+            prop(exclusionOptionProperty),
             selectedValues as Array<
               Record<keyof SelectEntry, string | undefined>
             >
