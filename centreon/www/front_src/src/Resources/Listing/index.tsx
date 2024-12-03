@@ -265,7 +265,8 @@ const ResourceListing = (): JSX.Element => {
         enabledAutoRefresh,
         selectedResourceDetails,
         themeMode,
-        columns
+        columns,
+        selectedColumnIds
       ]}
       moveTablePagination={isPanelOpen}
       predefinedRowsSelection={predefinedRowsSelection}

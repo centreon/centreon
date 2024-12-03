@@ -17,6 +17,7 @@ export const useStyles = makeStyles()((theme) => ({
     padding: theme.spacing(0, 0.25)
   },
   large: {
+    display: 'flex',
     flex: 1
   },
   medium: {
@@ -33,5 +34,8 @@ export const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     flexWrap: 'nowrap',
     justifyContent: 'center'
+  },
+  small: {
+    display: 'flex'
   }
 }));

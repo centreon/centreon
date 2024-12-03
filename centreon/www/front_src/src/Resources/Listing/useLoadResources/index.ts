@@ -5,7 +5,6 @@ import {
   always,
   equals,
   ifElse,
-  isEmpty,
   isNil,
   map,
   mergeRight,
@@ -17,12 +16,7 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import type { SelectEntry } from '@centreon/ui';
-import {
-  getData,
-  getFoundFields,
-  getUrlQueryParameters,
-  useRequest
-} from '@centreon/ui';
+import { getData, getUrlQueryParameters, useRequest } from '@centreon/ui';
 import { refreshIntervalAtom } from '@centreon/ui-context';
 
 import { selectedVisualizationAtom } from '../../Actions/actionsAtoms';
@@ -35,7 +29,6 @@ import {
   sendingDetailsAtom
 } from '../../Details/detailsAtoms';
 import type { ResourceDetails } from '../../Details/models';
-import { searchableFields } from '../../Filter/Criterias/searchQueryLanguage';
 import {
   appliedFilterAtom,
   customFiltersAtom,
@@ -59,8 +52,7 @@ import {
   pageAtom,
   sendingAtom
 } from '../listingAtoms';
-
-import type { Search } from './models';
+import { getSearch } from './utils';
 
 export interface LoadResources {
   initAutorefreshAndLoad: () => void;
@@ -150,49 +142,6 @@ const useLoadResources = (): LoadResources => {
       });
   };
 
-  const getSearch = (): Search | undefined => {
-    const searchCriteria = getCriteriaValue('search');
-
-    if (!searchCriteria) {
-      return undefined;
-    }
-
-    const fieldMatches = getFoundFields({
-      fields: searchableFields,
-      value: searchCriteria as string
-    });
-
-    if (!isEmpty(fieldMatches)) {
-      const matches = fieldMatches.map((item) => {
-        const field = item?.field;
-        const values = item.value?.split(',')?.join('|');
-
-        return { field, value: `${field}:${values}` };
-      });
-
-      const formattedValue = matches.reduce((accumulator, previousValue) => {
-        return {
-          ...accumulator,
-          value: `${accumulator.value} ${previousValue.value}`
-        };
-      });
-
-      return {
-        regex: {
-          fields: matches.map(({ field }) => field),
-          value: formattedValue.value
-        }
-      };
-    }
-
-    return {
-      regex: {
-        fields: searchableFields,
-        value: searchCriteria as string
-      }
-    };
-  };
-
   const load = (): void => {
     const getCriteriaIds = (
       name: string
@@ -239,22 +188,25 @@ const useLoadResources = (): LoadResources => {
       monitoringServers: getCriteriaNames('monitoring_servers'),
       page,
       resourceTypes: getCriteriaIds('resource_types'),
-      search: mergeRight(getSearch() || {}, {
-        conditions: [
-          ...names.map((name) => ({
-            field: 'name',
-            values: {
-              $rg: name
-            }
-          })),
-          ...parentNames.map((name) => ({
-            field: 'parent_name',
-            values: {
-              $rg: name
-            }
-          }))
-        ]
-      }),
+      search: mergeRight(
+        getSearch({ searchCriteria: getCriteriaValue('search') }) || {},
+        {
+          conditions: [
+            ...names.map((name) => ({
+              field: 'name',
+              values: {
+                $rg: name
+              }
+            })),
+            ...parentNames.map((name) => ({
+              field: 'parent_name',
+              values: {
+                $rg: name
+              }
+            }))
+          ]
+        }
+      ),
       serviceCategories: getCriteriaNames('service_categories'),
       serviceGroups: getCriteriaNames('service_groups'),
       serviceSeverities: getCriteriaNames('service_severities'),
