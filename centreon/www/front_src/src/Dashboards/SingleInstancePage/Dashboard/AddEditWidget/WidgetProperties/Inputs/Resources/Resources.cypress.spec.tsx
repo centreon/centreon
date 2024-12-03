@@ -241,6 +241,7 @@ describe('Resources', () => {
     cy.waitForRequest('@getHosts');
     cy.contains('Host 0').click();
     cy.findByTestId('CancelIcon').click();
+    cy.findByTestId(labelSelectAResource).blur();
 
     cy.contains('Host 0').should('not.exist');
 
@@ -261,6 +262,7 @@ describe('Resources', () => {
     cy.contains('Host 0').should('be.visible');
 
     cy.findByTestId('CancelIcon').click();
+    cy.findByTestId(labelSelectAResource).blur();
 
     cy.contains('Host 0').should('not.exist');
   });
