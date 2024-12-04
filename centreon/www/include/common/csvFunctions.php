@@ -21,24 +21,26 @@
 
 /**
  *
+ * @param string $text
+ * @param string $delimiter (default ';')
+ *
  * @return Generator
  */
-function readCsvLine(string &$text): Generator
+function readCsvLine(string &$text, string $delimiter = ';'): Generator
 {
-    $len = strlen($text);
-    $cursor = 0;
-    $startOfLine = 0;
-    while ($cursor < $len) {
-        $char = mb_ord($text[$cursor]);
-        if ($char === 10) {
-            $lineSize = ($cursor > 0 && mb_ord($text[$cursor - 1]) === 13)
-                ? $cursor - $startOfLine - 1
-                : $cursor - $startOfLine;
-            yield mb_substr($text, $startOfLine, $lineSize);
-            $startOfLine = $cursor + 1;
-        }
-        $cursor++;
+    $handle = @fopen('php://memory', 'r+');
+    if ($handle === false) {
+        throw new RuntimeException('Failed to create memory stream');
     }
+    if (fwrite($handle, $text) === false) {
+        fclose($handle);
+        throw new RuntimeException('Failed to write to memory stream');
+    }
+    rewind($handle);
+    while ($data = fgetcsv($handle, null, $delimiter, '"', '')) {
+        yield $data;
+    }
+    fclose($handle);
 }
 
 /**
@@ -54,17 +56,31 @@ function csvToArray(&$text, bool $useCsvHeaderAsKey, string $delimiter = ';'): a
     $delimiterNumber = 0;
     $data = [];
     $headers = [];
-    foreach (readCsvLine($text) as $line) {
+    foreach (readCsvLine($text, $delimiter) as $record) {
         if ($lineNumber++ === 0) {
-            $headers = explode($delimiter, $line);
+            $headers = $record;
             $delimiterNumber = count($headers);
             if (! $useCsvHeaderAsKey) {
                 $data[] = $headers;
             }
             continue;
         }
-        $record = explode($delimiter, $line, $delimiterNumber);
-        $data[] = $useCsvHeaderAsKey ? array_combine($headers, $record) : $record;
+        $record = explode($delimiter, implode($delimiter, $record), $delimiterNumber);
+        if ($useCsvHeaderAsKey) {
+            if (count($record) !== count($headers)) {
+                throw new RuntimeException(
+                    sprintf(
+                        'CSV record on line %d has %d fields, expected %d',
+                        $lineNumber,
+                        count($record),
+                        count($headers)
+                    )
+                );
+            }
+            $data[] = array_combine($headers, $record);
+        } else {
+            $data[] = $record;
+        }
     }
     return $data;
 }
