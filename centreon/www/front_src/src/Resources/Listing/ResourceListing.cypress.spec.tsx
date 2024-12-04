@@ -910,6 +910,8 @@ describe('Notification column', () => {
           'background-color',
           equals(mode, 'dark') ? 'rgb(81, 41, 128)' : 'rgb(229, 216, 243)'
         );
+
+      cy.makeSnapshot();
     });
     it('displays the listing row in acknowledge color when the resource is in acknowledge state but not in downtime', () => {
       cy.waitForRequest('@filterRequest');
@@ -927,6 +929,8 @@ describe('Notification column', () => {
           'background-color',
           equals(mode, 'dark') ? 'rgb(116, 95, 53)' : 'rgb(223, 210, 185)'
         );
+
+      cy.makeSnapshot();
     });
 
     it('displays the listing row in flapping color when the resource is in flapping state only', () => {
