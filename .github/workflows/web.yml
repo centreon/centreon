@@ -53,6 +53,7 @@ jobs:
       has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes || 'true' }}
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes || 'true' }}
       has_test_changes: ${{ steps.filter.outputs.has_test_changes || 'true' }}
+      has_upgrade_changes: ${{ steps.filter.outputs.has_upgrade_changes || 'true' }}
       trigger_delivery: ${{ steps.changes_trigger_checks.outputs.trigger_delivery }}
       trigger_api_testing: ${{ steps.changes_trigger_checks.outputs.trigger_api_testing }}
     steps:
@@ -91,6 +92,9 @@ jobs:
               - 'centreon/doc/API/**'
             has_test_changes:
               - 'centreon/tests/**'
+            has_upgrade_changes:
+              - 'centreon/www/install/**'
+              - 'centreon/packaging/**'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - uses: ./.github/actions/changes-trigger-checks
@@ -751,8 +755,13 @@ jobs:
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   e2e-test:
-    needs: [get-environment, dockerize, create-xray-test-plan-and-test-execution]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
+    needs: [get-environment, changes, dockerize, create-xray-test-plan-and-test-execution]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.outputs.stability != 'stable'
     strategy:
       fail-fast: false
       matrix:
@@ -772,7 +781,7 @@ jobs:
       stability: ${{ needs.get-environment.outputs.stability }}
       package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma8' && 'rpm-el8' || matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-bookworm' ) }}
       package_directory: centreon/tests/e2e/fixtures/packages
-      test_tags: ${{ matrix.test_tags }}
+      test_tags: ${{ needs.changes.outputs.has_upgrade_changes == 'true' && matrix.test_tags || format('{0} and not @update and not @upgrade', matrix.test_tags) }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
       xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
       is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
@@ -1065,3 +1074,12 @@ jobs:
           github_ref_name: ${{ github.ref_name }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+
+  set-skip-label:
+    needs: [get-environment, deliver-deb, deliver-rpm, promote]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
+    uses: ./.github/workflows/set-pull-request-skip-label.yml

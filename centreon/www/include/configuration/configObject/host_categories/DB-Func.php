@@ -445,12 +445,12 @@ function updateHostCategories($hcId)
 
     $statement = $pearDB->prepare("
         UPDATE hostcategories SET
-        hc_name = :hc_name,
-        hc_alias = :hc_alias,
-        level = :level,
-        icon_id = :icon_id,
-        hc_comment = :hc_comment,
-        hc_activate = :hc_activate
+            hc_name = :hc_name,
+            hc_alias = :hc_alias,
+            level = :level,
+            icon_id = :icon_id,
+            hc_comment = :hc_comment,
+            hc_activate = :hc_activate
         WHERE hc_id = :hc_id
     ");
     foreach ($bindParams as $token => $bindValues) {
@@ -469,6 +469,17 @@ function updateHostCategories($hcId)
         action_type: ActionLog::ACTION_TYPE_CHANGE,
         fields: $fields
     );
+    if (array_key_exists(':hc_activate', $bindParams)) {
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
+            object_id: $hcId,
+            object_name: $ret["hc_name"],
+            action_type: (bool) $bindParams[':hc_activate'][\PDO::PARAM_STR]
+                ? ActionLog::ACTION_TYPE_ENABLE
+                : ActionLog::ACTION_TYPE_DISABLE,
+            fields: $fields
+        );
+    }
 }
 
 function updateHostCategoriesHosts($hcId, $ret = [])
