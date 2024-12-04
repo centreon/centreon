@@ -92,9 +92,10 @@ class DbalConnectionAdapter implements ConnectionInterface
         try {
             $dbalConnection = DoctrineDbalDriverManager::getConnection($dbalConnectionConfig);
             $dbalConnectionAdapter = new self($dbalConnection);
-            if (!$dbalConnectionAdapter->isConnected()) {
+            if (! $dbalConnectionAdapter->isConnected()) {
                 throw new UnexpectedValueException('The connection is not established.');
             }
+
             return $dbalConnectionAdapter;
         } catch (Throwable $e) {
             throw ConnectionException::connectionFailed($e);

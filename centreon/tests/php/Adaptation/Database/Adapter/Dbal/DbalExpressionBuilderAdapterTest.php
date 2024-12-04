@@ -30,7 +30,7 @@ beforeEach(function () {
 });
 
 it('test DbalExpressionBuilderAdapter with the method comparison', function () {
-    $expr = $this->dbalExpressionBuilderAdapterTest->comparison('field1', DbalExpressionBuilderAdapter::EQ,':value1');
+    $expr = $this->dbalExpressionBuilderAdapterTest->comparison('field1', DbalExpressionBuilderAdapter::EQ, ':value1');
     expect($expr)->toBeString()->toBe('field1 = :value1');
 });
 

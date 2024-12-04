@@ -37,11 +37,11 @@ interface ExpressionBuilderInterface
     /**
      * Comparison operators.
      */
-    public const EQ  = '=';
+    public const EQ = '=';
     public const NEQ = '<>';
-    public const LT  = '<';
+    public const LT = '<';
     public const LTE = '<=';
-    public const GT  = '>';
+    public const GT = '>';
     public const GTE = '>=';
 
     /**
