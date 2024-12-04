@@ -48,7 +48,7 @@ const FavoriteAction = ({ dashboardId, asFavorite }: Props) => {
     method: Method.PATCH,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['dashboardList'],
+        queryKey: ['favoriteDashboardListIds'], // a regler suspence?
         exact: true
       });
       showSuccessMessage(labelSuccess);

@@ -62,7 +62,6 @@ const useListDashboards = (
         ]
       }),
     getQueryKey: () => [
-      'dashboardList',
       resource.dashboards,
       sortField,
       sortOrder,
