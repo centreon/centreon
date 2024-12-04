@@ -5,6 +5,7 @@ import {
   useSnackbar
 } from '@centreon/ui';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { memo } from 'react';
@@ -28,6 +29,7 @@ const FavoriteAction = ({ dashboardId, asFavorite }: Props) => {
   const { showSuccessMessage } = useSnackbar();
 
   const { favoriteDashboards } = useAtomValue(favoriteDashboardsIdsAtom);
+  const queryClient = useQueryClient();
 
   const getLabel = ({ setLabel, unsetLabel }: GetLabel) => {
     if (asFavorite) {
@@ -44,7 +46,13 @@ const FavoriteAction = ({ dashboardId, asFavorite }: Props) => {
   const { mutateAsync, isMutating } = useMutationQuery({
     getEndpoint: () => dashboardsFavoriteEndpoit,
     method: Method.PATCH,
-    onSuccess: () => showSuccessMessage(labelSuccess)
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['dashboardList'],
+        exact: true
+      });
+      showSuccessMessage(labelSuccess);
+    }
   });
 
   const handleFavorites = () => {
