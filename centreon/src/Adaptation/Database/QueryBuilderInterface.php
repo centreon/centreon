@@ -59,7 +59,7 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string|string[] ...$expressions The selection expressions.
+     * @param string ...$expressions The selection expressions.
      *
      * @return QueryBuilderInterface This QueryBuilder instance.
      */
@@ -92,8 +92,8 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string          $expression     The selection expression.
-     * @param string|string[] ...$expressions Additional selection expressions.
+     * @param string $expression     The selection expression.
+     * @param string ...$expressions Additional selection expressions.
      *
      * @return QueryBuilderInterface This QueryBuilder instance.
      */
@@ -320,8 +320,8 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string          $whereClauseExpression     The WHERE clause predicate.
-     * @param string|string[] ...$whereClauseExpressions Additional WHERE clause predicates.
+     * @param string $whereClauseExpression     The WHERE clause predicate.
+     * @param string ...$whereClauseExpressions Additional WHERE clause predicates.
      *
      * @return QueryBuilderInterface This QueryBuilder instance.
      */
@@ -342,8 +342,8 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string          $whereClauseExpression     The predicate to append.
-     * @param string|string[] ...$whereClauseExpressions Additional predicates to append.
+     * @param string $whereClauseExpression     The predicate to append.
+     * @param string ...$whereClauseExpressions Additional predicates to append.
      *
      * @return QueryBuilderInterface This QueryBuilder instance.
      * @see where()
@@ -357,8 +357,8 @@ interface QueryBuilderInterface
      *
      * Use {@see ExpressionBuilderInterface} to build the where clause expression
      *
-     * @param string          $whereClauseExpression     The predicate to append.
-     * @param string|string[] ...$whereClauseExpressions Additional predicates to append.
+     * @param string $whereClauseExpression     The predicate to append.
+     * @param string ...$whereClauseExpressions Additional predicates to append.
      *
      * @return QueryBuilderInterface This QueryBuilder instance.
      * @see where()
@@ -386,8 +386,8 @@ interface QueryBuilderInterface
      *         ->groupBy('u.id');
      * </code>
      *
-     * @param string          $expression     The grouping expression
-     * @param string|string[] ...$expressions Additional grouping expressions
+     * @param string $expression     The grouping expression
+     * @param string ...$expressions Additional grouping expressions
      *
      * @return QueryBuilderInterface This QueryBuilder instance.
      */
@@ -405,8 +405,8 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string          $expression     The grouping expression
-     * @param string|string[] ...$expressions Additional grouping expressions
+     * @param string $expression     The grouping expression
+     * @param string ...$expressions Additional grouping expressions
      *
      * @return QueryBuilderInterface This QueryBuilder instance.
      */
@@ -462,8 +462,8 @@ interface QueryBuilderInterface
      *
      * Use {@see ExpressionBuilderInterface} to build the having clause expression
      *
-     * @param string          $havingClause     The HAVING clause predicate.
-     * @param string|string[] ...$havingClauses Additional HAVING clause predicates.
+     * @param string $havingClause     The HAVING clause predicate.
+     * @param string ...$havingClauses Additional HAVING clause predicates.
      *
      * @return QueryBuilderInterface This QueryBuilder instance.
      */
@@ -475,8 +475,8 @@ interface QueryBuilderInterface
      *
      * Use {@see ExpressionBuilderInterface} to build the having clause expression
      *
-     * @param string          $havingClause     The predicate to append.
-     * @param string|string[] ...$havingClauses Additional predicates to append.
+     * @param string $havingClause     The predicate to append.
+     * @param string ...$havingClauses Additional predicates to append.
      *
      * @return QueryBuilderInterface This QueryBuilder instance.
      */
@@ -488,8 +488,8 @@ interface QueryBuilderInterface
      *
      * Use {@see ExpressionBuilderInterface} to build the having clause expression
      *
-     * @param string          $havingClause     The predicate to append.
-     * @param string|string[] ...$havingClauses Additional predicates to append.
+     * @param string $havingClause     The predicate to append.
+     * @param string ...$havingClauses Additional predicates to append.
      *
      * @return QueryBuilderInterface This QueryBuilder instance.
      */
@@ -558,11 +558,4 @@ interface QueryBuilderInterface
      */
     public function resetOrderBy(): QueryBuilderInterface;
 
-    /**
-     * Gets a string representation of this QueryBuilder which corresponds to
-     * the final SQL query being constructed.
-     *
-     * @return string The string representation of this QueryBuilder.
-     */
-    public function __toString(): string;
 }

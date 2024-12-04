@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Adaptation\Database;
 
+use Adaptation\Database\Enum\ConnectionDriver;
 use Adaptation\Database\Enum\ParameterType;
 use Adaptation\Database\Exception\ConnectionException;
 use Adaptation\Database\Model\ConnectionConfig;
@@ -36,6 +37,13 @@ use Traversable;
  */
 interface ConnectionInterface
 {
+    /**
+     * The list of drivers that allow the use of unbuffered queries.
+     */
+    public const DRIVER_ALLOWED_UNBUFFERED_QUERY = [
+        ConnectionDriver::DRIVER_MYSQL->value,
+    ];
+
     /**
      * Factory
      *
@@ -91,11 +99,6 @@ interface ConnectionInterface
      * @return bool
      */
     public function isConnected(): bool;
-
-    /**
-     * @return bool
-     */
-    public function isBufferedQueryActive(): bool;
 
     /**
      * Closes the connection.

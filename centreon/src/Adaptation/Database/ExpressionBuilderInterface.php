@@ -33,6 +33,17 @@ namespace Adaptation\Database;
  */
 interface ExpressionBuilderInterface
 {
+
+    /**
+     * Comparison operators.
+     */
+    public const EQ  = '=';
+    public const NEQ = '<>';
+    public const LT  = '<';
+    public const LTE = '<=';
+    public const GT  = '>';
+    public const GTE = '>=';
+
     /**
      * Creates a conjunction of the given expressions.
      *

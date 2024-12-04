@@ -32,11 +32,11 @@ use Doctrine\DBAL\Query\QueryBuilder as DoctrineDbalQueryBuilder;
  * @class   DbalQueryBuilderAdapter
  * @package Adaptation\Database\Adapter\Dbal
  * @implements QueryBuilderInterface
- * @see DoctrineDbalQueryBuilder
+ * @see     DoctrineDbalQueryBuilder
  *
  * To dynamically create SQL queries.
  */
-final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
+readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
 {
 
     /**
@@ -77,7 +77,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string|string[] ...$expressions The selection expressions.
+     * @param string ...$expressions The selection expressions.
      *
      * @return DbalQueryBuilderAdapter This QueryBuilder instance.
      */
@@ -120,8 +120,8 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string          $expression     The selection expression.
-     * @param string|string[] ...$expressions Additional selection expressions.
+     * @param string $expression     The selection expression.
+     * @param string ...$expressions Additional selection expressions.
      *
      * @return DbalQueryBuilderAdapter This QueryBuilder instance.
      */
@@ -394,8 +394,8 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *          ->getQuery();
      * </code>
      *
-     * @param string          $whereClauseExpression     The WHERE clause predicate.
-     * @param string|string[] ...$whereClauseExpressions Additional WHERE clause predicates.
+     * @param string $whereClauseExpression     The WHERE clause predicate.
+     * @param string ...$whereClauseExpressions Additional WHERE clause predicates.
      *
      * @return DbalQueryBuilderAdapter This QueryBuilder instance.
      */
@@ -421,8 +421,8 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string          $whereClauseExpression     The predicate to append.
-     * @param string|string[] ...$whereClauseExpressions Additional predicates to append.
+     * @param string $whereClauseExpression     The predicate to append.
+     * @param string ...$whereClauseExpressions Additional predicates to append.
      *
      * @return DbalQueryBuilderAdapter This QueryBuilder instance.
      * @see where()
@@ -441,8 +441,8 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *
      * Use {@see DbalExpressionBuilderAdapter} to build the where clause expression
      *
-     * @param string          $whereClauseExpression     The predicate to append.
-     * @param string|string[] ...$whereClauseExpressions Additional predicates to append.
+     * @param string $whereClauseExpression     The predicate to append.
+     * @param string ...$whereClauseExpressions Additional predicates to append.
      *
      * @return DbalQueryBuilderAdapter This QueryBuilder instance.
      * @see where()
@@ -476,8 +476,8 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string          $expression     The grouping expression
-     * @param string|string[] ...$expressions Additional grouping expressions
+     * @param string $expression     The grouping expression
+     * @param string ...$expressions Additional grouping expressions
      *
      * @return DbalQueryBuilderAdapter This QueryBuilder instance.
      */
@@ -500,8 +500,8 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string          $expression     The grouping expression
-     * @param string|string[] ...$expressions Additional grouping expressions
+     * @param string $expression     The grouping expression
+     * @param string ...$expressions Additional grouping expressions
      *
      * @return DbalQueryBuilderAdapter This QueryBuilder instance.
      */
@@ -572,8 +572,8 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *
      * Use {@see DbalExpressionBuilderAdapter} to build the having clause expression
      *
-     * @param string          $havingClause     The HAVING clause predicate.
-     * @param string|string[] ...$havingClauses Additional HAVING clause predicates.
+     * @param string $havingClause     The HAVING clause predicate.
+     * @param string ...$havingClauses Additional HAVING clause predicates.
      *
      * @return DbalQueryBuilderAdapter This QueryBuilder instance.
      */
@@ -590,8 +590,8 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *
      * Use {@see DbalExpressionBuilderAdapter} to build the having clause expression
      *
-     * @param string          $havingClause     The predicate to append.
-     * @param string|string[] ...$havingClauses Additional predicates to append.
+     * @param string $havingClause     The predicate to append.
+     * @param string ...$havingClauses Additional predicates to append.
      *
      * @return DbalQueryBuilderAdapter This QueryBuilder instance.
      */
@@ -608,8 +608,8 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *
      * Use {@see DbalExpressionBuilderAdapter} to build the having clause expression
      *
-     * @param string          $havingClause     The predicate to append.
-     * @param string|string[] ...$havingClauses Additional predicates to append.
+     * @param string $havingClause     The predicate to append.
+     * @param string ...$havingClauses Additional predicates to append.
      *
      * @return DbalQueryBuilderAdapter This QueryBuilder instance.
      */
@@ -721,17 +721,6 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
         $this->dbalQueryBuilder->resetOrderBy();
 
         return $this;
-    }
-
-    /**
-     * Gets a string representation of this QueryBuilder which corresponds to
-     * the final SQL query being constructed.
-     *
-     * @return string The string representation of this QueryBuilder.
-     */
-    public function __toString(): string
-    {
-        return $this->getQuery();
     }
 
 }

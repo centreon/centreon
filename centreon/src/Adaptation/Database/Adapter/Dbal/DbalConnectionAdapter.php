@@ -27,7 +27,6 @@ use Adaptation\Database\ExpressionBuilderInterface;
 use Adaptation\Database\QueryBuilderInterface;
 use Doctrine\DBAL\Connection as DoctrineDbalConnection;
 use Doctrine\DBAL\DriverManager as DoctrineDbalDriverManager;
-use Doctrine\DBAL\Exception as DoctrineDbalException;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder as DoctrineDbalExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder as DoctrineDbalQueryBuilder;
 use PDO;
@@ -36,6 +35,7 @@ use Adaptation\Database\Enum\ConnectionDriver;
 use Adaptation\Database\Enum\ParameterType;
 use Adaptation\Database\Exception\ConnectionException;
 use Adaptation\Database\Model\ConnectionConfig;
+use Throwable;
 use Traversable;
 
 /**
@@ -46,7 +46,7 @@ use Traversable;
  * @implements ConnectionInterface
  * @see     DoctrineDbalConnection
  */
-final class DbalConnectionAdapter implements ConnectionInterface
+class DbalConnectionAdapter implements ConnectionInterface
 {
     /**
      * By default, the queries are buffered.
@@ -80,7 +80,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
             'user' => $params->getUser(),
             'password' => $params->getPassword(),
             'host' => $params->getHost(),
-            'driver' => $params->getDriver(),
+            'driver' => $params->getDriver()->value,
         ];
         if ($params->getCharset() !== '') {
             $arr_params['charset'] = $params->getCharset();
@@ -92,7 +92,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
             $dbalConnection = DoctrineDbalDriverManager::getConnection($arr_params);
 
             return new DbalConnectionAdapter($dbalConnection);
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::connectionFailed($e);
         }
     }
@@ -132,9 +132,17 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->getDatabase();
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::getDatabaseFailed($e);
         }
+    }
+
+    /**
+     * @return DoctrineDbalConnection
+     */
+    public function getDbalConnection(): DoctrineDbalConnection
+    {
+        return $this->dbalConnection;
     }
 
     /**
@@ -148,7 +156,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->getNativeConnection();
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::getNativeConnectionFailed($e);
         }
     }
@@ -165,7 +173,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return (string) $this->dbalConnection->lastInsertId();
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::getLastInsertFailed($e);
         }
     }
@@ -178,14 +186,6 @@ final class DbalConnectionAdapter implements ConnectionInterface
     public function isConnected(): bool
     {
         return $this->dbalConnection->isConnected();
-    }
-
-    /**
-     * @return bool
-     */
-    public function isBufferedQueryActive(): bool
-    {
-        return $this->isBufferedQueryActive;
     }
 
     /**
@@ -245,7 +245,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return (int) $this->dbalConnection->executeStatement($query, $params, $types);
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -276,13 +276,13 @@ final class DbalConnectionAdapter implements ConnectionInterface
      */
     public function insert(string $query, array $params = [], array $types = []): int
     {
-        if (str_starts_with($query, 'INSERT INTO ')) {
+        if (! str_starts_with($query, 'INSERT INTO ')) {
             throw ConnectionException::insertQueryBadFormat($query);
         }
 
         try {
             return (int) $this->dbalConnection->executeStatement($query, $params, $types);
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -313,13 +313,13 @@ final class DbalConnectionAdapter implements ConnectionInterface
      */
     public function update(string $query, array $params = [], array $types = []): int
     {
-        if (str_starts_with($query, 'UPDATE ')) {
+        if (! str_starts_with($query, 'UPDATE ')) {
             throw ConnectionException::updateQueryBadFormat($query);
         }
 
         try {
             return (int) $this->dbalConnection->executeStatement($query, $params, $types);
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -350,13 +350,13 @@ final class DbalConnectionAdapter implements ConnectionInterface
      */
     public function delete(string $query, array $params = [], array $types = []): int
     {
-        if (str_starts_with($query, 'DELETE ')) {
+        if (! str_starts_with($query, 'DELETE ')) {
             throw ConnectionException::deleteQueryBadFormat($query);
         }
 
         try {
             return (int) $this->dbalConnection->executeStatement($query, $params, $types);
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -392,7 +392,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->fetchAssociative($query, $params, $types);
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -427,7 +427,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->fetchNumeric($query, $params, $types);
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -462,7 +462,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->fetchOne($query, $params, $types);
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -496,7 +496,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->fetchAllNumeric($query, $params, $types);
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -530,7 +530,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->fetchAllAssociative($query, $params, $types);
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -565,7 +565,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->fetchAllKeyValue($query, $params, $types);
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -601,7 +601,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->fetchAllAssociativeIndexed($query, $params, $types);
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -635,7 +635,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->fetchFirstColumn($query, $params, $types);
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -671,7 +671,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->iterateNumeric($query, $params, $types);
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -706,7 +706,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->iterateAssociative($query, $params, $types);
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -741,7 +741,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->iterateKeyValue($query, $params, $types);
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -777,7 +777,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->iterateAssociativeIndexed($query, $params, $types);
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -811,7 +811,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             return $this->dbalConnection->iterateColumn($query, $params, $types);
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::executeQueryFailed($e, $query, $params, $types);
         }
     }
@@ -850,7 +850,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             $this->dbalConnection->setAutoCommit($autoCommit);
-        } catch (\Doctrine\DBAL\ConnectionException | DoctrineDbalException\DriverException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::setAutoCommitFailed($e);
         }
     }
@@ -889,7 +889,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
                 }
             }
             $this->dbalConnection->beginTransaction();
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::startTransactionFailed($e);
         }
     }
@@ -905,7 +905,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             $this->dbalConnection->commit();
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::commitTransactionFailed($e);
         }
     }
@@ -921,7 +921,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             $this->dbalConnection->rollBack();
-        } catch (DoctrineDbalException $e) {
+        } catch (Throwable $e) {
             throw ConnectionException::rollbackTransactionFailed($e);
         }
     }
@@ -939,12 +939,12 @@ final class DbalConnectionAdapter implements ConnectionInterface
      */
     public function allowUnbufferedQuery(): void
     {
-        $driverName = "";
         $nativeConnection = $this->getNativeConnection();
-        if ($nativeConnection instanceof PDO) {
-            $driverName = "pdo_{$nativeConnection->getAttribute(PDO::ATTR_DRIVER_NAME)}";
-        }
-        if (empty($driverName) || in_array($driverName, [ConnectionDriver::DRIVER_MYSQL], true)) {
+        $driverName = match ($nativeConnection::class) {
+            PDO::class => "pdo_{$nativeConnection->getAttribute(PDO::ATTR_DRIVER_NAME)}",
+            default => "",
+        };
+        if (empty($driverName) || ! in_array($driverName, self::DRIVER_ALLOWED_UNBUFFERED_QUERY, true)) {
             throw ConnectionException::allowUnbufferedQueryFailed($nativeConnection::class);
         }
     }
