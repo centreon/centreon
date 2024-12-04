@@ -5,9 +5,9 @@ set -x
 # export VAULT_TOKEN=${VAULT_DEV_ROOT_TOKEN_ID}
 
 cat <<EOM >>/vault/config/vault.hcl
-listener "tcp" {
-  address       = "0.0.0.0:8200"
-}
+# listener "tcp" {
+#   address       = "0.0.0.0:8200"
+# }
 
 disable_mlock = true
 api_addr      = "https://0.0.0.0:8200"
