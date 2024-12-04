@@ -40,9 +40,9 @@ class ConnectionException extends DatabaseException
      */
     public static function connectionFailed(Throwable $e): ConnectionException
     {
-        return new self(
+        return new static(
             "Error during the initialization of the connection : {$e->getMessage()}",
-            self::ERROR_CODE_DATABASE,
+            static::ERROR_CODE_DATABASE,
             [],
             $e
         );
@@ -55,9 +55,9 @@ class ConnectionException extends DatabaseException
      */
     public static function getNativeConnectionFailed(Throwable $e): ConnectionException
     {
-        return new self(
+        return new static(
             "Error while getting the native connection : {$e->getMessage()}",
-            self::ERROR_CODE_DATABASE,
+            static::ERROR_CODE_DATABASE,
             [],
             $e
         );
@@ -70,9 +70,9 @@ class ConnectionException extends DatabaseException
      */
     public static function getDatabaseFailed(Throwable $e): ConnectionException
     {
-        return new self(
+        return new static(
             "Error while getting the database",
-            self::ERROR_CODE_DATABASE,
+            static::ERROR_CODE_DATABASE,
             [],
             $e
         );
@@ -85,9 +85,9 @@ class ConnectionException extends DatabaseException
      */
     public static function getLastInsertFailed(Throwable $e): ConnectionException
     {
-        return new self(
+        return new static(
             "Error while retrieving the last auto-incremented id inserted.",
-            self::ERROR_CODE_DATABASE,
+            static::ERROR_CODE_DATABASE,
             [],
             $e
         );
@@ -102,9 +102,9 @@ class ConnectionException extends DatabaseException
      */
     public static function insertQueryBadFormat(string $query): ConnectionException
     {
-        return new self(
+        return new static(
             "The query need to start by 'INSERT INTO '",
-            self::ERROR_CODE_BAD_USAGE,
+            static::ERROR_CODE_BAD_USAGE,
             ['query' => $query]
         );
     }
@@ -116,9 +116,9 @@ class ConnectionException extends DatabaseException
      */
     public static function updateQueryBadFormat(string $query): ConnectionException
     {
-        return new self(
+        return new static(
             "The query need to start by 'UPDATE '",
-            self::ERROR_CODE_BAD_USAGE,
+            static::ERROR_CODE_BAD_USAGE,
             ['query' => $query]
         );
     }
@@ -130,9 +130,9 @@ class ConnectionException extends DatabaseException
      */
     public static function deleteQueryBadFormat(string $query): ConnectionException
     {
-        return new self(
+        return new static(
             "The query need to start by 'DELETE '",
-            self::ERROR_CODE_BAD_USAGE,
+            static::ERROR_CODE_BAD_USAGE,
             ['query' => $query]
         );
     }
@@ -157,9 +157,9 @@ class ConnectionException extends DatabaseException
             'query_params_types' => $queryParamTypes
         ];
 
-        return new self(
+        return new static(
             "Error while executing the query : {$e->getMessage()}",
-            self::ERROR_CODE_DATABASE,
+            static::ERROR_CODE_DATABASE,
             $options,
             $e
         );
@@ -174,9 +174,9 @@ class ConnectionException extends DatabaseException
      */
     public static function setAutoCommitFailed(Throwable $e): ConnectionException
     {
-        return new self(
+        return new static(
             "Error while setting auto-commit option",
-            self::ERROR_CODE_DATABASE,
+            static::ERROR_CODE_DATABASE,
             [],
             $e
         );
@@ -189,9 +189,9 @@ class ConnectionException extends DatabaseException
      */
     public static function startTransactionFailed(Throwable $e): ConnectionException
     {
-        return new self(
+        return new static(
             "Error while starting a transaction.",
-            self::ERROR_CODE_DATABASE_TRANSACTION,
+            static::ERROR_CODE_DATABASE_TRANSACTION,
             [],
             $e
         );
@@ -204,9 +204,9 @@ class ConnectionException extends DatabaseException
      */
     public static function startNestedTransactionFailed(?Throwable $e = null): ConnectionException
     {
-        return new self(
+        return new static(
             "Error while starting a nested transaction.",
-            self::ERROR_CODE_DATABASE_TRANSACTION,
+            static::ERROR_CODE_DATABASE_TRANSACTION,
             [],
             $e
         );
@@ -219,9 +219,9 @@ class ConnectionException extends DatabaseException
      */
     public static function commitTransactionFailed(Throwable $e): ConnectionException
     {
-        return new self(
+        return new static(
             "Error while committing the transaction",
-            self::ERROR_CODE_DATABASE_TRANSACTION,
+            static::ERROR_CODE_DATABASE_TRANSACTION,
             [],
             $e
         );
@@ -234,9 +234,9 @@ class ConnectionException extends DatabaseException
      */
     public static function rollbackTransactionFailed(Throwable $e): ConnectionException
     {
-        return new self(
+        return new static(
             "Error during the transaction rollback",
-            self::ERROR_CODE_DATABASE_TRANSACTION,
+            static::ERROR_CODE_DATABASE_TRANSACTION,
             [],
             $e
         );
@@ -251,9 +251,9 @@ class ConnectionException extends DatabaseException
      */
     public static function allowUnbufferedQueryFailed(string $nativeConnectionClass): ConnectionException
     {
-        return new self(
+        return new static(
             "Unbuffered queries not allowed for native connection class '{$nativeConnectionClass}'.",
-            self::ERROR_CODE_UNBUFFERED_QUERY,
+            static::ERROR_CODE_UNBUFFERED_QUERY,
             ['native_connection_class' => $nativeConnectionClass]
         );
     }
@@ -265,9 +265,9 @@ class ConnectionException extends DatabaseException
      */
     public static function startUnbufferedQueryFailed(string $nativeConnectionClass): ConnectionException
     {
-        return new self(
+        return new static(
             "Starting unbuffered queries failed for native connection class '{$nativeConnectionClass}'.",
-            self::ERROR_CODE_UNBUFFERED_QUERY,
+            static::ERROR_CODE_UNBUFFERED_QUERY,
             ['native_connection_class' => $nativeConnectionClass]
         );
     }
@@ -282,9 +282,9 @@ class ConnectionException extends DatabaseException
         string $message,
         string $nativeConnectionClass
     ): ConnectionException {
-        return new self(
+        return new static(
             "Stopping unbuffered queries failed for native connection class '{$nativeConnectionClass}' with this message : {$message}",
-            self::ERROR_CODE_UNBUFFERED_QUERY,
+            static::ERROR_CODE_UNBUFFERED_QUERY,
             ['native_connection_class' => $nativeConnectionClass]
         );
     }
