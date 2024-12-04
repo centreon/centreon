@@ -47,13 +47,13 @@ interface ConnectionInterface
     /**
      * Factory
      *
-     * @param ConnectionConfig $params
+     * @param ConnectionConfig $connectionConfig
      *
      * @return ConnectionInterface
      *
      * @throws ConnectionException
      */
-    public static function createFromConfig(ConnectionConfig $params): ConnectionInterface;
+    public static function createFromConfig(ConnectionConfig $connectionConfig): ConnectionInterface;
 
     /**
      * Creates a new instance of a SQL query builder.

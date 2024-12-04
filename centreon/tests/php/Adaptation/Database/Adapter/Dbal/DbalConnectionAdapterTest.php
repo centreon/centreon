@@ -46,33 +46,45 @@ beforeEach(function () {
     $this->dbalConnectionAdapterTest = new DbalConnectionAdapter($this->dbalConnectionMock);
 });
 
-it('test DbalConnectionAdapter : createQueryBuilder', function () {
+afterEach(function () {
+    Mockery::close();
+});
+
+it('test DbalConnectionAdapter : create QueryBuilder', function () {
     $queryBuilder = $this->dbalConnectionAdapterTest->createQueryBuilder();
     expect($queryBuilder)
         ->toBeInstanceOf(DbalQueryBuilderAdapter::class);
 });
 
-it('test DbalConnectionAdapter : createExpressionBuilder', function () {
+it('test DbalConnectionAdapter : create ExpressionBuilder', function () {
     $expressionBuilder = $this->dbalConnectionAdapterTest->createExpressionBuilder();
     expect($expressionBuilder)
         ->toBeInstanceOf(DbalExpressionBuilderAdapter::class);
 });
 
-it('test DbalConnectionAdapter : getDbalConnection', function () {
+it('test DbalConnectionAdapter : get dbal connection', function () {
     $dbalConnection = $this->dbalConnectionAdapterTest->getDbalConnection();
     expect($dbalConnection)
         ->toBeInstanceOf(Connection::class);
 });
 
-it('test DbalConnectionAdapter : isConnected', function () {
+it('test DbalConnectionAdapter : is connected with connection ', function () {
     $this->dbalConnectionMock
-        ->shouldReceive('isConnected')
-        ->andReturn(false);
+        ->shouldReceive('getServerVersion')
+        ->andReturn('8.0.25');
+    expect($this->dbalConnectionAdapterTest->isConnected())
+        ->toBeTrue();
+});
+
+it('test DbalConnectionAdapter : is connected without connection', function () {
+    $this->dbalConnectionMock
+        ->shouldReceive('getServerVersion')
+        ->andReturn('');
     expect($this->dbalConnectionAdapterTest->isConnected())
         ->toBeFalse();
 });
 
-it('test DbalConnectionAdapter : isBufferedQueryActive at true by default', function () {
+it('test DbalConnectionAdapter : isUnbufferedQueryActive at true by default', function () {
     expect($this->dbalConnectionAdapterTest->isUnbufferedQueryActive())
         ->toBeFalse();
 });
@@ -81,6 +93,10 @@ it('test DbalConnectionAdapter : isBufferedQueryActive at true by default', func
 
 it('test DbalConnectionAdapter : executeStatement with a bad query', function () {
     $query = "INSERT INTO (id, field1)";
+    $this->dbalConnectionMock
+        ->shouldReceive('executeStatement')
+        ->with($query, [], [])
+        ->andThrow(Exception::class);
     $this->dbalConnectionAdapterTest->executeStatement($query);
 })->throws(ConnectionException::class);
 
@@ -132,6 +148,10 @@ it('test DbalConnectionAdapter : insert not start by INSERT INTO', function () {
 
 it('test DbalConnectionAdapter : insert with bad query', function () {
     $query = "INSERT INTO VALUES (1,'value1')";
+    $this->dbalConnectionMock
+        ->shouldReceive('executeStatement')
+        ->with($query, [], [])
+        ->andThrow(Exception::class);
     $this->dbalConnectionAdapterTest->insert($query);
 })->throws(ConnectionException::class);
 
@@ -183,6 +203,10 @@ it('test DbalConnectionAdapter : update not start by UPDATE ', function () {
 
 it('test DbalConnectionAdapter : update with bad query', function () {
     $query = "UPDATE foo SET WHERE id = 1";
+    $this->dbalConnectionMock
+        ->shouldReceive('executeStatement')
+        ->with($query, [], [])
+        ->andThrow(Exception::class);
     $this->dbalConnectionAdapterTest->update($query);
 })->throws(ConnectionException::class);
 
@@ -234,6 +258,10 @@ it('test DbalConnectionAdapter : delete not start by DELETE ', function () {
 
 it('test DbalConnectionAdapter : delete with bad query', function () {
     $query = "DELETE id = 1";
+    $this->dbalConnectionMock
+        ->shouldReceive('executeStatement')
+        ->with($query, [], [])
+        ->andThrow(Exception::class);
     $this->dbalConnectionAdapterTest->update($query);
 })->throws(ConnectionException::class);
 
@@ -280,6 +308,10 @@ it('test DbalConnectionAdapter : delete without errors with prepared parameters 
 
 it('test DbalConnectionAdapter : fetchAssociative with bad query', function () {
     $query = "SELECT id = 1";
+    $this->dbalConnectionMock
+        ->shouldReceive('fetchAssociative')
+        ->with($query, [], [])
+        ->andThrow(Exception::class);
     $this->dbalConnectionAdapterTest->fetchAssociative($query);
 })->throws(ConnectionException::class);
 
@@ -326,6 +358,10 @@ it('test DbalConnectionAdapter : fetchAssociative without errors with prepared p
 
 it('test DbalConnectionAdapter : fetchNumeric with bad query', function () {
     $query = "SELECT id = 1";
+    $this->dbalConnectionMock
+        ->shouldReceive('fetchNumeric')
+        ->with($query, [], [])
+        ->andThrow(Exception::class);
     $this->dbalConnectionAdapterTest->fetchNumeric($query);
 })->throws(ConnectionException::class);
 
@@ -372,6 +408,10 @@ it('test DbalConnectionAdapter : fetchNumeric without errors with prepared param
 
 it('test DbalConnectionAdapter : fetchOne with bad query', function () {
     $query = "SELECT id = 1";
+    $this->dbalConnectionMock
+        ->shouldReceive('fetchOne')
+        ->with($query, [], [])
+        ->andThrow(Exception::class);
     $this->dbalConnectionAdapterTest->fetchOne($query);
 })->throws(ConnectionException::class);
 
@@ -418,6 +458,10 @@ it('test DbalConnectionAdapter : fetchOne without errors with prepared parameter
 
 it('test DbalConnectionAdapter : fetchAllNumeric with bad query', function () {
     $query = "SELECT id = 1";
+    $this->dbalConnectionMock
+        ->shouldReceive('fetchAllNumeric')
+        ->with($query, [], [])
+        ->andThrow(Exception::class);
     $this->dbalConnectionAdapterTest->fetchAllNumeric($query);
 })->throws(ConnectionException::class);
 
@@ -464,6 +508,10 @@ it('test DbalConnectionAdapter : fetchAllNumeric without errors with prepared pa
 
 it('test DbalConnectionAdapter : fetchAllAssociative with bad query', function () {
     $query = "SELECT id = 1";
+    $this->dbalConnectionMock
+        ->shouldReceive('fetchAllAssociative')
+        ->with($query, [], [])
+        ->andThrow(Exception::class);
     $this->dbalConnectionAdapterTest->fetchAllAssociative($query);
 })->throws(ConnectionException::class);
 
@@ -516,6 +564,10 @@ it('test DbalConnectionAdapter : fetchAllAssociative without errors with prepare
 
 it('test DbalConnectionAdapter : fetchAllKeyValue with bad query', function () {
     $query = "SELECT id = 1";
+    $this->dbalConnectionMock
+        ->shouldReceive('fetchAllKeyValue')
+        ->with($query, [], [])
+        ->andThrow(Exception::class);
     $this->dbalConnectionAdapterTest->fetchAllKeyValue($query);
 })->throws(ConnectionException::class);
 
@@ -562,6 +614,10 @@ it('test DbalConnectionAdapter : fetchAllKeyValue without errors with prepared p
 
 it('test DbalConnectionAdapter : fetchAllAssociativeIndexed with bad query', function () {
     $query = "SELECT id = 1";
+    $this->dbalConnectionMock
+        ->shouldReceive('fetchAllAssociativeIndexed')
+        ->with($query, [], [])
+        ->andThrow(Exception::class);
     $this->dbalConnectionAdapterTest->fetchAllAssociativeIndexed($query);
 })->throws(ConnectionException::class);
 
@@ -612,6 +668,10 @@ it(
 
 it('test DbalConnectionAdapter : fetchFirstColumn with bad query', function () {
     $query = "SELECT id = 1";
+    $this->dbalConnectionMock
+        ->shouldReceive('fetchFirstColumn')
+        ->with($query, [], [])
+        ->andThrow(Exception::class);
     $this->dbalConnectionAdapterTest->fetchFirstColumn($query);
 })->throws(ConnectionException::class);
 
@@ -762,6 +822,14 @@ if (! is_null($dbHost) && ! is_null($dbUser) && ! is_null($dbPassword)) {
 }
 
 if (! is_null($dbConfigCentreon) && hasDbConnection($dbConfigCentreon)) {
+    it(
+        'test DbalConnectionAdapter (with db connection) : is connected',
+        function () use ($dbConfigCentreon) {
+            $dbalConnectionAdapterTest = DbalConnectionAdapter::createFromConfig($dbConfigCentreon);
+            expect($dbalConnectionAdapterTest->isConnected())
+                ->toBeTrue();
+        }
+    );
 
     it(
         'test DbalConnectionAdapter (with db connection) : get native connection (PDO)',
@@ -786,16 +854,22 @@ if (! is_null($dbConfigCentreon) && hasDbConnection($dbConfigCentreon)) {
         'test DbalConnectionAdapter (with db connection) : get last inserted id',
         function () use ($dbConfigCentreon) {
             $dbalConnectionAdapterTest = DbalConnectionAdapter::createFromConfig($dbConfigCentreon);
-            try {
-                $dbalConnectionAdapterTest->insert(
-                    'INSERT INTO contact (contact_id, contact_name) VALUES (99, "John Doe")'
-                );
-            } catch (ConnectionException $e) {
-                var_dump($e);
-            }
-            expect($dbalConnectionAdapterTest->getLastInsertId())
+            $nbRow = $dbalConnectionAdapterTest->insert(
+                <<<SQL
+                INSERT INTO locale(locale_id, locale_short_name, locale_long_name, locale_img)
+                    VALUES(99, "fr", "Foo", "foo.png");
+                SQL
+            );
+            expect($nbRow)
+                ->toBeInt()
+                ->toBe(1)
+                ->and($dbalConnectionAdapterTest->getLastInsertId())
                 ->toBeString()
-                ->toBe(99);
+                ->toBe('99');
+            $nbRow = $dbalConnectionAdapterTest->delete('DELETE FROM locale WHERE locale_id = 99');
+            expect($nbRow)
+                ->toBeInt()
+                ->toBe(1);
         }
     );
 

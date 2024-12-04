@@ -28,20 +28,20 @@ use Doctrine\DBAL\SQL\Builder\DefaultUnionSQLBuilder;
 
 beforeEach(function () {
     // prepare instanciation of DbalQueryBuilderAdapter with mocking of dbal Connection (mandatory)
-    $dbalConnection = $this->createMock(Connection::class);
-    $platform = $this->createMock(AbstractPlatform::class);
-    $platform->method('getUnionSelectPartSQL')
-        ->willReturnArgument(0);
-    $platform->method('getUnionAllSQL')
-        ->willReturn('UNION ALL');
-    $platform->method('getUnionDistinctSQL')
-        ->willReturn('UNION');
-    $platform->method('createSelectSQLBuilder')
-        ->willReturn(new DefaultSelectSQLBuilder($platform, null, null));
-    $platform->method('createUnionSQLBuilder')
-        ->willReturn(new DefaultUnionSQLBuilder($platform));
-    $dbalConnection->method('getDatabasePlatform')
-        ->willReturn($platform);
+    $dbalConnection = Mockery::mock(Connection::class);
+    $platform = Mockery::mock(AbstractPlatform::class);
+    $platform->shouldReceive('getUnionSelectPartSQL')
+        ->andReturnArg(0);
+    $platform->shouldReceive('getUnionAllSQL')
+        ->andReturn('UNION ALL');
+    $platform->shouldReceive('getUnionDistinctSQL')
+        ->andReturn('UNION');
+    $platform->shouldReceive('createSelectSQLBuilder')
+        ->andReturn(new DefaultSelectSQLBuilder($platform, null, null));
+    $platform->shouldReceive('createUnionSQLBuilder')
+        ->andReturn(new DefaultUnionSQLBuilder($platform));
+    $dbalConnection->shouldReceive('getDatabasePlatform')
+        ->andReturn($platform);
     // instanciation of DbalQueryBuilderAdapter
     $dbalQueryBuilder = new QueryBuilder($dbalConnection);
     $this->dbalQueryBuilderAdapterTest = new DbalQueryBuilderAdapter($dbalQueryBuilder);

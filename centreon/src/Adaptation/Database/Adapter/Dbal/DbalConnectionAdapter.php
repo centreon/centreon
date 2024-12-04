@@ -27,16 +27,17 @@ use Adaptation\Database\ExpressionBuilderInterface;
 use Adaptation\Database\QueryBuilderInterface;
 use Doctrine\DBAL\Connection as DoctrineDbalConnection;
 use Doctrine\DBAL\DriverManager as DoctrineDbalDriverManager;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder as DoctrineDbalExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder as DoctrineDbalQueryBuilder;
 use PDO;
 use Adaptation\Database\ConnectionInterface;
-use Adaptation\Database\Enum\ConnectionDriver;
 use Adaptation\Database\Enum\ParameterType;
 use Adaptation\Database\Exception\ConnectionException;
 use Adaptation\Database\Model\ConnectionConfig;
 use Throwable;
 use Traversable;
+use UnexpectedValueException;
 
 /**
  * Class
@@ -67,31 +68,34 @@ class DbalConnectionAdapter implements ConnectionInterface
     /**
      * Factory
      *
-     * @param ConnectionConfig $params
+     * @param ConnectionConfig $connectionConfig
      *
      * @return DbalConnectionAdapter
      *
      * @throws ConnectionException
      */
-    public static function createFromConfig(ConnectionConfig $params): ConnectionInterface
+    public static function createFromConfig(ConnectionConfig $connectionConfig): ConnectionInterface
     {
-        $arr_params = [
-            'dbname' => $params->getDatabaseName(),
-            'user' => $params->getUser(),
-            'password' => $params->getPassword(),
-            'host' => $params->getHost(),
-            'driver' => $params->getDriver()->value,
+        $dbalConnectionConfig = [
+            'dbname' => $connectionConfig->getDatabaseName(),
+            'user' => $connectionConfig->getUser(),
+            'password' => $connectionConfig->getPassword(),
+            'host' => $connectionConfig->getHost(),
+            'driver' => $connectionConfig->getDriver()->value,
         ];
-        if ($params->getCharset() !== '') {
-            $arr_params['charset'] = $params->getCharset();
+        if ($connectionConfig->getCharset() !== '') {
+            $dbalConnectionConfig['charset'] = $connectionConfig->getCharset();
         }
-        if ($params->getPort() > 0) {
-            $arr_params['port'] = $params->getPort();
+        if ($connectionConfig->getPort() > 0) {
+            $dbalConnectionConfig['port'] = $connectionConfig->getPort();
         }
         try {
-            $dbalConnection = DoctrineDbalDriverManager::getConnection($arr_params);
-
-            return new DbalConnectionAdapter($dbalConnection);
+            $dbalConnection = DoctrineDbalDriverManager::getConnection($dbalConnectionConfig);
+            $dbalConnectionAdapter = new self($dbalConnection);
+            if (!$dbalConnectionAdapter->isConnected()) {
+                throw new UnexpectedValueException('The connection is not established.');
+            }
+            return $dbalConnectionAdapter;
         } catch (Throwable $e) {
             throw ConnectionException::connectionFailed($e);
         }
@@ -185,7 +189,11 @@ class DbalConnectionAdapter implements ConnectionInterface
      */
     public function isConnected(): bool
     {
-        return $this->dbalConnection->isConnected();
+        try {
+            return ! empty($this->dbalConnection->getServerVersion());
+        } catch (Throwable $e) {
+            return false;
+        }
     }
 
     /**

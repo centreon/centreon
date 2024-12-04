@@ -24,7 +24,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 
 beforeEach(function () {
-    $connection = $this->createMock(Connection::class);
+    $connection = Mockery::mock(Connection::class);
     $dbalExpressionBuilder = new ExpressionBuilder($connection);
     $this->dbalExpressionBuilderAdapterTest = new DbalExpressionBuilderAdapter($dbalExpressionBuilder);
 });
