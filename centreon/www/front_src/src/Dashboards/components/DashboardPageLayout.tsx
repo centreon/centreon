@@ -1,7 +1,10 @@
+import useFavoriteDashboardListIds from '../api/useFavoriteDashboardListIds';
 import { DashboardsOverview } from './DashboardLibrary/DashboardsOverview/DashboardsOverview';
 
 const DashboardPageLayout = (): JSX.Element => {
-  return <DashboardsOverview />;
+  const isFetched = useFavoriteDashboardListIds();
+
+  return <DashboardsOverview hasFavoriteDashboardListIdsFetched={isFetched} />;
 };
 
 export default DashboardPageLayout;

@@ -26,6 +26,7 @@ import {
   labelMoreActions
 } from '../DashboardListing/translatedLabels';
 
+import FavoriteAction from '../DashboardListing/Actions/favoriteAction';
 import { useStyles } from './DashboardCardActions.styles';
 import useDashboardCardActions from './useDashboardCardActions';
 
@@ -57,6 +58,10 @@ const DashboardCardActions = ({ dashboard }: Props): JSX.Element => {
 
   return (
     <div className={classes.container}>
+      <FavoriteAction
+        dashboardId={dashboard.id as number}
+        asFavorite={dashboard?.asFavorite}
+      />
       <IconButton
         ariaLabel={labels.labelShareWithContacts}
         title={labels.labelShareWithContacts}

@@ -11,8 +11,12 @@ type UseDashboardsOverview = {
   isLoading: boolean;
 };
 
-const useDashboardsOverview = (): UseDashboardsOverview => {
-  const { data, isLoading } = useListDashboards();
+const useDashboardsOverview = (
+  hasFavoriteDashboardListIdsFetched = true
+): UseDashboardsOverview => {
+  const { data, isLoading } = useListDashboards(
+    hasFavoriteDashboardListIdsFetched
+  );
 
   const isEmptyList = isEmpty((data as List<Dashboard>)?.result || []);
 

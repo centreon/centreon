@@ -15,6 +15,7 @@ import {
   DashboardRole,
   DashboardsContact,
   DashboardsContactGroup,
+  FavoriteDashboardListIds,
   NamedEntity,
   PublicDashboard,
   Shares,
@@ -271,3 +272,14 @@ export const playlistsByDashboardDecoder = JsonDecoder.array<NamedEntity>(
   JsonDecoder.object(namedEntityDecoder, 'playlist'),
   'playlists by dashboard'
 );
+
+export const favoriteDashboardListIdsDecoder =
+  JsonDecoder.object<FavoriteDashboardListIds>(
+    {
+      favoriteDashboards: JsonDecoder.array<number>(JsonDecoder.number, 'ids')
+    },
+    'favorite dashboard list ids',
+    {
+      favoriteDashboards: 'favorite_dashboards'
+    }
+  );

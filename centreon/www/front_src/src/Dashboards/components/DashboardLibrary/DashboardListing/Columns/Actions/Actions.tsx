@@ -17,6 +17,7 @@ import {
 } from '../../translatedLabels';
 import { useColumnStyles } from '../useColumnStyles';
 
+import FavoriteAction from '../../Actions/favoriteAction';
 import MoreActions from './MoreActions';
 import useActions from './useActions';
 
@@ -24,6 +25,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useColumnStyles();
   const { hasEditPermission } = useDashboardUserPermissions();
+
   const {
     isNestedRow,
     editAccessRights,
@@ -47,6 +49,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
 
   return (
     <Box className={classes.actions}>
+      <FavoriteAction dashboardId={row.id} asFavorite={row?.asFavorite} />
       <IconButton
         ariaLabel={t(labelShareWithContacts)}
         title={t(labelShareWithContacts)}
