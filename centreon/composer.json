@@ -78,6 +78,7 @@
     "friends-of-behat/mink": "^1.9",
     "friends-of-behat/mink-extension": "^2.5",
     "friendsofphp/php-cs-fixer": "3.64.*",
+    "mockery/mockery": "^1.6",
     "pestphp/pest": "^1.9",
     "php-vfs/php-vfs": "^1.4",
     "phpcompatibility/php-compatibility": "9.3.*",
