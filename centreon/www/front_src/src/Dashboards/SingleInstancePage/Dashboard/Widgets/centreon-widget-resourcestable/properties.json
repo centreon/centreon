@@ -48,7 +48,7 @@
         },
         {
           "id": "in_flapping",
-          "name": "In flapping"
+          "name": "Flapping"
         }
       ],
       "defaultValue": ["unhandled_problems"]
