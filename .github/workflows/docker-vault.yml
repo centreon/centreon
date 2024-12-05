@@ -12,6 +12,7 @@ on:
   push:
     branches:
       - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
     paths:
       - ".github/docker/vault/**"
 
@@ -46,3 +47,12 @@ jobs:
           pull: true
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/vault:${{ needs.get-environment.outputs.major_version }}
+
+  set-skip-label:
+    needs: [get-environment, dockerize]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
+    uses: ./.github/workflows/set-pull-request-skip-label.yml
