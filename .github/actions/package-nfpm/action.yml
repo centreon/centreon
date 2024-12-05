@@ -106,6 +106,8 @@ runs:
           cd -
           mv $DIRNAME/*.${{ inputs.package_extension }} ./
         done
+
+        ls -lh ./*.${{ inputs.package_extension }}
       shell: bash
 
     - name: Cache packages
