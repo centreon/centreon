@@ -15374,8 +15374,8 @@ msgstr "Filtre créé"
 msgid "Filter saved"
 msgstr "Filtre sauvegardé"
 
-msgid "Edit filters"
-msgstr "Éditer les filtres"
+msgid "Manage filters"
+msgstr "Gestion des filtres"
 
 msgid "Rename"
 msgstr "Renommer"
