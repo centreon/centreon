@@ -1,12 +1,12 @@
 import { PageSkeleton } from '@centreon/ui';
 import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import AddModal from './Form/AddModal';
 import UpdateModal from './Form/UpdateModal';
 import ACListing from './Listing/Listing';
-import { openFormModalAtom } from './atoms';
+import { openFormModalAtom, searchAtom } from './atoms';
 import { useGetAgentConfigurations } from './hooks/useGetAgentConfigurations';
 import {
   labelAddAgentConfiguration,
@@ -17,6 +17,8 @@ import {
 
 const AgentConfigurationPage = (): JSX.Element => {
   const { t } = useTranslation();
+
+  const search = useAtomValue(searchAtom);
 
   const { isDataEmpty, isLoading, hasData, total, data } =
     useGetAgentConfigurations();
@@ -29,6 +31,8 @@ const AgentConfigurationPage = (): JSX.Element => {
     return <PageSkeleton displayHeaderAndNavigation={false} />;
   }
 
+  const isEmpty = isDataEmpty && !isLoading && !search;
+
   return (
     <PageLayout>
       <PageLayout.Header>
@@ -37,11 +41,8 @@ const AgentConfigurationPage = (): JSX.Element => {
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
-        <DataTable
-          isEmpty={isDataEmpty}
-          variant={isDataEmpty ? 'grid' : 'listing'}
-        >
-          {isDataEmpty && !isLoading ? (
+        <DataTable isEmpty={isEmpty} variant={isEmpty ? 'grid' : 'listing'}>
+          {isEmpty ? (
             <DataTable.EmptyState
               aria-label="create"
               data-testid="create-agent-configuration"

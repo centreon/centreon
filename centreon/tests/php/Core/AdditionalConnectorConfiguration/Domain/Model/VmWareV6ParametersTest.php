@@ -34,6 +34,7 @@ beforeEach(function (): void {
         'vcenters' => [
             [
                 'name' => 'my-vcenter',
+                'scheme' => null,
                 'url' => 'http://10.10.10.10/sdk',
                 'username' => 'admin',
                 'password' => 'pwd',

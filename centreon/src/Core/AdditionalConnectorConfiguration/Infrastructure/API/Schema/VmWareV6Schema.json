@@ -22,6 +22,7 @@
                     "type": "array",
                     "required": [
                         "name",
+                        "scheme",
                         "url",
                         "username",
                         "password"
@@ -31,6 +32,10 @@
                         "properties": {
                             "name": {
                                 "type": "string"
+                            },
+                            "scheme": {
+                                "type": ["string", "null"],
+                                "enum": ["http", "https", null]
                             },
                             "url": {
                                 "type": "string"
