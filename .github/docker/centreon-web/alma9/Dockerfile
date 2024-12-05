@@ -1,5 +1,5 @@
 ARG REGISTRY_URL=docker.centreon.com/centreon
-ARG FROM_IMAGE_VERSION=MON-16387-create-hashicorp-vault-container
+ARG FROM_IMAGE_VERSION=develop
 
 FROM ${REGISTRY_URL}/centreon-web-dependencies-collect-alma9:${FROM_IMAGE_VERSION}
 
