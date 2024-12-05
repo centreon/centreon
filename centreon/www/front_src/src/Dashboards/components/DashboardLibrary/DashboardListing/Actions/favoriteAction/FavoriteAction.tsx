@@ -11,14 +11,13 @@ import {
   dashboardsFavoriteDeleteEndpoint,
   dashboardsFavoriteEndpoit
 } from '../../../../../api/endpoints';
+import {
+  labelDashboardSuccessfullyMarkedAsFavorite,
+  labelDashboardSuccessfullyMarkedAsUnFavorite,
+  labelMarkedAsFavorite,
+  labelNotMarkedAsFavorite
+} from '../../../../../translatedLabels';
 import { FavoriteEndpoint, GetLabel } from './models';
-
-const labelDashboardSuccessfullyMarkedAsFavorite =
-  'The dashboard successfully marked as favorite';
-const labelDashboardSuccessfullyMarkedAsUnFavorite =
-  'The dashboard successfully marked as unFavorite';
-const labelNotMarkedAsFavorite = 'Not marked as favorite';
-const labelMarkedAsFavorite = 'Marked as favorite';
 
 interface Props {
   dashboardId: number;

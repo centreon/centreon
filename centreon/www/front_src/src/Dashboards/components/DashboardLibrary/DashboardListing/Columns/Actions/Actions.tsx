@@ -37,8 +37,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
 
   if (isNestedRow) {
     return (
-      <div className={classes.actions}>
-        <FavoriteAction dashboardId={row.id} isFavorite={row?.isFavorite} />
+      <div className={classes.spacing}>
         <IconButton title={t(labelUnshare)} onClick={openAskBeforeRevoke}>
           <UnShareIcon className={classes.icon} />
         </IconButton>

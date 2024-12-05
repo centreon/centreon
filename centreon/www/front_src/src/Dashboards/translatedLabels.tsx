@@ -72,3 +72,10 @@ export const labelSaveYourDashboardForThumbnail =
   'Save your dashboard to generate a thumbnail';
 export const labelDataDisplayedForRepresentativeUse =
   'Thumbnails show a snapshot of your data, taken when the dashboard is saved';
+export const labelFavoriteFilter = 'Show only dashboards marked as favorites';
+export const labelDashboardSuccessfullyMarkedAsFavorite =
+  'The dashboard is successfully marked as favorite';
+export const labelDashboardSuccessfullyMarkedAsUnFavorite =
+  'The dashboard is successfully marked as unFavorite';
+export const labelNotMarkedAsFavorite = 'Not marked as favorite';
+export const labelMarkedAsFavorite = 'Marked as favorite';

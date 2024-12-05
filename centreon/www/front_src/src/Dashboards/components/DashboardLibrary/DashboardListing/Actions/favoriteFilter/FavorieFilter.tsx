@@ -1,6 +1,7 @@
 import { Checkbox } from '@centreon/ui';
 import { useAtom } from 'jotai';
 import { memo } from 'react';
+import { labelFavoriteFilter } from '../../../../../translatedLabels';
 import { onlyFavoriteDashboardsAtom } from './atoms';
 import useFavoriteFilterStyles from './favoriteFilter.styles';
 const FavoriteFilter = () => {
@@ -18,7 +19,7 @@ const FavoriteFilter = () => {
 
   return (
     <Checkbox
-      label="Show only dashboards marked as favorites"
+      label={labelFavoriteFilter}
       onChange={onChange}
       labelProps={labelProps}
       checked={checked}
