@@ -341,6 +341,34 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add(
+  'waitForElementInIframe',
+  (iframeSelector, elementSelector) => {
+    cy.waitUntil(
+      () =>
+        cy.get(iframeSelector).then(($iframe) => {
+          const iframeBody = $iframe[0].contentDocument.body;
+          if (iframeBody) {
+            const $element = Cypress.$(iframeBody).find(elementSelector);
+
+            return $element.length > 0 && $element.is(':visible');
+          }
+
+          return false;
+        }),
+      {
+        errorMsg: 'The element is not visible within the iframe',
+        interval: 5000,
+        timeout: 100000
+      }
+    ).then((isVisible) => {
+      if (!isVisible) {
+        throw new Error('The element is not visible');
+      }
+    });
+  }
+);
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -373,6 +401,10 @@ declare global {
         useSlim,
         version
       }?: StartWebContainerProps) => Cypress.Chainable;
+      waitForElementInIframe: (
+        iframeSelector: string,
+        elementSelector: string
+      ) => Cypress.Chainable;
       stopContainer: ({ name }: StopContainerProps) => Cypress.Chainable;
       stopWebContainer: ({ name }?: StopWebContainerProps) => Cypress.Chainable;
       visitEmptyPage: () => Cypress.Chainable;

@@ -2430,13 +2430,15 @@ function updateServiceHost_MC($service_id = null)
     }
 
     $statement = $pearDB->prepare(
-        'SELECT * FROM host_service_relation WHERE service_service_id = :service_id'
+        <<<'SQL'
+            SELECT * FROM host_service_relation WHERE service_service_id = :service_id
+        SQL
     );
     $statement->bindValue(':service_id', $service_id, \PDO::PARAM_INT);
-    $dbResult = $statement->execute();
-    $hsvs = array();
-    $hgsvs = array();
-    while ($arr = $dbResult->fetch()) {
+    $statement->execute();
+    $hsvs = [];
+    $hgsvs = [];
+    while ($arr = $statement->fetch()) {
         if ($arr["host_host_id"]) {
             $hsvs[$arr["host_host_id"]] = $arr["host_host_id"];
         }

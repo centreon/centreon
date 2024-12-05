@@ -24,8 +24,8 @@ namespace Security;
 
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Exception\ContactDisabledException;
+use Security\Domain\Authentication\Exceptions\ProviderException;
 use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
-use Security\Domain\Authentication\Interfaces\SessionRepositoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -48,35 +48,15 @@ use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationExc
 class SessionAPIAuthenticator extends AbstractAuthenticator
 {
     /**
-     * @var AuthenticationServiceInterface
-     */
-    private $authenticationService;
-
-    /**
-     * @var ContactRepositoryInterface
-     */
-    private $contactRepository;
-
-    /**
-     * @var SessionRepositoryInterface
-     */
-    private $sessionRepository;
-
-    /**
      * SessionAPIAuthenticator constructor.
      *
      * @param AuthenticationServiceInterface $authenticationService
      * @param ContactRepositoryInterface $contactRepository
-     * @param SessionRepositoryInterface $sessionRepository
      */
     public function __construct(
-        AuthenticationServiceInterface $authenticationService,
-        ContactRepositoryInterface $contactRepository,
-        SessionRepositoryInterface $sessionRepository
+        private AuthenticationServiceInterface $authenticationService,
+        private ContactRepositoryInterface $contactRepository,
     ) {
-        $this->authenticationService = $authenticationService;
-        $this->contactRepository = $contactRepository;
-        $this->sessionRepository = $sessionRepository;
     }
 
     /**
@@ -146,13 +126,14 @@ class SessionAPIAuthenticator extends AbstractAuthenticator
      * @throws BadCredentialsException
      * @throws SessionUnavailableException
      * @throws ContactDisabledException
+     * @throws ProviderException
+     * @throws \Centreon\Domain\Authentication\Exception\AuthenticationException
+     *
+     * @return UserInterface
      */
     private function getUserAndUpdateSession(string $sessionId): UserInterface
     {
         $isValidToken = $this->authenticationService->isValidToken($sessionId);
-
-        $this->authenticationService->deleteExpiredSecurityTokens();
-        $this->sessionRepository->deleteExpiredSession();
 
         if (! $isValidToken) {
             throw new BadCredentialsException();

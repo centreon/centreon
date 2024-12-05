@@ -1,2 +1,0 @@
-- gorgone-newtest: don't use centcore.cmd. use ssh system.
-- Add redis backend to store logs (we could disable synclog in redis mode)

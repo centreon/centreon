@@ -369,7 +369,11 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                     'message' => 'An error has occurred in a repository',
                 ]);
             } elseif ($event->getThrowable() instanceof AccessDeniedException) {
-                $errorMessage = null;
+                $errorCode = $event->getThrowable()->getCode();
+                $errorMessage = json_encode([
+                    'code' => $errorCode,
+                    'message' => $event->getThrowable()->getMessage(),
+                ]);
             } elseif (get_class($event->getThrowable()) === \Exception::class) {
                 $errorMessage = json_encode([
                     'code' => $errorCode,

@@ -246,7 +246,7 @@ $DBRESULT = $pearDB->query(
     " ORDER BY name"
 );
 while ($nsServer = $DBRESULT->fetch()) {
-    $nsServers[$nsServer["id"]] = $nsServer["name"];
+    $nsServers[$nsServer["id"]] = HtmlSanitizer::createFromString($nsServer['name'])->sanitize()->getString();
 }
 $DBRESULT->closeCursor();
 

@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Application\Security\UseCase\LogoutSession;
+namespace Tests\Core\Security\Authentication\Application\UseCase\LogoutSession;
 
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Repository\ReadTokenRepositoryInterface;
@@ -35,6 +35,7 @@ use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 class LogoutSessionTest extends TestCase
 {
@@ -96,7 +97,7 @@ class LogoutSessionTest extends TestCase
             $this->requestStack
         );
 
-        $session = new Session();
+        $session = new Session(new MockArraySessionStorage());
         $session->setId('session_abcd');
         $this->requestStack
             ->expects($this->any())

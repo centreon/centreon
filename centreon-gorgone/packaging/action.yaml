@@ -1,8 +1,0 @@
-gorgone:
-  modules:
-    - name: action
-      package: "gorgone::modules::core::action::hooks"
-      enable: true
-      command_timeout: 30
-      whitelist_cmds: true
-      allowed_cmds: !include /etc/centreon-gorgone/config.d/whitelist.conf.d/*.yaml
