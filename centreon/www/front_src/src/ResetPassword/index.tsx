@@ -12,13 +12,13 @@ import { CentreonLogo, LoadingSkeleton, WallpaperPage } from '@centreon/ui';
 
 import { MainLoaderWithoutTranslation } from '../Main/MainLoader';
 import routeMap from '../reactRoutes/routeMap';
-
 import {
   labelCentreonWallpaper,
   labelPoweredByCentreon
 } from '../Login/translatedLabels';
 import useWallpaper from '../Login/useWallpaper';
 import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
+
 import Form from './Form';
 import { ResetPasswordValues } from './models';
 import { passwordResetInformationsAtom } from './passwordResetInformationsAtom';

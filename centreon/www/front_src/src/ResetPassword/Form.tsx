@@ -121,6 +121,7 @@ const Form = (): JSX.Element => {
               fullWidth
               required
               EndAdornment={passwordEndAdornment}
+              StartAdornment={LockIcon}
               ariaLabel={t(label)}
               error={getError({ errors, touched })}
               label={t(label)}
@@ -129,7 +130,6 @@ const Form = (): JSX.Element => {
               value={getValue(values)}
               onBlur={handleBlur(name)}
               onChange={handleChange(name)}
-              StartAdornment={LockIcon}
             />
             {equals(name, oldPasswordFieldName) && <Divider />}
           </Fragment>
