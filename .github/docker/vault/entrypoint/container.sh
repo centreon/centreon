@@ -21,7 +21,7 @@ vault server \
 # wait vault server is completely started
 for i in $(seq 1 30); do grep -q 'successful mount' /vault/logs/vault.log && break || sleep 1; done
 
-vault secrets enable -path=centreon kv
+vault secrets enable -path=centreon kv-v2
 vault auth enable approle
 
 cat <<EOM >>/vault/config/central_policy.hcl
