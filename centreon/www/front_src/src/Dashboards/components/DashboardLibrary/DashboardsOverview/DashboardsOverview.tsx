@@ -34,13 +34,7 @@ import { useStyles } from './DashboardsOverview.styles';
 import { DashboardsOverviewSkeleton } from './DashboardsOverviewSkeleton';
 import { useDashboardsOverview } from './useDashboardsOverview';
 
-interface Props {
-  hasFavoriteDashboardListIdsFetched?: boolean;
-}
-
-const DashboardsOverview = ({
-  hasFavoriteDashboardListIdsFetched = true
-}: Props): ReactElement => {
+const DashboardsOverview = (): ReactElement => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -48,9 +42,7 @@ const DashboardsOverview = ({
   const search = useAtomValue(searchAtom);
   const user = useAtomValue(userAtom);
 
-  const { isEmptyList, dashboards, data, isLoading } = useDashboardsOverview(
-    hasFavoriteDashboardListIdsFetched
-  );
+  const { isEmptyList, dashboards, data, isLoading } = useDashboardsOverview();
   const { createDashboard } = useDashboardConfig();
   const { hasEditPermission, canCreateOrManageDashboards } =
     useDashboardUserPermissions();
@@ -88,10 +80,7 @@ const DashboardsOverview = ({
   const getThumbnailSrc = (dashboard): string =>
     `img/media/${dashboard.thumbnail?.directory}/${dashboard.thumbnail?.name}?${new Date().getTime()}`;
 
-  if (
-    (isCardsView && isLoading && isNil(data)) ||
-    !hasFavoriteDashboardListIdsFetched
-  ) {
+  if (isCardsView && isLoading && isNil(data)) {
     return <DashboardsOverviewSkeleton />;
   }
 

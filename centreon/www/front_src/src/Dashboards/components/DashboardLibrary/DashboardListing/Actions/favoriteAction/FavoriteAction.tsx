@@ -6,13 +6,13 @@ import {
 } from '@centreon/ui';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAtomValue } from 'jotai';
-import { equals } from 'ramda';
 import { memo } from 'react';
-import { dashboardsFavoriteEndpoit } from '../../../../../api/endpoints';
-import { favoriteDashboardsIdsAtom } from './atoms';
+import {
+  dashboardsFavoriteDeleteEndpoint,
+  dashboardsFavoriteEndpoit
+} from '../../../../../api/endpoints';
+import { FavoriteEndpoint, GetLabel } from './models';
 
-// a deplacer
 const labelDashboardSuccessfullyMarkedAsFavorite =
   'The dashboard successfully marked as favorite';
 const labelDashboardSuccessfullyMarkedAsUnFavorite =
@@ -22,62 +22,59 @@ const labelMarkedAsFavorite = 'Marked as favorite';
 
 interface Props {
   dashboardId: number;
-  asFavorite: boolean;
+  isFavorite: boolean;
 }
 
-const FavoriteAction = ({ dashboardId, asFavorite }: Props) => {
+const FavoriteAction = ({ dashboardId, isFavorite }: Props) => {
   const { showSuccessMessage } = useSnackbar();
 
-  const { favoriteDashboards } = useAtomValue(favoriteDashboardsIdsAtom);
   const queryClient = useQueryClient();
 
   const getLabel = ({ setLabel, unsetLabel }: GetLabel) => {
-    if (asFavorite) {
+    if (isFavorite) {
       return unsetLabel;
     }
     return setLabel;
   };
 
-  const labelSuccess = getLabel({
-    setLabel: labelDashboardSuccessfullyMarkedAsUnFavorite,
-    unsetLabel: labelDashboardSuccessfullyMarkedAsFavorite
-  });
+  const getEndpoint = (data: FavoriteEndpoint) => {
+    if (data?.dashboardId) {
+      return dashboardsFavoriteDeleteEndpoint(data.dashboardId);
+    }
+    return dashboardsFavoriteEndpoit;
+  };
+
+  const onSuccess = () => {
+    const labelSuccess = getLabel({
+      setLabel: labelDashboardSuccessfullyMarkedAsUnFavorite,
+      unsetLabel: labelDashboardSuccessfullyMarkedAsFavorite
+    });
+
+    showSuccessMessage(labelSuccess);
+
+    queryClient.invalidateQueries({
+      queryKey: ['dashboardList'],
+      exact: true
+    });
+  };
+
+  const method = isFavorite ? Method.DELETE : Method.POST;
 
   const { mutateAsync, isMutating } = useMutationQuery({
-    getEndpoint: () => dashboardsFavoriteEndpoit,
-    method: Method.PATCH,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['favoriteDashboardListIds'], // a regler suspence?
-        exact: true
-      });
-      showSuccessMessage(labelSuccess);
-    }
+    getEndpoint,
+    method,
+    onSuccess
   });
 
   const handleFavorites = () => {
-    const item = favoriteDashboards.find((id) => equals(id, dashboardId));
-    if (item) {
-      const payload = {
-        favorite_dashboards: favoriteDashboards.filter(
-          (id) => !equals(id, dashboardId)
-        )
-      };
-
-      mutateAsync({ payload });
-
+    if (isFavorite) {
+      mutateAsync({ _meta: { dashboardId } });
       return;
     }
-    const payload = {
-      favorite_dashboards: [...favoriteDashboards, dashboardId]
-    };
-    mutateAsync({ payload });
+    mutateAsync({
+      payload: { dashboard_id: dashboardId }
+    });
   };
-
-  interface GetLabel {
-    unsetLabel: string;
-    setLabel: string;
-  }
 
   const title = getLabel({
     unsetLabel: labelMarkedAsFavorite,
@@ -88,7 +85,7 @@ const FavoriteAction = ({ dashboardId, asFavorite }: Props) => {
     <IconButton
       title={title}
       onClick={handleFavorites}
-      color={asFavorite ? 'success' : 'default'}
+      color={isFavorite ? 'success' : 'default'}
       disabled={isMutating}
       size="small"
     >

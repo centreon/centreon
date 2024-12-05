@@ -15,7 +15,6 @@ import {
   DashboardRole,
   DashboardsContact,
   DashboardsContactGroup,
-  FavoriteDashboardListIds,
   NamedEntity,
   PublicDashboard,
   Shares,
@@ -113,7 +112,8 @@ export const dashboardEntityDecoder = {
   updatedAt: JsonDecoder.string,
   updatedBy: JsonDecoder.nullable(
     JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')
-  )
+  ),
+  isFavorite: JsonDecoder.optional(JsonDecoder.boolean) // a enlever optional
 };
 
 export const dashboardDecoder = JsonDecoder.object<Dashboard>(
@@ -272,14 +272,3 @@ export const playlistsByDashboardDecoder = JsonDecoder.array<NamedEntity>(
   JsonDecoder.object(namedEntityDecoder, 'playlist'),
   'playlists by dashboard'
 );
-
-export const favoriteDashboardListIdsDecoder =
-  JsonDecoder.object<FavoriteDashboardListIds>(
-    {
-      favoriteDashboards: JsonDecoder.array<number>(JsonDecoder.number, 'ids')
-    },
-    'favorite dashboard list ids',
-    {
-      favoriteDashboards: 'favorite_dashboards'
-    }
-  );
