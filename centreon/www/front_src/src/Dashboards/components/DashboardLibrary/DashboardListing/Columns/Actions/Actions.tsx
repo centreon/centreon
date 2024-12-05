@@ -37,14 +37,22 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
 
   if (isNestedRow) {
     return (
-      <IconButton title={t(labelUnshare)} onClick={openAskBeforeRevoke}>
-        <UnShareIcon className={classes.icon} />
-      </IconButton>
+      <div className={classes.actions}>
+        <FavoriteAction dashboardId={row.id} isFavorite={row?.isFavorite} />
+        <IconButton title={t(labelUnshare)} onClick={openAskBeforeRevoke}>
+          <UnShareIcon className={classes.icon} />
+        </IconButton>
+      </div>
     );
   }
 
   if (!hasEditPermission(row)) {
-    return <Box className={classes.line}>-</Box>;
+    return (
+      <div className={classes.actions}>
+        <FavoriteAction dashboardId={row.id} isFavorite={row?.isFavorite} />
+        <Box className={classes.line}>-</Box>
+      </div>
+    );
   }
 
   return (
