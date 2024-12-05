@@ -97,7 +97,7 @@ const Dashboard = (): ReactElement => {
               actions={
                 <FavoriteAction
                   dashboardId={dashboard?.id as number}
-                  asFavorite={dashboard?.asFavorite}
+                  isFavorite={dashboard?.isFavorite}
                 />
               }
             />

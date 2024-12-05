@@ -49,7 +49,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
 
   return (
     <Box className={classes.actions}>
-      <FavoriteAction dashboardId={row.id} asFavorite={row?.asFavorite} />
+      <FavoriteAction dashboardId={row.id} isFavorite={row?.isFavorite} />
       <IconButton
         ariaLabel={t(labelShareWithContacts)}
         title={t(labelShareWithContacts)}

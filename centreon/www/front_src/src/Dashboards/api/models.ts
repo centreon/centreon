@@ -182,11 +182,3 @@ export type UpdateAccessRightDto = CreateAccessRightDto;
 export type DeleteAccessRightDto = {
   dashboardId: NamedEntity['id'];
 } & Pick<NamedEntity, 'id'>;
-
-export enum CustomQueryParametersListing {
-  onlyFavoriteDashboards = 'only_favorite'
-}
-
-export interface FavoriteDashboardListIds {
-  favoriteDashboards: Array<number>;
-}
