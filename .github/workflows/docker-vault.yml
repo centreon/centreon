@@ -24,7 +24,7 @@ jobs:
 
   dockerize:
     needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && github.repository == 'centreon/centreon' }}
     runs-on: ubuntu-24.04
 
     steps:
