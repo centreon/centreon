@@ -208,7 +208,7 @@ abstract class AbstractVaultRepository
             throw new \Exception('Error ' . $response->getStatusCode());
         }
 
-        if ($method === 'DELETE') {
+        if (in_array($method, ['DELETE', 'POST'])) {
 
             return [];
         }
