@@ -17,7 +17,6 @@ on:
     - cron: "0 3 * * 1-5"
   pull_request:
     paths:
-      - "**"
       - "centreon/**"
       - "!centreon/cypress/**"
       - "!centreon/features/**"
