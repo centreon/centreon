@@ -2,8 +2,6 @@ FROM hashicorp/vault:1.18
 
 COPY --chmod=755 ./.github/docker/vault/entrypoint /tmp/entrypoint
 
-USER root
-
 RUN sh -e <<EOF
 
 apk update
