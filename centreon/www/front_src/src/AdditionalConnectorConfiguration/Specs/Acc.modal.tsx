@@ -612,9 +612,24 @@ export default (): void => {
         cy.contains(labelAdditionalConnectorCreated);
 
         cy.waitForRequest('@createConnector').then(({ request }) => {
-          expect(request.body).equals(
-            '{"description":null,"name":"New name","parameters":{"port":5700,"vcenters":[{"name":"my_vcenter","password":"password","url":"http://10.10.10.10/sdk","username":"username"}]},"pollers":[1],"type":"vmware_v6"}'
-          );
+          expect(JSON.parse(request.body)).to.deep.equals({
+            description: null,
+            name: 'New name',
+            parameters: {
+              port: 5700,
+              vcenters: [
+                {
+                  name: 'my_vcenter',
+                  password: 'password',
+                  url: '10.10.10.10/sdk',
+                  scheme: 'http',
+                  username: 'username'
+                }
+              ]
+            },
+            pollers: [1],
+            type: 'vmware_v6'
+          });
         });
 
         cy.matchImageSnapshot();
@@ -630,9 +645,31 @@ export default (): void => {
         cy.get(`button[data-testid="submit"`).click();
 
         cy.waitForRequest('@updateConnector').then(({ request }) => {
-          expect(request.body).equals(
-            '{"name":"Updated name","description":"Description for VMWare1","parameters":{"port":1000,"vcenters":[{"name":"vCenter1","password":"password1","url":"https://vcenter1.example.com/sdk","username":"user1"},{"name":"vCenter2","password":"password2","url":"192.0.0.1","username":"user2"}]},"pollers":[101,102],"type":"vmware_v6"}'
-          );
+          expect(JSON.parse(request.body)).to.deep.equals({
+            name: 'Updated name',
+            description: 'Description for VMWare1',
+            parameters: {
+              port: 1000,
+              vcenters: [
+                {
+                  name: 'vCenter1',
+                  password: 'password1',
+                  url: 'vcenter1.example.com/sdk',
+                  username: 'user1',
+                  scheme: 'https'
+                },
+                {
+                  name: 'vCenter2',
+                  password: 'password2',
+                  url: '192.0.0.1',
+                  username: 'user2',
+                  scheme: null
+                }
+              ]
+            },
+            pollers: [101, 102],
+            type: 'vmware_v6'
+          });
         });
 
         cy.contains(labelAdditionalConnectorUpdated);
