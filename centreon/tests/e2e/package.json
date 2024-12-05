@@ -3,7 +3,6 @@
   "version": "21.04.0",
   "description": "centreon web package",
   "scripts": {
-    "update:deps": "pnpx npm-check-updates -i --format group",
     "cypress:open": "TESTCONTAINERS_RYUK_DISABLED=true cypress open --config-file cypress.dev.config.ts --e2e",
     "cypress:run": "TESTCONTAINERS_RYUK_DISABLED=true cypress run --env tags='not @ignore' --config-file cypress.config.ts --e2e",
     "cypress:run:develop:debug": "DEBUG=cypress:* cypress run --config-file cypress.dev.json 2> ./cypress/results/logs.txt",

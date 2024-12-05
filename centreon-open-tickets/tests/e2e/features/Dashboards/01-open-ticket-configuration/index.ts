@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import {
@@ -145,7 +146,7 @@ before(() => {
       service: 'Ping'
     }
   ]);
-  cy.logoutViaAPI();;
+  cy.logoutViaAPI();
 });
 
 beforeEach(() => {
@@ -173,16 +174,13 @@ beforeEach(() => {
     method: 'GET',
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
+  cy.intercept({
+    method: 'POST',
+    url: `/centreon/api/latest/configuration/dashboards/*`
+  }).as('addingDashboard');
   cy.loginByTypeOfUser({
     jsonName: 'admin',
     loginViaApi: false
-  });
-});
-
-afterEach(() => {
-  cy.requestOnDatabase({
-    database: 'centreon',
-    query: 'DELETE FROM dashboard'
   });
 });
 
@@ -214,15 +212,15 @@ When(
   }
 );
 
-Then(
-  'configuration properties for ticket management are displayed',
-  () => {
-    cy.contains('Select all').click();
-    cy.get('[data-testid="-summary"]').contains('Ticket management').click();
-    cy.getByLabel({ label: 'Enable ticket management' }).click()
-    cy.getByTestId({ testId: 'Select rule (ticket provider)' }).click()
-    cy.contains('glpi').click();  }
-);
+Then('configuration properties for ticket management are displayed', () => {
+  cy.contains('Select all').click();
+  cy.get('input[name="acknowledged"]').click();
+  cy.get('input[name="in_downtime"]').click();
+  cy.get('[data-testid="-summary"]').contains('Ticket management').click();
+  cy.getByLabel({ label: 'Enable ticket management' }).click();
+  cy.getByTestId({ testId: 'Select rule (ticket provider)' }).click();
+  cy.contains('glpi').click();
+});
 
 When(
   'the dashboard administrator selects a resource to associate with a ticket',
@@ -241,25 +239,75 @@ When(
 );
 
 Then('the open ticket modal should appear', () => {
-   cy.waitForElementInIframe(
-      '#open-ticket',
-      '#select2-select_glpi_entity-container'
-    );
+  cy.waitForElementInIframe(
+    '#open-ticket',
+    '#select2-select_glpi_entity-container'
+  );
 });
 
-When("the dashboard administrator fills out the ticket creation form and submits the form", () => {
-  cy.enterIframe('#open-ticket').within(() => {
+When(
+  'the dashboard administrator fills out the ticket creation form and submits the form',
+  () => {
+    cy.enterIframe('#open-ticket').within(() => {
       cy.get('#custom_message').type('New ticket');
       cy.get('#select2-select_glpi_entity-container').click();
-      cy.contains('Root entity').click({force:true});
-      cy.get('#select_glpi_requester').select('glpi',{force:true});
+      cy.contains('Root entity').click({ force: true });
+      cy.get('#select_glpi_requester').select('glpi', { force: true });
       cy.get('input[type="submit"][value="Open"]').click();
     });
+  }
+);
+
+Then(
+  'a new ticket is created and the selected resource is associated with the ticket',
+  () => {
+    cy.waitForElementInIframe('#open-ticket', 'h3');
+    cy.enterIframe('#open-ticket').within(() => {
+      cy.get('td.FormRowField').should('include.text', 'New ticket opened');
+    });
+    cy.get('[class$="modalCloseButton"]')
+      .find('[data-testid="CloseIcon"]')
+      .eq(1)
+      .click();
+    cy.getByLabel({ label: 'Resources linked to a ticket' }).click();
+    cy.getByTestId({ testId: 'confirm' }).realClick();
+    cy.getByTestId({ testId: 'save_dashboard' }).click();
+    cy.wait('@addingDashboard');
+  }
+);
+
+Given('the dashboard administrator accesses the resource table widget', () => {
+  cy.visitDashboard(dashboards.default.name);
+  cy.editDashboard(dashboards.default.name);
 });
 
-Then("a new ticket is created and the selected resource is associated with the ticket", () => {
-  cy.waitForElementInIframe('#open-ticket', 'h3')
-  cy.enterIframe('#open-ticket').within(() => {
-    cy.get('td.FormRowField').should('include.text', 'New ticket opened');
-  });
-});
+When(
+  'the dashboard administrator clicks on the delete button of a ticket',
+  () => {
+    cy.getByLabel({ label: 'Close ticket' }).click({ force: true });
+    cy.contains('Confirm').click();
+  }
+);
+
+Then(
+  'the ticket should be deleted and the resource should no longer be associated with the ticket',
+  () => {
+    cy.waitUntil(
+      () => {
+        return cy
+          .getByLabel({ label: 'Unknown status services', tag: 'a' })
+          .invoke('text')
+          .then((text) => {
+            if (text !== '3') {
+              cy.exportConfig();
+            }
+
+            return text === '3';
+          });
+      },
+      { interval: 20000, timeout: 600000 }
+    );
+    cy.waitForElementToBeVisible('[class*="root-emptyDataCell"]');
+    cy.contains('div', 'No result found').should('be.visible');
+  }
+);
