@@ -8,7 +8,12 @@ import {
 
 import { getBAEndpoint } from '../../api/endpoints';
 import { businessActivityDecoder } from '../api/decoders';
-import { BusinessActivity, Indicator, ResourceData } from '../models';
+import {
+  BusinessActivity,
+  CalculationMethodType,
+  Indicator,
+  ResourceData
+} from '../models';
 
 interface UseServiceTooltipContentState {
   calculationMethod?: string;
@@ -58,7 +63,9 @@ const useBATooltipContent = (
 
   const ProblematicKPIsCount = indicatorsWithProblems?.length || 0;
 
-  const health = Math.floor(((total - ProblematicKPIsCount) * 100) / total);
+  const health = equals(calculationMethod, CalculationMethodType.Impact) 
+    ? businessActivity?.currentLevel || 0
+    : Math.floor(((total - ProblematicKPIsCount) * 100) / total);
 
   const criticalKPIsCount =
     businessActivity?.indicators?.filter(({ status }) =>

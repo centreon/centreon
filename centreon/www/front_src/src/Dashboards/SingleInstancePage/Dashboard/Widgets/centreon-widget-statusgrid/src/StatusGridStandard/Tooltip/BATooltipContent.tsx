@@ -76,6 +76,21 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
       : `${threshold}%`;
   };
 
+  const calculateSeverityCode = (): SeverityCode => {
+    if (isImpact && isNotNil(criticalLevel) && isNotNil(warningLevel)) {
+      if (health <= criticalLevel) {
+        return SeverityCode.High;
+      }
+      if (health <= warningLevel) {
+        return SeverityCode.Medium;
+      }
+
+      return SeverityCode.OK;
+    }
+
+    return SeverityCode.High;
+  };
+
   return (
     <Box className={classes.container}>
       <Box className={classes.header}>
@@ -121,7 +136,7 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
                   <Typography
                     sx={{
                       color: getColor({
-                        severityCode: isImpact ? 5 : 1,
+                        severityCode: calculateSeverityCode(),
                         theme
                       })
                     }}
