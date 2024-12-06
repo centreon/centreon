@@ -27,7 +27,6 @@ use Adaptation\Database\ExpressionBuilderInterface;
 use Adaptation\Database\QueryBuilderInterface;
 use Doctrine\DBAL\Connection as DoctrineDbalConnection;
 use Doctrine\DBAL\DriverManager as DoctrineDbalDriverManager;
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder as DoctrineDbalExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder as DoctrineDbalQueryBuilder;
 use PDO;
@@ -44,7 +43,6 @@ use UnexpectedValueException;
  *
  * @class   DbalConnectionAdapter
  * @package Adaptation\Database\Adapter\Dbal
- * @implements ConnectionInterface
  * @see     DoctrineDbalConnection
  */
 class DbalConnectionAdapter implements ConnectionInterface
@@ -153,7 +151,7 @@ class DbalConnectionAdapter implements ConnectionInterface
     /**
      * To get the used native connection by DBAL (PDO, mysqli, ...).
      *
-     * @return object|resource
+     * @return object
      *
      * @throws ConnectionException
      */

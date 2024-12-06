@@ -77,7 +77,7 @@ interface ConnectionInterface
     /**
      * To get the used native connection by DBAL (PDO, mysqli, ...).
      *
-     * @return object|resource
+     * @return object
      *
      * @throws ConnectionException
      */
