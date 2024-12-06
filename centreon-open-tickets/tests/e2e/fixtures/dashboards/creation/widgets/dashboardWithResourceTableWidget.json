@@ -1,0 +1,41 @@
+{
+   "data":{
+      "resources":[
+         {
+            "resourceType":"host-group",
+            "resources":[
+               {
+                  "id":53,
+                  "name":"Linux-Servers"
+               }
+            ]
+         }
+      ]
+   },
+   "options":{
+      "displayType":"all",
+      "statuses":[
+
+      ],
+      "states":[
+         "unhandled_problems"
+      ],
+      "refreshInterval":"default",
+      "description":{
+         "content":"{\"root\":{\"children\":[{\"children\":[{\"detail\":0,\"format\":0,\"mode\":\"normal\",\"style\":\"\",\"text\":\"Description \",\"type\":\"text\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+         "enabled":true
+      },
+      "name":"Resource table",
+      "selectedColumnIds":[
+         "status",
+         "resource",
+         "parent_resource",
+         "state",
+         "severity",
+         "last_check",
+         "duration",
+         "tries",
+         "information"
+      ]
+   }
+}
