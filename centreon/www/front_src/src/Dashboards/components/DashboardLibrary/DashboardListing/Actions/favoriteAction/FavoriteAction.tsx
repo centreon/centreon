@@ -5,8 +5,7 @@ import {
   useSnackbar
 } from '@centreon/ui';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import { useQueryClient } from '@tanstack/react-query';
-import { memo } from 'react';
+import { memo, useRef } from 'react';
 import {
   dashboardsFavoriteDeleteEndpoint,
   dashboardsFavoriteEndpoit
@@ -22,15 +21,17 @@ import { FavoriteEndpoint, GetLabel } from './models';
 interface Props {
   dashboardId: number;
   isFavorite: boolean;
+  refetch?: () => void;
 }
 
-const FavoriteAction = ({ dashboardId, isFavorite }: Props) => {
+const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
   const { showSuccessMessage } = useSnackbar();
 
-  const queryClient = useQueryClient();
+  const labelSuccess = useRef('');
+  const method = useRef(Method.POST);
 
-  const getLabel = ({ setLabel, unsetLabel }: GetLabel) => {
-    if (isFavorite) {
+  const getLabel = ({ setLabel, unsetLabel, asFavorite }: GetLabel) => {
+    if (asFavorite) {
       return unsetLabel;
     }
     return setLabel;
@@ -44,28 +45,25 @@ const FavoriteAction = ({ dashboardId, isFavorite }: Props) => {
   };
 
   const onSuccess = () => {
-    const labelSuccess = getLabel({
-      setLabel: labelDashboardSuccessfullyMarkedAsUnFavorite,
-      unsetLabel: labelDashboardSuccessfullyMarkedAsFavorite
-    });
-
-    showSuccessMessage(labelSuccess);
-
-    queryClient.invalidateQueries({
-      queryKey: ['dashboardList'],
-      exact: true
-    });
+    showSuccessMessage(labelSuccess.current);
+    refetch?.();
   };
-
-  const method = isFavorite ? Method.DELETE : Method.POST;
 
   const { mutateAsync, isMutating } = useMutationQuery({
     getEndpoint,
-    method,
+    method: method.current,
     onSuccess
   });
 
   const handleFavorites = () => {
+    labelSuccess.current = getLabel({
+      setLabel: labelDashboardSuccessfullyMarkedAsFavorite,
+      unsetLabel: labelDashboardSuccessfullyMarkedAsUnFavorite,
+      asFavorite: isFavorite
+    });
+
+    method.current = isFavorite ? Method.DELETE : Method.POST;
+
     if (isFavorite) {
       mutateAsync({ _meta: { dashboardId } });
       return;
@@ -76,8 +74,9 @@ const FavoriteAction = ({ dashboardId, isFavorite }: Props) => {
   };
 
   const title = getLabel({
-    unsetLabel: labelMarkedAsFavorite,
-    setLabel: labelNotMarkedAsFavorite
+    setLabel: labelMarkedAsFavorite,
+    unsetLabel: labelNotMarkedAsFavorite,
+    asFavorite: isFavorite
   });
 
   return (

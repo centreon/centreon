@@ -32,12 +32,12 @@ import useDashboardCardActions from './useDashboardCardActions';
 
 interface Props {
   dashboard: Dashboard;
+  refetch?: () => void;
 }
 
-const DashboardCardActions = ({ dashboard }: Props): JSX.Element => {
+const DashboardCardActions = ({ dashboard, refetch }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-
   const {
     moreActionsOpen,
     openDeleteModal,
@@ -60,7 +60,8 @@ const DashboardCardActions = ({ dashboard }: Props): JSX.Element => {
     <div className={classes.container}>
       <FavoriteAction
         dashboardId={dashboard.id as number}
-        asFavorite={dashboard?.asFavorite}
+        isFavorite={dashboard?.isFavorite as boolean}
+        refetch={refetch}
       />
       <IconButton
         ariaLabel={labels.labelShareWithContacts}

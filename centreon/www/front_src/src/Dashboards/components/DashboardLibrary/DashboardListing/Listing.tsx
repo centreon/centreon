@@ -24,6 +24,7 @@ interface ListingProp {
   displayCustomListing: boolean;
   loading: boolean;
   openConfig: () => void;
+  refetch?: () => void;
 }
 
 const Listing = ({
@@ -31,10 +32,11 @@ const Listing = ({
   loading,
   openConfig,
   customListingComponent,
-  displayCustomListing
+  displayCustomListing,
+  refetch
 }: ListingProp): JSX.Element => {
   const { t } = useTranslation();
-  const { columns, defaultColumnsIds } = useColumns();
+  const { columns, defaultColumnsIds } = useColumns({ refetch });
 
   const askingBeforRevoke = useAtomValue(askBeforeRevokeAtom);
 

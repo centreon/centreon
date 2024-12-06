@@ -113,7 +113,7 @@ export const dashboardEntityDecoder = {
   updatedBy: JsonDecoder.nullable(
     JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')
   ),
-  isFavorite: JsonDecoder.optional(JsonDecoder.boolean) // a enlever optional
+  isFavorite: JsonDecoder.optional(JsonDecoder.boolean)
 };
 
 export const dashboardDecoder = JsonDecoder.object<Dashboard>(
@@ -136,7 +136,8 @@ export const dashboardDecoder = JsonDecoder.object<Dashboard>(
     createdBy: 'created_by',
     ownRole: 'own_role',
     updatedAt: 'updated_at',
-    updatedBy: 'updated_by'
+    updatedBy: 'updated_by',
+    isFavorite: 'is_favorite'
   }
 );
 
@@ -175,7 +176,8 @@ export const dashboardListDecoder = buildListingDecoder({
       createdBy: 'created_by',
       ownRole: 'own_role',
       updatedAt: 'updated_at',
-      updatedBy: 'updated_by'
+      updatedBy: 'updated_by',
+      isFavorite: 'is_favorite'
     }
   ),
   entityDecoderName: 'Dashboard List',

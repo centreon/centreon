@@ -77,5 +77,5 @@ export const labelDashboardSuccessfullyMarkedAsFavorite =
   'The dashboard is successfully marked as favorite';
 export const labelDashboardSuccessfullyMarkedAsUnFavorite =
   'The dashboard is successfully marked as unFavorite';
-export const labelNotMarkedAsFavorite = 'Not marked as favorite';
-export const labelMarkedAsFavorite = 'Marked as favorite';
+export const labelNotMarkedAsFavorite = 'Remove from favorites';
+export const labelMarkedAsFavorite = 'Add to favorites';

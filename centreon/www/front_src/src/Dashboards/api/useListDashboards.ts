@@ -19,6 +19,7 @@ import { Dashboard, resource } from './models';
 type UseListDashboards = {
   data?: List<Omit<Dashboard, 'refresh'>>;
   isLoading: boolean;
+  refetch: () => void;
 };
 
 const useListDashboards = (): UseListDashboards => {
@@ -53,7 +54,7 @@ const useListDashboards = (): UseListDashboards => {
     });
   };
 
-  const { data, isLoading, isFetching } = useFetchQuery<
+  const { data, isLoading, isFetching, refetch } = useFetchQuery<
     List<Omit<Dashboard, 'refresh'>>
   >({
     decoder: dashboardListDecoder,
@@ -76,7 +77,8 @@ const useListDashboards = (): UseListDashboards => {
 
   return {
     data,
-    isLoading: isLoading || isFetching
+    isLoading: isLoading || isFetching,
+    refetch
   };
 };
 

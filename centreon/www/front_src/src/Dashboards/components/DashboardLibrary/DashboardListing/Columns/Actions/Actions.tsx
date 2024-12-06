@@ -18,13 +18,15 @@ import {
 import { useColumnStyles } from '../useColumnStyles';
 
 import FavoriteAction from '../../Actions/favoriteAction';
+import { Refetch } from '../../Actions/favoriteAction/models';
 import MoreActions from './MoreActions';
 import useActions from './useActions';
 
-const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
+const Actions = (data: ComponentColumnProps & Refetch): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useColumnStyles();
   const { hasEditPermission } = useDashboardUserPermissions();
+  const { row, refetch } = data;
 
   const {
     isNestedRow,
@@ -48,7 +50,11 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   if (!hasEditPermission(row)) {
     return (
       <div className={classes.actions}>
-        <FavoriteAction dashboardId={row.id} isFavorite={row?.isFavorite} />
+        <FavoriteAction
+          dashboardId={row.id}
+          isFavorite={row?.isFavorite}
+          refetch={refetch}
+        />
         <Box className={classes.line}>-</Box>
       </div>
     );
@@ -56,7 +62,11 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
 
   return (
     <Box className={classes.actions}>
-      <FavoriteAction dashboardId={row.id} isFavorite={row?.isFavorite} />
+      <FavoriteAction
+        dashboardId={row.id}
+        isFavorite={row?.isFavorite}
+        refetch={refetch}
+      />
       <IconButton
         ariaLabel={t(labelShareWithContacts)}
         title={t(labelShareWithContacts)}

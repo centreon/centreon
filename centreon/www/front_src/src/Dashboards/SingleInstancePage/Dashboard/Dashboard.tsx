@@ -35,7 +35,7 @@ const Dashboard = (): ReactElement => {
   const { classes } = useDashboardStyles();
 
   const { dashboardId } = routerParams.useParams();
-  const { dashboard, panels } = useDashboardDetails({
+  const { dashboard, panels, refetch } = useDashboardDetails({
     dashboardId: dashboardId as string
   });
   const { editDashboard } = useDashboardConfig();
@@ -97,7 +97,8 @@ const Dashboard = (): ReactElement => {
               actions={
                 <FavoriteAction
                   dashboardId={dashboard?.id as number}
-                  isFavorite={dashboard?.isFavorite}
+                  isFavorite={dashboard?.isFavorite as boolean}
+                  refetch={refetch}
                 />
               }
             />
