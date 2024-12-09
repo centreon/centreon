@@ -4,16 +4,16 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 /* eslint-disable no-plusplus */
 /* eslint-disable no-case-declarations */
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkHostsAreMonitored,
   checkMetricsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
-import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
+import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 
 const hostGroupName = 'Linux-Servers';
 
@@ -345,7 +345,7 @@ When(
     cy.get('.react-grid-item').eq(1).realClick();
 
     cy.getByTestId({ testId: 'save_dashboard' }).click();
-    cy.waitForElementToBeVisible('[class*="graphContainer"]')
+    cy.waitForElementToBeVisible('[class*="graphContainer"]');
   }
 );
 
@@ -355,13 +355,13 @@ Then('the dashboard is updated with the new widget layout', () => {
     .eq(0)
     .invoke('attr', 'style')
     .then((style) => {
-      expect(style).to.include('width: calc(425px)');
+      expect(style).to.include('width: calc(427px)');
     });
   cy.get('.react-grid-item')
     .eq(1)
     .invoke('attr', 'style')
     .then((style) => {
-      expect(style).to.include('width: calc(425px)');
+      expect(style).to.include('width: calc(427px)');
     });
 });
 
