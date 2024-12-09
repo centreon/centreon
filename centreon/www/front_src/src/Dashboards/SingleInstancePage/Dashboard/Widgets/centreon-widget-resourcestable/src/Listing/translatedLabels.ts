@@ -91,3 +91,4 @@ export const labelTicketWillBeClosedInTheProvider =
 
 export const labelTicketCreated = 'Ticket created';
 export const labelTicketClosed = 'Ticket closed';
+export const labelResourceFlapping = 'This resource is flapping';
