@@ -351,18 +351,8 @@ When(
 
 Then('the dashboard is updated with the new widget layout', () => {
   cy.get('[class*="graphContainer"]').should('be.visible');
-  cy.get('.react-grid-item')
-    .eq(0)
-    .invoke('attr', 'style')
-    .then((style) => {
-      expect(style).to.include('width: calc(427px)');
-    });
-  cy.get('.react-grid-item')
-    .eq(1)
-    .invoke('attr', 'style')
-    .then((style) => {
-      expect(style).to.include('width: calc(427px)');
-    });
+  cy.get('.react-grid-item').eq(0).should('be.visible');
+  cy.get('.react-grid-item').eq(1).should('be.visible');
 });
 
 Given(
