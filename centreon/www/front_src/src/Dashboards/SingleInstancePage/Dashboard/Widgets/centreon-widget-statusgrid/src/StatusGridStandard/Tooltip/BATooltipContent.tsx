@@ -32,6 +32,7 @@ import {
 import { getColor } from '../utils';
 
 import useBATooltipContent from './useBATooltipContent';
+import { useMemo } from 'react';
 
 interface Props {
   data: ResourceData;
@@ -76,17 +77,22 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
       : `${threshold}%`;
   };
 
-const getHealthSeverityCode = (): SeverityCode => {
-  if (isNil(criticalLevel) || isNil(warningLevel) || health <= criticalLevel) {
-    return SeverityCode.High;
-  }
+  const getHealthSeverityCode = (): SeverityCode => {
+    if (isNil(criticalLevel) || isNil(warningLevel) || health <= criticalLevel) {
+      return SeverityCode.High;
+    }
 
-  if (health <= warningLevel) {
-    return SeverityCode.Medium;
-  }
+    if (health <= warningLevel) {
+      return SeverityCode.Medium;
+    }
 
-  return SeverityCode.OK;
-};
+    return SeverityCode.OK;
+  };
+
+  const healthSeverityCode = useMemo(
+    getHealthSeverityCode,
+    [criticalLevel, warningLevel, health]
+  );
 
   return (
     <Box className={classes.container}>
@@ -133,7 +139,7 @@ const getHealthSeverityCode = (): SeverityCode => {
                   <Typography
                     sx={{
                       color: getColor({
-                        severityCode: isImpact ? getHealthSeverityCode(): 1,
+                        severityCode: isImpact ? healthSeverityCode : 1,
                         theme
                       })
                     }}
