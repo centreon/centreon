@@ -80,6 +80,7 @@ Feature: Configuring a top-bottom widget
     When the dashboard administrator enters a search term for a specific metrics
     Then only the metrics that match the search input are displayed in the search results
 
+  @TEST_MON-155357
   Scenario: Editing the hosts Display value of a Top/Bottom widget
     Given a dashboard in the dashboard administrator user's dashboard library
     When the dashboard administrator user selects the option to add a new widget
