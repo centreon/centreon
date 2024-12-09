@@ -77,20 +77,16 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
       : `${threshold}%`;
   };
 
-  const getHealthSeverityCode = (): SeverityCode => {
-    if (isNil(criticalLevel) || isNil(warningLevel) || health <= criticalLevel) {
-      return SeverityCode.High;
-    }
-
-    if (health <= warningLevel) {
-      return SeverityCode.Medium;
-    }
-
-    return SeverityCode.OK;
-  };
-
   const healthSeverityCode = useMemo(
-    getHealthSeverityCode,
+    (): SeverityCode => {
+        if (isNil(criticalLevel) || isNil(warningLevel) || health <= criticalLevel) {
+        return SeverityCode.High;
+      }
+      if (health <= warningLevel) {
+        return SeverityCode.Medium;
+      }
+      return SeverityCode.OK;
+    },
     [criticalLevel, warningLevel, health]
   );
 
