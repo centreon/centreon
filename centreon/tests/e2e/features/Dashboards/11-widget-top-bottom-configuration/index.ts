@@ -635,5 +635,5 @@ When(
 );
 
 Then('the 0 is automatically replaced by a 1', () => {
-  cy.getByLabel({ label: 'Number of values' }).should('have.value', '1');
+  cy.getByLabel({ label: 'Number of values' }).should('have.value', '01');
 });
