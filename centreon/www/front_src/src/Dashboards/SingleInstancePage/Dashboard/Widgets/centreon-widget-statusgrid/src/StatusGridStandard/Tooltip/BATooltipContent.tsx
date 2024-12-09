@@ -76,20 +76,17 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
       : `${threshold}%`;
   };
 
-  const calculateSeverityCode = (): SeverityCode => {
-    if (isImpact && isNotNil(criticalLevel) && isNotNil(warningLevel)) {
-      if (health <= criticalLevel) {
-        return SeverityCode.High;
-      }
-      if (health <= warningLevel) {
-        return SeverityCode.Medium;
-      }
-
-      return SeverityCode.OK;
-    }
-
+const getHealthSeverityCode = (): SeverityCode => {
+  if (isNil(criticalLevel) || isNil(warningLevel) || health <= criticalLevel) {
     return SeverityCode.High;
-  };
+  }
+
+  if (health <= warningLevel) {
+    return SeverityCode.Medium;
+  }
+
+  return SeverityCode.OK;
+};
 
   return (
     <Box className={classes.container}>
