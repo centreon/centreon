@@ -19,6 +19,7 @@ import {
   dashboardSharesEndpoint,
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
+  dashboardsFavoriteEndpoit,
   getDashboardAccessRightsContactGroupEndpoint,
   getDashboardEndpoint,
   playlistsByDashboardEndpoint
@@ -182,6 +183,12 @@ const initializeAndMount = ({
     alias: 'revokeUser',
     method: Method.DELETE,
     path: getDashboardAccessRightsContactGroupEndpoint(1, 3)
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'addFavorite',
+    method: Method.POST,
+    path: `./api/latest/${dashboardsFavoriteEndpoit}`
   });
 
   const version = {
@@ -443,6 +450,25 @@ describe('Dashboards', () => {
       cy.findByLabelText('Add').should('not.exist');
 
       cy.makeSnapshot();
+    });
+  });
+
+  describe('Fovorite', () => {
+    [labelCardsView, labelListView].forEach((view) => {
+      it.only('add a dashboard to favorites when clicking on the correspoding action  ', () => {
+        initializeAndMount({});
+        cy.fixture('Dashboards/favorites/list.json').then((dashboards) => {
+          cy.interceptAPIRequest({
+            alias: 'favoriteDashboard',
+            method: Method.GET,
+            path: `${dashboardsEndpoint}?**`,
+            response: dashboards
+          });
+        });
+        cy.findAllByRole('button', { name: 'FavoriteIcon' }).first().click();
+        cy.waitForRequest('@addFavorite');
+        cy.waitForRequest('@favoriteDashboard');
+      });
     });
   });
 

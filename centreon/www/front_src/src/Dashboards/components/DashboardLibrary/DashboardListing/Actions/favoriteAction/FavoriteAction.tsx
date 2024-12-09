@@ -86,6 +86,7 @@ const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
       color={isFavorite ? 'success' : 'default'}
       disabled={isMutating}
       size="small"
+      ariaLabel="FavoriteIconButton"
     >
       <FavoriteIcon fontSize="small" />
     </IconButton>
