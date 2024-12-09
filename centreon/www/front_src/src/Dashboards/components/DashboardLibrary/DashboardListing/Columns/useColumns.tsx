@@ -1,7 +1,7 @@
 import { map, prop } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Column, ColumnType, ComponentColumnProps } from '@centreon/ui';
+import { Column, ColumnType } from '@centreon/ui';
 
 import {
   labelActions,
@@ -14,16 +14,12 @@ import {
   labelShares
 } from '../translatedLabels';
 import useIsViewerUser from '../useIsViewerUser';
-
-import { Refetch } from '../Actions/favoriteAction/models';
 import Actions from './Actions/Actions';
 import Description from './Decription';
 import Role from './Role';
 import Share from './Share';
 
-const useColumns = ({
-  refetch
-}: Refetch): {
+const useColumns = (): {
   columns: Array<Column>;
   defaultColumnsIds: Array<string>;
 } => {
@@ -111,9 +107,7 @@ const useColumns = ({
       ? []
       : [
           {
-            Component: (data: ComponentColumnProps & Refetch) => (
-              <Actions {...data} refetch={refetch} />
-            ),
+            Component: Actions,
             clickable: true,
             disablePadding: false,
             id: 'actions',

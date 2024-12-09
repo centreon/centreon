@@ -17,16 +17,21 @@ import {
 } from '../../translatedLabels';
 import { useColumnStyles } from '../useColumnStyles';
 
+import { useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
 import FavoriteAction from '../../Actions/favoriteAction';
-import { Refetch } from '../../Actions/favoriteAction/models';
 import MoreActions from './MoreActions';
 import useActions from './useActions';
 
-const Actions = (data: ComponentColumnProps & Refetch): JSX.Element => {
+const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useColumnStyles();
+  const queryClient = useQueryClient();
   const { hasEditPermission } = useDashboardUserPermissions();
-  const { row, refetch } = data;
+
+  const refetch = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['dashboardList'] });
+  }, []);
 
   const {
     isNestedRow,

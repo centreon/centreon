@@ -32,11 +32,10 @@ const Listing = ({
   loading,
   openConfig,
   customListingComponent,
-  displayCustomListing,
-  refetch
+  displayCustomListing
 }: ListingProp): JSX.Element => {
   const { t } = useTranslation();
-  const { columns, defaultColumnsIds } = useColumns({ refetch });
+  const { columns, defaultColumnsIds } = useColumns();
 
   const askingBeforRevoke = useAtomValue(askBeforeRevokeAtom);
 

@@ -153,7 +153,6 @@ const DashboardsOverview = (): ReactElement => {
         displayCustomListing={isCardsView}
         loading={isLoading}
         openConfig={createDashboard}
-        refetch={refetch}
       />
     </div>
   );
