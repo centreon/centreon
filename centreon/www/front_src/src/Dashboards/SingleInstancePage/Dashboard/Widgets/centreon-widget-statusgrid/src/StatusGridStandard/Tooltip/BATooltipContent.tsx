@@ -133,7 +133,7 @@ const getHealthSeverityCode = (): SeverityCode => {
                   <Typography
                     sx={{
                       color: getColor({
-                        severityCode: calculateSeverityCode(),
+                        severityCode: isImpact ? getHealthSeverityCode(): 1,
                         theme
                       })
                     }}
