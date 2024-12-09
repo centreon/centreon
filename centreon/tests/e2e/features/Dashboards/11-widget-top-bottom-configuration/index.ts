@@ -618,3 +618,22 @@ Then('only the metrics that match the search input are displayed in the search r
     }
   );
 });
+
+When(
+  'the dashboard administrator user tries to type 0 in the Display hosts value',
+  () => {
+    cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
+    cy.getByLabel({ label: 'Number of values' }).type("0");
+    cy.getByTestId({ testId: 'Resource type' }).realClick();
+    cy.getByLabel({ label: 'Host Group' }).click();
+    cy.getByTestId({ testId: 'Select resource' }).click();
+    cy.contains(hostGroupName).realClick();
+    cy.getByTestId({ testId: 'Select metric' }).click();
+    cy.getByTestId({ testId: 'rta' }).realClick();
+    cy.wait('@dashboardMetricsTop');
+  }
+);
+
+Then('the 0 is automatically replaced by a 1', () => {
+  cy.getByLabel({ label: 'Number of values' }).should('have.value', '1');
+});
