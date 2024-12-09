@@ -93,7 +93,7 @@ const Resources = ({
               deleteButtonHidden={
                 deleteButtonHidden || getResourceStatic(resource.resourceType)
               }
-              key={`${index}${resource.resources[0]}`}
+              key={`${index}${resource.resourceType}`}
               labelDelete={t(labelDelete)}
               onDeleteItem={deleteResource(index)}
             >
@@ -110,6 +110,7 @@ const Resources = ({
               />
               {singleMetricSelection && singleHostPerMetric ? (
                 <SingleConnectedAutocompleteField
+                  exclusionOptionProperty="name"
                   changeIdValue={changeIdValue(resource.resourceType)}
                   chipProps={{
                     color: 'primary'
@@ -137,6 +138,7 @@ const Resources = ({
                 />
               ) : (
                 <MultiConnectedAutocompleteField
+                  exclusionOptionProperty="name"
                   changeIdValue={changeIdValue(resource.resourceType)}
                   chipProps={{
                     color: 'primary',
