@@ -372,7 +372,7 @@ if (!$centreon->user->admin) {
         AND acl.service_id = s.service_id
         AND acl.group_id IN (" . $groupList . ") ";
 }
-$orderBy = 'hostname ASC ';
+$orderByClause = 'hostname ASC ';
 
 // Define allowed columns and directions
 $allowedOrderColumns = [
@@ -420,7 +420,7 @@ if (isset($preferences['order_by']) && trim($preferences['order_by']) != '') {
     $direction = isset($aOrder[1]) ? strtoupper($aOrder[1]) : 'ASC';
     if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
         if (in_array($column, ['last_state_change', 'last_hard_state_change'], true)) {
-            $direction = ($direction === 'DESC') ? 'DESC' : 'ASC';
+            $direction = ($direction === 'DESC') ? 'ASC' : 'DESC';
         }
         $orderByClause = $column . ' ' . $direction;
     }
@@ -436,8 +436,8 @@ if (isset($preferences['order_by']) && trim($preferences['order_by']) != '') {
     }
 }
 
-if (trim($orderBy)) {
-    $query .= "ORDER BY " . $orderBy;
+if (trim($orderByClause)) {
+    $query .= "ORDER BY " . $orderByClause;
 }
 
 $num = filter_var($preferences['entries'], FILTER_VALIDATE_INT) ?: 10;
