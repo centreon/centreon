@@ -8,12 +8,7 @@ import {
 
 import { getBAEndpoint } from '../../api/endpoints';
 import { businessActivityDecoder } from '../api/decoders';
-import {
-  BusinessActivity,
-  CalculationMethodType,
-  Indicator,
-  ResourceData
-} from '../models';
+import { BusinessActivity, Indicator, ResourceData } from '../models';
 
 interface UseServiceTooltipContentState {
   calculationMethod?: string;
