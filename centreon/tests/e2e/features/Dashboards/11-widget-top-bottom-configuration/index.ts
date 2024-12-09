@@ -623,7 +623,7 @@ When(
   'the dashboard administrator user tries to type 0 in the Display hosts value',
   () => {
     cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
-    cy.getByLabel({ label: 'Number of values' }).type("0");
+    cy.getByLabel({ label: 'Number of values' }).clear().type("0");
     cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
