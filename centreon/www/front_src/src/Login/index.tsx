@@ -22,6 +22,7 @@ import {
   labelLogin,
   labelPoweredByCentreon
 } from './translatedLabels';
+import useGetLoginCustomData from './useGetLoginCustomData';
 import useLogin from './useLogin';
 import useValidationSchema from './validationSchema';
 
@@ -75,10 +76,11 @@ const LoginPage = (): JSX.Element => {
   const {
     submitLoginForm,
     providersConfiguration,
-    loginPageCustomisation,
     authenticationError,
     hasForcedProvider
   } = useLogin();
+
+  const { loginPageCustomisation } = useGetLoginCustomData();
 
   const areUserParametersLoaded = useAtomValue(areUserParametersLoadedAtom);
   const platformVersions = useAtomValue(platformVersionsAtom);

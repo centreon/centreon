@@ -2,23 +2,25 @@ import { Suspense, useEffect } from 'react';
 
 import { Formik } from 'formik';
 import { useAtomValue } from 'jotai';
-import { isNil, not } from 'ramda';
+import { equals, isNil, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import { Typography } from '@mui/material';
 
-import { CentreonLogo, LoadingSkeleton, WallpaperPage } from '@centreon/ui';
+import { LoadingSkeleton, WallpaperPage } from '@centreon/ui';
 
 import { MainLoaderWithoutTranslation } from '../Main/MainLoader';
 import routeMap from '../reactRoutes/routeMap';
 
 import { platformVersionsAtom } from '@centreon/ui-context';
+import CustomText from '../Login/CustomText';
+import LoginHeader from '../Login/LoginHeader';
 import {
   labelCentreonWallpaper,
   labelPoweredByCentreon
 } from '../Login/translatedLabels';
-import useWallpaper from '../Login/useWallpaper';
+import useGetLoginCustomData from '../Login/useGetLoginCustomData';
 import Form from './Form';
 import { ResetPasswordValues } from './models';
 import { passwordResetInformationsAtom } from './passwordResetInformationsAtom';
@@ -51,9 +53,9 @@ const ResetPassword = (): JSX.Element | null => {
   const passwordResetInformations = useAtomValue(passwordResetInformationsAtom);
   const platformVersions = useAtomValue(platformVersionsAtom);
 
-  const { submitResetPassword, validationSchema } = useResetPassword();
+  const { loginPageCustomisation } = useGetLoginCustomData();
 
-  const wallpaper = useWallpaper();
+  const { submitResetPassword, validationSchema } = useResetPassword();
 
   useEffect(() => {
     if (
@@ -78,10 +80,15 @@ const ResetPassword = (): JSX.Element | null => {
       <Suspense fallback={<LoadingSkeleton />}>
         <WallpaperPage
           wallpaperAlt={t(labelCentreonWallpaper)}
-          wallpaperSource={wallpaper}
+          wallpaperSource={loginPageCustomisation.imageSource}
         >
           <>
-            <CentreonLogo />
+            <Suspense fallback={<LoadingSkeleton height={50} width={250} />}>
+              <LoginHeader loginPageCustomisation={loginPageCustomisation} />
+            </Suspense>
+            {equals(loginPageCustomisation.textPosition, 'top') && (
+              <CustomText loginPageCustomisation={loginPageCustomisation} />
+            )}
             <div className={classes.form}>
               <Typography variant="h5">{t(labelResetYourPassword)}</Typography>
               <Formik<ResetPasswordValues>
@@ -92,6 +99,9 @@ const ResetPassword = (): JSX.Element | null => {
                 <Form />
               </Formik>
             </div>
+            {equals(loginPageCustomisation.textPosition, 'bottom') && (
+              <CustomText loginPageCustomisation={loginPageCustomisation} />
+            )}
             <div className={classes.poweredByAndVersion}>
               <Typography variant="body2">
                 {t(labelPoweredByCentreon)}
