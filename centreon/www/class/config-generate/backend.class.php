@@ -61,6 +61,7 @@ class Backend
     public $engine_sub = 'engine';
     /** @var string */
     public $broker_sub = 'broker';
+    public $vmware_sub = 'vmware';
 
     /** @var CentreonDB|null  */
     public $db = null;
@@ -177,9 +178,12 @@ class Backend
         if ($engine == 1) {
             $this->createDirectories([$this->generate_path, $this->engine_sub]);
             $this->full_path = $this->generate_path . '/' . $this->engine_sub;
-        } else {
+        } elseif ($engine == 2) {
             $this->createDirectories([$this->generate_path, $this->broker_sub]);
             $this->full_path = $this->generate_path . '/' . $this->broker_sub;
+        } else {
+            $this->createDirectories([$this->generate_path, $this->vmware_sub]);
+            $this->full_path = $this->generate_path . '/' . $this->vmware_sub;
         }
         if (is_dir($this->full_path . '/' . $poller_id) && !is_writable($this->full_path . '/' . $poller_id)) {
             throw new Exception("Not writeable directory '" . $this->full_path . '/' . $poller_id . "'");
