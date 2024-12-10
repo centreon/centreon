@@ -1,3 +1,5 @@
+name: frontend-component-test
+
 on:
   workflow_call:
     inputs:
@@ -18,10 +20,19 @@ on:
         required: true
         type: string
         description: 'The frontend dependencies lock file path'
+      is_nightly:
+        required: true
+        type: boolean
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
       AWS_SECRET_ACCESS_KEY:
+        required: true
+      jira_base_url:
+        required: true
+      jira_user_email:
+        required: true
+      jira_api_token:
         required: true
 
 jobs:
@@ -271,3 +282,19 @@ jobs:
         with:
           name: ${{ inputs.name }}-component-${{ matrix.type_of_report }}-*
           failOnError: false
+
+  create-jira-nightly-ticket:
+    needs: [cypress-component-coverage-report, cypress-component-test-report, cypress-component-test-run, regroup-artifacts]
+    runs-on: ubuntu-24.04
+    if: |
+      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
+      (failure() || cancelled())
+    steps:
+      - name: Create Jira ticket if nightly build failure
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.jira_base_url }}
+          jira_user_email: ${{ secrets.jira_user_email }}
+          jira_api_token: ${{ secrets.jira_api_token }}
+          module_name: "centreon-web"
+          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "cypress-e2e"]'
