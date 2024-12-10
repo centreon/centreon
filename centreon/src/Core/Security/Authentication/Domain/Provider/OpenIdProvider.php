@@ -1026,7 +1026,7 @@ class OpenIdProvider implements OpenIdProviderInterface
         CentreonLog::create()->info(
             CentreonLog::TYPE_LOGIN,
             "[Openid] {$message}" . ($content !== null ? ' : ' . json_encode($content, JSON_THROW_ON_ERROR) : ''),
-            $content
+            $content ?: []
         );
 
         $this->info("{$message} : ", $content ?: []);
