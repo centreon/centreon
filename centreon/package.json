@@ -108,11 +108,11 @@
     "@react-spring/web": "^9.7.4",
     "@tanstack/react-query": "^5.51.23",
     "@tanstack/react-query-devtools": "^5.51.23",
-    "@visx/curve": "^3.3.0",
-    "@visx/responsive": "^3.10.2",
-    "@visx/scale": "^3.5.0",
-    "@visx/shape": "^3.5.0",
-    "@visx/threshold": "^3.5.0",
+    "@visx/curve": "^3.12.0",
+    "@visx/responsive": "^3.12.0",
+    "@visx/scale": "^3.12.0",
+    "@visx/shape": "^3.12.0",
+    "@visx/threshold": "^3.12.0",
     "@visx/visx": "3.11.0",
     "axios": "^1.7.4",
     "classnames": "^2.5.1",
@@ -160,7 +160,10 @@
     "suiteName": "jest tests",
     "output": "./jest-test-results.xml"
   },
-  "workspaces": ["packages/*", "www/widgets"],
+  "workspaces": [
+    "packages/*",
+    "www/widgets"
+  ],
   "msw": {
     "workerDirectory": "www/front_src/public"
   }
