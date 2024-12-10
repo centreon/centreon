@@ -357,7 +357,7 @@ if (!$centreon->user->admin) {
 }
 $orderby = " hostname ASC , description ASC";
 
-// Define allowed columns and directions (same as your first snippet approach)
+// Define allowed columns and directions 
 $allowedOrderColumns = [
     'host_id',
     'hostname',
