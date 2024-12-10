@@ -102,7 +102,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
 
   const installedWidgets = useMemo(
     () =>
-      federatedWidgetsProperties.filter(({ moduleName }) =>
+      federatedWidgetsProperties?.filter(({ moduleName }) =>
         widgets?.includes(moduleName)
       ),
     [federatedWidgetsProperties, widgets]
