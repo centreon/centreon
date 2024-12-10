@@ -50,7 +50,7 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
      *
      * @param int $pollerId
      *
-     * @throws \Exception|AssertionFailedException
+     * @throws \Exception|AssertionFailedException|\RuntimeException
      */
     private function generate(int $pollerId): void
     {
@@ -105,8 +105,7 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
     /**
      * @param $dir
      *
-     * @return void
-     * @throws RuntimeException
+     * @throws \RuntimeException|\Exception
      */
     protected function writeFile($dir)
     {
@@ -114,13 +113,18 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
         if ($handle = fopen($full_file, 'w')) {
             $content = is_array($this->content) ? json_encode($this->content) : $this->content;
             if (!fwrite($handle, $content)) {
-                throw new RuntimeException('Cannot write to file "' . $full_file . '"');
+                throw new \RuntimeException('Cannot write to file "' . $full_file . '"');
             }
             fclose($handle);
+
+            /**
+             * Change VMWare files owner to '660 apache centreon'
+             * RW for centreon group are necessary for Gorgone Daemon.
+             */
             chmod($full_file, 0660);
             chgrp($full_file, self::CENTREON_SYSTEM_USER);
         } else {
-            throw new Exception("Cannot open file " . $full_file);
+            throw new \Exception("Cannot open file " . $full_file);
         }
     }
 }

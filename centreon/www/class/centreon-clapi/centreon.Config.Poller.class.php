@@ -458,6 +458,10 @@ class CentreonConfigPoller
             chown($this->vmWareCachePath . "/$poller_id", $apacheUser);
             chgrp($this->vmWareCachePath . "/$poller_id", self::CENTREON_SYSTEM_USER);
 
+            /**
+             * Change VMWare files owner to '660 apache centreon'
+             * RW for centreon group are necessary for Gorgone Daemon.
+             */
             foreach (glob($this->vmWareCachePath . "/$poller_id/*.{json}", GLOB_BRACE) as $file) {
                 chmod($file, 0660);
                 chown($file, $apacheUser);
