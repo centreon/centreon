@@ -329,8 +329,8 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                             SELECT resources.resource_id
                             FROM `:dbstg`.`resources` resources
                             LEFT JOIN `:dbstg`.`resources` parent_resource
-                                ON parent_resource.id = resources.parent_id
-                            LEFT JOIN `:dbstg`.resources_tags AS rtags
+                                ON parent_resource.id = resources.parent_id AND parent_resource.type = 1
+                            INNER JOIN `:dbstg`.resources_tags AS rtags
                               ON rtags.resource_id = resources.resource_id
                               OR rtags.resource_id = parent_resource.resource_id
                             INNER JOIN `:dbstg`.tags
@@ -344,8 +344,12 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                             FROM `:dbstg`.resources_tags AS rtags
                             INNER JOIN `:dbstg`.tags
                                 ON tags.tag_id = rtags.tag_id
-                            WHERE tags.name IN ({$literalTagKeys})
-                            AND tags.type = {$type}
+                            WHERE resources.name NOT LIKE '\_Module\_%'
+                                AND resources.parent_name NOT LIKE '\_Module\_BAM%'
+                                AND resources.enabled = 1
+                                AND resources.type != 3
+                                AND tags.name IN ({$literalTagKeys})
+                                AND tags.type = {$type}
                         SQL;
                 }
             }
