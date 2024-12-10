@@ -109,7 +109,7 @@ if (isset($preferences['order_by']) && trim($preferences['order_by']) !== '') {
     $direction = isset($aOrder[1]) ? strtoupper($aOrder[1]) : 'ASC';
 
     if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
-        $orderby = $column . ' ' . $direction;
+        $orderBy = $column . ' ' . $direction;
     }
 }
 
