@@ -224,6 +224,11 @@ Then(
   }
 );
 
+Then('the Save button is disabled', () => {
+    cy.getByTestId({ testId: 'confirm' }).should('be.disabled');
+  }
+);
+
 When(
   'the dashboard administrator user selects resources for the widget',
   () => {
@@ -253,6 +258,11 @@ Then(
       .eq(2)
       .should('have.attr', 'data-status', 'Warning')
       .should('be.visible');
+  }
+);
+
+Then('the Save button is enabled', () => {
+    cy.getByTestId({ testId: 'confirm' }).should('be.enabled');
   }
 );
 
