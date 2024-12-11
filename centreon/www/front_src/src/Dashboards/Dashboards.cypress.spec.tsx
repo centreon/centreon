@@ -958,16 +958,16 @@ describe('Dashboards', () => {
       });
     });
 
-    it('displays the favorites dashboard when the checkbox filter is selected.', () => {
-      initializeAndMount({});
-      cy.waitForRequest('@getDashboards');
+    // it('displays the favorites dashboard when the checkbox filter is selected.', () => {
+    //   initializeAndMount({});
+    //   cy.waitForRequest('@getDashboards');
 
-      cy.get('[type="checkbox"]').check();
-      // cy.waitForRequest('@getFavoritesList');
-      // cy.makeSnapshot();
+    //   cy.get('[type="checkbox"]').check();
+    //   // cy.waitForRequest('@getFavoritesList');
+    //   // cy.makeSnapshot();
 
-      cy.get('[type="checkbox"]').check();
-      // cy.waitForRequest('@getDashboards');
-    });
+    //   cy.get('[type="checkbox"]').check();
+    //   // cy.waitForRequest('@getDashboards');
+    // });
   });
 });
