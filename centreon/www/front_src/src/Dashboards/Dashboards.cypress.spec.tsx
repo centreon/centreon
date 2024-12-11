@@ -20,7 +20,6 @@ import {
   dashboardSharesEndpoint,
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
-  dashboardsFavoriteDeleteEndpoint,
   dashboardsFavoriteEndpoit,
   getDashboardAccessRightsContactGroupEndpoint,
   getDashboardEndpoint,
@@ -36,16 +35,18 @@ import {
   labelListView,
   labelViewer
 } from './components/DashboardLibrary/DashboardListing/translatedLabels';
-import { DashboardLayout } from './models';
+import { DashboardLayout, FavoriteAction, GetPath } from './models';
 import { routerHooks } from './routerHooks';
+import {
+  interceptDashboardsFavoriteDelete,
+  manageAFavorite
+} from './testsUtils';
 import {
   labelAddAContact,
   labelCancel,
   labelCreate,
   labelDashboardDeleted,
   labelDashboardDuplicated,
-  labelDashboardSuccessfullyMarkedAsFavorite,
-  labelDashboardSuccessfullyMarkedAsUnFavorite,
   labelDashboardUpdated,
   labelDelete,
   labelDeleteDashboard,
@@ -53,9 +54,7 @@ import {
   labelDescription,
   labelDuplicate,
   labelDuplicateDashboard,
-  labelMarkedAsFavorite,
   labelName,
-  labelNotMarkedAsFavorite,
   labelSave,
   labelSaveYourDashboardForThumbnail,
   labelShareWithContacts,
@@ -73,29 +72,8 @@ interface InitializeAndMountProps {
   globalRole?: DashboardGlobalRole;
   layout?: DashboardLayout;
   ownRole?: DashboardRole;
+  customListingPath?: string;
 }
-
-const interceptDetailsDashboard = ({
-  path = 'Dashboards/Dashboard/details.json',
-  id = '1'
-} = {}) => {
-  cy.fixture(path).then((dashboardDetails) => {
-    cy.interceptAPIRequest({
-      alias: 'getDashboardDetails',
-      method: Method.GET,
-      path: getDashboardEndpoint(id),
-      response: dashboardDetails
-    });
-  });
-};
-
-const interceptDashboardsFavoriteDelete = (id: number) => {
-  cy.interceptAPIRequest({
-    alias: 'removeFavorite',
-    method: Method.DELETE,
-    path: `./api/latest/${dashboardsFavoriteDeleteEndpoint(id)}`
-  });
-};
 
 const initializeAndMount = ({
   globalRole = DashboardGlobalRole.administrator,
@@ -148,7 +126,14 @@ const initializeAndMount = ({
     });
   });
 
-  interceptDetailsDashboard();
+  cy.fixture('Dashboards/Dashboard/details.json').then((dashboardDetails) => {
+    cy.interceptAPIRequest({
+      alias: 'getDashboardDetails',
+      method: Method.GET,
+      path: getDashboardEndpoint('1'),
+      response: dashboardDetails
+    });
+  });
 
   cy.fixture('Dashboards/contacts.json').then((response) => {
     cy.interceptAPIRequest({
@@ -214,14 +199,16 @@ const initializeAndMount = ({
     path: `./api/latest/${dashboardsFavoriteEndpoit}`
   });
 
-  cy.fixture('Dashboards/favorites/listing/list.json').then((data) => {
-    cy.interceptAPIRequest({
-      alias: 'getFavoritesList',
-      method: Method.GET,
-      path: `./api/latest/${dashboardsFavoriteEndpoit}`,
-      response: data
-    });
-  });
+  cy.fixture('Dashboards/favorites/listing/listAllMarkedFavorite.json').then(
+    (data) => {
+      cy.interceptAPIRequest({
+        alias: 'getFavoritesList',
+        method: Method.GET,
+        path: `./api/latest/${dashboardsFavoriteEndpoit}`,
+        response: data
+      });
+    }
+  );
 
   const version = {
     fix: '0',
@@ -299,11 +286,6 @@ const columns = [
   'Actions'
 ];
 
-enum FavoriteAction {
-  add = 0,
-  delete = 1
-}
-
 const favoriteManagementData = [
   { view: labelCardsView, dashboardId: 2 },
   { view: labelListView, dashboardId: 1 }
@@ -323,47 +305,18 @@ const getAliasFavoriteButton = (position: number) => {
   return '@favoriteIcon';
 };
 
-const manageAFavorite = ({ action, buttonAlias, requestsToWait }) => {
-  console.log('---->', { requestsToWait });
-  const title = equals(action, FavoriteAction.add)
-    ? labelMarkedAsFavorite
-    : labelNotMarkedAsFavorite;
-
-  const updatedTitle = equals(action, FavoriteAction.add)
-    ? labelNotMarkedAsFavorite
-    : labelMarkedAsFavorite;
-
-  const labelSuccess = equals(action, FavoriteAction.add)
-    ? labelDashboardSuccessfullyMarkedAsFavorite
-    : labelDashboardSuccessfullyMarkedAsUnFavorite;
-  cy.get(buttonAlias).trigger('mouseover');
-  cy.findByText(title).should('be.visible');
-
-  cy.get('@favoriteIcon').click();
-
-  requestsToWait.forEach((aliasRequestToWait) => {
-    cy.waitForRequest(aliasRequestToWait);
-  });
-
-  cy.findByText(labelSuccess).should('be.visible');
-
-  cy.get('@favoriteIcon').trigger('mouseover');
-
-  cy.findByText(updatedTitle).should('be.visible');
-};
-
-const getPath = ({ position, action }) => {
+const getPath = ({ position, action }: GetPath) => {
   if (equals(position, 0)) {
     const path = equals(action, FavoriteAction.add)
-      ? 'Dashboards/favorites/listing/afterAddAction/list.json'
-      : 'Dashboards/favorites/listing/afterDeleteAction/list.json';
+      ? 'Dashboards/favorites/listing/afterAddAction/listOne.json'
+      : 'Dashboards/favorites/listing/afterDeleteAction/listOne.json';
 
     return path;
   }
 
   const path = equals(action, FavoriteAction.add)
-    ? 'Dashboards/favorites/listing/afterAddAction/listAsAllFavorites.json'
-    : 'Dashboards/favorites/listing/afterDeleteAction/listAsAllFavorites.json';
+    ? 'Dashboards/favorites/listing/afterAddAction/listTwo.json'
+    : 'Dashboards/favorites/listing/afterDeleteAction/listTwo.json';
 
   return path;
 };
@@ -382,7 +335,7 @@ const runFavoriteManagementFromList = ({
 
   const aliasRequestAction = equals(FavoriteAction.add)
     ? '@addFavorite'
-    : '@deleteFavorite';
+    : '@removeFavorite';
 
   cy.fixture(path).then((dashboards) => {
     cy.interceptAPIRequest({
@@ -398,35 +351,7 @@ const runFavoriteManagementFromList = ({
   manageAFavorite({
     action,
     buttonAlias,
-    requestsToWait: ['@getUpdatedDashboards']
-
-    // requestsToWait: [aliasRequestAction, '@getUpdatedDashboards']
-  });
-};
-
-// a deplacer vers dashboard.cypress
-const runFavoriteManagementFromDetails = ({ action }) => {
-  initializeAndMount(administratorRole);
-  cy.waitForRequest('@getDashboards');
-
-  cy.findByText('Arnaud').click();
-  cy.waitForRequest('@getDashboardDetails');
-
-  const path = equals(action, 'delete')
-    ? 'Dashboards/Dashboard/details.json'
-    : 'Dashboards/favorites/details.json';
-
-  const aliasRequestAction = equals(FavoriteAction.add)
-    ? '@addFvorite'
-    : '@deleteFavorite';
-
-  interceptDetailsDashboard({ path });
-
-  cy.findByRole('button', { name: 'FavoriteIconButton' }).as('favoriteIcon');
-  manageAFavorite({
-    action,
-    buttonAlias: '@favoriteIcon',
-    requestsToWait: [aliasRequestAction, '@getDashboardDetails']
+    requestsToWait: [aliasRequestAction, '@getUpdatedDashboards']
   });
 };
 
@@ -1006,37 +931,28 @@ describe('Dashboards', () => {
   });
 
   describe('Managment favorite dashboards', () => {
-    // a deplacer
-    // it('add a dashboard to favorites when clicking on the corresponding icon in the details view', () => {
-    //   runFavoriteManagementFromDetails({ action: FavoriteAction.add });
-    //   // cy.makeSnapshot()
-    // });
-
-    // it('remove a dashboard from favorites when clicking on the corresponding icon in the details view', () => {
-    //   runFavoriteManagementFromDetails({ action: FavoriteAction.delete });
-    //   // cy.makeSnapshot()
-    // });
-
     favoriteManagementData.forEach(({ view, dashboardId }, index) => {
       it(`add a dashboard to favorites when clicking on the corresponding icon in the ${view}`, () => {
         runFavoriteManagementFromList({
           position: index,
           view,
-          action: FavoriteAction.add
+          action: FavoriteAction.add,
+          customListingPath: 'Dashboards/favorites/listing/list.json'
         });
-        // cy.makeSnapshot()
+        cy.makeSnapshot();
       });
 
-      it.only(`remove a dashboard to favorites when clicking on the corresponding icon in the ${view}`, () => {
+      it(`remove a dashboard to favorites when clicking on the corresponding icon in the ${view}`, () => {
         interceptDashboardsFavoriteDelete(dashboardId);
 
         runFavoriteManagementFromList({
           position: index,
           view,
           action: FavoriteAction.delete,
-          customListingPath: 'Dashboards/favorites/listing/list.json'
+          customListingPath:
+            'Dashboards/favorites/listing/listAllMarkedFavorite.json'
         });
-        // cy.makeSnapshot()
+        cy.makeSnapshot();
       });
     });
 
@@ -1045,19 +961,11 @@ describe('Dashboards', () => {
       cy.waitForRequest('@getDashboards');
 
       cy.get('[type="checkbox"]').check();
-
       cy.waitForRequest('@getFavoritesList');
-      //   cy.getRequestCalls('@getFavoritesList').then(calls => {
-      //     expect(calls[0].request.url).to.equal(specificEndpoin);
-      // })
-
-      // cy.makeSnapshot()
+      cy.makeSnapshot();
 
       cy.get('[type="checkbox"]').check();
       cy.waitForRequest('@getDashboards');
-      //   cy.getRequestCalls('@getFavoritesList').then(calls => {
-      //     expect(calls[0].request.url).to.equal(specificEndpoin);
-      // })
     });
   });
 });
