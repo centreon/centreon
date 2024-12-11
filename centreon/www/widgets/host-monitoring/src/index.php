@@ -277,7 +277,6 @@ $allowedOrderColumns = [
     'active_checks',
     'passive_checks'
 ];
-];
 
 $allowedDirections = ['ASC', 'DESC'];
 
