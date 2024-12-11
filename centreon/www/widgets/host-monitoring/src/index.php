@@ -257,7 +257,7 @@ if (!$centreon->user->admin) {
 }
 
 // prepare order_by
-$orderBy = 'host_name ASC';
+$orderBy = 'h.name ASC';
 
 // Define allowed columns and directions
 $allowedOrderColumns = [
