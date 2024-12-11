@@ -283,6 +283,7 @@ const columns = [
   'Actions'
 ];
 
+// biome-ignore lint/correctness/noUnusedVariables: <explanation>
 const favoriteManagementData = [
   { view: labelCardsView, dashboardId: 2 },
   { view: labelListView, dashboardId: 1 }
@@ -318,6 +319,7 @@ const getPath = ({ position, action }: GetPath) => {
   return path;
 };
 
+// biome-ignore lint/correctness/noUnusedVariables: <explanation>
 const runFavoriteManagementFromList = ({
   action,
   position,

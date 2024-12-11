@@ -378,6 +378,7 @@ const initializeDashboardWithWebpageWidgets = ({
   });
 };
 
+// biome-ignore lint/correctness/noUnusedVariables: <explanation>
 const runFavoriteManagementFromDetails = ({ action, customDetailsPath }) => {
   initializeAndMount({ customDetailsPath });
 
