@@ -425,7 +425,7 @@ overrides:
     depends:
       - centreon-common >= ${MAJOR_VERSION}
       - centreon-common < ${NEXT_MAJOR_VERSION}
-      - centreon-perl-libs = ${VERSION}-${RELEASE}${DIST}
+      - centreon-perl-libs
       - centreon-poller = ${VERSION}-${RELEASE}${DIST}
       - centreon-broker-cbd >= ${MAJOR_VERSION}
       - centreon-broker-cbd < ${NEXT_MAJOR_VERSION}
@@ -512,7 +512,7 @@ overrides:
     depends:
       - "centreon-common (>= ${MAJOR_VERSION}~)"
       - "centreon-common (<< ${NEXT_MAJOR_VERSION}~)"
-      - centreon-perl-libs (= ${VERSION}-${RELEASE}${DIST})
+      - centreon-perl-libs
       - centreon-poller (= ${VERSION}-${RELEASE}${DIST})
       - "centreon-broker-cbd (>= ${MAJOR_VERSION}~)"
       - "centreon-broker-cbd (<< ${NEXT_MAJOR_VERSION}~)"

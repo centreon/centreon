@@ -74,7 +74,7 @@ scripts:
 overrides:
   rpm:
     depends:
-      - centreon-perl-libs = ${VERSION}-${RELEASE}${DIST}
+      - centreon-perl-libs
       - net-snmp
       - perl(SNMP)
     replaces:
@@ -82,7 +82,7 @@ overrides:
       - centreon-trap-poller
   deb:
     depends:
-      - centreon-perl-libs (= ${VERSION}-${RELEASE}${DIST})
+      - centreon-perl-libs
       - libsnmp-perl
       - snmptrapd
       - snmpd
