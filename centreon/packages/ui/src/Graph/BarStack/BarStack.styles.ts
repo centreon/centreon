@@ -8,10 +8,13 @@ export const useBarStackStyles = makeStyles()((theme) => ({
     position: 'relative'
   },
   container: {
-    alignItems: 'center',
+    flexDirection: 'column',
     display: 'flex',
-    gap: theme.spacing(1.5),
-    justifyContent: 'center'
+    gap: theme.spacing(1.5)
+  },
+  graphAndLegend: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr'
   },
   smallTitle: {
     fontSize: theme.typography.body1.fontSize

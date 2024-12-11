@@ -66,24 +66,6 @@ const useResponsiveBarStack = ({
 
   const total = Math.floor(data.reduce((acc, { value }) => acc + value, 0));
 
-  const yScale = isVerticalBar
-    ? scaleLinear({
-        domain: [0, total]
-      })
-    : scaleBand({
-        domain: [0, 0],
-        padding: 0
-      });
-
-  const xScale = isVerticalBar
-    ? scaleBand({
-        domain: [0, 0],
-        padding: 0
-      })
-    : scaleLinear({
-        domain: [0, total]
-      });
-
   const keys = pluck('label', data);
 
   const colorsRange = pluck('color', data);
@@ -98,11 +80,27 @@ const useResponsiveBarStack = ({
     range: colorsRange
   };
 
-  const xMax = barSize.width;
-  const yMax = barSize.height;
+  const yScale = isVerticalBar
+    ? scaleLinear({
+        domain: [0, total],
+        range: [barSize.height, 0]
+      })
+    : scaleBand({
+        domain: [0, 0],
+        padding: 0,
+        range: [barSize.height, 0]
+      });
 
-  xScale.rangeRound([0, xMax]);
-  yScale.range([yMax, 0]);
+  const xScale = isVerticalBar
+    ? scaleBand({
+        domain: [0, 0],
+        padding: 0,
+        range: [0, barSize.width]
+      })
+    : scaleLinear({
+        domain: [0, total],
+        range: [0, barSize.width]
+      });
 
   const input = data.reduce((acc, { label, value }) => {
     acc[label] = value;
