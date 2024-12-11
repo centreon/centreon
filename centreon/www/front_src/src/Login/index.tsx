@@ -73,14 +73,14 @@ const LoginPage = (): JSX.Element => {
   const { t } = useTranslation();
   const validationSchema = useValidationSchema();
 
+  const { loginPageCustomisation } = useGetLoginCustomData();
+
   const {
     submitLoginForm,
     providersConfiguration,
     authenticationError,
     hasForcedProvider
   } = useLogin();
-
-  const { loginPageCustomisation } = useGetLoginCustomData();
 
   const areUserParametersLoaded = useAtomValue(areUserParametersLoadedAtom);
   const platformVersions = useAtomValue(platformVersionsAtom);

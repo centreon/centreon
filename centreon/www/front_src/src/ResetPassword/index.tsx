@@ -89,8 +89,8 @@ const ResetPassword = (): JSX.Element | null => {
             {equals(loginPageCustomisation.textPosition, 'top') && (
               <CustomText loginPageCustomisation={loginPageCustomisation} />
             )}
+            <Typography variant="h5">{t(labelResetYourPassword)}</Typography>
             <div className={classes.form}>
-              <Typography variant="h5">{t(labelResetYourPassword)}</Typography>
               <Formik<ResetPasswordValues>
                 initialValues={initialValues}
                 validationSchema={validationSchema}
