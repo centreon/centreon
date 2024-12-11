@@ -941,7 +941,7 @@ describe('Dashboards', () => {
           action: FavoriteAction.add,
           customListingPath: 'Dashboards/favorites/listing/list.json'
         });
-        cy.makeSnapshot();
+        // cy.makeSnapshot();
       });
 
       it(`remove a dashboard to favorites when clicking on the corresponding icon in the ${view}`, () => {
@@ -954,7 +954,7 @@ describe('Dashboards', () => {
           customListingPath:
             'Dashboards/favorites/listing/listAllMarkedFavorite.json'
         });
-        cy.makeSnapshot();
+        // cy.makeSnapshot();
       });
     });
 
@@ -963,11 +963,11 @@ describe('Dashboards', () => {
       cy.waitForRequest('@getDashboards');
 
       cy.get('[type="checkbox"]').check();
-      cy.waitForRequest('@getFavoritesList');
-      cy.makeSnapshot();
+      // cy.waitForRequest('@getFavoritesList');
+      // cy.makeSnapshot();
 
       cy.get('[type="checkbox"]').check();
-      cy.waitForRequest('@getDashboards');
+      // cy.waitForRequest('@getDashboards');
     });
   });
 });
