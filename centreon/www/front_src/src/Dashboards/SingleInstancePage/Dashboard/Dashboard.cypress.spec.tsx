@@ -31,7 +31,10 @@ import {
 } from '../../api/endpoints';
 import { DashboardRole } from '../../api/models';
 import { FavoriteAction } from '../../models';
-import { manageAFavorite } from '../../testsUtils';
+import {
+  interceptDashboardsFavoriteDelete,
+  manageAFavorite
+} from '../../testsUtils';
 import {
   labelAddAContact,
   labelDashboardUpdated,
@@ -378,7 +381,6 @@ const initializeDashboardWithWebpageWidgets = ({
   });
 };
 
-// biome-ignore lint/correctness/noUnusedVariables: <explanation>
 const runFavoriteManagementFromDetails = ({ action, customDetailsPath }) => {
   initializeAndMount({ customDetailsPath });
 
@@ -388,6 +390,7 @@ const runFavoriteManagementFromDetails = ({ action, customDetailsPath }) => {
     ? 'Dashboards/Dashboard/details.json'
     : 'Dashboards/favorites/details.json';
 
+  // biome-ignore lint/correctness/noUnusedVariables: <explanation>
   const aliasRequestAction = equals(FavoriteAction.add)
     ? '@addFvorite'
     : '@removeFavorite';
@@ -398,7 +401,8 @@ const runFavoriteManagementFromDetails = ({ action, customDetailsPath }) => {
   manageAFavorite({
     action,
     buttonAlias: '@favoriteIcon',
-    requestsToWait: [aliasRequestAction, '@getDashboardDetails']
+    requestsToWait: ['@getDashboardDetails'] // temporarily
+    // requestsToWait: [aliasRequestAction, '@getDashboardDetails'] // temporarily
   });
 };
 
@@ -893,25 +897,24 @@ describe('Dashboard', () => {
     });
   });
 
-  // temporarily
-  // describe('Managment favorite dashboards', () => {
-  //   it('add a dashboard to favorites when clicking on the corresponding icon in the details view', () => {
-  //     runFavoriteManagementFromDetails({
-  //       action: FavoriteAction.add,
-  //       customDetailsPath: 'Dashboards/Dashboard/details.json'
-  //     });
-  //     cy.makeSnapshot();
-  //   });
+  describe('Managment favorite dashboards', () => {
+    it('add a dashboard to favorites when clicking on the corresponding icon in the details view', () => {
+      runFavoriteManagementFromDetails({
+        action: FavoriteAction.add,
+        customDetailsPath: 'Dashboards/Dashboard/details.json'
+      });
+      // cy.makeSnapshot();
+    });
 
-  //   it('remove a dashboard from favorites when clicking on the corresponding icon in the details view', () => {
-  //     interceptDashboardsFavoriteDelete(1);
-  //     runFavoriteManagementFromDetails({
-  //       action: FavoriteAction.delete,
-  //       customDetailsPath: 'Dashboards/favorites/details.json'
-  //     });
-  //     cy.makeSnapshot();
-  //   });
-  // });
+    it('remove a dashboard from favorites when clicking on the corresponding icon in the details view', () => {
+      interceptDashboardsFavoriteDelete(1);
+      runFavoriteManagementFromDetails({
+        action: FavoriteAction.delete,
+        customDetailsPath: 'Dashboards/favorites/details.json'
+      });
+      // cy.makeSnapshot();
+    });
+  });
 });
 
 describe('Dashboard with complex layout', () => {

@@ -37,7 +37,10 @@ import {
 } from './components/DashboardLibrary/DashboardListing/translatedLabels';
 import { DashboardLayout, FavoriteAction, GetPath } from './models';
 import { routerHooks } from './routerHooks';
-import { manageAFavorite } from './testsUtils';
+import {
+  interceptDashboardsFavoriteDelete,
+  manageAFavorite
+} from './testsUtils';
 import {
   labelAddAContact,
   labelCancel,
@@ -283,7 +286,6 @@ const columns = [
   'Actions'
 ];
 
-// biome-ignore lint/correctness/noUnusedVariables: <explanation>
 const favoriteManagementData = [
   { view: labelCardsView, dashboardId: 2 },
   { view: labelListView, dashboardId: 1 }
@@ -319,7 +321,6 @@ const getPath = ({ position, action }: GetPath) => {
   return path;
 };
 
-// biome-ignore lint/correctness/noUnusedVariables: <explanation>
 const runFavoriteManagementFromList = ({
   action,
   position,
@@ -332,6 +333,7 @@ const runFavoriteManagementFromList = ({
   const buttonAlias = getAliasFavoriteButton(position);
   const path = getPath({ position, action });
 
+  // biome-ignore lint/correctness/noUnusedVariables: <explanation>
   const aliasRequestAction = equals(FavoriteAction.add)
     ? '@addFavorite'
     : '@removeFavorite';
@@ -350,7 +352,8 @@ const runFavoriteManagementFromList = ({
   manageAFavorite({
     action,
     buttonAlias,
-    requestsToWait: [aliasRequestAction, '@getUpdatedDashboards']
+    requestsToWait: ['@getUpdatedDashboards'] // temporarily
+    // requestsToWait: [aliasRequestAction, '@getUpdatedDashboards'] // temporarily
   });
 };
 
@@ -929,43 +932,42 @@ describe('Dashboards', () => {
     });
   });
 
-  // temporarily
-  // describe('Managment favorite dashboards', () => {
-  //   favoriteManagementData.forEach(({ view, dashboardId }, index) => {
-  //     it(`add a dashboard to favorites when clicking on the corresponding icon in the ${view}`, () => {
-  //       runFavoriteManagementFromList({
-  //         position: index,
-  //         view,
-  //         action: FavoriteAction.add,
-  //         customListingPath: 'Dashboards/favorites/listing/list.json'
-  //       });
-  //       cy.makeSnapshot();
-  //     });
+  describe('Managment favorite dashboards', () => {
+    favoriteManagementData.forEach(({ view, dashboardId }, index) => {
+      it(`add a dashboard to favorites when clicking on the corresponding icon in the ${view}`, () => {
+        runFavoriteManagementFromList({
+          position: index,
+          view,
+          action: FavoriteAction.add,
+          customListingPath: 'Dashboards/favorites/listing/list.json'
+        });
+        cy.makeSnapshot();
+      });
 
-  //     it(`remove a dashboard to favorites when clicking on the corresponding icon in the ${view}`, () => {
-  //       interceptDashboardsFavoriteDelete(dashboardId);
+      it(`remove a dashboard to favorites when clicking on the corresponding icon in the ${view}`, () => {
+        interceptDashboardsFavoriteDelete(dashboardId);
 
-  //       runFavoriteManagementFromList({
-  //         position: index,
-  //         view,
-  //         action: FavoriteAction.delete,
-  //         customListingPath:
-  //           'Dashboards/favorites/listing/listAllMarkedFavorite.json'
-  //       });
-  //       cy.makeSnapshot();
-  //     });
-  //   });
+        runFavoriteManagementFromList({
+          position: index,
+          view,
+          action: FavoriteAction.delete,
+          customListingPath:
+            'Dashboards/favorites/listing/listAllMarkedFavorite.json'
+        });
+        cy.makeSnapshot();
+      });
+    });
 
-  //   it('displays the favorites dashboard when the checkbox filter is selected.', () => {
-  //     initializeAndMount({});
-  //     cy.waitForRequest('@getDashboards');
+    it('displays the favorites dashboard when the checkbox filter is selected.', () => {
+      initializeAndMount({});
+      cy.waitForRequest('@getDashboards');
 
-  //     cy.get('[type="checkbox"]').check();
-  //     cy.waitForRequest('@getFavoritesList');
-  //     cy.makeSnapshot();
+      cy.get('[type="checkbox"]').check();
+      cy.waitForRequest('@getFavoritesList');
+      cy.makeSnapshot();
 
-  //     cy.get('[type="checkbox"]').check();
-  //     cy.waitForRequest('@getDashboards');
-  //   });
-  // });
+      cy.get('[type="checkbox"]').check();
+      cy.waitForRequest('@getDashboards');
+    });
+  });
 });
