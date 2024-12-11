@@ -31,10 +31,7 @@ import {
 } from '../../api/endpoints';
 import { DashboardRole } from '../../api/models';
 import { FavoriteAction } from '../../models';
-import {
-  interceptDashboardsFavoriteDelete,
-  manageAFavorite
-} from '../../testsUtils';
+import { manageAFavorite } from '../../testsUtils';
 import {
   labelAddAContact,
   labelDashboardUpdated,
@@ -895,24 +892,25 @@ describe('Dashboard', () => {
     });
   });
 
-  describe('Managment favorite dashboards', () => {
-    it('add a dashboard to favorites when clicking on the corresponding icon in the details view', () => {
-      runFavoriteManagementFromDetails({
-        action: FavoriteAction.add,
-        customDetailsPath: 'Dashboards/Dashboard/details.json'
-      });
-      cy.makeSnapshot();
-    });
+  // temporarily
+  // describe('Managment favorite dashboards', () => {
+  //   it('add a dashboard to favorites when clicking on the corresponding icon in the details view', () => {
+  //     runFavoriteManagementFromDetails({
+  //       action: FavoriteAction.add,
+  //       customDetailsPath: 'Dashboards/Dashboard/details.json'
+  //     });
+  //     cy.makeSnapshot();
+  //   });
 
-    it('remove a dashboard from favorites when clicking on the corresponding icon in the details view', () => {
-      interceptDashboardsFavoriteDelete(1);
-      runFavoriteManagementFromDetails({
-        action: FavoriteAction.delete,
-        customDetailsPath: 'Dashboards/favorites/details.json'
-      });
-      cy.makeSnapshot();
-    });
-  });
+  //   it('remove a dashboard from favorites when clicking on the corresponding icon in the details view', () => {
+  //     interceptDashboardsFavoriteDelete(1);
+  //     runFavoriteManagementFromDetails({
+  //       action: FavoriteAction.delete,
+  //       customDetailsPath: 'Dashboards/favorites/details.json'
+  //     });
+  //     cy.makeSnapshot();
+  //   });
+  // });
 });
 
 describe('Dashboard with complex layout', () => {

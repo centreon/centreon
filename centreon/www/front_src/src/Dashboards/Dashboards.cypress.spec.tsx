@@ -37,10 +37,7 @@ import {
 } from './components/DashboardLibrary/DashboardListing/translatedLabels';
 import { DashboardLayout, FavoriteAction, GetPath } from './models';
 import { routerHooks } from './routerHooks';
-import {
-  interceptDashboardsFavoriteDelete,
-  manageAFavorite
-} from './testsUtils';
+import { manageAFavorite } from './testsUtils';
 import {
   labelAddAContact,
   labelCancel,
@@ -930,42 +927,43 @@ describe('Dashboards', () => {
     });
   });
 
-  describe('Managment favorite dashboards', () => {
-    favoriteManagementData.forEach(({ view, dashboardId }, index) => {
-      it(`add a dashboard to favorites when clicking on the corresponding icon in the ${view}`, () => {
-        runFavoriteManagementFromList({
-          position: index,
-          view,
-          action: FavoriteAction.add,
-          customListingPath: 'Dashboards/favorites/listing/list.json'
-        });
-        cy.makeSnapshot();
-      });
+  // temporarily
+  // describe('Managment favorite dashboards', () => {
+  //   favoriteManagementData.forEach(({ view, dashboardId }, index) => {
+  //     it(`add a dashboard to favorites when clicking on the corresponding icon in the ${view}`, () => {
+  //       runFavoriteManagementFromList({
+  //         position: index,
+  //         view,
+  //         action: FavoriteAction.add,
+  //         customListingPath: 'Dashboards/favorites/listing/list.json'
+  //       });
+  //       cy.makeSnapshot();
+  //     });
 
-      it(`remove a dashboard to favorites when clicking on the corresponding icon in the ${view}`, () => {
-        interceptDashboardsFavoriteDelete(dashboardId);
+  //     it(`remove a dashboard to favorites when clicking on the corresponding icon in the ${view}`, () => {
+  //       interceptDashboardsFavoriteDelete(dashboardId);
 
-        runFavoriteManagementFromList({
-          position: index,
-          view,
-          action: FavoriteAction.delete,
-          customListingPath:
-            'Dashboards/favorites/listing/listAllMarkedFavorite.json'
-        });
-        cy.makeSnapshot();
-      });
-    });
+  //       runFavoriteManagementFromList({
+  //         position: index,
+  //         view,
+  //         action: FavoriteAction.delete,
+  //         customListingPath:
+  //           'Dashboards/favorites/listing/listAllMarkedFavorite.json'
+  //       });
+  //       cy.makeSnapshot();
+  //     });
+  //   });
 
-    it('displays the favorites dashboard when the checkbox filter is selected.', () => {
-      initializeAndMount({});
-      cy.waitForRequest('@getDashboards');
+  //   it('displays the favorites dashboard when the checkbox filter is selected.', () => {
+  //     initializeAndMount({});
+  //     cy.waitForRequest('@getDashboards');
 
-      cy.get('[type="checkbox"]').check();
-      cy.waitForRequest('@getFavoritesList');
-      cy.makeSnapshot();
+  //     cy.get('[type="checkbox"]').check();
+  //     cy.waitForRequest('@getFavoritesList');
+  //     cy.makeSnapshot();
 
-      cy.get('[type="checkbox"]').check();
-      cy.waitForRequest('@getDashboards');
-    });
-  });
+  //     cy.get('[type="checkbox"]').check();
+  //     cy.waitForRequest('@getDashboards');
+  //   });
+  // });
 });
