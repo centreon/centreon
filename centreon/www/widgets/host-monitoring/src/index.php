@@ -270,7 +270,13 @@ $allowedOrderColumns = [
     'check_attempt',
     'last_check',
     'last_state_change',
-    'last_hard_state_change'
+    'last_hard_state_change',
+    'scheduled_downtime_depth',
+    'acknowledged',
+    'notify',
+    'active_checks',
+    'passive_checks'
+];
 ];
 
 $allowedDirections = ['ASC', 'DESC'];
