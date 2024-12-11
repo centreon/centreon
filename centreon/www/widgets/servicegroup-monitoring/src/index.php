@@ -136,7 +136,13 @@ if (isset($preferences['order_by']) && trim($preferences['order_by']) !== '') {
 }
 
 $query .= "ORDER BY $orderby";
-$query .= " LIMIT " . ($page * $preferences['entries']) . "," . $preferences['entries'];
+
+$entriesPerPage = filter_var($preferences['entries'], FILTER_VALIDATE_INT);
+if ($entriesPerPage === false || $entriesPerPage < 1) {
+    $entriesPerPage = 10; // Default value
+}
+
+$query .= " LIMIT " . ($page * $entriesPerPage) . "," . $entriesPerPage;
 $res = $dbb->query($query);
 $nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
 
