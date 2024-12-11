@@ -18323,3 +18323,18 @@ msgstr ""
 
 # msgid "There are errors in the form."
 # msgstr ""
+
+# msgid "Show only dashboards marked as favorites"
+# msgstr ""
+
+# msgid "The dashboard is successfully marked as favorite"
+# msgstr ""
+
+# msgid "The dashboard is successfully marked as unFavorite"
+# msgstr ""
+
+# msgid "Remove from favorites"
+# msgstr ""
+
+# msgid "Add to favorites"
+# msgstr ""

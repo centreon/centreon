@@ -6,6 +6,7 @@ import {
 } from '@centreon/ui';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { memo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   dashboardsFavoriteDeleteEndpoint,
   dashboardsFavoriteEndpoit
@@ -25,6 +26,7 @@ interface Props {
 }
 
 const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
+  const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
 
   const labelSuccess = useRef('');
@@ -32,9 +34,9 @@ const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
 
   const getLabel = ({ setLabel, unsetLabel, asFavorite }: GetLabel) => {
     if (asFavorite) {
-      return unsetLabel;
+      return t(unsetLabel);
     }
-    return setLabel;
+    return t(setLabel);
   };
 
   const getEndpoint = (data: FavoriteEndpoint) => {

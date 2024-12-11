@@ -19617,3 +19617,19 @@ msgstr "minute"
 
 msgid "There are errors in the form."
 msgstr "Il y a des erreurs dans le formulaire."
+
+msgid "Show only dashboards marked as favorites"
+msgstr "Afficher uniquement les tableaux de bord marqués comme favoris"
+
+msgid "The dashboard is successfully marked as favorite"
+msgstr "Le tableau de bord a été marqué comme favori avec succès"
+
+msgid "The dashboard is successfully marked as unFavorite"
+msgstr "Le tableau de bord a été marqué comme non favori avec succès"
+
+msgid "Remove from favorites"
+msgstr "Retirer des favoris"
+
+msgid "Add to favorites"
+msgstr "Ajouter aux favoris"
+
