@@ -63,14 +63,39 @@ if (isset($_GET["id"]) && $_GET["id"] && is_numeric($_GET["id"])) {
             $imgPath = _CENTREON_PATH_ . 'www/img/media/' . $imgDirName . "/" . $imgName;
         }
         if (is_file($imgPath)) {
-            $fd = fopen($imgPath, "r");
-            $buffer = null;
-            while (!feof($fd)) {
-                $buffer .= fgets($fd, 4096);
+            $fileInfo =  new finfo(FILEINFO_MIME_TYPE);
+            $mimeType = $fileInfo->file($imgPath);
+            try {
+                switch ($mimeType) {
+                    case 'image/jpeg':
+                        $image = imagecreatefromjpeg($imgPath);
+                        if (! $image || ! imagejpeg($image)) {
+                            throw new Exception("Failed to create image from JPEG");
+                        }
+                        break;
+                    case 'image/png':
+                        $image = imagecreatefrompng($imgPath);
+                        if (! $image || ! imagepng($image)) {
+                            throw new Exception("Failed to create image from PNG");
+                        }
+                        break;
+                    case 'image/gif':
+                        $image = imagecreatefromgif($imgPath);
+                        if (! $image || ! imagegif($image)) {
+                            throw new Exception("Failed to create image from GIF");
+                        }
+                        break;
+                    case 'image/svg+xml':
+                        $image = file_get_contents($imgPath);
+                        print $image;
+                        break;
+                    default:
+                        throw new Exception("Unsupported image type: $mimeType");
+                        break;
+                };
+            } catch (Throwable $e) {
+                print $e->getMessage();
             }
-            fclose($fd);
-            print $buffer;
-            break;
         } else {
             print "File not found";
         }
