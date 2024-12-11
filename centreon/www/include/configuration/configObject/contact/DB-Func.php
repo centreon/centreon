@@ -636,6 +636,10 @@ function insertContact($ret = array())
         $ret = $form->getSubmitValues();
     }
     $ret["contact_name"] = $centreon->checkIllegalChar($ret["contact_name"]);
+    // Filter fields to only include whitelisted fields for non-admin users
+    if (! $centreon->user->admin) {
+        $ret = filterNonAdminFields($ret);
+    }
 
     $bindParams = sanitizeFormContactParameters($ret);
     $params = [];
@@ -688,12 +692,16 @@ function updateContact($contactId = null)
         return;
     }
     $ret = $form->getSubmitValues();
-    // remove illegal chars in data sent by the user
+    // Filter fields to only include whitelisted fields for non-admin users
+    if (! $centreon->user->admin) {
+        $ret = filterNonAdminFields($ret);
+    }
+    // Remove illegal chars in data sent by the user
     $ret['contact_name'] = CentreonUtils::escapeSecure($ret['contact_name'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
     $ret['contact_alias'] = CentreonUtils::escapeSecure($ret['contact_alias'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
     $bindParams = sanitizeFormContactParameters($ret);
 
-    //Build Query with only setted values.
+    // Build Query with only setted values.
     $rq = "UPDATE contact SET ";
     foreach (array_keys($bindParams) as $token) {
         $rq .= ltrim($token, ':') . " = " . $token . ", ";
@@ -746,6 +754,10 @@ function updateContact_MC($contact_id = null)
         if (is_string($value) && empty($value)) {
             unset($ret[$name]);
         }
+    }
+    // Filter fields to only include whitelisted fields for non-admin users
+    if (! $centreon->user->admin) {
+        $ret = filterNonAdminFields($ret);
     }
 
     $bindParams = sanitizeFormContactParameters($ret);
@@ -1582,5 +1594,33 @@ function validateAutologin(array $fields)
         }
     }
 
-    return count($errors) > 0 ? $errors : true;
+    return $errors !== [] ? $errors : true;
+}
+
+/**
+ * Filter the fields in the $ret array to only include whitelisted fields for non-admin users.
+ *
+ * @param array $ret
+ * @return array
+ */
+function filterNonAdminFields(array $ret): array
+{
+    $allowedFields = [
+        'contact_alias', 'contact_name', 'contact_email', 'contact_pager',
+        'contact_cgNotif', 'contact_enable_notifications', 'contact_hostNotifOpts',
+        'timeperiod_tp_id', 'contact_hostNotifCmds', 'contact_svNotifOpts', 'contact_passwd2',
+        'timeperiod_tp_id2', 'contact_svNotifCmds', 'contact_oreon', 'contact_passwd',
+        'contact_lang', 'default_page', 'contact_location', 'contact_autologin_key', 'contact_auth_type',
+        'contact_acl_groups', 'contact_address1', 'contact_address2', 'contact_address3', 'contact_address4',
+        'contact_address5', 'contact_address6', 'contact_comment', 'contact_register', 'contact_activate',
+        'contact_id', 'initialValues', 'centreon_token', 'contact_template_id', 'contact_type_msg'
+    ];
+
+    foreach ($ret as $field => $value) {
+        if (!in_array($field, $allowedFields, true)) {
+            unset($ret[$field]);
+        }
+    }
+
+    return $ret;
 }
