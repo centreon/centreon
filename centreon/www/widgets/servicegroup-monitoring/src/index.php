@@ -120,8 +120,19 @@ if (!$centreon->user->admin) {
 
 
 $orderby = "name ASC";
-if (isset($preferences['order_by']) && trim($preferences['order_by']) != "") {
-    $orderby = $preferences['order_by'];
+
+$allowedOrderColumns = ['name'];
+
+$allowedDirections = ['ASC', 'DESC'];
+
+if (isset($preferences['order_by']) && trim($preferences['order_by']) !== '') {
+    $aOrder = explode(' ', trim($preferences['order_by']));
+    $column = $aOrder[0] ?? '';
+    $direction = isset($aOrder[1]) ? strtoupper($aOrder[1]) : 'ASC';
+
+    if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
+        $orderby = $column . ' ' . $direction;
+    }
 }
 
 $query .= "ORDER BY $orderby";
