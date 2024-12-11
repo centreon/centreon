@@ -257,9 +257,47 @@ if (!$centreon->user->admin) {
     $query .= $aclObj->queryBuilder('AND', 'h.host_id', $aclObj->getHostsString('ID', $dbb));
 }
 $orderBy = 'h.name ASC';
-if (isset($preferences['order_by']) && $preferences['order_by'] != '') {
-    $orderBy = $preferences['order_by'];
+
+$allowedOrderColumns = [
+    'h.host_id',
+    'h.name',
+    'h.alias',
+    'h.flapping',
+    'state',
+    'state_type',
+    'address',
+    'last_hard_state',
+    'output',
+    'scheduled_downtime_depth',
+    'acknowledged',
+    'notify',
+    'active_checks',
+    'passive_checks',
+    'last_check',
+    'last_state_change',
+    'last_hard_state_change',
+    'check_attempt',
+    'max_check_attempts',
+    'action_url',
+    'notes_url',
+    'cv.value AS criticality',
+    'h.icon_image',
+    'h.icon_image_alt',
+    'criticality_id'
+];
+
+$allowedDirections = ['ASC', 'DESC'];
+
+if (isset($preferences['order_by']) && trim($preferences['order_by']) !== '') {
+    $aOrder = explode(' ', trim($preferences['order_by']));
+    $column = $aOrder[0] ?? '';
+    $direction = isset($aOrder[1]) ? strtoupper($aOrder[1]) : 'ASC';
+
+    if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
+        $orderBy = $column . ' ' . $direction;
+    }
 }
+
 $query .= " ORDER BY {$orderBy}";
 
 $res = $dbb->prepare($query);
