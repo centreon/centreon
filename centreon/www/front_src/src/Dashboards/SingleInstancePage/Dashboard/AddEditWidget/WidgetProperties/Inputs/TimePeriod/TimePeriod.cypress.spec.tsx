@@ -1,13 +1,13 @@
 import { Formik } from 'formik';
 import { Provider, createStore } from 'jotai';
 
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
   labelCustomize,
   labelFrom,
   labelTimePeriod,
   labelTo
 } from '../../../../translatedLabels';
-import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
 import TimePeriod from './TimePeriod';
 import { options } from './useTimePeriod';
@@ -71,8 +71,8 @@ describe('Time Period', () => {
 
     cy.contains(labelCustomize).click();
 
-    cy.get('input').eq(1).should('have.value', '06/05/2023 07:00 AM');
-    cy.get('input').eq(2).should('have.value', '06/05/2023 08:00 AM');
+    cy.get('input').eq(1).should('have.value', '05/06/2023 07:00');
+    cy.get('input').eq(2).should('have.value', '05/06/2023 08:00');
   });
 
   it('customizes the time period when the corresponding option is clicked and the start and end fields are updated', () => {
@@ -86,8 +86,8 @@ describe('Time Period', () => {
       .type('04');
     cy.findByLabelText(labelTo).find('input').click({ force: true }).type('05');
 
-    cy.get('input').eq(1).should('have.value', '04/05/2023 07:00 AM');
-    cy.get('input').eq(2).should('have.value', '05/05/2023 08:00 AM');
+    cy.get('input').eq(1).should('have.value', '04/06/2023 07:00');
+    cy.get('input').eq(2).should('have.value', '05/06/2023 08:00');
   });
 });
 

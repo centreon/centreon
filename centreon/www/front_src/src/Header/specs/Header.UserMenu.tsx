@@ -21,8 +21,8 @@ export default (): void => {
 
       cy.get('[data-cy=clock]').as('clock');
       cy.get('@clock').should('be.visible');
-      cy.get('@clock').contains('April 28, 2022');
-      cy.get('@clock').contains('4:20 PM');
+      cy.get('@clock').contains('28 avril 2022');
+      cy.get('@clock').contains('16:20');
 
       cy.makeSnapshot();
     });

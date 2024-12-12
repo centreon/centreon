@@ -263,7 +263,7 @@ displayTypes.forEach(({ displayType, label }) => {
       cy.makeSnapshot(`${label} : displays values with the unit "number"`);
     });
 
-    describe.only('Tooltip', () => {
+    describe('Tooltip', () => {
       ['service', 'host'].forEach((resourceType) => {
         it(`displays tooltip with correct information on hover for type ${resourceType}`, () => {
           const statuses = equals(resourceType, 'host')
@@ -307,7 +307,7 @@ displayTypes.forEach(({ displayType, label }) => {
             `${okStatus?.count}/${total} ${resourceType}s are working fine.`
           );
 
-          cy.contains('February 1, 2024').should('be.visible');
+          cy.contains('1 février 2024').should('be.visible');
         });
       });
     });
