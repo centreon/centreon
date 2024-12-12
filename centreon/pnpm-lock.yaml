@@ -936,6 +936,9 @@ importers:
       cypress:
         specifier: ^13.6.2
         version: 13.14.1
+      cypress-on-fix:
+        specifier: ^1.0.3
+        version: 1.0.3
       cypress-real-events:
         specifier: ^1.11.0
         version: 1.12.0(cypress@13.14.1)
@@ -12323,6 +12326,10 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: false
+
+  /cypress-on-fix@1.0.3:
+    resolution: {integrity: sha512-iC+LSKKZM0ppOoSGHK6FOxspHG+K6RaJFWlxUjrjjI5fyzmtgR5xBxEP4dsnoNthS1Lq4v70AN1PRZtJrYgNRw==}
+    dev: true
 
   /cypress-plugin-tab@1.0.5:
     resolution: {integrity: sha512-QtTJcifOVwwbeMP3hsOzQOKf3EqKsLyjtg9ZAGlYDntrCRXrsQhe4ZQGIthRMRLKpnP6/tTk6G0gJ2sZUfRliQ==}

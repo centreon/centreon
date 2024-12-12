@@ -40,6 +40,39 @@ jobs:
     with:
       version_file: centreon-awie/www/modules/centreon-awie/conf.php
 
+  changes:
+    needs: [get-environment]
+    runs-on: ubuntu-22.04
+    outputs:
+      has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
+      has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
+      trigger_delivery: ${{ steps.changes_trigger_checks.outputs.trigger_delivery }}
+      trigger_api_testing: ${{ steps.changes_trigger_checks.outputs.trigger_api_testing }}
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        id: filter
+        with:
+          filters: |
+            has_backend_changes:
+              - 'centreon-awie/*.php'
+              - 'centreon-awie/!(features)/*.php'
+              - 'centreon-awie/phpstan*'
+              - 'centreon-awie/ruleset.xml'
+              - 'centreon-awie/libinstall/**'
+              - 'centreon-awie/www/modules/centreon-awie/**'
+            has_test_changes:
+              - 'centreon-awie/features/**'
+
+      - uses: ./.github/actions/changes-trigger-checks
+        id: changes_trigger_checks
+        with:
+          is_nightly: 'false'
+          has_frontend_changes: 'false'
+          has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
+          has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
+
   veracode-analysis:
     needs: [get-environment]
     if: ${{ needs.get-environment.outputs.is_targeting_feature_branch != 'true' && github.event.pull_request.draft != 'true' }}
@@ -60,7 +93,8 @@ jobs:
 
   backend-lint:
     runs-on: ubuntu-24.04
-    needs: [get-environment]
+    needs: [get-environment, changes]
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_backend_changes == 'true' }}
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
@@ -83,7 +117,7 @@ jobs:
 
   package:
     needs: [get-environment, backend-lint]
-    if: ${{ needs.get-environment.outputs.stability != 'stable' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.get-environment.outputs.stability != 'stable' }}
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -138,7 +172,7 @@ jobs:
   deliver-sources:
     runs-on: [self-hosted, common]
     needs: [get-environment, package]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' }}
 
     steps:
       - name: Checkout sources
@@ -155,8 +189,11 @@ jobs:
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
   deliver-rpm:
-    needs: [get-environment, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) }}
+    needs: [get-environment, changes, package]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.changes.outputs.trigger_delivery == 'true' &&
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)
     runs-on: [self-hosted, common]
 
     strategy:
@@ -180,8 +217,11 @@ jobs:
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   deliver-deb:
-    needs: [get-environment, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) }}
+    needs: [get-environment, changes, package]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.changes.outputs.trigger_delivery == 'true' &&
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)
     runs-on: [self-hosted, common]
 
     strategy:
@@ -207,6 +247,7 @@ jobs:
   promote:
     needs: [get-environment, deliver-rpm, deliver-deb]
     if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
       (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
@@ -232,3 +273,12 @@ jobs:
           github_ref_name: ${{ github.ref_name }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+
+  set-skip-label:
+    needs: [get-environment, deliver-rpm, deliver-deb, promote]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
+    uses: ./.github/workflows/set-pull-request-skip-label.yml

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4c529927dd5f9299433d72dfa76013df",
+    "content-hash": "e3d6b91e545032ea2687a31f88be644c",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -2200,16 +2200,16 @@
         },
         {
             "name": "smarty/smarty",
-            "version": "v4.4.1",
+            "version": "v4.5.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/smarty-php/smarty.git",
-                "reference": "f4152e9b814ae2369b6e4935c05e1e0c3654318d"
+                "reference": "c11676e85aa71bc7c3cd9100f1655a9f4d14616e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/smarty-php/smarty/zipball/f4152e9b814ae2369b6e4935c05e1e0c3654318d",
-                "reference": "f4152e9b814ae2369b6e4935c05e1e0c3654318d",
+                "url": "https://api.github.com/repos/smarty-php/smarty/zipball/c11676e85aa71bc7c3cd9100f1655a9f4d14616e",
+                "reference": "c11676e85aa71bc7c3cd9100f1655a9f4d14616e",
                 "shasum": ""
             },
             "require": {
@@ -2260,9 +2260,9 @@
             "support": {
                 "forum": "https://github.com/smarty-php/smarty/discussions",
                 "issues": "https://github.com/smarty-php/smarty/issues",
-                "source": "https://github.com/smarty-php/smarty/tree/v4.4.1"
+                "source": "https://github.com/smarty-php/smarty/tree/v4.5.4"
             },
-            "time": "2024-02-26T13:58:37+00:00"
+            "time": "2024-08-14T20:04:35+00:00"
         },
         {
             "name": "symfony/cache",
@@ -12160,7 +12160,7 @@
         "ext-phar": "*",
         "ext-zip": "*"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "8.1"
     },

@@ -124,9 +124,7 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
         return new SelfValidatingPassport(
             new UserBadge(
                 $apiToken,
-                function ($userIdentifier) {
-                    return $this->getUserAndUpdateToken($userIdentifier);
-                }
+                fn ($userIdentifier) => $this->getUserAndUpdateToken($userIdentifier)
             )
         );
     }
@@ -139,6 +137,7 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
      * @throws TokenNotFoundException
      * @throws CredentialsExpiredException
      * @throws ContactDisabledException
+     * @throws \Throwable
      *
      * @return UserInterface
      */
@@ -160,7 +159,7 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
         }
 
         if (! $this->readTokenRepository->isTokenTypeManual($apiToken)) {
-            $this->authenticationRepository->updateProviderToken($providerToken);
+            $this->authenticationRepository->updateProviderTokenExpirationDate($providerToken);
         }
 
         return $contact;
