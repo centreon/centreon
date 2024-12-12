@@ -18330,7 +18330,7 @@ msgstr ""
 # msgid "The dashboard has been added to favorites."
 # msgstr ""
 
-# msgid "The dashboard is successfully marked as unFavorite"
+# msgid "The dashboard has been removed from favorites."
 # msgstr ""
 
 # msgid "Remove from favorites"
