@@ -49,6 +49,7 @@ jobs:
       base_directory: widgets/centreon-widget-${{ inputs.widget_name }}
       spec_file: widgets/centreon-widget.spectemplate
       package_extension: ${{ matrix.package_extension }}
+      distrib: ${{ matrix.distrib }}
       image_name: ${{ matrix.image }}
       module_name: centreon
       major_version: ${{ inputs.major_version }}
