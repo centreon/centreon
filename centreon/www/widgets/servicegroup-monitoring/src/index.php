@@ -128,15 +128,15 @@ const ORDER_DIRECTION_DESC = 'DESC';
 const DEFAULT_ENTRIES_PER_PAGE= 10;
 
 $allowedDirections = [ORDER_DIRECTION_ASC, ORDER_DIRECTION_DESC];
-
 $defaultDirection = ORDER_DIRECTION_ASC;
+
 $orderByToAnalyse = isset($preferences['order_by'])
     ? trim($preferences['order_by'])
     : null;
+
 if ($orderByToAnalyse !== null) {
-    $orderByToAnalyse .= " $defaultDirection";
     [$column, $direction] = explode(' ', $orderByToAnalyse);
-    $direction = $direction !== null ? strtoupper($direction) : '';
+    $direction = $direction !== null ? strtoupper($direction) : $defaultDirection;
 
     if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
         $orderby = $column . ' ' . $direction;
