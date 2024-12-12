@@ -111,7 +111,7 @@ jobs:
 
       - uses: ./.github/actions/gherkin-lint
         with:
-          features_path: centreon/tests/e2e/features
+          features_path: centreon/tests/e2e/cypress/e2e
 
   frontend-build:
     needs: [get-environment]
@@ -380,6 +380,9 @@ jobs:
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
       registry_private_username: ${{ secrets.HARBOR_CENTREON_PRIVATE_USERNAME }}
       registry_private_token: ${{ secrets.HARBOR_CENTREON_PRIVATE_TOKEN }}
+      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   dockerize:
     runs-on: ubuntu-24.04
@@ -607,7 +610,7 @@ jobs:
           secret_access_key: ${{ secrets.LIGHTHOUSE_SECRET }}
 
       - name: Publish report
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: lighthouse-report
           path: centreon/lighthouse/report/lighthouseci-index.html
@@ -717,7 +720,7 @@ jobs:
         shell: bash
 
       - name: Upload built openapi doc
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: openapi-doc
           path: |

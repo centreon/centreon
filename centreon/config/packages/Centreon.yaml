@@ -34,6 +34,8 @@ services:
 
     Core\:
         resource: '../../src/Core/*'
+        exclude:
+            - '../../src/Core/ServiceSeverity/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
@@ -491,3 +493,5 @@ services:
     CentreonNotification\Domain\Repository\DependencyRepository:
         class: CentreonNotification\Domain\Repository\DependencyRepository
         public: true
+imports:
+    - { resource: ../../src/Core/**/Infrastructure/Configuration/symfony.yaml }
