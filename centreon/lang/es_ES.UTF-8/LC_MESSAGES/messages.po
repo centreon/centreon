@@ -17866,7 +17866,7 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgid "Show only dashboards added to favorites"
 # msgstr ""
 
-# msgid "The dashboard is successfully marked as favorite"
+# msgid "The dashboard has been added to favorites."
 # msgstr ""
 
 # msgid "The dashboard is successfully marked as unFavorite"
