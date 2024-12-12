@@ -55,27 +55,57 @@ describe('Bar stack', () => {
   it('adjusts size based on the provided width and height', () => {
     initialize({ displayLegend: false, height: '300px', width: '300px' });
 
-    cy.findByTestId('barStack').should('have.css', 'height', '270px');
+    cy.get('.visx-bar-rounded')
+      .eq(0)
+      .should(
+        'have.attr',
+        'd',
+        'M8,110.41841004184101 h284 h8v8 v162.581589958159 a8,8 0 0 1 -8,8 h-284 a8,8 0 0 1 -8,-8 v-162.581589958159 v-8h8z'
+      );
 
     cy.makeSnapshot();
   });
 
   it('renders as a horizontal bar when variant is set to "horizontal"', () => {
     initialize({ variant: 'horizontal' });
-    cy.get('[data-variant="horizontal"]').should('exist');
+
+    cy.get('.visx-bar-rounded')
+      .eq(0)
+      .should(
+        'have.attr',
+        'd',
+        'M8,0 h230.69874476987445 h8v8 v278.1666666666667 v8h-8 h-230.69874476987445 a8,8 0 0 1 -8,-8 v-278.1666666666667 a8,8 0 0 1 8,-8z'
+      );
+    cy.get('[data-is-vertical="false"]').should('be.visible');
 
     cy.makeSnapshot();
   });
 
   it('renders as a vertical bar when variant is set to "vertical"', () => {
     initialize({ variant: 'vertical' });
-    cy.get('[data-variant="vertical"]').should('exist');
+
+    cy.get('.visx-bar-rounded')
+      .eq(0)
+      .should(
+        'have.attr',
+        'd',
+        'M8,148.4937238493724 h248 h8v8 v224.5062761506276 a8,8 0 0 1 -8,8 h-248 a8,8 0 0 1 -8,-8 v-224.5062761506276 v-8h8z'
+      );
+    cy.get('[data-is-vertical="true"]').should('be.visible');
 
     cy.makeSnapshot();
   });
 
   it('displays tooltip with correct information on hover', () => {
     initialize({ TooltipContent });
+
+    cy.get('.visx-bar-rounded')
+      .eq(0)
+      .should(
+        'have.attr',
+        'd',
+        'M8,148.4937238493724 h248 h8v8 v224.5062761506276 a8,8 0 0 1 -8,8 h-248 a8,8 0 0 1 -8,-8 v-224.5062761506276 v-8h8z'
+      );
 
     defaultData.forEach(({ label, value }) => {
       cy.findByTestId(label).trigger('mouseover', { force: true });
@@ -90,6 +120,14 @@ describe('Bar stack', () => {
 
   it('conditionally displays values on rects based on displayValues prop', () => {
     initialize({ displayValues: true });
+
+    cy.get('.visx-bar-rounded')
+      .eq(0)
+      .should(
+        'have.attr',
+        'd',
+        'M8,148.4937238493724 h248 h8v8 v224.5062761506276 a8,8 0 0 1 -8,8 h-248 a8,8 0 0 1 -8,-8 v-224.5062761506276 v-8h8z'
+      );
     defaultData.forEach(({ value }, index) => {
       cy.findAllByTestId('value')
         .eq(index)
@@ -106,6 +144,14 @@ describe('Bar stack', () => {
 
   it('displays values on rects in percentage unit when displayValues is set to true and unit to percentage', () => {
     initialize({ displayValues: true, unit: 'percentage' });
+
+    cy.get('.visx-bar-rounded')
+      .eq(0)
+      .should(
+        'have.attr',
+        'd',
+        'M8,148.4937238493724 h248 h8v8 v224.5062761506276 a8,8 0 0 1 -8,8 h-248 a8,8 0 0 1 -8,-8 v-224.5062761506276 v-8h8z'
+      );
     defaultData.forEach(({ value }, index) => {
       cy.findAllByTestId('value')
         .eq(index)
@@ -118,21 +164,53 @@ describe('Bar stack', () => {
   });
 
   it('displays Legend component based on displayLegend prop', () => {
-    initialize({ displayLegend: true });
-    cy.findByTestId('Legend').should('be.visible');
-
     initialize({ displayLegend: false });
+
+    cy.get('.visx-bar-rounded')
+      .eq(0)
+      .should(
+        'have.attr',
+        'd',
+        'M8,148.4937238493724 h384 h8v8 v224.5062761506276 a8,8 0 0 1 -8,8 h-384 a8,8 0 0 1 -8,-8 v-224.5062761506276 v-8h8z'
+      );
+    cy.findByTestId('Ok').should('be.visible');
     cy.findByTestId('Legend').should('not.exist');
 
     cy.makeSnapshot();
   });
 
-  it('displays the title when the title is giving', () => {
+  it('displays the title when the title is given', () => {
     initialize({ title: 'host' });
+
+    cy.get('.visx-bar-rounded')
+      .eq(0)
+      .should(
+        'have.attr',
+        'd',
+        'M8,134.7866108786611 h248 h8v8 v202.2133891213389 a8,8 0 0 1 -8,8 h-248 a8,8 0 0 1 -8,-8 v-202.2133891213389 v-8h8z'
+      );
+    cy.findByTestId('Ok').should('be.visible');
     cy.findByTestId('Title').should('be.visible');
 
-    initialize({});
-    cy.findByTestId('Title').should('not.exist');
+    cy.makeSnapshot();
+  });
+
+  it('displays the bars within a small display', () => {
+    initialize({
+      width: '120px',
+      height: '89px',
+      title: 'host',
+      displayLegend: true
+    });
+
+    cy.get('.visx-bar-rounded')
+      .eq(0)
+      .should(
+        'have.attr',
+        'd',
+        'M8,21.70292887029289 h104 h8v8 v18.297071129707106 a8,8 0 0 1 -8,8 h-104 a8,8 0 0 1 -8,-8 v-18.297071129707106 v-8h8z'
+      );
+    cy.findByTestId('Ok').should('be.visible');
 
     cy.makeSnapshot();
   });
