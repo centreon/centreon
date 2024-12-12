@@ -52,44 +52,51 @@ jobs:
     outputs:
       has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes || 'true' }}
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes || 'true' }}
-      has_features_changes: ${{ steps.filter.outputs.has_features_changes || 'true' }}
+      has_test_changes: ${{ steps.filter.outputs.has_test_changes || 'true' }}
+      trigger_delivery: ${{ steps.changes_trigger_checks.outputs.trigger_delivery }}
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - uses: dorny/paths-filter@0bc4621a3135347011ad047f9ecf449bf72ce2bd # v3.0.0
         id: filter
+        if: ${{ needs.get-environment.outputs.is_nightly == 'false' }}
         with:
           filters: |
             has_frontend_changes:
-              - '**/*.[jt]sx?'
+              - 'centreon/*.[jt]sx?'
+              - 'centreon/!(*tests)/*.[jt]sx?'
               - '**/www/(front_src|widgets)/**'
-              - '**/tests/e2e/**'
-              - '**/package*'
-              - '**/lighthouse/**'
-              - '**/tsconfig.json'
-              - '**/cypress/**|**/pnpm-*'
+              - 'centreon/package*'
+              - 'centreon/lighthouse/**'
+              - 'centreon/tsconfig.json'
+              - 'centreon/cypress/**|**/pnpm-*'
             has_backend_changes:
-              - '**/*.php'
-              - '**/phpstan*.neon'
+              - 'centreon/*.php'
+              - 'centreon/!(*tests)/*.php'
+              - 'centreon/phpstan*.neon'
               - 'centreon/codingstyle.xml'
               - 'centreon/config/**/*.xml'
               - 'centreon/phpunit.xml'
               - 'centreon/ruleset.xml'
               - 'centreon/www/**/*.xml'
-              - '**/bin/**'
-              - '**/tmpl/**'
-              - '**/features/**'
-              - '/centreon/src/**'
-              - '**/config/**'
-              - '**/composer.*'
-              - '**/tests/api/**'
-              - '**/tests/php/**'
-              - '**/tests/clapi_export/**'
+              - 'centreon/bin/**'
+              - 'centreon/tmpl/**'
+              - 'centreon/features/**'
+              - 'centreon/src/**'
+              - 'centreon/config/**'
+              - 'centreon/composer.*'
               - '**/www/!(front_src|widgets)/**'
-              - '**/doc/API/**'
-            has_features_changes:
-              - '**/tests/e2e/**/*.feature'
+              - 'centreon/doc/API/**'
+            has_test_changes:
+              - 'centreon/tests/**'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - uses: ./.github/actions/changes-trigger-checks
+        id: changes_trigger_checks
+        with:
+          has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes || true }}
+          has_backend_changes: ${{ steps.filter.outputs.has_backend_changes || true }}
+          has_test_changes: ${{ steps.filter.outputs.has_test_changes || true }}
 
   get-environment:
     uses: ./.github/workflows/get-environment.yml
@@ -100,7 +107,7 @@ jobs:
   gherkin-lint:
     runs-on: ubuntu-24.04
     needs: [get-environment, changes]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_features_changes == 'true' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_test_changes == 'true' }}
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
@@ -814,7 +821,7 @@ jobs:
         shell: bash
 
       - name: Upload built openapi doc
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: openapi-doc
           path: |
@@ -826,6 +833,7 @@ jobs:
     runs-on: [self-hosted, common]
     needs:
       [
+        changes,
         get-environment,
         api-integration-test,
         e2e-test,
@@ -837,7 +845,8 @@ jobs:
       !cancelled() &&
       contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-environment.outputs.stability) &&
       !contains(needs.*.result, 'failure') &&
-      !contains(needs.*.result, 'cancelled')
+      !contains(needs.*.result, 'cancelled') &&
+      needs.changes.outputs.trigger_delivery == 'true'
 
     strategy:
       matrix:
@@ -876,6 +885,7 @@ jobs:
     runs-on: [self-hosted, common]
     needs:
       [
+        changes,
         get-environment,
         api-integration-test,
         e2e-test,
@@ -887,7 +897,8 @@ jobs:
       !cancelled() &&
       contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-environment.outputs.stability) &&
       !contains(needs.*.result, 'failure') &&
-      !contains(needs.*.result, 'cancelled')
+      !contains(needs.*.result, 'cancelled') &&
+      needs.changes.outputs.trigger_delivery == 'true'
 
     strategy:
       matrix:
