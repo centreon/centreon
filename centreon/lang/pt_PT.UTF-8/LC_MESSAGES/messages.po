@@ -18307,7 +18307,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Show only dashboards marked as favorites"
 # msgstr ""
 
-# msgid "The dashboard is successfully marked as favorite"
+# msgid "The dashboard has been added to favorites."
 # msgstr ""
 
 # msgid "The dashboard has been removed from favorites."
