@@ -15,9 +15,6 @@ outputs:
   trigger_delivery:
     description: Validation of the package delivery
     value: ${{ steps.trigger_delivery.outputs.trigger_delivery }}
-  trigger_api_testing:
-    description: Validation of the API testing
-    value: ${{ steps.trigger_api_testing.outputs.trigger_api_testing }}
 
 runs:
   using: "composite"
@@ -30,14 +27,4 @@ runs:
           TRIGGER_DELIVERY=true
         fi
         echo "trigger_delivery=$TRIGGER_DELIVERY" >> $GITHUB_OUTPUT
-      shell: bash
-
-    - name: Validate API testing trigger
-      id: trigger_api_testing
-      run: |
-        TRIGGER_API_TESTING=false
-        if [[ ${{ inputs.has_backend_changes }} == 'true' || ${{ inputs.has_test_changes }} == 'true' ]]; then
-          TRIGGER_API_TESTING=true
-        fi
-        echo "trigger_api_testing=$TRIGGER_API_TESTING" >> $GITHUB_OUTPUT
       shell: bash
