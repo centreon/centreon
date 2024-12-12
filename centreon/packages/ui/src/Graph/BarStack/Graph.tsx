@@ -49,10 +49,7 @@ const Graph = ({
     [isVerticalBar]
   );
 
-  const normalizedHeight = useMemo(
-    () => (isVerticalBar ? height - 10 : height / 1.2),
-    [height, isVerticalBar]
-  );
+  const normalizedHeight = useMemo(() => height - 10, [height]);
 
   const { barStackData, xScale, yScale, keys } = useGraphAndLegend({
     data,
@@ -77,16 +74,21 @@ const Graph = ({
             barStack.bars.map((bar) => {
               const isFirstBar = equals(index, 0);
               const isLastBar = equals(index, barStacks.length - 1);
-              const fitsInBar =
-                bar.height >= 10 &&
-                ((equals(unit, 'number') && bar.width > 10) ||
-                  (equals(unit, 'percentage') && bar.width > 25));
+              const fitsInBar = isVerticalBar
+                ? bar.height >= 18
+                : (equals(unit, 'number') && bar.width > 15) ||
+                  (equals(unit, 'percentage') && bar.width > 35);
 
               const textX = bar.x + bar.width / 2;
               const textY = bar.y + bar.height / 2;
 
               const click = onSingleBarClick
-                ? (): void => onSingleBarClick(bar)
+                ? (e: MouseEvent): void => {
+                    if (!equals(e.button, 0)) {
+                      return;
+                    }
+                    onSingleBarClick(bar);
+                  }
                 : undefined;
 
               return (
@@ -110,11 +112,11 @@ const Graph = ({
                   <g data-testid={bar.key} key={bar.key}>
                     <BarRounded
                       radius={8}
-                      cursor={onSingleBarClick ? 'default' : 'cursor'}
+                      cursor={onSingleBarClick ? 'pointer' : 'default'}
                       fill={bar.color}
-                      height={isVerticalBar ? bar.height - 1 : bar.height}
+                      height={bar.height}
                       key={`bar-stack-${barStack.index}-${bar.index}`}
-                      width={isVerticalBar ? bar.width : bar.width - 1}
+                      width={isVerticalBar ? bar.width - 10 : bar.width}
                       x={bar.x}
                       y={bar.y}
                       left={!isVerticalBar && isFirstBar}
@@ -125,7 +127,7 @@ const Graph = ({
                     />
                     {displayValues && fitsInBar && (
                       <Text
-                        cursor="pointer"
+                        cursor={onSingleBarClick ? 'pointer' : 'default'}
                         data-testid="value"
                         fill="#000"
                         fontSize={12}

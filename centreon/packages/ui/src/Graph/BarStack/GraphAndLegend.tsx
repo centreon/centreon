@@ -1,8 +1,8 @@
 import { equals, props } from 'ramda';
 import { memo, useMemo } from 'react';
-import { ParentSize } from '../..';
 import { useGraphAndLegendStyles } from './BarStack.styles';
 import Graph from './Graph';
+import { gap, legendMaxHeight, legendMaxWidth } from './constants';
 import { BarStackProps } from './models';
 
 interface Props
@@ -53,31 +53,44 @@ const GraphAndLegend = ({
     [isSmall, displayLegend]
   );
 
+  const graphWidth = useMemo(
+    () =>
+      isVerticalBar ? width - (isSmall ? 0 : legendMaxWidth - gap) : width,
+    [width, isVerticalBar, isSmall]
+  );
+
+  const graphHeight = useMemo(
+    () =>
+      isVerticalBar ? height : height - (isSmall ? 0 : legendMaxHeight - gap),
+    [height, isVerticalBar, isSmall]
+  );
+
   return (
     <div
       className={classes.graphAndLegend}
       data-display-legend={mustDisplayLegend}
       data-is-vertical={isVerticalBar}
+      style={{ height }}
     >
-      <ParentSize>
-        {({ width: graphWidth, height: graphHeight }) => (
-          <Graph
-            isVerticalBar={isVerticalBar}
-            data={data}
-            width={graphWidth}
-            height={graphHeight}
-            colorScale={colorScale}
-            unit={unit}
-            total={total}
-            displayValues={displayValues}
-            onSingleBarClick={onSingleBarClick}
-            tooltipProps={tooltipProps}
-            TooltipContent={TooltipContent}
-          />
-        )}
-      </ParentSize>
+      <Graph
+        isVerticalBar={isVerticalBar}
+        data={data}
+        width={graphWidth}
+        height={graphHeight}
+        colorScale={colorScale}
+        unit={unit}
+        total={total}
+        displayValues={displayValues}
+        onSingleBarClick={onSingleBarClick}
+        tooltipProps={tooltipProps}
+        TooltipContent={TooltipContent}
+      />
       {mustDisplayLegend && (
-        <div className={classes.legend} data-is-vertical={isVerticalBar}>
+        <div
+          className={classes.legend}
+          data-is-vertical={isVerticalBar}
+          data-testid="Legend"
+        >
           {legend}
         </div>
       )}

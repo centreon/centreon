@@ -8,6 +8,7 @@ import { BarType } from './models';
 interface UseBarStackProps {
   data: Array<BarType>;
   height: number;
+  width: number;
   unit?: 'percentage' | 'number';
   variant?: 'vertical' | 'horizontal';
   legendDirection?: 'column' | 'row';
@@ -16,6 +17,7 @@ interface UseBarStackProps {
 interface UseBarStackState {
   total: number;
   isSmall: boolean;
+  titleVariant: 'xs' | 'sm' | 'md';
   isVerticalBar: boolean;
   legendScale: LegendScale;
   colorScale;
@@ -26,6 +28,7 @@ const useResponsiveBarStack = ({
   data,
   variant,
   height,
+  width,
   unit = 'number',
   legendDirection
 }: UseBarStackProps): UseBarStackState => {
@@ -40,6 +43,18 @@ const useResponsiveBarStack = ({
     () => Math.floor(height) < 90,
     [isVerticalBar, height]
   );
+
+  const titleVariant = useMemo(() => {
+    if (width <= 105) {
+      return 'xs';
+    }
+
+    if (width <= 150 || isSmall) {
+      return 'sm';
+    }
+
+    return 'md';
+  }, [isSmall, width]);
 
   const keys = useMemo(() => pluck('label', data), [data]);
 
@@ -78,6 +93,7 @@ const useResponsiveBarStack = ({
     total,
     isSmall,
     isVerticalBar,
+    titleVariant,
     legendScale,
     colorScale,
     formattedLegendDirection

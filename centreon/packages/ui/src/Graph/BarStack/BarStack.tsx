@@ -5,7 +5,9 @@ import { BarStackProps } from './models';
 
 const Bar = (props: BarStackProps): JSX.Element => (
   <ParentSize>
-    {({ width, height }) => <ResponsiveBarStack {...props} height={height} />}
+    {({ width, height }) => (
+      <ResponsiveBarStack {...props} height={height} width={width} />
+    )}
   </ParentSize>
 );
 
