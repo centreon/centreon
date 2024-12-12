@@ -53,7 +53,7 @@ const internalWidgets: Array<
     panelDefaultWidth: 6
   },
   { name: 'singlemetric' },
-  { name: 'statuschart' },
+  { name: 'statuschart', panelMinWidth: 3, panelMinHeight: 3 },
   { name: 'statusgrid', panelDefaultHeight: 3 },
   { name: 'topbottom' },
   { name: 'webpage' }
