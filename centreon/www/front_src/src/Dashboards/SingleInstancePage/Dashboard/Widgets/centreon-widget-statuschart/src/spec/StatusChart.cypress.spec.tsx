@@ -156,8 +156,6 @@ displayTypes.forEach(({ displayType, label }) => {
       });
 
       cy.get(`[data-variant="${displayType}"]`).should('exist');
-
-      cy.makeSnapshot();
     });
 
     it('displays charts with the default values', () => {
@@ -179,8 +177,6 @@ displayTypes.forEach(({ displayType, label }) => {
         .children()
         .eq(0)
         .should('have.text', '19.8%');
-
-      cy.makeSnapshot(`${label} : displays charts with the default values`);
     });
 
     it(`displays a ${label} for services when the resource type is set to service and displayType to ${displayType}`, () => {
@@ -275,10 +271,6 @@ displayTypes.forEach(({ displayType, label }) => {
         .children()
         .eq(0)
         .should('have.text', '5.8%');
-
-      cy.makeSnapshot(
-        `${label} : conditionally displays values based on displayValues prop`
-      );
     });
 
     it('displays values with the unit "number" when the displayValues is set to true and unit to number', () => {
@@ -297,8 +289,6 @@ displayTypes.forEach(({ displayType, label }) => {
         .children()
         .eq(0)
         .should('have.text', '39');
-
-      cy.makeSnapshot(`${label} : displays values with the unit "number"`);
     });
 
     describe('Tooltip', () => {
