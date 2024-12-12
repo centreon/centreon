@@ -106,8 +106,8 @@ const ConnectedAutocompleteField = (
       ],
       isPaginated: true,
       queryOptions: {
-        gcTime: 0,
         enabled: false,
+        gcTime: 0,
         staleTime: 0,
         suspense: false
       }
@@ -134,8 +134,8 @@ const ConnectedAutocompleteField = (
         : [selectedValue];
 
       return {
-        operator: '$and',
         field,
+        operator: '$and',
         values: {
           $ni: map(
             prop(exclusionOptionProperty),
@@ -155,8 +155,8 @@ const ConnectedAutocompleteField = (
       }
 
       return {
-        operator: '$and',
         field,
+        operator: '$and',
         values: {
           $lk: `%${searchedValue}%`
         }

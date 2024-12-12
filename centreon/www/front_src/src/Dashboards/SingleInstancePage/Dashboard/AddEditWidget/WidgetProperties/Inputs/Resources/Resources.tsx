@@ -110,7 +110,6 @@ const Resources = ({
               />
               {singleMetricSelection && singleHostPerMetric ? (
                 <SingleConnectedAutocompleteField
-                  exclusionOptionProperty="name"
                   changeIdValue={changeIdValue(resource.resourceType)}
                   chipProps={{
                     color: 'primary'
@@ -125,6 +124,7 @@ const Resources = ({
                       !hasSelectedHostForSingleMetricwidget) ||
                     !resource.resourceType
                   }
+                  exclusionOptionProperty="name"
                   field={getSearchField(resource.resourceType)}
                   getEndpoint={getResourceResourceBaseEndpoint({
                     index,
@@ -138,7 +138,6 @@ const Resources = ({
                 />
               ) : (
                 <MultiConnectedAutocompleteField
-                  exclusionOptionProperty="name"
                   changeIdValue={changeIdValue(resource.resourceType)}
                   chipProps={{
                     color: 'primary',
@@ -151,6 +150,7 @@ const Resources = ({
                   }}
                   className={classes.resources}
                   disabled={!canEditField || !resource.resourceType}
+                  exclusionOptionProperty="name"
                   field={getSearchField(resource.resourceType)}
                   getEndpoint={getResourceResourceBaseEndpoint({
                     index,
