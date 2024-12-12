@@ -75,7 +75,7 @@ export default ({
       runMode: 2
     },
     screenshotsFolder: `${resultsFolder}/screenshots`,
-    video: true,
+    video: isDevelopment,
     videoCompression: 0,
     videosFolder: `${resultsFolder}/videos`,
     viewportHeight: 1080,
