@@ -141,8 +141,6 @@ displayTypes.forEach(({ displayType, label }) => {
         .children()
         .eq(0)
         .should('have.text', '19.8%');
-
-      cy.makeSnapshot(`${label} : displays charts with the default values`);
     });
 
     it(`displays a ${label} for services when the resource type is set to service and displayType to ${displayType}`, () => {
