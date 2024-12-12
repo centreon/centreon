@@ -61,7 +61,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   get-environment:
-    uses: ./.github/workflows/get-environment.yml
+    uses: ./.github/workflows/get-version.yml
     with:
       version_file: centreon-awie/www/modules/centreon-awie/conf.php
 

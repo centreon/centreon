@@ -59,7 +59,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   get-environment:
-    uses: ./.github/workflows/get-environment.yml
+    uses: ./.github/workflows/get-version.yml
     with:
       version_file: centreon-open-tickets/www/modules/centreon-open-tickets/conf.php
 
