@@ -46,10 +46,7 @@ Given(
   () => {
     cy.insertDashboard({ ...dashboards.fromDashboardAdministratorUser });
     cy.visitDashboards();
-    cy.getByTestId({ testId: 'ShareIcon' })
-      .first()
-      .should('be.visible')
-      .click();
+    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
     cy.contains(dashboardCreatorUser.login).click();
     cy.getByTestId({ testId: 'add' }).click();
@@ -79,10 +76,7 @@ Given(
 When(
   'the dashboard administrator user promotes the viewer user to an editor',
   () => {
-    cy.getByTestId({ testId: 'ShareIcon' })
-      .first()
-      .should('be.visible')
-      .click();
+    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
     cy.getByTestId({ testId: 'role-user-dashboard-creator' }).realClick();
     cy.get('[role="listbox"]').contains('Editor').click();
     cy.get('[data-state="updated"]').should('exist');
@@ -112,10 +106,7 @@ Given(
   'a dashboard featuring a dashboard administrator and a dashboard editor in its share list',
   () => {
     cy.visitDashboards();
-    cy.getByTestId({ testId: 'ShareIcon' })
-      .first()
-      .should('be.visible')
-      .click();
+    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
     cy.getByTestId({ testId: 'role-user-dashboard-creator' }).should(
       'have.value',
       'editor'
@@ -157,10 +148,7 @@ Given(
   'a dashboard featuring a dashboard administrator and a viewer in its share list',
   () => {
     cy.visitDashboards();
-    cy.getByTestId({ testId: 'ShareIcon' })
-      .first()
-      .should('be.visible')
-      .click();
+    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
     cy.getByTestId({ testId: 'role-user-dashboard-creator' }).should(
       'have.value',
       'viewer'
@@ -203,10 +191,7 @@ Given(
   'a dashboard featuring a dashboard administrator and a user who has just been removed from the share list',
   () => {
     cy.visitDashboards();
-    cy.getByTestId({ testId: 'ShareIcon' })
-      .first()
-      .should('be.visible')
-      .click();
+    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
     cy.getByTestId({ testId: 'role-user-dashboard-administrator' }).should(
       'have.value',
       'editor'
@@ -235,10 +220,7 @@ Given(
     cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('ShareIcon', 4, 1);
-    cy.getByTestId({ testId: 'ShareIcon' })
-      .first()
-      .should('be.visible')
-      .click();
+    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
     cy.getByTestId({ testId: 'DeleteOutlineIcon' }).eq(1).click();
     cy.get('[data-state="removed"]').should('exist');
   }
