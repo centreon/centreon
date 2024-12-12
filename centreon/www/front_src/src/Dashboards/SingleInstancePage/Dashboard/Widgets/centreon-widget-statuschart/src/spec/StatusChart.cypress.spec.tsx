@@ -192,8 +192,6 @@ displayTypes.forEach(({ displayType, label }) => {
       cy.findByText('212 hosts').should('not.exist');
       cy.contains('678');
       cy.contains('services');
-
-      cy.makeSnapshot();
     });
 
     it(`displays a ${label} for hosts when the resource type is set to host and displayType to ${displayType}`, () => {
@@ -209,8 +207,6 @@ displayTypes.forEach(({ displayType, label }) => {
       cy.contains('212');
       cy.contains('hosts');
       cy.findByText('678 services').should('not.exist');
-
-      cy.makeSnapshot();
     });
 
     it('conditionally displays the legend based on displayLegend prop', () => {
@@ -237,10 +233,6 @@ displayTypes.forEach(({ displayType, label }) => {
       });
 
       cy.findByTestId('Legend').should('be.visible');
-
-      cy.makeSnapshot(
-        `${label} : conditionally displays the legend based on displayLegend prop`
-      );
     });
 
     it('conditionally displays values based on displayValues prop', () => {
@@ -336,10 +328,6 @@ displayTypes.forEach(({ displayType, label }) => {
           );
 
           cy.contains('February 1, 2024').should('be.visible');
-
-          cy.makeSnapshot(
-            `${label} : 'displays tooltip with correct information on hover for type ${resourceType}`
-          );
         });
       });
     });
