@@ -49,7 +49,7 @@ export default ({
         configFile: `${__dirname}/reporter-config.js`
       },
       setupNodeEvents: async (cypressOn, config) => {
-        const on = require('cypress-on-fix')(cypressOn)
+        const on = require('cypress-on-fix')(cypressOn);
         installLogsPrinter(on);
         await esbuildPreprocessor(on, config);
         tasks(on);
@@ -75,7 +75,7 @@ export default ({
       runMode: 2
     },
     screenshotsFolder: `${resultsFolder}/screenshots`,
-    video: isDevelopment,
+    video: true,
     videoCompression: 0,
     videosFolder: `${resultsFolder}/videos`,
     viewportHeight: 1080,
