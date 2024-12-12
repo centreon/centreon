@@ -125,6 +125,7 @@ $allowedOrderColumns = ['name'];
 
 const ORDER_DIRECTION_ASC = 'ASC';
 const ORDER_DIRECTION_DESC = 'DESC';
+const DEFAULT_ENTRIES_PER_PAGE= 10;
 
 $allowedDirections = [ORDER_DIRECTION_ASC, ORDER_DIRECTION_DESC];
 
@@ -135,7 +136,7 @@ $orderByToAnalyse = isset($preferences['order_by'])
 if ($orderByToAnalyse !== null) {
     $orderByToAnalyse .= " $defaultDirection";
     [$column, $direction] = explode(' ', $orderByToAnalyse);
-
+    $direction = $direction !== null ? strtoupper($direction) : '';
 
     if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
         $orderby = $column . ' ' . $direction;
@@ -146,7 +147,7 @@ $query .= "ORDER BY $orderby";
 
 $entriesPerPage = filter_var($preferences['entries'], FILTER_VALIDATE_INT);
 if ($entriesPerPage === false || $entriesPerPage < 1) {
-    $entriesPerPage = 10; // Default value
+    $entriesPerPage = DEFAULT_ENTRIES_PER_PAGE; // Default value
 }
 
 $query .= " LIMIT " . ($page * $entriesPerPage) . "," . $entriesPerPage;
