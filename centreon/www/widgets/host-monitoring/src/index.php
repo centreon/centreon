@@ -289,8 +289,8 @@ $orderByToAnalyse = isset($preferences['order_by'])
     : null;
 
 if ($orderByToAnalyse !== null) {
+    $orderByToAnalyse .= " $defaultDirection";
     [$column, $direction] = explode(' ', $orderByToAnalyse);
-    $direction = $direction !== null ? strtoupper($direction) : $defaultDirection;
 
     if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
         $orderBy = $column . ' ' . $direction;
