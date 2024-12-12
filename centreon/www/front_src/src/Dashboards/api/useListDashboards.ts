@@ -61,7 +61,6 @@ const useListDashboards = (): UseListDashboards => {
     doNotCancelCallsOnUnmount: true,
     getEndpoint,
     getQueryKey: () => [
-      'dashboardList',
       resource.dashboards,
       sortField,
       sortOrder,

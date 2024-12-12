@@ -19,6 +19,7 @@ import { useColumnStyles } from '../useColumnStyles';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
+import { resource } from '../../../../../api/models';
 import FavoriteAction from '../../Actions/favoriteAction';
 import MoreActions from './MoreActions';
 import useActions from './useActions';
@@ -30,7 +31,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { hasEditPermission } = useDashboardUserPermissions();
 
   const refetch = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: ['dashboardList'] });
+    queryClient.invalidateQueries({ queryKey: [resource.dashboards] });
   }, []);
 
   const {
