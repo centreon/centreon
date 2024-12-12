@@ -19619,7 +19619,7 @@ msgid "There are errors in the form."
 msgstr "Il y a des erreurs dans le formulaire."
 
 msgid "Show only dashboards added to favorites"
-msgstr "Afficher uniquement les tableaux de bord marqués comme favoris"
+msgstr "Afficher uniquement les tableaux de bord ajoutés aux favoris"
 
 msgid "The dashboard is successfully marked as favorite"
 msgstr "Le tableau de bord a été marqué comme favori avec succès"
