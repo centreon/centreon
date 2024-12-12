@@ -74,7 +74,7 @@ export const labelDataDisplayedForRepresentativeUse =
   'Thumbnails show a snapshot of your data, taken when the dashboard is saved';
 export const labelFavoriteFilter = 'Show only dashboards added to favorites';
 export const labelDashboardAddedToFavorites =
-  'The dashboard has been added to favorites.';
+  'The dashboard has been added to your favorites.';
 export const labelDashboardRemovedFromFavorites =
   'The dashboard has been removed from favorites.';
 export const labelRemoveFromFavorites = 'Remove from favorites';
