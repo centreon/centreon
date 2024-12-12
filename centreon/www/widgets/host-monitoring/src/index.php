@@ -278,12 +278,20 @@ $allowedOrderColumns = [
     'passive_checks'
 ];
 
-$allowedDirections = ['ASC', 'DESC'];
+const ORDER_DIRECTION_ASC = 'ASC';
+const ORDER_DIRECTION_DESC = 'DESC';
 
-if (isset($preferences['order_by']) && trim($preferences['order_by']) != '') {
-    $aOrder = explode(' ', trim($preferences['order_by']));
-    $column = $aOrder[0] ?? '';
-    $direction = isset($aOrder[1]) ? strtoupper($aOrder[1]) : 'ASC';
+$allowedDirections = [ORDER_DIRECTION_ASC, ORDER_DIRECTION_DESC];
+$defaultDirection = ORDER_DIRECTION_ASC;
+
+$orderByToAnalyse = isset($preferences['order_by'])
+    ? trim($preferences['order_by'])
+    : null;
+
+if ($orderByToAnalyse !== null) {
+    [$column, $direction] = explode(' ', $orderByToAnalyse);
+    $direction = $direction !== null ? strtoupper($direction) : $defaultDirection;
+
     if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
         $orderBy = $column . ' ' . $direction;
     }
