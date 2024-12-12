@@ -307,7 +307,7 @@ displayTypes.forEach(({ displayType, label }) => {
             `${okStatus?.count}/${total} ${resourceType}s are working fine.`
           );
 
-          cy.contains('1 février 2024').should('be.visible');
+          cy.contains('February 1, 2024').should('be.visible');
         });
       });
     });
