@@ -76,6 +76,6 @@ export const labelFavoriteFilter = 'Show only dashboards added to favorites';
 export const labelDashboardAddedToFavorites =
   'The dashboard has been added to your favorites.';
 export const labelDashboardRemovedFromFavorites =
-  'The dashboard has been removed from favorites.';
+  'The dashboard has been removed from your favorites.';
 export const labelRemoveFromFavorites = 'Remove from favorites';
 export const labelAddToFavorites = 'Add to favorites';
