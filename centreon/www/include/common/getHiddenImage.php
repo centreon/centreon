@@ -63,30 +63,67 @@ if (isset($_GET["id"]) && $_GET["id"] && is_numeric($_GET["id"])) {
             $imgPath = _CENTREON_PATH_ . 'www/img/media/' . $imgDirName . "/" . $imgName;
         }
         if (is_file($imgPath)) {
-            $fileInfo =  new finfo(FILEINFO_MIME_TYPE);
-            $mimeType = $fileInfo->file($imgPath);
+            $mimeType = finfo_file(finfo_open(), $imgPath, FILEINFO_MIME_TYPE);
+            $fileExtension = substr($imgName, strrpos($imgName, '.') + 1);
             try {
                 switch ($mimeType) {
                     case 'image/jpeg':
-                        $image = imagecreatefromjpeg($imgPath);
+                        /**
+                         * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+                         */
+                        $image = @imagecreatefromjpeg($imgPath);
                         if (! $image || ! imagejpeg($image)) {
+                            CentreonLog::create()->error(
+                                CentreonLog::TYPE_BUSINESS_LOG,
+                                "Unable to validate image, your image may be corrupted",
+                                [
+                                    'mime_type' => $mimeType,
+                                    'filename' => $imgName,
+                                    'extension' => $fileExtension
+                                ]
+                            );
                             throw new Exception("Failed to create image from JPEG");
                         }
                         break;
                     case 'image/png':
-                        $image = imagecreatefrompng($imgPath);
+                        /**
+                         * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+                         */
+                        $image = @imagecreatefrompng($imgPath);
                         if (! $image || ! imagepng($image)) {
+                            CentreonLog::create()->error(
+                                CentreonLog::TYPE_BUSINESS_LOG,
+                                "Unable to validate image, your image may be corrupted",
+                                [
+                                    'mime_type' => $mimeType,
+                                    'filename' => $imgName,
+                                    'extension' => $fileExtension
+                                ]
+                            );
                             throw new Exception("Failed to create image from PNG");
                         }
                         break;
                     case 'image/gif':
-                        $image = imagecreatefromgif($imgPath);
+                        /**
+                         * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+                         */
+                        $image = @imagecreatefromgif($imgPath);
                         if (! $image || ! imagegif($image)) {
+                            CentreonLog::create()->error(
+                                CentreonLog::TYPE_BUSINESS_LOG,
+                                "Unable to validate image, your image may be corrupted",
+                                [
+                                    'mime_type' => $mimeType,
+                                    'filename' => $imgName,
+                                    'extension' => $fileExtension
+                                ]
+                            );
                             throw new Exception("Failed to create image from GIF");
                         }
                         break;
                     case 'image/svg+xml':
                         $image = file_get_contents($imgPath);
+                        header('Content-Type: image/svg+xml');
                         print $image;
                         break;
                     default:
