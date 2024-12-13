@@ -7,6 +7,7 @@ import {
   useRef,
   useState
 } from 'react';
+import SelectFilter from './Fields/SelectFilter';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
@@ -142,7 +143,6 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 const SaveFilter = lazy(() => import('./Edit/EditButton'));
-const SelectFilter = lazy(() => import('./Fields/SelectFilter'));
 const Criterias = lazy(() => import('./Criterias'));
 
 const debounceTimeInMs = 500;
