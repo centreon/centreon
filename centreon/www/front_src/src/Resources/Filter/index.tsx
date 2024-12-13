@@ -646,16 +646,14 @@ const Filter = (): JSX.Element => {
           {sendingFilter ? (
             <FilterLoadingSkeleton />
           ) : (
-            <Suspense fallback={<FilterLoadingSkeleton />}>
-              <SelectFilter
-                ariaLabel={t(labelStateFilter)}
-                options={options.map(pick(['id', 'name', 'type', 'testId']))}
-                selectedOptionId={
-                  canDisplaySelectedFilter ? currentFilter.id : ''
-                }
-                onChange={changeFilter}
-              />
-            </Suspense>
+            <SelectFilter
+              ariaLabel={t(labelStateFilter)}
+              options={options.map(pick(['id', 'name', 'type', 'testId']))}
+              selectedOptionId={
+                canDisplaySelectedFilter ? currentFilter.id : ''
+              }
+              onChange={changeFilter}
+            />
           )}
         </div>
       }
