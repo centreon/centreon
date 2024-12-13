@@ -3,24 +3,24 @@ import { equals } from 'ramda';
 import { dashboardsFavoriteDeleteEndpoint } from './api/endpoints';
 import { FavoriteAction } from './models';
 import {
-  labelDashboardSuccessfullyMarkedAsFavorite,
-  labelDashboardSuccessfullyMarkedAsUnFavorite,
-  labelMarkedAsFavorite,
-  labelNotMarkedAsFavorite
+  labelAddToFavorites,
+  labelDashboardAddedToFavorites,
+  labelDashboardRemovedFromFavorites,
+  labelRemoveFromFavorites
 } from './translatedLabels';
 
 export const manageAFavorite = ({ action, buttonAlias, requestsToWait }) => {
   const title = equals(action, FavoriteAction.add)
-    ? labelMarkedAsFavorite
-    : labelNotMarkedAsFavorite;
+    ? labelAddToFavorites
+    : labelRemoveFromFavorites;
 
   const updatedTitle = equals(action, FavoriteAction.add)
-    ? labelNotMarkedAsFavorite
-    : labelMarkedAsFavorite;
+    ? labelRemoveFromFavorites
+    : labelAddToFavorites;
 
   const labelSuccess = equals(action, FavoriteAction.add)
-    ? labelDashboardSuccessfullyMarkedAsFavorite
-    : labelDashboardSuccessfullyMarkedAsUnFavorite;
+    ? labelDashboardRemovedFromFavorites
+    : labelDashboardAddedToFavorites;
   cy.get(buttonAlias).trigger('mouseover');
   cy.findByText(title).should('be.visible');
 
