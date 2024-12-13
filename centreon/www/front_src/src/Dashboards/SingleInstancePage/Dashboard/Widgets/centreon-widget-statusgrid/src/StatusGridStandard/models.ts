@@ -160,6 +160,7 @@ export interface CalculationMethod {
 
 export interface BusinessActivity {
   calculationMethod: CalculationMethod;
+  currentLevel: number | null;
   id: number;
   indicators: Array<Indicator>;
   infrastructureView: string | null;
