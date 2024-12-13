@@ -12,10 +12,10 @@ import {
   dashboardsFavoriteEndpoit
 } from '../../../../../api/endpoints';
 import {
-  labelDashboardSuccessfullyMarkedAsFavorite,
-  labelDashboardSuccessfullyMarkedAsUnFavorite,
-  labelMarkedAsFavorite,
-  labelNotMarkedAsFavorite
+  labelAddToFavorites,
+  labelDashboardAddedToFavorites,
+  labelDashboardRemovedFromFavorites,
+  labelRemoveFromFavorites
 } from '../../../../../translatedLabels';
 import { FavoriteEndpoint, GetLabel } from './models';
 
@@ -59,8 +59,8 @@ const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
 
   const handleFavorites = () => {
     labelSuccess.current = getLabel({
-      setLabel: labelDashboardSuccessfullyMarkedAsFavorite,
-      unsetLabel: labelDashboardSuccessfullyMarkedAsUnFavorite,
+      setLabel: labelDashboardAddedToFavorites,
+      unsetLabel: labelDashboardRemovedFromFavorites,
       asFavorite: isFavorite
     });
 
@@ -76,8 +76,8 @@ const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
   };
 
   const title = getLabel({
-    setLabel: labelMarkedAsFavorite,
-    unsetLabel: labelNotMarkedAsFavorite,
+    setLabel: labelAddToFavorites,
+    unsetLabel: labelRemoveFromFavorites,
     asFavorite: isFavorite
   });
 
