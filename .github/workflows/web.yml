@@ -19,7 +19,7 @@ on:
     paths:
       - "centreon/**"
       - "!centreon/cypress/**"
-      - "!centreon/features/**"
+      # - "!centreon/features/**"
       - "!centreon/lighthouse/**"
       - "!centreon/tests/**"
       - "!centreon/.veracode-exclusions"
