@@ -17513,10 +17513,10 @@ msgstr "Erweiterter Modus"
 # msgid "Show only dashboards added to favorites"
 # msgstr ""
 
-# msgid "The dashboard has been added to favorites."
+# msgid "The dashboard has been added to your favorites."
 # msgstr ""
 
-# msgid "The dashboard has been removed from favorites."
+# msgid "The dashboard has been removed from your favorites."
 # msgstr ""
 
 # msgid "Remove from favorites"

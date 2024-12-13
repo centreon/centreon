@@ -19621,10 +19621,10 @@ msgstr "Il y a des erreurs dans le formulaire."
 msgid "Show only dashboards added to favorites"
 msgstr "Afficher uniquement les tableaux de bord ajoutés aux favoris"
 
-msgid "The dashboard has been added to favorites."
+msgid "The dashboard has been added to your favorites."
 msgstr "Le tableau de bord a été ajouté aux favoris."
 
-msgid "The dashboard has been removed from favorites."
+msgid "The dashboard has been removed from your favorites."
 msgstr "Le tableau de bord a été retiré des favoris."
 
 msgid "Remove from favorites"
