@@ -621,7 +621,7 @@ importers:
       react-resizable:
         specifier: ^3.0.5
         version: 3.0.5(react-dom@18.3.1)(react@18.3.1)
-      react-router-dom:
+      react-router:
         specifier: ^7.0.2
         version: 7.0.2(react-dom@18.3.1)(react@18.3.1)
       react-transition-group:
@@ -7874,7 +7874,7 @@ packages:
     dependencies:
       '@babel/core': 7.24.9
       '@svgr/babel-preset': 8.1.0(@babel/core@7.24.9)
-      '@svgr/core': 8.1.0(typescript@5.5.4)
+      '@svgr/core': 8.1.0(typescript@5.7.2)
       '@svgr/hast-util-to-babel-ast': 8.0.0
       svg-parser: 2.0.4
     transitivePeerDependencies:
@@ -15575,7 +15575,7 @@ packages:
       pretty-error: 2.1.2
       tapable: 1.1.3
       util.promisify: 1.0.0
-      webpack: 5.97.1(@swc/core@1.6.6)
+      webpack: 5.97.1(@swc/core@1.10.1)(esbuild@0.21.5)
     dev: true
 
   /html-webpack-plugin@5.6.3(@rspack/core@1.0.14)(webpack@5.97.1):
@@ -15596,7 +15596,7 @@ packages:
       lodash: 4.17.21
       pretty-error: 4.0.0
       tapable: 2.2.1
-      webpack: 5.97.1(@swc/core@1.6.6)
+      webpack: 5.97.1(@swc/core@1.10.1)(esbuild@0.21.5)
     dev: true
 
   /htmlparser2@3.10.1:
@@ -20724,18 +20724,6 @@ packages:
       react-router: 6.26.1(react@18.3.1)
     dev: false
 
-  /react-router-dom@7.0.2(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-VJOQ+CDWFDGaWdrG12Nl+d7yHtLaurNgAQZVgaIy7/Xd+DojgmYLosFfZdGz1wpxmjJIAkAMVTKWcvkx1oggAw==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      react: '>=18'
-      react-dom: '>=18'
-    dependencies:
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      react-router: 7.0.2(react-dom@18.3.1)(react@18.3.1)
-    dev: false
-
   /react-router@6.26.1(react@18.3.1):
     resolution: {integrity: sha512-kIwJveZNwp7teQRI5QmwWo39A5bXRyqpH0COKKmPnyD2vBvDwgFXSqDUYtt1h+FEyfnE8eXr7oe0MxRzVwCcvQ==}
     engines: {node: '>=14.0.0'}
@@ -21988,7 +21976,7 @@ packages:
       webpack: ^1 || ^2 || ^3 || ^4 || ^5
     dependencies:
       chalk: 4.1.2
-      webpack: 5.97.1(@swc/core@1.6.6)
+      webpack: 5.97.1(@swc/core@1.10.1)(esbuild@0.21.5)
     dev: true
 
   /speedline-core@1.4.3:
@@ -22584,6 +22572,32 @@ packages:
     dependencies:
       rimraf: 2.6.3
     dev: false
+
+  /terser-webpack-plugin@5.3.10(@swc/core@1.10.1)(esbuild@0.21.5)(webpack@5.97.1):
+    resolution: {integrity: sha512-BKFPWlPDndPs+NGGCr1U59t0XScL5317Y0UReNrHaw9/FwhPENlq6bfgs+4yPfyP51vqC1bQ4rp1EfXW5ZSH9w==}
+    engines: {node: '>= 10.13.0'}
+    peerDependencies:
+      '@swc/core': '*'
+      esbuild: '*'
+      uglify-js: '*'
+      webpack: ^5.1.0
+    peerDependenciesMeta:
+      '@swc/core':
+        optional: true
+      esbuild:
+        optional: true
+      uglify-js:
+        optional: true
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.25
+      '@swc/core': 1.10.1
+      esbuild: 0.21.5
+      jest-worker: 27.5.1
+      schema-utils: 3.3.0
+      serialize-javascript: 6.0.2
+      terser: 5.37.0
+      webpack: 5.97.1(@swc/core@1.10.1)(esbuild@0.21.5)
+    dev: true
 
   /terser-webpack-plugin@5.3.10(@swc/core@1.6.6)(webpack@5.97.1):
     resolution: {integrity: sha512-BKFPWlPDndPs+NGGCr1U59t0XScL5317Y0UReNrHaw9/FwhPENlq6bfgs+4yPfyP51vqC1bQ4rp1EfXW5ZSH9w==}
@@ -23670,7 +23684,7 @@ packages:
       mime-types: 2.1.35
       range-parser: 1.2.1
       schema-utils: 4.2.0
-      webpack: 5.97.1(@swc/core@1.6.6)
+      webpack: 5.97.1(@swc/core@1.10.1)(esbuild@0.21.5)
     dev: true
 
   /webpack-dev-middleware@7.4.2(webpack@5.97.1):
@@ -23732,7 +23746,7 @@ packages:
       serve-index: 1.9.1
       sockjs: 0.3.24
       spdy: 4.0.2
-      webpack: 5.97.1(@swc/core@1.6.6)
+      webpack: 5.97.1(@swc/core@1.10.1)(esbuild@0.21.5)
       webpack-dev-middleware: 5.3.4(webpack@5.97.1)
       ws: 8.18.0
     transitivePeerDependencies:
@@ -23817,6 +23831,45 @@ packages:
 
   /webpack-virtual-modules@0.6.2:
     resolution: {integrity: sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ==}
+    dev: true
+
+  /webpack@5.97.1(@swc/core@1.10.1)(esbuild@0.21.5):
+    resolution: {integrity: sha512-EksG6gFY3L1eFMROS/7Wzgrii5mBAFe4rIr3r2BTfo7bcc+DWwFZ4OJ/miOuHJO/A85HwyI4eQ0F6IKXesO7Fg==}
+    engines: {node: '>=10.13.0'}
+    hasBin: true
+    peerDependencies:
+      webpack-cli: '*'
+    peerDependenciesMeta:
+      webpack-cli:
+        optional: true
+    dependencies:
+      '@types/eslint-scope': 3.7.7
+      '@types/estree': 1.0.6
+      '@webassemblyjs/ast': 1.14.1
+      '@webassemblyjs/wasm-edit': 1.14.1
+      '@webassemblyjs/wasm-parser': 1.14.1
+      acorn: 8.14.0
+      browserslist: 4.24.2
+      chrome-trace-event: 1.0.4
+      enhanced-resolve: 5.17.1
+      es-module-lexer: 1.5.4
+      eslint-scope: 5.1.1
+      events: 3.3.0
+      glob-to-regexp: 0.4.1
+      graceful-fs: 4.2.11
+      json-parse-even-better-errors: 2.3.1
+      loader-runner: 4.3.0
+      mime-types: 2.1.35
+      neo-async: 2.6.2
+      schema-utils: 3.3.0
+      tapable: 2.2.1
+      terser-webpack-plugin: 5.3.10(@swc/core@1.10.1)(esbuild@0.21.5)(webpack@5.97.1)
+      watchpack: 2.4.2
+      webpack-sources: 3.2.3
+    transitivePeerDependencies:
+      - '@swc/core'
+      - esbuild
+      - uglify-js
     dev: true
 
   /webpack@5.97.1(@swc/core@1.6.6):
