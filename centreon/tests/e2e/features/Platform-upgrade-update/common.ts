@@ -273,9 +273,36 @@ const updatePlatformPackages = (): Cypress.Chainable => {
     .then(({ major_version }) => {
       let installCommands: string[] = [];
 
+      if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+        if (Cypress.env('STABILITY') === 'testing') {{
+          installCommands = [
+            ...installCommands,
+            `dnf config-manager --set-disabled 'centreon*unstable*'`
+          ];
+        } else if (Cypress.env('STABILITY') === 'stable') {{
+          installCommands = [
+            ...installCommands,
+            `dnf config-manager --set-disabled 'centreon*unstable*' --set-disabled 'centreon*testing*'`
+          ];
+        }
+      } else {
+        if (Cypress.env('STABILITY') === 'testing') {{
+          installCommands = [
+            ...installCommands,
+            `rm -f /etc/apt/sources.list.d/centreon*unstable*`
+          ];
+        } else if (Cypress.env('STABILITY') === 'stable') {{
+          installCommands = [
+            ...installCommands,
+            `rm -f /etc/apt/sources.list.d/centreon*{unstable,testing}*`
+          ];
+        }
+      }
+
       switch (Cypress.env('WEB_IMAGE_OS')) {
         case 'alma8':
           installCommands = [
+            ...installCommands,
             `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
             `dnf module reset -y php`,
             `dnf module install -y php:remi-8.2`,
@@ -284,6 +311,7 @@ const updatePlatformPackages = (): Cypress.Chainable => {
           break;
         case 'alma9':
           installCommands = [
+            ...installCommands,
             `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
             `dnf module reset -y php`,
             `dnf module enable -y php:8.2`,
@@ -292,6 +320,7 @@ const updatePlatformPackages = (): Cypress.Chainable => {
           break;
         default:
           installCommands = [
+            ...installCommands,
             `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}_${major_version}*.deb`,
             `apt-get update`,
             `apt-get install -y ${containerPackageDirectory}/centreon-*.deb`

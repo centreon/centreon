@@ -68,6 +68,7 @@ jobs:
               - '**/lighthouse/**'
               - '**/tsconfig.json'
               - '**/cypress/**|**/pnpm-*'
+              - '**'
             has_backend_changes:
               - '**/*.php'
               - '**/phpstan*.neon'
@@ -729,7 +730,8 @@ jobs:
       features_path: tests/e2e/features
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
-      stability: ${{ needs.get-version.outputs.stability }}
+      # stability: ${{ needs.get-version.outputs.stability }}
+      stability: "testing"
       package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma8' && 'rpm-el8' || matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-bookworm' ) }}
       package_directory: centreon/tests/e2e/fixtures/packages
       test_tags: ${{ matrix.test_tags }}
