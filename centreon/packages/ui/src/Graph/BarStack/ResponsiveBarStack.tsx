@@ -30,7 +30,7 @@ const ResponsiveBarStack = ({
   variant = 'vertical',
   legendDirection,
   tooltipProps = {}
-}: BarStackProps & { height: number }): JSX.Element => {
+}: BarStackProps & { height: number; width: number }): JSX.Element => {
   const { t } = useTranslation();
   const { classes, cx } = useStyles();
 
