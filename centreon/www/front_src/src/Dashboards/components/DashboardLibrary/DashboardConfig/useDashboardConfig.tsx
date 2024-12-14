@@ -2,7 +2,11 @@ import { useEffect } from 'react';
 
 import { atom, useAtom, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
-import { createSearchParams, generatePath, useNavigate } from 'react-router-dom';
+import {
+  createSearchParams,
+  generatePath,
+  useNavigate
+} from 'react-router-dom';
 
 import { useSnackbar } from '@centreon/ui';
 

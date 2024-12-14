@@ -18,7 +18,7 @@ import {
 import navigationAtom from '../../Navigation/navigationAtoms';
 import { retrievedFederatedModule } from '../../federatedModules/mocks';
 
-import { TextDecoder, TextEncoder } from 'util';
+import { TextDecoder, TextEncoder } from 'node:util';
 import ReactRouter from '.';
 
 Object.assign(global, { TextDecoder, TextEncoder });

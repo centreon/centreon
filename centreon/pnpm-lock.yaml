@@ -211,8 +211,8 @@ importers:
         specifier: workspace:*
         version: link:packages/js-config
       '@cypress/code-coverage':
-        specifier: ^3.13.9
-        version: 3.13.9(@babel/core@7.26.0)(@babel/preset-env@7.26.0)(babel-loader@9.2.1)(cypress@13.16.1)(webpack@5.97.1)
+        specifier: ^3.13.3
+        version: 3.13.3(@babel/core@7.26.0)(@babel/preset-env@7.26.0)(babel-loader@9.2.1)(cypress@13.16.1)(webpack@5.97.1)
       '@cypress/react':
         specifier: ^8.0.2
         version: 8.0.2(@types/react@19.0.1)(cypress@13.16.1)(react-dom@18.3.1)(react@18.3.1)
@@ -3953,8 +3953,8 @@ packages:
   /@cucumber/tag-expressions@6.1.0:
     resolution: {integrity: sha512-+3DwRumrCJG27AtzCIL37A/X+A/gSfxOPLg8pZaruh5SLumsTmpvilwroVWBT2fPzmno/tGXypeK5a7NHU4RzA==}
 
-  /@cypress/code-coverage@3.13.9(@babel/core@7.26.0)(@babel/preset-env@7.26.0)(babel-loader@9.2.1)(cypress@13.16.1)(webpack@5.97.1):
-    resolution: {integrity: sha512-VnsBLmhRLE3xgeX5hdN7aWCU3l8UHttUCMO7b+2OrRvs+R3kpBwjejfSC0/H7ErXz5o6r99biClIaS5bqo60uQ==}
+  /@cypress/code-coverage@3.13.3(@babel/core@7.26.0)(@babel/preset-env@7.26.0)(babel-loader@9.2.1)(cypress@13.16.1)(webpack@5.97.1):
+    resolution: {integrity: sha512-6cunouO0xYNoD6ZeS5392SC19RXbBstfuTrDG4PQsUwID2Gadg0wJdpeL0ZJUwBBq102COl2FxP8qzCfS1gWsg==}
     peerDependencies:
       '@babel/core': ^7.0.1
       '@babel/preset-env': ^7.0.0

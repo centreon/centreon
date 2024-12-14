@@ -33,7 +33,7 @@
     "@4tw/cypress-drag-drop": "^2.2.5",
     "@biomejs/biome": "^1.9.4",
     "@centreon/js-config": "workspace:*",
-    "@cypress/code-coverage": "^3.13.9",
+    "@cypress/code-coverage": "^3.13.3",
     "@cypress/react": "^8.0.2",
     "@cypress/webpack-dev-server": "^3.11.0",
     "@cypress/webpack-preprocessor": "^6.0.2",
