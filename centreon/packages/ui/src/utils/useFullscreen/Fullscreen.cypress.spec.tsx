@@ -1,5 +1,5 @@
 import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router';
+import { BrowserRouter } from 'react-router-dom';
 
 import { Button } from '@mui/material';
 
