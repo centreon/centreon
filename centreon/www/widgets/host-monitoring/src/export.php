@@ -101,7 +101,7 @@ $preferences = $widgetObj->getWidgetPreferences($widgetId);
 $stateLabels = getLabels();
 
 // Request
-$query = 'SELECT SQL_CALC_FOUND_ROWS
+$columns = 'SELECT SQL_CALC_FOUND_ROWS
     1 AS REALTIME,
     h.host_id,
     h.name,
@@ -128,8 +128,8 @@ $query = 'SELECT SQL_CALC_FOUND_ROWS
     h.icon_image,
     h.icon_image_alt,
     cv2.value AS criticality_id,
-    cv.name IS NULL as isnull
-    FROM hosts h
+    cv.name IS NULL as isnull';
+$baseQuery = ' FROM hosts h
     LEFT JOIN `customvariables` cv
         ON (cv.host_id = h.host_id AND cv.service_id IS NULL AND cv.name = \'CRITICALITY_LEVEL\')
     LEFT JOIN `customvariables` cv2
@@ -138,7 +138,7 @@ $query = 'SELECT SQL_CALC_FOUND_ROWS
     AND h.name NOT LIKE \'_Module_%\' ';
 
 if (!empty($hostQuery)) {
-    $query .= 'AND h.host_id IN (' . $hostQuery . ') ';
+    $baseQuery .= 'AND h.host_id IN (' . $hostQuery . ') ';
 }
 
 if (isset($preferences['host_name_search']) && $preferences['host_name_search'] != "") {
@@ -154,7 +154,7 @@ if (isset($preferences['host_name_search']) && $preferences['host_name_search'] 
             'type' => \PDO::PARAM_STR
         ];
         $hostNameCondition = 'h.name ' . CentreonUtils::operandToMysqlFormat($op) . ' :host_name_search ';
-        $query = CentreonUtils::conditionBuilder($query, $hostNameCondition);
+        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, $hostNameCondition);
     }
 }
 
@@ -169,42 +169,42 @@ if (isset($preferences['host_unreachable']) && $preferences['host_unreachable'])
     $stateTab[] = 2;
 }
 if ($stateTab !== []) {
-    $query = CentreonUtils::conditionBuilder($query, ' state IN (' . implode(',', $stateTab) . ')');
+    $baseQuery = CentreonUtils::conditionBuilder($baseQuery, ' state IN (' . implode(',', $stateTab) . ')');
 }
 
 if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgement_filter']) {
     if ($preferences['acknowledgement_filter'] == 'ack') {
-        $query = CentreonUtils::conditionBuilder($query, ' acknowledged = 1');
+        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, ' acknowledged = 1');
     } elseif ($preferences['acknowledgement_filter'] == 'nack') {
-        $query = CentreonUtils::conditionBuilder($query, ' acknowledged = 0');
+        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, ' acknowledged = 0');
     }
 }
 
 if (isset($preferences['notification_filter']) && $preferences['notification_filter']) {
     if ($preferences['notification_filter'] == "enabled") {
-        $query = CentreonUtils::conditionBuilder($query, " notify = 1");
+        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, " notify = 1");
     } elseif ($preferences['notification_filter'] == "disabled") {
-        $query = CentreonUtils::conditionBuilder($query, " notify = 0");
+        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, " notify = 0");
     }
 }
 
 if (isset($preferences['downtime_filter']) && $preferences['downtime_filter']) {
     if ($preferences['downtime_filter'] == 'downtime') {
-        $query = CentreonUtils::conditionBuilder($query, ' scheduled_downtime_depth	> 0 ');
+        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, ' scheduled_downtime_depth	> 0 ');
     } elseif ($preferences['downtime_filter'] == 'ndowntime') {
-        $query = CentreonUtils::conditionBuilder($query, ' scheduled_downtime_depth	= 0 ');
+        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, ' scheduled_downtime_depth	= 0 ');
     }
 }
 
 if (isset($preferences['poller_filter']) && $preferences['poller_filter']) {
-    $query = CentreonUtils::conditionBuilder($query, ' instance_id = ' . $preferences['poller_filter'] . ' ');
+    $baseQuery = CentreonUtils::conditionBuilder($baseQuery, ' instance_id = ' . $preferences['poller_filter'] . ' ');
 }
 
 if (isset($preferences['state_type_filter']) && $preferences['state_type_filter']) {
     if ($preferences['state_type_filter'] == 'hardonly') {
-        $query = CentreonUtils::conditionBuilder($query, ' state_type = 1 ');
+        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, ' state_type = 1 ');
     } elseif ($preferences['state_type_filter'] == 'softonly') {
-        $query = CentreonUtils::conditionBuilder($query, ' state_type = 0 ');
+        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, ' state_type = 0 ');
     }
 }
 
@@ -228,7 +228,7 @@ h.host_id IN (
       FROM hosts_hostgroups
       WHERE hostgroup_id IN ({$queryHg}))
 SQL;
-    $query = CentreonUtils::conditionBuilder($query, $hostgroupHgIdCondition);
+    $baseQuery = CentreonUtils::conditionBuilder($baseQuery, $hostgroupHgIdCondition);
 }
 if (!empty($preferences['display_severities']) && !empty($preferences['criticality_filter'])) {
     $tab = explode(',', $preferences['criticality_filter']);
@@ -249,12 +249,12 @@ if (!empty($preferences['display_severities']) && !empty($preferences['criticali
             SELECT DISTINCT host_host_id
             FROM `{$conf_centreon['db']}`.hostcategories_relation
             WHERE hostcategories_hc_id IN ({$labels}))";
-    $query = CentreonUtils::conditionBuilder($query, $SeverityIdCondition);
+    $baseQuery = CentreonUtils::conditionBuilder($baseQuery, $SeverityIdCondition);
 }
 if (!$centreon->user->admin) {
     $pearDB = $db;
     $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
-    $query .= $aclObj->queryBuilder('AND', 'h.host_id', $aclObj->getHostsString('ID', $dbb));
+    $baseQuery .= $aclObj->queryBuilder('AND', 'h.host_id', $aclObj->getHostsString('ID', $dbb));
 }
 $orderBy = 'h.name ASC';
 
@@ -304,70 +304,90 @@ if ($orderByToAnalyse !== null) {
         $orderBy = $column . ' ' . $direction;
     }
 }
+try {
+    // Query to count total rows
+    $countQuery = "SELECT COUNT(*) " . $baseQuery;
+    $countStatement = $dbb->executeQuery($countQuery);
+    $nbRows = (int) $dbb->fetchColumn($countStatement);
 
-$query .= " ORDER BY {$orderBy}";
+    // Main SELECT query
+    $query = $columns . $baseQuery;
+    $query .= " ORDER BY $orderby";
 
-$res = $dbb->prepare($query);
+    $statement = $dbb->prepareQuery($query);
 
-foreach ($mainQueryParameters as $parameter) {
-    $res->bindValue($parameter['parameter'], $parameter['value'], $parameter['type']);
-}
+    // Bind parameters
+    foreach ($mainQueryParameters as $parameter) {
+        $statement->bindValue($parameter['parameter'], $parameter['value'], $parameter['type']);
+    }
 
-unset($parameter, $mainQueryParameters);
+    // Execute the query
+    $dbb->executePreparedQuery($statement);
+    // Unset parameters
+    unset($parameter, $mainQueryParameters);
 
-$res->execute();
+    $data = [];
+    $outputLength = $preferences['output_length'] ?? 50;
+    $commentLength = $preferences['comment_length'] ?? 50;
+    $hostObj = new CentreonHost($db);
+    $gmt = new CentreonGMT($db);
+    $gmt->getMyGMTFromSession(session_id());
 
-$nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
+    while ($row = $dbb->fetch($statement)) {
+        foreach ($row as $key => $value) {
+            if ($key == 'last_check') {
+                $value = $gmt->getDate('Y-m-d H:i:s', $value);
+            } elseif ($key == 'last_state_change' || $key == 'last_hard_state_change') {
+                $value = time() - $value;
+                $value = CentreonDuration::toString($value);
+            } elseif ($key == 'check_attempt') {
+                $value = $value . '/' . $row['max_check_attempts'] . ' (' . $aStateType[$row['state_type']] . ')';
+            } elseif ($key == 'state') {
+                $value = $stateLabels[$value];
+            } elseif ($key == 'output') {
+                $value = substr($value, 0, $outputLength);
+            } elseif (($key == 'action_url' || $key == 'notes_url') && $value) {
+                if (!preg_match("/(^http[s]?)|(^\/\/)/", $value)) {
+                    $value = '//' . $value;
+                }
 
-$data = [];
-$outputLength = $preferences['output_length'] ?? 50;
-$commentLength = $preferences['comment_length'] ?? 50;
-$hostObj = new CentreonHost($db);
-$gmt = new CentreonGMT($db);
-$gmt->getMyGMTFromSession(session_id());
-
-while ($row = $res->fetch()) {
-    foreach ($row as $key => $value) {
-        if ($key == 'last_check') {
-            $value = $gmt->getDate('Y-m-d H:i:s', $value);
-        } elseif ($key == 'last_state_change' || $key == 'last_hard_state_change') {
-            $value = time() - $value;
-            $value = CentreonDuration::toString($value);
-        } elseif ($key == 'check_attempt') {
-            $value = $value . '/' . $row['max_check_attempts'] . ' (' . $aStateType[$row['state_type']] . ')';
-        } elseif ($key == 'state') {
-            $value = $stateLabels[$value];
-        } elseif ($key == 'output') {
-            $value = substr($value, 0, $outputLength);
-        } elseif (($key == 'action_url' || $key == 'notes_url') && $value) {
-            if (!preg_match("/(^http[s]?)|(^\/\/)/", $value)) {
-                $value = '//' . $value;
+                $value = CentreonUtils::escapeSecure($hostObj->replaceMacroInString($row['name'], $value));
+            } elseif ($key == 'criticality' && $value != '') {
+                $critData = $criticality->getData($row['criticality_id']);
+                $value = $critData['hc_name'];
             }
-
-            $value = CentreonUtils::escapeSecure($hostObj->replaceMacroInString($row['name'], $value));
-        } elseif ($key == 'criticality' && $value != '') {
-            $critData = $criticality->getData($row['criticality_id']);
-            $value = $critData['hc_name'];
+            $data[$row['host_id']][$key] = $value;
         }
-        $data[$row['host_id']][$key] = $value;
-    }
 
-    if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
-        $res2 = $dbb->prepare(<<<'SQL'
-            SELECT 
-                1 AS REALTIME,
-                data
-            FROM comments
-            WHERE host_id = :hostId
-                AND service_id IS NULL
-            ORDER BY entry_time DESC
-            LIMIT 1
-            SQL
-        );
-        $res2->bindValue(':hostId', $row['host_id'], \PDO::PARAM_INT);
-        $res2->execute();
-        $data[$row['host_id']]['comment'] = ($row2 = $res2->fetch()) ? substr($row2['data'], 0, $commentLength) : '-';
+        if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
+            $res2 = $dbb->prepare(<<<'SQL'
+                SELECT 
+                    1 AS REALTIME,
+                    data
+                FROM comments
+                WHERE host_id = :hostId
+                    AND service_id IS NULL
+                ORDER BY entry_time DESC
+                LIMIT 1
+                SQL
+            );
+            $res2->bindValue(':hostId', $row['host_id'], \PDO::PARAM_INT);
+            $res2->execute();
+            $data[$row['host_id']]['comment'] = ($row2 = $res2->fetch()) ? substr($row2['data'], 0, $commentLength) : '-';
+        }
     }
+} catch (CentreonDbException $e) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        "Error while fetching host monitoring",
+        [
+            'message' => $e->getMessage(),
+            'parameters' => [
+                'orderby' => $orderby
+            ]
+        ],
+        $e
+    );
 }
 
 $lines = [];
