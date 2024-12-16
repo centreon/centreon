@@ -62,16 +62,30 @@ import {
   labelYourRightsOnlyAllowToView
 } from './translatedLabels';
 
+const widgetProperties = [
+  widgetTextProperties,
+  widgetInputProperties,
+  widgetGenericTextProperties,
+  widgetSingleMetricProperties,
+  widgetWebpageProperties
+];
+
+const availableWidgets = widgetProperties.reduce(
+  (acc, { moduleName }) => ({ ...acc, [moduleName]: {} }),
+  {}
+);
+
 const initializeWidgets = (): ReturnType<typeof createStore> => {
   const store = createStore();
   store.set(federatedWidgetsAtom, internalWidgetComponents);
-  store.set(federatedWidgetsPropertiesAtom, [
-    widgetTextProperties,
-    widgetInputProperties,
-    widgetGenericTextProperties,
-    widgetSingleMetricProperties,
-    widgetWebpageProperties
-  ]);
+  store.set(federatedWidgetsPropertiesAtom, widgetProperties);
+  store.set(platformVersionsAtom, {
+    modules: {},
+    web: {
+      version: '23.04.0'
+    },
+    widgets: availableWidgets
+  });
 
   return store;
 };
@@ -132,14 +146,6 @@ const initializeAndMount = ({
   store: ReturnType<typeof createStore>;
 } => {
   const store = initializeWidgets();
-
-  const platformVersion = {
-    modules: {},
-    web: {
-      version: '23.04.0'
-    }
-  };
-  store.set(platformVersionsAtom, platformVersion);
 
   store.set(userAtom, {
     alias: 'admin',
@@ -262,14 +268,6 @@ const initializeDashboardWithWebpageWidgets = ({
   canAdministrateDashboard = true
 }: InitializeAndMountProps): void => {
   const store = initializeWidgets();
-
-  const platformVersion = {
-    modules: {},
-    web: {
-      version: '23.04.0'
-    }
-  };
-  store.set(platformVersionsAtom, platformVersion);
 
   store.set(userAtom, {
     alias: 'admin',
@@ -854,14 +852,6 @@ describe('Dashboard', () => {
 describe('Dashboard with complex layout', () => {
   it('displays a new widget in the correct position when a widget is added', () => {
     const store = initializeWidgets();
-
-    const platformVersion = {
-      modules: {},
-      web: {
-        version: '23.04.0'
-      }
-    };
-    store.set(platformVersionsAtom, platformVersion);
 
     store.set(userAtom, {
       alias: 'admin',
