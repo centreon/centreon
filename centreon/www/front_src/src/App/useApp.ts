@@ -13,7 +13,8 @@ import {
   downtimeAtom,
   platformNameAtom,
   platformVersionsAtom,
-  refreshIntervalAtom
+  refreshIntervalAtom,
+  statisticsRefreshIntervalAtom
 } from '@centreon/ui-context';
 
 import { loginPageCustomisationEndpoint } from '../Login/api/endpoint';
@@ -70,6 +71,9 @@ const useApp = (): UseAppState => {
   const [platformVersion] = useAtom(platformVersionsAtom);
   const setDowntime = useSetAtom(downtimeAtom);
   const setRefreshInterval = useSetAtom(refreshIntervalAtom);
+  const setStatisticsRefreshInterval = useSetAtom(
+    statisticsRefreshIntervalAtom
+  );
   const setAcl = useSetAtom(aclAtom);
   const setAcknowledgement = useSetAtom(acknowledgementAtom);
   const setAreUserParametersLoaded = useSetAtom(areUserParametersLoadedAtom);
@@ -111,6 +115,14 @@ const useApp = (): UseAppState => {
             10
           )
         );
+
+        setStatisticsRefreshInterval(
+          Number.parseInt(
+            retrievedParameters?.statistics_default_refresh_interval,
+            10
+          )
+        );
+
         setAcknowledgement({
           force_active_checks:
             retrievedParameters.monitoring_default_acknowledgement_force_active_checks,
