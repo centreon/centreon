@@ -60,7 +60,6 @@ jobs:
 
       - uses: dorny/paths-filter@0bc4621a3135347011ad047f9ecf449bf72ce2bd # v3.0.0
         id: filter
-        if: ${{ needs.get-environment.outputs.is_nightly == 'false' }}
         with:
           filters: |
             has_frontend_changes:
