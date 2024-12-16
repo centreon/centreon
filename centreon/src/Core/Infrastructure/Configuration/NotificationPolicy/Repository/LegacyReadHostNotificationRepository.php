@@ -30,7 +30,7 @@ use Core\Domain\Configuration\Notification\Model\NotifiedContactGroup;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Pimple\Container;
 
-class LegacyReadHostNotificationRepository extends AbstractDbReadNotificationRepository implements ReadHostNotificationRepositoryInterface
+class LegacyReadHostNotificationRepository extends AbstractDbReadNotificationRepository //implements ReadHostNotificationRepositoryInterface
 {
     /** @var array<int,NotifiedContact[]> */
     private array $notifiedContacts = [];

@@ -34,7 +34,7 @@ interface ReadHostNotificationRepositoryInterface
      *
      * @return NotifiedContact[]
      */
-    public function findNotifiedContactsById(int $hostId): array;
+    public function findNotifiedContactsById(int $hostId, array $notifiedContactsIds, array $notifiedContactGroupIds): array;
 
     /**
      * @param int $hostId
@@ -42,14 +42,14 @@ interface ReadHostNotificationRepositoryInterface
      *
      * @return NotifiedContact[]
      */
-    public function findNotifiedContactsByIdAndAccessGroups(int $hostId, array $accessGroups): array;
+    public function findNotifiedContactsByIdAndAccessGroups(int $hostId, array $notifiedContactsIds, array $notifiedContactGroupIds, array $accessGroups): array;
 
     /**
      * @param int $hostId
      *
      * @return NotifiedContactGroup[]
      */
-    public function findNotifiedContactGroupsById(int $hostId): array;
+    public function findNotifiedContactGroupsById(int $hostId, array $notifiedContactsIds, array $notifiedContactGroupIds): array;
 
     /**
      * @param int $hostId
@@ -57,5 +57,13 @@ interface ReadHostNotificationRepositoryInterface
      *
      * @return NotifiedContactGroup[]
      */
-    public function findNotifiedContactGroupsByIdAndAccessGroups(int $hostId, array $accessGroups): array;
+    public function findNotifiedContactGroupsByIdAndAccessGroups(int $hostId, array $notifiedContactsIds, array $notifiedContactGroupIds, array $accessGroups): array;
+
+    // TODO: check if the following methods should be here or elsewhere + check names
+
+    public function findContactsForHostAndHostTemplate(int $hostId): array;
+
+    public function findContactGroupsForHostAndHostTemplate(int $hostId): array;
+
+    public function findHostTemplates(int $hostId): array;
 }
