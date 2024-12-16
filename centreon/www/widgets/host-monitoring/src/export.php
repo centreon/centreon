@@ -46,6 +46,7 @@ require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/class/centreonHost.class.php';
 require_once $centreon_path . 'www/class/centreonMedia.class.php';
 require_once $centreon_path . 'www/class/centreonCriticality.class.php';
+require_once $centreon_path . 'www/include/common/sqlCommonFunction.php';
 
 session_start();
 if (!isset($_SESSION['centreon'], $_GET['widgetId'], $_GET['list'])) {
@@ -75,24 +76,18 @@ if (str_contains($_GET['list'], ',')) {
 } else {
     $exportList[] = $_GET['list'];
 }
+
+// Filter out invalid host IDs
+$filteredHostList = array_filter($exportList, static function ($hostId) {
+    return (int)$hostId > 0; // Keep only valid positive integers
+});
+
+[$hostBindValues, $hostQuery] = createMultipleBindQuery(
+    $filteredHostList,
+    ':host_',
+    PDO::PARAM_INT
+);
 $mainQueryParameters = [];
-$hostQuery = '';
-// Check consistency, sanitize and bind values
-foreach ($exportList as $key => $hostId) {
-    if (0 === (int)$hostId) {
-        // skip non consistent dat
-        continue;
-    }
-    if (!empty($hostQuery)) {
-        $hostQuery .= ', ';
-    }
-    $hostQuery .= ':' . $key . 'host' . $hostId;
-    $mainQueryParameters[] = [
-        'parameter' => ':' . $key . 'host' . $hostId,
-        'value' => (int)$hostId,
-        'type' => \PDO::PARAM_INT
-    ];
-}
 
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
@@ -101,41 +96,45 @@ $preferences = $widgetObj->getWidgetPreferences($widgetId);
 $stateLabels = getLabels();
 
 // Request
-$columns = 'SELECT SQL_CALC_FOUND_ROWS
-    1 AS REALTIME,
-    h.host_id,
-    h.name,
-    h.alias,
-    h.flapping,
-    state,
-    state_type,
-    address,
-    last_hard_state,
-    output,
-    scheduled_downtime_depth,
-    acknowledged,
-    notify,
-    active_checks,
-    passive_checks,
-    last_check,
-    last_state_change,
-    last_hard_state_change,
-    check_attempt,
-    max_check_attempts,
-    action_url,
-    notes_url,
-    cv.value AS criticality,
-    h.icon_image,
-    h.icon_image_alt,
-    cv2.value AS criticality_id,
-    cv.name IS NULL as isnull';
-$baseQuery = ' FROM hosts h
-    LEFT JOIN `customvariables` cv
-        ON (cv.host_id = h.host_id AND cv.service_id IS NULL AND cv.name = \'CRITICALITY_LEVEL\')
-    LEFT JOIN `customvariables` cv2
-        ON (cv2.host_id = h.host_id AND cv2.service_id IS NULL AND cv2.name = \'CRITICALITY_ID\')
-    WHERE enabled = 1
-    AND h.name NOT LIKE \'_Module_%\' ';
+$columns = <<<SQL
+        SELECT
+            1 AS REALTIME,
+            h.host_id,
+            h.name,
+            h.alias,
+            h.flapping,
+            state,
+            state_type,
+            address,
+            last_hard_state,
+            output,
+            scheduled_downtime_depth,
+            acknowledged,
+            notify,
+            active_checks,
+            passive_checks,
+            last_check,
+            last_state_change,
+            last_hard_state_change,
+            check_attempt,
+            max_check_attempts,
+            action_url,
+            notes_url,
+            cv.value AS criticality,
+            h.icon_image,
+            h.icon_image_alt,
+            cv2.value AS criticality_id,
+            cv.name IS NULL as isnull
+    SQL;
+$baseQuery = <<<SQL
+        FROM hosts h
+        LEFT JOIN `customvariables` cv
+            ON (cv.host_id = h.host_id AND cv.service_id IS NULL AND cv.name = 'CRITICALITY_LEVEL')
+        LEFT JOIN `customvariables` cv2
+            ON (cv2.host_id = h.host_id AND cv2.service_id IS NULL AND cv2.name = 'CRITICALITY_ID')
+        WHERE enabled = 1
+        AND h.name NOT LIKE '_Module_%'
+    SQL;
 
 if (!empty($hostQuery)) {
     $baseQuery .= 'AND h.host_id IN (' . $hostQuery . ') ';
@@ -304,29 +303,35 @@ if ($orderByToAnalyse !== null) {
         $orderBy = $column . ' ' . $direction;
     }
 }
+
+$data = [];
+
 try {
     // Query to count total rows
     $countQuery = "SELECT COUNT(*) " . $baseQuery;
-    $countStatement = $dbb->executeQuery($countQuery);
-    $nbRows = (int) $dbb->fetchColumn($countStatement);
 
     // Main SELECT query
     $query = $columns . $baseQuery;
-    $query .= " ORDER BY $orderby";
+    $query .= " ORDER BY $orderBy";
 
+    $countStatement = $dbb->prepareQuery($countQuery);
     $statement = $dbb->prepareQuery($query);
 
     // Bind parameters
     foreach ($mainQueryParameters as $parameter) {
+        $countStatement->bindValue($parameter['parameter'], $parameter['value'], $parameter['type']);
         $statement->bindValue($parameter['parameter'], $parameter['value'], $parameter['type']);
     }
 
+    $dbb->executePreparedQuery($countStatement, $hostBindValues, true);
+    $nbRows = (int) $dbb->fetchColumn($countStatement);
+
+
     // Execute the query
-    $dbb->executePreparedQuery($statement);
+    $dbb->executePreparedQuery($statement, $hostBindValues, true);
     // Unset parameters
     unset($parameter, $mainQueryParameters);
 
-    $data = [];
     $outputLength = $preferences['output_length'] ?? 50;
     $commentLength = $preferences['comment_length'] ?? 50;
     $hostObj = new CentreonHost($db);
@@ -383,7 +388,7 @@ try {
         [
             'message' => $e->getMessage(),
             'parameters' => [
-                'orderby' => $orderby
+                'orderby' => $orderBy
             ]
         ],
         $e
