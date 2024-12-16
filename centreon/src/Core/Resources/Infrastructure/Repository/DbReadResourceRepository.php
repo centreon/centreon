@@ -162,19 +162,19 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                     resources.enabled,
                     resources.icon_id,
                     resources.severity_id
-                FROM `:dbstg`.`resources`
-                LEFT JOIN `:dbstg`.`resources` parent_resource
+                FROM `:dbstg`.`resources` AS resources
+                LEFT JOIN `:dbstg`.`resources` AS parent_resource
                     ON parent_resource.id = resources.parent_id
-                    AND parent_resource.type = {$resourceTypeHost} 
-                LEFT JOIN `:dbstg`.`severities`
-                    ON `severities`.severity_id = `resources`.severity_id
+                    AND parent_resource.type = {$resourceTypeHost}
+                LEFT JOIN `:dbstg`.`severities` AS severities
+                    ON `severities`.severity_id = resources.severity_id
                 LEFT JOIN `:dbstg`.`resources_tags` AS rtags
-                    ON `rtags`.resource_id = `resources`.resource_id
-                INNER JOIN `:dbstg`.`instances`
-                    ON `instances`.instance_id = `resources`.poller_id
+                    ON rtags.resource_id = resources.resource_id
+                INNER JOIN `:dbstg`.`instances` AS instances
+                    ON instances.instance_id = resources.poller_id
                 WHERE resources.name NOT LIKE '\_Module\_%'
                     AND resources.parent_name NOT LIKE '\_Module\_BAM%'
-                    AND resources.enabled = 1 
+                    AND resources.enabled = 1
                     AND resources.type != 3
             SQL;
 
@@ -318,24 +318,24 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                     $intersectRequest .= <<<SQL
                             SELECT * FROM (
                                 SELECT resources.resource_id
-                                FROM `resources`
-                                    INNER JOIN `resources_tags` AS rtags
+                                FROM `:dbstg`.`resources` AS resources
+                                    INNER JOIN `:dbstg`.`resources_tags` AS rtags
                                         ON rtags.resource_id = resources.resource_id
-                                    INNER JOIN tags
+                                    INNER JOIN `:dbstg`.`tags` AS tags
                                         ON tags.tag_id = rtags.tag_id
                                 WHERE tags.type = {$type}
                                     AND tags.name IN ({$literalTagKeys})
                                 GROUP BY resources.resource_id
                                 UNION
                                 SELECT resources.resource_id
-                                FROM `resources`
-                                    INNER JOIN `resources` parent_resource
+                                FROM `:dbstg`.`resources` AS resources
+                                    INNER JOIN `:dbstg`.`resources` AS parent_resource
                                         ON parent_resource.id = resources.parent_id
                                         AND parent_resource.type = {$resourceTypeHost}
-                                    INNER JOIN `resources_tags` AS rtags
+                                    INNER JOIN `:dbstg`.`resources_tags` AS rtags
                                         ON rtags.resource_id = parent_resource.resource_id
                                         AND parent_resource.type = {$resourceTypeHost}
-                                    INNER JOIN tags
+                                    INNER JOIN `:dbstg`.`tags` AS tags
                                         ON tags.tag_id = rtags.tag_id
                                 WHERE tags.type = {$type}
                                     AND tags.name IN ({$literalTagKeys})
@@ -345,8 +345,8 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                 } else {
                     $intersectRequest .= <<<SQL
                             SELECT rtags.resource_id
-                            FROM `:dbstg`.resources_tags AS rtags
-                            INNER JOIN `:dbstg`.tags
+                            FROM `:dbstg`.`resources_tags` AS rtags
+                            INNER JOIN `:dbstg`.`tags` AS tags
                                 ON tags.tag_id = rtags.tag_id
                             WHERE tags.name IN ({$literalTagKeys})
                                 AND tags.type = {$type}
@@ -427,16 +427,16 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                     resources.enabled,
                     resources.icon_id,
                     resources.severity_id
-                FROM `:dbstg`.`resources`
-                LEFT JOIN `:dbstg`.`resources` parent_resource
+                FROM `:dbstg`.`resources` AS resources
+                LEFT JOIN `:dbstg`.`resources` AS parent_resource
                     ON parent_resource.id = resources.parent_id
                     AND parent_resource.type = {$resourceTypeHost}
-                LEFT JOIN `:dbstg`.`severities`
-                    ON `severities`.severity_id = `resources`.severity_id
+                LEFT JOIN `:dbstg`.`severities` AS severities
+                    ON severities.severity_id = resources.severity_id
                 LEFT JOIN `:dbstg`.`resources_tags` AS rtags
-                    ON `rtags`.resource_id = `resources`.resource_id
-                INNER JOIN `:dbstg`.`instances`
-                    ON `instances`.instance_id = `resources`.poller_id
+                    ON rtags.resource_id = resources.resource_id
+                INNER JOIN `:dbstg`.`instances` AS instances
+                    ON instances.instance_id = resources.poller_id
             SQL;
 
         /**
@@ -758,7 +758,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             || ! empty($filteredLevels)
         ) {
             $subRequest = ' AND EXISTS (
-                SELECT 1 FROM `:dbstg`.severities
+                SELECT 1 FROM `:dbstg`.`severities` AS severities
                 WHERE severities.severity_id = resources.severity_id
                     AND severities.type IN (' . implode(', ', $filteredTypes) . ')';
 
@@ -849,12 +849,12 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         ) {
             $sqlState = [];
             $sqlStateCatalog = [
-                ResourceFilter::STATE_RESOURCES_PROBLEMS => '(resources.status != 0 AND resources.status != 4)',
-                ResourceFilter::STATE_UNHANDLED_PROBLEMS => '(resources.status != 0 AND resources.status != 4)'
+                ResourceFilter::STATE_RESOURCES_PROBLEMS => 'resources.status != 0 AND resources.status != 4',
+                ResourceFilter::STATE_UNHANDLED_PROBLEMS => 'resources.status != 0 AND resources.status != 4'
                     . ' AND resources.acknowledged = 0 AND resources.in_downtime = 0'
-                    . ' AND resources.status_confirmed = 1)',
-                ResourceFilter::STATE_ACKNOWLEDGED => '(resources.acknowledged = 1)',
-                ResourceFilter::STATE_IN_DOWNTIME => '(resources.in_downtime = 1)',
+                    . ' AND resources.status_confirmed = 1',
+                ResourceFilter::STATE_ACKNOWLEDGED => 'resources.acknowledged = 1',
+                ResourceFilter::STATE_IN_DOWNTIME => 'resources.in_downtime = 1',
             ];
 
             foreach ($filter->getStates() as $state) {
@@ -882,20 +882,20 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             foreach ($filter->getStatuses() as $status) {
                 switch ($status) {
                     case ResourceFilter::STATUS_PENDING:
-                        $sqlStatuses[] = '(resources.status = ' . ResourceFilter::MAP_STATUS_SERVICE[$status] . ')';
+                        $sqlStatuses[] = 'resources.status = ' . ResourceFilter::MAP_STATUS_SERVICE[$status];
                         break;
                     case ResourceFilter::STATUS_OK:
                     case ResourceFilter::STATUS_WARNING:
                     case ResourceFilter::STATUS_UNKNOWN:
                     case ResourceFilter::STATUS_CRITICAL:
-                        $sqlStatuses[] = '(resources.type != ' . self::RESOURCE_TYPE_HOST
-                            . ' AND resources.status = ' . ResourceFilter::MAP_STATUS_SERVICE[$status] . ')';
+                        $sqlStatuses[] = 'resources.type != ' . self::RESOURCE_TYPE_HOST
+                            . ' AND resources.status = ' . ResourceFilter::MAP_STATUS_SERVICE[$status];
                         break;
                     case ResourceFilter::STATUS_UP:
                     case ResourceFilter::STATUS_DOWN:
                     case ResourceFilter::STATUS_UNREACHABLE:
-                        $sqlStatuses[] = '(resources.type = ' . self::RESOURCE_TYPE_HOST
-                            . ' AND resources.status = ' . ResourceFilter::MAP_STATUS_HOST[$status] . ')';
+                        $sqlStatuses[] = 'resources.type = ' . self::RESOURCE_TYPE_HOST
+                            . " AND resources.status = '" . ResourceFilter::MAP_STATUS_HOST[$status] . "'";
                         break;
                 }
             }
@@ -921,7 +921,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         if (! empty($filter->getStatusTypes())) {
             foreach ($filter->getStatusTypes() as $statusType) {
                 if (\array_key_exists($statusType, ResourceFilter::MAP_STATUS_TYPES)) {
-                    $sqlStatusTypes[] = '(resources.status_confirmed = ' . ResourceFilter::MAP_STATUS_TYPES[$statusType] . ')';
+                    $sqlStatusTypes[] = 'resources.status_confirmed = ' . ResourceFilter::MAP_STATUS_TYPES[$statusType];
                 }
             }
 
@@ -976,10 +976,10 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                 img_name AS `icon_name`,
                 img_path AS `icon_path`,
                 imgd.dir_name AS `icon_directory`
-            FROM `:db`.view_img img
-            LEFT JOIN `:db`.view_img_dir_relation imgdr
+            FROM `:db`.`view_img` AS img
+            LEFT JOIN `:db`.`view_img_dir_relation` AS imgdr
                 ON imgdr.img_img_id = img.img_id
-            INNER JOIN `:db`.view_img_dir imgd
+            INNER JOIN `:db`.`view_img_dir` AS imgd
                 ON imgd.dir_id = imgdr.dir_dir_parent_id
             WHERE img.img_id IN (' . str_repeat('?, ', count($iconIds) - 1) . '?)';
 
