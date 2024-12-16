@@ -332,24 +332,24 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                     $intersectRequest .= <<<SQL
                             SELECT * FROM (
                                 SELECT resources.resource_id
-                                FROM `resources`
-                                    INNER JOIN `resources_tags` AS rtags
+                                FROM `:dbstg`.`resources`
+                                    INNER JOIN `:dbstg`.`resources_tags` AS rtags
                                         ON rtags.resource_id = resources.resource_id
-                                    INNER JOIN tags
+                                    INNER JOIN `:dbstg`.tags
                                         ON tags.tag_id = rtags.tag_id
                                 WHERE tags.type = {$type}
                                     AND tags.name IN ({$literalTagKeys})
                                 GROUP BY resources.resource_id
                                 UNION
                                 SELECT resources.resource_id
-                                FROM `resources`
-                                    INNER JOIN `resources` parent_resource
+                                FROM `:dbstg`.`resources`
+                                    INNER JOIN `:dbstg`.`resources` parent_resource
                                         ON parent_resource.id = resources.parent_id
                                         AND parent_resource.type = {$resourceTypeHost}
-                                    INNER JOIN `resources_tags` AS rtags
+                                    INNER JOIN `:dbstg`.`resources_tags` AS rtags
                                         ON rtags.resource_id = parent_resource.resource_id
                                         AND parent_resource.type = {$resourceTypeHost}
-                                    INNER JOIN tags
+                                    INNER JOIN `:dbstg`.tags
                                         ON tags.tag_id = rtags.tag_id
                                 WHERE tags.type = {$type}
                                     AND tags.name IN ({$literalTagKeys})
