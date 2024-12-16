@@ -868,12 +868,12 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         ) {
             $sqlState = [];
             $sqlStateCatalog = [
-                ResourceFilter::STATE_RESOURCES_PROBLEMS => '(resources.status != 0 AND resources.status != 4)',
-                ResourceFilter::STATE_UNHANDLED_PROBLEMS => '(resources.status != 0 AND resources.status != 4)'
+                ResourceFilter::STATE_RESOURCES_PROBLEMS => 'resources.status != 0 AND resources.status != 4',
+                ResourceFilter::STATE_UNHANDLED_PROBLEMS => 'resources.status != 0 AND resources.status != 4'
                     . ' AND resources.acknowledged = 0 AND resources.in_downtime = 0'
-                    . ' AND resources.status_confirmed = 1)',
-                ResourceFilter::STATE_ACKNOWLEDGED => '(resources.acknowledged = 1)',
-                ResourceFilter::STATE_IN_DOWNTIME => '(resources.in_downtime = 1)',
+                    . ' AND resources.status_confirmed = 1',
+                ResourceFilter::STATE_ACKNOWLEDGED => 'resources.acknowledged = 1',
+                ResourceFilter::STATE_IN_DOWNTIME => 'resources.in_downtime = 1',
             ];
 
             foreach ($filter->getStates() as $state) {
@@ -901,20 +901,20 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             foreach ($filter->getStatuses() as $status) {
                 switch ($status) {
                     case ResourceFilter::STATUS_PENDING:
-                        $sqlStatuses[] = '(resources.status = ' . ResourceFilter::MAP_STATUS_SERVICE[$status] . ')';
+                        $sqlStatuses[] = 'resources.status = ' . ResourceFilter::MAP_STATUS_SERVICE[$status];
                         break;
                     case ResourceFilter::STATUS_OK:
                     case ResourceFilter::STATUS_WARNING:
                     case ResourceFilter::STATUS_UNKNOWN:
                     case ResourceFilter::STATUS_CRITICAL:
-                        $sqlStatuses[] = '(resources.type != ' . self::RESOURCE_TYPE_HOST
-                            . ' AND resources.status = ' . ResourceFilter::MAP_STATUS_SERVICE[$status] . ')';
+                        $sqlStatuses[] = 'resources.type != ' . self::RESOURCE_TYPE_HOST
+                            . ' AND resources.status = ' . ResourceFilter::MAP_STATUS_SERVICE[$status];
                         break;
                     case ResourceFilter::STATUS_UP:
                     case ResourceFilter::STATUS_DOWN:
                     case ResourceFilter::STATUS_UNREACHABLE:
-                        $sqlStatuses[] = '(resources.type = ' . self::RESOURCE_TYPE_HOST
-                            . ' AND resources.status = ' . ResourceFilter::MAP_STATUS_HOST[$status] . ')';
+                        $sqlStatuses[] = 'resources.type = ' . self::RESOURCE_TYPE_HOST
+                            . " AND resources.status = '" . ResourceFilter::MAP_STATUS_HOST[$status] . "'";
                         break;
                 }
             }
@@ -940,7 +940,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         if (! empty($filter->getStatusTypes())) {
             foreach ($filter->getStatusTypes() as $statusType) {
                 if (\array_key_exists($statusType, ResourceFilter::MAP_STATUS_TYPES)) {
-                    $sqlStatusTypes[] = '(resources.status_confirmed = ' . ResourceFilter::MAP_STATUS_TYPES[$statusType] . ')';
+                    $sqlStatusTypes[] = 'resources.status_confirmed = ' . ResourceFilter::MAP_STATUS_TYPES[$statusType];
                 }
             }
 
