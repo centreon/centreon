@@ -52,7 +52,7 @@ use Centreon\Domain\Authentication\Exception\AuthenticationException as LegacyAu
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->provider = $this->createMock(ProviderAuthenticationInterface::class);
     $this->contact = $this->createMock(ContactInterface::class);
     $this->menuService = $this->createMock(MenuServiceInterface::class);
@@ -95,7 +95,7 @@ beforeEach(function () {
 
 });
 
-it('should present an error response when the provider configuration is not found', function () {
+it('should present an error response when the provider configuration is not found', function (): void {
     $useCase = new Login(
         $this->providerFactory,
         $this->requestStack,
@@ -121,7 +121,7 @@ it('should present an error response when the provider configuration is not foun
 });
 
 
-it('should present an UnauthorizedResponse when the authentication fails', function () {
+it('should present an UnauthorizedResponse when the authentication fails', function (): void {
     $useCase = new Login(
         $this->providerFactory,
         $this->requestStack,
@@ -151,7 +151,7 @@ it('should present an UnauthorizedResponse when the authentication fails', funct
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(UnauthorizedResponse::class);
 });
 
-it('should present a PasswordExpiredResponse when the user password is expired', function () {
+it('should present a PasswordExpiredResponse when the user password is expired', function (): void {
     $useCase = new Login(
         $this->providerFactory,
         $this->requestStack,
@@ -181,7 +181,7 @@ it('should present a PasswordExpiredResponse when the user password is expired',
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(PasswordExpiredResponse::class);
 });
 
-it('should present an UnauthorizedResponse when user is not authorized to log in', function () {
+it('should present an UnauthorizedResponse when user is not authorized to log in', function (): void {
     $useCase = new Login(
         $this->providerFactory,
         $this->requestStack,
@@ -200,7 +200,7 @@ it('should present an UnauthorizedResponse when user is not authorized to log in
 });
 
 
-it("should present an UnauthorizedResponse when user doesn't exist", function () {
+it("should present an UnauthorizedResponse when user doesn't exist", function (): void {
     $useCase = new Login(
         $this->providerFactory,
         $this->requestStack,
@@ -233,7 +233,7 @@ it("should present an UnauthorizedResponse when user doesn't exist", function ()
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(UnauthorizedResponse::class);
 });
 
-it('should create a user when auto import is enabled', function () {
+it('should create a user when auto import is enabled', function (): void {
     $useCase = new Login(
         $this->providerFactory,
         $this->requestStack,
@@ -275,7 +275,7 @@ it('should create a user when auto import is enabled', function () {
     $useCase($this->authenticationRequest, $this->presenter);
 });
 
-it('should create authentication tokens when user is correctly authenticated', function () {
+it('should create authentication tokens when user is correctly authenticated', function (): void {
     $useCase = new Login(
         $this->providerFactory,
         $this->requestStack,
@@ -335,7 +335,7 @@ it('should create authentication tokens when user is correctly authenticated', f
     $useCase($this->authenticationRequest, $this->presenter);
 });
 
-it('should present the default page when user is correctly authenticated', function () {
+it('should present the default page when user is correctly authenticated', function (): void {
     $useCase = new Login(
         $this->providerFactory,
         $this->requestStack,
@@ -381,7 +381,7 @@ it('should present the default page when user is correctly authenticated', funct
     expect($this->presenter->getPresentedData()->getRedirectUri())->toBe('/monitoring/resources');
 });
 
-it('should present the custom redirection page when user is authenticated', function () {
+it('should present the custom redirection page when user is authenticated', function (): void {
     $useCase = new Login(
         $this->providerFactory,
         $this->requestStack,

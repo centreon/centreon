@@ -2,14 +2,14 @@ import { useMemo } from 'react';
 
 import { useAtom, useAtomValue } from 'jotai';
 import { equals, isEmpty, map, propEq } from 'ramda';
-import { Layout } from 'react-grid-layout';
+import type { Layout } from 'react-grid-layout';
 
 import { getColumnsFromScreenSize } from '@centreon/ui';
 
 import { AddEditWidgetModal } from '../AddEditWidget';
 import { dashboardAtom, isEditingAtom, refreshCountsAtom } from '../atoms';
 import { useCanEditProperties } from '../hooks/useCanEditDashboard';
-import { Panel } from '../models';
+import type { Panel } from '../models';
 
 import PanelsLayout from './Layout';
 

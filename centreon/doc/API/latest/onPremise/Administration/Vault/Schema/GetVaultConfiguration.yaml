@@ -1,14 +1,6 @@
 type: object
 description: "Vault configuration"
 properties:
-  id:
-    type: integer
-    description: "Vault configuration id"
-    example: 1
-  vault_id:
-    type: integer
-    description: "Vault provider id"
-    example: 1
   address:
     type: string
     description: "Vault URL or IP"
@@ -21,6 +13,3 @@ properties:
     type: string
     description: "Vault root storage path"
     example: "centreon"
-  role_id:
-    type: string
-    description: "Vault role ID"

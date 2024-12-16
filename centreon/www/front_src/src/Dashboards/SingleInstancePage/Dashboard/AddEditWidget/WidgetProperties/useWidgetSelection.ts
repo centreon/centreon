@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from 'react';
+import { type ChangeEvent, useState } from 'react';
 
 import { useFormikContext } from 'formik';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -12,14 +12,15 @@ import {
   map,
   propEq,
   reduce,
+  reject,
   toPairs
 } from 'ramda';
 
-import { SelectEntry } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import { federatedWidgetsPropertiesAtom } from '../../../../../federatedModules/atoms';
-import {
+import type {
   FederatedModule,
   FederatedWidgetOption,
   FederatedWidgetProperties
@@ -31,7 +32,9 @@ import {
   singleResourceSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
-import { Widget } from '../models';
+import type { Widget } from '../models';
+
+import { platformFeaturesAtom } from '@centreon/ui-context';
 
 interface UseWidgetSelectionState {
   options: Array<SelectEntry>;
@@ -78,6 +81,7 @@ export const getDefaultValues = (
 const useWidgetSelection = (): UseWidgetSelectionState => {
   const [search, setSearch] = useState('');
 
+  const platformFeatures = useAtomValue(platformFeaturesAtom);
   const federatedWidgets = useAtomValue(federatedWidgetsAtom);
   const federatedWidgetsProperties = useAtomValue(
     federatedWidgetsPropertiesAtom
@@ -89,9 +93,15 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
 
   const { setValues, values, setTouched } = useFormikContext<Widget>();
 
+  const isCloudPlatform = platformFeatures?.isCloudPlatform;
+
+  const availableWidgetsProperties = reject((widget) => {
+    return isCloudPlatform && widget?.availableOnPremOnly;
+  }, federatedWidgetsProperties || []);
+
   const filteredWidgets = filter(
     ({ title }) => title?.includes(search),
-    federatedWidgetsProperties || []
+    availableWidgetsProperties || []
   );
 
   const formattedWidgets = map(
@@ -131,7 +141,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
 
     const selectedWidgetProperties = find(
       propEq(widget.id, 'moduleName'),
-      federatedWidgetsProperties || []
+      availableWidgetsProperties || []
     ) as FederatedWidgetProperties;
 
     setWidgetProperties(selectedWidgetProperties);

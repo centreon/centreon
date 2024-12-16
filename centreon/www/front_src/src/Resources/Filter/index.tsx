@@ -1,6 +1,6 @@
 import {
-  KeyboardEvent,
-  RefObject,
+  type KeyboardEvent,
+  type RefObject,
   Suspense,
   lazy,
   useEffect,
@@ -49,7 +49,7 @@ import {
   LoadingSkeleton,
   Filter as MemoizedFilter,
   SearchField,
-  SelectEntry,
+  type SelectEntry,
   getData,
   useRequest
 } from '@centreon/ui';
@@ -65,9 +65,10 @@ import {
 } from '../translatedLabels';
 
 import {
-  DynamicCriteriaParametersAndValues,
+  type DynamicCriteriaParametersAndValues,
   getAutocompleteSuggestions,
-  getDynamicCriteriaParametersAndValue
+  getDynamicCriteriaParametersAndValue,
+  replaceMiddleSpace
 } from './Criterias/searchQueryLanguage';
 import FilterLoadingSkeleton from './FilterLoadingSkeleton';
 import SearchHelp from './SearchHelp';
@@ -339,7 +340,9 @@ const Filter = (): JSX.Element => {
   const acceptAutocompleteSuggestionAtIndex = (index: number): void => {
     setNewFilter(t);
 
-    const acceptedSuggestion = autoCompleteSuggestions[index];
+    const acceptedSuggestion = replaceMiddleSpace(
+      autoCompleteSuggestions[index]
+    );
 
     if (equals(search[cursorPosition], ',')) {
       setSearch(search + acceptedSuggestion);

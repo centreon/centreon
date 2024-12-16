@@ -51,8 +51,7 @@ interface ReadHostGroupRepositoryInterface
      *
      * @return \Traversable<HostGroup>&\Countable
      */
-    public function findAllByAccessGroupIds(?RequestParametersInterface $requestParameters, array $accessGroupIds):
-    \Traversable&\Countable;
+    public function findAllByAccessGroupIds(?RequestParametersInterface $requestParameters, array $accessGroupIds): \Traversable&\Countable;
 
     /**
      * Find one host group without acl.

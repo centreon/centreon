@@ -22,7 +22,8 @@ const ConnectedAutocomplete = ({
   secondaryLabel,
   isSingleAutocomplete,
   baseEndpoint,
-  isInGroup
+  isInGroup,
+  isRequiredProperty
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -53,6 +54,7 @@ const ConnectedAutocomplete = ({
           limitTags={2}
           value={value}
           onChange={changeValue}
+          required={isRequiredProperty}
         />
       ) : (
         <MultiConnectedAutocompleteField
@@ -68,6 +70,7 @@ const ConnectedAutocomplete = ({
           placeholder=""
           value={value}
           onChange={changeValues}
+          required={isRequiredProperty}
         />
       )}
     </div>

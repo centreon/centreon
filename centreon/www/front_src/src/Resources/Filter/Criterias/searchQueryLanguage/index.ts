@@ -31,20 +31,20 @@ import {
   without
 } from 'ramda';
 
-import { type SelectEntry } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
 import getDefaultCriterias from '../default';
 import {
-  Criteria,
-  CriteriaDisplayProps,
+  type Criteria,
+  type CriteriaDisplayProps,
   criteriaValueNameById,
   selectableCriterias
 } from '../models';
 
 import {
-  AutocompleteSuggestionProps,
-  CriteriaId,
-  CriteriaValueSuggestionsProps,
+  type AutocompleteSuggestionProps,
+  type CriteriaId,
+  type CriteriaValueSuggestionsProps,
   criteriaNameSortOrder,
   criteriaNameToQueryLanguageName,
   dynamicCriteriaValuesByName,
@@ -75,6 +75,14 @@ const isCriteriaPart = pipe(
   isIn(selectableCriteriaNames)
 );
 const isFilledCriteria = pipe(endsWith(':'), not);
+
+const replaceEscapeWithSpace = (text) => {
+  return text.replace(/\\s/g, ' ');
+};
+
+export const replaceMiddleSpace = (text: string) => {
+  return text.replace(/\b\s+\b/g, '\\s');
+};
 
 interface ParametersParse {
   criteriaName?: Record<string, string>;
@@ -120,7 +128,8 @@ const parse = ({
 
         return {
           id: 0,
-          name: value
+          name: replaceEscapeWithSpace(value),
+          formattedName: value
         };
       })
     };
@@ -182,7 +191,7 @@ const build = (criterias: Array<Criteria>): string => {
         ? values.map(
             pipe(({ id }) => id as string, getCriteriaQueryLanguageName)
           )
-        : values.map(({ name: valueName }) => `${valueName}`);
+        : values.map(({ name: valueName }) => replaceMiddleSpace(valueName));
 
       const criteriaName = compose(
         getCriteriaQueryLanguageName,

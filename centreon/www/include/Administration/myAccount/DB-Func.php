@@ -198,7 +198,7 @@ function updateContact($contactId = null)
     $centreon->user->alias = $ret['contact_alias'];
     $centreon->user->lang = $ret['contact_lang'];
     $centreon->user->email = $ret['contact_email'];
-    $centreon->user->setToken(isset($ret['contact_autologin_key']) ? $ret['contact_autologin_key'] : "''");
+    $centreon->user->setToken($ret['contact_autologin_key'] ?? "''");
 }
 
 /**
@@ -221,7 +221,7 @@ function validatePasswordModification(array $fields)
         $errors['contact_passwd'] = $e->getMessage();
     }
 
-    return count($errors) > 0 ? $errors : true;
+    return $errors !== [] ? $errors : true;
 }
 
 /**
@@ -256,7 +256,7 @@ function checkAutologinValue(array $fields)
         }
     }
 
-    return count($errors) > 0 ? $errors : true;
+    return $errors !== [] ? $errors : true;
 }
 function updateNonLocalContactInDB($contact_id = null): void
 {

@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-$register_providers = array();
+$register_providers = [];
 
 // provider name and the ID. For specific use id > 1000.
 $register_providers['Mail'] = 1;

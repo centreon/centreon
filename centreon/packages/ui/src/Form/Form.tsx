@@ -68,6 +68,7 @@ const Form = <T extends object>({
 
   return (
     <Formik<T>
+      enableReinitialize
       initialValues={initialValues}
       validate={validate}
       validationSchema={validationSchema}

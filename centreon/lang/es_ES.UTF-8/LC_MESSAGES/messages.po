@@ -2903,6 +2903,7 @@ msgstr "bienvenida"
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:294
 #: centreon-web/www/include/options/accessLists/define/formLCA.php:244
 #: centreon-web/www/include/monitoring/objectDetails/serviceDetails.php:587
+#: centreon-web/www/include/eventLogs/viewLog.php:247
 msgid "Host Groups"
 msgstr "Grupos de anfitriones"
 
@@ -3105,6 +3106,7 @@ msgstr "Estado del servidor"
 #: centreon-web/www/install/menu_translation.php:133
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:330
 #: centreon-web/www/include/options/accessLists/define/formLCA.php:275
+#: centreon-web/www/include/eventLogs/viewLog.php:229
 msgid "Service Groups"
 msgstr "Grupos de servicio"
 
@@ -3609,10 +3611,6 @@ msgstr "La última semana"
 #: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:92
 msgid "Last month"
 msgstr "El mes pasado"
-
-#: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:93
-msgid "Last 6 months"
-msgstr "Los ultimos 6 meses"
 
 #: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:94
 msgid "Last year"
@@ -5788,7 +5786,7 @@ msgid "View an ACL"
 msgstr "Ver un ACL"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:230
-msgid "Hosts Groups Shared"
+msgid "Host Groups Shared"
 msgstr "Grupos compartidos de hosts"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:232
@@ -5902,11 +5900,11 @@ msgid "Required field"
 msgstr "Campo obligatorio"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:429
-msgid "Hosts Resources"
+msgid "Host Resources"
 msgstr "Gestión de host"
 
 #: centreon-web/www/include/options/accessLists/resourcesACL/formResourcesAccess.php:430
-msgid "Services Resources"
+msgid "Service Resources"
 msgstr "Gestión de servicios"
 
 msgid "Centreon Users"
@@ -6697,103 +6695,85 @@ msgstr "Lista de métricas conocidas"
 msgid "Choose the source to graph"
 msgstr "Elegir fuente para grapher"
 
-#: centreon-web/www/include/views/graphs/graphs.php:173
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:102
-#: centreon-web/www/include/eventLogs/viewLog.php:168
-msgid "Last 3 Hours"
-msgstr "Últimas 3 horas"
-
 #: centreon-web/www/include/views/graphs/graphs.php:174
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:103
 #: centreon-web/www/include/eventLogs/viewLog.php:169
-msgid "Last 6 Hours"
+msgid "Last 6 hours"
 msgstr "Últimas 6 horas"
 
 #: centreon-web/www/include/views/graphs/graphs.php:175
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:104
 #: centreon-web/www/include/eventLogs/viewLog.php:170
-msgid "Last 12 Hours"
+msgid "Last 12 hours"
 msgstr "Últimas 12 horas"
 
 #: centreon-web/www/include/views/graphs/graphs.php:176
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:105
 #: centreon-web/www/include/eventLogs/viewLog.php:171
-msgid "Last 24 Hours"
+msgid "Last 24 hours"
 msgstr "Ultimas 24 horas"
 
 #: centreon-web/www/include/views/graphs/graphs.php:177
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:106
 #: centreon-web/www/include/eventLogs/viewLog.php:172
-msgid "Last 2 Days"
+msgid "Last 2 days"
 msgstr "Los 2 dias anteriores"
 
 #: centreon-web/www/include/views/graphs/graphs.php:178
-msgid "Last 3 Days"
+msgid "Last 3 days"
 msgstr "Últimos 3 días"
 
-#: centreon-web/www/include/views/graphs/graphs.php:179
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:107
-#: centreon-web/www/include/eventLogs/viewLog.php:173
-msgid "Last 4 Days"
-msgstr "4 dias previos"
-
 #: centreon-web/www/include/views/graphs/graphs.php:180
-msgid "Last 5 Days"
+msgid "Last 5 days"
 msgstr "Últimos 5 días"
 
 #: centreon-web/www/include/views/graphs/graphs.php:181
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:108
 #: centreon-web/www/include/reporting/dashboard/common-Func.php:255 centreon-web/www/include/eventLogs/viewLog.php:174
-msgid "Last 7 Days"
+msgid "Last 7 days"
 msgstr "7 dias previos"
 
 #: centreon-web/www/include/views/graphs/graphs.php:182
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:109
 #: centreon-web/www/include/eventLogs/viewLog.php:175
-msgid "Last 14 Days"
+msgid "Last 14 days"
 msgstr "Los 14 dias anteriores"
 
 #: centreon-web/www/include/views/graphs/graphs.php:183
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:110
 #: centreon-web/www/include/eventLogs/viewLog.php:176
-msgid "Last 28 Days"
+msgid "Last 28 days"
 msgstr "28 dias previos"
 
 #: centreon-web/www/include/views/graphs/graphs.php:184
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:111
 #: centreon-web/www/include/reporting/dashboard/common-Func.php:257 centreon-web/www/include/eventLogs/viewLog.php:177
-msgid "Last 30 Days"
+msgid "Last 30 days"
 msgstr "Los 30 dias anteriores"
 
 #: centreon-web/www/include/views/graphs/graphs.php:185
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:112
 #: centreon-web/www/include/eventLogs/viewLog.php:178
-msgid "Last 31 Days"
+msgid "Last 31 days"
 msgstr "Los 31 dias anteriores"
 
 #: centreon-web/www/include/views/graphs/graphs.php:186
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:113
 #: centreon-web/www/include/eventLogs/viewLog.php:179
-msgid "Last 2 Months"
+msgid "Last 2 months"
 msgstr "Los 2 meses anteriores"
 
 #: centreon-web/www/include/views/graphs/graphs.php:187
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:114
 #: centreon-web/www/include/eventLogs/viewLog.php:180
-msgid "Last 4 Months"
+msgid "Last 4 months"
 msgstr "4 meses anteriores"
 
 #: centreon-web/www/include/views/graphs/graphs.php:188
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:115
 #: centreon-web/www/include/eventLogs/viewLog.php:181
-msgid "Last 6 Months"
+msgid "Last 6 months"
 msgstr "6 meses anteriores"
-
-#: centreon-web/www/include/views/graphs/graphs.php:189
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:116
-#: centreon-web/www/include/reporting/dashboard/common-Func.php:260 centreon-web/www/include/eventLogs/viewLog.php:182
-msgid "Last Year"
-msgstr "El año pasado"
 
 #: centreon-web/www/include/views/graphs/graphs.php:191
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:118
@@ -7276,10 +7256,6 @@ msgstr "Esta semana"
 #: centreon-web/www/include/reporting/dashboard/common-Func.php:256
 msgid "This Month"
 msgstr "Este mes"
-
-#: centreon-web/www/include/reporting/dashboard/common-Func.php:258
-msgid "Last Month"
-msgstr "Mes pasado"
 
 #: centreon-web/www/include/reporting/dashboard/common-Func.php:259
 msgid "This Year"
@@ -11688,14 +11664,6 @@ msgstr "Estado validado (duro) solamente"
 #: centreon-web/www/include/eventLogs/viewLog.php:200
 msgid "Log Period"
 msgstr "Período de visualización"
-
-#: centreon-web/www/include/eventLogs/viewLog.php:229
-msgid "Services Groups"
-msgstr "Grupos de servicio"
-
-#: centreon-web/www/include/eventLogs/viewLog.php:247
-msgid "Hosts Groups"
-msgstr "Grupos de anfitriones"
 
 #: centreon-web/www/include/eventLogs/xml/data.php:715
 msgid "Y/m/d"
@@ -17393,7 +17361,7 @@ msgstr "Modo avanzado"
 # msgid "Select host severities"
 # msgstr ""
 
-# msgid "Enable Open Tickets"
+# msgid "Enable ticket management"
 # msgstr ""
 
 # msgid "Ticket provider"
@@ -17414,7 +17382,7 @@ msgstr "Modo avanzado"
 # msgid "Hide services with Down host"
 # msgstr ""
 
-# msgstr "hide services with Unreachable host"
+# msgstr "Hide services with Unreachable host"
 # msgstr ""
 
 # msgstr "Ticket ID"
@@ -17427,6 +17395,18 @@ msgstr "Modo avanzado"
 # msgstr ""
 
 # msgid "Create a ticket"
+# msgstr ""
+
+# msgid "Close a ticket"
+# msgstr ""
+
+# msgid "Ticket created"
+# msgstr ""
+
+# msgid "Ticket closed"
+# msgstr ""
+
+# msgid "The ticket with ID #{{id}} will be closed for the selected ticket provider."
 # msgstr ""
 
 # msgid "Rule (ticket provider)"
@@ -17663,3 +17643,78 @@ msgstr "Modo avanzado"
 
 #  msgid "Changing type of an existing additional connector configuration is not allowed"
 #  msgstr ""
+
+# msgid "Vault configuration"
+# msgstr ""
+
+# msgid "The address is invalid"
+# msgstr ""
+
+# msgid "Vault address"
+# msgstr ""
+
+# msgid "Root path"
+# msgstr ""
+
+# msgid "Role ID"
+# msgstr ""
+
+# msgid "Secret ID"
+# msgstr ""
+
+# msgid "Reset configuration"
+# msgstr ""
+
+# msgid "The form will be cleared and all data will be lost. Do you want to proceed?"
+# msgstr ""
+
+# msgid "Port expected at most 65535"
+# msgstr ""
+
+# msgid "Vault configuration updated"
+# msgstr ""
+
+# msgid "Port must start from 1"
+# msgstr ""
+
+# msgid "Migrate"
+# msgstr ""
+
+# msgid "Migration script"
+# msgstr ""
+
+# msgid "Execute this script as root on the central."
+# msgstr ""
+
+# msgid "The following script will migrate all your credentials from Centreon, Auto-discovery and the database."
+# msgstr ""
+
+# msgid "By executing this script, your platform will be in a locked mode and you not be able to do <strong>anything</strong> during the migration process (example: exporting your configuration, updating administration parameters, etc...)."
+# msgstr ""
+
+# msgid "The migration process can take several minutes depending on your configuration."
+# msgstr ""
+
+#  msgid "Web page"
+#  msgstr ""
+
+#  msgid "Displays a web page"
+#  msgstr ""
+
+#  msgid "Please note that domains outside your organization must be authorized in your Apache configuration."
+#  msgstr ""
+
+#  msgid "Web page preview"
+#  msgstr ""
+
+#  msgid "If ticket management is enabled, only the “by service” view is available."
+#  msgstr ""
+
+#  msgid "Ticket management"
+#  msgstr ""
+
+# msgid "Displays the time according to the selected time zone, or a timer."
+# msgstr ""
+
+# msgid "Clock / Timer"
+# msgstr ""

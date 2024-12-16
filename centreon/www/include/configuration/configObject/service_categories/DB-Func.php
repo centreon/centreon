@@ -50,7 +50,7 @@ function checkSeverity($fields)
     if (isset($fields['sc_type']) && $fields['sc_severity_icon'] == "") {
         $arr['sc_severity_icon'] = "Severity icon is required";
     }
-    if (count($arr)) {
+    if ($arr !== []) {
         return $arr;
     }
     return true;
@@ -106,7 +106,8 @@ function multipleServiceCategorieInDB($sc = [], $nbrDup = [])
                 switch ($key2) {
                     case 'sc_name':
                         $value2 = \HtmlAnalyzer::sanitizeAndRemoveTags($value2);
-                        $sc_name = $value2 = $value2 . "_" . $i;
+                        $sc_name = $value2 . "_" . $i;
+                        $value2 = $value2 . "_" . $i;
                         $bindParams[':sc_name'] = [
                             \PDO::PARAM_STR => $value2
                         ];
@@ -141,11 +142,11 @@ function multipleServiceCategorieInDB($sc = [], $nbrDup = [])
                     : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
             }
             if (testServiceCategorieExistence($sc_name)) {
-                $val
-                    ? $query = "
+                $query = $val
+                    ? "
                         INSERT INTO `service_categories`
                         VALUES (NULL, :sc_name, :sc_description, :sc_level, :sc_icon_id, :sc_activate)"
-                    : $query = null;
+                    : null;
                 $statement = $pearDB->prepare($query);
                 foreach ($bindParams as $token => $bindValues) {
                     foreach ($bindValues as $paramType => $value) {
@@ -194,7 +195,7 @@ function disableServiceCategorieInDB(?int $sc_id = null, $sc_arr = [])
     }
     global $pearDB;
     if ($sc_id) {
-        $sc_arr = array($sc_id => "1");
+        $sc_arr = [$sc_id => "1"];
     }
     foreach (array_keys($sc_arr) as $key) {
         $query = "UPDATE service_categories SET sc_activate = '0' WHERE sc_id = :sc_id";

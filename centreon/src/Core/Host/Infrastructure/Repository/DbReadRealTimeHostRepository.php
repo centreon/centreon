@@ -70,7 +70,7 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
 
         $sort = $sqlTranslator->translateSortParameterToSql();
 
-        $request .= $sort !== null ? $sort : ' ORDER BY hosts.name ASC';
+        $request .= $sort ?? ' ORDER BY hosts.name ASC';
 
         $request .= $sqlTranslator->translatePaginationToSql();
 
@@ -114,7 +114,7 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
 
         $sort = $sqlTranslator->translateSortParameterToSql();
 
-        $request .= $sort !== null ? $sort : ' ORDER BY hosts.name ASC';
+        $request .= $sort ?? ' ORDER BY hosts.name ASC';
 
         $request .= $sqlTranslator->translatePaginationToSql();
 

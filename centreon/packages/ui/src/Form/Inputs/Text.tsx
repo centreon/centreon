@@ -36,15 +36,21 @@ const Text = ({
 
   const [isVisible, setIsVisible] = useState(false);
 
-  const { values, setFieldValue, touched, errors, handleBlur } =
-    useFormikContext<FormikValues>();
+  const {
+    values,
+    setFieldValue,
+    touched,
+    errors,
+    handleBlur,
+    setFieldTouched
+  } = useFormikContext<FormikValues>();
 
   const fieldNamePath = split('.', fieldName);
 
   const changeText = (event: ChangeEvent<HTMLInputElement>): void => {
     const { value } = event.target;
     if (change) {
-      change({ setFieldValue, value });
+      change({ setFieldValue, value, setFieldTouched });
 
       return;
     }
@@ -111,7 +117,7 @@ const Text = ({
         EndAdornment={EndAdornment}
         ariaLabel={t(label) || ''}
         autoFocus={autoFocus}
-        dataTestId={dataTestId || ''}
+        dataTestId={dataTestId || label}
         disabled={disabled}
         error={error as string | undefined}
         label={t(label)}
@@ -123,6 +129,11 @@ const Text = ({
         value={value || ''}
         onBlur={handleBlur(fieldName)}
         onChange={changeText}
+        inputProps={{
+          'data-testid': dataTestId || label,
+          'aria-label': label,
+          min: text?.min
+        }}
       />
     ),
     memoProps: [

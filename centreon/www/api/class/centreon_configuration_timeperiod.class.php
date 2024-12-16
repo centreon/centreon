@@ -34,14 +34,18 @@
  *
  */
 
-
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationTimeperiod
+ */
 class CentreonConfigurationTimeperiod extends CentreonConfigurationObjects
 {
     /**
-     * CentreonConfigurationTimeperiod constructor.
+     * CentreonConfigurationTimeperiod constructor
      */
     public function __construct()
     {
@@ -51,13 +55,14 @@ class CentreonConfigurationTimeperiod extends CentreonConfigurationObjects
     /**
      * Get a list of time periods as a source of data for the select2 widget
      *
-     * @throws RestBadRequestException If some parameter is missing will throw this exception
      * @return array
+     * @throws PDOException
+     * @throws RestBadRequestException If some parameter is missing will throw this exception
      */
     public function getList()
     {
-        $queryWhere = $queryValues = [];
-
+        $queryWhere = [];
+        $queryValues = [];
         // Check for select2 'q' argument
         if (isset($this->arguments['q'])) {
             $queryWhere[] = 'tp_name LIKE :name';

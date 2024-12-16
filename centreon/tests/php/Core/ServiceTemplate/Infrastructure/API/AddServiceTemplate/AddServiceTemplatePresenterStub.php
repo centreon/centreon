@@ -30,7 +30,7 @@ use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\AddServiceTempla
 
 class AddServiceTemplatePresenterStub extends AbstractPresenter implements AddServiceTemplatePresenterInterface
 {
-    public ResponseStatusInterface|AddServiceTemplateResponse|null $response;
+    public ResponseStatusInterface|AddServiceTemplateResponse|null $response = null;
 
     public function presentResponse(ResponseStatusInterface|AddServiceTemplateResponse $response): void
     {

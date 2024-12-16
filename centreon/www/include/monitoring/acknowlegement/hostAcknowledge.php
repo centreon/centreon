@@ -45,9 +45,9 @@ require_once "./class/centreonDB.class.php";
  */
 $pearDBndo = $pearDBO;
 
-isset($_GET["host_name"])   ? $host_name = htmlentities($_GET["host_name"], ENT_QUOTES, "UTF-8") : $host_name = null;
-isset($_GET["cmd"])         ? $cmd = htmlentities($_GET["cmd"], ENT_QUOTES, "UTF-8") : $cmd = null;
-isset($_GET["en"])          ? $en = htmlentities($_GET["en"], ENT_QUOTES, "UTF-8") : $en = 1;
+$host_name = isset($_GET["host_name"])   ? htmlentities($_GET["host_name"], ENT_QUOTES, "UTF-8") : null;
+$cmd = isset($_GET["cmd"])         ? htmlentities($_GET["cmd"], ENT_QUOTES, "UTF-8") : null;
+$en = isset($_GET["en"])          ? htmlentities($_GET["en"], ENT_QUOTES, "UTF-8") : 1;
 
 $path = "./include/monitoring/acknowlegement/";
 
@@ -98,7 +98,7 @@ if ($is_admin || (isset($lcaHostByName[$host_name]))) {
     $form->addElement('hidden', 'p', $p);
     $form->addElement('hidden', 'en', $en);
 
-    $textarea = $form->addElement('textarea', 'comment', _("Comment"), array("rows"=>"8", "cols"=>"80"));
+    $textarea = $form->addElement('textarea', 'comment', _("Comment"), ["rows"=>"8", "cols"=>"80"]);
     $textarea->setValue(sprintf(_("Acknowledged by %s"), $centreon->user->get_alias()));
 
     $form->addRule('comment', _("Comment is required"), 'required', '', 'client');

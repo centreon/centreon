@@ -439,7 +439,7 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
                         ($this->requestIndex + $this->maxItemByRequest)
                     )
                 );
-                $request = <<<'SQL'
+                $request = <<<'SQL_WRAP'
                     SELECT SQL_CALC_FOUND_ROWS
                         command_id,
                         command_name,
@@ -452,7 +452,7 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
                     WHERE command_type != :excludedCommandType
                     ORDER BY command_id
                     LIMIT :from, :max_item_by_request
-                    SQL;
+                    SQL_WRAP;
 
                 $this->statement = $this->db->prepare($this->translateDbName($request));
                 $this->statement->bindValue(

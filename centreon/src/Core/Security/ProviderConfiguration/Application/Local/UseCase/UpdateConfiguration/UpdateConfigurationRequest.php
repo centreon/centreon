@@ -44,17 +44,17 @@ final class UpdateConfigurationRequest
     public bool $canReusePasswords;
 
     /** @var int|null */
-    public ?int $attempts;
+    public ?int $attempts = null;
 
     /** @var int|null */
-    public ?int $blockingDuration;
+    public ?int $blockingDuration = null;
 
     /** @var int|null */
-    public ?int $passwordExpirationDelay;
+    public ?int $passwordExpirationDelay = null;
 
     /** @var string[] */
     public array $passwordExpirationExcludedUserAliases;
 
     /** @var int|null */
-    public ?int $delayBeforeNewPassword;
+    public ?int $delayBeforeNewPassword = null;
 }

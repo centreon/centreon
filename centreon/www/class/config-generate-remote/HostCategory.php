@@ -20,22 +20,40 @@
 
 namespace ConfigGenerateRemote;
 
-use \PDO;
+use Exception;
+use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use PDOStatement;
+use Pimple\Container;
 
+/**
+ * Class
+ *
+ * @class HostCategory
+ * @package ConfigGenerateRemote
+ */
 class HostCategory extends AbstractObject
 {
+    /** @var int */
     private $useCache = 1;
+    /** @var int */
     private $doneCache = 0;
 
+    /** @var array */
     private $hostSeverityCache = [];
+    /** @var array */
     private $hostLinkedCache = [];
 
+    /** @var string */
     protected $table = 'hostcategories';
+    /** @var string */
     protected $generateFilename = 'hostcategories.infile';
+    /** @var PDOStatement|null */
     protected $stmtHost = null;
+    /** @var PDOStatement|null */
     protected $stmtHcName = null;
 
+    /** @var string[] */
     protected $attributesWrite = [
         'hc_id',
         'hc_name',
@@ -45,11 +63,11 @@ class HostCategory extends AbstractObject
     ];
 
     /**
-     * Constructor
+     * HostCategory constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->buildCache();
@@ -60,7 +78,7 @@ class HostCategory extends AbstractObject
      *
      * @return void
      */
-    private function cacheHostSeverity()
+    private function cacheHostSeverity(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT hc_name, hc_alias, hc_id, level, icon_id
@@ -80,7 +98,7 @@ class HostCategory extends AbstractObject
      *
      * @return void
      */
-    private function cacheHostSeverityLinked()
+    private function cacheHostSeverityLinked(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             'SELECT hc_id, host_host_id ' .
@@ -107,8 +125,10 @@ class HostCategory extends AbstractObject
     /**
      * Get host severity by host id
      *
-     * @param integer $hostId
+     * @param int $hostId
+     *
      * @return array|null
+     * @throws Exception
      */
     public function getHostSeverityByHostId(int $hostId)
     {
@@ -160,7 +180,7 @@ class HostCategory extends AbstractObject
     /**
      * Get host severity by id
      *
-     * @param null|integer $hcId
+     * @param null|int $hcId
      * @return array|null
      */
     public function getHostSeverityById(?int $hcId)

@@ -1,5 +1,5 @@
 <?php
-$help = array();
+$help = [];
 
 /**
  * Backup Settings

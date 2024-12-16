@@ -87,7 +87,7 @@ interface ReadNotificationResourceRepositoryInterface
      *
      * @return array<int,int> [notification_id => resource_count]
      */
-    public function findResourcesCountByNotificationIdsAndAccessGroups(
+    public function countResourcesByNotificationIdsAndAccessGroups(
         array $notificationIds,
         array $accessGroups
     ): array;
@@ -99,5 +99,5 @@ interface ReadNotificationResourceRepositoryInterface
      *
      * @return array<int,int> [notification_id => resource_count]
      */
-    public function findResourcesCountByNotificationIds(array $notificationIds): array;
+    public function countResourcesByNotificationIds(array $notificationIds): array;
 }

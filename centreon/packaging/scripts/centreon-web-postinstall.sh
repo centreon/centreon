@@ -28,20 +28,60 @@ updateConfigurationFiles() {
   sed -i -e 's/mode => 1/mode => 0/g' /etc/centreon/centreontrapd.pm
 }
 
-setTimezone() {
-  PHP_TIMEZONE=$(php -r '
-    $timezoneName = timezone_name_from_abbr(trim(shell_exec("date \"+%Z\"")));
-    if (date_default_timezone_set($timezoneName) === false) {
-      $timezoneName = "UTC";
-    }
-    echo $timezoneName;
-  ' 2>/dev/null || echo "UTC")
-
-  echo "Setting php timezone to ${PHP_TIMEZONE} ..."
+setPhpTimezone() {
   if [ "$1" = "rpm" ]; then
-    sed -i "s#^date.timezone = .*#date.timezone = ${PHP_TIMEZONE}#" /etc/php.d/50-centreon.ini
+    PHP_CONFIG_DIR="/etc/php.d"
+    PHP_CONFIG_FILE="20-timezone.ini"
   else
-    sed -i "s#^date.timezone = .*#date.timezone = ${PHP_TIMEZONE}#" /etc/php/8.1/mods-available/centreon.ini
+    PHP_CONFIG_DIR="/etc/php/8.2/mods-available"
+    PHP_CONFIG_FILE="timezone.ini"
+  fi
+
+  if grep -REq "^date.timezone" $PHP_CONFIG_DIR; then
+    echo "Php timezone already set, skipping automatic configuration..."
+  else
+    PHP_TIMEZONE=$(php -r '
+      function getMachineTimezone() {
+        foreach (["cat /etc/timezone 2> /dev/null", "date \"+%Z\""] as $shellCommand) {
+          $timezoneName = trim(shell_exec($shellCommand));
+          if (!empty($timezoneName)) {
+            if (date_default_timezone_set($timezoneName) === false) {
+              $timezoneName = timezone_name_from_abbr($timezoneName);
+            }
+
+            if (!empty($timezoneName) && date_default_timezone_set($timezoneName) !== false) {
+              return $timezoneName;
+            }
+          }
+        }
+
+        return "UTC";
+      }
+
+      echo getMachineTimezone();
+    ' 2>/dev/null || echo "UTC")
+
+    echo "Setting php timezone to ${PHP_TIMEZONE} ..."
+    echo "date.timezone = ${PHP_TIMEZONE}" >> $PHP_CONFIG_DIR/$PHP_CONFIG_FILE
+    if [ "$1" = "deb" ]; then
+      phpenmod -v 8.2 timezone
+    fi
+  fi
+}
+
+migratePhpTimezone() {
+  if [ "$1" = "deb" ]; then
+    OLD_PHP_CONFIG_DIR="/etc/php/8.1/mods-available"
+    PHP_CONFIG_DIR="/etc/php/8.2/mods-available"
+    PHP_CONFIG_FILE="timezone.ini"
+
+    if ! grep -REq "^date.timezone" $PHP_CONFIG_DIR && test -d $OLD_PHP_CONFIG_DIR && PHP_TIMEZONE=$(grep -RE "^date.timezone\s*=\s*.+" $OLD_PHP_CONFIG_DIR 2>/dev/null | head -n 1 | cut -d "=" -f2 | tr -d '[:space:]'); then
+      if [ -n "${PHP_TIMEZONE}" ]; then
+        echo "Setting php timezone to ${PHP_TIMEZONE} ..."
+        echo "date.timezone = ${PHP_TIMEZONE}" >> $PHP_CONFIG_DIR/$PHP_CONFIG_FILE
+        phpenmod -v 8.2 timezone
+      fi
+    fi
   fi
 }
 
@@ -74,12 +114,12 @@ manageApacheAndPhpFpm() {
     systemctl restart php-fpm || :
     systemctl restart httpd || :
   else
-    update-alternatives --set php /usr/bin/php8.1 > /dev/null 2>&1 || :
+    update-alternatives --set php /usr/bin/php8.2 > /dev/null 2>&1 || :
     a2enmod headers proxy_fcgi setenvif proxy rewrite alias proxy proxy_fcgi > /dev/null 2>&1 || :
-    a2enconf php8.1-fpm > /dev/null 2>&1 || :
+    a2enconf php8.2-fpm > /dev/null 2>&1 || :
     a2dissite 000-default > /dev/null 2>&1 || :
     a2ensite centreon > /dev/null 2>&1 || :
-    systemctl restart php8.1-fpm || :
+    systemctl restart php8.2-fpm || :
     systemctl restart apache2 || :
   fi
 }
@@ -138,6 +178,7 @@ case "$action" in
     updateConfigurationFiles
     updateGorgoneConfiguration
     manageLocales $package_type
+    setPhpTimezone $package_type
     manageApacheAndPhpFpm $package_type
     fixSymfonyCacheRights $package_type
     fixCentreonCronPermissions
@@ -147,6 +188,7 @@ case "$action" in
     updateConfigurationFiles
     updateGorgoneConfiguration
     manageLocales $package_type
+    migratePhpTimezone $package_type
     manageApacheAndPhpFpm $package_type
     fixSymfonyCacheRights $package_type
     rebuildSymfonyCache $package_type

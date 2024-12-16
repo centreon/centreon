@@ -37,7 +37,7 @@ use Core\Security\ProviderConfiguration\Infrastructure\WebSSO\Api\UpdateWebSSOCo
     UpdateWebSSOConfigurationController
 };
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->useCase = $this->createMock(UpdateWebSSOConfiguration::class);
     $this->presenter = $this->createMock(UpdateWebSSOConfigurationPresenterInterface::class);
 
@@ -85,7 +85,7 @@ beforeEach(function () {
     $this->request = $this->createMock(Request::class);
 });
 
-it('throws an exception when the request body is invalid', function () {
+it('throws an exception when the request body is invalid', function (): void {
     $controller = new UpdateWebSSOConfigurationController();
     $controller->setContainer($this->container);
     $invalidPayload = json_encode([
@@ -99,7 +99,7 @@ it('throws an exception when the request body is invalid', function () {
     $controller($this->useCase, $this->request, $this->presenter);
 })->throws(\InvalidArgumentException::class);
 
-it('show the response when everything is valid', function () {
+it('show the response when everything is valid', function (): void {
     $controller = new UpdateWebSSOConfigurationController();
     $controller->setContainer($this->container);
     $validPayload = json_encode([

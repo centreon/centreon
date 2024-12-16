@@ -86,7 +86,7 @@ function htmlDecodeBrokerInformation(mixed $data): mixed
 /*
  * nagios servers comes from DB
  */
-$nagios_servers = array();
+$nagios_servers = [];
 $serverAcl = "";
 if (!$centreon->user->admin && $serverString != "''") {
     $serverAcl = " WHERE id IN ($serverString) ";
@@ -100,15 +100,15 @@ $DBRESULT->closeCursor();
 /*
  * Var information to format the element
  */
-$attrsText      = array("size"=>"120");
-$attrsText2     = array("size"=>"50");
-$attrsText3     = array("size"=>"10");
-$attrsTextarea  = array("rows"=>"5", "cols"=>"40");
+$attrsText      = ["size"=>"120"];
+$attrsText2     = ["size"=>"50"];
+$attrsText3     = ["size"=>"10"];
+$attrsTextarea  = ["rows"=>"5", "cols"=>"40"];
 
 /*
  * Form begin
  */
-$form = new HTML_QuickFormCustom('Form', 'post', "?p=".$p, '', array('onsubmit' => 'return formValidate()'));
+$form = new HTML_QuickFormCustom('Form', 'post', "?p=".$p, '', ['onsubmit' => 'return formValidate()']);
 if ($o == ADD_BROKER_CONFIGURATION) {
     $form->addElement('header', 'title', _("Add a Centreon-Broker Configuration"));
 } elseif ($o == MODIFY_BROKER_CONFIGURATION) {
@@ -156,36 +156,32 @@ $defaultLog = [];
 foreach ($logs as $log) {
     array_push($smartyLogs, 'log_' . $log);
     $flippedLevel = array_flip($logsLevel);
-    if ($log === 'core') {
-        $defaultLog['log_' . $log] = $flippedLevel['info'];
-    } else {
-        $defaultLog['log_' . $log] = $flippedLevel['error'];
-    }
+    $defaultLog['log_' . $log] = $log === 'core' ? $flippedLevel['info'] : $flippedLevel['error'];
     $form->addElement('select', 'log_' . $log, _($log), $logsLevel);
 }
 
-$timestamp = array();
+$timestamp = [];
 $timestamp[] = $form->createElement('radio', 'write_timestamp', null, _("Yes"), 1);
 $timestamp[] = $form->createElement('radio', 'write_timestamp', null, _("No"), 0);
 $form->addGroup($timestamp, 'write_timestamp', _("Write timestamp (deprecated)"), '&nbsp;');
 
-$thread_id = array();
+$thread_id = [];
 $thread_id[] = $form->createElement('radio', 'write_thread_id', null, _("Yes"), 1);
 $thread_id[] = $form->createElement('radio', 'write_thread_id', null, _("No"), 0);
 $form->addGroup($thread_id, 'write_thread_id', _("Write thread id (deprecated)"), '&nbsp;');
 //end logger
 
-$status = array();
+$status = [];
 $status[] = $form->createElement('radio', 'activate', null, _("Enabled"), 1);
 $status[] = $form->createElement('radio', 'activate', null, _("Disabled"), 0);
 $form->addGroup($status, 'activate', _("Status"), '&nbsp;');
 
-$centreonbroker = array();
+$centreonbroker = [];
 $centreonbroker[] = $form->createElement('radio', 'activate_watchdog', null, _("Yes"), 1);
 $centreonbroker[] = $form->createElement('radio', 'activate_watchdog', null, _("No"), 0);
 $form->addGroup($centreonbroker, 'activate_watchdog', _("Link to cbd service"), '&nbsp;');
 
-$stats_activate = array();
+$stats_activate = [];
 $stats_activate[] = $form->createElement('radio', 'stats_activate', null, _("Yes"), 1);
 $stats_activate[] = $form->createElement('radio', 'stats_activate', null, _("No"), 0);
 $form->addGroup($stats_activate, 'stats_activate', _("Statistics"), '&nbsp;');
@@ -200,16 +196,9 @@ $form->addElement('select', 'bbdo_version', _("BBDO version"), $bbdo_versions);
 
 $tags = $cbObj->getTags();
 
-$tabs = array();
+$tabs = [];
 foreach ($tags as $tagId => $tag) {
-    $tabs[] = array(
-        'id' => $tag,
-        'name' => _("Centreon-Broker " . ucfirst($tag)),
-        'link' => _("Add"),
-        'nb' => 0,
-        'blocks' => $cbObj->getListConfigBlock($tagId),
-        'forms' => array()
-    );
+    $tabs[] = ['id' => $tag, 'name' => _("Centreon-Broker " . ucfirst($tag)), 'link' => _("Add"), 'nb' => 0, 'blocks' => $cbObj->getListConfigBlock($tagId), 'forms' => []];
 }
 
 /**
@@ -217,17 +206,7 @@ foreach ($tags as $tagId => $tag) {
  */
 if (isset($_GET["o"]) && $_GET["o"] == ADD_BROKER_CONFIGURATION) {
     $result = array_merge(
-        array(
-            "name" => '',
-            "cache_directory" => '/var/lib/centreon-broker/',
-            "log_directory" => '/var/log/centreon-broker/',
-            "write_timestamp" => '1',
-            "write_thread_id" => '1',
-            "stats_activate" => '1',
-            "activate" => '1',
-            "activate_watchdog" => '1',
-            "bbdo_version" => '3.0.1',
-        ),
+        ["name" => '', "cache_directory" => '/var/lib/centreon-broker/', "log_directory" => '/var/log/centreon-broker/', "write_timestamp" => '1', "write_thread_id" => '1', "stats_activate" => '1', "activate" => '1', "activate_watchdog" => '1', "bbdo_version" => '3.0.1'],
         $defaultLog
     );
     $form->setDefaults($result);
@@ -278,7 +257,7 @@ if ($o == WATCH_BROKER_CONFIGURATION) {
             "button",
             "change",
             _("Modify"),
-            array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&id=" . $ndo2db_id . "'")
+            ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&id=" . $ndo2db_id . "'"]
         );
     }
     $form->freeze();
@@ -286,14 +265,14 @@ if ($o == WATCH_BROKER_CONFIGURATION) {
     /*
      * Modify a Centreon Broker information
      */
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 } elseif ($o == ADD_BROKER_CONFIGURATION) {
     /*
      * Add a nagios information
      */
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 }
 
 $valid = false;

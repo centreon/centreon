@@ -1,4 +1,4 @@
-import { MouseEvent, MutableRefObject, useState } from 'react';
+import { type MouseEvent, type MutableRefObject, useState } from 'react';
 
 import { useAtomValue } from 'jotai';
 import { isNil } from 'ramda';
@@ -18,10 +18,10 @@ import {
 
 import FederatedComponent from '../../../components/FederatedComponents';
 import { selectedResourceDetailsEndpointDerivedAtom } from '../../Details/detailsAtoms';
-import { ResourceDetails } from '../../Details/models';
-import { TimelineEvent } from '../../Details/tabs/Timeline/models';
+import type { ResourceDetails } from '../../Details/models';
+import type { TimelineEvent } from '../../Details/tabs/Timeline/models';
 import memoizeComponent from '../../memoizedComponent';
-import { Resource, ResourceType } from '../../models';
+import { type Resource, ResourceType } from '../../models';
 import {
   labelAsDisplayed,
   labelCSV,
@@ -35,8 +35,7 @@ import exportToPng from './ExportableGraphWithTimeline/exportToPng';
 
 interface Props {
   end: string;
-  open: boolean;
-  performanceGraphRef: MutableRefObject<HTMLDivElement | null>;
+  performanceGraphRef?: MutableRefObject<HTMLDivElement>;
   resource?: Resource | ResourceDetails;
   start: string;
   timeline?: Array<TimelineEvent>;
@@ -47,7 +46,8 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     columnGap: theme.spacing(1),
     display: 'flex',
-    flexDirection: 'row'
+    paddingRight: theme.spacing(1),
+    justifyContent: 'flex-end'
   }
 }));
 
@@ -55,7 +55,6 @@ const GraphActions = ({
   resource,
   timeline,
   performanceGraphRef,
-  open,
   end,
   start
 }: Props): JSX.Element | null => {
@@ -114,6 +113,9 @@ const GraphActions = ({
   };
 
   const convertToPng = (ratio: number): void => {
+    if (!performanceGraphRef) {
+      return;
+    }
     setMenuAnchor(null);
     setExporting(true);
     exportToPng({
@@ -125,10 +127,6 @@ const GraphActions = ({
       setExporting(false);
     });
   };
-
-  if (!open) {
-    return null;
-  }
 
   return (
     <div className={classes.buttonGroup}>
@@ -163,6 +161,7 @@ const GraphActions = ({
           <FederatedComponent
             path="/anomaly-detection/configuration-button"
             styleMenuSkeleton={{ height: 2.5, width: 2.25 }}
+            type={resource?.type}
           />
           <FederatedComponent
             end={end}
@@ -214,15 +213,7 @@ const GraphActions = ({
 
 const MemoizedGraphActions = memoizeComponent<Props>({
   Component: GraphActions,
-  memoProps: [
-    'resourceParentName',
-    'resourceName',
-    'timeline',
-    'performanceGraphRef',
-    'renderAdditionalGraphActions',
-    'end',
-    'start'
-  ]
+  memoProps: ['resource', 'timeline', 'performanceGraphRef', 'end', 'start']
 });
 
 export default MemoizedGraphActions;

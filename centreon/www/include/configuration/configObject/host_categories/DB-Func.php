@@ -49,7 +49,7 @@ function checkSeverity($fields)
     if (isset($fields['hc_type']) && $fields['hc_severity_icon'] == "") {
         $arr['hc_severity_icon'] = "Severity icon is required";
     }
-    if (count($arr)) {
+    if ($arr !== []) {
         return $arr;
     }
     return true;
@@ -178,7 +178,8 @@ function multipleHostCategoriesInDB($hostCategories = [], $nbrDup = [])
                 switch ($key2) {
                     case 'hc_name':
                         $value2 = \HtmlAnalyzer::sanitizeAndRemoveTags($value2);
-                        $hc_name = $value2 = $value2 . "_" . $i;
+                        $hc_name = $value2 . "_" . $i;
+                        $value2 = $value2 . "_" . $i;
                         $bindParams[':hc_name'] = [\PDO::PARAM_STR => $value2];
                         break;
                     case 'hc_alias':
@@ -379,9 +380,9 @@ function updateHostCategories($hcId)
     global $form, $pearDB, $centreon;
     $ret = [];
     $ret = $form->getSubmitValues();
-    $ret['hc_type']
-        ? $scType = true
-        : $scType = false;
+    $scType = $ret['hc_type']
+        ? true
+        : false;
     $bindParams = [];
     $bindParams[':hc_id'] = [\PDO::PARAM_INT => $hcId];
     foreach ($ret as $key => $value) {
@@ -484,22 +485,19 @@ function updateHostCategoriesHosts($hcId, $ret = [])
     $statement->bindValue(':hc_id', $hcId, \PDO::PARAM_INT);
     $statement->execute();
     // get host relations
-    $linkedHosts = isset($ret["hc_hosts"]) ?
-        $ret["hc_hosts"] :
-        CentreonUtils::mergeWithInitialValues($form, 'hc_hosts');
+    $linkedHosts = $ret["hc_hosts"] ?? CentreonUtils::mergeWithInitialValues($form, 'hc_hosts');
 
     // get host template relations
-    $linkedHostTemplates = isset($ret["hc_hostsTemplate"]) ?
-        $ret["hc_hostsTemplate"] :
-        CentreonUtils::mergeWithInitialValues($form, 'hc_hostsTemplate');
+    $linkedHostTemplates = $ret["hc_hostsTemplate"] ?? CentreonUtils::mergeWithInitialValues($form, 'hc_hostsTemplate');
 
     // merge host and host template relations
     $linkedObjects = array_merge($linkedHosts, $linkedHostTemplates);
 
     // build query to insert all relations
-    if (count($linkedObjects)) {
+    if ($linkedObjects !== []) {
         $query = "INSERT INTO hostcategories_relation (hostcategories_hc_id, host_host_id) VALUES ";
-        for ($i = 0; $i < count($linkedObjects); $i++) {
+        $counter = count($linkedObjects);
+        for ($i = 0; $i < $counter; $i++) {
             if ($i != 0) {
                 $query .= ", ";
             }

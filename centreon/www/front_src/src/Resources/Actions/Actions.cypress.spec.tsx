@@ -109,6 +109,16 @@ const service = {
   type: 'service'
 };
 
+const anomalyDetection = {
+  has_passive_checks_enabled: true,
+  id: 0,
+  parent: {
+    id: 1,
+    name: 'Host'
+  },
+  type: 'anomaly-detection'
+};
+
 const initialize = (): ReturnType<typeof createStore> => {
   cy.clock(new Date(2020, 1, 1));
   cy.viewport('macbook-13');
@@ -202,6 +212,14 @@ describe('Actions', () => {
     });
 
     cy.makeSnapshot();
+  });
+
+  it('deactivates the submit status button when a Resource of type anomaly detection is selected', () => {
+    const store = initialize();
+    store.set(selectedResourcesAtom, [anomalyDetection]);
+
+    cy.findByLabelText(labelMoreActions).click();
+    cy.findByTestId(labelSubmitStatus).should('have.attr', 'aria-disabled');
   });
 
   describe('Disacknowledgement', () => {

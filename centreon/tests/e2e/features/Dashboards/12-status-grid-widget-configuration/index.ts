@@ -10,6 +10,7 @@ import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import statusGridWidget from '../../../fixtures/dashboards/creation/widgets/status-grid-widget.json';
 import twoStatusGridWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwostatusGrid.json';
+import statusGridWidgetWithNewAddedHost from '../../../fixtures/dashboards/creation/widgets/statusGridWidgetWithNewAddedHost.json';
 
 const services = {
   serviceCritical: {
@@ -379,21 +380,15 @@ Then('the Status Grid widget displays up to that number of tiles', () => {
 
 Given('a dashboard having a configured Status Grid widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
-  cy.visitDashboard(dashboards.default.name);
+  cy.editDashboard(dashboards.default.name);
+  cy.wait('@resourceRequest');
 });
 
 When(
   'the dashboard administrator user duplicates the Status Grid widget',
   () => {
-    cy.getByTestId({ testId: 'RefreshIcon' }).should('be.visible');
-    cy.getByTestId({ testId: 'RefreshIcon' }).click();
-    cy.getByLabel({
-      label: 'Edit dashboard',
-      tag: 'button'
-    }).click();
-    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
-    cy.wait('@resourceRequest');
   }
 );
 
@@ -410,10 +405,6 @@ Then('the second widget has the same properties as the first widget', () => {
     .parent()
     .invoke('removeAttr', 'target')
     .click({ force: true });
-  cy.get('[class*="resourceName"]')
-    .eq(3)
-    .contains('Centreon-Server')
-    .should('exist');
   cy.get('[class*="resourceName"]').contains('host2').should('exist');
   cy.get('[class*="resourceName"]').contains('host3').should('exist');
 });
@@ -439,3 +430,46 @@ Then(
     cy.contains('host2').should('exist');
   }
 );
+
+Given('a new host is successfully added and configured', () => {
+  cy.logoutViaAPI();
+  cy.loginByTypeOfUser({
+    jsonName: 'admin',
+    loginViaApi: false
+  });
+  cy.addNewHostAndReturnId().then((hostId) => {
+    cy.log(`Host ID is: ${hostId}`);
+    cy.getServiceIdByName('service_test_ok').then((serviceId) => {
+      cy.log(`Service ID is: ${serviceId}`);
+      cy.patchServiceWithHost(hostId, serviceId);
+    });
+  });
+  cy.waitUntil(
+    () => {
+      return cy
+        .getByLabel({ label: 'Up status hosts', tag: 'a' })
+        .invoke('text')
+        .then((text) => {
+          if (text != '4') {
+            cy.exportConfig();
+          }
+
+          return text === '4';
+        });
+    },
+    { interval: 10000, timeout: 600000 }
+  );
+});
+
+When('the dashboard administrator adds a status grid widget', () => {
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    statusGridWidgetWithNewAddedHost
+  );
+  cy.editDashboard(dashboards.default.name);
+  cy.wait('@resourceRequest');
+});
+
+Then('the newly added host should appear in the status grid widget', () => {
+  cy.getByTestId({ testId: 'link to service_test_ok' }).should('be.visible');
+});

@@ -34,6 +34,13 @@
  *
  */
 
+use Pimple\Container;
+
+/**
+ * Class
+ *
+ * @class Servicegroup
+ */
 class Servicegroup extends AbstractObject
 {
     private const TAG_TYPE = 'servicegroup';
@@ -42,29 +49,52 @@ class Servicegroup extends AbstractObject
     private const TAG_FILENAME = 'tags.cfg';
     private const TAG_OBJECT_NAME = 'tag';
 
+    /** @var int */
     private $use_cache = 1;
+    /** @var int */
     private $done_cache = 0;
 
+    /** @var array */
     private $sg = [];
+    /** @var array */
     private $sg_relation_cache = [];
+    /** @var string */
     protected $generate_filename = self::SERVICEGROUP_FILENAME;
-    protected $object_name = self::SERVICEGROUP_OBJECT_NAME;
+    /** @var string */
+    protected string $object_name = self::SERVICEGROUP_OBJECT_NAME;
+    /** @var string */
     protected $attributes_select = '
         sg_id,
         sg_name as servicegroup_name,
         sg_alias as alias
     ';
+    /** @var null */
     protected $stmt_sg = null;
+    /** @var null */
     protected $stmt_service_sg = null;
+    /** @var null */
     protected $stmt_stpl_sg = null;
 
-    public function __construct(\Pimple\Container $dependencyInjector)
+    /**
+     * Servicegroup constructor
+     *
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
+     */
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->buildCache();
     }
 
-    private function getServicegroupFromId($sg_id)
+    /**
+     * @param $sg_id
+     *
+     * @return void
+     * @throws PDOException
+     */
+    private function getServicegroupFromId($sg_id): void
     {
         if (is_null($this->stmt_sg)) {
             $this->stmt_sg = $this->backend_instance->db->prepare("SELECT
@@ -84,6 +114,16 @@ class Servicegroup extends AbstractObject
         }
     }
 
+    /**
+     * @param $sg_id
+     * @param $service_id
+     * @param $service_description
+     * @param $host_id
+     * @param $host_name
+     *
+     * @return int
+     * @throws PDOException
+     */
     public function addServiceInSg($sg_id, $service_id, $service_description, $host_id, $host_name)
     {
         if (!isset($this->sg[$sg_id])) {
@@ -93,10 +133,14 @@ class Servicegroup extends AbstractObject
             return 1;
         }
 
-        $this->sg[$sg_id]['members_cache'][$host_id . '_' . $service_id] = array($host_name, $service_description);
+        $this->sg[$sg_id]['members_cache'][$host_id . '_' . $service_id] = [$host_name, $service_description];
         return 0;
     }
 
+    /**
+     * @return int|void
+     * @throws PDOException
+     */
     private function buildCache()
     {
         if ($this->done_cache == 1) {
@@ -113,13 +157,19 @@ class Servicegroup extends AbstractObject
             if (isset($this->sg_relation_cache[$value['service_service_id']])) {
                 $this->sg_relation_cache[$value['service_service_id']][] = $value;
             } else {
-                $this->sg_relation_cache[$value['service_service_id']] = array($value);
+                $this->sg_relation_cache[$value['service_service_id']] = [$value];
             }
         }
 
         $this->done_cache = 1;
     }
 
+    /**
+     * @param $service_id
+     *
+     * @return array|mixed
+     * @throws PDOException
+     */
     public function getServiceGroupsForStpl($service_id)
     {
         # Get from the cache
@@ -127,7 +177,7 @@ class Servicegroup extends AbstractObject
             return $this->sg_relation_cache[$service_id];
         }
         if ($this->done_cache == 1) {
-            return array();
+            return [];
         }
 
         if (is_null($this->stmt_stpl_sg)) {
@@ -148,6 +198,13 @@ class Servicegroup extends AbstractObject
         return $this->sg_relation_cache[$service_id];
     }
 
+    /**
+     * @param $host_id
+     * @param $service_id
+     *
+     * @return array|mixed
+     * @throws PDOException
+     */
     public function getServiceGroupsForService($host_id, $service_id)
     {
         # Get from the cache
@@ -155,7 +212,7 @@ class Servicegroup extends AbstractObject
             return $this->sg_relation_cache[$service_id];
         }
         if ($this->done_cache == 1) {
-            return array();
+            return [];
         }
 
         if (is_null($this->stmt_service_sg)) {
@@ -251,9 +308,12 @@ class Servicegroup extends AbstractObject
         }
     }
 
+    /**
+     * @return array
+     */
     public function getServicegroups()
     {
-        $result = array();
+        $result = [];
         foreach ($this->sg as $id => &$value) {
             if (is_null($value) || count($value['members_cache']) == 0) {
                 continue;
@@ -263,22 +323,29 @@ class Servicegroup extends AbstractObject
         return $result;
     }
 
-    public function reset()
+    /**
+     * @return void
+     * @throws Exception
+     */
+    public function reset(): void
     {
         parent::reset();
         foreach ($this->sg as &$value) {
             if (!is_null($value)) {
-                $value['members_cache'] = array();
-                $value['members'] = array();
+                $value['members_cache'] = [];
+                $value['members'] = [];
             }
         }
     }
 
+    /**
+     * @param $sg_id
+     * @param $attr
+     *
+     * @return mixed|null
+     */
     public function getString($sg_id, $attr)
     {
-        if (isset($this->sg[$sg_id][$attr])) {
-            return $this->sg[$sg_id][$attr];
-        }
-        return null;
+        return $this->sg[$sg_id][$attr] ?? null;
     }
 }

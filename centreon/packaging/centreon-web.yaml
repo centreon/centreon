@@ -75,17 +75,17 @@ contents:
       mode: 0644
     packager: rpm
   - src: "./src/php.ini"
-    dst: "/etc/php/8.1/mods-available/centreon.ini"
+    dst: "/etc/php/8.2/mods-available/centreon.ini"
     type: config|noreplace
     file_info:
       mode: 0644
     packager: deb
-  - src: "/etc/php/8.1/mods-available/centreon.ini"
-    dst: "/etc/php/8.1/fpm/conf.d/50-centreon.ini"
+  - src: "/etc/php/8.2/mods-available/centreon.ini"
+    dst: "/etc/php/8.2/fpm/conf.d/50-centreon.ini"
     type: symlink
     packager: deb
-  - src: "/etc/php/8.1/mods-available/centreon.ini"
-    dst: "/etc/php/8.1/cli/conf.d/50-centreon.ini"
+  - src: "/etc/php/8.2/mods-available/centreon.ini"
+    dst: "/etc/php/8.2/cli/conf.d/50-centreon.ini"
     type: symlink
     packager: deb
 
@@ -96,7 +96,7 @@ contents:
       mode: 0644
     packager: rpm
   - src: "./src/php-fpm.deb.conf"
-    dst: "/etc/php/8.1/fpm/pool.d/centreon.conf"
+    dst: "/etc/php/8.2/fpm/pool.d/centreon.conf"
     type: config|noreplace
     file_info:
       mode: 0644
@@ -109,7 +109,7 @@ contents:
       mode: 0644
     packager: rpm
   - src: "./src/php-fpm-systemd.conf"
-    dst: "/lib/systemd/system/php8.1-fpm.service.d/centreon.conf"
+    dst: "/lib/systemd/system/php8.2-fpm.service.d/centreon.conf"
     type: config|noreplace
     file_info:
       mode: 0644
@@ -433,7 +433,8 @@ overrides:
       - initscripts
       - "(mariadb or mysql)"
       - httpd
-      - php-common >= 8.1
+      - php-common >= 8.2
+      - php-common < 8.3
       - php-cli
       - php-pdo
       - php-mysqlnd
@@ -452,10 +453,10 @@ overrides:
       - perl-DBD-MySQL
       - perl-DBI
       - perl-HTML-Parser
+      - perl(Net::SNMP)
       - rrdtool
       - rrdtool-perl
       - net-snmp
-      - net-snmp-perl
       - net-snmp-utils
       - rsync
       - brotli
@@ -516,22 +517,22 @@ overrides:
       - lsb-release
       - "mariadb-client | mysql-client"
       - apache2
-      - php8.1
-      - php8.1-cli
-      - php8.1-fpm
-      - php8.1-curl
-      - php8.1-intl
-      - php8.1-xml
-      - php8.1-dom
-      - php8.1-gd
-      - php8.1-mbstring
-      - php8.1-xml
-      - php8.1-mysql
-      - php8.1-zip
-      - php8.1-snmp
-      - php8.1-ldap
-      - php8.1-readline
-      - php8.1-sqlite3
+      - php8.2
+      - php8.2-cli
+      - php8.2-fpm
+      - php8.2-curl
+      - php8.2-intl
+      - php8.2-xml
+      - php8.2-dom
+      - php8.2-gd
+      - php8.2-mbstring
+      - php8.2-xml
+      - php8.2-mysql
+      - php8.2-zip
+      - php8.2-snmp
+      - php8.2-ldap
+      - php8.2-readline
+      - php8.2-sqlite3
       - php-pear
       - rrdtool
       - locales

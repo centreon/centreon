@@ -1,0 +1,7 @@
+[
+    {
+        "action": "add",
+        "object": "INSTANCE",
+        "values": "Poller-2;10.30.2.66;22;ZMQ;5556"
+    }
+]

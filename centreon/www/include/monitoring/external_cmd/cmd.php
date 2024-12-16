@@ -43,11 +43,7 @@ include_once('./include/monitoring/external_cmd/functions.php');
 /*
  * Get Parameters
  */
-if (!isset($_GET['cmd']) && isset($_POST['cmd'])) {
-    $param = $_POST;
-} else {
-    $param = $_GET;
-}
+$param = !isset($_GET['cmd']) && isset($_POST['cmd']) ? $_POST : $_GET;
 
 if (isset($param['en'])) {
     $en = $param['en'];

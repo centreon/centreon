@@ -84,7 +84,7 @@ class ActionLogRepositoryRDB extends AbstractRepositoryDRB implements ActionLogR
         if ($actionLog->getId() === null) {
             throw new RepositoryException(_('Action log id can not be null'));
         }
-        if (empty($details)) {
+        if ($details === []) {
             return;
         }
         // We avoid to start again a database transaction

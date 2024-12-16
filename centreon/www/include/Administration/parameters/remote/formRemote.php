@@ -91,7 +91,7 @@ try {
 /**
  * form
  */
-$attrsText = array("size" => "40");
+$attrsText = ["size" => "40"];
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
 $tpl = new Smarty();
 $tpl = initSmartyTpl($path . "remote", $tpl);

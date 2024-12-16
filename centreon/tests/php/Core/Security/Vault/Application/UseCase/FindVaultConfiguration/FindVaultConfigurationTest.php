@@ -39,13 +39,13 @@ use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\{
 use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
 use Security\Encryption;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
 });
 
-it('should present Forbidden Response when user is not admin', function () {
+it('should present Forbidden Response when user is not admin', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -59,12 +59,12 @@ it('should present Forbidden Response when user is not admin', function () {
 
     $useCase($presenter);
 
-    expect($presenter->getResponseStatus())->toBeInstanceOf(ForbiddenResponse::class);
-    expect($presenter->getResponseStatus()?->getMessage())
+    expect($presenter->data)->toBeInstanceOf(ForbiddenResponse::class);
+    expect($presenter->data?->getMessage())
         ->toBe(VaultConfigurationException::onlyForAdmin()->getMessage());
 });
 
-it('should present NotFound Response when vault configuration does not exist for a given id', function () {
+it('should present NotFound Response when vault configuration does not exist for a given id', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -83,13 +83,13 @@ it('should present NotFound Response when vault configuration does not exist for
 
     $useCase($presenter);
 
-    expect($presenter->getResponseStatus())->toBeInstanceOf(NotFoundResponse::class);
-    expect($presenter->getResponseStatus()?->getMessage())->toBe(
+    expect($presenter->data)->toBeInstanceOf(NotFoundResponse::class);
+    expect($presenter->data?->getMessage())->toBe(
         (new NotFoundResponse('Vault configuration'))->getMessage()
     );
 });
 
-it('should present ErrorResponse when an unhandled error occurs', function () {
+it('should present ErrorResponse when an unhandled error occurs', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -108,13 +108,13 @@ it('should present ErrorResponse when an unhandled error occurs', function () {
 
     $useCase($presenter);
 
-    expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class);
-    expect($presenter->getResponseStatus()?->getMessage())->toBe(
+    expect($presenter->data)->toBeInstanceOf(ErrorResponse::class);
+    expect($presenter->data?->getMessage())->toBe(
         VaultConfigurationException::impossibleToFind()->getMessage()
     );
 });
 
-it('should present FindVaultConfigurationResponse', function () {
+it('should present FindVaultConfigurationResponse', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -152,14 +152,14 @@ it('should present FindVaultConfigurationResponse', function () {
     );
 
     $findVaultConfigurationResponse = new FindVaultConfigurationResponse();
-    $findVaultConfigurationResponse->vaultConfiguration = [
-        'url' => $vaultConfiguration->getAddress(),
-        'port' => $vaultConfiguration->getPort(),
-        'root_path' => $vaultConfiguration->getRootPath()
-    ];
+    $findVaultConfigurationResponse->address = $vaultConfiguration->getAddress();
+    $findVaultConfigurationResponse->port = $vaultConfiguration->getPort();
+    $findVaultConfigurationResponse->rootPath = $vaultConfiguration->getRootPath();
 
     $useCase($presenter);
 
-    expect($presenter->response)->toBeInstanceOf(FindVaultConfigurationResponse::class);
-    expect($presenter->response->vaultConfiguration)->toBe($findVaultConfigurationResponse->vaultConfiguration);
+    expect($presenter->data)->toBeInstanceOf(FindVaultConfigurationResponse::class);
+    expect($presenter->data->address)->toBe($findVaultConfigurationResponse->address);
+    expect($presenter->data->port)->toBe($findVaultConfigurationResponse->port);
+    expect($presenter->data->rootPath)->toBe($findVaultConfigurationResponse->rootPath);
 });

@@ -9,12 +9,12 @@ import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 import { lt } from 'ramda';
 
-import { Paper, Theme, useMediaQuery } from '@mui/material';
+import { Paper, type Theme, useMediaQuery } from '@mui/material';
 
 import CustomTimePeriod from './CustomTimePeriod';
 import SelectedTimePeriod from './SelectedTimePeriod';
 import { useStyles } from './TimePeriods.styles';
-import { WrapperTimePeriodProps } from './models';
+import type { WrapperTimePeriodProps } from './models';
 import useTimePeriod from './useTimePeriod';
 
 dayjs.extend(isSameOrAfter);

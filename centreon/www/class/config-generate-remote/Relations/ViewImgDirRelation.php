@@ -21,11 +21,21 @@
 namespace ConfigGenerateRemote\Relations;
 
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use Exception;
 
+/**
+ * Class
+ *
+ * @class ViewImgDirRelation
+ * @package ConfigGenerateRemote\Relations
+ */
 class ViewImgDirRelation extends AbstractObject
 {
+    /** @var string */
     protected $table = 'view_img_dir_relation';
+    /** @var string */
     protected $generateFilename = 'view_img_dir_relation.infile';
+    /** @var string[] */
     protected $attributesWrite = [
         'dir_dir_parent_id',
         'img_img_id',
@@ -34,11 +44,13 @@ class ViewImgDirRelation extends AbstractObject
     /**
      * Add relation
      *
-     * @param integer $mediaId
-     * @param integer $dirId
+     * @param int $mediaId
+     * @param int $dirId
+     *
      * @return void
+     * @throws Exception
      */
-    public function addRelation(int $mediaId, int $dirId)
+    public function addRelation(int $mediaId, int $dirId): void
     {
         $relation = [
             'dir_dir_parent_id' => $dirId,

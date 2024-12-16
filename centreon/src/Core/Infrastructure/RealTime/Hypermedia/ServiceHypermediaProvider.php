@@ -28,21 +28,21 @@ use Core\Domain\RealTime\Model\ResourceTypes\ServiceResourceType;
 
 class ServiceHypermediaProvider extends AbstractHypermediaProvider implements HypermediaProviderInterface
 {
-    public const ENDPOINT_SERVICE_ACKNOWLEDGEMENT = 'centreon_application_acknowledgement_addserviceacknowledgement',
-                 ENDPOINT_DETAILS = 'centreon_application_monitoring_resource_details_service',
-                 ENDPOINT_SERVICE_DOWNTIME = 'monitoring.downtime.addServiceDowntime',
-                 ENDPOINT_SERVICE_NOTIFICATION_POLICY = 'configuration.service.notification-policy',
-                 ENDPOINT_SERVICE_PERFORMANCE_GRAPH = 'monitoring.metric.getServicePerformanceMetrics',
-                 ENDPOINT_SERVICE_STATUS_GRAPH = 'monitoring.metric.getServiceStatusMetrics',
-                 ENDPOINT_SERVICE_TIMELINE = 'centreon_application_monitoring_gettimelinebyhostandservice',
-                 ENDPOINT_SERVICE_CHECK = 'centreon_application_check_checkService',
-                 ENDPOINT_SERVICE_METRICS = 'FindMetricsByService',
-                 TIMELINE_DOWNLOAD = 'centreon_application_monitoring_download_timeline_by_host_and_service',
-                 URI_CONFIGURATION = '/main.php?p=60201&o=c&service_id={serviceId}',
-                 URI_EVENT_LOGS = '/main.php?p=20301&svc={hostId}_{serviceId}',
-                 URI_REPORTING = '/main.php?p=30702&period=yesterday&start=&end=&host_id={hostId}&item={serviceId}',
-                 URI_SERVICEGROUP_CONFIGURATION = '/main.php?p=60203&o=c&sg_id={servicegroupId}',
-                 URI_SERVICE_CATEGORY_CONFIGURATION = '/main.php?p=60209&o=c&sc_id={serviceCategoryId}';
+    public const ENDPOINT_SERVICE_ACKNOWLEDGEMENT = 'centreon_application_acknowledgement_addserviceacknowledgement';
+    public const ENDPOINT_DETAILS = 'centreon_application_monitoring_resource_details_service';
+    public const ENDPOINT_SERVICE_DOWNTIME = 'monitoring.downtime.addServiceDowntime';
+    public const ENDPOINT_SERVICE_NOTIFICATION_POLICY = 'configuration.service.notification-policy';
+    public const ENDPOINT_SERVICE_PERFORMANCE_GRAPH = 'monitoring.metric.getServicePerformanceMetrics';
+    public const ENDPOINT_SERVICE_STATUS_GRAPH = 'monitoring.metric.getServiceStatusMetrics';
+    public const ENDPOINT_SERVICE_TIMELINE = 'centreon_application_monitoring_gettimelinebyhostandservice';
+    public const ENDPOINT_SERVICE_CHECK = 'centreon_application_check_checkService';
+    public const ENDPOINT_SERVICE_METRICS = 'FindMetricsByService';
+    public const TIMELINE_DOWNLOAD = 'centreon_application_monitoring_download_timeline_by_host_and_service';
+    public const URI_CONFIGURATION = '/main.php?p=60201&o=c&service_id={serviceId}';
+    public const URI_EVENT_LOGS = '/main.php?p=20301&svc={hostId}_{serviceId}';
+    public const URI_REPORTING = '/main.php?p=30702&period=yesterday&start=&end=&host_id={hostId}&item={serviceId}';
+    public const URI_SERVICEGROUP_CONFIGURATION = '/main.php?p=60203&o=c&sg_id={servicegroupId}';
+    public const URI_SERVICE_CATEGORY_CONFIGURATION = '/main.php?p=60209&o=c&sc_id={serviceCategoryId}';
 
     /**
      * @inheritDoc

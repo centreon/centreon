@@ -1,4 +1,4 @@
-import { SelectEntry } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
 export interface FederatedComponentsConfiguration {
   federatedComponents: Array<string>;
@@ -57,7 +57,8 @@ export enum FederatedWidgetOptionType {
   timePeriod = 'time-period',
   timezone = 'timezone',
   topBottomSettings = 'top-bottom-settings',
-  valueFormat = 'value-format'
+  valueFormat = 'value-format',
+  warning = 'warning'
 }
 
 interface WidgetHiddenCondition {
@@ -111,6 +112,7 @@ export interface FederatedWidgetProperties {
         };
       };
       groups: Array<SelectEntry>;
+      hasModule?: string;
     };
   };
   customBaseColor?: boolean;
@@ -126,4 +128,8 @@ export interface FederatedWidgetProperties {
   singleMetricSelection?: boolean;
   singleResourceSelection?: boolean;
   title: string;
+  message?: {
+    label: string;
+    icon?: string;
+  };
 }

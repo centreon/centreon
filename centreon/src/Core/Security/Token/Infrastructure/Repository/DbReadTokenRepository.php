@@ -188,7 +188,7 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
         ]);
         $this->addDateNormalizer($sqlRequestTranslator, ['creation_date', 'expiration_date']);
 
-        $request = <<<'SQL'
+        $request = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS
                 sat.token_name,
                 sat.user_id,
@@ -203,7 +203,7 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
                 ON provider_token.id = sat.provider_token_id
             INNER JOIN `:db`.contact
                 ON contact.contact_id = sat.user_id
-            SQL;
+            SQL_WRAP;
 
         // Search
         $search = $sqlRequestTranslator->translateSearchParameterToSql();

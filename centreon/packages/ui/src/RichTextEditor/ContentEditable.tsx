@@ -167,7 +167,7 @@ const ContentEditable = ({
         editable && classes.container,
         !isEditable && !disabled && classes.notEditable,
         className,
-        isFocused && classes.inputFocused
+        !disabled && isFocused && classes.inputFocused
       )}
     >
       {editable && isTextEmpty && (

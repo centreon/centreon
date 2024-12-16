@@ -104,7 +104,7 @@ class Service
     private array $categories = [];
 
     /** @var Severity|null */
-    private ?Severity $severity;
+    private ?Severity $severity = null;
 
     /**
      * @param int $id

@@ -80,7 +80,7 @@ class FindRealTimeMonitoringServers
         } else {
             $allowedMonitoringServers = $this->realTimeMonitoringServerRepository
                 ->findAllowedMonitoringServers($this->contact);
-            if (! empty($allowedMonitoringServers)) {
+            if ($allowedMonitoringServers !== []) {
                 $allowedMonitoringServerIds = array_map(
                     function ($allowedMonitoringServer) {
                         return $allowedMonitoringServer->getId();

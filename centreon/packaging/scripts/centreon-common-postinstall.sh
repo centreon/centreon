@@ -7,6 +7,7 @@ fixCacheConfigRights() {
   chmod 2775 /var/cache/centreon/config/engine
   chmod 2775 /var/cache/centreon/config/broker
   chmod 2775 /var/cache/centreon/config/export
+  chmod 2775 /var/cache/centreon/config/vmware
 
   # MON-38165
   chmod 0770 /var/cache/centreon/config/engine/*

@@ -33,7 +33,7 @@
  * 
  */
 
-$tabCommandType = array();
+$tabCommandType = [];
 
 $tabCommandType[1] = _("Notification");
 $tabCommandType[2] = _("Check");

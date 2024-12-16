@@ -38,18 +38,22 @@ require_once _CENTREON_PATH_ . 'www/class/centreonHost.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonGMT.class.php';
 
 /**
- * Class for management downtime with ndo broker
+ * Class
  *
- * @see CentreonDowntime
+ * @class CentreonDowntimeBroker
+ * @description Class for management downtime with ndo broker
+ * @extends CentreonDowntime
  */
 class CentreonDowntimeBroker extends CentreonDowntime
 {
+    /** @var CentreonDB */
     private $dbb;
 
+    /** @var null */
     private $scheduledDowntimes = null;
 
     /**
-     * Constructor
+     * CentreonDowntimeBroker constructor
      *
      * @param CentreonDb $pearDB
      * @param string $varlib
@@ -74,11 +78,11 @@ class CentreonDowntimeBroker extends CentreonDowntime
      *      )
      *  )
      *
-     * @return array A array with host and services for downtime, or false if in error
+     * @return array An array with host and services for downtime, or false if in error
      */
     public function getSchedDowntime()
     {
-        $list = array('hosts' => array(), 'services' => array());
+        $list = ['hosts' => [], 'services' => []];
         $query = "SELECT d.internal_id as internal_downtime_id,
 						 h.name as name1,
 						 s.description as name2
@@ -87,14 +91,14 @@ class CentreonDowntimeBroker extends CentreonDowntime
 			WHERE d.host_id = h.host_id AND d.start_time > NOW() AND d.comment_data LIKE '[Downtime cycle%'";
         try {
             $res = $this->dbb->query($query);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             return false;
         }
         while ($row = $res->fetch()) {
             if (isset($row['name2']) && $row['name2'] != "") {
-                $list['services'] = array('host_name' => $row['name1'], 'service_name' => $row['name2']);
+                $list['services'] = ['host_name' => $row['name1'], 'service_name' => $row['name2']];
             } elseif (isset($row['name1']) && $row['name1'] != "") {
-                $list['hosts'] = array('host_name' => $row['name1']);
+                $list['hosts'] = ['host_name' => $row['name1']];
             }
         }
         return $list;
@@ -126,22 +130,26 @@ class CentreonDowntimeBroker extends CentreonDowntime
         }
         try {
             $res = $this->dbb->query($query);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             return false;
         }
         $row = $res->fetch();
         return $row['internal_downtime_id'];
     }
 
+    /**
+     * @param $startDelay
+     * @param $endDelay
+     * @param $daysOfWeek
+     * @param $tomorrow
+     *
+     * @return bool
+     */
     public function isWeeklyApproachingDowntime($startDelay, $endDelay, $daysOfWeek, $tomorrow)
     {
         $isApproaching = false;
 
-        if ($tomorrow) {
-            $currentDayOfWeek = $endDelay->format('w');
-        } else {
-            $currentDayOfWeek = $startDelay->format('w');
-        }
+        $currentDayOfWeek = $tomorrow ? $endDelay->format('w') : $startDelay->format('w');
 
         $daysOfWeek = explode(',', $daysOfWeek);
         foreach ($daysOfWeek as $dayOfWeek) {
@@ -156,15 +164,19 @@ class CentreonDowntimeBroker extends CentreonDowntime
         return $isApproaching;
     }
 
+    /**
+     * @param $startDelay
+     * @param $endDelay
+     * @param $daysOfMonth
+     * @param $tomorrow
+     *
+     * @return bool
+     */
     public function isMonthlyApproachingDowntime($startDelay, $endDelay, $daysOfMonth, $tomorrow)
     {
         $isApproaching = false;
 
-        if ($tomorrow) {
-            $currentDayOfMonth = $endDelay->format('d');
-        } else {
-            $currentDayOfMonth = $startDelay->format('d');
-        }
+        $currentDayOfMonth = $tomorrow ? $endDelay->format('d') : $startDelay->format('d');
 
         if (preg_match('/^0(\d)$/', $currentDayOfMonth, $matches)) {
             $currentDayOfMonth = $matches[1];
@@ -180,6 +192,16 @@ class CentreonDowntimeBroker extends CentreonDowntime
         return $isApproaching;
     }
 
+    /**
+     * @param $startDelay
+     * @param $endDelay
+     * @param $dayOfWeek
+     * @param $cycle
+     * @param $tomorrow
+     *
+     * @return bool
+     * @throws Exception
+     */
     public function isSpecificDateDowntime($startDelay, $endDelay, $dayOfWeek, $cycle, $tomorrow)
     {
         $isApproaching = false;
@@ -188,16 +210,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
             $dayOfWeek = 0;
         }
 
-        $daysOfWeekAssociation = array(
-            0 => 'sunday',
-            1 => 'monday',
-            2 => 'tuesday',
-            3 => 'wednesday',
-            4 => 'thursday',
-            5 => 'friday',
-            6 => 'saturday',
-            7 => 'sunday'
-        );
+        $daysOfWeekAssociation = [0 => 'sunday', 1 => 'monday', 2 => 'tuesday', 3 => 'wednesday', 4 => 'thursday', 5 => 'friday', 6 => 'saturday', 7 => 'sunday'];
         $dayOfWeek = $daysOfWeekAssociation[$dayOfWeek];
 
         if ($tomorrow) {
@@ -220,6 +233,14 @@ class CentreonDowntimeBroker extends CentreonDowntime
         return $isApproaching;
     }
 
+    /**
+     * @param $downtimeStartTime
+     * @param $now
+     * @param $delay
+     *
+     * @return bool
+     * @throws Exception
+     */
     private function isTomorrow($downtimeStartTime, $now, $delay)
     {
         $tomorrow = false;
@@ -256,6 +277,13 @@ class CentreonDowntimeBroker extends CentreonDowntime
         return $tomorrow;
     }
 
+    /**
+     * @param $downtimeStart
+     * @param $delayStart
+     * @param $delayEnd
+     *
+     * @return bool
+     */
     private function isApproachingTime($downtimeStart, $delayStart, $delayEnd)
     {
         $approachingTime = false;
@@ -273,11 +301,12 @@ class CentreonDowntimeBroker extends CentreonDowntime
      *   - $time is 02:30
      *   ==> return timestamp corresponding to 02:00 cause 02:30 does not exist (jump from 02:00 to 03:00)
      *
-     * @param \DateTime $datetime
+     * @param DateTime $datetime
      * @param string $time time formatted as HH:mm
-     * @return integer the calculated timestamp
+     *
+     * @return int the calculated timestamp
      */
-    private function manageWinterToSummerTimestamp(\Datetime $datetime, string $time): int
+    private function manageWinterToSummerTimestamp(DateTime $datetime, string $time): int
     {
         $hour = explode(':', $time)[0];
         if ((int)$datetime->format('H') > (int)$hour) {
@@ -287,10 +316,15 @@ class CentreonDowntimeBroker extends CentreonDowntime
         return $datetime->getTimestamp();
     }
 
-    private function manageSummerToWinterTimestamp(\Datetime $dateTime)
+    /**
+     * @param Datetime $dateTime
+     *
+     * @return int
+     */
+    private function manageSummerToWinterTimestamp(DateTime $dateTime)
     {
         $datetimePlusOneHour = clone $dateTime;
-        $datetimePlusOneHour->sub(new \DateInterval('PT1H'));
+        $datetimePlusOneHour->sub(new DateInterval('PT1H'));
         if ($datetimePlusOneHour->format('H:m') === $dateTime->format('H:m')) {
             return $dateTime->getTimestamp() - 3600;
         }
@@ -298,9 +332,15 @@ class CentreonDowntimeBroker extends CentreonDowntime
         return $dateTime->getTimestamp();
     }
 
+    /**
+     * @param $delay
+     *
+     * @return array
+     * @throws Exception
+     */
     public function getApproachingDowntimes($delay)
     {
-        $approachingDowntimes = array();
+        $approachingDowntimes = [];
 
         $downtimes = $this->getForEnabledResources();
 
@@ -322,12 +362,12 @@ class CentreonDowntimeBroker extends CentreonDowntime
 
             $tomorrow = $this->isTomorrow($downtime['dtp_start_time'], $startDelay, $delay);
 
-            $downtimeStartDate = new \DateTime($downtime['dtp_start_time'], $timezone);
-            $downtimeEndDate = new \DateTime($downtime['dtp_end_time'], $timezone);
+            $downtimeStartDate = new DateTime($downtime['dtp_start_time'], $timezone);
+            $downtimeEndDate = new DateTime($downtime['dtp_end_time'], $timezone);
 
             if ($tomorrow) {
-                $downtimeStartDate->add(new \DateInterval('P1D'));
-                $downtimeEndDate->add(new \DateInterval('P1D'));
+                $downtimeStartDate->add(new DateInterval('P1D'));
+                $downtimeEndDate->add(new DateInterval('P1D'));
             }
 
             # Check if we jump an hour
@@ -378,28 +418,20 @@ class CentreonDowntimeBroker extends CentreonDowntime
             }
 
             if ($approaching) {
-                $approachingDowntimes[] = array(
-                    'dt_id' => $downtime['dt_id'],
-                    'dt_activate' => $downtime['dt_activate'],
-                    'start_hour' => $downtime['dtp_start_time'],
-                    'end_hour' => $downtime['dtp_end_time'],
-                    'start_timestamp' => $startTimestamp,
-                    'end_timestamp' => $endTimestamp,
-                    'host_id' => $downtime['host_id'],
-                    'host_name' => $downtime['host_name'],
-                    'service_id' => $downtime['service_id'],
-                    'service_description' => $downtime['service_description'],
-                    'fixed' => $downtime['dtp_fixed'],
-                    'duration' => $downtime['dtp_duration'],
-                    'tomorrow' => $tomorrow
-                );
+                $approachingDowntimes[] = ['dt_id' => $downtime['dt_id'], 'dt_activate' => $downtime['dt_activate'], 'start_hour' => $downtime['dtp_start_time'], 'end_hour' => $downtime['dtp_end_time'], 'start_timestamp' => $startTimestamp, 'end_timestamp' => $endTimestamp, 'host_id' => $downtime['host_id'], 'host_name' => $downtime['host_name'], 'service_id' => $downtime['service_id'], 'service_description' => $downtime['service_description'], 'fixed' => $downtime['dtp_fixed'], 'duration' => $downtime['dtp_duration'], 'tomorrow' => $tomorrow];
             }
         }
 
         return $approachingDowntimes;
     }
 
-    public function insertCache($downtime)
+    /**
+     * @param $downtime
+     *
+     * @return void
+     * @throws PDOException
+     */
+    public function insertCache($downtime): void
     {
         $query = 'INSERT INTO downtime_cache '
             . '(downtime_id, start_timestamp, end_timestamp, '
@@ -417,12 +449,22 @@ class CentreonDowntimeBroker extends CentreonDowntime
         $res = $this->db->query($query);
     }
 
-    public function purgeCache()
+    /**
+     * @return void
+     * @throws PDOException
+     */
+    public function purgeCache(): void
     {
         $query = 'DELETE FROM downtime_cache WHERE start_timestamp < ' . time();
         $this->db->query($query);
     }
 
+    /**
+     * @param $downtime
+     *
+     * @return bool
+     * @throws PDOException
+     */
     public function isScheduled($downtime)
     {
         $isScheduled = false;
@@ -450,9 +492,11 @@ class CentreonDowntimeBroker extends CentreonDowntime
      *
      * @param int $host_id The host id for command
      * @param string $cmd The command to send
-     * @return The command return code
+     *
+     * @return void The command return code
+     * @throws PDOException
      */
-    public function setCommand($host_id, $cmd)
+    public function setCommand($host_id, $cmd): void
     {
         static $cmdData = null;
         static $remoteCommands = [];
@@ -480,8 +524,10 @@ class CentreonDowntimeBroker extends CentreonDowntime
 
     /**
      * Send all commands
+     *
+     * @return void
      */
-    public function sendCommands()
+    public function sendCommands(): void
     {
         $remoteCommands = implode(PHP_EOL, $this->remoteCommands);
         if ($remoteCommands) {

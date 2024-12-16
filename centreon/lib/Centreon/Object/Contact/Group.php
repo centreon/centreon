@@ -35,14 +35,18 @@
  
 require_once __DIR__ . "/../Object.php";
 
+
 /**
- * Used for interacting with Contact Group objects
+ * Class
  *
- * @author sylvestre
+ * @class Centreon_Object_Contact_Group
  */
 class Centreon_Object_Contact_Group extends Centreon_Object
 {
+    /** @var string */
     protected $table = "contactgroup";
+    /** @var string */
     protected $primaryKey = "cg_id";
+    /** @var string */
     protected $uniqueLabelField = "cg_name";
 }

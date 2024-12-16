@@ -1,8 +1,8 @@
-import { ScaleLinear } from 'd3-scale';
+import type { ScaleLinear } from 'd3-scale';
 import { equals, reject } from 'ramda';
 
-import { Line, TimeValue } from '../../../../common/timeSeries/models';
-import { GlobalAreaLines, ThresholdType } from '../../../models';
+import type { Line, TimeValue } from '../../../../common/timeSeries/models';
+import { type GlobalAreaLines, ThresholdType } from '../../../models';
 
 export interface Data {
   lineColor: string;
@@ -95,7 +95,7 @@ export const findLineOfOriginMetricThreshold = (
 
   const originMetric = metrics.find((element) => element);
 
-  return reject((line: Line) => !equals(line.name, originMetric), lines);
+  return reject((line: Line) => !equals(line.metric, originMetric), lines);
 };
 
 export const canDisplayThreshold = (

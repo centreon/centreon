@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { useAtom } from 'jotai';
-import { equals } from 'ramda';
+import { equals, isEmpty, isNotNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Column, useSnackbar } from '@centreon/ui';
+import { type Column, useSnackbar } from '@centreon/ui';
 
-import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
+import type { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
 import {
   resourcesToAcknowledgeAtom,
@@ -14,11 +14,17 @@ import {
   resourcesToSetDowntimeAtom,
   selectedResourcesAtom
 } from '../atom';
-import { PanelOptions } from '../models';
+import type { PanelOptions } from '../models';
 
 import useColumns from './Columns/useColumns';
-import { DisplayType, NamedEntity, ResourceListing, Ticket } from './models';
+import {
+  DisplayType,
+  type NamedEntity,
+  type ResourceListing,
+  type Ticket
+} from './models';
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
+import useIsOpenTicketInstalled from './useIsOpenTicketInstalled';
 import useLoadResources from './useLoadResources';
 
 interface UseListingState {
@@ -52,7 +58,7 @@ interface UseListingProps
     'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
   > {
   changeViewMode?: (displayType) => void;
-  displayResources: 'all' | 'withTicket' | 'withoutTicket';
+  displayResources: 'withTicket' | 'withoutTicket';
   displayType: DisplayType;
   hostSeverities: Array<NamedEntity>;
   isDownHostHidden: boolean;
@@ -118,6 +124,20 @@ const useListing = ({
     resourcesToSetDowntimeAtom
   );
 
+  useEffect(() => {
+    if (isOpenTicketEnabled) {
+      setPanelOptions?.({ displayType: DisplayType.Service });
+
+      return;
+    }
+
+    setPanelOptions?.({ provider: {} });
+  }, [isOpenTicketEnabled]);
+
+  const isOpenTicketInstalled = useIsOpenTicketInstalled();
+
+  const hasProvider = isNotNil(provider) && !isEmpty(provider);
+
   const { data, isLoading } = useLoadResources({
     dashboardId,
     displayResources,
@@ -139,7 +159,9 @@ const useListing = ({
     states,
     statusTypes,
     statuses,
-    widgetPrefixQuery
+    widgetPrefixQuery,
+    isOpenTicketEnabled:
+      isOpenTicketInstalled && hasProvider && isOpenTicketEnabled
   });
 
   const goToResourceStatusPage = (row): void => {
@@ -206,7 +228,7 @@ const useListing = ({
       return;
     }
 
-    setPanelOptions?.({ displayType: DisplayType.All });
+    setPanelOptions?.({ displayType: DisplayType.Service });
   }, [hasMetaService]);
 
   const cancelAcknowledge = (): void => {

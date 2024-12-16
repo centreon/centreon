@@ -74,7 +74,7 @@ switch ($o) {
                         || ($ishost && $oreon->user->access->checkAction("host_schedule_downtime"))
                         || (!$ishost && $oreon->user->access->checkAction("service_schedule_downtime"))
                     ) {
-                        $ecObj->deleteDowntime($res[0], array($res[1] . ';' . $res[2] => 'on'));
+                        $ecObj->deleteDowntime($res[0], [$res[1] . ';' . $res[2] => 'on']);
                         deleteDowntimeInDb($res[2]);
                     }
                 }
@@ -97,7 +97,7 @@ switch ($o) {
                         || ($ishost && $oreon->user->access->checkAction("host_schedule_downtime"))
                         || (!$ishost && $oreon->user->access->checkAction("service_schedule_downtime"))
                     ) {
-                        $ecObj->deleteDowntime($res[0], array($res[1] . ';' . $res[2] => 'on'));
+                        $ecObj->deleteDowntime($res[0], [$res[1] . ';' . $res[2] => 'on']);
                     }
                 }
             }

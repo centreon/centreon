@@ -33,7 +33,7 @@ use Core\TimePeriod\Application\UseCase\AddTimePeriod\{AddTimePeriod, AddTimePer
 use Core\TimePeriod\Domain\Model\{Day, ExtraTimePeriod, Template, TimePeriod, TimeRange};
 use Tests\Core\TimePeriod\Application\UseCase\ExtractResponse;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->readRepository = $this->createMock(ReadTimePeriodRepositoryInterface::class);
     $this->writeRepository = $this->createMock(WriteTimePeriodRepositoryInterface::class);
     $this->formatter = $this->createMock(JsonFormatter::class);
@@ -53,7 +53,7 @@ beforeEach(function () {
     );
 });
 
-it('should present an ForbiddenResponse whenuser has insufficient rights', function () {
+it('should present an ForbiddenResponse whenuser has insufficient rights', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -69,7 +69,7 @@ it('should present an ForbiddenResponse whenuser has insufficient rights', funct
         ->toBe(TimePeriodException::editNotAllowed()->getMessage());
 });
 
-it('should present an ErrorResponse when an exception is thrown', function () {
+it('should present an ErrorResponse when an exception is thrown', function (): void {
 
     $this->user
         ->expects($this->once())
@@ -91,7 +91,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->toBe(TimePeriodException::errorWhenAddingTimePeriod()->getMessage());
 });
 
-it('should present an ErrorResponse when the name already exists', function () {
+it('should present an ErrorResponse when the name already exists', function (): void {
     $nameToFind = 'fake_name';
 
     $this->user
@@ -115,7 +115,7 @@ it('should present an ErrorResponse when the name already exists', function () {
         ->toBe(TimePeriodException::nameAlreadyExists($nameToFind)->getMessage());
 });
 
-it('should present an ErrorResponse when the new time period cannot be found after creation', function () {
+it('should present an ErrorResponse when the new time period cannot be found after creation', function (): void {
     $nameToFind = $this->timePeriodRequest->name;
 
     $this->user
@@ -150,7 +150,7 @@ it('should present an ErrorResponse when the new time period cannot be found aft
         ->toBe(TimePeriodException::errorWhenAddingTimePeriod()->getMessage());
 });
 
-it('should present a correct CreatedResponse object after creation', function () {
+it('should present a correct CreatedResponse object after creation', function (): void {
     $fakeName = $this->timePeriodRequest->name;
 
     $this->user

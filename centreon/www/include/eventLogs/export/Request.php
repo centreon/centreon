@@ -35,7 +35,7 @@ class Request
     private const STATUS_CRITICAL = 2;
     private const STATUS_UNKNOWN = 3;
     private const STATUS_ACKNOWLEDGEMENT = 5;
-    private ?int $is_admin;
+    private ?int $is_admin = null;
     /**
      * @var array<string,mixed>
      */
