@@ -19617,3 +19617,9 @@ msgstr "minute"
 
 msgid "There are errors in the form."
 msgstr "Il y a des erreurs dans le formulaire."
+
+msgid "If you click on Discard, your changes will not be saved."
+msgstr "Si vous cliquez sur Annuler, vos changements ne seront pas sauvegardés."
+
+msgid "Do you want to resolve the errors?"
+msgstr "Voulez-vous résoudre les erreurs ?"
