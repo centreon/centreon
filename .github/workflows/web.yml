@@ -92,10 +92,17 @@ jobs:
             - 'centreon/tests/**'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
+      - uses: ./.github/actions/changes-trigger-checks
+        id: changes_trigger_checks
+        with:
+          has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes || true }}
+          has_backend_changes: ${{ steps.filter.outputs.has_backend_changes || true }}
+          has_test_changes: ${{ steps.filter.outputs.has_test_changes || true }}
+
   gherkin-lint:
     runs-on: ubuntu-22.04
     needs: [changes]
-    if: ${{ needs.changes.outputs.has_features_changes == 'true' }}
+    if: ${{ needs.changes.outputs.has_test_changes == 'true' }}
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
