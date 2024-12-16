@@ -20,14 +20,29 @@
 
 namespace ConfigGenerateRemote\Relations;
 
+use CentreonDB;
+use CentreonDbException;
+use CentreonLog;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use Exception;
+use PDO;
+use Pimple\Container;
 
+/**
+ * Class
+ *
+ * @class MacroHost
+ * @package ConfigGenerateRemote\Relations
+ */
 class MacroHost extends AbstractObject
 {
-    private \CentreonDB $databaseConnection;
-
+    /** @var CentreonDB */
+    private CentreonDB $databaseConnection;
+    /** @var string */
     protected $table = 'on_demand_macro_host';
+    /** @var string */
     protected $generateFilename = 'on_demand_macro_host.infile';
+    /** @var string[] */
     protected $attributesWrite = [
         'host_host_id',
         'host_macro_name',
@@ -37,19 +52,19 @@ class MacroHost extends AbstractObject
     ];
 
     /**
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         try {
             parent::__construct($dependencyInjector);
             if (!isset($this->backendInstance->db)) {
-                throw new \Exception('Database connection is not set');
+                throw new Exception('Database connection is not set');
             }
             $this->databaseConnection = $this->backendInstance->db;
-        } catch (\Exception $ex) {
-            \CentreonLog::create()->error(
-                logTypeId: \CentreonLog::TYPE_BUSINESS_LOG,
+        } catch (Exception $ex) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
                 message: 'Cannot connect to database: ' . $ex->getMessage(),
                 exception: $ex
             );
@@ -79,17 +94,17 @@ class MacroHost extends AbstractObject
                 WHERE host_host_id = :host_id"
             );
             $this->databaseConnection->executePreparedQuery($statement, ['host_id' => $hostId]);
-            $macros = $statement->fetchAll(\PDO::FETCH_ASSOC);
+            $macros = $statement->fetchAll(PDO::FETCH_ASSOC);
             $this->writeMacrosHost($hostId, $macros);
-            \CentreonLog::create()->info(
-                logTypeId: \CentreonLog::TYPE_BUSINESS_LOG,
+            CentreonLog::create()->info(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
                 message: 'Host macros generated',
                 customContext: [$macros]
             );
             return $macros;
-        } catch (\CentreonDbException $ex) {
-            \CentreonLog::create()->error(
-                logTypeId: \CentreonLog::TYPE_BUSINESS_LOG,
+        } catch (CentreonDbException $ex) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
                 message: $ex->getMessage(),
                 customContext: ['host_id' => $hostId],
                 exception: $ex,
@@ -109,6 +124,8 @@ class MacroHost extends AbstractObject
      *      "description":null|string,
      *      "host_host_id":int
      *  }> $macros
+     *
+     * @throws Exception
      */
     private function writeMacrosHost(int $hostId, array $macros): void
     {

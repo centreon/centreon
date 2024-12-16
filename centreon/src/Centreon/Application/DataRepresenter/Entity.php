@@ -74,7 +74,7 @@ class Entity implements JsonSerializable
      */
     public static function dismount(object $object): array
     {
-        $reflectionClass = new ReflectionClass(get_class($object));
+        $reflectionClass = new ReflectionClass($object::class);
         $array = [];
 
         foreach ($reflectionClass->getProperties() as $property) {

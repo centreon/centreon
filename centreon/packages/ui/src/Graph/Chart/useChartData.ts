@@ -13,11 +13,11 @@ import {
   toLower
 } from 'ramda';
 
-import { LineChartData } from '../common/models';
+import type { LineChartData } from '../common/models';
 import { emphasizeCurveColor } from '../common/utils';
 
 import { adjustGraphData } from './helpers';
-import { Data } from './models';
+import type { Data } from './models';
 
 interface GraphDataResult {
   adjustedData?: Data;

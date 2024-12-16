@@ -37,10 +37,15 @@
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationContact
+ */
 class CentreonConfigurationContact extends CentreonConfigurationObjects
 {
     /**
-     * CentreonConfigurationContact constructor.
+     * CentreonConfigurationContact constructor
      */
     public function __construct()
     {
@@ -70,37 +75,23 @@ class CentreonConfigurationContact extends CentreonConfigurationObjects
             $range = '';
         }
 
-        $filterContact = array('contact_register' => '1');
+        $filterContact = ['contact_register' => '1'];
         if (isset($this->arguments['q'])) {
-            $filterContact['contact_name'] = array('LIKE', '%' . $this->arguments['q'] . '%');
-            $filterContact['contact_alias'] = array('OR', 'LIKE', '%' . $this->arguments['q'] . '%');
+            $filterContact['contact_name'] = ['LIKE', '%' . $this->arguments['q'] . '%'];
+            $filterContact['contact_alias'] = ['OR', 'LIKE', '%' . $this->arguments['q'] . '%'];
         }
 
         $acl = new CentreonACL($centreon->user->user_id);
 
         $contacts = $acl->getContactAclConf(
-            array(
-                'fields' => array('contact_id', 'contact_name'),
-                'get_row' => 'contact_name',
-                'keys' => array('contact_id'),
-                'conditions' => $filterContact,
-                'order' => array('contact_name'),
-                'pages' => $range,
-                'total' => true
-            )
+            ['fields' => ['contact_id', 'contact_name'], 'get_row' => 'contact_name', 'keys' => ['contact_id'], 'conditions' => $filterContact, 'order' => ['contact_name'], 'pages' => $range, 'total' => true]
         );
 
-        $contactList = array();
+        $contactList = [];
         foreach ($contacts['items'] as $id => $contactName) {
-            $contactList[] = array(
-                'id' => $id,
-                'text' => $contactName
-            );
+            $contactList[] = ['id' => $id, 'text' => $contactName];
         }
 
-        return array(
-            'items' => $contactList,
-            'total' => $contacts['total']
-        );
+        return ['items' => $contactList, 'total' => $contacts['total']];
     }
 }

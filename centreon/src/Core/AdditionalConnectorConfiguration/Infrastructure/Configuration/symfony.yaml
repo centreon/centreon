@@ -35,3 +35,7 @@ services:
         arguments:
             $writeVaultAccRepositories: !tagged_iterator 'acc.vault.repositories.write'
             $readVaultAccRepositories: !tagged_iterator 'acc.vault.repositories.read'
+
+    Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface:
+        class: Core\AdditionalConnectorConfiguration\Infrastructure\Repository\DbReadAccRepository
+        public: true

@@ -39,6 +39,9 @@ class ImagesWebserviceTest extends TestCase
 
     public const METHOD_GET_LIST = 'getList';
 
+    /** @var ImagesWebservice|(ImagesWebservice&object&\PHPUnit\Framework\MockObject\MockObject)|(ImagesWebservice&\PHPUnit\Framework\MockObject\MockObject)|(object&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject */
+    public $webservice;
+
     /**
      * {@inheritdoc}
      */

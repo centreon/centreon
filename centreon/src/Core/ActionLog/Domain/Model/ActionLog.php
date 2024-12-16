@@ -30,7 +30,7 @@ class ActionLog
     public const ACTION_TYPE_ENABLE = 'enable';
     public const ACTION_TYPE_DISABLE = 'disable';
 
-    private ?int $id;
+    private ?int $id = null;
 
     private \DateTime $creationDate;
 

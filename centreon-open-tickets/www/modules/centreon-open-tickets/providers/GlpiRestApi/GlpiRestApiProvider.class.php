@@ -381,7 +381,7 @@ class GlpiRestApiProvider extends AbstractProvider
         $tpl = $this->initSmartyTemplate('providers/GlpiRestApi/templates');
         $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('img_brick', './modules/centreon-open-tickets/images/brick.png');
-        $tpl->assign('header', array('GlpiRestApi' => _("Glpi Rest Api")));
+        $tpl->assign('header', ['GlpiRestApi' => _("Glpi Rest Api")]);
         $tpl->assign('webServiceUrl', './api/internal.php');
 
         /*
@@ -401,36 +401,16 @@ class GlpiRestApiProvider extends AbstractProvider
             $this->getFormValue('timeout') . '" :>';
 
         // this array is here to link a label with the html code that we've wrote above
-        $array_form = array(
-            'address' => array(
-                'label' => _('Address') . $this->required_field,
-                'html' => $address_html
-            ),
-            'api_path' => array(
-                'label' => _('API path') . $this->required_field,
-                'html' => $api_path_html
-            ),
-            'protocol' => array(
-                'label' => _('Protocol') . $this->required_field,
-                'html' => $protocol_html
-            ),
-            'user_token' => array(
-                'label' => _('User token') . $this->required_field,
-                'html' => $user_token_html
-            ),
-            'app_token' => array(
-                'label' => _('APP token') . $this->required_field,
-                'html' => $app_token_html
-            ),
-            'timeout' => array(
-                'label' => _('Timeout'),
-                'html' => $timeout_html
-            ),
+        $array_form = [
+            'address' => ['label' => _('Address') . $this->required_field, 'html' => $address_html],
+            'api_path' => ['label' => _('API path') . $this->required_field, 'html' => $api_path_html],
+            'protocol' => ['label' => _('Protocol') . $this->required_field, 'html' => $protocol_html],
+            'user_token' => ['label' => _('User token') . $this->required_field, 'html' => $user_token_html],
+            'app_token' => ['label' => _('APP token') . $this->required_field, 'html' => $app_token_html],
+            'timeout' => ['label' => _('Timeout'), 'html' => $timeout_html],
             //we add a key to our array
-            'mappingTicketLabel' => array(
-                'label' => _('Mapping ticket arguments')
-            )
-        );
+            'mappingTicketLabel' => ['label' => _('Mapping ticket arguments')],
+        ];
 
         // html
         $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" ' .
@@ -455,16 +435,7 @@ class GlpiRestApiProvider extends AbstractProvider
             '</select>';
 
         // we asociate the label with the html code but for the arguments that we've been working on lately
-        $array_form['mappingTicket'] = array(
-          array(
-            'label' => _('Argument'),
-            'html' => $mappingTicketArg_html
-          ),
-          array(
-            'label' => _('Value'),
-            'html' => $mappingTicketValue_html
-          )
-        );
+        $array_form['mappingTicket'] = [['label' => _('Argument'), 'html' => $mappingTicketArg_html], ['label' => _('Value'), 'html' => $mappingTicketValue_html]];
 
         $tpl->assign('form', $array_form);
         $this->config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
@@ -548,11 +519,8 @@ class GlpiRestApiProvider extends AbstractProvider
     protected function assignGlpiEntities($entry, &$groups_order, &$groups)
     {
         // add a label to our entry and activate sorting or not.
-        $groups[$entry['Id']] = array(
-            'label' => _($entry['Label']) .
-            (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ),
-            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        $groups[$entry['Id']] = ['label' => _($entry['Label']) .
+        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         // adds our entry in the group order array
         $groups_order[] = $entry['Id'];
 
@@ -568,7 +536,7 @@ class GlpiRestApiProvider extends AbstractProvider
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $e->getMessage();
         }
-        $result = array();
+        $result = [];
 
         foreach ($listEntities['myentities'] ?? [] as $entity) {
             // foreach entity found, if we don't have any filter configured,
@@ -602,11 +570,8 @@ class GlpiRestApiProvider extends AbstractProvider
     protected function assignGlpiRequesters($entry, &$groups_order, &$groups)
     {
         // add a label to our entry and activate sorting or not.
-        $groups[$entry['Id']] = array(
-            'label' => _($entry['Label']) .
-            (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ),
-            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        $groups[$entry['Id']] = ['label' => _($entry['Label']) .
+        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         // adds our entry in the group order array
         $groups_order[] = $entry['Id'];
 
@@ -622,7 +587,7 @@ class GlpiRestApiProvider extends AbstractProvider
             $groups[$entry['Id']]['msg_error'] = $e->getMessage();
         }
 
-        $result = array();
+        $result = [];
 
         foreach ($listRequesters ?? [] as $requester) {
             // foreach requester found, if we don't have any filter configured,
@@ -656,11 +621,8 @@ class GlpiRestApiProvider extends AbstractProvider
     protected function assignGlpiUsers($entry, &$groups_order, &$groups)
     {
         // add a label to our entry and activate sorting or not.
-        $groups[$entry['Id']] = array(
-            'label' => _($entry['Label']) .
-            (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ),
-            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        $groups[$entry['Id']] = ['label' => _($entry['Label']) .
+        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         // adds our entry in the group order array
         $groups_order[] = $entry['Id'];
 
@@ -676,7 +638,7 @@ class GlpiRestApiProvider extends AbstractProvider
             $groups[$entry['Id']]['msg_error'] = $e->getMessage();
         }
 
-        $result = array();
+        $result = [];
 
         foreach ($listUsers ?? [] as $user) {
             // foreach user found, if we don't have any filter configured,
@@ -710,11 +672,8 @@ class GlpiRestApiProvider extends AbstractProvider
     protected function assignGlpiGroups($entry, &$groups_order, &$groups)
     {
         // add a label to our entry and activate sorting or not.
-        $groups[$entry['Id']] = array(
-            'label' => _($entry['Label']) .
-            (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ),
-            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        $groups[$entry['Id']] = ['label' => _($entry['Label']) .
+        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         // adds our entry in the group order array
         $groups_order[] = $entry['Id'];
 
@@ -730,7 +689,7 @@ class GlpiRestApiProvider extends AbstractProvider
             $groups[$entry['Id']]['msg_error'] = $e->getMessage();
         }
 
-        $result = array();
+        $result = [];
 
         // using $glpiGroup to avoid confusion with $groups and $groups_order
         foreach ($listGroups ?? [] as $glpiGroup) {
@@ -765,11 +724,8 @@ class GlpiRestApiProvider extends AbstractProvider
     protected function assignGlpiSuppliers($entry, &$groups_order, &$groups)
     {
         // add a label to our entry and activate sorting or not.
-        $groups[$entry['Id']] = array(
-            'label' => _($entry['Label']) .
-            (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ),
-            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        $groups[$entry['Id']] = ['label' => _($entry['Label']) .
+        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         // adds our entry in the group order array
         $groups_order[] = $entry['Id'];
 
@@ -785,7 +741,7 @@ class GlpiRestApiProvider extends AbstractProvider
             $groups[$entry['Id']]['msg_error'] = $e->getMessage();
         }
 
-        $result = array();
+        $result = [];
 
         foreach ($listSuppliers ?? [] as $supplier) {
             // foreach supplier found, if we don't have any filter configured,
@@ -819,11 +775,8 @@ class GlpiRestApiProvider extends AbstractProvider
     protected function assignItilCategories($entry, &$groups_order, &$groups)
     {
         // add a label to our entry and activate sorting or not.
-        $groups[$entry['Id']] = array(
-            'label' => _($entry['Label']) .
-            (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ),
-            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-        );
+        $groups[$entry['Id']] = ['label' => _($entry['Label']) .
+        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         // adds our entry in the group order array
         $groups_order[] = $entry['Id'];
 
@@ -839,7 +792,7 @@ class GlpiRestApiProvider extends AbstractProvider
             $groups[$entry['Id']]['msg_error'] = $e->getMessage();
         }
 
-        $result = array();
+        $result = [];
 
         foreach ($listCategories ?? [] as $category) {
             // foreach category found, if we don't have any filter configured,
@@ -865,7 +818,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @return {array} telling us if there is a missing parameter
     */
     public function validateFormatPopup() {
-        $result = array('code' => 0, 'message' => 'ok');
+        $result = ['code' => 0, 'message' => 'ok'];
         $this->validateFormatPopupLists($result);
 
         return $result;
@@ -886,12 +839,7 @@ class GlpiRestApiProvider extends AbstractProvider
     protected function doSubmit($db_storage, $contact, $host_problems, $service_problems, $extraTicketArguments = [])
     {
         // initiate a result array
-        $result = array(
-            'ticket_id' => null,
-            'ticket_error_message' => null,
-            'ticket_is_ok' => 0,
-            'ticket_time' => time()
-        );
+        $result = ['ticket_id' => null, 'ticket_error_message' => null, 'ticket_is_ok' => 0, 'ticket_time' => time()];
 
         // initiate smarty variables
         $tpl = new Smarty();
@@ -931,15 +879,7 @@ class GlpiRestApiProvider extends AbstractProvider
         }
 
         // we save ticket data in our database
-        $this->saveHistory($db_storage, $result, array(
-            'contact' => $contact,
-            'host_problems' => $host_problems,
-            'service_problems' => $service_problems,
-            'ticket_value' => $ticketId,
-            'subject' => $ticketArguments[$this->internal_arg_name[self::ARG_TITLE]],
-            'data_type' => self::DATA_TYPE_JSON,
-            'data' => json_encode($ticketArguments)
-        ));
+        $this->saveHistory($db_storage, $result, ['contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems, 'ticket_value' => $ticketId, 'subject' => $ticketArguments[$this->internal_arg_name[self::ARG_TITLE]], 'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode($ticketArguments)]);
         return $result;
     }
 
@@ -977,11 +917,7 @@ class GlpiRestApiProvider extends AbstractProvider
         $apiAddress = $info['protocol'] . '://' . $info['address'] . $info['api_path'] . '/initSession';
         $info['method'] = 0;
         // set headers
-        $info['headers'] = array(
-            'App-Token: ' . $info['app_token'],
-            'Authorization: user_token ' . $info['user_token'],
-            'Content-Type: application/json'
-        );
+        $info['headers'] = ['App-Token: ' . $info['app_token'], 'Authorization: user_token ' . $info['user_token'], 'Content-Type: application/json'];
 
         // initiate our curl options
         curl_setopt($curl, CURLOPT_URL, $apiAddress);
@@ -1016,11 +952,7 @@ class GlpiRestApiProvider extends AbstractProvider
         $info['query_endpoint'] = '/initSession';
         $info['method'] = 0;
         // set headers
-        $info['headers'] = array(
-            'App-Token: ' . $this->getFormValue('app_token'),
-            'Authorization: user_token ' . $this->getFormValue('user_token'),
-            'Content-Type: application/json'
-        );
+        $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Authorization: user_token ' . $this->getFormValue('user_token'), 'Content-Type: application/json'];
         // try to call the rest api
         try {
             $curlResult = $this->curlQuery($info);
@@ -1188,10 +1120,7 @@ class GlpiRestApiProvider extends AbstractProvider
         $info['query_endpoint'] = '/getMyEntities?is_recursive=1';
         $info['method'] = 0;
         // set headers
-        $info['headers'] = array(
-            'App-Token: ' . $this->getFormValue('app_token'),
-            'Content-Type: application/json'
-        );
+        $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Content-Type: application/json'];
         // try to get entities from Glpi
         try {
             // the variable is going to be used outside of this method.
@@ -1222,10 +1151,7 @@ class GlpiRestApiProvider extends AbstractProvider
                 $info['query_endpoint'] = '/getFullSession';
                 $info['method'] = 0;
                 // set headers
-                $info['headers'] = array(
-                    'App-Token: ' . $this->getFormValue('app_token'),
-                    'Content-Type: application/json'
-                );
+                $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Content-Type: application/json'];
 
                 // get user Id from glpi
                 $result = $this->curlQuery($info);
@@ -1253,10 +1179,7 @@ class GlpiRestApiProvider extends AbstractProvider
         $info['query_endpoint'] = '/User/' . $this->getUserId() . '/group';
         $info['method'] = 0;
         // set headers
-        $info['headers'] = array(
-            'App-Token: ' . $this->getFormValue('app_token'),
-            'Content-Type: application/json'
-        );
+        $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Content-Type: application/json'];
         // try to get groups from Glpi
         try {
             // the variable is going to be used outside of this method.
@@ -1281,10 +1204,7 @@ class GlpiRestApiProvider extends AbstractProvider
         $info['query_endpoint'] = '/Supplier';
         $info['method'] = 0;
         // set headers
-        $info['headers'] = array(
-            'App-Token: ' . $this->getFormValue('app_token'),
-            'Content-Type: application/json'
-        );
+        $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Content-Type: application/json'];
         // try to get suppliers from Glpi
         try {
             // the variable is going to be used outside of this method.
@@ -1309,10 +1229,7 @@ class GlpiRestApiProvider extends AbstractProvider
         $info['query_endpoint'] = '/itilCategory';
         $info['method'] = 0;
         // set headers
-        $info['headers'] = array(
-            'App-Token: ' . $this->getFormValue('app_token'),
-            'Content-Type: application/json'
-        );
+        $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Content-Type: application/json'];
         // try to get itil categories from Glpi
         try {
             // the variable is going to be used outside of this method.
@@ -1337,10 +1254,7 @@ class GlpiRestApiProvider extends AbstractProvider
         $info['query_endpoint'] = '/User';
         $info['method'] = 0;
         // set headers
-        $info['headers'] = array(
-            'App-Token: ' . $this->getFormValue('app_token'),
-            'Content-Type: application/json'
-        );
+        $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Content-Type: application/json'];
         // try to get users from Glpi
         try {
             // the variable is going to be used outside of this method.
@@ -1371,20 +1285,9 @@ class GlpiRestApiProvider extends AbstractProvider
         $info['query_endpoint'] = '/Ticket';
         $info['method'] = 1;
         // set headers
-        $info['headers'] = array(
-            'App-Token: ' . $this->getFormValue('app_token'),
-            'Content-Type: application/json'
-        );
+        $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Content-Type: application/json'];
 
-        $fields['input'] = array(
-            'name' => $ticketArguments['title'],
-            'content' => $ticketArguments['content'],
-            'entities_id' => $ticketArguments['entity'],
-            'urgency' => $ticketArguments['urgency'],
-            'itilcategories_id' => $ticketArguments['category'],
-            'impact' => $ticketArguments['impact'],
-            'priority' => $ticketArguments['priority']
-        );
+        $fields['input'] = ['name' => $ticketArguments['title'], 'content' => $ticketArguments['content'], 'entities_id' => $ticketArguments['entity'], 'urgency' => $ticketArguments['urgency'], 'itilcategories_id' => $ticketArguments['category'], 'impact' => $ticketArguments['impact'], 'priority' => $ticketArguments['priority']];
 
         $info['postFields'] = json_encode($fields);
 
@@ -1450,16 +1353,9 @@ class GlpiRestApiProvider extends AbstractProvider
         $info['query_endpoint'] = '/Ticket/' . $ticketId . '/Ticket_User';
         $info['method'] = 1;
         // set headers
-        $info['headers'] = array(
-            'App-Token: ' . $this->getFormValue('app_token'),
-            'Content-Type: application/json'
-        );
+        $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Content-Type: application/json'];
 
-        $fields['input'] = array(
-            'type' => $ticketArguments['user_role'],
-            'users_id' => $ticketArguments['user'],
-            'tickets_id' => $ticketId
-        );
+        $fields['input'] = ['type' => $ticketArguments['user_role'], 'users_id' => $ticketArguments['user'], 'tickets_id' => $ticketId];
 
         $info['postFields'] = json_encode($fields);
 
@@ -1486,16 +1382,9 @@ class GlpiRestApiProvider extends AbstractProvider
         $info['query_endpoint'] = '/Ticket/' . $ticketId . '/group_ticket';
         $info['method'] = 1;
         // set headers
-        $info['headers'] = array(
-            'App-Token: ' . $this->getFormValue('app_token'),
-            'Content-Type: application/json'
-        );
+        $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Content-Type: application/json'];
 
-        $fields['input'] = array(
-            'type' => $ticketArguments['group_role'],
-            'groups_id' => $ticketArguments['group'],
-            'tickets_id' => $ticketId
-        );
+        $fields['input'] = ['type' => $ticketArguments['group_role'], 'groups_id' => $ticketArguments['group'], 'tickets_id' => $ticketId];
 
         $info['postFields'] = json_encode($fields);
 
@@ -1522,16 +1411,9 @@ class GlpiRestApiProvider extends AbstractProvider
         $info['query_endpoint'] = '/Ticket/' . $ticketId . '/supplier_ticket';
         $info['method'] = 1;
         // set headers
-        $info['headers'] = array(
-            'App-Token: ' . $this->getFormValue('app_token'),
-            'Content-Type: application/json'
-        );
+        $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Content-Type: application/json'];
 
-        $fields['input'] = array(
-            'type' => 2,
-            'suppliers_id' => $ticketArguments['supplier'],
-            'tickets_id' => $ticketId
-        );
+        $fields['input'] = ['type' => 2, 'suppliers_id' => $ticketArguments['supplier'], 'tickets_id' => $ticketId];
 
         $info['postFields'] = json_encode($fields);
 
@@ -1558,16 +1440,9 @@ class GlpiRestApiProvider extends AbstractProvider
         $info['query_endpoint'] = '/Ticket/' . $ticketId . '/Ticket_User';
         $info['method'] = 1;
         // set headers
-        $info['headers'] = array(
-            'App-Token: ' . $this->getFormValue('app_token'),
-            'Content-Type: application/json'
-        );
+        $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Content-Type: application/json'];
 
-        $fields['input'] = array(
-            'type' => 1,
-            'users_id' => $ticketArguments['requester'],
-            'tickets_id' => $ticketId
-        );
+        $fields['input'] = ['type' => 1, 'users_id' => $ticketArguments['requester'], 'tickets_id' => $ticketId];
 
         $info['postFields'] = json_encode($fields);
 
@@ -1594,15 +1469,10 @@ class GlpiRestApiProvider extends AbstractProvider
         $info['method'] = 1;
         $info['custom_request'] = 'PUT';
         // set headers
-        $info['headers'] = array(
-            'App-Token: ' . $this->getFormValue('app_token'),
-            'Content-Type: application/json'
-        );
+        $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Content-Type: application/json'];
 
         // status 6 = closed ticket
-        $fields['input'] = array(
-            'status' => 6
-        );
+        $fields['input'] = ['status' => 6];
 
         $info['postFields'] = json_encode($fields);
 
@@ -1622,7 +1492,7 @@ class GlpiRestApiProvider extends AbstractProvider
     *
     * @return void
     */
-    public function closeTicket(&$tickets)
+    public function closeTicket(&$tickets): void
     {
         if ($this->doCloseTicket()) {
             foreach ($tickets as $k => $v) {

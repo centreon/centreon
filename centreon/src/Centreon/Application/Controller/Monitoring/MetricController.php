@@ -244,7 +244,7 @@ class MetricController extends AbstractController
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
-        list($start, $end) = $this->extractDatesFromRequestParameters($requestParameters);
+        [$start, $end] = $this->extractDatesFromRequestParameters($requestParameters);
 
         /**
          * @var Contact $contact
@@ -277,7 +277,7 @@ class MetricController extends AbstractController
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
-        list($start, $end) = $this->extractDatesFromRequestParameters($requestParameters);
+        [$start, $end] = $this->extractDatesFromRequestParameters($requestParameters);
 
         /**
          * @var Contact $contact
@@ -306,7 +306,7 @@ class MetricController extends AbstractController
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
-        list($start, $end) = $this->extractDatesFromRequestParameters($requestParameters);
+        [$start, $end] = $this->extractDatesFromRequestParameters($requestParameters);
 
         /**
          * @var Contact $contact
@@ -344,7 +344,7 @@ class MetricController extends AbstractController
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
-        list($start, $end) = $this->extractDatesFromRequestParameters($requestParameters);
+        [$start, $end] = $this->extractDatesFromRequestParameters($requestParameters);
 
         /**
          * @var Contact $contact

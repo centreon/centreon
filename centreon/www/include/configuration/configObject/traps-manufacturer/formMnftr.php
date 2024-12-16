@@ -44,7 +44,7 @@ function myDecodeMnftr($arg)
     return ($arg);
 }
 
-$mnftr = array();
+$mnftr = [];
 if (($o === "c" || $o === "w") && $id) {
     $statement = $pearDB->prepare("SELECT * FROM traps_vendor WHERE id = :id LIMIT 1");
     # Set base value
@@ -57,8 +57,8 @@ if (($o === "c" || $o === "w") && $id) {
 ##########################################################
 # Var information to format the element
 #
-$attrsText = array("size" => "50");
-$attrsTextarea = array("rows" => "5", "cols" => "40");
+$attrsText = ["size" => "50"];
+$attrsTextarea = ["rows" => "5", "cols" => "40"];
 #
 ## Form begin
 #
@@ -131,20 +131,20 @@ if ($o == "w") {
             "button",
             "change",
             _("Modify"),
-            array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&id=" . $id . "'")
+            ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&id=" . $id . "'"]
         );
     }
     $form->setDefaults($mnftr);
     $form->freeze();
 } # Modify a Command information
 elseif ($o == "c") {
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $form->setDefaults($mnftr);
 } # Add a Command information
 elseif ($o == "a") {
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 }
 
 $valid = false;

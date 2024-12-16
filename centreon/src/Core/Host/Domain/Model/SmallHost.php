@@ -30,8 +30,8 @@ use Core\Common\Domain\TrimmedString;
 
 class SmallHost
 {
-    public const MAX_NAME_LENGTH = NewHost::MAX_NAME_LENGTH,
-        MAX_ADDRESS_LENGTH = NewHost::MAX_ADDRESS_LENGTH;
+    public const MAX_NAME_LENGTH = NewHost::MAX_NAME_LENGTH;
+    public const MAX_ADDRESS_LENGTH = NewHost::MAX_ADDRESS_LENGTH;
 
     /** @var list<int> */
     private array $categoryIds = [];

@@ -54,7 +54,7 @@ class DbReadServiceRepository extends AbstractRepositoryDRB implements ReadServi
      */
     public function findServiceByIdAndAccessGroupIds(int $hostId, int $serviceId, array $accessGroupIds): ?Service
     {
-        if (empty($accessGroupIds)) {
+        if ($accessGroupIds === []) {
             return null;
         }
 
@@ -70,7 +70,7 @@ class DbReadServiceRepository extends AbstractRepositoryDRB implements ReadServi
      */
     public function isAllowedToFindServiceByAccessGroupIds(int $hostId, int $serviceId, array $accessGroupIds): bool
     {
-        if (empty($accessGroupIds)) {
+        if ($accessGroupIds === []) {
             return false;
         }
 
@@ -144,7 +144,7 @@ class DbReadServiceRepository extends AbstractRepositoryDRB implements ReadServi
             FROM `:dbstg`.`services` AS s
             LEFT JOIN `:dbstg`.`customvariables` AS service_cvl ON service_cvl.service_id = s.service_id
                 AND service_cvl.name = 'CRITICALITY_LEVEL'"
-            . ($accessGroupRequest !== null ? $accessGroupRequest : '')
+            . ($accessGroupRequest ?? '')
             . "WHERE  s.service_id = :service_id AND s.host_id = :host_id AND s.enabled = '1'";
 
         $statement = $this->db->prepare($this->translateDbName($request));

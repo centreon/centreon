@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 import dayjs from 'dayjs';
 
@@ -98,7 +98,7 @@ export interface EndStartInterval {
   start: string;
 }
 
-interface Parameters extends EndStartInterval {
+export interface Parameters extends EndStartInterval {
   timelineEventsLimit: number;
 }
 

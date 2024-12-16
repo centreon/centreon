@@ -36,13 +36,16 @@
 require_once "Centreon/Object/Object.php";
 
 /**
- * Used for interacting with dependencies
+ * Class
  *
- * @author sylvestre
+ * @class Centreon_Object_Dependency
  */
 class Centreon_Object_Dependency extends Centreon_Object
 {
+    /** @var string */
     protected $table = "dependency";
+    /** @var string */
     protected $primaryKey = "dep_id";
+    /** @var string */
     protected $uniqueLabelField = "dep_name";
 }

@@ -34,29 +34,31 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class MetaTimeperiod
+ */
 class MetaTimeperiod extends AbstractObject
 {
+    /** @var string */
     protected $generate_filename = 'meta_timeperiod.cfg';
-    protected $object_name = 'timeperiod';
-    protected $attributes_write = array(
-        'timeperiod_name',
-        'alias',
-        'sunday',
-        'monday',
-        'tuesday',
-        'wednesday',
-        'thursday',
-        'friday',
-        'saturday',
-    );
+    /** @var string */
+    protected string $object_name = 'timeperiod';
+    /** @var string[] */
+    protected $attributes_write = ['timeperiod_name', 'alias', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
+    /**
+     * @return int|void
+     * @throws Exception
+     */
     public function generateObjects()
     {
         if ($this->checkGenerate(0)) {
             return 0;
         }
 
-        $object = array();
+        $object = [];
         $object['timeperiod_name'] = 'meta_timeperiod';
         $object['alias'] = 'meta_timeperiod';
         $object['sunday'] = '00:00-24:00';

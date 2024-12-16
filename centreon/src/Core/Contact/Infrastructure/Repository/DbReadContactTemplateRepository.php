@@ -70,7 +70,7 @@ class DbReadContactTemplateRepository extends AbstractRepositoryDRB implements R
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY contact_id ASC';
+        $request .= $sortRequest ?? ' ORDER BY contact_id ASC';
 
         // Pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();

@@ -79,8 +79,8 @@ switch ($o) {
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
             multipleTimeperiodInDB(
-                is_array($select) ? $select : array(),
-                is_array($dupNbr) ? $dupNbr : array()
+                is_array($select) ? $select : [],
+                is_array($dupNbr) ? $dupNbr : []
             );
         } else {
             unvalidFormMessage();
@@ -91,7 +91,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteTimeperiodInDB(is_array($select) ? $select : array());
+            deleteTimeperiodInDB(is_array($select) ? $select : []);
         } else {
             unvalidFormMessage();
         }

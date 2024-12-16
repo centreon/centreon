@@ -19,10 +19,7 @@
  * limitations under the License.
  */
 
-$resultat = array(
-    "code" => 0,
-    "msg" => 'ok'
-);
+$resultat = ["code" => 0, "msg" => 'ok'];
 
 // Load provider class
 if (is_null($get_information['provider_id'])) {

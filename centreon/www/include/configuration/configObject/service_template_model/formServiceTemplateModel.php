@@ -905,11 +905,7 @@ if ($o !== SERVICE_TEMPLATE_MASSIVE_CHANGE) {
         );
     }
 } elseif ($o === SERVICE_TEMPLATE_MASSIVE_CHANGE) {
-    if ($form->getSubmitValue('submitMC')) {
-        $from_list_menu = false;
-    } else {
-        $from_list_menu = true;
-    }
+    $from_list_menu = $form->getSubmitValue('submitMC') ? false : true;
 }
 
 $argChecker = $form->addElement('hidden', 'argChecker');
@@ -1017,11 +1013,7 @@ if ($form->validate() && $from_list_menu === false) {
         }
     }
     $action = $form->getSubmitValue('action');
-    if ($action !== null && ! $action['action']['action']) {
-        $o = SERVICE_TEMPLATE_WATCH;
-    } else {
-        $o = null;
-    }
+    $o = $action !== null && ! $action['action']['action'] ? SERVICE_TEMPLATE_WATCH : null;
     $valid = true;
 } elseif ($form->isSubmitted()) {
     $tpl->assign('argChecker', "<font color='red'>" . $form->getElementError('argChecker') . '</font>');

@@ -31,7 +31,7 @@ class WebSSOConfiguration implements ProviderConfigurationInterface
     public const NAME = 'web-sso';
 
     /** @var int|null */
-    private ?int $id;
+    private ?int $id = null;
 
     /**
      * @param bool $isActive

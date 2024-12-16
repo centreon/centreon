@@ -36,9 +36,10 @@
  */
 
 /**
- * Object used for storing and accessing specific data
+ * Class
  *
- * @package Centreon
+ * @class CentreonData
+ * @description Object used for storing and accessing specific data
  * @version 2.5.0
  * @since 2.5.0
  * @author Sylvestre Ho <sho@centreon.com>
@@ -48,24 +49,16 @@ class CentreonData
     /**
      * Instance of Centreon Template
      *
-     * @var Centreon_Template
+     * @var CentreonData
      */
-    static private $instance = null;
+    private static $instance = null;
 
     /**
      * List of javascript data
      *
      * @var array
      */
-    private $jsData = array();
-    
-    /**
-     * Constructor
-     *
-     */
-    public function __construct()
-    {
-    }
+    private $jsData = [];
 
     /**
      * Pass data to javascript
@@ -75,7 +68,7 @@ class CentreonData
      * @return void
      * @throws Exception
      */
-    public function addJsData($key, $value)
+    public function addJsData($key, $value): void
     {
         if (isset($this->jsData[$key])) {
             throw new Exception(
@@ -94,11 +87,11 @@ class CentreonData
     {
         return $this->jsData;
     }
-    
+
     /**
      * Get a instance of Centreon_Template
      *
-     * @return Centreon_Template
+     * @return CentreonData
      */
     public static function getInstance()
     {

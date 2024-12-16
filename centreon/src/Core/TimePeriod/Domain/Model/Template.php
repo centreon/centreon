@@ -28,8 +28,8 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class Template
 {
-    public const MIN_ALIAS_LENGTH = TimePeriod::MIN_ALIAS_LENGTH,
-                 MAX_ALIAS_LENGTH = TimePeriod::MAX_ALIAS_LENGTH;
+    public const MIN_ALIAS_LENGTH = TimePeriod::MIN_ALIAS_LENGTH;
+    public const MAX_ALIAS_LENGTH = TimePeriod::MAX_ALIAS_LENGTH;
 
     /**
      * @param int $id

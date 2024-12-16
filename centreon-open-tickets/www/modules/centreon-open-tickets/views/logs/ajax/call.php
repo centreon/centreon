@@ -41,13 +41,11 @@ if (isset($_SESSION['centreon'])) {
 
 require_once $centreon_path . 'www/include/common/common-Func.php';
 
-$resultat = array("code" => 0, "msg" => "");
-$actions = array("get-logs" => __DIR__ . "/actions/getLogs.php",
-                 "export-csv" => __DIR__ . "/actions/exportCSV.php",
-                 "export-xml" => __DIR__ . "/actions/exportXML.php");
+$resultat = ["code" => 0, "msg" => ""];
+$actions = ["get-logs" => __DIR__ . "/actions/getLogs.php", "export-csv" => __DIR__ . "/actions/exportCSV.php", "export-xml" => __DIR__ . "/actions/exportXML.php"];
 if (!isset($_POST['data'])) {
     if (!isset($_GET['action'])) {
-        $resultat = array("code" => 1, "msg" => "POST 'data' needed.");
+        $resultat = ["code" => 1, "msg" => "POST 'data' needed."];
     } else {
         include($actions[$_GET['action']]);
     }
@@ -55,7 +53,7 @@ if (!isset($_POST['data'])) {
     $get_information = json_decode($_POST['data'], true);
     if (!isset($get_information['action']) ||
         !isset($actions[$get_information['action']])) {
-        $resultat = array("code" => 1, "msg" => "Action not good.");
+        $resultat = ["code" => 1, "msg" => "Action not good."];
     } else {
         include($actions[$get_information['action']]);
     }

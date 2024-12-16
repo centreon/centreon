@@ -47,7 +47,7 @@ $host_method = new CentreonHost($pearDB);
 $mediaObj = new CentreonMedia($pearDB);
 
 // Get Extended informations
-$ehiCache = array();
+$ehiCache = [];
 $DBRESULT = $pearDB->query("SELECT ehi_icon_image, host_host_id FROM extended_host_information");
 while ($ehi = $DBRESULT->fetch()) {
     $ehiCache[$ehi["host_host_id"]] = $ehi["ehi_icon_image"];
@@ -104,7 +104,7 @@ $tpl = new Smarty();
 $tpl = initSmartyTpl($path, $tpl);
 
 /* Access level */
-($centreon->user->access->page($p) == 1) ? $lvl_access = 'w' : $lvl_access = 'r';
+$lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
 /*
@@ -123,14 +123,11 @@ $form = new HTML_QuickFormCustom('select_form', 'POST', "?p=" . $p);
 /* Different style between each lines */
 $style = "one";
 
-$attrBtnSuccess = array(
-    "class" => "btc bt_success",
-    "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"
-);
+$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
 
 /* Fill a tab with a multidimensional Array we put in $tpl */
-$elemArr = array();
+$elemArr = [];
 $centreonToken = createCSRFToken();
 
 for ($i = 0; $host = $DBRESULT->fetch(); $i++) {
@@ -150,7 +147,7 @@ for ($i = 0; $host = $DBRESULT->fetch(); $i++) {
     }
 
     /* TPL List */
-    $tplArr = array();
+    $tplArr = [];
     $tplStr = null;
 
     $tplArr = getMyHostMultipleTemplateModels($host['host_id']);
@@ -185,29 +182,18 @@ for ($i = 0; $host = $DBRESULT->fetch(); $i++) {
     }
 
     //Service List
-    $svArr = array();
+    $svArr = [];
     $svStr = null;
     $svArr = getMyHostServices($host['host_id']);
-    $elemArr[$i] = array(
-        "MenuClass" => "list_" . $style,
-        "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_name" => CentreonUtils::escapeSecure($host["host_name"]),
-        "RowMenu_link" => "main.php?p=" . $p . "&o=c&host_id=" . $host['host_id'],
-        "RowMenu_desc" => CentreonUtils::escapeSecure($host["host_alias"]),
-        "RowMenu_icone" => $host_icone,
-        "RowMenu_svChilds" => count($svArr),
-        "RowMenu_parent" => CentreonUtils::escapeSecure($tplStr),
-        "RowMenu_options" => $moptions,
-        "isHostTemplateSvgFile" => $isHostTemplateSvgFile
-    );
-    $style != "two" ? $style = "two" : $style = "one";
+    $elemArr[$i] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => CentreonUtils::escapeSecure($host["host_name"]), "RowMenu_link" => "main.php?p=" . $p . "&o=c&host_id=" . $host['host_id'], "RowMenu_desc" => CentreonUtils::escapeSecure($host["host_alias"]), "RowMenu_icone" => $host_icone, "RowMenu_svChilds" => count($svArr), "RowMenu_parent" => CentreonUtils::escapeSecure($tplStr), "RowMenu_options" => $moptions, "isHostTemplateSvgFile" => $isHostTemplateSvgFile];
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 
 // Different messages we put in the template
 $tpl->assign(
     'msg',
-    array("addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?"))
+    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
 );
 
 // Toolbar select
@@ -218,36 +204,29 @@ $tpl->assign(
         }
     </SCRIPT>
 <?php
-foreach (array('o1', 'o2') as $option) {
-    $attrs1 = array(
-        'onchange' => "javascript: " .
-            "var bChecked = isChecked();" .
-            "if (this.form.elements['$option'].selectedIndex != 0 && !bChecked) {" .
-            "   alert('" . _("Please select one or more items") . "'); return false;} " .
-            "if (this.form.elements['$option'].selectedIndex == 1 && confirm('" .
-            _("Do you confirm the duplication ?") . "')) {" .
-            "   setO(this.form.elements['$option'].value); submit();} " .
-            "else if (this.form.elements['$option'].selectedIndex == 2 && confirm('" .
-            _("Do you confirm the deletion ?") . "')) {" .
-            "   setO(this.form.elements['$option'].value); submit();} " .
-            "else if (this.form.elements['$option'].selectedIndex == 3 || " .
-            "this.form.elements['$option'].selectedIndex == 4 || this.form.elements['$option'].selectedIndex == 5){" .
-            "   setO(this.form.elements['$option'].value); submit();} " .
-            "this.form.elements['o1'].selectedIndex = 0"
-    );
+foreach (['o1', 'o2'] as $option) {
+    $attrs1 = ['onchange' => "javascript: " .
+        "var bChecked = isChecked();" .
+        "if (this.form.elements['$option'].selectedIndex != 0 && !bChecked) {" .
+        "   alert('" . _("Please select one or more items") . "'); return false;} " .
+        "if (this.form.elements['$option'].selectedIndex == 1 && confirm('" .
+        _("Do you confirm the duplication ?") . "')) {" .
+        "   setO(this.form.elements['$option'].value); submit();} " .
+        "else if (this.form.elements['$option'].selectedIndex == 2 && confirm('" .
+        _("Do you confirm the deletion ?") . "')) {" .
+        "   setO(this.form.elements['$option'].value); submit();} " .
+        "else if (this.form.elements['$option'].selectedIndex == 3 || " .
+        "this.form.elements['$option'].selectedIndex == 4 || this.form.elements['$option'].selectedIndex == 5){" .
+        "   setO(this.form.elements['$option'].value); submit();} " .
+        "this.form.elements['o1'].selectedIndex = 0"];
     $form->addElement(
         'select',
         $option,
         null,
-        array(
-            null => _("More actions..."),
-            "m" => _("Duplicate"),
-            "d" => _("Delete"),
-            "mc" => _("Mass Change")
-        ),
+        [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete"), "mc" => _("Mass Change")],
         $attrs1
     );
-    $form->setDefaults(array($option => null));
+    $form->setDefaults([$option => null]);
     $o1 = $form->getElement($option);
     $o1->setValue(null);
     $o1->setSelected(null);

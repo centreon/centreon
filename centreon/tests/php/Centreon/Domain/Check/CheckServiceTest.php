@@ -114,7 +114,7 @@ class CheckServiceTest extends TestCase
     /**
      * test checkHost with not well formated check
      */
-    public function testCheckHostNotValidatedCheck()
+    public function testCheckHostNotValidatedCheck(): void
     {
         $this->entityValidator->expects($this->once())
             ->method('validate')
@@ -137,7 +137,7 @@ class CheckServiceTest extends TestCase
     /**
      * test checkHost with not found host
      */
-    public function testCheckHostNotFoundHost()
+    public function testCheckHostNotFoundHost(): void
     {
         $this->entityValidator->expects($this->once())
             ->method('validate')
@@ -164,7 +164,7 @@ class CheckServiceTest extends TestCase
     /**
      * test checkHost which succeed
      */
-    public function testCheckHostSucceed()
+    public function testCheckHostSucceed(): void
     {
         $this->entityValidator->expects($this->once())
             ->method('validate')
@@ -191,7 +191,7 @@ class CheckServiceTest extends TestCase
     /**
      * test checkService with not well formated check
      */
-    public function testCheckServiceNotValidatedCheck()
+    public function testCheckServiceNotValidatedCheck(): void
     {
         $this->entityValidator->expects($this->once())
             ->method('validate')
@@ -214,7 +214,7 @@ class CheckServiceTest extends TestCase
     /**
      * test checkService with not found host
      */
-    public function testCheckServiceNotFoundHost()
+    public function testCheckServiceNotFoundHost(): void
     {
         $this->entityValidator->expects($this->once())
             ->method('validate')
@@ -241,7 +241,7 @@ class CheckServiceTest extends TestCase
     /**
      * test checkService with not found host
      */
-    public function testCheckServiceNotFoundService()
+    public function testCheckServiceNotFoundService(): void
     {
         $this->entityValidator->expects($this->once())
             ->method('validate')
@@ -272,7 +272,7 @@ class CheckServiceTest extends TestCase
     /**
      * test checkService which succeed
      */
-    public function testCheckServiceSucceed()
+    public function testCheckServiceSucceed(): void
     {
         $this->entityValidator->expects($this->once())
             ->method('validate')
@@ -303,7 +303,7 @@ class CheckServiceTest extends TestCase
     /**
      * test checkResource with host not found
      */
-    public function testCheckResourceHostNotFound()
+    public function testCheckResourceHostNotFound(): void
     {
         $this->monitoringRepository->expects($this->once())
             ->method('findOneHost')
@@ -326,7 +326,7 @@ class CheckServiceTest extends TestCase
     /**
      * test checkResource with service not found
      */
-    public function testCheckResourceServiceNotFound()
+    public function testCheckResourceServiceNotFound(): void
     {
         $this->monitoringRepository->expects($this->once())
             ->method('findOneHost')
@@ -353,7 +353,7 @@ class CheckServiceTest extends TestCase
     /**
      * test checkResource on host which succeed
      */
-    public function testCheckResourceHostSucceed()
+    public function testCheckResourceHostSucceed(): void
     {
         $this->monitoringRepository->expects($this->once())
             ->method('findOneHost')
@@ -376,7 +376,7 @@ class CheckServiceTest extends TestCase
     /**
      * test checkResource on service which succeed
      */
-    public function testCheckResourceServiceSucceed()
+    public function testCheckResourceServiceSucceed(): void
     {
         $this->monitoringRepository->expects($this->once())
             ->method('findOneHost')

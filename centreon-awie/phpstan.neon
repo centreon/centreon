@@ -5,13 +5,3 @@ parameters:
         - vendor/centreon/centreon/www/include/common/common-Func.php
     paths:
         - www
-    ignoreErrors:
-        -
-            message: "#^Call to function is_null\\(\\) with string will always evaluate to false\\.$#"
-            count: 2
-            path: www/modules/centreon-awie/core/generateExport.php
-
-        -
-            message: "#^Method ClapiObject\\:\\:import\\(\\) invoked with 2 parameters, 1 required\\.$#"
-            count: 1
-            path: www/modules/centreon-awie/core/launchImport.php

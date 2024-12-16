@@ -111,7 +111,7 @@ $stateLabels = [
     4 => 'Pending'
 ];
 
-$aStateType = array("1" => "H", "0" => "S");
+$aStateType = ["1" => "H", "0" => "S"];
 $mainQueryParameters = [];
 
 // Build Query
@@ -227,7 +227,7 @@ if (! empty($preferences['svc_unknown'])) {
     $stateTab[] = 3;
 }
 
-if (count($stateTab)) {
+if ($stateTab !== []) {
     $query = CentreonUtils::conditionBuilder($query, " s.state IN (" . implode(',', $stateTab) . ")");
 }
 
@@ -457,11 +457,7 @@ $orderBy = "hostname ASC , description ASC";
 if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
     $aOrder = explode(" ", $preferences['order_by']);
     if (in_array('last_state_change', $aOrder) || in_array('last_hard_state_change', $aOrder)) {
-        if ($aOrder[1] == 'DESC') {
-            $order = 'ASC';
-        } else {
-            $order = 'DESC';
-        }
+        $order = $aOrder[1] == 'DESC' ? 'ASC' : 'DESC';
         $orderBy = $aOrder[0] . " " . $order;
     } else {
         $orderBy = $preferences['order_by'];
@@ -486,13 +482,13 @@ unset($parameter, $mainQueryParameters);
 $res->execute();
 
 $nbRows = $dbb->query("SELECT FOUND_ROWS()")->fetchColumn();
-$data = array();
-$outputLength = $preferences['output_length'] ? $preferences['output_length'] : 50;
+$data = [];
+$outputLength = $preferences['output_length'] ?: 50;
 
 $hostObj = new CentreonHost($db);
 $svcObj = new CentreonService($db);
 $gmt = new CentreonGMT($db);
-$gmt->getMyGMTFromSession(session_id(), $db);
+$gmt->getMyGMTFromSession(session_id());
 while ($row = $res->fetch()) {
     foreach ($row as $key => $value) {
         if ($key == "last_check") {

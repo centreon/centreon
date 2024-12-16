@@ -87,12 +87,10 @@ $order = isset($_GET['order']) && $_GET['order'] === "DESC" ? "DESC" : "ASC";
 
 if (isset($_GET['sort_type']) && $_GET['sort_type'] === "host_name") {
     $sort_type = "name";
+} elseif ($o === "hpb" || $o === "h_unhandled") {
+    $sort_type = $obj->checkArgument("sort_type", $_GET, "");
 } else {
-    if ($o === "hpb" || $o === "h_unhandled") {
-        $sort_type = $obj->checkArgument("sort_type", $_GET, "");
-    } else {
-        $sort_type = $obj->checkArgument("sort_type", $_GET, "host_name");
-    }
+    $sort_type = $obj->checkArgument("sort_type", $_GET, "host_name");
 }
 // Store in session the last type of call
 $_SESSION['monitoring_host_status'] = $statusHost;
@@ -109,40 +107,40 @@ $queryValues = [];
 /*
  * Get Host status
  */
-$rq1 = <<<SQL
-    SELECT SQL_CALC_FOUND_ROWS DISTINCT
-        1 AS REALTIME,
-        h.state,
-        h.acknowledged,
-        h.passive_checks,
-        h.active_checks,
-        h.notify,
-        h.last_state_change,
-        h.last_hard_state_change,
-        h.output,
-        h.last_check,
-        h.address,
-        h.name,
-        h.alias,
-        h.action_url,
-        h.notes_url,
-        h.notes,
-        h.icon_image,
-        h.icon_image_alt,
-        h.max_check_attempts,
-        h.state_type,
-        h.check_attempt,
-        h.scheduled_downtime_depth,
-        h.host_id,
-        h.flapping,
-        hph.parent_id AS is_parent,
-        i.name AS instance_name,
-        cv.value AS criticality,
-        cv.value IS NULL AS isnull
-        FROM instances i
-    INNER JOIN hosts h 
-        ON h.instance_id = i.instance_id
-    SQL;
+$rq1 = <<<SQL_WRAP
+        SELECT SQL_CALC_FOUND_ROWS DISTINCT
+            1 AS REALTIME,
+            h.state,
+            h.acknowledged,
+            h.passive_checks,
+            h.active_checks,
+            h.notify,
+            h.last_state_change,
+            h.last_hard_state_change,
+            h.output,
+            h.last_check,
+            h.address,
+            h.name,
+            h.alias,
+            h.action_url,
+            h.notes_url,
+            h.notes,
+            h.icon_image,
+            h.icon_image_alt,
+            h.max_check_attempts,
+            h.state_type,
+            h.check_attempt,
+            h.scheduled_downtime_depth,
+            h.host_id,
+            h.flapping,
+            hph.parent_id AS is_parent,
+            i.name AS instance_name,
+            cv.value AS criticality,
+            cv.value IS NULL AS isnull
+            FROM instances i
+        INNER JOIN hosts h 
+            ON h.instance_id = i.instance_id
+    SQL_WRAP;
 
 if (!$obj->is_admin) {
     $rq1 .= <<<SQL
@@ -329,7 +327,7 @@ while ($data = $dbResult->fetch()) {
     if ($data["scheduled_downtime_depth"] > 0) {
         $class = "line_downtime";
     } elseif ($data["state"] == 1) {
-        $data["acknowledged"] == 1 ? $class = "line_ack" : $class = "list_down";
+        $class = $data["acknowledged"] == 1 ? "line_ack" : "list_down";
     } elseif ($data["acknowledged"] == 1) {
         $class = "line_ack";
     }
@@ -356,8 +354,8 @@ while ($data = $dbResult->fetch()) {
     $obj->XML->writeElement("pha", $data["acknowledged"]);
     $obj->XML->writeElement("pce", $data["passive_checks"]);
     $obj->XML->writeElement("ace", $data["active_checks"]);
-    $obj->XML->writeElement("lsc", ($duration ? $duration : "N/A"));
-    $obj->XML->writeElement("lhs", ($hard_duration ? $hard_duration : "N/A"));
+    $obj->XML->writeElement("lsc", ($duration ?: "N/A"));
+    $obj->XML->writeElement("lhs", ($hard_duration ?: "N/A"));
     $obj->XML->writeElement("ha", $data["acknowledged"]);
     $obj->XML->writeElement("hdtm", $data["scheduled_downtime_depth"]);
     $obj->XML->writeElement(

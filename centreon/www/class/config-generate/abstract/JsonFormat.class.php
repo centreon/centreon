@@ -36,20 +36,23 @@
 
 declare(strict_types=1);
 
+/**
+ * Class
+ *
+ * @class JsonFormat
+ */
 abstract class JsonFormat
 {
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected mixed $cacheData = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected ?string $filePath = null;
 
     /**
      * @param mixed $data
+     *
+     * @return void
      */
     public function setContent(mixed $data): void
     {

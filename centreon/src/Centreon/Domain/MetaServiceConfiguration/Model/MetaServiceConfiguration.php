@@ -32,13 +32,13 @@ use InvalidArgumentException;
  */
 class MetaServiceConfiguration
 {
-    public const MAX_NAME_LENGTH = 254,
-                 MIN_NAME_LENGTH = 1,
-                 MAX_OUTPUT_LENGTH = 254,
-                 MAX_METRIC_LENGTH = 255,
-                 MAX_REGEXP_STRING_LENGTH = 254,
-                 MAX_WARNING_LENGTH = 254,
-                 MAX_CRITICAL_LENGTH = 254;
+    public const MAX_NAME_LENGTH = 254;
+    public const MIN_NAME_LENGTH = 1;
+    public const MAX_OUTPUT_LENGTH = 254;
+    public const MAX_METRIC_LENGTH = 255;
+    public const MAX_REGEXP_STRING_LENGTH = 254;
+    public const MAX_WARNING_LENGTH = 254;
+    public const MAX_CRITICAL_LENGTH = 254;
 
     public const AVAILABLE_DATA_SOURCE_TYPES = ['gauge', 'counter', 'derive', 'absolute'];
     public const AVAILABLE_CALCULATION_TYPES = ['average', 'minimum', 'maximum', 'sum'];

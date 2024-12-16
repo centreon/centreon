@@ -76,7 +76,7 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
     /**
      * @inheritDoc
      */
-    public function start(Request $request, ?AuthenticationException $authException = null)
+    public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
         $data = [
             'message' => _('Authentication Required'),

@@ -37,7 +37,7 @@ if (!isset($oreon)) {
     exit();
 }
 
-require_once dirname(__FILE__) . "/formFunction.php";
+require_once __DIR__ . "/formFunction.php";
 
 $DBRESULT = $pearDB->query("SELECT * FROM `options`");
 while ($opt = $DBRESULT->fetchRow()) {
@@ -48,10 +48,10 @@ $DBRESULT->closeCursor();
 /*
  * Var information to format the element
  */
-$attrsText        = array("size"=>"40");
-$attrsText2        = array("size"=>"5");
-$attrSelect    = array("style" => "width: 220px;");
-$attrSelect2    = array("style" => "width: 50px;");
+$attrsText        = ["size"=>"40"];
+$attrsText2        = ["size"=>"5"];
+$attrSelect    = ["style" => "width: 220px;"];
+$attrSelect2    = ["style" => "width: 50px;"];
 
 /*
  * Form begin
@@ -107,8 +107,8 @@ if (version_compare('1.4.0', $version, '>')) {
 
 $form->setDefaults($gopt);
 
-$subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-$DBRESULT = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+$subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+$DBRESULT = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 
 $valid = false;
 if ($form->validate()) {
@@ -134,7 +134,7 @@ $form->addElement(
     "button",
     "change",
     _("Modify"),
-    array("onClick"=>"javascript:window.location.href='?p=".$p."&o=rrdtool'", 'class' => 'btc bt_info')
+    ["onClick"=>"javascript:window.location.href='?p=".$p."&o=rrdtool'", 'class' => 'btc bt_info']
 );
 
 // prepare help texts

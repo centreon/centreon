@@ -36,26 +36,17 @@ class RemoverTest extends \PHPUnit\Framework\TestCase
 
         $this->db = new CentreonDB();
 
-        $configuration = array(
-            'name' => 'MyModule',
-            'rname' => 'MyModule',
-            'mod_release' => '1.0.0',
-            'is_removeable' => 1,
-            'infos' => 'my module for unit test',
-            'author' => 'unit test',
-            'svc_tools' => null,
-            'host_tools' => null
-        );
-        $this->information = $this->getMockBuilder('CentreonLegacy\Core\Module\Information')
+        $configuration = ['name' => 'MyModule', 'rname' => 'MyModule', 'mod_release' => '1.0.0', 'is_removeable' => 1, 'infos' => 'my module for unit test', 'author' => 'unit test', 'svc_tools' => null, 'host_tools' => null];
+        $this->information = $this->getMockBuilder(\CentreonLegacy\Core\Module\Information::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(array('getConfiguration'))
+            ->onlyMethods(['getConfiguration'])
             ->getMock();
 
         $this->information->expects($this->any())
             ->method('getConfiguration')
             ->willReturn($configuration);
 
-        $this->utils = $this->getMockBuilder('CentreonLegacy\Core\Utils\Utils')
+        $this->utils = $this->getMockBuilder(\CentreonLegacy\Core\Utils\Utils::class)
             ->disableOriginalConstructor()
             ->getMock();
     }
@@ -66,11 +57,11 @@ class RemoverTest extends \PHPUnit\Framework\TestCase
         $this->container = null;
     }
 
-    public function testRemove()
+    public function testRemove(): void
     {
-        $filesystem = $this->getMockBuilder('\Symfony\Component\Filesystem\Filesystem')
+        $filesystem = $this->getMockBuilder(\Symfony\Component\Filesystem\Filesystem::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(array('exists'))
+            ->onlyMethods(['exists'])
             ->getMock();
         $filesystem->expects($this->any())
             ->method('exists')
@@ -79,7 +70,7 @@ class RemoverTest extends \PHPUnit\Framework\TestCase
 
         $this->db->addResultSet(
             'DELETE FROM modules_informations WHERE id = :id ',
-            array()
+            []
         );
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
 

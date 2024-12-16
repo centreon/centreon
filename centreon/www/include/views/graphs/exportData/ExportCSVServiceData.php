@@ -39,7 +39,7 @@ function get_error($str)
     exit(0);
 }
 
-require_once realpath(dirname(__FILE__) . "/../../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
 include_once _CENTREON_PATH_ . "www/class/centreonDB.class.php";
 include_once _CENTREON_PATH_ . "www/class/HtmlAnalyzer.php";
 
@@ -125,9 +125,9 @@ if ($index !== false) {
         die('Start or end time is not consistent or not an integer');
     }
 
-    $listMetric = array();
-    $datas = array();
-    $listEmptyMetric = array();
+    $listMetric = [];
+    $datas = [];
+    $listEmptyMetric = [];
 
     $stmt = $pearDBO->prepare(
         'SELECT DISTINCT metric_id, metric_name ' .

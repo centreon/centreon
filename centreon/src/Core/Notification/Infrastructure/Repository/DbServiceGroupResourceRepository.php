@@ -26,19 +26,21 @@ namespace Core\Notification\Infrastructure\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
 use Core\Notification\Domain\Model\ConfigurationResource;
 use Core\Notification\Domain\Model\NotificationResource;
-use Core\Notification\Domain\Model\NotificationServiceEvent;
+use Core\Notification\Domain\Model\ServiceEvent;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\SqlConcatenator;
 
 class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements NotificationResourceRepositoryInterface
 {
     use LoggerTrait;
-    private const RESOURCE_TYPE = NotificationResource::SERVICEGROUP_RESOURCE_TYPE;
-    private const EVENT_ENUM = NotificationServiceEvent::class;
+    use SqlMultipleBindTrait;
+    private const RESOURCE_TYPE = NotificationResource::TYPE_SERVICE_GROUP;
+    private const EVENT_ENUM = ServiceEvent::class;
     private const EVENT_ENUM_CONVERTER = NotificationServiceEventConverter::class;
 
     public function __construct(DatabaseConnection $db)
@@ -294,7 +296,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
     /**
      * @inheritDoc
      */
-    public function findResourcesCountByNotificationIdsAndAccessGroups(
+    public function countResourcesByNotificationIdsAndAccessGroups(
         array $notificationIds,
         array $accessGroups
     ): array {
@@ -302,16 +304,31 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
             static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
-        $concatenator = $this->getConcatenatorForFindResourcesCountQuery($accessGroupIds)
-            ->storeBindValueMultiple(':notification_ids', $notificationIds, \PDO::PARAM_INT)
-            ->appendWhere(
-                <<<'SQL'
-                        WHERE notification_id IN (:notification_ids)
-                    SQL
-            );
 
-        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
-        $concatenator->bindValuesToStatement($statement);
+        [$bindNotificationValues, $subNotificationQuery] = $this->createMultipleBindQuery($notificationIds, ':nid_');
+        [$bindAccessGroupValues, $subAccessGroupQuery] = $this->createMultipleBindQuery($accessGroupIds, ':aid_');
+
+        $request = <<<SQL
+            SELECT
+                notification_id, COUNT(DISTINCT rel.sg_id)
+                FROM `:db`.notification_sg_relation rel
+                INNER JOIN `:db`.acl_resources_sg_relations arsr
+                    ON rel.sg_id = arsr.sg_id
+                INNER JOIN `:db`.acl_resources res
+                    ON arsr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                WHERE ag.acl_group_id IN ({$subAccessGroupQuery})
+                    AND notification_id IN ({$subNotificationQuery})
+                GROUP BY notification_id
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+        foreach (array_merge($bindNotificationValues, $bindAccessGroupValues) as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
         $statement->execute();
 
         $result = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
@@ -322,7 +339,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
     /**
      * @inheritDoc
      */
-    public function findResourcesCountByNotificationIds(array $notificationIds): array
+    public function countResourcesByNotificationIds(array $notificationIds): array
     {
         $concatenator = $this->getConcatenatorForFindResourcesCountQuery([])
             ->storeBindValueMultiple(':notification_ids', $notificationIds, \PDO::PARAM_INT)

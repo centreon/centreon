@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { useAtomValue } from 'jotai';
-import { path, isEmpty, isNil, prop } from 'ramda';
+import { path, equals, isEmpty, isNil, prop } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -10,7 +10,7 @@ import { Paper, Stack } from '@mui/material';
 import type { ListingModel, SearchParameter } from '@centreon/ui';
 import { MultiAutocompleteField, useRequest } from '@centreon/ui';
 
-import { TabProps } from '..';
+import type { TabProps } from '..';
 import TimePeriodButtonGroup from '../../../Graph/Performance/TimePeriods';
 import {
   customTimePeriodAtom,
@@ -28,7 +28,7 @@ import ExportToCsv from './ExportToCsv';
 import LoadingSkeleton from './LoadingSkeleton';
 import { listTimelineEvents } from './api';
 import { listTimelineEventsDecoder } from './api/decoders';
-import { TimelineEvent, Type } from './models';
+import type { TimelineEvent, Type } from './models';
 
 type TimelineListing = ListingModel<TimelineEvent>;
 
@@ -134,6 +134,14 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
   const displayCsvExport = !isNil(timelineDownloadEndpoint);
   const enableCommentArea = !isNil(details) && displayCommentArea;
 
+  const onDelete = (_, option): void => {
+    const updatedTypeIds = selectedTypes.filter(
+      ({ id }) => !equals(id, option.id)
+    );
+
+    setSelectedTypes(updatedTypeIds);
+  };
+
   return (
     <InfiniteScroll
       details={details}
@@ -147,6 +155,7 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
               options={translatedTypes}
               value={selectedTypes}
               onChange={changeSelectedTypes}
+              chipProps={{ onDelete }}
             />
           </Paper>
           <div className={classes.containerActions}>

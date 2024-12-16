@@ -52,6 +52,9 @@ class CentreonFrontendComponentTest extends TestCase
 {
     use Traits\WebServiceAuthorizePublicTrait;
 
+    /** @var CentreonFrontendComponent|(CentreonFrontendComponent&object&MockObject)|(CentreonFrontendComponent&MockObject)|(object&MockObject)|MockObject */
+    public $webservice;
+
     /**
      * Control value for the method getComponents
      *
@@ -69,7 +72,7 @@ class CentreonFrontendComponentTest extends TestCase
         $container[ServiceProvider::CENTREON_FRONTEND_COMPONENT_SERVICE] =
             $this->createMock(FrontendComponentService::class);
 
-        (function (FrontendComponentService&MockObject $service) {
+        (function (FrontendComponentService&MockObject $service): void {
             $service
                 ->method('getPages')
                 ->willReturn($this->getComponentsValues['pages']);

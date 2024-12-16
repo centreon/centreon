@@ -29,8 +29,8 @@ use Core\Domain\RealTime\Model\Icon;
 class Severity
 {
     public const MAX_NAME_LENGTH = 255;
-    public const SERVICE_SEVERITY_TYPE_ID = 0,
-                 HOST_SEVERITY_TYPE_ID = 1;
+    public const SERVICE_SEVERITY_TYPE_ID = 0;
+    public const HOST_SEVERITY_TYPE_ID = 1;
     public const TYPES_AS_STRING = [
         self::HOST_SEVERITY_TYPE_ID => 'host',
         self::SERVICE_SEVERITY_TYPE_ID => 'service',

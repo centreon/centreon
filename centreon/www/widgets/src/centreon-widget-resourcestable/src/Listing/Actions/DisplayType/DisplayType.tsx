@@ -33,12 +33,14 @@ interface Props {
   displayType: DisplayTypeEnum;
   hasMetaService: boolean;
   setPanelOptions: (panelOptions) => void;
+  isOpenTicketEnabled: boolean;
 }
 
 const DisplayType = ({
   displayType,
   setPanelOptions,
-  hasMetaService
+  hasMetaService,
+  isOpenTicketEnabled
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -47,8 +49,14 @@ const DisplayType = ({
     setPanelOptions?.({ displayType: option });
   };
 
-  const getDisabled = (option): boolean =>
-    hasMetaService && equals(option, DisplayTypeEnum.Host);
+  const getDisabled = (option): boolean => {
+    return (
+      (hasMetaService && equals(option, DisplayTypeEnum.Host)) ||
+      (isOpenTicketEnabled &&
+        (equals(option, DisplayTypeEnum.Host) ||
+          equals(option, DisplayTypeEnum.All)))
+    );
+  };
 
   return (
     <Box className={classes.container} data-testid="tree view">

@@ -573,6 +573,7 @@ CREATE TABLE `cfg_nagios` (
   `nagios_server_id` int(11) DEFAULT NULL,
   `enable_predictive_host_dependency_checks` enum('0','1') DEFAULT NULL,
   `enable_predictive_service_dependency_checks` enum('0','1') DEFAULT NULL,
+  `host_down_disable_service_checks` enum('0','1') DEFAULT '0',
   `cached_host_check_horizon` int(11) DEFAULT NULL,
   `cached_service_check_horizon` int(11) DEFAULT NULL,
   `passive_host_checks_are_soft` int(11) DEFAULT NULL,

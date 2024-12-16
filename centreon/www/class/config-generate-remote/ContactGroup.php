@@ -22,30 +22,49 @@ namespace ConfigGenerateRemote;
 
 use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use PDOStatement;
 
+/**
+ * Class
+ *
+ * @class ContactGroup
+ * @package ConfigGenerateRemote
+ */
 class ContactGroup extends AbstractObject
 {
+    /** @var int */
     protected $useCache = 1;
+    /** @var int */
     private $doneCache = 0;
+    /** @var array */
     private $cgServiceLinkedCache = [];
+    /** @var array */
     protected $cgCache = [];
+    /** @var array|null */
     protected $cg = null;
+    /** @var string */
     protected $table = 'contactgroup';
+    /** @var string */
     protected $generateFilename = 'contactgroups.infile';
+    /** @var string */
     protected $attributesSelect = '
         cg_id,
         cg_name,
         cg_alias,
         cg_comment
     ';
+    /** @var string[] */
     protected $attributesWrite = [
         'cg_id',
         'cg_name',
         'cg_alias',
         'cg_comment'
     ];
+    /** @var PDOStatement|null */
     protected $stmtCg = null;
+    /** @var PDOStatement|null */
     protected $stmtContact = null;
+    /** @var PDOStatement|null */
     protected $stmtCgService = null;
 
     /**
@@ -159,10 +178,10 @@ class ContactGroup extends AbstractObject
     /**
      * Get contact group linked contacts
      *
-     * @param integer $cgId
+     * @param int $cgId
      * @return void
      */
-    public function getContactFromCgId(int $cgId)
+    public function getContactFromCgId(int $cgId): void
     {
         if (!isset($this->cg[$cgId]['members_cache'])) {
             if (is_null($this->stmtContact)) {
@@ -186,8 +205,10 @@ class ContactGroup extends AbstractObject
     /**
      * Generate contact group and get contact group name
      *
-     * @param null|integer $cgId
+     * @param null|int $cgId
+     *
      * @return void|string
+     * @throws \Exception
      */
     public function generateFromCgId(?int $cgId)
     {

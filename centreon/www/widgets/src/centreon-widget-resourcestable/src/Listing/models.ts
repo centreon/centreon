@@ -107,4 +107,5 @@ export enum ResourceCategory {
 export interface Ticket {
   hostID: number;
   serviceID?: number;
+  ticketId?: number;
 }

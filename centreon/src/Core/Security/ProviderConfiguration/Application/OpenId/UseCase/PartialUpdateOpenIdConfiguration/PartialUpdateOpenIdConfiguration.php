@@ -261,7 +261,7 @@ final class PartialUpdateOpenIdConfiguration
         $this->info('Creating Authorization Rules');
         $accessGroupIds = $this->getAccessGroupIds($authorizationRulesFromRequest);
 
-        if (empty($accessGroupIds)) {
+        if ($accessGroupIds === []) {
             return [];
         }
 
@@ -302,7 +302,7 @@ final class PartialUpdateOpenIdConfiguration
 
         $nonExistentAccessGroupsIds = array_diff($accessGroupIdsFromRequest, $foundAccessGroupsId);
 
-        if (! empty($nonExistentAccessGroupsIds)) {
+        if ($nonExistentAccessGroupsIds !== []) {
             $this->error('Access Groups not found', [
                 'access_group_ids' => implode(', ', $nonExistentAccessGroupsIds),
             ]);
@@ -466,7 +466,7 @@ final class PartialUpdateOpenIdConfiguration
         }
         $nonExistentContactGroupsIds = array_diff($contactGroupIds, $foundContactGroupsId);
 
-        if (! empty($nonExistentContactGroupsIds)) {
+        if ($nonExistentContactGroupsIds !== []) {
             $this->error('Contact groups not found', [
                 'contact_group_ids' => implode(', ', $nonExistentContactGroupsIds),
             ]);

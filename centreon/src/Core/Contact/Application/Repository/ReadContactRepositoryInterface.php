@@ -24,7 +24,10 @@ declare(strict_types=1);
 namespace Core\Contact\Application\Repository;
 
 use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Contact\Domain\Model\BasicContact;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadContactRepositoryInterface
 {
@@ -109,4 +112,53 @@ interface ReadContactRepositoryInterface
      * @return Contact[]
      */
     public function findAdminsByIds(array $contactIds): array;
+
+    /**
+     * Retrieve contacts based on given IDs.
+     *
+     * @param int[] $contactIds
+     *
+     * @throws \Throwable
+     *
+     * @return BasicContact[]
+     */
+    public function findByIds(array $contactIds): array;
+
+    /**
+     * Check existence of provided contacts
+     * Return an array of the existing user IDs out of the provided ones.
+     *
+     * @param int[] $contactIds
+     *
+     * @return int[]
+     */
+    public function retrieveExistingContactIds(array $contactIds): array;
+
+    /**
+     * Find contact ids by access groups.
+     *
+     * @param AccessGroup[] $accessGroups
+     *
+     * @return BasicContact[]
+     */
+    public function findByAccessGroup(array $accessGroups): array;
+
+    /**
+     * Finds all contacts that the contact can see based on contacts and contact groups
+     * defined in ACL groups filtered by access groups.
+     * As well as all the contacts in the contact groups to which he belongs.
+     *
+     * @param AccessGroup[] $accessGroups
+     * @param ContactInterface $user
+     * @param ?RequestParametersInterface $requestParameters
+     *
+     * @throws \Throwable
+     *
+     * @return BasicContact[]
+     */
+    public function findByAccessGroupsAndUserAndRequestParameters(
+        array $accessGroups,
+        ContactInterface $user,
+        ?RequestParametersInterface $requestParameters = null
+    ): array;
 }

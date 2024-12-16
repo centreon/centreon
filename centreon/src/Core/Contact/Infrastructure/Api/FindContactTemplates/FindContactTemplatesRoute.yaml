@@ -1,0 +1,5 @@
+FindContactTemplates:
+  methods: GET
+  path: /configuration/contacts/templates
+  controller: 'Core\Contact\Infrastructure\Api\FindContactTemplates\FindContactTemplatesController'
+  condition: "request.attributes.get('version') >= 22.04"

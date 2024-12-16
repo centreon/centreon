@@ -1,5 +1,5 @@
 <?php
-$help = array();
+$help = [];
 $help['name'] = dgettext("help", "Used for identifying the poller");
 $help['ns_ip_address'] = dgettext("help", "IP address of the poller");
 $help['localhost'] = dgettext("help", "Whether the poller is local");

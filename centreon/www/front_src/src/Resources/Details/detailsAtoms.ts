@@ -4,9 +4,9 @@ import { isNil } from 'ramda';
 
 import { resourcesEndpoint } from '../api/endpoint';
 import { replaceBasename } from '../helpers';
-import { Resource } from '../models';
+import type { Resource } from '../models';
 
-import {
+import type {
   GraphTabParameters,
   ResourceDetails,
   ResourceDetailsAtom,
@@ -14,8 +14,8 @@ import {
   TabParameters
 } from './models';
 import { detailsTabId } from './tabs';
-import { CustomTimePeriod, TimePeriodId } from './tabs/Graph/models';
-import { TabId } from './tabs/models';
+import type { CustomTimePeriod, TimePeriodId } from './tabs/Graph/models';
+import type { TabId } from './tabs/models';
 
 export const panelWidthStorageAtom = atomWithStorage(
   'centreon-resource-status-details-21.10',
@@ -65,8 +65,9 @@ export const setGraphTabParametersDerivedAtom = atom(
   }
 );
 
-export const selectedResourcesDetailsAtom =
-  atomWithStorage<ResourceDetailsAtom | null>('resource_details', null);
+export const selectedResourcesDetailsAtom = atom<ResourceDetailsAtom | null>(
+  null
+);
 
 export const selectedResourceDetailsEndpointDerivedAtom = atom((get) => {
   const selectedResourceDetails = get(selectedResourcesDetailsAtom);

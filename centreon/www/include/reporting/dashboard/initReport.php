@@ -62,9 +62,9 @@ $debug = 0;
 /*
  * QuickForm templates
  */
-$attrsTextI        = array("size"=>"3");
-$attrsText        = array("size"=>"30");
-$attrsTextarea    = array("rows"=>"5", "cols"=>"40");
+$attrsTextI        = ["size"=>"3"];
+$attrsText        = ["size"=>"30"];
+$attrsTextarea    = ["rows"=>"5", "cols"=>"40"];
 
 
 /*
@@ -80,21 +80,10 @@ $tpl->assign('o', $o);
 $tpl->assign("centreon_path", _CENTREON_PATH_);
 
 # Status colors
-$colors = array(
-    'up' => '88b917',
-    'down' => 'e00b3d',
-    'unreachable' => '818285',
-    'maintenance' => 'cc99ff',
-    'downtime' => 'cc99ff',
-    'ok' => '88b917',
-    'warning' => 'ff9a13',
-    'critical' => 'e00b3d',
-    'unknown' => 'bcbdc0',
-    'undetermined' => 'd1d2d4'
-);
+$colors = ['up' => '88b917', 'down' => 'e00b3d', 'unreachable' => '818285', 'maintenance' => 'cc99ff', 'downtime' => 'cc99ff', 'ok' => '88b917', 'warning' => 'ff9a13', 'critical' => 'e00b3d', 'unknown' => 'bcbdc0', 'undetermined' => 'd1d2d4'];
 $tpl->assign('colors', $colors);
 
-$color = array();
+$color = [];
 $color["UNKNOWN"] = $colors['unknown'];
 $color["UP"] = $colors['up'];
 $color["DOWN"] = $colors['down'];
@@ -350,40 +339,34 @@ $tpl->assign('period_choice', $period_choice);
  * Period Selection form
  */
 $formPeriod = new HTML_QuickFormCustom('FormPeriod', 'post', "?p=".$p);
-$formPeriod->addElement('select', 'period', "", $periodList, array("id" => "presetPeriod"));
+$formPeriod->addElement('select', 'period', "", $periodList, ["id" => "presetPeriod"]);
 $formPeriod->addElement('hidden', 'timeline', "1");
 $formPeriod->addElement(
     'text',
     'StartDate',
     _("From"),
-    array("id"=>"StartDate", "size"=>10, "class"=>"datepicker", "onClick" => "javascript: togglePeriodType();")
+    ["id"=>"StartDate", "size"=>10, "class"=>"datepicker", "onClick" => "javascript: togglePeriodType();"]
 );
 $formPeriod->addElement(
     'text',
     'EndDate',
     _("to"),
-    array("id"=>"EndDate", "size"=>10, "class"=>"datepicker", "onClick" => "javascript: togglePeriodType();")
+    ["id"=>"EndDate", "size"=>10, "class"=>"datepicker", "onClick" => "javascript: togglePeriodType();"]
 );
 /* adding hidden fields to get the result of datepicker in an unlocalized format */
 $formPeriod->addElement(
     'hidden',
     'alternativeDateStartDate',
     '',
-    array(
-        'size' => 10,
-        'class' => 'alternativeDate'
-    )
+    ['size' => 10, 'class' => 'alternativeDate']
 );
 $formPeriod->addElement(
     'hidden',
     'alternativeDateEndDate',
     'test',
-    array(
-        'size' => 10,
-        'class' => 'alternativeDate'
-    )
+    ['size' => 10, 'class' => 'alternativeDate']
 );
-$formPeriod->addElement('submit', 'button', _("Apply period"), array('class' => 'btc bt_success ml-2'));
+$formPeriod->addElement('submit', 'button', _("Apply period"), ['class' => 'btc bt_success ml-2']);
 $formPeriod->setDefaults(
     [
         'period' => $period,

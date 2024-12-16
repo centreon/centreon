@@ -1,6 +1,6 @@
-import { MutableRefObject } from 'react';
+import type { MutableRefObject } from 'react';
 
-import { ScaleLinear } from 'd3-scale';
+import type { ScaleLinear } from 'd3-scale';
 import { isNil } from 'ramda';
 
 import {
@@ -8,14 +8,14 @@ import {
   getTimeSeriesForLines,
   getYScale
 } from '../../../common/timeSeries';
-import { Line, TimeValue } from '../../../common/timeSeries/models';
+import type { Line, TimeValue } from '../../../common/timeSeries/models';
 import { getPointRadius } from '../../../common/utils';
 import GuidingLines from '../../InteractiveComponents/AnchorPoint/GuidingLines';
 import RegularAnchorPoint, {
   getYAnchorPoint
 } from '../../InteractiveComponents/AnchorPoint/RegularAnchorPoint';
 import { displayArea } from '../../helpers/index';
-import { DisplayAnchor, GlobalAreaLines } from '../../models';
+import type { DisplayAnchor, GlobalAreaLines } from '../../models';
 
 import Point from './Point';
 import RegularLine from './RegularLines';

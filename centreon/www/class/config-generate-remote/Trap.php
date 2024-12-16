@@ -20,21 +20,37 @@
 
 namespace ConfigGenerateRemote;
 
-use \PDO;
+use Exception;
+use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use Pimple\Container;
 
+/**
+ * Class
+ *
+ * @class Trap
+ * @package ConfigGenerateRemote
+ */
 class Trap extends AbstractObject
 {
+    /** @var int */
     private $useCache = 1;
+    /** @var int */
     private $doneCache = 0;
 
+    /** @var array */
     private $trapCache = [];
+    /** @var array */
     private $serviceLinkedCache = [];
 
+    /** @var string */
     protected $table = 'traps';
+    /** @var string */
     protected $generateFilename = 'traps.infile';
+    /** @var null */
     protected $stmtService = null;
 
+    /** @var string[] */
     protected $attributesWrite = [
         'traps_id',
         'traps_name',
@@ -64,11 +80,11 @@ class Trap extends AbstractObject
     ];
 
     /**
-     * Constructor
+     * Trap constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->buildCache();
@@ -79,7 +95,7 @@ class Trap extends AbstractObject
      *
      * @return void
      */
-    private function cacheTrap()
+    private function cacheTrap(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT * FROM traps
@@ -98,7 +114,7 @@ class Trap extends AbstractObject
      *
      * @return void
      */
-    private function cacheTrapLinked()
+    private function cacheTrapLinked(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT traps_id, service_id
@@ -133,12 +149,14 @@ class Trap extends AbstractObject
     /**
      * Generate trap and relations
      *
-     * @param integer $serviceId
+     * @param int $serviceId
      * @param array $serviceLinkedCache
      * @param array $object
+     *
      * @return void
+     * @throws Exception
      */
-    public function generateObject(int $serviceId, array $serviceLinkedCache, array &$object)
+    public function generateObject(int $serviceId, array $serviceLinkedCache, array &$object): void
     {
         foreach ($serviceLinkedCache as $trapId) {
             Relations\TrapsServiceRelation::getInstance($this->dependencyInjector)->addRelation($trapId, $serviceId);
@@ -162,8 +180,10 @@ class Trap extends AbstractObject
     /**
      * Get service linked traps
      *
-     * @param integer $serviceId
+     * @param int $serviceId
+     *
      * @return null|array
+     * @throws Exception
      */
     public function getTrapsByServiceId(int $serviceId)
     {

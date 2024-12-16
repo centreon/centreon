@@ -245,7 +245,7 @@ class PartialUpdateServiceValidation
      */
     public function assertAreValidGroups(array $groupIds): void
     {
-        if (empty($groupIds)) {
+        if ($groupIds === []) {
 
             return;
         }

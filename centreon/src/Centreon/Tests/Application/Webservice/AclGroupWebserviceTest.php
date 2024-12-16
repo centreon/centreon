@@ -39,6 +39,9 @@ class AclGroupWebserviceTest extends TestCase
 
     public const METHOD_GET_LIST = 'getList';
 
+    /** @var AclGroupWebservice|(AclGroupWebservice&object&\PHPUnit\Framework\MockObject\MockObject)|(AclGroupWebservice&\PHPUnit\Framework\MockObject\MockObject)|(object&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject */
+    public $webservice;
+
     /**
      * {@inheritdoc}
      */

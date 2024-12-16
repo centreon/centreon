@@ -21,48 +21,45 @@
 
 namespace CentreonRemote\Domain\Service\ConfigurationWizard;
 
+use App\Kernel;
 use Centreon\Infrastructure\CentreonLegacyDB\CentreonDBAdapter;
 use CentreonRemote\Domain\Resources\RemoteConfig\BamBrokerCfgInfo;
 use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagios;
 use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagiosBrokerModule;
 use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagiosLogger;
 use CentreonRemote\Domain\Resources\RemoteConfig\NagiosServer;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Infrastructure\FeatureFlags;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 
 abstract class ServerConnectionConfigurationService
 {
-    /** @var CentreonDBAdapter */
-    protected $dbAdapter;
+    use VaultTrait;
 
-    /** @var string|null */
-    protected $serverIp;
+    protected string|null $serverIp;
 
-    /** @var string|null */
-    protected $centralIp;
+    protected string|null $centralIp;
 
-    /** @var string|null */
-    protected $dbUser;
+    protected string|null $dbUser;
 
-    /** @var string|null */
-    protected $dbPassword;
+    protected string|null $dbPassword;
 
-    /** @var string|null */
-    protected $name;
+    protected string|null $name;
 
-    /** @var bool */
-    protected $onePeerRetention = false;
+    protected bool $onePeerRetention = false;
 
-    /** @var bool */
-    protected $shouldInsertBamBrokers = false;
+    protected bool $shouldInsertBamBrokers = false;
 
-    /** @var bool */
-    protected $isLinkedToCentralServer = false;
+    protected bool $isLinkedToCentralServer = false;
 
-    /** @var int|null */
-    protected $brokerID = null;
+    protected int|null $brokerID = null;
 
-    public function __construct(CentreonDBAdapter $dbAdapter)
+    public function __construct(
+        protected CentreonDBAdapter $dbAdapter
+    )
     {
-        $this->dbAdapter = $dbAdapter;
     }
 
     /**
@@ -241,6 +238,7 @@ abstract class ServerConnectionConfigurationService
 
         $bamBrokerInfoData = BamBrokerCfgInfo::getConfiguration($conf_centreon['password']);
 
+        $bamBrokerInfoData = $this->saveCredentialInVault($bamBrokerInfoData);
         foreach ($bamBrokerInfoData['monitoring'] as $row) {
             $row['config_id'] = $this->brokerID;
             $this->insertWithAdapter('cfg_centreonbroker_info', $row);
@@ -276,5 +274,74 @@ abstract class ServerConnectionConfigurationService
     protected function isRemote(): bool
     {
         return false;
+    }
+
+    /**
+     * @param array<string, array<int, string[]>> $brokerInfos
+     *
+     * @throws \Throwable
+     *
+     * @return array<string, array<int, string[]>>
+     */
+    protected function saveCredentialInVault(array $brokerInfos): array
+    {
+        $kernel = Kernel::createForWeb();
+        /** @var ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository */
+        $readVaultConfigurationRepository = $kernel->getContainer()->get(
+            ReadVaultConfigurationRepositoryInterface::class
+        );
+        /** @var FeatureFlags $featureFlags */
+        $featureFlags = $kernel->getContainer()->get(FeatureFlags::class);
+
+        /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+        $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+
+        $writeVaultRepository->setCustomPath(AbstractVaultRepository::BROKER_VAULT_PATH);
+        $vaultConfiguration = $readVaultConfigurationRepository->find();
+
+        if (
+            ! $featureFlags->isEnabled('vault')
+            || ! $featureFlags->isEnabled('vault_broker')
+            || $vaultConfiguration === null
+        ) {
+            return $brokerInfos;
+        }
+
+        foreach ($brokerInfos as $key => $inputOutput) {
+            $inputOutputName = null;
+            $credentialKey = null;
+            $credentialValue = null;
+            foreach ($inputOutput as $index => $row) {
+                if (isset($row['config_key']) && $row['config_key'] === 'name') {
+                    $inputOutputName = $row['config_value'];
+                }
+                if (isset($row['config_key']) && $row['config_key'] === 'db_password') {
+                    $credentialKey = $index;
+                    $credentialValue = $row['config_value'];
+                }
+            }
+
+            if (
+                $inputOutputName === null
+                || $credentialKey === null
+                || $credentialValue === null
+            ) {
+                continue;
+            }
+
+            $paths = $writeVaultRepository->upsert(
+                $this->uuid,
+                ["{$inputOutputName}_db_password" => $credentialValue]
+            );
+
+            $path = end($paths);
+            if ($path !== false) {
+                $this->uuid = $this->getUuidFromPath($path);
+            }
+
+            $brokerInfos[$key][$credentialKey]['config_value'] = $paths["{$inputOutputName}_db_password"];
+        }
+
+        return $brokerInfos;
     }
 }
