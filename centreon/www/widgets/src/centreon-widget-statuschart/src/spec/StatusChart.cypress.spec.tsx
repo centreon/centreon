@@ -141,8 +141,6 @@ displayTypes.forEach(({ displayType, label }) => {
         .children()
         .eq(0)
         .should('have.text', '19.8%');
-
-      cy.makeSnapshot(`${label} : displays charts with the default values`);
     });
 
     it(`displays a ${label} for services when the resource type is set to service and displayType to ${displayType}`, () => {
@@ -263,7 +261,7 @@ displayTypes.forEach(({ displayType, label }) => {
       cy.makeSnapshot(`${label} : displays values with the unit "number"`);
     });
 
-    describe.only('Tooltip', () => {
+    describe('Tooltip', () => {
       ['service', 'host'].forEach((resourceType) => {
         it(`displays tooltip with correct information on hover for type ${resourceType}`, () => {
           const statuses = equals(resourceType, 'host')
