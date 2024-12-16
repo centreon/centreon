@@ -182,7 +182,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                     ON `instances`.instance_id = `resources`.poller_id
                 WHERE resources.name NOT LIKE '\_Module\_%'
                     AND resources.parent_name NOT LIKE '\_Module\_BAM%'
-                    AND resources.enabled = 1 
+                    AND resources.enabled = 1
                     AND resources.type != 3
             SQL;
 
@@ -451,7 +451,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                 LEFT JOIN `:dbstg`.`resources_tags` AS rtags
                     ON `rtags`.resource_id = `resources`.resource_id
                 INNER JOIN `:dbstg`.`instances`
-                    ON `instances`.instance_id = `resources`.poller_id';
+                    ON `instances`.instance_id = `resources`.poller_id
             SQL;
 
         /**
