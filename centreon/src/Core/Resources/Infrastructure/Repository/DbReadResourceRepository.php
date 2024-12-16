@@ -126,7 +126,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
 
         $resourceTypeHost = self::RESOURCE_TYPE_HOST;
-        $request = <<<"SQL"
+        $request = <<<SQL
                 SELECT SQL_CALC_FOUND_ROWS DISTINCT
                     1 AS REALTIME,
                     resources.resource_id,
@@ -329,7 +329,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                     || $type === Tag::HOST_CATEGORY_TYPE_ID
                 ) {
                     $resourceTypeHost = self::RESOURCE_TYPE_HOST;
-                    $intersectRequest .= <<<"SQL"
+                    $intersectRequest .= <<<SQL
                             SELECT * FROM (
                                 SELECT resources.resource_id
                                 FROM `resources`
@@ -357,7 +357,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                             ) as t
                         SQL;
                 } else {
-                    $intersectRequest .= <<<"SQL"
+                    $intersectRequest .= <<<SQL
                             SELECT rtags.resource_id
                             FROM `:dbstg`.resources_tags AS rtags
                             INNER JOIN `:dbstg`.tags
@@ -398,7 +398,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
 
         $resourceTypeHost = self::RESOURCE_TYPE_HOST;
-        $request = <<<"SQL"
+        $request = <<<SQL
                 SELECT SQL_CALC_FOUND_ROWS DISTINCT
                     1 AS REALTIME,
                     resources.resource_id,
