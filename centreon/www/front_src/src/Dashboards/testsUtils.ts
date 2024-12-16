@@ -19,8 +19,8 @@ export const manageAFavorite = ({ action, buttonAlias, requestsToWait }) => {
     : labelAddToFavorites;
 
   const labelSuccess = equals(action, FavoriteAction.add)
-    ? labelDashboardRemovedFromFavorites
-    : labelDashboardAddedToFavorites;
+    ? labelDashboardAddedToFavorites
+    : labelDashboardRemovedFromFavorites;
   cy.get(buttonAlias).trigger('mouseover');
   cy.findByText(title).should('be.visible');
 
