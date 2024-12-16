@@ -173,7 +173,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                 FROM `:dbstg`.`resources`
                 LEFT JOIN `:dbstg`.`resources` parent_resource
                     ON parent_resource.id = resources.parent_id
-                    AND parent_resource.type = {$resourceTypeHost} 
+                    AND parent_resource.type = {$resourceTypeHost}
                 LEFT JOIN `:dbstg`.`severities`
                     ON `severities`.severity_id = `resources`.severity_id
                 LEFT JOIN `:dbstg`.`resources_tags` AS rtags
