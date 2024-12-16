@@ -16,8 +16,6 @@ on:
       - "centreon-awie/**"
       - "!centreon-awie/features/**"
       - "!centreon-awie/behat.yml"
-      - "!centreon-awie/veracode.json"
-      - "!centreon-awie/.veracode-exclusions"
   push:
     branches:
       - develop
@@ -28,8 +26,6 @@ on:
       - "centreon-awie/**"
       - "!centreon-awie/features/**"
       - "!centreon-awie/behat.yml"
-      - "!centreon-awie/veracode.json"
-      - "!centreon-awie/.veracode-exclusions"
 
 env:
   module: awie
@@ -71,24 +67,6 @@ jobs:
           has_frontend_changes: 'false'
           has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
           has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
-
-  veracode-analysis:
-    needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.is_targeting_feature_branch != 'true' && github.event.pull_request.draft != 'true' }}
-    uses: ./.github/workflows/veracode-analysis.yml
-    with:
-      module_directory: centreon-awie
-      module_name: centreon-awie
-      major_version: ${{ needs.get-environment.outputs.major_version }}
-      minor_version: ${{ needs.get-environment.outputs.minor_version }}
-      stability: ${{ needs.get-environment.outputs.stability }}
-    secrets:
-      veracode_api_id: ${{ secrets.VERACODE_API_ID }}
-      veracode_api_key: ${{ secrets.VERACODE_API_KEY }}
-      veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
-      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   package:
     needs: [get-environment]
