@@ -111,6 +111,10 @@ default:
       paths: [ "%paths.base%/features/SpecialCharactersInContact.feature" ]
       contexts: [ SpecialCharactersInContactContext ]
 
+    contact_group_configuration:
+      paths: [ "%paths.base%/features/ContactGroupConfiguration.feature" ]
+      contexts: [ ContactGroupConfigurationContext ]
+      
     ldap_manual_import:
       paths: [ "%paths.base%/features/LdapManualImport.feature" ]
       contexts: [ LdapManualImportContext ]
