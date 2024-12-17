@@ -32,7 +32,7 @@
           }
         ]
       },
-      "is_favorite": false
+      "is_favorite": true
     },
     {
       "id": 2,
@@ -54,7 +54,7 @@
         "contacts": [],
         "contact_groups": []
       },
-      "is_favorite": false
+      "is_favorite": true
     }
   ],
   "meta": {

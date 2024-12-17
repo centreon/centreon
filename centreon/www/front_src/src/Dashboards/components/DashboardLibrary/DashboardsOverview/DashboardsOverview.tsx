@@ -42,7 +42,8 @@ const DashboardsOverview = (): ReactElement => {
   const search = useAtomValue(searchAtom);
   const user = useAtomValue(userAtom);
 
-  const { isEmptyList, dashboards, data, isLoading } = useDashboardsOverview();
+  const { isEmptyList, dashboards, data, isLoading, refetch } =
+    useDashboardsOverview();
   const { createDashboard } = useDashboardConfig();
   const { hasEditPermission, canCreateOrManageDashboards } =
     useDashboardUserPermissions();
@@ -111,7 +112,9 @@ const DashboardsOverview = (): ReactElement => {
           <div className={classes.dashboardItemContainer} key={dashboard.id}>
             <DataTable.Item
               hasCardAction
-              Actions={<DashboardCardActions dashboard={dashboard} />}
+              Actions={
+                <DashboardCardActions dashboard={dashboard} refetch={refetch} />
+              }
               description={dashboard.description ?? undefined}
               hasActions={hasEditPermission(dashboard)}
               thumbnail={
