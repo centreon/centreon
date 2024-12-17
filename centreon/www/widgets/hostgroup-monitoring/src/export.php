@@ -131,13 +131,22 @@ try {
     $query .= " ORDER BY $orderby";
 
     // Execute count query
-    $countStatement = $dbb->prepareQuery($countQuery);
-    $dbb->executePreparedQuery($countStatement, $bindParams, true);
+    if (! empty($bindParams)) {
+        $countStatement = $dbb->prepareQuery($countQuery);
+        $dbb->executePreparedQuery($countStatement, $bindParams, true);
+    } else {
+        $countStatement= $dbb->executeQuery($countQuery);
+    }
+
     $nbRows = (int) $dbb->fetchColumn($countStatement);
 
     // Execute main query
-    $statement = $dbb->prepareQuery($query);
-    $dbb->executePreparedQuery($statement, $bindParams, true);
+    if (! empty($bindParams)) {
+        $statement = $dbb->prepareQuery($query);
+        $dbb->executePreparedQuery($statement, $bindParams, true);
+    } else {
+        $statement = $dbb->executeQuery($query);
+    }
 
     $detailMode = false;
     if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
