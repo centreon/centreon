@@ -25,6 +25,7 @@ namespace Core\Resources\Infrastructure\API\FindResources;
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Monitoring\ResourceFilter;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Resources\Application\UseCase\FindResources\FindResources;
 use Core\Resources\Infrastructure\API\FindResources\FindResourcesRequestValidator as RequestValidator;
 use Symfony\Component\HttpFoundation\Request;
@@ -52,9 +53,23 @@ final class FindResourcesController extends AbstractController
     public function __invoke(
         FindResources $useCase,
         FindResourcesPresenter $presenter,
+        RequestParametersInterface $requestParameters,
         Request $request
     ): Response {
         $this->denyAccessUnlessGrantedForApiRealtime();
+
+        // PATCH to fix the search when the search is ony done with one value (search all fields)
+        $search = $requestParameters->getSearch();
+        $searchOrExpresssion = $search['$and'][0]['$or'] ?? null;
+        if (is_array($searchOrExpresssion) && count($searchOrExpresssion) === 8) {
+            $searchOrExpresssion = array_filter($searchOrExpresssion, function ($value) {
+                return key($value) === 'h.name';
+            });
+            $requestParametersClear = ['h.name' => ['$eq' => $searchOrExpresssion[0]['h.name']['$rg']]];
+            $search['$and'][0]['$or'] = $requestParametersClear;
+            $requestParameters->setSearch(json_encode($search, JSON_THROW_ON_ERROR));
+        }
+        // End of PATCH
 
         $filter = $this->validator->validateAndRetrieveRequestParameters($request->query->all());
 
