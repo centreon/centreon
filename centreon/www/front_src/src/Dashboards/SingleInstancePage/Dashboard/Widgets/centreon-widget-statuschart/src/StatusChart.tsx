@@ -57,6 +57,11 @@ const StatusChart = ({
       className={cx(classes.container, {
         [classes.flexDirectionColumns]: isHorizontalBar
       })}
+      style={
+        isHorizontalBar
+          ? { gridTemplateRows: `repeat(${resourceTypes.length}, 1fr)` }
+          : { gridTemplateColumns: `repeat(${resourceTypes.length}, 1fr)` }
+      }
     >
       {resourceTypes.map((resourceType) => {
         const isOfTypeHost = includes('host', resourceType);
