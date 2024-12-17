@@ -134,7 +134,7 @@ try {
 
     $statement = $dbb->prepareQuery($query);
 
-    $bindParams = ['orderby' => [$orderby, PDO::PARAM_STR]];
+    $bindParams['orderby'] = [$orderby, PDO::PARAM_STR];
     $bindParams['offset'] = [$page * $preferences['entries'], PDO::PARAM_INT];
     $bindParams['entries'] = [$preferences['entries'], PDO::PARAM_INT];
 
