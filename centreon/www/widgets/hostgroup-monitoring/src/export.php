@@ -75,13 +75,13 @@ $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 $hostStateLabels = [0 => "Up", 1 => "Down", 2 => "Unreachable", 4 => "Pending"];
 
 $serviceStateLabels = [0 => "Ok", 1 => "Warning", 2 => "Critical", 3 => "Unknown", 4 => "Pending"];
+
+const ORDER_DIRECTION_ASC = 'ASC';
+const ORDER_DIRECTION_DESC = 'DESC';
+
 try {
-    $query = <<<'SQL_WRAP'
-        SELECT SQL_CALC_FOUND_ROWS DISTINCT
-            1 AS REALTIME,
-            name
-        FROM hostgroups 
-        SQL_WRAP;
+    $columns = 'SELECT DISTINCT 1 AS REALTIME, name ';
+    $baseQuery = ' FROM hostgroups';
 
     $bindParams = [];
     if (isset($preferences['hg_name_search']) && trim($preferences['hg_name_search']) !== '') {
@@ -91,8 +91,8 @@ try {
             $search = $tab[1];
         }
         if ($op && isset($search) && trim($search) !== '') {
-            $query = CentreonUtils::conditionBuilder(
-                $query,
+            $baseQuery = CentreonUtils::conditionBuilder(
+                $baseQuery,
                 "name " . CentreonUtils::operandToMysqlFormat($op) . " :search "
             );
             $bindParams[':search'] = [$search, PDO::PARAM_STR];
@@ -100,23 +100,45 @@ try {
     }
 
     if (!$centreon->user->admin) {
-        $query = CentreonUtils::conditionBuilder($query, "name IN (:hostgroups)");
+        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, "name IN (:hostgroups)");
         $bindParams[':hostgroups'] = [$aclObj->getHostGroupsString("NAME"), PDO::PARAM_STR];
     }
-    $orderby = "name ASC";
+    $orderby = "name " . ORDER_DIRECTION_ASC;
 
-    if (isset($preferences['order_by']) && trim($preferences['order_by']) !== '') {
-        $orderby = $preferences['order_by'];
+
+    $allowedOrderColumns = ['name'];
+    $allowedDirections = [ORDER_DIRECTION_ASC, ORDER_DIRECTION_DESC];
+    $defaultDirection = ORDER_DIRECTION_ASC;
+
+    $orderByToAnalyse = isset($preferences['order_by'])
+        ? trim($preferences['order_by'])
+        : null;
+
+    if ($orderByToAnalyse !== null) {
+        $orderByToAnalyse .= " $defaultDirection";
+        [$column, $direction] = explode(' ', $orderByToAnalyse);
+
+        if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
+            $orderby = $column . ' ' . $direction;
+        }
     }
-    $bindParams[':orderby'] = [$orderby, PDO::PARAM_STR];
 
-    $query .= "ORDER BY :orderby";
+    // Query to count total rows
+    $countQuery = "SELECT COUNT(*) " . $baseQuery;
 
+    // Main SELECT query
+    $query = $columns . $baseQuery;
+    $query .= " ORDER BY $orderby";
+
+    // Execute count query
+    $countStatement = $dbb->prepareQuery($countQuery);
+    $dbb->executePreparedQuery($countStatement, $bindParams, true);
+    $nbRows = (int) $dbb->fetchColumn($countStatement);
+
+    // Execute main query
     $statement = $dbb->prepareQuery($query);
-
     $dbb->executePreparedQuery($statement, $bindParams, true);
 
-    $nbRows = (int) $dbb->executeQuery('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
     $detailMode = false;
     if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
         $detailMode = true;
