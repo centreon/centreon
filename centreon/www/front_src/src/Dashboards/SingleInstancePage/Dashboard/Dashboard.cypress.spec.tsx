@@ -246,7 +246,7 @@ const initializeAndMount = ({
   cy.interceptAPIRequest({
     alias: 'addFavorite',
     method: Method.POST,
-    path: `./api/latest/${dashboardsFavoriteEndpoit}`
+    path: `./api/latest${dashboardsFavoriteEndpoit}`
   });
 
   const proceedNavigation = cy.stub();
@@ -388,9 +388,8 @@ const runFavoriteManagementFromDetails = ({ action, customDetailsPath }) => {
     ? 'Dashboards/Dashboard/details.json'
     : 'Dashboards/favorites/details.json';
 
-  // biome-ignore lint/correctness/noUnusedVariables: <explanation>
-  const aliasRequestAction = equals(FavoriteAction.add)
-    ? '@addFvorite'
+  const aliasRequestAction = equals(FavoriteAction.add, action)
+    ? '@addFavorite'
     : '@removeFavorite';
 
   interceptDetailsDashboard({ path });
@@ -399,8 +398,7 @@ const runFavoriteManagementFromDetails = ({ action, customDetailsPath }) => {
   manageAFavorite({
     action,
     buttonAlias: '@favoriteIcon',
-    requestsToWait: ['@getDashboardDetails'] // temporarily
-    // requestsToWait: [aliasRequestAction, '@getDashboardDetails'] // temporarily
+    requestsToWait: [aliasRequestAction, '@getDashboardDetails']
   });
 };
 

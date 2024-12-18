@@ -41,6 +41,6 @@ export const interceptDashboardsFavoriteDelete = (id: number) => {
   cy.interceptAPIRequest({
     alias: 'removeFavorite',
     method: Method.DELETE,
-    path: `./api/latest/${dashboardsFavoriteDeleteEndpoint(id)}`
+    path: `./api/latest${dashboardsFavoriteDeleteEndpoint(id)}`
   });
 };
