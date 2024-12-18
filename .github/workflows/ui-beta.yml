@@ -61,6 +61,7 @@ jobs:
           path: ${{ env.directory }}/src/__image_snapshots__/__diff_output__/
 
   publish-new-npm-beta-version:
+    if: github.repository == 'centreon/centreon'
     runs-on: ubuntu-22.04
     needs: [lint, unit-test]
 

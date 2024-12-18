@@ -27,6 +27,7 @@ jobs:
           dependencies_lock_file: centreon/pnpm-lock.yaml
 
   publish-new-npm-beta-version:
+    if: github.repository == 'centreon/centreon'
     runs-on: ubuntu-22.04
     needs: lint
 
