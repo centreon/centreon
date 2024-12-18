@@ -471,7 +471,12 @@ jobs:
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
       - name: Setup docker slim
-        run: curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -s -- 1.40.11
+        run: |
+          curl -sLO https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz
+          tar zxf dist_linux.tar.gz
+          mv dist_linux/{slim,slim-sensor} /usr/local/bin/
+          chmod +x /usr/local/bin/{slim,slim-sensor}
+          rm -rf dist_linux.tar.gz dist_linux
         shell: bash
 
       - name: Build standard slim image
