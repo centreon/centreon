@@ -80,6 +80,7 @@ import {
   clearFilterDerivedAtom,
   currentFilterAtom,
   customFiltersAtom,
+  hasSimpleSearchAtom,
   isCriteriasPanelOpenAtom,
   searchAtom,
   sendingFilterAtom,
@@ -179,6 +180,7 @@ const Filter = (): JSX.Element => {
   const sendingFilter = useAtomValue(sendingFilterAtom);
   const user = useAtomValue(userAtom);
   const isCriteriasPanelOpen = useAtomValue(isCriteriasPanelOpenAtom);
+  const hasSimpleSearch = useAtomValue(hasSimpleSearchAtom);
   const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
   const applyFilter = useSetAtom(applyFilterDerivedAtom);
   const setNewFilter = useSetAtom(setNewFilterDerivedAtom);
@@ -590,6 +592,7 @@ const Filter = (): JSX.Element => {
                   }}
                   onFocus={(): void => setIsSearchFieldFocused(true)}
                   onKeyDown={inputKey}
+                  error={hasSimpleSearch ? true : undefined}
                 />
                 <Suspense
                   fallback={

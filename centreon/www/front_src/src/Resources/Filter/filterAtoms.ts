@@ -1,6 +1,7 @@
 import { atom } from 'jotai';
 import { atomWithStorage, atomWithDefault } from 'jotai/utils';
 import {
+  equals,
   find,
   findIndex,
   indexBy,
@@ -25,6 +26,11 @@ import { labelNewFilter } from '../translatedLabels';
 
 import { Criteria, CriteriaValue } from './Criterias/models';
 import {
+  dynamicCriteriaValuesByName,
+  searchableFields
+} from './Criterias/searchQueryLanguage/models';
+import {
+  Filter,
   allFilter,
   Filter,
   isCustom,
@@ -232,3 +238,25 @@ export const filtersDerivedAtom = atom((get) => [
   resourceProblemsFilter,
   ...get(customFiltersAtom)
 ]);
+
+export const hasSimpleSearchAtom = atom((get) => {
+  const filter = get(filterWithParsedSearchDerivedAtom);
+
+  const search = filter.criterias.find((criteria) =>
+    equals(criteria.name, 'search')
+  );
+
+  if (!search?.value) {
+    return false;
+  }
+
+  const splittedSearch = search?.value?.split(' ');
+
+  return splittedSearch.some((value) => {
+    return [...dynamicCriteriaValuesByName, ...searchableFields].every(
+      (fieldName) => {
+        return !value.includes(`${fieldName}:`);
+      }
+    );
+  });
+});

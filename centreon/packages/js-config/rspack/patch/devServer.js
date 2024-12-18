@@ -17,7 +17,7 @@ const devServerAddress = externalInterface
   ? interfaces[externalInterface][0].address
   : 'localhost';
 
-const publicPath = `http://${devServerAddress}:${devServerPort}/static/`;
+const publicPath = `http://localhost:${devServerPort}/static/`;
 
 const isDevelopmentMode = process.env.NODE_ENV !== 'production';
 
