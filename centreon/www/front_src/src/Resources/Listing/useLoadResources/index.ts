@@ -39,12 +39,14 @@ import { searchableFields } from '../../Filter/Criterias/searchQueryLanguage';
 import {
   appliedFilterAtom,
   customFiltersAtom,
-  getCriteriaValueDerivedAtom
+  getCriteriaValueDerivedAtom,
+  hasSimpleSearchAtom
 } from '../../Filter/filterAtoms';
 import {
   resourcesEndpoint as allResourcesEndpoint,
   hostsEndpoint
 } from '../../api/endpoint';
+import { resourceDetailsDecoder } from '../../decoders';
 import { ResourceListing, SortOrder, Visualization } from '../../models';
 import {
   labelNoResourceFound,
@@ -58,7 +60,6 @@ import {
   pageAtom,
   sendingAtom
 } from '../listingAtoms';
-import { resourceDetailsDecoder } from '../../decoders';
 
 import { Search } from './models';
 
@@ -106,6 +107,7 @@ const useLoadResources = (): LoadResources => {
   const getCriteriaValue = useAtomValue(getCriteriaValueDerivedAtom);
   const appliedFilter = useAtomValue(appliedFilterAtom);
   const visualization = useAtomValue(selectedVisualizationAtom);
+  const hasSimpleSearch = useAtomValue(hasSimpleSearchAtom);
   const setListing = useSetAtom(listingAtom);
   const setSending = useSetAtom(sendingAtom);
   const setSendingDetails = useSetAtom(sendingDetailsAtom);
@@ -223,6 +225,10 @@ const useLoadResources = (): LoadResources => {
     };
 
     if (getUrlQueryParameters().fromTopCounter) {
+      return;
+    }
+
+    if (hasSimpleSearch) {
       return;
     }
 
