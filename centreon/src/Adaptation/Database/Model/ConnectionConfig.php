@@ -1,0 +1,112 @@
+<?php
+
+/*
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Adaptation\Database\Model;
+
+use Adaptation\Database\Enum\ConnectionDriver;
+
+/**
+ * Class
+ *
+ * @class   ConnectionConfig
+ * @package Adaptation\Database\Model
+ */
+final readonly class ConnectionConfig
+{
+    /**
+     * ConnectionConfig constructor
+     *
+     * @param string           $host
+     * @param string           $user
+     * @param string           $password
+     * @param string           $databaseName
+     * @param ConnectionDriver $driver
+     * @param string           $charset
+     * @param int              $port
+     */
+    public function __construct(
+        private string $host,
+        private string $user,
+        private string $password,
+        private string $databaseName,
+        private ConnectionDriver $driver,
+        private string $charset = '',
+        private int $port = 0
+    ) {}
+
+    /**
+     * @return ConnectionDriver
+     */
+    public function getDriver(): ConnectionDriver
+    {
+        return $this->driver;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHost(): string
+    {
+        return $this->host;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUser(): string
+    {
+        return $this->user;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCharset(): string
+    {
+        return $this->charset;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDatabaseName(): string
+    {
+        return $this->databaseName;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPort(): int
+    {
+        return $this->port;
+    }
+}
