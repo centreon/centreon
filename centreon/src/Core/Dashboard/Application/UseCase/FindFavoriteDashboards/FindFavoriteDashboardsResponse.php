@@ -21,17 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindDashboards;
+namespace Core\Dashboard\Application\UseCase\FindFavoriteDashboards;
 
-use Core\Dashboard\Application\UseCase\FindDashboards\Response\DashboardResponseDto;
+use Core\Application\Common\UseCase\ListingResponseInterface;
+use Core\Dashboard\Application\UseCase\FindFavoriteDashboards\Response\DashboardResponseDto;
 
-final class FindDashboardsResponse
+final class FindFavoriteDashboardsResponse implements ListingResponseInterface
 {
     /**
      * @param DashboardResponseDto[] $dashboards
      */
     public function __construct(
-        public array $dashboards = []
+        public array $dashboards
     ) {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getData(): mixed {
+        return $this->dashboards;
     }
 }

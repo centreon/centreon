@@ -21,17 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindDashboards;
+namespace Core\Dashboard\Application\UseCase\FindFavoriteDashboards\Response;
 
-use Core\Dashboard\Application\UseCase\FindDashboards\Response\DashboardResponseDto;
-
-final class FindDashboardsResponse
+final class UserResponseDto
 {
-    /**
-     * @param DashboardResponseDto[] $dashboards
-     */
     public function __construct(
-        public array $dashboards = []
+        public int $id = 0,
+        public string $name = '',
     ) {
     }
 }

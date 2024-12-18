@@ -21,17 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindDashboards;
+namespace Core\Dashboard\Infrastructure\API\AddDashboardToFavorites;
 
-use Core\Dashboard\Application\UseCase\FindDashboards\Response\DashboardResponseDto;
+use Symfony\Component\Validator\Constraints as Assert;
 
-final class FindDashboardsResponse
+final class AddDashboardToFavoritesInput
 {
     /**
-     * @param DashboardResponseDto[] $dashboards
+     * @param int $dashboardId
      */
     public function __construct(
-        public array $dashboards = []
+        #[Assert\NotNull]
+        #[Assert\Type('integer')]
+        public readonly mixed $dashboardId
     ) {
     }
 }

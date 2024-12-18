@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindDashboards\Response;
+namespace Core\Dashboard\Application\UseCase\FindFavoriteDashboards\Response;
 
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use DateTimeImmutable;

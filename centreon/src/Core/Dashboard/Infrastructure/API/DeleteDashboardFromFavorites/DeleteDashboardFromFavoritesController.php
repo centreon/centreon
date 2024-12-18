@@ -21,39 +21,29 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Infrastructure\API\FindDashboard;
+namespace Core\Dashboard\Infrastructure\API\DeleteDashboardFromFavorites;
 
 use Centreon\Application\Controller\AbstractController;
-use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboard;
+use Core\Dashboard\Application\UseCase\DeleteDashboardFromFavorites\DeleteDashboardFromFavorites;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted(
     'dashboard_access',
     null,
-    'You do not have sufficient rights to access the dashboard'
+    'You do not have sufficient rights to remove the dashboard from favorites'
 )]
-final class FindDashboardController extends AbstractController
+final class DeleteDashboardFromFavoritesController extends AbstractController
 {
     /**
      * @param int $dashboardId
-     * @param FindDashboard $useCase
-     * @param FindDashboardPresenter $presenter
-     *
-     * @throws AccessDeniedException
-     *
+     * @param DeleteDashboardFromFavorites $useCase
      * @return Response
      */
     public function __invoke(
         int $dashboardId,
-        FindDashboard $useCase,
-        FindDashboardPresenter $presenter,
+        DeleteDashboardFromFavorites $useCase
     ): Response {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
-
-        $useCase($dashboardId, $presenter);
-
-        return $presenter->show();
+        return $this->createResponse($useCase($dashboardId));
     }
 }

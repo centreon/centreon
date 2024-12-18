@@ -21,39 +21,34 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Infrastructure\API\FindDashboard;
+namespace Core\Dashboard\Infrastructure\API\AddDashboardToFavorites;
 
 use Centreon\Application\Controller\AbstractController;
-use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboard;
+use Core\Dashboard\Application\UseCase\AddDashboardToFavorites\AddDashboardToFavorites;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted(
     'dashboard_access',
     null,
-    'You do not have sufficient rights to access the dashboard'
+    'You do not have sufficient rights to add the dashboard as favorite'
 )]
-final class FindDashboardController extends AbstractController
+final class AddDashboardToFavoritesController extends AbstractController
 {
     /**
-     * @param int $dashboardId
-     * @param FindDashboard $useCase
-     * @param FindDashboardPresenter $presenter
-     *
-     * @throws AccessDeniedException
-     *
+     * @param AddDashboardToFavorites $useCase
+     * @param AddDashboardToFavoritesInput $input
      * @return Response
      */
     public function __invoke(
-        int $dashboardId,
-        FindDashboard $useCase,
-        FindDashboardPresenter $presenter,
+        AddDashboardToFavorites $useCase,
+        #[MapRequestPayload] AddDashboardToFavoritesInput $input
     ): Response {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
-
-        $useCase($dashboardId, $presenter);
-
-        return $presenter->show();
+        return $this->createResponse(
+            $useCase(
+                AddDashboardToFavoritesRequestTransformer::transform($input),
+            )
+        );
     }
 }

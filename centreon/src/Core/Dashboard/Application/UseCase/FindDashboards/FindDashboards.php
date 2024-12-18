@@ -27,7 +27,6 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
@@ -37,11 +36,16 @@ use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Core\UserProfile\Application\Repository\ReadUserProfileRepositoryInterface;
 
+/** @package Core\Dashboard\Application\UseCase\FindDashboards */
 final class FindDashboards
 {
     use LoggerTrait;
     public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
+
+    /** @var int[] */
+    private array $usersFavoriteDashboards = [];
 
     public function __construct(
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
@@ -51,6 +55,7 @@ final class FindDashboards
         private readonly DashboardRights $rights,
         private readonly ContactInterface $contact,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly ReadUserProfileRepositoryInterface $userProfileReader,
         private readonly bool $isCloudPlatform
     ) {
     }
@@ -58,19 +63,13 @@ final class FindDashboards
     public function __invoke(FindDashboardsPresenterInterface $presenter): void
     {
         try {
-            if ($this->isUserAdmin()) {
-                $this->info('Find dashboards', ['request' => $this->requestParameters->toArray()]);
-                $presenter->presentResponse($this->findDashboardAsAdmin());
-            } elseif ($this->rights->canAccess()) {
-                $this->info('Find dashboards', ['request' => $this->requestParameters->toArray()]);
-                $presenter->presentResponse($this->findDashboardAsViewer());
-            } else {
-                $this->error(
-                    "User doesn't have sufficient rights to see dashboards",
-                    ['user_id' => $this->contact->getId()]
-                );
-                $presenter->presentResponse(new ForbiddenResponse(DashboardException::accessNotAllowed()));
-            }
+            $profile = $this->userProfileReader->findByContact($this->contact);
+            $this->usersFavoriteDashboards = $profile !== null ? $profile->getFavoriteDashboards() : [];
+
+            $presenter->presentResponse(
+                $this->isUserAdmin() ? $this->findDashboardAsAdmin() : $this->findDashboardAsViewer(),
+            );
+            $this->info('Find dashboards', ['request' => $this->requestParameters->toArray()]);
         } catch (\Throwable $ex) {
             $presenter->presentResponse(new ErrorResponse(DashboardException::errorWhileSearching()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
@@ -95,13 +94,14 @@ final class FindDashboards
         $contactIds = $this->extractAllContactIdsFromDashboards($dashboards);
 
         return FindDashboardsFactory::createResponse(
-            $dashboards,
-            $this->readContactRepository->findNamesByIds(...$contactIds),
-            $this->readDashboardShareRepository->getMultipleSharingRoles($this->contact, ...$dashboards),
-            $this->readDashboardShareRepository->findDashboardsContactShares(...$dashboards),
-            $this->readDashboardShareRepository->findDashboardsContactGroupShares(...$dashboards),
-            DashboardSharingRole::Editor,
-            $thumbnails
+            dashboards: $dashboards,
+            contactNames: $this->readContactRepository->findNamesByIds(...$contactIds),
+            sharingRolesList: $this->readDashboardShareRepository->getMultipleSharingRoles($this->contact, ...$dashboards),
+            contactShares: $this->readDashboardShareRepository->findDashboardsContactShares(...$dashboards),
+            contactGroupShares: $this->readDashboardShareRepository->findDashboardsContactGroupShares(...$dashboards),
+            defaultRole: DashboardSharingRole::Editor,
+            thumbnails: $thumbnails,
+            favoriteDashboards: $this->usersFavoriteDashboards
         );
     }
 
@@ -135,16 +135,17 @@ final class FindDashboards
         $userInCurrentUserAccessGroups = $this->readContactRepository->findContactIdsByAccessGroups($accessGroupsIds);
 
         return FindDashboardsFactory::createResponse(
-            $dashboards,
-            $this->readContactRepository->findNamesByIds(...$editorIds),
-            $this->readDashboardShareRepository->getMultipleSharingRoles($this->contact, ...$dashboards),
-            $this->readDashboardShareRepository->findDashboardsContactSharesByContactIds(
+            dashboards: $dashboards,
+            contactNames: $this->readContactRepository->findNamesByIds(...$editorIds),
+            sharingRolesList: $this->readDashboardShareRepository->getMultipleSharingRoles($this->contact, ...$dashboards),
+            contactShares: $this->readDashboardShareRepository->findDashboardsContactSharesByContactIds(
                 $userInCurrentUserAccessGroups,
                 ...$dashboards
             ),
-            $this->readDashboardShareRepository->findDashboardsContactGroupSharesByContact($this->contact, ...$dashboards),
-            DashboardSharingRole::Viewer,
-            $thumbnails
+            contactGroupShares: $this->readDashboardShareRepository->findDashboardsContactGroupSharesByContact($this->contact, ...$dashboards),
+            defaultRole: DashboardSharingRole::Viewer,
+            thumbnails: $thumbnails,
+            favoriteDashboards: $this->usersFavoriteDashboards
         );
     }
 
