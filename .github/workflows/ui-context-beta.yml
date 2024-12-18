@@ -33,6 +33,7 @@ jobs:
           module_name: centreon-ui-context
 
   publish-new-npm-beta-version:
+    if: github.repository == 'centreon/centreon'
     runs-on: ubuntu-22.04
     needs: lint
 
