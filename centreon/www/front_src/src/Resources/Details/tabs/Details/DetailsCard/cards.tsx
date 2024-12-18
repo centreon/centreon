@@ -138,18 +138,18 @@ const getDetailCardLines = ({
     },
     {
       line: <DetailsLine line={toDateTime(details.last_status_change)} />,
-      shouldBeDisplayed: !isNil(details.last_status_change),
+      shouldBeDisplayed: Boolean(details.last_status_change),
       title: labelLastStatusChange,
     },
     {
       line: <DetailsLine line={toDateTime(details.last_check)} />,
-      shouldBeDisplayed: !isNil(details.last_check),
+      shouldBeDisplayed: Boolean(details.last_check),
       title: labelLastCheck,
     },
     {
       line: <DetailsLine line={toDateTime(details.last_time_with_no_issue)} />,
       shouldBeDisplayed:
-        !isNil(details.last_time_with_no_issue) &&
+        Boolean(details.last_time_with_no_issue) &&
         !equals(details.status.severity_code, SeverityCode.Ok),
       title: labelLastCheckWithOkStatus,
     },
@@ -162,7 +162,7 @@ const getDetailCardLines = ({
     },
     {
       line: <DetailsLine line={toDateTime(details.next_check)} />,
-      shouldBeDisplayed: !isNil(details.next_check),
+      shouldBeDisplayed: Boolean(details.next_check),
       title: labelNextCheck,
     },
     {
@@ -182,7 +182,7 @@ const getDetailCardLines = ({
     },
     {
       line: <DetailsLine line={toDateTime(details.last_notification)} />,
-      shouldBeDisplayed: !isNil(details.last_notification),
+      shouldBeDisplayed: Boolean(details.last_notification),
       title: labelLastNotification,
     },
     {
