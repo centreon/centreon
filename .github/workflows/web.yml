@@ -669,12 +669,12 @@ jobs:
         performances-test,
       ]
     if: |
-      !cancelled() &&
+      ! cancelled() &&
       contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) &&
-      ! oontains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       needs.changes.outputs.trigger_delivery == 'true' &&
-      github.repository == 'centreon/centreon
+      github.repository == 'centreon/centreon'
     environment: ${{ needs.get-version.outputs.environment }}
 
     strategy:
