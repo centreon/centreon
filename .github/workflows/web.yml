@@ -636,7 +636,7 @@ jobs:
 
       - name: Setup docker slim
         run: |
-          curl -sL https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz
+          curl -sLO https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz
           tar zxf dist_linux.tar.gz
           mv dist_linux/slim /usr/local/bin/
           chmod +x /usr/local/bin/slim
