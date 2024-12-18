@@ -895,13 +895,13 @@ describe('Dashboard', () => {
     });
   });
 
-  describe('Managment favorite dashboards', () => {
+  describe.only('Managment favorite dashboards', () => {
     it('add a dashboard to favorites when clicking on the corresponding icon in the details view', () => {
       runFavoriteManagementFromDetails({
         action: FavoriteAction.add,
         customDetailsPath: 'Dashboards/Dashboard/details.json'
       });
-      // cy.makeSnapshot();
+      cy.makeSnapshot();
     });
 
     it('remove a dashboard from favorites when clicking on the corresponding icon in the details view', () => {
@@ -910,7 +910,7 @@ describe('Dashboard', () => {
         action: FavoriteAction.delete,
         customDetailsPath: 'Dashboards/favorites/details.json'
       });
-      // cy.makeSnapshot();
+      cy.makeSnapshot();
     });
   });
 });
