@@ -931,7 +931,7 @@ describe('Dashboards', () => {
     });
   });
 
-  describe.only('Managment favorite dashboards', () => {
+  describe('Managment favorite dashboards', () => {
     favoriteManagementData.forEach(({ view, dashboardId }, index) => {
       it(`add a dashboard to favorites when clicking on the corresponding icon in the ${view}`, () => {
         runFavoriteManagementFromList({

@@ -893,7 +893,7 @@ describe('Dashboard', () => {
     });
   });
 
-  describe.only('Managment favorite dashboards', () => {
+  describe('Managment favorite dashboards', () => {
     it('add a dashboard to favorites when clicking on the corresponding icon in the details view', () => {
       runFavoriteManagementFromDetails({
         action: FavoriteAction.add,
