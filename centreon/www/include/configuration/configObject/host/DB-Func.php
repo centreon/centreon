@@ -1139,6 +1139,10 @@ function updateHostNotifOptionInterval($host_id = null, $ret = []): void
         $ret = $form->getSubmitValue('host_notification_interval');
     }
 
+    $ret = filter_var($ret, FILTER_VALIDATE_INT) === false
+        ? null
+        : (int) $ret;
+
     $rq = 'UPDATE host SET ';
     $rq .= 'host_notification_interval = ';
     isset($ret) && $ret !== null ? $rq .= "'" . $ret . "' " : $rq .= 'NULL ';
@@ -1156,9 +1160,13 @@ function updateHostNotifOptionTimeperiod($host_id = null, $ret = []): void
 
     $ret = $ret['timeperiod_tp_id2'] ?? $form->getSubmitValue('timeperiod_tp_id2');
 
+    $ret = filter_var($ret, FILTER_VALIDATE_INT) === false
+        ? null
+        : (int) $ret;
+
     $rq = 'UPDATE host SET ';
     $rq .= 'timeperiod_tp_id2 = ';
-    isset($ret) && $ret !== null ? $rq .= "'" . $ret . "' " : $rq .= 'NULL ';
+    $ret !== null ? $rq .= "'" . $ret . "' " : $rq .= 'NULL ';
     $rq .= "WHERE host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
 }
@@ -1177,9 +1185,13 @@ function updateHostNotifOptionFirstNotificationDelay($host_id = null, $ret = [])
         $ret = $form->getSubmitValue('host_first_notification_delay');
     }
 
+    $ret = filter_var($ret, FILTER_VALIDATE_INT) === false
+        ? null
+        : (int) $ret;
+
     $rq = 'UPDATE host SET ';
     $rq .= 'host_first_notification_delay = ';
-    isset($ret) && $ret !== null ? $rq .= "'" . $ret . "' " : $rq .= 'NULL ';
+    $ret !== null ? $rq .= "'" . $ret . "' " : $rq .= 'NULL ';
     $rq .= "WHERE host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
 }
@@ -1659,6 +1671,14 @@ function updateHostExtInfos_MC($host_id = null): void
     }
 
     $ret = $form->getSubmitValues();
+
+    // Remove all parameters that have an empty value in order to keep the host properties that have not been modified
+    foreach ($ret as $name => $value) {
+        if (is_string($value) && empty($value)) {
+            unset($ret[$name]);
+        }
+    }
+
     $rq = 'UPDATE extended_host_information SET ';
     if (isset($ret['ehi_notes']) && $ret['ehi_notes'] !== null) {
         $rq .= "ehi_notes = '" . CentreonDB::escape($ret['ehi_notes']) . "', ";
@@ -1806,11 +1826,15 @@ function updateHostNotifOptionInterval_MC($host_id = null): void
 
     $ret = $form->getSubmitValue('host_notification_interval');
 
-    if (isset($ret) && $ret !== null) {
+    $ret = filter_var($ret, FILTER_VALIDATE_INT) === false
+        ? null
+        : (int) $ret;
+
+    if ($ret !== null) {
         $rq = 'UPDATE host SET ';
         $rq .= "host_notification_interval = '" . $ret . "' ";
         $rq .= "WHERE host_id = '" . $host_id . "'";
-        $dbResult = $pearDB->query($rq);
+        $pearDB->query($rq);
     }
 }
 
@@ -1826,7 +1850,11 @@ function updateHostNotifOptionFirstNotificationDelay_MC($host_id = null): void
 
     $ret = $form->getSubmitValue('host_first_notification_delay');
 
-    if (isset($ret) && $ret !== null) {
+    $ret = filter_var($ret, FILTER_VALIDATE_INT) === false
+        ? null
+        : (int) $ret;
+
+    if ($ret !== null) {
         $rq = 'UPDATE host SET ';
         $rq .= "host_first_notification_delay = '" . $ret . "' ";
         $rq .= "WHERE host_id = '" . $host_id . "'";
@@ -1845,7 +1873,11 @@ function updateHostNotifOptionTimeperiod_MC($host_id = null): void
 
     $ret = $form->getSubmitValue('timeperiod_tp_id2');
 
-    if (isset($ret) && $ret !== null) {
+    $ret = filter_var($ret, FILTER_VALIDATE_INT) === false
+        ? null
+        : (int) $ret;
+
+    if ($ret !== null) {
         $rq = 'UPDATE host SET ';
         $rq .= "timeperiod_tp_id2 = '" . $ret . "' ";
         $rq .= "WHERE host_id = '" . $host_id . "'";
