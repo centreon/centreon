@@ -200,7 +200,7 @@ jobs:
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.changes.outputs.trigger_delivery == 'true' &&
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
       github.repository == 'centreon/centreon'
     runs-on: [self-hosted, common]
 
