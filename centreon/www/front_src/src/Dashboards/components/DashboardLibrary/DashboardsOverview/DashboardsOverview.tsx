@@ -30,6 +30,7 @@ import { searchAtom, viewModeAtom } from '../DashboardListing/atom';
 import { ViewMode } from '../DashboardListing/models';
 import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
 
+import { onlyFavoriteDashboardsAtom } from '../DashboardListing/Actions/favoriteFilter/atoms';
 import { useStyles } from './DashboardsOverview.styles';
 import { DashboardsOverviewSkeleton } from './DashboardsOverviewSkeleton';
 import { useDashboardsOverview } from './useDashboardsOverview';
@@ -41,6 +42,7 @@ const DashboardsOverview = (): ReactElement => {
   const viewMode = useAtomValue(viewModeAtom);
   const search = useAtomValue(searchAtom);
   const user = useAtomValue(userAtom);
+  const onlyFavoriteDashboards = useAtomValue(onlyFavoriteDashboardsAtom);
 
   const { isEmptyList, dashboards, data, isLoading, refetch } =
     useDashboardsOverview();
@@ -83,20 +85,6 @@ const DashboardsOverview = (): ReactElement => {
 
   if (isCardsView && isLoading && isNil(data)) {
     return <DashboardsOverviewSkeleton />;
-  }
-
-  if (isEmptyList && !search && !isLoading) {
-    return (
-      <DataTable isEmpty={isEmptyList} variant="grid">
-        <DataTable.EmptyState
-          aria-label="create"
-          canCreate={canCreateOrManageDashboards}
-          data-testid="create-dashboard"
-          labels={emptyStateLabels}
-          onCreate={createDashboard}
-        />
-      </DataTable>
-    );
   }
 
   const GridTable = (
@@ -144,6 +132,22 @@ const DashboardsOverview = (): ReactElement => {
       </DataTable>
     </div>
   );
+
+  const isEmptyListing = isEmptyList && !search && !isLoading;
+
+  if (isEmptyListing && !onlyFavoriteDashboards) {
+    return (
+      <DataTable isEmpty={isEmptyList} variant="grid">
+        <DataTable.EmptyState
+          aria-label="create"
+          canCreate={canCreateOrManageDashboards}
+          data-testid="create-dashboard"
+          labels={emptyStateLabels}
+          onCreate={createDashboard}
+        />
+      </DataTable>
+    );
+  }
 
   return (
     <div className={classes.container}>
