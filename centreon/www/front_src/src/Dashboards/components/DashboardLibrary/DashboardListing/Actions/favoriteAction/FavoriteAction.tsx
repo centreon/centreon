@@ -30,7 +30,6 @@ const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
   const { showSuccessMessage } = useSnackbar();
 
   const labelSuccess = useRef('');
-  const method = useRef(Method.POST);
 
   const getLabel = ({ setLabel, unsetLabel, asFavorite }: GetLabel) => {
     if (asFavorite) {
@@ -53,8 +52,9 @@ const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
 
   const { mutateAsync, isMutating } = useMutationQuery({
     getEndpoint,
-    method: method.current,
-    onSuccess
+    method: isFavorite ? Method.DELETE : Method.POST,
+    onSuccess,
+    fetchHeaders: { 'Content-Type': 'application/json' }
   });
 
   const handleFavorites = () => {
@@ -63,8 +63,6 @@ const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
       unsetLabel: labelDashboardRemovedFromFavorites,
       asFavorite: isFavorite
     });
-
-    method.current = isFavorite ? Method.DELETE : Method.POST;
 
     if (isFavorite) {
       mutateAsync({ _meta: { dashboardId } });

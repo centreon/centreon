@@ -39,12 +39,10 @@ const useListDashboards = (): UseListDashboards => {
   };
 
   const getEndpoint = () => {
-    if (onlyFavoriteDashboards) {
-      return dashboardsFavoriteEndpoit;
-    }
-
     return buildListingEndpoint({
-      baseEndpoint: dashboardsEndpoint,
+      baseEndpoint: onlyFavoriteDashboards
+        ? dashboardsFavoriteEndpoit
+        : dashboardsEndpoint,
       parameters: {
         limit: limit || 10,
         page: page || 1,
