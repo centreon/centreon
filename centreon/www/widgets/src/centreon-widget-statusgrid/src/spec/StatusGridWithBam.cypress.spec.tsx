@@ -137,7 +137,7 @@ const baTestCases = [
 
       cy.contains('State information').should('be.visible');
       cy.contains('Health').should('be.visible');
-      cy.contains('100%').should('be.visible');
+      cy.contains('70%').should('be.visible');
       cy.contains('Warning threshold').should('be.visible');
       cy.contains('80%').should('be.visible');
       cy.contains('Critical threshold').should('be.visible');
