@@ -14,6 +14,7 @@ env:
 
 jobs:
   chromatic:
+    if: github.repository == 'centreon/centreon'
     runs-on: ubuntu-24.04
 
     steps:
