@@ -81,7 +81,6 @@ const FormCreation = ({
     ? {}
     : { search: { regex: { fields: ['is_admin'], value: '0' } } };
 
-
   const getUsersEndpoint = (parameters: Parameters): string =>
     getEndpointConfiguredUser({
       ...parameters,
