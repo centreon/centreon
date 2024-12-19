@@ -516,6 +516,7 @@ overrides:
       - "centreon-broker-cbd (<< ${NEXT_MAJOR_VERSION}~)"
       - lsb-release
       - "mariadb-client | mysql-client"
+      - cron
       - apache2
       - php8.2
       - php8.2-cli
