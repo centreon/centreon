@@ -583,6 +583,7 @@ describe('AddEditWidgetModal', () => {
         cy.waitForRequest('@getHosts');
 
         cy.findByText('Host 0').click();
+        cy.findByTestId(labelSelectAResource).click();
 
         cy.findAllByText('Host 0').should('have.length', 1);
         cy.findByTestId('CancelIcon').click();
@@ -768,7 +769,6 @@ describe('AddEditWidgetModal', () => {
         cy.waitForRequest('@getHosts');
 
         cy.contains(/^Host 1$/).click();
-        cy.findByTestId(labelSelectAResource).click();
         cy.contains(/^Host 2$/).click();
         cy.waitForRequest('@getServiceMetrics');
 
