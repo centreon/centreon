@@ -1,0 +1,64 @@
+{
+    "defaultHostTemplate":{
+        "name": "generic-active-host",
+        "alias": "generic-active-host",
+        "snmp_community": "string",
+        "snmp_version": "2c",
+        "timezone_id": 1,
+        "check_command_id": 1,
+        "check_command_args": [
+          "0",
+          "OK"
+        ],
+        "check_timeperiod_id": 1,
+        "max_check_attempts": 0,
+        "normal_check_interval": 0,
+        "retry_check_interval": 0,
+        "active_check_enabled": 0,
+        "passive_check_enabled": 0,
+        "notification_enabled": 0,
+        "notification_options": 5,
+        "notification_interval": 0,
+        "notification_timeperiod_id": 1,
+        "add_inherited_contact_group": true,
+        "add_inherited_contact": true,
+        "first_notification_delay": 0,
+        "recovery_notification_delay": 0,
+        "acknowledgement_timeout": 0,
+        "freshness_checked": 0,
+        "freshness_threshold": 0,
+        "flap_detection_enabled": 0,
+        "low_flap_threshold": 0,
+        "high_flap_threshold": 0,
+        "event_handler_enabled": 0,
+        "event_handler_command_id": 1,
+        "event_handler_command_args": [
+          "0",
+          "OK"
+        ],
+        "note_url": "string",
+        "note": "string",
+        "action_url": "string",
+        "icon_id": 1,
+        "icon_alternative": "string",
+        "comment": "string"
+      },
+      "hostTemplate":{
+        "name": "generic-active-host-test",
+        "alias": "generic-active-host-test",
+        "snmp_community": "string-test",
+        "snmp_version": "3",
+        "timezone_id": 2,
+        "check_command_id": 2,
+        "check_command_args": [
+          "0",
+          "OK"
+        ],
+        "check_timeperiod_id": 2,
+        "max_check_attempts": 2,
+        "normal_check_interval": 1,
+        "retry_check_interval": 1,
+        "active_check_enabled": 1,
+        "passive_check_enabled": 1     
+      }
+}

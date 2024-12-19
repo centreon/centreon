@@ -80,6 +80,34 @@ Cypress.Commands.add('getIframeBody', (): Cypress.Chainable => {
 });
 
 Cypress.Commands.add(
+  'waitForElementInIframe',
+  (iframeSelector, elementSelector) => {
+    cy.waitUntil(
+      () =>
+        cy.get(iframeSelector).then(($iframe) => {
+          const iframeBody = $iframe[0].contentDocument.body;
+          if (iframeBody) {
+            const $element = Cypress.$(iframeBody).find(elementSelector);
+
+            return $element.length > 0 && $element.is(':visible');
+          }
+
+          return false;
+        }),
+      {
+        errorMsg: 'The element is not visible within the iframe',
+        interval: 5000,
+        timeout: 100000
+      }
+    ).then((isVisible) => {
+      if (!isVisible) {
+        throw new Error('The element is not visible');
+      }
+    });
+  }
+);
+
+Cypress.Commands.add(
   'hoverRootMenuItem',
   (rootItemNumber: number): Cypress.Chainable => {
     return cy
@@ -840,6 +868,10 @@ declare global {
         webOs,
         webVersion
       }?: StartContainersProps) => Cypress.Chainable;
+      waitForElementInIframe: (
+        iframeSelector: string,
+        elementSelector: string
+      ) => Cypress.Chainable;
       stopContainer: ({ name }: StopContainerProps) => Cypress.Chainable;
       stopContainers: () => Cypress.Chainable;
       visitEmptyPage: () => Cypress.Chainable;
