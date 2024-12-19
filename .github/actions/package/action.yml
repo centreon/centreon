@@ -44,6 +44,18 @@ inputs:
   cache_key:
     description: The package files cache key
     required: true
+  is_nightly:
+    description: Nightly context or not
+    required: false
+  jira_base_url:
+    description: jira base url
+    required: false
+  jira_user_email:
+    description: jira user email
+    required: false
+  jira_api_token:
+    description: jira api token
+    required: false
 
 runs:
   using: composite
@@ -159,3 +171,15 @@ runs:
       with:
         path: ./*.${{ inputs.package_extension }}
         key: ${{ inputs.cache_key }}
+
+    - name: Create Jira ticket if nightly build failure
+      if: |
+        inputs.is_nightly == 'true' && github.run_attempt == 1 &&
+        failure()
+      uses: ./.github/actions/create-jira-ticket
+      with:
+        jira_base_url: ${{ inputs.jira_base_url }}
+        jira_user_email: ${{ inputs.jira_user_email }}
+        jira_api_token: ${{ inputs.jira_api_token }}
+        module_name: "centreon-web"
+        ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "package"]'

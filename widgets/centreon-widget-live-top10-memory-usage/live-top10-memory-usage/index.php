@@ -100,66 +100,87 @@ $path = $centreon_path . "www/widgets/live-top10-memory-usage/src/";
 $template = new Smarty();
 $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
-$data = array();
-
-$query = "SELECT
-        1 AS REALTIME,
-        i.host_name,
-        i.service_description,
-        i.service_id, i.host_id,
-        m.current_value/max AS ratio,
-        max-current_value AS remaining_space,
-        s.state AS status
-    FROM
-        metrics m,
-        hosts h "
-    . ($preferences['host_group'] ? ", hosts_hostgroups hg " : "")
-    . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "")
-    . " , index_data i
-    LEFT JOIN services s ON s.service_id  = i.service_id AND s.enabled = 1
-    WHERE i.service_description LIKE '%" . $preferences['service_description'] . "%'
-        AND i.id = m.index_id
-        AND m.metric_name LIKE '%" . $preferences['metric_name'] . "%'
-        AND i.host_id = h.host_id "
-    . ($preferences['host_group']
-        ? "AND hg.hostgroup_id = " . $preferences['host_group'] . " AND i.host_id = hg.host_id " : "");
-if ($centreon->user->admin == 0) {
-    $query .= "AND i.host_id = acl.host_id
-        AND i.service_id = acl.service_id
-        AND acl.group_id IN (" . ($grouplistStr != "" ? $grouplistStr : 0) . ")";
-}
-$query .= "AND s.enabled = 1
-        AND h.enabled = 1
-    GROUP BY i.host_id
-    ORDER BY ratio DESC
-    LIMIT " . $preferences['nb_lin'] . ";";
-
-$numLine = 1;
-$in = 0;
-
-$res = $db->query($query);
-
-while ($row = $res->fetchRow()) {
-    $row['numLin'] = $numLine;
-    while ($row['remaining_space'] >= 1024) {
-        $row['remaining_space'] = $row['remaining_space'] / 1024;
-        $in = $in + 1;
+$data = [];
+try {
+    $query = "SELECT
+            1 AS REALTIME,
+            i.host_name,
+            i.service_description,
+            i.service_id, i.host_id,
+            m.current_value/max AS ratio,
+            max-current_value AS remaining_space,
+            s.state AS status
+        FROM
+            metrics m,
+            hosts h "
+        . ($preferences['host_group'] ? ", hosts_hostgroups hg " : "")
+        . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "")
+        . " , index_data i
+        LEFT JOIN services s ON s.service_id  = i.service_id AND s.enabled = 1
+        WHERE i.service_description LIKE :service_description
+            AND i.id = m.index_id
+            AND m.metric_name LIKE :metric_name
+            AND i.host_id = h.host_id "
+        . ($preferences['host_group']
+            ? "AND hg.hostgroup_id = :host_group AND i.host_id = hg.host_id " : "");
+    if ($centreon->user->admin == 0) {
+        $query .= "AND i.host_id = acl.host_id
+            AND i.service_id = acl.service_id
+            AND acl.group_id IN (" . ($grouplistStr != "" ? $grouplistStr : 0) . ")";
     }
-    $row['unit'] = getUnit($in);
+    $query .= "AND s.enabled = 1
+            AND h.enabled = 1
+        GROUP BY i.host_id
+        ORDER BY ratio DESC
+        LIMIT :nb_lin;";
+
+    $numLine = 1;
     $in = 0;
-    $row['remaining_space'] = round($row['remaining_space']);
-    $row['ratio'] = ceil($row['ratio'] * 100);
-    $row['details_uri'] = $useDeprecatedPages
-        ? '../../main.php?p=20201&o=svcd&host_name='
-            . $row['host_name']
-            . '&service_description='
-            . $row['service_description']
-        : $resourceController->buildServiceDetailsUri(
-            $row['host_id'],
-            $row['service_id']
-        );
-    $data[] = $row;
-    $numLine++;
+
+    $statement = $db->prepareQuery($query);
+
+    $bindParams = [
+        ':service_description' => ['%' . $preferences['service_description'] . '%', PDO::PARAM_STR],
+        ':metric_name' => ['%' . $preferences['metric_name'] . '%', PDO::PARAM_STR],
+        ':nb_lin' => [$preferences['nb_lin'], PDO::PARAM_INT],
+    ];
+
+    if ($preferences['host_group']) {
+        $bindParams[':host_group'] = [$preferences['host_group'], PDO::PARAM_INT];
+    }
+
+    $db->executePreparedQuery($statement, $bindParams, true);
+
+    while ($row = $db->fetch($statement)) {
+        $row['numLin'] = $numLine;
+        while ($row['remaining_space'] >= 1024) {
+            $row['remaining_space'] = $row['remaining_space'] / 1024;
+            $in = $in + 1;
+        }
+        $row['unit'] = getUnit($in);
+        $in = 0;
+        $row['remaining_space'] = round($row['remaining_space']);
+        $row['ratio'] = ceil($row['ratio'] * 100);
+        $row['details_uri'] = $useDeprecatedPages
+            ? '../../main.php?p=20201&o=svcd&host_name='
+                . $row['host_name']
+                . '&service_description='
+                . $row['service_description']
+            : $resourceController->buildServiceDetailsUri(
+                $row['host_id'],
+                $row['service_id']
+            );
+        $data[] = $row;
+        $numLine++;
+    }
+} catch (CentreonDbException $e) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: "Error fetching memory usage data: " . $e->getMessage(),
+        exception: $e
+    );
+
+    throw $e;
 }
 
 $template->assign('preferences', $preferences);
