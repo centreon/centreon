@@ -100,9 +100,10 @@ jobs:
       - uses: ./.github/actions/changes-trigger-checks
         id: changes_trigger_checks
         with:
-          has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes || true }}
-          has_backend_changes: ${{ steps.filter.outputs.has_backend_changes || true }}
-          has_test_changes: ${{ steps.filter.outputs.has_test_changes || true }}
+          is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+          has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes || 'true' }}
+          has_backend_changes: ${{ steps.filter.outputs.has_backend_changes || 'true' }}
+          has_test_changes: ${{ steps.filter.outputs.has_test_changes || 'true' }}
 
   get-environment:
     uses: ./.github/workflows/get-environment.yml
@@ -152,6 +153,18 @@ jobs:
           dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
           static_directory: ${{ env.widgets_directory }}/src
           static_cache_key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
+
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
+          failure()
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
 
   backend-dependencies:
     needs: [get-environment]
@@ -278,6 +291,18 @@ jobs:
         with:
           path: "centreon/junit.xml"
 
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
+          failure()
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
+
   frontend-component-test:
     needs: [changes, get-environment]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
@@ -285,11 +310,15 @@ jobs:
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.LIGHTHOUSE_SECRET }}
+      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
     with:
       name: centreon
       module_name: centreon
       specs_path: www/**
       dependencies_lock_file: centreon/pnpm-lock.yaml
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
 
   backend-unit-test:
     runs-on: ubuntu-24.04
@@ -322,6 +351,18 @@ jobs:
         with:
           path: "centreon/build/phpunit.xml"
           format: "php-junit"
+
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
+          failure()
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
 
   backend-lint:
     runs-on: ubuntu-24.04
@@ -516,6 +557,18 @@ jobs:
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
           stability: ${{ needs.get-environment.outputs.stability }}
 
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
+          failure()
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
+
   dockerize:
     runs-on: ubuntu-24.04
     needs: [get-environment, package]
@@ -648,6 +701,18 @@ jobs:
           path: /tmp/cache/docker-image
           key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
 
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
+          failure()
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
+
   create-xray-test-plan-and-test-execution:
     needs: [get-environment, dockerize]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
@@ -697,8 +762,9 @@ jobs:
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
       client_id: ${{ secrets.XRAY_CLIENT_ID }}
       client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
-      jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
+      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   legacy-e2e-test:
     needs: [get-environment, changes, dockerize]
@@ -718,10 +784,14 @@ jobs:
       os: ${{ matrix.operating_system }}
       features_path: features
       test_tags: ${{ matrix.test_tags }}
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
     secrets:
       registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   e2e-test:
     needs: [get-environment, changes, dockerize, create-xray-test-plan-and-test-execution]
@@ -754,6 +824,7 @@ jobs:
       dependencies_lock_file: centreon/pnpm-lock.yaml
       xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
       is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
     secrets:
       registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
@@ -761,6 +832,9 @@ jobs:
       xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
       artifactory_internal_repo_username: ${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}
       artifactory_internal_repo_password: ${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}
+      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   performances-test:
     runs-on: ubuntu-24.04
@@ -803,7 +877,7 @@ jobs:
           secret_access_key: ${{ secrets.LIGHTHOUSE_SECRET }}
 
       - name: Publish report
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: lighthouse-report
           path: centreon/lighthouse/report/lighthouseci-index.html
@@ -912,7 +986,7 @@ jobs:
         shell: bash
 
       - name: Upload built openapi doc
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: openapi-doc
           path: |
@@ -958,6 +1032,18 @@ jobs:
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
+          failure()
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
+
   deliver-deb:
     runs-on: [self-hosted, common]
     needs:
@@ -995,6 +1081,18 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+
+      - name: Create Jira ticket if nightly build failure
+        if: |
+          needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
+          failure()
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          module_name: "centreon-web"
+          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
 
   promote:
     needs: [get-environment, deliver-deb, deliver-rpm]

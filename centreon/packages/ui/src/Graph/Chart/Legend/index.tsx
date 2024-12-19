@@ -1,6 +1,6 @@
 import { Dispatch, ReactNode, SetStateAction, useMemo } from 'react';
 
-import { equals, lt, prop, slice, sortBy } from 'ramda';
+import { equals, prop, slice, sortBy } from 'ramda';
 
 import { Box, alpha, useTheme } from '@mui/material';
 
@@ -8,7 +8,6 @@ import { useMemoComponent } from '@centreon/ui';
 
 import { formatMetricValue } from '../../common/timeSeries';
 import { Line } from '../../common/timeSeries/models';
-import { margin } from '../common';
 import { LegendModel } from '../models';
 import { labelAvg, labelMax, labelMin } from '../translatedLabels';
 
@@ -41,7 +40,11 @@ const MainLegend = ({
   height,
   mode
 }: Props): JSX.Element => {
-  const { classes, cx } = useStyles({ limitLegendRows: Boolean(limitLegend) });
+  const { classes, cx } = useStyles({
+    limitLegendRows: Boolean(limitLegend),
+    placement,
+    height
+  });
   const theme = useTheme();
 
   const { selectMetricLine, clearHighlight, highlightLine, toggleMetricLine } =
@@ -81,31 +84,10 @@ const MainLegend = ({
       ? LegendDisplayMode.Compact
       : LegendDisplayMode.Normal;
 
-  const legendMaxHeight = useMemo(() => {
-    if (!isListMode || !equals(placement, 'bottom')) {
-      return 'none';
-    }
-
-    if (lt(height || 0, 220)) {
-      return 40;
-    }
-
-    return 90;
-  }, [height, isListMode, placement]);
-
-  const overflow = equals(legendMaxHeight, 'none') ? 'hidden' : 'auto';
-
   return (
     <div
       className={classes.legend}
       data-display-side={!equals(placement, 'bottom')}
-      style={{
-        height: !equals(placement, 'bottom')
-          ? (height || 0) - margin.top / 2
-          : undefined,
-        maxHeight: legendMaxHeight,
-        overflow
-      }}
     >
       <div
         className={classes.items}
