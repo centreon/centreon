@@ -114,10 +114,6 @@ default:
     ldap_manual_import:
       paths: [ "%paths.base%/features/LdapManualImport.feature" ]
       contexts: [ LdapManualImportContext ]
- 
-    massive_change_hosts:
-      paths: [ "%paths.base%/features/MassiveChangeHosts.feature" ]
-      contexts: [ MassiveChangeHostsContext ]
 
     massive_change_services:
       paths: [ "%paths.base%/features/MassiveChangeServices.feature" ]
