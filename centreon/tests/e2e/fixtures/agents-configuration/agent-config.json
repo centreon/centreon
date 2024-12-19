@@ -1,0 +1,17 @@
+{
+    "telegraf1": {
+        "name": "telegraf-001",
+        "pollerName": "Central",
+        "publicCertfFileName": "my-otel-certificate-name-001",
+        "caFileName": "ca-file-name-001",
+        "privateKFileName": "my-otel-private-key-name-001",
+        "certfFileName": "my-certificate-name-001"
+    },
+    "CMA1": {
+        "name": "centreon-agent-001",
+        "pollerName": "Poller-1",
+        "publicCertfFileName": "my-otel-certificate-name-002",
+        "caFileName": "ca-file-name-002",
+        "privateKFileName": "my-otel-private-key-name-002"
+    }
+}
