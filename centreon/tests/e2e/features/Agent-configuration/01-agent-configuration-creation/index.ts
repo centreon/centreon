@@ -51,7 +51,7 @@ Given('a non-admin user is in the Agents Configuration page', () => {
 });
 
 When('the user clicks on Add', () => {
-  cy.contains('button', 'Add poller/agent configuration').click();
+  cy.contains('button', 'Add').click();
 });
 
 Then('a pop-up menu with the form is displayed', () => {
