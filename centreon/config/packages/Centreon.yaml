@@ -34,6 +34,7 @@ services:
     Core\:
         resource: '../../src/Core/*'
         exclude:
+            - '../../src/Core/HostTemplate/*'
             - '../../src/Core/TimePeriod/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
