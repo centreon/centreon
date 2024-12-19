@@ -853,6 +853,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                     . ' AND resources.status_confirmed = 1',
                 ResourceFilter::STATE_ACKNOWLEDGED => 'resources.acknowledged = 1',
                 ResourceFilter::STATE_IN_DOWNTIME => 'resources.in_downtime = 1',
+                ResourceFilter::STATE_IN_FLAPPING => 'resources.flapping = 1',
             ];
 
             foreach ($filter->getStates() as $state) {
