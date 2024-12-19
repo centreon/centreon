@@ -278,7 +278,7 @@ export const getColumns = ({
       type: ColumnType.string,
       width: 'max-content'
     },
-    ...(featureFlags?.notification
+    ...(false
       ? []
       : [
           {
@@ -308,6 +308,10 @@ export const getColumns = ({
         ? { ...column, label: t(labelService) }
         : column;
 
+    // parent ---> host
+    // resource ---> service
+    // total 17
+
     const changeParentLabel = (column: Column): Column =>
       equals(column.label, labelParent)
         ? { ...column, label: t(labelHost) }
@@ -320,6 +324,11 @@ export const getColumns = ({
 
     return columnsForVisualizationByService;
   }
+
+  // resource-->Host
+  //new column services
+  // remove status , parent_resource , parent_alias
+  // total ==> 15 columns
 
   if (equals(visualization, Visualization.Host)) {
     const subItemColumn = {
