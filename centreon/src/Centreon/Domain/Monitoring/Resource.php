@@ -114,14 +114,14 @@ class Resource
     private $status;
 
     /**
-     * @var bool|null
+     * @var bool
      */
-    private $flapping;
+    private bool $flapping = false;
 
     /**
-     * @var double|null
+     * @var float|null
      */
-    private $percentStateChange;
+    private ?float $percentStateChange = null;
 
     /**
      * @var int|null
@@ -263,6 +263,8 @@ class Resource
      * @var integer|null
      */
     private ?int $internalId = null;
+
+    private bool $isFlapping = false;
 
     /**
      * Resource constructor.
@@ -584,7 +586,7 @@ class Resource
     /**
      * @return bool|null
      */
-    public function getFlapping(): ?bool
+    public function isFlapping(): bool
     {
         return $this->flapping;
     }
@@ -593,9 +595,10 @@ class Resource
      * @param bool|null $flapping
      * @return self
      */
-    public function setFlapping(?bool $flapping): self
+    public function setIsFlapping(bool $flapping): self
     {
         $this->flapping = $flapping;
+
         return $this;
     }
 
@@ -614,6 +617,7 @@ class Resource
     public function setPercentStateChange(?float $percentStateChange): self
     {
         $this->percentStateChange = $percentStateChange;
+
         return $this;
     }
 
