@@ -35,6 +35,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
         ariaLabel={t(labelDelete)}
         title={t(labelDelete)}
         onClick={openDeleteModal}
+        className={classes.removeButton}
       >
         <DeleteIcon className={classes.removeIcon} />
       </IconButton>
