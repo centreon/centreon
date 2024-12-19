@@ -157,7 +157,7 @@ jobs:
   dockerize:
     runs-on: ubuntu-24.04
     needs: [get-environment, package]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' && github.repository == 'centreon/centreon' }}
 
     env:
       project: centreon-open-tickets
@@ -256,7 +256,7 @@ jobs:
   deliver-sources:
     runs-on: [self-hosted, common]
     needs: [get-environment, package]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+    if: ${{ contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' && github.repository == 'centreon/centreon' }}
 
     steps:
       - name: Checkout sources
@@ -332,7 +332,7 @@ jobs:
 
   deliver-rpm:
     needs: [get-environment, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && github.repository == 'centreon/centreon' }}
     runs-on: [self-hosted, common]
 
     strategy:
@@ -357,7 +357,7 @@ jobs:
 
   deliver-deb:
     needs: [get-environment, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && github.repository == 'centreon/centreon' }}
     runs-on: [self-hosted, common]
 
     strategy:
@@ -385,7 +385,8 @@ jobs:
       (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      github.repository == 'centreon/centreon'
     runs-on: [self-hosted, common]
     strategy:
       matrix:
