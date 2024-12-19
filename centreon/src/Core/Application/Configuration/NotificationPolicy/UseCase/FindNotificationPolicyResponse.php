@@ -66,18 +66,18 @@ final class FindNotificationPolicyResponse
                 'alias' => $notifiedContact->getAlias(),
                 'email' => $notifiedContact->getEmail(),
                 'notifications' => [
-                    'host' => [
+                    'host' => $notifiedContact->getHostNotification() ? [
                         'events' => $notifiedContact->getHostNotification()->getEvents(),
                         'time_period' => self::timePeriodToArray(
                             $notifiedContact->getHostNotification()->getTimePeriod(),
                         ),
-                    ],
-                    'service' => [
+                    ] : null,
+                    'service' => $notifiedContact->getServiceNotification() ? [
                         'events' => $notifiedContact->getServiceNotification()->getEvents(),
                         'time_period' => self::timePeriodToArray(
                             $notifiedContact->getServiceNotification()->getTimePeriod(),
                         ),
-                    ],
+                    ] : null,
                 ],
             ],
             $notifiedContacts
