@@ -1,4 +1,4 @@
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
 
@@ -7,7 +7,8 @@ import {
   pageAtom,
   searchAtom,
   sortFieldAtom,
-  sortOrderAtom
+  sortOrderAtom,
+  totalAtom
 } from '../components/DashboardLibrary/DashboardListing/atom';
 
 import { dashboardListDecoder } from './decoders';
@@ -26,6 +27,7 @@ const useListDashboards = (): UseListDashboards => {
   const sortField = useAtomValue(sortFieldAtom);
   const sortOrder = useAtomValue(sortOrderAtom);
   const searchValue = useAtomValue(searchAtom);
+  const setTotal = useSetAtom(totalAtom);
 
   const sort = { [sortField]: sortOrder };
 
@@ -63,6 +65,8 @@ const useListDashboards = (): UseListDashboards => {
       suspense: false
     }
   });
+
+  setTotal(data?.meta?.total || 0);
 
   return {
     data,

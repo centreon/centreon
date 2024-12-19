@@ -11,6 +11,11 @@ import {
   useSnackbar
 } from '@centreon/ui';
 
+import { useAtomValue } from 'jotai';
+import {
+  limitAtom,
+  totalAtom
+} from '../components/DashboardLibrary/DashboardListing/atom';
 import { dashboardsEndpoint } from './endpoints';
 import { CreateDashboardDto, Dashboard, resource } from './models';
 
@@ -40,6 +45,9 @@ interface Props {
 const useCreateDashboard = ({ labels }: Props): UseCreateDashboard => {
   const { showSuccessMessage, showErrorMessage } = useSnackbar();
 
+  const limit = useAtomValue(limitAtom);
+  const total = useAtomValue(totalAtom);
+
   const {
     mutateAsync,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -55,7 +63,13 @@ const useCreateDashboard = ({ labels }: Props): UseCreateDashboard => {
       : {}),
     ...(labels?.labelSuccess
       ? { onSuccess: () => showSuccessMessage(labels?.labelSuccess) }
-      : {})
+      : {}),
+    optimisticListing: {
+      enabled: true,
+      queryKey: resource.dashboards,
+      total,
+      limit: limit || 10
+    }
   });
 
   const queryClient = useQueryClient();
