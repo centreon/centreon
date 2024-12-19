@@ -52,6 +52,7 @@ services:
             - '../../src/Core/AgentConfiguration/*'
             - '../../src/Core/Security/Vault/*'
             - '../../src/Core/Contact/*'
+            - '../../src/Core/HostCategory'
             - '../../src/Core/ServiceSeverity/*'
             - '../../src/Core/HostSeverity/*'
         bind:

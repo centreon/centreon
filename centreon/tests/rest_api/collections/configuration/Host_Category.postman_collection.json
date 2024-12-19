@@ -1,11 +1,10 @@
 {
 	"info": {
-		"_postman_id": "f1e522fd-6cec-4838-9d77-946a8bc64fd9",
+		"_postman_id": "99a1fe7d-5c10-4074-8519-9c851ddf43ed",
 		"name": "Host_Category",
 		"description": "This collection has fixes for these tickets :\n\n- [MON-34389](https://centreon.atlassian.net/browse/MON-34389) (Search by host group)\n    \n- [MON-20165](https://centreon.atlassian.net/browse/MON-20165) (Add location header)\n    \n- [MON-62132](https://centreon.atlassian.net/browse/MON-62132) (Remove snmp_community from response)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Centreon-Web---API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-f1e522fd-6cec-4838-9d77-946a8bc64fd9?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "16182525"
 	},
 	"item": [
 		{
@@ -2537,11 +2536,12 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"console.log(response);\r",
 									"pm.test(\"The host category has been successfully created, with name '\" + pm.collectionVariables.get(\"HostCategory2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostCategory2Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new host category\r",
-									"    var response = JSON.parse(responseBody);\r",
 									"    pm.collectionVariables.set(\"HostCategory2Id\", response.id);\r",
 									"\r",
 									"    pm.expect(response).to.eql({\r",
@@ -2558,7 +2558,8 @@
 									"    pm.response.to.have.header(\"Location\");\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2569,7 +2570,8 @@
 									"pm.collectionVariables.set(\"HostCategory2Alias\", \"Oh I'm your second category!\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
