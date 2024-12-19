@@ -9,7 +9,7 @@ import { ParameterKeys } from '../Modal/models';
 import {
   additionalConnectorsEndpoint,
   getAdditionalConnectorEndpoint,
-  getPollersForConnectorTypeEndpoint
+  pollersEndpoint
 } from '../api/endpoints';
 import { dialogStateAtom } from '../atoms';
 import {
@@ -66,7 +66,7 @@ const mockPageRequests = (): void => {
     cy.interceptAPIRequest({
       alias: 'geAllowedPollers',
       method: Method.GET,
-      path: `**${getPollersForConnectorTypeEndpoint({})}**`,
+      path: `**${pollersEndpoint}**`,
       response: pollers
     });
   });
