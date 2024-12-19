@@ -1,0 +1,24 @@
+services:
+    _defaults:
+        public: false
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
+    Core\HostCategory\:
+      resource: '../../../../Core/HostCategory/*'
+      bind:
+        $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
+
+    Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface:
+      class: Core\HostCategory\Infrastructure\Repository\DbWriteHostCategoryRepository
+
+    Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface:
+      class: Core\HostCategory\Infrastructure\Repository\DbReadHostCategoryRepository
+
+    Core\HostCategory\Infrastructure\Repository\DbWriteHostCategoryActionLogRepository:
+        decorates: Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface
+        arguments:
+        - '@.inner'
+        - '@Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface'
+        - '@Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface'
+        - '@Centreon\Domain\Contact\Interfaces\ContactInterface'
+        - '@Centreon\Infrastructure\DatabaseConnection'
