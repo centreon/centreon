@@ -11,10 +11,6 @@ default:
   gherkin:
     cache: ~
   suites:
-    generate_service_contact_configuration:
-      paths: [ "%paths.base%/features/GenerateServiceContact.feature" ]
-      contexts: [ GenerateServiceContactContext ]
-
     acknowledgement:
       paths: [ "%paths.base%/features/Acknowledgement.feature" ]
       contexts: [ AcknowledgementContext ]
