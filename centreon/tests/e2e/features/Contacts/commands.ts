@@ -40,11 +40,7 @@ Cypress.Commands.add('addOrUpdateContactGroup', (body: ContactGroup) => {
   cy.getIframeBody().find('input[class="select2-search__field"]').eq(0).click();
   cy.wait('@getContacts');
   cy.getIframeBody().contains('div', body.linkedContact).click();
-
-  cy.getIframeBody().find('input[class="select2-search__field"]').eq(1).click();
-  cy.wait('@getACLGroups');
-  cy.getIframeBody().contains('div', 'ALL').click();
-
+  cy.get('body').click();
   cy.getIframeBody().contains(body.status).click();
 
   cy.getIframeBody()
@@ -110,8 +106,7 @@ Cypress.Commands.add('loginByDuplicatedUser', (jsonName: string) =>{
       cy.get('.MuiAlert-message').should('not.be.visible');
     }
   });
-}
-);
+});
 
 interface Contact {
 alias: string,
