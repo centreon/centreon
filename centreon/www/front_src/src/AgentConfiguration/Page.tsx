@@ -19,7 +19,6 @@ const AgentConfigurationPage = (): JSX.Element => {
   const { t } = useTranslation();
 
   const search = useAtomValue(searchAtom);
-
   const { isDataEmpty, isLoading, hasData, total, data } =
     useGetAgentConfigurations();
 
