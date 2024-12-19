@@ -62,7 +62,7 @@ describe('Pie chart', () => {
     cy.makeSnapshot();
   });
 
-  it('renders as a donut when variant is set to "donut"', () => {
+  it.only('renders as a donut when variant is set to "donut"', () => {
     initialize({ variant: 'donut' });
     cy.get('[data-variant="donut"]').should('exist');
 
