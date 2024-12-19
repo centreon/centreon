@@ -18,6 +18,7 @@ jobs:
 
   create-repo-file-and-deliver:
     needs: [get-environment]
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
     runs-on: ubuntu-24.04
     strategy:
       matrix:
@@ -60,3 +61,12 @@ jobs:
         run: |
           jf rt upload "centreon-${{ needs.get-environment.outputs.major_version }}.repo" "rpm-standard/${{ needs.get-environment.outputs.major_version }}/${{ matrix.distrib }}/"
         shell: bash
+
+  set-skip-label:
+    needs: [get-environment, create-repo-file-and-deliver]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
+    uses: ./.github/workflows/set-pull-request-skip-label.yml

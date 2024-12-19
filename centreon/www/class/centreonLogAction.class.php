@@ -366,9 +366,13 @@ class CentreonLogAction
                     }
                 } elseif (isset($ref[$field["field_name"]]) && $ref[$field["field_name"]] != $field["field_value"]) {
                     $list_modifications[$i]["action_log_id"] = $field["action_log_id"];
-                    $list_modifications[$i]["field_name"] = HtmlSanitizer::createFromString($ref[$field["field_name"]])->sanitize()->getString();
-                    $list_modifications[$i]["field_value_before"] = $ref[$field["field_name"]];
-                    $list_modifications[$i]["field_value_after"] = HtmlSanitizer::createFromString($field["field_value"])->sanitize()->getString();
+                    $list_modifications[$i]["field_name"] = $field["field_name"];
+                    $list_modifications[$i]["field_value_before"] = HtmlSanitizer::createFromString(
+                        $ref[$field["field_name"]]
+                    )->sanitize()->getString();
+                    $list_modifications[$i]["field_value_after"] = HtmlSanitizer::createFromString(
+                        $field["field_value"]
+                    )->sanitize()->getString();
                     foreach ($macroPasswordRef as $macroPasswordId) {
                         // handle the display modification for the fields macroOldValue_n for "Before" and "After" value
                         if (strpos($field["field_name"], 'macroOldValue_' . $macroPasswordId) !== false) {
