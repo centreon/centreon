@@ -40,7 +40,7 @@ const UnsavedChangesDialog = ({
 
   const labelMessage = `${
     isValidForm ? labelIfYouClickOnDiscard : labelThereAreErrorsInTheForm
-  }. ${isValidForm ? '' : labelDoYouWantToQuitWithoutResolving}`;
+  } ${isValidForm ? '' : labelDoYouWantToQuitWithoutResolving}`;
 
   if (not(dialogOpened)) {
     return null;

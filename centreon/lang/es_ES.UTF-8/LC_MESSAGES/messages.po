@@ -17707,6 +17707,9 @@ msgstr "Modo avanzado"
 #  msgid "Web page preview"
 #  msgstr ""
 
+# msgid "Save your dashboard to generate a thumbnail"
+# msgstr ""
+
 #  msgid "If ticket management is enabled, only the “by service” view is available."
 #  msgstr ""
 
@@ -17844,3 +17847,6 @@ msgstr "Retractar"
 
 msgid "Sticky for any non-OK status"
 msgstr "Sticky para cualquier estado que no sea OK"
+
+# msgid "There are errors in the form."
+# msgstr ""

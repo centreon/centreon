@@ -2,10 +2,11 @@ import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
-import { Box, useTheme } from '@mui/material';
+import { Box, Typography, useTheme } from '@mui/material';
 
 import {
   FluidTypography,
+  ParentSize,
   SeverityCode,
   formatMetricValue,
   getStatusColors
@@ -106,20 +107,23 @@ const StatusCard = ({
           sx={{ backgroundColor: getStatusColors({ severityCode, theme }) }}
         >
           <div className={classes.count}>
-            <FluidTypography
-              className={classes.countText}
-              containerClassName={classes.countTextContainer}
-              max="50px"
-              min="40px"
-              text={formatMetricValue({ unit: '', value: count.total || 0 })}
-            />
+            <ParentSize className={classes.countParentSize}>
+              {({ height, width }) => (
+                <Typography
+                  className={classes.countText}
+                  sx={{ fontSize: `${Math.min(height, width / 4)}px` }}
+                >
+                  {formatMetricValue({ unit: '', value: count.total || 0 })}
+                </Typography>
+              )}
+            </ParentSize>
           </div>
           <div className={classes.label}>
             <FluidTypography
               className={classes.labelText}
               containerClassName={classes.labelTextContainer}
-              max="25px"
-              min="20px"
+              max="20px"
+              min="10px"
               text={t(label)}
             />
           </div>
