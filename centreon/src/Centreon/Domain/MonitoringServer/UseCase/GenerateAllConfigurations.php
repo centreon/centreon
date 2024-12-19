@@ -63,7 +63,7 @@ class GenerateAllConfigurations
     {
         try {
             if ($this->contact->isAdmin()) {
-                $monitoringServers = $this->monitoringServerRepository->findServersWithRequestParameters();
+                $monitoringServers = $this->monitoringServerRepository->findServersWithoutRequestParameters();
             } else {
                 if (
                     ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ)
@@ -77,7 +77,7 @@ class GenerateAllConfigurations
 
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->contact);
 
-                $monitoringServers = $this->monitoringServerRepository->findServersWithRequestParametersAndAccessGroups(
+                $monitoringServers = $this->monitoringServerRepository->findAllServersWithAccessGroups(
                     $accessGroups
                 );
             }
