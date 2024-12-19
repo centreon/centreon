@@ -125,63 +125,66 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $collector = new StatementCollector();
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
 
-        $request = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT
-            1 AS REALTIME,
-            resources.resource_id,
-            resources.name,
-            resources.alias,
-            resources.address,
-            resources.id,
-            resources.internal_id,
-            resources.parent_id,
-            resources.parent_name,
-            parent_resource.resource_id AS `parent_resource_id`,
-            parent_resource.status AS `parent_status`,
-            parent_resource.alias AS `parent_alias`,
-            parent_resource.status_ordered AS `parent_status_ordered`,
-            parent_resource.address AS `parent_fqdn`,
-            severities.id AS `severity_id`,
-            severities.level AS `severity_level`,
-            severities.name AS `severity_name`,
-            severities.type AS `severity_type`,
-            severities.icon_id AS `severity_icon_id`,
-            resources.type,
-            resources.status,
-            resources.status_ordered,
-            resources.status_confirmed,
-            resources.in_downtime,
-            resources.acknowledged,
-            resources.passive_checks_enabled,
-            resources.active_checks_enabled,
-            resources.notifications_enabled,
-            resources.last_check,
-            resources.last_status_change,
-            resources.check_attempts,
-            resources.max_check_attempts,
-            resources.notes,
-            resources.notes_url,
-            resources.action_url,
-            resources.output,
-            resources.poller_id,
-            resources.has_graph,
-            instances.name AS `monitoring_server_name`,
-            resources.enabled,
-            resources.icon_id,
-            resources.severity_id
-        FROM `:dbstg`.`resources`
-        LEFT JOIN `:dbstg`.`resources` parent_resource
-            ON parent_resource.id = resources.parent_id
-            AND parent_resource.type = ' . self::RESOURCE_TYPE_HOST
-            . ' LEFT JOIN `:dbstg`.`severities`
-            ON `severities`.severity_id = `resources`.severity_id
-        LEFT JOIN `:dbstg`.`resources_tags` AS rtags
-            ON `rtags`.resource_id = `resources`.resource_id
-        INNER JOIN `:dbstg`.`instances`
-            ON `instances`.instance_id = `resources`.poller_id';
-
-        $request .= " WHERE resources.name NOT LIKE '\_Module\_%'
-            AND resources.parent_name NOT LIKE '\_Module\_BAM%'
-            AND resources.enabled = 1 AND resources.type != 3";
+        $resourceTypeHost = self::RESOURCE_TYPE_HOST;
+        $request = <<<SQL
+                SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                    1 AS REALTIME,
+                    resources.resource_id,
+                    resources.name,
+                    resources.alias,
+                    resources.address,
+                    resources.id,
+                    resources.internal_id,
+                    resources.parent_id,
+                    resources.parent_name,
+                    parent_resource.resource_id AS `parent_resource_id`,
+                    parent_resource.status AS `parent_status`,
+                    parent_resource.alias AS `parent_alias`,
+                    parent_resource.status_ordered AS `parent_status_ordered`,
+                    parent_resource.address AS `parent_fqdn`,
+                    severities.id AS `severity_id`,
+                    severities.level AS `severity_level`,
+                    severities.name AS `severity_name`,
+                    severities.type AS `severity_type`,
+                    severities.icon_id AS `severity_icon_id`,
+                    resources.type,
+                    resources.status,
+                    resources.status_ordered,
+                    resources.status_confirmed,
+                    resources.in_downtime,
+                    resources.acknowledged,
+                    resources.passive_checks_enabled,
+                    resources.active_checks_enabled,
+                    resources.notifications_enabled,
+                    resources.last_check,
+                    resources.last_status_change,
+                    resources.check_attempts,
+                    resources.max_check_attempts,
+                    resources.notes,
+                    resources.notes_url,
+                    resources.action_url,
+                    resources.output,
+                    resources.poller_id,
+                    resources.has_graph,
+                    instances.name AS `monitoring_server_name`,
+                    resources.enabled,
+                    resources.icon_id,
+                    resources.severity_id
+                FROM `:dbstg`.`resources` AS resources
+                LEFT JOIN `:dbstg`.`resources` AS parent_resource
+                    ON parent_resource.id = resources.parent_id
+                    AND parent_resource.type = {$resourceTypeHost}
+                LEFT JOIN `:dbstg`.`severities` AS severities
+                    ON `severities`.severity_id = resources.severity_id
+                LEFT JOIN `:dbstg`.`resources_tags` AS rtags
+                    ON rtags.resource_id = resources.resource_id
+                INNER JOIN `:dbstg`.`instances` AS instances
+                    ON instances.instance_id = resources.poller_id
+                WHERE resources.name NOT LIKE '\_Module\_%'
+                    AND resources.parent_name NOT LIKE '\_Module\_BAM%'
+                    AND resources.enabled = 1
+                    AND resources.type != 3
+            SQL;
 
         $request .= $this->addResourceParentIdSubRequest($filter, $collector);
 
@@ -325,27 +328,42 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                     $type === Tag::HOST_GROUP_TYPE_ID
                     || $type === Tag::HOST_CATEGORY_TYPE_ID
                 ) {
-                    $intersectRequest .= <<<"SQL"
-                            SELECT resources.resource_id
-                            FROM `:dbstg`.`resources` resources
-                            LEFT JOIN `:dbstg`.`resources` parent_resource
-                                ON parent_resource.id = resources.parent_id
-                            LEFT JOIN `:dbstg`.resources_tags AS rtags
-                              ON rtags.resource_id = resources.resource_id
-                              OR rtags.resource_id = parent_resource.resource_id
-                            INNER JOIN `:dbstg`.tags
-                                ON tags.tag_id = rtags.tag_id
-                            WHERE tags.name IN ({$literalTagKeys})
-                            AND tags.type = {$type}
+                    $resourceTypeHost = self::RESOURCE_TYPE_HOST;
+                    $intersectRequest .= <<<SQL
+                            SELECT * FROM (
+                                SELECT resources.resource_id
+                                FROM `:dbstg`.`resources` AS resources
+                                    INNER JOIN `:dbstg`.`resources_tags` AS rtags
+                                        ON rtags.resource_id = resources.resource_id
+                                    INNER JOIN `:dbstg`.`tags` AS tags
+                                        ON tags.tag_id = rtags.tag_id
+                                WHERE tags.type = {$type}
+                                    AND tags.name IN ({$literalTagKeys})
+                                GROUP BY resources.resource_id
+                                UNION
+                                SELECT resources.resource_id
+                                FROM `:dbstg`.`resources` AS resources
+                                    INNER JOIN `:dbstg`.`resources` AS parent_resource
+                                        ON parent_resource.id = resources.parent_id
+                                        AND parent_resource.type = {$resourceTypeHost}
+                                    INNER JOIN `:dbstg`.`resources_tags` AS rtags
+                                        ON rtags.resource_id = parent_resource.resource_id
+                                        AND parent_resource.type = {$resourceTypeHost}
+                                    INNER JOIN `:dbstg`.`tags` AS tags
+                                        ON tags.tag_id = rtags.tag_id
+                                WHERE tags.type = {$type}
+                                    AND tags.name IN ({$literalTagKeys})
+                                GROUP BY resources.resource_id
+                            ) as t
                         SQL;
                 } else {
-                    $intersectRequest .= <<<"SQL"
+                    $intersectRequest .= <<<SQL
                             SELECT rtags.resource_id
-                            FROM `:dbstg`.resources_tags AS rtags
-                            INNER JOIN `:dbstg`.tags
+                            FROM `:dbstg`.`resources_tags` AS rtags
+                            INNER JOIN `:dbstg`.`tags` AS tags
                                 ON tags.tag_id = rtags.tag_id
                             WHERE tags.name IN ({$literalTagKeys})
-                            AND tags.type = {$type}
+                                AND tags.type = {$type}
                         SQL;
                 }
             }
@@ -379,59 +397,62 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     ): string {
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
 
-        $request = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT
-            1 AS REALTIME,
-            resources.resource_id,
-            resources.name,
-            resources.alias,
-            resources.address,
-            resources.id,
-            resources.internal_id,
-            resources.parent_id,
-            resources.parent_name,
-            parent_resource.resource_id AS `parent_resource_id`,
-            parent_resource.status AS `parent_status`,
-            parent_resource.alias AS `parent_alias`,
-            parent_resource.status_ordered AS `parent_status_ordered`,
-            parent_resource.address AS `parent_fqdn`,
-            severities.id AS `severity_id`,
-            severities.level AS `severity_level`,
-            severities.name AS `severity_name`,
-            severities.type AS `severity_type`,
-            severities.icon_id AS `severity_icon_id`,
-            resources.type,
-            resources.status,
-            resources.status_ordered,
-            resources.status_confirmed,
-            resources.in_downtime,
-            resources.acknowledged,
-            resources.passive_checks_enabled,
-            resources.active_checks_enabled,
-            resources.notifications_enabled,
-            resources.last_check,
-            resources.last_status_change,
-            resources.check_attempts,
-            resources.max_check_attempts,
-            resources.notes,
-            resources.notes_url,
-            resources.action_url,
-            resources.output,
-            resources.poller_id,
-            resources.has_graph,
-            instances.name AS `monitoring_server_name`,
-            resources.enabled,
-            resources.icon_id,
-            resources.severity_id
-        FROM `:dbstg`.`resources`
-        LEFT JOIN `:dbstg`.`resources` parent_resource
-            ON parent_resource.id = resources.parent_id
-            AND parent_resource.type = ' . self::RESOURCE_TYPE_HOST
-            . ' LEFT JOIN `:dbstg`.`severities`
-            ON `severities`.severity_id = `resources`.severity_id
-        LEFT JOIN `:dbstg`.`resources_tags` AS rtags
-            ON `rtags`.resource_id = `resources`.resource_id
-        INNER JOIN `:dbstg`.`instances`
-            ON `instances`.instance_id = `resources`.poller_id';
+        $resourceTypeHost = self::RESOURCE_TYPE_HOST;
+        $request = <<<SQL
+                SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                    1 AS REALTIME,
+                    resources.resource_id,
+                    resources.name,
+                    resources.alias,
+                    resources.address,
+                    resources.id,
+                    resources.internal_id,
+                    resources.parent_id,
+                    resources.parent_name,
+                    parent_resource.resource_id AS `parent_resource_id`,
+                    parent_resource.status AS `parent_status`,
+                    parent_resource.alias AS `parent_alias`,
+                    parent_resource.status_ordered AS `parent_status_ordered`,
+                    parent_resource.address AS `parent_fqdn`,
+                    severities.id AS `severity_id`,
+                    severities.level AS `severity_level`,
+                    severities.name AS `severity_name`,
+                    severities.type AS `severity_type`,
+                    severities.icon_id AS `severity_icon_id`,
+                    resources.type,
+                    resources.status,
+                    resources.status_ordered,
+                    resources.status_confirmed,
+                    resources.in_downtime,
+                    resources.acknowledged,
+                    resources.passive_checks_enabled,
+                    resources.active_checks_enabled,
+                    resources.notifications_enabled,
+                    resources.last_check,
+                    resources.last_status_change,
+                    resources.check_attempts,
+                    resources.max_check_attempts,
+                    resources.notes,
+                    resources.notes_url,
+                    resources.action_url,
+                    resources.output,
+                    resources.poller_id,
+                    resources.has_graph,
+                    instances.name AS `monitoring_server_name`,
+                    resources.enabled,
+                    resources.icon_id,
+                    resources.severity_id
+                FROM `:dbstg`.`resources` AS resources
+                LEFT JOIN `:dbstg`.`resources` AS parent_resource
+                    ON parent_resource.id = resources.parent_id
+                    AND parent_resource.type = {$resourceTypeHost}
+                LEFT JOIN `:dbstg`.`severities` AS severities
+                    ON severities.severity_id = resources.severity_id
+                LEFT JOIN `:dbstg`.`resources_tags` AS rtags
+                    ON rtags.resource_id = resources.resource_id
+                INNER JOIN `:dbstg`.`instances` AS instances
+                    ON instances.instance_id = resources.poller_id
+            SQL;
 
         /**
          * Resource tag filter by name
@@ -756,7 +777,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             || $filteredLevels !== []
         ) {
             $subRequest = ' AND EXISTS (
-                SELECT 1 FROM `:dbstg`.severities
+                SELECT 1 FROM `:dbstg`.`severities` AS severities
                 WHERE severities.severity_id = resources.severity_id
                     AND severities.type IN (' . implode(', ', $filteredTypes) . ')';
 
@@ -974,10 +995,10 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                 img_name AS `icon_name`,
                 img_path AS `icon_path`,
                 imgd.dir_name AS `icon_directory`
-            FROM `:db`.view_img img
-            LEFT JOIN `:db`.view_img_dir_relation imgdr
+            FROM `:db`.`view_img` AS img
+            LEFT JOIN `:db`.`view_img_dir_relation` AS imgdr
                 ON imgdr.img_img_id = img.img_id
-            INNER JOIN `:db`.view_img_dir imgd
+            INNER JOIN `:db`.`view_img_dir` AS imgd
                 ON imgd.dir_id = imgdr.dir_dir_parent_id
             WHERE img.img_id IN (' . str_repeat('?, ', count($iconIds) - 1) . '?)';
 
