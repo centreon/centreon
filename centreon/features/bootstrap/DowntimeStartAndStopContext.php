@@ -57,6 +57,7 @@ class DowntimeStartAndStopContext extends CentreonContext
 
         $this->reloadAllPollers();
         $this->submitServiceResult($this->host, $this->service, 0, __FUNCTION__);
+        $this->waitServiceIsMonitored($this->host, $this->service);
     }
 
     /**
