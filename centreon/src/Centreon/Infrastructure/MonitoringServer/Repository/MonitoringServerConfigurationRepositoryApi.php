@@ -31,7 +31,10 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
 use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\MonitoringServer\Repository\Exception\MonitoringServerConfigurationRepositoryException;
-use DateTime;
+use CentreonDB;
+use Core\Security\Authentication\Domain\Model\NewProviderToken;
+use Core\Security\Authentication\Domain\Model\ProviderToken;
+use Security\Domain\Authentication\AuthenticationService;
 use Security\Domain\Authentication\Interfaces\AuthenticationTokenServiceInterface;
 use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -43,15 +46,6 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConfigurationRepositoryInterface
 {
     use LoggerTrait;
-
-    /** @var ContactInterface */
-    private $contact;
-
-    /** @var AuthenticationTokenServiceInterface */
-    private $authenticationTokenService;
-
-    /** @var \Symfony\Contracts\HttpClient\HttpClientInterface */
-    private $httpClient;
 
     /** @var string */
     private $serverUri;
@@ -65,13 +59,11 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
      * @param HttpClientInterface $httpClient
      */
     public function __construct(
-        AuthenticationTokenServiceInterface $authenticationTokenService,
-        ContactInterface $contact,
-        HttpClientInterface $httpClient
+        private AuthenticationTokenServiceInterface $authenticationTokenService,
+        private AuthenticationService $authenticationService,
+        private ContactInterface $contact,
+        private HttpClientInterface $httpClient,
     ) {
-        $this->contact = $contact;
-        $this->authenticationTokenService = $authenticationTokenService;
-        $this->httpClient = $httpClient;
     }
 
     /**
@@ -128,6 +120,30 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
     }
 
     /**
+     * @throws AuthenticationException
+     *
+     * @return ProviderToken|NewProviderToken
+     */
+    private function getProviderToken(): ProviderToken|NewProviderToken
+    {
+        $session = new \CentreonSession();
+        $pearDB = new CentreonDB();
+        $session->updateSession($pearDB);
+
+        $authenticationTokens = $this->authenticationTokenService->findByContact($this->contact);
+        if ($authenticationTokens === null) {
+            throw AuthenticationException::authenticationTokenNotFound();
+        }
+        $providerToken = $authenticationTokens->getProviderToken();
+
+        if (!$this->authenticationService->isValidToken($providerToken->getToken())) {
+            throw AuthenticationException::authenticationTokenExpired();
+        }
+
+        return $providerToken;
+    }
+
+    /**
      * @param string $filePath
      * @param string $payloadBody
      *
@@ -141,17 +157,7 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
             $this->initUri();
             $fullUriPath = $this->serverUri . '/include/configuration/configGenerate/xml/' . $filePath;
 
-            $authenticationTokens = $this->authenticationTokenService->findByContact($this->contact);
-            if ($authenticationTokens === null) {
-                throw AuthenticationException::authenticationTokenNotFound();
-            }
-            $providerToken = $authenticationTokens->getProviderToken();
-            if (
-                $providerToken->getExpirationDate() === null
-                || $providerToken->getExpirationDate()->getTimestamp() < (new DateTime())->getTimestamp()
-            ) {
-                throw AuthenticationException::authenticationTokenExpired();
-            }
+            $providerToken = $this->getProviderToken();
 
             $optionPayload = [
                 'proxy' => null,
