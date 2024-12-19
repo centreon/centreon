@@ -114,11 +114,6 @@ class Resource
     private $status;
 
     /**
-     * @var bool
-     */
-    private bool $flapping = false;
-
-    /**
      * @var float|null
      */
     private ?float $percentStateChange = null;
@@ -588,7 +583,7 @@ class Resource
      */
     public function isFlapping(): bool
     {
-        return $this->flapping;
+        return $this->isFlapping;
     }
 
     /**
@@ -597,7 +592,7 @@ class Resource
      */
     public function setIsFlapping(bool $flapping): self
     {
-        $this->flapping = $flapping;
+        $this->isFlapping = $flapping;
 
         return $this;
     }
