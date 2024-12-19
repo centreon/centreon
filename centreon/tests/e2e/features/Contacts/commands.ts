@@ -110,8 +110,7 @@ Cypress.Commands.add('loginByDuplicatedUser', (jsonName: string) =>{
       cy.get('.MuiAlert-message').should('not.be.visible');
     }
   });
-}
-);
+});
 
 interface Contact {
 alias: string,
