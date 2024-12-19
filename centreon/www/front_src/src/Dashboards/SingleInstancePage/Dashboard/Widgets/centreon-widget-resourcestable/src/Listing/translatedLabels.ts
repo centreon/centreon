@@ -91,3 +91,7 @@ export const labelTicketWillBeClosedInTheProvider =
 
 export const labelTicketCreated = 'Ticket created';
 export const labelTicketClosed = 'Ticket closed';
+export const labelFqdn = 'FQDN / Address';
+export const labelParentAlias = 'Parent alias';
+export const labelAlias = 'Alias';
+export const labelMonitoringServer = 'Monitoring server';
