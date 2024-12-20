@@ -1,0 +1,6 @@
+Core\User\Application\Model\Permission:
+  attributes:
+    name:
+      groups: ['FindUserPermissions:Read']
+    isActive:
+      groups: ['FindUserPermissions:Read']
