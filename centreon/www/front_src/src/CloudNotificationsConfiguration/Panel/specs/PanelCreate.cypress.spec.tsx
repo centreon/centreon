@@ -168,7 +168,7 @@ describe('Create Panel', () => {
     cy.findByLabelText(labelSave).click();
 
     cy.waitForRequest('@addNotificationRequest').then(({ request }) => {
-      expect(JSON.parse(request.body)).to.deep.equal(formData);
+      expect(request.body).to.deep.equal(formData);
     });
 
     cy.findByText(labelSuccessfulNotificationAdded).should('be.visible');
