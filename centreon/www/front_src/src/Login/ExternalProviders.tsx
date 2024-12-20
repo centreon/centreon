@@ -27,33 +27,38 @@ const ExternalProviders = ({
   const { classes } = useStyles();
   const { t } = useTranslation();
 
-  if (or(isNil(providersConfiguration), isEmpty(providersConfiguration))) {
-    return null;
-  }
+  const hasProvidersConfiguration = or(
+    !isNil(providersConfiguration),
+    !isEmpty(providersConfiguration)
+  );
 
   return (
-    <div className={classes.otherProvidersContainer}>
-      <Divider>
-        <Typography>{t(labelOr)}</Typography>
-      </Divider>
-      {providersConfiguration?.map(({ name, authenticationUri }) => {
-        const dataTestId = `${labelLoginWith} ${name}`;
-        const data = `${t(labelLoginWith)} ${name}`;
+    <>
+      {hasProvidersConfiguration && (
+        <div className={classes.otherProvidersContainer}>
+          <Divider>
+            <Typography>{t(labelOr)}</Typography>
+          </Divider>
+          {providersConfiguration?.map(({ name, authenticationUri }) => {
+            const dataTestId = `${labelLoginWith} ${name}`;
+            const data = `${t(labelLoginWith)} ${name}`;
 
-        return (
-          <Button
-            aria-label={data}
-            color="primary"
-            data-testid={dataTestId}
-            href={authenticationUri}
-            key={name}
-            variant="contained"
-          >
-            {data}
-          </Button>
-        );
-      })}
-    </div>
+            return (
+              <Button
+                aria-label={data}
+                color="primary"
+                data-testid={dataTestId}
+                href={authenticationUri}
+                key={name}
+                variant="contained"
+              >
+                {data}
+              </Button>
+            );
+          })}
+        </div>
+      )}
+    </>
   );
 };
 
