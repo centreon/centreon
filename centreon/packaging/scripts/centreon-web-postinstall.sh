@@ -19,9 +19,11 @@ updateConfigurationFiles() {
   export HOUR=$(awk 'BEGIN{srand(); print int(rand()*24)}')
   sed -i -E "s/0\s0(.*)centreon\-send\-stats\.php(.*)/$MIN $HOUR\1centreon-send-stats.php\2/" /etc/cron.d/centreon
 
-  # Create HASH secret for Symfony application
-  echo "Updating APP_SECRET in centreon environment file ..."
-  REPLY=($(dd if=/dev/urandom bs=32 count=1 status=none | /usr/bin/php -r "echo bin2hex(fread(STDIN, 32));")); sed -i "s/%APP_SECRET%/$REPLY/g" /usr/share/centreon/.env*
+  if grep -REq "%APP_SECRET%" /usr/share/centreon/.env*; then
+    # Create HASH secret for Symfony application
+    echo "Updating APP_SECRET in centreon environment files ..."
+    REPLY=($(dd if=/dev/urandom bs=32 count=1 status=none | /usr/bin/php -r "echo bin2hex(fread(STDIN, 32));")); sed -i "s/%APP_SECRET%/$REPLY/g" /usr/share/centreon/.env*
+  fi
 
   echo "Updating centreon perl configuration files to central mode ..."
   sed -i -e "s/\$instance_mode = \"poller\";/\$instance_mode = \"central\";/g" /etc/centreon/conf.pm
