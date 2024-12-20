@@ -1,4 +1,7 @@
+/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+
+import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
 
 before(() => {
   cy.startContainers();
@@ -59,25 +62,7 @@ Then('a pop-up menu with the form is displayed', () => {
 When('the user fills in all the information', () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
   cy.get('*[role="listbox"]').contains('Telegraf').click();
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-001');
-  cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
-  cy.contains('Central').click();
-  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type(
-    'my-otel-certificate-name-001'
-  );
-  cy.getByLabel({ label: 'CA file name', tag: 'input' }).type(
-    'ca-file-name-001'
-  );
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' })
-    .eq(0)
-    .type('my-otel-private-key-name-001');
-  cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type(
-    'my-certificate-name-001'
-  );
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' })
-    .eq(1)
-    .type('my-otel-private-key-name-001');
+  cy.FillTelegrafMandatoryFields(agentsConfiguration.telegraf1);
 });
 
 When('the user clicks on Create', () => {
@@ -126,18 +111,7 @@ Then('the group of parameters for the host disappears', () => {
 });
 
 When('the user fills in the mandatory information', () => {
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type('centreon-agent-001');
-  cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
-  cy.contains('Poller-1').click();
-  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type(
-    'my-otel-certificate-name-002'
-  );
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).type(
-    'my-otel-private-key-name-002'
-  );
-  cy.getByLabel({ label: 'CA file name', tag: 'input' })
-    .eq(0)
-    .type('my-ca-file-002');
+  cy.FillCMAMandatoryFields(agentsConfiguration.CMA1);
 });
 
 Then('the second agent is displayed in the Agents Configuration page', () => {
@@ -319,4 +293,67 @@ When('the user clicks on Save in the cancellation pop-up', () => {
 Then('the agent has been created', () => {
   cy.get('*[role="rowgroup"]').should('contain', 'telegraf-004');
   cy.get('*[role="rowgroup"]').should('contain', 'Telegraf');
+});
+
+When(
+  'the user fills in the {string} mandatory fields',
+  (agent_type: string) => {
+    if (agent_type.includes('Agent')) {
+      cy.FillCMAMandatoryFields(agentsConfiguration.CMA1);
+    } else {
+      cy.FillTelegrafMandatoryFields(agentsConfiguration.telegraf1);
+    }
+  }
+);
+
+When('the user selects the {string} type', (agentType: string) => {
+  cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
+  cy.get('*[role="listbox"]').contains(agentType).click();
+});
+
+When('the user fills all the Telegraf mandatory fields', () => {
+  cy.FillTelegrafMandatoryFields(agentsConfiguration.telegraf1);
+});
+
+When('the user {string} the form', (action: string) => {
+  if (action.includes('cancel')) {
+    cy.contains('button', 'Cancel').click();
+  } else {
+    cy.get('body').click(0, 0);
+  }
+});
+
+Then('a pop-up is displayed', () => {
+  cy.get('div[role="dialog"]').eq(1).should('be.visible');
+});
+
+Then('the title of this pop-up is {string}', (popupTitle: string) => {
+  cy.get('div[class*="-modalHeader"]')
+    .eq(1)
+    .within(() => {
+      cy.get('h2').should('contain.text', popupTitle);
+    });
+});
+
+Then('the message body of this pop-up is {string}', (popupMessage: string) => {
+  cy.get('div[class*="-modalBody"]').eq(1).should('contain.text', popupMessage);
+});
+
+When(
+  "the user doesn't fill some {string} mandatory fields",
+  (agentType: string) => {
+    if (agentType.includes('Agent')) {
+      cy.FillOnlySomeCMAMandatoryFields(agentsConfiguration.CMA1);
+    } else {
+      cy.FillOnlySomeTelegrafMandatoryFields(agentsConfiguration.telegraf1);
+    }
+  }
+);
+
+Then('this pop-up contains two buttons "Resolve" and "Discard"', () => {
+  cy.get('div[class*="-modalActions"]').within(() => {
+    cy.get('button').contains('Discard').should('exist');
+    cy.get('button').contains('Resolve').should('exist');
+    cy.get('button').should('have.length', 2);
+  });
 });
