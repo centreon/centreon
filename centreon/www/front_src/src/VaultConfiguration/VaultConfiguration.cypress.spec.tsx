@@ -167,7 +167,7 @@ describe('Vault configuration', () => {
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@putVaultConfiguration').then(({ request }) => {
-      expect(request.body).equal({
+      expect(request.body).to.deep.equal({
         address: 'example.com',
         port: 1024,
         root_path: '/path',

@@ -76,7 +76,7 @@ describe('Web SSO configuration form', () => {
     cy.findByLabelText('save button').click();
 
     cy.waitForRequest('@putWebSSOConfiguration').then(({ request }) => {
-      expect(request.body).to.equal({
+      expect(request.body).to.deep.equal({
         ...retrievedWebSSOConfiguration,
         login_header_attribute: 'admin'
       });
