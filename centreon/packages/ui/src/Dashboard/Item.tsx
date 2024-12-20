@@ -107,7 +107,7 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
           }) => {
             const canControl = isExpanded ? false : canMove;
 
-            const childHeader = !equals(type(children), 'Function')
+            const childHeader = !equals(type(header), 'Function')
               ? header
               : (header as (params: Parameters) => ReactElement)?.({
                   isExpanded,
