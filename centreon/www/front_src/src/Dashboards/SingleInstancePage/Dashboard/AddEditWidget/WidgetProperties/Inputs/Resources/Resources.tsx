@@ -93,7 +93,7 @@ const Resources = ({
               deleteButtonHidden={
                 deleteButtonHidden || getResourceStatic(resource.resourceType)
               }
-              key={`${index}${resource.resources[0]}`}
+              key={`${index}${resource.resourceType}`}
               labelDelete={t(labelDelete)}
               onDeleteItem={deleteResource(index)}
             >
@@ -124,6 +124,7 @@ const Resources = ({
                       !hasSelectedHostForSingleMetricwidget) ||
                     !resource.resourceType
                   }
+                  exclusionOptionProperty="name"
                   field={getSearchField(resource.resourceType)}
                   getEndpoint={getResourceResourceBaseEndpoint({
                     index,
@@ -149,6 +150,7 @@ const Resources = ({
                   }}
                   className={classes.resources}
                   disabled={!canEditField || !resource.resourceType}
+                  exclusionOptionProperty="name"
                   field={getSearchField(resource.resourceType)}
                   getEndpoint={getResourceResourceBaseEndpoint({
                     index,
