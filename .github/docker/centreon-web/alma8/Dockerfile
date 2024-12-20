@@ -1,7 +1,7 @@
 ARG REGISTRY_URL
 ARG VERSION
 
-FROM ${REGISTRY_URL}/centreon-web-dependencies-alma8:${VERSION} AS web_fresh
+FROM ${REGISTRY_URL}/centreon-web-dependencies-collect-alma8:${VERSION} AS web_fresh
 
 ARG VERSION
 
