@@ -84,15 +84,20 @@ const Chart = ({
           })}
         >
           <PieChart
-            Legend={Legend((status) =>
-              getLinkToResourceStatusPage(status, resourceType)
+            opacity={1}
+            Legend={(props) => (
+              <Legend
+                getLinkToResourceStatusPage={getLinkToResourceStatusPage}
+                resourceType={resourceType}
+                {...props}
+              />
             )}
             TooltipContent={TooltipContent}
             data={data}
             displayLegend={displayLegend}
             displayValues={displayValues}
             title={title}
-            tooltipProps={{ resources }}
+            tooltipProps={{ resources, resourceType }}
             unit={unit}
             variant={displayType as 'pie' | 'donut'}
             onArcClick={({ label: status }) => {
@@ -108,17 +113,20 @@ const Chart = ({
           })}
         >
           <BarStack
-            Legend={Legend((status) =>
-              getLinkToResourceStatusPage(status, resourceType)
+            Legend={(props) => (
+              <Legend
+                getLinkToResourceStatusPage={getLinkToResourceStatusPage}
+                resourceType={resourceType}
+                {...props}
+              />
             )}
             TooltipContent={TooltipContent}
             data={data}
             displayLegend={displayLegend}
             displayValues={displayValues}
             legendDirection={isHorizontalBar ? 'row' : 'column'}
-            size={80}
             title={title}
-            tooltipProps={{ resources }}
+            tooltipProps={{ resources, resourceType }}
             unit={unit}
             variant={displayType as 'horizontal' | 'vertical'}
             onSingleBarClick={({ key: status }) => {
