@@ -103,10 +103,6 @@ default:
       paths: [ "%paths.base%/features/SpecialCharactersInContact.feature" ]
       contexts: [ SpecialCharactersInContactContext ]
 
-    contact_group_configuration:
-      paths: [ "%paths.base%/features/ContactGroupConfiguration.feature" ]
-      contexts: [ ContactGroupConfigurationContext ]
-
     ldap_configuration:
       paths: [ "%paths.base%/features/LdapConfiguration.feature" ]
       contexts: [ LdapConfigurationContext ]
@@ -138,10 +134,6 @@ default:
     escalation_configuration:
       paths: [ "%paths.base%/features/EscalationConfiguration.feature" ]
       contexts: [ EscalationConfigurationContext ]
-
-    meta_service_configuration:
-      paths: [ "%paths.base%/features/MetaServiceConfiguration.feature" ]
-      contexts: [ MetaServiceConfigurationContext ]
 
     host_group_dependency_configuration:
       paths: [ "%paths.base%/features/HostGroupDependencyConfiguration.feature" ]
@@ -182,10 +174,6 @@ default:
     test_clapi:
       paths: [ "%paths.base%/features/Clapi.feature" ]
       contexts: [ ClapiContext ]
-
-    traps_snmp_group_configuration:
-      paths: [ "%paths.base%/features/TrapsSNMPGroupConfiguration.feature" ]
-      contexts: [ TrapsSNMPGroupConfigurationContext ]
 
     uri:
       paths: [ "%paths.base%/features/URI.feature" ]
