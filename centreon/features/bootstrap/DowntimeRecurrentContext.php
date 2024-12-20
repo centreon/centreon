@@ -64,6 +64,7 @@ class DowntimeRecurrentContext extends CentreonContext
         $this->currentPage->setProperties($this->service);
         $this->currentPage->save();
         $this->reloadAllPollers();
+        $this->waitServiceIsMonitored($this->host, $this->service);
     }
 
     /**

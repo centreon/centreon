@@ -322,6 +322,9 @@ INSERT INTO `service_categories_relation` (`scr_id`, `service_service_id`, `sc_i
 INSERT INTO `contact` (`contact_name`, `contact_alias`, `contact_activate`, `contact_auth_type`, `contact_register`)
 VALUES ('contact_template', 'contact_template', '1', 'local', 0);
 
+UPDATE cfg_nagios_logger SET log_level_config = 'debug', log_level_checks= 'debug';
+UPDATE cfg_centreonbroker_log SET id_level = 7 WHERE id_centreonbroker = 1 AND id_log = 1;
+
 -- Reduce broker transaction timeout to 1s to increase monitoring performance on small container
 UPDATE cfg_centreonbroker_info SET config_value = '1' WHERE config_key = 'read_timeout';
 UPDATE cfg_centreonbroker_info SET config_value = '1' WHERE config_key = 'queries_per_transaction';
