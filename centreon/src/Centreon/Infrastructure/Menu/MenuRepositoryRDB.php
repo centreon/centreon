@@ -47,7 +47,11 @@ class MenuRepositoryRDB extends AbstractRepositoryDRB implements MenuRepositoryI
         $this->db->query(
             "UPDATE topology SET topology_show = '0'
             WHERE topology_page IN ('21003', '601', '602', '60304', '608', '604', '617', '650', '609', '610', '50111',
+<<<<<<< HEAD
             '50102', '50707', '50120', '618', '60905')
+=======
+            '50102', '50707', '50120', '618')
+>>>>>>> master
             OR topology_parent IN ('601', '602', '608', '604', '617', '650', '609', '610')"
         );
     }
@@ -60,7 +64,11 @@ class MenuRepositoryRDB extends AbstractRepositoryDRB implements MenuRepositoryI
         $this->db->query(
             "UPDATE topology SET topology_show = '1'
             WHERE topology_page IN ('21003', '601', '602', '60304', '608', '604', '617', '650', '609', '610', '50111',
+<<<<<<< HEAD
             '50102', '50707', '50120', '618', '60905')
+=======
+            '50102', '50707', '50120', '618')
+>>>>>>> master
             OR topology_parent IN ('601', '602', '608', '604', '617', '650', '609', '610')"
         );
     }

@@ -131,19 +131,36 @@ const Listing = ({
   return (
     <>
       <MemoizedListing
+<<<<<<< HEAD:centreon/www/front_src/src/Dashboards/SingleInstancePage/Dashboard/Widgets/centreon-widget-resourcestable/src/Listing/Listing.tsx
         isActionBarVisible={!isOnPublicPage}
+=======
+        paginated={!isOnPublicPage}
+>>>>>>> master:centreon/www/widgets/src/centreon-widget-resourcestable/src/Listing/Listing.tsx
         checkable
         actions={
-          <Actions
-            displayType={displayType}
-            hasMetaService={hasMetaService}
-            setPanelOptions={setPanelOptions}
-            isOpenTicketEnabled={isOpenTicketEnabled}
-          />
+          isOnPublicPage ? undefined : (
+            <Actions
+              displayType={displayType}
+              hasMetaService={hasMetaService}
+              setPanelOptions={setPanelOptions}
+              isOpenTicketEnabled={isOpenTicketEnabled}
+            />
+          )
         }
+<<<<<<< HEAD:centreon/www/front_src/src/Dashboards/SingleInstancePage/Dashboard/Widgets/centreon-widget-resourcestable/src/Listing/Listing.tsx
         actionsBarMemoProps={[displayType, hasMetaService, isOpenTicketEnabled]}
+=======
+        actionsBarMemoProps={[
+          displayType,
+          hasMetaService,
+          isOpenTicketEnabled,
+          isOnPublicPage
+        ]}
+>>>>>>> master:centreon/www/widgets/src/centreon-widget-resourcestable/src/Listing/Listing.tsx
         columnConfiguration={{
-          selectedColumnIds: selectedColumnIds || defaultSelectedColumnIds,
+          selectedColumnIds: isOnPublicPage
+            ? undefined
+            : selectedColumnIds || defaultSelectedColumnIds,
           sortable: true
         }}
         columns={columns}

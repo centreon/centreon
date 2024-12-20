@@ -19474,6 +19474,7 @@ msgstr "Horloge / Minuteur"
 msgid "Thumbnails show a snapshot of your data, taken when the dashboard is saved"
 msgstr "Les vignettes affichent un instantané de vos données, pris au moment de la sauvegarde."
 
+<<<<<<< HEAD
 msgid "Poller/agent configuration"
 msgstr "Configuration collecteur/agent"
 
@@ -19617,3 +19618,7 @@ msgstr "minute"
 
 msgid "There are errors in the form."
 msgstr "Il y a des erreurs dans le formulaire."
+=======
+# msgid "Clock / Timer"
+# msgstr ""
+>>>>>>> master

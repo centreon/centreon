@@ -4,7 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
+<<<<<<< HEAD
     "content-hash": "0d3c94b5a1378006557412c0db649810",
+=======
+    "content-hash": "5485a0c2b9aa9870f35a6c35df9248c6",
+>>>>>>> master
     "packages": [
         {
             "name": "beberlei/assert",
@@ -6943,7 +6947,11 @@
         },
         {
             "name": "centreon/centreon-test-lib",
+<<<<<<< HEAD
             "version": "dev-master",
+=======
+            "version": "24.10.x-dev",
+>>>>>>> master
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",

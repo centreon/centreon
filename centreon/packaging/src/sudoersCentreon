@@ -52,6 +52,7 @@ CENTREON   ALL = NOPASSWD: /usr/bin/systemctl reload cbd
 # Centreon Vmware
 CENTREON   ALL = NOPASSWD: /usr/bin/systemctl restart centreon_vmware
 CENTREON   ALL = NOPASSWD: /usr/bin/systemctl start centreon_vmware
+<<<<<<< HEAD
 CENTREON   ALL = NOPASSWD: /usr/bin/systemctl stop centreon_vmware
 CENTREON   ALL = NOPASSWD: /usr/bin/systemctl reload centreon_vmware
 CENTREON   ALL = NOPASSWD: /usr/bin/systemctl restart centreon_vmware.service
@@ -66,5 +67,13 @@ CENTREON   ALL = NOPASSWD: /bin/systemctl restart centreon_vmware.service
 CENTREON   ALL = NOPASSWD: /bin/systemctl start centreon_vmware.service
 CENTREON   ALL = NOPASSWD: /bin/systemctl stop centreon_vmware.service
 CENTREON   ALL = NOPASSWD: /bin/systemctl reload centreon_vmware.service
+=======
+CENTREON   ALL = NOPASSWD: /usr/bin/systemctl restart centreon_vmware.service
+CENTREON   ALL = NOPASSWD: /usr/bin/systemctl start centreon_vmware.service
+CENTREON   ALL = NOPASSWD: systemctl restart centreon_vmware
+CENTREON   ALL = NOPASSWD: systemctl start centreon_vmware
+CENTREON   ALL = NOPASSWD: systemctl restart centreon_vmware.service
+CENTREON   ALL = NOPASSWD: systemctl start centreon_vmware.service
+>>>>>>> master
 
 ## END: CENTREON SUDO

@@ -62,10 +62,17 @@ When('the admin user fills in all the informations', () => {
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.contains('Central').click();
+<<<<<<< HEAD
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Abcde!2021');
   cy.getByTestId({ testId: 'vCenter name_value' }).eq(0).clear().type('vCenter-001');
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
+=======
+  cy.getByTestId({ testId: 'vCenter name_value' }).eq(0).clear().type('vCenter-001');
+  cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
+  cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
+  cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Abcde!2021');
+>>>>>>> master
   cy.get('#Portvalue').should('have.value', '5700');
 });
 
@@ -99,10 +106,17 @@ Then('a pop up is displayed with all of the additional connector information', (
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('have.value', "I'm the first connector created");
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.get('*[class^="MuiChip-label MuiChip-labelMedium"]').should('contain', 'Central');
+<<<<<<< HEAD
   cy.getByTestId({ testId: 'Username_value' }).eq(1).should('be.empty');
   cy.getByTestId({ testId: 'Password_value' }).eq(1).should('be.empty');
   cy.getByTestId({ testId: 'vCenter name_value' }).eq(1).should('have.value', 'vCenter-001');
   cy.getByTestId({ testId: 'URL_value' }).eq(1).should('have.value', 'https://10.0.0.0/sdk');
+=======
+  cy.getByTestId({ testId: 'vCenter name_value' }).eq(1).should('have.value', 'vCenter-001');
+  cy.getByTestId({ testId: 'URL_value' }).eq(1).should('have.value', 'https://10.0.0.0/sdk');
+  cy.getByTestId({ testId: 'Username_value' }).eq(1).should('be.empty');
+  cy.getByTestId({ testId: 'Password_value' }).eq(1).should('be.empty');
+>>>>>>> master
   cy.get('#Portvalue').should('have.value', '5700');
 });
 
@@ -113,10 +127,17 @@ When('the user modifies the configuration', () => {
   cy.getByTestId({ testId: 'CancelIcon' }).click();
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click().click();
   cy.contains('Poller-1').click();
+<<<<<<< HEAD
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Abcde!2022');
   cy.getByTestId({ testId: 'vCenter name_value' }).eq(0).clear().type('vCenter-002');
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.3.3.3/sdk');
+=======
+  cy.getByTestId({ testId: 'vCenter name_value' }).eq(0).clear().type('vCenter-002');
+  cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.3.3.3/sdk');
+  cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
+  cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Abcde!2022');
+>>>>>>> master
   cy.get('#Portvalue').clear().click().type('6900');
 });
 
@@ -177,10 +198,17 @@ Given('an Additional Connector Configuration already created linked with two pol
   cy.contains('Poller-1').click();
   cy.contains('Poller-2').click();
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
+<<<<<<< HEAD
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Abcde!2021');
   cy.getByTestId({ testId: 'vCenter name_value' }).eq(0).clear().type('vCenter-001');
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
+=======
+  cy.getByTestId({ testId: 'vCenter name_value' }).eq(0).clear().type('vCenter-001');
+  cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.0.0.0/sdk');
+  cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
+  cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Abcde!2021');
+>>>>>>> master
   cy.get('#Portvalue').should('have.value', '5700');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
   cy.wait('@addAdditionalConnector');
@@ -246,10 +274,17 @@ When('a pop up is displayed with all of the additional connector information wit
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('be.empty');
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.get('*[class^="MuiChip-label MuiChip-labelMedium"]').should('contain', 'Poller-1', 'Poller-2');
+<<<<<<< HEAD
   cy.getByTestId({ testId: 'Username_value' }).eq(1).should('be.empty');
   cy.getByTestId({ testId: 'Password_value' }).eq(1).should('be.empty');
   cy.getByTestId({ testId: 'vCenter name_value' }).eq(1).should('have.value', 'vCenter-001');
   cy.getByTestId({ testId: 'URL_value' }).eq(1).should('have.value', 'https://10.0.0.0/sdk');
+=======
+  cy.getByTestId({ testId: 'vCenter name_value' }).eq(1).should('have.value', 'vCenter-001');
+  cy.getByTestId({ testId: 'URL_value' }).eq(1).should('have.value', 'https://10.0.0.0/sdk');
+  cy.getByTestId({ testId: 'Username_value' }).eq(1).should('be.empty');
+  cy.getByTestId({ testId: 'Password_value' }).eq(1).should('be.empty');
+>>>>>>> master
   cy.get('#Portvalue').should('have.value', '5700');
 });
 
@@ -286,10 +321,17 @@ When('the non-admin user fills in all the informations', () => {
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.contains('Poller-1').click();
+<<<<<<< HEAD
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Abcde!2021');
   cy.getByTestId({ testId: 'vCenter name_value' }).eq(0).clear().type('vCenter-001');
   cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.1.1.1/sdk');
+=======
+  cy.getByTestId({ testId: 'vCenter name_value' }).eq(0).clear().type('vCenter-001');
+  cy.getByTestId({ testId: 'URL_value' }).eq(0).clear().type('https://10.1.1.1/sdk');
+  cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
+  cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Abcde!2021');
+>>>>>>> master
   cy.get('#Portvalue').should('have.value', '5700');
   cy.getByLabel({ label: 'Create', tag: 'button' }).click();
 });

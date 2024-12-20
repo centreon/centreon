@@ -1,13 +1,22 @@
 <?php
+<<<<<<< HEAD
 
 /*
  * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+=======
+/*
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+>>>>>>> master
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+<<<<<<< HEAD
  * https://www.apache.org/licenses/LICENSE-2.0
+=======
+ * http://www.apache.org/licenses/LICENSE-2.0
+>>>>>>> master
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +27,7 @@
  * For more information : contact@centreon.com
  *
  */
+<<<<<<< HEAD
 
 require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonLog.class.php';
@@ -140,3 +150,5 @@ try {
 
     throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }
+=======
+>>>>>>> master

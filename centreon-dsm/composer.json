@@ -1,5 +1,6 @@
 {
   "name": "centreon/centreon-dsm",
+<<<<<<< HEAD
   "version": "24.10",
   "type": "project",
   "license": "GPL-2.0-only",
@@ -7,6 +8,14 @@
     "ext-json": "*",
     "centreon/centreon": "@dev",
     "centreon/centreon-test-lib": "dev-master",
+=======
+  "version": "24.11",
+  "type": "project",
+  "license": "GPL-2.0-only",
+  "require-dev": {
+    "centreon/centreon": "@dev",
+    "centreon/centreon-test-lib": "24.10.x-dev",
+>>>>>>> master
     "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
     "friendsofphp/php-cs-fixer": "3.64.*",
     "phpcompatibility/php-compatibility": "9.3.*",
@@ -44,5 +53,11 @@
     "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
     "rector:check": "rector --dry-run --debug",
     "rector:exec": "rector --debug"
+  },
+  "extra": {
+    "symfony": {
+      "allow-contrib": true,
+      "require": "6.4.*"
+    }
   }
 }

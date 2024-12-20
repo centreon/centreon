@@ -6,6 +6,7 @@ import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { searchAtom } from '../atom';
 import { labelClearFilter, labelSearch } from '../translatedLabels';
+<<<<<<< HEAD
 
 export const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
   const { t } = useTranslation();
@@ -26,6 +27,31 @@ export const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
 const Filter = (): JSX.Element => {
   const { t } = useTranslation();
 
+=======
+import { useActionsStyles } from './useActionsStyles';
+
+
+export const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
+  const { t } = useTranslation();
+
+  return (
+    <IconButton
+      ariaLabel={t(labelClearFilter) as string}
+      data-testid={labelClearFilter}
+      size="small"
+      title={t(labelClearFilter) as string}
+      onClick={onClear}
+    >
+      <CloseIcon color="action" fontSize="small" />
+    </IconButton>
+  );
+};
+
+const Filter = (): JSX.Element => {
+  const { classes } = useActionsStyles();
+  const { t } = useTranslation();
+
+>>>>>>> master
   const [searchValue, setSearchValue] = useAtom(searchAtom);
   const [inputValue, setInputValue] = useState(searchValue);
 

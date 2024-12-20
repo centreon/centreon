@@ -26,6 +26,7 @@ const CloseModalConfirmation = (): JSX.Element => {
   }, []);
 
   return (
+<<<<<<< HEAD
     <UnsavedChangesDialog
       isSubmitting={isSubmitting}
       isValidForm={isValid}
@@ -34,6 +35,22 @@ const CloseModalConfirmation = (): JSX.Element => {
       discardChanges={discard}
       dialogOpened={isModalOpen && dirty}
     />
+=======
+    <Modal open={isModalOpen} size="large" onClose={onCancel}>
+      <Modal.Header>{t(labelDoYouWantToQuitWithoutSaving)}</Modal.Header>
+      <Modal.Body>
+        <Typography>{t(labelYourFormHasUnsavedChanges)}</Typography>
+      </Modal.Body>
+      <Modal.Actions
+        labels={{
+          cancel: t(labelCancel),
+          confirm: t(labelConfirm)
+        }}
+        onCancel={onCancel}
+        onConfirm={onConfirm}
+      />
+    </Modal>
+>>>>>>> master
   );
 };
 

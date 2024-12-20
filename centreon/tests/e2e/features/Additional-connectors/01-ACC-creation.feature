@@ -58,6 +58,7 @@ Feature: Create a new Additional Connector Configuration
     Then the creation form is closed
     And the additional connector configuration has not been created
     When the user clicks on Add
+<<<<<<< HEAD
     Then the form fields are empty
 
   @TEST_MON-152805
@@ -98,3 +99,6 @@ Feature: Create a new Additional Connector Configuration
       | action           | popup_title                    | popup_message                                                             |
       | clicks on cancel | Do you want to resolve the errors? | There are errors in the form. Do you want to quit the form without resolving the errors? |
       | clicks outside | Do you want to resolve the errors? | There are errors in the form. Do you want to quit the form without resolving the errors? |
+=======
+    Then the form fields are empty
+>>>>>>> master

@@ -1,7 +1,11 @@
 {
   "name": "centreon/centreon-open-tickets",
   "description": "Module dedicated to open case on various Ticket systems",
+<<<<<<< HEAD
   "version": "24.10",
+=======
+  "version": "24.11",
+>>>>>>> master
   "type": "project",
   "keywords": [
     "centreon",
@@ -9,11 +13,19 @@
   ],
   "license": "GPL-2.0-only",
   "require-dev": {
+<<<<<<< HEAD
     "ext-json": "*",
     "ext-openssl": "*",
     "beberlei/assert": "^3.3",
     "centreon/centreon": "@dev",
     "centreon/centreon-test-lib": "dev-master",
+=======
+    "ext-openssl": "*",
+    "ext-json": "*",
+    "beberlei/assert": "^3.3",
+    "centreon/centreon": "@dev",
+    "centreon/centreon-test-lib": "24.10.x-dev",
+>>>>>>> master
     "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
     "friendsofphp/php-cs-fixer": "3.64.*",
     "pestphp/pest": "^1.21",
@@ -67,5 +79,11 @@
     "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
     "rector:check": "rector --dry-run --debug",
     "rector:exec": "rector --debug"
+  },
+  "extra": {
+    "symfony": {
+      "allow-contrib": true,
+      "require": "6.4.*"
+    }
   }
 }

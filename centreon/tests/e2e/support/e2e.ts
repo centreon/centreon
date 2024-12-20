@@ -23,7 +23,10 @@ Cypress.on('uncaught:exception', (err) => {
     err.message.includes('undefined') ||
     err.message.includes('postMessage') ||
     err.message.includes('canceled') ||
+<<<<<<< HEAD
     err.message.includes('CancelledError') ||
+=======
+>>>>>>> master
     err.message.includes('Network Error')
   ) {
     return false;
