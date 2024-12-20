@@ -1,0 +1,47 @@
+{
+    "notification": {
+        "name": "notification_cmd",
+        "type": 1,
+        "command_line": "string",
+        "is_shell": false,
+        "argument_example": "!80!90",
+        "arguments": [],
+        "macros": [],
+        "connector_id": 1,
+        "graph_template_id": 4
+    },
+    "check": {
+        "name": "check_cmd",
+        "type": 2,
+        "command_line": "string",
+        "is_shell": false,
+        "argument_example": "!80!90",
+        "arguments": [],
+        "macros": [],
+        "connector_id": 1,
+        "graph_template_id": 4
+    },
+    
+    "miscellaneous": {
+        "name": "miscellaneous_cmd",
+        "type": 3,
+        "command_line": "string",
+        "is_shell": false,
+        "argument_example": "!80!90",
+        "arguments": [],
+        "macros": [],
+        "connector_id": 1,
+        "graph_template_id": 4
+    },
+    "discovery": {
+        "name": "discovery_cmd",
+        "type": 4,
+        "command_line": "string",
+        "is_shell": false,
+        "argument_example": "!80!90",
+        "arguments": [],
+        "macros": [],
+        "connector_id": 1,
+        "graph_template_id": 4
+    }
+}
