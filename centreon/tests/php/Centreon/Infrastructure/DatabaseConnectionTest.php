@@ -1477,6 +1477,120 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     )->throws(DatabaseConnectionException::class);
 
+    it(
+        'execute iterateByColumn with correct query without type without binding parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::connect($dbConfigCentreon);
+            $contacts = $db->iterateByColumn("select * from contact where contact_id = 1");
+            foreach ($contacts as $contact) {
+                expect($contact)->toBeInt()->toBe(1);
+            }
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+        }
+    );
+
+    it(
+        'execute iterateByColumn with correct query without type',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::connect($dbConfigCentreon);
+            $contacts = $db->iterateByColumn("select * from contact where contact_id = :id", ['id' => 1]);
+            foreach ($contacts as $contact) {
+                expect($contact)->toBeInt()->toBe(1);
+            }
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+        }
+    );
+
+    it(
+        'execute iterateByColumn with correct query with type',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::connect($dbConfigCentreon);
+            $contacts = $db->iterateByColumn(
+                "select * from contact where contact_id = :id",
+                ['id' => [1, PDO::PARAM_INT]],
+                withParamType: true
+            );
+            foreach ($contacts as $contact) {
+                expect($contact)->toBeInt()->toBe(1);
+            }
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+        }
+    );
+
+    it(
+        'execute iterateByColumn with correct query with type without binding parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::connect($dbConfigCentreon);
+            $contacts = $db->iterateByColumn(
+                "select * from contact where contact_id = :id",
+                withParamType: true
+            );
+            foreach ($contacts as $contact) {}
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+        }
+    )->throws(DatabaseConnectionException::class);
+
+    it(
+        'execute iterateByColumn with correct query with type with only the value in binding parameters values',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::connect($dbConfigCentreon);
+            $contacts = $db->iterateByColumn(
+                "select * from contact where contact_id = :id",
+                ['id' => 1],
+                withParamType: true
+            );
+            foreach ($contacts as $contact) {}
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+        }
+    )->throws(DatabaseConnectionException::class);
+
+    it(
+        'execute iterateByColumn with correct query with type without type in binding parameters values',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::connect($dbConfigCentreon);
+            $contacts = $db->iterateByColumn(
+                "select * from contact where contact_id = :id",
+                ['id' => [1]],
+                withParamType: true
+            );
+            foreach ($contacts as $contact) {}
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+        }
+    )->throws(DatabaseConnectionException::class);
+
+    it(
+        'execute iterateByColumn with incorrect SELECT query',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::connect($dbConfigCentreon);
+            $contacts = $db->iterateByColumn("select * from", ['id' => 1]);
+            foreach ($contacts as $contact) {}
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+        }
+    )->throws(DatabaseConnectionException::class);
+
+    it(
+        'execute iterateByColumn with INSERT/UPDATE/DELETE query',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::connect($dbConfigCentreon);
+            $contacts = $db->iterateByColumn(
+                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
+                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
+            );
+            foreach ($contacts as $contact) {}
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+        }
+    )->throws(DatabaseConnectionException::class);
+
+    it(
+        'execute iterateByColumn with an empty query',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::connect($dbConfigCentreon);
+            $contacts = $db->iterateByColumn("", ['id' => 1]);
+            foreach ($contacts as $contact) {}
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+        }
+    )->throws(DatabaseConnectionException::class);
+
     // ---------------------------------------- DDL METHODS ----------------------------------------------
 
     it('execute updateDatabase with correct query', function () use ($dbConfigCentreon): void {
@@ -1512,6 +1626,57 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         $response = $db->updateDatabase("SELECT * FROM contact");
         expect($response)->toBeFalse();
     })->throws(DatabaseConnectionException::class);
+
+    // ----------------------------------------- TRANSACTIONS -----------------------------------------
+
+    it('execute startTransaction with success', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::connect($dbConfigCentreon);
+        $db->startTransaction();
+        expect($db->isTransactionActive())->toBeTrue();
+    });
+
+    it('execute commit with success', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::connect($dbConfigCentreon);
+        $db->startTransaction();
+        $response = $db->commit();
+        expect($response)->toBeTrue()
+            ->and($db->isTransactionActive())->toBeFalse();
+    });
+
+    it('execute rollback with success', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::connect($dbConfigCentreon);
+        $db->startTransaction();
+        $response = $db->rollback();
+        expect($response)->toBeTrue()
+            ->and($db->isTransactionActive())->toBeFalse();
+    });
+
+    // ------------------------------------- UNBUFFERED QUERIES -----------------------------------------
+
+    it('execute unbufferedQuery with correct query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::connect($dbConfigCentreon);
+        $db->startUnbufferedQuery();
+        var_dump($db->getAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY));
+        $stmt = $db->executeQuery("SELECT * FROM contact WHERE contact_id = 1");
+        expect($stmt)->toBeInstanceOf(PDOStatement::class);
+        $contact = $stmt->fetch();
+        expect($contact)->toBeArray()->toHaveKey('contact_id', 1)
+            ->and($db->isUnbufferedQueryActive())->toBeTrue()
+            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class)
+            ->and($db->getAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(0);
+        $db->stopUnbufferedQuery();
+        expect($db->isUnbufferedQueryActive())->toBeFalse()
+            ->and($db->getAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(1);
+    });
+
+    it(
+        'stop unbuffered query without start unbuffered query',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::connect($dbConfigCentreon);
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+            $db->stopUnbufferedQuery();
+        }
+    )->throws(DatabaseConnectionException::class);
 
     // ---------------------------------------- execute ----------------------------------------------
 

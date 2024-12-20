@@ -51,6 +51,13 @@ class DatabaseConnection extends PDO
     private string $storageDbName;
 
     /**
+     * By default, the queries are buffered.
+     *
+     * @var bool
+     */
+    private bool $isBufferedQueryActive = true;
+
+    /**
      * Initialize the PDO connection
      *
      * @param LoggerInterface $logger
@@ -172,6 +179,27 @@ class DatabaseConnection extends PDO
             return true;
         } catch (DatabaseConnectionException $e) {
             return false;
+        }
+    }
+
+    /***
+     * Returns the ID of the last inserted row.
+     *
+     * @return string
+     *
+     * @throws DatabaseConnectionException
+     */
+    public function getLastInsertId(): string
+    {
+        try {
+            return (string) $this->lastInsertId();
+        } catch (Throwable $e) {
+            $this->exceptionHandler(
+                "Error while getting last insert ID : {$e->getMessage()}",
+                [],
+                '',
+                $e
+            );
         }
     }
 
@@ -757,6 +785,55 @@ class DatabaseConnection extends PDO
         }
     }
 
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator over the column values.
+     *
+     * Could be only used with SELECT.
+     *
+     * This method supports PDO binding types.
+     *
+     * @param string $query
+     * @param array  $bindParams
+     * @param int    $column
+     * @param bool   $withParamType
+     *
+     * @return Traversable<int,list<mixed>>
+     *
+     * @throws DatabaseConnectionException
+     */
+    public function iterateByColumn(
+        string $query,
+        array $bindParams = [],
+        int $column = 0,
+        bool $withParamType = false
+    ): Traversable {
+        try {
+            $this->validateQueryString($query, 'SELECT', true);
+            $pdoStatement = $this->prepareQuery($query);
+            $pdoStatement = $this->executePreparedQuery(
+                $pdoStatement,
+                $bindParams,
+                $withParamType,
+                PDO::FETCH_COLUMN,
+                [$column]
+            );
+            while (($row = $this->fetch($pdoStatement)) !== false) {
+                yield $row;
+            }
+        } catch (Throwable $e) {
+            $this->exceptionHandler(
+                "Error while fetching data with iterateByColumn() : {$e->getMessage()}",
+                [
+                    'bind_params' => $bindParams,
+                    'with_param_type' => $withParamType,
+                    'column' => $column,
+                ],
+                $query,
+                $e
+            );
+        }
+    }
+
     // --------------------------------------- DDL METHODS -----------------------------------------
 
     /**
@@ -1142,6 +1219,141 @@ class DatabaseConnection extends PDO
         }
 
         return $quotedString;
+    }
+
+    // ----------------------------------------- TRANSACTIONS -----------------------------------------
+
+    /**
+     * Check if a transaction is active or not.
+     *
+     * @return bool
+     */
+    public function isTransactionActive(): bool
+    {
+        return parent::inTransaction();
+    }
+
+    /**
+     * Opens a new transaction. This must be closed by calling one of the following methods:
+     * {@see commit} or {@see rollBack}
+     *
+     * @return void
+     *
+     * @throws DatabaseConnectionException
+     */
+    public function startTransaction(): void
+    {
+        try {
+            $this->beginTransaction();
+        } catch (Throwable $e) {
+            $this->exceptionHandler("Error while starting a transaction: {$e->getMessage()}", [], '', $e);
+        }
+    }
+
+    /**
+     * To validate a transaction.
+     *
+     * @return bool
+     *
+     * @throws DatabaseConnectionException
+     */
+    public function commit(): bool
+    {
+        try {
+            if (! parent::commit()) {
+                throw new DatabaseConnectionException(
+                    "Error while committing a transaction",
+                    DatabaseConnectionException::ERROR_CODE_DATABASE
+                );
+            }
+            return true;
+        } catch (Throwable $e) {
+            $this->exceptionHandler("Error while committing a transaction", [], '', $e);
+        }
+    }
+
+    /**
+     * To cancel a transaction.
+     *
+     * @return bool
+     *
+     * @throws DatabaseConnectionException
+     */
+    public function rollBack(): bool
+    {
+        try {
+            if (! parent::rollBack()) {
+                throw new DatabaseConnectionException(
+                    "Error while rolling back a transaction",
+                    DatabaseConnectionException::ERROR_CODE_DATABASE
+                );
+            }
+            return true;
+        } catch (Throwable $e) {
+            $this->exceptionHandler("Error while rolling back a transaction", [], '', $e);
+        }
+    }
+
+    // ------------------------------------- UNBUFFERED QUERIES -----------------------------------------
+
+    /**
+     * Prepares a statement to execute a query without buffering. Only works for SELECT queries.
+     *
+     * @return void
+     *
+     * @throws DatabaseConnectionException
+     */
+    public function startUnbufferedQuery(): void
+    {
+        try {
+            if (! $this->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false)) {
+                throw new DatabaseConnectionException(
+                    "Error while starting an unbuffered query",
+                    DatabaseConnectionException::ERROR_CODE_DATABASE
+                );
+            }
+            $this->isBufferedQueryActive = false;
+        } catch (Throwable $e) {
+            $this->exceptionHandler("Error while starting an unbuffered query", [], '', $e);
+        }
+    }
+
+    /**
+     * Checks whether an unbuffered query is currently active.
+     *
+     * @return bool
+     */
+    public function isUnbufferedQueryActive(): bool
+    {
+        return $this->isBufferedQueryActive === false;
+    }
+
+    /**
+     * To close an unbuffered query.
+     *
+     * @return void
+     *
+     * @throws DatabaseConnectionException
+     */
+    public function stopUnbufferedQuery(): void
+    {
+        try {
+            if (! $this->isUnbufferedQueryActive()) {
+                throw new DatabaseConnectionException(
+                    "Error while stopping an unbuffered query, no unbuffered query is currently active",
+                    DatabaseConnectionException::ERROR_CODE_BAD_USAGE
+                );
+            }
+            if (! $this->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true)) {
+                throw new DatabaseConnectionException(
+                    "Error while stopping an unbuffered query",
+                    DatabaseConnectionException::ERROR_CODE_DATABASE
+                );
+            }
+            $this->isBufferedQueryActive = true;
+        } catch (Throwable $e) {
+            $this->exceptionHandler("Error while stopping an unbuffered query", [], '', $e);
+        }
     }
 
     // --------------------------------------- PRIVATE METHODS -----------------------------------------
