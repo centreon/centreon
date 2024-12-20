@@ -17524,3 +17524,15 @@ msgstr "Erweiterter Modus"
 
 # msgid "Add to favorites"
 # msgstr ""
+
+# msgid "PNG (as displayed)"
+# msgstr ""
+
+# msgid "PNG (medium size)"
+# msgstr ""
+
+# msgid "PNG (small size)"
+# msgstr ""
+
+# msgid "Export as"
+# msgstr ""

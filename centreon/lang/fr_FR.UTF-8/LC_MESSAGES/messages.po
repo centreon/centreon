@@ -19633,3 +19633,14 @@ msgstr "Retirer des favoris"
 msgid "Add to favorites"
 msgstr "Ajouter aux favoris"
 
+msgid "PNG (as displayed)"
+msgstr "PNG (tel qu'affiché)"
+
+msgid "PNG (medium size)"
+msgstr "PNG (taille moyenne)"
+
+msgid "PNG (small size)"
+msgstr "PNG (petite taille)"
+
+msgid "Export as"
+msgstr "Exporter en tant que"
