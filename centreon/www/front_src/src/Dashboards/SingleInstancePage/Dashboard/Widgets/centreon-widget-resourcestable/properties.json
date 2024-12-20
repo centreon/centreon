@@ -177,5 +177,6 @@
       }
     }
   },
-  "moduleName": "centreon-widget-resourcestable"
+  "moduleName": "centreon-widget-resourcestable",
+  "canExtand": true
 }

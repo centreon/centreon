@@ -540,5 +540,6 @@
       }
     }
   },
-  "moduleName": "centreon-widget-graph"
+  "moduleName": "centreon-widget-graph",
+  "canExtand": true
 }

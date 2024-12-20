@@ -32,6 +32,7 @@ import {
 } from '../../translatedLabels';
 
 import MorePanelActions from './MorePanelActions';
+import { ExpandableData } from './models';
 import { usePanelHeaderStyles } from './usePanelStyles';
 import useRefreshWebPageWidget from './useRefreshWebPageWidget';
 
@@ -45,6 +46,7 @@ interface PanelHeaderProps {
   pageType: string | null;
   setRefreshCount?: (id) => void;
   name: string;
+  expandableData?: ExpandableData;
 }
 
 const PanelHeader = ({
@@ -56,7 +58,8 @@ const PanelHeader = ({
   pageType,
   displayShrinkRefresh,
   forceDisplayShrinkRefresh,
-  name
+  name,
+  expandableData
 }: PanelHeaderProps): JSX.Element | null => {
   const { t } = useTranslation();
   const [moreActionsOpen, setMoreActionsOpen] = useState(null);
@@ -191,6 +194,7 @@ const PanelHeader = ({
               close={closeMoreActions}
               duplicate={duplicate}
               id={id}
+              expandableData={expandableData}
             />
           </div>
         )
