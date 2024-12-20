@@ -190,9 +190,10 @@ describe('Reset Password', () => {
     cy.findByLabelText(labelResetPassword).click();
 
     cy.waitForRequest('@resetPassword').then(({ request }) => {
-      expect(request.body).to.equal(
-        '{"new_password":"new-password","old_password":"current-password"}'
-      );
+      expect(request.body).to.equal({
+        new_password: 'new-password',
+        old_password: 'current-password'
+      });
     });
 
     cy.waitForRequest('@getUser');
