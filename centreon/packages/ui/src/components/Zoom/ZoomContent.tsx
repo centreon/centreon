@@ -105,7 +105,6 @@ const ZoomContent = ({
             contentClientRect,
             height,
             transformMatrix: zoom.transformMatrix,
-            setTransformMatrix: zoom.setTransformMatrix,
             width
           })}
         </g>
@@ -135,7 +134,6 @@ const ZoomContent = ({
                   contentClientRect,
                   height,
                   transformMatrix: zoom.transformMatrix,
-                  setTransformMatrix: zoom.setTransformMatrix,
                   width
                 })}
               </g>
