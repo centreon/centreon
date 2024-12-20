@@ -1,4 +1,4 @@
-import { isEmpty, isNil, or } from 'ramda';
+import { and, isEmpty, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -27,7 +27,7 @@ const ExternalProviders = ({
   const { classes } = useStyles();
   const { t } = useTranslation();
 
-  const hasProvidersConfiguration = or(
+  const hasProvidersConfiguration = and(
     !isNil(providersConfiguration),
     !isEmpty(providersConfiguration)
   );
