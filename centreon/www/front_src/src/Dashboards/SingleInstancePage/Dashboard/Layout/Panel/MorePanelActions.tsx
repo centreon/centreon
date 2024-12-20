@@ -25,21 +25,26 @@ import {
   labelEditWidget,
   labelViewProperties
 } from '../../translatedLabels';
+import { ExpandableData } from './models';
 
 interface Props {
   anchor: HTMLElement | null;
   close: () => void;
   duplicate: (event) => void;
   id: string;
+  expandableData?: ExpandableData;
 }
 
 const MorePanelActions = ({
   anchor,
   close,
   id,
-  duplicate
+  duplicate,
+  expandableData
 }: Props): JSX.Element => {
   const { t } = useTranslation();
+
+  const { Icon, label: labelExpand, toggleExpand } = expandableData || {};
   const [searchParams, setSearchParams] = useSearchParams(
     window.location.search
   );
@@ -76,7 +81,7 @@ const MorePanelActions = ({
 
   const displayEditButtons = canEdit;
 
-  const editActions = [
+  const defaultEditActions = [
     {
       Icon: EditIcon,
       label: t(labelEditWidget),
@@ -87,7 +92,10 @@ const MorePanelActions = ({
       Icon: ContentCopyIcon,
       label: t(labelDuplicate),
       onClick: duplicate
-    },
+    }
+  ];
+
+  const deleteAction = [
     ActionsListActionDivider.divider,
     {
       Icon: DeleteIcon,
@@ -97,13 +105,30 @@ const MorePanelActions = ({
     }
   ];
 
-  const viewActions = [
+  const extandableAction = [
+    ActionsListActionDivider.divider,
+    {
+      Icon,
+      label: t(labelExpand as string),
+      onClick: toggleExpand
+    }
+  ];
+
+  const editActions = !expandableData
+    ? [...defaultEditActions, ...deleteAction]
+    : [...defaultEditActions, ...extandableAction, ...deleteAction];
+
+  const defaultViewActions = [
     {
       Icon: VisibilityOutlinedIcon,
       label: t(labelViewProperties),
       onClick: edit
     }
   ];
+
+  const viewActions = !expandableData
+    ? defaultViewActions
+    : [...defaultViewActions, ...extandableAction];
 
   return (
     <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={close}>

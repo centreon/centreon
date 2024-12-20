@@ -1,12 +1,5 @@
 import { CloseFullscreen, OpenInFull } from '@mui/icons-material';
-import {
-  CSSProperties,
-  forwardRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState
-} from 'react';
+import { CSSProperties, forwardRef, useEffect, useMemo, useState } from 'react';
 import { Modal } from '../Modal';
 import { useStyles } from './expandableContainer.styles';
 import { Parameters } from './models';
@@ -23,9 +16,9 @@ const ExpandableContainer = forwardRef<HTMLDivElement, Props>(
 
     const [isExpanded, setIsExpanded] = useState(false);
 
-    const toggleExpand = useCallback(() => {
+    const toggleExpand = () => {
       setIsExpanded(!isExpanded);
-    }, []);
+    };
 
     const label = isExpanded ? 'Reduce' : 'Extend';
 
@@ -36,7 +29,7 @@ const ExpandableContainer = forwardRef<HTMLDivElement, Props>(
         label,
         Icon: isExpanded ? CloseFullscreen : OpenInFull
       }),
-      [toggleExpand, isExpanded, label]
+      [isExpanded, label]
     );
 
     useEffect(() => {
