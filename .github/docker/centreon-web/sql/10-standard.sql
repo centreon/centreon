@@ -324,7 +324,7 @@ VALUES ('contact_template', 'contact_template', '1', 'local', 0);
 
 UPDATE cfg_nagios_logger SET log_level_config = 'debug', log_level_checks= 'debug';
 UPDATE cfg_centreonbroker_log SET id_level = 7 WHERE id_centreonbroker = 1 AND id_log IN (1,3);
-UPDATE cfg_centreonbroker_log SET id_level = 7 WHERE id_centreonbroker = 3 AND id_log IN (1,11);
+UPDATE cfg_centreonbroker_log SET id_level = 7 WHERE id_centreonbroker = 3 AND id_log IN (11);
 
 -- Reduce broker transaction timeout to 1s to increase monitoring performance on small container
 UPDATE cfg_centreonbroker_info SET config_value = '1' WHERE config_key = 'read_timeout';
