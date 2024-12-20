@@ -1,5 +1,5 @@
 name: web
-run-name: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) && format('web nightly {0}', github.ref_name) || '' }}
+run-name: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.nightly_manual_trigger == 'true')) && format('web nightly {0}', github.ref_name) || '' }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -8,7 +8,7 @@ concurrency:
 on:
   workflow_dispatch:
     inputs:
-      is_nightly:
+      nightly_manual_trigger:
         description: 'Set to true for nightly run'
         required: true
         default: false
@@ -397,7 +397,12 @@ jobs:
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
       - name: Setup docker slim
-        run: curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -s -- 1.40.11
+        run: |
+          curl -sLO https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz
+          tar zxf dist_linux.tar.gz
+          mv dist_linux/{slim,slim-sensor} /usr/local/bin/
+          chmod +x /usr/local/bin/{slim,slim-sensor}
+          rm -rf dist_linux.tar.gz dist_linux
         shell: bash
 
       - name: Build standard slim image
