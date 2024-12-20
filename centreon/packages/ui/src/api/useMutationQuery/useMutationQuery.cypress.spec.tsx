@@ -1,21 +1,17 @@
-import { useQueryClient } from '@tanstack/react-query';
 import useMutationQuery, { Method } from '.';
 import SnackbarProvider from '../../Snackbar/SnackbarProvider';
 import TestQueryProvider from '../TestQueryProvider';
 
+// biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
 let spyMutation;
-let spyQueryClient;
 
 const TestComponent = (props) => {
-  const queryClient = useQueryClient();
-
   const mutation = useMutationQuery({
     ...props,
     getEndpoint: () => '/endpoint'
   });
 
   spyMutation = mutation;
-  spyQueryClient = queryClient;
 
   return (
     <button
