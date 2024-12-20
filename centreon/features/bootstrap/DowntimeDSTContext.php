@@ -75,30 +75,7 @@ class DowntimeDSTContext extends CentreonContext
 
         $this->reloadAllPollers();
         $this->submitServiceResult($this->host, $this->service, 0, __FUNCTION__);
-        $this->waitServiceInMonitoring();
-    }
-
-    private function waitServiceInMonitoring()
-    {
-        $this->spin(
-            function ($context) {
-                $monitored = false;
-                $storageDb = $context->getStorageDatabase();
-                $res = $storageDb->query(
-                    'SELECT s.service_id ' .
-                    'FROM hosts h, services s ' .
-                    'WHERE s.host_id = h.host_id ' .
-                    'AND h.name = "' . $context->host . '" ' .
-                    'AND s.description = "' . $context->service . '" '
-                );
-                if ($res->fetch()) {
-                    $monitored = true;
-                }
-                return $monitored;
-            },
-            'Service ' . $this->host . ' / ' . $this->service . ' is not monitored.',
-            30
-        );
+        $this->waitServiceIsMonitored($this->host, $this->service);
     }
 
     /**

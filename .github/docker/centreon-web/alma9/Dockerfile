@@ -10,7 +10,10 @@ COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /us
 
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 
-RUN --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <<EOF
+RUN \
+  --mount=type=bind,src=packages-collect,dst=/tmp/packages-collect \
+  --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon \
+  bash -e <<EOF
 
 if [[ "$STABILITY" == "testing" ]]; then
   dnf config-manager --set-disabled 'centreon*unstable*'
@@ -18,6 +21,10 @@ elif [[ "$STABILITY" == "stable" ]]; then
   dnf config-manager --set-disabled 'centreon*unstable*' --set-disabled 'centreon*testing*'
 fi
 dnf config-manager --set-disabled 'centreon-plugin*unstable*' --set-disabled 'centreon-plugin*testing*'
+
+dnf remove -y centreon-engine* centreon-collect* centreon-broker*
+rm -rf /var/{lib,log}/centreon-{engine,broker}
+dnf install -y /tmp/packages-collect/*.rpm
 
 dnf install -y /tmp/packages-centreon/centreon-*.rpm
 
