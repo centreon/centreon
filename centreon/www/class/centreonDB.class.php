@@ -243,13 +243,13 @@ class CentreonDB extends PDO
 
             return $stmt->rowCount();
         } catch (CentreonDbException $e) {
-            throw new CentreonDbException(
+            $this->exceptionHandler(
                 "Error while deleting data : {$e->getMessage()}",
                 [
-                    'query' => $query,
                     'bind_params' => $bindParams,
                     'with_param_type' => $withParamType,
                 ],
+                $query,
                 $e
             );
         }
@@ -278,13 +278,13 @@ class CentreonDB extends PDO
 
             return $stmt->rowCount();
         } catch (CentreonDbException $e) {
-            throw new CentreonDbException(
+            $this->exceptionHandler(
                 "Error while inserting data : {$e->getMessage()}",
                 [
-                    'query' => $query,
                     'bind_params' => $bindParams,
                     'with_param_type' => $withParamType,
                 ],
+                $query,
                 $e
             );
         }
@@ -379,13 +379,13 @@ class CentreonDB extends PDO
 
             return $stmt->rowCount();
         } catch (Throwable $e) {
-            throw new CentreonDbException(
+            $this->exceptionHandler(
                 "Error while iterating insert datas : {$e->getMessage()}",
                 [
-                    'query' => $query ?? '',
                     'bind_params' => $bindParams,
                     'with_param_type' => $withParamType,
                 ],
+                $query ?? '',
                 $e
             );
         }
@@ -414,13 +414,13 @@ class CentreonDB extends PDO
 
             return $stmt->rowCount();
         } catch (Throwable $e) {
-            throw new CentreonDbException(
+            $this->exceptionHandler(
                 "Error while updating data : {$e->getMessage()}",
                 [
-                    'query' => $query,
                     'bind_params' => $bindParams,
                     'with_param_type' => $withParamType,
                 ],
+                $query,
                 $e
             );
         }
@@ -452,13 +452,13 @@ class CentreonDB extends PDO
 
             return $this->fetch($pdoStatement);
         } catch (Throwable $e) {
-            throw new CentreonDbException(
+            $this->exceptionHandler(
                 "Error while fetching data with fetchAssociative() : {$e->getMessage()}",
                 [
-                    'query' => $query,
                     'bind_params' => $bindParams,
                     'with_param_type' => $withParamType,
                 ],
+                $query,
                 $e
             );
         }
@@ -489,13 +489,13 @@ class CentreonDB extends PDO
 
             return $this->fetch($pdoStatement);
         } catch (Throwable $e) {
-            throw new CentreonDbException(
+            $this->exceptionHandler(
                 "Error while fetching data with fetchNumeric() : {$e->getMessage()}",
                 [
-                    'query' => $query,
                     'bind_params' => $bindParams,
                     'with_param_type' => $withParamType,
                 ],
+                $query,
                 $e
             );
         }
@@ -535,14 +535,14 @@ class CentreonDB extends PDO
 
             return $this->fetch($pdoStatement);
         } catch (Throwable $e) {
-            throw new CentreonDbException(
+            $this->exceptionHandler(
                 "Error while fetching data with fetchByColumn() : {$e->getMessage()}",
                 [
-                    'query' => $query,
                     'bind_params' => $bindParams,
                     'with_param_type' => $withParamType,
                     'column' => $column,
                 ],
+                $query,
                 $e
             );
         }
@@ -572,13 +572,13 @@ class CentreonDB extends PDO
 
             return $this->fetchAll($pdoStatement);
         } catch (Throwable $e) {
-            throw new CentreonDbException(
+            $this->exceptionHandler(
                 "Error while fetching data with fetchAllNumeric() : {$e->getMessage()}",
                 [
-                    'query' => $query,
                     'bind_params' => $bindParams,
                     'with_param_type' => $withParamType,
                 ],
+                $query,
                 $e
             );
         }
@@ -608,13 +608,13 @@ class CentreonDB extends PDO
 
             return $this->fetchAll($pdoStatement);
         } catch (Throwable $e) {
-            throw new CentreonDbException(
+            $this->exceptionHandler(
                 "Error while fetching data with fetchAllAssociative() : {$e->getMessage()}",
                 [
-                    'query' => $query,
                     'bind_params' => $bindParams,
                     'with_param_type' => $withParamType,
                 ],
+                $query,
                 $e
             );
         }
@@ -656,14 +656,14 @@ class CentreonDB extends PDO
 
             return $this->fetchAll($pdoStatement);
         } catch (Throwable $e) {
-            throw new CentreonDbException(
+            $this->exceptionHandler(
                 "Error while fetching data with fetchAllByColumn() : {$e->getMessage()}",
                 [
-                    'query' => $query,
                     'bind_params' => $bindParams,
                     'with_param_type' => $withParamType,
                     'column' => $column,
                 ],
+                $query,
                 $e
             );
         }
@@ -686,14 +686,12 @@ class CentreonDB extends PDO
             return $pdoStatement->fetch();
         } catch (Throwable $e) {
             $this->closeQuery($pdoStatement);
-            $message = "Error while fetching the row: {$e->getMessage()}";
-            $this->writeDbLog($message, query: $pdoStatement->queryString, exception: $e);
-            $exceptionOptions = ['query' => $pdoStatement->queryString,];
-            if ($e instanceof PDOException) {
-                $exceptionOptions['pdo_error_code'] = $e->getCode();
-                $exceptionOptions['pdo_error_infos'] = $e->errorInfo;
-            }
-            throw new CentreonDbException($message, $exceptionOptions, $e);
+            $this->exceptionHandler(
+                "Error while fetching the row : {$e->getMessage()}",
+                [],
+                $pdoStatement->queryString,
+                $e
+            );
         }
     }
 
@@ -713,14 +711,12 @@ class CentreonDB extends PDO
         try {
             return $pdoStatement->fetchAll();
         } catch (Throwable $e) {
-            $message = "Error while fetching all the rows: {$e->getMessage()}";
-            $this->writeDbLog($message, query: $pdoStatement->queryString, exception: $e);
-            $exceptionOptions = ['query' => $pdoStatement->queryString,];
-            if ($e instanceof PDOException) {
-                $exceptionOptions['pdo_error_code'] = $e->getCode();
-                $exceptionOptions['pdo_error_infos'] = $e->errorInfo;
-            }
-            throw new CentreonDbException($message, $exceptionOptions, $e);
+            $this->exceptionHandler(
+                "Error while fetching all the rows : {$e->getMessage()}",
+                [],
+                $pdoStatement->queryString,
+                $e
+            );
         } finally {
             $this->closeQuery($pdoStatement);
         }
@@ -754,13 +750,13 @@ class CentreonDB extends PDO
                 yield $row;
             }
         } catch (Throwable $e) {
-            throw new CentreonDbException(
+            $this->exceptionHandler(
                 "Error while fetching data with iterateAssociative() : {$e->getMessage()}",
                 [
-                    'query' => $query,
                     'bind_params' => $bindParams,
                     'with_param_type' => $withParamType,
                 ],
+                $query,
                 $e
             );
         }
@@ -791,13 +787,13 @@ class CentreonDB extends PDO
                 yield $row;
             }
         } catch (Throwable $e) {
-            throw new CentreonDbException(
+            $this->exceptionHandler(
                 "Error while fetching data with iterateNumeric() : {$e->getMessage()}",
                 [
-                    'query' => $query,
                     'bind_params' => $bindParams,
                     'with_param_type' => $withParamType,
                 ],
+                $query,
                 $e
             );
         }
@@ -837,14 +833,12 @@ class CentreonDB extends PDO
 
             return $this->exec($query) !== false;
         } catch (Throwable $e) {
-            $message = "Error while updating the database: {$e->getMessage()}";
-            $this->writeDbLog($message, ['query' => $query], exception: $e);
-            $exceptionOptions = ['query' => $query,];
-            if ($e instanceof PDOException) {
-                $exceptionOptions['pdo_error_code'] = $e->getCode();
-                $exceptionOptions['pdo_error_infos'] = $e->errorInfo;
-            }
-            throw new CentreonDbException($message, $exceptionOptions, $e);
+            $this->exceptionHandler(
+                "Error while updating the database: {$e->getMessage()}",
+                [],
+                $query,
+                $e
+            );
         }
     }
 
@@ -874,14 +868,12 @@ class CentreonDB extends PDO
 
             return parent::prepare($query, $options);
         } catch (Throwable $e) {
-            $message = "Error while preparing the query: {$e->getMessage()}";
-            $this->writeDbLog($message, ['options' => $options], $query, $e);
-            $exceptionOptions = ['query' => $query,];
-            if ($e instanceof PDOException) {
-                $exceptionOptions['pdo_error_code'] = $e->getCode();
-                $exceptionOptions['pdo_error_infos'] = $e->errorInfo;
-            }
-            throw new CentreonDbException($message, $exceptionOptions, $e);
+            $this->exceptionHandler(
+                "Error while preparing the query: {$e->getMessage()}",
+                ['options' => $options],
+                $query,
+                $e
+            );
         } finally {
             // here we restart CentreonDbStatement for the other requests
             $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [
@@ -976,14 +968,12 @@ class CentreonDB extends PDO
                 return $pdoStatement;
             }
         } catch (Throwable $e) {
-            $message = "Error while executing the prepared query: {$e->getMessage()}";
-            $this->writeDbLog($message, ['bind_params' => $bindParams], $pdoStatement->queryString, $e);
-            $exceptionOptions = ['query' => $pdoStatement->queryString,];
-            if ($e instanceof PDOException) {
-                $exceptionOptions['pdo_error_code'] = $e->getCode();
-                $exceptionOptions['pdo_error_infos'] = $e->errorInfo;
-            }
-            throw new CentreonDbException($message, $exceptionOptions, $e);
+            $this->exceptionHandler(
+                "Error while executing the prepared query: {$e->getMessage()}",
+                ['bind_params' => $bindParams],
+                $pdoStatement->queryString,
+                $e
+            );
         } finally {
             // here we restart CentreonDbStatement for the other requests
             $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [
@@ -1012,19 +1002,12 @@ class CentreonDB extends PDO
 
             return $pdoStatement->execute($bindParams);
         } catch (Throwable $e) {
-            $message = "Error while executing the query: {$e->getMessage()}";
-            $this->writeDbLog(
-                $message,
+            $this->exceptionHandler(
+                "Error while executing the query: {$e->getMessage()}",
                 ['bind_params' => $bindParams],
-                query: $pdoStatement->queryString,
-                exception: $e
+                $pdoStatement->queryString,
+                $e
             );
-            $exceptionOptions = ['query' => $pdoStatement->queryString,];
-            if ($e instanceof PDOException) {
-                $exceptionOptions['pdo_error_code'] = $e->getCode();
-                $exceptionOptions['pdo_error_infos'] = $e->errorInfo;
-            }
-            throw new CentreonDbException($message, $exceptionOptions, $e);
         }
     }
 
@@ -1063,16 +1046,18 @@ class CentreonDB extends PDO
             $stmt = $this->prepare($query);
             $stmt->execute();
             $stmt->setFetchMode($fetchMode, ...$fetchModeArgs);
+
             return $stmt;
         } catch (Throwable $e) {
-            $message = "Error while executing the simple query: {$e->getMessage()}";
-            $this->writeDbLog($message, query: $query, exception: $e);
-            $exceptionOptions = ['query' => $query,];
-            if ($e instanceof PDOException) {
-                $exceptionOptions['pdo_error_code'] = $e->getCode();
-                $exceptionOptions['pdo_error_infos'] = $e->errorInfo;
-            }
-            throw new CentreonDbException($message, $exceptionOptions, $e);
+            $this->exceptionHandler(
+                "Error while executing the query: {$e->getMessage()}",
+                [
+                    'fetch_mode' => $fetchMode,
+                    'fetch_mode_args' => $fetchModeArgs,
+                ],
+                $query,
+                $e
+            );
         } finally {
             // here we restart CentreonDbStatement for the other requests
             $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [
@@ -1121,28 +1106,16 @@ class CentreonDB extends PDO
 
             return $pdoStatement->bindValue($paramName, $value, $type);
         } catch (Throwable $e) {
-            $message = "Error while binding value for param {$paramName} : {$e->getMessage()}";
-            $this->writeDbLog(
-                $message,
+            $this->exceptionHandler(
+                "Error while binding value for param {$paramName} : {$e->getMessage()}",
                 [
                     'param_name' => $paramName,
-                    'param_type' => $type,
                     'param_value' => $value,
+                    'param_type' => $type
                 ],
-                query: $pdoStatement->queryString,
-                exception: $e
+                $pdoStatement->queryString,
+                $e
             );
-            $exceptionOptions = [
-                'query' => $pdoStatement->queryString,
-                'param_name' => $paramName,
-                'param_value' => $value,
-                'param_type' => $type
-            ];
-            if ($e instanceof PDOException) {
-                $exceptionOptions['pdo_error_code'] = $e->getCode();
-                $exceptionOptions['pdo_error_infos'] = $e->errorInfo;
-            }
-            throw new CentreonDbException($message, $exceptionOptions, $e);
         }
     }
 
@@ -1185,30 +1158,17 @@ class CentreonDB extends PDO
 
             return $pdoStatement->bindParam($paramName, $var, $type, $maxLength);
         } catch (Throwable $e) {
-            $message = "Error while binding param {$paramName} : {$e->getMessage()}";
-            $this->writeDbLog(
-                $message,
+            $this->exceptionHandler(
+                "Error while binding param {$paramName} : {$e->getMessage()}",
                 [
                     'param_name' => $paramName,
                     'param_var' => $var,
                     'param_type' => $type,
                     'param_max_length' => $maxLength
                 ],
-                query: $pdoStatement->queryString,
-                exception: $e
+                $pdoStatement->queryString,
+                $e
             );
-            $exceptionOptions = [
-                'query' => $pdoStatement->queryString,
-                'param_name' => $paramName,
-                'param_var' => $var,
-                'param_type' => $type,
-                'param_max_length' => $maxLength
-            ];
-            if ($e instanceof PDOException) {
-                $exceptionOptions['pdo_error_code'] = $e->getCode();
-                $exceptionOptions['pdo_error_infos'] = $e->errorInfo;
-            }
-            throw new CentreonDbException($message, $exceptionOptions, $e);
         }
     }
 
@@ -1223,14 +1183,12 @@ class CentreonDB extends PDO
         try {
             return $pdoStatement->closeCursor();
         } catch (Throwable $e) {
-            $message = "Error while closing the PDOStatement cursor: {$e->getMessage()}";
-            $this->writeDbLog($message, query: $pdoStatement->queryString, exception: $e);
-            $exceptionOptions = ['query' => $pdoStatement->queryString,];
-            if ($e instanceof PDOException) {
-                $exceptionOptions['pdo_error_code'] = $e->getCode();
-                $exceptionOptions['pdo_error_infos'] = $e->errorInfo;
-            }
-            throw new CentreonDbException($message, $exceptionOptions, $e);
+            $this->exceptionHandler(
+                "Error while closing the PDOStatement cursor: {$e->getMessage()}",
+                [],
+                $pdoStatement->queryString,
+                $e
+            );
         }
     }
 
@@ -1513,6 +1471,36 @@ class CentreonDB extends PDO
     }
 
     // --------------------------------------- PRIVATE METHODS -----------------------------------------
+
+    /**
+     * @param string         $message
+     * @param array          $context
+     * @param string         $query
+     * @param Throwable|null $exception
+     *
+     * @return void
+     * @throws CentreonDbException
+     */
+    private function exceptionHandler(
+        string $message,
+        array $context = [],
+        string $query = '',
+        ?Throwable $exception = null
+    ): void {
+        $this->writeDbLog(
+            $message,
+            $context,
+            query: $query,
+            exception: $exception
+        );
+        $exceptionOptions = array_merge(['query' => $query], $context);
+        if ($exception instanceof PDOException) {
+            $exceptionOptions['pdo_error_code'] = $exception->getCode();
+            $exceptionOptions['pdo_error_infos'] = $exception->errorInfo;
+        }
+
+        throw new CentreonDbException($message, $exceptionOptions, $exception);
+    }
 
     /**
      * Write SQL errors messages
