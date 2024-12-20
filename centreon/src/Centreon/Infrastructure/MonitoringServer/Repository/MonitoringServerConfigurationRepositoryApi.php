@@ -32,6 +32,7 @@ use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRep
 use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\MonitoringServer\Repository\Exception\MonitoringServerConfigurationRepositoryException;
 use CentreonDB;
+use CentreonLog;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\Authentication\Domain\Model\ProviderToken;
 use Security\Domain\Authentication\AuthenticationService;
@@ -126,9 +127,9 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
      */
     private function getProviderToken(): ProviderToken|NewProviderToken
     {
-        $session = new \CentreonSession();
-        $pearDB = new CentreonDB();
-        $session->updateSession($pearDB);
+        // $session = new \CentreonSession();
+        // $pearDB = new CentreonDB();
+        // $session->updateSession($pearDB);
 
         $authenticationTokens = $this->authenticationTokenService->findByContact($this->contact);
         if ($authenticationTokens === null) {
@@ -136,7 +137,11 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
         }
         $providerToken = $authenticationTokens->getProviderToken();
 
-        if (!$this->authenticationService->isValidToken($providerToken->getToken())) {
+        // NOTE: isValidToken() does not work in case of delegated authentication (tested with OpenId).
+        // if (!$this->authenticationService->isValidToken($authenticationTokens->getToken())) {
+        //     throw AuthenticationException::authenticationTokenExpired();
+        // }
+        if ($providerToken->isExpired()) {
             throw AuthenticationException::authenticationTokenExpired();
         }
 
@@ -186,6 +191,12 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
                 throw MonitoringServerConfigurationRepositoryException::responseEmpty();
             }
         } catch (RepositoryException|AuthenticationException $ex) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_BUSINESS_LOG,
+                "Error while exporting/reloading configuration: {$ex->getMessage()}",
+                ['filePath' => $filePath],
+                $ex
+            );
             throw $ex;
         } catch (\Assert\AssertionFailedException $ex) {
             throw MonitoringServerConfigurationRepositoryException::errorWhenInitializingApiUri();
