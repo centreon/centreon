@@ -1271,7 +1271,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         function () use ($dbConfigCentreon): void {
             $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $contacts = $db->iterateAssociative(
-                "select * from contact where c",
+                "select * from contact where contact_id = :id",
                 [],
                 true
             );
