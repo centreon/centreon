@@ -1,8 +1,8 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import clockTimerWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithclockTimerWidget.json';
+import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 
 before(() => {
   cy.intercept({
@@ -254,8 +254,8 @@ Then('a second Clock timer widget is displayed on the dashboard', () => {
 When(
   'the dashboard administrator updates the background color of the Clock Timer widget',
   () => {
-    cy.getByTestId({ testId: 'color selector' }).click();
-    cy.getByTestId({ testId: 'color-chip-#076059' }).click();
+    cy.getByTestId({ testId: 'color selector' }).realClick();
+    cy.getByTestId({ testId: 'color-chip-#076059' }).realClick();
   }
 );
 

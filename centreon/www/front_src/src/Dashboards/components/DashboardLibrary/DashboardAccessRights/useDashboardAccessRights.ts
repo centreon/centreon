@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai';
 import { concat } from 'ramda';
-import { generatePath } from 'react-router';
+import { generatePath } from 'react-router-dom';
 
 import { centreonBaseURL } from '@centreon/ui';
 
