@@ -6947,12 +6947,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "bc0e9ac15bf99d65fd870293a3da27cb94f374b9"
+                "reference": "d920266973094652605438357d89d5748f891d49"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/bc0e9ac15bf99d65fd870293a3da27cb94f374b9",
-                "reference": "bc0e9ac15bf99d65fd870293a3da27cb94f374b9",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/d920266973094652605438357d89d5748f891d49",
+                "reference": "d920266973094652605438357d89d5748f891d49",
                 "shasum": ""
             },
             "require": {
@@ -7008,7 +7008,7 @@
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
                 "source": "https://github.com/centreon/centreon-test-lib/tree/check-service-is-monitored"
             },
-            "time": "2024-12-20T09:17:31+00:00"
+            "time": "2024-12-20T10:45:53+00:00"
         },
         {
             "name": "clue/ndjson-react",
