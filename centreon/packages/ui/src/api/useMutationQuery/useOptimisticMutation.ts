@@ -16,7 +16,7 @@ export interface OptimisticListing {
 }
 
 interface UseOptimisticMutationProps {
-  optimisticListing: OptimisticListing;
+  optimisticListing?: OptimisticListing;
 }
 
 interface UseOptimisticMutationState<T, TMeta> {
@@ -33,10 +33,10 @@ export const useOptimisticMutation = <T, TMeta>({
   const queryClient = useQueryClient();
 
   const getListingQueryKey = (): Array<string> => {
-    const isQueryKeyArray = equals(type(optimisticListing.queryKey), 'Array');
+    const isQueryKeyArray = equals(type(optimisticListing?.queryKey), 'Array');
     const listingQueryKey = isQueryKeyArray
-      ? optimisticListing.queryKey
-      : [optimisticListing.queryKey];
+      ? optimisticListing?.queryKey
+      : [optimisticListing?.queryKey];
 
     return listingQueryKey;
   };
@@ -60,7 +60,8 @@ export const useOptimisticMutation = <T, TMeta>({
   }: GetOptimisticMutationListingProps<T, TMeta>): object => {
     const listingQueryKey = getListingQueryKey();
 
-    const hasOnlyOnePage = optimisticListing.total <= optimisticListing.limit;
+    const hasOnlyOnePage =
+      (optimisticListing?.total || 0) <= (optimisticListing?.limit || 0);
     const isFormDataPayload = equals(type(payload), 'FormData');
 
     const items = last(
