@@ -1,5 +1,7 @@
 import { Zoom as VisxZoom } from '@visx/zoom';
 
+import type { TransformMatrix } from '@visx/zoom/lib/types';
+
 import { ParentSize } from '../..';
 
 import ZoomContent from './ZoomContent';
@@ -12,6 +14,7 @@ export interface ZoomProps {
   scaleMax?: number;
   scaleMin?: number;
   showMinimap?: boolean;
+  initialTransformMatrix?: TransformMatrix
 }
 
 const initialTransform = {
@@ -29,14 +32,15 @@ const Zoom = ({
   scaleMax = 4,
   showMinimap = false,
   minimapPosition = 'top-left',
-  id = 0
+  id = 0,
+  initialTransformMatrix = initialTransform
 }: ZoomProps): JSX.Element => {
   return (
     <ParentSize>
       {({ width, height }) => (
         <VisxZoom<SVGSVGElement>
           height={height}
-          initialTransformMatrix={initialTransform}
+          initialTransformMatrix={initialTransformMatrix}
           scaleXMax={scaleMax}
           scaleXMin={scaleMin}
           scaleYMax={scaleMax}

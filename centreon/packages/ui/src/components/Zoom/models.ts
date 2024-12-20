@@ -9,7 +9,6 @@ export interface ZoomState {
     translateX: number;
     translateY: number;
   };
-  setTransformMatrix?: ProvidedZoom<SVGSVGElement>['setTransformMatrix'];
 }
 
 export type MinimapPosition =
