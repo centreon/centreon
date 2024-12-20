@@ -17,9 +17,11 @@ import { getColor } from './utils';
 
 interface Props {
   data: ResourceData | null;
+  isMediumSize?: boolean;
   isSmallestSize: boolean;
   resources: Array<Resource>;
   statuses: Array<string>;
+  tileSize?: number;
   type: string;
 }
 
@@ -28,14 +30,19 @@ export const router = {
 };
 
 const Tile = ({
+  isMediumSize,
   isSmallestSize,
   data,
   type,
   statuses,
-  resources
+  resources,
+  tileSize
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
-  const { classes } = useTileStyles();
+  const { classes } = useTileStyles({
+    isMediumSize,
+    tileSize
+  });
   const theme = useTheme();
 
   const getLinkToResourceStatus = ({ isForOneResource }): string =>
@@ -62,9 +69,13 @@ const Tile = ({
         >
           <DvrIcon
             color="primary"
-            fontSize={isSmallestSize ? 'medium' : 'large'}
+            fontSize={isMediumSize ? 'medium' : 'large'}
           />
-          {!isSmallestSize && <Typography>{t(labelSeeMore)}</Typography>}
+          {!isSmallestSize && (
+            <Typography className={classes.seeMoreLabel}>
+              {t(labelSeeMore)}
+            </Typography>
+          )}
         </CardActionArea>
       </Link>
     );
