@@ -1,43 +1,57 @@
 import { makeStyles } from 'tss-react/mui';
 
-export const useTileStyles = makeStyles()((theme) => ({
-  container: {
-    cursor: 'pointer',
-    height: '100%',
-    paddingTop: theme.spacing(1.5),
-    position: 'relative',
-    width: '100%'
-  },
-  link: {
-    all: 'unset',
-    display: 'block',
-    height: '100%'
-  },
-  resourceName: {
-    fontWeight: theme.typography.fontWeightMedium
-  },
-  seeMoreContainer: {
-    alignItems: 'center',
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-    justifyContent: 'center',
-    width: '100%'
-  },
-  statusTile: {
-    '&[data-mode="compact"]': {
-      height: theme.spacing(1.25),
-      width: theme.spacing(1.25)
+interface Props {
+  isMediumSize?: boolean;
+  tileSize?: number;
+}
+
+export const useTileStyles = makeStyles<Props>()(
+  (theme, { tileSize = 0, isMediumSize } = {}) => ({
+    container: {
+      cursor: 'pointer',
+      height: '100%',
+      paddingTop: theme.spacing(1.5),
+      position: 'relative',
+      width: '100%'
     },
-    border: `1px solid ${theme.palette.text.primary}`,
-    borderRadius: theme.shape.borderRadius,
-    height: theme.spacing(1.5),
-    position: 'absolute',
-    right: '10%',
-    top: '10%',
-    width: theme.spacing(1.5)
-  }
-}));
+    link: {
+      all: 'unset',
+      display: 'block',
+      height: '100%'
+    },
+    resourceName: {
+      fontWeight: theme.typography.fontWeightMedium
+    },
+    seeMoreContainer: {
+      alignItems: 'center',
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100%',
+      justifyContent: 'center',
+      width: '100%'
+    },
+    seeMoreLabel: {
+      WebkitBoxOrient: 'vertical',
+      WebkitLineClamp: isMediumSize ? 1 : 3,
+      display: '-webkit-box',
+      overflow: 'hidden',
+      width: tileSize
+    },
+    statusTile: {
+      '&[data-mode="compact"]': {
+        height: theme.spacing(1.25),
+        width: theme.spacing(1.25)
+      },
+      border: `1px solid ${theme.palette.text.primary}`,
+      borderRadius: theme.shape.borderRadius,
+      height: theme.spacing(1.5),
+      position: 'absolute',
+      right: '10%',
+      top: '10%',
+      width: theme.spacing(1.5)
+    }
+  })
+);
 
 export const useHostTooltipContentStyles = makeStyles()((theme) => ({
   body: {
