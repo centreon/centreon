@@ -1,0 +1,21 @@
+delete:
+  tags:
+    - Dashboard
+  summary: "Unset dashboard from current user favorites"
+  description: |
+    Unset dashboard from current user favorites
+
+    `Since Centreon Web 24.10`
+  parameters:
+    - $ref: 'QueryParameter/DashboardId.yaml'
+  responses:
+    '204':
+      $ref: '../../../Common/Response/NoContent.yaml'
+    '400':
+      $ref: '../../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'

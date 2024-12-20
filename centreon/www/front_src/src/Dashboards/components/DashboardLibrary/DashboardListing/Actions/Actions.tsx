@@ -5,6 +5,7 @@ import useIsViewerUser from '../useIsViewerUser';
 import AddDashboard from './AddDashboard';
 import Filter from './Filter';
 import ViewMode from './ViewMode';
+import FavoriteFilter from './favoriteFilter';
 import { useActionsStyles } from './useActionsStyles';
 
 const Actions = ({ openConfig }: { openConfig: () => void }): JSX.Element => {
@@ -19,6 +20,7 @@ const Actions = ({ openConfig }: { openConfig: () => void }): JSX.Element => {
         <Filter />
       </Box>
       <ViewMode />
+      <FavoriteFilter />
     </Box>
   );
 };

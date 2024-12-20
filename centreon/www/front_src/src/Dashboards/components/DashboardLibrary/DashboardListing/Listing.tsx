@@ -24,6 +24,7 @@ interface ListingProp {
   displayCustomListing: boolean;
   loading: boolean;
   openConfig: () => void;
+  refetch?: () => void;
 }
 
 const Listing = ({

@@ -27,7 +27,13 @@ use Centreon\Application\Controller\AbstractController;
 use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboards;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted(
+    'dashboard_access',
+    null,
+    'You are not allowed to set dashboard as favorites'
+)]
 final class FindDashboardsController extends AbstractController
 {
     /**

@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Infrastructure\Common\Api;
 
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Application\Common\UseCase\ListingResponseInterface;
 use Core\Application\Common\UseCase\StandardPresenterInterface;
 use Core\Application\Common\UseCase\StandardResponseInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -34,9 +36,12 @@ class StandardPresenter implements StandardPresenterInterface
 {
     /**
      * @param Serializer $serializer
+     * @param RequestParametersInterface $requestParameters
      */
-    public function __construct(readonly private SerializerInterface $serializer)
-    {
+    public function __construct(
+        private readonly SerializerInterface $serializer,
+        private readonly RequestParametersInterface $requestParameters,
+    ) {
     }
 
     /**
@@ -53,6 +58,17 @@ class StandardPresenter implements StandardPresenterInterface
         array $context = [],
         string $format = JsonEncoder::FORMAT,
     ): string {
+        if ($data instanceof ListingResponseInterface) {
+            return $this->serializer->serialize(
+                [
+                    'result' => $data->getData(),
+                    'meta' => $this->requestParameters->toArray(),
+                ],
+                $format,
+                $context,
+            );
+        }
+
         return $this->serializer->serialize($data->getData(), $format, $context);
     }
 }

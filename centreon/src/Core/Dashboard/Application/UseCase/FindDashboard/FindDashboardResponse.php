@@ -68,6 +68,8 @@ final class FindDashboardResponse
      */
     public array $shares = ['contacts' => [], 'contact_groups' => []];
 
+    public bool $isFavorite = false;
+
     public function __construct() {
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
