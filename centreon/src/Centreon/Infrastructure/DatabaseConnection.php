@@ -86,7 +86,7 @@ class DatabaseConnection extends PDO
             ];
             parent::__construct($dsn, $login, $password, $options);
         } catch (PDOException $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Unable to connect to database",
                 ['trace' => $e->getTraceAsString()],
                 $dsn,
@@ -194,7 +194,7 @@ class DatabaseConnection extends PDO
         try {
             return (string) $this->lastInsertId();
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while getting last insert ID : {$e->getMessage()}",
                 [],
                 '',
@@ -228,7 +228,7 @@ class DatabaseConnection extends PDO
 
             return $stmt->rowCount();
         } catch (DatabaseConnectionException $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while deleting data : {$e->getMessage()}",
                 [
                     'bind_params' => $bindParams,
@@ -263,7 +263,7 @@ class DatabaseConnection extends PDO
 
             return $stmt->rowCount();
         } catch (DatabaseConnectionException $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while inserting data : {$e->getMessage()}",
                 [
                     'bind_params' => $bindParams,
@@ -371,7 +371,7 @@ class DatabaseConnection extends PDO
 
             return $stmt->rowCount();
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while iterating insert datas : {$e->getMessage()}",
                 [
                     'bind_params' => $bindParams,
@@ -406,7 +406,7 @@ class DatabaseConnection extends PDO
 
             return $stmt->rowCount();
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while updating data : {$e->getMessage()}",
                 [
                     'bind_params' => $bindParams,
@@ -444,7 +444,7 @@ class DatabaseConnection extends PDO
 
             return $this->fetch($pdoStatement);
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while fetching data with fetchAssociative() : {$e->getMessage()}",
                 [
                     'bind_params' => $bindParams,
@@ -481,7 +481,7 @@ class DatabaseConnection extends PDO
 
             return $this->fetch($pdoStatement);
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while fetching data with fetchNumeric() : {$e->getMessage()}",
                 [
                     'bind_params' => $bindParams,
@@ -527,7 +527,7 @@ class DatabaseConnection extends PDO
 
             return $this->fetch($pdoStatement);
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while fetching data with fetchByColumn() : {$e->getMessage()}",
                 [
                     'bind_params' => $bindParams,
@@ -564,7 +564,7 @@ class DatabaseConnection extends PDO
 
             return $this->fetchAll($pdoStatement);
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while fetching data with fetchAllNumeric() : {$e->getMessage()}",
                 [
                     'bind_params' => $bindParams,
@@ -600,7 +600,7 @@ class DatabaseConnection extends PDO
 
             return $this->fetchAll($pdoStatement);
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while fetching data with fetchAllAssociative() : {$e->getMessage()}",
                 [
                     'bind_params' => $bindParams,
@@ -648,7 +648,7 @@ class DatabaseConnection extends PDO
 
             return $this->fetchAll($pdoStatement);
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while fetching data with fetchAllByColumn() : {$e->getMessage()}",
                 [
                     'bind_params' => $bindParams,
@@ -682,11 +682,16 @@ class DatabaseConnection extends PDO
         try {
             $this->validateQueryString($query, 'SELECT', true);
             $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery($pdoStatement, $bindParams, $withParamType, PDO::FETCH_KEY_PAIR);
+            $pdoStatement = $this->executePreparedQuery(
+                $pdoStatement,
+                $bindParams,
+                $withParamType,
+                PDO::FETCH_KEY_PAIR
+            );
 
             return $this->fetchAll($pdoStatement);
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while fetching data with fetchAllKeyValue() : {$e->getMessage()}",
                 [
                     'bind_params' => $bindParams,
@@ -715,8 +720,11 @@ class DatabaseConnection extends PDO
      *
      * @throws DatabaseConnectionException
      */
-    public function fetchAllAssociativeIndexed(string $query, array $bindParams = [], bool $withParamType = false): array
-    {
+    public function fetchAllAssociativeIndexed(
+        string $query,
+        array $bindParams = [],
+        bool $withParamType = false
+    ): array {
         try {
             $data = [];
             foreach ($this->fetchAllAssociative($query, $bindParams, $withParamType) as $row) {
@@ -725,7 +733,7 @@ class DatabaseConnection extends PDO
 
             return $data;
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while fetching data with fetchAllAssociativeIndexed() : {$e->getMessage()}",
                 [
                     'bind_params' => $bindParams,
@@ -754,7 +762,7 @@ class DatabaseConnection extends PDO
             return $pdoStatement->fetch();
         } catch (Throwable $e) {
             $this->closeQuery($pdoStatement);
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while fetching the row : {$e->getMessage()}",
                 [],
                 $pdoStatement->queryString,
@@ -779,7 +787,7 @@ class DatabaseConnection extends PDO
         try {
             return $pdoStatement->fetchAll();
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while fetching all the rows : {$e->getMessage()}",
                 [],
                 $pdoStatement->queryString,
@@ -818,7 +826,7 @@ class DatabaseConnection extends PDO
                 yield $row;
             }
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while fetching data with iterateAssociative() : {$e->getMessage()}",
                 ['bind_params' => $bindParams, 'with_param_type' => $withParamType],
                 $query,
@@ -852,7 +860,7 @@ class DatabaseConnection extends PDO
                 yield $row;
             }
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while fetching data with iterateNumeric() : {$e->getMessage()}",
                 ['bind_params' => $bindParams, 'with_param_type' => $withParamType],
                 $query,
@@ -897,7 +905,7 @@ class DatabaseConnection extends PDO
                 yield $row;
             }
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while fetching data with iterateByColumn() : {$e->getMessage()}",
                 [
                     'bind_params' => $bindParams,
@@ -931,12 +939,17 @@ class DatabaseConnection extends PDO
         try {
             $this->validateQueryString($query, 'SELECT', true);
             $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery($pdoStatement, $bindParams, $withParamType, PDO::FETCH_KEY_PAIR);
+            $pdoStatement = $this->executePreparedQuery(
+                $pdoStatement,
+                $bindParams,
+                $withParamType,
+                PDO::FETCH_KEY_PAIR
+            );
             while (($row = $this->fetch($pdoStatement)) !== false) {
                 yield $row;
             }
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while fetching data with iterateByColumn() : {$e->getMessage()}",
                 [
                     'bind_params' => $bindParams,
@@ -965,14 +978,17 @@ class DatabaseConnection extends PDO
      *
      * @throws DatabaseConnectionException
      */
-    public function iterateAssociativeIndexed(string $query, array $bindParams = [], bool $withParamType = false): Traversable
-    {
+    public function iterateAssociativeIndexed(
+        string $query,
+        array $bindParams = [],
+        bool $withParamType = false
+    ): Traversable {
         try {
             foreach ($this->iterateAssociative($query, $bindParams, $withParamType) as $row) {
                 yield [array_shift($row) => $row];
             }
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while fetching data with iterateAssociativeIndexed() : {$e->getMessage()}",
                 [
                     'bind_params' => $bindParams,
@@ -1020,7 +1036,7 @@ class DatabaseConnection extends PDO
 
             return $this->exec($query) !== false;
         } catch (Throwable $e) {
-            $this->exceptionHandler("Error while updating the database: {$e->getMessage()}", [], $query, $e);
+            $this->logAndCreateException("Error while updating the database: {$e->getMessage()}", [], $query, $e);
         }
     }
 
@@ -1046,7 +1062,7 @@ class DatabaseConnection extends PDO
 
             return parent::prepare($query, $options);
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while preparing the query: {$e->getMessage()}",
                 ['options' => $options],
                 $query,
@@ -1140,7 +1156,7 @@ class DatabaseConnection extends PDO
                 return $pdoStatement;
             }
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while executing the prepared query: {$e->getMessage()}",
                 ['bind_params' => $bindParams],
                 $pdoStatement->queryString,
@@ -1169,7 +1185,7 @@ class DatabaseConnection extends PDO
 
             return $pdoStatement->execute($bindParams);
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while executing the query: {$e->getMessage()}",
                 ['bind_params' => $bindParams],
                 $pdoStatement->queryString,
@@ -1206,7 +1222,7 @@ class DatabaseConnection extends PDO
 
             return $stmt;
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while executing the query: {$e->getMessage()}",
                 ['fetch_mode' => $fetchMode, 'fetch_mode_args' => $fetchModeArgs],
                 $query,
@@ -1256,7 +1272,7 @@ class DatabaseConnection extends PDO
 
             return $pdoStatement->bindValue($paramName, $value, $type);
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while binding value for param {$paramName} : {$e->getMessage()}",
                 [
                     'param_name' => $paramName,
@@ -1310,7 +1326,7 @@ class DatabaseConnection extends PDO
 
             return $pdoStatement->bindParam($paramName, $var, $type, $maxLength);
         } catch (Throwable $e) {
-            $this->exceptionHandler(
+            $this->logAndCreateException(
                 "Error while binding param {$paramName} : {$e->getMessage()}",
                 [
                     'param_name' => $paramName,
@@ -1396,7 +1412,7 @@ class DatabaseConnection extends PDO
         try {
             $this->beginTransaction();
         } catch (Throwable $e) {
-            $this->exceptionHandler("Error while starting a transaction: {$e->getMessage()}", [], '', $e);
+            $this->logAndCreateException("Error while starting a transaction: {$e->getMessage()}", [], '', $e);
         }
     }
 
@@ -1416,9 +1432,10 @@ class DatabaseConnection extends PDO
                     DatabaseConnectionException::ERROR_CODE_DATABASE
                 );
             }
+
             return true;
         } catch (Throwable $e) {
-            $this->exceptionHandler("Error while committing a transaction", [], '', $e);
+            $this->logAndCreateException("Error while committing a transaction", [], '', $e);
         }
     }
 
@@ -1438,9 +1455,10 @@ class DatabaseConnection extends PDO
                     DatabaseConnectionException::ERROR_CODE_DATABASE
                 );
             }
+
             return true;
         } catch (Throwable $e) {
-            $this->exceptionHandler("Error while rolling back a transaction", [], '', $e);
+            $this->logAndCreateException("Error while rolling back a transaction", [], '', $e);
         }
     }
 
@@ -1464,7 +1482,7 @@ class DatabaseConnection extends PDO
             }
             $this->isBufferedQueryActive = false;
         } catch (Throwable $e) {
-            $this->exceptionHandler("Error while starting an unbuffered query", [], '', $e);
+            $this->logAndCreateException("Error while starting an unbuffered query", [], '', $e);
         }
     }
 
@@ -1502,13 +1520,15 @@ class DatabaseConnection extends PDO
             }
             $this->isBufferedQueryActive = true;
         } catch (Throwable $e) {
-            $this->exceptionHandler("Error while stopping an unbuffered query", [], '', $e);
+            $this->logAndCreateException("Error while stopping an unbuffered query", [], '', $e);
         }
     }
 
     // --------------------------------------- PRIVATE METHODS -----------------------------------------
 
     /**
+     * To easily log and create a DatabaseConnectionException.
+     *
      * @param string         $message
      * @param array          $context
      * @param string         $query
@@ -1517,7 +1537,7 @@ class DatabaseConnection extends PDO
      * @return void
      * @throws DatabaseConnectionException
      */
-    private function exceptionHandler(
+    private function logAndCreateException(
         string $message,
         array $context = [],
         string $query = '',
