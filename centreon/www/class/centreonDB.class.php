@@ -654,6 +654,57 @@ class CentreonDB extends PDO
         return $quotedString;
     }
 
+    // --------------------------------------- DDL METHODS -----------------------------------------
+
+    /**
+     * Only for DDL queries (ALTER TABLE, CREATE TABLE, DROP TABLE, CREATE DATABASE, and TRUNCATE TABLE...)
+     *
+     * @param string $query
+     *
+     * @return bool
+     * @throws CentreonDbException
+     */
+    public function updateDatabase(string $query): bool
+    {
+        try {
+            if (empty($query)) {
+                throw new CentreonDbException(
+                    'Query must not be empty',
+                    ['query' => $query]
+                );
+            }
+            $standardQueryStarts = ['SELECT ', 'UPDATE ', 'DELETE ', 'INSERT INTO '];
+            foreach ($standardQueryStarts as $standardQueryStart) {
+                if (
+                    str_starts_with($query, strtolower($standardQueryStart))
+                    || str_starts_with($query, strtoupper($standardQueryStart))
+                ) {
+                    throw new CentreonDbException(
+                        'Query must not to start by SELECT, UPDATE, DELETE or INSERT INTO, this method is only for DDL queries',
+                        ['query' => $query]
+                    );
+                }
+            }
+
+            return $this->exec($query) !== false;
+        } catch (Throwable $e) {
+            $this->writeDbLog(
+                "Error while updating the database: {$e->getMessage()}",
+                query: $query,
+                exception: $e
+            );
+            $exceptionOptions = ['query' => $query];
+            if ($e instanceof PDOException) {
+                $exceptionOptions['pdo_error_code'] = $e->getCode();
+                $exceptionOptions['pdo_error_infos'] = $e->errorInfo;
+            }
+
+            throw new CentreonDbException("Error while updating the database: {$e->getMessage()}", $exceptionOptions, $e);
+        }
+    }
+
+    // --------------------------------------- OTHER METHODS -----------------------------------------
+
     /**
      * Display error page
      *
