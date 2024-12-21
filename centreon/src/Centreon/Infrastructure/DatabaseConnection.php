@@ -662,6 +662,82 @@ class DatabaseConnection extends PDO
     }
 
     /**
+     * Prepares and executes an SQL query and returns the result as an associative array with the keys
+     * mapped to the first column and the values mapped to the second column.
+     *
+     * Could be only used with SELECT.
+     *
+     * This method supports PDO binding types.
+     *
+     * @param string $query
+     * @param array  $bindParams
+     * @param bool   $withParamType
+     *
+     * @return array<int|string,mixed>
+     *
+     * @throws DatabaseConnectionException
+     */
+    public function fetchAllKeyValue(string $query, array $bindParams = [], bool $withParamType = false): array
+    {
+        try {
+            $this->validateQueryString($query, 'SELECT', true);
+            $pdoStatement = $this->prepareQuery($query);
+            $pdoStatement = $this->executePreparedQuery($pdoStatement, $bindParams, $withParamType, PDO::FETCH_KEY_PAIR);
+
+            return $this->fetchAll($pdoStatement);
+        } catch (Throwable $e) {
+            $this->exceptionHandler(
+                "Error while fetching data with fetchAllKeyValue() : {$e->getMessage()}",
+                [
+                    'bind_params' => $bindParams,
+                    'with_param_type' => $withParamType,
+                ],
+                $query,
+                $e
+            );
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an associative array with the keys mapped
+     * to the first column and the values being an associative array representing the rest of the columns
+     * and their values.
+     *
+     * Could be only used with SELECT.
+     *
+     * This method supports PDO binding types.
+     *
+     * @param string $query
+     * @param array  $bindParams
+     * @param bool   $withParamType
+     *
+     * @return array<mixed,array<string,mixed>>
+     *
+     * @throws DatabaseConnectionException
+     */
+    public function fetchAllAssociativeIndexed(string $query, array $bindParams = [], bool $withParamType = false): array
+    {
+        try {
+            $data = [];
+            foreach ($this->fetchAllAssociative($query, $bindParams, $withParamType) as $row) {
+                $data[array_shift($row)] = $row;
+            }
+
+            return $data;
+        } catch (Throwable $e) {
+            $this->exceptionHandler(
+                "Error while fetching data with fetchAllAssociativeIndexed() : {$e->getMessage()}",
+                [
+                    'bind_params' => $bindParams,
+                    'with_param_type' => $withParamType,
+                ],
+                $query,
+                $e
+            );
+        }
+    }
+
+    /**
      * Prefer to use fetchNumeric() or fetchAssociative() instead of this method.
      *
      * @param PDOStatement $pdoStatement
@@ -827,6 +903,80 @@ class DatabaseConnection extends PDO
                     'bind_params' => $bindParams,
                     'with_param_type' => $withParamType,
                     'column' => $column,
+                ],
+                $query,
+                $e
+            );
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator with the keys
+     * mapped to the first column and the values mapped to the second column.
+     *
+     * Could be only used with SELECT.
+     *
+     * This method supports PDO binding types.
+     *
+     * @param string $query
+     * @param array  $bindParams
+     * @param bool   $withParamType
+     *
+     * @return Traversable<mixed,mixed>
+     *
+     * @throws DatabaseConnectionException
+     */
+    public function iterateKeyValue(string $query, array $bindParams = [], bool $withParamType = false): Traversable
+    {
+        try {
+            $this->validateQueryString($query, 'SELECT', true);
+            $pdoStatement = $this->prepareQuery($query);
+            $pdoStatement = $this->executePreparedQuery($pdoStatement, $bindParams, $withParamType, PDO::FETCH_KEY_PAIR);
+            while (($row = $this->fetch($pdoStatement)) !== false) {
+                yield $row;
+            }
+        } catch (Throwable $e) {
+            $this->exceptionHandler(
+                "Error while fetching data with iterateByColumn() : {$e->getMessage()}",
+                [
+                    'bind_params' => $bindParams,
+                    'with_param_type' => $withParamType
+                ],
+                $query,
+                $e
+            );
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator with the keys mapped
+     * to the first column and the values being an associative array representing the rest of the columns
+     * and their values.
+     *
+     * Could be only used with SELECT.
+     *
+     * This method supports PDO binding types.
+     *
+     * @param string $query
+     * @param array  $bindParams
+     * @param bool   $withParamType
+     *
+     * @return Traversable<mixed,array<string,mixed>>
+     *
+     * @throws DatabaseConnectionException
+     */
+    public function iterateAssociativeIndexed(string $query, array $bindParams = [], bool $withParamType = false): Traversable
+    {
+        try {
+            foreach ($this->iterateAssociative($query, $bindParams, $withParamType) as $row) {
+                yield [array_shift($row) => $row];
+            }
+        } catch (Throwable $e) {
+            $this->exceptionHandler(
+                "Error while fetching data with iterateAssociativeIndexed() : {$e->getMessage()}",
+                [
+                    'bind_params' => $bindParams,
+                    'with_param_type' => $withParamType
                 ],
                 $query,
                 $e
