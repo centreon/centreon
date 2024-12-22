@@ -14517,7 +14517,7 @@ msgstr "Permitir certificado autofirmado"
 #  msgid "Filter saved"
 #  msgid ""
 
-#  msgid "Edit filters"
+#  msgid "Manage filters"
 #  msgstr ""
 
 #  msgid "Rename"

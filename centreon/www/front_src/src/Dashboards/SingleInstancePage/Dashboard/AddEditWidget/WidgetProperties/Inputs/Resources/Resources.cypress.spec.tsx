@@ -243,6 +243,7 @@ describe('Resources', () => {
     cy.waitForRequest('@getHosts');
     cy.contains('Host 0').click();
     cy.findByTestId('CancelIcon').click();
+    cy.findByTestId(labelSelectAResource).blur();
 
     cy.contains('Host 0').should('not.exist');
 
@@ -263,6 +264,7 @@ describe('Resources', () => {
     cy.contains('Host 0').should('be.visible');
 
     cy.findByTestId('CancelIcon').click();
+    cy.findByTestId(labelSelectAResource).blur();
 
     cy.contains('Host 0').should('not.exist');
   });
@@ -401,6 +403,7 @@ describe('Resources tree', () => {
     cy.findByTestId(labelSelectAResource).click();
     cy.waitForRequest('@getMetaService');
     cy.contains('Meta service 0').click();
+    cy.findByTestId(labelSelectAResource).blur();
 
     cy.contains(labelAddFilter).should('be.disabled');
 

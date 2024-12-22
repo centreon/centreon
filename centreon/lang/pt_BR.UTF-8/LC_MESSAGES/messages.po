@@ -14964,7 +14964,7 @@ msgstr "Erro ao remover tokens de um contato"
 #  msgid "Filter saved"
 #  msgid ""
 
-#  msgid "Edit filters"
+#  msgid "Manage filters"
 #  msgstr ""
 
 #  msgid "Rename"
