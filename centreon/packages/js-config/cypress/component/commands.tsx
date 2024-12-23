@@ -153,7 +153,7 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('adjustViewport', () => cy.viewport(1280, 581));
+Cypress.Commands.add('adjustViewport', () => cy.viewport(1280, 590));
 
 Cypress.Commands.add('makeSnapshot', (title?: string) => {
   cy.adjustViewport();
