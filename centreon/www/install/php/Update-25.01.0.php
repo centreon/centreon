@@ -51,7 +51,6 @@ try {
 
     $pearDB->commit();
 } catch (Throwable $e) {
-    logAndCreateException("UPGRADE - {$versionOfTheUpgrade} : {$e->getMessage()}", $e);
     try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
@@ -62,6 +61,7 @@ try {
             $e
         );
     }
+    logAndCreateException("UPGRADE - {$versionOfTheUpgrade} : {$e->getMessage()}", $e);
 }
 
 /**
