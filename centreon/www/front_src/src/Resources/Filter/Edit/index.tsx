@@ -16,7 +16,7 @@ import {
 } from '@centreon/ui';
 import type { RootComponentProps } from '@centreon/ui';
 
-import { labelEditFilters } from '../../translatedLabels';
+import { labelManageFilters } from '../../translatedLabels';
 import { Criteria } from '../Criterias/models';
 import { patchFilter } from '../api';
 import { customFiltersAtom, editPanelOpenAtom } from '../filterAtoms';
@@ -80,9 +80,9 @@ const EditFiltersPanel = (): JSX.Element => {
 
     const activeId = path(['active', 'id'], event);
     const destinationIndex = path(
-      ['active', 'data', 'current', 'sortable', 'index'],
+      ['over', 'data', 'current', 'sortable', 'index'],
       event
-    ) as number;
+    );
 
     sendRequest({ id: activeId, order: destinationIndex + 1 });
   };
@@ -130,7 +130,7 @@ const EditFiltersPanel = (): JSX.Element => {
   const header = (
     <div className={classes.header}>
       <Typography align="center" variant="h6">
-        {t(labelEditFilters)}
+        {t(labelManageFilters)}
       </Typography>
     </div>
   );
