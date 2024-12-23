@@ -46,16 +46,21 @@ beforeEach(() => {
     method: 'GET',
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
+  cy.intercept({
+    method: 'POST',
+    url: '/centreon/api/latest/configuration/dashboards/favorites'
+  }).as('addFavorites');
+    cy.intercept({
+    method: 'DELETE',
+    url: '/centreon/api/latest/configuration/dashboards/*/favorites'
+  }).as('deleteFavorites');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/dashboards/favorites?page=1&limit=10*'
+  }).as('getFavorites');
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
-  });
-});
-
-afterEach(() => {
-  cy.requestOnDatabase({
-    database: 'centreon',
-    query: 'DELETE FROM dashboard'
   });
 });
 
@@ -63,126 +68,57 @@ after(() => {
   cy.stopContainers();
 });
 
-Given(
-  "a dashboard in the dashboard administrator user's dashboard library",
-  () => {
-    cy.insertDashboard({ ...dashboards.default });
-    cy.visitDashboard(dashboards.default.name);
-  }
-);
-
-When(
-  'the dashboard administrator clicks on the favourite icon',
-  () => {
-    cy.getByTestId({ testId: 'FavoriteIcon' }).click();
-    cy.getByTestId({ testId: 'Show only dashboards added to favorites' }).click();
-  }
-);
-
-When(
-  'the dashboard administrator user selects the widget type "web page"',
-  () => {
-    cy.getByTestId({ testId: 'Widget type' }).click();
-    cy.contains('Web page').click();
-  }
-);
-
-Then('configuration properties for the web page widget are displayed', () => {
-  cy.getByLabel({ label: 'Title' }).should('be.visible');
-  cy.getByLabel({ label: 'RichTextEditor' }).should('be.visible');
-  cy.getByLabel({ label: 'URL' }).should('be.visible');
-});
-
-When('the dashboard administrator adds a valid URL', () => {
-  cy.getByLabel({ label: 'URL' }).type(validUrl);
-  cy.get('iframe[data-testid="Webpage Display"]')
-    .should('be.visible')
-    .and('have.attr', 'src', validUrl);
-  cy.get('iframe')
-    .its('0.contentDocument.body')
-    .should('not.be.empty')
-    .then(cy.wrap)
-
-    .find('h1')
-    .should('exist');
-});
-
-When('the user saves the web page widget', () => {
-  cy.getByTestId({ testId: 'confirm' }).click({ force: true });
-});
-
-Then("the web page widget is added in the dashboard's layout", () => {
-  cy.get('iframe')
-    .its('0.contentDocument.body')
-    .should('not.be.empty')
-    .then(cy.wrap)
-    .find('h1')
-    .should('exist')
-    .and('have.text', iframeContent);
-});
-
 Given('a dashboard having a configured web page widget', () => {
-  cy.insertDashboardWithWidget(
-    dashboards.default,
-    webPageWidget,
-    'centreon-widget-webpage',
-    '/widgets/webpage'
-  );
-
-  cy.editDashboard(dashboards.default.name);
+  cy.insertDashboard({ ...dashboards.default });
+  cy.visitDashboards();
 });
 
-When('the dashboard administrator user duplicates the web page widget', () => {
-  cy.editDashboard(dashboards.default.name);
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByTestId({ testId: 'ContentCopyIcon' }).click({ force: true });
+When('the dashboard administrator clicks on the favourite icon', () => {
+  cy.getByTestId({ testId: 'FavoriteIcon' }).click();
+  cy.wait('@addFavorites');
+  cy.contains('Show only dashboards added to favorites').click();
+
+  cy.wait('@getFavorites').then((interception) => {
+    expect(interception.response?.statusCode).to.eq(200);
+
+    const responseBody = interception.response?.body;
+
+    expect(responseBody.result).to.be.an('array');
+    expect(responseBody.result).to.have.length.greaterThan(0);
+
+    const dashboard = responseBody.result.find((item) => item.name === 'dashboard default');
+    expect(dashboard).to.exist;
+    expect(dashboard.name).to.eq('dashboard default');
+    expect(dashboard.created_by.name).to.eq('user-dashboard-administrator');
+  });
 });
 
-Then('a second web page widget is displayed on the dashboard', () => {
-  cy.get('iframe')
-    .eq(1)
-    .its('0.contentDocument.body')
-    .should('not.be.empty')
-    .then(cy.wrap)
-    .find('h1')
-    .should('exist')
-    .and('have.text', iframeContent);
+Then('the dashboard is added to the favourites list', () => {
+  cy.contains(dashboards.default.name).should('be.visible');
 });
 
-Given('a dashboard featuring two web page widgets', () => {
-  cy.insertDashboardWithDoubleWidget(
-    dashboards.default,
-    webPageWidget,
-    webPageWidget,
-    'centreon-widget-webpage',
-    '/widgets/webpage'
-  );
-  cy.editDashboard(dashboards.default.name);
+Given('a dashboard having another configured web page widget', () => {
+  cy.insertDashboard({ ...dashboards.fromDashboardCreatorUser });
+  cy.visitDashboards();
 });
 
-When('the dashboard administrator user deletes one of the widgets', () => {
-  cy.getByTestId({ testId: 'More actions' }).eq(1).click();
-  cy.getByTestId({ testId: 'DeleteIcon' }).click({ force: true });
-  cy.getByLabel({
-    label: 'Delete',
-    tag: 'button'
-  }).realClick();
+When('the dashboard administrator clicks on the favourite icon of the first dashboard in the favourites list', () => {
+  cy.getByTestId({ testId: 'FavoriteIcon' }).eq(0).click();
+  cy.wait('@deleteFavorites');
+  cy.contains('Show only dashboards added to favorites').click();
+
+  cy.wait('@getFavorites').then((interception) => {
+    expect(interception.response?.statusCode).to.eq(200);
+
+    const responseBody = interception.response?.body;
+
+    expect(responseBody.result).to.be.an('array').that.is.empty;
+    expect(responseBody.meta).to.have.property('page', 1);
+    expect(responseBody.meta).to.have.property('limit', 10);
+    expect(responseBody.meta).to.have.property('total', 0);
+  });
 });
 
-Then('only the contents of the other widget are displayed', () => {
-  cy.get('iframe').eq(1).should('not.exist');
+Then('the dashboard should be removed from the favourites list', () => {
+  cy.contains(dashboards.default.name).should('not.exist');
 });
-
-When('the dashboard administrator attempts to add an invalid URL', () => {
-  cy.editWidget(1);
-  cy.getByLabel({ label: 'URL' }).clear().type(invalidUrl);
-  cy.getByTestId({ testId: 'confirm' }).click({ force: true });
-  cy.get('.MuiAlert-message').should('not.exist');
-});
-
-Then(
-  'an error message should be displayed, indicating that the URL is invalid',
-  () => {
-    cy.get('iframe').its('0.contentDocument.body').should('be.empty');
-  }
-);
