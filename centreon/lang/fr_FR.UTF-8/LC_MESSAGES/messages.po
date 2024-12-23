@@ -19602,3 +19602,15 @@ msgstr "Sticky pour tout statut non-OK"
 
 msgid "There are errors in the form."
 msgstr "Il y a des erreurs dans le formulaire."
+
+msgid "PNG (as displayed)"
+msgstr "PNG (tel qu'affiché)"
+
+msgid "PNG (medium size)"
+msgstr "PNG (taille moyenne)"
+
+msgid "PNG (small size)"
+msgstr "PNG (petite taille)"
+
+msgid "Export as"
+msgstr "Exporter en tant que"
