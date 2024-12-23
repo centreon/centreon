@@ -1,0 +1,35 @@
+<style type="text/css">
+ {literal}
+ .smarty_error{
+    position: relative;
+    padding: .75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    width: 100%;
+ }
+ .smarty_error-title {
+    margin-top: 0;
+    font-size: 1.5rem;
+    color: inherit;
+    font-weight: 700;
+    margin-bottom: 1rem;
+ }
+ .smarty_error-text {
+    margin-top:0;
+    margin-bottom: 1rem
+    color: inherit;
+    font-weight: 400;
+  }
+ {/literal}
+</style>
+
+{if isset($error)}
+    <div class="smarty_error">
+        <h4 class="smarty_error-title">Error !</h4>
+        <p class="smarty_error-text">{$error}</p>
+    </div>
+{/if}

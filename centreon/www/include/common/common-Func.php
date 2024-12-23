@@ -189,27 +189,39 @@ function tidySearchKey($search, $advanced_search)
 /**
  * Allows to load Smarty's configuration in relation to a path
  *
- * @param {string} [$path=null] Path to the default template directory
- * @param {object} [$tpl=null] A Smarty instance
- * @param {string} [$subDir=null] A subdirectory of path
+ * @param string $path   [$path=null] Path to the default template directory
+ * @param object $tpl    [$tpl=null] A Smarty instance
+ * @param string $subDir [$subDir=null] A subdirectory of path
  *
- * @return {empty|object} A Smarty instance with configuration parameters
+ * @return SmartyBC A Smarty instance with configuration parameters
+ *
+ * @throws SmartyException
  */
 function initSmartyTpl($path = null, &$tpl = null, $subDir = null)
 {
-    $tpl = new \SmartyBC();
+    try {
+        $tpl = new \SmartyBC();
 
-    $tpl->setTemplateDir($path . $subDir);
-    $tpl->setCompileDir(__DIR__ . '/../../../GPL_LIB/SmartyCache/compile');
-    $tpl->setConfigDir(__DIR__ . '/../../../GPL_LIB/SmartyCache/config');
-    $tpl->setCacheDir(__DIR__ . '/../../../GPL_LIB/SmartyCache/cache');
-    $tpl->addPluginsDir(__DIR__ . '/../../../GPL_LIB/smarty-plugins');
-    $tpl->loadPlugin('smarty_function_eval');
-    $tpl->setForceCompile(true);
-    $tpl->setAutoLiteral(false);
-    $tpl->allow_ambiguous_resources = true;
+        $tpl->setTemplateDir($path . $subDir);
+        $tpl->setCompileDir(__DIR__ . '/../../../GPL_LIB/SmartyCache/compile');
+        $tpl->setConfigDir(__DIR__ . '/../../../GPL_LIB/SmartyCache/config');
+        $tpl->setCacheDir(__DIR__ . '/../../../GPL_LIB/SmartyCache/cache');
+        $tpl->addPluginsDir(__DIR__ . '/../../../GPL_LIB/smarty-plugins');
+        $tpl->loadPlugin('smarty_function_eval');
+        $tpl->setForceCompile(true);
+        $tpl->setAutoLiteral(false);
+        $tpl->allow_ambiguous_resources = true;
 
-    return $tpl;
+        return $tpl;
+    } catch (SmartyException $e) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_BUSINESS_LOG,
+            "Smarty error while initializing smarty template : {$e->getMessage()}",
+            ['path' => $path, 'tpl' => $tpl, 'subDir' => $subDir],
+            $e
+        );
+        throw new SmartyException("Smarty error while initializing smarty template : {$e->getMessage()}");
+    }
 }
 
 /**
