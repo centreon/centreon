@@ -61,22 +61,22 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'row'
   },
+  exportAs: {
+    '&:hover': {
+      backgroundColor: 'transparent'
+    },
+    cursor: 'auto'
+  },
   menu: {
     width: theme.spacing(22)
   },
   menuHeader: {
-    fontWeight: theme.typography.fontWeightBold,
-    color: theme.palette.primary.main
+    color: theme.palette.primary.main,
+    fontWeight: theme.typography.fontWeightBold
   },
   menuItem: {
-    fontWeight: theme.typography.fontWeightRegular,
-    color: alpha(theme.palette.text.primary, 0.7)
-  },
-  exportAs: {
-    cursor: 'auto',
-    '&:hover': {
-      backgroundColor: 'transparent'
-    }
+    color: alpha(theme.palette.text.primary, 0.7),
+    fontWeight: theme.typography.fontWeightRegular
   }
 }));
 
@@ -205,8 +205,8 @@ const GraphActions = ({
           >
             <div className={classes.menu}>
               <MenuItem
-                data-testid={labelExportAs}
                 className={classes.exportAs}
+                data-testid={labelExportAs}
               >
                 <Typography className={classes.menuHeader}>
                   {t(labelExportAs)}
@@ -218,7 +218,7 @@ const GraphActions = ({
                 data-testid={labelPNGAsDisplayed}
                 onClick={(): void => convertToPng(1)}
               >
-                <Typography variant="body2" className={classes.menuItem}>
+                <Typography className={classes.menuItem} variant="body2">
                   {t(labelPNGAsDisplayed)}
                 </Typography>
               </MenuItem>
@@ -226,7 +226,7 @@ const GraphActions = ({
                 data-testid={labelPNGMediumSize}
                 onClick={(): void => convertToPng(0.75)}
               >
-                <Typography variant="body2" className={classes.menuItem}>
+                <Typography className={classes.menuItem} variant="body2">
                   {t(labelPNGMediumSize)}
                 </Typography>
               </MenuItem>
@@ -234,13 +234,13 @@ const GraphActions = ({
                 data-testid={labelPNGSmallSize}
                 onClick={(): void => convertToPng(0.5)}
               >
-                <Typography variant="body2" className={classes.menuItem}>
+                <Typography className={classes.menuItem} variant="body2">
                   {t(labelPNGSmallSize)}
                 </Typography>
               </MenuItem>
               <Divider />
               <MenuItem data-testid={labelCSV} onClick={exportToCsv}>
-                <Typography variant="body2" className={classes.menuItem}>
+                <Typography className={classes.menuItem} variant="body2">
                   {t(labelCSV)}
                 </Typography>
               </MenuItem>
