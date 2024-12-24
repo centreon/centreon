@@ -84,6 +84,42 @@ class SmartyBC extends Smarty
     }
 
     /**
+     * Factory
+     *
+     * @param string|null $pathTemplate
+     * @param string|null $subDirTemplate
+     *
+     * @return SmartyBC
+     * @throws SmartyException
+     */
+    public static function createSmartyTemplate(?string $pathTemplate = null, ?string $subDirTemplate = null): SmartyBC
+    {
+        try {
+            $template = new \SmartyBC();
+
+            $template->setTemplateDir($pathTemplate . ($subDirTemplate ?? ''));
+            $template->setCompileDir(__DIR__ . '/../SmartyCache/compile');
+            $template->setConfigDir(__DIR__ . '/../SmartyCache/config');
+            $template->setCacheDir(__DIR__ . '/../SmartyCache/cache');
+            $template->addPluginsDir(__DIR__ . '/../smarty-plugins');
+            $template->loadPlugin('smarty_function_eval');
+            $template->setForceCompile(true);
+            $template->setAutoLiteral(false);
+            $template->allow_ambiguous_resources = true;
+
+            return $template;
+        } catch (SmartyException $e) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_BUSINESS_LOG,
+                "Smarty error while initializing smarty template : {$e->getMessage()}",
+                ['path_template' => $pathTemplate, 'sub_directory_template' => $subDirTemplate],
+                $e
+            );
+            throw new SmartyException("Smarty error while initializing smarty template : {$e->getMessage()}");
+        }
+    }
+
+    /**
      * wrapper for assign_by_ref.
      *
      * @param string $tpl_var the template variable name

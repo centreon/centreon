@@ -189,45 +189,38 @@ function tidySearchKey($search, $advanced_search)
 /**
  * Allows to load Smarty's configuration in relation to a path
  *
- * @param string $path   [$path=null] Path to the default template directory
- * @param object $tpl    [$tpl=null] A Smarty instance
- * @param string $subDir [$subDir=null] A subdirectory of path
+ * @param string|null $path   [$path=null] Path to the default template directory
+ * @param object|null $tpl    [$tpl=null] A Smarty instance
+ * @param string|null $subDir [$subDir=null] A subdirectory of path
  *
- * @return SmartyBC A Smarty instance with configuration parameters
+ * @return SmartyBC
  *
  * @throws SmartyException
+ *
+ * @deprecated Instead use {@see SmartyBC::createSmartyTemplate()}
+ * @see        SmartyBC::createSmartyTemplate()
  */
-function initSmartyTpl($path = null, &$tpl = null, $subDir = null)
+function initSmartyTpl(?string $path = null, ?object &$tpl = null, ?string $subDir = null): SmartyBC
 {
-    try {
-        $tpl = new \SmartyBC();
-
-        $tpl->setTemplateDir($path . $subDir);
-        $tpl->setCompileDir(__DIR__ . '/../../../GPL_LIB/SmartyCache/compile');
-        $tpl->setConfigDir(__DIR__ . '/../../../GPL_LIB/SmartyCache/config');
-        $tpl->setCacheDir(__DIR__ . '/../../../GPL_LIB/SmartyCache/cache');
-        $tpl->addPluginsDir(__DIR__ . '/../../../GPL_LIB/smarty-plugins');
-        $tpl->loadPlugin('smarty_function_eval');
-        $tpl->setForceCompile(true);
-        $tpl->setAutoLiteral(false);
-        $tpl->allow_ambiguous_resources = true;
-
-        return $tpl;
-    } catch (SmartyException $e) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_BUSINESS_LOG,
-            "Smarty error while initializing smarty template : {$e->getMessage()}",
-            ['path' => $path, 'tpl' => $tpl, 'subDir' => $subDir],
-            $e
-        );
-        throw new SmartyException("Smarty error while initializing smarty template : {$e->getMessage()}");
-    }
+    return SmartyBC::createSmartyTemplate($path, $subDir);
 }
 
 /**
  * This function is mainly used in widgets
+ *
+ * @param string|null $path
+ * @param object|null $tpl
+ * @param string|null $subDir
+ * @param string|null $centreonPath
+ *
+ * @return SmartyBC
+ *
+ * @throws SmartyException
+ *
+ * @deprecated Instead use {@see SmartyBC::createSmartyTemplate()}
+ * @see        SmartyBC::createSmartyTemplate()
  */
-function initSmartyTplForPopup($path = null, $tpl = null, $subDir = null, $centreonPath = null)
+function initSmartyTplForPopup(?string $path = null, ?object $tpl = null, ?string $subDir = null, ?string $centreonPath = null): SmartyBC
 {
     return initSmartyTpl($path, $tpl, $subDir);
 }
