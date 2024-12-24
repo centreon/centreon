@@ -61,9 +61,8 @@ include_once("./include/monitoring/status/Common/default_poller.php");
 include_once("./include/monitoring/status/Common/default_hostgroups.php");
 include_once($svc_path . "/serviceSummaryJS.php");
 
-# Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($svc_path, $tpl, "/templates/");
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($svc_path, '/templates/');
 
 $tpl->assign("p", $p);
 $tpl->assign('o', $o);
