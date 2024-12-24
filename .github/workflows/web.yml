@@ -811,7 +811,7 @@ jobs:
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   e2e-test:
-    needs: [get-environment, create-xray-test-plan-and-test-execution]
+    needs: [get-environment, dockerize, create-xray-test-plan-and-test-execution]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       !cancelled() &&
