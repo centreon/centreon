@@ -22,37 +22,9 @@ Given('a user is logged in a Centreon server via APIv2', () => {
 });
 
 When('a call to the endpoint "Add" a {string} command is done via APIv2', (type: string) => {
-  switch(type) { 
-     case "NOTIFICATION": { 
-        cy.addSubjectViaAPIv2(
-            commands.notification,
-            '/centreon/api/latest/configuration/commands'
-          );
-        break; 
-     } 
-     case "CHECK": { 
-        cy.addSubjectViaAPIv2(
-            commands.check,
-            '/centreon/api/latest/configuration/commands'
-          );
-        break;
-     } 
-     case "MISCELLANEOUS": { 
-        cy.addSubjectViaAPIv2(
-            commands.miscellaneous,
-            '/centreon/api/latest/configuration/commands'
-          );
-        break;
-     }
-     case "DISCOVERY": { 
-        cy.addSubjectViaAPIv2(
-            commands.discovery,
-            '/centreon/api/latest/configuration/commands'
-          );
-        break;
-     }
-     default: 
-           break; 
+  const commandType = commands[type.toLowerCase()];
+  if (commandType) {
+   cy.addSubjectViaAPIv2(commandType, '/centreon/api/latest/configuration/commands');
   }
 });
 
