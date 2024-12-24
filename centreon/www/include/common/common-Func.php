@@ -187,6 +187,8 @@ function tidySearchKey($search, $advanced_search)
 #
 
 /**
+ * NOT REMOVE THIS FUNCTION - Used in centreon-modules
+ *
  * Allows to load Smarty's configuration in relation to a path
  *
  * @param string|null $path   [$path=null] Path to the default template directory
@@ -206,6 +208,8 @@ function initSmartyTpl(?string $path = null, ?object &$tpl = null, ?string $subD
 }
 
 /**
+ * NOT REMOVE THIS FUNCTION - Used in centreon-modules
+ *
  * This function is mainly used in widgets
  *
  * @param string|null $path
