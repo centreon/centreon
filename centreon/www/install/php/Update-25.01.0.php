@@ -23,12 +23,15 @@ require_once __DIR__ . '/../../../bootstrap.php';
 
 $versionOfTheUpgrade = '25.01.0';
 
-$createIndexesForResourceStatus = function (CentreonDB $pearDB) use (&$errorMessage): void {
+$configurationDb = $dependencyInjector['configuration_db'];
+$realtimeDb = $dependencyInjector['realtime_db'];
+
+$createIndexesForResourceStatus = function (CentreonDB $realtimeDb) use (&$errorMessage): void {
     try {
-        $pearDB->updateDatabase('create index resources_id_index on resources (id)');
-        $pearDB->updateDatabase('create index poller_id_index on resources (poller_id)');
-        $pearDB->updateDatabase('create index resources_parent_id_index on resources (parent_id)');
-        $pearDB->updateDatabase('create index tags_type_name_index on tags (type, name(10))');
+        $realtimeDb->updateDatabase('create index resources_id_index on resources (id)');
+        $realtimeDb->updateDatabase('create index poller_id_index on resources (poller_id)');
+        $realtimeDb->updateDatabase('create index resources_parent_id_index on resources (parent_id)');
+        $realtimeDb->updateDatabase('create index tags_type_name_index on tags (type, name(10))');
     } catch (CentreonDbException $e) {
         throw new CentreonDbException(
             "Unable to create indexes for resources and tags tables {$e->getMessage()}",
@@ -39,21 +42,24 @@ $createIndexesForResourceStatus = function (CentreonDB $pearDB) use (&$errorMess
 };
 
 try {
-    // DDL queries
-    $createIndexesForResourceStatus($pearDB);
+    // DDL queries for realtime database
+    $createIndexesForResourceStatus($realtimeDb);
+
+    // DDL queries for configuration database
+
 
     // DQL and DML queries
-    if (! $pearDB->inTransaction()) {
-        $pearDB->beginTransaction();
+    if (! $configurationDb->inTransaction()) {
+        $configurationDb->beginTransaction();
     }
 
-    // Add your DQL and DML queries here...
+    // Add your DQL and DML queries for configuration database here...
 
-    $pearDB->commit();
+    $configurationDb->commit();
 } catch (Throwable $e) {
     try {
-        if ($pearDB->inTransaction()) {
-            $pearDB->rollBack();
+        if ($configurationDb->inTransaction()) {
+            $configurationDb->rollBack();
         }
     } catch (PDOException $e) {
         logAndCreateException(
