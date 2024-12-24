@@ -164,12 +164,7 @@ Then(
           timeZone: 'Europe/Paris'
         });
 
-<<<<<<< HEAD
         cy.log(`Current hour (hoursNow): ${hoursNow}`);
-=======
-      // Add 2 hours to the current time
-      now.setHours(now.getHours() + 1);
->>>>>>> master
 
         const displayedHour = clockText.trim().slice(0, 2);
 

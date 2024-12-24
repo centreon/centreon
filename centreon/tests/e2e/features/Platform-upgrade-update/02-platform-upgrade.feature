@@ -1,9 +1,5 @@
 @execTimeout(300000)
-<<<<<<< HEAD
 @REQ_MON-22196 @system @upgrade
-=======
-@REQ_MON-22196 @system
->>>>>>> master
 Feature: Upgrade platform from major version A to major version B
 
   @TEST_MON-22198

@@ -697,11 +697,7 @@ declare global {
       waitUntilForDashboardRoles: (
         accessRightsTestId: string,
         expectedElementCount: number,
-<<<<<<< HEAD
         closeIconIndex?: number
-=======
-        closeIconIndex?:number
->>>>>>> master
       ) => Cypress.Chainable;
       waitUntilPingExists: () => Cypress.Chainable;
     }
