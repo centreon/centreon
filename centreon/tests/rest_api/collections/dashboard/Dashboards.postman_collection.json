@@ -1089,7 +1089,7 @@
 									"});\r",
 									"\r",
 									"pm.test(\"Response panels are as expected\", function () {\r",
-									"    pm.response.to.have.jsonBody(\"panels[0].name\", \"centreon-widget-groupmonitoring\");\r",
+									"    pm.response.to.have.jsonBody(\"panels[0].name\", \"centreon-widget-resourcestable\");\r",
 									"});\r",
 									"\r",
 									""
@@ -1264,7 +1264,7 @@
 									"});\r",
 									"\r",
 									"pm.test(\"Response panels are as expected\", function () {\r",
-									"    pm.response.to.have.jsonBody(\"panels[0].name\", \"centreon-widget-resourcestable\");\r",
+									"    pm.response.to.have.jsonBody(\"panels[0].name\", \"centreon-widget-groupmonitoring\");\r",
 									"});\r",
 									"\r",
 									""
