@@ -1,3 +1,6 @@
+/* eslint-disable spaced-comment */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 import data from '../../../fixtures/acls/acl-data.json';
 import '../commands';
@@ -8,13 +11,13 @@ const ACLResource = {
 };
 
 const duplicatedACLResource = {
-  name: ACLResource.name + '_1'
+  name: `${ACLResource.name}_1`
 };
 
 const modifedACLResource = {
-  name: ACLResource.name + '_modified',
-  description: ACLResource.description + '_modified',
-  comment: ACLResource.comment + '_modified'
+  name: `${ACLResource.name}_modified`,
+  description: `${ACLResource.description}_modified`,
+  comment: `${ACLResource.comment}_modified`
 };
 
 beforeEach(() => {
@@ -128,24 +131,25 @@ Then(
         rootItemNumber: 4,
         subMenu: 'ACL'
       });
-      cy.wait('@getTimeZone');
+      cy.waitForElementInIframe(
+        '#main-content',
+        `a:contains("${ACLGroup[1].name}")`
+      );
 
-      cy.getIframeBody()
-        .contains('tr', ACLGroup[1].name)
-        .within(() => {
-          cy.get('td.ListColLeft').click();
-        });
+      cy.getIframeBody().contains('a', ACLGroup[1].name).click();
+      cy.waitForElementInIframe(
+        '#main-content',
+        'a:contains("Authorizations information")'
+      );
 
-      cy.wait('@getTimeZone').then(() => {
-        cy.executeActionOnIframe(
-          'Authorizations information',
-          ($body) => {
-            cy.wrap($body).contains('a', 'Authorizations information').click();
-          },
-          3,
-          3000
-        );
-      });
+      cy.executeActionOnIframe(
+        'Authorizations information',
+        ($body) => {
+          cy.wrap($body).contains('a', 'Authorizations information').click();
+        },
+        3,
+        3000
+      );
 
       ACLResource.ACLGroups.includes(ACLGroup[1].name)
         ? cy

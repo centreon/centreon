@@ -1,3 +1,5 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 import data from '../../../fixtures/acls/acl-data.json';
 import '../commands';
@@ -196,15 +198,18 @@ Then(
         rootItemNumber: 4,
         subMenu: 'ACL'
       });
-      cy.wait('@getTimeZone');
+      cy.waitForElementInIframe(
+        '#main-content',
+        `a:contains("${ACLGroup}")`
+      );
 
       cy.getIframeBody()
-        .contains('tr', ACLGroup)
-        .within(() => {
-          cy.get('td.ListColLeft').click();
-        });
+        .contains('a', ACLGroup).click();
+      cy.waitForElementInIframe(
+        '#main-content',
+        'a:contains("Authorizations information")'
+      );
 
-      cy.wait('@getTimeZone');
       cy.getIframeBody().contains('a', 'Authorizations information').click();
 
       cy.getIframeBody()
