@@ -328,15 +328,16 @@ Then('the link with access groups is broken', () => {
     rootItemNumber: 4,
     subMenu: 'ACL'
   });
-  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe(
+    '#main-content',
+    `a:contains("${data.ACLGroups.ACLGroup1.name}")`
+  );
 
-  cy.getIframeBody()
-    .contains('tr', data.ACLGroups.ACLGroup1.name)
-    .within(() => {
-      cy.get('td.ListColLeft').click();
-    });
-
-  cy.wait('@getTimeZone');
+  cy.getIframeBody().contains('a', data.ACLGroups.ACLGroup1.name).click();
+  cy.waitForElementInIframe(
+    '#main-content',
+    'a:contains("Authorizations information")'
+  );
   cy.getIframeBody().contains('a', 'Authorizations information').click();
 
   cy.getIframeBody()
