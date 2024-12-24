@@ -222,7 +222,7 @@ function initSmartyTpl(?string $path = null, ?object &$tpl = null, ?string $subD
  */
 function initSmartyTplForPopup(?string $path = null, ?object $tpl = null, ?string $subDir = null, ?string $centreonPath = null): SmartyBC
 {
-    return initSmartyTpl($path, $tpl, $subDir);
+    return SmartyBC::createSmartyTemplate($path, $subDir);
 }
 
 /*
