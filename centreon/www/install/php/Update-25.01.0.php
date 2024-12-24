@@ -23,9 +23,6 @@ require_once __DIR__ . '/../../../bootstrap.php';
 
 $versionOfTheUpgrade = '25.01.0';
 
-$configurationDb = $dependencyInjector['configuration_db'];
-$realtimeDb = $dependencyInjector['realtime_db'];
-
 $createIndexesForResourceStatus = function (CentreonDB $realtimeDb) use (&$errorMessage): void {
     try {
         $realtimeDb->updateDatabase('create index resources_id_index on resources (id)');
@@ -42,24 +39,25 @@ $createIndexesForResourceStatus = function (CentreonDB $realtimeDb) use (&$error
 };
 
 try {
+
     // DDL queries for realtime database
-    $createIndexesForResourceStatus($realtimeDb);
+    $createIndexesForResourceStatus($pearDBO);
 
     // DDL queries for configuration database
 
 
     // DQL and DML queries
-    if (! $configurationDb->inTransaction()) {
-        $configurationDb->beginTransaction();
+    if (! $pearDB->inTransaction()) {
+        $pearDB->beginTransaction();
     }
 
     // Add your DQL and DML queries for configuration database here...
 
-    $configurationDb->commit();
+    $pearDB->commit();
 } catch (Throwable $e) {
     try {
-        if ($configurationDb->inTransaction()) {
-            $configurationDb->rollBack();
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
         }
     } catch (PDOException $e) {
         logAndCreateException(
