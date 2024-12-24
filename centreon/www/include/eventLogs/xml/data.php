@@ -83,6 +83,7 @@ define("STATUS_WARNING", 1);
 define("STATUS_CRITICAL", 2);
 define("STATUS_UNKNOWN", 3);
 define("STATUS_PENDING", 4);
+define("STATUS_ACKNOWLEDGEMENT", 5);
 define("STATUS_UP", 0);
 define("STATUS_DOWN", 1);
 define("STATUS_UNREACHABLE", 2);
