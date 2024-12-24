@@ -169,22 +169,26 @@ class CentreonDB extends PDO
 
     /**
      * Factory
-     * @param CentreonDbConfig $dbConfig
+     *
+     * @param CentreonDbConfig|null $dbConfig
+     *
      * @return CentreonDB
      * @throws Exception
      */
-    public static function connectToCentreonDb(CentreonDbConfig $dbConfig): CentreonDB
+    public static function connectToCentreonDb(?CentreonDbConfig $dbConfig = null): CentreonDB
     {
         return new self(dbLabel: self::LABEL_DB_CONFIGURATION, dbConfig: $dbConfig);
     }
 
     /**
      * Factory
-     * @param CentreonDbConfig $dbConfig
+     *
+     * @param CentreonDbConfig|null $dbConfig
+     *
      * @return CentreonDB
      * @throws Exception
      */
-    public static function connectToCentreonStorageDb(CentreonDbConfig $dbConfig): CentreonDB
+    public static function connectToCentreonStorageDb(?CentreonDbConfig $dbConfig = null): CentreonDB
     {
         return new self(dbLabel: self::LABEL_DB_REALTIME, dbConfig: $dbConfig);
     }
