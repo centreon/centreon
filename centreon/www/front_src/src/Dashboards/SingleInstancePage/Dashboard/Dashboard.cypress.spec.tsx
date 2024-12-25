@@ -865,8 +865,31 @@ describe('Dashboard', () => {
     });
   });
 
+
+  const takeSnapshot = ({ widgetName, titleSnapshot }) => {
+    if (equals(widgetName, 'centreon-widget-webpage')) {
+      return;
+    }
+    cy.makeSnapshot(titleSnapshot);
+  };
+
+  const waitWidgetData = (widgetName: string) => {
+    if (equals(widgetName, 'centreon-widget-webpage')) {
+      return;
+    }
+    if (equals(widgetName, 'centreon-widget-statuschart')) {
+      cy.waitForRequest(`@${widgetName}Services`);
+      cy.waitForRequest(`@${widgetName}Hosts`);
+
+      return;
+    }
+    cy.waitForRequest(`@${widgetName}`);
+  };
+
+
   describe('Expand-Reduce', () => {
-    it('expandes\reduces the widget when the corresponding button is clicked', () => {
+
+    beforeEach(()=>{
       const initializeWidgets = (): ReturnType<typeof createStore> => {
         const store = createStore();
         store.set(federatedWidgetsAtom, federatedWidgets);
@@ -876,28 +899,7 @@ describe('Dashboard', () => {
         return store;
       };
 
-      const takeSnapshot = ({ widgetName, titleSnapshot }) => {
-        if (equals(widgetName, 'centreon-widget-webpage')) {
-          return;
-        }
-        cy.makeSnapshot(titleSnapshot);
-      };
 
-      const waitWidgetData = (widgetName: string) => {
-        if (equals(widgetName, 'centreon-widget-webpage')) {
-          return;
-        }
-        cy.waitForRequest(`@${widgetName}`);
-      };
-
-      const waitRequests = () => {
-        cy.waitForRequest('@centreon-widget-graph');
-        cy.waitForRequest('@centreon-widget-topbottom');
-        cy.waitForRequest('@centreon-widget-resourcestable');
-        cy.waitForRequest('@centreon-widget-statuschartServices');
-        cy.waitForRequest('@centreon-widget-statuschart');
-        cy.waitForRequest('@centreon-widget-groupmonitoring');
-      };
 
       cy.fixture('Dashboards/Dashboard/ExpandReduce/widgetGraphData.json').then(
         (data) => {
@@ -950,7 +952,7 @@ describe('Dashboard', () => {
           path: './api/latest/monitoring/hosts/status?**',
           response: data,
           method: Method.GET,
-          alias: 'centreon-widget-statuschart'
+          alias: 'centreon-widget-statuschartHosts'
         });
       });
 
@@ -976,17 +978,24 @@ describe('Dashboard', () => {
         });
       });
 
+      cy.viewport(1280, 590);
+
       initializeAndMount({
         customDetailsPath: 'Dashboards/Dashboard/ExpandReduce/details.json',
         store: initializeWidgets()
       });
 
-      cy.waitForRequest('@getDashboardDetails');
-      waitRequests();
 
-      federatedWidgets.forEach((widget) => {
-        const widgetName = widget.moduleName;
-
+    })
+    federatedWidgets.forEach((widget) => {
+    it('expandes\reduces the widget when the corresponding button is clicked', () => {
+      
+      
+      
+      const widgetName = widget.moduleName;
+      cy.waitForRequest('@getDashboardDetails')
+      waitWidgetData(widgetName);
+        
         cy.findByLabelText(widgetName)
           .parentsUntil('[data-canmove="false"]')
           .last()
@@ -1012,9 +1021,9 @@ describe('Dashboard', () => {
         });
 
         cy.findByRole('menuitem', { name: labelReduce }).click();
-        waitRequests();
       });
-    });
+    })
+    
   });
 });
 

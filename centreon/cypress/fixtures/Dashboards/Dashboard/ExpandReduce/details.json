@@ -35,12 +35,12 @@
       "id": 1,
       "name": "centreon-widget-webpage",
       "layout": {
-        "x": 6,
-        "y": 6,
-        "width": 4,
-        "height": 5,
-        "min_width": 2,
-        "min_height": 1
+        "x": 0,
+        "y": 22,
+        "width": 12,
+        "height": 8,
+        "min_width": 6,
+        "min_height": 5
     },
       "widget_type": "/widgets/webpage",
       "widget_settings": {
@@ -62,8 +62,8 @@
       "layout": {
         "x": 0,
         "y": 0,
-        "width": 4,
-        "height": 3,
+        "width": 12,
+        "height": 5,
         "min_width": 4,
         "min_height": 3
     },
@@ -190,10 +190,10 @@
       "id": 3,
       "name": "centreon-widget-topbottom",
       "layout": {
-        "x": 4,
-        "y": 0,
-        "width": 2,
-        "height": 3,
+        "x": 0,
+        "y": 8,
+        "width": 12,
+        "height": 7,
         "min_width": 2,
         "min_height": 2
     },
@@ -269,10 +269,10 @@
       "id": 4,
       "name": "centreon-widget-statusgrid",
       "layout":{
-        "x": 6,
-        "y": 0,
-        "width": 2,
-        "height": 3,
+        "x": 0,
+        "y": 29,
+        "width": 12,
+        "height": 7,
         "min_width": 2,
         "min_height": 2
     },
@@ -308,10 +308,10 @@
       "id": 5,
       "name": "centreon-widget-statuschart",
       "layout": {
-        "x": 8,
-        "y": 0,
-        "width": 3,
-        "height": 3,
+        "x": 0,
+        "y": 36,
+        "width": 12,
+        "height": 7,
         "min_width": 2,
         "min_height": 3
     },
@@ -348,9 +348,9 @@
       "name": "centreon-widget-resourcestable",
       "layout": {
         "x": 0,
-        "y": 3,
-        "width": 6,
-        "height": 3,
+        "y": 15,
+        "width": 12,
+        "height": 8,
         "min_width": 6,
         "min_height": 3
     },
@@ -403,10 +403,10 @@
       "id": 7,
       "name": "centreon-widget-groupmonitoring",
       "layout": {
-        "x": 6,
-        "y": 3,
-        "width": 4,
-        "height": 3,
+        "x": 0,
+        "y": 43,
+        "width": 12,
+        "height": 7,
         "min_width": 4,
         "min_height": 3
     },
