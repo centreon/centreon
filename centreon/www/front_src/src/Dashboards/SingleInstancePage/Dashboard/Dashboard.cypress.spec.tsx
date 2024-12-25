@@ -865,6 +865,19 @@ describe('Dashboard', () => {
     });
   });
 
+  const checkElement = ({isExtanded,content})=>{
+    if(!isExtanded){
+      cy.contains(content,{timeout:60000})
+      return
+
+    }
+
+    cy.findByRole('dialog').as('modal');
+
+    cy.get('@modal').contains(content,{timeout:60000})
+
+  }
+
 
   const takeSnapshot = ({ widgetName, titleSnapshot }) => {
     if (equals(widgetName, 'centreon-widget-webpage')) {
@@ -873,21 +886,63 @@ describe('Dashboard', () => {
     cy.makeSnapshot(titleSnapshot);
   };
 
-  const waitWidgetData = (widgetName: string) => {
+  const waitWidgetData = ({widgetName,isExtanded}) => {
+
+    
+
+    const suffix = 'centreon-widget-'
+    const fixturePath = `Dashboards/Dashboard/ExpandReduce/${widgetName.replace(suffix,'')}`
+
+
     if (equals(widgetName, 'centreon-widget-webpage')) {
       return;
     }
+
     if (equals(widgetName, 'centreon-widget-statuschart')) {
       cy.waitForRequest(`@${widgetName}Services`);
       cy.waitForRequest(`@${widgetName}Hosts`);
 
+      cy.fixture(`${fixturePath}Services`).then((data)=>{
+
+        checkElement({content:data.total,isExtanded})
+      })
+
+      cy.fixture(`${fixturePath}Hosts`).then((data)=>{
+        checkElement({content:data.total,isExtanded})
+      })
+
       return;
     }
+
+    if(equals(widgetName,'centreon-widget-graph')){
+      cy.waitForRequest(`@${widgetName}`);
+      cy.fixture(fixturePath).then(({metrics})=>{
+        checkElement({content:metrics[0].legend,isExtanded})
+
+      })
+      return 
+    }
+
+    if(equals(widgetName,'centreon-widget-topbottom')){
+      cy.waitForRequest(`@${widgetName}`);
+      cy.fixture(fixturePath).then(({resources})=>{
+        checkElement({content:`${resources[0].parent_name}_${resources[0].name}`,isExtanded})
+
+      })
+      return 
+    }
+
     cy.waitForRequest(`@${widgetName}`);
+
+    cy.fixture(fixturePath).then(({result})=>{
+      checkElement({content:result[0].name,isExtanded})
+    })
+
+  
   };
 
 
-  describe('Expand-Reduce', () => {
+  describe.only('Expand-Reduce', () => {
 
     beforeEach(()=>{
       const initializeWidgets = (): ReturnType<typeof createStore> => {
@@ -899,9 +954,7 @@ describe('Dashboard', () => {
         return store;
       };
 
-
-
-      cy.fixture('Dashboards/Dashboard/ExpandReduce/widgetGraphData.json').then(
+      cy.fixture('Dashboards/Dashboard/ExpandReduce/graph.json').then(
         (data) => {
           cy.interceptAPIRequest({
             path: './api/latest/monitoring/dashboard/metrics/performances/data?**',
@@ -913,7 +966,7 @@ describe('Dashboard', () => {
       );
 
       cy.fixture(
-        'Dashboards/Dashboard/ExpandReduce/widgetTopBottomData.json'
+        'Dashboards/Dashboard/ExpandReduce/topbottom.json'
       ).then((data) => {
         cy.interceptAPIRequest({
           path: './api/latest/monitoring/dashboard/metrics/top?**',
@@ -923,7 +976,7 @@ describe('Dashboard', () => {
         });
       });
 
-      cy.fixture('Dashboards/Dashboard/ExpandReduce/widgetRSdata.json').then(
+      cy.fixture('Dashboards/Dashboard/ExpandReduce/resourcestable.json').then(
         (data) => {
           cy.interceptAPIRequest({
             path: './api/latest/monitoring/resources?**',
@@ -935,7 +988,7 @@ describe('Dashboard', () => {
       );
 
       cy.fixture(
-        'Dashboards/Dashboard/ExpandReduce/widgetStatusChart/services.json'
+        'Dashboards/Dashboard/ExpandReduce/statuschartServices.json'
       ).then((data) => {
         cy.interceptAPIRequest({
           path: './api/latest/monitoring/services/status?**',
@@ -946,7 +999,7 @@ describe('Dashboard', () => {
       });
 
       cy.fixture(
-        'Dashboards/Dashboard/ExpandReduce/widgetStatusChart/hosts.json'
+        'Dashboards/Dashboard/ExpandReduce/statuschartHosts.json'
       ).then((data) => {
         cy.interceptAPIRequest({
           path: './api/latest/monitoring/hosts/status?**',
@@ -956,7 +1009,7 @@ describe('Dashboard', () => {
         });
       });
 
-      cy.fixture('Dashboards/Dashboard/ExpandReduce/widgetRSdata.json').then(
+      cy.fixture('Dashboards/Dashboard/ExpandReduce/statusgrid.json').then(
         (data) => {
           cy.interceptAPIRequest({
             path: './api/latest/monitoring/resources?**',
@@ -968,7 +1021,7 @@ describe('Dashboard', () => {
       );
 
       cy.fixture(
-        'Dashboards/Dashboard/ExpandReduce/widgetGroupMonitoringData.json'
+        'Dashboards/Dashboard/ExpandReduce/groupmonitoring.json'
       ).then((data) => {
         cy.interceptAPIRequest({
           path: './api/latest/monitoring/hostgroups?**',
@@ -988,20 +1041,20 @@ describe('Dashboard', () => {
 
     })
     federatedWidgets.forEach((widget) => {
-    it('expandes\reduces the widget when the corresponding button is clicked', () => {
+    it(`expandes\reduces the ${widget.moduleName} when the corresponding button is clicked`, () => {
       
       
       
       const widgetName = widget.moduleName;
       cy.waitForRequest('@getDashboardDetails')
-      waitWidgetData(widgetName);
-        
-        cy.findByLabelText(widgetName)
-          .parentsUntil('[data-canmove="false"]')
-          .last()
-          .as('header');
-        cy.get('@header').findByLabelText(labelMoreActions).click();
-
+      
+      cy.findByLabelText(widgetName)
+      .parentsUntil('[data-canmove="false"]')
+      .last()
+      .as('header');
+      cy.get('@header').findByLabelText(labelMoreActions).click();
+      
+        waitWidgetData({widgetName,isExtanded:false});
         takeSnapshot({
           titleSnapshot: `${widgetName} with expand option`,
           widgetName: widgetName
@@ -1011,10 +1064,10 @@ describe('Dashboard', () => {
         cy.findByRole('dialog').as('modal');
         cy.get('@modal').should('be.visible');
 
-        waitWidgetData(widgetName);
-
+        
+        
+        waitWidgetData({widgetName,isExtanded:true});
         cy.get('@modal').findByTestId(labelMoreActions).click();
-
         takeSnapshot({
           titleSnapshot: `${widgetName} with reduce option`,
           widgetName: widgetName
