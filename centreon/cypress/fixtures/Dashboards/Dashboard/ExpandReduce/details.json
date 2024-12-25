@@ -52,7 +52,7 @@
                   "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
                   "enabled": true
               },
-              "name": "Webpage"
+              "name": "centreon-widget-webpage"
           }
       }
   },
@@ -179,7 +179,7 @@
                   "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
                   "enabled": true
               },
-              "name": "MetricsGraph",
+              "name": "centreon-widget-graph",
               "gridLinesType": "all",
               "legendDisplayMode": "grid",
               "legendPlacement": "bottom"
@@ -261,7 +261,7 @@
                   "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
                   "enabled": true
               },
-              "name": "TopBottom"
+              "name": "centreon-widget-topbottom"
           }
       }
   },
@@ -278,44 +278,31 @@
     },
       "widget_type": "/widgets/statusgrid",
       "widget_settings": {
-          "data": {
-              "resources": [
-                  {
-                      "resourceType": "service",
-                      "resources": [
-                          {
-                              "id": "Load",
-                              "name": "Load"
-                          },
-                          {
-                              "id": "Memory",
-                              "name": "Memory"
-                          },
-                          {
-                              "id": "Ping",
-                              "name": "Ping"
-                          }
-                      ]
-                  }
-              ]
-          },
-          "options": {
-              "viewMode": "standard",
-              "resourceType": "host",
-              "statuses": [
-                  "warning",
-                  "problem"
-              ],
-              "sortBy": "status_severity_code",
-              "tiles": 100,
-              "refreshInterval": "manual",
-              "description": {
-                  "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
-                  "enabled": true
-              },
-              "name": "StatusGrid"
-          }
-      }
+        "data": {
+            "resources": [
+                {
+                    "resourceType": "service",
+                    "resources": []
+                }
+            ]
+        },
+        "options": {
+            "viewMode": "standard",
+            "resourceType": "host",
+            "statuses": [
+                "warning",
+                "problem"
+            ],
+            "sortBy": "status_severity_code",
+            "tiles": 100,
+            "refreshInterval": "default",
+            "description": {
+                "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+                "enabled": true
+            },
+            "name": "centreon-widget-statusgrid"
+        }
+    }
   },
   {
       "id": 5,
@@ -352,7 +339,7 @@
                   "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
                   "enabled": true
               },
-              "name": "StatusChart"
+              "name": "centreon-widget-statuschart"
           }
       }
   },
@@ -408,7 +395,7 @@
                   "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
                   "enabled": true
               },
-              "name": "ResourceTable"
+              "name": "centreon-widget-resourcestable"
           }
       }
   },
@@ -447,7 +434,7 @@
                   "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
                   "enabled": true
               },
-              "name": "GroupMonitoring"
+              "name": "centreon-widget-groupmonitoring"
           }
       }
   }
