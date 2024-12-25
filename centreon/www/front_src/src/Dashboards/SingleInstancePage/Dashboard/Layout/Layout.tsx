@@ -58,13 +58,13 @@ const PanelsLayout = ({
               canEdit && isEditing && !panelConfiguration?.isAddWidgetPanel
             }
             disablePadding={panelConfiguration?.isAddWidgetPanel}
-            header={(data) => {
+            header={(headerData) => {
               const enableExtand = Boolean(
                 federatedWidgetsProperties.find(({ moduleName }) =>
                   equals(moduleName, name)
                 )?.canExtand
               );
-              const expandableData = !enableExtand ? undefined : data;
+              const expandableData = !enableExtand ? undefined : headerData;
 
               return (
                 <>

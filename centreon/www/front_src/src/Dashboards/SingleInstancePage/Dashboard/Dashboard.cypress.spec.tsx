@@ -4,7 +4,6 @@ import widgetSingleMetricProperties from './Widgets/centreon-widget-singlemetric
 import widgetTextProperties from './Widgets/centreon-widget-text/properties.json';
 import widgetWebpageProperties from './Widgets/centreon-widget-webpage/properties.json';
 
-
 import i18next from 'i18next';
 import { Provider, createStore } from 'jotai';
 import { initReactI18next } from 'react-i18next';
@@ -21,6 +20,10 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
+import { equals } from 'ramda';
+import { federatedWidgets } from '../../../../../../cypress/fixtures/Dashboards/Dashboard/ExpandReduce/federatedWidgets';
+import { federatedWidgetsProperties } from '../../../../../../cypress/fixtures/Dashboards/Dashboard/ExpandReduce/federatedWidgetsProperties';
+import { version } from '../../../../../../cypress/fixtures/Dashboards/Dashboard/ExpandReduce/version';
 import { federatedWidgetsPropertiesAtom } from '../../../federatedModules/atoms';
 import {
   dashboardSharesEndpoint,
@@ -64,11 +67,6 @@ import {
   labelYourDashboardHasBeenSaved,
   labelYourRightsOnlyAllowToView
 } from './translatedLabels';
-import { federatedWidgetsProperties } from '../../../../../../cypress/fixtures/Dashboards/Dashboard/ExpandReduce/federatedWidgetsProperties';
-import { federatedWidgets } from '../../../../../../cypress/fixtures/Dashboards/Dashboard/ExpandReduce/federatedWidgets';
-import { version } from '../../../../../../cypress/fixtures/Dashboards/Dashboard/ExpandReduce/version';
-import { equals } from 'ramda';
-
 
 const widgetProperties = [
   widgetTextProperties,
@@ -165,7 +163,7 @@ const initializeAndMount = ({
   isBlocked = false,
   detailsWithData = false,
   customDetailsPath,
-  store=initializeWidgets()
+  store = initializeWidgets()
 }: InitializeAndMountProps): {
   blockNavigation;
   proceedNavigation;
@@ -203,8 +201,6 @@ const initializeAndMount = ({
   });
 
   cy.viewport('macbook-13');
-
-  console.log({customDetailsPath})
 
   interceptDetailsDashboard({
     path:
@@ -286,7 +282,7 @@ const initializeDashboardWithWebpageWidgets = ({
   globalRole = DashboardGlobalRole.administrator,
   canCreateDashboard = true,
   canViewDashboard = true,
-  canAdministrateDashboard = true,
+  canAdministrateDashboard = true
 }: InitializeAndMountProps): void => {
   const store = initializeWidgets();
 
@@ -869,140 +865,157 @@ describe('Dashboard', () => {
     });
   });
 
-  describe.only('Expand-Reduce',()=>{
-    it('expandes\reduces the widget when the corresponding button is clicked',()=>{
+  describe('Expand-Reduce', () => {
+    it('expandes\reduces the widget when the corresponding button is clicked', () => {
+      const initializeWidgets = (): ReturnType<typeof createStore> => {
+        const store = createStore();
+        store.set(federatedWidgetsAtom, federatedWidgets);
+        store.set(federatedWidgetsPropertiesAtom, federatedWidgetsProperties);
+        store.set(platformVersionsAtom, version);
 
-  const initializeWidgets = (): ReturnType<typeof createStore> => {
-    const store = createStore();
-    store.set(federatedWidgetsAtom, federatedWidgets);
-    store.set(federatedWidgetsPropertiesAtom, federatedWidgetsProperties);
-    store.set(platformVersionsAtom, version);
-  
-    return store;
-  };
+        return store;
+      };
 
-  const takeSnapshot = ({widgetName,titleSnapshot})=>{
-    if(equals(widgetName,'centreon-widget-webpage')){
-      return 
-    }
-    cy.makeSnapshot(titleSnapshot)
-  }
+      const takeSnapshot = ({ widgetName, titleSnapshot }) => {
+        if (equals(widgetName, 'centreon-widget-webpage')) {
+          return;
+        }
+        cy.makeSnapshot(titleSnapshot);
+      };
 
-  const waitWidgetData = (widgetName:string)=>{
-    if(equals(widgetName,'centreon-widget-webpage')){
-            
-      return 
-    }
-    cy.waitForRequest(`@${widgetName}`)
+      const waitWidgetData = (widgetName: string) => {
+        if (equals(widgetName, 'centreon-widget-webpage')) {
+          return;
+        }
+        cy.waitForRequest(`@${widgetName}`);
+      };
 
-  }
+      const waitRequests = () => {
+        cy.waitForRequest('@centreon-widget-graph');
+        cy.waitForRequest('@centreon-widget-topbottom');
+        cy.waitForRequest('@centreon-widget-resourcestable');
+        cy.waitForRequest('@centreon-widget-statuschartServices');
+        cy.waitForRequest('@centreon-widget-statuschart');
+        cy.waitForRequest('@centreon-widget-groupmonitoring');
+      };
 
-  const waitRequests = ()=>{
-    cy.waitForRequest('@centreon-widget-graph')
-cy.waitForRequest('@centreon-widget-topbottom')
-cy.waitForRequest('@centreon-widget-resourcestable')
-cy.waitForRequest('@centreon-widget-statuschartServices')
-cy.waitForRequest('@centreon-widget-statuschart')
-cy.waitForRequest('@centreon-widget-groupmonitoring')
-  }
+      cy.fixture('Dashboards/Dashboard/ExpandReduce/widgetGraphData.json').then(
+        (data) => {
+          cy.interceptAPIRequest({
+            path: './api/latest/monitoring/dashboard/metrics/performances/data?**',
+            response: data,
+            method: Method.GET,
+            alias: 'centreon-widget-graph'
+          });
+        }
+      );
 
+      cy.fixture(
+        'Dashboards/Dashboard/ExpandReduce/widgetTopBottomData.json'
+      ).then((data) => {
+        cy.interceptAPIRequest({
+          path: './api/latest/monitoring/dashboard/metrics/top?**',
+          response: data,
+          method: Method.GET,
+          alias: 'centreon-widget-topbottom'
+        });
+      });
 
+      cy.fixture('Dashboards/Dashboard/ExpandReduce/widgetRSdata.json').then(
+        (data) => {
+          cy.interceptAPIRequest({
+            path: './api/latest/monitoring/resources?**',
+            response: data,
+            method: Method.GET,
+            alias: 'centreon-widget-resourcestable'
+          });
+        }
+      );
 
-cy.fixture('Dashboards/Dashboard/ExpandReduce/widgetGraphData.json').then(data=>{
-    cy.interceptAPIRequest({
-        path:'./api/latest/monitoring/dashboard/metrics/performances/data?**',
-        response:data,
-        method:Method.GET,
-        alias:'centreon-widget-graph'
-    })
-})
+      cy.fixture(
+        'Dashboards/Dashboard/ExpandReduce/widgetStatusChart/services.json'
+      ).then((data) => {
+        cy.interceptAPIRequest({
+          path: './api/latest/monitoring/services/status?**',
+          response: data,
+          method: Method.GET,
+          alias: 'centreon-widget-statuschartServices'
+        });
+      });
 
-cy.fixture('Dashboards/Dashboard/ExpandReduce/widgetTopBottomData.json').then(data=>{
-    cy.interceptAPIRequest({
-        path:'./api/latest/monitoring/dashboard/metrics/top?**',
-        response:data,
-        method:Method.GET,
-        alias:'centreon-widget-topbottom'
-    })
-})
+      cy.fixture(
+        'Dashboards/Dashboard/ExpandReduce/widgetStatusChart/hosts.json'
+      ).then((data) => {
+        cy.interceptAPIRequest({
+          path: './api/latest/monitoring/hosts/status?**',
+          response: data,
+          method: Method.GET,
+          alias: 'centreon-widget-statuschart'
+        });
+      });
 
-cy.fixture('Dashboards/Dashboard/ExpandReduce/widgetRSdata.json').then(data=>{
-    cy.interceptAPIRequest({
-        path:'./api/latest/monitoring/resources?**',
-        response:data,
-        method:Method.GET,
-        alias:'centreon-widget-resourcestable'
-    })
-})
+      cy.fixture('Dashboards/Dashboard/ExpandReduce/widgetRSdata.json').then(
+        (data) => {
+          cy.interceptAPIRequest({
+            path: './api/latest/monitoring/resources?**',
+            response: data,
+            method: Method.GET,
+            alias: 'centreon-widget-statusgrid'
+          });
+        }
+      );
 
-cy.fixture('Dashboards/Dashboard/ExpandReduce/widgetStatusChart/services.json').then(data=>{
-    cy.interceptAPIRequest({
-        path:'./api/latest/monitoring/services/status?**',
-        response:data,
-        method:Method.GET,
-        alias:'centreon-widget-statuschartServices'
-    })
-})
+      cy.fixture(
+        'Dashboards/Dashboard/ExpandReduce/widgetGroupMonitoringData.json'
+      ).then((data) => {
+        cy.interceptAPIRequest({
+          path: './api/latest/monitoring/hostgroups?**',
+          response: data,
+          method: Method.GET,
+          alias: 'centreon-widget-groupmonitoring'
+        });
+      });
 
-cy.fixture('Dashboards/Dashboard/ExpandReduce/widgetStatusChart/hosts.json').then(data=>{
-    cy.interceptAPIRequest({
-        path:'./api/latest/monitoring/hosts/status?**',
-        response:data,
-        method:Method.GET,
-        alias:'centreon-widget-statuschart'
-    })
-})
+      initializeAndMount({
+        customDetailsPath: 'Dashboards/Dashboard/ExpandReduce/details.json',
+        store: initializeWidgets()
+      });
 
-cy.fixture('Dashboards/Dashboard/ExpandReduce/widgetRSdata.json').then(data=>{
-    cy.interceptAPIRequest({
-        path:'./api/latest/monitoring/resources?**',
-        response:data,
-        method:Method.GET,
-        alias:'centreon-widget-statusgrid'
-    })
-})
+      cy.waitForRequest('@getDashboardDetails');
+      waitRequests();
 
-cy.fixture('Dashboards/Dashboard/ExpandReduce/widgetGroupMonitoringData.json').then(data=>{
-    cy.interceptAPIRequest({
-        path:'./api/latest/monitoring/hostgroups?**',
-        response:data,
-        method:Method.GET,
-        alias:'centreon-widget-groupmonitoring'
-    })
-})
+      federatedWidgets.forEach((widget) => {
+        const widgetName = widget.moduleName;
 
+        cy.findByLabelText(widgetName)
+          .parentsUntil('[data-canmove="false"]')
+          .last()
+          .as('header');
+        cy.get('@header').findByLabelText(labelMoreActions).click();
 
-initializeAndMount({customDetailsPath:'Dashboards/Dashboard/ExpandReduce/details.json',store:initializeWidgets()});
+        takeSnapshot({
+          titleSnapshot: `${widgetName} with expand option`,
+          widgetName: widgetName
+        });
 
-cy.waitForRequest('@getDashboardDetails')
-waitRequests()
+        cy.findByRole('menuitem', { name: labelExtend }).click();
+        cy.findByRole('dialog').as('modal');
+        cy.get('@modal').should('be.visible');
 
-federatedWidgets.forEach((widget)=>{
-  
-  const widgetName = widget.moduleName
+        waitWidgetData(widgetName);
 
-  cy.findByLabelText(widgetName).parentsUntil('[data-canmove="false"]').last().as('header')
-  cy.get('@header').findByLabelText(labelMoreActions).click()
+        cy.get('@modal').findByTestId(labelMoreActions).click();
 
-  takeSnapshot({titleSnapshot:`${widgetName} with expand option`,widgetName:widgetName})
+        takeSnapshot({
+          titleSnapshot: `${widgetName} with reduce option`,
+          widgetName: widgetName
+        });
 
-  cy.findByRole('menuitem',{name:labelExtend}).click()
-  cy.findByRole('dialog').as('modal')
-  cy.get('@modal').should('be.visible')
-
-  waitWidgetData(widgetName)
-
-  cy.get('@modal').findByTestId(labelMoreActions).click()
-
-  takeSnapshot({titleSnapshot:`${widgetName} with reduce option`,widgetName:widgetName})
-
-  cy.findByRole('menuitem',{name:labelReduce}).click()
-  waitRequests()
-
-
-})
-})
-  })
+        cy.findByRole('menuitem', { name: labelReduce }).click();
+        waitRequests();
+      });
+    });
+  });
 });
 
 describe('Dashboard with complex layout', () => {
