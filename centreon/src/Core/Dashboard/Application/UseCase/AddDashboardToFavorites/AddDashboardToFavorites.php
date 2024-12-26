@@ -99,6 +99,7 @@ final class AddDashboardToFavorites
                     'exception' => ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()],
                 ]
             );
+
             return new InvalidArgumentResponse($exception);
         } catch (Throwable $exception) {
             $this->error(

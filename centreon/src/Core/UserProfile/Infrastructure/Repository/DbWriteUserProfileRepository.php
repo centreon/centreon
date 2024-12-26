@@ -96,6 +96,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                             ]
                         ]
                     );
+
                     throw new RepositoryException($errorMessage, exception: $e);
                 }
             }
@@ -113,6 +114,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                     ]
                 ]
             );
+
             throw new RepositoryException($errorMessage, exception: $e);
         }
     }
@@ -166,6 +168,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                             ]
                         ]
                     );
+
                     throw new RepositoryException($errorMessage, exception: $e);
                 }
             }
@@ -184,6 +187,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                     ]
                 ]
             );
+
             throw new RepositoryException($errorMessage, exception: $e);
         }
     }

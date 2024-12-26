@@ -64,16 +64,16 @@ final class DbReadUserProfileRepository extends AbstractRepositoryRDB implements
     {
         try {
             $query = <<<'SQL'
-                SELECT
-                    `id`,
-                    `contact_id`,
-                    GROUP_CONCAT(DISTINCT user_profile_favorite_dashboards.dashboard_id) AS `favorite_dashboards`
-                FROM `:db`.user_profile
-                LEFT JOIN `:db`.user_profile_favorite_dashboards
-                    ON user_profile_favorite_dashboards.profile_id = user_profile.id
-                WHERE contact_id = :contactId
-                GROUP BY contact_id
-            SQL;
+                    SELECT
+                        `id`,
+                        `contact_id`,
+                        GROUP_CONCAT(DISTINCT user_profile_favorite_dashboards.dashboard_id) AS `favorite_dashboards`
+                    FROM `:db`.user_profile
+                    LEFT JOIN `:db`.user_profile_favorite_dashboards
+                        ON user_profile_favorite_dashboards.profile_id = user_profile.id
+                    WHERE contact_id = :contactId
+                    GROUP BY contact_id
+                SQL;
 
             $statement = $this->db->prepare($this->translateDbName($query));
             $statement->bindValue(':contactId', $contact->getId(), PDO::PARAM_INT);
@@ -97,6 +97,7 @@ final class DbReadUserProfileRepository extends AbstractRepositoryRDB implements
                     'trace' => $e->getTraceAsString(),
                 ],
             ]);
+
             throw new RepositoryException($message, previous: $e);
         }
     }
