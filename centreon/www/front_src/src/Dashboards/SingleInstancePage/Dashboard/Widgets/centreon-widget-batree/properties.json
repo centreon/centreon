@@ -59,5 +59,6 @@
     }
   },
   "singleResourceSelection": true,
-  "moduleName": "centreon-widget-batree"
+  "moduleName": "centreon-widget-batree",
+  "canExpand":true
 }
