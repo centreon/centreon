@@ -87,7 +87,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                         $errorMessage,
                         [
                             'contact_id' => $contact->getId(),
-                            'query' => $query,
+                            'query' => $query ?? null,
                             'exception' => [
                                 'message' => $rollbackException->getMessage(),
                                 'pdo_code' => $rollbackException->getCode(),
@@ -97,7 +97,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                         ]
                     );
 
-                    throw new RepositoryException($errorMessage, exception: $e);
+                    throw new RepositoryException($errorMessage, previous: $e);
                 }
             }
             $errorMessage = "Error while creating default profile for user: {$e->getMessage()}";
@@ -105,7 +105,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                 $errorMessage,
                 [
                     'contact_id' => $contact->getId(),
-                    'query' => $query,
+                    'query' => $query ?? null,
                     'exception' => [
                         'message' => $e->getMessage(),
                         'pdo_code' => $e->getCode(),
@@ -115,7 +115,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                 ]
             );
 
-            throw new RepositoryException($errorMessage, exception: $e);
+            throw new RepositoryException($errorMessage, previous: $e);
         }
     }
 
@@ -159,7 +159,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                         [
                             'profile_id' => $profileId,
                             'dashboard_id' => $dashboardId,
-                            'query' => $query,
+                            'query' => $query ?? null,
                             'exception' => [
                                 'message' => $rollbackException->getMessage(),
                                 'pdo_code' => $rollbackException->getCode(),
@@ -169,7 +169,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                         ]
                     );
 
-                    throw new RepositoryException($errorMessage, exception: $e);
+                    throw new RepositoryException($errorMessage, previous: $e);
                 }
             }
             $errorMessage = "Error while creating default profile for user: {$e->getMessage()}";
@@ -178,7 +178,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                 [
                     'profile_id' => $profileId,
                     'dashboard_id' => $dashboardId,
-                    'query' => $query,
+                    'query' => $query ?? null,
                     'exception' => [
                         'message' => $e->getMessage(),
                         'pdo_code' => $e->getCode(),
@@ -188,7 +188,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                 ]
             );
 
-            throw new RepositoryException($errorMessage, exception: $e);
+            throw new RepositoryException($errorMessage, previous: $e);
         }
     }
 
@@ -218,7 +218,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
             $this->error($message, [
                 'profile_id' => $profileId,
                 'dashboard_id' => $dashboardId,
-                'query' => $query,
+                'query' => $query ?? null,
                 'exception' => [
                     'message' => $e->getMessage(),
                     'pdo_code' => $e->getCode(),
