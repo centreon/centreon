@@ -1042,11 +1042,12 @@ describe('Dashboard', () => {
         customDetailsPath: 'Dashboards/Dashboard/ExpandReduce/details.json',
         store: initializeWidgets()
       });
+      
+      cy.waitForRequest('@getDashboardDetails');
     });
-    federatedWidgets.forEach((widget) => {
-      it(`expandes\reduces the ${widget.moduleName} when the corresponding button is clicked`, () => {
+    it(`expandes-reduces the widget when the corresponding button is clicked`, () => {
+        federatedWidgets.forEach((widget) => {
         const widgetName = widget.moduleName;
-        cy.waitForRequest('@getDashboardDetails');
 
         cy.findByLabelText(widgetName)
           .parentsUntil('[data-canmove="false"]')
@@ -1073,7 +1074,7 @@ describe('Dashboard', () => {
 
         cy.findByRole('menuitem', { name: labelReduce }).click();
       });
-    });
+      });
   });
 });
 

@@ -3,6 +3,7 @@ import { CSSProperties, forwardRef, useEffect, useMemo, useState } from 'react';
 import { Modal } from '../Modal';
 import { useStyles } from './expandableContainer.styles';
 import { Parameters } from './models';
+import { labelExpand, labelReduce } from './translatedLabels';
 
 interface Props {
   children: (params: Parameters) => JSX.Element;
@@ -20,7 +21,7 @@ const ExpandableContainer = forwardRef<HTMLDivElement, Props>(
       setIsExpanded(!isExpanded);
     };
 
-    const label = isExpanded ? 'Reduce' : 'Extend';
+    const label = isExpanded ? labelReduce : labelExpand;
 
     const commonData = useMemo(
       () => ({
