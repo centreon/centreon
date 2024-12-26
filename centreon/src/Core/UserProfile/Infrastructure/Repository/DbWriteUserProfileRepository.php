@@ -77,7 +77,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
             }
 
             return $profileId;
-        } catch (PDOException $e) {
+        } catch (PDOException $exception) {
             if (! $alreadyInTransaction) {
                 try {
                     $this->db->rollBack();
@@ -97,25 +97,25 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                         ]
                     );
 
-                    throw new RepositoryException($errorMessage, previous: $e);
+                    throw new RepositoryException($errorMessage, previous: $exception);
                 }
             }
-            $errorMessage = "Error while creating default profile for user: {$e->getMessage()}";
+            $errorMessage = "Error while creating default profile for user: {$exception->getMessage()}";
             $this->error(
                 $errorMessage,
                 [
                     'contact_id' => $contact->getId(),
                     'query' => $query,
                     'exception' => [
-                        'message' => $e->getMessage(),
-                        'pdo_code' => $e->getCode(),
-                        'pdo_info' => $e->errorInfo,
-                        'trace' => $e->getTraceAsString(),
+                        'message' => $exception->getMessage(),
+                        'pdo_code' => $exception->getCode(),
+                        'pdo_info' => $exception->errorInfo,
+                        'trace' => $exception->getTraceAsString(),
                     ],
                 ]
             );
 
-            throw new RepositoryException($errorMessage, previous: $e);
+            throw new RepositoryException($errorMessage, previous: $exception);
         }
     }
 
@@ -148,7 +148,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
             if (! $alreadyInTransaction) {
                 $this->db->commit();
             }
-        } catch (PDOException $e) {
+        } catch (PDOException $exception) {
             if (! $alreadyInTransaction) {
                 try {
                     $this->db->rollBack();
@@ -169,10 +169,10 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                         ]
                     );
 
-                    throw new RepositoryException($errorMessage, previous: $e);
+                    throw new RepositoryException($errorMessage, previous: $exception);
                 }
             }
-            $errorMessage = "Error while creating default profile for user: {$e->getMessage()}";
+            $errorMessage = "Error while creating default profile for user: {$exception->getMessage()}";
             $this->error(
                 $errorMessage,
                 [
@@ -180,15 +180,15 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                     'dashboard_id' => $dashboardId,
                     'query' => $query,
                     'exception' => [
-                        'message' => $e->getMessage(),
-                        'pdo_code' => $e->getCode(),
-                        'pdo_info' => $e->errorInfo,
-                        'trace' => $e->getTraceAsString(),
+                        'message' => $exception->getMessage(),
+                        'pdo_code' => $exception->getCode(),
+                        'pdo_info' => $exception->errorInfo,
+                        'trace' => $exception->getTraceAsString(),
                     ],
                 ]
             );
 
-            throw new RepositoryException($errorMessage, previous: $e);
+            throw new RepositoryException($errorMessage, previous: $exception);
         }
     }
 
@@ -213,21 +213,21 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
             $statement->bindValue(':dashboardId', $dashboardId, PDO::PARAM_INT);
 
             $statement->execute();
-        } catch (PDOException $e) {
-            $message = "Error while removing dashboard from user favorite dashboards : {$e->getMessage()}";
-            $this->error($message, [
+        } catch (PDOException $exception) {
+            $errorMessage = "Error while removing dashboard from user favorite dashboards : {$exception->getMessage()}";
+            $this->error($errorMessage, [
                 'profile_id' => $profileId,
                 'dashboard_id' => $dashboardId,
                 'query' => $query,
                 'exception' => [
-                    'message' => $e->getMessage(),
-                    'pdo_code' => $e->getCode(),
-                    'pdo_info' => $e->errorInfo,
-                    'trace' => $e->getTraceAsString(),
+                    'message' => $exception->getMessage(),
+                    'pdo_code' => $exception->getCode(),
+                    'pdo_info' => $exception->errorInfo,
+                    'trace' => $exception->getTraceAsString(),
                 ],
             ]);
 
-            throw new RepositoryException($message, previous: $e);
+            throw new RepositoryException($errorMessage, previous: $exception);
         }
     }
 }

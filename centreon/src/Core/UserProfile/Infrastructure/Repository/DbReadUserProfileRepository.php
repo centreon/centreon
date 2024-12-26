@@ -85,20 +85,20 @@ final class DbReadUserProfileRepository extends AbstractRepositoryRDB implements
             }
 
             return null;
-        } catch (PDOException $e) {
-            $message = "Error while fetching user profile with contact_id {$contact->getId()} : {$e->getMessage()}";
-            $this->error($message, [
+        } catch (PDOException $exception) {
+            $errorMessage = "Error while fetching user profile with contact_id {$contact->getId()} : {$exception->getMessage()}";
+            $this->error($errorMessage, [
                 'contact_id' => $contact->getId(),
                 'query' => $query,
                 'exception' => [
-                    'message' => $e->getMessage(),
-                    'pdo_code' => $e->getCode(),
-                    'pdo_info' => $e->errorInfo,
-                    'trace' => $e->getTraceAsString(),
+                    'message' => $exception->getMessage(),
+                    'pdo_code' => $exception->getCode(),
+                    'pdo_info' => $exception->errorInfo,
+                    'trace' => $exception->getTraceAsString(),
                 ],
             ]);
 
-            throw new RepositoryException($message, previous: $e);
+            throw new RepositoryException($errorMessage, previous: $exception);
         }
     }
 
