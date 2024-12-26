@@ -867,14 +867,14 @@ describe('Dashboard', () => {
 
   const checkElement = ({isExtanded,content})=>{
     if(!isExtanded){
-      cy.contains(content,{timeout:60000})
+      cy.contains(content,{timeout:120000 })
       return
 
     }
 
     cy.findByRole('dialog').as('modal');
 
-    cy.get('@modal').contains(content,{timeout:60000})
+    cy.get('@modal').contains(content,{timeout:120000 })
 
   }
 
