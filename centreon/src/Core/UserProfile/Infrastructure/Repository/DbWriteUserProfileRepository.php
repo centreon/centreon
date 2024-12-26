@@ -32,7 +32,6 @@ use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\UserProfile\Application\Repository\WriteUserProfileRepositoryInterface;
 use PDO;
 use PDOException;
-use Throwable;
 
 final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implements WriteUserProfileRepositoryInterface
 {

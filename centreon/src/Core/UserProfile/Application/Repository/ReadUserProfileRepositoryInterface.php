@@ -32,6 +32,7 @@ interface ReadUserProfileRepositoryInterface
     /**
      * @param ContactInterface $contact
      * @return null|UserProfile
+     *
      * @throws RepositoryException
      */
     public function findByContact(ContactInterface $contact): ?UserProfile;
