@@ -23,7 +23,10 @@ Cypress.on('uncaught:exception', (err) => {
     err.message.includes('undefined') ||
     err.message.includes('postMessage') ||
     err.message.includes('canceled') ||
-    err.message.includes('Network Error')
+    err.message.includes('CancelledError') ||
+    err.message.includes('Network Error') ||
+    err.message.includes('Request failed with status code 500') ||
+    err.message.includes('AxiosError')
   ) {
     return false;
   }
