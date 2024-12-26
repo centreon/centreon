@@ -72,5 +72,5 @@ export const labelSaveYourDashboardForThumbnail =
   'Save your dashboard to generate a thumbnail';
 export const labelDataDisplayedForRepresentativeUse =
   'Thumbnails show a snapshot of your data, taken when the dashboard is saved';
-export const labelExtend = 'Extend';
+export const labelExpand = 'Expand';
 export const labelReduce = 'Reduce';

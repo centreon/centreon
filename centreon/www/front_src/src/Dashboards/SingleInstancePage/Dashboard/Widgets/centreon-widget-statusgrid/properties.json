@@ -114,5 +114,5 @@
     }
   },
   "moduleName": "centreon-widget-statusgrid",
-  "canExtand": true
+  "canExpand": true
 }

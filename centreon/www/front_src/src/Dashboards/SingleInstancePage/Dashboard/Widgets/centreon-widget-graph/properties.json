@@ -541,5 +541,5 @@
     }
   },
   "moduleName": "centreon-widget-graph",
-  "canExtand": true
+  "canExpand": true
 }

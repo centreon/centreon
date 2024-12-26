@@ -18335,3 +18335,9 @@ msgstr ""
 
 # msgid "Export as"
 # msgstr ""
+
+# msgid "Expand"
+# msgstr ""
+
+# msgid "Reduce"
+# msgstr ""

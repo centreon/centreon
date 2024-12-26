@@ -105,7 +105,7 @@ const MorePanelActions = ({
     }
   ];
 
-  const extandableAction = [
+  const expandableAction = [
     ActionsListActionDivider.divider,
     {
       Icon,
@@ -116,7 +116,7 @@ const MorePanelActions = ({
 
   const editActions = !expandableData
     ? [...defaultEditActions, ...deleteAction]
-    : [...defaultEditActions, ...extandableAction, ...deleteAction];
+    : [...defaultEditActions, ...expandableAction, ...deleteAction];
 
   const defaultViewActions = [
     {
@@ -128,7 +128,7 @@ const MorePanelActions = ({
 
   const viewActions = !expandableData
     ? defaultViewActions
-    : [...defaultViewActions, ...extandableAction];
+    : [...defaultViewActions, ...expandableAction];
 
   return (
     <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={close}>

@@ -63,5 +63,5 @@
     }
   },
   "moduleName": "centreon-widget-groupmonitoring",
-  "canExtand": true
+  "canExpand": true
 }

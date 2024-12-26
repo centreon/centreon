@@ -178,5 +178,5 @@
     }
   },
   "moduleName": "centreon-widget-resourcestable",
-  "canExtand": true
+  "canExpand": true
 }

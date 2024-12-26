@@ -19629,3 +19629,9 @@ msgstr "PNG (petite taille)"
 
 msgid "Export as"
 msgstr "Exporter en tant que"
+
+# msgid "Expand"
+# msgstr "Agrandir"
+
+# msgid "Reduce"
+# msgstr "réduire"
