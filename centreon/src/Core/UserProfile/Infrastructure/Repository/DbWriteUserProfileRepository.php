@@ -55,15 +55,15 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
     public function addDefaultProfileForUser(ContactInterface $contact): int
     {
         try {
+            $query = <<<'SQL'
+                INSERT INTO `:db`.user_profile (contact_id) VALUES (:contactId)
+                SQL;
+
             $alreadyInTransaction = $this->db->inTransaction();
 
             if (! $alreadyInTransaction) {
                 $this->db->beginTransaction();
             }
-
-            $query = <<<'SQL'
-                INSERT INTO `:db`.user_profile (contact_id) VALUES (:contactId)
-                SQL;
 
             $statement = $this->db->prepare($this->translateDbName($query));
 
@@ -87,7 +87,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                         $errorMessage,
                         [
                             'contact_id' => $contact->getId(),
-                            'query' => $query ?? null,
+                            'query' => $query,
                             'exception' => [
                                 'message' => $rollbackException->getMessage(),
                                 'pdo_code' => $rollbackException->getCode(),
@@ -105,7 +105,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                 $errorMessage,
                 [
                     'contact_id' => $contact->getId(),
-                    'query' => $query ?? null,
+                    'query' => $query,
                     'exception' => [
                         'message' => $e->getMessage(),
                         'pdo_code' => $e->getCode(),
@@ -129,15 +129,15 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
     public function addDashboardAsFavorites(int $profileId, int $dashboardId): void
     {
         try {
+            $query = <<<'SQL'
+                INSERT INTO `:db`.user_profile_favorite_dashboards (profile_id, dashboard_id) VALUES (:profileId, :dashboardId)
+                SQL;
+
             $alreadyInTransaction = $this->db->inTransaction();
 
             if (! $alreadyInTransaction) {
                 $this->db->beginTransaction();
             }
-
-            $query = <<<'SQL'
-                INSERT INTO `:db`.user_profile_favorite_dashboards (profile_id, dashboard_id) VALUES (:profileId, :dashboardId)
-                SQL;
 
             $statement = $this->db->prepare($this->translateDbName($query));
             $statement->bindValue(':profileId', $profileId, PDO::PARAM_INT);
@@ -159,7 +159,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                         [
                             'profile_id' => $profileId,
                             'dashboard_id' => $dashboardId,
-                            'query' => $query ?? null,
+                            'query' => $query,
                             'exception' => [
                                 'message' => $rollbackException->getMessage(),
                                 'pdo_code' => $rollbackException->getCode(),
@@ -178,7 +178,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                 [
                     'profile_id' => $profileId,
                     'dashboard_id' => $dashboardId,
-                    'query' => $query ?? null,
+                    'query' => $query,
                     'exception' => [
                         'message' => $e->getMessage(),
                         'pdo_code' => $e->getCode(),
@@ -218,7 +218,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
             $this->error($message, [
                 'profile_id' => $profileId,
                 'dashboard_id' => $dashboardId,
-                'query' => $query ?? null,
+                'query' => $query,
                 'exception' => [
                     'message' => $e->getMessage(),
                     'pdo_code' => $e->getCode(),

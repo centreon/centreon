@@ -65,9 +65,12 @@ final class AddDashboardToFavorites
             $this->assertDashboardId($request);
 
             $favorites = [];
+            $profileId = $this->addDefaultUserProfileForUser();
             $profile = $this->userProfileReader->findByContact($this->user);
-            $profileId = $profile === null ? $this->addDefaultUserProfileForUser() : $profile->getId();
-            $favorites = $profile === null ? [] : $profile->getFavoriteDashboards();
+            if (! is_null($profile)) {
+                $favorites = $profile->getFavoriteDashboards();
+                $profileId = $profile->getId();
+            }
 
             if (in_array($request->dashboardId, $favorites, true)) {
                 $this->error(
