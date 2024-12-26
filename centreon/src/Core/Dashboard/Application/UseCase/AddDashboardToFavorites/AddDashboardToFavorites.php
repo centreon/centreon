@@ -97,7 +97,6 @@ final class AddDashboardToFavorites
                 [
                     'user_id' => $this->user->getId(),
                     'dashboard_id' => $request->dashboardId,
-                    'profile_id' => $profileId ?? null,
                     'favorite_dashboards' => $favorites ?? [],
                     'exception' => ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()],
                 ]
