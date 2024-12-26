@@ -1,22 +1,13 @@
 {
   "name": "centreon/centreon-dsm",
-<<<<<<< HEAD
-  "version": "24.10",
+  "version": "24.11",
   "type": "project",
   "license": "GPL-2.0-only",
   "require-dev": {
     "ext-json": "*",
     "centreon/centreon": "@dev",
     "centreon/centreon-test-lib": "dev-master",
-=======
-  "version": "24.11",
-  "type": "project",
-  "license": "GPL-2.0-only",
-  "require-dev": {
-    "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "24.10.x-dev",
->>>>>>> master
-    "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
+    "dealerdirect/phpcodesniffer-composer-installer": "1.0.*",
     "friendsofphp/php-cs-fixer": "3.64.*",
     "phpcompatibility/php-compatibility": "9.3.*",
     "phpstan/phpstan": "1.12.*",

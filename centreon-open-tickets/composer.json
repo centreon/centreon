@@ -1,11 +1,7 @@
 {
   "name": "centreon/centreon-open-tickets",
   "description": "Module dedicated to open case on various Ticket systems",
-<<<<<<< HEAD
-  "version": "24.10",
-=======
   "version": "24.11",
->>>>>>> master
   "type": "project",
   "keywords": [
     "centreon",
@@ -13,22 +9,14 @@
   ],
   "license": "GPL-2.0-only",
   "require-dev": {
-<<<<<<< HEAD
     "ext-json": "*",
     "ext-openssl": "*",
-    "beberlei/assert": "^3.3",
+    "beberlei/assert": "3.3.*",
     "centreon/centreon": "@dev",
     "centreon/centreon-test-lib": "dev-master",
-=======
-    "ext-openssl": "*",
-    "ext-json": "*",
-    "beberlei/assert": "^3.3",
-    "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "24.10.x-dev",
->>>>>>> master
-    "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
+    "dealerdirect/phpcodesniffer-composer-installer": "1.0.*",
     "friendsofphp/php-cs-fixer": "3.64.*",
-    "pestphp/pest": "^1.21",
+    "pestphp/pest": "1.23.*",
     "phpcompatibility/php-compatibility": "9.3.*",
     "phpstan/phpstan": "1.12.*",
     "phpstan/phpstan-beberlei-assert": "1.1.*",
