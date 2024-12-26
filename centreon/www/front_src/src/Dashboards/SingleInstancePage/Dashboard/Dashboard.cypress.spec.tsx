@@ -105,22 +105,22 @@ interface InitializeAndMountProps {
   isBlocked?: boolean;
   ownRole?: DashboardRole;
   customDetailsPath?: string;
-  store?:ReturnType<typeof createStore>;
+  store?: ReturnType<typeof createStore>;
 }
 
 interface CheckElement {
-  isExpanded:boolean;
-  content:string
+  isExpanded: boolean;
+  content: string;
 }
 
 interface TakeSnapshot {
-  widgetName:string;
-  titleSnapshot:string;
+  widgetName: string;
+  titleSnapshot: string;
 }
 
 interface WaitWidgetData {
-  isExpanded:boolean;
-  widgetName:string;
+  isExpanded: boolean;
+  widgetName: string;
 }
 
 const editorRoles = {
@@ -169,7 +169,7 @@ const interceptDetailsDashboard = ({
   });
 };
 
-const checkElement = ({ isExpanded, content }:CheckElement) => {
+const checkElement = ({ isExpanded, content }: CheckElement) => {
   if (!isExpanded) {
     cy.contains(content, { timeout: 120000 });
     return;
@@ -180,14 +180,14 @@ const checkElement = ({ isExpanded, content }:CheckElement) => {
   cy.get('@modal').contains(content, { timeout: 120000 });
 };
 
-const takeSnapshot = ({ widgetName, titleSnapshot }:TakeSnapshot) => {
+const takeSnapshot = ({ widgetName, titleSnapshot }: TakeSnapshot) => {
   if (equals(widgetName, 'centreon-widget-webpage')) {
     return;
   }
   cy.makeSnapshot(titleSnapshot);
 };
 
-const waitWidgetData = ({ widgetName, isExpanded }:WaitWidgetData) => {
+const waitWidgetData = ({ widgetName, isExpanded }: WaitWidgetData) => {
   const suffix = 'centreon-widget-';
   const fixturePath = `Dashboards/Dashboard/ExpandReduce/${widgetName.replace(suffix, '')}`;
 
@@ -236,7 +236,6 @@ const waitWidgetData = ({ widgetName, isExpanded }:WaitWidgetData) => {
   });
 };
 
-
 const initializeAndMount = ({
   ownRole = DashboardRole.editor,
   globalRole = DashboardGlobalRole.administrator,
@@ -252,7 +251,6 @@ const initializeAndMount = ({
   proceedNavigation;
   store: ReturnType<typeof createStore>;
 } => {
-
   store.set(userAtom, {
     alias: 'admin',
     dashboard: {
@@ -947,8 +945,7 @@ describe('Dashboard', () => {
     });
   });
 
-
-  describe.only('Expand-Reduce', () => {
+  describe('Expand-Reduce', () => {
     beforeEach(() => {
       const initializeWidgets = (): ReturnType<typeof createStore> => {
         const store = createStore();
@@ -1042,11 +1039,11 @@ describe('Dashboard', () => {
         customDetailsPath: 'Dashboards/Dashboard/ExpandReduce/details.json',
         store: initializeWidgets()
       });
-      
+
       cy.waitForRequest('@getDashboardDetails');
     });
-    it(`expandes-reduces the widget when the corresponding button is clicked`, () => {
-        federatedWidgets.forEach((widget) => {
+    it('expandes-reduces the widget when the corresponding button is clicked', () => {
+      federatedWidgets.forEach((widget) => {
         const widgetName = widget.moduleName;
 
         cy.findByLabelText(widgetName)
@@ -1074,7 +1071,7 @@ describe('Dashboard', () => {
 
         cy.findByRole('menuitem', { name: labelReduce }).click();
       });
-      });
+    });
   });
 });
 
