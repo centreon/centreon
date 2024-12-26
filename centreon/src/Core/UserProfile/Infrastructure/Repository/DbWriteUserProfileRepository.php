@@ -93,7 +93,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                                 'pdo_code' => $rollbackException->getCode(),
                                 'pdo_info' => $rollbackException->errorInfo,
                                 'trace' => $rollbackException->getTraceAsString(),
-                            ]
+                            ],
                         ]
                     );
 
@@ -111,7 +111,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                         'pdo_code' => $e->getCode(),
                         'pdo_info' => $e->errorInfo,
                         'trace' => $e->getTraceAsString(),
-                    ]
+                    ],
                 ]
             );
 
@@ -165,7 +165,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                                 'pdo_code' => $rollbackException->getCode(),
                                 'pdo_info' => $rollbackException->errorInfo,
                                 'trace' => $rollbackException->getTraceAsString(),
-                            ]
+                            ],
                         ]
                     );
 
@@ -184,7 +184,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                         'pdo_code' => $e->getCode(),
                         'pdo_info' => $e->errorInfo,
                         'trace' => $e->getTraceAsString(),
-                    ]
+                    ],
                 ]
             );
 
@@ -226,6 +226,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                     'trace' => $e->getTraceAsString(),
                 ],
             ]);
+
             throw new RepositoryException($message, previous: $e);
         }
     }
