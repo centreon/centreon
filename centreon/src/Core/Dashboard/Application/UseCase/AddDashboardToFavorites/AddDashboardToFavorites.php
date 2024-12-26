@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,8 @@ use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\UserProfile\Application\Repository\ReadUserProfileRepositoryInterface;
 use Core\UserProfile\Application\Repository\WriteUserProfileRepositoryInterface;
+use InvalidArgumentException;
+use Throwable;
 
 final class AddDashboardToFavorites
 {
@@ -85,18 +87,28 @@ final class AddDashboardToFavorites
             );
 
             return new NoContentResponse();
-        } catch (\InvalidArgumentException $exception) {
+        } catch (InvalidArgumentException $exception) {
             $this->error($exception->getMessage());
-
-            return new InvalidArgumentResponse($exception);
-        } catch (\Throwable $exception) {
             $this->error(
-                'Error while adding dashboard as favorite for user',
+                "Error while adding dashboard as favorite for user : {$exception->getMessage()}",
                 [
                     'user_id' => $this->user->getId(),
                     'dashboard_id' => $request->dashboardId,
-                    'message' => $exception->getMessage(),
-                    'trace' => $exception->getTraceAsString(),
+                    'profile_id' => $profileId ?? null,
+                    'favorite_dashboards' => $favorites ?? [],
+                    'exception' => ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
+                ]
+            );
+            return new InvalidArgumentResponse($exception);
+        } catch (Throwable $exception) {
+            $this->error(
+                "Error while adding dashboard as favorite for user : {$exception->getMessage()}",
+                [
+                    'user_id' => $this->user->getId(),
+                    'dashboard_id' => $request->dashboardId,
+                    'profile_id' => $profileId ?? null,
+                    'favorite_dashboards' => $favorites ?? [],
+                    'exception' => ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
                 ]
             );
 
@@ -105,7 +117,7 @@ final class AddDashboardToFavorites
     }
 
     /**
-     * @throws \Throwable
+     * @throws Throwable
      * @return int
      */
     private function addDefaultUserProfileForUser(): int
@@ -116,7 +128,7 @@ final class AddDashboardToFavorites
     /**
      * @param AddDashboardToFavoritesRequest $request
      *
-     * @throws \Throwable
+     * @throws Throwable
      * @throws DashboardException
      */
     private function assertDashboardId(AddDashboardToFavoritesRequest $request): void

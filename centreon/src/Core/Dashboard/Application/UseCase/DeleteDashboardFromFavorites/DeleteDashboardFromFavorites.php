@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,8 +75,8 @@ final class DeleteDashboardFromFavorites
                 $this->error(
                     'Dashboard is not set as favorite for user',
                     [
-                        'dashboard_id' => $dashboardId,
                         'user_id' => $this->user->getId(),
+                        'dashboard_id' => $dashboardId,
                     ]
                 );
 
@@ -93,23 +93,22 @@ final class DeleteDashboardFromFavorites
             };
 
             $this->error(
-                $exception->getMessage(),
+                "Error while removing dashboard from user favorite dashboards : {$exception->getMessage()}",
                 [
                     'user_id' => $this->user->getId(),
                     'dashboard_id' => $dashboardId,
-                    'trace' => $exception->getTraceAsString(),
-                ],
+                    'exception' => ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
+                ]
             );
 
             return $response;
         } catch (Throwable $exception) {
             $this->error(
-                'Error while removing dashboard from user favorite dashboards',
+                "Error while removing dashboard from user favorite dashboards : {$exception->getMessage()}",
                 [
                     'user_id' => $this->user->getId(),
                     'dashboard_id' => $dashboardId,
-                    'message' => $exception->getMessage(),
-                    'trace' => $exception->getTraceAsString(),
+                    'exception' => ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
                 ]
             );
 

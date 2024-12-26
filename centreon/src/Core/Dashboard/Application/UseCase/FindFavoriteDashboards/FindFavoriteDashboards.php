@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ use Core\Media\Domain\Model\Media;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\UserProfile\Application\Repository\ReadUserProfileRepositoryInterface;
+use Throwable;
 
 final class FindFavoriteDashboards
 {
@@ -94,18 +95,26 @@ final class FindFavoriteDashboards
             // Hack to benifit from existing code.
             $search = $this->requestParameters->getSearch();
             $search = ['id' => ['$in' => $this->usersFavoriteDashboards], ...$search];
-            $this->requestParameters->setSearch(json_encode($search) ?: '');
+            $this->requestParameters->setSearch(json_encode($search, JSON_THROW_ON_ERROR) ?: '');
 
             return $this->isUserAdmin() ? $this->findDashboardAsAdmin() : $this->findDashboardAsViewer();
-        } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+        } catch (Throwable $ex) {
+            $this->error(
+                "Error while searching favorite dashboards : {$ex->getMessage()}",
+                [
+                    'contact_id' => $this->contact->getId(),
+                    'favorite_dashboards' => $this->usersFavoriteDashboards,
+                    'request_parameters' => $this->requestParameters->toArray(),
+                    'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]
+                ]
+            );
 
             return new ErrorResponse(DashboardException::errorWhileSearching());
         }
     }
 
     /**
-     * @throws \Throwable
+     * @throws Throwable
      *
      * @return FindFavoriteDashboardsResponse
      */
@@ -133,7 +142,7 @@ final class FindFavoriteDashboards
     }
 
     /**
-     * @throws \Throwable
+     * @throws Throwable
      *
      * @return FindFavoriteDashboardsResponse
      */
@@ -196,7 +205,7 @@ final class FindFavoriteDashboards
     }
 
     /**
-     * @throws \Throwable
+     * @throws Throwable
      *
      * @return bool
      */
