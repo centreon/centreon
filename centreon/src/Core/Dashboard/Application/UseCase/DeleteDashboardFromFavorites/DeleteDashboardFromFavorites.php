@@ -97,7 +97,7 @@ final class DeleteDashboardFromFavorites
                 [
                     'user_id' => $this->user->getId(),
                     'dashboard_id' => $dashboardId,
-                    'exception' => ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
+                    'exception' => ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()],
                 ]
             );
 
@@ -108,7 +108,7 @@ final class DeleteDashboardFromFavorites
                 [
                     'user_id' => $this->user->getId(),
                     'dashboard_id' => $dashboardId,
-                    'exception' => ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
+                    'exception' => ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()],
                 ]
             );
 

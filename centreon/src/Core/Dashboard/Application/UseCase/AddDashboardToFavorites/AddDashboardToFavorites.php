@@ -96,7 +96,7 @@ final class AddDashboardToFavorites
                     'dashboard_id' => $request->dashboardId,
                     'profile_id' => $profileId ?? null,
                     'favorite_dashboards' => $favorites ?? [],
-                    'exception' => ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
+                    'exception' => ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()],
                 ]
             );
             return new InvalidArgumentResponse($exception);
@@ -108,7 +108,7 @@ final class AddDashboardToFavorites
                     'dashboard_id' => $request->dashboardId,
                     'profile_id' => $profileId ?? null,
                     'favorite_dashboards' => $favorites ?? [],
-                    'exception' => ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
+                    'exception' => ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()],
                 ]
             );
 

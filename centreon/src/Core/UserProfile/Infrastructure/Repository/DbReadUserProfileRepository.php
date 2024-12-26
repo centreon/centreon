@@ -57,13 +57,13 @@ final class DbReadUserProfileRepository extends AbstractRepositoryRDB implements
     /**
      * @param ContactInterface $contact
      *
-     * @return UserProfile|null
      * @throws RepositoryException
+     * @return UserProfile|null
      */
     public function findByContact(ContactInterface $contact): ?UserProfile
     {
         try {
-            $query = <<<SQL
+            $query = <<<'SQL'
                 SELECT
                     `id`,
                     `contact_id`,
@@ -94,7 +94,7 @@ final class DbReadUserProfileRepository extends AbstractRepositoryRDB implements
                     'message' => $e->getMessage(),
                     'pdo_code' => $e->getCode(),
                     'pdo_info' => $e->errorInfo,
-                    'trace' => $e->getTraceAsString()
+                    'trace' => $e->getTraceAsString(),
                 ],
             ]);
             throw new RepositoryException($message, previous: $e);

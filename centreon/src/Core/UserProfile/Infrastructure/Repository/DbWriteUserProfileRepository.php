@@ -49,9 +49,8 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
     /**
      * @param ContactInterface $contact
      *
-     * @return int
-     *
      * @throws RepositoryException
+     * @return int
      */
     public function addDefaultProfileForUser(ContactInterface $contact): int
     {
@@ -62,7 +61,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                 $this->db->beginTransaction();
             }
 
-            $query = <<<SQL
+            $query = <<<'SQL'
                 INSERT INTO `:db`.user_profile (contact_id) VALUES (:contactId)
                 SQL;
 
@@ -93,7 +92,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                                 'message' => $rollbackException->getMessage(),
                                 'pdo_code' => $rollbackException->getCode(),
                                 'pdo_info' => $rollbackException->errorInfo,
-                                'trace' => $rollbackException->getTraceAsString()
+                                'trace' => $rollbackException->getTraceAsString(),
                             ]
                         ]
                     );
@@ -110,7 +109,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                         'message' => $e->getMessage(),
                         'pdo_code' => $e->getCode(),
                         'pdo_info' => $e->errorInfo,
-                        'trace' => $e->getTraceAsString()
+                        'trace' => $e->getTraceAsString(),
                     ]
                 ]
             );
@@ -122,8 +121,8 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
      * @param int $profileId
      * @param int $dashboardId
      *
-     * @return void
      * @throws RepositoryException
+     * @return void
      */
     public function addDashboardAsFavorites(int $profileId, int $dashboardId): void
     {
@@ -134,7 +133,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                 $this->db->beginTransaction();
             }
 
-            $query = <<<SQL
+            $query = <<<'SQL'
                 INSERT INTO `:db`.user_profile_favorite_dashboards (profile_id, dashboard_id) VALUES (:profileId, :dashboardId)
                 SQL;
 
@@ -163,7 +162,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                                 'message' => $rollbackException->getMessage(),
                                 'pdo_code' => $rollbackException->getCode(),
                                 'pdo_info' => $rollbackException->errorInfo,
-                                'trace' => $rollbackException->getTraceAsString()
+                                'trace' => $rollbackException->getTraceAsString(),
                             ]
                         ]
                     );
@@ -181,7 +180,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                         'message' => $e->getMessage(),
                         'pdo_code' => $e->getCode(),
                         'pdo_info' => $e->errorInfo,
-                        'trace' => $e->getTraceAsString()
+                        'trace' => $e->getTraceAsString(),
                     ]
                 ]
             );
@@ -193,13 +192,13 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
      * @param int $profileId
      * @param int $dashboardId
      *
-     * @return void
      * @throws RepositoryException
+     * @return void
      */
     public function removeDashboardFromFavorites(int $profileId, int $dashboardId): void
     {
         try {
-            $query = <<<SQL
+            $query = <<<'SQL'
                 DELETE FROM `:db`.user_profile_favorite_dashboards
                 WHERE profile_id = :profileId
                     AND dashboard_id = :dashboardId
@@ -220,7 +219,7 @@ final class DbWriteUserProfileRepository extends AbstractRepositoryRDB implement
                     'message' => $e->getMessage(),
                     'pdo_code' => $e->getCode(),
                     'pdo_info' => $e->errorInfo,
-                    'trace' => $e->getTraceAsString()
+                    'trace' => $e->getTraceAsString(),
                 ],
             ]);
             throw new RepositoryException($message, previous: $e);

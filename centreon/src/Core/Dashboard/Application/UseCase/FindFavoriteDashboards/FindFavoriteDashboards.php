@@ -105,7 +105,7 @@ final class FindFavoriteDashboards
                     'contact_id' => $this->contact->getId(),
                     'favorite_dashboards' => $this->usersFavoriteDashboards,
                     'request_parameters' => $this->requestParameters->toArray(),
-                    'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]
+                    'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
                 ]
             );
 

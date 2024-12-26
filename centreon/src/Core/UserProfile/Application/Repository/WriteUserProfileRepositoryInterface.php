@@ -47,9 +47,8 @@ interface WriteUserProfileRepositoryInterface
     /**
      * @param ContactInterface $contact
      *
-     * @return int
-     *
      * @throws RepositoryException
+     * @return int
      */
     public function addDefaultProfileForUser(ContactInterface $contact): int;
 }
