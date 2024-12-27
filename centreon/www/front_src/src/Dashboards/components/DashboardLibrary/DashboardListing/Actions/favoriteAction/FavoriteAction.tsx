@@ -50,7 +50,14 @@ const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
 
   const onError = () => {
     const previousColor = isFavorite ? 'success' : 'default';
+    const previousTitle =   getLabel({
+      setLabel: labelAddToFavorites,
+      unsetLabel: labelRemoveFromFavorites,
+      asFavorite: isFavorite
+    });
+    
     setColor(previousColor);
+    setTitle(previousTitle)
   };
 
   const { mutateAsync } = useMutationQuery({
