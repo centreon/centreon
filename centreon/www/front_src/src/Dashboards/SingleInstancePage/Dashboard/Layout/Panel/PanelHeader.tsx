@@ -31,6 +31,7 @@ import {
   labelSeeMore
 } from '../../translatedLabels';
 
+import ExpandableButton from './ExpandableButton';
 import MorePanelActions from './MorePanelActions';
 import { ExpandableData } from './models';
 import { usePanelHeaderStyles } from './usePanelStyles';
@@ -115,7 +116,7 @@ const PanelHeader = ({
   return (
     <CardHeader
       action={
-        displayMoreActions && (
+        displayMoreActions ? (
           <div className={classes.panelActionsIcons}>
             {hasQueryData && (
               <div>
@@ -182,13 +183,17 @@ const PanelHeader = ({
               </IconButton>
             )}
 
-            <IconButton
-              ariaLabel={t(labelMoreActions) as string}
-              title={t(labelMoreActions) as string}
-              onClick={openMoreActions}
-            >
-              <MoreHorizIcon fontSize="small" />
-            </IconButton>
+            {!expandableData || !expandableData?.isExpanded ? (
+              <IconButton
+                ariaLabel={t(labelMoreActions) as string}
+                title={t(labelMoreActions) as string}
+                onClick={openMoreActions}
+              >
+                <MoreHorizIcon fontSize="small" />
+              </IconButton>
+            ) : (
+              <ExpandableButton expandableData={expandableData} />
+            )}
             <MorePanelActions
               anchor={moreActionsOpen}
               close={closeMoreActions}
@@ -197,6 +202,8 @@ const PanelHeader = ({
               expandableData={expandableData}
             />
           </div>
+        ) : (
+          <ExpandableButton expandableData={expandableData} />
         )
       }
       className={classes.panelHeader}

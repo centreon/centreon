@@ -103,6 +103,7 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
             style: newStyle,
             label,
             ref: currentRef,
+            key,
             ...rest
           }) => {
             const canControl = isExpanded ? false : canMove;
@@ -113,6 +114,7 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
                   isExpanded,
                   label,
                   ref,
+                  key,
                   ...rest
                 });
 
@@ -122,7 +124,7 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
                 className={sanitizedReactGridLayoutClassName}
                 ref={currentRef}
                 style={newStyle}
-                key={label}
+                key={key}
               >
                 <Card
                   className={classes.widgetContainer}

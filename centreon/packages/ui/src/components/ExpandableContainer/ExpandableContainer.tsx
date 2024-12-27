@@ -1,5 +1,5 @@
-import { CloseFullscreen, OpenInFull } from '@mui/icons-material';
-import { CSSProperties, forwardRef, useEffect, useMemo, useState } from 'react';
+import { OpenInFull } from '@mui/icons-material';
+import { CSSProperties, forwardRef, useEffect, useState } from 'react';
 import { Modal } from '../Modal';
 import { useStyles } from './expandableContainer.styles';
 import { Parameters } from './models';
@@ -21,17 +21,27 @@ const ExpandableContainer = forwardRef<HTMLDivElement, Props>(
       setIsExpanded(!isExpanded);
     };
 
-    const label = isExpanded ? labelReduce : labelExpand;
+    const keyCurrentCase = isExpanded ? labelExpand : labelReduce;
 
-    const commonData = useMemo(
-      () => ({
-        toggleExpand,
-        isExpanded,
-        label,
-        Icon: isExpanded ? CloseFullscreen : OpenInFull
-      }),
-      [isExpanded, label]
-    );
+    const reducedChildrenData = {
+      toggleExpand,
+      isExpanded: false,
+      label: labelExpand,
+      Icon: OpenInFull,
+      ref,
+      style,
+      key: keyCurrentCase
+    };
+
+    const expandedChildrenData = {
+      toggleExpand,
+      isExpanded,
+      label: labelReduce,
+      Icon: OpenInFull,
+      ref,
+      style: { height: '100%', width: '100%' },
+      key: keyCurrentCase
+    };
 
     useEffect(() => {
       getCurrentElement(ref?.current);
@@ -39,7 +49,7 @@ const ExpandableContainer = forwardRef<HTMLDivElement, Props>(
 
     return (
       <>
-        {children({ ...commonData, style, ref })}
+        {children(reducedChildrenData)}
         {isExpanded && (
           <Modal
             open={isExpanded}
@@ -55,11 +65,7 @@ const ExpandableContainer = forwardRef<HTMLDivElement, Props>(
             }}
             hasCloseButton={false}
           >
-            {children({
-              ...commonData,
-              style: { height: '100%', width: '100%' },
-              ref
-            })}
+            {children(expandedChildrenData)}
           </Modal>
         )}
       </>

@@ -499,10 +499,10 @@ describe('Dashboard', () => {
         store.set(federatedWidgetsAtom, federatedWidgets);
         store.set(federatedWidgetsPropertiesAtom, federatedWidgetsProperties);
         store.set(platformVersionsAtom, version);
-  
+
         return store;
       };
-  
+
       cy.fixture('Dashboards/Dashboard/ExpandReduce/graph.json').then(
         (data) => {
           cy.interceptAPIRequest({
@@ -513,7 +513,7 @@ describe('Dashboard', () => {
           });
         }
       );
-  
+
       cy.fixture('Dashboards/Dashboard/ExpandReduce/topbottom.json').then(
         (data) => {
           cy.interceptAPIRequest({
@@ -524,7 +524,7 @@ describe('Dashboard', () => {
           });
         }
       );
-  
+
       cy.fixture('Dashboards/Dashboard/ExpandReduce/resourcestable.json').then(
         (data) => {
           cy.interceptAPIRequest({
@@ -535,7 +535,7 @@ describe('Dashboard', () => {
           });
         }
       );
-  
+
       cy.fixture(
         'Dashboards/Dashboard/ExpandReduce/statuschartServices.json'
       ).then((data) => {
@@ -546,7 +546,7 @@ describe('Dashboard', () => {
           alias: 'centreon-widget-statuschartServices'
         });
       });
-  
+
       cy.fixture(
         'Dashboards/Dashboard/ExpandReduce/statuschartHosts.json'
       ).then((data) => {
@@ -557,7 +557,7 @@ describe('Dashboard', () => {
           alias: 'centreon-widget-statuschartHosts'
         });
       });
-  
+
       cy.fixture('Dashboards/Dashboard/ExpandReduce/statusgrid.json').then(
         (data) => {
           cy.interceptAPIRequest({
@@ -568,7 +568,7 @@ describe('Dashboard', () => {
           });
         }
       );
-  
+
       cy.fixture('Dashboards/Dashboard/ExpandReduce/groupmonitoring.json').then(
         (data) => {
           cy.interceptAPIRequest({
@@ -579,51 +579,49 @@ describe('Dashboard', () => {
           });
         }
       );
-  
+
       cy.viewport(1280, 590);
-  
+
       initializeAndMount({
         ...editorRoles,
         customDetailsPath: 'Dashboards/Dashboard/ExpandReduce/details.json',
         store: initializeWidgets()
       });
-  
+
       cy.waitForRequest('@getDashboardDetails');
     });
     it('expandes-reduces the widget when the corresponding button is clicked', () => {
       federatedWidgets.forEach((widget) => {
         const widgetName = widget.moduleName;
-        
+
         cy.findByLabelText(widgetName)
-        .parentsUntil('[data-canmove="false"]')
-        .last()
-        .as('header').scrollIntoView() ;
+          .parentsUntil('[data-canmove="false"]')
+          .last()
+          .as('header')
+          .scrollIntoView();
         waitWidgetData({ widgetName, isExpanded: false });
         cy.get('@header').findByLabelText(labelMoreActions).click();
-  
+
         takeSnapshot({
           titleSnapshot: `${widgetName} with expand option`,
           widgetName: widgetName
         });
-  
+
         cy.findByRole('menuitem', { name: labelExpand }).click();
         cy.findByRole('dialog').as('modal');
         cy.get('@modal').should('be.visible');
-  
+
         waitWidgetData({ widgetName, isExpanded: true });
-        cy.get('@modal').findByTestId(labelMoreActions).click();
         takeSnapshot({
-          titleSnapshot: `${widgetName} with reduce option`,
+          titleSnapshot: `${widgetName} in mode expanded`,
           widgetName: widgetName
         });
-  
-        cy.findByRole('menuitem', { name: labelReduce }).click();
-        waitWidgetData({ widgetName, isExpanded: false });
 
+        cy.get('@modal').findByLabelText(labelReduce).click();
+        waitWidgetData({ widgetName, isExpanded: false });
       });
     });
   });
-  
 
   describe('Add widget', () => {
     it('adds a widget when a widget type is selected and the submission button is clicked', () => {
@@ -1077,11 +1075,6 @@ describe('Dashboard', () => {
       cy.findAllByTestId('UpdateIcon').should('have.length', 2);
     });
   });
-
-
-
-
-
 });
 
 describe('Dashboard with complex layout', () => {
@@ -1162,4 +1155,3 @@ describe('Dashboard with complex layout', () => {
     cy.makeSnapshot();
   });
 });
-

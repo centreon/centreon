@@ -79,6 +79,11 @@ const MorePanelActions = ({
     });
   };
 
+  const handleExpandableAction = () => {
+    toggleExpand?.();
+    close();
+  };
+
   const displayEditButtons = canEdit;
 
   const defaultEditActions = [
@@ -110,7 +115,7 @@ const MorePanelActions = ({
     {
       Icon,
       label: t(labelExpand as string),
-      onClick: toggleExpand
+      onClick: handleExpandableAction
     }
   ];
 
