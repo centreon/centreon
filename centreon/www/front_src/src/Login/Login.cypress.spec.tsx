@@ -247,7 +247,6 @@ describe('Login Page', () => {
     cy.findByLabelText(labelPassword).should('be.visible');
     cy.findByLabelText(labelConnect).should('be.visible');
     cy.contains(labelPoweredByCentreon).should('be.visible');
-
     cy.contains('v. 21.10.1').should('be.visible');
 
     cy.findByTestId('Login with openid').should(
