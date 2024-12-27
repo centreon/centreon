@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 
 import {
   dashboardsFavoriteDeleteEndpoint,
-  dashboardsFavoriteEndpoit
+  dashboardsFavoriteEndpoint
 } from '../../../../../api/endpoints';
 import {
   labelAddToFavorites,
@@ -40,7 +40,7 @@ const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
     if (data?.dashboardId) {
       return dashboardsFavoriteDeleteEndpoint(data.dashboardId);
     }
-    return dashboardsFavoriteEndpoit;
+    return dashboardsFavoriteEndpoint;
   };
 
   const onSuccess = () => {
@@ -55,7 +55,7 @@ const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
       unsetLabel: labelRemoveFromFavorites,
       asFavorite: isFavorite
     });
-    
+
     setColor(previousColor);
     setTitle(previousTitle)
   };

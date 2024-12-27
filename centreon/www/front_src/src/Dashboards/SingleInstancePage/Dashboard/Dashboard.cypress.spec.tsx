@@ -26,7 +26,7 @@ import {
   dashboardSharesEndpoint,
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
-  dashboardsFavoriteEndpoit,
+  dashboardsFavoriteEndpoint,
   getDashboardEndpoint
 } from '../../api/endpoints';
 import { DashboardRole } from '../../api/models';
@@ -246,7 +246,7 @@ const initializeAndMount = ({
   cy.interceptAPIRequest({
     alias: 'addFavorite',
     method: Method.POST,
-    path: `./api/latest${dashboardsFavoriteEndpoit}`
+    path: `./api/latest${dashboardsFavoriteEndpoint}`
   });
 
   const proceedNavigation = cy.stub();
