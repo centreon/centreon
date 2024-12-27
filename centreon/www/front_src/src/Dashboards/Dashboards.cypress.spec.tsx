@@ -20,7 +20,7 @@ import {
   dashboardSharesEndpoint,
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
-  dashboardsFavoriteEndpoit,
+  dashboardsFavoriteEndpoint,
   getDashboardAccessRightsContactGroupEndpoint,
   getDashboardEndpoint,
   playlistsByDashboardEndpoint
@@ -196,7 +196,7 @@ const initializeAndMount = ({
   cy.interceptAPIRequest({
     alias: 'addFavorite',
     method: Method.POST,
-    path: `./api/latest${dashboardsFavoriteEndpoit}`,
+    path: `./api/latest${dashboardsFavoriteEndpoint}`,
     statusCode: 204
   });
 
@@ -205,7 +205,7 @@ const initializeAndMount = ({
       cy.interceptAPIRequest({
         alias: 'getFavoritesList',
         method: Method.GET,
-        path: `./api/latest${dashboardsFavoriteEndpoit}?**`,
+        path: `./api/latest${dashboardsFavoriteEndpoint}?**`,
         response: data
       });
     }
