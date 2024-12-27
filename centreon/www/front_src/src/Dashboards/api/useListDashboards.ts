@@ -12,7 +12,7 @@ import {
 
 import { onlyFavoriteDashboardsAtom } from '../components/DashboardLibrary/DashboardListing/Actions/favoriteFilter/atoms';
 import { dashboardListDecoder } from './decoders';
-import { dashboardsEndpoint, dashboardsFavoriteEndpoit } from './endpoints';
+import { dashboardsEndpoint, dashboardsFavoriteEndpoint } from './endpoints';
 import { List } from './meta.models';
 import { Dashboard, resource } from './models';
 
@@ -41,7 +41,7 @@ const useListDashboards = (): UseListDashboards => {
   const getEndpoint = () => {
     return buildListingEndpoint({
       baseEndpoint: onlyFavoriteDashboards
-        ? dashboardsFavoriteEndpoit
+        ? dashboardsFavoriteEndpoint
         : dashboardsEndpoint,
       parameters: {
         limit: limit || 10,
