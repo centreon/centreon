@@ -5,8 +5,10 @@ import {
   useSnackbar
 } from '@centreon/ui';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import { memo, useRef } from 'react';
+import { memo, useRef, useState } from 'react';
+import { useTransition } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import {
   dashboardsFavoriteDeleteEndpoint,
   dashboardsFavoriteEndpoit
@@ -27,16 +29,12 @@ interface Props {
 
 const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
   const { t } = useTranslation();
-  const { showSuccessMessage } = useSnackbar();
-
   const labelSuccess = useRef('');
+  const { showSuccessMessage } = useSnackbar();
+  const [isPending, startTransition] = useTransition();
+  const [color, setColor] = useState('');
+  const [title, setTitle ]= useState('');
 
-  const getLabel = ({ setLabel, unsetLabel, asFavorite }: GetLabel) => {
-    if (asFavorite) {
-      return t(unsetLabel);
-    }
-    return t(setLabel);
-  };
 
   const getEndpoint = (data: FavoriteEndpoint) => {
     if (data?.dashboardId) {
@@ -50,41 +48,70 @@ const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
     refetch?.();
   };
 
-  const { mutateAsync, isMutating } = useMutationQuery({
+  const onError = () => {
+    const previousColor = isFavorite ? 'success' : 'default';
+    setColor(previousColor);
+  };
+
+  const { mutateAsync } = useMutationQuery({
     getEndpoint,
     method: isFavorite ? Method.DELETE : Method.POST,
     onSuccess,
-    fetchHeaders: { 'Content-Type': 'application/json' }
+    fetchHeaders: { 'Content-Type': 'application/json' },
+    onError
   });
 
+  const getLabel = ({ setLabel, unsetLabel, asFavorite }: GetLabel) => {
+    if (asFavorite) {
+      return t(unsetLabel);
+    }
+    return t(setLabel);
+  };
+
   const handleFavorites = () => {
+    const expectedColor = isFavorite ? 'default' : 'success';
+
+    const expectedTitle =  getLabel({
+      setLabel: labelRemoveFromFavorites,
+      unsetLabel: labelAddToFavorites,
+      asFavorite: isFavorite
+    })
+    setTitle(expectedTitle)
+
+    setColor(expectedColor);
+
     labelSuccess.current = getLabel({
       setLabel: labelDashboardAddedToFavorites,
       unsetLabel: labelDashboardRemovedFromFavorites,
       asFavorite: isFavorite
     });
 
-    if (isFavorite) {
-      mutateAsync({ _meta: { dashboardId } });
-      return;
-    }
-    mutateAsync({
-      payload: { dashboard_id: dashboardId }
+    startTransition(() => {
+      if (isFavorite) {
+        mutateAsync({ _meta: { dashboardId } });
+        return;
+      }
+      mutateAsync({
+        payload: { dashboard_id: dashboardId }
+      });
     });
   };
 
-  const title = getLabel({
+  const defaultTitle = getLabel({
     setLabel: labelAddToFavorites,
     unsetLabel: labelRemoveFromFavorites,
     asFavorite: isFavorite
   });
 
+  const defaultColor = isFavorite ? 'success' : 'default';
+
+
   return (
     <IconButton
-      title={title}
+      title={title || defaultTitle}
       onClick={handleFavorites}
-      color={isFavorite ? 'success' : 'default'}
-      disabled={isMutating}
+      color={color || defaultColor}
+      disabled={isPending}
       size="small"
       ariaLabel="FavoriteIconButton"
     >
