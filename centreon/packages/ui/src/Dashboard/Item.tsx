@@ -93,80 +93,70 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
 
     return useMemoComponent({
       Component: (
-        <ExpandableContainer
-          style={originStyle}
+        <div
           ref={ref}
-          getCurrentElement={setElement}
+          {...cardContainerListeners}
+          className={sanitizedReactGridLayoutClassName}
+          style={originStyle}
         >
-          {({
-            isExpanded,
-            style: newStyle,
-            label,
-            ref: currentRef,
-            key,
-            ...rest
-          }) => {
-            const canControl = isExpanded ? false : canMove;
+          <ExpandableContainer>
+            {({ isExpanded, label, key, ...rest }) => {
+              const canControl = isExpanded ? false : canMove;
 
-            const childHeader = !equals(type(header), 'Function')
-              ? header
-              : (header as (params: Parameters) => ReactElement)?.({
-                  isExpanded,
-                  label,
-                  ref,
-                  key,
-                  ...rest
-                });
+              const childHeader = !equals(type(header), 'Function')
+                ? header
+                : (header as (params: Parameters) => ReactElement)?.({
+                    isExpanded,
+                    label,
+                    ref,
+                    key,
+                    ...rest
+                  });
 
-            return (
-              <div
-                {...cardContainerListeners}
-                className={sanitizedReactGridLayoutClassName}
-                ref={currentRef}
-                style={newStyle}
-                key={key}
-              >
-                <Card
-                  className={classes.widgetContainer}
-                  data-padding={!disablePadding}
-                >
-                  {childHeader && (
-                    <div
-                      className={classes.widgetHeader}
-                      data-canMove={canControl}
-                    >
-                      {canControl && (
-                        <div
-                          {...listeners}
-                          className={classes.widgetHeaderDraggable}
-                          data-testid={`${id}_move_panel`}
-                        />
-                      )}
-                      {childHeader}
-                    </div>
-                  )}
-                  <div
-                    className={cx(
-                      classes.widgetContent,
-                      !disablePadding && classes.widgetPadding
-                    )}
+              return (
+                <div key={key} className={classes.widgetSubContainer}>
+                  <Card
+                    className={classes.widgetContainer}
+                    data-padding={!disablePadding}
                   >
-                    {!isInViewport ? (
-                      <LoadingSkeleton
-                        animation={false}
-                        data-widget-skeleton={id}
-                        height="100%"
-                        width="100%"
-                      />
-                    ) : (
-                      children
+                    {childHeader && (
+                      <div
+                        className={classes.widgetHeader}
+                        data-canMove={canControl}
+                      >
+                        {canControl && (
+                          <div
+                            {...listeners}
+                            className={classes.widgetHeaderDraggable}
+                            data-testid={`${id}_move_panel`}
+                          />
+                        )}
+                        {childHeader}
+                      </div>
                     )}
-                  </div>
-                </Card>
-              </div>
-            );
-          }}
-        </ExpandableContainer>
+                    <div
+                      className={cx(
+                        classes.widgetContent,
+                        !disablePadding && classes.widgetPadding
+                      )}
+                    >
+                      {!isInViewport ? (
+                        <LoadingSkeleton
+                          animation={false}
+                          data-widget-skeleton={id}
+                          height="100%"
+                          width="100%"
+                        />
+                      ) : (
+                        children
+                      )}
+                    </div>
+                  </Card>
+                </div>
+              );
+            }}
+          </ExpandableContainer>
+        </div>
       ),
       memoProps: isInViewport
         ? [
