@@ -497,6 +497,65 @@ function deleteHostInDB($hosts = []): void
     }
 }
 
+/**
+ * @param int[] $hosts
+ */
+function deleteHostInApi(array $hosts = []): void
+{
+    global $basePath;
+
+    try {
+        deleteHostByApi($basePath, $hosts);
+    } catch (Throwable $throwable) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error while deleting host by API : {$throwable->getMessage()}",
+            customContext: ['hosts' => $hosts, 'basePath' => $basePath],
+            exception: $throwable
+        );
+    }
+}
+
+/**
+ * @param string $basePath
+ * @param int[] $hosts
+ *
+ * @throws Throwable
+ */
+function deleteHostByApi(string $basePath, array $hosts): void
+{
+    $kernel = Kernel::createForWeb();
+    /** @var Router $router */
+    $router = $kernel->getContainer()->get(Router::class);
+    $client = new CurlHttpClient();
+
+    $headers = [
+        'Content-Type' => 'application/json',
+        'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'] . ';XDEBUG_SESSION=XDEBUG_KEY',
+    ];
+
+    foreach ($hosts as $hostId) {
+        $url = $router->generate(
+            'DeleteHost',
+            $basePath ? ['base_uri' => $basePath, 'hostId' => $hostId] : [],
+            UrlGeneratorInterface::ABSOLUTE_URL,
+        );
+
+        $response = $client->request('DELETE', $url, ['headers' => $headers]);
+
+        if ($response->getStatusCode() !== 204) {
+            $content = json_decode($response->getContent(false), true);
+            $message = $content['message'] ?? '';
+
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: "Error while deleting host by API : {$message}",
+                customContext: ['host_id' => $hostId]
+            );
+        }
+    }
+}
+
 /*
  *  Checks if the service that is gonna be deleted is actually
  *  associated to another host template

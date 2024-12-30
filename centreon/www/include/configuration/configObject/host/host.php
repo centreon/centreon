@@ -158,7 +158,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteHostInDB($select ?? []);
+            deleteHostInApi(is_array($select) ? array_keys($select) : []);
         } else {
             unvalidFormMessage();
         }
