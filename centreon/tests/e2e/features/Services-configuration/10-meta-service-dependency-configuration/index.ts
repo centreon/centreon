@@ -80,7 +80,7 @@ When(
       `a:contains("${data.defaultMetaServiceDep.name}")`
     );
     cy.getIframeBody().contains(data.defaultMetaServiceDep.name).click();
-    cy.updateMSDenpendency(data.MetaServiceDep1)
+    cy.updateMSDependency(data.MetaServiceDep1)
   }
 );
 

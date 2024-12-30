@@ -139,7 +139,7 @@ Cypress.Commands.add('addMSDependency', (body: MetaServiceDependency) => {
   cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
 });
 
-Cypress.Commands.add('updateMSDenpendency', (body: MetaServiceDependency) => {
+Cypress.Commands.add('updateMSDependency', (body: MetaServiceDependency) => {
   cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
     cy.getIframeBody()
       .find('input[name="dep_name"]')
@@ -219,7 +219,7 @@ declare global {
       checkFieldsOfVM: (body: VirtualMetric) => Cypress.Chainable;
       addMetaService: (body: MetaService) => Cypress.Chainable;
       addMSDependency: (body:MetaServiceDependency) => Cypress.Chainable;
-      updateMSDenpendency: (body: MetaServiceDependency) => Cypress.Chainable;
+      updateMSDependency: (body: MetaServiceDependency) => Cypress.Chainable;
     }
   }
 }
