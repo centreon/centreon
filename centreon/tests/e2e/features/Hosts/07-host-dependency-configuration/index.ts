@@ -19,12 +19,7 @@ const services = {
 };
 
 const checkFirstHostDependencyFromListing = () => {
-  cy.navigateTo({
-    page: 'Hosts',
-    rootItemNumber: 3,
-    subMenu: 'Notifications'
-  });
-  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe('#main-content', 'input[name="searchHD"]');
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
   cy.getIframeBody()
     .find('select[name="o1"]')
@@ -95,7 +90,6 @@ Given('a host dependency is configured', () => {
     subMenu: 'Notifications'
   });
   cy.getIframeBody().contains('a', 'Add').click({ force: true });
-  //cy.wait('@getTimeZone');
   cy.addHostDependency(data.default);
 });
 
