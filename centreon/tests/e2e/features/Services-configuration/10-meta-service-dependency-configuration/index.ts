@@ -11,10 +11,6 @@ const checkFirstMSDependencyFromListing = () => {
     subMenu: 'Notifications'
   });
   cy.wait('@getTimeZone');
-  cy.waitForElementInIframe(
-    '#main-content',
-    'div.md-checkbox.md-checkbox-inline'
-  );
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
   cy.getIframeBody()
     .find('select[name="o1"]')
