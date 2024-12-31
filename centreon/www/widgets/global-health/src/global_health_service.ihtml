@@ -7,7 +7,7 @@
     <div id="container" style="text-align:center;">
         <div id="global_health_svc_div" style="text-align:center;display:inline-block;vertical-align: middle;"></div>
         {if $preferences.hide_table != 1}<div id="global_health_table_div" class="global_health_div_tab" style="display:inline-block;vertical-align: middle;" >
-            <table>
+            <table style='border-collapse:separate;border-spacing:8px;'>
                 <thead>
                     <th>
                         <link href="../../Themes/{($theme === "Generic-theme") ? ($theme|cat:"/Variables-css") : $theme}/variables.css">
