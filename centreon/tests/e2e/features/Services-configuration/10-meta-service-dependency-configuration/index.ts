@@ -119,7 +119,6 @@ When('the user duplicates the configured meta service dependency', () => {
   checkFirstMSDependencyFromListing();
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
   cy.wait('@getTimeZone');
-  cy.exportConfig();
 });
 
 Then(
@@ -167,7 +166,6 @@ When('the user deletes the configured meta service dependency', () => {
   checkFirstMSDependencyFromListing();
   cy.getIframeBody().find('select[name="o1"]').select('Delete');
   cy.wait('@getTimeZone');
-  cy.exportConfig();
 });
 
 Then(
