@@ -17,10 +17,14 @@ export const generateReportForAgentConfigurationPage = async ({
     }
   });
 
+  await page.setCacheEnabled(false);
+
   await navigate({
     name: 'Agent configuration page Cold navigation',
     url: `${baseUrl}configuration/pollers/agent-configurations`
   });
+
+  await page.setCacheEnabled(true);
 
   await navigate({
     name: 'Agent configuration page Warm navigation',

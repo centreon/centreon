@@ -20,10 +20,14 @@ export const generateReportForACCsPage = async ({
     }
   );
 
+  await page.setCacheEnabled(false);
+
   await navigate({
     name: 'ACCs page Cold navigation',
     url: `${baseUrl}configuration/additional-connector-configurations`
   });
+
+  await page.setCacheEnabled(true);
 
   await navigate({
     name: 'ACCs page Warm navigation',
