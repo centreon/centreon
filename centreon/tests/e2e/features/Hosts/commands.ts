@@ -112,20 +112,6 @@ Cypress.Commands.add('updateHostDependency', (body: HostDependency) => {
       .click();
 })
 
-interface HostGroup {
-  name: string,
-  alias: string,
-  notes: string,
-  notes_url: string,
-  action_url: string,
-  icon_id: number,
-  icon_map_id: number,
-  geo_coords: string,
-  rrd: number,
-  comment: string,
-  is_activated: boolean
-}
-
 interface HostDependency {
   name: string,
   description: string,
@@ -157,7 +143,6 @@ declare global {
       ) => Cypress.Chainable;
       checkLegacyRadioButton: (label: string) => Cypress.Chainable;
       exportConfig: () => Cypress.Chainable;
-      updateHostGroupViaApi: (body: HostGroup, name: string) => Cypress.Chainable;
       addHostDependency: (body: HostDependency) => Cypress.Chainable;
       updateHostDependency: (body: HostDependency) => Cypress.Chainable;
     }
