@@ -12,6 +12,10 @@ const checkFirstHostGrpDependencyFromListing = () => {
     subMenu: 'Notifications'
   });
   cy.wait('@getTimeZone');
+  cy.waitForElementInIframe(
+    '#main-content',
+    'div.md-checkbox.md-checkbox-inline'
+  );
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
   cy.getIframeBody()
     .find('select[name="o1"]')
@@ -117,7 +121,6 @@ When('the user duplicates a host group dependency', () => {
   checkFirstHostGrpDependencyFromListing();
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
   cy.wait('@getTimeZone');
-  cy.exportConfig();
 });
 
 Then('the new object has the same properties', () => {
@@ -154,7 +157,6 @@ When('the user deletes a host group dependency', () => {
   checkFirstHostGrpDependencyFromListing();
   cy.getIframeBody().find('select[name="o1"]').select('Delete');
   cy.wait('@getTimeZone');
-  cy.exportConfig();
 });
 
 Then('the deleted object is not displayed in the list', () => {
