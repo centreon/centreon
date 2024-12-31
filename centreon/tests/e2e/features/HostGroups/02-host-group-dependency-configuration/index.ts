@@ -6,16 +6,7 @@ import grps from '../../../fixtures/notifications/data-for-notification.json';
 import data from '../../../fixtures/host-groups/dependency.json';
 
 const checkFirstHostGrpDependencyFromListing = () => {
-  cy.navigateTo({
-    page: 'Host Groups',
-    rootItemNumber: 3,
-    subMenu: 'Notifications'
-  });
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe(
-    '#main-content',
-    'div.md-checkbox.md-checkbox-inline'
-  );
+  cy.waitForElementInIframe('#main-content', 'input[name="searchHGD"]');
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
   cy.getIframeBody()
     .find('select[name="o1"]')
@@ -65,7 +56,6 @@ Given('a host group dependency is configured', () => {
     subMenu: 'Notifications'
   });
   cy.getIframeBody().contains('a', 'Add').click({ force: true });
-  cy.wait('@getTimeZone');
   cy.addHostGroupDependency(data.default);
 });
 
@@ -121,6 +111,7 @@ When('the user duplicates a host group dependency', () => {
   checkFirstHostGrpDependencyFromListing();
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
   cy.wait('@getTimeZone');
+  cy.exportConfig();
 });
 
 Then('the new object has the same properties', () => {
@@ -157,6 +148,7 @@ When('the user deletes a host group dependency', () => {
   checkFirstHostGrpDependencyFromListing();
   cy.getIframeBody().find('select[name="o1"]').select('Delete');
   cy.wait('@getTimeZone');
+  cy.exportConfig();
 });
 
 Then('the deleted object is not displayed in the list', () => {
