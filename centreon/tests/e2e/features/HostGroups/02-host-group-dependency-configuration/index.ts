@@ -3,7 +3,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import grps from '../../../fixtures/notifications/data-for-notification.json';
-import data from '../../../fixtures/host-groups/dependency.json';
+import data from '../../../fixtures/hostGroups/dependency.json';
 
 const checkFirstHostGrpDependencyFromListing = () => {
   cy.waitForElementInIframe('#main-content', 'input[name="searchHGD"]');
