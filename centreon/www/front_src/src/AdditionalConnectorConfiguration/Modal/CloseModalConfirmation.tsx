@@ -1,44 +1,40 @@
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
+import { useFormikContext } from 'formik';
+import { useAtom, useSetAtom } from 'jotai';
 
-import { Modal } from '@centreon/ui/components';
+import { UnsavedChangesDialog } from '@centreon/ui';
+import { useCallback } from 'react';
+import { dialogStateAtom, isCloseModalDialogOpenAtom } from '../atoms';
 
-import {
-  labelCreateConnectorConfiguration,
-  labelUpdateConnectorConfiguration
-} from '../translatedLabels';
+const CloseModalConfirmation = (): JSX.Element => {
+  const { isValid, dirty, isSubmitting, submitForm } = useFormikContext();
 
-import AdditionalConnectorForm from './Form/Form';
-import useAdditionalConnectorModal from './useModal';
+  const [isModalOpen, setIsModalOpen] = useAtom(isCloseModalDialogOpenAtom);
+  const setDialogState = useSetAtom(dialogStateAtom);
 
-const AdditionalConnectorModal = (): JSX.Element => {
-  const { t } = useTranslation();
+  const discard = useCallback(() => {
+    setIsModalOpen(false);
+    setDialogState((dialogState) => ({ ...dialogState, isOpen: false }));
+  }, []);
 
-  const { closeDialog, isDialogOpen, submit, variant, connector } =
-    useAdditionalConnectorModal();
+  const submitAndClose = useCallback(() => {
+    submitForm();
+    setIsModalOpen(false);
+  }, []);
 
-  const labelHeader = equals(variant, 'create')
-    ? labelCreateConnectorConfiguration
-    : labelUpdateConnectorConfiguration;
+  const closeAskBeforeCloseModal = useCallback(() => {
+    setIsModalOpen(false);
+  }, []);
 
   return (
-    <Modal
-      data-testid="Modal"
-      open={isDialogOpen}
-      size="large"
-      onClose={closeDialog}
-    >
-      <Modal.Header data-testid="Modal-header">{t(labelHeader)}</Modal.Header>
-      <Modal.Body>
-        <AdditionalConnectorForm
-          connectorId={connector?.id}
-          variant={variant}
-          onCancel={closeDialog}
-          onSubmit={submit}
-        />
-      </Modal.Body>
-    </Modal>
+    <UnsavedChangesDialog
+      isSubmitting={isSubmitting}
+      isValidForm={isValid}
+      saveChanges={submitAndClose}
+      closeDialog={closeAskBeforeCloseModal}
+      discardChanges={discard}
+      dialogOpened={isModalOpen && dirty}
+    />
   );
 };
 
-export default AdditionalConnectorModal;
+export default CloseModalConfirmation;
