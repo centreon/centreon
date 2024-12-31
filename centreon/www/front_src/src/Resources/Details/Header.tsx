@@ -1,6 +1,6 @@
 import { path, hasPath, isNil, not, prop } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { makeStyles } from 'tss-react/mui';
 
 import ReportIcon from '@mui/icons-material/Assessment';
