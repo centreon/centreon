@@ -1,57 +1,44 @@
-import { useFormikContext } from 'formik';
-import { useAtom, useSetAtom } from 'jotai';
+import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import { UnsavedChangesDialog } from '@centreon/ui';
-import { useCallback } from 'react';
-import { dialogStateAtom, isCloseModalDialogOpenAtom } from '../atoms';
+import { Modal } from '@centreon/ui/components';
 
-const CloseModalConfirmation = (): JSX.Element => {
-  const { isValid, dirty, isSubmitting, submitForm } = useFormikContext();
+import {
+  labelCreateConnectorConfiguration,
+  labelUpdateConnectorConfiguration
+} from '../translatedLabels';
 
-  const [isModalOpen, setIsModalOpen] = useAtom(isCloseModalDialogOpenAtom);
-  const setDialogState = useSetAtom(dialogStateAtom);
+import AdditionalConnectorForm from './Form/Form';
+import useAdditionalConnectorModal from './useModal';
 
-  const discard = useCallback(() => {
-    setIsModalOpen(false);
-    setDialogState((dialogState) => ({ ...dialogState, isOpen: false }));
-  }, []);
+const AdditionalConnectorModal = (): JSX.Element => {
+  const { t } = useTranslation();
 
-  const submitAndClose = useCallback(() => {
-    submitForm();
-    setIsModalOpen(false);
-  }, []);
+  const { closeDialog, isDialogOpen, submit, variant, connector } =
+    useAdditionalConnectorModal();
 
-  const closeAskBeforeCloseModal = useCallback(() => {
-    setIsModalOpen(false);
-  }, []);
+  const labelHeader = equals(variant, 'create')
+    ? labelCreateConnectorConfiguration
+    : labelUpdateConnectorConfiguration;
 
   return (
-<<<<<<< HEAD
-    <UnsavedChangesDialog
-      isSubmitting={isSubmitting}
-      isValidForm={isValid}
-      saveChanges={submitAndClose}
-      closeDialog={closeAskBeforeCloseModal}
-      discardChanges={discard}
-      dialogOpened={isModalOpen && dirty}
-    />
-=======
-    <Modal open={isModalOpen} size="large" onClose={onCancel}>
-      <Modal.Header>{t(labelDoYouWantToQuitWithoutSaving)}</Modal.Header>
+    <Modal
+      data-testid="Modal"
+      open={isDialogOpen}
+      size="large"
+      onClose={closeDialog}
+    >
+      <Modal.Header data-testid="Modal-header">{t(labelHeader)}</Modal.Header>
       <Modal.Body>
-        <Typography>{t(labelYourFormHasUnsavedChanges)}</Typography>
+        <AdditionalConnectorForm
+          connectorId={connector?.id}
+          variant={variant}
+          onCancel={closeDialog}
+          onSubmit={submit}
+        />
       </Modal.Body>
-      <Modal.Actions
-        labels={{
-          cancel: t(labelCancel),
-          confirm: t(labelConfirm)
-        }}
-        onCancel={onCancel}
-        onConfirm={onConfirm}
-      />
     </Modal>
->>>>>>> master
   );
 };
 
-export default CloseModalConfirmation;
+export default AdditionalConnectorModal;

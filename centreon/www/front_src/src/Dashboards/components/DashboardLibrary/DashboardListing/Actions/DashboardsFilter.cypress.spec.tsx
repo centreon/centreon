@@ -1,12 +1,7 @@
 import { Provider, createStore } from 'jotai';
 import { searchAtom } from '../atom';
-<<<<<<< HEAD
 import { labelClearFilter } from '../translatedLabels';
 import Filter from './Filter';
-=======
-import Filter from './Filter';
-import { labelClearFilter } from '../translatedLabels';
->>>>>>> master
 
 const store = createStore();
 describe('Filter Component', () => {

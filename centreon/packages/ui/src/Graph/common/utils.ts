@@ -12,8 +12,7 @@ import {
   length,
   lt,
   lte,
-  pluck,
-  last
+  pluck
 } from 'ramda';
 
 import { Theme, darken, getLuminance, lighten } from '@mui/material';

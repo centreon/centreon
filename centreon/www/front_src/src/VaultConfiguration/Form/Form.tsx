@@ -24,7 +24,6 @@ const VaultForm = (): JSX.Element => {
 
   return (
     <Form<PostVaultConfiguration>
-      enableReinitialize={false}
       className={classes.group}
       initialValues={{
         address: data?.address,
