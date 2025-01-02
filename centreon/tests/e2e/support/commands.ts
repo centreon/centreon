@@ -9,6 +9,7 @@ import '../features/HostGroups/commands';
 import '../features/Contacts/commands';
 import '../features/Ldaps/commands';
 import '../features/Logs/commands';
+import '../features/Services-configuration/commands';
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
   return cy.get(refreshButton).click();

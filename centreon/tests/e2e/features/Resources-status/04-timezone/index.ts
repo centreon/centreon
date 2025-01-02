@@ -354,7 +354,7 @@ When('the user creates an acknowledgement on a resource', () => {
 
   cy.getByLabel({ label: 'Acknowledge' }).last().click();
 
-  cy.get('button').contains('Acknowledge').click();
+  cy.getByTestId({ testId: 'Confirm' }).click();
 
   cy.wait('@postAcknowledgments').then(() => {
     cy.contains('Acknowledge command sent').should('have.length', 1);
