@@ -197,10 +197,10 @@ describe('Bar stack', () => {
 
   it('displays the bars within a small display', () => {
     initialize({
-      width: '120px',
+      displayLegend: true,
       height: '89px',
       title: 'host',
-      displayLegend: true
+      width: '120px'
     });
 
     cy.get('.visx-bar-rounded')

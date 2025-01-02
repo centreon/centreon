@@ -13,10 +13,9 @@ interface Props {
   data: Array<FormattedResponse>;
   direction: 'row' | 'column';
   getLinkToResourceStatusPage: (status, resourceType) => string;
-  title: string;
+  resourceType: string;
   total: number;
   unit: 'number' | 'percentage';
-  resourceType: string;
 }
 
 const Legend = ({
@@ -45,9 +44,9 @@ const Legend = ({
                 <TooltipContent
                   color={color}
                   label={status}
+                  resourceType={resourceType}
                   total={total}
                   value={value}
-                  resourceType={resourceType}
                 />
               }
               position="bottom"

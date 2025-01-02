@@ -43,15 +43,7 @@ const TooltipContent = ({ label, color, value }: BarType): JSX.Element => {
 
 const Template = (args): JSX.Element => {
   return (
-    <div style={{ width: '400px', height: '400px' }}>
-      <ResponsiveBarStack {...args} />
-    </div>
-  );
-};
-
-const SmallTemplate = (args): JSX.Element => {
-  return (
-    <div style={{ width: '150px', height: '90px' }}>
+    <div style={{ height: '400px', width: '400px' }}>
       <ResponsiveBarStack {...args} />
     </div>
   );
@@ -113,9 +105,9 @@ export const Horizontal: Story = {
     TooltipContent,
     data,
     displayValues: true,
+    legendDirection: 'row',
     title: 'hosts',
-    variant: 'horizontal',
-    legendDirection: 'row'
+    variant: 'horizontal'
   },
   render: Template
 };

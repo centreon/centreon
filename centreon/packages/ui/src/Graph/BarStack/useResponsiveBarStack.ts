@@ -1,27 +1,30 @@
+import { useMemo } from 'react';
+
 import { scaleOrdinal } from '@visx/scale';
 import { equals, isNil, pluck } from 'ramda';
-import { useMemo } from 'react';
+
 import { LegendScale } from '../Legend/models';
 import { getValueByUnit } from '../common/utils';
+
 import { BarType } from './models';
 
 interface UseBarStackProps {
   data: Array<BarType>;
   height: number;
-  width: number;
+  legendDirection?: 'column' | 'row';
   unit?: 'percentage' | 'number';
   variant?: 'vertical' | 'horizontal';
-  legendDirection?: 'column' | 'row';
+  width: number;
 }
 
 interface UseBarStackState {
-  total: number;
-  isSmall: boolean;
-  titleVariant: 'xs' | 'sm' | 'md';
-  isVerticalBar: boolean;
-  legendScale: LegendScale;
   colorScale;
   formattedLegendDirection: 'column' | 'row';
+  isSmall: boolean;
+  isVerticalBar: boolean;
+  legendScale: LegendScale;
+  titleVariant: 'xs' | 'sm' | 'md';
+  total: number;
 }
 
 const useResponsiveBarStack = ({
@@ -90,13 +93,13 @@ const useResponsiveBarStack = ({
   }, [legendDirection, variant]);
 
   return {
-    total,
+    colorScale,
+    formattedLegendDirection,
     isSmall,
     isVerticalBar,
-    titleVariant,
     legendScale,
-    colorScale,
-    formattedLegendDirection
+    titleVariant,
+    total
   };
 };
 

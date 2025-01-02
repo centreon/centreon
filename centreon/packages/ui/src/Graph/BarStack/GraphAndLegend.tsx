@@ -1,5 +1,7 @@
-import { equals, props } from 'ramda';
 import { memo, useMemo } from 'react';
+
+import { equals, props } from 'ramda';
+
 import { useGraphAndLegendStyles } from './BarStack.styles';
 import Graph from './Graph';
 import { gap, legendMaxHeight, legendMaxWidth } from './constants';
@@ -15,13 +17,13 @@ interface Props
     | 'TooltipContent'
     | 'tooltipProps'
   > {
-  isVerticalBar: boolean;
-  legend: JSX.Element;
+  colorScale;
   displayLegend: boolean;
   height: number;
-  width: number;
-  colorScale;
+  isVerticalBar: boolean;
+  legend: JSX.Element;
   total: number;
+  width: number;
 }
 
 const GraphAndLegend = ({
@@ -73,17 +75,17 @@ const GraphAndLegend = ({
       style={{ height }}
     >
       <Graph
-        isVerticalBar={isVerticalBar}
-        data={data}
-        width={graphWidth}
-        height={graphHeight}
-        colorScale={colorScale}
-        unit={unit}
-        total={total}
-        displayValues={displayValues}
-        onSingleBarClick={onSingleBarClick}
-        tooltipProps={tooltipProps}
         TooltipContent={TooltipContent}
+        colorScale={colorScale}
+        data={data}
+        displayValues={displayValues}
+        height={graphHeight}
+        isVerticalBar={isVerticalBar}
+        tooltipProps={tooltipProps}
+        total={total}
+        unit={unit}
+        width={graphWidth}
+        onSingleBarClick={onSingleBarClick}
       />
       {mustDisplayLegend && (
         <div

@@ -1,3 +1,5 @@
+import { memo, useMemo } from 'react';
+
 import {
   BarRounded,
   BarStackHorizontal,
@@ -5,9 +7,10 @@ import {
 } from '@visx/shape';
 import { Text } from '@visx/text';
 import { equals, props } from 'ramda';
-import { memo, useMemo } from 'react';
+
 import { Tooltip } from '../../components';
 import { getValueByUnit } from '../common/utils';
+
 import { useGraphStyles } from './BarStack.styles';
 import { BarStackProps } from './models';
 import { useGraphAndLegend } from './useGraphAndLegend';
@@ -22,11 +25,11 @@ interface Props
     | 'TooltipContent'
     | 'tooltipProps'
   > {
-  width: number;
+  colorScale;
   height: number;
   isVerticalBar: boolean;
-  colorScale;
   total: number;
+  width: number;
 }
 
 const Graph = ({
@@ -53,14 +56,14 @@ const Graph = ({
 
   const { barStackData, xScale, yScale, keys } = useGraphAndLegend({
     data,
-    width,
     height: normalizedHeight,
     isVerticalBar,
-    total
+    total,
+    width
   });
 
   return (
-    <svg width="100%" height={normalizedHeight}>
+    <svg height={normalizedHeight} width="100%">
       <BarStackComponent
         color={colorScale}
         data={[barStackData]}
@@ -93,8 +96,8 @@ const Graph = ({
 
               return (
                 <Tooltip
-                  followCursor={false}
                   classes={classes}
+                  followCursor={false}
                   key={`bar-stack-${barStack.index}-${bar.index}`}
                   label={
                     TooltipContent && (
@@ -111,18 +114,18 @@ const Graph = ({
                 >
                   <g data-testid={bar.key} key={bar.key}>
                     <BarRounded
-                      radius={8}
+                      bottom={isVerticalBar && isFirstBar}
                       cursor={onSingleBarClick ? 'pointer' : 'default'}
                       fill={bar.color}
                       height={bar.height}
                       key={`bar-stack-${barStack.index}-${bar.index}`}
+                      left={!isVerticalBar && isFirstBar}
+                      radius={8}
+                      right={!isVerticalBar && isLastBar}
+                      top={isVerticalBar && isLastBar}
                       width={isVerticalBar ? bar.width - 10 : bar.width}
                       x={bar.x}
                       y={bar.y}
-                      left={!isVerticalBar && isFirstBar}
-                      right={!isVerticalBar && isLastBar}
-                      bottom={isVerticalBar && isFirstBar}
-                      top={isVerticalBar && isLastBar}
                       onMouseDown={click}
                     />
                     {displayValues && fitsInBar && (

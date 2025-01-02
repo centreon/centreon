@@ -1,6 +1,6 @@
+import dayjs from 'dayjs';
 import { dec, equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
 
 import { Box, CircularProgress, Divider, Typography } from '@mui/material';
 
@@ -9,22 +9,21 @@ import {
   usePluralizedTranslation
 } from '@centreon/ui';
 
+import { Resource } from '../../../models';
 import {
   labelAreWorkingFine,
   labelStatus,
   lableNoResourceFound
 } from '../translatedLabels';
-import { Resource } from '../../../models';
 
-import { useTooltipContent } from './useTooltip';
 import { useTooltipStyles } from './Tooltip.styles';
+import { useTooltipContent } from './useTooltip';
 
 interface Props {
   color: string;
   label: string;
-  resources: Array<Resource>;
   resourceType: string;
-  title: string;
+  resources: Array<Resource>;
   total: number;
   value: number;
 }
@@ -71,8 +70,8 @@ const TooltipContent = ({
           <>
             <Typography className={classes.listContainer}>
               {isStatusOK
-                ? `${value}/${total} ${pluralizedT({ label: resourceType, count: value })} ${t(labelAreWorkingFine)}`
-                : `${value} ${pluralizedT({ label: resourceType, count: value })}`}
+                ? `${value}/${total} ${pluralizedT({ count: value, label: resourceType })} ${t(labelAreWorkingFine)}`
+                : `${value} ${pluralizedT({ count: value, label: resourceType })}`}
             </Typography>
             {!isStatusOK && (
               <Box className={classes.listContainer}>
