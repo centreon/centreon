@@ -6,7 +6,7 @@ import {
   createSearchParams,
   generatePath,
   useNavigate
-} from 'react-router-dom';
+} from 'react-router';
 
 import { useSnackbar } from '@centreon/ui';
 
