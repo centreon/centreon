@@ -172,7 +172,7 @@ jobs:
           script: |
             if (/^bump-.+/.test('${{ github.head_ref || github.ref_name }}')) {
               core.notice('skipping workflow because it is a bump branch');
-              return false;
+              return true;
             }
 
             if (${{ steps.has_skip_label.outputs.result }} === false) {
