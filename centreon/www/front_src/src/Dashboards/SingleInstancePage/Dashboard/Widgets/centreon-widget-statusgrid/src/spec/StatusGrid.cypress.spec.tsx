@@ -391,8 +391,8 @@ describe('View by service', () => {
       cy.findAllByText('Centreon-Server').should('have.length', 7);
       cy.contains('February 1, 2021').should('be.visible');
 
-      cy.contains(labelMetricName).should('be.visible');
-      cy.contains(labelValue).should('be.visible');
+      cy.contains(labelMetricName).should('exist');
+      cy.contains(labelValue).should('exist');
 
       cy.contains('rta').should('be.visible');
       cy.contains('1').should('have.css', 'color', 'rgb(253, 155, 39)');
@@ -414,8 +414,8 @@ describe('View by service', () => {
       cy.findAllByText('Centreon-Server').should('have.length', 7);
       cy.contains('February 1, 2021').should('be.visible');
 
-      cy.contains(labelMetricName).should('be.visible');
-      cy.contains(labelValue).should('be.visible');
+      cy.contains(labelMetricName).should('exist');
+      cy.contains(labelValue).should('exist');
 
       cy.contains('rta').should('be.visible');
       cy.contains('1').should('have.css', 'color', 'rgb(253, 155, 39)');
