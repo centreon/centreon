@@ -492,6 +492,8 @@ describe('View by all', () => {
 
     cy.findByLabelText('Select row 19').click();
     cy.findByLabelText('Select row 24').click();
+    cy.clock(new Date(2024, 7, 8).getTime());
+
     cy.findByLabelText(labelSetDowntime).click();
 
     cy.get('input').eq(10).type('03');
