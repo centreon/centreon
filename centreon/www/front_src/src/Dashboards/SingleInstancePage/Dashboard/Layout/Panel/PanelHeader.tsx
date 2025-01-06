@@ -4,7 +4,7 @@ import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import DvrIcon from '@mui/icons-material/Dvr';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';

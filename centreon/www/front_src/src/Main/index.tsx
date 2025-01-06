@@ -17,7 +17,7 @@ import utcPlugin from 'dayjs/plugin/utc';
 import weekday from 'dayjs/plugin/weekday';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { and, equals, isNil, not } from 'ramda';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router';
 
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
