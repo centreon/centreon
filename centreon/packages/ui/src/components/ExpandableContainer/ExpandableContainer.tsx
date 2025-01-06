@@ -6,11 +6,10 @@ import { Parameters } from './models';
 import { labelExpand, labelReduce } from './translatedLabels';
 
 interface Props {
-  children: (params: Omit<Parameters ,'ref'>) => JSX.Element;
-  style?: CSSProperties;
+  children: (params: Omit<Parameters, 'ref'>) => JSX.Element;
 }
 
-const ExpandableContainer = ({ children, style }: Props) => {
+const ExpandableContainer = ({ children }: Props) => {
   const { classes } = useStyles();
 
   const [isExpanded, setIsExpanded] = useState(false);
