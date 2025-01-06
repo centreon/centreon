@@ -17,7 +17,7 @@ const ExpandableButton = ({ expandableData }: Props) => {
       {expandableData && (
         <IconButton
           ariaLabel={t(label as string)}
-          onClick={toggleExpand as () => void}
+          onClick={toggleExpand}
         >
           {isExpanded ? (
             <CloseIcon fontSize="small" />

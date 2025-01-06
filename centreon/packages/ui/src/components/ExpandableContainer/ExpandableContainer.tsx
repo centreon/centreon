@@ -15,7 +15,7 @@ const ExpandableContainer = ({ children, style }: Props) => {
 
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const toggleExpand = () => {
+  const toggleExpand = (): void => {
     setIsExpanded(!isExpanded);
   };
 

@@ -2,7 +2,7 @@ import { MouseEvent, useEffect, useRef, useState } from 'react';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { equals, flatten, isEmpty, isNil, length } from 'ramda';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 import { makeStyles } from 'tss-react/mui';
 
 import { ListItem, useTheme } from '@mui/material';
