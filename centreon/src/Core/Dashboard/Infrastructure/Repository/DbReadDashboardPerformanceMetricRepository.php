@@ -451,13 +451,8 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
     private function buildQuery(
         RequestParametersInterface $requestParameters,
         array $accessGroups = [],
-<<<<<<< HEAD
         bool $hasMetricName = false
     ): string {
-=======
-        bool $hasMetricName = false): string
-    {
->>>>>>> master
         $sqlRequestTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlRequestTranslator->setConcordanceArray(['current_value' => 'm.current_value']);
 
