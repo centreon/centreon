@@ -104,13 +104,14 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
               const canControl = isExpanded ? false : canMove;
 
               const childrenHeader = equals(type(header), 'Function')
-              ? (header as (params: Parameters) => ReactElement)({
-                  isExpanded,
-                  label,
-                  ref,
-                  key,
-                  ...rest
-                }) : header;
+                ? (header as (params: Parameters) => ReactElement)({
+                    isExpanded,
+                    label,
+                    ref,
+                    key,
+                    ...rest
+                  })
+                : header;
 
               return (
                 <div key={key} className={classes.widgetSubContainer}>

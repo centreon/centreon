@@ -8,5 +8,5 @@ export interface Parameters {
   label: string;
   style?: CSSProperties;
   ref: ForwardedRef<HTMLDivElement>;
-  key:string
+  key: string;
 }

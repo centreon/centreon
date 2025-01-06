@@ -6,7 +6,7 @@ import { Parameters } from './models';
 import { labelExpand, labelReduce } from './translatedLabels';
 
 interface Props {
-  children: (params: Parameters) => JSX.Element;
+  children: (params: Omit<Parameters ,'ref'>) => JSX.Element;
   style?: CSSProperties;
 }
 
@@ -18,13 +18,14 @@ const ExpandableContainer = ({ children, style }: Props) => {
   const toggleExpand = (): void => {
     setIsExpanded(!isExpanded);
   };
+  const currentMode = isExpanded ? labelExpand : labelReduce;
 
   const reducedChildrenData = {
     toggleExpand,
     isExpanded: false,
     label: labelExpand,
     Icon: OpenInFull,
-    key: labelExpand
+    key: currentMode
   };
 
   const expandedChildrenData = {
@@ -32,7 +33,7 @@ const ExpandableContainer = ({ children, style }: Props) => {
     isExpanded,
     label: labelReduce,
     Icon: OpenInFull,
-    key: labelReduce
+    key: currentMode
   };
 
   return (
