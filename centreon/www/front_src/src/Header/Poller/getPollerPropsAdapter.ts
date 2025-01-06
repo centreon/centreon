@@ -1,6 +1,6 @@
 import { is, isEmpty, isNil } from 'ramda';
 import type { TFunction } from 'react-i18next';
-import type { NavigateFunction } from 'react-router-dom';
+import type { NavigateFunction } from 'react-router';
 
 import { SeverityCode } from '@centreon/ui';
 
