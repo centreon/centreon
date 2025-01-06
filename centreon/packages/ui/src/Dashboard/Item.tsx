@@ -103,15 +103,14 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
             {({ isExpanded, label, key, ...rest }) => {
               const canControl = isExpanded ? false : canMove;
 
-              const childHeader = !equals(type(header), 'Function')
-                ? header
-                : (header as (params: Parameters) => ReactElement)?.({
-                    isExpanded,
-                    label,
-                    ref,
-                    key,
-                    ...rest
-                  });
+              const childrenHeader = equals(type(header), 'Function')
+              ? (header as (params: Parameters) => ReactElement)({
+                  isExpanded,
+                  label,
+                  ref,
+                  key,
+                  ...rest
+                }) : header;
 
               return (
                 <div key={key} className={classes.widgetSubContainer}>
@@ -119,7 +118,7 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
                     className={classes.widgetContainer}
                     data-padding={!disablePadding}
                   >
-                    {childHeader && (
+                    {childrenHeader && (
                       <div
                         className={classes.widgetHeader}
                         data-canMove={canControl}
@@ -131,7 +130,7 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
                             data-testid={`${id}_move_panel`}
                           />
                         )}
-                        {childHeader}
+                        {childrenHeader}
                       </div>
                     )}
                     <div
