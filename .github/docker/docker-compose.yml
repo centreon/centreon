@@ -9,6 +9,7 @@ services:
     environment:
       MYSQL_HOST: db
       GLPI_HOST: glpi
+      VAULT_HOST: vault
     healthcheck:
       test: bash -c "[ -f /tmp/docker.ready ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
       interval: 1s
@@ -39,6 +40,13 @@ services:
     profiles: ["glpi"]
     environment:
       MYSQL_HOST: db
+
+  vault:
+    image: "${VAULT_IMAGE}"
+    env_file:
+      - .env
+    ports: ["8200"]
+    profiles: ["vault"]
 
   openid:
     env_file:

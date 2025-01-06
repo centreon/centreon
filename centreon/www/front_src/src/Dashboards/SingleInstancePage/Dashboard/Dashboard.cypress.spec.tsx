@@ -7,7 +7,7 @@ import widgetWebpageProperties from './Widgets/centreon-widget-webpage/propertie
 import i18next from 'i18next';
 import { Provider, createStore } from 'jotai';
 import { initReactI18next } from 'react-i18next';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
@@ -62,16 +62,30 @@ import {
   labelYourRightsOnlyAllowToView
 } from './translatedLabels';
 
+const widgetProperties = [
+  widgetTextProperties,
+  widgetInputProperties,
+  widgetGenericTextProperties,
+  widgetSingleMetricProperties,
+  widgetWebpageProperties
+];
+
+const availableWidgets = widgetProperties.reduce(
+  (acc, { moduleName }) => ({ ...acc, [moduleName]: {} }),
+  {}
+);
+
 const initializeWidgets = (): ReturnType<typeof createStore> => {
   const store = createStore();
   store.set(federatedWidgetsAtom, internalWidgetComponents);
-  store.set(federatedWidgetsPropertiesAtom, [
-    widgetTextProperties,
-    widgetInputProperties,
-    widgetGenericTextProperties,
-    widgetSingleMetricProperties,
-    widgetWebpageProperties
-  ]);
+  store.set(federatedWidgetsPropertiesAtom, widgetProperties);
+  store.set(platformVersionsAtom, {
+    modules: {},
+    web: {
+      version: '23.04.0'
+    },
+    widgets: availableWidgets
+  });
 
   return store;
 };
@@ -132,14 +146,6 @@ const initializeAndMount = ({
   store: ReturnType<typeof createStore>;
 } => {
   const store = initializeWidgets();
-
-  const platformVersion = {
-    modules: {},
-    web: {
-      version: '23.04.0'
-    }
-  };
-  store.set(platformVersionsAtom, platformVersion);
 
   store.set(userAtom, {
     alias: 'admin',
@@ -262,14 +268,6 @@ const initializeDashboardWithWebpageWidgets = ({
   canAdministrateDashboard = true
 }: InitializeAndMountProps): void => {
   const store = initializeWidgets();
-
-  const platformVersion = {
-    modules: {},
-    web: {
-      version: '23.04.0'
-    }
-  };
-  store.set(platformVersionsAtom, platformVersion);
 
   store.set(userAtom, {
     alias: 'admin',
@@ -418,6 +416,33 @@ describe('Dashboard', () => {
       cy.findAllByLabelText(labelSave).eq(1).should('be.disabled');
 
       cy.contains('Text for the new widget').should('be.visible');
+    });
+
+    it('adds a widget according to its custom default size when a widget type is selected and the submission button is clicked', () => {
+      initializeAndMount(editorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.findByLabelText(labelAddAWidget).click();
+
+      cy.findByLabelText(labelWidgetType).click();
+
+      cy.contains('Generic input (example)').click();
+
+      cy.findByLabelText(labelTitle).type('Generic input');
+      cy.findAllByLabelText('Generic text')
+        .eq(1)
+        .type('Text for the new widget');
+
+      cy.findAllByLabelText(labelSave).eq(1).click();
+      cy.findAllByLabelText(labelSave).eq(1).should('be.disabled');
+
+      cy.get('.react-grid-item')
+        .eq(3)
+        .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 4, 252)');
+      cy.get('.react-grid-item').eq(3).should('have.css', 'width', '585px');
+
+      cy.get('.react-grid-item').eq(3).should('have.css', 'height', '484px');
     });
   });
 
@@ -821,5 +846,84 @@ describe('Dashboard', () => {
 
       cy.findAllByTestId('UpdateIcon').should('have.length', 2);
     });
+  });
+});
+
+describe('Dashboard with complex layout', () => {
+  it('displays a new widget in the correct position when a widget is added', () => {
+    const store = initializeWidgets();
+
+    store.set(userAtom, {
+      alias: 'admin',
+      dashboard: {
+        createDashboards: true,
+        globalUserRole: DashboardGlobalRole.administrator,
+        manageAllDashboards: true,
+        viewDashboards: true
+      },
+      isExportButtonEnabled: true,
+      locale: 'en',
+      name: 'admin',
+      timezone: 'Europe/Paris',
+      use_deprecated_pages: false,
+      user_interface_density: ListingVariant.compact
+    });
+
+    const proceedNavigation = cy.stub();
+    const blockNavigation = cy.stub();
+
+    cy.stub(routerParams, 'useParams').returns({ dashboardId: '1' });
+    cy.stub(saveBlockerHooks, 'useBlocker').returns({
+      proceed: proceedNavigation,
+      reset: blockNavigation,
+      state: 'unblocked'
+    });
+
+    i18next.use(initReactI18next).init({
+      lng: 'en',
+      resources: {}
+    });
+
+    cy.viewport('macbook-13');
+
+    cy.fixture('Dashboards/Dashboard/complexLayout.json').then(
+      (dashboardDetails) => {
+        cy.interceptAPIRequest({
+          alias: 'getDashboardDetails',
+          method: Method.GET,
+          path: getDashboardEndpoint('1'),
+          response: dashboardDetails
+        });
+      }
+    );
+
+    cy.mount({
+      Component: (
+        <div style={{ height: '90vh' }}>
+          <TestQueryProvider>
+            <BrowserRouter>
+              <SnackbarProvider>
+                <Provider store={store}>
+                  <Dashboard />
+                </Provider>
+              </SnackbarProvider>
+            </BrowserRouter>
+          </TestQueryProvider>
+        </div>
+      )
+    });
+
+    cy.waitForRequest('@getDashboardDetails');
+
+    cy.findByLabelText(labelAddAWidget).click();
+    cy.findByLabelText(labelWidgetType).click();
+    cy.contains('Allows you to add free text').click();
+    cy.findAllByLabelText(labelSave).eq(1).click();
+
+    cy.get('.react-grid-item')
+      .eq(4)
+      .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 315, 0)');
+
+    cy.makeSnapshot();
   });
 });
