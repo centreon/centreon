@@ -1,7 +1,7 @@
 Feature: Service dependency configuration
   As a Centreon user
   I want to manipulate a service dependency
-  To see if all simples manipulations work
+  To see if all simple manipulations work
 
   Background:
     Given a user is logged in a Centreon server
