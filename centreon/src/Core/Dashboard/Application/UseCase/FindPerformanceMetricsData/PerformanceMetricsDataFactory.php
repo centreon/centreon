@@ -82,7 +82,7 @@ use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
  *  }
  * @phpstan-type _MetricData array{
  *     global: array{
- *         base: int,
+ *         base: int|null,
  *         title: string,
  *         host_name: string
  *     },
@@ -133,9 +133,9 @@ class PerformanceMetricsDataFactory
             $times[] = $metricData['times'];
         }
 
-        $base = ! empty($metricBases) ? $this->getHighestBase($metricBases) : PerformanceMetricsData::DEFAULT_BASE;
-        $metricsInfo = ! empty($metrics) ? $this->createMetricInformations($metrics, $metricNames) : [];
-        $times = ! empty($times) ? $this->getTimes($times) : [];
+        $base = $metricBases !== [] ? $this->getHighestBase($metricBases) : PerformanceMetricsData::DEFAULT_BASE;
+        $metricsInfo = $metrics !== [] ? $this->createMetricInformations($metrics, $metricNames) : [];
+        $times = $times !== [] ? $this->getTimes($times) : [];
 
         return new PerformanceMetricsData($base, $metricsInfo, $times);
     }
@@ -143,13 +143,13 @@ class PerformanceMetricsDataFactory
     /**
      * Get The highest base of all metrics.
      *
-     * @param int[] $bases
+     * @param array<int, int|null> $bases
      *
      * @return int
      */
     private function getHighestBase(array $bases): int
     {
-        return max($bases);
+        return max($bases) ?? PerformanceMetricsData::DEFAULT_BASE;
     }
 
     /**
@@ -176,12 +176,26 @@ class PerformanceMetricsDataFactory
         $metrics = [];
         foreach ($metricsData as $hostName => $metricData) {
             \preg_match('/^index:\d+;host_name:([[:ascii:]]+)$/', $hostName, $matches);
-            $hostName = $matches[1];
+
+            // Regarding this, currently if hostname is empty it means that we are dealing with a metaservice
+            $hostName = '';
+            if ($matches !== []) {
+                $hostName = $matches[1];
+            }
             foreach ($metricData as $metric) {
                 if (in_array($metric['metric'], $metricNames, true)) {
-                    $metric['metric'] = $hostName . ': ' . $metric['metric'];
-                    $metric['metric_legend'] = $hostName . ': ' . $metric['metric_legend'];
-                    $metric['legend'] = $hostName . ': ' . $metric['legend'];
+                    $metric['metric'] = ! empty($hostName)
+                        ? $hostName . ': ' . $metric['metric']
+                        : $metric['metric'];
+
+                    $metric['metric_legend'] = ! empty($hostName)
+                        ? $hostName . ': ' . $metric['metric_legend']
+                        : $metric['metric_legend'];
+
+                    $metric['legend'] = ! empty($hostName)
+                        ? $hostName . ': ' . $metric['legend']
+                        : $metric['legend'];
+
                     $metrics[] = $metric;
                 }
             }

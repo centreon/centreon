@@ -25,7 +25,7 @@ namespace Tests\Core\TimePeriod\Domain\Rules;
 
 use Core\TimePeriod\Domain\Rules\Strategies\SimpleDayTimeRangeRuleStrategy;
 
-it('return true if DateTimes are within the time range on the specified day', function () {
+it('return true if DateTimes are within the time range on the specified day', function (): void {
     $ranges = [
         ['start' => '00:00', 'end' => '09:00'],
         ['start' => '17:00', 'end' => '24:00']
@@ -37,7 +37,7 @@ it('return true if DateTimes are within the time range on the specified day', fu
     expect($isWithin)->toBe(true);
 });
 
-it('return true if DateTimes swapped are within the time range on the specified day', function () {
+it('return true if DateTimes swapped are within the time range on the specified day', function (): void {
     $ranges = [
         ['start' => '17:00', 'end' => '24:00'],
         ['start' => '00:00', 'end' => '09:00']

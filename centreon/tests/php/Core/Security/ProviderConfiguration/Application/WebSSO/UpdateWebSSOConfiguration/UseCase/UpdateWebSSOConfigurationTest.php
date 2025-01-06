@@ -34,12 +34,12 @@ use Core\Security\ProviderConfiguration\Application\WebSSO\UseCase\UpdateWebSSOC
 };
 use Core\Security\ProviderConfiguration\Application\WebSSO\Repository\WriteWebSSOConfigurationRepositoryInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->repository = $this->createMock(WriteWebSSOConfigurationRepositoryInterface::class);
     $this->presenter = $this->createMock(UpdateWebSSOConfigurationPresenterInterface::class);
 });
 
-it('execute the use case correctly when all parameters are valid', function () {
+it('execute the use case correctly when all parameters are valid', function (): void {
     $updateWebSSOConfigurationRequest = new UpdateWebSSOConfigurationRequest();
     $updateWebSSOConfigurationRequest->isActive = true;
     $updateWebSSOConfigurationRequest->isForced = false;
@@ -65,7 +65,7 @@ it('execute the use case correctly when all parameters are valid', function () {
     $useCase($this->presenter, $updateWebSSOConfigurationRequest);
 });
 
-it('should have an Error Response when parameters are invalid', function () {
+it('should have an Error Response when parameters are invalid', function (): void {
     $updateWebSSOConfigurationRequest = new UpdateWebSSOConfigurationRequest();
     $updateWebSSOConfigurationRequest->isActive = true;
     $updateWebSSOConfigurationRequest->isForced = false;

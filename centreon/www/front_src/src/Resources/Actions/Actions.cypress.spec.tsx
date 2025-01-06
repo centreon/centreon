@@ -33,7 +33,7 @@ import {
   labelNotify,
   labelSetDowntime,
   labelSetDowntimeOnServices,
-  labelSticky,
+  labelStickyForAnyNonOkStatus,
   labelSubmitStatus,
   labelUnreachable,
   labelUp
@@ -107,6 +107,16 @@ const service = {
     name: 'Host'
   },
   type: 'service'
+};
+
+const anomalyDetection = {
+  has_passive_checks_enabled: true,
+  id: 0,
+  parent: {
+    id: 1,
+    name: 'Host'
+  },
+  type: 'anomaly-detection'
 };
 
 const initialize = (): ReturnType<typeof createStore> => {
@@ -202,6 +212,14 @@ describe('Actions', () => {
     });
 
     cy.makeSnapshot();
+  });
+
+  it('deactivates the submit status button when a Resource of type anomaly detection is selected', () => {
+    const store = initialize();
+    store.set(selectedResourcesAtom, [anomalyDetection]);
+
+    cy.findByLabelText(labelMoreActions).click();
+    cy.findByTestId(labelSubmitStatus).should('have.attr', 'aria-disabled');
   });
 
   describe('Disacknowledgement', () => {
@@ -304,7 +322,7 @@ describe('Actions', () => {
         'Acknowledged by admin'
       );
       cy.findByLabelText(labelNotify).should('not.be.checked');
-      cy.findByLabelText(labelSticky).should('be.checked');
+      cy.findByLabelText(labelStickyForAnyNonOkStatus).should('be.checked');
       cy.findByLabelText(labelAcknowledgeServices).should('be.checked');
 
       cy.findAllByLabelText(labelAcknowledge).eq(2).click();
@@ -334,7 +352,7 @@ describe('Actions', () => {
 
       cy.findByLabelText(labelComment).clear().type('Acknowledged');
       cy.findByLabelText(labelNotify).check();
-      cy.findByLabelText(labelSticky).uncheck();
+      cy.findByLabelText(labelStickyForAnyNonOkStatus).uncheck();
       cy.findByLabelText(labelAcknowledgeServices).uncheck();
 
       cy.findAllByLabelText(labelAcknowledge).eq(2).click();

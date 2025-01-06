@@ -49,7 +49,7 @@ $view_all = 0;
 $view_downtime_cycle = 0;
 
 if (isset($_POST['SearchB'])) {
-    $centreon->historySearch[$url] = array();
+    $centreon->historySearch[$url] = [];
     $search_service = isset($_POST['search_service'])
         ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['search_service'])
         : null;
@@ -66,12 +66,12 @@ if (isset($_POST['SearchB'])) {
         ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['search_author'])
         : null;
     $centreon->historySearch[$url]["search_author"] = $search_author;
-    isset($_POST["view_all"]) ? $view_all = 1 : $view_all = 0;
+    $view_all = isset($_POST["view_all"]) ? 1 : 0;
     $centreon->historySearch[$url]["view_all"] = $view_all;
-    isset($_POST["view_downtime_cycle"]) ? $view_downtime_cycle = 1 : $view_downtime_cycle = 0;
+    $view_downtime_cycle = isset($_POST["view_downtime_cycle"]) ? 1 : 0;
     $centreon->historySearch[$url]["view_downtime_cycle"] = $view_downtime_cycle;
 } elseif (isset($_GET['SearchB'])) {
-    $centreon->historySearch[$url] = array();
+    $centreon->historySearch[$url] = [];
     $search_service = isset($_GET['search_service'])
         ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search_service'])
         : null;
@@ -88,9 +88,9 @@ if (isset($_POST['SearchB'])) {
         ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search_author'])
         : null;
     $centreon->historySearch[$url]["search_author"] = $search_author;
-    isset($_GET["view_all"]) ? $view_all = 1 : $view_all = 0;
+    $view_all = isset($_GET["view_all"]) ? 1 : 0;
     $centreon->historySearch[$url]["view_all"] = $view_all;
-    isset($_GET["view_downtime_cycle"]) ? $view_downtime_cycle = 1 : $view_downtime_cycle = 0;
+    $view_downtime_cycle = isset($_GET["view_downtime_cycle"]) ? 1 : 0;
     $centreon->historySearch[$url]["view_downtime_cycle"] = $view_downtime_cycle;
 } else {
     $search_service = $centreon->historySearch[$url]['search_service'] ?? null;
@@ -105,7 +105,7 @@ if (isset($_POST['SearchB'])) {
  * Init GMT class
  */
 $centreonGMT = new CentreonGMT($pearDB);
-$centreonGMT->getMyGMTFromSession(session_id(), $pearDB);
+$centreonGMT->getMyGMTFromSession(session_id());
 
 /**
  * true: URIs will correspond to deprecated pages
@@ -128,13 +128,10 @@ $tpl = initSmartyTpl('./include/monitoring/downtime/', $tpl, "template/");
 
 $form = new HTML_QuickFormCustom('select_form', 'GET', "?p=" . $p);
 
-$tab_downtime_svc = array();
+$tab_downtime_svc = [];
 
 
-$attrBtnSuccess = array(
-    "class" => "btc bt_success",
-    "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"
-);
+$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'SearchB', _("Search"), $attrBtnSuccess);
 
 //Service Downtimes
@@ -146,7 +143,7 @@ if ($view_all == 1) {
     $extrafields = "";
 }
 /*------------------ BAM ------------------*/
-$tab_service_bam = array();
+$tab_service_bam = [];
 $request = "SELECT id FROM modules_informations WHERE name = 'centreon-bam-server';";
 $DBRESULT = $pearDB->query($request);
 if ($DBRESULT->rowCount()) {
@@ -154,10 +151,7 @@ if ($DBRESULT->rowCount()) {
     $DBRESULT = $pearDB->query($request);
 
     while ($elem = $DBRESULT->fetchRow()) {
-        $tab_service_bam[$elem['id']] = array(
-            'name' => $elem['name'],
-            'id' => $elem['ba_id']
-        );
+        $tab_service_bam[$elem['id']] = ['name' => $elem['name'], 'id' => $elem['ba_id']];
     }
 }
 
@@ -271,7 +265,7 @@ unset($data);
 
 include("./include/common/checkPagination.php");
 
-$en = array("0" => _("No"), "1" => _("Yes"));
+$en = ["0" => _("No"), "1" => _("Yes")];
 foreach ($tab_downtime_svc as $key => $value) {
     $tab_downtime_svc[$key]["is_fixed"] = $en[$tab_downtime_svc[$key]["is_fixed"]];
     $tab_downtime_svc[$key]["was_started"] = $en[$tab_downtime_svc[$key]["was_started"]];
@@ -292,15 +286,11 @@ foreach ($tab_downtime_svc as $key => $value) {
  * Element we need when we reload the page
  */
 $form->addElement('hidden', 'p');
-$tab = array("p" => $p);
+$tab = ["p" => $p];
 $form->setDefaults($tab);
 
 if ($oreon->user->access->checkAction("host_schedule_downtime")) {
-    $tpl->assign('msgs2', array(
-        "addL2" => "?p=" . $p . "&o=a",
-        "addT2" => _("Add a downtime"),
-        "delConfirm" => addslashes(_("Do you confirm the cancellation ?"))
-    ));
+    $tpl->assign('msgs2', ["addL2" => "?p=" . $p . "&o=a", "addT2" => _("Add a downtime"), "delConfirm" => addslashes(_("Do you confirm the cancellation ?"))]);
 }
 
 

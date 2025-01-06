@@ -34,14 +34,14 @@ use Core\TimePeriod\Application\UseCase\FindTimePeriod\{FindTimePeriod, FindTime
 use Core\TimePeriod\Domain\Model\{Day, ExtraTimePeriod, Template, TimePeriod, TimeRange};
 use Tests\Core\TimePeriod\Application\UseCase\ExtractResponse;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->readRepository = $this->createMock(ReadTimePeriodRepositoryInterface::class);
     $this->writeRepository = $this->createMock(WriteTimePeriodRepositoryInterface::class);
     $this->formatter = $this->createMock(JsonFormatter::class);
     $this->user = $this->createMock(ContactInterface::class);
 });
 
-it('should present an ErrorResponse response when the exception is raised', function () {
+it('should present an ErrorResponse response when the exception is raised', function (): void {
     $timePeriodId = 1;
 
     $this->user
@@ -69,7 +69,7 @@ it('should present an ErrorResponse response when the exception is raised', func
         ->toBe(TimePeriodException::errorWhenSearchingForTimePeriod($timePeriodId)->getMessage());
 });
 
-it('should present a NotFoundResponse when the time period is not found', function () {
+it('should present a NotFoundResponse when the time period is not found', function (): void {
     $timePeriodId = 1;
 
     $this->user
@@ -98,7 +98,7 @@ it('should present a NotFoundResponse when the time period is not found', functi
         ->toBe((new NotFoundResponse('Time period'))->getMessage());
 });
 
-it('should present an Forbidden response when user has insufficient rights', function () {
+it('should present an Forbidden response when user has insufficient rights', function (): void {
     $timePeriodId = 1;
 
     $this->user
@@ -120,7 +120,7 @@ it('should present an Forbidden response when user has insufficient rights', fun
         ->toBe(TimePeriodException::accessNotAllowed()->getMessage());
 });
 
-it('should present a FindTimePeriodResponse if the time response is found and user has read only rigths', function () {
+it('should present a FindTimePeriodResponse if the time response is found and user has read only rigths', function (): void {
     $timePeriod = new TimePeriod(1, 'fake_name', 'fake_alias');
     $timePeriod->addDay(new Day(1, new TimeRange('00:30-04:00')));
     $timePeriod->addTemplate(new Template(1, 'fake_template'));
@@ -167,7 +167,7 @@ it('should present a FindTimePeriodResponse if the time response is found and us
 });
 
 
-it('should present a FindTimePeriodResponse if the time response is found and user has read-write rigths', function () {
+it('should present a FindTimePeriodResponse if the time response is found and user has read-write rigths', function (): void {
     $timePeriod = new TimePeriod(1, 'fake_name', 'fake_alias');
     $timePeriod->addDay(new Day(1, new TimeRange('00:30-04:00')));
     $timePeriod->addTemplate(new Template(1, 'fake_template'));

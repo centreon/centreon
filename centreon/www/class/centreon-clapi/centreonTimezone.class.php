@@ -35,17 +35,31 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_Timezone;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonObject.class.php";
 require_once "Centreon/Object/Timezone/Timezone.php";
 
+/**
+ * Class
+ *
+ * @class CentreonTimezone
+ * @package CentreonClapi
+ */
 class CentreonTimezone extends CentreonObject
 {
     /**
-     * CentreonTimezone constructor.
+     * CentreonTimezone constructor
+     *
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
-        $this->object = new \Centreon_Object_Timezone($dependencyInjector);
+        $this->object = new Centreon_Object_Timezone($dependencyInjector);
     }
 }

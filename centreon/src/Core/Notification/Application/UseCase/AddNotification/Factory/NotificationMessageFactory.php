@@ -46,7 +46,7 @@ class NotificationMessageFactory
      */
     public static function createNotificationMessages(array $messages): array
     {
-        if (empty($messages)) {
+        if ($messages === []) {
             throw NotificationException::emptyArrayNotAllowed('message');
         }
 

@@ -22,6 +22,7 @@ import {
   labelLogin,
   labelPoweredByCentreon
 } from './translatedLabels';
+import useGetLoginCustomData from './useGetLoginCustomData';
 import useLogin from './useLogin';
 import useValidationSchema from './validationSchema';
 
@@ -72,10 +73,11 @@ const LoginPage = (): JSX.Element => {
   const { t } = useTranslation();
   const validationSchema = useValidationSchema();
 
+  const { loginPageCustomisation } = useGetLoginCustomData();
+
   const {
     submitLoginForm,
     providersConfiguration,
-    loginPageCustomisation,
     authenticationError,
     hasForcedProvider
   } = useLogin();
@@ -95,8 +97,6 @@ const LoginPage = (): JSX.Element => {
       />
     );
   }
-
-  const hasProvidersConfiguration = !isNil(providersConfiguration);
 
   return (
     <div>
@@ -128,17 +128,15 @@ const LoginPage = (): JSX.Element => {
                   <LoginForm />
                 </Suspense>
               </Formik>
-              {hasProvidersConfiguration && (
-                <Suspense
-                  fallback={
-                    <LoadingSkeleton height={45} variant="text" width={250} />
-                  }
-                >
-                  <ExternalProviders
-                    providersConfiguration={providersConfiguration}
-                  />
-                </Suspense>
-              )}
+              <Suspense
+                fallback={
+                  <LoadingSkeleton height={45} variant="text" width={250} />
+                }
+              >
+                <ExternalProviders
+                  providersConfiguration={providersConfiguration}
+                />
+              </Suspense>
             </div>
             {equals(loginPageCustomisation.textPosition, 'bottom') && (
               <CustomText loginPageCustomisation={loginPageCustomisation} />

@@ -36,9 +36,9 @@ use Centreon\Domain\Common\Assertion\Assertion;
  */
 class Host
 {
-    public const OPTION_NO = 0,
-                 OPTION_YES = 1,
-                 OPTION_DEFAULT = 2;
+    public const OPTION_NO = 0;
+    public const OPTION_YES = 1;
+    public const OPTION_DEFAULT = 2;
 
     /**
      * Host template
@@ -53,9 +53,9 @@ class Host
      */
     public const TYPE_META = 2;
 
-    public const NOTIFICATIONS_OPTION_DISABLED = 0,
-                 NOTIFICATIONS_OPTION_ENABLED = 1,
-                 NOTIFICATIONS_OPTION_DEFAULT_ENGINE_VALUE = 2;
+    public const NOTIFICATIONS_OPTION_DISABLED = 0;
+    public const NOTIFICATIONS_OPTION_ENABLED = 1;
+    public const NOTIFICATIONS_OPTION_DEFAULT_ENGINE_VALUE = 2;
 
     private const AVAILABLE_NOTIFICATION_OPTIONS = [
         self::NOTIFICATIONS_OPTION_DISABLED,

@@ -33,36 +33,36 @@ use Centreon\Domain\Media\Model\Image;
  */
 class HostTemplate
 {
-    public const STATUS_ENABLE = 1,
-                 STATUS_DISABLE = 0,
-                 STATUS_DEFAULT = 2;
+    public const STATUS_ENABLE = 1;
+    public const STATUS_DISABLE = 0;
+    public const STATUS_DEFAULT = 2;
 
-    public const NOTIFICATION_OPTION_DOWN = 1,
-                 NOTIFICATION_OPTION_UNREACHABLE = 2,
-                 NOTIFICATION_OPTION_RECOVERY = 4,
-                 NOTIFICATION_OPTION_FLAPPING = 8,
-                 NOTIFICATION_OPTION_DOWNTIME_SCHEDULED = 16;
+    public const NOTIFICATION_OPTION_DOWN = 1;
+    public const NOTIFICATION_OPTION_UNREACHABLE = 2;
+    public const NOTIFICATION_OPTION_RECOVERY = 4;
+    public const NOTIFICATION_OPTION_FLAPPING = 8;
+    public const NOTIFICATION_OPTION_DOWNTIME_SCHEDULED = 16;
 
-    public const STALKING_OPTION_UP = 1,
-                 STALKING_OPTION_DOWN = 2,
-                 STALKING_OPTION_UNREACHABLE = 4;
+    public const STALKING_OPTION_UP = 1;
+    public const STALKING_OPTION_DOWN = 2;
+    public const STALKING_OPTION_UNREACHABLE = 4;
 
-    public const MAX_NAME_LENGTH = 200,
-                 MAX_ALIAS_LENGTH = 200,
-                 MAX_DISPLAY_NAME_LENGTH = 255,
-                 MAX_ADDRESS_LENGTH = 255,
-                 MAX_COMMENTS_LENGTH = 65535,
-                 MAX_SNMP_COMMUNITY_LENGTH = 255,
-                 MAX_ALTERNATIF_ICON_TEXT = 200,
-                 MAX_URL_NOTES = 65535,
-                 MAX_ACTION_URL = 65535,
-                 MAX_NOTES = 65535,
-                 MIN_CHECK_ATTEMPS = 1,
-                 MIN_CHECK_INTERVAL = 1,
-                 MIN_RETRY_CHECK_INTERVAL = 1,
-                 MIN_NOTIFICATION_INTERVAL = 0,
-                 MIN_FIRST_NOTIFICATION_DELAY = 0,
-                 MIN_RECOVERY_NOTIFICATION_DELAY = 0;
+    public const MAX_NAME_LENGTH = 200;
+    public const MAX_ALIAS_LENGTH = 200;
+    public const MAX_DISPLAY_NAME_LENGTH = 255;
+    public const MAX_ADDRESS_LENGTH = 255;
+    public const MAX_COMMENTS_LENGTH = 65535;
+    public const MAX_SNMP_COMMUNITY_LENGTH = 255;
+    public const MAX_ALTERNATIF_ICON_TEXT = 200;
+    public const MAX_URL_NOTES = 65535;
+    public const MAX_ACTION_URL = 65535;
+    public const MAX_NOTES = 65535;
+    public const MIN_CHECK_ATTEMPS = 1;
+    public const MIN_CHECK_INTERVAL = 1;
+    public const MIN_RETRY_CHECK_INTERVAL = 1;
+    public const MIN_NOTIFICATION_INTERVAL = 0;
+    public const MIN_FIRST_NOTIFICATION_DELAY = 0;
+    public const MIN_RECOVERY_NOTIFICATION_DELAY = 0;
 
     private const AVAILABLE_STATUS = [
         self::STATUS_ENABLE, self::STATUS_DISABLE, self::STATUS_DEFAULT

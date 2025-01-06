@@ -120,9 +120,7 @@ class DbReadRealTimeServiceCategoryRepository extends AbstractRepositoryRDB impl
 
         $sortRequest = $sqlTranslator?->translateSortParameterToSql();
 
-        $request .= $sortRequest !== null
-            ? $sortRequest
-            : ' ORDER BY service_categories.name ASC';
+        $request .= $sortRequest ?? ' ORDER BY service_categories.name ASC';
 
         // handle pagination
         $request .= $sqlTranslator?->translatePaginationToSql();
@@ -230,9 +228,7 @@ class DbReadRealTimeServiceCategoryRepository extends AbstractRepositoryRDB impl
 
         $sortRequest = $sqlTranslator?->translateSortParameterToSql();
 
-        $request .= $sortRequest !== null
-            ? $sortRequest
-            : ' ORDER BY service_categories.name ASC';
+        $request .= $sortRequest ?? ' ORDER BY service_categories.name ASC';
 
         // handle pagination
         $request .= $sqlTranslator?->translatePaginationToSql();

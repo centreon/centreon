@@ -86,6 +86,6 @@ class DependencyInjector implements ArrayAccess
      */
     public function offsetGet($offset): mixed
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 }

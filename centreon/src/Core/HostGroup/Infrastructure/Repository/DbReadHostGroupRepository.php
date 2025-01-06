@@ -107,7 +107,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
      */
     public function findAll(?RequestParametersInterface $requestParameters = null): \Traversable&\Countable
     {
-        $request = <<<'SQL'
+        $request = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS DISTINCT
                 hg.hg_id,
                 hg.hg_name,
@@ -122,7 +122,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                 hg.hg_comment,
                 hg.hg_activate
             FROM `:db`.`hostgroup` hg
-            SQL;
+            SQL_WRAP;
 
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
         $sqlTranslator?->setConcordanceArray([
@@ -156,9 +156,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         // handle sort
         $sortRequest = $sqlTranslator?->translateSortParameterToSql();
 
-        $request .= $sortRequest !== null
-            ? $sortRequest
-            : ' ORDER BY hg.hg_name ASC';
+        $request .= $sortRequest ?? ' ORDER BY hg.hg_name ASC';
 
         // handle pagination
         $request .= $sqlTranslator?->translatePaginationToSql();
@@ -194,7 +192,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
 
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
 
-        $request = <<<'SQL'
+        $request = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS DISTINCT
                 hg.hg_id,
                 hg.hg_name,
@@ -217,7 +215,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                 ON res.acl_res_id = argr.acl_res_id
             INNER JOIN `:db`.acl_groups ag
                 ON argr.acl_group_id = ag.acl_group_id
-            SQL;
+            SQL_WRAP;
 
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
         $sqlTranslator?->setConcordanceArray([
@@ -258,9 +256,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         // handle sort
         $sortRequest = $sqlTranslator?->translateSortParameterToSql();
 
-        $request .= $sortRequest !== null
-            ? $sortRequest
-            : ' ORDER BY hg.hg_name ASC';
+        $request .= $sortRequest ?? ' ORDER BY hg.hg_name ASC';
 
         // handle pagination
         $request .= $sqlTranslator?->translatePaginationToSql();

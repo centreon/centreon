@@ -35,8 +35,8 @@ const getElements = (): void => {
     'pollerButton'
   );
 
-  cy.findByRole('status', { name: 'database' }).as('databaseIndicator');
-  cy.findByRole('status', { name: 'latency' }).as('latencyIndicator');
+  cy.findByLabelText('database').as('databaseIndicator');
+  cy.findByLabelText('latency').as('latencyIndicator');
 };
 
 export default (): void =>

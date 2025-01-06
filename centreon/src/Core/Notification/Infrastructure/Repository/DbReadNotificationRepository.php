@@ -233,7 +233,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
                         SELECT /* Finds users belonging to the same contact groups as the user */
                             contact2.contact_id, contact2.contact_alias, contact2.contact_name,
                             contact2.contact_email, contact2.contact_admin, contact.contact_activate
-                        FROM `centreon`.`contact`
+                        FROM `:db`.`contact`
                         INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel
                             ON c_cg_rel.contact_contact_id = contact.contact_id
                         INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel2
@@ -494,7 +494,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
                         AND cg.cg_activate = '1'
                         AND c.contact_register = '1'
                 ) AS cg
-                INNER JOIN `centreon`.notification_contactgroup_relation ncr
+                INNER JOIN `:db`.notification_contactgroup_relation ncr
                     ON ncr.contactgroup_id = cg.cg_id
                 WHERE ncr.notification_id = :notificationId
                 ORDER BY cg_name ASC
@@ -640,11 +640,11 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     {
 
         $query = $this->translateDbName(
-            <<<'SQL'
+            <<<'SQL_WRAP'
                 SELECT SQL_CALC_FOUND_ROWS id, name, timeperiod_id, tp_name, is_activated
                 FROM `:db`.notification
                 INNER JOIN timeperiod ON timeperiod_id = tp_id
-                SQL
+                SQL_WRAP
         );
 
         if ($sqlTranslator === null) {

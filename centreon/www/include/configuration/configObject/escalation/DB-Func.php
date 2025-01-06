@@ -463,7 +463,7 @@ function updateEscalationContactGroups(CentreonDB $pearDB, array $escalationCont
         $queryParams[] = "(:escalationId, :contactGroupId{$key})";
     }
 
-    if (empty($params)) {
+    if ($params === []) {
         return;
     }
 
@@ -500,7 +500,7 @@ function updateEscalationHosts(CentreonDB $pearDB, array $escalationHosts, int $
         $queryParams[] = "(:escalationId, :hostId{$key})";
     }
 
-    if (empty($params)) {
+    if ($params === []) {
         return;
     }
 
@@ -537,7 +537,7 @@ function updateEscalationHostGroups(CentreonDB $pearDB, array $escalationHostGro
         $queryParams[] = "(:escalationId, :hostGroupId{$key})";
     }
 
-    if (empty($params)) {
+    if ($params === []) {
         return;
     }
 
@@ -574,7 +574,7 @@ function updateEscalationServiceGroups(CentreonDB $pearDB, array $escalationServ
         $queryParams[] = "(:escalationId, :serviceGroupId{$key})";
     }
 
-    if (empty($params)) {
+    if ($params === []) {
         return;
     }
 
@@ -616,7 +616,7 @@ function updateEscalationServices(CentreonDB $pearDB, array $escalationServices,
         }
     }
 
-    if (empty($params)) {
+    if ($params === []) {
         return;
     }
 
@@ -653,7 +653,7 @@ function updateEscalationMetaServices(CentreonDB $pearDB, array $escalationMetas
         $queryParams[] = "(:escalationId, :metaServiceId{$key})";
     }
 
-    if (empty($params)) {
+    if ($params === []) {
         return;
     }
 

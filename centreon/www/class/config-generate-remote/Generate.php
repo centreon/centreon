@@ -20,10 +20,9 @@
 
 namespace ConfigGenerateRemote;
 
-use App\Kernel;
-use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use PDO;
 use Exception;
+use Pimple\Container;
 
 // file centreon.config.php may not exist in test environment
 $configFile = realpath(__DIR__ . "/../../../config/centreon.config.php");
@@ -83,21 +82,33 @@ require_once __DIR__ . '/Relations/TrapsPreexec.php';
 require_once __DIR__ . '/Relations/NagiosServer.php';
 require_once __DIR__ . '/Relations/CfgResourceInstanceRelation.php';
 
+/**
+ * Class
+ *
+ * @class Generate
+ * @package ConfigGenerateRemote
+ */
 class Generate
 {
+    /** @var array */
     private $pollerCache = [];
+    /** @var Backend|null */
     private $backendInstance = null;
+    /** @var array|null */
     private $currentPoller = null;
+    /** @var array|null */
     private $installedModules = null;
+    /** @var array|null */
     private $moduleObjects = null;
+    /** @var Container|null */
     protected $dependencyInjector = null;
 
     /**
      * Constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         $this->dependencyInjector = $dependencyInjector;
         $this->backendInstance = Backend::getInstance($this->dependencyInjector);
@@ -123,10 +134,12 @@ class Generate
     /**
      * Get poller information
      *
-     * @param integer $pollerId
+     * @param int $pollerId
+     *
      * @return void
+     * @throws Exception
      */
-    private function getPollerFromId(int $pollerId)
+    private function getPollerFromId(int $pollerId): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT * FROM nagios_server
@@ -144,7 +157,7 @@ class Generate
     /**
      * Get pollers information
      *
-     * @param integer $remoteId
+     * @param int $remoteId
      * @return void
      */
     private function getPollersFromRemote(int $remoteId)
@@ -176,7 +189,7 @@ class Generate
      *
      * @return void
      */
-    public function resetObjectsEngine()
+    public function resetObjectsEngine(): void
     {
         Host::getInstance($this->dependencyInjector)->reset();
         Service::getInstance($this->dependencyInjector)->reset();
@@ -188,7 +201,7 @@ class Generate
      * @param string $username
      * @return void
      */
-    private function configPoller($username = 'unknown')
+    private function configPoller($username = 'unknown'): void
     {
         $this->resetObjectsEngine();
 
@@ -196,13 +209,6 @@ class Generate
             $this->currentPoller['id'],
             $this->currentPoller['localhost']
         );
-        $kernel = Kernel::createForWeb();
-        $readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
-            ?? throw new \Exception('ReadAccRepositoryInterface not found');
-        (new \AdditionalConnectorVmWareV6(
-            $this->backendInstance,
-            $readAdditionalConnectorRepository
-        ))->generateFromPollerId($this->currentPoller['id']);
 
         Engine::getInstance($this->dependencyInjector)->generateFromPoller($this->currentPoller);
         Broker::getInstance($this->dependencyInjector)->generateFromPoller($this->currentPoller);
@@ -213,9 +219,11 @@ class Generate
      *
      * @param int $remoteServerId
      * @param string $username
+     *
      * @return void
+     * @throws Exception
      */
-    public function configRemoteServerFromId(int $remoteServerId, $username = 'unknown')
+    public function configRemoteServerFromId(int $remoteServerId, $username = 'unknown'): void
     {
         try {
             $this->backendInstance->setUserName($username);
@@ -280,7 +288,7 @@ class Generate
      *
      * @return void
      */
-    public function getModuleObjects()
+    public function getModuleObjects(): void
     {
         $this->moduleObjects = [];
 
@@ -291,7 +299,7 @@ class Generate
             if (file_exists($generateFile)) {
                 require_once $generateFile;
                 $module = $this->ucFirst(['-', '_', ' '], $module);
-                $class = '\\' . $module . '\ConfigGenerateRemote\\Generate';
+                $class = '\\' . $module . \ConfigGenerateRemote\Generate::class;
                 if (class_exists($class)) {
                     $this->moduleObjects[] = $class;
                 }
@@ -305,7 +313,7 @@ class Generate
      * @param int $remoteServerId
      * @return void
      */
-    public function generateModuleObjects(int $remoteServerId)
+    public function generateModuleObjects(int $remoteServerId): void
     {
         if (is_null($this->moduleObjects)) {
             $this->getModuleObjects();
@@ -322,7 +330,7 @@ class Generate
      *
      * @return void
      */
-    public function resetModuleObjects()
+    public function resetModuleObjects(): void
     {
         if (is_null($this->moduleObjects)) {
             $this->getModuleObjects();
@@ -339,7 +347,7 @@ class Generate
      *
      * @return void
      */
-    private function createFiles()
+    private function createFiles(): void
     {
         Host::getInstance($this->dependencyInjector)->reset(true, true);
         Service::getInstance($this->dependencyInjector)->reset(true, true);
@@ -399,7 +407,7 @@ class Generate
      *
      * @return void
      */
-    private function resetObjects()
+    private function resetObjects(): void
     {
         Host::getInstance($this->dependencyInjector)->reset(true);
         Service::getInstance($this->dependencyInjector)->reset(true);

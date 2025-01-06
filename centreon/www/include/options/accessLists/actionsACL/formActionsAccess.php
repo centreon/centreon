@@ -51,7 +51,7 @@ if (($o === ACL_ACTION_MODIFY) && $aclActionId) {
     );
     $statement->bindValue(':aclActionId', $aclActionId, \PDO::PARAM_INT);
     $statement->execute();
-    $action_infos = array();
+    $action_infos = [];
     $action_infos = array_map("myDecode", $statement->fetch());
 
     // 2. Get "Groups" id linked with the selected Rule in order to initialize the form
@@ -61,7 +61,7 @@ if (($o === ACL_ACTION_MODIFY) && $aclActionId) {
     );
     $statement->bindValue(':aclActionId', $aclActionId, \PDO::PARAM_INT);
     $statement->execute();
-    $selected = array();
+    $selected = [];
     while ($contacts = $statement->fetch()) {
         $selected[] = $contacts["acl_group_id"];
     }
@@ -72,7 +72,7 @@ if (($o === ACL_ACTION_MODIFY) && $aclActionId) {
     );
     $statement->bindValue(':aclActionId', $aclActionId, \PDO::PARAM_INT);
     $statement->execute();
-    $selected_actions = array();
+    $selected_actions = [];
     while ($act = $statement->fetch()) {
         $selected_actions[$act["acl_action_name"]] = 1;
     }
@@ -82,7 +82,7 @@ if (($o === ACL_ACTION_MODIFY) && $aclActionId) {
 
 // Database retrieve information for differents elements list we need on the page
 // Groups list comes from Database and stores in $groups Array
-$groups = array();
+$groups = [];
 $DBRESULT = $pearDB->query("SELECT acl_group_id,acl_group_name FROM acl_groups ORDER BY acl_group_name");
 
 while ($group = $DBRESULT->fetchRow()) {
@@ -94,9 +94,9 @@ while ($group = $DBRESULT->fetchRow()) {
 $DBRESULT->closeCursor();
 
 // Var information to format the element
-$attrsText = array("size" => "30");
-$attrsAdvSelect = array("style" => "width: 300px; height: 220px;");
-$attrsTextarea = array("rows" => "5", "cols" => "60");
+$attrsText = ["size" => "30"];
+$attrsAdvSelect = ["style" => "width: 300px; height: 220px;"];
+$attrsTextarea = ["rows" => "5", "cols" => "60"];
 $eTemplate = "<table style='border:0px;'><tr><td>{unselected}</td><td align='center'>{add}<br /><br /><br />" .
     "{remove}</td><td>{selected}</td></tr></table>";
 
@@ -183,7 +183,7 @@ $form->addElement('checkbox', 'all_host', "");
 $form->addElement('checkbox', 'all_engine', "");
 
 
-$form->setDefaults(array("hostComment" => 1));
+$form->setDefaults(["hostComment" => 1]);
 
 // Contacts Selection
 $form->addElement('header', 'notification', _("Relations"));
@@ -194,8 +194,8 @@ $form->addElement('header', 'global_access', _("Global Functionalities Access"))
 $form->addElement('header', 'poller_cfg_access', _("Poller Configuration Actions / Poller Management"));
 
 $ams1 = $form->addElement('advmultiselect', 'acl_groups', _("Linked Groups"), $groups, $attrsAdvSelect, SORT_ASC);
-$ams1->setButtonAttributes('add', array('value' => _("Add"), "class" => "btc bt_success"));
-$ams1->setButtonAttributes('remove', array('value' => _("Remove"), "class" => "btc bt_danger"));
+$ams1->setButtonAttributes('add', ['value' => _("Add"), "class" => "btc bt_success"]);
+$ams1->setButtonAttributes('remove', ['value' => _("Remove"), "class" => "btc bt_danger"]);
 $ams1->setElementTemplate($eTemplate);
 echo $ams1->getElementJs(false);
 
@@ -208,7 +208,7 @@ $form->addElement('header', 'furtherInfos', _("Additional Information"));
 $groupActivation[] = $form->createElement('radio', 'acl_action_activate', null, _("Enabled"), '1');
 $groupActivation[] = $form->createElement('radio', 'acl_action_activate', null, _("Disabled"), '0');
 $form->addGroup($groupActivation, 'acl_action_activate', _("Status"), '&nbsp;');
-$form->setDefaults(array('acl_action_activate' => '1'));
+$form->setDefaults(['acl_action_activate' => '1']);
 
 $form->addElement('hidden', 'acl_action_id');
 $redirect = $form->addElement('hidden', 'o');
@@ -245,11 +245,11 @@ if ($o === ACL_ACTION_MODIFY && isset($selected_actions) && isset($action_infos)
 }
 // Add an Action Group
 if ($o === ACL_ACTION_ADD) {
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 } else {
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 }
 
 $valid = false;
@@ -266,7 +266,7 @@ if ($form->validate()) {
         "button",
         "change",
         _("Modify"),
-        array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&c_id=" . $groupObj->getValue() . "'")
+        ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&c_id=" . $groupObj->getValue() . "'"]
     );
     $form->freeze();
     $valid = true;

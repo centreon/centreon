@@ -142,9 +142,7 @@ class Centreon_OpenTickets_Rule
 
     public function getMacroNames($rule_id, $widget_id)
     {
-        $result = array(
-            'ticket_id' => null
-        );
+        $result = ['ticket_id' => null];
 
         if (!$rule_id) {
             return $result;
@@ -183,11 +181,14 @@ class Centreon_OpenTickets_Rule
 
         $selectedValues = explode(',', $selection);
 
+        // cmd 3 = open ticket on services
         if ($cmd == 3) {
             $selectedStr = '';
             $selectedStr2 = '';
             $selectedStrAppend = '';
             $queryParams = [];
+            $graphQueryParams = [];
+
             foreach ($selectedValues as $key => $value) {
                 [$hostId, $serviceId] = explode(';', $value);
                 $selectedStr .=
@@ -199,6 +200,8 @@ class Centreon_OpenTickets_Rule
                     . ' AND service_id = :service_id_' . $key;
                 $queryParams['host_id_' . $key] = $hostId;
                 $queryParams['service_id_' . $key] = $serviceId;
+                $graphQueryParams['host_id_' . $key] = $hostId;
+                $graphQueryParams['service_id_' . $key] = $serviceId;
                 $selectedStrAppend = ' OR ';
             }
 
@@ -217,18 +220,26 @@ class Centreon_OpenTickets_Rule
             SQL;
 
             if (!$centreon_bg->is_admin) {
-                $query .= <<<'SQL'
+                $aclGroupIdsCondition = '';
+                foreach (explode(',', str_replace("'", "", $centreon_bg->grouplistStr)) as $aclId) {
+                    if (empty($aclGroupIdsCondition)) {
+                        $aclGroupIdsCondition .= ':acl_' . $aclId;
+                    } else {
+                        $aclGroupIdsCondition .= ', :acl_' . $aclId;
+                    }
+                    $queryParams[':acl_' . $aclId] = (int) $aclId;
+                }
 
+                $query .= <<<SQL
                     AND EXISTS (
                         SELECT * FROM centreon_acl
-                        WHERE centreon_acl.group_id IN (:group_ids)
+                        WHERE centreon_acl.group_id IN ($aclGroupIdsCondition)
                         AND hosts.host_id = centreon_acl.host_id
                         AND services.service_id = centreon_acl.service_id
                     )
                 SQL;
-                $queryParams["group_ids"] = $centreon_bg->grouplistStr;
             }
-            
+
             $graphQuery = <<<SQL
                 SELECT
                     host_id,
@@ -244,10 +255,10 @@ class Centreon_OpenTickets_Rule
             try {
                 $hostServiceStatement = $dbStorage->prepareQuery($query);
                 $dbStorage->executePreparedQuery($hostServiceStatement, $queryParams);
-            
+
                 $graphStatement = $dbStorage->prepareQuery($graphQuery);
-                $dbStorage->executePreparedQuery($graphStatement, $queryParams);
-                
+                $dbStorage->executePreparedQuery($graphStatement, $graphQueryParams);
+
                 $graphData = [];
                 while (($row = $dbStorage->fetch($graphStatement))) {
                     $graphData[$row['host_id'] . '.' . $row['service_id']] = $row['num_metrics'];
@@ -272,9 +283,10 @@ class Centreon_OpenTickets_Rule
                     ['selection' => $selection],
                     $e
                 );
-                
+
                 return $selected;
             }
+        // cmd 4 = open a ticket on hosts
         } elseif ($cmd == 4) {
             $hostsSelectedStr = '';
             $hostsSelectedStrAppend = '';
@@ -293,15 +305,23 @@ class Centreon_OpenTickets_Rule
                 SQL;
 
             if (!$centreon_bg->is_admin) {
-                $query .= <<<'SQL'
+                $aclGroupIdsCondition = '';
+                foreach (explode(',', str_replace("'", '', $centreon_bg->grouplistStr)) as $aclId) {
+                    if (empty($aclGroupIdsCondition)) {
+                        $aclGroupIdsCondition .= ':acl_' . $aclId;
+                    } else {
+                        $aclGroupIdsCondition .= ', :acl_' . $aclId;
+                    }
+                    $queryParams[':acl_' . $aclId] = (int) $aclId;
+                }
 
+                $query .= <<<SQL
                     AND EXISTS (
                         SELECT * FROM centreon_acl
-                        WHERE centreon_acl.group_id IN (:group_ids)
+                        WHERE centreon_acl.group_id IN ($aclGroupIdsCondition)
                         AND hosts.host_id = centreon_acl.host_id
                     )
                 SQL;
-                $queryParams['group_ids'] = $centreon_bg->grouplistStr;
             }
 
             try {
@@ -346,7 +366,7 @@ class Centreon_OpenTickets_Rule
         return $this->_provider->getFormatPopup($args);
     }
 
-    public function save($rule_id, $datas)
+    public function save($rule_id, $datas): void
     {
         $this->_db->beginTransaction();
 
@@ -415,7 +435,7 @@ class Centreon_OpenTickets_Rule
      */
     public function getRuleList()
     {
-        $result = array();
+        $result = [];
         $dbResult = $this->_db->query(
             "SELECT r.rule_id, r.activate, r.alias FROM mod_open_tickets_rule r ORDER BY r.alias"
         );
@@ -428,7 +448,7 @@ class Centreon_OpenTickets_Rule
 
     public function get($rule_id)
     {
-        $result = array();
+        $result = [];
         if (is_null($rule_id)) {
             return $result;
         }
@@ -442,7 +462,7 @@ class Centreon_OpenTickets_Rule
         $result['provider_id'] = $row['provider_id'];
         $result['rule_alias'] = $row['alias'];
 
-        $result['clones'] = array();
+        $result['clones'] = [];
         $dbResult = $this->_db->query(
             "SELECT * FROM mod_open_tickets_form_clone
             WHERE rule_id = '" . $this->_db->escape($rule_id) . "'
@@ -450,10 +470,10 @@ class Centreon_OpenTickets_Rule
         );
         while (($row = $dbResult->fetch())) {
             if (!isset($result['clones'][$row['uniq_id']])) {
-                $result['clones'][$row['uniq_id']] = array();
+                $result['clones'][$row['uniq_id']] = [];
             }
             if (!isset($result['clones'][$row['uniq_id']][$row['order']])) {
-                $result['clones'][$row['uniq_id']][$row['order']] = array();
+                $result['clones'][$row['uniq_id']][$row['order']] = [];
             }
             $result['clones'][$row['uniq_id']][$row['order']][$row['label']] = $row['value'];
         }
@@ -474,7 +494,7 @@ class Centreon_OpenTickets_Rule
      * @param array $select
      * @return void
      */
-    public function enable($select)
+    public function enable($select): void
     {
         $this->_setActivate($select, 1);
     }
@@ -485,7 +505,7 @@ class Centreon_OpenTickets_Rule
      * @param array $select
      * @return void
      */
-    public function disable($select)
+    public function disable($select): void
     {
         $this->_setActivate($select, 0);
     }
@@ -497,7 +517,7 @@ class Centreon_OpenTickets_Rule
      * @param array $duplicateNb
      * @return void
      */
-    public function duplicate($select = array(), $duplicateNb = array())
+    public function duplicate($select = [], $duplicateNb = []): void
     {
         $this->_db->beginTransaction();
         foreach ($select as $ruleId => $val) {
@@ -596,7 +616,7 @@ class Centreon_OpenTickets_Rule
 
     public function getHostgroup($filter)
     {
-        $result = array();
+        $result = [];
         $where = '';
         if (!is_null($filter) && $filter != '') {
             $where = " hg_name LIKE '" . $this->_db->escape($filter) . "' AND ";
@@ -613,7 +633,7 @@ class Centreon_OpenTickets_Rule
 
     public function getContactgroup($filter)
     {
-        $result = array();
+        $result = [];
         $where = '';
         if (!is_null($filter) && $filter != '') {
             $where = " cg_name LIKE '" . $this->_db->escape($filter) . "' AND ";
@@ -630,7 +650,7 @@ class Centreon_OpenTickets_Rule
 
     public function getServicegroup($filter)
     {
-        $result = array();
+        $result = [];
         $where = '';
         if (!is_null($filter) && $filter != '') {
             $where = " sg_name LIKE '" . $this->_db->escape($filter) . "' AND ";
@@ -647,7 +667,7 @@ class Centreon_OpenTickets_Rule
 
     public function getHostcategory($filter)
     {
-        $result = array();
+        $result = [];
         $where = '';
         if (!is_null($filter) && $filter != '') {
             $where = " hc_name LIKE '" . $this->_db->escape($filter) . "' AND ";
@@ -667,7 +687,7 @@ class Centreon_OpenTickets_Rule
 
     public function getHostseverity($filter)
     {
-        $result = array();
+        $result = [];
         $where = '';
         if (!is_null($filter) && $filter != '') {
             $where = " hc_name LIKE '" . $this->_db->escape($filter) . "' AND ";
@@ -688,7 +708,7 @@ class Centreon_OpenTickets_Rule
 
     public function getServicecategory($filter)
     {
-        $result = array();
+        $result = [];
         $where = '';
         if (!is_null($filter) && $filter != '') {
             $where = " sc_name LIKE '" . $this->_db->escape($filter) . "' AND ";
@@ -708,7 +728,7 @@ class Centreon_OpenTickets_Rule
 
     public function getServiceseverity($filter)
     {
-        $result = array();
+        $result = [];
         $where = '';
         if (!is_null($filter) && $filter != '') {
             $where = " sc_name LIKE '" . $this->_db->escape($filter) . "' AND ";

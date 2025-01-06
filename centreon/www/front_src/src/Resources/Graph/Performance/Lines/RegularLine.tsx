@@ -78,7 +78,7 @@ const RegularLine = ({
   return (
     <>
       {shapeCircleAnomalyDetection}
-      <Shape.LinePath<TimeValue> {...props} />;
+      <Shape.LinePath<TimeValue> {...props} />
     </>
   );
 };

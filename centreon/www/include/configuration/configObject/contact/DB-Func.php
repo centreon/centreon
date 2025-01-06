@@ -149,7 +149,7 @@ function keepOneContactAtLeast($ct_id = null)
  * @param $contact_id
  * @param $contact_arr
  */
-function enableContactInDB($contact_id = null, $contact_arr = array())
+function enableContactInDB($contact_id = null, $contact_arr = [])
 {
     global $pearDB, $centreon;
 
@@ -157,7 +157,7 @@ function enableContactInDB($contact_id = null, $contact_arr = array())
         return;
     }
     if ($contact_id) {
-        $contact_arr = array($contact_id => "1");
+        $contact_arr = [$contact_id => "1"];
     }
 
     foreach ($contact_arr as $key => $value) {
@@ -177,7 +177,7 @@ function enableContactInDB($contact_id = null, $contact_arr = array())
  * @param $contact_id
  * @param $contact_arr
  */
-function disableContactInDB($contact_id = null, $contact_arr = array())
+function disableContactInDB($contact_id = null, $contact_arr = [])
 {
     global $pearDB, $centreon;
 
@@ -185,7 +185,7 @@ function disableContactInDB($contact_id = null, $contact_arr = array())
         return;
     }
     if ($contact_id) {
-        $contact_arr = array($contact_id => "1");
+        $contact_arr = [$contact_id => "1"];
     }
 
     foreach ($contact_arr as $key => $value) {
@@ -248,7 +248,7 @@ function unblockContactInDB(int|array|null $contact = null): void
  * Delete Contacts
  * @param array $contacts
  */
-function deleteContactInDB($contacts = array())
+function deleteContactInDB($contacts = [])
 {
     global $pearDB, $centreon;
 
@@ -299,7 +299,7 @@ function deleteContactInDB($contacts = array())
  * Used for massive sync request
  * @param array $contacts
  */
-function synchronizeContactWithLdap(array $contacts = array()): void
+function synchronizeContactWithLdap(array $contacts = []): void
 {
     global $pearDB;
     $centreonLog = new CentreonLog();
@@ -387,7 +387,7 @@ function synchronizeContactWithLdap(array $contacts = array()): void
  * @param array $nbrDup Number of duplication per contact id
  * @return array List of the new contact ids
  */
-function multipleContactInDB($contacts = array(), $nbrDup = array())
+function multipleContactInDB($contacts = [], $nbrDup = [])
 {
     global $pearDB, $centreon;
     $newContactIds = [];
@@ -412,8 +412,14 @@ function multipleContactInDB($contacts = array(), $nbrDup = array())
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
                 if (in_array($key2, ['creation_date', 'password']) === false) {
-                    $key2 == "contact_name" ? ($contact_name = $value2 = $value2 . "_" . $i) : null;
-                    $key2 == "contact_alias" ? ($contact_alias = $value2 = $value2 . "_" . $i) : null;
+                    if ($key2 == "contact_name") {
+                        $contact_name = $value2 . "_" . $i;
+                        $value2 = $value2 . "_" . $i;
+                    }
+                    if ($key2 == "contact_alias") {
+                        $contact_alias = $value2 . "_" . $i;
+                        $value2 = $value2 . "_" . $i;
+                    }
                     $val ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL") : $val .=
                         ($value2 != null ? ("'" . $value2 . "'") : "NULL");
                     if ($key2 != "contact_id") {
@@ -433,7 +439,7 @@ function multipleContactInDB($contacts = array(), $nbrDup = array())
             }
 
             if (testContactExistence($contact_name) && testAliasExistence($contact_alias)) {
-                $val ? $rq = "INSERT INTO contact VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO contact VALUES (" . $val . ")" : null;
                 $pearDB->query($rq);
                 $lastId = $pearDB->lastInsertId();
                 if (isset($lastId)) {
@@ -617,7 +623,7 @@ function updateContactInDB($contact_id = null, $from_MC = false)
  * @param array $ret
  * @return mixed
  */
-function insertContactInDB($ret = array())
+function insertContactInDB($ret = [])
 {
     $contact_id = insertContact($ret);
     updateContactHostCommands($contact_id, $ret);
@@ -631,7 +637,7 @@ function insertContactInDB($ret = array())
  * @param array $ret
  * @return mixed
  */
-function insertContact($ret = array())
+function insertContact($ret = [])
 {
     global $form, $pearDB, $centreon, $dependencyInjector;
 
@@ -641,6 +647,10 @@ function insertContact($ret = array())
     $ret["contact_name"] = $centreon->checkIllegalChar($ret["contact_name"]);
     if (isset($ret['contact_oreon']['contact_oreon']) && $ret['contact_oreon']['contact_oreon'] === '1') {
         $ret['reach_api_rt']['reach_api_rt'] = '1';
+    }
+    // Filter fields to only include whitelisted fields for non-admin users
+    if (! $centreon->user->admin) {
+        $ret = filterNonAdminFields($ret);
     }
 
     $bindParams = sanitizeFormContactParameters($ret);
@@ -694,12 +704,16 @@ function updateContact($contactId = null)
         return;
     }
     $ret = $form->getSubmitValues();
-    // remove illegal chars in data sent by the user
+    // Filter fields to only include whitelisted fields for non-admin users
+    if (! $centreon->user->admin) {
+        $ret = filterNonAdminFields($ret);
+    }
+    // Remove illegal chars in data sent by the user
     $ret['contact_name'] = CentreonUtils::escapeSecure($ret['contact_name'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
     $ret['contact_alias'] = CentreonUtils::escapeSecure($ret['contact_alias'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
     $bindParams = sanitizeFormContactParameters($ret);
 
-    //Build Query with only setted values.
+    // Build Query with only setted values.
     $rq = "UPDATE contact SET ";
     foreach (array_keys($bindParams) as $token) {
         $rq .= ltrim($token, ':') . " = " . $token . ", ";
@@ -752,6 +766,10 @@ function updateContact_MC($contact_id = null)
         if (is_string($value) && empty($value)) {
             unset($ret[$name]);
         }
+    }
+    // Filter fields to only include whitelisted fields for non-admin users
+    if (! $centreon->user->admin) {
+        $ret = filterNonAdminFields($ret);
     }
 
     $bindParams = sanitizeFormContactParameters($ret);
@@ -1162,19 +1180,19 @@ function updateContactContactGroup_MC(int $contactId): bool
  * @param array $tmpContacts
  * @return bool
  */
-function insertLdapContactInDB($tmpContacts = array())
+function insertLdapContactInDB($tmpContacts = [])
 {
     global $nbr, $centreon, $pearDB;
-    $tmpConf = array();
-    $ldapInstances = array();
-    $contactTemplates = array();
+    $tmpConf = [];
+    $ldapInstances = [];
+    $contactTemplates = [];
     foreach ($tmpContacts["select"] as $select_key => $select_value) {
         if ($tmpContacts['contact_name'][$select_key] == '-') {
             $tmpContacts['contact_name'][$select_key] = $tmpContacts["contact_alias"][$select_key];
         }
         $tmpContacts["contact_name"][$select_key] = str_replace(
-            array(" ", ","),
-            array("_", "_"),
+            [" ", ","],
+            ["_", "_"],
             $tmpContacts["contact_name"][$select_key]
         );
         $arId = $tmpContacts["ar_id"][$select_key];
@@ -1233,11 +1251,11 @@ function insertLdapContactInDB($tmpContacts = array())
             }
             $pearDB->query(sprintf($sqlUpdate, $tmplSql));
         }
-        $listGroup = array();
+        $listGroup = [];
         if (false !== $ldap->connect()) {
             $listGroup = $ldap->listGroupsForUser($tmpContacts["dn"][$select_key]);
         }
-        if (count($listGroup) > 0) {
+        if ($listGroup !== []) {
             $query = "SELECT cg_id FROM contactgroup WHERE cg_name IN ('" . join("','", $listGroup) . "')";
             try {
                 $res = $pearDB->query($query);
@@ -1517,11 +1535,7 @@ function sanitizeFormContactParameters(array $ret): array
             case 'contact_lang':
                 if (!empty($inputValue)) {
                     $inputValue = \HtmlAnalyzer::sanitizeAndRemoveTags($inputValue);
-                    if (empty($inputValue)) {
-                        $bindParams[':' . $inputName] = [\PDO::PARAM_STR => 'browser'];
-                    } else {
-                        $bindParams[':' . $inputName] = [\PDO::PARAM_STR => $inputValue];
-                    }
+                    $bindParams[':' . $inputName] = empty($inputValue) ? [\PDO::PARAM_STR => 'browser'] : [\PDO::PARAM_STR => $inputValue];
                 }
                 break;
             case 'default_page':
@@ -1534,11 +1548,7 @@ function sanitizeFormContactParameters(array $ret): array
             case 'contact_auth_type':
                 if (!empty($inputValue)) {
                     $inputValue = \HtmlAnalyzer::sanitizeAndRemoveTags($inputValue);
-                    if (empty($inputValue)) {
-                        $bindParams[':' . $inputName] = [\PDO::PARAM_STR => 'local'];
-                    } else {
-                        $bindParams[':' . $inputName] = [\PDO::PARAM_STR => $inputValue];
-                    }
+                    $bindParams[':' . $inputName] = empty($inputValue) ? [\PDO::PARAM_STR => 'local'] : [\PDO::PARAM_STR => $inputValue];
                 }
                 break;
             case 'contact_alias':
@@ -1599,7 +1609,7 @@ function validatePasswordCreation(array $fields)
         $errors['contact_passwd'] = $e->getMessage();
     }
 
-    return count($errors) > 0 ? $errors : true;
+    return $errors !== [] ? $errors : true;
 }
 
 /**
@@ -1627,7 +1637,7 @@ function validatePasswordModification(array $fields)
         $errors['contact_passwd'] = $e->getMessage();
     }
 
-    return count($errors) > 0 ? $errors : true;
+    return $errors !== [] ? $errors : true;
 }
 
 /**
@@ -1672,5 +1682,33 @@ function validateAutologin(array $fields)
         }
     }
 
-    return count($errors) > 0 ? $errors : true;
+    return $errors !== [] ? $errors : true;
+}
+
+/**
+ * Filter the fields in the $ret array to only include whitelisted fields for non-admin users.
+ *
+ * @param array $ret
+ * @return array
+ */
+function filterNonAdminFields(array $ret): array
+{
+    $allowedFields = [
+        'contact_alias', 'contact_name', 'contact_email', 'contact_pager',
+        'contact_cgNotif', 'contact_enable_notifications', 'contact_hostNotifOpts',
+        'timeperiod_tp_id', 'contact_hostNotifCmds', 'contact_svNotifOpts', 'contact_passwd2',
+        'timeperiod_tp_id2', 'contact_svNotifCmds', 'contact_oreon', 'contact_passwd',
+        'contact_lang', 'default_page', 'contact_location', 'contact_autologin_key', 'contact_auth_type',
+        'contact_acl_groups', 'contact_address1', 'contact_address2', 'contact_address3', 'contact_address4',
+        'contact_address5', 'contact_address6', 'contact_comment', 'contact_register', 'contact_activate',
+        'contact_id', 'initialValues', 'centreon_token', 'contact_template_id', 'contact_type_msg'
+    ];
+
+    foreach ($ret as $field => $value) {
+        if (!in_array($field, $allowedFields, true)) {
+            unset($ret[$field]);
+        }
+    }
+
+    return $ret;
 }

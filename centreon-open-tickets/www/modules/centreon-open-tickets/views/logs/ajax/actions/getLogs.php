@@ -29,8 +29,8 @@ function set_pagination($tpl, $pagination, $current_page, $rows) {
     $bottom = $current_page - 1;
     $top = $current_page + 1;
 
-    $bottom_display = array();
-    $top_display = array();
+    $bottom_display = [];
+    $top_display = [];
     $arrow_first_display = 1;
     $arrow_last_display = 1;
 
@@ -58,12 +58,7 @@ function set_pagination($tpl, $pagination, $current_page, $rows) {
     $tpl->assign("arrow_last_display", $arrow_last_display);
 }
 
-$resultat = array(
-    "code" => 0,
-    "msg" => 'ok',
-    "data" => null,
-    "pagination" => null
-);
+$resultat = ["code" => 0, "msg" => 'ok', "data" => null, "pagination" => null];
 
 //$fp = fopen('/tmp/debug.txt', 'a+');
 //fwrite($fp, print_r($get_information, true));

@@ -39,15 +39,18 @@ require_once _CENTREON_PATH_ . "/www/class/centreonHost.class.php";
 require_once _CENTREON_PATH_ . "/www/class/centreonHook.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationHost
+ */
 class CentreonConfigurationHost extends CentreonConfigurationObjects
 {
-    /**
-     * @var CentreonDB
-     */
+    /** @var CentreonDB */
     protected $pearDBMonitoring;
 
     /**
-     * CentreonConfigurationHost constructor.
+     * CentreonConfigurationHost constructor
      */
     public function __construct()
     {
@@ -59,6 +62,7 @@ class CentreonConfigurationHost extends CentreonConfigurationObjects
 
     /**
      * @return array
+     * @throws PDOException
      * @throws RestBadRequestException
      */
     public function getList()
@@ -71,15 +75,11 @@ class CentreonConfigurationHost extends CentreonConfigurationObjects
         $additionalTables = '';
         $additionalCondition = '';
         $explodedValues = '';
-        $queryValues = array();
+        $queryValues = [];
         $query = '';
 
         // Check for select2 'q' argument
-        if (false === isset($this->arguments['q'])) {
-            $queryValues["hostName"] = '%%';
-        } else {
-            $queryValues["hostName"] = '%' . (string)$this->arguments['q'] . '%';
-        }
+        $queryValues["hostName"] = false === isset($this->arguments['q']) ? '%%' : '%' . (string)$this->arguments['q'] . '%';
         $query .= 'SELECT SQL_CALC_FOUND_ROWS DISTINCT host_name, host_id, host_activate ' .
             'FROM ( ' .
             '( SELECT DISTINCT h.host_name, h.host_id, h.host_activate ' .
@@ -160,24 +160,17 @@ class CentreonConfigurationHost extends CentreonConfigurationObjects
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $hostList = array();
+        $hostList = [];
         while ($data = $stmt->fetch()) {
-            $hostList[] = array(
-                'id' => htmlentities($data['host_id']),
-                'text' => $data['host_name'],
-                'status' => (bool) $data['host_activate'],
-            );
+            $hostList[] = ['id' => htmlentities($data['host_id']), 'text' => $data['host_name'], 'status' => (bool) $data['host_activate']];
         }
 
-        return array(
-            'items' => $hostList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $hostList, 'total' => (int) $this->pearDB->numberRows()];
     }
 
     /**
-     *
-     * @return type
+     * @return array
+     * @throws PDOException
      * @throws RestBadRequestException
      */
     public function getServices()
@@ -194,7 +187,7 @@ class CentreonConfigurationHost extends CentreonConfigurationObjects
         }
 
         $hostObj = new CentreonHost($this->pearDB);
-        $serviceList = array();
+        $serviceList = [];
         $serviceListRaw = $hostObj->getServices($id, false, $allServices);
 
         foreach ($serviceListRaw as $service_id => $service_description) {

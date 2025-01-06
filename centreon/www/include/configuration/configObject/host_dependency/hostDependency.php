@@ -88,8 +88,8 @@ switch ($o) {
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
             multipleHostDependencyInDB(
-                is_array($select) ? $select : array(),
-                is_array($dupNbr) ? $dupNbr : array()
+                is_array($select) ? $select : [],
+                is_array($dupNbr) ? $dupNbr : []
             );
         } else {
             unvalidFormMessage();
@@ -100,7 +100,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteHostDependencyInDB(is_array($select) ? $select : array());
+            deleteHostDependencyInDB(is_array($select) ? $select : []);
         } else {
             unvalidFormMessage();
         }

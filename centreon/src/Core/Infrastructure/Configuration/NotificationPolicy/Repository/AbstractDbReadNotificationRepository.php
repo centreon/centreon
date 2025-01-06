@@ -48,7 +48,7 @@ abstract class AbstractDbReadNotificationRepository extends AbstractRepositoryDR
 
         $contacts = [];
 
-        if (empty($contactIds)) {
+        if ($contactIds === []) {
             return $contacts;
         }
 
@@ -189,7 +189,7 @@ abstract class AbstractDbReadNotificationRepository extends AbstractRepositoryDR
 
         $contactGroups = [];
 
-        if (empty($contactGroupIds)) {
+        if ($contactGroupIds === []) {
             return $contactGroups;
         }
 

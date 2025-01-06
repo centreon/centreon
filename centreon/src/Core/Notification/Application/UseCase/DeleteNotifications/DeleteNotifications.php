@@ -137,7 +137,7 @@ final class DeleteNotifications
         if ($statusResponse instanceof NoContentResponse) {
             $responseStatusDto->status = ResponseCode::OK;
             $responseStatusDto->message = null;
-        } else if ($statusResponse instanceof NotFoundResponse) {
+        } elseif ($statusResponse instanceof NotFoundResponse) {
             $responseStatusDto->status = ResponseCode::NotFound;
             $responseStatusDto->message = $statusResponse->getMessage();
         } else {

@@ -111,7 +111,7 @@ const getYupValidatorType = ({
               .optional()
           )
           .min(
-            properties.required ? 1 : 0,
+            properties.required || properties?.requireResourceType ? 1 : 0,
             t(labelPleaseSelectAResource) as string
           )
       )
@@ -130,7 +130,7 @@ const getYupValidatorType = ({
               .optional()
           )
           .when('resources', ([resources], schema) => {
-            const hasMetaService = resources.some(({ resourceType }) =>
+            const hasMetaService = resources?.some(({ resourceType }) =>
               equals(resourceType, WidgetResourceType.metaService)
             );
 
@@ -213,14 +213,14 @@ export const showInput = ({
   const dependencyValue = path(when.split('.'), values) as Array<object>;
 
   if (notContains) {
-    return notContains.some(
+    return notContains?.some(
       ({ key, value }) =>
         !includes(value, pluck(key, dependencyValue).join(','))
     );
   }
 
   if (contains) {
-    return contains.some(({ key, value }) =>
+    return contains?.some(({ key, value }) =>
       includes(value, pluck(key, dependencyValue).join(','))
     );
   }

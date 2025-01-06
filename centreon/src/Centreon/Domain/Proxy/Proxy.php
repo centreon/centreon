@@ -68,11 +68,10 @@ class Proxy
     /**
      * @var string Proxy connection protocol (default: Proxy::PROTOCOL_HTTP)
      */
-    private $protocol;
+    private $protocol = self::PROTOCOL_HTTP;
 
     public function __construct()
     {
-        $this->protocol = self::PROTOCOL_HTTP;
     }
 
     /**

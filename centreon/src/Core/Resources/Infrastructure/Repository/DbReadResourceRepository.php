@@ -303,7 +303,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             }
         }
 
-        if (! empty($searchedTagNames)) {
+        if ($searchedTagNames !== []) {
             $subRequest = ' INNER JOIN (';
             $intersectRequest = '';
             $index = 1;
@@ -534,7 +534,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             iterator_to_array($this->resourceACLProviders)
         );
 
-        if (empty($orConditions)) {
+        if ($orConditions === []) {
             throw new \InvalidArgumentException(_('You must provide at least one ACL provider'));
         }
 
@@ -752,19 +752,19 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         }
 
         if (
-            ! empty($filteredNames)
-            || ! empty($filteredLevels)
+            $filteredNames !== []
+            || $filteredLevels !== []
         ) {
             $subRequest = ' AND EXISTS (
                 SELECT 1 FROM `:dbstg`.severities
                 WHERE severities.severity_id = resources.severity_id
                     AND severities.type IN (' . implode(', ', $filteredTypes) . ')';
 
-            $subRequest .= ! empty($filteredNames)
+            $subRequest .= $filteredNames !== []
                 ? ' AND severities.name IN (' . implode(', ', $filteredNames) . ')'
                 : '';
 
-            $subRequest .= ! empty($filteredLevels)
+            $subRequest .= $filteredLevels !== []
                 ? ' AND severities.level IN (' . implode(', ', $filteredLevels) . ')'
                 : '';
 
@@ -968,7 +968,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     private function getIconsDataForResources(array $iconIds): array
     {
         $icons = [];
-        if (! empty($iconIds)) {
+        if ($iconIds !== []) {
             $request = 'SELECT
                 img_id AS `icon_id`,
                 img_name AS `icon_name`,

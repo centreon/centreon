@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright 2019 Centreon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,6 +28,10 @@ use CentreonLegacy\ServiceProvider;
  */
 class FactoryTest extends TestCase
 {
+
+    /** @var ServiceContainer */
+    public $container;
+
     public function setUp(): void
     {
         $this->container = new ServiceContainer();
@@ -44,7 +48,7 @@ class FactoryTest extends TestCase
         $this->container = null;
     }
 
-    public function testNewUtils()
+    public function testNewUtils(): void
     {
         $factory = new Utils\Factory($this->container);
         $this->assertInstanceOf(Utils\Utils::class, $factory->newUtils());

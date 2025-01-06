@@ -20,15 +20,28 @@
 
 namespace ConfigGenerateRemote;
 
-use \PDO;
+use Exception;
+use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use PDOStatement;
 
+/**
+ * Class
+ *
+ * @class Resource
+ * @package ConfigGenerateRemote
+ */
 class Resource extends AbstractObject
 {
+    /** @var string */
     protected $table = 'cfg_resource';
+    /** @var string */
     protected $generateFilename = 'resource.infile';
+    /** @var string|null */
     protected $objectName = null;
+    /** @var PDOStatement */
     protected $stmt = null;
+    /** @var string[] */
     protected $attributesWrite = [
         'resource_id',
         'resource_name',
@@ -40,8 +53,10 @@ class Resource extends AbstractObject
     /**
      * Generate resource objects
      *
-     * @param null|integer $pollerId
+     * @param null|int $pollerId
+     *
      * @return void
+     * @throws Exception
      */
     public function generateFromPollerId(?int $pollerId)
     {

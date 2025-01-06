@@ -35,13 +35,33 @@
 
 require_once __DIR__ . "/../List.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonWidgetParamsConnectorHost
+ */
 class CentreonWidgetParamsConnectorHost extends CentreonWidgetParamsList
 {
+    /**
+     * CentreonWidgetParamsConnectorHost constructor
+     *
+     * @param $db
+     * @param $quickform
+     * @param $userId
+     *
+     * @throws PDOException
+     */
     public function __construct($db, $quickform, $userId)
     {
         parent::__construct($db, $quickform, $userId);
     }
 
+    /**
+     * @param $paramId
+     *
+     * @return mixed|null[]
+     * @throws PDOException
+     */
     public function getListValues($paramId)
     {
         static $tab;
@@ -58,7 +78,7 @@ class CentreonWidgetParamsConnectorHost extends CentreonWidgetParamsList
             );
             $query .= " ORDER BY host_name";
             $res = $this->db->query($query);
-            $tab = array(null => null);
+            $tab = [null => null];
             while ($row = $res->fetchRow()) {
                 $tab[$row['host_id']] = $row['host_name'];
             }

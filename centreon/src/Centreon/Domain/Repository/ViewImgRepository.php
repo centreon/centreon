@@ -13,11 +13,7 @@ class ViewImgRepository extends ServiceEntityRepository
      */
     public function export(array $imgList = null): array
     {
-        if ($imgList === null) {
-            $list = join(',', []);
-        } else {
-            $list = join(',', $imgList);
-        }
+        $list = $imgList === null ? join(',', []) : join(',', $imgList);
 
         if (!$list) {
             return [];

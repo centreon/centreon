@@ -71,9 +71,7 @@ define('MACRO_WATCH', 'w');
 $action = filter_var(
     $_POST['o1'] ?? $_POST['o2'] ?? null,
     FILTER_VALIDATE_REGEXP,
-    array(
-        "options" => array("regexp" => "/([a|c|d|m|s|u|w]{1})/")
-    )
+    ["options" => ["regexp" => "/([a|c|d|m|s|u|w]{1})/"]]
 );
 if ($action !== false) {
     $o = $action;
@@ -87,13 +85,13 @@ $resourceId = filter_var(
 
 // If one data are not correctly typed in array, it will be set to false
 $selectIds = filter_var_array(
-    $_GET["select"] ?? $_POST["select"] ?? array(),
+    $_GET["select"] ?? $_POST["select"] ?? [],
     FILTER_VALIDATE_INT
 );
 
 // If one data are not correctly typed in array, it will be set to false
 $duplicateNbr = filter_var_array(
-    $_GET["dupNbr"] ?? $_POST["dupNbr"] ?? array(),
+    $_GET["dupNbr"] ?? $_POST["dupNbr"] ?? [],
     FILTER_VALIDATE_INT
 );
 
@@ -104,7 +102,7 @@ if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['
 
 $acl = $oreon->user->access;
 $serverString = $acl->getPollerString();
-$allowedResourceConf = array();
+$allowedResourceConf = [];
 if ($serverString != "''" && !empty($serverString)) {
     $sql = "SELECT resource_id
                 FROM cfg_resource_instance_relations

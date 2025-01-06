@@ -39,7 +39,7 @@ use Core\Dashboard\Domain\Model\Metric\PerformanceMetric;
 use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->nonAdminUser = (new Contact())->setId(1)->setAdmin(false);
     $this->adminUser = (new Contact())->setId(1)->setAdmin(true);
     $this->requestParameters = $this->createMock(RequestParametersInterface::class);
@@ -49,10 +49,9 @@ beforeEach(function () {
     $this->isCloudPlatform = false;
 });
 
-it('should present a ForbiddenResponse when the user does not has sufficient rights', function () {
+it('should present a ForbiddenResponse when the user does not has sufficient rights', function (): void {
     $presenter = new FindMetricsTopPresenterStub();
-    $request =  new FindMetricsTopRequest();
-    $request->metricName = "rta";
+    $request =  new FindMetricsTopRequest('rta');
     $useCase = new FindMetricsTop(
         $this->nonAdminUser,
         $this->requestParameters,
@@ -75,10 +74,9 @@ it('should present a ForbiddenResponse when the user does not has sufficient rig
 
 });
 
-it('should present an ErrorResponse when an error occurs', function () {
+it('should present an ErrorResponse when an error occurs', function (): void {
     $presenter = new FindMetricsTopPresenterStub();
-    $request =  new FindMetricsTopRequest();
-    $request->metricName = "rta";
+    $request =  new FindMetricsTopRequest('rta');
     $useCase = new FindMetricsTop(
         $this->adminUser,
         $this->requestParameters,
@@ -105,10 +103,9 @@ it('should present an ErrorResponse when an error occurs', function () {
         ->and($presenter->data->getMessage())->toBe('An error occured while retrieving top metrics');
 });
 
-it('should present a NotFoundResponse when no metrics are found', function () {
+it('should present a NotFoundResponse when no metrics are found', function (): void {
     $presenter = new FindMetricsTopPresenterStub();
-    $request =  new FindMetricsTopRequest();
-    $request->metricName = "rta";
+    $request =  new FindMetricsTopRequest('rta');
     $useCase = new FindMetricsTop(
         $this->adminUser,
         $this->requestParameters,
@@ -135,10 +132,9 @@ it('should present a NotFoundResponse when no metrics are found', function () {
         ->and($presenter->data->getMessage())->toBe((new NotFoundResponse('metrics'))->getMessage());
 });
 
-it('should take account of access groups when the user is not admin', function () {
+it('should take account of access groups when the user is not admin', function (): void {
     $presenter = new FindMetricsTopPresenterStub();
-    $request =  new FindMetricsTopRequest();
-    $request->metricName = "rta";
+    $request =  new FindMetricsTopRequest('rta');
     $useCase = new FindMetricsTop(
         $this->nonAdminUser,
         $this->requestParameters,
@@ -160,10 +156,9 @@ it('should take account of access groups when the user is not admin', function (
     $useCase($presenter, $request);
 });
 
-it('should present a FindMetricsTopResponse when metrics are found', function () {
+it('should present a FindMetricsTopResponse when metrics are found', function (): void {
     $presenter = new FindMetricsTopPresenterStub();
-    $request =  new FindMetricsTopRequest();
-    $request->metricName = "rta";
+    $request =  new FindMetricsTopRequest('rta');
     $useCase = new FindMetricsTop(
         $this->adminUser,
         $this->requestParameters,

@@ -49,8 +49,6 @@ $path = "./include/configuration/configObject/command/";
 require_once $path . "DB-Func.php";
 require_once "./include/common/common-Func.php";
 
-const COMMAND_TYPE_CHECK = 2;
-
 $command_id = filter_var(
     $_GET['command_id'] ?? $_POST['command_id'] ?? null,
     FILTER_VALIDATE_INT
@@ -86,11 +84,7 @@ if (($o === "m" || $o === "d") && count($select) == 0 && $command_id) {
 }
 
 global $isCloudPlatform;
-
-// In Cloud context we force the type to Check. That is the only possible optio
-if ($isCloudPlatform = isCloudPlatform() === true) {
-    $type = COMMAND_TYPE_CHECK;
-}
+$isCloudPlatform = isCloudPlatform();
 
 $commandObj = new CentreonCommand($pearDB);
 $lockedElements = $commandObj->getLockedCommands();
@@ -119,7 +113,7 @@ if ($min) {
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
                 multipleCommandInDB(
-                    is_array($select) ? $select : array(),
+                    is_array($select) ? $select : [],
                     $select
                 );
             } else {
@@ -131,7 +125,7 @@ if ($min) {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                deleteCommandInDB(is_array($select) ? $select : array());
+                deleteCommandInDB(is_array($select) ? $select : []);
             } else {
                 unvalidFormMessage();
             }
@@ -141,7 +135,7 @@ if ($min) {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                changeCommandStatus(null, is_array($select) ? $select : array(), 1);
+                changeCommandStatus(null, is_array($select) ? $select : [], 1);
             } else {
                 unvalidFormMessage();
             }
@@ -151,7 +145,7 @@ if ($min) {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                changeCommandStatus(null, is_array($select) ? $select : array(), 0);
+                changeCommandStatus(null, is_array($select) ? $select : [], 0);
             } else {
                 unvalidFormMessage();
             }

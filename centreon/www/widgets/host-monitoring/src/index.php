@@ -180,7 +180,7 @@ if (isset($preferences['host_down']) && $preferences['host_down']) {
 if (isset($preferences['host_unreachable']) && $preferences['host_unreachable']) {
     $stateTab[] = 2;
 }
-if (count($stateTab)) {
+if ($stateTab !== []) {
     $query = CentreonUtils::conditionBuilder($query, ' state IN (' . implode(',', $stateTab) . ')');
 }
 if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgement_filter']) {
@@ -256,18 +256,49 @@ if (!$centreon->user->admin) {
     $query .= $aclObj->queryBuilder('AND', 'h.host_id', $aclObj->getHostsString('ID', $dbb));
 }
 
-// prepare order_by and limit of the query
-$query .= " ORDER BY :order_by LIMIT :limit OFFSET :offset";
+// prepare order_by
+$orderBy = 'h.name ASC';
 
-$orderBy = 'host_name ASC';
-if (isset($preferences['order_by']) && trim($preferences['order_by']) !== '') {
-    $orderBy = $preferences['order_by'];
-}
-$mainQueryParameters[] = [
-    'parameter' => "order_by",
-    'value' => $orderBy,
-    'type' => PDO::PARAM_STR
+// Define allowed columns and directions
+$allowedOrderColumns = [
+    'h.name',
+    'h.alias',
+    'criticality',
+    'address',
+    'state',
+    'output',
+    'check_attempt',
+    'last_check',
+    'last_state_change',
+    'last_hard_state_change',
+    'scheduled_downtime_depth',
+    'acknowledged',
+    'notify',
+    'active_checks',
+    'passive_checks'
 ];
+
+const ORDER_DIRECTION_ASC = 'ASC';
+const ORDER_DIRECTION_DESC = 'DESC';
+
+$allowedDirections = [ORDER_DIRECTION_ASC, ORDER_DIRECTION_DESC];
+$defaultDirection = ORDER_DIRECTION_ASC;
+
+$orderByToAnalyse = isset($preferences['order_by'])
+    ? trim($preferences['order_by'])
+    : null;
+
+if ($orderByToAnalyse !== null) {
+    $orderByToAnalyse .= " $defaultDirection";
+    [$column, $direction] = explode(' ', $orderByToAnalyse);
+
+    if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
+        $orderBy = $column . ' ' . $direction;
+    }
+}
+
+// concatenate order by + limit + offset  to the query
+$query .= "ORDER BY " . $orderBy . " LIMIT :limit OFFSET :offset";
 
 $num = filter_var($preferences['entries'], FILTER_VALIDATE_INT) ?: 10;
 $mainQueryParameters[] = [
@@ -438,11 +469,7 @@ while ($row = $res->fetch()) {
             $res2 = $dbb->prepare($query);
             $res2->bindValue(':hostId', $row['host_id'], PDO::PARAM_INT);
             $res2->execute();
-            if ($row2 = $res2->fetch()) {
-                $data[$row['host_id']]['comment'] = substr($row2['data'], 0, $commentLength);
-            } else {
-                $data[$row['host_id']]['comment'] = '-';
-            }
+            $data[$row['host_id']]['comment'] = ($row2 = $res2->fetch()) ? substr($row2['data'], 0, $commentLength) : '-';
             $res2->closeCursor();
         } catch (PDOException $e) {
             CentreonLog::create()->error(
@@ -461,11 +488,9 @@ while ($row = $res->fetch()) {
     if ($row['scheduled_downtime_depth'] > 0) {
         $class = 'line_downtime';
     } elseif ($row['state'] == 1) {
-        $row['acknowledged'] == 1 ? $class = 'line_ack' : $class = 'list_down';
-    } else {
-        if ($row['acknowledged'] == 1) {
-            $class = 'line_ack';
-        }
+        $class = $row['acknowledged'] == 1 ? 'line_ack' : 'list_down';
+    } elseif ($row['acknowledged'] == 1) {
+        $class = 'line_ack';
     }
     $data[$row['host_id']]['class_tr'] = $class;
 }
@@ -511,7 +536,7 @@ try {
         [
             'file' => $e->getFile(),
             'line' => $e->getLine(),
-            'exception_type' => get_class($e),
+            'exception_type' => $e::class,
             'exception_message' => $e->getMessage()
         ]
     );

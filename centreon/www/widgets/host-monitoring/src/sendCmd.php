@@ -109,8 +109,8 @@ try {
         if (!isset($_POST['start_time']) || !isset($_POST['end_time'])) {
             throw new Exception('Missing downtime start/end');
         }
-        list($tmpHstart, $tmpMstart) = array_map('trim', explode(':', $_POST['start_time']));
-        list($tmpHend, $tmpMend) = array_map('trim', explode(':', $_POST['end_time']));
+        [$tmpHstart, $tmpMstart] = array_map('trim', explode(':', $_POST['start_time']));
+        [$tmpHend, $tmpMend] = array_map('trim', explode(':', $_POST['end_time']));
         $dateStart = $_POST['alternativeDateStart'];
         $start = $dateStart . " " . $tmpHstart . ":" . $tmpMstart;
         $start = CentreonUtils::getDateTimeTimestamp($start);

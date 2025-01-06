@@ -49,8 +49,8 @@ if (!isset($obj->session_id) || !CentreonSession::checkSession($obj->session_id,
     print "Bad Session ID";
     exit();
 }
-$statusService = isset($statusService) ? $statusService : null;
-$statusFilter = isset($statusFilter) ? $statusFilter : null;
+$statusService ??= null;
+$statusFilter ??= null;
 
 // Store in session the last type of call
 $_SESSION['monitoring_serviceByHg_status'] = $statusService;
@@ -96,7 +96,7 @@ $queryValues = [];
 $filterRq2 = '';
 
 //Get Host status
-$rq1 = <<<SQL
+$rq1 = <<<SQL_WRAP
     SELECT SQL_CALC_FOUND_ROWS DISTINCT
     1 AS REALTIME, hg.name AS alias, h.host_id id, h.name AS host_name, hgm.hostgroup_id, h.state hs, h.icon_image
     FROM hosts h
@@ -104,7 +104,7 @@ $rq1 = <<<SQL
       ON hgm.host_id = h.host_id
     INNER JOIN hostgroups hg
       ON hg.hostgroup_id = hgm.hostgroup_id
-    SQL;
+    SQL_WRAP;
 
 if (!$obj->is_admin) {
     $rq1 .= <<<SQL
@@ -125,7 +125,7 @@ if ($instance !== -1) {
     $rq1 .= " AND h.instance_id = :instance ";
     $queryValues['instance'] = [PDO::PARAM_INT => (int)$instance];
 }
-if (substr($o, -3) === '_pb') {
+if (str_ends_with($o, '_pb')) {
     $rq1 .= <<<SQL
 
     AND h.host_id IN (
@@ -135,7 +135,7 @@ if (substr($o, -3) === '_pb') {
     )
     SQL;
     $filterRq2 = " AND s.state != 0 AND s.state != 4";
-} elseif (substr($o, -6) === '_ack_0') {
+} elseif (str_ends_with($o, '_ack_0')) {
     $rq1 .= <<<SQL
     
     AND h.host_id IN (
@@ -145,7 +145,7 @@ if (substr($o, -3) === '_pb') {
     )
     SQL;
     $filterRq2 =  " AND s.state != 0 AND s.state != 4 AND s.acknowledged = 0";
-} elseif (substr($o, -6) === '_ack_1') {
+} elseif (str_ends_with($o, '_ack_1')) {
     $rq1 .= <<<SQL
     
     AND h.host_id IN (
@@ -184,7 +184,7 @@ $tab_finalH = [];
 $numRows = $obj->DBC->query("SELECT FOUND_ROWS() AS REALTIME")->fetchColumn();
 while ($ndo = $dbResult->fetch()) {
     if (!isset($tab_finalH[$ndo["alias"]])) {
-        $tab_finalH[$ndo["alias"]] = array($ndo["host_name"] => []);
+        $tab_finalH[$ndo["alias"]] = [$ndo["host_name"] => []];
     }
     $tab_finalH[$ndo["alias"]][$ndo["host_name"]]["cs"] = $ndo["hs"];
     $tab_finalH[$ndo["alias"]][$ndo["host_name"]]["icon"] = $ndo['icon_image'];

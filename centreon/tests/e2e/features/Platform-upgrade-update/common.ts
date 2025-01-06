@@ -108,27 +108,64 @@ const installCentreon = (version: string): Cypress.Chainable => {
         `echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini`,
         `/etc/init.d/mysql start`,
         `mkdir -p /run/php-fpm`,
-        `systemctl start php-fpm || systemctl restart php-fpm`,
-        `systemctl start httpd || systemctl restart httpd`,
+        `systemctl restart php-fpm`,
+        `systemctl restart httpd`,
         `mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"`,
         `dnf config-manager --set-enabled 'centreon-*'`
       ],
       name: 'web'
     });
   } else {
+    const versionMatches = version.match(/(\d+)\.(\d+)\.\d+/);
+    if (!versionMatches) {
+      throw new Error('Cannot parse version number.');
+    }
+
+    let packageDistribPrefix;
+    let packageDistribName;
+    if (Number(versionMatches[1]) < 24) {
+      packageDistribPrefix = '-';
+      packageDistribName = Cypress.env('WEB_IMAGE_OS');
+    } else if (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10) {
+      packageDistribPrefix = '-1~';
+      packageDistribName = Cypress.env('WEB_IMAGE_OS');
+    } else if (Cypress.env('WEB_IMAGE_OS') === 'bookworm') {
+      packageDistribPrefix = '+';
+      packageDistribName = 'deb12u1';
+    } else if (Cypress.env('WEB_IMAGE_OS') === 'jammy') {
+      packageDistribPrefix = '-';
+      packageDistribName = '0ubuntu.22.04';
+    } else {
+      throw new Error(`Distrib ${Cypress.env('WEB_IMAGE_OS')} not managed in update/upgrade tests.`);
+    }
+
+    const packageVersionSuffix = `${version}${packageDistribPrefix}${packageDistribName}`;
+    const packagesToInstall = [
+      `centreon-poller=${packageVersionSuffix}`,
+      `centreon-web=${packageVersionSuffix}`,
+      `centreon-common=${packageVersionSuffix}`,
+      `centreon-trap=${packageVersionSuffix}`,
+      `centreon-perl-libs=${packageVersionSuffix}`
+    ];
+    if (Number(versionMatches[1]) < 24) {
+      packagesToInstall.push(`centreon-web-apache=${packageVersionSuffix}`);
+    }
+    const phpVersion = Number(versionMatches[1]) <= 24 && Number(versionMatches[2]) < 10 ? '8.1' : '8.2';
+
     cy.execInContainer({
       command: [
         `mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak`,
         `mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak`,
         `apt-get update`,
-        `apt-get install -y centreon-poller=${version}-${Cypress.env('WEB_IMAGE_OS')} centreon-web-apache=${version}-${Cypress.env('WEB_IMAGE_OS')} centreon-web=${version}-${Cypress.env('WEB_IMAGE_OS')} centreon-common=${version}-${Cypress.env('WEB_IMAGE_OS')}`,
+        `apt-get install -y ${packagesToInstall.join(' ')}`,
         `mkdir -p /usr/lib/centreon-connector`,
-        `echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini`,
+        `echo "date.timezone = Europe/Paris" > /etc/php/${phpVersion}/mods-available/timezone.ini`,
+        `phpenmod -v ${phpVersion} timezone`,
         `sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql`,
         `service mysql start`,
         `mkdir -p /run/php`,
-        `systemctl start php8.1-fpm`,
-        `systemctl start apache2`,
+        `systemctl restart php${phpVersion}-fpm`,
+        `systemctl restart apache2`,
         `mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"`,
         `mv /etc/apt/sources.list.d/centreon-unstable.list.bak /etc/apt/sources.list.d/centreon-unstable.list`,
         `mv /etc/apt/sources.list.d/centreon-testing.list.bak /etc/apt/sources.list.d/centreon-testing.list`,
@@ -234,22 +271,35 @@ const updatePlatformPackages = (): Cypress.Chainable => {
     })
     .getWebVersion()
     .then(({ major_version }) => {
-      if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-        return cy.execInContainer({
-          command: [
+      let installCommands: Array<string> = [];
+
+      switch (Cypress.env('WEB_IMAGE_OS')) {
+        case 'alma8':
+          installCommands = [
             `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
+            `dnf module reset -y php`,
+            `dnf module install -y php:remi-8.2`,
             `dnf install -y ${containerPackageDirectory}/*.rpm`
-          ],
-          name: 'web'
-        });
+          ];
+          break;
+        case 'alma9':
+          installCommands = [
+            `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
+            `dnf module reset -y php`,
+            `dnf module enable -y php:8.2`,
+            `dnf install -y ${containerPackageDirectory}/*.rpm`
+          ];
+          break;
+        default:
+          installCommands = [
+            `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}_${major_version}*.deb`,
+            `apt-get update`,
+            `apt-get install -y ${containerPackageDirectory}/centreon-*.deb`
+          ];
       }
 
       return cy.execInContainer({
-        command: [
-          `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}_${major_version}*.deb`,
-          'apt-get update',
-          `apt-get install -y ${containerPackageDirectory}/centreon-*.deb`
-        ],
+        command: installCommands,
         name: 'web'
       });
     })

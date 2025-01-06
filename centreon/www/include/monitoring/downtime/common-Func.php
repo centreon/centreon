@@ -43,7 +43,7 @@ function deleteDowntimeInDb($downtimeInternalId = null)
     if ($downtimeInternalId === null) {
         return;
     }
-    $db = CentreonDBInstance::getMonInstance();
+    $db = CentreonDBInstance::getDbCentreonStorageInstance();
     $statement = $db->prepare('DELETE FROM downtimes WHERE internal_id = :internal_id');
     $statement->bindValue(':internal_id', (int) $downtimeInternalId, PDO::PARAM_INT);
     $statement->execute();
@@ -51,7 +51,7 @@ function deleteDowntimeInDb($downtimeInternalId = null)
 
 function getDowntimes($internalId)
 {
-    $db = CentreonDBInstance::getMonInstance();
+    $db = CentreonDBInstance::getDbCentreonStorageInstance();
     $statement = $db->prepare(<<<SQL
         SELECT host_id, service_id
         FROM downtimes

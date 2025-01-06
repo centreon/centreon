@@ -85,7 +85,7 @@ class I18nService
     {
         $this->lang = getenv('LANG');
 
-        if (strstr($this->lang, '.UTF-8') === false) {
+        if (!str_contains($this->lang, '.UTF-8')) {
             $this->lang .= '.UTF-8';
         }
     }

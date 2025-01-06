@@ -122,7 +122,7 @@ class AddServiceValidation
      */
     public function assertIsValidServiceCategories(array $serviceCategoriesIds): void
     {
-        if (empty($serviceCategoriesIds)) {
+        if ($serviceCategoriesIds === []) {
 
             return;
         }
@@ -268,7 +268,7 @@ class AddServiceValidation
      */
     public function assertIsValidServiceGroups(array $serviceGroupIds, int $hostId): void
     {
-        if (empty($serviceGroupIds)) {
+        if ($serviceGroupIds === []) {
 
             return;
         }

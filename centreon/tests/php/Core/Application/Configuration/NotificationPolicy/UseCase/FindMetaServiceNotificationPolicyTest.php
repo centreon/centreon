@@ -43,7 +43,7 @@ use Core\Domain\Configuration\Notification\Model\ServiceNotification;
 use Core\Domain\Configuration\TimePeriod\Model\TimePeriod;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->readMetaServiceNotificationRepository = $this->createMock(
         ReadMetaServiceNotificationRepositoryInterface::class
     );
@@ -96,7 +96,7 @@ beforeEach(function () {
     );
 });
 
-it('does not find meta service notification policy when meta service is not found by admin user', function () {
+it('does not find meta service notification policy when meta service is not found by admin user', function (): void {
     $this->contact
         ->expects($this->any())
         ->method('isAdmin')
@@ -115,7 +115,7 @@ it('does not find meta service notification policy when meta service is not foun
     ($this->useCase)(1, $this->findNotificationPolicyPresenter);
 });
 
-it('does not find meta service notification policy when meta service is not found by acl user', function () {
+it('does not find meta service notification policy when meta service is not found by acl user', function (): void {
     $this->contact
         ->expects($this->any())
         ->method('isAdmin')
@@ -134,7 +134,7 @@ it('does not find meta service notification policy when meta service is not foun
     ($this->useCase)(1, $this->findNotificationPolicyPresenter);
 });
 
-it('returns users, user groups and notification status', function () {
+it('returns users, user groups and notification status', function (): void {
     $this->contact
         ->expects($this->any())
         ->method('isAdmin')

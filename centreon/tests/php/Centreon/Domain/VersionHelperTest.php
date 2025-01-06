@@ -25,7 +25,7 @@ use PHPUnit\Framework\TestCase;
 
 class VersionHelperTest extends TestCase
 {
-    public function testCompareWithPoint()
+    public function testCompareWithPoint(): void
     {
         $this->assertFalse(VersionHelper::compare('1', '2', VersionHelper::EQUAL));
         $this->assertTrue(VersionHelper::compare('1', '1.0', VersionHelper::EQUAL));
@@ -38,7 +38,7 @@ class VersionHelperTest extends TestCase
         $this->assertTrue(VersionHelper::compare('1.1.0', '1.1', VersionHelper::EQUAL));
     }
 
-    public function testRegularizeDepthVersionWithPoint()
+    public function testRegularizeDepthVersionWithPoint(): void
     {
         $this->assertEquals('1.0.0', VersionHelper::regularizeDepthVersion('1', 2));
         $this->assertEquals('2.1.0', VersionHelper::regularizeDepthVersion('2.1', 2));
@@ -47,7 +47,7 @@ class VersionHelperTest extends TestCase
         $this->assertEquals('9.8', VersionHelper::regularizeDepthVersion('9.8.6', 1));
     }
 
-    public function testCompareWithComma()
+    public function testCompareWithComma(): void
     {
         $this->assertFalse(VersionHelper::compare('1', '2', VersionHelper::EQUAL));
         $this->assertTrue(VersionHelper::compare('1', '1,0', VersionHelper::EQUAL));
@@ -60,7 +60,7 @@ class VersionHelperTest extends TestCase
         $this->assertTrue(VersionHelper::compare('1,1,0', '1,1', VersionHelper::EQUAL));
     }
 
-    public function testRegularizeDepthVersionWithComma()
+    public function testRegularizeDepthVersionWithComma(): void
     {
         $this->assertEquals('1,0,0', VersionHelper::regularizeDepthVersion('1', 2, ','));
         $this->assertEquals('2,1,0', VersionHelper::regularizeDepthVersion('2,1', 2, ','));

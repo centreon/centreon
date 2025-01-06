@@ -34,16 +34,43 @@
  *
  */
 
+use Pimple\Container;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
+/**
+ * Class
+ *
+ * @class Macro
+ */
 class Macro extends AbstractObject
 {
+    /** @var */
+    public $stmt_host;
+    /** @var int */
     private $use_cache = 1;
+    /** @var int */
     private $done_cache = 0;
-    private $macro_service_cache = array();
+    /** @var array */
+    private $macro_service_cache = [];
+    /** @var null */
     protected $generate_filename = null;
-    protected $object_name = null;
+    /** @var string */
+    protected string $object_name;
+    /** @var null */
     protected $stmt_service = null;
 
-    public function __construct(\Pimple\Container $dependencyInjector)
+    /**
+     * Macro constructor
+     *
+     * @param Container $dependencyInjector
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
 
@@ -54,7 +81,11 @@ class Macro extends AbstractObject
         $this->buildCache();
     }
 
-    private function cacheMacroService()
+    /**
+     * @return void
+     * @throws PDOException
+     */
+    private function cacheMacroService(): void
     {
         $stmt = $this->backend_instance->db->prepare("SELECT 
               svc_svc_id, svc_macro_name, svc_macro_value, is_password
@@ -63,7 +94,7 @@ class Macro extends AbstractObject
         $stmt->execute();
         while (($macro = $stmt->fetch(PDO::FETCH_ASSOC))) {
             if (!isset($this->macro_service_cache[$macro['svc_svc_id']])) {
-                $this->macro_service_cache[$macro['svc_svc_id']] = array();
+                $this->macro_service_cache[$macro['svc_svc_id']] = [];
             }
 
             $serviceMacroName = preg_replace(
@@ -75,6 +106,11 @@ class Macro extends AbstractObject
         }
     }
 
+    /**
+     * @param $service_id
+     *
+     * @return array|mixed|null
+     */
     public function getServiceMacroByServiceId($service_id)
     {
         # Get from the cache
@@ -96,7 +132,7 @@ class Macro extends AbstractObject
 
         $this->stmt_service->bindParam(':service_id', $service_id, PDO::PARAM_INT);
         $this->stmt_host->execute();
-        $this->macro_service_cache[$service_id] = array();
+        $this->macro_service_cache[$service_id] = [];
         while (($macro = $stmt->fetch(PDO::FETCH_ASSOC))) {
             $serviceMacroName = preg_replace(
                 '/\$_SERVICE(.*)\$/',
@@ -110,6 +146,10 @@ class Macro extends AbstractObject
         return $this->macro_service_cache[$service_id];
     }
 
+    /**
+     * @return int|void
+     * @throws PDOException
+     */
     private function buildCache()
     {
         if ($this->done_cache == 1) {

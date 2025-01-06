@@ -29,14 +29,7 @@ class SerenaProvider extends AbstractProvider
     public const ARG_SUB_CATEGORY_DETAILS = 6;
 
     /** @var array<int, string> */
-    protected $internal_arg_name = array(
-        self::ARG_PROJECT_ID => 'project_id',
-        self::ARG_SUBJECT => 'subject',
-        self::ARG_CONTENT => 'content',
-        self::ARG_CATEGORY => 'category',
-        self::ARG_SUB_CATEGORY => 'subcategory',
-        self::ARG_SUB_CATEGORY_DETAILS => 'subcategory_details',
-    );
+    protected $internal_arg_name = [self::ARG_PROJECT_ID => 'project_id', self::ARG_SUBJECT => 'subject', self::ARG_CONTENT => 'content', self::ARG_CATEGORY => 'category', self::ARG_SUB_CATEGORY => 'subcategory', self::ARG_SUB_CATEGORY_DETAILS => 'subcategory_details'];
     /** @var string */
     protected $ws_error;
     /** @var string */
@@ -57,15 +50,8 @@ class SerenaProvider extends AbstractProvider
         $this->default_data['namespace'] = 'XXXXXXX';
         $this->default_data['timeout'] = 60;
 
-        $this->default_data['clones']['mappingTicket'] = array(
-            array(
-                'Arg' => self::ARG_SUBJECT,
-                'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers/' .
-                    'Abstract/templates/display_title.ihtml"}'
-            ),
-            array('Arg' => self::ARG_CONTENT, 'Value' => '{$body}'),
-            array('Arg' => self::ARG_PROJECT_ID, 'Value' => '1'),
-        );
+        $this->default_data['clones']['mappingTicket'] = [['Arg' => self::ARG_SUBJECT, 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers/' .
+            'Abstract/templates/display_title.ihtml"}'], ['Arg' => self::ARG_CONTENT, 'Value' => '{$body}'], ['Arg' => self::ARG_PROJECT_ID, 'Value' => '1']];
     }
 
     protected function setDefaultValueMain($body_html = 0)
@@ -123,7 +109,7 @@ class SerenaProvider extends AbstractProvider
 
         $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
         $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
-        $tpl->assign("header", array("serena" => _("Serena")));
+        $tpl->assign("header", ["serena" => _("Serena")]);
 
         // Form
         $endpoint_html = '<input size="50" name="endpoint" type="text" value="' .
@@ -137,14 +123,7 @@ class SerenaProvider extends AbstractProvider
         $timeout_html = '<input size="2" name="timeout" type="text" value="' .
             $this->getFormValue('timeout') . '" />';
 
-        $array_form = array(
-            'endpoint' => array('label' => _("Endpoint") . $this->required_field, 'html' => $endpoint_html),
-            'namespace' => array('label' => _("Namespace"), 'html' => $namespace_html),
-            'username' => array('label' => _("Username") . $this->required_field, 'html' => $username_html),
-            'password' => array('label' => _("Password") . $this->required_field, 'html' => $password_html),
-            'timeout' => array('label' => _("Timeout"), 'html' => $timeout_html),
-            'mappingticket' => array('label' => _("Mapping ticket arguments")),
-        );
+        $array_form = ['endpoint' => ['label' => _("Endpoint") . $this->required_field, 'html' => $endpoint_html], 'namespace' => ['label' => _("Namespace"), 'html' => $namespace_html], 'username' => ['label' => _("Username") . $this->required_field, 'html' => $username_html], 'password' => ['label' => _("Password") . $this->required_field, 'html' => $password_html], 'timeout' => ['label' => _("Timeout"), 'html' => $timeout_html], 'mappingticket' => ['label' => _("Mapping ticket arguments")]];
 
         // mapping Ticket clone
         $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" name="mappingTicketValue[#index#]" ' .
@@ -159,10 +138,7 @@ class SerenaProvider extends AbstractProvider
             '<option value="' . self::ARG_SUB_CATEGORY_DETAILS . '">' . _('Sub-Category Details') . '</options>' .
         '</select>';
         $mappingTicketArg_html .= '</select>';
-        $array_form['mappingTicket'] = array(
-            array('label' => _("Argument"), 'html' => $mappingTicketArg_html),
-            array('label' => _("Value"), 'html' => $mappingTicketValue_html),
-        );
+        $array_form['mappingTicket'] = [['label' => _("Argument"), 'html' => $mappingTicketArg_html], ['label' => _("Value"), 'html' => $mappingTicketValue_html]];
 
         $tpl->assign('form', $array_form);
         $this->config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
@@ -178,7 +154,7 @@ class SerenaProvider extends AbstractProvider
 
     public function validateFormatPopup()
     {
-        $result = array('code' => 0, 'message' => 'ok');
+        $result = ['code' => 0, 'message' => 'ok'];
         $this->validateFormatPopupLists($result);
         return $result;
     }
@@ -193,18 +169,13 @@ class SerenaProvider extends AbstractProvider
 
         $this->save_config['clones']['mappingTicket'] = $this->getCloneSubmitted(
             'mappingTicket',
-            array('Arg', 'Value')
+            ['Arg', 'Value']
         );
     }
 
     protected function doSubmit($db_storage, $contact, $host_problems, $service_problems)
     {
-        $result = array(
-            'ticket_id' => null,
-            'ticket_error_message' => null,
-            'ticket_is_ok' => 0,
-            'ticket_time' => time()
-        );
+        $result = ['ticket_id' => null, 'ticket_error_message' => null, 'ticket_is_ok' => 0, 'ticket_time' => time()];
 
         $tpl = $this->initSmartyTemplate();
 
@@ -214,7 +185,7 @@ class SerenaProvider extends AbstractProvider
         $tpl->assign('service_selected', $service_problems);
         $this->assignSubmittedValues($tpl);
 
-        $ticket_arguments = array();
+        $ticket_arguments = [];
         if (isset($this->rule_data['clones']['mappingTicket'])) {
             foreach ($this->rule_data['clones']['mappingTicket'] as $value) {
                 $tpl->assign('string', $value['Value']);
@@ -237,19 +208,11 @@ class SerenaProvider extends AbstractProvider
         $this->saveHistory(
             $db_storage,
             $result,
-            array(
-                'contact' => $contact,
-                'host_problems' => $host_problems,
-                'service_problems' => $service_problems,
-                'ticket_value' => $this->_ticket_number,
-                'subject' => $ticket_arguments[
-                    $this->internal_arg_name[self::ARG_SUBJECT]
-                ],
-                'data_type' => self::DATA_TYPE_JSON,
-                'data' => json_encode(
-                    array('arguments' => $ticket_arguments)
-                )
-            )
+            ['contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems, 'ticket_value' => $this->_ticket_number, 'subject' => $ticket_arguments[
+                $this->internal_arg_name[self::ARG_SUBJECT]
+            ], 'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode(
+                ['arguments' => $ticket_arguments]
+            )]
         );
 
         return $result;
@@ -274,20 +237,7 @@ class SerenaProvider extends AbstractProvider
     protected function createTicketSerena($ticket_arguments)
     {
         $extended_fields = "";
-        $listing = array(
-            $this->internal_arg_name[self::ARG_SUB_CATEGORY_DETAILS] => array(
-                'dbName' => 'OT_SUB_CATEGORY_DETAILS',
-                'displayName' => 'Sub-category details'
-            ),
-            $this->internal_arg_name[self::ARG_SUB_CATEGORY] => array(
-                'dbName' => 'OT_SUB_CATEGORY',
-                'displayName' => 'Sub-category'
-            ),
-            $this->internal_arg_name[self::ARG_CATEGORY] => array(
-                'dbName' => 'OT_CATEGORY',
-                'displayName' => 'OT_CATEGORY'
-            ),
-        );
+        $listing = [$this->internal_arg_name[self::ARG_SUB_CATEGORY_DETAILS] => ['dbName' => 'OT_SUB_CATEGORY_DETAILS', 'displayName' => 'Sub-category details'], $this->internal_arg_name[self::ARG_SUB_CATEGORY] => ['dbName' => 'OT_SUB_CATEGORY', 'displayName' => 'Sub-category'], $this->internal_arg_name[self::ARG_CATEGORY] => ['dbName' => 'OT_CATEGORY', 'displayName' => 'OT_CATEGORY']];
         foreach ($ticket_arguments as $ticket_argument => $value) {
             if (isset($listing[$ticket_argument])) {
                 $extended_fields .= "
@@ -416,11 +366,7 @@ class SerenaProvider extends AbstractProvider
         curl_setopt(
             $ch,
             CURLOPT_HTTPHEADER,
-            array(
-                'Content-Type:  text/xml;charset=UTF-8',
-                'SOAPAction: ae:CreatePrimaryItem',
-                'Content-Length: ' . strlen($data)
-            )
+            ['Content-Type:  text/xml;charset=UTF-8', 'SOAPAction: ae:CreatePrimaryItem', 'Content-Length: ' . strlen($data)]
         );
         $result = curl_exec($ch);
         curl_close($ch);

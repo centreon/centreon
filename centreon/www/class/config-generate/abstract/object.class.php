@@ -33,40 +33,73 @@
  *
  */
 
+use App\Kernel;
+use Centreon\Domain\Log\Logger;
+use Pimple\Container;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
+/**
+ * Class
+ *
+ * @class AbstractObject
+ */
 abstract class AbstractObject
 {
+
     protected const VAULT_PATH_REGEX = '/^secret::[^:]*::/';
+
+    /** @var string */
+    protected string $object_name;
 
     /** @var Backend|null  */
     protected $backend_instance = null;
+    /** @var string */
     protected $generate_subpath = 'nagios';
+    /** @var null */
     protected $generate_filename = null;
-    protected $exported = array();
+    /** @var array */
+    protected $exported = [];
+    /** @var null */
     protected $fp = null;
 
-    protected $attributes_write = array();
-    protected $attributes_array = array();
-    protected $attributes_hash = array();
-    protected $attributes_default = array();
+    /** @var array */
+    protected $attributes_write = [];
+    /** @var array */
+    protected $attributes_array = [];
+    /** @var array */
+    protected $attributes_hash = [];
+    /** @var array */
+    protected $attributes_default = [];
+    /** @var null */
     protected $notificationOption = null;
 
+    /** @var bool */
     protected $engine = true;
+    /** @var bool */
     protected $broker = false;
+    /** @var Container */
     protected $dependencyInjector;
 
+    /** @var bool */
     protected $isVaultEnabled = false;
 
-    /*
+    /**
      * Get Centreon Vault Configuration Status
+     *
+     * @return void
+     * @throws LogicException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function getVaultConfigurationStatus(): void
     {
-        $kernel = \App\Kernel::createForWeb();
+        $kernel = Kernel::createForWeb();
         $readVaultConfigurationRepository = $kernel->getContainer()->get(
             Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
         );
         $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-        $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+        $logger = $kernel->getContainer()->get(Logger::class);
         $vaultConfiguration = $readVaultConfigurationRepository->find();
         if ($vaultConfiguration !== null) {
             $this->isVaultEnabled = true;
@@ -74,19 +107,19 @@ abstract class AbstractObject
     }
 
     /**
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      * @return static
      */
-    public static function getInstance(\Pimple\Container $dependencyInjector): static
+    public static function getInstance(Container $dependencyInjector): static
     {
         /**
          * @var array<string, static>
          */
-        static $instances = array();
+        static $instances = [];
         /**
          * @var class-string<static>
          */
-        $calledClass = get_called_class();
+        $calledClass = static::class;
 
         if (!isset($instances[$calledClass])) {
             $instances[$calledClass] = new $calledClass($dependencyInjector);
@@ -95,13 +128,21 @@ abstract class AbstractObject
         return $instances[$calledClass];
     }
 
-    protected function __construct(\Pimple\Container $dependencyInjector)
+    /**
+     * AbstractObject constructor
+     *
+     * @param Container $dependencyInjector
+     */
+    protected function __construct(Container $dependencyInjector)
     {
         $this->dependencyInjector = $dependencyInjector;
         $this->backend_instance = Backend::getInstance($this->dependencyInjector);
     }
 
-    public function close_file()
+    /**
+     * @return void
+     */
+    public function close_file(): void
     {
         if (!is_null($this->fp)) {
             fclose($this->fp);
@@ -109,10 +150,14 @@ abstract class AbstractObject
         $this->fp = null;
     }
 
-    public function reset()
+    /**
+     * @return void
+     * @throws Exception
+     */
+    public function reset(): void
     {
         $this->close_file();
-        $this->exported = array();
+        $this->exported = [];
         $this->openFileForUpdate(
             $this->backend_instance->getPath() . DIRECTORY_SEPARATOR . $this->generate_filename
         );
@@ -123,6 +168,7 @@ abstract class AbstractObject
      * 1 = vertical, 2 = close, 3 = cumulative
      *
      * @return int
+     * @throws PDOException
      */
     public function getInheritanceMode() : int
     {
@@ -136,7 +182,10 @@ abstract class AbstractObject
         return $this->notificationOption;
     }
 
-    private function setHeader()
+    /**
+     * @return void
+     */
+    private function setHeader(): void
     {
         $header =
             "###################################################################\n" .
@@ -163,6 +212,8 @@ abstract class AbstractObject
      * write header if file is created
      *
      * @param string $filePath
+     *
+     * @throws Exception
      */
     protected function openFileForUpdate(string $filePath): void
     {
@@ -181,6 +232,11 @@ abstract class AbstractObject
         }
     }
 
+    /**
+     * @param $str
+     *
+     * @return array|false|mixed|mixed[]|string|string[]|null
+     */
     private function toUTF8($str)
     {
         $finalString = $str;
@@ -190,6 +246,11 @@ abstract class AbstractObject
         return $finalString;
     }
 
+    /**
+     * @param $object
+     *
+     * @return void
+     */
     protected function writeObject($object)
     {
         $object_file = "\n";
@@ -237,6 +298,13 @@ abstract class AbstractObject
         fwrite($this->fp, $this->toUTF8($object_file));
     }
 
+    /**
+     * @param $object
+     * @param $id
+     *
+     * @return void
+     * @throws Exception
+     */
     protected function generateObjectInFile($object, $id)
     {
         if (is_null($this->fp)) {
@@ -248,7 +316,12 @@ abstract class AbstractObject
         $this->exported[$id] = 1;
     }
 
-    private function writeNoObject($object)
+    /**
+     * @param $object
+     *
+     * @return void
+     */
+    private function writeNoObject($object): void
     {
         foreach ($this->attributes_array as &$attr) {
             if (isset($object[$attr]) && !is_null($object[$attr]) && is_array($object[$attr])) {
@@ -280,6 +353,12 @@ abstract class AbstractObject
         }
     }
 
+    /**
+     * @param $object
+     *
+     * @return void
+     * @throws Exception
+     */
     protected function generateFile($object)
     {
         if (is_null($this->fp)) {
@@ -291,6 +370,11 @@ abstract class AbstractObject
         $this->writeNoObject($object);
     }
 
+    /**
+     * @param $id
+     *
+     * @return int
+     */
     public function checkGenerate($id)
     {
         if (isset($this->exported[$id])) {
@@ -299,12 +383,12 @@ abstract class AbstractObject
         return 0;
     }
 
+    /**
+     * @return array
+     */
     public function getExported()
     {
-        if (isset($this->exported)) {
-            return $this->exported;
-        }
-        return array();
+        return $this->exported ?? [];
     }
 
     /**

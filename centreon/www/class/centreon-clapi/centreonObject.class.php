@@ -36,11 +36,24 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object;
+use Centreon_Object_Contact;
+use CentreonDB;
+use Exception;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonAPI.class.php";
 require_once __DIR__ . "/../../../lib/Centreon/Object/Contact/Contact.php";
 require_once "centreonClapiException.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreon-clapi/centreonExported.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonObject
+ * @package CentreonClapi
+ */
 abstract class CentreonObject
 {
     public const MISSINGPARAMETER = "Missing parameters";
@@ -56,20 +69,16 @@ abstract class CentreonObject
     public const SINGLE_VALUE = 0;
     public const MULTIPLE_VALUE = 1;
 
-
-    private $centreon_api = null;
+    /** @var array */
     protected static $instances;
 
-    /**
-     * Db object provided by dependency injector
-     *
-     * @var CentreonDB
-     */
+    /** @var CentreonApi */
+    public $api;
+    /** @var CentreonDB */
     protected $db;
-
-    /**
-     * @var
-     */
+    /** @var string */
+    protected string $action = "";
+    /** @var Container */
     protected $dependencyInjector;
 
     /**
@@ -89,7 +98,7 @@ abstract class CentreonObject
      *
      * @var array
      */
-    protected $params;
+    protected $params = [];
     /**
      * Number of compulsory parameters when adding a new object
      *
@@ -101,7 +110,7 @@ abstract class CentreonObject
      *
      * @var string
      */
-    protected $delim;
+    protected $delim = ";";
     /**
      * Table column used for activating and deactivating object
      *
@@ -113,37 +122,34 @@ abstract class CentreonObject
      *
      * @var array
      */
-    protected $insertParams;
+    protected $insertParams = [];
     /**
      * Export : Table columns which will not be exported for 'setparam' action
      *
      * @var array
      */
-    protected $exportExcludedParams;
+    protected $exportExcludedParams = [];
     /**
      * cache to store object ids by object names
      *
      * @var array
      */
-    protected $objectIds = array();
+    protected $objectIds = [];
 
     /**
-     * Constructor
+     * CentreonObject constructor
      *
-     * @return void
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         $this->db = $dependencyInjector['configuration_db'];
         $this->dependencyInjector = $dependencyInjector;
         $res = $this->db->query("SELECT `value` FROM informations WHERE `key` = 'version'");
         $row = $res->fetch();
         $this->version = $row['value'];
-        $this->params = array();
-        $this->insertParams = array();
-        $this->exportExcludedParams = array();
-        $this->action = "";
-        $this->delim = ";";
         $this->api = CentreonAPI::getInstance();
     }
 
@@ -158,7 +164,7 @@ abstract class CentreonObject
     /**
      * @param $dependencyInjector
      */
-    public function setDependencyInjector($dependencyInjector)
+    public function setDependencyInjector($dependencyInjector): void
     {
         $this->dependencyInjector = $dependencyInjector;
     }
@@ -177,7 +183,10 @@ abstract class CentreonObject
      * Checks if object exists
      *
      * @param string $name
+     * @param null $updateId
+     *
      * @return bool
+     * @throws Exception
      */
     protected function objectExists($name, $updateId = null)
     {
@@ -187,9 +196,7 @@ abstract class CentreonObject
             0,
             null,
             null,
-            array(
-                $this->object->getUniqueLabelField() => $name
-            ),
+            [$this->object->getUniqueLabelField() => $name],
             "AND"
         );
         if (isset($updateId) && count($ids)) {
@@ -215,7 +222,7 @@ abstract class CentreonObject
         if (isset($this->objectIds[$name])) {
             return $this->objectIds[$name];
         }
-        $ids = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($name));
+        $ids = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$name]);
         if (count($ids)) {
             $this->objectIds[$name] = ($type === self::SINGLE_VALUE)
                 ? $ids[0]
@@ -233,11 +240,8 @@ abstract class CentreonObject
      */
     public function getObjectName($id)
     {
-        $tmp = $this->object->getParameters($id, array($this->object->getUniqueLabelField()));
-        if (isset($tmp[$this->object->getUniqueLabelField()])) {
-            return $tmp[$this->object->getUniqueLabelField()];
-        }
-        return "";
+        $tmp = $this->object->getParameters($id, [$this->object->getUniqueLabelField()]);
+        return $tmp[$this->object->getUniqueLabelField()] ?? "";
     }
 
     /**
@@ -282,9 +286,11 @@ abstract class CentreonObject
 
     /**
      * @param $parameters
-     * @return mixed
+     *
+     * @return void
+     * @throws CentreonClapiException
      */
-    public function add($parameters)
+    public function add($parameters): void
     {
         $this->initInsertParameters($parameters);
 
@@ -322,9 +328,9 @@ abstract class CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function del($objectName)
+    public function del($objectName): void
     {
-        $ids = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($objectName));
+        $ids = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$objectName]);
         if (count($ids)) {
             $this->object->delete($ids[0]);
             $this->addAuditLog('d', $ids[0], $objectName);
@@ -342,7 +348,7 @@ abstract class CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function getparam($parameters = null)
+    public function getparam($parameters = null): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 2) {
@@ -356,13 +362,9 @@ abstract class CentreonObject
      * @param array $parameters
      * @throws CentreonClapiException
      */
-    public function setparam($parameters = array())
+    public function setparam($parameters = []): void
     {
-        if (method_exists($this, "initUpdateParameters")) {
-            $params = $this->initUpdateParameters($parameters);
-        } else {
-            $params = $parameters;
-        }
+        $params = method_exists($this, "initUpdateParameters") ? $this->initUpdateParameters($parameters) : $parameters;
 
         if (!empty($params)) {
             $uniqueLabel = $this->object->getUniqueLabelField();
@@ -394,9 +396,11 @@ abstract class CentreonObject
      *
      * @param array $params
      * @param array $filters
+     *
      * @return void
+     * @throws Exception
      */
-    public function show($params = array(), $filters = array())
+    public function show($params = [], $filters = []): void
     {
         echo str_replace("_", " ", implode($this->delim, $params)) . "\n";
         $elements = $this->object->getList(
@@ -425,9 +429,9 @@ abstract class CentreonObject
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
         if (isset($this->activateField)) {
-            $ids = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($objectName));
+            $ids = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$objectName]);
             if (count($ids)) {
-                $this->object->update($ids[0], array($this->activateField => $value));
+                $this->object->update($ids[0], [$this->activateField => $value]);
             } else {
                 throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $objectName);
             }
@@ -440,9 +444,11 @@ abstract class CentreonObject
      * Enable object
      *
      * @param string $objectName
+     *
      * @return void
+     * @throws CentreonClapiException
      */
-    public function enable($objectName)
+    public function enable($objectName): void
     {
         $this->activate($objectName, '1');
     }
@@ -451,13 +457,20 @@ abstract class CentreonObject
      * Disable object
      *
      * @param string $objectName
+     *
      * @return void
+     * @throws CentreonClapiException
      */
-    public function disable($objectName)
+    public function disable($objectName): void
     {
         $this->activate($objectName, '0');
     }
 
+    /**
+     * @param $filterName
+     *
+     * @return bool
+     */
     protected function canBeExported($filterName = null)
     {
         $exported = CentreonExported::getInstance();
@@ -486,8 +499,10 @@ abstract class CentreonObject
     /**
      * Export from a specific object
      *
-     * @param $filterName
+     * @param string|null $filterName
+     *
      * @return bool
+     * @throws Exception
      */
     public function export($filterName = null)
     {
@@ -498,7 +513,7 @@ abstract class CentreonObject
         $filterId = $this->getObjectId($filterName);
         $labelField = $this->getObject()->getUniqueLabelField();
 
-        $filters = array();
+        $filters = [];
         if (!is_null($filterId) && $filterId !== 0) {
             $primaryKey = $this->getObject()->getPrimaryKey();
             $filters[$primaryKey] = $filterId;
@@ -550,32 +565,21 @@ abstract class CentreonObject
      * @param $objName
      * @param array $objValues
      * @param null $objectType
-     * @return null
+     *
+     * @return void
      * @throws CentreonClapiException
+     * @throws PDOException
      */
-    public function addAuditLog($actionType, $objId, $objName, $objValues = array(), $objectType = null)
+    public function addAuditLog($actionType, $objId, $objName, $objValues = [], $objectType = null)
     {
         $objType = is_null($objectType) ? strtoupper($this->action) : $objectType;
-        $objectTypes = array(
-            'HTPL' => 'host',
-            'STPL' => 'service',
-            'CONTACT' => 'contact',
-            'SG' => 'servicegroup',
-            'TP' => 'timeperiod',
-            'SERVICE' => 'service',
-            'CG' => 'contactgroup',
-            'CMD' => 'command',
-            'HOST' => 'host',
-            'HC' => 'hostcategories',
-            'HG' => 'hostgroup',
-            'SC' => 'servicecategories'
-        );
+        $objectTypes = ['HTPL' => 'host', 'STPL' => 'service', 'CONTACT' => 'contact', 'SG' => 'servicegroup', 'TP' => 'timeperiod', 'SERVICE' => 'service', 'CG' => 'contactgroup', 'CMD' => 'command', 'HOST' => 'host', 'HC' => 'hostcategories', 'HG' => 'hostgroup', 'SC' => 'servicecategories'];
         if (!isset($objectTypes[$objType])) {
             return null;
         }
         $objType = $objectTypes[$objType];
 
-        $contactObj = new \Centreon_Object_Contact($this->dependencyInjector);
+        $contactObj = new Centreon_Object_Contact($this->dependencyInjector);
         $contact = $contactObj->getIdByParameter('contact_alias', CentreonUtils::getUserName());
         $userId = $contact[0];
 
@@ -585,14 +589,7 @@ abstract class CentreonObject
             VALUES (?, ?, ?, ?, ?, ?)';
         $time = time();
 
-        $dbstorage->query($query, array(
-            $time,
-            $objType,
-            $objId,
-            $objName,
-            $actionType,
-            $userId
-        ));
+        $dbstorage->query($query, [$time, $objType, $objId, $objName, $actionType, $userId]);
 
         $query = 'SELECT LAST_INSERT_ID() as action_log_id';
         $stmt = $dbstorage->query($query);
@@ -616,13 +613,9 @@ abstract class CentreonObject
                 }
                 $dbstorage->query(
                     $query,
-                    array(
-                        $name,
-                        $value,
-                        $actionId
-                    )
+                    [$name, $value, $actionId]
                 );
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 throw $e;
             }
         }
@@ -633,7 +626,9 @@ abstract class CentreonObject
      * Check illegal char defined into nagios.cfg file
      *
      * @param string $name The string to sanitize
+     *
      * @return string The string sanitized
+     * @throws PDOException
      */
     public function checkIllegalChar($name)
     {
@@ -651,7 +646,7 @@ abstract class CentreonObject
      */
     public static function getInstance($dependencyInjector = null)
     {
-        $class = get_called_class();
+        $class = static::class;
 
         if (is_null($dependencyInjector)) {
             $dependencyInjector = loadDependencyInjector();
@@ -672,7 +667,7 @@ abstract class CentreonObject
      */
     protected function csvEscape($text)
     {
-        if ($text[0] === '"' || strpos($text, $this->delim) !== false || strpos($text, "\n") !== false) {
+        if ($text[0] === '"' || str_contains($text, $this->delim) || str_contains($text, "\n")) {
             $text = '"' . str_replace('"', '""', $text) . '"';
         }
         return $text;

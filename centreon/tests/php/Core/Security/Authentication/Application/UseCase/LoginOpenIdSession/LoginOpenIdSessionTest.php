@@ -69,7 +69,7 @@ use Core\Security\ProviderConfiguration\Application\OpenId\Repository\ReadOpenId
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->repository = $this->createMock(ReadOpenIdConfigurationRepositoryInterface::class);
     $this->provider = $this->createMock(ProviderAuthenticationInterface::class);
     $this->legacyProvider = $this->createMock(OpenIdProviderInterface::class);
@@ -141,7 +141,7 @@ beforeEach(function () {
     $this->validOpenIdConfiguration = $configuration;
 });
 
-it('expects to return an error message in presenter when no provider configuration is found', function () {
+it('expects to return an error message in presenter when no provider configuration is found', function (): void {
     $request = LoginRequest::createForOpenId('127.0.0.1', 'abcde-fghij-klmno');
     $request->providerName = 'unknown provider';
 
@@ -176,7 +176,7 @@ it('expects to return an error message in presenter when no provider configurati
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class);
 });
 
-it('expects to execute authenticateOrFail method from OpenIdProvider', function () {
+it('expects to execute authenticateOrFail method from OpenIdProvider', function (): void {
     $request = LoginRequest::createForOpenId('127.0.0.1', 'abcde-fghij-klmno');
 
     $this->providerFactory
@@ -206,7 +206,7 @@ it('expects to execute authenticateOrFail method from OpenIdProvider', function 
 
 it(
     'expects to return an error message in presenter when the provider can\'t find the user and can\'t create it',
-    function () {
+    function (): void {
         $request = LoginRequest::createForOpenId('127.0.0.1', 'abcde-fghij-klmno');
 
         $this->provider
@@ -252,7 +252,7 @@ it(
 it(
     'expects to return an error message in presenter when the provider ' .
     'wasn\'t be able to return a user after creating it',
-    function () {
+    function (): void {
         $request = LoginRequest::createForOpenId('127.0.0.1', 'abcde-fghij-klmno');
 
         $this->provider
@@ -297,7 +297,7 @@ it(
     }
 );
 
-it('should update access groups for the authenticated user', function () {
+it('should update access groups for the authenticated user', function (): void {
     $request = LoginRequest::createForOpenId('127.0.0.1', 'abcde-fghij-klmno');
 
     $accessGroup1 = new AccessGroup(1, "access_group_1", "access_group_1");

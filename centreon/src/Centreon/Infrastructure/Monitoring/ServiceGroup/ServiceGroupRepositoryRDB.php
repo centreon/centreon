@@ -73,7 +73,7 @@ final class ServiceGroupRepositoryRDB extends AbstractRepositoryDRB implements S
     {
         $serviceGroups = [];
 
-        if ($this->hasNotEnoughRightsToContinue() || empty($serviceGroupIds)) {
+        if ($this->hasNotEnoughRightsToContinue() || $serviceGroupIds === []) {
             return $serviceGroups;
         }
 
@@ -148,7 +148,7 @@ final class ServiceGroupRepositoryRDB extends AbstractRepositoryDRB implements S
     {
         $serviceGroups = [];
 
-        if ($this->hasNotEnoughRightsToContinue() || empty($serviceGroupNames)) {
+        if ($this->hasNotEnoughRightsToContinue() || $serviceGroupNames === []) {
             return $serviceGroups;
         }
 

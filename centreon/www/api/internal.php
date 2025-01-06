@@ -57,7 +57,8 @@ $pearDB = new CentreonDB();
  * Define Centreon var alias
  */
 if (isset($_SESSION["centreon"]) && CentreonSession::checkSession(session_id(), $pearDB)) {
-    $oreon = $centreon = $_SESSION["centreon"];
+    $oreon = $_SESSION["centreon"];
+    $centreon = $_SESSION["centreon"];
 }
 
 if (!isset($centreon) || !is_object($centreon)) {

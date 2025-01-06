@@ -42,7 +42,7 @@ if (!isset($centreon)) {
 function DsHsrTestExistence($name = null)
 {
     global $pearDB, $form;
-    $formValues = array();
+    $formValues = [];
     if (isset($form)) {
         $formValues = $form->getSubmitValues();
     }
@@ -208,12 +208,15 @@ function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
             $val = null;
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
-                $key2 == "name" ? ($name = $value2 = $value2 . "_" . $i) : null;
+                if ($key2 == "name") {
+                    $name = $value2 . "_" . $i;
+                    $value2 = $value2 . "_" . $i;
+                }
                 $val ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")
                     : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
             }
             if (NameHsrTestExistence($name)) {
-                $val ? $rq = "INSERT INTO giv_components_template VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO giv_components_template VALUES (" . $val . ")" : null;
                 $pearDB->query($rq);
             }
         }
@@ -247,7 +250,7 @@ function insertComponentTemplate()
         $formValues['ds_color_area'] = $formValues['ds_color_line'];
     }
 
-    list($formValues['host_id'], $formValues['service_id']) = parseHostIdPostParameter($formValues['host_id']);
+    [$formValues['host_id'], $formValues['service_id']] = parseHostIdPostParameter($formValues['host_id']);
 
     $bindParams = sanitizeFormComponentTemplatesParameters($formValues);
 
@@ -261,7 +264,7 @@ function insertComponentTemplate()
 
     $query .= 'VALUES (NULL, ' . implode(', ', array_keys($bindParams)) . ')';
     $stmt = $pearDB->prepare($query);
-    foreach ($bindParams as $token => list($paramType, $value)) {
+    foreach ($bindParams as $token => [$paramType, $value]) {
         $stmt->bindValue($token, $value, $paramType);
     }
     $stmt->execute();
@@ -311,7 +314,7 @@ function updateComponentTemplate($compoId = null)
         $formValues['ds_color_area'] = $formValues['ds_color_line'];
     }
 
-    list($formValues['host_id'], $formValues['service_id']) = parseHostIdPostParameter($formValues['host_service_id']);
+    [$formValues['host_id'], $formValues['service_id']] = parseHostIdPostParameter($formValues['host_service_id']);
 
     // Sets the default values if they have not been sent (used to deselect the checkboxes)
     $checkBoxValueToSet = [
@@ -327,7 +330,7 @@ function updateComponentTemplate($compoId = null)
         'ds_total'
     ];
     foreach ($checkBoxValueToSet as $element) {
-        $formValues[$element] = $formValues[$element] ?? '0';
+        $formValues[$element] ??= '0';
     }
 
     $bindParams = sanitizeFormComponentTemplatesParameters($formValues);
@@ -342,7 +345,7 @@ function updateComponentTemplate($compoId = null)
     $query .= ' WHERE compo_id = :compo_id';
 
     $stmt = $pearDB->prepare($query);
-    foreach ($bindParams as $token => list($paramType, $value)) {
+    foreach ($bindParams as $token => [$paramType, $value]) {
             $stmt->bindValue($token, $value, $paramType);
     }
     $stmt->bindValue(':compo_id', $compoId, \PDO::PARAM_INT);
@@ -374,11 +377,7 @@ function sanitizeFormComponentTemplatesParameters(array $ret): array
             case 'ds_transparency':
                 if (!empty($inputValue)) {
                     $inputValue = \HtmlAnalyzer::sanitizeAndRemoveTags($inputValue);
-                    if (empty($inputValue)) {
-                        $bindParams[':' . $inputName] = [\PDO::PARAM_STR, null];
-                    } else {
-                        $bindParams[':' . $inputName] = [\PDO::PARAM_STR, $inputValue];
-                    }
+                    $bindParams[':' . $inputName] = empty($inputValue) ? [\PDO::PARAM_STR, null] : [\PDO::PARAM_STR, $inputValue];
                 }
                 break;
             case 'ds_color_line_mode':

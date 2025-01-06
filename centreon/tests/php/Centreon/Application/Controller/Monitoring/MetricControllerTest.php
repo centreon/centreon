@@ -139,7 +139,7 @@ class MetricControllerTest extends TestCase
     /**
      * test getServiceMetrics with not found host
      */
-    public function testGetServiceMetricsNotFoundHost()
+    public function testGetServiceMetricsNotFoundHost(): void
     {
         $this->monitoringService->expects($this->once())
             ->method('findOneHost')
@@ -156,7 +156,7 @@ class MetricControllerTest extends TestCase
     /**
      * test getServiceMetrics with not found service
      */
-    public function testGetServiceMetricsNotFoundService()
+    public function testGetServiceMetricsNotFoundService(): void
     {
         $this->monitoringService->expects($this->once())
             ->method('findOneHost')
@@ -176,7 +176,7 @@ class MetricControllerTest extends TestCase
     /**
      * test getServiceMetrics which succeed
      */
-    public function testGetServiceMetricsSucceed()
+    public function testGetServiceMetricsSucceed(): void
     {
         $this->monitoringService->expects($this->once())
             ->method('findOneHost')
@@ -204,7 +204,7 @@ class MetricControllerTest extends TestCase
     /**
      * test getServiceStatus with not found host
      */
-    public function testGetServiceStatusNotFoundHost()
+    public function testGetServiceStatusNotFoundHost(): void
     {
         $this->monitoringService->expects($this->once())
             ->method('findOneHost')
@@ -221,7 +221,7 @@ class MetricControllerTest extends TestCase
     /**
      * test getServiceStatus with not found service
      */
-    public function testGetServiceStatusNotFoundService()
+    public function testGetServiceStatusNotFoundService(): void
     {
         $this->monitoringService->expects($this->once())
             ->method('findOneHost')
@@ -241,7 +241,7 @@ class MetricControllerTest extends TestCase
     /**
      * test getServiceStatus which succeed
      */
-    public function testGetServiceStatusSucceed()
+    public function testGetServiceStatusSucceed(): void
     {
         $this->monitoringService->expects($this->once())
             ->method('findOneHost')
@@ -269,7 +269,7 @@ class MetricControllerTest extends TestCase
     /**
      * test getServicePerformanceMetrics with not found host
      */
-    public function testGetServicePerformanceMetricsNotFoundHost()
+    public function testGetServicePerformanceMetricsNotFoundHost(): void
     {
         $this->monitoringService->expects($this->once())
             ->method('findOneHost')
@@ -286,7 +286,7 @@ class MetricControllerTest extends TestCase
     /**
      * test getServicePerformanceMetrics with not found service
      */
-    public function testGetServicePerformanceMetricsNotFoundService()
+    public function testGetServicePerformanceMetricsNotFoundService(): void
     {
         $this->monitoringService->expects($this->once())
             ->method('findOneHost')
@@ -306,7 +306,7 @@ class MetricControllerTest extends TestCase
     /**
      * test getServicePerformanceMetrics with wrong start date format
      */
-    public function testGetServicePerformanceMetricsWrongStartDate()
+    public function testGetServicePerformanceMetricsWrongStartDate(): void
     {
         $this->requestParameters->expects($this->exactly(2))
             ->method('getExtraParameter')
@@ -323,7 +323,7 @@ class MetricControllerTest extends TestCase
     /**
      * test getServicePerformanceMetrics with wrong end date format
      */
-    public function testGetServicePerformanceMetricsWrongEndDate()
+    public function testGetServicePerformanceMetricsWrongEndDate(): void
     {
         $this->requestParameters->expects($this->exactly(2))
             ->method('getExtraParameter')
@@ -340,7 +340,7 @@ class MetricControllerTest extends TestCase
      /**
      * test getServicePerformanceMetrics with start date greater than end date
      */
-    public function testGetServicePerformanceMetricsWrongDateRange()
+    public function testGetServicePerformanceMetricsWrongDateRange(): void
     {
         $this->requestParameters->expects($this->exactly(2))
             ->method('getExtraParameter')
@@ -357,7 +357,7 @@ class MetricControllerTest extends TestCase
     /**
      * test getServicePerformanceMetrics which succeed
      */
-    public function testGetServicePerformanceMetricsSucceed()
+    public function testGetServicePerformanceMetricsSucceed(): void
     {
         $this->monitoringService->expects($this->once())
             ->method('findOneHost')
@@ -385,7 +385,7 @@ class MetricControllerTest extends TestCase
     /**
      * test getServiceStatusMetrics with not found host
      */
-    public function testGetServiceStatusMetricsNotFoundHost()
+    public function testGetServiceStatusMetricsNotFoundHost(): void
     {
         $this->monitoringService->expects($this->once())
             ->method('findOneHost')
@@ -402,7 +402,7 @@ class MetricControllerTest extends TestCase
     /**
      * test getServiceStatusMetrics with not found service
      */
-    public function testGetServiceStatusMetricsNotFoundService()
+    public function testGetServiceStatusMetricsNotFoundService(): void
     {
         $this->monitoringService->expects($this->once())
             ->method('findOneHost')
@@ -422,7 +422,7 @@ class MetricControllerTest extends TestCase
     /**
      * test getServiceStatusMetrics which succeed
      */
-    public function testGetServiceStatusMetricsSucceed()
+    public function testGetServiceStatusMetricsSucceed(): void
     {
         $this->monitoringService->expects($this->once())
             ->method('findOneHost')

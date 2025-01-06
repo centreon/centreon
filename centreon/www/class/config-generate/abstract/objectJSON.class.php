@@ -34,30 +34,41 @@
  *
  */
 
+use Pimple\Container;
+
+/**
+ * Class
+ *
+ * @class AbstractObjectJSON
+ */
 abstract class AbstractObjectJSON
 {
+    /** @var Backend|null */
     protected $backend_instance = null;
+    /** @var string|null */
     protected $generate_filename = null;
 
+    /** @var Container */
     protected $dependencyInjector;
 
+    /** @var array */
     protected $content = [];
 
     /**
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      * @return static
      */
-    public static function getInstance(\Pimple\Container $dependencyInjector): static
+    public static function getInstance(Container $dependencyInjector): static
     {
         /**
          * @var array<string, static>
          */
-        static $instances = array();
+        static $instances = [];
 
         /**
          * @var class-string<static>
          */
-        $calledClass = get_called_class();
+        $calledClass = static::class;
 
         if (!isset($instances[$calledClass])) {
             $instances[$calledClass] = new $calledClass($dependencyInjector);
@@ -66,16 +77,30 @@ abstract class AbstractObjectJSON
         return $instances[$calledClass];
     }
 
-    protected function __construct(\Pimple\Container $dependencyInjector)
+    /**
+     * AbstractObjectJSON constructor
+     *
+     * @param Container $dependencyInjector
+     */
+    protected function __construct(Container $dependencyInjector)
     {
         $this->dependencyInjector = $dependencyInjector;
         $this->backend_instance = Backend::getInstance($this->dependencyInjector);
     }
 
+    /**
+     * @return void
+     */
     public function reset()
     {
     }
 
+    /**
+     * @param $dir
+     *
+     * @return void
+     * @throws RuntimeException
+     */
     protected function writeFile($dir)
     {
         $full_file = $dir . '/' . $this->generate_filename;
@@ -89,13 +114,15 @@ abstract class AbstractObjectJSON
         }
     }
 
+    /**
+     * @param $object
+     * @param $brokerType
+     *
+     * @return void
+     */
     protected function generateFile($object, $brokerType = true): void
     {
-        if ($brokerType) {
-            $data = ['centreonBroker' => $object];
-        } else {
-            $data = $object;
-        }
+        $data = $brokerType ? ['centreonBroker' => $object] : $object;
 
         $this->content = json_encode($data, JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT);
     }

@@ -37,7 +37,7 @@ if (!isset($centreon)) {
     exit();
 }
 
-$select = array();
+$select = [];
 if (isset($_GET['select'])) {
     foreach ($_GET['select'] as $key => $value) {
         if ($cmd == '72') {
@@ -93,10 +93,10 @@ $form->addElement('header', 'title', _("Acknowledge problems"));
 $tpl->assign('authorlabel', _("Alias"));
 $tpl->assign('authoralias', $centreon->user->get_alias());
 
-$form->addElement('textarea', 'comment', _("Comment"), array("rows" => "5", "cols" => "85", "id" => "popupComment"));
-$form->setDefaults(array("comment" => sprintf(_("Acknowledged by %s"), $centreon->user->alias)));
+$form->addElement('textarea', 'comment', _("Comment"), ["rows" => "5", "cols" => "85", "id" => "popupComment"]);
+$form->setDefaults(["comment" => sprintf(_("Acknowledged by %s"), $centreon->user->alias)]);
 
-$chckbox[] = $form->addElement('checkbox', 'persistent', _("Persistent"), "", array("id" => "persistent"));
+$chckbox[] = $form->addElement('checkbox', 'persistent', _("Persistent"), "", ["id" => "persistent"]);
 if (isset($centreon->optGen['monitoring_ack_persistent']) && $centreon->optGen['monitoring_ack_persistent']) {
     $chckbox[0]->setChecked(true);
 }
@@ -106,28 +106,28 @@ $chckbox2[] = $form->addElement(
     'ackhostservice',
     _("Acknowledge services attached to hosts"),
     "",
-    array("id" => "ackhostservice")
+    ["id" => "ackhostservice"]
 );
 if (isset($centreon->optGen['monitoring_ack_svc']) && $centreon->optGen['monitoring_ack_svc']) {
     $chckbox2[0]->setChecked(true);
 }
 
-$chckbox3[] = $form->addElement('checkbox', 'sticky', _("Sticky"), "", array("id" => "sticky"));
+$chckbox3[] = $form->addElement('checkbox', 'sticky', _("Sticky"), "", ["id" => "sticky"]);
 if (isset($centreon->optGen['monitoring_ack_sticky']) && $centreon->optGen['monitoring_ack_sticky']) {
     $chckbox3[0]->setChecked(true);
 }
 
-$chckbox4[] = $form->addElement('checkbox', 'force_check', _("Force active checks"), "", array("id" => "force_check"));
+$chckbox4[] = $form->addElement('checkbox', 'force_check', _("Force active checks"), "", ["id" => "force_check"]);
 if (isset($centreon->optGen['monitoring_ack_active_checks']) && $centreon->optGen['monitoring_ack_active_checks']) {
     $chckbox4[0]->setChecked(true);
 }
 
-$chckbox5[] = $form->addElement('checkbox', 'notify', _("Notify"), "", array("id" => "notify"));
+$chckbox5[] = $form->addElement('checkbox', 'notify', _("Notify"), "", ["id" => "notify"]);
 if (isset($centreon->optGen['monitoring_ack_notify']) && $centreon->optGen['monitoring_ack_notify']) {
     $chckbox5[0]->setChecked(true);
 }
 
-$form->addElement('hidden', 'author', $centreon->user->get_alias(), array("id" => "author"));
+$form->addElement('hidden', 'author', $centreon->user->get_alias(), ["id" => "author"]);
 
 $form->addRule('comment', _("Comment is required"), 'required', '', 'client');
 $form->setJsWarnings(_("Invalid information entered"), _("Please correct these fields"));
@@ -136,9 +136,9 @@ $form->addElement(
     'button',
     'submit',
     _("Acknowledge selected problems"),
-    array("onClick" => "send_the_command();", "class" => "btc bt_info")
+    ["onClick" => "send_the_command();", "class" => "btc bt_info"]
 );
-$form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+$form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');

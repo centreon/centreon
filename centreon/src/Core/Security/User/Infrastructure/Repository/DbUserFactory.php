@@ -38,7 +38,7 @@ class DbUserFactory
      */
     public static function createFromRecord(array $recordData): ?User
     {
-        if (empty($recordData)) {
+        if ($recordData === []) {
             return null;
         }
 

@@ -36,9 +36,9 @@ if (!isset($centreon)) {
     exit();
 }
 
-isset($_GET["tp_id"]) ? $tpG = $_GET["tp_id"] : $tpG = null;
-isset($_POST["tp_id"]) ? $tpP = $_POST["tp_id"] : $tpP = null;
-$tpG ? $tp_id = $tpG : $tp_id = $tpP;
+$tpG = $_GET["tp_id"] ?? null;
+$tpP = $_POST["tp_id"] ?? null;
+$tp_id = $tpG ?: $tpP;
 $path = "./include/configuration/configObject/timeperiod/";
 require_once $path . "DB-Func.php";
 require_once "./include/common/common-Func.php";
@@ -57,16 +57,16 @@ while ($row = $DBRESULT->fetchRow()) {
     $tplist[$row['tp_id']] = $row['tp_name'];
 }
 $form = new HTML_QuickFormCustom('form', 'POST', "?p=" . $p . "&o=s");
-$attrs1 = array('onchange' => "javascript: setTP(this.form.elements['tp_id'].value); submit();");
+$attrs1 = ['onchange' => "javascript: setTP(this.form.elements['tp_id'].value); submit();"];
 $form->addElement('select', 'tp_id', null, $tplist, $attrs1);
-$form->setDefaults(array('tp_id' => null));
+$form->setDefaults(['tp_id' => null]);
 $tpel = $form->getElement('tp_id');
 if ($tp_id) {
     $tpel->setValue($tp_id);
     $tpel->setSelected($tp_id);
 }
 
-$attrsTextLong = array("size" => "55");
+$attrsTextLong = ["size" => "55"];
 $form->addElement('header', 'title', _("Resulting Time Period with inclusions"));
 $form->addElement('header', 'information', _("General Information"));
 $form->addElement('header', 'notification', _("Time Range"));
@@ -84,14 +84,7 @@ $tpl = new Smarty();
 $tpl = initSmartyTpl($path, $tpl);
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
-$labels = array(
-    'unset_timerange' => _('Unset Timerange'),
-    'included_timerange' => _('Included Timerange'),
-    'excluded_timerange' => _('Excluded Timerange'),
-    'timerange_overlaps' => _('Timerange Overlaps'),
-    'hover_for_info' => _('Hover on timeline to see more information'),
-    'no_tp_selected' => _('No time period selected')
-);
+$labels = ['unset_timerange' => _('Unset Timerange'), 'included_timerange' => _('Included Timerange'), 'excluded_timerange' => _('Excluded Timerange'), 'timerange_overlaps' => _('Timerange Overlaps'), 'hover_for_info' => _('Hover on timeline to see more information'), 'no_tp_selected' => _('No time period selected')];
 $tpl->assign('labels', $labels);
 $tpl->assign('form', $renderer->toArray());
 $tpl->assign('tpId', $tp_id);

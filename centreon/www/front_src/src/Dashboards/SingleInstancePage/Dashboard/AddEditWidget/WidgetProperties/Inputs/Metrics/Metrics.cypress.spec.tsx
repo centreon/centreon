@@ -1,11 +1,11 @@
 /* eslint-disable import/no-unresolved */
 
-import widgetDataProperties from 'centreon-widgets/centreon-widget-data/properties.json';
 import { Formik } from 'formik';
 import i18next from 'i18next';
 import { Provider, createStore } from 'jotai';
 import { T, always, cond } from 'ramda';
 import { initReactI18next } from 'react-i18next';
+import widgetDataProperties from '../../../../Widgets/centreon-widget-data/properties.json';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 

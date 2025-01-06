@@ -36,18 +36,23 @@
 
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once _CENTREON_PATH_ . '/www/class/centreonExternalCommand.class.php';
-require_once dirname(__FILE__) . "/centreon_configuration_objects.class.php";
+require_once __DIR__ . "/centreon_configuration_objects.class.php";
+
+/**
+ * Class
+ *
+ * @class CentreonMonitoringExternalcmd
+ */
 class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
 {
-    /**
-     *
-     * @var type
-     */
+
+    /** @var CentreonDB */
     protected $pearDBMonitoring;
+    /** @var string */
     protected $centcore_file;
 
     /**
-     * Constructor
+     * CentreonMonitoringExternalcmd constructor
      */
     public function __construct()
     {
@@ -62,8 +67,10 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
 
     /**
      * @return array
+     * @throws PDOException
      * @throws RestBadRequestException
      * @throws RestException
+     * @throws RestUnauthorizedException
      */
     public function postSend()
     {
@@ -80,14 +87,14 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
                 'WHERE ns_activate = "1"';
 
             $dbResult = $this->pearDB->query($query);
-            $pollers = array();
+            $pollers = [];
 
             while ($row = $dbResult->fetch(PDO::FETCH_ASSOC)) {
                 $pollers[$row['id']] = 1;
             }
 
             $externalCommand = new CentreonExternalCommand();
-            $availableCommands = array();
+            $availableCommands = [];
 
             /**
              * We need to make the concordance between the data saved in the database
@@ -174,7 +181,7 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
                     }
                 }
                 fclose($fh);
-                return (array('success' => true));
+                return (['success' => true]);
             } else {
                 throw new RestException('Cannot open Centcore file');
             }

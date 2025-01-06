@@ -53,8 +53,8 @@ $form = new HTML_QuickFormCustom('form', 'post', "?p=".$p);
 /*
  * Get Poller List
  */
-$pollerList = array();
-$defaultPoller = array();
+$pollerList = [];
+$defaultPoller = [];
 $DBRESULT = $pearDB->query("SELECT * FROM `nagios_server` WHERE `ns_activate` = 1 ORDER BY `name`");
 
 while ($data = $DBRESULT->fetchRow()) {
@@ -70,35 +70,19 @@ while ($data = $DBRESULT->fetchRow()) {
 }
 $DBRESULT->closeCursor();
 
-isset($_POST['pollers']) && $_POST['pollers'] != "" ?
-    $selectedPoller = $_POST['pollers'] : $selectedPoller = $defaultPoller;
+$selectedPoller = isset($_POST['pollers']) && $_POST['pollers'] != "" ?
+    $_POST['pollers'] : $defaultPoller;
 
-$attrPollers = array(
-    'datasourceOrigin' => 'ajax',
-    'allowClear' => false,
-    'availableDatasetRoute' =>
-        './include/common/webServices/rest/internal.php?object=centreon_monitoring_poller&action=list',
-    'multiple' => false,
-    'defaultDataset' => $defaultPoller,
-    'linkedObject' => 'centreonInstance'
-);
-$form->addElement('select2', 'pollers', _("Poller"), array(), $attrPollers);
+$attrPollers = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'availableDatasetRoute' =>
+    './include/common/webServices/rest/internal.php?object=centreon_monitoring_poller&action=list', 'multiple' => false, 'defaultDataset' => $defaultPoller, 'linkedObject' => 'centreonInstance'];
+$form->addElement('select2', 'pollers', _("Poller"), [], $attrPollers);
 
 /*
  * Get Period
  */
-$time_period = array(
-    "last3hours"  => _("Last 3 hours"),
-    "today" => _("Today"),
-    "yesterday" => _("Yesterday"),
-    "last4days" => _("Last 4 days"),
-    "lastweek" => _("Last week"),
-    "lastmonth" => _("Last month"),
-    "last6month" => _("Last 6 months"),
-    "lastyear" => _("Last year")
-);
+$time_period = ["last3hours"  => _("Last 3 hours"), "today" => _("Today"), "yesterday" => _("Yesterday"), "last4days" => _("Last 4 days"), "lastweek" => _("Last week"), "lastmonth" => _("Last month"), "last6month" => _("Last 6 months"), "lastyear" => _("Last year")];
 
-$defaultPeriod = array();
+$defaultPeriod = [];
 $currentPeriod = '';
 if (isset($_POST['start']) && ($_POST != '')) {
     $defaultPeriod[$time_period[$_POST['start']]] = $_POST['start'];
@@ -142,35 +126,13 @@ $end = time();
 
 
 
-$periodSelect = array(
-    'allowClear' => false,
-    'multiple' => false,
-    'defaultDataset' => $defaultPeriod
-);
+$periodSelect = ['allowClear' => false, 'multiple' => false, 'defaultDataset' => $defaultPeriod];
 
 $selTP = $form->addElement('select2', 'start', _("Period"), $time_period, $periodSelect);
 
-$options = array(   "active_host_check" => "nagios_active_host_execution.rrd",
-                    "active_service_check" => "nagios_active_service_execution.rrd",
-                    "active_host_last" => "nagios_active_host_last.rrd",
-                    "active_service_last" => "nagios_active_service_last.rrd",
-                    "host_latency" => "nagios_active_host_latency.rrd",
-                    "service_latency" => "nagios_active_service_latency.rrd",
-                    "host_states" => "nagios_hosts_states.rrd",
-                    "service_states" => "nagios_services_states.rrd",
-                    "cmd_buffer" => "nagios_cmd_buffer.rrd");
+$options = ["active_host_check" => "nagios_active_host_execution.rrd", "active_service_check" => "nagios_active_service_execution.rrd", "active_host_last" => "nagios_active_host_last.rrd", "active_service_last" => "nagios_active_service_last.rrd", "host_latency" => "nagios_active_host_latency.rrd", "service_latency" => "nagios_active_service_latency.rrd", "host_states" => "nagios_hosts_states.rrd", "service_states" => "nagios_services_states.rrd", "cmd_buffer" => "nagios_cmd_buffer.rrd"];
 
-$title = array(
-        "active_host_check" => _("Host Check Execution Time"),
-        "active_host_last" => _("Hosts Actively Checked"),
-        "host_latency" => _("Host check latency"),
-        "active_service_check" => _("Service Check Execution Time"),
-        "active_service_last" => _("Services Actively Checked"),
-        "service_latency" => _("Service check latency"),
-        "cmd_buffer" => _("Commands in buffer"),
-        "host_states" => _("Host status"),
-        "service_states" => _("Service status")
-    );
+$title = ["active_host_check" => _("Host Check Execution Time"), "active_host_last" => _("Hosts Actively Checked"), "host_latency" => _("Host check latency"), "active_service_check" => _("Service Check Execution Time"), "active_service_last" => _("Services Actively Checked"), "service_latency" => _("Service check latency"), "cmd_buffer" => _("Commands in buffer"), "host_states" => _("Host status"), "service_states" => _("Service status")];
 
 $path = "./include/Administration/corePerformance/";
 

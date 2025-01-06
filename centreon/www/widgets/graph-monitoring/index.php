@@ -63,8 +63,9 @@ try {
     }
 
     global $pearDB;
-
-    $pearDB = $dbAcl = $db = $dependencyInjector['configuration_db'];
+    $pearDB = $dependencyInjector['configuration_db'];
+    $dbAcl = $dependencyInjector['configuration_db'];
+    $db = $dependencyInjector['configuration_db'];
     $db2 = $dependencyInjector['realtime_db'];
 
     $widgetObj = new CentreonWidget($centreon, $db);

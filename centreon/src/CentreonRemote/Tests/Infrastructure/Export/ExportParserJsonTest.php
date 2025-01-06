@@ -81,7 +81,7 @@ class ExportParserJsonTest extends TestCase
 
         $result = $this->parser->parse(
             $this->fs->path('/tmp/test2.json'),
-            function (&$result) {
+            function (&$result): void {
                 $result = str_replace('@val@', 'val', $result);
             }
         );

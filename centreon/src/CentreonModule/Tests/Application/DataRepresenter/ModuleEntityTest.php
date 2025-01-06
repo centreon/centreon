@@ -53,7 +53,7 @@ class ModuleEntityTest extends TestCase
         $entity->setInternal($data['is_internal']);
         $entity->setLicense($data['license']);
 
-        $check = function () use ($entity) {
+        $check = function () use ($entity): void {
             $outdated = $entity->isInstalled() && ! $entity->isUpdated()
                 ? true
                 : false;

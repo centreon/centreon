@@ -182,7 +182,7 @@ class RealTimeMonitoringServerRepositoryRDB extends AbstractRepositoryDRB implem
             $whereCondition = true;
         }
 
-        if (! empty($ids)) {
+        if ($ids !== []) {
             $instanceIds = [];
             $request .= $whereCondition ? ' AND ' : ' WHERE ';
             $whereCondition = true;

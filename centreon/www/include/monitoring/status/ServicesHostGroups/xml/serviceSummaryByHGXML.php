@@ -114,15 +114,15 @@ if ($instance !== -1) {
     ];
 }
 
-if (substr($o, -3) === '_pb') {
+if (str_ends_with($o, '_pb')) {
     $rq1 .= " AND h.host_id IN ( "
         . "SELECT s.host_id FROM services s "
         . "WHERE s.state != 0 AND s.state != 4 AND s.enabled = 1) ";
-} elseif (substr($o, -6) === '_ack_0') {
+} elseif (str_ends_with($o, '_ack_0')) {
     $rq1 .= " AND h.host_id IN ( "
         . "SELECT s.host_id FROM services s "
         . "WHERE s.acknowledged = 0 AND s.state != 0 AND s.state != 4 AND s.enabled = 1) ";
-} elseif (substr($o, -6) === '_ack_1') {
+} elseif (str_ends_with($o, '_ack_1')) {
     $rq1 .= " AND h.host_id IN ( "
         . "SELECT s.host_id FROM services s "
         . "WHERE s.acknowledged = 1 AND s.state != 0 AND s.state != 4 AND s.enabled = 1) ";
@@ -184,9 +184,9 @@ while ($ndo = $dbResult->fetch()) {
         $tab_final[$ndo["hgname"]] = [];
     }
     if (!isset($tab_final[$ndo["hgname"]][$ndo["host_name"]])) {
-        $tab_final[$ndo["hgname"]][$ndo["host_name"]] = array("0" => 0, "1" => 0, "2" => 0, "3" => 0, "4" => 0);
+        $tab_final[$ndo["hgname"]][$ndo["host_name"]] = ["0" => 0, "1" => 0, "2" => 0, "3" => 0, "4" => 0];
     }
-    if (strpos('svcSumHG_', $o) !== false) {
+    if (str_contains('svcSumHG_', $o)) {
         $tab_final[$ndo["hgname"]][$ndo["host_name"]][0] =
             $obj->monObj->getServiceStatusCount($ndo["host_name"], $obj, $o, CentreonMonitoring::SERVICE_STATUS_OK);
     }

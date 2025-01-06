@@ -165,6 +165,38 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
     }
 
     /**
+     * @param string $token
+     *
+     * @return bool
+     */
+    public function isTokenTypeManual(string $token): bool
+    {
+        try {
+            $statement = $this->db->prepare($this->translateDbName(
+            sprintf(<<<'SQL'
+                SELECT 1
+                FROM `:db`.security_authentication_tokens sat
+                WHERE sat.token = :token
+                    AND sat.token_type = '%s'
+                SQL,self::TYPE_MANUAL)
+            )
+            );
+
+            $statement->execute([':token' => $token]);
+            $result = $statement->fetch(\PDO::FETCH_ASSOC);
+
+            return ! empty($result);
+        } catch (\PDOException $exception) {
+            $this->error('Database error while checking token type', [
+                'error' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString(),
+            ]);
+
+            throw $exception;
+        }
+    }
+
+    /**
      * @param int|null $userId
      * @param RequestParametersInterface $requestParameters
      *
@@ -188,7 +220,7 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
         ]);
         $this->addDateNormalizer($sqlRequestTranslator, ['creation_date', 'expiration_date']);
 
-        $request = <<<'SQL'
+        $request = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS
                 sat.token_name,
                 sat.user_id,
@@ -203,7 +235,7 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
                 ON provider_token.id = sat.provider_token_id
             INNER JOIN `:db`.contact
                 ON contact.contact_id = sat.user_id
-            SQL;
+            SQL_WRAP;
 
         // Search
         $search = $sqlRequestTranslator->translateSearchParameterToSql();

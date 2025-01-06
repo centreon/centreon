@@ -81,7 +81,7 @@ dataset('$records', [
     ]
 ]);
 
-it('can create an array of notifiable resources from an array of records', function (array $records) {
+it('can create an array of notifiable resources from an array of records', function (array $records): void {
     $notifiableResources = DbNotifiableResourceFactory::createFromRecords($records);
     foreach ($notifiableResources as $notifiableResource) {
         expect($notifiableResource)->toBeInstanceOf(NotifiableResource::class);

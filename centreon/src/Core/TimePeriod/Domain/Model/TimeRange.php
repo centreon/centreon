@@ -31,6 +31,11 @@ use Core\TimePeriod\Domain\Exception\TimeRangeException;
  */
 class TimeRange implements \Stringable
 {
+    /**
+     * @var string TIME_RANGE_FULL_DAY_ALIAS The time range for the entire day in DOC
+     */
+    private const TIME_RANGE_FULL_DAY_ALIAS = '00:00-00:00';
+
     /** @var string Comma-delimited time range (00:00-12:00) for a particular day of the week. */
     private string $timeRange;
 
@@ -79,6 +84,7 @@ class TimeRange implements \Stringable
      */
     private function isValidTimeRangeFormat(string $timeRange): bool
     {
+
         return (bool) preg_match(
             "/^((?'time_range'(?'time'(([[0-1][0-9]|2[0-3]):[0-5][0-9]))-((?&time)|24:00))(,(?&time_range))*)$/",
             $timeRange
@@ -97,6 +103,9 @@ class TimeRange implements \Stringable
     private function areTimeRangesOrderedWithoutOverlap(string $timeRanges): bool
     {
         $previousEndTime = null;
+        if ($timeRanges === self::TIME_RANGE_FULL_DAY_ALIAS) {
+            return true;
+        }
         foreach (explode(',', $timeRanges) as $timeRange) {
             [$start, $end] = explode('-', $timeRange);
             // The start of a new time range cannot be less than or equal to the end of the previous time range
