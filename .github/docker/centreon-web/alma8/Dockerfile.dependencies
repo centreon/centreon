@@ -4,6 +4,7 @@ FROM almalinux:8 AS web_dependencies
 
 ARG VERSION
 ARG IS_CLOUD
+ARG STABILITY
 
 RUN --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_USERNAME \
     --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_PASSWORD \
