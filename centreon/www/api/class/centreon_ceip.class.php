@@ -158,10 +158,6 @@ class CentreonCeip extends CentreonWebService
             } else {
                 $role = 'User';
             }
-
-            if (array_key_exists('IS_TRIAL', $_ENV) && $_ENV['IS_TRIAL']) {
-                $email = $this->user->email;
-            }
         } else {
             // Get the user role for the Centreon on-premises platform
             $role = $this->user->admin
@@ -179,10 +175,6 @@ class CentreonCeip extends CentreonWebService
             'locale' => $locale,
             'role' => $role,
         ];
-
-        if (isset($email)) {
-            $visitorInformation['email'] = $email;
-        }
 
         return $visitorInformation;
     }
