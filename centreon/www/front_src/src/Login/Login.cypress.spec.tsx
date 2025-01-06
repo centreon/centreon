@@ -200,8 +200,6 @@ const mockPostLoginServerError = (): void => {
 };
 
 const setupBeforeEach = (): void => {
-  cy.clock(mockNow);
-
   cy.interceptAPIRequest({
     alias: 'getTranslations',
     method: Method.GET,
@@ -232,6 +230,8 @@ const setupBeforeEach = (): void => {
 
 describe('Login Page', () => {
   beforeEach(() => {
+    cy.clock(mockNow);
+
     setupBeforeEach();
   });
 
