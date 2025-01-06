@@ -324,7 +324,7 @@ function deletePoolInDB($pools = array())
                 $bindValues = array_map(fn(int $serviceId) => [$serviceId, \PDO::PARAM_INT], $listServices);
                 $bindParams = array_combine($bindPlaceholders, $bindValues);
                 $statement = $pearDB->prepareQuery($query);
-                $pearDB->executePreparedQuery($statement, array_map(fn($serviceId) => [$serviceId, PDO::PARAM_INT], $listServices), false);
+                $pearDB->executePreparedQuery($statement, $bindParams, true);
                 $pearDB->closeQuery($statement);
             }
 
