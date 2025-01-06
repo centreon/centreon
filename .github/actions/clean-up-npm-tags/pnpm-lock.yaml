@@ -9,8 +9,8 @@ dependencies:
     specifier: ^1.10.0
     version: 1.10.0
   node-fetch:
-    specifier: '2'
-    version: 2.6.8
+    specifier: ^2.7.0
+    version: 2.7.0
 
 packages:
 
