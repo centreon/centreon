@@ -11,10 +11,6 @@ default:
   gherkin:
     cache: ~
   suites:
-    generate_service_contact_configuration:
-      paths: [ "%paths.base%/features/GenerateServiceContact.feature" ]
-      contexts: [ GenerateServiceContactContext ]
-
     acknowledgement:
       paths: [ "%paths.base%/features/Acknowledgement.feature" ]
       contexts: [ AcknowledgementContext ]
@@ -46,10 +42,6 @@ default:
     limit_metric_in_chart:
       paths: [ "%paths.base%/features/LimitMetricInChart.feature" ]
       contexts: [ LimitMetricInChartContext ]
-
-    show_disabled_hosts_services:
-      paths: [ "%paths.base%/features/ShowDisabledHostsServices.feature" ]
-      contexts: [ ShowDisabledHostsServicesContext ]
 
     downtime_start_and_stop:
       paths: [ "%paths.base%/features/DowntimeStartAndStop.feature" ]
@@ -103,29 +95,9 @@ default:
       paths: [ "%paths.base%/features/RestApi.feature" ]
       contexts: [ RestApiContext ]
 
-    special_characters_in_contact:
-      paths: [ "%paths.base%/features/SpecialCharactersInContact.feature" ]
-      contexts: [ SpecialCharactersInContactContext ]
-
-    contact_group_configuration:
-      paths: [ "%paths.base%/features/ContactGroupConfiguration.feature" ]
-      contexts: [ ContactGroupConfigurationContext ]
-
-    ldap_configuration:
-      paths: [ "%paths.base%/features/LdapConfiguration.feature" ]
-      contexts: [ LdapConfigurationContext ]
-
     ldap_manual_import:
       paths: [ "%paths.base%/features/LdapManualImport.feature" ]
       contexts: [ LdapManualImportContext ]
-
-    massive_change_services:
-      paths: [ "%paths.base%/features/MassiveChangeServices.feature" ]
-      contexts: [ MassiveChangeServicesContext ]
-
-    virtual_metric_handle:
-      paths: [ "%paths.base%/features/VirtualMetricHandle.feature" ]
-      contexts: [ VirtualMetricHandleContext ]
 
     command_configuration:
       paths: [ "%paths.base%/features/CommandConfiguration.feature" ]
@@ -135,17 +107,9 @@ default:
       paths: [ "%paths.base%/features/HostGroupServiceConfiguration.feature" ]
       contexts: [ HostGroupServiceConfigurationContext ]
 
-    contact_template_configuration:
-      paths: [ "%paths.base%/features/ContactTemplateConfiguration.feature" ]
-      contexts: [ ContactTemplateConfigurationContext ]
-
     escalation_configuration:
       paths: [ "%paths.base%/features/EscalationConfiguration.feature" ]
       contexts: [ EscalationConfigurationContext ]
-
-    meta_service_configuration:
-      paths: [ "%paths.base%/features/MetaServiceConfiguration.feature" ]
-      contexts: [ MetaServiceConfigurationContext ]
 
     host_group_dependency_configuration:
       paths: [ "%paths.base%/features/HostGroupDependencyConfiguration.feature" ]
@@ -175,10 +139,6 @@ default:
       paths: [ "%paths.base%/features/VendorConfiguration.feature" ]
       contexts: [ VendorConfigurationContext ]
 
-    meta_service_dependency_configuration:
-      paths: [ "%paths.base%/features/MetaServiceDependencyConfiguration.feature" ]
-      contexts: [ MetaServiceDependencyConfigurationContext ]
-
     test_proxy_configuration:
       paths: [ "%paths.base%/features/TestProxyConfiguration.feature" ]
       contexts: [ TestProxyConfigurationContext ]
@@ -186,10 +146,6 @@ default:
     test_clapi:
       paths: [ "%paths.base%/features/Clapi.feature" ]
       contexts: [ ClapiContext ]
-
-    traps_snmp_group_configuration:
-      paths: [ "%paths.base%/features/TrapsSNMPGroupConfiguration.feature" ]
-      contexts: [ TrapsSNMPGroupConfigurationContext ]
 
     uri:
       paths: [ "%paths.base%/features/URI.feature" ]

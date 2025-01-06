@@ -1,3 +1,4 @@
+import numeral from 'numeral';
 import {
   T,
   always,
@@ -6,14 +7,14 @@ import {
   gt,
   gte,
   head,
+  last,
   length,
   lt,
   lte,
   pluck
 } from 'ramda';
-import numeral from 'numeral';
 
-import { darken, getLuminance, lighten, Theme } from '@mui/material';
+import { Theme, darken, getLuminance, lighten } from '@mui/material';
 
 import { Thresholds } from './models';
 
