@@ -141,8 +141,7 @@ class CentreonCeip extends CentreonWebService
     {
         $locale = $this->user->get_lang();
 
-        
-        if (isCloudPlatform()) { 
+        if (isCloudPlatform()) {
             // Get the user role for the Centreon Cloud platform
 
             // Get list of ACL Groups linked to this user
@@ -158,7 +157,15 @@ class CentreonCeip extends CentreonWebService
             } else {
                 $role = 'User';
             }
-        } else { 
+
+            $dependencyInjector = LegacyContainer::getInstance();
+            $licenseService = $dependencyInjector['lm.license'];
+
+            if($licenseService->isTrial()) {
+                $email = $this->user->email;
+            }
+
+        } else {
             // Get the user role for the Centreon on-premises platform
             $role = $this->user->admin
                 ? 'admin'
@@ -170,11 +177,17 @@ class CentreonCeip extends CentreonWebService
             }
         }
 
-        return [
+        $visitorInformation = [
             'id' => mb_substr($this->uuid, 0, 6) . '-' . $this->user->user_id,
             'locale' => $locale,
             'role' => $role,
         ];
+
+        if (isset($email)) {
+            $visitorInformation['email'] = $email;
+        }
+
+        return $visitorInformation;
     }
 
     /**
