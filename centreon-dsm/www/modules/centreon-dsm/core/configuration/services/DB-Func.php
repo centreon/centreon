@@ -334,7 +334,7 @@ function deletePoolInDB($pools = array())
                     WHERE pool_id = :pool_id
                 SQL
             );
-            $pearDB->executePreparedQuery($statement, $bindParams, true);
+            $pearDB->executePreparedQuery($statement, [':pool_id' => [$key, PDO::PARAM_INT]], true);
             $pearDB->closeQuery($statement);
         }
     } catch (CentreonDbException $e) {
