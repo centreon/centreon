@@ -17875,5 +17875,5 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgid "Export as"
 # msgstr ""
 
-# msgid "Reduce"
+# msgid "Extend"
 # msgstr ""

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Modal } from '../Modal';
 import { useStyles } from './expandableContainer.styles';
 import { Parameters } from './models';
-import { labelExpand, labelReduce } from './translatedLabels';
+import { labelExtend, labelReduce } from './translatedLabels';
 
 interface Props {
   children: (params: Omit<Parameters, 'ref'>) => JSX.Element;
@@ -17,12 +17,12 @@ const ExpandableContainer = ({ children }: Props) => {
   const toggleExpand = (): void => {
     setIsExpanded(!isExpanded);
   };
-  const currentMode = isExpanded ? labelExpand : labelReduce;
+  const currentMode = isExpanded ? labelExtend : labelReduce;
 
   const reducedChildrenData = {
     toggleExpand,
     isExpanded: false,
-    label: labelExpand,
+    label: labelExtend,
     Icon: OpenInFull,
     key: currentMode
   };
