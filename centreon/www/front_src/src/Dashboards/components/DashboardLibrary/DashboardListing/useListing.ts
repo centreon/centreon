@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
-import { generatePath } from 'react-router-dom';
+import { generatePath } from 'react-router';
 
 import routeMap from '../../../../reactRoutes/routeMap';
 import {

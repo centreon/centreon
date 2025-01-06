@@ -3,7 +3,7 @@ import { ReactElement, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { generatePath, useNavigate } from 'react-router-dom';
+import { generatePath, useNavigate } from 'react-router';
 
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Box, Typography } from '@mui/material';
