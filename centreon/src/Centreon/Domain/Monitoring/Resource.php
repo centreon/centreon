@@ -579,15 +579,15 @@ class Resource
     }
 
     /**
-     * @return bool|null
+     * @return bool
      */
-    public function isFlapping(): bool
+    public function isInFlapping(): bool
     {
         return $this->isFlapping;
     }
 
     /**
-     * @param bool|null $flapping
+     * @param bool $flapping
      * @return self
      */
     public function setIsFlapping(bool $flapping): self

@@ -31,7 +31,7 @@ $errorMessage = '';
 $addColumnToResourcesTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to add column flapping to table resources';
     if (! $pearDB->isColumnExist('resources', 'flapping')) {
-        $pearDB->executeQuery(
+        $pearDB->exec(
             <<<'SQL'
                 ALTER TABLE `resources`
                 ADD COLUMN `flapping` TINYINT(1) NOT NULL DEFAULT 0
@@ -39,7 +39,7 @@ $addColumnToResourcesTable = function (CentreonDB $pearDB) use (&$errorMessage):
         );
     }
     if (! $pearDB->isColumnExist('resources', 'percent_state_change')) {
-        $pearDB->executeQuery(
+        $pearDB->exec(
             <<<'SQL'
                 ALTER TABLE `resources`
                 ADD COLUMN `percent_state_change` FLOAT DEFAULT NULL
@@ -50,18 +50,18 @@ $addColumnToResourcesTable = function (CentreonDB $pearDB) use (&$errorMessage):
 
 try {
     $addColumnToResourcesTable($pearDB);
-} catch (Exception $e) {
+} catch (\PDOException $e) {
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
     }
 
-    $centreonLog->log(
-        CentreonLog::TYPE_UPGRADE,
-        CentreonLog::LEVEL_ERROR,
-        $versionOfTheUpgrade . $errorMessage
+    $centreonLog->error(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: $versionOfTheUpgrade . $errorMessage
         . ' - Code : ' . (int) $e->getCode()
         . ' - Error : ' . $e->getMessage()
-        . ' - Trace : ' . $e->getTraceAsString()
+        . ' - Trace : ' . $e->getTraceAsString(),
+        exception: $e
     );
 
     throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);

@@ -78,6 +78,7 @@ final class FindResources
                 $extraData[$provider->getExtraDataSourceName()] = $provider->getExtraDataForResources($filter, $resources);
             }
 
+
             $presenter->presentResponse(FindResourcesFactory::createResponse($resources, $extraData));
         } catch (\Throwable $ex) {
             $presenter->presentResponse(new ErrorResponse(ResourceException::errorWhileSearching()));

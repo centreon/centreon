@@ -172,7 +172,7 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
                     ],
                     'is_in_downtime' => $resource->isInDowntime,
                     'is_acknowledged' => $resource->isAcknowledged,
-                    'is_in_flapping' => $resource->isFlapping,
+                    'is_in_flapping' => $resource->isInFlapping,
                     'percent_state_change' => $resource->percentStateChange,
                     'has_active_checks_enabled' => $resource->withActiveChecks,
                     'has_passive_checks_enabled' => $resource->withPassiveChecks,

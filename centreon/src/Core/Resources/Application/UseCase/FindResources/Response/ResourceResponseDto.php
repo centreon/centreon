@@ -39,7 +39,7 @@ final class ResourceResponseDto
         public ?ResourceStatusResponseDto $status = null,
         public bool $isInDowntime = false,
         public bool $isAcknowledged = false,
-        public bool $isFlapping = false,
+        public bool $isInFlapping = false,
         public ?float $percentStateChange = null,
         public bool $withActiveChecks = false,
         public bool $withPassiveChecks = false,
