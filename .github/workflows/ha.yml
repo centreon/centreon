@@ -59,6 +59,7 @@ jobs:
       base_directory: centreon-ha
       spec_file: centreon-ha/packaging/centreon-ha.spectemplate
       package_extension: ${{ matrix.package_extension }}
+      distrib: ${{ matrix.distrib }}
       image_name: ${{ matrix.image }}
       module_name: ha
       major_version: ${{ needs.get-environment.outputs.major_version }}
@@ -75,7 +76,7 @@ jobs:
   deliver-sources:
     runs-on: [self-hosted, common]
     needs: [get-environment, package]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+    if: ${{ contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' && github.repository == 'centreon/centreon' }}
 
     steps:
       - name: Checkout sources
@@ -93,7 +94,7 @@ jobs:
 
   delivery-rpm:
     needs: [get-environment, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && github.repository == 'centreon/centreon' }}
     runs-on: [self-hosted, common]
 
     strategy:
@@ -118,7 +119,7 @@ jobs:
 
   delivery-deb:
     needs: [get-environment, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && github.repository == 'centreon/centreon'}}
     runs-on: [self-hosted, common]
 
     strategy:
@@ -142,7 +143,7 @@ jobs:
 
   promote:
     needs: [get-environment]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+    if: ${{ contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' && github.repository == 'centreon/centreon' }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:

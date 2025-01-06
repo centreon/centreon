@@ -52,44 +52,51 @@ jobs:
     outputs:
       has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes || 'true' }}
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes || 'true' }}
-      has_features_changes: ${{ steps.filter.outputs.has_features_changes || 'true' }}
+      has_test_changes: ${{ steps.filter.outputs.has_test_changes || 'true' }}
+      trigger_delivery: ${{ steps.changes_trigger_checks.outputs.trigger_delivery }}
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - uses: dorny/paths-filter@0bc4621a3135347011ad047f9ecf449bf72ce2bd # v3.0.0
         id: filter
+        if: ${{ needs.get-environment.outputs.is_nightly == 'false' }}
         with:
           filters: |
             has_frontend_changes:
-              - '**/*.[jt]sx?'
+              - 'centreon/*.[jt]sx?'
+              - 'centreon/!(*tests)/*.[jt]sx?'
               - '**/www/(front_src|widgets)/**'
-              - '**/tests/e2e/**'
-              - '**/package*'
-              - '**/lighthouse/**'
-              - '**/tsconfig.json'
-              - '**/cypress/**|**/pnpm-*'
+              - 'centreon/package*'
+              - 'centreon/lighthouse/**'
+              - 'centreon/tsconfig.json'
+              - 'centreon/cypress/**|**/pnpm-*'
             has_backend_changes:
-              - '**/*.php'
-              - '**/phpstan*.neon'
+              - 'centreon/*.php'
+              - 'centreon/!(*tests)/*.php'
+              - 'centreon/phpstan*.neon'
               - 'centreon/codingstyle.xml'
               - 'centreon/config/**/*.xml'
               - 'centreon/phpunit.xml'
               - 'centreon/ruleset.xml'
               - 'centreon/www/**/*.xml'
-              - '**/bin/**'
-              - '**/tmpl/**'
-              - '**/features/**'
-              - '/centreon/src/**'
-              - '**/config/**'
-              - '**/composer.*'
-              - '**/tests/api/**'
-              - '**/tests/php/**'
-              - '**/tests/clapi_export/**'
+              - 'centreon/bin/**'
+              - 'centreon/tmpl/**'
+              - 'centreon/features/**'
+              - 'centreon/src/**'
+              - 'centreon/config/**'
+              - 'centreon/composer.*'
               - '**/www/!(front_src|widgets)/**'
-              - '**/doc/API/**'
-            has_features_changes:
-              - '**/tests/e2e/**/*.feature'
+              - 'centreon/doc/API/**'
+            has_test_changes:
+              - 'centreon/tests/**'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - uses: ./.github/actions/changes-trigger-checks
+        id: changes_trigger_checks
+        with:
+          has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes || true }}
+          has_backend_changes: ${{ steps.filter.outputs.has_backend_changes || true }}
+          has_test_changes: ${{ steps.filter.outputs.has_test_changes || true }}
 
   get-environment:
     uses: ./.github/workflows/get-environment.yml
@@ -100,7 +107,7 @@ jobs:
   gherkin-lint:
     runs-on: ubuntu-24.04
     needs: [get-environment, changes]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_features_changes == 'true' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_test_changes == 'true' }}
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
@@ -144,7 +151,8 @@ jobs:
         if: |
           needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
           failure() &&
-          startsWith(github.ref_name, 'dev')
+          startsWith(github.ref_name, 'dev') &&
+          github.repository == 'centreon/centreon'
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -414,6 +422,7 @@ jobs:
       base_directory: centreon
       spec_file: centreon/packaging/centreon.spectemplate
       package_extension: ${{ matrix.package_extension }}
+      distrib: ${{ matrix.distrib }}
       frontend_index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
       frontend_index_file: centreon/www/index.html
       frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
@@ -445,7 +454,7 @@ jobs:
   dockerize:
     runs-on: ubuntu-24.04
     needs: [get-environment, package]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' && github.repository == 'centreon/centreon' }}
 
     env:
       project: centreon-web
@@ -537,7 +546,12 @@ jobs:
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
 
       - name: Setup docker slim
-        run: curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -s -- 1.40.11
+        run: |
+          curl -sLO https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz
+          tar zxf dist_linux.tar.gz
+          mv dist_linux/{slim,slim-sensor} /usr/local/bin/
+          chmod +x /usr/local/bin/{slim,slim-sensor}
+          rm -rf dist_linux.tar.gz dist_linux
         shell: bash
 
       - name: Build standard slim image
@@ -581,7 +595,7 @@ jobs:
 
   api-integration-test:
     needs: [get-environment, changes, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable'}}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' && github.repository == 'centreon/centreon'}}
     strategy:
       fail-fast: false
       matrix:
@@ -606,7 +620,7 @@ jobs:
 
   legacy-e2e-test:
     needs: [get-environment, changes, dockerize]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' && github.repository == 'centreon/centreon' }}
     strategy:
       fail-fast: false
       matrix:
@@ -636,7 +650,8 @@ jobs:
       !cancelled() &&
       !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled') &&
-      needs.get-environment.outputs.stability != 'stable'
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.repository == 'centreon/centreon'
     strategy:
       fail-fast: false
       matrix:
@@ -671,7 +686,7 @@ jobs:
   performances-test:
     runs-on: ubuntu-22.04
     needs: [get-environment, dockerize]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' && github.repository == 'centreon/centreon' }}
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -703,7 +718,7 @@ jobs:
           secret_access_key: ${{ secrets.LIGHTHOUSE_SECRET }}
 
       - name: Publish report
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: lighthouse-report
           path: centreon/lighthouse/report/lighthouseci-index.html
@@ -719,7 +734,7 @@ jobs:
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' && github.repository == 'centreon/centreon' }}
 
     steps:
       - name: Checkout sources
@@ -746,7 +761,7 @@ jobs:
   publish-openapi-documentation:
     runs-on: [self-hosted, infra]
     needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' && github.repository == 'centreon/centreon' }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -813,7 +828,7 @@ jobs:
         shell: bash
 
       - name: Upload built openapi doc
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: openapi-doc
           path: |
@@ -825,6 +840,7 @@ jobs:
     runs-on: [self-hosted, common]
     needs:
       [
+        changes,
         get-environment,
         api-integration-test,
         e2e-test,
@@ -833,10 +849,12 @@ jobs:
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      !cancelled() &&
+      ! cancelled() &&
       contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-environment.outputs.stability) &&
-      !contains(needs.*.result, 'failure') &&
-      !contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.changes.outputs.trigger_delivery == 'true' &&
+      github.repository == 'centreon/centreon'
 
     strategy:
       matrix:
@@ -862,7 +880,8 @@ jobs:
         if: |
           needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
           failure() &&
-          startsWith(github.ref_name, 'dev')
+          startsWith(github.ref_name, 'dev') &&
+          github.repository == 'centreon/centreon'
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -875,6 +894,7 @@ jobs:
     runs-on: [self-hosted, common]
     needs:
       [
+        changes,
         get-environment,
         api-integration-test,
         e2e-test,
@@ -883,10 +903,12 @@ jobs:
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      !cancelled() &&
+      ! cancelled() &&
       contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-environment.outputs.stability) &&
-      !contains(needs.*.result, 'failure') &&
-      !contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.changes.outputs.trigger_delivery == 'true' &&
+      github.repository == 'centreon/centreon'
 
     strategy:
       matrix:
@@ -912,7 +934,8 @@ jobs:
         if: |
           needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
           failure() &&
-          startsWith(github.ref_name, 'dev')
+          startsWith(github.ref_name, 'dev') &&
+          github.repository == 'centreon/centreon'
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
@@ -928,7 +951,8 @@ jobs:
       (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      github.repository == 'centreon/centreon'
     runs-on: [self-hosted, common]
     strategy:
       matrix:
