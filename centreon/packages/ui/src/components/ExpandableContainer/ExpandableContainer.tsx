@@ -1,5 +1,5 @@
 import { OpenInFull } from '@mui/icons-material';
-import { CSSProperties, useState } from 'react';
+import { useState } from 'react';
 import { Modal } from '../Modal';
 import { useStyles } from './expandableContainer.styles';
 import { Parameters } from './models';
