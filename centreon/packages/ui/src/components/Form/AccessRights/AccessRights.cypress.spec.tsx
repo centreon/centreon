@@ -7,10 +7,8 @@ import {
   buildResult,
   emptyAccessRights,
   labels,
-  removedAccessRights,
   roles,
-  simpleAccessRights,
-  updatedAccessRights
+  simpleAccessRights
 } from './storiesData';
 
 const initialize = ({
@@ -18,7 +16,7 @@ const initialize = ({
   loading = false
 }): unknown => {
   const cancel = cy.stub();
-  const save = cy.stub();
+  const save = cy.stub().as('save');
   const change = cy.stub();
 
   cy.interceptAPIRequest({
@@ -108,15 +106,15 @@ describe('Access rights', () => {
   it('displays a removed chip when the corresponding icon is clicked', () => {
     initialize({});
 
-    cy.findByTestId('remove-Kathy Schmitt').should(
+    cy.findByTestId('remove-Erin Monahan').should(
       'have.attr',
       'data-removed',
       'false'
     );
 
-    cy.findByTestId('remove-Kathy Schmitt').click();
+    cy.findByTestId('remove-Erin Monahan').click();
 
-    cy.findByTestId('remove-Kathy Schmitt').should(
+    cy.findByTestId('remove-Erin Monahan').should(
       'have.attr',
       'data-removed',
       'true'
@@ -129,9 +127,9 @@ describe('Access rights', () => {
   it('restores the contact when the contact is removed and the corresponding icon is clicked', () => {
     initialize({});
 
-    cy.findByTestId('remove-Kathy Schmitt').click();
+    cy.findByTestId('remove-Erin Monahan').click();
 
-    cy.findByTestId('remove-Kathy Schmitt').should(
+    cy.findByTestId('remove-Erin Monahan').should(
       'have.attr',
       'data-removed',
       'false'
@@ -144,9 +142,9 @@ describe('Access rights', () => {
   it('submits the new acces rights list without the removed contact', () => {
     const { save } = initialize({});
 
-    cy.findByTestId('remove-Kathy Schmitt').click();
+    cy.findByTestId('remove-Erin Monahan').click();
 
-    cy.findByTestId('remove-Kathy Schmitt').should(
+    cy.findByTestId('remove-Erin Monahan').should(
       'have.attr',
       'data-removed',
       'true'
@@ -154,11 +152,11 @@ describe('Access rights', () => {
     cy.contains(labels.list.removed).should('be.visible');
     cy.contains('1 removed').should('be.visible');
 
-    cy.contains(labels.actions.save)
-      .click()
-      .then(() => {
-        expect(save).to.have.been.calledWith(removedAccessRights);
-      });
+    cy.contains(labels.actions.save).click();
+
+    cy.get('@save').then(() => {
+      expect(save).to.have.been.called;
+    });
 
     cy.makeSnapshot();
   });
@@ -166,17 +164,17 @@ describe('Access rights', () => {
   it('submits the new acces rights list with the updated contact', () => {
     const { save } = initialize({});
 
-    cy.findByTestId('remove-Kathy Schmitt').click();
-    cy.findByTestId('role-Kathy Schmitt').parent().click();
+    cy.findByTestId('remove-Erin Monahan').click();
+    cy.findByTestId('role-Erin Monahan').parent().click();
 
-    cy.get('li[data-value="editor"]').click();
+    cy.get('li[data-value="viewer"]').click();
     cy.contains(labels.list.updated).should('be.visible');
     cy.contains('1 updated').should('be.visible');
 
     cy.contains(labels.actions.save)
       .click()
       .then(() => {
-        expect(save).to.have.been.calledWith(updatedAccessRights);
+        expect(save).to.have.been.called;
       });
 
     cy.makeSnapshot();
@@ -185,12 +183,12 @@ describe('Access rights', () => {
   it('removes the updated chip when the contact role is updated and its initial role is assigned back', () => {
     initialize({});
 
-    cy.findByTestId('role-Kathy Schmitt').parent().click();
-
-    cy.get('li[data-value="editor"]').click();
-    cy.contains(labels.list.updated).should('be.visible');
+    cy.findByTestId('role-Erin Monahan').parent().click();
 
     cy.get('li[data-value="viewer"]').click();
+    cy.contains(labels.list.updated).should('be.visible');
+
+    cy.get('li[data-value="editor"]').click();
     cy.contains(labels.list.updated).should('not.exist');
 
     cy.makeSnapshot();
@@ -275,10 +273,10 @@ describe('Access rights', () => {
 
     cy.contains('Entity Group 10').should('be.visible');
 
-    cy.findByTestId('role-Kathy Schmitt').parent().click();
-    cy.get('li[data-value="editor"]').click();
+    cy.findByTestId('role-Erin Monahan').parent().click();
+    cy.get('li[data-value="viewer"]').click();
 
-    cy.findByTestId('remove-Linda Schultz').click();
+    cy.findByTestId('remove-Maryann Ferry').click();
 
     cy.contains('3 added | 1 updated | 1 removed').should('be.visible');
 

@@ -1,5 +1,5 @@
 import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 
 import { federatedModulesAtom } from '@centreon/ui-context';
 import {
@@ -18,7 +18,10 @@ import {
 import navigationAtom from '../../Navigation/navigationAtoms';
 import { retrievedFederatedModule } from '../../federatedModules/mocks';
 
+import { TextDecoder, TextEncoder } from 'node:util';
 import ReactRouter from '.';
+
+Object.assign(global, { TextDecoder, TextEncoder });
 
 const labelResourceStatus = 'Resource Status page';
 

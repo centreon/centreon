@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react-hooks/dom';
 import { Provider, createStore, useAtomValue } from 'jotai';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import {

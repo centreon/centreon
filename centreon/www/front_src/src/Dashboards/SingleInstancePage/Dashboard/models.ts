@@ -8,6 +8,8 @@ export interface PanelConfiguration {
   isAddWidgetPanel?: boolean;
   panelMinHeight?: number;
   panelMinWidth?: number;
+  panelDefaultWidth?: number;
+  panelDefaultHeight?: number;
   path: string;
 }
 

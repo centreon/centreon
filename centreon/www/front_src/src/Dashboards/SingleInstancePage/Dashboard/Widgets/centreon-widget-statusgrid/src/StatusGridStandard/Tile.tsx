@@ -1,6 +1,6 @@
 import { T, always, cond, equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router';
 
 import DvrIcon from '@mui/icons-material/Dvr';
 import { Box, CardActionArea, Typography } from '@mui/material';
