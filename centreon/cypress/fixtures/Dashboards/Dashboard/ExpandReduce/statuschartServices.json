@@ -3,7 +3,7 @@
       "total": 48
   },
   "warning": {
-      "total": 4
+      "total": 12
   },
   "critical": {
       "total": 0
@@ -14,5 +14,5 @@
   "pending": {
       "total": 1
   },
-  "total": 192
+  "total": 200
 }
