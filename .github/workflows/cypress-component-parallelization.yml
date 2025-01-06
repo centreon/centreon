@@ -1,3 +1,5 @@
+name: frontend-component-test
+
 on:
   workflow_call:
     inputs:
@@ -14,6 +16,16 @@ on:
         required: true
         type: string
         description: 'The frontend dependencies lock file path'
+      is_nightly:
+        required: false
+        type: string
+    secrets:
+      jira_base_url:
+        required: true
+      jira_user_email:
+        required: true
+      jira_api_token:
+        required: true
 
 jobs:
   cypress-component-test-list:
@@ -52,7 +64,7 @@ jobs:
 
       - name: Upload components tests Results
         if: failure()
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-test-reports-${{ matrix.spec }}
           path: centreon/cypress/results/*.json
@@ -63,7 +75,7 @@ jobs:
         shell: bash
 
       - name: Archive test coverage
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-test-coverage-${{ matrix.spec }}
           path: ${{ inputs.module_name }}/.nyc_output/${{ matrix.spec }}-out.json
@@ -111,7 +123,7 @@ jobs:
         shell: bash
 
       - name: Archive HTML code coverage
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ steps.title.outputs.replaced }}-${{ inputs.name }}-code-coverage
           path: coverage/lcov-report
@@ -185,3 +197,23 @@ jobs:
           source_paths: ${{ inputs.name }}-${{ matrix.type_of_report }}/**
           source_name_pattern: ${{ inputs.name }}-${{ matrix.type_of_report }}-
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  create-jira-nightly-ticket:
+    needs: [cypress-component-coverage-report, cypress-component-test-report, cypress-component-test-run, regroup-artifacts]
+    runs-on: ubuntu-24.04
+    if: |
+      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
+      (failure() || cancelled()) &&
+      startsWith(github.ref_name, 'dev')
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+
+      - name: Create Jira ticket if nightly build failure
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.jira_base_url }}
+          jira_user_email: ${{ secrets.jira_user_email }}
+          jira_api_token: ${{ secrets.jira_api_token }}
+          module_name: "centreon-web"
+          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "cypress-e2e"]'

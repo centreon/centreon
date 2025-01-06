@@ -18,6 +18,7 @@ env:
 
 jobs:
   publish-new-npm-version:
+    if: github.repository == 'centreon/centreon'
     runs-on: ubuntu-22.04
 
     steps:
@@ -30,3 +31,4 @@ jobs:
           npm_token: ${{ secrets.NPM_TOKEN }}
           release_branch: ${{ env.base_branch }}
           package: ${{ env.package }}
+          tag: ${{ env.base_branch }}

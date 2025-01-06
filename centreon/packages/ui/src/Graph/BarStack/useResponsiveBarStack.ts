@@ -1,38 +1,30 @@
-import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
-import { equals, pluck } from 'ramda';
+import { useMemo } from 'react';
 
-import { getValueByUnit } from '../common/utils';
+import { scaleOrdinal } from '@visx/scale';
+import { equals, isNil, pluck } from 'ramda';
+
 import { LegendScale } from '../Legend/models';
+import { getValueByUnit } from '../common/utils';
 
 import { BarType } from './models';
 
-interface Size {
-  height: number;
-  width: number;
-}
-
-interface useBarStackProps {
+interface UseBarStackProps {
   data: Array<BarType>;
   height: number;
-  legendRef;
-  size: number;
-  titleRef;
+  legendDirection?: 'column' | 'row';
   unit?: 'percentage' | 'number';
   variant?: 'vertical' | 'horizontal';
   width: number;
 }
-interface useBarStackState {
-  barSize: Size;
+
+interface UseBarStackState {
   colorScale;
-  input;
+  formattedLegendDirection: 'column' | 'row';
+  isSmall: boolean;
   isVerticalBar: boolean;
-  keys: Array<string>;
   legendScale: LegendScale;
-  svgContainerSize: Size;
-  svgWrapperWidth: number;
+  titleVariant: 'xs' | 'sm' | 'md';
   total: number;
-  xScale;
-  yScale;
 }
 
 const useResponsiveBarStack = ({
@@ -41,90 +33,73 @@ const useResponsiveBarStack = ({
   height,
   width,
   unit = 'number',
-  titleRef,
-  legendRef,
-  size
-}: useBarStackProps): useBarStackState => {
-  const isVerticalBar = equals(variant, 'vertical');
+  legendDirection
+}: UseBarStackProps): UseBarStackState => {
+  const total = useMemo(
+    () => Math.floor(data.reduce((acc, { value }) => acc + value, 0)),
+    [data]
+  );
 
-  const heightOfTitle = titleRef.current?.offsetHeight || 0;
-  const widthOfLegend = legendRef.current?.offsetWidth || 0;
+  const isVerticalBar = useMemo(() => equals(variant, 'vertical'), [variant]);
 
-  const horizontalGap = widthOfLegend > 0 ? 12 : 0;
-  const verticalGap = heightOfTitle > 0 ? 8 : 0;
+  const isSmall = useMemo(
+    () => Math.floor(height) < 90,
+    [isVerticalBar, height]
+  );
 
-  const svgWrapperWidth = isVerticalBar
-    ? size + 36
-    : width - widthOfLegend - horizontalGap;
+  const titleVariant = useMemo(() => {
+    if (width <= 105) {
+      return 'xs';
+    }
 
-  const svgContainerSize = {
-    height: isVerticalBar ? height - heightOfTitle - verticalGap : size,
-    width: isVerticalBar ? size : width - widthOfLegend - horizontalGap
-  };
+    if (width <= 150 || isSmall) {
+      return 'sm';
+    }
 
-  const barSize = {
-    height: svgContainerSize.height - 16,
-    width: svgContainerSize.width - 16
-  };
+    return 'md';
+  }, [isSmall, width]);
 
-  const total = Math.floor(data.reduce((acc, { value }) => acc + value, 0));
+  const keys = useMemo(() => pluck('label', data), [data]);
 
-  const yScale = isVerticalBar
-    ? scaleLinear({
-        domain: [0, total]
-      })
-    : scaleBand({
-        domain: [0, 0],
-        padding: 0
-      });
+  const colorsRange = useMemo(() => pluck('color', data), [data]);
 
-  const xScale = isVerticalBar
-    ? scaleBand({
-        domain: [0, 0],
-        padding: 0
-      })
-    : scaleLinear({
-        domain: [0, total]
-      });
+  const colorScale = useMemo(
+    () =>
+      scaleOrdinal({
+        domain: keys,
+        range: colorsRange
+      }),
+    [keys, colorsRange]
+  );
 
-  const keys = pluck('label', data);
+  const legendScale = useMemo(
+    () => ({
+      domain: data.map(({ value }) => getValueByUnit({ total, unit, value })),
+      range: colorsRange
+    }),
+    [data, colorsRange]
+  );
 
-  const colorsRange = pluck('color', data);
+  const formattedLegendDirection = useMemo(() => {
+    if (!isNil(legendDirection)) {
+      return legendDirection;
+    }
 
-  const colorScale = scaleOrdinal({
-    domain: keys,
-    range: colorsRange
-  });
+    if (equals(variant, 'horizontal')) {
+      return 'row';
+    }
 
-  const legendScale = {
-    domain: data.map(({ value }) => getValueByUnit({ total, unit, value })),
-    range: colorsRange
-  };
-
-  const xMax = barSize.width;
-  const yMax = barSize.height;
-
-  xScale.rangeRound([0, xMax]);
-  yScale.range([yMax, 0]);
-
-  const input = data.reduce((acc, { label, value }) => {
-    acc[label] = value;
-
-    return acc;
-  }, {});
+    return 'column';
+  }, [legendDirection, variant]);
 
   return {
-    barSize,
     colorScale,
-    input,
+    formattedLegendDirection,
+    isSmall,
     isVerticalBar,
-    keys,
     legendScale,
-    svgContainerSize,
-    svgWrapperWidth,
-    total,
-    xScale,
-    yScale
+    titleVariant,
+    total
   };
 };
 

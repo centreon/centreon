@@ -1,3 +1,5 @@
+name: cypress-e2e-test
+
 on:
   workflow_call:
     inputs:
@@ -42,6 +44,9 @@ on:
         description: "The test execution and the test plan keys and ids"
         required: true
         type: string
+      is_nightly:
+        required: true
+        type: string
     secrets:
       registry_username:
         required: true
@@ -50,6 +55,12 @@ on:
       xray_client_id:
         required: true
       xray_client_secret:
+        required: true
+      jira_base_url:
+        required: true
+      jira_user_email:
+        required: true
+      jira_api_token:
         required: true
 
 jobs:
@@ -158,15 +169,35 @@ jobs:
 
       - name: Upload test results
         if: failure()
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-results-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/
           retention-days: 1
 
+      - name: Check for test retries
+        id: check_retries
+        if: always()
+        run: |
+              retriesFile="${{ inputs.module_name }}/tests/e2e/results/hasRetries.json"
+              if [ -f "$retriesFile" ]; then
+                retries=$(jq '.' $retriesFile)
+                if [ "$retries" != "{}" ]; then
+                  echo "Test retries: $retries"
+                  retriesHtml="<h2>:warning:The following tests were retried during execution:</h2><table><tr><th>Feature</th><th>Test Scenario</th></tr>"
+                  # Generate the HTML rows
+                  retriesHtml+=$(jq -r 'to_entries | .[] | "<tr><td>\(.key | split(" > ")[0])</td><td>\(.key | split(" > ")[1])</td></tr>"' $retriesFile)
+                  retriesHtml+="</table>"
+                  echo "$retriesHtml" >> $GITHUB_STEP_SUMMARY
+                  retriesJson=$(echo "$retries" | jq -c '.')
+                  echo "retries=$retriesJson" >> $GITHUB_OUTPUT
+                fi
+              fi
+        shell: bash
+
       - name: Upload test reports
         if: failure()
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/reports/*.json
@@ -174,7 +205,7 @@ jobs:
 
       - name: Upload xray reports
         if: always()
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/*.json
@@ -271,3 +302,23 @@ jobs:
           source_paths: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}/**
           source_name_pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  create-jira-nightly-ticket:
+    needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report, regroup-artifacts]
+    runs-on: ubuntu-24.04
+    if: |
+      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
+      (failure() || cancelled()) &&
+      startsWith(github.ref_name, 'dev')
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+
+      - name: Create Jira ticket if nightly build failure
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.jira_base_url }}
+          jira_user_email: ${{ secrets.jira_user_email }}
+          jira_api_token: ${{ secrets.jira_api_token }}
+          module_name: "centreon-web"
+          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "cypress-e2e"]'

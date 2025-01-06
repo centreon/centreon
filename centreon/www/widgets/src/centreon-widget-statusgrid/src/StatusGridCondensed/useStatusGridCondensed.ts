@@ -1,20 +1,19 @@
 import { useMemo } from 'react';
 
-import { filter, intersection, isNil, map, pipe, toUpper } from 'ramda';
+import { filter, isNil, map, pipe } from 'ramda';
 
 import { SeverityCode, useFetchQuery, useRefreshInterval } from '@centreon/ui';
 
-import { StatusGridProps } from '../StatusGridStandard/models';
 import { SeverityStatus, StatusDetail, StatusType } from '../../../models';
 import {
-  formatStatus,
   getStatusNameByStatusSeverityandResourceType,
+  getStatusesByResourcesAndResourceType,
   severityCodeBySeverityStatus
 } from '../../../utils';
+import { StatusGridProps } from '../StatusGridStandard/models';
 import { buildCondensedViewEndpoint } from '../api/endpoints';
 
 import { getStatusesEndpoint } from './api/endpoints';
-import { getStatusNamesPerResourceType } from './utils';
 
 interface FormattedStatus {
   count: StatusDetail;
@@ -48,13 +47,11 @@ export const useStatusGridCondensed = ({
     refreshIntervalCustom
   });
 
-  const formattedStatuses = formatStatus(statuses);
-
-  const statusesToUse = pipe(
-    getStatusNamesPerResourceType,
-    map(toUpper),
-    intersection(formattedStatuses)
-  )(resourceType);
+  const statusesToUse = getStatusesByResourcesAndResourceType({
+    resourceType,
+    resources,
+    statuses
+  });
 
   const { data, isLoading } = useFetchQuery<StatusType>({
     getEndpoint: () =>

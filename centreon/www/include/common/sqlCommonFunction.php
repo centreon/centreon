@@ -21,22 +21,26 @@
 
 declare(strict_types = 1);
 
-require_once _CENTREON_PATH_ . 'src/Core/Common/Infrastructure/Repository/SqlMultipleBindTrait.php';
+require_once _CENTREON_PATH_ . '/src/Core/Common/Infrastructure/Repository/SqlMultipleBindTrait.php';
 
 use \Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 
 /**
  * @param array<int|string, int|string> $list
  * @param string $prefix
+ * @param int $bindType (optional)
  *
- * @return array{0: array<string, mixed>, 1: string}
+ * @return array{
+ *     0: array<string, int|string|array{0: int|string, 1: int}>,
+ *     1: string
+ * }
  */
-function createMultipleBindQuery(array $list, string $prefix): array
+function createMultipleBindQuery(array $list, string $prefix, int $bindType = null): array
 {
     return (new class {
         use SqlMultipleBindTrait
         {
             SqlMultipleBindTrait::createMultipleBindQuery as public create;
         }
-    })->create($list, $prefix);
+    })->create($list, $prefix, $bindType);
 }

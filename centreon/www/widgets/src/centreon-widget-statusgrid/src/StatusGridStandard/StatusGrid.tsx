@@ -12,22 +12,19 @@ import {
   useRefreshInterval
 } from '@centreon/ui';
 
-import {
-  buildResourcesEndpoint,
-  hostsEndpoint,
-  resourcesEndpoint
-} from '../api/endpoints';
 import { NoResourcesFound } from '../../../NoResourcesFound';
 import {
   labelNoHostsFound,
   labelNoServicesFound
 } from '../../../translatedLabels';
+import { buildResourcesEndpoint, resourcesEndpoint } from '../api/endpoints';
+import { getStatusesByResourcesAndResourceType } from '../../../utils';
 
-import { ResourceData, ResourceStatus, StatusGridProps } from './models';
-import Tile from './Tile';
 import HeatMapSkeleton from './LoadingSkeleton';
-import { getColor } from './utils';
+import Tile from './Tile';
 import Tooltip from './Tooltip/Tooltip';
+import { ResourceData, ResourceStatus, StatusGridProps } from './models';
+import { getColor } from './utils';
 
 const StatusGrid = ({
   globalRefreshInterval,
@@ -54,17 +51,21 @@ const StatusGrid = ({
     refreshIntervalCustom
   });
 
+  const statusesToUse = getStatusesByResourcesAndResourceType({
+    resourceType,
+    resources,
+    statuses
+  });
+
   const { data, isLoading } = useFetchQuery<ListingModel<ResourceStatus>>({
     getEndpoint: () =>
       buildResourcesEndpoint({
-        baseEndpoint: equals(resourceType, 'host')
-          ? hostsEndpoint
-          : resourcesEndpoint,
+        baseEndpoint: resourcesEndpoint,
         limit: tiles,
         resources,
         sortBy,
         states: [],
-        statuses,
+        statuses: statusesToUse,
         type: resourceType
       }),
     getQueryKey: () => [
@@ -160,12 +161,14 @@ const StatusGrid = ({
       tiles={[...resourceTiles, seeMoreTile].filter((v) => v)}
       tooltipContent={Tooltip(resourceType)}
     >
-      {({ isSmallestSize, data: resourceData }) => (
+      {({ isSmallestSize, data: resourceData, tileSize, isMediumSize }) => (
         <Tile
           data={resourceData}
+          isMediumSize={isMediumSize}
           isSmallestSize={isSmallestSize}
           resources={resources}
           statuses={statuses}
+          tileSize={tileSize}
           type={resourceType}
         />
       )}
