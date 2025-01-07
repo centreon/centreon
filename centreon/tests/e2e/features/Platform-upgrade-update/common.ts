@@ -156,7 +156,7 @@ EOF`,
     const packagesToInstall = [
       `centreon-poller=${packageVersionSuffix}`,
       `centreon-web=${packageVersionSuffix}`,
-      `centreon-common=${packageVersionSuffix}`,
+      // `centreon-common=${packageVersionSuffix}`,
       `centreon-trap=${packageVersionSuffix}`,
       `centreon-perl-libs=${packageVersionSuffix}`
     ];
