@@ -101,9 +101,7 @@ jobs:
           echo "features=$(cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-e2e-test-run:
-    if: |
-      needs.cypress-e2e-test-list.outputs.features != '' &&
-      toJson(fromJson(needs.cypress-e2e-test-list.outputs.features)) != '[]'
+    if: ${{ needs.cypress-e2e-test-list.outputs.features != '' && toJson(fromJson(needs.cypress-e2e-test-list.outputs.features)) != '[]' }}
     needs: [cypress-e2e-test-list]
     runs-on: ubuntu-24.04
     strategy:
@@ -122,7 +120,7 @@ jobs:
 
       - name: Restore packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
-        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: ./*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }}
           key: ${{ inputs.package_cache_key }}
@@ -144,7 +142,7 @@ jobs:
 
       - name: Restore standard slim image from cache
         id: cache-docker-slim
-        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         continue-on-error: true
         timeout-minutes: 6
         with:
@@ -177,7 +175,7 @@ jobs:
           web_image_version: ${{ env.IMAGE_TAG }}
           openid_image_version: ${{ inputs.major_version }}
           saml_image_version: ${{ inputs.major_version }}
-          module: centreon
+          module: ${{ inputs.module_name }}
           feature_file_path: ${{ matrix.feature }}
           test_tags: ${{ inputs.test_tags }}
           dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
@@ -198,7 +196,7 @@ jobs:
 
       - name: Upload test results
         if: failure()
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-results-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/
@@ -226,7 +224,7 @@ jobs:
 
       - name: Upload test reports
         if: failure()
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/reports/*.json
@@ -234,7 +232,7 @@ jobs:
 
       - name: Upload xray reports
         if: always()
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/*.json
@@ -243,9 +241,7 @@ jobs:
   # This action is only for NIGHTLY and testing branches
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
-    if: |
-      always() &&
-      (inputs.stability == 'testing' || github.event_name == 'schedule')
+    if: ${{ always() && (inputs.stability == 'testing' || github.event_name == 'schedule') }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -342,8 +338,7 @@ jobs:
     needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report, regroup-artifacts]
     runs-on: ubuntu-24.04
     if: |
-      inputs.is_nightly == 'true' &&
-      github.run_attempt == 1 &&
+      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
       (failure() || cancelled()) &&
       startsWith(github.ref_name, 'dev')
     steps:

@@ -1,3 +1,4 @@
+---
 name: Release
 
 on:
@@ -17,9 +18,7 @@ on:
 
 jobs:
   release:
-    if: |
-      github.event.pull_request.merged == true &&
-      github.repository == 'centreon/centreon'
+    if: ${{ github.event.pull_request.merged == true }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check base_ref

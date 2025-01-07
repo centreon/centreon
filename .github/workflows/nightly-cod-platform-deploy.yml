@@ -6,8 +6,8 @@ on:
 
 jobs:
   nightly-cod-platform-deploy:
-    runs-on: "ubuntu-latest"
     if: github.repository == 'centreon/centreon'
+    runs-on: "ubuntu-latest"
     env:
       GH_TOKEN: ${{ github.token }}
     steps:

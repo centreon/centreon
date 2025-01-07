@@ -365,10 +365,7 @@ jobs:
 
   newman-test-run:
     needs: [newman-test-list, associate-test-cases]
-    if: |
-      !cancelled() &&
-      !contains(needs.*.result, 'failure') &&
-      !contains(needs.*.result, 'cancelled')
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -397,7 +394,7 @@ jobs:
           version: 8
           run_install: false
 
-      - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: 20
           cache: pnpm
@@ -420,7 +417,7 @@ jobs:
 
       - name: Restore standard slim image from cache
         id: cache-docker-slim
-        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         continue-on-error: true
         timeout-minutes: 6
         with:
@@ -511,14 +508,14 @@ jobs:
 
       - name: Upload HTML Reports
         if: failure()
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: newman-${{ inputs.os }}-html-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: centreon/tests/rest_api/newman/
 
       - name: Upload test reports
         if: always()
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: newman-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: centreon/tests/rest_api/postman_summaries/*.json
@@ -595,8 +592,7 @@ jobs:
 
       - name: Change test execution status
         if: |
-          inputs.os == 'alma9' &&
-          contains(fromJson('["testing", "unstable"]'), inputs.stability) &&
+          inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) &&
           inputs.is_nightly == 'true'
         run: |
             retry_command() {
@@ -712,8 +708,7 @@ jobs:
 
       - name: Perform Jira Transitions
         if: |
-          inputs.os == 'alma9' &&
-          contains(fromJson('["testing", "unstable"]'), inputs.stability) &&
+          inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) &&
           inputs.is_nightly == 'true'
         run: |
           transition_ids=("61" "81" "21" "31")
@@ -813,8 +808,7 @@ jobs:
     needs: [newman-test-run, synchronize-with-xray, regroup-artifacts]
     runs-on: ubuntu-24.04
     if: |
-      inputs.is_nightly == 'true' &&
-      github.run_attempt == 1 &&
+      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
       (failure() || cancelled()) &&
       startsWith(github.ref_name, 'dev')
     steps:
