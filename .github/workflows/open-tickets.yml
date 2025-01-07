@@ -137,6 +137,13 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
+      - name: Remove some providers from cloud version
+        if: ${{ needs.get-environment.outputs.is_cloud == 'true' }}
+        run: |
+          rm -rf centreon-open-tickets/www/modules/centreon-open-tickets/providers/{BmcItsm,Mail,Serena}
+          sed -i '/\(BmcItsm\|Mail\|Serena\)/d' centreon-open-tickets/www/modules/centreon-open-tickets/providers/register.php
+        shell: bash
+
       - name: Package
         uses: ./.github/actions/package-nfpm
         with:
@@ -362,7 +369,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bookworm, jammy]
+        distrib: [bookworm]
     steps:
       - name: Checkout sources
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
