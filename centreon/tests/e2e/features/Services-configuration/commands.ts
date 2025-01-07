@@ -176,6 +176,106 @@ Cypress.Commands.add('updateMSDependency', (body: MetaServiceDependency) => {
       .click();
 })
 
+Cypress.Commands.add('addServiceDependency', (body: ServiceDependency) => {
+  cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
+  cy.getIframeBody()
+    .find('input[name="dep_name"]')
+    .type(body.name);
+  cy.getIframeBody()
+    .find('input[name="dep_description"]')
+    .type(body.description);
+  cy.getIframeBody().find('label[for="eOk"]').click({ force: true });
+  cy.getIframeBody().find('label[for="eWarning"]').click({ force: true });
+  cy.getIframeBody().find('label[for="eCritical"]').click({ force: true });
+  cy.getIframeBody().find('label[for="nOk"]').click({ force: true });
+  cy.getIframeBody().find('label[for="nWarning"]').click({ force: true });
+  cy.getIframeBody().find('label[for="nCritical"]').click({ force: true });
+
+  cy.getIframeBody().find('input[class="select2-search__field"]').eq(0).click();
+  cy.getIframeBody().find(`div[title="${body.services[0]}"]`).click();
+
+  cy.getIframeBody().find('input[class="select2-search__field"]').eq(1).type(`host2 - ${body.dependentServices[0]}`);
+  cy.getIframeBody().find(`div[title="host2 - ${body.dependentServices[0]}"]`).click();
+
+  cy.getIframeBody().find('input[class="select2-search__field"]').eq(2).click();
+  cy.getIframeBody().find(`div[title="${body.dependentHosts[0]}"]`).click();
+
+  cy.getIframeBody()
+    .find('textarea[name="dep_comment"]')
+    .type(body.comment);
+  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+  cy.wait('@getTimeZone');
+  cy.exportConfig();
+});
+
+Cypress.Commands.add('updateServiceDependency', (body: ServiceDependency) => {
+  cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
+    cy.getIframeBody()
+      .find('input[name="dep_name"]')
+      .clear()
+      .type(body.name);
+    cy.getIframeBody()
+      .find('input[name="dep_description"]')
+      .clear()
+      .type(body.description);
+    cy.getIframeBody().find('label[for="eOk"]').click({ force: true });
+    cy.getIframeBody().find('label[for="nOk"]').click({ force: true });
+    
+    cy.getIframeBody().find('span[title="Clear field"]').eq(0).click();
+    cy.getIframeBody()
+      .find('input[class="select2-search__field"]')
+      .eq(0)
+      .click();
+    cy.getIframeBody().find(`div[title="host2 - ${body.services[0]}"]`).click();
+
+    cy.getIframeBody().find('span[title="Clear field"]').eq(1).click();
+    cy.getIframeBody()
+      .find('input[class="select2-search__field"]')
+      .eq(1)
+      .type(body.dependentServices[0]);
+    cy.getIframeBody().find(`div[title="host3 - ${body.dependentServices[0]}"]`).click();
+
+    cy.getIframeBody().find('span[title="Clear field"]').eq(2).click();
+    cy.getIframeBody()
+      .find('input[class="select2-search__field"]')
+      .eq(2)
+      .type(body.dependentHosts[0]);
+    cy.getIframeBody().find(`div[title="${body.dependentHosts[0]}"]`).click();
+
+    cy.getIframeBody()
+      .find('textarea[name="dep_comment"]')
+      .clear()
+      .type(body.comment);
+    cy.getIframeBody()
+      .find('input.btc.bt_success[name^="submit"]')
+      .eq(0)
+      .click();
+    cy.wait('@getTimeZone');
+    cy.exportConfig();
+})
+
+interface ServiceDependency {
+  name: string,
+  description: string,
+  parent_relationship: number,
+  execution_fails_on_ok: number,
+  execution_fails_on_warning: number,
+  execution_fails_on_unknown: number,
+  execution_fails_on_critical: number,
+  execution_fails_on_pending: number,
+  execution_fails_on_none: number,
+  notification_fails_on_none: number,
+  notification_fails_on_ok: number,
+  notification_fails_on_warning: number,
+  notification_fails_on_unknown: number,
+  notification_fails_on_critical: number,
+  notification_fails_on_pending: number,
+  services: string[],
+  dependentServices: string[],
+  dependentHosts: string[],
+  comment: string
+}
+
 interface VirtualMetric {
   name: string,
   linkedHostServices: string,
@@ -220,6 +320,8 @@ declare global {
       addMetaService: (body: MetaService) => Cypress.Chainable;
       addMSDependency: (body:MetaServiceDependency) => Cypress.Chainable;
       updateMSDependency: (body: MetaServiceDependency) => Cypress.Chainable;
+      addServiceDependency: (body: ServiceDependency) => Cypress.Chainable;
+      updateServiceDependency: (body: ServiceDependency) => Cypress.Chainable;
     }
   }
 }
