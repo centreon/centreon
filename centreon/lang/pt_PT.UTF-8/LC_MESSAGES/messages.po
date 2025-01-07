@@ -18316,5 +18316,5 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Export as"
 # msgstr ""
 
-# msgid "Extend"
+# msgid "Expand"
 # msgstr ""
