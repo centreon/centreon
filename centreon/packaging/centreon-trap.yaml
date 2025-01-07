@@ -82,7 +82,7 @@ overrides:
       - centreon-trap-poller
   deb:
     depends:
-      - centreon-perl-libs (= ${VERSION}-${RELEASE}${DIST})
+      - centreon-perl-libs
       - libsnmp-perl
       - snmptrapd
       - snmpd
