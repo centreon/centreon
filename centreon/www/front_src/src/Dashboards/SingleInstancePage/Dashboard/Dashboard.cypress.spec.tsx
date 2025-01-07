@@ -36,7 +36,7 @@ import {
   labelAddAContact,
   labelDashboardUpdated,
   labelDelete,
-  labelExtend,
+  labelExpand,
   labelReduce,
   labelSharesSaved,
   labelUpdate
@@ -607,7 +607,7 @@ describe('Dashboard', () => {
           widgetName: widgetName
         });
 
-        cy.findByRole('menuitem', { name: labelExtend }).click();
+        cy.findByRole('menuitem', { name: labelExpand }).click();
         cy.findByRole('dialog').as('modal');
         cy.get('@modal').should('be.visible');
 

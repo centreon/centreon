@@ -44,7 +44,7 @@ const MorePanelActions = ({
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
-  const { Icon, label: labelExtend, toggleExpand } = expandableData || {};
+  const { Icon, label: labelExpand, toggleExpand } = expandableData || {};
   const [searchParams, setSearchParams] = useSearchParams(
     window.location.search
   );
@@ -114,7 +114,7 @@ const MorePanelActions = ({
     ActionsListActionDivider.divider,
     {
       Icon,
-      label: t(labelExtend as string),
+      label: t(labelExpand as string),
       onClick: handleExpandableAction
     }
   ];
