@@ -26,7 +26,7 @@ properties:
     example: 1024
   grid:
     type: object
-    items:
+    properties:
       lower_limit:
         type: number
         nullable: true

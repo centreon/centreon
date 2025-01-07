@@ -123,7 +123,7 @@ properties:
     description: "Indicates whether the check script is active or not"
     example: true
   parent:
-    $ref: 'ResourceHostDetail.yaml'
+    $ref: './ResourceHostDetail.yaml'
   icon:
     type: object
     properties:

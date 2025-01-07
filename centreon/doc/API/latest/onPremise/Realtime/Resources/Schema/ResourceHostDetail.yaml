@@ -123,17 +123,6 @@ properties:
   parent:
     type: object
     nullable: true
-    properties:
-      id:
-        type: integer
-        format: int64
-        description: "ID of the parent Host resource"
-        example: 14
-      name:
-        type: string
-        description: "Name of the parent Host resource"
-        example: "Centreon-Central"
-
   icon:
     type: object
     nullable: true
