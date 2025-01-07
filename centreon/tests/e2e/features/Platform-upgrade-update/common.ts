@@ -106,7 +106,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
   }
 
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-    if (Number(versionMatches[1]) > 24 || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) === 10)) {
+    if (Number(versionMatches[1]) > 24 || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) >= 10)) {
       const osMatches = Cypress.env('WEB_IMAGE_OS').match(/alma(\d+)/);
       cy.execInContainer({
         command: [
@@ -143,10 +143,10 @@ EOF`,
       packageDistribPrefix = '-1~';
       packageDistribName = Cypress.env('WEB_IMAGE_OS');
     } else if (Cypress.env('WEB_IMAGE_OS') === 'bookworm') {
-      packageDistribPrefix = '+';
+      packageDistribPrefix = '-*+';
       packageDistribName = 'deb12u1';
     } else if (Cypress.env('WEB_IMAGE_OS') === 'jammy') {
-      packageDistribPrefix = '-';
+      packageDistribPrefix = '-*-';
       packageDistribName = '0ubuntu.22.04';
     } else {
       throw new Error(`Distrib ${Cypress.env('WEB_IMAGE_OS')} not managed in update/upgrade tests.`);
@@ -154,11 +154,11 @@ EOF`,
 
     const packageVersionSuffix = `${version}${packageDistribPrefix}${packageDistribName}`;
     const packagesToInstall = [
-      `centreon-poller=${packageVersionSuffix}`,
-      `centreon-web=${packageVersionSuffix}`,
-      // `centreon-common=${packageVersionSuffix}`,
-      `centreon-trap=${packageVersionSuffix}`,
-      `centreon-perl-libs=${packageVersionSuffix}`
+      `centreon-poller='${packageVersionSuffix}'`,
+      `centreon-web='${packageVersionSuffix}'`,
+      // `centreon-common='${packageVersionSuffix}'`,
+      `centreon-trap='${packageVersionSuffix}'`,
+      `centreon-perl-libs='${packageVersionSuffix}'`
     ];
     if (Number(versionMatches[1]) < 24) {
       packagesToInstall.push(`centreon-web-apache=${packageVersionSuffix}`);
