@@ -17521,3 +17521,9 @@ msgstr "Erweiterter Modus"
 
 # msgid "Export as"
 # msgstr ""
+
+# msgid "Last 14 days"
+# msgstr ""
+
+# msgid "Last 2 months"
+# msgstr ""
