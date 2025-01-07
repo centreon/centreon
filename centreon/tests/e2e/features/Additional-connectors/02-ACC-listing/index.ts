@@ -1,3 +1,4 @@
+/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {

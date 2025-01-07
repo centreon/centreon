@@ -4,6 +4,7 @@ FROM almalinux:9 AS web_dependencies
 
 ARG VERSION
 ARG IS_CLOUD
+ARG STABILITY
 
 RUN --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_USERNAME \
     --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_PASSWORD \
@@ -27,7 +28,14 @@ if [[ "${IS_CLOUD}" == "true" ]]; then
 else
   dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${VERSION}/el9/centreon-${VERSION}.repo
 fi
+
 dnf config-manager --set-enabled 'centreon*'
+
+if [[ "$STABILITY" == "testing" ]]; then
+  dnf config-manager --set-disabled 'centreon*unstable*'
+elif [[ "$STABILITY" == "stable" ]]; then
+  dnf config-manager --set-disabled 'centreon*unstable*' --set-disabled 'centreon*testing*'
+fi
 
 #############################
 # install base dependencies #
