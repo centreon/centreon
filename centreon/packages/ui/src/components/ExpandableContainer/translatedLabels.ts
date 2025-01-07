@@ -1,2 +1,2 @@
-export const labelExtend = 'Extend';
+export const labelExtend = 'Expand';
 export const labelReduce = 'Reduce';
