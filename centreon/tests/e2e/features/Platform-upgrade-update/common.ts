@@ -105,6 +105,14 @@ const installCentreon = (version: string): Cypress.Chainable => {
     throw new Error('Cannot parse version number.');
   }
 
+  cy.execInContainer({
+    command: [
+      `mkdir -p /usr/lib/centreon-plugins`,
+      `chmod 0755 /usr/lib/centreon-plugins`,
+    ],
+    name: 'web'
+  });
+
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
     if (Number(versionMatches[1]) > 24 || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) >= 10)) {
       const osMatches = Cypress.env('WEB_IMAGE_OS').match(/alma(\d+)/);
@@ -134,6 +142,26 @@ EOF`,
       name: 'web'
     });
   } else {
+    if (Number(versionMatches[1]) > 24 || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) >= 10)) {
+      let osType = 'debian';
+      let osVersion = '12';
+      if (Cypress.env('WEB_IMAGE_OS') === 'jammy') {
+        osType = 'ubuntu';
+        osVersion = 'jammy';
+      }
+      const osMatches = Cypress.env('WEB_IMAGE_OS').match(/alma(\d+)/);
+      cy.execInContainer({
+        command: [
+          `bash -e <<EOF
+            curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=${osType} --skip-check-installed --os-version=${osVersion} --mariadb-server-version="mariadb-10.5"
+EOF`,
+          `apt-get update`,
+          `apt-get install -y mariadb-server mariadb-client`,
+        ],
+        name: 'web'
+      });
+    }
+
     let packageDistribPrefix;
     let packageDistribName;
     if (Number(versionMatches[1]) < 24) {
