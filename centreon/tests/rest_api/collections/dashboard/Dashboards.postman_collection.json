@@ -1,0 +1,2011 @@
+{
+	"info": {
+		"_postman_id": "3ca6a3fa-463e-4d86-b75f-9c814f53ca6e",
+		"name": "Dashboards",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29556865",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Centreon-Web---API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/29556865-3ca6a3fa-463e-4d86-b75f-9c814f53ca6e?action=share&source=collection_link&creator=29556865"
+	},
+	"item": [
+		{
+			"name": "Dashboard",
+			"item": [
+				{
+					"name": "Create a new dashboard with name and description",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"dashboardName\", \"Dashboard-Test-API-1002\");\r",
+									"pm.collectionVariables.set(\"dashboardDescription\", \"Dashboard Description for API Test 1002\")\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Vérifier que la réponse est réussie\r",
+									"pm.test(\"Response status is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"// Extraire l'ID du tableau de bord\r",
+									"const responseData = pm.response.json();\r",
+									"const dashboardID = responseData.id;\r",
+									"\r",
+									"// Stocker l'ID dans une variable globale\r",
+									"pm.globals.set(\"dashboardID\", dashboardID);\r",
+									"\r",
+									"// Log pour confirmer\r",
+									"console.log(\"Dashboard ID set to global variable:\", dashboardID);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"{{dashboardName}}\",\n  \"description\": \"{{dashboardDescription}}\",\n  \"panels\": [],\n  \"refresh\": {\n    \"type\": \"global\",\n    \"interval\": null\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/dashboards",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"dashboards"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Dashboard widgets",
+			"item": [
+				{
+					"name": "Adding status grid widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The PATCH request successfully adds a status grid widget with a 204 No Content response\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "panels[0][name]\t",
+									"value": "centreon-widget-statusgrid",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][widget_type]",
+									"value": "/widgets/statusgrid",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][x]",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][y]",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][width]",
+									"value": "5",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][height]",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][min_width]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][min_height]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][widget_settings]",
+									"value": "{\"data\":{\"resources\":[{\"resourceType\":\"host\",\"resources\":[{\"id\":14,\"name\":\"Centreon-Server\"}]}]},\"options\":{\"viewMode\":\"standard\",\"resourceType\":\"service\",\"statuses\":[\"warning\",\"problem\",\"pending\",\"success\",\"undefined\"],\"sortBy\":\"status_severity_code\",\"tiles\":100,\"refreshInterval\":\"default\",\"description\":{\"content\":\"{\\\"root\\\":{\\\"children\\\":[{\\\"children\\\":[],\\\"direction\\\":null,\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"paragraph\\\",\\\"version\\\":1,\\\"textStyle\\\":\\\"\\\"}],\\\"direction\\\":null,\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"root\\\",\\\"version\\\":1}}\",\"enabled\":true}}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Getting dashboard with status grid widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Dashboard successfully retrieved - Response status is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response has the expected structure\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"id\");\r",
+									"    pm.response.to.have.jsonBody(\"name\");\r",
+									"    pm.response.to.have.jsonBody(\"description\");\r",
+									"    pm.response.to.have.jsonBody(\"created_by\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_by\");\r",
+									"    pm.response.to.have.jsonBody(\"created_at\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_at\");\r",
+									"    pm.response.to.have.jsonBody(\"panels\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\");\r",
+									"    pm.response.to.have.jsonBody(\"refresh\");\r",
+									"    pm.response.to.have.jsonBody(\"shares\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has the expected values\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"name\", \"Dashboard-Test-API-1002\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\", \"editor\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response panels are as expected\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"panels[0].name\", \"centreon-widget-statusgrid\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Adding single metric widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The PATCH request successfully adds a single metric widget with a 204 No Content response\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "panels[0][name]\t",
+									"value": "centreon-widget-singlemetric",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][widget_type]",
+									"value": "/widgets/singlemetric",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][x]",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][y]",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][width]",
+									"value": "5",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][height]",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][min_width]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][min_height]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][widget_settings]",
+									"value": "{\"data\":{\"resources\":[{\"resourceType\":\"host\",\"resources\":[{\"id\":14,\"name\":\"Centreon-Server\"}]},{\"resourceType\":\"service\",\"resources\":[{\"id\":\"Ping\",\"name\":\"Ping\"}]}],\"metrics\":[{\"criticalHighThreshold\":null,\"criticalLowThreshold\":null,\"id\":3,\"name\":\"rtmax\",\"unit\":\"ms\",\"warningHighThreshold\":null,\"warningLowThreshold\":null,\"excludedMetrics\":[],\"includeAllMetrics\":true}],\"services\":[{\"uuid\":\"h14-s26\",\"id\":26,\"name\":\"Ping\",\"parentName\":\"Centreon-Server\"}]},\"options\":{\"displayType\":\"text\",\"threshold\":{\"enabled\":true,\"customCritical\":null,\"criticalType\":\"default\",\"customWarning\":null,\"warningType\":\"default\",\"baseColor\":null},\"refreshInterval\":\"default\",\"valueFormat\":\"human\",\"description\":{\"content\":\"{\\\"root\\\":{\\\"children\\\":[{\\\"children\\\":[],\\\"direction\\\":null,\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"paragraph\\\",\\\"version\\\":1,\\\"textStyle\\\":\\\"\\\"}],\\\"direction\\\":null,\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"root\\\",\\\"version\\\":1}}\",\"enabled\":true}}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/centreon/api/latest/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"latest",
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Getting dashboard with single metric widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Dashboard successfully retrieved - Response status is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response has the expected structure\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"id\");\r",
+									"    pm.response.to.have.jsonBody(\"name\");\r",
+									"    pm.response.to.have.jsonBody(\"description\");\r",
+									"    pm.response.to.have.jsonBody(\"created_by\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_by\");\r",
+									"    pm.response.to.have.jsonBody(\"created_at\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_at\");\r",
+									"    pm.response.to.have.jsonBody(\"panels\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\");\r",
+									"    pm.response.to.have.jsonBody(\"refresh\");\r",
+									"    pm.response.to.have.jsonBody(\"shares\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has the expected values\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"name\", \"Dashboard-Test-API-1002\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\", \"editor\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response panels are as expected\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"panels[0].name\", \"centreon-widget-singlemetric\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Adding generic text widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The PATCH request successfully adds a generic text widget with a 204 No Content response\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "panels[0][name]\t",
+									"value": "centreon-widget-generictext",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][widget_type]",
+									"value": "/widgets/generictext",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][x]",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][y]",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][width]",
+									"value": "5",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][height]",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][min_width]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][min_height]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][widget_settings]",
+									"value": "{\"data\":{},\"options\":{\"description\":{\"content\":\"{\\\"root\\\":{\\\"children\\\":[{\\\"children\\\":[{\\\"detail\\\":0,\\\"format\\\":0,\\\"mode\\\":\\\"normal\\\",\\\"style\\\":\\\"\\\",\\\"text\\\":\\\"New generic text widget\\\",\\\"type\\\":\\\"text\\\",\\\"version\\\":1}],\\\"direction\\\":\\\"ltr\\\",\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"paragraph\\\",\\\"version\\\":1,\\\"textFormat\\\":0,\\\"textStyle\\\":\\\"\\\"}],\\\"direction\\\":\\\"ltr\\\",\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"root\\\",\\\"version\\\":1}}\",\"enabled\":true},\"name\":\"New generic text widget\"}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/centreon/api/latest/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"latest",
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Getting dashboard with generic text widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Dashboard successfully retrieved - Response status is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response has the expected structure\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"id\");\r",
+									"    pm.response.to.have.jsonBody(\"name\");\r",
+									"    pm.response.to.have.jsonBody(\"description\");\r",
+									"    pm.response.to.have.jsonBody(\"created_by\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_by\");\r",
+									"    pm.response.to.have.jsonBody(\"created_at\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_at\");\r",
+									"    pm.response.to.have.jsonBody(\"panels\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\");\r",
+									"    pm.response.to.have.jsonBody(\"refresh\");\r",
+									"    pm.response.to.have.jsonBody(\"shares\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has the expected values\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"name\", \"Dashboard-Test-API-1002\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\", \"editor\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response panels are as expected\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"panels[0].name\", \"centreon-widget-generictext\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Adding metrics graph widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The PATCH request successfully adds metrics graph widget with a 204 No Content response\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "panels[0][name]\t",
+									"value": "centreon-widget-graph",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][widget_type]",
+									"value": "/widgets/graph",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][x]",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][y]",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][width]",
+									"value": "5",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][height]",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][min_width]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][min_height]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][widget_settings]",
+									"value": "{\"data\":{\"resources\":[{\"resourceType\":\"host\",\"resources\":[{\"id\":14,\"name\":\"Centreon-Server\"}]}],\"metrics\":[{\"criticalHighThreshold\":null,\"criticalLowThreshold\":null,\"id\":3,\"name\":\"rtmax\",\"unit\":\"ms\",\"warningHighThreshold\":null,\"warningLowThreshold\":null,\"excludedMetrics\":[],\"includeAllMetrics\":true}],\"services\":[{\"uuid\":\"h14-s26\",\"id\":26,\"name\":\"Ping\",\"parentName\":\"Centreon-Server\"}]},\"options\":{\"timeperiod\":{\"start\":null,\"end\":null,\"timePeriodType\":1},\"threshold\":{\"enabled\":true,\"customCritical\":null,\"criticalType\":\"default\",\"customWarning\":null,\"warningType\":\"default\"},\"refreshInterval\":\"default\",\"displayType\":\"bar\",\"curveType\":\"linear\",\"showPoints\":false,\"lineWidthMode\":\"auto\",\"showArea\":\"auto\",\"lineStyleMode\":\"solid\",\"orientation\":\"auto\",\"barRadius\":35,\"barOpacity\":100,\"showAxisBorder\":true,\"yAxisTickLabelRotation\":0,\"isCenteredZero\":false,\"showGridLines\":true,\"scale\":\"linear\",\"showLegend\":true,\"tooltipMode\":\"single\",\"tooltipSortOrder\":\"name\",\"description\":{\"content\":\"{\\\"root\\\":{\\\"children\\\":[{\\\"children\\\":[],\\\"direction\\\":null,\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"paragraph\\\",\\\"version\\\":1,\\\"textStyle\\\":\\\"\\\"}],\\\"direction\\\":null,\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"root\\\",\\\"version\\\":1}}\",\"enabled\":true},\"name\":\"\",\"gridLinesType\":\"vertical\",\"legendDisplayMode\":\"grid\",\"legendPlacement\":\"bottom\",\"scaleLogarithmicBase\":\"2\"}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/centreon/api/latest/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"latest",
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Getting dashboard with metrics graph widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Dashboard successfully retrieved - Response status is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response has the expected structure\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"id\");\r",
+									"    pm.response.to.have.jsonBody(\"name\");\r",
+									"    pm.response.to.have.jsonBody(\"description\");\r",
+									"    pm.response.to.have.jsonBody(\"created_by\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_by\");\r",
+									"    pm.response.to.have.jsonBody(\"created_at\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_at\");\r",
+									"    pm.response.to.have.jsonBody(\"panels\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\");\r",
+									"    pm.response.to.have.jsonBody(\"refresh\");\r",
+									"    pm.response.to.have.jsonBody(\"shares\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has the expected values\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"name\", \"Dashboard-Test-API-1002\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\", \"editor\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response panels are as expected\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"panels[0].name\", \"centreon-widget-graph\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Adding top bottom widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The PATCH request successfully adds top buttom widget with a 204 No Content response\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "panels[0][name]\t",
+									"value": "centreon-widget-topbottom",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][widget_type]",
+									"value": "/widgets/topbottom",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][x]",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][y]",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][width]",
+									"value": "5",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][height]",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][min_width]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][min_height]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][widget_settings]",
+									"value": "{\"data\":{\"resources\":[{\"resourceType\":\"host\",\"resources\":[{\"id\":14,\"name\":\"Centreon-Server\"}]}],\"metrics\":[{\"criticalHighThreshold\":null,\"criticalLowThreshold\":null,\"id\":3,\"name\":\"rtmax\",\"unit\":\"ms\",\"warningHighThreshold\":null,\"warningLowThreshold\":null,\"excludedMetrics\":[],\"includeAllMetrics\":true}],\"services\":[{\"uuid\":\"h14-s26\",\"id\":26,\"name\":\"Ping\",\"parentName\":\"Centreon-Server\"}]},\"options\":{\"topBottomSettings\":{\"numberOfValues\":10,\"order\":\"top\",\"showLabels\":true},\"valueFormat\":\"human\",\"threshold\":{\"enabled\":true,\"customCritical\":null,\"criticalType\":\"default\",\"customWarning\":null,\"warningType\":\"default\",\"baseColor\":null},\"refreshInterval\":\"default\",\"description\":{\"content\":\"{\\\"root\\\":{\\\"children\\\":[{\\\"children\\\":[],\\\"direction\\\":null,\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"paragraph\\\",\\\"version\\\":1,\\\"textStyle\\\":\\\"\\\"}],\\\"direction\\\":null,\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"root\\\",\\\"version\\\":1}}\",\"enabled\":true},\"name\":\"\"}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/centreon/api/latest/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"latest",
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Getting dashboard with top bottom widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Dashboard successfully retrieved - Response status is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response has the expected structure\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"id\");\r",
+									"    pm.response.to.have.jsonBody(\"name\");\r",
+									"    pm.response.to.have.jsonBody(\"description\");\r",
+									"    pm.response.to.have.jsonBody(\"created_by\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_by\");\r",
+									"    pm.response.to.have.jsonBody(\"created_at\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_at\");\r",
+									"    pm.response.to.have.jsonBody(\"panels\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\");\r",
+									"    pm.response.to.have.jsonBody(\"refresh\");\r",
+									"    pm.response.to.have.jsonBody(\"shares\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has the expected values\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"name\", \"Dashboard-Test-API-1002\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\", \"editor\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response panels are as expected\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"panels[0].name\", \"centreon-widget-topbottom\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Adding resource table widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The PATCH request successfully adds resource table widget with a 204 No Content response\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "panels[0][name]\t",
+									"value": "centreon-widget-resourcestable",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][widget_type]",
+									"value": "/widgets/resourcestable",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][x]",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][y]",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][width]",
+									"value": "5",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][height]",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][min_width]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][min_height]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][widget_settings]",
+									"value": "{\"data\":{\"resources\":[{\"resourceType\":\"host\",\"resources\":[{\"id\":14,\"name\":\"Centreon-Server\"}]}]},\"options\":{\"statuses\":[\"warning\",\"problem\",\"pending\",\"success\",\"undefined\"],\"states\":[\"unhandled_problems\",\"in_downtime\",\"acknowledged\"],\"statusTypes\":[],\"refreshInterval\":\"default\",\"isOpenTicketEnabled\":false,\"displayResources\":\"withoutTicket\",\"isDownHostHidden\":false,\"isUnreachableHostHidden\":false,\"description\":{\"content\":\"{\\\"root\\\":{\\\"children\\\":[{\\\"children\\\":[],\\\"direction\\\":null,\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"paragraph\\\",\\\"version\\\":1,\\\"textStyle\\\":\\\"\\\"}],\\\"direction\\\":null,\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"root\\\",\\\"version\\\":1}}\",\"enabled\":true},\"name\":\"\"}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/centreon/api/latest/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"latest",
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Getting dashboard with resource table widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Dashboard successfully retrieved - Response status is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response has the expected structure\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"id\");\r",
+									"    pm.response.to.have.jsonBody(\"name\");\r",
+									"    pm.response.to.have.jsonBody(\"description\");\r",
+									"    pm.response.to.have.jsonBody(\"created_by\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_by\");\r",
+									"    pm.response.to.have.jsonBody(\"created_at\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_at\");\r",
+									"    pm.response.to.have.jsonBody(\"panels\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\");\r",
+									"    pm.response.to.have.jsonBody(\"refresh\");\r",
+									"    pm.response.to.have.jsonBody(\"shares\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has the expected values\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"name\", \"Dashboard-Test-API-1002\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\", \"editor\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response panels are as expected\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"panels[0].name\", \"centreon-widget-resourcestable\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Adding group monitoring widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The PATCH request successfully adds group monitoring widget with a 204 No Content response\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "panels[0][name]\t",
+									"value": "centreon-widget-groupmonitoring",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][widget_type]",
+									"value": "/widgets/groupmonitoring",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][x]",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][y]",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][width]",
+									"value": "5",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][height]",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][min_width]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][min_height]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][widget_settings]",
+									"value": "{\"data\":{\"resources\":[{\"resourceType\":\"host-group\",\"resources\":[{\"id\":53,\"name\":\"Linux-Servers\"}]}]},\"options\":{\"resourceTypes\":[\"host\",\"service\"],\"statuses\":[\"1\",\"2\",\"4\",\"5\",\"6\"],\"refreshInterval\":\"default\",\"description\":{\"content\":\"{\\\"root\\\":{\\\"children\\\":[{\\\"children\\\":[],\\\"direction\\\":null,\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"paragraph\\\",\\\"version\\\":1,\\\"textStyle\\\":\\\"\\\"}],\\\"direction\\\":null,\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"root\\\",\\\"version\\\":1}}\",\"enabled\":true},\"name\":\"\",\"limit\":10,\"page\":0}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/centreon/api/latest/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"latest",
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Getting dashboard with group monitoring widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Dashboard successfully retrieved - Response status is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response has the expected structure\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"id\");\r",
+									"    pm.response.to.have.jsonBody(\"name\");\r",
+									"    pm.response.to.have.jsonBody(\"description\");\r",
+									"    pm.response.to.have.jsonBody(\"created_by\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_by\");\r",
+									"    pm.response.to.have.jsonBody(\"created_at\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_at\");\r",
+									"    pm.response.to.have.jsonBody(\"panels\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\");\r",
+									"    pm.response.to.have.jsonBody(\"refresh\");\r",
+									"    pm.response.to.have.jsonBody(\"shares\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has the expected values\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"name\", \"Dashboard-Test-API-1002\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\", \"editor\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response panels are as expected\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"panels[0].name\", \"centreon-widget-groupmonitoring\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Adding dashboard with status chart widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The PATCH request successfully adds status chart widget with a 204 No Content response\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "panels[0][name]\t",
+									"value": "centreon-widget-statuschart",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][widget_type]",
+									"value": "/widgets/statuschart",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][x]",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][y]",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][width]",
+									"value": "5",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][height]",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][min_width]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][min_height]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][widget_settings]",
+									"value": "{\"data\":{\"resources\":[{\"resourceType\":\"host\",\"resources\":[{\"id\":14,\"name\":\"Centreon-Server\"}]}]},\"options\":{\"displayType\":\"pie\",\"resourceTypes\":[\"host\",\"service\"],\"unit\":\"percentage\",\"displayValues\":true,\"displayLegend\":true,\"refreshInterval\":\"default\",\"description\":{\"content\":\"{\\\"root\\\":{\\\"children\\\":[{\\\"children\\\":[],\\\"direction\\\":null,\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"paragraph\\\",\\\"version\\\":1,\\\"textStyle\\\":\\\"\\\"}],\\\"direction\\\":null,\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"root\\\",\\\"version\\\":1}}\",\"enabled\":true},\"name\":\"\"}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/centreon/api/latest/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"latest",
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Getting dashboard with status chart widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Dashboard successfully retrieved - Response status is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response has the expected structure\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"id\");\r",
+									"    pm.response.to.have.jsonBody(\"name\");\r",
+									"    pm.response.to.have.jsonBody(\"description\");\r",
+									"    pm.response.to.have.jsonBody(\"created_by\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_by\");\r",
+									"    pm.response.to.have.jsonBody(\"created_at\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_at\");\r",
+									"    pm.response.to.have.jsonBody(\"panels\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\");\r",
+									"    pm.response.to.have.jsonBody(\"refresh\");\r",
+									"    pm.response.to.have.jsonBody(\"shares\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has the expected values\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"name\", \"Dashboard-Test-API-1002\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\", \"editor\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response panels are as expected\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"panels[0].name\", \"centreon-widget-statuschart\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Adding dashboard with clock timer widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The PATCH request successfully adds clock timer widget with a 204 No Content response\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "panels[0][name]\t",
+									"value": "centreon-widget-clock",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][widget_type]",
+									"value": "/widgets/clock",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][x]",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][y]",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][width]",
+									"value": "5",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][height]",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][min_width]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][min_height]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][widget_settings]",
+									"value": "{\"data\":{},\"options\":{\"displayType\":\"clock\",\"showTimezone\":true,\"showDate\":true,\"timeFormat\":\"12\",\"description\":{\"content\":\"{\\\"root\\\":{\\\"children\\\":[{\\\"children\\\":[],\\\"direction\\\":null,\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"paragraph\\\",\\\"version\\\":1,\\\"textStyle\\\":\\\"\\\"}],\\\"direction\\\":null,\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"root\\\",\\\"version\\\":1}}\",\"enabled\":true},\"name\":\"\"}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/centreon/api/latest/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"latest",
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Getting dashboard with clock timer widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Dashboard successfully retrieved - Response status is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response has the expected structure\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"id\");\r",
+									"    pm.response.to.have.jsonBody(\"name\");\r",
+									"    pm.response.to.have.jsonBody(\"description\");\r",
+									"    pm.response.to.have.jsonBody(\"created_by\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_by\");\r",
+									"    pm.response.to.have.jsonBody(\"created_at\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_at\");\r",
+									"    pm.response.to.have.jsonBody(\"panels\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\");\r",
+									"    pm.response.to.have.jsonBody(\"refresh\");\r",
+									"    pm.response.to.have.jsonBody(\"shares\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has the expected values\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"name\", \"Dashboard-Test-API-1002\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\", \"editor\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response panels are as expected\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"panels[0].name\", \"centreon-widget-clock\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Adding dashboard with web page widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The PATCH request successfully adds web page widget with a 204 No Content response\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "panels[0][name]\t",
+									"value": "centreon-widget-webpage",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][widget_type]",
+									"value": "/widgets/webpage",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][x]",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][y]",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][width]",
+									"value": "5",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][height]",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][min_width]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][layout][min_height]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "panels[0][widget_settings]",
+									"value": "{\"data\":{},\"options\":{\"url\":\"https://docs.centreon.com/fr/\",\"refreshInterval\":\"default\",\"description\":{\"content\":\"{\\\"root\\\":{\\\"children\\\":[{\\\"children\\\":[],\\\"direction\\\":null,\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"paragraph\\\",\\\"version\\\":1,\\\"textStyle\\\":\\\"\\\"}],\\\"direction\\\":null,\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"root\\\",\\\"version\\\":1}}\",\"enabled\":true},\"name\":\"\"}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/centreon/api/latest/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"latest",
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Getting dashboard with web page widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Dashboard successfully retrieved - Response status is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response has the expected structure\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"id\");\r",
+									"    pm.response.to.have.jsonBody(\"name\");\r",
+									"    pm.response.to.have.jsonBody(\"description\");\r",
+									"    pm.response.to.have.jsonBody(\"created_by\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_by\");\r",
+									"    pm.response.to.have.jsonBody(\"created_at\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_at\");\r",
+									"    pm.response.to.have.jsonBody(\"panels\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\");\r",
+									"    pm.response.to.have.jsonBody(\"refresh\");\r",
+									"    pm.response.to.have.jsonBody(\"shares\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has the expected values\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"name\", \"Dashboard-Test-API-1002\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\", \"editor\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response panels are as expected\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"panels[0].name\", \"centreon-widget-webpage\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cleaning up",
+			"item": [
+				{
+					"name": "Delete dashboard",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"dashboard successfully deleted - Response status is 204 No Content\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body is empty after deletion\", function () {\r",
+									"    pm.expect(pm.response.text()).to.be.empty;\r",
+									"})\r",
+									"\r",
+									"// Clean up request variables\r",
+									"pm.variables.clear();\r",
+									"\r",
+									"// Optionally, you can log a message to indicate that the cleaning up has been done\r",
+									"console.log('Cleaning up variables after the tests.');"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followAuthorizationHeader": true,
+						"disableCookies": false,
+						"disableUrlEncoding": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "{{token}}",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "X-AUTH-TOKEN",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"",
+					"const moment = require('moment');",
+					"if (!pm.globals.get(\"loginScriptExecuted\") || isTokenExpired()) {",
+					"    pm.sendRequest({",
+					"        url: pm.variables.replaceIn('{{baseUriCentreonApi}}/{{version}}/login'),",
+					"        followRedirects: true,",
+					"        encodeUrl: true,",
+					"        useCookieJar: false,",
+					"        method: 'POST',",
+					"        header: {",
+					"            'Content-Type': 'application/json'",
+					"        },",
+					"        body: {",
+					"            mode: 'raw',",
+					"            raw: JSON.stringify({",
+					"                \"security\": {",
+					"                    \"credentials\": {",
+					"                        \"login\": pm.variables.get(\"api_login\"),",
+					"                        \"password\": pm.variables.get(\"api_password\")",
+					"                    }",
+					"                }",
+					"            })",
+					"        }",
+					"    }, function (err, res) {",
+					"        if (!err) {",
+					"            pm.globals.set(\"token\", res.json().security.token);",
+					"            pm.globals.set(\"tokenIssuedAt\", moment().toISOString());",
+					"            pm.globals.set(\"loginScriptExecuted\", true);",
+					"        } else {",
+					"            console.error(\"Error during login request:\", err);",
+					"            pm.globals.set(\"loginScriptExecuted\", false);",
+					"        }",
+					"    });",
+					"}",
+					"",
+					"function isTokenExpired() {",
+					"    const tokenIssuedAt = pm.globals.get(\"tokenIssuedAt\");",
+					"    if (tokenIssuedAt) {",
+					"        const issuedAtMoment = moment(tokenIssuedAt);",
+					"        const currentMoment = moment();",
+					"        const elapsedMinutes = currentMoment.diff(issuedAtMoment, 'minutes');",
+					"        return elapsedMinutes >= 60; // If one hour or more has elapsed, the token is considered expired.",
+					"    }",
+					"    return true; //If the variable is not defined, the token is considered expired.",
+					"}",
+					"",
+					"",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "dashboardName",
+			"value": ""
+		},
+		{
+			"key": "dashboardDescription",
+			"value": ""
+		},
+		{
+			"key": "contactGroupName",
+			"value": ""
+		},
+		{
+			"key": "contactGroupAlias",
+			"value": ""
+		},
+		{
+			"key": "testUserName",
+			"value": ""
+		},
+		{
+			"key": "testUserLogin",
+			"value": ""
+		},
+		{
+			"key": "testUserEmail",
+			"value": ""
+		},
+		{
+			"key": "testUserPassword",
+			"value": ""
+		}
+	]
+}

@@ -123,10 +123,6 @@ default:
       paths: [ "%paths.base%/features/HostDependencyConfiguration.feature" ]
       contexts: [ HostDependencyConfigurationContext ]
 
-    service_dependency_configuration:
-      paths: [ "%paths.base%/features/ServiceDependencyConfiguration.feature" ]
-      contexts: [ ServiceDependencyConfigurationContext ]
-
     service_group_dependency_configuration:
       paths: [ "%paths.base%/features/ServiceGroupDependencyConfiguration.feature" ]
       contexts: [ ServiceGroupDependencyConfigurationContext ]
@@ -138,10 +134,6 @@ default:
     vendor_configuration:
       paths: [ "%paths.base%/features/VendorConfiguration.feature" ]
       contexts: [ VendorConfigurationContext ]
-
-    meta_service_dependency_configuration:
-      paths: [ "%paths.base%/features/MetaServiceDependencyConfiguration.feature" ]
-      contexts: [ MetaServiceDependencyConfigurationContext ]
 
     test_proxy_configuration:
       paths: [ "%paths.base%/features/TestProxyConfiguration.feature" ]
