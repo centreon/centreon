@@ -24,7 +24,6 @@
       "useAdditionalResources": true,
       "required": true,
       "restrictedResourceTypes": [
-        "business-view",
         "business-activity"
       ]
     }
