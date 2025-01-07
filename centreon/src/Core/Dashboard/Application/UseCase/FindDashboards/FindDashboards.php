@@ -37,6 +37,7 @@ use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\UserProfile\Application\Repository\ReadUserProfileRepositoryInterface;
+use Throwable;
 
 /** @package Core\Dashboard\Application\UseCase\FindDashboards */
 final class FindDashboards
@@ -70,14 +71,22 @@ final class FindDashboards
                 $this->isUserAdmin() ? $this->findDashboardAsAdmin() : $this->findDashboardAsViewer(),
             );
             $this->info('Find dashboards', ['request' => $this->requestParameters->toArray()]);
-        } catch (\Throwable $ex) {
+        } catch (Throwable $ex) {
+            $this->error(
+                "Error while searching dashboards : {$ex->getMessage()}",
+                [
+                    'contact_id' => $this->contact->getId(),
+                    'favorite_dashboards' => $this->usersFavoriteDashboards,
+                    'request_parameters' => $this->requestParameters->toArray(),
+                    'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+                ]
+            );
             $presenter->presentResponse(new ErrorResponse(DashboardException::errorWhileSearching()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         }
     }
 
     /**
-     * @throws \Throwable
+     * @throws Throwable
      *
      * @return FindDashboardsResponse
      */
@@ -106,7 +115,7 @@ final class FindDashboards
     }
 
     /**
-     * @throws \Throwable
+     * @throws Throwable
      *
      * @return FindDashboardsResponse
      */
@@ -170,7 +179,7 @@ final class FindDashboards
     }
 
     /**
-     * @throws \Throwable
+     * @throws Throwable
      *
      * @return bool
      */

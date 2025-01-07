@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,26 +24,30 @@ declare(strict_types=1);
 namespace Core\UserProfile\Application\Repository;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Repository\RepositoryException;
 
 interface WriteUserProfileRepositoryInterface
 {
     /**
      * @param int $profileId
      * @param int $dashboardId
-     * @throws \Throwable
+     *
+     * @throws RepositoryException
      */
     public function addDashboardAsFavorites(int $profileId, int $dashboardId): void;
 
     /**
      * @param int $profileId
      * @param int $dashboardId
+     *
+     * @throws RepositoryException
      */
     public function removeDashboardFromFavorites(int $profileId, int $dashboardId): void;
 
     /**
      * @param ContactInterface $contact
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      * @return int
      */
     public function addDefaultProfileForUser(ContactInterface $contact): int;

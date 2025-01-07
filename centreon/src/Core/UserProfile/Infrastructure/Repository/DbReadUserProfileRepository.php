@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,15 @@ declare(strict_types=1);
 namespace Core\UserProfile\Infrastructure\Repository;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\UserProfile\Application\Repository\ReadUserProfileRepositoryInterface;
 use Core\UserProfile\Domain\Model\UserProfile;
+use PDO;
+use PDOException;
 
 /**
  * @phpstan-type _UserProfileRecord array{
@@ -40,6 +44,7 @@ use Core\UserProfile\Domain\Model\UserProfile;
 final class DbReadUserProfileRepository extends AbstractRepositoryRDB implements ReadUserProfileRepositoryInterface
 {
     use SqlMultipleBindTrait;
+    use LoggerTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -50,11 +55,15 @@ final class DbReadUserProfileRepository extends AbstractRepositoryRDB implements
     }
 
     /**
-     * @inheritDoc
+     * @param ContactInterface $contact
+     *
+     * @throws RepositoryException
+     * @return UserProfile|null
      */
     public function findByContact(ContactInterface $contact): ?UserProfile
     {
-        $request = <<<'SQL'
+        try {
+            $query = <<<'SQL'
                 SELECT
                     `id`,
                     `contact_id`,
@@ -64,18 +73,33 @@ final class DbReadUserProfileRepository extends AbstractRepositoryRDB implements
                     ON user_profile_favorite_dashboards.profile_id = user_profile.id
                 WHERE contact_id = :contactId
                 GROUP BY contact_id
-            SQL;
+                SQL;
 
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $statement->bindValue(':contactId', $contact->getId(), \PDO::PARAM_INT);
-        $statement->execute();
+            $statement = $this->db->prepare($this->translateDbName($query));
+            $statement->bindValue(':contactId', $contact->getId(), PDO::PARAM_INT);
+            $statement->execute();
 
-        if (false !== ($record = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            /** @var _UserProfileRecord $record */
-            return $this->createUserProfileFromRecord($record);
+            if (false !== ($record = $statement->fetch(PDO::FETCH_ASSOC))) {
+                /** @var _UserProfileRecord $record */
+                return $this->createUserProfileFromRecord($record);
+            }
+
+            return null;
+        } catch (PDOException $exception) {
+            $errorMessage = "Error while fetching user profile with contact_id {$contact->getId()} : {$exception->getMessage()}";
+            $this->error($errorMessage, [
+                'contact_id' => $contact->getId(),
+                'query' => $query,
+                'exception' => [
+                    'message' => $exception->getMessage(),
+                    'pdo_code' => $exception->getCode(),
+                    'pdo_info' => $exception->errorInfo,
+                    'trace' => $exception->getTraceAsString(),
+                ],
+            ]);
+
+            throw new RepositoryException($errorMessage, previous: $exception);
         }
-
-        return null;
     }
 
     /**
