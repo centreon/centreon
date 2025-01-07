@@ -19629,9 +19629,3 @@ msgstr "PNG (petite taille)"
 
 msgid "Export as"
 msgstr "Exporter en tant que"
-
-msgid "Last 14 days"
-msgstr "Les 14 derniers jours"
-
-msgid "Last 2 months"
-msgstr "Les 2 derniers mois"
