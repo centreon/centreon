@@ -1,7 +1,7 @@
 import i18next from 'i18next';
 import { Provider, createStore } from 'jotai';
 import { initReactI18next } from 'react-i18next';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 
 import { Method } from '@centreon/js-config/cypress/component/commands';
 import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
