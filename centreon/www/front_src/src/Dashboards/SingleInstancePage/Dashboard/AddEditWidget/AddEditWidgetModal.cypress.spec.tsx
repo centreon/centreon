@@ -64,11 +64,17 @@ const widgetsProperties = [
   widgetTopBottomProperties
 ];
 
+const availableWidgets = widgetsProperties.reduce(
+  (acc, { moduleName }) => ({ ...acc, [moduleName]: {} }),
+  {}
+);
+
 const platformVersion = {
   modules: {},
   web: {
     version: '23.04.0'
-  }
+  },
+  widgets: availableWidgets
 };
 
 const initializeWidgets = (defaultStore?): ReturnType<typeof createStore> => {
