@@ -106,7 +106,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
   }
 
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-    if (Number(versionMatches[1]) < 24 || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10)) {
+    if (Number(versionMatches[1]) > 24 || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) === 10)) {
       const osMatches = Cypress.env('WEB_IMAGE_OS').match(/alma(\d+)/);
       cy.execInContainer({
         command: [
