@@ -7,8 +7,6 @@ post:
     - $ref: '../Host/QueryParameter/HostId.yaml'
   description: |
     Add services to a host based on associated host template
-  parameters:
-    - $ref: 'QueryParameter/HostId.yaml'
   responses:
     '201':
       description: "Objects created"

@@ -123,6 +123,11 @@ properties:
   parent:
     type: object
     nullable: true
+    properties:
+      id:
+        type: integer
+        description: "ID of the parent"
+        example: 12
   icon:
     type: object
     nullable: true

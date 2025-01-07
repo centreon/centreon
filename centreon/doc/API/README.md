@@ -3,5 +3,5 @@
 ## How to build ?
 
 ```console
-npx @redocly/cli bundle centreon-api.yaml -o centreon-api-bundle.yam
+pnpm --package=@redocly/cli dlx openapi build-docs ./doc/API/centreon-api.yaml -o centreon-api.html
 ```

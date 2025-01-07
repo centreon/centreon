@@ -1,5 +1,5 @@
 in: path
-name: brokerId
+name: broker_id
 description: "ID of the broker configuration"
 required: true
 schema:

@@ -283,6 +283,10 @@ properties:
     type: array
     items:
       type: object
+      required:
+        - id
+        - host_id
+        - service_id
       properties:
         start_time:
           type: string

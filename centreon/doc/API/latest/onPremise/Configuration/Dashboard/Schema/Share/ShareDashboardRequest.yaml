@@ -27,10 +27,10 @@ properties:
       properties:
         id:
           type: integer
-          description: "Contact ID"
+          description: "Contact group ID"
           example: 1
         role:
           type: string
           enum: [ viewer, editor ]
-          description: "The role of the contact for this dashboard."
+          description: "The role of the contact group for this dashboard."
           example: "viewer"
