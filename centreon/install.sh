@@ -222,7 +222,7 @@ if [ "$silent_install" -ne 1 ] ; then
 		echo_failure "\n$(gettext "Gorgone is required.\nPlease install it before launching this script")" "$fail"
 		echo -e "\n\t$(gettext "Please read the documentation to manage the Gorgone daemon installation")"
 		echo -e "\t$(gettext "Available on github") : https://github.com/centreon/centreon-gorgone"
-		echo -e "\t$(gettext "or on the centreon documentation") : https://documentation.centreon.com/\n"
+		echo -e "\t$(gettext "or on the centreon documentation") : https://docs.centreon.com/\n"
 		exit 1
 	fi
 fi
