@@ -28,10 +28,10 @@ $centreonLog = CentreonLog::create();
 $versionOfTheUpgrade = 'UPGRADE - 25.01.0: ';
 $errorMessage = '';
 
-$addColumnToResourcesTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
+$addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage): void {
     $errorMessage = 'Unable to add column flapping to table resources';
-    if (! $pearDB->isColumnExist('resources', 'flapping')) {
-        $pearDB->executeQuery(
+    if (! $pearDBO->isColumnExist('resources', 'flapping')) {
+        $pearDBO->executeQuery(
             <<<'SQL'
                 ALTER TABLE `resources`
                 ADD COLUMN `flapping` TINYINT(1) NOT NULL DEFAULT 0
@@ -40,8 +40,8 @@ $addColumnToResourcesTable = function (CentreonDB $pearDB) use (&$errorMessage):
     }
 
     $errorMessage = 'Unable to add column percent_state_change to table resources';
-    if (! $pearDB->isColumnExist('resources', 'percent_state_change')) {
-        $pearDB->executeQuery(
+    if (! $pearDBO->isColumnExist('resources', 'percent_state_change')) {
+        $pearDBO->executeQuery(
             <<<'SQL'
                 ALTER TABLE `resources`
                 ADD COLUMN `percent_state_change` FLOAT DEFAULT NULL
@@ -51,11 +51,10 @@ $addColumnToResourcesTable = function (CentreonDB $pearDB) use (&$errorMessage):
 };
 
 try {
-    $addColumnToResourcesTable($pearDB);
+    $addColumnToResourcesTable($pearDBO);
 } catch (\PDOException $e) {
-    $errorMessage = $e->getMessage();
-    if ($pearDB->inTransaction()) {
-        $pearDB->rollBack();
+    if ($pearDBO->inTransaction()) {
+        $pearDBO->rollBack();
     }
 
     $centreonLog->error(
