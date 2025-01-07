@@ -19600,9 +19600,6 @@ msgstr "Erreur durant la récupération de multiples configurations collecteur/a
 msgid "Sticky for any non-OK status"
 msgstr "Sticky pour tout statut non-OK"
 
-msgid "Select a Business Activity to display the preview."
-msgstr "Sélectionnez une activité métier pour afficher l'aperçu."
-
 msgid "year"
 msgstr "année"
 
