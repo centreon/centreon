@@ -100,7 +100,24 @@ const getCentreonStableMinorVersions = (
 const installCentreon = (version: string): Cypress.Chainable => {
   cy.log(`installing version ${version}...`);
 
+  const versionMatches = version.match(/(\d+)\.(\d+)\.\d+/);
+  if (!versionMatches) {
+    throw new Error('Cannot parse version number.');
+  }
+
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+    if (Number(versionMatches[1]) < 24 || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10)) {
+      const osMatches = Cypress.env('WEB_IMAGE_OS').match(/alma(\d+)/);
+      cy.execInContainer({
+        command: [
+          `bash -e <<EOF
+            curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --skip-check-installed --os-version=${osMatches[1]} --mariadb-server-version="mariadb-10.5"
+EOF`,
+          `dnf install -y mariadb-server mariadb`,
+        ],
+        name: 'web'
+      });
+    }
     cy.execInContainer({
       command: [
         `dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*'`,
@@ -117,11 +134,6 @@ const installCentreon = (version: string): Cypress.Chainable => {
       name: 'web'
     });
   } else {
-    const versionMatches = version.match(/(\d+)\.(\d+)\.\d+/);
-    if (!versionMatches) {
-      throw new Error('Cannot parse version number.');
-    }
-
     let packageDistribPrefix;
     let packageDistribName;
     if (Number(versionMatches[1]) < 24) {
