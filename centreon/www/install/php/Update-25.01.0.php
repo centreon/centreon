@@ -38,6 +38,8 @@ $addColumnToResourcesTable = function (CentreonDB $pearDB) use (&$errorMessage):
             SQL
         );
     }
+
+    $errorMessage = 'Unable to add column percent_state_change to table resources';
     if (! $pearDB->isColumnExist('resources', 'percent_state_change')) {
         $pearDB->executeQuery(
             <<<'SQL'
@@ -51,6 +53,7 @@ $addColumnToResourcesTable = function (CentreonDB $pearDB) use (&$errorMessage):
 try {
     $addColumnToResourcesTable($pearDB);
 } catch (\PDOException $e) {
+    $errorMessage = $e->getMessage();
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
     }
