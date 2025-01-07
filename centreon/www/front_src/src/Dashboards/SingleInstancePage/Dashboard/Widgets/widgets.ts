@@ -26,6 +26,13 @@ const internalWidgets: Array<
     panelDefaultHeight: 6
   },
   {
+    name: 'batimeline',
+    panelDefaultHeight: 3,
+    panelDefaultWidth: 3,
+    panelMinWidth: 3,
+    panelMinHeight: 3
+  },
+  {
     name: 'clock',
     panelDefaultHeight: 3,
     panelDefaultWidth: 3
