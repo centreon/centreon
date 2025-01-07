@@ -45,6 +45,7 @@ require_once __DIR__ . '/../Paginator.php';
 require_once __DIR__ . '/PaginationRenderer.php';
 require_once __DIR__ . '/../../../class/centreonLog.class.php';
 require_once __DIR__ . '/../../../class/exceptions/CentreonDbException.php';
+require_once __DIR__ . '/../../common/sqlCommonFunction.php';
 
 // Connect to DB
 $pearDB = $dependencyInjector['configuration_db'];
