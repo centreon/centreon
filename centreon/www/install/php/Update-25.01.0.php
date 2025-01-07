@@ -31,7 +31,7 @@ $errorMessage = '';
 $addColumnToResourcesTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to add column flapping to table resources';
     if (! $pearDB->isColumnExist('resources', 'flapping')) {
-        $pearDB->exec(
+        $pearDB->executeQuery(
             <<<'SQL'
                 ALTER TABLE `resources`
                 ADD COLUMN `flapping` TINYINT(1) NOT NULL DEFAULT 0
@@ -39,7 +39,7 @@ $addColumnToResourcesTable = function (CentreonDB $pearDB) use (&$errorMessage):
         );
     }
     if (! $pearDB->isColumnExist('resources', 'percent_state_change')) {
-        $pearDB->exec(
+        $pearDB->executeQuery(
             <<<'SQL'
                 ALTER TABLE `resources`
                 ADD COLUMN `percent_state_change` FLOAT DEFAULT NULL
