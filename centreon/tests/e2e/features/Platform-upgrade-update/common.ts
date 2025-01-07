@@ -107,8 +107,8 @@ const installCentreon = (version: string): Cypress.Chainable => {
 
   cy.execInContainer({
     command: [
-      `mkdir -p /usr/lib/centreon-plugins`,
-      `chmod 0755 /usr/lib/centreon-plugins`,
+      `mkdir -p /usr/lib/centreon/plugins`,
+      `chmod 0755 /usr/lib/centreon/plugins`,
     ],
     name: 'web'
   });
