@@ -1,7 +1,7 @@
 Feature: Host Group Dependency Configuration
   As a Centreon admin
   I want to manipulate a host group dependency
-  To see if all simples manipulations work
+  To see if all simple manipulations work
 
   Background:
     Given a user is logged in a Centreon server
