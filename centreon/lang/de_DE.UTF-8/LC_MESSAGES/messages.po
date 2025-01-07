@@ -17522,5 +17522,4 @@ msgstr "Erweiterter Modus"
 # msgid "Export as"
 # msgstr ""
 
-# msgid "Expand"
-# msgstr ""
+
