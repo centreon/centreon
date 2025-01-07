@@ -5,12 +5,7 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import data from '../../../fixtures/services/meta_service.json';
 
 const checkFirstMSDependencyFromListing = () => {
-  cy.navigateTo({
-    page: 'Meta Services',
-    rootItemNumber: 3,
-    subMenu: 'Notifications'
-  });
-  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe('#main-content', 'input[name="searchMSD"]');
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
   cy.getIframeBody()
     .find('select[name="o1"]')
@@ -80,7 +75,7 @@ When(
       `a:contains("${data.defaultMetaServiceDep.name}")`
     );
     cy.getIframeBody().contains(data.defaultMetaServiceDep.name).click();
-    cy.updateMSDenpendency(data.MetaServiceDep1)
+    cy.updateMSDependency(data.MetaServiceDep1)
   }
 );
 
@@ -119,7 +114,6 @@ When('the user duplicates the configured meta service dependency', () => {
   checkFirstMSDependencyFromListing();
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
   cy.wait('@getTimeZone');
-  cy.exportConfig();
 });
 
 Then(
@@ -167,12 +161,13 @@ When('the user deletes the configured meta service dependency', () => {
   checkFirstMSDependencyFromListing();
   cy.getIframeBody().find('select[name="o1"]').select('Delete');
   cy.wait('@getTimeZone');
-  cy.exportConfig();
 });
 
 Then(
   'the deleted meta service dependency is not displayed in the list of meta service dependencies',
   () => {
+    cy.reload();
+    cy.wait('@getTimeZone');
     cy.getIframeBody()
       .contains(data.defaultMetaServiceDep.name)
       .should('not.exist');
