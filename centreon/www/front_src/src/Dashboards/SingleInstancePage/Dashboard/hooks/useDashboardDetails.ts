@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, propOr } from 'ramda';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 
 import { useDeepCompare, useFetchQuery } from '@centreon/ui';
 import { federatedWidgetsAtom } from '@centreon/ui-context';

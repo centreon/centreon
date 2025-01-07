@@ -79,8 +79,7 @@ module.exports = merge(getBaseConfiguration(), getDevConfiguration(), {
         './node_modules/@centreon/ui/public/fonts'
       ),
       '@mui/material': path.resolve('./node_modules/@mui/material'),
-      dayjs: path.resolve('./node_modules/dayjs'),
-      'react-router-dom': path.resolve('./node_modules/react-router-dom')
+      dayjs: path.resolve('./node_modules/dayjs')
     }
   }
 });
