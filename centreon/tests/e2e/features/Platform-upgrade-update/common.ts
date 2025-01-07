@@ -39,7 +39,7 @@ const getCentreonStableMinorVersions = (
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
     commandResult = cy
       .execInContainer({
-        command: `dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*' 'mariadb*'`,
+        command: `dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*'`,
         name: 'web'
       })
       .execInContainer({
@@ -103,7 +103,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
     cy.execInContainer({
       command: [
-        `dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*' 'mariadb*'`,
+        `dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*'`,
         `dnf install -y centreon-web-${version}`,
         `dnf install -y centreon-broker-cbd`,
         `echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini`,
