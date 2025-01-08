@@ -136,7 +136,7 @@ class DbResourceFactory
             ->setStatus($status)
             ->setInDowntime((int) $record['in_downtime'] === 1)
             ->setAcknowledged((int) $record['acknowledged'] === 1)
-            ->setIsFlapping((int) $record['flapping'] === 1)
+            ->setIsInFlapping((int) $record['flapping'] === 1)
             ->setPercentStateChange(self::getFloatOrNull($record['percent_state_change']))
             ->setStateType((int) $record['status_confirmed'])
             ->setName($name)

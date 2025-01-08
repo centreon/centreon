@@ -54,7 +54,15 @@ try {
     $addColumnToResourcesTable($pearDBO);
 } catch (\PDOException $e) {
     if ($pearDBO->inTransaction()) {
-        $pearDBO->rollBack();
+        try {
+            $pearDBO->rollBack();
+        } catch (\PDOException $e) {
+            $centreonLog->error(
+                logTypeId: CentreonLog::TYPE_UPGRADE,
+                message: $versionOfTheUpgrade . "error while rolling back transaction : {$e->getMessage()}",
+                exception: $e
+            );
+        }
     }
 
     $centreonLog->error(
