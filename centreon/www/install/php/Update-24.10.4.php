@@ -25,7 +25,7 @@ require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
 // error specific content
-$versionOfTheUpgrade = 'UPGRADE - 24.10.3: ';
+$versionOfTheUpgrade = 'UPGRADE - 24.10.4: ';
 $errorMessage = '';
 
 // ACC
