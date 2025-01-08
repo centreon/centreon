@@ -18,18 +18,6 @@ const services = {
   }
 };
 
-const checkFirstHostDependencyFromListing = () => {
-  cy.waitForElementInIframe('#main-content', 'input[name="searchHD"]');
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); submit(); }"
-    );
-};
-
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
@@ -147,7 +135,7 @@ Then('the properties are updated', () => {
 });
 
 When('the user duplicates a host dependency', () => {
-  checkFirstHostDependencyFromListing();
+  cy.checkFirstRowFromListing('searchHD');
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
@@ -189,7 +177,7 @@ Then('the new host dependency has the same properties', () => {
 });
 
 When('the user deletes a host dependency', () => {
-  checkFirstHostDependencyFromListing();
+  cy.checkFirstRowFromListing('searchHD');
   cy.getIframeBody().find('select[name="o1"]').select('Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();
