@@ -103,7 +103,9 @@ jobs:
         backend-lint,
         backend-unit-test
       ]
-    if: ${{ needs.get-environment.outputs.stability != 'stable' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
 
     strategy:
       fail-fast: false
@@ -164,7 +166,13 @@ jobs:
   dockerize:
     runs-on: ubuntu-24.04
     needs: [get-environment, package]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' && github.repository == 'centreon/centreon' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.repository == 'centreon/centreon'
 
     env:
       project: centreon-open-tickets
@@ -263,7 +271,11 @@ jobs:
   deliver-sources:
     runs-on: [self-hosted, common]
     needs: [get-environment, package]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' && github.repository == 'centreon/centreon' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
+      github.event_name != 'workflow_dispatch' &&
+      github.repository == 'centreon/centreon'}
 
     steps:
       - name: Checkout sources
@@ -281,7 +293,12 @@ jobs:
 
   create-xray-test-plan-and-test-execution:
     needs: [get-environment, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' )
     strategy:
       fail-fast: false
       matrix:
@@ -301,7 +318,12 @@ jobs:
 
   e2e-test:
     needs: [get-environment, create-xray-test-plan-and-test-execution, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.outputs.stability != 'stable'
     strategy:
       fail-fast: false
       matrix:
@@ -339,7 +361,10 @@ jobs:
 
   deliver-rpm:
     needs: [get-environment, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && github.repository == 'centreon/centreon' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      github.repository == 'centreon/centreon'
     runs-on: [self-hosted, common]
 
     strategy:
@@ -364,7 +389,10 @@ jobs:
 
   deliver-deb:
     needs: [get-environment, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && github.repository == 'centreon/centreon' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      github.repository == 'centreon/centreon'
     runs-on: [self-hosted, common]
 
     strategy:
@@ -389,6 +417,7 @@ jobs:
   promote:
     needs: [get-environment, deliver-rpm, deliver-deb]
     if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
       (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
