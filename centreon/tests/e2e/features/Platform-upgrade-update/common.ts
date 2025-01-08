@@ -103,7 +103,7 @@ const installDatabase = (): void => {
     cy.execInContainer({
       command: [
         `bash -e <<EOF
-          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --skip-check-installed --os-version=${osMatches[1]} --mariadb-server-version="mariadb-10.5"
+          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --skip-check-installed --skip-maxscale --os-version=${osMatches[1]} --mariadb-server-version="mariadb-10.5"
 EOF`,
         `dnf install -y mariadb-server mariadb`,
       ],
