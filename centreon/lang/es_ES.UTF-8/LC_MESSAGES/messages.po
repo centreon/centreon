@@ -17862,3 +17862,30 @@ msgstr "Sticky para cualquier estado que no sea OK"
 
 # msgid "There are errors in the form."
 # msgstr ""
+
+# msgid "Show only dashboards added to favorites"
+# msgstr ""
+
+# msgid "The dashboard has been added to your favorites."
+# msgstr ""
+
+# msgid "The dashboard has been removed from your favorites."
+# msgstr ""
+
+# msgid "Remove from favorites"
+# msgstr ""
+
+# msgid "Add to favorites"
+# msgstr ""
+
+# msgid "PNG (as displayed)"
+# msgstr ""
+
+# msgid "PNG (medium size)"
+# msgstr ""
+
+# msgid "PNG (small size)"
+# msgstr ""
+
+# msgid "Export as"
+# msgstr ""

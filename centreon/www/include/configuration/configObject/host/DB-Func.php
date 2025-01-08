@@ -1120,7 +1120,6 @@ function resetUnwantedParameters(array $bindParams): array
 {
     $paramsToReset = [
         'timeperiod_tp_id2',
-        'command_command_id2',
         'host_freshness_threshold',
         'host_low_flap_threshold',
         'host_high_flap_threshold',
@@ -1134,7 +1133,6 @@ function resetUnwantedParameters(array $bindParams): array
         'host_checks_enabled',
         'host_obsess_over_host',
         'host_check_freshness',
-        'host_event_handler_enabled',
         'host_flap_detection_enabled',
         'host_retain_status_information',
         'host_retain_nonstatus_information',
@@ -1160,7 +1158,6 @@ function resetUnwantedParameters(array $bindParams): array
         'host_flap_detection_enabled',
         'host_retain_status_information',
         'host_retain_nonstatus_information',
-        'host_event_handler_enabled',
     ];
 
     foreach ($paramsToEnumDefault as $paramName) {
@@ -3009,6 +3006,12 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
                 $formData['macroInput'] ?? [],
                 $formData['macroValue'] ?? []
             ),
+            'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
+                ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
+                : null,
+            'event_handler_command_id' => isset($formData['command_command_id2']) && '' !== $formData['command_command_id2']
+                ? (int) $formData['command_command_id2']
+                : null,
         ];
     } else {
         return [
@@ -3167,6 +3170,12 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
                 $formData['macroInput'] ?? [],
                 $formData['macroValue'] ?? []
             ),
+            'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
+                ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
+                : null,
+            'event_handler_command_id' => isset($formData['command_command_id2']) && '' !== $formData['command_command_id2']
+                ? (int) $formData['command_command_id2']
+                : null,
         ];
     } else {
         return [
