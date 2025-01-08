@@ -53,16 +53,25 @@ $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage)
 try {
     $addColumnToResourcesTable($pearDBO);
 } catch (\PDOException $e) {
-    if ($pearDBO->inTransaction()) {
-        try {
+    try {
+        if ($pearDBO->inTransaction()) {
             $pearDBO->rollBack();
-        } catch (\PDOException $e) {
-            $centreonLog->error(
-                logTypeId: CentreonLog::TYPE_UPGRADE,
-                message: $versionOfTheUpgrade . "error while rolling back transaction : {$e->getMessage()}",
-                exception: $e
-            );
         }
+    } catch (\PDOException $rollbackException) {
+        $rollbackErrorMessage = $versionOfTheUpgrade . "error while rolling back transaction : {$rollbackException->getMessage()}";
+        $centreonLog->error(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: $rollbackErrorMessage,
+            customContext: [
+                'exception_message' => $rollbackException->getMessage(),
+                'pdo_error_code' => $rollbackException->getCode(),
+                'pdo_error_info' => $rollbackException->errorInfo,
+                'trace' => $rollbackException->getTraceAsString(),
+            ],
+            exception: $rollbackException
+        );
+
+        throw new Exception($rollbackErrorMessage, (int) $rollbackException->getCode(), $rollbackException);
     }
 
     $centreonLog->error(
@@ -71,6 +80,12 @@ try {
         . ' - Code : ' . (int) $e->getCode()
         . ' - Error : ' . $e->getMessage()
         . ' - Trace : ' . $e->getTraceAsString(),
+        customContext: [
+            'exception_message' => $e->getMessage(),
+            'pdo_error_code' => $e->getCode(),
+            'pdo_error_info' => $e->errorInfo,
+            'trace' => $e->getTraceAsString(),
+        ],
         exception: $e
     );
 
