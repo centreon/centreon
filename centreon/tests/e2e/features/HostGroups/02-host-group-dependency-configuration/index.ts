@@ -2,21 +2,8 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import data from '../../../fixtures/hosts-dependency/host-dependency.json';
-
-const services = {
-  serviceCritical: {
-    host: 'host3',
-    name: 'service3',
-    template: 'SNMP-Linux-Load-Average'
-  },
-  serviceOk: { host: 'host2', name: 'service_test_ok', template: 'Ping-LAN' },
-  serviceWarning: {
-    host: 'host2',
-    name: 'service2',
-    template: 'SNMP-Linux-Memory'
-  }
-};
+import grps from '../../../fixtures/notifications/data-for-notification.json';
+import data from '../../../fixtures/host-groups/dependency.json';
 
 beforeEach(() => {
   cy.startContainers();
@@ -41,73 +28,52 @@ Given('a user is logged in a Centreon server', () => {
   });
 });
 
-Given('some hosts and services are configured', () => {
-  cy.addHost({
-    hostGroup: 'Linux-Servers',
-    name: services.serviceOk.host,
-    template: 'generic-host'
-  })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceOk.host,
-      maxCheckAttempts: 1,
-      name: services.serviceOk.name,
-      template: services.serviceOk.template
-    })
-    .applyPollerConfiguration();
-
-  cy.addHost({
-    hostGroup: 'Linux-Servers',
-    name: services.serviceCritical.host,
-    template: 'generic-host'
-  })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceCritical.host,
-      maxCheckAttempts: 1,
-      name: 'service2',
-      template: services.serviceWarning.template
-    })
-    .applyPollerConfiguration();
+Given('some hosts groups are configured', () => {
+  cy.addHostGroup({
+    name: grps.hostGroups.hostGroup1.name
+  });
+  cy.addHostGroup({
+    name: grps.hostGroups.hostGroup2.name
+  });
 });
 
-Given('a host dependency is configured', () => {
+Given('a host group dependency is configured', () => {
   cy.navigateTo({
-    page: 'Hosts',
+    page: 'Host Groups',
     rootItemNumber: 3,
     subMenu: 'Notifications'
   });
   cy.getIframeBody().contains('a', 'Add').click({ force: true });
-  cy.addHostDependency(data.default);
+  cy.addHostGroupDependency(data.default);
 });
 
-When('the user changes the properties of a host dependency', () => {
+When('the user changes the properties of a host group dependency', () => {
   cy.waitForElementInIframe(
     '#main-content',
     `a:contains("${data.default.name}")`
   );
   cy.getIframeBody().contains(data.default.name).click();
-  cy.updateHostDependency(data.HostDependency1);
+  cy.updateHostGroupDependency(data.HostGrpDependency1);
 });
 
 Then('the properties are updated', () => {
   cy.waitForElementInIframe(
     '#main-content',
-    `a:contains("${data.HostDependency1.name}")`
+    `a:contains("${data.HostGrpDependency1.name}")`
   );
-  cy.getIframeBody().contains(data.HostDependency1.name).click();
+  cy.getIframeBody().contains(data.HostGrpDependency1.name).click();
   cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
   cy.getIframeBody()
     .find('input[name="dep_name"]')
-    .should('have.value', data.HostDependency1.name);
+    .should('have.value', data.HostGrpDependency1.name);
 
   cy.getIframeBody()
     .find('input[name="dep_description"]')
-    .should('have.value', data.HostDependency1.description);
+    .should('have.value', data.HostGrpDependency1.description);
   cy.getIframeBody().find('#eUp').should('be.checked');
   cy.getIframeBody().find('#nDown').should('be.checked');
   cy.getIframeBody()
-    .find('#dep_hostParents')
+    .find('#dep_hgParents')
     .find('option:selected')
     .should('have.length', 2)
     .then((options) => {
@@ -115,33 +81,28 @@ Then('the properties are updated', () => {
         option.text.trim()
       );
       expect(selectedTexts).to.include.members([
-        data.HostDependency1.hostNames[0],
-        data.HostDependency1.hostNames[1]
+        data.HostGrpDependency1.hostGrpsNames[0],
+        data.HostGrpDependency1.hostGrpsNames[1]
       ]);
     });
   cy.getIframeBody()
-    .find('#dep_hostChilds')
+    .find('#dep_hgChilds')
     .find('option:selected')
     .should('have.length', 1)
-    .and('have.text', data.HostDependency1.dependentHostNames[0]);
-  cy.getIframeBody()
-    .find('#dep_hSvChi')
-    .find('option:selected')
-    .should('have.length', 1)
-    .and('have.text', `host2 - ${data.HostDependency1.dependentServices[0]}`);
+    .and('have.text', data.HostGrpDependency1.dependentHostGrpsNames[0]);
   cy.getIframeBody()
     .find('textarea[name="dep_comment"]')
-    .should('have.value', data.HostDependency1.comment);
+    .should('have.value', data.HostGrpDependency1.comment);
 });
 
-When('the user duplicates a host dependency', () => {
-  cy.checkFirstRowFromListing('searchHD');
+When('the user duplicates a host group dependency', () => {
+  cy.checkFirstRowFromListing('searchHGD');
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
-Then('the new host dependency has the same properties', () => {
+Then('the new object has the same properties', () => {
   cy.waitForElementInIframe(
     '#main-content',
     `a:contains("${data.default.name}_1")`
@@ -157,32 +118,27 @@ Then('the new host dependency has the same properties', () => {
   cy.getIframeBody().find('#eDown').should('be.checked');
   cy.getIframeBody().find('#nPending').should('be.checked');
   cy.getIframeBody()
-    .find('#dep_hostParents')
+    .find('#dep_hgParents')
     .find('option:selected')
     .should('have.length', 1)
-    .and('have.text', data.default.hostNames[0]);
+    .and('have.text', data.default.hostGrpsNames[0]);
   cy.getIframeBody()
-    .find('#dep_hostChilds')
+    .find('#dep_hgChilds')
     .find('option:selected')
     .should('have.length', 1)
-    .and('have.text', data.default.dependentHostNames[0]);
-  cy.getIframeBody()
-    .find('#dep_hSvChi')
-    .find('option:selected')
-    .should('have.length', 1)
-    .and('have.text', data.default.dependentServices[0]);
+    .and('have.text', data.default.dependentHostGrpsNames[0]);
   cy.getIframeBody()
     .find('textarea[name="dep_comment"]')
     .should('have.value', data.default.comment);
 });
 
-When('the user deletes a host dependency', () => {
-  cy.checkFirstRowFromListing('searchHD');
+When('the user deletes a host group dependency', () => {
+  cy.checkFirstRowFromListing('searchHGD');
   cy.getIframeBody().find('select[name="o1"]').select('Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
-Then('the deleted host dependency is not displayed in the list', () => {
+Then('the deleted object is not displayed in the list', () => {
   cy.getIframeBody().contains(data.default.name).should('not.exist');
 });
