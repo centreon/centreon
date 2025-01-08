@@ -587,7 +587,7 @@ class Resource
     }
 
     /**
-     * @param bool $flapping
+     * @param bool $isInflapping
      * @return self
      */
     public function setIsInFlapping(bool $isInflapping): self
