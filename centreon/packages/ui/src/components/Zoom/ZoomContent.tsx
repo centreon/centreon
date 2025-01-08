@@ -1,4 +1,4 @@
-import { type ForwardedRef, forwardRef, useEffect, useRef, useState } from 'react';
+import { type ForwardedRef, forwardRef, MutableRefObject, useEffect, useRef, useState } from 'react';
 
 import { RectClipPath } from '@visx/clip-path';
 
@@ -35,7 +35,9 @@ const ZoomContent = forwardRef(
     ref?: ForwardedRef<SVGGElement | null>
   ) : JSX.Element => {
   const { classes } = useZoomStyles();
-  const contentRef = !isNil(ref) ? (ref as React.MutableRefObject<SVGGElement | null>) : useRef<SVGGElement | null>(null);
+
+  const fallbackRef = useRef<SVGGElement | null>(null)
+  const contentRef = (ref || fallbackRef) as MutableRefObject<SVGGElement | null>;
   const minimapSvgRef = useRef<SVGSVGElement | null>(null);
   const minimapContentRef = useRef<SVGSVGElement | null>(null);
   const [contentClientRect, setContentClientRect] = useState<Dimension | null>(null);
