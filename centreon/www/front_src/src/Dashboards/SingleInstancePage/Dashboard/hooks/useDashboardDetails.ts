@@ -29,6 +29,7 @@ import { Panel, PanelConfiguration } from '../models';
 interface UseDashboardDetailsState {
   dashboard?: Dashboard;
   panels?: Array<DashboardPanel>;
+  refetch: () => void;
 }
 
 interface FormatPanelProps {
@@ -100,7 +101,7 @@ const useDashboardDetails = ({
       ? getPublicDashboardEndpoint({ dashboardId, playlistID: playlistHash })
       : `${dashboardsEndpoint}/${dashboardId}`;
 
-  const { data: dashboard } = useFetchQuery({
+  const { data: dashboard, refetch } = useFetchQuery({
     decoder,
     getEndpoint: () => endpoint,
     getQueryKey: () => [resource.dashboard, dashboardId],
@@ -141,7 +142,8 @@ const useDashboardDetails = ({
 
   return {
     dashboard,
-    panels
+    panels,
+    refetch
   };
 };
 
