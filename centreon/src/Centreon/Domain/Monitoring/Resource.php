@@ -259,7 +259,7 @@ class Resource
      */
     private ?int $internalId = null;
 
-    private bool $isInFlapping = false;
+    private bool $flapping = false;
 
     /**
      * Resource constructor.
@@ -583,16 +583,16 @@ class Resource
      */
     public function isInFlapping(): bool
     {
-        return $this->isInFlapping;
+        return $this->flapping;
     }
 
     /**
-     * @param bool $isInflapping
+     * @param bool $flapping
      * @return self
      */
-    public function setIsInFlapping(bool $isInflapping): self
+    public function setFlapping(bool $flapping): self
     {
-        $this->isInFlapping = $isInflapping;
+        $this->flapping = $flapping;
 
         return $this;
     }
