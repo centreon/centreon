@@ -5,18 +5,6 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import grps from '../../../fixtures/notifications/data-for-notification.json';
 import data from '../../../fixtures/host-groups/dependency.json';
 
-const checkFirstHostGrpDependencyFromListing = () => {
-  cy.waitForElementInIframe('#main-content', 'input[name="searchHGD"]');
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); submit(); }"
-    );
-};
-
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
@@ -108,7 +96,7 @@ Then('the properties are updated', () => {
 });
 
 When('the user duplicates a host group dependency', () => {
-  checkFirstHostGrpDependencyFromListing();
+  cy.checkFirstRowFromListing('searchHGD');
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
@@ -145,7 +133,7 @@ Then('the new object has the same properties', () => {
 });
 
 When('the user deletes a host group dependency', () => {
-  checkFirstHostGrpDependencyFromListing();
+  cy.checkFirstRowFromListing('searchHGD');
   cy.getIframeBody().find('select[name="o1"]').select('Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();
