@@ -1,45 +1,44 @@
-import { useEffect, useRef, useState } from 'react';
+import { type ForwardedRef, forwardRef, useEffect, useRef, useState } from 'react';
 
 import { RectClipPath } from '@visx/clip-path';
 
+import { isNil } from 'ramda';
 import ZoomInIcon from '@mui/icons-material/Add';
 import ZoomOutIcon from '@mui/icons-material/Remove';
 import ReplayIcon from '@mui/icons-material/Replay';
 
 import { IconButton } from '../Button';
 
-import Minimap from './Minimap';
-import { useZoomStyles } from './Zoom.styles';
 import { minimapScale, radius } from './constants';
-import type { ChildrenProps, MinimapPosition, ZoomInterface } from './models';
 import { useZoom } from './useZoom';
+import { useZoomStyles } from './Zoom.styles';
+import Minimap from './Minimap';
+import { ZoomChildren, type Dimension, type MinimapPosition, type ZoomInterface } from './models';
 
-export interface Props extends ZoomInterface {
-  children: (args: ChildrenProps) => JSX.Element;
-  height: number;
+export interface Props extends Dimension, ZoomInterface, ZoomChildren {
   id?: number | string;
   minimapPosition: MinimapPosition;
   showMinimap?: boolean;
-  width: number;
 }
 
-const ZoomContent = ({
-  zoom,
-  width,
-  height,
-  children,
-  showMinimap,
-  minimapPosition,
-  id
-}: Props): JSX.Element => {
+const ZoomContent = forwardRef(
+  (
+    {
+      zoom,
+      width,
+      height,
+      children,
+      showMinimap,
+      minimapPosition,
+      id
+    }: Props,
+    ref?: ForwardedRef<SVGGElement | null>
+  ) : JSX.Element => {
   const { classes } = useZoomStyles();
-  const contentRef = useRef<SVGGElement | null>(null);
+  const contentRef = !isNil(ref) ? (ref as React.MutableRefObject<SVGGElement | null>) : useRef<SVGGElement | null>(null);
   const minimapSvgRef = useRef<SVGSVGElement | null>(null);
   const minimapContentRef = useRef<SVGSVGElement | null>(null);
-  const [contentClientRect, setContentClientRect] = useState<{
-    height: number;
-    width: number;
-  } | null>(null);
+  const [contentClientRect, setContentClientRect] = useState<Dimension | null>(null);
 
   const resizeObserver = new ResizeObserver(() => {
     const contentBoundingClientRect = (
@@ -106,7 +105,8 @@ const ZoomContent = ({
             height,
             transformMatrix: zoom.transformMatrix,
             setTransformMatrix: zoom.setTransformMatrix,
-            width
+            width,
+            zoom
           })}
         </g>
       </svg>
@@ -136,7 +136,8 @@ const ZoomContent = ({
                   height,
                   transformMatrix: zoom.transformMatrix,
                   setTransformMatrix: zoom.setTransformMatrix,
-                  width
+                  width,
+                  zoom
                 })}
               </g>
             </Minimap>
@@ -165,6 +166,6 @@ const ZoomContent = ({
       </div>
     </div>
   );
-};
+});
 
 export default ZoomContent;
