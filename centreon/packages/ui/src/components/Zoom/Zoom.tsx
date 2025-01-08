@@ -1,18 +1,20 @@
 import { type MutableRefObject } from 'react';
 import { Zoom as VisxZoom } from '@visx/zoom';
+import { TransformMatrix } from '@visx/zoom/lib/types';
 
 import { ParentSize } from '../..';
 
 import ZoomContent from './ZoomContent';
-import type { MinimapPosition, ZoomChildren, ZoomState } from './models';
+import type { MinimapPosition, ZoomChildren } from './models';
 
-export interface ZoomProps extends ZoomChildren, ZoomState {
+export interface ZoomProps extends ZoomChildren {
   id?: number | string;
   minimapPosition?: MinimapPosition;
   scaleMax?: number;
   scaleMin?: number;
   showMinimap?: boolean;
   contentRef?: MutableRefObject<SVGGElement | null>;
+  transformMatrix?: TransformMatrix;
 }
 
 const Zoom = ({
