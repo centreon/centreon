@@ -38,11 +38,19 @@ env:
   module: open-tickets
 
 jobs:
+  get-environment:
+    uses: ./.github/workflows/get-environment.yml
+    with:
+      version_file: centreon-open-tickets/www/modules/centreon-open-tickets/conf.php
+
   dispatch-to-maintained-branches:
+    needs: [get-environment]
     if: |
       github.run_attempt == 1 &&
       github.event_name == 'schedule' &&
-      github.ref_name == 'develop'
+      github.ref_name == 'develop' &&
+      needs.get-environment.outputs.skip_workflow == 'false'
+
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout sources
@@ -57,11 +65,6 @@ jobs:
         shell: bash
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  get-environment:
-    uses: ./.github/workflows/get-environment.yml
-    with:
-      version_file: centreon-open-tickets/www/modules/centreon-open-tickets/conf.php
 
   veracode-analysis:
     needs: [get-environment]
