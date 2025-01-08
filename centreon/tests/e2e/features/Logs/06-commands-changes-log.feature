@@ -4,7 +4,7 @@ Feature: Commands changes log
   I want to do some changes on commands
   To check if the changes are inserted in to the log page
 
-  @TEST_MON-153465
+  @TEST_MON-155170
   Scenario Outline: A call via APIv2 to the endpoint "Add" a "<type>" command insert logs changes
     Given a user is logged in a Centreon server via APIv2
     When a call to the endpoint "Add" a "<type>" command is done via APIv2
