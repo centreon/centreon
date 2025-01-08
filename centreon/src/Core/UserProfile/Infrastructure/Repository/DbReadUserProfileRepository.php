@@ -72,7 +72,7 @@ final class DbReadUserProfileRepository extends AbstractRepositoryRDB implements
                 LEFT JOIN `:db`.user_profile_favorite_dashboards
                     ON user_profile_favorite_dashboards.profile_id = user_profile.id
                 WHERE contact_id = :contactId
-                GROUP BY contact_id
+                GROUP BY id, contact_id
                 SQL;
 
             $statement = $this->db->prepare($this->translateDbName($query));
