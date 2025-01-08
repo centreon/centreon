@@ -119,7 +119,7 @@ EOF`,
     cy.execInContainer({
       command: [
         `bash -e <<EOF
-          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=${osType} --skip-check-installed --os-version=${osVersion} --mariadb-server-version="mariadb-10.11"
+          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=${osType} --skip-check-installed --skip-maxscale --os-version=${osVersion} --mariadb-server-version="mariadb-10.11"
 EOF`,
         `apt-get update`,
         `apt-get install -y mariadb-server mariadb-client`,
