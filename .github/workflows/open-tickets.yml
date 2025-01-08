@@ -275,7 +275,7 @@ jobs:
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
       github.event_name != 'workflow_dispatch' &&
-      github.repository == 'centreon/centreon'}
+      github.repository == 'centreon/centreon'
 
     steps:
       - name: Checkout sources
