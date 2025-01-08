@@ -39,6 +39,9 @@ jobs:
   backend-lint:
     runs-on: ubuntu-24.04
     needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
 
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
@@ -67,7 +70,9 @@ jobs:
   backend-unit-test:
     runs-on: ubuntu-24.04
     needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.stability != 'stable' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
 
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
