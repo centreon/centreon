@@ -106,7 +106,6 @@ const ZoomContent = forwardRef(
             contentClientRect,
             height,
             transformMatrix: zoom.transformMatrix,
-            setTransformMatrix: zoom.setTransformMatrix,
             width,
             zoom
           })}
@@ -137,7 +136,6 @@ const ZoomContent = forwardRef(
                   contentClientRect,
                   height,
                   transformMatrix: zoom.transformMatrix,
-                  setTransformMatrix: zoom.setTransformMatrix,
                   width,
                   zoom
                 })}
