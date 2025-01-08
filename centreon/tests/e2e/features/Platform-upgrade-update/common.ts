@@ -364,7 +364,7 @@ const updatePlatformPackages = (): Cypress.Chainable => {
             ...installCommands,
             `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}_${major_version}*.deb`,
             `apt-get update`,
-            `apt-get install -y ${containerPackageDirectory}/centreon-*.deb`
+            `apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y ${containerPackageDirectory}/centreon-*.deb`
           ];
       }
 
