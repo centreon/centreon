@@ -2,7 +2,6 @@ import { type ForwardedRef, forwardRef, MutableRefObject, useEffect, useRef, use
 
 import { RectClipPath } from '@visx/clip-path';
 
-import { isNil } from 'ramda';
 import ZoomInIcon from '@mui/icons-material/Add';
 import ZoomOutIcon from '@mui/icons-material/Remove';
 import ReplayIcon from '@mui/icons-material/Replay';
