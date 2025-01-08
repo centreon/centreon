@@ -19,3 +19,9 @@ Feature: List Resources
     Given a saved custom filter
     When I select the custom filter
     Then only Resources matching the selected filter are displayed in the result
+
+  @TEST_MON-22030
+  Scenario: Selecting filters
+    Given a saved custom filter
+    When I select the custom filter
+    Then only Resources matching the selected filter are displayed in the result
