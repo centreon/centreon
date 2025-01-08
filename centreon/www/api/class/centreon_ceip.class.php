@@ -158,7 +158,13 @@ class CentreonCeip extends CentreonWebService
             } else {
                 $role = 'User';
             }
-        } else { 
+            $dependencyInjector = LegacyContainer::getInstance();
+            $licenseService = $dependencyInjector['lm.license'];
+
+            if($licenseService->isTrial()) {
+                $email = $this->user->email;
+            }
+        } else {
             // Get the user role for the Centreon on-premises platform
             $role = $this->user->admin
                 ? 'admin'
@@ -175,6 +181,11 @@ class CentreonCeip extends CentreonWebService
             'locale' => $locale,
             'role' => $role,
         ];
+
+        if (isset($email)) {
+            $visitorInformation['email'] = $email;
+        }
+        return $visitorInformation;
     }
 
     /**
