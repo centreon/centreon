@@ -4,15 +4,14 @@ import { Zoom as VisxZoom } from '@visx/zoom';
 import { ParentSize } from '../..';
 
 import ZoomContent from './ZoomContent';
-import { type TransformMatrix, type MinimapPosition, type ZoomChildren } from './models';
+import type { MinimapPosition, ZoomChildren, ZoomState } from './models';
 
-export interface ZoomProps extends ZoomChildren {
+export interface ZoomProps extends ZoomChildren, ZoomState {
   id?: number | string;
   minimapPosition?: MinimapPosition;
   scaleMax?: number;
   scaleMin?: number;
   showMinimap?: boolean;
-  transformMatrix?: TransformMatrix;
   contentRef?: MutableRefObject<SVGGElement | null>;
 }
 

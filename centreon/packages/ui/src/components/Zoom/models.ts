@@ -1,17 +1,7 @@
-import { ProvidedZoom } from '@visx/zoom/lib/types';
-
-export interface TransformMatrix {
-  scaleX: number;
-  scaleY: number;
-  skewX: number;
-  skewY: number;
-  translateX: number;
-  translateY: number;
-}
+import { ProvidedZoom, TransformMatrix } from '@visx/zoom/lib/types';
 
 export interface ZoomState {
   transformMatrix: TransformMatrix;
-  setTransformMatrix?: ProvidedZoom<SVGSVGElement>['setTransformMatrix'];
 }
 
 export interface Dimension {
@@ -34,7 +24,7 @@ export interface ChildrenProps extends ZoomState, Dimension, ZoomInterface {
 }
 
 export interface ZoomChildren {
-  children: ({ width, height, transformMatrix, contentClientRect, zoom }: ChildrenProps) => JSX.Element;
+  children: (args: ChildrenProps) => JSX.Element;
 }
 
 
