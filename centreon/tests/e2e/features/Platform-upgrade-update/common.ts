@@ -97,6 +97,39 @@ const getCentreonStableMinorVersions = (
   });
 };
 
+const installDatabase = (): void => {
+  if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+    const osMatches = Cypress.env('WEB_IMAGE_OS').match(/alma(\d+)/);
+    cy.execInContainer({
+      command: [
+        `bash -e <<EOF
+          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --skip-check-installed --os-version=${osMatches[1]} --mariadb-server-version="mariadb-10.5"
+EOF`,
+        `dnf install -y mariadb-server mariadb`,
+      ],
+      name: 'web'
+    });
+  } else {
+    let osType = 'debian';
+    let osVersion = '12';
+    if (Cypress.env('WEB_IMAGE_OS') === 'jammy') {
+      osType = 'ubuntu';
+      osVersion = 'jammy';
+    }
+    cy.execInContainer({
+      command: [
+        `bash -e <<EOF
+          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=${osType} --skip-check-installed --os-version=${osVersion} --mariadb-server-version="mariadb-10.11"
+EOF`,
+        `apt-get update`,
+        `apt-get install -y mariadb-server mariadb-client`,
+      ],
+      name: 'web'
+    });
+  }
+
+};
+
 const installCentreon = (version: string): Cypress.Chainable => {
   cy.log(`installing version ${version}...`);
 
@@ -113,19 +146,12 @@ const installCentreon = (version: string): Cypress.Chainable => {
     name: 'web'
   });
 
+  if (Number(versionMatches[1]) > 24 || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) >= 10)) {
+    // database is not installed in dependencies containers > 24.10
+    installDatabase();
+  }
+
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-    if (Number(versionMatches[1]) > 24 || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) >= 10)) {
-      const osMatches = Cypress.env('WEB_IMAGE_OS').match(/alma(\d+)/);
-      cy.execInContainer({
-        command: [
-          `bash -e <<EOF
-            curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --skip-check-installed --os-version=${osMatches[1]} --mariadb-server-version="mariadb-10.5"
-EOF`,
-          `dnf install -y mariadb-server mariadb`,
-        ],
-        name: 'web'
-      });
-    }
     cy.execInContainer({
       command: [
         `dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*'`,
@@ -142,26 +168,6 @@ EOF`,
       name: 'web'
     });
   } else {
-    if (Number(versionMatches[1]) > 24 || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) >= 10)) {
-      let osType = 'debian';
-      let osVersion = '12';
-      if (Cypress.env('WEB_IMAGE_OS') === 'jammy') {
-        osType = 'ubuntu';
-        osVersion = 'jammy';
-      }
-      const osMatches = Cypress.env('WEB_IMAGE_OS').match(/alma(\d+)/);
-      cy.execInContainer({
-        command: [
-          `bash -e <<EOF
-            curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=${osType} --skip-check-installed --os-version=${osVersion} --mariadb-server-version="mariadb-10.11"
-EOF`,
-          `apt-get update`,
-          `apt-get install -y mariadb-server mariadb-client`,
-        ],
-        name: 'web'
-      });
-    }
-
     let packageDistribPrefix;
     let packageDistribName;
     if (Number(versionMatches[1]) < 24) {
