@@ -85,5 +85,9 @@ When('the user clicks on the Search button', () => {
 });
 
 Then('the services of disabled hosts are displayed', () => {
+  cy.waitForElementInIframe(
+    '#main-content',
+    `a:contains("${services.serviceOk.name}")`
+  );
   cy.getIframeBody().contains(services.serviceOk.name).should('be.visible');
 });
