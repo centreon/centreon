@@ -17,6 +17,7 @@ on:
     - cron: "0 3 * * 1-5"
   pull_request:
     paths:
+      - ".version.centreon-web"
       - "centreon/**"
       - "!centreon/cypress/**"
       - "!centreon/features/**"
@@ -32,6 +33,7 @@ on:
       - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
+      - ".version.centreon-web"
       - "centreon/**"
       - "!centreon/cypress/**"
       - "!centreon/features/**"
@@ -785,7 +787,7 @@ jobs:
       stability: ${{ needs.get-environment.outputs.stability }}
       package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma8' && 'rpm-el8' || matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-bookworm' ) }}
       package_directory: centreon/tests/e2e/fixtures/packages
-      test_tags: ${{ needs.changes.outputs.has_upgrade_changes == 'true' && matrix.test_tags || format('{0} and not @update and not @upgrade', matrix.test_tags) }}
+      test_tags: ${{ ( needs.changes.outputs.has_upgrade_changes == 'true' || needs.get-environment.outputs.is_nightly == 'true' ) && matrix.test_tags || format('{0} and not @update and not @upgrade', matrix.test_tags) }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
       xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
       is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
@@ -1019,7 +1021,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bookworm, jammy]
+        distrib: [bookworm]
 
     steps:
       - name: Checkout sources
