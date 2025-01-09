@@ -99,6 +99,7 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
               fallbackValue={defaultInterval}
               slotProps={{
                 htmlInput: {
+                  'data-testid':'numberFieldInput',
                   min: 1
                 }
               }}
