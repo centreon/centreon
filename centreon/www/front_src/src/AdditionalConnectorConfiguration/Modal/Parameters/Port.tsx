@@ -37,7 +37,7 @@ const Port = (): ReactElement => {
         required
         dataTestId={`${labelPort}_value`}
         error={error as string}
-        label={t(labelPort)}
+        // label={t(labelPort)}
         slotProps={{
           htmlInput: {
             'data-testId':'numberFieldInput',
