@@ -62,7 +62,7 @@ export const options: Array<SelectEntry> = [
   },
   {
     id: 2 * month * day,
-    name:labelLast2Months
+    name: labelLast2Months
   },
   {
     id: 3 * month * day,
