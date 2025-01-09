@@ -3,6 +3,7 @@ import { mergeDeepRight } from 'ramda';
 import { BrowserRouter as Router } from 'react-router';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import { Provider, createStore } from 'jotai';
 
 import { retrievedNavigation } from '../../Navigation/mocks';
 import type Navigation from '../../Navigation/models';
@@ -13,6 +14,8 @@ import type {
 } from '../api/decoders';
 import type { PollersIssuesList } from '../api/models';
 import Header from '../index';
+
+import { userPermissionsAtom } from '@centreon/ui-context';
 
 export type DeepPartial<Thing> = Thing extends Array<infer InferredArrayMember>
   ? DeepPartialArray<InferredArrayMember>
@@ -189,13 +192,22 @@ export const initialize = (stubs: DeepPartial<Stubs> = {}): unknown => {
 
   cy.clock(new Date(2022, 3, 28, 16, 20, 0), ['Date']);
 
+  const store = createStore();
+
+  store.set(userPermissionsAtom, {
+    top_counter: true,
+    poller_statistics: true
+  });
+
   cy.mount({
     Component: (
       <SnackbarProvider maxSnackbars={2}>
         <TestQueryProvider>
-          <Router>
-            <Header />
-          </Router>
+          <Provider store={store}>
+            <Router>
+              <Header />
+            </Router>
+          </Provider>
         </TestQueryProvider>
       </SnackbarProvider>
     )
