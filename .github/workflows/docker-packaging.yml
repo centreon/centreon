@@ -25,6 +25,7 @@ jobs:
   dockerize:
     needs: [get-environment]
     runs-on: ubuntu-24.04
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
 
     strategy:
       matrix:
@@ -50,3 +51,12 @@ jobs:
           pull: true
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/packaging-${{ matrix.distrib }}:${{ needs.get-environment.outputs.major_version }}
+
+  set-skip-label:
+    needs: [get-environment, dockerize]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
+    uses: ./.github/workflows/set-pull-request-skip-label.yml
