@@ -1,0 +1,65 @@
+{
+  "result": [
+    {
+      "id": 1,
+      "name": "My Dashboard",
+      "description": "my description",
+      "created_at": "2023-12-19T23:31:04+00:00",
+      "updated_at": "2023-12-19T23:31:13+00:00",
+      "created_by": {
+        "id": 1,
+        "name": "Arnaud"
+      },
+      "updated_by": {
+        "id": 1,
+        "name": "Arnaud"
+      },
+      "own_role": "editor",
+      "thumbnail": null,
+      "shares": {
+        "contacts": [
+          {
+            "id": 1,
+            "name": "Kevin",
+            "role": "viewer"
+          }
+        ],
+        "contact_groups": [
+          {
+            "id": 3,
+            "name": "Developers",
+            "role": "editor"
+          }
+        ]
+      },
+      "is_favorite": true
+    },
+    {
+      "id": 2,
+      "name": "My Dashboard 2",
+      "description": null,
+      "created_at": "2023-12-19T23:31:04+00:00",
+      "updated_at": "2023-12-19T23:31:13+00:00",
+      "created_by": {
+        "id": 2,
+        "name": "Tom"
+      },
+      "updated_by": {
+        "id": 2,
+        "name": "Tom"
+      },
+      "own_role": "viewer",
+      "thumbnail": null,
+      "shares": {
+        "contacts": [],
+        "contact_groups": []
+      },
+      "is_favorite": true
+    }
+  ],
+  "meta": {
+    "total": 2,
+    "page": 1,
+    "limit": 10
+  }
+}
