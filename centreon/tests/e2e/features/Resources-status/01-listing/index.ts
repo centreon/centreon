@@ -185,6 +185,120 @@ Then(
   }
 );
 
+Given('a saved critical service filter', () => {
+  cy.fixture('resources/criticalServicesFilter.json').then((filters) =>
+    setUserFilter(filters)
+  );
+
+  cy.visit('centreon/monitoring/resources').wait([
+    '@getFilters',
+    '@monitoringEndpoint'
+  ]);
+
+  cy.contains('Unhandled alerts').should('be.visible');
+
+  cy.get(`div[data-testid="selectedFilter"]`).click();
+
+  cy.contains('Critical_Services');
+});
+
+When('I select the critical service filter', () => {
+  cy.contains('Critical_Services').click();
+});
+
+Then(
+  'only the critical services are displayed in the result',
+  () => {
+    cy.contains(serviceInDtName).should('be.visible');
+    cy.contains(secondServiceInDtName).should('be.visible');
+  }
+);
+
+Given('a saved unknown service filter', () => {
+  cy.fixture('resources/unknownServicesFilter.json').then((filters) =>
+    setUserFilter(filters)
+  );
+
+  cy.visit('centreon/monitoring/resources').wait([
+    '@getFilters',
+    '@monitoringEndpoint'
+  ]);
+
+  cy.contains('Unhandled alerts').should('be.visible');
+
+  cy.get(`div[data-testid="selectedFilter"]`).click();
+
+  cy.contains('Unknown_Services');
+});
+
+When('I select the unknown service filter', () => {
+  cy.contains('Unknown_Services').click();
+});
+
+Then(
+  'only the unknown services are displayed in the result',
+  () => {
+    cy.contains('Memory').should('be.visible');
+    cy.contains('Load').should('be.visible');
+  }
+);
+
+Given('a saved pending host filter', () => {
+  cy.fixture('resources/pendingHosts.json').then((filters) =>
+    setUserFilter(filters)
+  );
+
+  cy.visit('centreon/monitoring/resources').wait([
+    '@getFilters',
+    '@monitoringEndpoint'
+  ]);
+
+  cy.contains('Unhandled alerts').should('be.visible');
+
+  cy.get(`div[data-testid="selectedFilter"]`).click();
+
+  cy.contains('Pending_Hosts');
+});
+
+When('I select the pending host filter', () => {
+  cy.contains('Pending_Hosts').click();
+});
+
+Then(
+  'only the pending hosts are displayed in the result',
+  () => {
+    cy.contains('host1').should('be.visible');
+  }
+);
+
+Given('a saved up host filter', () => {
+  cy.fixture('resources/upHosts.json').then((filters) =>
+    setUserFilter(filters)
+  );
+
+  cy.visit('centreon/monitoring/resources').wait([
+    '@getFilters',
+    '@monitoringEndpoint'
+  ]);
+
+  cy.contains('Unhandled alerts').should('be.visible');
+
+  cy.get(`div[data-testid="selectedFilter"]`).click();
+
+  cy.contains('Up_Hosts');
+});
+
+When('I select the up host filter', () => {
+  cy.contains('Up_Hosts').click();
+});
+
+Then(
+  'only the up hosts are displayed in the result',
+  () => {
+    cy.contains('Centreon-Server').should('be.visible');
+  }
+);
+
 afterEach(() => {
   cy.stopContainers();
 });
