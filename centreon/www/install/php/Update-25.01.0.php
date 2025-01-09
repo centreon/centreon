@@ -67,9 +67,6 @@ try {
     $createUserProfileTable($pearDB);
     $createUserProfileFavoriteDashboards($pearDB);
 } catch (Exception $e) {
-    if ($pearDB->inTransaction()) {
-        $pearDB->rollBack();
-    }
 
     $centreonLog->log(
         CentreonLog::TYPE_UPGRADE,
