@@ -94,7 +94,7 @@ const LoginForm = (): JSX.Element => {
         error={passwordError}
         slotProps={{
           htmlInput: {
-            'aria-label': t('labelPassword') as string,
+            'aria-label': t(labelPassword) as string,
             autoComplete: 'new-password'
           }
         }}
