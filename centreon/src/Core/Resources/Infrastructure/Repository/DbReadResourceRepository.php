@@ -258,119 +258,174 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         return $this->resources;
     }
 
-    /**
-     * This adds the subrequest filter for tags (servicegroups, hostgroups).
-     *
-     * @param ResourceFilter $filter
-     * @param StatementCollector $collector
-     *
-     * @return string
-     */
-    public function addResourceTagsSubRequest(ResourceFilter $filter, StatementCollector $collector): string
+    private function createQueryHeaders(ResourceFilter $filter, StatementCollector $collector): string
     {
-        $subRequest = '';
-        $searchedTagNames = [];
-        $includeHostResourceType = false;
-        $includeServiceResourceType = false;
-        $searchedTags = [];
+        $nextHeaders = function () use (&$headers): void {
+              $headers .= $headers !== '' ? ",\n" : 'WITH ';
+        };
+        $cteToIntersect = [];
+        $headers = '';
 
-        if (! empty($filter->getHostgroupNames())) {
-            $includeHostResourceType = true;
-            foreach ($filter->getHostgroupNames() as $hostGroupName) {
-                $searchedTags[Tag::HOST_GROUP_TYPE_ID][] = $hostGroupName;
-                $searchedTagNames[] = $hostGroupName;
+        // Create CTE for each tag type
+        if ($filter->getHostgroupNames() !== []) {
+            $cteToIntersect[] = 'host_groups';
+
+            $hostGroupKeys = [];
+            foreach ($filter->getHostgroupNames() as $index => $hostGroupName) {
+                $key = ":host_group_{$index}";
+                $collector->addValue($key, $hostGroupName, \PDO::PARAM_STR);
+                $hostGroupKeys[] = $key;
             }
+            $hostGroupPrepareKeys = implode(', ', $hostGroupKeys);
+            $headers = <<<SQL
+                WITH host_groups AS (
+                    SELECT resources.resource_id
+                    FROM `:dbstg`.`resources` AS resources
+                    INNER JOIN `:dbstg`.`resources_tags` AS rtags
+                        ON rtags.resource_id = resources.resource_id
+                    INNER JOIN `:dbstg`.`tags` AS tags
+                        ON tags.tag_id = rtags.tag_id
+                    WHERE tags.type = 1
+                        AND resources.enabled = 1
+                        AND tags.name IN ({$hostGroupPrepareKeys})
+                    GROUP BY resources.resource_id
+                    UNION
+                    SELECT resources.resource_id
+                    FROM `:dbstg`.`resources` AS resources
+                    INNER JOIN `:dbstg`.`resources` AS parent_resource
+                        ON parent_resource.id = resources.parent_id
+                    INNER JOIN `:dbstg`.`resources_tags` AS rtags
+                        ON rtags.resource_id = parent_resource.resource_id
+                    INNER JOIN `:dbstg`.`tags` AS tags
+                        ON tags.tag_id = rtags.tag_id
+                    WHERE tags.type = 1
+                        AND tags.name IN ({$hostGroupPrepareKeys})
+                        AND resources.enabled = 1
+                        AND parent_resource.enabled = 1
+                        AND parent_resource.type = 1
+                    GROUP BY resources.resource_id
+                )
+                SQL;
+        }
+        if ($filter->getHostCategoryNames() !== []) {
+            $cteToIntersect[] = 'host_categories';
+
+            $hostCategoriesKeys = [];
+            foreach ($filter->getHostCategoryNames() as $index => $hostCategoryName) {
+                $key = ":host_category_{$index}";
+                $collector->addValue($key, $hostCategoryName, \PDO::PARAM_STR);
+                $hostCategoriesKeys[] = $key;
+            }
+            $hostCategoryPrepareKeys = implode(', ', $hostCategoriesKeys);
+
+            $nextHeaders();
+            $headers .= <<<SQL
+                host_categories AS (
+                    SELECT resources.resource_id
+                    FROM `:dbstg`.`resources` AS resources
+                    INNER JOIN `:dbstg`.`resources_tags` AS rtags
+                        ON rtags.resource_id = resources.resource_id
+                    INNER JOIN `:dbstg`.`tags` AS tags
+                        ON tags.tag_id = rtags.tag_id
+                    WHERE tags.type = 3
+                        AND resources.enabled = 1
+                        AND tags.name IN ({$hostCategoryPrepareKeys})
+                    GROUP BY resources.resource_id
+                    UNION
+                    SELECT resources.resource_id
+                    FROM `:dbstg`.`resources` AS resources
+                    INNER JOIN `:dbstg`.`resources` AS parent_resource
+                        ON parent_resource.id = resources.parent_id
+                    INNER JOIN `:dbstg`.`resources_tags` AS rtags
+                        ON rtags.resource_id = parent_resource.resource_id
+                    INNER JOIN `:dbstg`.`tags` AS tags
+                        ON tags.tag_id = rtags.tag_id
+                    WHERE tags.type = 3
+                        AND tags.name IN ({$hostCategoryPrepareKeys})
+                        AND resources.enabled = 1
+                        AND parent_resource.enabled = 1
+                        AND parent_resource.type = 1
+                    GROUP BY resources.resource_id
+                )
+                SQL;
+        }
+        if ($filter->getServicegroupNames() !== []) {
+            $cteToIntersect[] = 'service_groups';
+
+            $serviceGroupKeys = [];
+            foreach ($filter->getServicegroupNames() as $index => $serviceGroupName) {
+                $key = ":service_group_{$index}";
+                $collector->addValue($key, $serviceGroupName, \PDO::PARAM_STR);
+                $serviceGroupKeys[] = $key;
+            }
+            $serviceGroupPrepareKeys = implode(', ', $serviceGroupKeys);
+            $nextHeaders();
+            $headers .= <<<SQL
+                service_groups AS (
+                    SELECT rtags.resource_id
+                    FROM `:dbstg`.resources_tags AS rtags
+                    INNER JOIN `:dbstg`.tags
+                        ON tags.tag_id = rtags.tag_id
+                    WHERE tags.name IN ({$serviceGroupPrepareKeys})
+                        AND tags.type = 0
+                )
+                SQL;
+        }
+        if ($filter->getServiceCategoryNames() !== []) {
+            $cteToIntersect[] = 'service_categories';
+
+            $serviceCategoryKeys = [];
+            foreach ($filter->getServiceCategoryNames() as $index => $serviceCategoryName) {
+                $key = ":service_category_{$index}";
+                $collector->addValue($key, $serviceCategoryName, \PDO::PARAM_STR);
+                $serviceCategoryKeys[] = $key;
+            }
+            $serviceCategoryPrepareKeys = implode(', ', $serviceCategoryKeys);
+            $nextHeaders();
+            $headers .= <<<SQL
+                service_categories AS (
+                    SELECT rtags.resource_id
+                    FROM `:dbstg`.resources_tags AS rtags
+                    INNER JOIN `:dbstg`.tags
+                        ON tags.tag_id = rtags.tag_id
+                    WHERE tags.name IN ({$serviceCategoryPrepareKeys})
+                        AND tags.type = 2
+                )
+                SQL;
         }
 
-        if (! empty($filter->getServicegroupNames())) {
-            $includeServiceResourceType = true;
-            foreach ($filter->getServicegroupNames() as $serviceGroupName) {
-                $searchedTags[Tag::SERVICE_GROUP_TYPE_ID][] = $serviceGroupName;
-                $searchedTagNames[] = $serviceGroupName;
+        // Regroup all CTEs
+        if ($cteToIntersect !== []) {
+            $headers .= ",\ncte AS (\n";
+            foreach ($cteToIntersect as $index => $cte) {
+                $headers .= $index === 0 ? '' : "\n\tINTERSECT\n";
+                $headers .= "\tSELECT * FROM {$cte}";
             }
+            $headers .= "\n)";
+
+            // Link CTEs to resources
+            $headers .= <<<'SQL'
+                ,
+                resources_cte AS (
+                    SELECT resources.resource_id
+                    FROM `:dbstg`.`resources`
+                    INNER JOIN cte
+                        ON cte.resource_id = resources.resource_id
+                    WHERE resources.enabled = 1
+                    UNION
+                    SELECT resources.resource_id
+                    FROM `:dbstg`.`resources`
+                    INNER JOIN `:dbstg`.`resources` AS parent_resource
+                        ON parent_resource.id = resources.parent_id
+                    INNER JOIN cte
+                        ON cte.resource_id = parent_resource.resource_id
+                    WHERE resources.enabled = 1
+                        AND parent_resource.enabled = 1
+                )
+                SQL;
         }
 
-        if (! empty($filter->getServiceCategoryNames())) {
-            $includeServiceResourceType = true;
-            foreach ($filter->getServiceCategoryNames() as $serviceCategoryName) {
-                $searchedTags[Tag::SERVICE_CATEGORY_TYPE_ID][] = $serviceCategoryName;
-                $searchedTagNames[] = $serviceCategoryName;
-            }
-        }
-
-        if (! empty($filter->getHostCategoryNames())) {
-            $includeHostResourceType = true;
-            foreach ($filter->getHostCategoryNames() as $hostCategoryName) {
-                $searchedTags[Tag::HOST_CATEGORY_TYPE_ID][] = $hostCategoryName;
-                $searchedTagNames[] = $hostCategoryName;
-            }
-        }
-
-        if ($searchedTagNames !== []) {
-            $intersectRequest = '';
-            $index = 1;
-            foreach ($searchedTags as $type => $names) {
-                $tagKeys = [];
-                foreach ($names as $name) {
-                    $key = ":tagName_{$index}";
-                    $index++;
-                    $tagKeys[] = $key;
-                    $collector->addValue($key, $name, \PDO::PARAM_STR);
-                }
-                $literalTagKeys = implode(', ', $tagKeys);
-
-                if ($intersectRequest !== '') {
-                    $intersectRequest .= <<<'SQL'
-
-                        INTERSECT
-                        SQL;
-                }
-
-                if (
-                    $type === Tag::HOST_GROUP_TYPE_ID
-                    || $type === Tag::HOST_CATEGORY_TYPE_ID
-                ) {
-                    $resourceTypeHost = self::RESOURCE_TYPE_HOST;
-                    $intersectRequest .= <<<SQL
-                        SELECT * FROM (
-                            SELECT resources.resource_id
-                            FROM `:dbstg`.`resources` AS resources
-                                INNER JOIN `:dbstg`.`resources_tags` AS rtags
-                                    ON rtags.resource_id = resources.resource_id
-                                INNER JOIN `:dbstg`.`tags` AS tags
-                                    ON tags.tag_id = rtags.tag_id
-                            WHERE tags.type = {$type}
-                                AND tags.name IN ({$literalTagKeys})
-                            GROUP BY resources.resource_id
-                            UNION
-                            SELECT resources.resource_id
-                            FROM `:dbstg`.`resources` AS resources
-                                INNER JOIN `:dbstg`.`resources` AS parent_resource
-                                    ON parent_resource.id = resources.parent_id
-                                    AND parent_resource.type = {$resourceTypeHost}
-                                INNER JOIN `:dbstg`.`resources_tags` AS rtags
-                                    ON rtags.resource_id = parent_resource.resource_id
-                                    AND parent_resource.type = {$resourceTypeHost}
-                                INNER JOIN `:dbstg`.`tags` AS tags
-                                    ON tags.tag_id = rtags.tag_id
-                            WHERE tags.type = {$type}
-                                AND tags.name IN ({$literalTagKeys})
-                            GROUP BY resources.resource_id
-                        ) as t
-                        SQL;
-                } else {
-                    $intersectRequest .= <<<SQL
-                        SELECT rtags.resource_id
-                        FROM `:dbstg`.`resources_tags` AS rtags
-                        INNER JOIN `:dbstg`.`tags` AS tags
-                            ON tags.tag_id = rtags.tag_id
-                        WHERE tags.name IN ({$literalTagKeys})
-                            AND tags.type = {$type}
-                        SQL;
-                }
-            }
-        }
-        return $subRequest;
+        return $headers;
     }
 
     /**
@@ -389,18 +444,17 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     ): string {
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
 
-        $resourceTypeHost = self::RESOURCE_TYPE_HOST;
-        $resourceTags = $this->addResourceTagsSubRequest($filter, $collector);
-        $cteJoin = '';
-        if ($resourceTags !== '') {
-            $cteJoin = <<<'SQL'
-                
-                INNER JOIN sre
-                    ON sres.resource_id = resources.resource_id
-            SQL;
-        }
+        $request = $this->createQueryHeaders($filter, $collector);
 
-        $request = <<<SQL
+        $resourceType = self::RESOURCE_TYPE_HOST;
+
+        $joinCtes = $request === ''
+            ? ''
+            : ' INNER JOIN resources_cte ON resources_cte.resource_id = resources.resource_id ';
+
+
+        $request .= <<<SQL
+            
             SELECT SQL_CALC_FOUND_ROWS DISTINCT
                 1 AS REALTIME,
                 resources.resource_id,
@@ -444,51 +498,18 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                 resources.enabled,
                 resources.icon_id,
                 resources.severity_id
-            FROM `:dbstg`.`resources` AS resources
-            {$cteJoin}
-            LEFT JOIN `:dbstg`.`resources` AS parent_resource
+            FROM `:dbstg`.`resources`
+            INNER JOIN `:dbstg`.`instances`
+                ON `instances`.instance_id = `resources`.poller_id
+            {$joinCtes}
+            LEFT JOIN `:dbstg`.`resources` parent_resource
                 ON parent_resource.id = resources.parent_id
-                AND parent_resource.type = {$resourceTypeHost}
-            LEFT JOIN `:dbstg`.`severities` AS severities
-                ON severities.severity_id = resources.severity_id
+                AND parent_resource.type = {$resourceType}
+            LEFT JOIN `:dbstg`.`severities`
+                ON `severities`.severity_id = `resources`.severity_id
             LEFT JOIN `:dbstg`.`resources_tags` AS rtags
-                ON rtags.resource_id = resources.resource_id
-            INNER JOIN `:dbstg`.`instances` AS instances
-                ON instances.instance_id = resources.poller_id
+                ON `rtags`.resource_id = `resources`.resource_id
             SQL;
-
-        /**
-         * Resource tag filter by name
-         * - servicegroups
-         * - hostgroups
-         * - servicecategories
-         * - hostcategories.
-         */
-        if ($resourceTags !== '') {
-            $request = <<<SQL
-                WITH tag AS (
-                    $resourceTags
-                ),
-                sres AS (
-                    SELECT resources.resource_id
-                    FROM `:dbstg`.`resources`
-                    INNER JOIN tag
-                        ON tag.resource_id = resources.resource_id
-                    WHERE resources.enabled = 1
-                    UNION
-                    SELECT resources.resource_id
-                    FROM `:dbstg`.`resources`
-                    INNER JOIN `:dbstg`.`resources` AS parent_resource
-                        ON parent_resource.id = resources.parent_id
-                    INNER JOIN tag
-                        ON tag.resource_id = resources.resource_id
-                        AND tag.resource_id = parent_resource.resource_id
-                    WHERE resources.enabled = 1
-                        AND parent_resource.type = {$resourceTypeHost}
-                        AND parent_resource.enabled = 1
-                )
-                SQL;
-        }
 
         /**
          * Handle search values.
