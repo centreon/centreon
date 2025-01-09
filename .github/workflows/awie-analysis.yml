@@ -40,11 +40,19 @@ env:
   module: awie
 
 jobs:
+  get-environment:
+    uses: ./.github/workflows/get-environment.yml
+    with:
+      version_file: centreon-awie/www/modules/centreon-awie/conf.php
+
   dispatch-to-maintained-branches:
+    needs: [get-environment]
     if: |
       github.run_attempt == 1 &&
       github.event_name == 'schedule' &&
-      github.ref_name == 'develop'
+      github.ref_name == 'develop' &&
+      needs.get-environment.outputs.skip_workflow == 'false'
+
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout sources
@@ -60,14 +68,9 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  get-environment:
-    uses: ./.github/workflows/get-environment.yml
-    with:
-      version_file: centreon-awie/www/modules/centreon-awie/conf.php
-
   veracode-analysis:
     needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.is_targeting_feature_branch != 'true' && github.event.pull_request.draft != 'true' }}
+    if: ${{ needs.get-environment.outputs.is_targeting_feature_branch != 'true' && github.event.pull_request.draft != 'true' && needs.get-environment.outputs.skip_workflow == 'false' }}
     uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: centreon-awie

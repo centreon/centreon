@@ -18,18 +18,6 @@ const services = {
   }
 };
 
-const checkFirstServiceDepFromListing = () => {
-  cy.waitForElementInIframe('#main-content', 'input[name="searchSD"]');
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); submit(); }"
-    );
-};
-
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
@@ -145,7 +133,7 @@ Then('the properties are updated', () => {
 });
 
 When('the user duplicates a service dependency', () => {
-  checkFirstServiceDepFromListing();
+  cy.checkFirstRowFromListing('searchSD');
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
@@ -196,7 +184,7 @@ Then('the new service dependency has the same properties', () => {
 });
 
 When('the user deletes a service dependency', () => {
-  checkFirstServiceDepFromListing();
+  cy.checkFirstRowFromListing('searchSD');
   cy.getIframeBody().find('select[name="o1"]').select('Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();
