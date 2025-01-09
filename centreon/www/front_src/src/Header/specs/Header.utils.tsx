@@ -16,6 +16,49 @@ import type { PollersIssuesList } from '../api/models';
 import Header from '../index';
 
 import { userPermissionsAtom } from '@centreon/ui-context';
+import navigationAtom from '../../Navigation/navigationAtoms';
+
+const allowedPages = {
+  status: true,
+  result: [
+    {
+      page: '6',
+      label: 'Configuration',
+      menu_id: 'Configuration',
+      url: null,
+      color: '319ED5',
+      icon: 'configuration',
+      children: [
+        {
+          page: '609',
+          label: 'Pollers',
+          url: null,
+          groups: [
+            {
+              label: 'Main Menu',
+              children: [
+                {
+                  page: '60901',
+                  label: 'Pollers',
+                  url: './include/configuration/configServers/servers.php',
+                  options: null,
+                  is_react: false,
+                  show: true
+                }
+              ]
+            }
+          ],
+          options: null,
+          is_react: false,
+          show: true
+        }
+      ],
+      options: null,
+      is_react: false,
+      show: true
+    }
+  ]
+};
 
 export type DeepPartial<Thing> = Thing extends Array<infer InferredArrayMember>
   ? DeepPartialArray<InferredArrayMember>
@@ -198,6 +241,8 @@ export const initialize = (stubs: DeepPartial<Stubs> = {}): unknown => {
     top_counter: true,
     poller_statistics: true
   });
+
+  store.set(navigationAtom, allowedPages);
 
   cy.mount({
     Component: (
