@@ -73,7 +73,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
         {t(labelIsTheSelectedResource)}
       </>
     )
-  ];
+  ].filter(item=>item);
 
   const header = (
     <div className={classes.resourcesHeader}>
@@ -84,7 +84,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
       {isLoadingMetrics && <CircularProgress size={16} />}
     </div>
   );
-
+console.log({warningMessages})
   return (
     <div className={classes.resourcesContainer}>
       {header}
