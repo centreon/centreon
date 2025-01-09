@@ -76,11 +76,12 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
         value={host.port.toString()}
         onChange={changePort}
         label={t(labelPort)}
-        dataTestId={labelPort}
+        // dataTestId={labelPort}
         fullWidth
         error={hostTouched?.port && hostErrors?.port}
         slotProps={{
           htmlInput: {
+            'data-testid':'portInput',
             min: 1,
             max: 65535
           }
