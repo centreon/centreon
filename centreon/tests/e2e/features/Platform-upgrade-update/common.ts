@@ -19,7 +19,7 @@ const getCentreonPreviousMajorVersion = (majorVersionFrom: string): string => {
   let year = match[1];
   let month = match[2];
 
-  if (month === '04') {
+  if (Number(month) <= 4 || Number(month) > 10) {
     year = (Number(year) - 1).toString();
     month = '10';
   } else {
