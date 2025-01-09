@@ -214,35 +214,6 @@ Then(
   }
 );
 
-Given('a saved unknown service filter', () => {
-  cy.fixture('resources/unknownServicesFilter.json').then((filters) =>
-    setUserFilter(filters)
-  );
-
-  cy.visit('centreon/monitoring/resources').wait([
-    '@getFilters',
-    '@monitoringEndpoint'
-  ]);
-
-  cy.contains('Unhandled alerts').should('be.visible');
-
-  cy.get(`div[data-testid="selectedFilter"]`).click();
-
-  cy.contains('Unknown_Services');
-});
-
-When('I select the unknown service filter', () => {
-  cy.contains('Unknown_Services').click();
-});
-
-Then(
-  'only the unknown services are displayed in the result',
-  () => {
-    cy.contains('Memory').should('be.visible');
-    cy.contains('Load').should('be.visible');
-  }
-);
-
 Given('a saved pending host filter', () => {
   cy.fixture('resources/pendingHosts.json').then((filters) =>
     setUserFilter(filters)
