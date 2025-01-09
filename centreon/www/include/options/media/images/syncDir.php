@@ -33,6 +33,8 @@
  *
  */
 
+use enshrined\svgSanitize\Sanitizer;
+
 require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
 
 require_once './class/centreonDB.class.php';
@@ -193,6 +195,7 @@ echo '<b>&nbsp;&nbsp;' . _('Media Detection') . '</b>';
         global $regCounter, $gdCounter;
 
         $mimeTypeFileExtensionConcordance = [
+            "svg" => "image/svg+xml",
             "jpg" => "image/jpeg",
             "jpeg" => "image/jpeg",
             "gif" => "image/gif",
@@ -217,8 +220,12 @@ echo '<b>&nbsp;&nbsp;' . _('Media Detection') . '</b>';
 
         $mimeType = mime_content_type($directoryPath . '/' . $imagePath);
 
-        if (! preg_match('/^image\/(jpg|jpeg|gif|png)$/', $mimeType)) {
+        if (! preg_match('/^image\/(jpg|jpeg|svg\+xml|gif|png)$/', $mimeType)) {
             return;
+        }
+
+        if ($mimeType === "image/svg+xml") {
+            sanitizeSvg($directoryPath, $imagePath);
         }
 
         $statement = $pearDB->prepareQuery(<<<'SQL'
@@ -271,6 +278,18 @@ echo '<b>&nbsp;&nbsp;' . _('Media Detection') . '</b>';
                 throw $ex;
             }
         }
+    }
+
+    /**
+     * @param string $directoryPath
+     * @param string $picture
+     */
+    function sanitizeSvg(string $directoryPath, string $picture): void
+    {
+        $sanitizer = new Sanitizer();
+        $svgFile = file_get_contents($directoryPath . '/' . $picture);
+        $cleanSVG = $sanitizer->sanitize($svgFile);
+        file_put_contents($directoryPath . '/' . $picture, $cleanSVG);
     }
 
     /**
