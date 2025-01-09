@@ -40,6 +40,7 @@ const Port = (): ReactElement => {
         label={t(labelPort)}
         slotProps={{
           htmlInput: {
+            'data-testId':'numberFieldInput',
             min: 1
           }
         }}
