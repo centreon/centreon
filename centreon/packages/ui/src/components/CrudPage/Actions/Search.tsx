@@ -21,8 +21,10 @@ const Search = ({ label, filters }: Props): JSX.Element => {
       dataTestId={label}
       placeholder={label}
       onChange={change}
-      InputProps={{
-        endAdornment: <Filters label="filters" filters={filters} />
+      slotProps={{
+        input: {
+          endAdornment: <Filters label="filters" filters={filters} />
+        }
       }}
     />
   );
