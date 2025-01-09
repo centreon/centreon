@@ -187,7 +187,7 @@ function enablePoolInDB($pool_id = null, $pool_arr = [])
             $statement = $pearDB->prepareQuery(
                 <<<'SQL'
                         UPDATE mod_dsm_pool
-                        SET pool_activate = 1
+                        SET pool_activate = '1'
                         WHERE pool_id = :pool_id
                     SQL
             );
@@ -254,7 +254,7 @@ function disablePoolInDB($pool_id = null, $pool_arr = [])
             $statement = $pearDB->prepareQuery(
                 <<<'SQL'
                         UPDATE mod_dsm_pool
-                        SET pool_activate = 0
+                        SET pool_activate = '0'
                         WHERE pool_id = :pool_id
                     SQL
             );
