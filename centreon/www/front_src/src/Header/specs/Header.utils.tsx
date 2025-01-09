@@ -2,7 +2,12 @@ import '@testing-library/cypress/add-commands';
 import { mergeDeepRight } from 'ramda';
 import { BrowserRouter as Router } from 'react-router';
 
-import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import {
+  Method,
+  SnackbarProvider,
+  TestQueryProvider,
+  ThemeProvider
+} from '@centreon/ui';
 import { Provider, createStore } from 'jotai';
 
 import { retrievedNavigation } from '../../Navigation/mocks';
@@ -16,6 +21,7 @@ import type { PollersIssuesList } from '../api/models';
 import Header from '../index';
 
 import { userPermissionsAtom } from '@centreon/ui-context';
+import { StylesProvider, createGenerateClassName } from '@mui/styles';
 import navigationAtom from '../../Navigation/navigationAtoms';
 
 const allowedPages = {
@@ -244,17 +250,25 @@ export const initialize = (stubs: DeepPartial<Stubs> = {}): unknown => {
 
   store.set(navigationAtom, allowedPages);
 
+  const generateClassName = createGenerateClassName({
+    seed: 'seedName'
+  });
+
   cy.mount({
     Component: (
-      <SnackbarProvider maxSnackbars={2}>
-        <TestQueryProvider>
-          <Provider store={store}>
-            <Router>
-              <Header />
-            </Router>
-          </Provider>
-        </TestQueryProvider>
-      </SnackbarProvider>
+      <TestQueryProvider>
+        <Provider store={store}>
+          <StylesProvider generateClassName={generateClassName}>
+            <ThemeProvider>
+              <SnackbarProvider maxSnackbars={2}>
+                <Router>
+                  <Header />
+                </Router>
+              </SnackbarProvider>
+            </ThemeProvider>
+          </StylesProvider>
+        </Provider>
+      </TestQueryProvider>
     )
   });
 
