@@ -429,10 +429,8 @@ function removeRelationLastServiceDependency(int $serviceId): void
  * Keep this method as service deletion by hostgroup is not supported in APIv2 for the moment.
  *
  * @param array<int, int> $services The list of service IDs to delete (Ids are the keys)
- *
- * @return void
  */
-function deleteServiceInDB(array $services = [])
+function deleteServiceInDB(array $services = []): void
 {
     global $pearDB, $centreon;
 
@@ -3797,7 +3795,7 @@ function deleteServiceTemplateByApi(array $serviceTemplates = []): void
  * @param string $httpMethod
  * @param array<string, mixed> $payload
  *
- * @return int|null
+ * @return int|null Return the newly created ID for POST request, null otherwiseÙ
  */
 function callApi(string $url, string $httpMethod, array $payload): ?int
 {
