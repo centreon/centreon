@@ -41,12 +41,15 @@ if (!isset($centreon)) {
 use App\Kernel;
 Use Centreon\Domain\Log\Logger;
 use Core\ActionLog\Domain\Model\ActionLog;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
-use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Infrastructure\Common\Api\Router;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Utility\Interfaces\UUIDGeneratorInterface;
+use Symfony\Component\HttpClient\CurlHttpClient;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
@@ -420,7 +423,16 @@ function removeRelationLastServiceDependency(int $serviceId): void
     }
 }
 
-function deleteServiceInDB($services = [])
+/**
+ * Delete service in DB
+ *
+ * Keep this method as service deletion by hostgroup is not supported in APIv2 for the moment.
+ *
+ * @param array<int, int> $services The list of service IDs to delete (Ids are the keys)
+ *
+ * @return void
+ */
+function deleteServiceInDB(array $services = [])
 {
     global $pearDB, $centreon;
 
@@ -3722,4 +3734,103 @@ function findHostsOfService(int $serviceId): array
         $hostIds[] = $hostId;
     }
     return $hostIds;
+}
+
+// ------ API Configuration calls --------------------------------------------------------
+
+/**
+ * @param array<int, int> $services The list of service IDs to delete (Ids are the keys)
+ *
+ * @throws Exception
+ */
+function deleteServiceByApi(array $services = []): void
+{
+    global $basePath;
+
+    $serviceIds = array_keys($services);
+    if (empty($serviceIds)) {
+        return;
+    }
+
+    $kernel = Kernel::createForWeb();
+    $router = $kernel->getContainer()->get(Router::class)
+        ?? throw new LogicException('Router not found in container');
+    foreach ($serviceIds as $serviceId) {
+        $url = $router->generate(
+            'DeleteService',
+            ['base_uri' => $basePath, 'serviceId' => $serviceId],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+        callApi($url, 'DELETE', []);
+    }
+}
+
+/**
+ * @param array<int, array> $serviceTemplates The list of service templates to delete (Ids are the keys)
+ *
+ * @throws Exception
+ */
+function deleteServiceTemplateByApi(array $serviceTemplates = []): void
+{
+    global $basePath;
+
+    $serviceTemplateIds = array_keys($serviceTemplates);
+    if (empty($serviceTemplateIds)) {
+        return;
+    }
+
+    $kernel = Kernel::createForWeb();
+    $router = $kernel->getContainer()->get(Router::class)
+        ?? throw new LogicException('Router not found in container');
+    foreach ($serviceTemplateIds as $serviceTemplateId) {
+        $url = $router->generate(
+            'DeleteServiceTemplate',
+            ['base_uri' => $basePath, 'serviceTemplateId' => $serviceTemplateId],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+        callApi($url, 'DELETE', []);
+    }
+}
+
+/**
+ * @param string $url
+ * @param string $httpMethod
+ * @param array<string, mixed> $payload
+ *
+ * @return int|null
+ */
+function callApi(string $url, string $httpMethod, array $payload): ?int
+{
+    $client = new CurlHttpClient();
+    $response = $client->request(
+        $httpMethod,
+        $url,
+        [
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
+            ],
+            'body' => json_encode($payload)
+        ]
+    );
+
+    $status = $response->getStatusCode();
+    if ($httpMethod === 'POST') {
+        if ($status !== 201) {
+            $content = json_decode($response->getContent(false));
+            throw new Exception($content->message ?? 'Unexpected return status: ' . $status);
+        }
+
+        $data = $response->toArray();
+
+        /** @var array{id:int} $data */
+        return $data['id'];
+    }
+
+    if ($status !== 204 && $status !== 200) {
+        $content = json_decode($response->getContent(false));
+        throw new Exception($content->message ?? 'Unexpected return status: ' . $status);
+    }
+
+    return null;
 }
