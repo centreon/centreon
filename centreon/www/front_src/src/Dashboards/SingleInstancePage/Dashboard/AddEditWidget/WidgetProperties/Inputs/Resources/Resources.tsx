@@ -133,9 +133,6 @@ const Resources = ({
                 <SingleConnectedAutocompleteField
                   exclusionOptionProperty="name"
                   changeIdValue={changeIdValue(resource.resourceType)}
-                  chipProps={{
-                    color: 'primary'
-                  }}
                   className={classes.resources}
                   disableClearable={singleResourceSelection}
                   disabled={
