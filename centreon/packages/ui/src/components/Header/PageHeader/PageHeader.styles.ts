@@ -9,8 +9,8 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'row',
     h1: {
-      font: 'normal normal 600 24px/24px Roboto',
-      letterSpacing: '0.18px',
+      ...theme.typography.h5,
+      fontWeight: theme.typography.fontWeightMedium,
       margin: theme.spacing(0, 0, 1.5, 0)
     },
     justifyContent: 'space-between',
@@ -27,8 +27,7 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     borderBottom: `1px solid ${theme.palette.header.page.border}`,
     display: 'flex',
-    gap: theme.spacing(4),
-    paddingBottom: theme.spacing(1.5)
+    gap: theme.spacing(4)
   },
   pageHeaderActions: {
     '& > button': {
@@ -47,13 +46,15 @@ const useStyles = makeStyles()((theme) => ({
   pageHeaderMain: {
     display: 'flex',
     flexGrow: 1,
-    gap: theme.spacing(1)
+    gap: theme.spacing(1),
+    height: theme.spacing(4.5)
   },
   pageHeaderMenu: {
     alignItems: 'flex-start',
     display: 'flex',
     position: 'relative',
-    transform: `translateY(-${theme.spacing(0.25)})`
+    transform: `translateY(-${theme.spacing(0.25)})`,
+    alignSelf: 'flex-end'
   },
   pageHeaderMessage: {
     alignItems: 'center',
@@ -91,15 +92,12 @@ const useStyles = makeStyles()((theme) => ({
       gap: theme.spacing(2)
     },
     display: 'flex',
-
     flexDirection: 'column',
-
     gap: theme.spacing(1),
-
+    alignSelf: 'flex-start',
     h1: {
-      color: theme.palette.header.page.title,
-      font: 'normal normal 700 24px/100% Roboto',
-      letterSpacing: '0.15px',
+      ...theme.typography.h5,
+      fontWeight: theme.typography.fontWeightMedium,
       margin: theme.spacing(0)
     }
   },
