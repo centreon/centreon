@@ -44,6 +44,6 @@
   timespec: "* * * * *"
   action: COMMAND
   parameters:
-    - command: "/usr/bin/php /usr/share/centreon/cron/outdated-token-removal.php >> /var/log/centreon/centreon-tokens.log 2>&1"
+    - command: "/usr/bin/php /usr/share/centreon/cron/outdated-token-removal.php >> /var/log/centreon-gorgone/centreon-tokens.log 2>&1"
       timeout: 60
   keep_token: true
