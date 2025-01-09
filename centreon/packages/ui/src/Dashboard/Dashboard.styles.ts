@@ -89,10 +89,10 @@ export const useDashboardItemStyles = makeStyles<{ hasHeader: boolean }>()(
       '&:hover': {
         backgroundColor: theme.palette.action.hover
       },
-      '&[data-canMove="false"]': {
+      '&[data-can-move="false"]': {
         cursor: 'default'
       },
-      '&[data-canMove="true"]': {
+      '&[data-can-move="true"]': {
         cursor: 'move'
       },
       padding: theme.spacing(0, 1.5),

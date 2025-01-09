@@ -33,8 +33,7 @@ const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
   const { showSuccessMessage } = useSnackbar();
   const [isPending, startTransition] = useTransition();
   const [color, setColor] = useState('');
-  const [title, setTitle ]= useState('');
-
+  const [title, setTitle] = useState('');
 
   const getEndpoint = (data: FavoriteEndpoint) => {
     if (data?.dashboardId) {
@@ -50,14 +49,14 @@ const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
 
   const onError = () => {
     const previousColor = isFavorite ? 'success' : 'default';
-    const previousTitle =   getLabel({
+    const previousTitle = getLabel({
       setLabel: labelAddToFavorites,
       unsetLabel: labelRemoveFromFavorites,
       asFavorite: isFavorite
     });
 
     setColor(previousColor);
-    setTitle(previousTitle)
+    setTitle(previousTitle);
   };
 
   const { mutateAsync } = useMutationQuery({
@@ -78,12 +77,12 @@ const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
   const handleFavorites = () => {
     const expectedColor = isFavorite ? 'default' : 'success';
 
-    const expectedTitle =  getLabel({
+    const expectedTitle = getLabel({
       setLabel: labelRemoveFromFavorites,
       unsetLabel: labelAddToFavorites,
       asFavorite: isFavorite
-    })
-    setTitle(expectedTitle)
+    });
+    setTitle(expectedTitle);
 
     setColor(expectedColor);
 
@@ -111,7 +110,6 @@ const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
   });
 
   const defaultColor = isFavorite ? 'success' : 'default';
-
 
   return (
     <IconButton

@@ -8,7 +8,6 @@ import {
 } from '../../../../atoms';
 import {
   labelDashboardGlobalInterval,
-  labelInterval,
   labelRefreshInterval
 } from '../../../../translatedLabels';
 

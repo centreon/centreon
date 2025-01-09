@@ -81,7 +81,7 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
         error={hostTouched?.port && hostErrors?.port}
         slotProps={{
           htmlInput: {
-            'data-testid':'portInput',
+            'data-testid': 'portInput',
             min: 1,
             max: 65535
           }

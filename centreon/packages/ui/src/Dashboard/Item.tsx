@@ -102,7 +102,7 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
             data-padding={!disablePadding}
           >
             {header && (
-              <div className={classes.widgetHeader} data-canMove={canMove}>
+              <div className={classes.widgetHeader} data-can-move={canMove}>
                 {canMove && (
                   <div
                     {...listeners}
