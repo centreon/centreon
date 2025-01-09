@@ -18,6 +18,7 @@ import { ForwardedRef, HTMLAttributes, ReactElement, forwardRef } from 'react';
 import { SelectEntry } from '..';
 import { getNormalizedId } from '../../../utils';
 import TextField from '../../Text';
+import { SlotPropsTextField } from '../../Text/models';
 import { searchLabel } from '../../translatedLabels';
 import Option from '../Option';
 
@@ -39,6 +40,7 @@ export type Props = {
   placeholder?: string | undefined;
   required?: boolean;
   forceInputRenderValue?: boolean;
+  slotProps?: SlotPropsTextField;
 } & Omit<
   AutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>,
   'renderInput'
@@ -163,6 +165,7 @@ const AutocompleteField = forwardRef(
       autoSizeCustomPadding,
       getOptionItemLabel = (option) => option?.name,
       forceInputRenderValue = false,
+      slotProps,
       ...autocompleteProps
     }: Props,
     ref?: ForwardedRef<HTMLDivElement>
@@ -184,33 +187,6 @@ const AutocompleteField = forwardRef(
       return (
         <TextField
           {...params}
-          InputLabelProps={{
-            classes: {
-              marginDense: classes.inputLabel,
-              shrink: classes.inputLabelShrink
-            }
-          }}
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: (
-              <>
-                {endAdornment && (
-                  <InputAdornment position="end">{endAdornment}</InputAdornment>
-                )}
-                {params.InputProps.endAdornment}
-              </>
-            ),
-            style: {
-              background: 'transparent',
-              minWidth: 0,
-              padding: theme.spacing(
-                0.75,
-                isEmpty(placeholder) ? 0 : 5,
-                0.75,
-                0.75
-              )
-            }
-          }}
           autoFocus={autoFocus}
           autoSize={autoSize}
           autoSizeCustomPadding={7 + (autoSizeCustomPadding || 0)}
@@ -220,20 +196,6 @@ const AutocompleteField = forwardRef(
           }}
           error={error}
           externalValueForAutoSize={autocompleteProps?.value?.name}
-          inputProps={{
-            ...params.inputProps,
-            'aria-label': label,
-            'data-testid': dataTestId || label,
-            id: getNormalizedId(label || ''),
-            ...(forceInputRenderValue
-              ? {
-                  value: getOptionItemLabel(
-                    autocompleteProps?.value || undefined
-                  )
-                }
-              : {}),
-            ...autocompleteProps?.inputProps
-          }}
           label={label}
           placeholder={isNil(placeholder) ? t(searchLabel) : placeholder}
           required={required}
@@ -245,6 +207,51 @@ const AutocompleteField = forwardRef(
             undefined
           }
           onChange={onTextChange}
+          slotProps={{
+            input: {
+              ...params.InputProps,
+              endAdornment: (
+                <>
+                  {endAdornment && (
+                    <InputAdornment position="end">
+                      {endAdornment}
+                    </InputAdornment>
+                  )}
+                  {params.InputProps.endAdornment}
+                </>
+              ),
+              style: {
+                background: 'transparent',
+                minWidth: 0,
+                padding: theme.spacing(
+                  0.75,
+                  isEmpty(placeholder) ? 0 : 5,
+                  0.75,
+                  0.75
+                )
+              }
+            },
+            inputLabel: {
+              classes: {
+                marginDense: classes.inputLabel,
+                shrink: classes.inputLabelShrink
+              }
+            },
+            htmlInput: {
+              ...params.inputProps,
+              'aria-label': label,
+              'data-testid': dataTestId || label,
+              id: getNormalizedId(label || ''),
+              ...(forceInputRenderValue
+                ? {
+                    value: getOptionItemLabel(
+                      autocompleteProps?.value || undefined
+                    )
+                  }
+                : {}),
+              ...slotProps?.htmlInput
+            }
+          }}
         />
       );
     };
@@ -286,6 +293,7 @@ const AutocompleteField = forwardRef(
           );
         }}
         size="small"
+        slotProps={slotProps}
         {...autocompleteProps}
       />
     );

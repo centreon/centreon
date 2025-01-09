@@ -31,7 +31,7 @@ const NumberField = ({
     defaultValue ? `${defaultValue}` : ''
   );
 
-  const { inputProps } = props;
+  const { slotProps } = props;
 
   const changeValue = (event: ChangeEvent<HTMLInputElement>): void => {
     const inputValue = event.target.value;
@@ -44,8 +44,8 @@ const NumberField = ({
         T,
         always(
           clamp(
-            inputProps?.min || Number.NEGATIVE_INFINITY,
-            inputProps?.max || Number.POSITIVE_INFINITY,
+            slotProps?.htmlInput?.min || Number.NEGATIVE_INFINITY,
+            slotProps?.htmlInput?.max || Number.POSITIVE_INFINITY,
             number
           )
         )
@@ -64,7 +64,7 @@ const NumberField = ({
       value={actualValue}
       onChange={changeValue}
       {...props}
-      inputProps={inputProps}
+      slotProps={{ htmlInput: { ...slotProps?.htmlInput } }}
       placeholder={
         placeholder || (!defaultValue ? `${fallbackValue}` : undefined)
       }

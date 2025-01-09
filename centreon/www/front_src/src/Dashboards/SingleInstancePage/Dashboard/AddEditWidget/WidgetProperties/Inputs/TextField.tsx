@@ -79,11 +79,13 @@ const WidgetTextField = ({
         disabled={!canEditField || disabled}
         error={isTouched && error}
         helperText={isTouched && error}
-        inputProps={{
-          'aria-label': t(label) as string,
-          max: text?.max,
-          min: text?.min,
-          step: text?.step || '1'
+        slotProps={{
+          htmlInput: {
+            'aria-label': t(label) as string,
+            max: text?.max,
+            min: text?.min,
+            step: text?.step || '1'
+          }
         }}
         label={t(label) || ''}
         multiline={text?.multiline || false}

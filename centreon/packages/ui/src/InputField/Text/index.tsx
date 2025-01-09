@@ -15,6 +15,7 @@ import {
 
 import { getNormalizedId } from '../../utils';
 
+import { SlotPropsTextField } from './models';
 import useAutoSize from './useAutoSize';
 
 const useStyles = makeStyles()((theme: Theme) => ({
@@ -95,6 +96,7 @@ export type TextProps = {
   size?: SizeVariant;
   transparent?: boolean;
   value?: string;
+  slotProps?: SlotPropsTextField;
 } & Omit<TextFieldProps, 'variant' | 'size' | 'error'>;
 
 const TextField = forwardRef(
@@ -119,6 +121,7 @@ const TextField = forwardRef(
       required = false,
       containerClassName,
       type,
+      slotProps,
       ...rest
     }: TextProps,
     ref: React.ForwardedRef<HTMLDivElement>
@@ -159,50 +162,11 @@ const TextField = forwardRef(
             error={!isNil(error)}
             helperText={displayErrorInTooltip ? undefined : error}
             id={getNormalizedId(dataTestId || '')}
-            inputProps={{
-              'aria-label': ariaLabel,
-              'data-testid': dataTestId,
-              ...rest.inputProps
-            }}
             label={label}
             ref={ref}
             size={size || 'small'}
             onChange={changeInputValue}
             {...getValueProps()}
-            {...rest}
-            InputLabelProps={{
-              classes: {
-                root: cx(equals(size, 'compact') && classes.compactLabel),
-                shrink: cx(
-                  equals(size, 'compact') && classes.compactLabelShrink
-                )
-              }
-            }}
-            InputProps={{
-              className: cx(
-                classes.inputBase,
-                {
-                  [classes.transparent]: transparent,
-                  [classes.autoSizeCompact]: autoSize && equals(size, 'compact')
-                },
-                className
-              ),
-              endAdornment: (
-                <OptionalLabelInputAdornment label={label} position="end">
-                  {EndAdornment ? (
-                    <EndAdornment />
-                  ) : (
-                    rest.InputProps?.endAdornment
-                  )}
-                </OptionalLabelInputAdornment>
-              ),
-              startAdornment: StartAdornment && (
-                <OptionalLabelInputAdornment label={label} position="start">
-                  <StartAdornment />
-                </OptionalLabelInputAdornment>
-              ),
-              ...rest.InputProps
-            }}
             className={classes.textField}
             required={required}
             sx={{
@@ -210,6 +174,48 @@ const TextField = forwardRef(
               ...rest?.sx
             }}
             type={type}
+            slotProps={{
+              input: {
+                className: cx(
+                  classes.inputBase,
+                  {
+                    [classes.transparent]: transparent,
+                    [classes.autoSizeCompact]:
+                      autoSize && equals(size, 'compact')
+                  },
+                  className
+                ),
+                endAdornment: (
+                  <OptionalLabelInputAdornment label={label} position="end">
+                    {EndAdornment ? (
+                      <EndAdornment />
+                    ) : (
+                      slotProps?.input?.endAdornment
+                    )}
+                  </OptionalLabelInputAdornment>
+                ),
+                startAdornment: StartAdornment && (
+                  <OptionalLabelInputAdornment label={label} position="start">
+                    <StartAdornment />
+                  </OptionalLabelInputAdornment>
+                ),
+                ...slotProps?.input
+              },
+              inputLabel: {
+                classes: {
+                  root: cx(equals(size, 'compact') && classes.compactLabel),
+                  shrink: cx(
+                    equals(size, 'compact') && classes.compactLabelShrink
+                  )
+                }
+              },
+              htmlInput: {
+                'aria-label': ariaLabel,
+                'data-testid': dataTestId,
+                ...slotProps?.htmlInput
+              }
+            }}
+            {...rest}
           />
         </Tooltip>
         {autoSize && (

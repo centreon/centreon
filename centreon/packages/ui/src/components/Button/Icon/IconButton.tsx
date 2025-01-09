@@ -32,7 +32,7 @@ type IconButtonProps = {
 /**
  * @todo re-factor as `iconVariant: 'icon-only'` Button variant, and remove IconButton component (reason: code duplication)
  */
-const IconButton = forwardRef<HTMLButtonElement,IconButtonProps>(
+const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
   (
     {
       variant = 'primary',

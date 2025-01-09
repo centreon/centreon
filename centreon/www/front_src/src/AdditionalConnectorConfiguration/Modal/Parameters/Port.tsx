@@ -38,8 +38,10 @@ const Port = (): ReactElement => {
         dataTestId={`${labelPort}_value`}
         error={error as string}
         label={t(labelPort)}
-        inputProps={{
-          min: 1
+        slotProps={{
+          htmlInput: {
+            min: 1
+          }
         }}
         name="port"
         value={value?.toString()}

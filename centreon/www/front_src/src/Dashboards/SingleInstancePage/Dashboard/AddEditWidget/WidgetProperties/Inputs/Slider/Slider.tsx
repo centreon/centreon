@@ -51,10 +51,12 @@ const Slider = ({
             containerClassName={classes.field}
             dataTestId="slider-input"
             disabled={!canEditField}
-            inputProps={{
-              'aria-label': `slider-${propertyName}-input`,
-              max: slider?.max || 100,
-              min: slider?.min || 0
+            slotProps={{
+              htmlInput: {
+                'aria-label': `slider-${propertyName}-input`,
+                max: slider?.max || 100,
+                min: slider?.min || 0
+              }
             }}
             size="compact"
             value={value?.toString()}

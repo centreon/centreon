@@ -80,7 +80,7 @@ const DateFilter = ({ label, dataDate, property }: Props): JSX.Element => {
         disableClearable={false}
         getOptionItemLabel={(option) => option?.name}
         id={label.trim()}
-        inputProps={{ value: currentValue?.name ?? '' }}
+        slotProps={{ htmlInput: { value: currentValue?.name ?? '' } }}
         label={t(label)}
         options={data}
         value={currentValue}
