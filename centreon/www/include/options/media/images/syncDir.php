@@ -61,7 +61,6 @@ if (isset($sid)) {
 $dir = './img/media/';
 
 $rejectedDir = ['.' => 1, '..' => 1];
-$allowedExt = ['jpg' => 1, 'jpeg' => 1, 'png' => 1, 'gif' => 1, 'gd2' => 1];
 
 $dirCreated = 0;
 $regCounter = 0;
@@ -191,19 +190,35 @@ echo '<b>&nbsp;&nbsp;' . _('Media Detection') . '</b>';
             int $directoryId,
             CentreonDB $pearDB
     ): void {
-        global $allowedExt, $regCounter, $gdCounter;
+        global $regCounter, $gdCounter;
+
+        $mimeTypeFileExtensionConcordance = [
+            "jpg" => "image/jpeg",
+            "jpeg" => "image/jpeg",
+            "gif" => "image/gif",
+            "png" => "image/png",
+            "gd2" => "",
+        ];
+
         [$filename, $extension] = extractFileInfo($imagePath);
+
         if ($filename === '') {
             return;
         }
 
-        if (! isset($allowedExt[$extension])) {
+        if (! array_key_exists(strtolower($extension), $mimeTypeFileExtensionConcordance)) {
             return;
         }
 
         if ($extension === 'gd2' && ! is_file($filename . '.png')) {
             convertGd2ToPng($directoryPath, $imagePath);
             $gdCounter++;
+        }
+
+        $mimeType = mime_content_type($directoryPath . '/' . $imagePath);
+
+        if (! preg_match('/^image\/(jpg|jpeg|gif|png)$/', $mimeType)) {
+            return;
         }
 
         $statement = $pearDB->prepareQuery(<<<'SQL'
@@ -215,6 +230,7 @@ echo '<b>&nbsp;&nbsp;' . _('Media Detection') . '</b>';
                 AND idr.dir_dir_parent_id = :parent_id
             SQL
         );
+
         $pearDB->executePreparedQuery(
             $statement,
             [
