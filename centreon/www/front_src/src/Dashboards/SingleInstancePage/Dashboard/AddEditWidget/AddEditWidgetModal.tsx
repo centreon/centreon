@@ -95,8 +95,8 @@ const AddWidgetModal = (): JSX.Element | null => {
           size="fullscreen"
           onClose={() => askBeforeCloseModal(dirty)}
         >
-          <Modal.Header>
-            <Title>{t(getTitle())}</Title>
+          <Modal.Header variant="h6">
+            {t(getTitle())}
           </Modal.Header>
           <>
             <Modal.Body>
