@@ -61,8 +61,8 @@ const useResourceCounters: UseRessourceCounters = ({
   const applyFilter = useSetAtom(applyFilterDerivedAtom);
 
   const isAllowed = useMemo(
-    () => userPermissions?.['top-counter'] || false,
-    [userPermissions?.['top-counter']]
+    () => userPermissions?.top_counter || false,
+    [userPermissions?.top_counter]
   );
 
   const { isLoading, data } = useFetchQuery({
