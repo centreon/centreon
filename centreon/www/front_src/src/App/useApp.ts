@@ -143,9 +143,7 @@ const useApp = (): UseAppState => {
     getUserPermissions({
       endpoint: userPermissionsEndpoint
     })
-      .then((userPermissions) => {
-        setUserPermissions(userPermissions);
-      })
+      .then(setUserPermission)
       .catch((error) => {
         if (pathEq(401, ['response', 'status'])(error)) {
           logout();
