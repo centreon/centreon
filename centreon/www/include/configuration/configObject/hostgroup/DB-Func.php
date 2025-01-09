@@ -149,138 +149,223 @@ function disableHostGroupInDB($hg_id = null, $hg_arr = [])
 
 /**
  * @param int $hgId
+ *
+ * @throws CentreonDbException
  */
 function removeRelationLastHostgroupDependency(int $hgId): void
 {
     global $pearDB;
 
-    $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
-              FROM dependency_hostgroupParent_relation
-              WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_hostgroupParent_relation
-                                         WHERE hostgroup_hg_id =  ' . $hgId . ')
-              GROUP BY dependency_dep_id';
-    $dbResult = $pearDB->query($query);
-    $result = $dbResult->fetch();
+    try {
+        $query = <<<'SQL'
+                SELECT COUNT(dependency_dep_id) AS nb_dependency, dependency_dep_id AS id
+                FROM dependency_hostgroupParent_relation dhr1
+                WHERE dependency_dep_id IN (
+                    SELECT dependency_dep_id
+                    FROM dependency_hostgroupParent_relation
+                    WHERE hostgroup_hg_id = :hgId
+                )
+                GROUP BY dependency_dep_id
+            SQL;
 
-    //is last parent
-    if (isset($result['nb_dependency']) && $result['nb_dependency'] == 1) {
-        $pearDB->query("DELETE FROM dependency WHERE dep_id = " . $result['id']);
+        $statement = $pearDB->prepare($query);
+        $statement->bindValue(":hgId", (int) $hgId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        //if last parent delete dependency
+        while ($result = $statement->fetch()) {
+            if (isset($result['nb_dependency']) && $result['nb_dependency'] === 1) {
+                $deleteDependencyQuery =
+                    <<<'SQL'
+                        DELETE FROM dependency
+                        WHERE dep_id = :depId
+                    SQL;
+
+                $deleteDependencyStatement = $pearDB->prepare($deleteDependencyQuery);
+                $deleteDependencyStatement->bindValue(":depId", (int) $result['id'], \PDO::PARAM_INT);
+                $deleteDependencyStatement->execute(['depId' => $result['id']]);
+            }
+        }
+    } catch (CentreonDbException $ex) {
+        CentreonLog::create()->error(
+            CentreonLog::LEVEL_ERROR,
+            'Error while removing host group dependencies: ' . $ex->getMessage(),
+            ['host_group_id' => $hgId],
+            $ex
+        );
+
+        throw $ex;
     }
 }
 
-function deleteHostGroupInDB(bool $isCloudPlatform, array $hostGroups = [])
+/**
+ * Deletes a host group and its relations from the database.
+ *
+ * @param boolean $isCloudPlatform
+ * @param array $hostGroups
+ *
+ * @return void
+ */
+function deleteHostGroupInApi(bool $isCloudPlatform, array $hostGroups = []): void
 {
-    global $pearDB, $centreon;
+    global $basePath, $centreon;
 
-    foreach (array_keys($hostGroups) as $hostgroupId) {
-        $previousPollerIds = getPollersForConfigChangeFlagFromHostgroupId((int) $hostgroupId);
-
-        removeRelationLastHostgroupDependency((int) $hostgroupId);
-        $rq = <<<'SQL'
-            SELECT @nbr := (
-                SELECT COUNT( * )
-                FROM host_service_relation
-                WHERE service_service_id = hsr.service_service_id
-                GROUP BY service_service_id
-            ) AS nbr,
-                hsr.service_service_id
-            FROM host_service_relation hsr
-            WHERE hsr.hostgroup_hg_id = :hostgroup_id
-            SQL;
-        $stmt= $pearDB->prepare($rq);
-        $stmt->bindValue(":hostgroup_id", (int) $hostgroupId, \PDO::PARAM_INT);
-        $stmt->execute();
-
-        $statement = $pearDB->prepare("DELETE FROM service WHERE service_id = :service_id");
-        while ($row = $stmt->fetch()) {
-            if ($row["nbr"] == 1) {
-                $statement->bindValue(':service_id', (int) $row["service_service_id"], \PDO::PARAM_INT);
-                $statement->execute();
+    try {
+        foreach (array_keys($hostGroups) as $hostGroupId) {
+            $previousPollerIds = getPollersForConfigChangeFlagFromHostgroupId((int) $hostGroupId);
+            // Delete orphaned dependencies
+            removeRelationLastHostgroupDependency((int) $hostGroupId);
+            // Delete orphaned services
+            deleteOrphanedServices((int) $hostGroupId);
+            if ($isCloudPlatform) {
+                deleteHostGroupFromDatasetFilters((int) $hostGroupId);
             }
+
+            deleteHostGroupByApi((int) $hostGroupId, $basePath);
+
+            signalConfigurationChange('hostgroup', (int) $hostGroupId, $previousPollerIds);
         }
-
-        $statement = $pearDB->prepare(
-            <<<'SQL'
-                SELECT hg_name
-                FROM hostgroup
-                WHERE hg_id = :hostgroup_id
-                LIMIT 1
-                SQL
+        $centreon->user->access->updateACL();
+    } catch (\Throwable $throwable) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error while deleting hostgroup by API : {$throwable->getMessage()}",
+            customContext: ['hostgroups' => $hostGroups, 'basePath' => $basePath],
+            exception: $throwable
         );
-        $statement->bindValue(':hostgroup_id', (int) $hostgroupId, \PDO::PARAM_INT);
-        $statement->execute();
-        $row = $statement->fetch();
 
-        if ($isCloudPlatform) {
-            if ($pearDB->beginTransaction()) {
-                try {
-                    $stmt = $pearDB->prepare(
-                        <<<'SQL'
-                            SELECT * FROM dataset_filters
-                            INNER JOIN acl_resources_hg_relations arhr
-                                ON arhr.acl_res_id = dataset_filters.acl_resource_id
-                            WHERE hg_hg_id = :hostgroup_id
-                            SQL
-                    );
-                    $stmt->bindValue(':hostgroup_id', (int) $hostgroupId, \PDO::PARAM_INT);
-                    $stmt->execute();
+        return;
+    }
+}
 
-                    while ($datasetFilter = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-                        $resourceIds = explode(',', $datasetFilter['resource_ids']);
-                        $updatedResourcesIds = array_filter(
-                            $resourceIds,
-                            fn ($id) => trim($id) !== (string) $hostgroupId
-                        );
-                        $resourcesIdsAsString = implode(',', $updatedResourcesIds);
-                        if (! empty($resourcesIdsAsString)) {
-                            $stmt = $pearDB->prepare(
-                                <<<'SQL'
-                                    UPDATE dataset_filters
-                                    SET resource_ids = :resource_ids
-                                    WHERE id = :id
-                                    SQL
-                            );
-                            $stmt->bindValue(':resource_ids', $resourcesIdsAsString, \PDO::PARAM_STR);
-                            $stmt->bindValue(':id', (int) $datasetFilter['id'], \PDO::PARAM_INT);
+/**
+ * Calls API to delete a hostgroup.
+ *
+ * @param int $hostGroupId
+ * @param string $basePath
+ *
+ * @return void
+ */
+function deleteHostGroupByApi(int $hostGroupId, string $basePath): void
+{
+    $kernel = Kernel::createForWeb();
+    $router = $kernel->getContainer()->get(Router::class) ?? throw new LogicException('Router not found in container');
+    $url = $router->generate(
+        'DeleteHostGroup',
+        $basePath ? ['base_uri' => $basePath, 'hostGroupId' => $hostGroupId] : [],
+        UrlGeneratorInterface::ABSOLUTE_URL,
+    );
 
-                            $stmt->execute();
-                        } else {
-                            $stmt = $pearDB->prepare(
-                                <<<'SQL'
-                                    DELETE FROM dataset_filters
-                                    WHERE id = :id
-                                    SQL
-                            );
-                            $stmt->bindValue(':id', (int) $datasetFilter['id'], \PDO::PARAM_INT);
+    $response = callApi($url, 'DELETE', []);
 
-                            $stmt->execute();
-                        }
-                    }
-                    $pearDB->commit();
-                } catch (\Throwable $exception) {
-                    $pearDB->rollBack();
-                    throw $exception;
-                }
-            }
-        }
+    if ($response['status_code'] !== 204) {
+        $message = $response['content']['message'] ?? 'Unknown error';
 
-        $statement = $pearDB->prepare(
-            <<<'SQL'
-                DELETE FROM hostgroup WHERE hg_id = :hostgroup_id
-                SQL
-        );
-        $statement->bindValue(':hostgroup_id', (int) $hostgroupId, \PDO::PARAM_INT);
-        $statement->execute();
-
-        signalConfigurationChange('hostgroup', (int) $hostgroupId, $previousPollerIds);
-        $centreon->CentreonLogAction->insertLog(
-            object_type: ActionLog::OBJECT_TYPE_HOSTGROUP,
-            object_id: $hostgroupId,
-            object_name: $row['hg_name'],
-            action_type: ActionLog::ACTION_TYPE_DELETE
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error while deleting hostgroup by API : {$message}",
+            customContext: ['hostGroupId' => $hostGroupId],
         );
     }
-    $centreon->user->access->updateACL();
+}
+
+/**
+ * Checks if a service is used by other hostgroups, and if not, deletes it.
+ *
+ * @param int $hostgroupId
+ *
+ */
+function deleteOrphanedServices(int $hostgroupId): void
+{
+    global $pearDB;
+
+    $query =  <<<'SQL'
+        SELECT @nbr := (
+            SELECT COUNT( * )
+            FROM host_service_relation
+            WHERE service_service_id = hsr.service_service_id
+            GROUP BY service_service_id
+        ) AS nbr,
+            hsr.service_service_id
+        FROM host_service_relation hsr
+        WHERE hsr.hostgroup_hg_id = :hostgroup_id
+        SQL;
+
+    $findStatement= $pearDB->prepare($query);
+    $findStatement->bindValue(":hostgroup_id", (int) $hostgroupId, \PDO::PARAM_INT);
+    $findStatement->execute();
+
+    $deleteStatement = $pearDB->prepare("DELETE FROM service WHERE service_id = :service_id");
+
+    while ($row = $findStatement->fetch()) {
+        if ($row["nbr"] == 1) {
+            $deleteStatement->bindValue(':service_id', (int) $row["service_service_id"], \PDO::PARAM_INT);
+            $deleteStatement->execute();
+        }
+    }
+}
+
+/**
+ * Deletes hostgroup references from dataset filters and cleans up empty filters.
+ *
+ * @param int $hostGroupId
+ *
+ * @return void
+ */
+function deleteHostGroupFromDatasetFilters(int $hostGroupId): void
+{
+    global $pearDB;
+
+    if ($pearDB->beginTransaction()) {
+        try {
+            $statement = $pearDB->prepare(
+                <<<'SQL'
+                    SELECT * FROM dataset_filters
+                    INNER JOIN acl_resources_hg_relations arhr
+                        ON arhr.acl_res_id = dataset_filters.acl_resource_id
+                    WHERE hg_hg_id = :hostgroup_id
+                    SQL
+            );
+            $statement->bindValue(':hostgroup_id', (int) $hostGroupId, \PDO::PARAM_INT);
+            $statement->execute();
+
+            while ($datasetFilter = $statement->fetch(\PDO::FETCH_ASSOC)) {
+                $resourceIds = explode(',', $datasetFilter['resource_ids']);
+                $updatedResourcesIds = array_filter(
+                    $resourceIds,
+                    fn ($id) => trim($id) !== (string) $hostGroupId
+                );
+                $resourcesIdsAsString = implode(',', $updatedResourcesIds);
+                if (! empty($resourcesIdsAsString)) {
+                    $statement = $pearDB->prepare(
+                        <<<'SQL'
+                            UPDATE dataset_filters
+                            SET resource_ids = :resource_ids
+                            WHERE id = :id
+                            SQL
+                    );
+                    $statement->bindValue(':resource_ids', $resourcesIdsAsString, \PDO::PARAM_STR);
+                    $statement->bindValue(':id', (int) $datasetFilter['id'], \PDO::PARAM_INT);
+
+                    $statement->execute();
+                } else {
+                    $statement = $pearDB->prepare(
+                        <<<'SQL'
+                            DELETE FROM dataset_filters
+                            WHERE id = :id
+                            SQL
+                    );
+                    $statement->bindValue(':id', (int) $datasetFilter['id'], \PDO::PARAM_INT);
+
+                    $statement->execute();
+                }
+            }
+            $pearDB->commit();
+        } catch (\Throwable $exception) {
+            $pearDB->rollBack();
+            throw $exception;
+        }
+    }
 }
 
 function multipleHostGroupInDB($hostGroups = [], $nbrDup = [])
@@ -1060,7 +1145,9 @@ function insertHostGroupByApi(array $formData, bool $isCloudPlatform, string $ba
         UrlGeneratorInterface::ABSOLUTE_URL,
     );
 
-    return callApi($url, 'POST', $payload);
+    $response = callApi($url, 'POST', $payload);
+
+    return $response['content']['id'] ?? null;
 }
 
 /**
@@ -1072,9 +1159,9 @@ function insertHostGroupByApi(array $formData, bool $isCloudPlatform, string $ba
  *
  * @throws Exception
  *
- * @return int|null
+ * @return array<string,mixed>
  */
-function callApi(string $url, string $httpMethod, array $payload): int|null
+function callApi(string $url, string $httpMethod, array $payload): array
 {
     $client = new CurlHttpClient();
     $response = $client->request(
@@ -1096,14 +1183,7 @@ function callApi(string $url, string $httpMethod, array $payload): int|null
         throw new Exception($content->message ?? 'Unexpected return status');
     }
 
-    if ($httpMethod === 'POST') {
-        $data = $response->toArray();
-
-        /** @var array{id:int} $data */
-        return $data['id'];
-    }
-
-    return null;
+    return ['status_code' => $status, 'content' => json_decode($response->getContent(false), true)];
 }
 
 /**
