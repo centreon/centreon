@@ -8,6 +8,7 @@ import {
 } from '../../../../atoms';
 import {
   labelDashboardGlobalInterval,
+  labelInterval,
   labelRefreshInterval
 } from '../../../../translatedLabels';
 
@@ -66,7 +67,7 @@ describe('Refresh interval', () => {
 
   it('changes the "second" label to "seconds" when the value is greater than 1', () => {
     cy.findByTestId('custom').click();
-    cy.findByTestId('numberFieldInput').type('2');
+    cy.findByTestId(labelInterval).type('2');
     cy.findAllByText('second').should('not.exist');
     cy.findAllByText('seconds').should('exist');
 

@@ -529,7 +529,7 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
 
-      cy.get('[data-canmove="true"]')
+      cy.get('[data-can-move="true"]')
         .eq(0)
         .parent()
         .should('have.css', 'height')
@@ -542,7 +542,7 @@ describe('Dashboard', () => {
         .realMouseMove(-70, -70)
         .realMouseUp();
 
-      cy.get('[data-canmove="true"]')
+      cy.get('[data-can-move="true"]')
         .eq(0)
         .parent()
         .should('have.css', 'height');
