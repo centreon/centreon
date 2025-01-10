@@ -535,7 +535,7 @@ jobs:
               linkedPrs = [...new Set(linkedPrs)];
               console.log(`Linked pull requests found in PR title and body: ${linkedPrs.join(', ')}`);
             } catch (e) {
-              throw new Error(`failed to get information of pull request ${context.issue.number}: ${e}`);
+              throw new Error(`failed to get information of pull request #${context.issue.number}: ${e}`);
             }
 
             linkedPrs.forEach(async (prNumber) => {
@@ -561,4 +561,5 @@ jobs:
               }
             });
 
+            console.log(errorMessage);
             throw new Error(`This pull request is not a cherry-pick from ${{ steps.linked_branches.outputs.linked_dev_branch }} or has no reference to a pull request which has been merged on ${{ steps.linked_branches.outputs.linked_dev_branch }} \n${errorMessage}`);
