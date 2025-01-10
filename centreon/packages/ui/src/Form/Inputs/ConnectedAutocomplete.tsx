@@ -127,7 +127,7 @@ const ConnectedAutocomplete = ({
     Component: (
       <AutocompleteField
         chipProps={chipProps}
-        data-testid={dataTestId}
+        dataTestId={dataTestId}
         disableClearable={false}
         disableSortedOptions={disableSortedOptions}
         disabled={disabled}
