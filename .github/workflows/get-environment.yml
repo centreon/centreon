@@ -500,6 +500,8 @@ jobs:
               const linkedPrs = [];
               [title, body].forEach((text) => {
                 const linkedPrMatches = text.matchAll(/(?:#|\/pull\/)(\d+)/g);
+                console.log(text);
+                console.log(linkedPrMatches);
                 if (linkedPrMatches.length > 0) {
                   linkedPrMatches.forEach((match) => {
                     linkedPrs.push(match[1]);
