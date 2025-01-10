@@ -54,7 +54,7 @@ export default ({ counters }: CounterProps): JSX.Element => {
         ({ to, ariaLabel, onClick, count, severityCode }, index) => (
           <Fragment key={to.toString().replace(/\W/g, '')}>
             {index === 2 && (
-              <li aria-hidden="true" className={classes.splitter} />
+              <li  className={classes.splitter} />
             )}
             <li className={classes.item}>
               <Link
