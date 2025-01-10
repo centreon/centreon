@@ -206,13 +206,12 @@ When('I select the critical service filter', () => {
   cy.contains('Critical_Services').click();
 });
 
-Then(
-  'only the critical services are displayed in the result',
-  () => {
-    cy.contains(serviceInDtName).should('be.visible');
-    cy.contains(secondServiceInDtName).should('be.visible');
-  }
-);
+Then('only the critical services are displayed in the result', () => {
+  cy.get('div[class*="statusColumn"]')
+    .each(($statusCell) => {
+      cy.wrap($statusCell).should('contain.text', 'Critical');
+    });
+});
 
 Given('a saved pending host filter', () => {
   cy.fixture('resources/pendingHosts.json').then((filters) =>
@@ -235,12 +234,12 @@ When('I select the pending host filter', () => {
   cy.contains('Pending_Hosts').click();
 });
 
-Then(
-  'only the pending hosts are displayed in the result',
-  () => {
-    cy.contains('host1').should('be.visible');
-  }
-);
+Then('only the pending hosts are displayed in the result', () => {
+  cy.get('div[class*="statusColumn"]')
+    .each(($statusCell) => {
+      cy.wrap($statusCell).should('contain.text', 'Pending');
+    });
+});
 
 Given('a saved up host filter', () => {
   cy.fixture('resources/upHosts.json').then((filters) =>
@@ -263,12 +262,12 @@ When('I select the up host filter', () => {
   cy.contains('Up_Hosts').click();
 });
 
-Then(
-  'only the up hosts are displayed in the result',
-  () => {
-    cy.contains('Centreon-Server').should('be.visible');
-  }
-);
+Then('only the up hosts are displayed in the result', () => {
+  cy.get('div[class*="statusColumn"]')
+    .each(($statusCell) => {
+      cy.wrap($statusCell).should('contain.text', 'Up');
+    });
+});
 
 afterEach(() => {
   cy.stopContainers();

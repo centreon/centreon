@@ -21,19 +21,19 @@ Feature: List Resources
     Then only Resources matching the selected filter are displayed in the result
 
   @TEST_MON-156875
-  Scenario: Selecting critical services custum filter
+  Scenario: Selecting critical services custom filter
     Given a saved critical service filter
     When I select the critical service filter
     Then only the critical services are displayed in the result
 
   @TEST_MON-156876
-  Scenario: Selecting pending hosts custum filter
+  Scenario: Selecting pending hosts custom filter
     Given a saved pending host filter
     When I select the pending host filter
     Then only the pending hosts are displayed in the result
 
   @TEST_MON-22030
-  Scenario: Selecting up hosts custum filter
+  Scenario: Selecting up hosts custom filter
     Given a saved up host filter
     When I select the up host filter
     Then only the up hosts are displayed in the result
