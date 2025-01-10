@@ -45,7 +45,7 @@ const GlobalRefreshFieldOption = (): JSX.Element => {
         textFieldSlotsAndSlotProps={{
           slotProps: {
             htmlInput: {
-              'aria-label': t(labelInterval) as string
+              'aria-label': t(labelInterval) as string,
               min: 1
             }
           }
