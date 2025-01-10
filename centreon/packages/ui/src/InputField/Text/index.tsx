@@ -97,8 +97,7 @@ export type TextProps = {
   size?: SizeVariant;
   transparent?: boolean;
   value?: string;
-  textFieldSlotsAndSlotProps?:TextFieldSlotsAndSlotProps<InputProps>;
-  
+  textFieldSlotsAndSlotProps?: TextFieldSlotsAndSlotProps<InputProps>;
 } & Omit<TextFieldProps, 'variant' | 'size' | 'error'>;
 
 const TextField = forwardRef(
@@ -146,8 +145,7 @@ const TextField = forwardRef(
         return {};
       }
 
-
-      return { value: defaultValue??innerValue };
+      return { value: defaultValue ?? innerValue };
     }, [innerValue, debounced, defaultValue]);
 
     return (

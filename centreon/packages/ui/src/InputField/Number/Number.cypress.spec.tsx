@@ -68,11 +68,13 @@ describe('Number field', () => {
     initialize({
       dataTestId: 'test',
       defaultValue: 25,
-      textFieldSlotsAndSlotProps:{ slotProps: {
-        htmlInput: {
-          min: 2
+      textFieldSlotsAndSlotProps: {
+        slotProps: {
+          htmlInput: {
+            min: 2
+          }
         }
-      }},
+      },
       onChange: cy.stub()
     });
 

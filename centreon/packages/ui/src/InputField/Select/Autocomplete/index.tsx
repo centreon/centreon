@@ -13,8 +13,7 @@ import { AutocompleteSlotsAndSlotProps } from '@mui/material/Autocomplete';
 import { TextFieldSlotsAndSlotProps } from '@mui/material/TextField';
 import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
 
-
-import { ForwardedRef, forwardRef, HTMLAttributes, ReactElement } from 'react';
+import { ForwardedRef, HTMLAttributes, ReactElement, forwardRef } from 'react';
 import { SelectEntry } from '..';
 import { getNormalizedId } from '../../../utils';
 import TextField from '../../Text';
@@ -40,17 +39,18 @@ export type Props = {
   placeholder?: string | undefined;
   required?: boolean;
   forceInputRenderValue?: boolean;
-  textFieldSlotsAndSlotProps?:TextFieldSlotsAndSlotProps<InputProps>;
-  autocompleteSlotsAndSlotProps?:AutocompleteSlotsAndSlotProps<SelectEntry, Multiple, DisableClearable, FreeSolo>;
+  textFieldSlotsAndSlotProps?: TextFieldSlotsAndSlotProps<InputProps>;
+  autocompleteSlotsAndSlotProps?: AutocompleteSlotsAndSlotProps<
+    SelectEntry,
+    Multiple,
+    DisableClearable,
+    FreeSolo
+  >;
 } & Omit<
   AutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>,
   'renderInput'
 > &
   UseAutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>;
-
-
-
-
 
 const LoadingIndicator = (): JSX.Element => {
   const { classes } = useAutoCompleteStyles({});

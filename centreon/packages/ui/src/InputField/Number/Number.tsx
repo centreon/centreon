@@ -44,8 +44,10 @@ const NumberField = ({
         T,
         always(
           clamp(
-            textFieldSlotsAndSlotProps?.slotProps?.htmlInput?.min || Number.NEGATIVE_INFINITY,
-            textFieldSlotsAndSlotProps?.slotProps?.htmlInput?.max || Number.POSITIVE_INFINITY,
+            textFieldSlotsAndSlotProps?.slotProps?.htmlInput?.min ||
+              Number.NEGATIVE_INFINITY,
+            textFieldSlotsAndSlotProps?.slotProps?.htmlInput?.max ||
+              Number.POSITIVE_INFINITY,
             number
           )
         )
@@ -64,7 +66,11 @@ const NumberField = ({
       value={actualValue}
       onChange={changeValue}
       {...props}
-      textFieldSlotsAndSlotProps={{ slotProps : {htmlInput: { ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput }} }}
+      textFieldSlotsAndSlotProps={{
+        slotProps: {
+          htmlInput: { ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput }
+        }
+      }}
       placeholder={
         placeholder || (!defaultValue ? `${fallbackValue}` : undefined)
       }
