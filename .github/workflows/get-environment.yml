@@ -492,12 +492,22 @@ jobs:
                 repo: context.repo.repo,
                 pull_number: context.issue.number
               });
-              console.log(pull);
-              // pull.data.forEach(({ name }) => {
-              //   if (name === '${{ format('skip-workflow-{0}', github.workflow) }}') {
-              //     hasSkipLabel = true;
-              //   }
-              // });
+              // console.log(pull);
+
+              const title = pull.data.title;
+              const body = pull.data.body;
+
+              const linkedPrs = [];
+              [title, body].forEach((text) => {
+                const linkedPrMatches = text.matchAll(/(?:#|\/pull\/)(\d+)/g);
+                linkedPrMatches.forEach((match) => {
+                  linkedPrs.push(match[1]);
+                });
+              });
+
+              console.log(linkedPrs);
             } catch (e) {
               core.warning(`failed to get pull request information: ${e}`);
             }
+
+            throw new Error('Pull request is not a cherry-pick from dev branch or has no reference to a pull request which targets a dev branch');
