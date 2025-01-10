@@ -47,14 +47,14 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexGrow: 1,
     gap: theme.spacing(1),
-    height: theme.spacing(4.5)
+    minHeight: theme.spacing(4.5)
   },
   pageHeaderMenu: {
     alignItems: 'flex-start',
     display: 'flex',
     position: 'relative',
     transform: `translateY(-${theme.spacing(0.25)})`,
-    alignSelf: 'flex-end'
+    alignSelf: 'center'
   },
   pageHeaderMessage: {
     alignItems: 'center',
@@ -88,17 +88,18 @@ const useStyles = makeStyles()((theme) => ({
     '& > span': {
       display: 'flex',
       flexDirection: 'row',
-
-      gap: theme.spacing(2)
+      gap: theme.spacing(2),
+      alignItems: 'center'
     },
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(1),
     alignSelf: 'flex-start',
+    gap: theme.spacing(0.5),
     h1: {
       ...theme.typography.h5,
       fontWeight: theme.typography.fontWeightMedium,
-      margin: theme.spacing(0)
+      margin: theme.spacing(0),
+      lineHeight: '1'
     }
   },
   pageHeaderTitleActions: {
@@ -112,12 +113,11 @@ const useStyles = makeStyles()((theme) => ({
   },
   pageHeaderTitleDescription: {
     color: theme.palette.header.page.description,
-    font: 'normal normal 400 12px/16px Roboto',
-    letterSpacing: '0.15px',
     maxWidth: '560px',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    lineHeight: '1.8'
   }
 }));
 
