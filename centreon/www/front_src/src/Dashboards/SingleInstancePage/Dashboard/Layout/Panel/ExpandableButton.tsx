@@ -7,7 +7,7 @@ interface Props {
   expandableData?: ExpandableData;
 }
 
-const ExpandableButton = ({ expandableData }: Props) => {
+const ExpandableButton = ({ expandableData }: Props): JSX.Element => {
   const { t } = useTranslation();
 
   const { isExpanded, label, toggleExpand, Icon } = expandableData || {};
