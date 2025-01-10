@@ -559,7 +559,7 @@ jobs:
               } catch (e) {
                 errorMessage += `failed to get information of pull request #${prNumber}: ${e}\n`;
               }
-            });
+            }
 
             console.log(errorMessage);
             throw new Error(`This pull request is not a cherry-pick from ${{ steps.linked_branches.outputs.linked_dev_branch }} or has no reference to a pull request which has been merged on ${{ steps.linked_branches.outputs.linked_dev_branch }}\n${errorMessage}`);
