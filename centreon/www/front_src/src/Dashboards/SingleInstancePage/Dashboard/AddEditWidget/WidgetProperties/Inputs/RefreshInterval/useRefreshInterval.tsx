@@ -100,6 +100,7 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
               textFieldSlotsAndSlotProps={{
                 slotProps: {
                   htmlInput: {
+                    'data-testid':'intervalInput',
                     min: 1
                   }
                 }
