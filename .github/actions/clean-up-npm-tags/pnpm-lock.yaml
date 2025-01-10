@@ -9,8 +9,8 @@ dependencies:
     specifier: ^1.10.0
     version: 1.10.0
   node-fetch:
-    specifier: '2'
-    version: 2.6.8
+    specifier: 2.7.0
+    version: 2.7.0
 
 packages:
 
@@ -27,8 +27,8 @@ packages:
       tunnel: 0.0.6
     dev: false
 
-  /node-fetch@2.6.8:
-    resolution: {integrity: sha512-RZ6dBYuj8dRSfxpUSu+NsdF1dpPpluJxwOp+6IoDp/sH2QNDSvurYsAa+F1WxY2RjA1iP93xhcsUoYbF2XBqVg==}
+  /node-fetch@2.7.0:
+    resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
     engines: {node: 4.x || >=6.0.0}
     peerDependencies:
       encoding: ^0.1.0
