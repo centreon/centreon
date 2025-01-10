@@ -512,6 +512,7 @@ jobs:
           script: |
             let linkedPrs = [];
             let errorMessage = '';
+
             try {
               const pull = await github.rest.pulls.get({
                 owner: context.repo.owner,
