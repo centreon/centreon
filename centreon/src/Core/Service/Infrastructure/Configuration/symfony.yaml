@@ -15,10 +15,6 @@ services:
   Core\Service\Application\Repository\ReadServiceRepositoryInterface:
     class: Core\Service\Infrastructure\Repository\DbReadServiceRepository
 
-  Core\Service\Infrastructure\Repository\ApiReadServiceRepository:
-    arguments:
-      $logger: '@Centreon\Domain\Log\Logger'
-
   Core\Service\Infrastructure\Repository\DbWriteServiceActionLogRepository:
     decorates: Core\Service\Application\Repository\WriteServiceRepositoryInterface
     arguments:
