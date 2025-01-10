@@ -45,7 +45,6 @@ jobs:
       module_name: centreon/packages/ui
       specs_path: src/**
       dependencies_lock_file: centreon/pnpm-lock.yaml
-      is_nightly: false
 
   unit-test:
     runs-on: ubuntu-22.04
@@ -66,6 +65,7 @@ jobs:
         working-directory: ${{ env.directory }}
 
   publish-new-npm-beta-version:
+    if: github.repository == 'centreon/centreon'
     runs-on: ubuntu-22.04
     needs: [lint, unit-test, cypress-component-testing]
 

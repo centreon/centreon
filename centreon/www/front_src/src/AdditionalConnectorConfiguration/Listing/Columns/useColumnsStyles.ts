@@ -8,8 +8,13 @@ export const useColumnStyles = makeStyles()((theme) => ({
   icon: {
     fontSize: theme.spacing(2)
   },
+  removeButton: {
+    color: theme.palette.primary.main,
+    '& :hover': {
+      color: theme.palette.error.main
+    }
+  },
   removeIcon: {
-    color: theme.palette.error.main,
     fontSize: theme.spacing(2.25)
   }
 }));

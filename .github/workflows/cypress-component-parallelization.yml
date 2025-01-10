@@ -21,8 +21,8 @@ on:
         type: string
         description: 'The frontend dependencies lock file path'
       is_nightly:
-        required: true
-        type: boolean
+        required: false
+        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
@@ -268,8 +268,10 @@ jobs:
         type_of_report: [test-results, test-reports, test-coverage]
     steps:
       - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
-        if: ${{ ( contains(needs.cypress-component-test-run.result, 'failure') && ( matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'test-coverage' }}
+        uses: actions/upload-artifact/merge@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        if: |
+          (needs.cypress-component-test-run.result == 'failure' && contains(fromJson('["test-results", "test-reports"]'), matrix.type_of_report)) ||
+          matrix.type_of_report == 'test-coverage'
         with:
           name: ${{ inputs.name }}-component-${{ matrix.type_of_report }}
           pattern: ${{ inputs.name }}-component-${{ matrix.type_of_report }}-*
@@ -277,8 +279,10 @@ jobs:
           retention-days: 1
 
       - name: Delete merged artifacts
-        if: ${{ matrix.type_of_report != 'test-coverage' || needs.cypress-component-test-run.result == 'success' }}
-        uses: geekyeggo/delete-artifact@24928e75e6e6590170563b8ddae9fac674508aa1 # v5.0.0
+        if: |
+          needs.cypress-component-test-run.result == 'success' ||
+          matrix.type_of_report != 'test-coverage'
+        uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
         with:
           name: ${{ inputs.name }}-component-${{ matrix.type_of_report }}-*
           failOnError: false
