@@ -512,7 +512,7 @@ jobs:
               core.warning(`failed to get information of pull request ${context.issue.number}: ${e}`);
             }
 
-            linkedPrs.forEach((prNumber) => {
+            linkedPrs.forEach(async (prNumber) => {
               try {
                 const pull = await github.rest.pulls.get({
                   owner: context.repo.owner,
