@@ -25,7 +25,8 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
       '& .react-resizable-handle': {
         display: isStatic ? 'none' : 'flex',
         position: 'absolute',
-        opacity: 0.4
+        opacity: 0,
+        transition: theme.transitions.create('opacity')
       },
       '& .react-resizable-handle-e': {
         '& .handle-content-e': {
@@ -91,7 +92,8 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
         cursor: 'nwse-resize',
         height: theme.spacing(1.5),
         right: 0,
-        width: theme.spacing(1.5)
+        width: theme.spacing(1.5),
+        opacity: 0.7
       },
       '& .react-resizable-handle-sw': {
         '& .handle-content-sw': {
@@ -106,7 +108,8 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
         cursor: 'nesw-resize',
         height: theme.spacing(1.5),
         left: 0,
-        width: theme.spacing(1.5)
+        width: theme.spacing(1.5),
+        opacity: 0.7
       },
       '& .react-resizable-handle:hover': {
         opacity: 1
