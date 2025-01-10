@@ -1,26 +1,26 @@
 import { equals, isEmpty, isNil, pick } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
 
 import {
   Autocomplete,
   AutocompleteProps,
   CircularProgress,
   InputAdornment,
+  InputProps,
   useTheme
 } from '@mui/material';
-import { autocompleteClasses } from '@mui/material/Autocomplete';
+import { AutocompleteSlotsAndSlotProps } from '@mui/material/Autocomplete';
+import { TextFieldSlotsAndSlotProps } from '@mui/material/TextField';
 import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
 
-import { ThemeMode } from '@centreon/ui-context';
 
-import { ForwardedRef, HTMLAttributes, ReactElement, forwardRef } from 'react';
+import { ForwardedRef, forwardRef, HTMLAttributes, ReactElement } from 'react';
 import { SelectEntry } from '..';
 import { getNormalizedId } from '../../../utils';
 import TextField from '../../Text';
-import { SlotPropsTextField } from '../../Text/models';
 import { searchLabel } from '../../translatedLabels';
 import Option from '../Option';
+import { useAutoCompleteStyles } from './autoComplete.styles';
 
 export type Props = {
   autoFocus?: boolean;
@@ -40,97 +40,20 @@ export type Props = {
   placeholder?: string | undefined;
   required?: boolean;
   forceInputRenderValue?: boolean;
-  slotProps?: SlotPropsTextField;
+  textFieldSlotsAndSlotProps?:TextFieldSlotsAndSlotProps<InputProps>;
+  autocompleteSlotsAndSlotProps?:AutocompleteSlotsAndSlotProps<SelectEntry, Multiple, DisableClearable, FreeSolo>;
 } & Omit<
   AutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>,
   'renderInput'
 > &
   UseAutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>;
 
-type StyledProps = Partial<Pick<Props, 'hideInput'>>;
 
-const textfieldHeight = (hideInput?: boolean): number | undefined =>
-  hideInput ? 0 : undefined;
 
-const useStyles = makeStyles<StyledProps>()((theme, { hideInput }) => ({
-  hiddenText: {
-    transform: 'scale(0)'
-  },
-  input: {
-    '&:after': {
-      borderBottom: 0
-    },
-    '&:before': {
-      borderBottom: 0,
-      content: 'unset'
-    },
-    '&:hover:before': {
-      borderBottom: 0
-    },
-    height: textfieldHeight(hideInput)
-  },
-  inputLabel: {
-    '&&': {
-      fontSize: theme.typography.body1.fontSize,
-      maxWidth: '72%',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      transform: 'translate(12px, 14px) scale(1)',
-      whiteSpace: 'nowrap'
-    }
-  },
-  inputLabelShrink: {
-    '&&': {
-      maxWidth: '90%'
-    }
-  },
-  inputWithLabel: {
-    '&[class*="MuiFilledInput-root"]': {
-      paddingTop: theme.spacing(2)
-    },
-    paddingTop: theme.spacing(1)
-  },
-  inputWithoutLabel: {
-    '&[class*="MuiFilledInput-root"][class*="MuiFilledInput-marginDense"]': {
-      paddingBottom: hideInput ? 0 : theme.spacing(0.75),
-      paddingRight: hideInput ? 0 : theme.spacing(1),
-      paddingTop: hideInput ? 0 : theme.spacing(0.75)
-    }
-  },
-  loadingIndicator: {
-    textAlign: 'center'
-  },
-  options: {
-    alignItems: 'center',
-    display: 'grid',
-    gridAutoFlow: 'column',
-    gridGap: theme.spacing(1)
-  },
-  popper: {
-    [`& .${autocompleteClasses.listbox}`]: {
-      [`& .${autocompleteClasses.option}`]: {
-        [`&:hover, &[aria-selected="true"], &.${autocompleteClasses.focused},
-        &.${autocompleteClasses.focused}[aria-selected="true"]`]: {
-          background: equals(theme.palette.mode, ThemeMode.dark)
-            ? theme.palette.primary.dark
-            : theme.palette.primary.light,
-          color: equals(theme.palette.mode, ThemeMode.dark)
-            ? theme.palette.common.white
-            : theme.palette.primary.main
-        }
-      },
-      padding: 0
-    },
-    zIndex: theme.zIndex.tooltip + 1
-  },
-  textfield: {
-    height: textfieldHeight(hideInput),
-    visibility: hideInput ? 'hidden' : 'visible'
-  }
-}));
+
 
 const LoadingIndicator = (): JSX.Element => {
-  const { classes } = useStyles({});
+  const { classes } = useAutoCompleteStyles({});
 
   return (
     <div className={classes.loadingIndicator}>
@@ -165,12 +88,13 @@ const AutocompleteField = forwardRef(
       autoSizeCustomPadding,
       getOptionItemLabel = (option) => option?.name,
       forceInputRenderValue = false,
-      slotProps,
+      textFieldSlotsAndSlotProps,
+      autocompleteSlotsAndSlotProps,
       ...autocompleteProps
     }: Props,
     ref?: ForwardedRef<HTMLDivElement>
   ): JSX.Element => {
-    const { classes, cx } = useStyles({ hideInput });
+    const { classes, cx } = useAutoCompleteStyles({ hideInput });
     const { t } = useTranslation();
     const theme = useTheme();
 
@@ -249,7 +173,7 @@ const AutocompleteField = forwardRef(
                     )
                   }
                 : {}),
-              ...slotProps?.htmlInput
+              ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput
             }
           }}
         />
@@ -293,7 +217,7 @@ const AutocompleteField = forwardRef(
           );
         }}
         size="small"
-        slotProps={slotProps}
+        slotProps={autocompleteSlotsAndSlotProps?.slotProps}
         {...autocompleteProps}
       />
     );

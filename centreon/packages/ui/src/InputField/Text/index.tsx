@@ -6,8 +6,10 @@ import { makeStyles } from 'tss-react/mui';
 import {
   Box,
   InputAdornment,
+  InputProps,
   TextField as MuiTextField,
   TextFieldProps,
+  TextFieldSlotsAndSlotProps,
   Theme,
   Tooltip,
   Typography
@@ -15,7 +17,6 @@ import {
 
 import { getNormalizedId } from '../../utils';
 
-import { SlotPropsTextField } from './models';
 import useAutoSize from './useAutoSize';
 
 const useStyles = makeStyles()((theme: Theme) => ({
@@ -96,7 +97,8 @@ export type TextProps = {
   size?: SizeVariant;
   transparent?: boolean;
   value?: string;
-  slotProps?: SlotPropsTextField;
+  textFieldSlotsAndSlotProps?:TextFieldSlotsAndSlotProps<InputProps>;
+  
 } & Omit<TextFieldProps, 'variant' | 'size' | 'error'>;
 
 const TextField = forwardRef(
@@ -121,7 +123,7 @@ const TextField = forwardRef(
       required = false,
       containerClassName,
       type,
-      slotProps,
+      textFieldSlotsAndSlotProps,
       ...rest
     }: TextProps,
     ref: React.ForwardedRef<HTMLDivElement>
@@ -187,7 +189,7 @@ const TextField = forwardRef(
                     {EndAdornment ? (
                       <EndAdornment />
                     ) : (
-                      slotProps?.input?.endAdornment
+                      textFieldSlotsAndSlotProps?.slotProps?.input?.endAdornment
                     )}
                   </OptionalLabelInputAdornment>
                 ),
@@ -196,7 +198,7 @@ const TextField = forwardRef(
                     <StartAdornment />
                   </OptionalLabelInputAdornment>
                 ),
-                ...slotProps?.input
+                ...textFieldSlotsAndSlotProps?.slotProps?.input
               },
               inputLabel: {
                 classes: {
@@ -209,7 +211,7 @@ const TextField = forwardRef(
               htmlInput: {
                 'aria-label': ariaLabel,
                 'data-testid': dataTestId,
-                ...slotProps?.htmlInput
+                ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput
               }
             }}
             {...rest}
