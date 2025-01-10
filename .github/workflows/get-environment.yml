@@ -519,6 +519,7 @@ jobs:
                   repo: context.repo.repo,
                   pull_number: prNumber
                 });
+
                 console.log(pull.data);
               } catch (e) {
                 core.warning(`failed to get information of pull request ${prNumber}: ${e}`);
