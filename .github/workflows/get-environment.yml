@@ -433,8 +433,6 @@ jobs:
 
       - name: Display info in job summary
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        env:
-          VERSION_FILE: ${{ inputs.version_file }}
         with:
           script: |
             const outputTable = [
@@ -480,3 +478,25 @@ jobs:
             }
 
             core.summary.write();
+
+      - name: Check if the PR is a cherry-pick from dev branch
+        # if: |
+        #   contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) &&
+        #   steps.get_stability.outputs.target_stability == 'testing'
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            try {
+              const pull = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number
+              });
+              // pull.data.forEach(({ name }) => {
+              //   if (name === '${{ format('skip-workflow-{0}', github.workflow) }}') {
+              //     hasSkipLabel = true;
+              //   }
+              // });
+            } catch (e) {
+              core.warning(`failed to get pull request information: ${e}`);
+            }

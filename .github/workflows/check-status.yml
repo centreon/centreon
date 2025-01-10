@@ -15,6 +15,12 @@ on:
       - release-*
 
 jobs:
+  # testing purpose
+  get-environment:
+    uses: ./.github/workflows/get-environment.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
   check-status:
     runs-on: ubuntu-24.04
     steps:
