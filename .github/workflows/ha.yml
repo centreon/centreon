@@ -68,6 +68,8 @@ jobs:
     secrets:
       registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+      registry_private_username: ${{ secrets.HARBOR_CENTREON_PRIVATE_USERNAME }}
+      registry_private_token: ${{ secrets.HARBOR_CENTREON_PRIVATE_TOKEN }}
 
   deliver-sources:
     runs-on: [self-hosted, common]
