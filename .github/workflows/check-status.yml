@@ -112,10 +112,9 @@ jobs:
   check-cherry-pick:
     needs: [get-environment, check-status]
     runs-on: ubuntu-24.04
-
     if: |
       contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) &&
-      needs.get-environment.outputs.target_stability == 'unstable'
+      needs.get-environment.outputs.target_stability == 'testing'
 
     steps:
       - name: Check if the PR is a cherry-pick from dev branch
