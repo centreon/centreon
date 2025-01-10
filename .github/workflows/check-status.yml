@@ -112,6 +112,7 @@ jobs:
   check-cherry-pick:
     needs: [get-environment, check-status]
     runs-on: ubuntu-24.04
+
     if: |
       contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) &&
       needs.get-environment.outputs.target_stability == 'unstable'
