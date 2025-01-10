@@ -538,7 +538,7 @@ jobs:
               throw new Error(`failed to get information of pull request #${context.issue.number}: ${e}`);
             }
 
-            await linkedPrs.forEach(async (prNumber) => {
+            for await (const prNumber of linkedPrs) {
               try {
                 const pull = await github.rest.pulls.get({
                   owner: context.repo.owner,
