@@ -181,12 +181,12 @@ const DraggableAutocomplete = (
         {...renderProps}
         error={error}
         helperText={error}
-        slotProps={{
+        textFieldSlotsAndSlotProps={{slotProps :{
           htmlInput: {
             ...renderProps.inputProps,
             value: inputText || ''
           }
-        }}
+        }}}
         label={label}
         required={required}
         onBlur={blurInput}

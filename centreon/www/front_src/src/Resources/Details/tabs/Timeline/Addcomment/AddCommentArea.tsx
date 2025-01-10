@@ -94,9 +94,11 @@ const AddCommentArea = ({
         required
         ariaLabel={t(labelComment)}
         autoComplete="off"
-        slotProps={{
-          htmlInput: {
-            'data-testid': 'commentArea'
+        textFieldSlotsAndSlotProps={{
+          slotProps: {
+            htmlInput: {
+              'data-testid': 'commentArea'
+            }
           }
         }}
         label={t(labelComment)}
