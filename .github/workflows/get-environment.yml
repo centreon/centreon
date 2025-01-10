@@ -486,32 +486,45 @@ jobs:
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
+            let linkedPrs = [];
             try {
               const pull = await github.rest.pulls.get({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: context.issue.number
               });
-              // console.log(pull);
 
               const title = pull.data.title;
               const body = pull.data.body;
 
-              const linkedPrs = [];
               [title, body].forEach((text) => {
                 const linkedPrMatches = text.matchAll(/(?:#|\/pull\/)(\d+)/g);
-                console.log(text);
-                console.log(linkedPrMatches);
                 if (linkedPrMatches) {
                   [...linkedPrMatches].forEach((match) => {
-                    linkedPrs.push(match[1]);
+                    linkedPrs.push(Number(match[1]));
                   });
                 }
               });
 
-              console.log(linkedPrs);
+              // remove duplicates
+              linkedPrs = [...new Set(linkedPrs)];
             } catch (e) {
-              core.warning(`failed to get pull request information: ${e}`);
+              core.warning(`failed to get information of pull request ${context.issue.number}: ${e}`);
             }
+
+            linkedPrs.forEach((prNumber) => {
+              try {
+                const pull = await github.rest.pulls.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: prNumber
+                });
+                console.log(pull.data);
+              } catch (e) {
+                core.warning(`failed to get information of pull request ${prNumber}: ${e}`);
+              }
+            });
+
+            console.log(linkedPrs);
 
             throw new Error('Pull request is not a cherry-pick from dev branch or has no reference to a pull request which targets a dev branch');
