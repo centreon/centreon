@@ -557,9 +557,13 @@ jobs:
                   errorMessage += `Pull request #${prNumber} is linked to ${pull.data.base.ref} instead of ${{ steps.linked_branches.outputs.linked_dev_branch }}`;
                 }
               } catch (e) {
+                console.log('before')
                 errorMessage += `failed to get information of pull request #${prNumber}: ${e}`;
+                console.log(errorMessage);
               }
             });
 
+            console.log('after')
             console.log(errorMessage);
+            console.log('after 2')
             throw new Error(`This pull request is not a cherry-pick from ${{ steps.linked_branches.outputs.linked_dev_branch }} or has no reference to a pull request which has been merged on ${{ steps.linked_branches.outputs.linked_dev_branch }} \n${errorMessage}`);
