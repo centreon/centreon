@@ -554,8 +554,7 @@ jobs:
                 });
 
                 if (pull.data.base.ref === '${{ steps.linked_branches.outputs.linked_dev_branch }}') {
-                  if (pull.data.state === 'closed') {
-                    console.log(pull.data)
+                  if (pull.data.state === 'closed' && pull.data.merged === true) {
                     console.log(`This pull request is a cherry-pick from pull request #${prNumber} on ${{ steps.linked_branches.outputs.linked_dev_branch }}`);
                     return;
                   } else {
