@@ -503,7 +503,7 @@ jobs:
                 console.log(text);
                 console.log(linkedPrMatches);
                 if (linkedPrMatches) {
-                  linkedPrMatches.forEach((match) => {
+                  [...linkedPrMatches].forEach((match) => {
                     linkedPrs.push(match[1]);
                   });
                 }
