@@ -535,7 +535,7 @@ jobs:
               linkedPrs = [...new Set(linkedPrs)];
               console.log(`Linked pull requests found in PR title and body: ${linkedPrs.join(', ')}`);
             } catch (e) {
-              core.warning(`failed to get information of pull request ${context.issue.number}: ${e}`);
+              throw new Error(`failed to get information of pull request ${context.issue.number}: ${e}`);
             }
 
             linkedPrs.forEach(async (prNumber) => {
@@ -551,13 +551,13 @@ jobs:
                     console.log(`This pull request is a cherry-pick from pull request #${prNumber} on ${{ steps.linked_branches.outputs.linked_dev_branch }}`);
                     return;
                   } else {
-                    errorMessage = `This pull request seems a cherry-pick from pull request #${prNumber} on ${{ steps.linked_branches.outputs.linked_dev_branch }} but it is not merged yet`;
+                    errorMessage += `This pull request seems a cherry-pick from pull request #${prNumber} on ${{ steps.linked_branches.outputs.linked_dev_branch }} but it is not merged yet`;
                   }
                 } else {
-                  console.log(`Pull request #${prNumber} is linked to ${pull.data.base.ref} instead of ${{ steps.linked_branches.outputs.linked_dev_branch }}`);
+                  errorMessage += `Pull request #${prNumber} is linked to ${pull.data.base.ref} instead of ${{ steps.linked_branches.outputs.linked_dev_branch }}`;
                 }
               } catch (e) {
-                core.warning(`failed to get information of pull request #${prNumber}: ${e}`);
+                errorMessage += `failed to get information of pull request #${prNumber}: ${e}`;
               }
             });
 
