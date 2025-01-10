@@ -551,19 +551,14 @@ jobs:
                     console.log(`This pull request is a cherry-pick from pull request #${prNumber} on ${{ steps.linked_branches.outputs.linked_dev_branch }}`);
                     return;
                   } else {
-                    errorMessage += `This pull request seems a cherry-pick from pull request #${prNumber} on ${{ steps.linked_branches.outputs.linked_dev_branch }} but it is not merged yet`;
+                    errorMessage += `This pull request seems a cherry-pick from pull request #${prNumber} on ${{ steps.linked_branches.outputs.linked_dev_branch }} but it is not merged yet\n`;
                   }
                 } else {
-                  errorMessage += `Pull request #${prNumber} is linked to ${pull.data.base.ref} instead of ${{ steps.linked_branches.outputs.linked_dev_branch }}`;
+                  errorMessage += `Pull request #${prNumber} is linked to ${pull.data.base.ref} instead of ${{ steps.linked_branches.outputs.linked_dev_branch }}\n`;
                 }
               } catch (e) {
-                console.log('before')
-                errorMessage += `failed to get information of pull request #${prNumber}: ${e}`;
-                console.log(errorMessage);
+                errorMessage += `failed to get information of pull request #${prNumber}: ${e}\n`;
               }
             });
 
-            console.log('after')
-            console.log(errorMessage);
-            console.log('after 2')
-            throw new Error(`This pull request is not a cherry-pick from ${{ steps.linked_branches.outputs.linked_dev_branch }} or has no reference to a pull request which has been merged on ${{ steps.linked_branches.outputs.linked_dev_branch }} \n${errorMessage}`);
+            throw new Error(`This pull request is not a cherry-pick from ${{ steps.linked_branches.outputs.linked_dev_branch }} or has no reference to a pull request which has been merged on ${{ steps.linked_branches.outputs.linked_dev_branch }}\n${errorMessage}`);
