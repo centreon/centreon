@@ -500,9 +500,11 @@ jobs:
               const linkedPrs = [];
               [title, body].forEach((text) => {
                 const linkedPrMatches = text.matchAll(/(?:#|\/pull\/)(\d+)/g);
-                linkedPrMatches.forEach((match) => {
-                  linkedPrs.push(match[1]);
-                });
+                if (linkedPrMatches.length > 0) {
+                  linkedPrMatches.forEach((match) => {
+                    linkedPrs.push(match[1]);
+                  });
+                }
               });
 
               console.log(linkedPrs);
