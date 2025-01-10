@@ -31,9 +31,9 @@ const SectionWrapper = ({
   return (
     <div>
       {sectionsType?.map((sectionType) => (
-        <>
+        <div             key={sectionType}
+>
           <Section
-            key={sectionType}
             inputGroup={
               <MemoizedInputGroup
                 changeCriteria={changeCriteria}
@@ -70,7 +70,7 @@ const SectionWrapper = ({
             }
           />
           <Divider className={classes.divider} key={`${sectionType}-divider`} />
-        </>
+        </div>
       ))}
     </div>
   );
