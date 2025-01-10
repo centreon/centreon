@@ -45,6 +45,7 @@ require_once __DIR__ . '/../Paginator.php';
 require_once __DIR__ . '/PaginationRenderer.php';
 require_once __DIR__ . '/../../../class/centreonLog.class.php';
 require_once __DIR__ . '/../../../class/exceptions/CentreonDbException.php';
+require_once __DIR__ . '/../../common/sqlCommonFunction.php';
 
 // Connect to DB
 $pearDB = $dependencyInjector['configuration_db'];
@@ -83,6 +84,7 @@ define("STATUS_WARNING", 1);
 define("STATUS_CRITICAL", 2);
 define("STATUS_UNKNOWN", 3);
 define("STATUS_PENDING", 4);
+define("STATUS_ACKNOWLEDGEMENT", 5);
 define("STATUS_UP", 0);
 define("STATUS_DOWN", 1);
 define("STATUS_UNREACHABLE", 2);
