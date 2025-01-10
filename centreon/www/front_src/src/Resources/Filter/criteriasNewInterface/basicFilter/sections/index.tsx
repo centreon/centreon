@@ -31,8 +31,7 @@ const SectionWrapper = ({
   return (
     <div>
       {sectionsType?.map((sectionType) => (
-        <div             key={sectionType}
->
+        <div key={sectionType}>
           <Section
             inputGroup={
               <MemoizedInputGroup

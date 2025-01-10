@@ -33,8 +33,7 @@ const ExtendedFilter = ({ data, changeCriteria }: Props): JSX.Element => {
   return (
     <div className={classes.containerFilter}>
       {inputGroupsData?.map((item) => (
-        <div             key={item.name}
->
+        <div key={item.name}>
           <MemoizedInputGroup
             changeCriteria={changeCriteria}
             data={data}
