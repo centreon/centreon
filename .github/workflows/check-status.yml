@@ -174,4 +174,3 @@ jobs:
             }
 
             throw new Error(`This pull request is not a cherry-pick from ${{ needs.get-environment.outputs.linked_dev_branch }} or has no reference to a pull request which has been merged on ${{ needs.get-environment.outputs.linked_dev_branch }}\n${errorMessage}`);
-
