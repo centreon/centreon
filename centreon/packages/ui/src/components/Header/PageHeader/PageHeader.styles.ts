@@ -94,7 +94,6 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     alignSelf: 'flex-start',
-    gap: theme.spacing(0.5),
     h1: {
       ...theme.typography.h5,
       fontWeight: theme.typography.fontWeightMedium,
@@ -109,7 +108,8 @@ const useStyles = makeStyles()((theme) => ({
     },
     alignItems: 'bottom',
     display: 'flex',
-    gap: theme.spacing(1)
+    gap: theme.spacing(1),
+    paddingTop: theme.spacing(0.5)
   },
   pageHeaderTitleDescription: {
     color: theme.palette.header.page.description,
