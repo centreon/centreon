@@ -520,7 +520,9 @@ jobs:
                   pull_number: prNumber
                 });
 
-                console.log(pull.data);
+                console.log(pull.data.title);
+                console.log(pull.data.base.ref);
+                console.log(pull.data.state);
               } catch (e) {
                 core.warning(`failed to get information of pull request ${prNumber}: ${e}`);
               }
