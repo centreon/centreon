@@ -17510,8 +17510,32 @@ msgstr "Erweiterter Modus"
 # msgid "There are errors in the form."
 # msgstr ""
 
-# msgid "If you click on Discard, your changes will not be saved."
+# msgid "Show only dashboards added to favorites"
 # msgstr ""
 
-# msgid "Do you want to resolve the errors?"
+# msgid "The dashboard has been added to your favorites."
+# msgstr ""
+
+# msgid "The dashboard has been removed from your favorites."
+# msgstr ""
+
+# msgid "Remove from favorites"
+# msgstr ""
+
+# msgid "Add to favorites"
+# msgstr ""
+
+# msgid "PNG (as displayed)"
+# msgstr ""
+
+# msgid "PNG (medium size)"
+# msgstr ""
+
+# msgid "PNG (small size)"
+# msgstr ""
+
+# msgid "Export as"
+# msgstr ""
+
+# msgid "If you click on Discard, your changes will not be saved."
 # msgstr ""
