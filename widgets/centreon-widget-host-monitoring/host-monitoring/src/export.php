@@ -383,7 +383,7 @@ try {
     }
 } catch (CentreonDbException $e) {
     CentreonLog::create()->error(
-        CentreonLog::TYPE_SQL,
+        CentreonLog::TYPE_BUSINESS_LOG,
         "Error while fetching host monitoring",
         [
             'message' => $e->getMessage(),
