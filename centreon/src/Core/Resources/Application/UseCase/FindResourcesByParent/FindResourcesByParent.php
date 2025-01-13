@@ -160,6 +160,7 @@ final class FindResourcesByParent
     /**
      * @param ResourceFilter $filter
      *
+     * @throws \Throwable
      * @return FindResourcesResponse
      */
     private function findResourcesAsAdmin(ResourceFilter $filter): FindResourcesResponse
@@ -172,6 +173,7 @@ final class FindResourcesByParent
     /**
      * @param ResourceFilter $filter
      *
+     * @throws \Throwable
      * @return FindResourcesResponse
      */
     private function findParentResources(ResourceFilter $filter): FindResourcesResponse
