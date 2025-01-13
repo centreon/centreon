@@ -46,8 +46,7 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
       id,
       disablePadding = false,
       canMove = false,
-      additionalMemoProps = [],
-      ...other
+      additionalMemoProps = []
     }: DashboardItemProps,
     ref: ForwardedRef<HTMLDivElement>
   ): ReactElement => {

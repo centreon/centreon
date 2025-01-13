@@ -179,11 +179,6 @@ export const addPanelDerivedAtom = atom(
     const panelHeight =
       height || panelConfiguration?.panelDefaultHeight || preferredWidgetHeight;
 
-    console.log(
-      panelConfiguration?.panelMinWidth || strictMinWidgetHeight,
-      strictMinWidgetHeight
-    );
-
     const basePanelLayout = {
       data,
       h: panelHeight,
@@ -218,8 +213,6 @@ export const addPanelDerivedAtom = atom(
         y: panelPosition.y
       }
     ];
-
-    console.log('new panel', basePanelLayout);
 
     setAtom(dashboardAtom, {
       layout: newLayout

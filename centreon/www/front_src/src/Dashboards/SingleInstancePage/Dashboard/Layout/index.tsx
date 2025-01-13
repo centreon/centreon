@@ -39,7 +39,6 @@ const DashboardPageLayout = (): JSX.Element => {
   const { canEdit } = useCanEditProperties();
 
   const changeLayout = (layout: Array<Layout>): void => {
-    console.log(layout);
     const isOneColumnDisplay = equals(getColumnsFromScreenSize(), 1);
     const isEmptyLayout =
       equals(layout.length, 1) && equals(layout[0].i, addWidgetId);
