@@ -276,6 +276,8 @@ if ($form->validate()) {
         $hgObj->setValue(
             insertHostGroupInDB(isCloudPlatform: $isCloudPlatform)
         );
+        $hgs = $acl->getHostGroupAclConf(null, 'broker');
+        $hostGroupIds = array_keys($hgs);
     } elseif ($form->getSubmitValue('submitC')) {
         updateHostGroupInDB(
             hostGroupId: $hgObj->getValue(),
