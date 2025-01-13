@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,18 @@
  */
 
 require_once __DIR__ . '/../../../bootstrap.php';
-require_once __DIR__ . '/../../class/centreonLog.class.php';
 
-$centreonLog = new CentreonLog();
-
-// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 25.01.0: ';
 $errorMessage = '';
 
+// -------------------------------------------- Dashboard -------------------------------------------- //
+
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ * @return void
+ */
 $createUserProfileTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to add table user_profile';
     $pearDB->executeQuery(
@@ -45,6 +49,12 @@ $createUserProfileTable = function (CentreonDB $pearDB) use (&$errorMessage): vo
     );
 };
 
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ * @return void
+ */
 $createUserProfileFavoriteDashboards = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to add table user_profile_favorite_dashboards';
     $pearDB->executeQuery(
@@ -63,7 +73,12 @@ $createUserProfileFavoriteDashboards = function (CentreonDB $pearDB) use (&$erro
     );
 };
 
-// Dashboard
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ * @return void
+ */
 $updatePanelsLayout = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to update table dashboard_panel';
     $pearDB->executeQuery(
@@ -79,15 +94,18 @@ try {
     $createUserProfileTable($pearDB);
     $createUserProfileFavoriteDashboards($pearDB);
     $updatePanelsLayout($pearDB);
-} catch (Exception $e) {
-
-    $centreonLog->log(
-        CentreonLog::TYPE_UPGRADE,
-        CentreonLog::LEVEL_ERROR,
-        $versionOfTheUpgrade . $errorMessage
+} catch (CentreonDbException $e) {
+    CentreonLog::create()->critical(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: $versionOfTheUpgrade . $errorMessage
         . ' - Code : ' . (int) $e->getCode()
         . ' - Error : ' . $e->getMessage()
-        . ' - Trace : ' . $e->getTraceAsString()
+        . ' - Trace : ' . $e->getTraceAsString(),
+        customContext: [
+            'exception' => $e->getOptions(),
+            'trace' => $e->getTraceAsString()
+        ],
+        exception: $e
     );
 
     throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
