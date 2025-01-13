@@ -386,6 +386,7 @@ try {
         CentreonLog::TYPE_BUSINESS_LOG,
         "Error while fetching host monitoring",
         [
+            'host_id' => (isset($row) ? ($row['host_id'] ?? 'unknown') : 'unknown'),
             'message' => $e->getMessage(),
             'parameters' => [
                 'orderby' => $orderBy
