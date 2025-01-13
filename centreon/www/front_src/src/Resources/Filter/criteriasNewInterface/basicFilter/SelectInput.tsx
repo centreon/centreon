@@ -58,8 +58,8 @@ const SelectInput = ({
   )?.value as Array<SelectEntry>;
 
   const value = dataByFilterName?.value?.map((item) => ({
-    id: item?.valueId,
-    name: item?.name??item.id
+    id: item?.valueId??item.id,
+    name: item?.name
   })) as Array<SelectEntry>;
 
   if (!dataByFilterName || isDeactivated) {
