@@ -176,7 +176,7 @@ jobs:
               }
             }
 
-            errorMessage += `\nIf you are sure this PR does not need to be a cherry-pick from ${{ needs.get-environment.outputs.linked_dev_branch }} or must be merged urgently,\n`;
-            errorMessage += `add label <code>skip-cherry-pick</code> to the PR and re-run all jobs of workflow check-status\n`;
+            errorMessage += `\nIf you are sure this PR does not need to be a cherry-pick from ${{ needs.get-environment.outputs.linked_dev_branch }} or must be merged urgently, `;
+            errorMessage += `add label <b>skip-cherry-pick</b> to the PR and re-run all jobs of workflow check-status\n`;
 
             throw new Error(errorMessage);
