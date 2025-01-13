@@ -4,13 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { Modal } from '../../components/Modal';
 
 import {
+  labelChangesWillNotBeSaved,
   labelDiscard,
+  labelDoYouWantToLeaveThisPage,
   labelDoYouWantToSaveChanges,
   labelIfYouClickOnDiscard,
   labelReturn,
-  labelSave,
-  labelWeWillNotBeAbleToSave,
-  labelYourChangesWillNotBeSaved
+  labelSave
 } from './translatedLabels';
 
 interface Props {
@@ -33,13 +33,13 @@ const UnsavedChangesDialog = ({
   const { t } = useTranslation();
   const labelTitle = isValidForm
     ? labelDoYouWantToSaveChanges
-    : labelYourChangesWillNotBeSaved;
+    : labelDoYouWantToLeaveThisPage;
 
   const labelConfirm = isValidForm ? labelSave : labelReturn;
 
   const labelMessage = isValidForm
     ? labelIfYouClickOnDiscard
-    : labelWeWillNotBeAbleToSave;
+    : labelChangesWillNotBeSaved;
 
   if (not(dialogOpened)) {
     return null;

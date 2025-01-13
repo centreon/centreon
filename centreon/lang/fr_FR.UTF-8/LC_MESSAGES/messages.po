@@ -19645,11 +19645,11 @@ msgstr "PNG (petite taille)"
 msgid "Export as"
 msgstr "Exporter en tant que"
 
-msgid "Your changes will not be saved."
-msgstr "Vos modifications ne seront pas enregistrées."
+# msgid "Do you want to leave this page?"
+# msgstr "Voulez-vous quitter cette page?"
 
-msgid "We will not be able to save your data if you leave this page."
-msgstr "Nous ne pourrons pas enregistrer vos données si vous quittez cette page."
+# msgid "Your changes will not be saved if you leave this page."
+# msgstr "Vos changements ne seront pas sauvegardés si vous quittez la page."
 
 msgid "Return"
 msgstr "Retourner"
