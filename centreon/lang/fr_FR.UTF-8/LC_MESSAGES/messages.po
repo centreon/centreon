@@ -19644,3 +19644,6 @@ msgstr "PNG (petite taille)"
 
 msgid "Export as"
 msgstr "Exporter en tant que"
+
+msgid "If you click on Discard, your changes will not be saved."
+msgstr "Si vous cliquez sur Annuler, vos changements ne seront pas sauvegardés."
