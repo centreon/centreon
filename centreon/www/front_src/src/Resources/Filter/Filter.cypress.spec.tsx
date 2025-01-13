@@ -521,7 +521,7 @@ views.forEach(({ name, initSearch, ids }) => {
           }
 
           if (equals(type, Type.select) && arrayViews?.includes(name)) {
-            cy.findByTestId(criteria.toLowerCase()).click();
+            cy.findByTestId(criteria).click();
             cy.waitForRequest(requestToWait);
             cy.findByText(value).click();
             cy.findByPlaceholderText(labelSearch)
