@@ -136,4 +136,5 @@ export interface FederatedWidgetProperties {
     label: string;
     icon?: string;
   };
+  canExpand?: boolean;
 }
