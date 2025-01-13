@@ -165,6 +165,7 @@ const SelectInput = ({
       : equals(formattedOption.toString(), formattedSelectedValue.toString());
   };
 
+
   return (
     <MultiConnectedAutocompleteField
       disableSortedOptions
@@ -177,7 +178,7 @@ const SelectInput = ({
       filterOptions={getUniqueOptions}
       getEndpoint={getEndpoint}
       textFieldSlotsAndSlotProps={{
-        slotProps: { htmlInput: { 'data-testid': resourceType } }
+        slotProps: { htmlInput: { 'data-testid': resourceType.toLowerCase() } }
       }}
       isOptionEqualToValue={isOptionEqualToValue}
       label={t(label[resourceType]) as string}
