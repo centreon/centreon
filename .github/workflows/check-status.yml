@@ -105,6 +105,9 @@ jobs:
             core.setFailed("Timeout: some jobs are still in progress");
 
   get-environment:
+    # if: |
+    #   contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) &&
+    #   (startsWith(github.base_ref, 'release-') || startsWith(github.base_ref, 'hotfix-'))
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
@@ -112,15 +115,16 @@ jobs:
   check-cherry-pick:
     needs: [get-environment, check-status]
     runs-on: ubuntu-24.04
-    if: |
-      contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) &&
-      needs.get-environment.outputs.target_stability == 'testing'
+    # if: |
+    #   contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) &&
+    #   needs.get-environment.outputs.target_stability == 'testing'
 
     steps:
       - name: Check if the PR is a cherry-pick from dev branch
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
+            console.log(needs.get-environment.outputs.labels);
             let linkedPrs = [];
             let errorMessage = '';
 
@@ -131,8 +135,7 @@ jobs:
                 pull_number: context.issue.number
               });
 
-              const title = pull.data.title;
-              const body = pull.data.body;
+              const { title, body } = pull.data;
 
               [title, body].forEach((text) => {
                 const linkedPrMatches = text.matchAll(/(?:#|\/pull\/)(\d+)/g);
