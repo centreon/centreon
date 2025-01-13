@@ -103,7 +103,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
             }
             label={t(labelSelectMetric)}
             options={metrics}
-            value={head(selectedMetrics || []) || undefined}
+            value={head(selectedMetrics || []) || null}
             onChange={changeMetric}
           />
         ) : (
