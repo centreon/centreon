@@ -105,9 +105,9 @@ jobs:
             core.setFailed("Timeout: some jobs are still in progress");
 
   get-environment:
-    # if: |
-    #   contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) &&
-    #   (startsWith(github.base_ref, 'release-') || startsWith(github.base_ref, 'hotfix-'))
+    if: |
+      contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) &&
+      (startsWith(github.base_ref, 'release-') || startsWith(github.base_ref, 'hotfix-'))
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
@@ -115,10 +115,10 @@ jobs:
   check-cherry-pick:
     needs: [get-environment, check-status]
     runs-on: ubuntu-24.04
-    # if: |
-    #   contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) &&
-    #   needs.get-environment.outputs.target_stability == 'testing' &&
-    #   ! contains(needs.get-environment.outputs.labels, 'skip-cherry-pick')
+    if: |
+      contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) &&
+      needs.get-environment.outputs.target_stability == 'testing' &&
+      ! contains(needs.get-environment.outputs.labels, 'skip-cherry-pick')
 
     steps:
       - name: Check if the PR is a cherry-pick from dev branch
@@ -179,5 +179,4 @@ jobs:
             errorMessage += `\nIf you are sure this PR does not need to be a cherry-pick from ${{ needs.get-environment.outputs.linked_dev_branch }} or must be merged urgently, `;
             errorMessage += `add label "skip-cherry-pick" to the PR and re-run all jobs of workflow check-status\n`;
 
-            core.error(errorMessage);
             throw new Error(errorMessage);
