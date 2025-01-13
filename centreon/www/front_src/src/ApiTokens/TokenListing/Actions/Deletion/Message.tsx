@@ -16,13 +16,13 @@ const Message = (): JSX.Element => {
   const selectedRow = useAtomValue(selectedRowAtom);
 
   return (
-    <Typography className={classes.labelMessage}>
+    <span className={classes.labelMessage}>
       {parse(
         DOMPurify.sanitize(
           t(labelMsgConfirmationDeletionToken, { tokenName: selectedRow?.name })
         )
       )}
-    </Typography>
+    </span>
   );
 };
 

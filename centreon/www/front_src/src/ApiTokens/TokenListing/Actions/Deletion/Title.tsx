@@ -11,9 +11,9 @@ const Title = (): JSX.Element => {
   const { t } = useTranslation();
 
   return (
-    <Typography className={classes.title} variant="h6">
+    <div className={classes.title} >
       {t(labelDeleteToken)}
-    </Typography>
+    </div>
   );
 };
 
