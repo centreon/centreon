@@ -5,13 +5,12 @@ import { Modal } from '../../components/Modal';
 
 import {
   labelDiscard,
-  labelDoYouWantToQuitWithoutResolving,
-  labelDoYouWantToResolveErrors,
   labelDoYouWantToSaveChanges,
   labelIfYouClickOnDiscard,
-  labelResolve,
+  labelReturn,
   labelSave,
-  labelThereAreErrorsInTheForm
+  labelWeWillNotBeAbleToSave,
+  labelYourChangesWillNotBeSaved
 } from './translatedLabels';
 
 interface Props {
@@ -34,13 +33,13 @@ const UnsavedChangesDialog = ({
   const { t } = useTranslation();
   const labelTitle = isValidForm
     ? labelDoYouWantToSaveChanges
-    : labelDoYouWantToResolveErrors;
+    : labelYourChangesWillNotBeSaved;
 
-  const labelConfirm = isValidForm ? labelSave : labelResolve;
+  const labelConfirm = isValidForm ? labelSave : labelReturn;
 
-  const labelMessage = `${
-    isValidForm ? labelIfYouClickOnDiscard : labelThereAreErrorsInTheForm
-  } ${isValidForm ? '' : labelDoYouWantToQuitWithoutResolving}`;
+  const labelMessage = isValidForm
+    ? labelIfYouClickOnDiscard
+    : labelWeWillNotBeAbleToSave;
 
   if (not(dialogOpened)) {
     return null;

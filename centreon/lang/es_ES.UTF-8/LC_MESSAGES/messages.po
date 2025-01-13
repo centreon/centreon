@@ -17889,3 +17889,12 @@ msgstr "Sticky para cualquier estado que no sea OK"
 
 # msgid "Export as"
 # msgstr ""
+
+# msgid "Your changes will not be saved"
+# msgstr ""
+
+# msgid "We will not be able to save your data if you leave this page."
+# msgstr ""
+
+# msgid "Return"
+# msgstr ""
