@@ -24,13 +24,13 @@ Feature: Service dependency configuration
     Given a service dependency is configured
     When the user deletes a service dependency
     Then the deleted service dependency is not displayed in the list
-  
+
   @TEST_MON-156893
   Scenario: Change the properties of a service group dependency
     Given a service group dependency is configured
     When the user changes the properties of a service group dependency
     Then the properties of the service group dependency are updated
-  
+
   @TEST_MON-156896
   Scenario: Duplicate one existing service group dependency
     Given a service group dependency is configured
