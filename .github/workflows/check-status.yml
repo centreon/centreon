@@ -172,7 +172,7 @@ jobs:
                   errorMessage += `Pull request #${prNumber} is linked to ${pull.data.base.ref} instead of ${{ needs.get-environment.outputs.linked_dev_branch }}\n`;
                 }
               } catch (e) {
-                errorMessage += `Failed to get information of pull request #${prNumber}: ${e}\n`;
+                errorMessage += `Failed to get information of pull request https://github.com/centreon/centreon/pull/${prNumber}: ${e}\n`;
               }
             }
 
