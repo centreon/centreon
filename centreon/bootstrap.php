@@ -59,4 +59,7 @@ $loader = require __DIR__ . '/vendor/autoload.php';
 
 Doctrine\Common\Annotations\AnnotationRegistry::registerLoader([$loader, 'loadClass']);
 
+// Retrieving Symfony environment variables for legacy code (APIv1,...)
+(new Symfony\Component\Dotenv\Dotenv())->bootEnv(__DIR__ . '/.env');
+
 require_once __DIR__ . "/container.php";
