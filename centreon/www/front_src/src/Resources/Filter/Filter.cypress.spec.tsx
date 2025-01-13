@@ -118,7 +118,7 @@ const CriteriaParams = ({ view }): Array<unknown> => {
       'Basic criterias',
       [
         {
-          criteria: labelHost,
+          criteria: 'host',
           requestToWait: '@GetResourcesByHostType',
           searchValue: getSearchValue({
             value: getValueByTypeSelecton({
@@ -133,7 +133,7 @@ const CriteriaParams = ({ view }): Array<unknown> => {
           views: allViews
         },
         {
-          criteria: labelService,
+          criteria: 'service',
           requestToWait: '@GetResourcesByServiceType',
           searchValue: getSearchValue({
             value: getValueByTypeSelecton({

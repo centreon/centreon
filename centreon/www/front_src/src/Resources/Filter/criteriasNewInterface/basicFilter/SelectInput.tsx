@@ -178,7 +178,7 @@ const SelectInput = ({
       filterOptions={getUniqueOptions}
       getEndpoint={getEndpoint}
       textFieldSlotsAndSlotProps={{
-        slotProps: { htmlInput: { 'data-testid': resourceType.toLowerCase() } }
+        slotProps: { htmlInput: { 'data-testid': resourceType } }
       }}
       isOptionEqualToValue={isOptionEqualToValue}
       label={t(label[resourceType]) as string}
