@@ -128,7 +128,7 @@ const parse = ({
         }
 
         return {
-          id: 0,
+          id:crypto.randomUUID(),
           name: replaceEscapeWithSpace(value),
           formattedName: value
         };
