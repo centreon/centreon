@@ -232,7 +232,7 @@ const Chart = ({
     [axis?.showGridLines]
   );
 
-  if (!isInViewport && !skipIntersectionObserver || !height) {
+  if ((!isInViewport && !skipIntersectionObserver) || !height) {
     return (
       <Skeleton
         height={graphSvgRef?.current?.clientHeight ?? graphHeight}
