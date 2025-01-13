@@ -290,7 +290,7 @@ export const useRenderOptions = ({
     const resources = getResourcesByMetricName(option.name);
 
     return (
-      <ListItem disableGutters>
+      <ListItem disableGutters key={option?.id}>
         <CollapsibleItem
           compact
           dataTestId={option.name}
