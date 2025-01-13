@@ -17890,6 +17890,9 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgid "Export as"
 # msgstr ""
 
+# msgid "If you click on Discard, your changes will not be saved."
+# msgstr ""
+
 # msgid "Do you want to leave this page?"
 # msgstr ""
 
