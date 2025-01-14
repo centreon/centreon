@@ -135,6 +135,10 @@ export const useDashboardItemStyles = makeStyles<{ hasHeader: boolean }>()(
       height: '100%',
       width: '100%'
     },
+    widgetSubContainer: {
+      height: '100%',
+      width: '100%'
+    },
     widgetContent: {
       height: hasHeader
         ? `calc(100% - ${theme.spacing(3.5)} - ${theme.spacing(0.5)})`
