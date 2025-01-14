@@ -27,15 +27,19 @@ services:
 
     Centreon\:
         resource: '../../src/Centreon/*'
-        exclude: '../../src/Centreon/Tests'
+        exclude:
+            - '../../src/Centreon/Tests'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
     Core\:
         resource: '../../src/Core/*'
         exclude:
+            - '../../src/Core/HostTemplate/*'
             - '../../src/Core/TimePeriod/*'
             - '../../src/Core/HostSeverity/*'
+            - '../../src/Core/ServiceSeverity/*'
+            - '../../src/Core/Service/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
