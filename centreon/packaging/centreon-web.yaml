@@ -117,6 +117,7 @@ contents:
 
   - src: "../.env"
     dst: "/usr/share/centreon/.env"
+    type: config|noreplace
     file_info:
       owner: "centreon"
       group: "centreon"
@@ -124,6 +125,7 @@ contents:
 
   - src: "../.env.local.php"
     dst: "/usr/share/centreon/.env.local.php"
+    type: config|noreplace
     file_info:
       owner: "centreon"
       group: "centreon"
