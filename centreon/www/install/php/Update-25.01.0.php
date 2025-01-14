@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ $centreonLog = CentreonLog::create();
 
 // error specific content
 $versionOfTheUpgrade = 'UPGRADE - 25.01.0: ';
-
 $errorMessage = '';
 
 $createUserProfileTable = function (CentreonDB $pearDB) use (&$errorMessage): void {

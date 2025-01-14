@@ -325,7 +325,7 @@ const updatePlatformPackages = (): Cypress.Chainable => {
             ...installCommands,
             `dnf config-manager --set-disabled 'centreon*unstable*'`
           ];
-        } else if ([Cypress.env('STABILITY'), Cypress.env('TARGET_STABILITY')].includes('stable')) {
+        } else if (Cypress.env('STABILITY') === 'stable') {
           installCommands = [
             ...installCommands,
             `dnf config-manager --set-disabled 'centreon*unstable*' --set-disabled 'centreon*testing*'`
@@ -337,7 +337,7 @@ const updatePlatformPackages = (): Cypress.Chainable => {
             ...installCommands,
             `rm -f /etc/apt/sources.list.d/centreon*unstable*`
           ];
-        } else if ([Cypress.env('STABILITY'), Cypress.env('TARGET_STABILITY')].includes('stable')) {
+        } else if (Cypress.env('STABILITY') === 'stable') {
           installCommands = [
             ...installCommands,
             `rm -f /etc/apt/sources.list.d/centreon*{unstable,testing}*`
