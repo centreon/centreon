@@ -320,7 +320,7 @@ const updatePlatformPackages = (): Cypress.Chainable => {
       let installCommands: Array<string> = [];
 
       if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-        if (Cypress.env('STABILITY') === 'testing') {
+        if ([Cypress.env('STABILITY'), Cypress.env('TARGET_STABILITY')].includes('testing')) {
           installCommands = [
             ...installCommands,
             `dnf config-manager --set-disabled 'centreon*unstable*'`
@@ -332,7 +332,7 @@ const updatePlatformPackages = (): Cypress.Chainable => {
           ];
         }
       } else {
-        if (Cypress.env('STABILITY') === 'testing') {
+        if ([Cypress.env('STABILITY'), Cypress.env('TARGET_STABILITY')].includes('testing')) {
           installCommands = [
             ...installCommands,
             `rm -f /etc/apt/sources.list.d/centreon*unstable*`
