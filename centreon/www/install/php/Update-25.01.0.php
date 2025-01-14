@@ -26,6 +26,7 @@ $centreonLog = CentreonLog::create();
 
 // error specific content
 $versionOfTheUpgrade = 'UPGRADE - 25.01.0: ';
+
 $errorMessage = '';
 
 $createUserProfileTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
