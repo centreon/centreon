@@ -27,7 +27,7 @@
     "psr/container": "1.1.1",
     "sensio/framework-extra-bundle": "^6.2",
     "smarty-gettext/smarty-gettext": "^1.6",
-    "smarty/smarty": "^3.1",
+    "centreon/smarty": "dev-MON-155503-3.1.48-fix-php-requirement",
     "symfony/config": "5.4.*",
     "symfony/console": "5.4.*",
     "symfony/dependency-injection": "5.4.*",
