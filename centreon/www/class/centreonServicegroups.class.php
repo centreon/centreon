@@ -221,10 +221,14 @@ class CentreonServicegroups
      */
     public function getObjectForSelect2($values = [], $options = [])
     {
-        global $centreon;
         $items = [];
-        $sgAcl = [];
 
+        if (empty($values)) {
+            return $items;
+        }
+
+        global $centreon;
+        $sgAcl = [];
         # get list of authorized servicegroups
         if (
             ! $centreon->user->access->admin

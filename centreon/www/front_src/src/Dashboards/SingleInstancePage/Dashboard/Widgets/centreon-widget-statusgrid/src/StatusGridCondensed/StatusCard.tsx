@@ -1,11 +1,11 @@
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
-import { Box, useTheme } from '@mui/material';
+import { Box, Typography, useTheme } from '@mui/material';
 
 import {
-  FluidTypography,
+  ParentSize,
   SeverityCode,
   formatMetricValue,
   getStatusColors
@@ -34,6 +34,20 @@ interface Props {
   severityCode: SeverityCode;
   total?: number;
 }
+
+const computeCountTextSize = ({ width, height }): number => {
+  const isHeight = height < width;
+
+  const sizeToBaseOn = Math.min(height, width);
+
+  if (width <= 80) {
+    const scaleFactor = isHeight ? 2.5 : 3.3;
+
+    return sizeToBaseOn / scaleFactor;
+  }
+
+  return sizeToBaseOn / 4.2;
+};
 
 const StatusCard = ({
   count,
@@ -101,29 +115,35 @@ const StatusCard = ({
         target="_blank"
         to={getUrl()}
       >
-        <Box
-          className={cx(classes.status, classes.statusCard)}
-          sx={{ backgroundColor: getStatusColors({ severityCode, theme }) }}
-        >
-          <div className={classes.count}>
-            <FluidTypography
-              className={classes.countText}
-              containerClassName={classes.countTextContainer}
-              max="50px"
-              min="40px"
-              text={formatMetricValue({ unit: '', value: count.total || 0 })}
-            />
-          </div>
-          <div className={classes.label}>
-            <FluidTypography
-              className={classes.labelText}
-              containerClassName={classes.labelTextContainer}
-              max="25px"
-              min="20px"
-              text={t(label)}
-            />
-          </div>
-        </Box>
+        <ParentSize>
+          {({ width, height }) => (
+            <Box
+              className={cx(classes.status, classes.statusCard)}
+              sx={{ backgroundColor: getStatusColors({ severityCode, theme }) }}
+            >
+              <div className={classes.countParentSize}>
+                <Typography
+                  className={classes.countText}
+                  sx={{
+                    fontSize: `${computeCountTextSize({ width, height })}px`
+                  }}
+                >
+                  {formatMetricValue({ unit: '', value: count.total || 0 })}
+                </Typography>
+              </div>
+              {width > 80 && (
+                <div className={cx(classes.countParentSize, classes.label)}>
+                  <Typography
+                    className={classes.countText}
+                    sx={{ fontSize: `${Math.min(height, width) / 6.2}px` }}
+                  >
+                    {t(label)}
+                  </Typography>
+                </div>
+              )}
+            </Box>
+          )}
+        </ParentSize>
       </Link>
     </Tooltip>
   );

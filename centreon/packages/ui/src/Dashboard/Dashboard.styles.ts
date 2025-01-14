@@ -63,7 +63,7 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
         opacity: 1
       },
       position: 'relative',
-      height: '100%',
+      height: '100%'
     }
   })
 );
@@ -77,6 +77,10 @@ export const useDashboardItemStyles = makeStyles<{ hasHeader: boolean }>()(
       background: theme.palette.background.widget,
       border: 'none',
       borderRadius: theme.spacing(1),
+      height: '100%',
+      width: '100%'
+    },
+    widgetSubContainer: {
       height: '100%',
       width: '100%'
     },

@@ -1,24 +1,22 @@
 {
   "name": "centreon/centreon-open-tickets",
   "description": "Module dedicated to open case on various Ticket systems",
-  "version": "24.10.0",
+  "version": "24.11",
   "type": "project",
   "keywords": [
     "centreon",
     "centreon-open-tickets"
   ],
   "license": "GPL-2.0-only",
-  "require": {
-    "centreon/centreon": "dev-MON-146850-php82",
-    "ext-openssl": "*",
-    "ext-json": "*"
-  },
   "require-dev": {
-    "beberlei/assert": "^3.3",
-    "centreon/centreon-test-lib": "dev-MON-147667-upgrade-to-php-8.2",
-    "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
+    "ext-json": "*",
+    "ext-openssl": "*",
+    "beberlei/assert": "3.3.*",
+    "centreon/centreon": "@dev",
+    "centreon/centreon-test-lib": "dev-master",
+    "dealerdirect/phpcodesniffer-composer-installer": "1.0.*",
     "friendsofphp/php-cs-fixer": "3.64.*",
-    "pestphp/pest": "^1.21",
+    "pestphp/pest": "1.23.*",
     "phpcompatibility/php-compatibility": "9.3.*",
     "phpstan/phpstan": "1.12.*",
     "phpstan/phpstan-beberlei-assert": "1.1.*",
@@ -44,6 +42,9 @@
     "platform": {
       "php": "8.2"
     },
+    "preferred-install": {
+      "*": "dist"
+    },
     "allow-plugins": {
       "symfony/flex": false,
       "pestphp/pest-plugin": true,
@@ -66,5 +67,11 @@
     "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
     "rector:check": "rector --dry-run --debug",
     "rector:exec": "rector --debug"
+  },
+  "extra": {
+    "symfony": {
+      "allow-contrib": true,
+      "require": "6.4.*"
+    }
   }
 }

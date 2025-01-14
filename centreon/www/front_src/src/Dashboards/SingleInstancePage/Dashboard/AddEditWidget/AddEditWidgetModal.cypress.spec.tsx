@@ -55,11 +55,17 @@ const widgetsProperties = [
   widgetTopBottomProperties
 ];
 
+const availableWidgets = widgetsProperties.reduce(
+  (acc, { moduleName }) => ({ ...acc, [moduleName]: {} }),
+  {}
+);
+
 const platformVersion = {
   modules: {},
   web: {
     version: '23.04.0'
-  }
+  },
+  widgets: availableWidgets
 };
 
 const initializeWidgets = (defaultStore?): ReturnType<typeof createStore> => {
@@ -617,6 +623,7 @@ describe('AddEditWidgetModal', () => {
         cy.waitForRequest('@getHosts');
 
         cy.findByText('Host 0').click();
+        cy.findByTestId(labelSelectAResource).click();
 
         cy.findAllByText('Host 0').should('have.length', 1);
         cy.findByTestId('CancelIcon').click();
@@ -801,7 +808,6 @@ describe('AddEditWidgetModal', () => {
         cy.waitForRequest('@getHosts');
 
         cy.contains(/^Host 1$/).click();
-        cy.findByTestId(labelSelectAResource).click();
         cy.contains(/^Host 2$/).click();
         cy.waitForRequest('@getServiceMetrics');
 
@@ -839,7 +845,7 @@ describe('AddEditWidgetModal', () => {
         );
       });
 
-      it('hides metrics field when the Meta service resource type is selected and the Meta service is chosen', () => {
+      it('does not hide metrics field when the Meta service resource type is selected and the Meta service is chosen', () => {
         cy.findByLabelText(labelWidgetType).click();
         cy.contains('Generic data for single metric (example)').click();
 
@@ -851,7 +857,7 @@ describe('AddEditWidgetModal', () => {
         cy.waitForRequest('@getMetaService');
         cy.contains('Meta service 0').click();
 
-        cy.contains(labelMetrics).should('not.exist');
+        cy.contains(labelMetrics).should('be.visible');
 
         cy.makeSnapshot();
       });

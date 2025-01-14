@@ -4,7 +4,7 @@ import { animated, useTransition } from '@react-spring/web';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { flatten, isNil, not } from 'ramda';
-import { Route, Routes, useLocation, useParams } from 'react-router-dom';
+import { Route, Routes, useLocation, useParams } from 'react-router';
 
 import { styled } from '@mui/material';
 

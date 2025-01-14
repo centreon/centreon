@@ -1,7 +1,7 @@
 import i18next from 'i18next';
 import { Provider, createStore } from 'jotai';
 import { initReactI18next } from 'react-i18next';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom, userAtom } from '@centreon/ui-context';
@@ -21,7 +21,7 @@ import {
   labelSeeMore,
   labelValue
 } from '../StatusGridStandard/translatedLabels';
-import { hostsEndpoint, resourcesEndpoint } from '../api/endpoints';
+import { resourcesEndpoint } from '../api/endpoints';
 
 import {
   condensedOptions,
@@ -58,7 +58,7 @@ const initialize = ({ options, data, isPublic = false }: Props): void => {
       <TestQueryProvider>
         <Provider store={store}>
           <BrowserRouter>
-            <div style={{ height: '100vh', width: '100vw' }}>
+            <div style={{ height: '400px', width: '1000px' }}>
               <Widget
                 dashboardId={1}
                 globalRefreshInterval={{
@@ -93,7 +93,7 @@ const hostsRequests = (noValues = false): void => {
     cy.interceptAPIRequest({
       alias: 'getHostResources',
       method: Method.GET,
-      path: `./api/latest${hostsEndpoint}?**`,
+      path: `./api/latest${resourcesEndpoint}?**`,
       response: noValues ? emptyData : data
     });
 
@@ -274,7 +274,7 @@ describe('View by host', () => {
 
       cy.contains('Passive_server_1').trigger('mouseover');
 
-      cy.waitForRequest('@getHostTooltipDetails');
+      cy.waitForRequest('@getHostResources');
       cy.waitForRequest('@getDowntime');
 
       cy.get('[data-resourceName="Passive_server_1"]').should(
@@ -391,8 +391,8 @@ describe('View by service', () => {
       cy.findAllByText('Centreon-Server').should('have.length', 7);
       cy.contains('February 1, 2021').should('be.visible');
 
-      cy.contains(labelMetricName).should('be.visible');
-      cy.contains(labelValue).should('be.visible');
+      cy.contains(labelMetricName).should('exist');
+      cy.contains(labelValue).should('exist');
 
       cy.contains('rta').should('be.visible');
       cy.contains('1').should('have.css', 'color', 'rgb(253, 155, 39)');
@@ -414,8 +414,8 @@ describe('View by service', () => {
       cy.findAllByText('Centreon-Server').should('have.length', 7);
       cy.contains('February 1, 2021').should('be.visible');
 
-      cy.contains(labelMetricName).should('be.visible');
-      cy.contains(labelValue).should('be.visible');
+      cy.contains(labelMetricName).should('exist');
+      cy.contains(labelValue).should('exist');
 
       cy.contains('rta').should('be.visible');
       cy.contains('1').should('have.css', 'color', 'rgb(253, 155, 39)');

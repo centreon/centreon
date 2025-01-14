@@ -1,7 +1,7 @@
 ARG REGISTRY_URL=docker.centreon.com/centreon
 ARG FROM_IMAGE_VERSION=develop
 
-FROM ${REGISTRY_URL}/centreon-web-dependencies-alma9:${FROM_IMAGE_VERSION}
+FROM ${REGISTRY_URL}/centreon-web-dependencies-collect-alma9:${FROM_IMAGE_VERSION}
 
 ARG STABILITY
 
@@ -13,10 +13,11 @@ COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 RUN --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <<EOF
 
 if [[ "$STABILITY" == "testing" ]]; then
-  dnf config-manager --set-disabled 'centreon*unstable'
+  dnf config-manager --set-disabled 'centreon*unstable*'
 elif [[ "$STABILITY" == "stable" ]]; then
-  dnf config-manager --set-disabled 'centreon*unstable' --set-disabled 'centreon*testing'
+  dnf config-manager --set-disabled 'centreon*unstable*' --set-disabled 'centreon*testing*'
 fi
+dnf config-manager --set-disabled 'centreon-plugin*unstable*' --set-disabled 'centreon-plugin*testing*'
 
 dnf install -y /tmp/packages-centreon/centreon-*.rpm
 

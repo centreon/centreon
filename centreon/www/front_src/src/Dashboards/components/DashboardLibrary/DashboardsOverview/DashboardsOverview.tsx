@@ -3,7 +3,7 @@ import { ReactElement, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { generatePath, useNavigate } from 'react-router-dom';
+import { generatePath, useNavigate } from 'react-router';
 
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Box, Typography } from '@mui/material';
@@ -30,6 +30,7 @@ import { searchAtom, viewModeAtom } from '../DashboardListing/atom';
 import { ViewMode } from '../DashboardListing/models';
 import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
 
+import { onlyFavoriteDashboardsAtom } from '../DashboardListing/Actions/favoriteFilter/atoms';
 import { useStyles } from './DashboardsOverview.styles';
 import { DashboardsOverviewSkeleton } from './DashboardsOverviewSkeleton';
 import { useDashboardsOverview } from './useDashboardsOverview';
@@ -41,8 +42,10 @@ const DashboardsOverview = (): ReactElement => {
   const viewMode = useAtomValue(viewModeAtom);
   const search = useAtomValue(searchAtom);
   const user = useAtomValue(userAtom);
+  const onlyFavoriteDashboards = useAtomValue(onlyFavoriteDashboardsAtom);
 
-  const { isEmptyList, dashboards, data, isLoading } = useDashboardsOverview();
+  const { isEmptyList, dashboards, data, isLoading, refetch } =
+    useDashboardsOverview();
   const { createDashboard } = useDashboardConfig();
   const { hasEditPermission, canCreateOrManageDashboards } =
     useDashboardUserPermissions();
@@ -84,7 +87,55 @@ const DashboardsOverview = (): ReactElement => {
     return <DashboardsOverviewSkeleton />;
   }
 
-  if (isEmptyList && !search && !isLoading) {
+  const GridTable = (
+    <div>
+      <Box className={classes.warningContainer}>
+        <InfoOutlinedIcon color="primary" />
+        <Typography className={classes.warning}>
+          {t(labelDataDisplayedForRepresentativeUse)}
+        </Typography>
+      </Box>
+      <DataTable isEmpty={isEmptyList} variant="grid">
+        {dashboards.map((dashboard) => (
+          <div className={classes.dashboardItemContainer} key={dashboard.id}>
+            <DataTable.Item
+              hasCardAction
+              Actions={
+                <DashboardCardActions dashboard={dashboard} refetch={refetch} />
+              }
+              description={dashboard.description ?? undefined}
+              hasActions={hasEditPermission(dashboard)}
+              thumbnail={
+                dashboard.thumbnail
+                  ? getThumbnailSrc(dashboard)
+                  : fallbackThumbnail
+              }
+              title={dashboard.name}
+              onClick={navigateToDashboard(dashboard)}
+            />
+            {!dashboard.thumbnail && (
+              <Box className={classes.thumbnailFallbackIcon}>
+                <Tooltip
+                  followCursor={false}
+                  label={t(labelSaveYourDashboardForThumbnail)}
+                  placement="top"
+                >
+                  <InfoOutlinedIcon
+                    color="primary"
+                    data-testid="thumbnail-fallback"
+                  />
+                </Tooltip>
+              </Box>
+            )}
+          </div>
+        ))}
+      </DataTable>
+    </div>
+  );
+
+  const isEmptyListing = isEmptyList && !search && !isLoading;
+
+  if (isEmptyListing && !onlyFavoriteDashboards) {
     return (
       <DataTable isEmpty={isEmptyList} variant="grid">
         <DataTable.EmptyState
@@ -97,51 +148,6 @@ const DashboardsOverview = (): ReactElement => {
       </DataTable>
     );
   }
-
-  const GridTable = (
-    <div>
-        <Box className={classes.warningContainer}>
-          <InfoOutlinedIcon color='primary'/>
-          <Typography className={classes.warning} >
-            {t(labelDataDisplayedForRepresentativeUse)}
-          </Typography>
-        </Box>
-        <DataTable isEmpty={isEmptyList} variant="grid">
-          {dashboards.map((dashboard) => (
-            <div className={classes.dashboardItemContainer} key={dashboard.id}>
-              <DataTable.Item
-                hasCardAction
-                Actions={<DashboardCardActions dashboard={dashboard} />}
-                description={dashboard.description ?? undefined}
-                hasActions={hasEditPermission(dashboard)}
-                thumbnail={
-                  dashboard.thumbnail
-                    ? getThumbnailSrc(dashboard)
-                    : fallbackThumbnail
-                }
-                title={dashboard.name}
-                onClick={navigateToDashboard(dashboard)}
-              />
-              {!dashboard.thumbnail && (
-                <Box className={classes.thumbnailFallbackIcon}>
-                  <Tooltip
-                    followCursor={false}
-                    label={t(labelSaveYourDashboardForThumbnail)}
-                    placement="top"
-                  >
-                    <InfoOutlinedIcon
-                      color="primary"
-                      data-testid="thumbnail-fallback"
-                    />
-                  </Tooltip>
-                </Box>
-              )}
-            </div>
-          ))}
-        </DataTable>
-
-    </div>
-  );
 
   return (
     <div className={classes.container}>

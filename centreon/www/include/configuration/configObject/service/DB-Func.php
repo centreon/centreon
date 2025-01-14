@@ -40,6 +40,7 @@ if (!isset($centreon)) {
 
 use App\Kernel;
 Use Centreon\Domain\Log\Logger;
+use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
@@ -266,6 +267,7 @@ function testServiceExistence($name = null, $hPars = [], $hgPars = [], $returnId
             $id = $arr["service_id"];
         }
         $hPars = $arr["service_hPars"] ?? [];
+        $hPars = is_array($hPars) ? $hPars : [$hPars];
         $hgPars = $arr["service_hgPars"] ?? [];
     }
 
@@ -355,7 +357,12 @@ function enableServiceInDB($service_id = null, $service_arr = [])
         $serviceDescription = $selectStatement->fetchColumn();
 
         signalConfigurationChange('service', (int) $serviceId);
-        $centreon->CentreonLogAction->insertLog("service", $serviceId, $serviceDescription, "enable");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_SERVICE,
+            object_id: $serviceId,
+            object_name: $serviceDescription,
+            action_type: ActionLog::ACTION_TYPE_ENABLE
+        );
     }
 }
 
@@ -375,7 +382,12 @@ function disableServiceInDB($service_id = null, $service_arr = [])
         $row = $dbResult2->fetch();
 
         signalConfigurationChange('service', (int) $serviceId, [], false);
-        $centreon->CentreonLogAction->insertLog("service", $serviceId, $row['service_description'], "disable");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_SERVICE,
+            object_id: $serviceId,
+            object_name: $row['service_description'],
+            action_type: ActionLog::ACTION_TYPE_DISABLE
+        );
     }
 }
 
@@ -438,10 +450,15 @@ function deleteServiceInDB($services = [])
         $query = "SELECT service_description FROM `service` WHERE `service_id` = '" . $serviceId . "' LIMIT 1";
         $dbResult3 = $pearDB->query($query);
         $svcname = $dbResult3->fetch();
-        $centreon->CentreonLogAction->insertLog("service", $serviceId, $svcname['service_description'], "d");
         $pearDB->query("DELETE FROM service WHERE service_id = '" . $serviceId . "'");
         $pearDB->query("DELETE FROM on_demand_macro_service WHERE svc_svc_id = '" . $serviceId . "'");
         $pearDB->query("DELETE FROM contact_service_relation WHERE service_service_id = '" . $serviceId . "'");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_SERVICE,
+            object_id: $serviceId,
+            object_name: $svcname['service_description'],
+            action_type: ActionLog::ACTION_TYPE_DELETE
+        );
 
         signalConfigurationChange('service', (int) $serviceId, $previousPollerIds);
     }
@@ -942,11 +959,11 @@ function multipleServiceInDB(
                             $row2 = $statement->fetch(PDO::FETCH_ASSOC);
                             $description = $row2['service_description'];
                             $centreon->CentreonLogAction->insertLog(
-                                "service",
-                                $maxId["MAX(service_id)"],
-                                $description,
-                                "a",
-                                $fields
+                                object_type: ActionLog::OBJECT_TYPE_SERVICE,
+                                object_id: $maxId["MAX(service_id)"],
+                                object_name: $description,
+                                action_type: ActionLog::ACTION_TYPE_ADD,
+                                fields: $fields
                             );
                         }
 
@@ -986,7 +1003,7 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     //Retrieve vault path before updating values in database.
     $vaultPath = null;
     if ($vaultConfiguration !== null ){
-        $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $service_id);
+        $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $serviceId);
     }
 
     $ret["service_description"] = $service->checkIllegalChar($ret["service_description"]);
@@ -1005,7 +1022,11 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     isset($ret["timeperiod_tp_id"]) && $ret["timeperiod_tp_id"] != null
         ? $rq .= "'" . $ret["timeperiod_tp_id"] . "', "
         : $rq .= "NULL, ";
-    $rq .= "command_command_id2 = null, ";
+
+    $rq .= "command_command_id2 = ";
+    isset($ret["command_command_id2"]) && $ret["command_command_id2"] != null
+        ? $rq .= "'" . $ret["command_command_id2"] . "', "
+        : $rq .= "NULL, ";
 
     // If we are doing a MC, we don't have to set name and alias field
     if (!$massiveChange) {
@@ -1033,7 +1054,11 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
         : $rq .= "NULL, ";
     $rq .= "service_passive_checks_enabled = '2', service_obsess_over_service = '2', ";
     $rq .= "service_check_freshness = '2', service_freshness_threshold = null, ";
-    $rq .= "service_event_handler_enabled = '2', ";
+    $rq .= "service_event_handler_enabled = ";
+    isset($ret["service_event_handler_enabled"]["service_event_handler_enabled"])
+    && $ret["service_event_handler_enabled"]["service_event_handler_enabled"] != 2
+        ? $rq .= "'" . $ret["service_event_handler_enabled"]["service_event_handler_enabled"] . "', "
+        : $rq .= "'2', ";
     $rq .= "service_low_flap_threshold = null, service_high_flap_threshold = null, ";
     $rq .= "service_flap_detection_enabled = '2', service_retain_status_information = '2', ";
     $rq .= "service_retain_nonstatus_information = '2', service_notifications_enabled = '2', ";
@@ -1044,7 +1069,11 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     isset($ret["geo_coords"]) && $ret["geo_coords"] != null
         ? $rq .= "'" . CentreonDB::escape($ret["geo_coords"]) . "', "
         : $rq .= "NULL, ";
-    $rq .= "command_command_id_arg = null, ";
+    $ret["command_command_id_arg"] = getCommandArgs($_POST, $ret);
+    $rq .= "command_command_id_arg = ";
+    isset($ret["command_command_id_arg"]) && $ret["command_command_id_arg"] != null
+        ? $rq .= "'" . CentreonDB::escape($ret["command_command_id_arg"]) . "', "
+        : $rq .= "NULL, ";
     $rq .= "command_command_id_arg2 = null, service_register = ";
     isset($ret["service_register"]) && $ret["service_register"] != null
         ? $rq .= "'" . $ret["service_register"] . "', "
@@ -1094,7 +1123,7 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
                 $writeVaultRepository,
                 $logger,
                 $vaultPath,
-                (int) $service_id,
+                (int) $serviceId,
                 $service->getFormattedMacros(),
             );
         } catch (\Throwable $ex) {
@@ -1111,11 +1140,11 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
-        "service",
-        $serviceId,
-        CentreonDB::escape($ret["service_description"]),
-        "c",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_SERVICE,
+        object_id: $serviceId,
+        object_name: $ret["service_description"],
+        action_type: ActionLog::ACTION_TYPE_CHANGE,
+        fields: $fields
     );
 }
 
@@ -1143,11 +1172,17 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     //Retrieve UUID for vault path before updating values in database.
     $uuid = null;
     if ($vaultConfiguration !== null ){
-        $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $service_id);
+        $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $serviceId);
     }
 
     if (isset($ret["sg_name"])) {
         $ret["sg_name"] = $centreon->checkIllegalChar($ret["sg_name"]);
+    }
+
+    if (isset($ret["command_command_id_arg"]) && $ret["command_command_id_arg"] != null) {
+        $ret["command_command_id_arg"] = str_replace("\n", "//BR//", $ret["command_command_id_arg"]);
+        $ret["command_command_id_arg"] = str_replace("\t", "//T//", $ret["command_command_id_arg"]);
+        $ret["command_command_id_arg"] = str_replace("\r", "//R//", $ret["command_command_id_arg"]);
     }
 
     $rq = "UPDATE service SET ";
@@ -1160,7 +1195,11 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     if (isset($ret["timeperiod_tp_id"]) && $ret["timeperiod_tp_id"] != null) {
         $rq .= "timeperiod_tp_id = '" . $ret["timeperiod_tp_id"] . "', ";
     }
-    $rq .= 'command_command_id2 = null, ';
+
+    $rq .= "command_command_id2 = ";
+    isset($ret["command_command_id2"]) && $ret["command_command_id2"] != null
+        ? $rq .= "'" . $ret["command_command_id2"] . "', "
+        : $rq .= "NULL, ";
 
     if (isset($ret["service_alias"]) && $ret["service_alias"] != null) {
         $rq .= "service_alias = '" . $ret["service_alias"] . "', ";
@@ -1180,7 +1219,14 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     $rq .= "service_acknowledgement_timeout = null, service_is_volatile = '2', ";
     $rq .= "service_active_checks_enabled = '2', service_passive_checks_enabled = '2', ";
     $rq .= "service_obsess_over_service = '2', service_check_freshness = '2', ";
-    $rq .= "service_freshness_threshold = null, service_event_handler_enabled = '2', ";
+    $rq .= "service_freshness_threshold = null, ";
+
+    $rq .= "service_event_handler_enabled = ";
+    isset($ret["service_event_handler_enabled"]["service_event_handler_enabled"])
+    && $ret["service_event_handler_enabled"]["service_event_handler_enabled"] != 2
+        ? $rq .= "'" . $ret["service_event_handler_enabled"]["service_event_handler_enabled"] . "', "
+        : $rq .= "'2', ";
+
     $rq .= 'service_low_flap_threshold = null, service_high_flap_threshold = null, ';
     $rq .= "service_flap_detection_enabled = '2', service_retain_status_information = '2', ";
     $rq .= "service_retain_nonstatus_information = '2', ";
@@ -1189,7 +1235,12 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     $rq .= 'service_stalking_options = null, service_comment = null, ';
 
 
-    $rq .= 'command_command_id_arg = null, command_command_id_arg2 = null, ';
+    $ret["command_command_id_arg"] = getCommandArgs($_POST, $ret);
+    $rq .= "command_command_id_arg = ";
+    isset($ret["command_command_id_arg"]) && $ret["command_command_id_arg"] != null
+        ? $rq .= "'" . CentreonDB::escape($ret["command_command_id_arg"]) . "', "
+        : $rq .= "NULL, ";
+    $rq .= "command_command_id_arg2 = null, ";
     if (isset($ret["service_register"]) && $ret["service_register"] != null) {
         $rq .= "service_register = '" . $ret["service_register"] . "', ";
     }
@@ -1242,7 +1293,7 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
                 $logger,
                 $uuidGenerator,
                 $uuid,
-                (int) $service_id,
+                (int) $serviceId,
                 $service->getFormattedMacros()
             );
         } catch (\Throwable $ex) {
@@ -1253,11 +1304,11 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
-        "service",
-        $serviceId,
-        CentreonDB::escape($ret["service_description"] ?? ""),
-        "mc",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_SERVICE,
+        object_id: $serviceId,
+        object_name: $ret["service_description"] ?? "",
+        action_type: ActionLog::ACTION_TYPE_MASS_CHANGE,
+        fields: $fields
     );
 }
 
@@ -1766,7 +1817,11 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     isset($submittedValues["timeperiod_tp_id"]) && $submittedValues["timeperiod_tp_id"] != null
         ? $request .= "'" . $submittedValues["timeperiod_tp_id"] . "', "
         : $request .= "NULL, ";
-    $request .= 'null, '; // command_command_id2 = null
+
+    isset($submittedValues["command_command_id2"]) && $submittedValues["command_command_id2"] != null
+        ? $request .= "'" . $submittedValues["command_command_id2"] . "', "
+        : $request .= "NULL, ";
+
     $request .= 'null, '; // timeperiod_tp_id2 => null
     isset($submittedValues["service_description"]) && $submittedValues["service_description"] != null
         ? $request .= "'" . CentreonDB::escape($submittedValues["service_description"]) . "', "
@@ -1792,7 +1847,12 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     $request .= "'2', ";  // service_obsess_over_service = '2' (default)
     $request .= "'2', ";  // service_check_freshness = '2' (default)
     $request .= 'null, '; // service_freshness_threshold = null
-    $request .= "'2', ";  // service_event_handler_enabled = '2' (default)
+
+    isset($submittedValues["service_event_handler_enabled"]["service_event_handler_enabled"])
+    && $submittedValues["service_event_handler_enabled"]["service_event_handler_enabled"] != 2
+        ? $request .= "'" . $submittedValues["service_event_handler_enabled"]["service_event_handler_enabled"] . "', "
+        : $request .= "'2', ";
+
     $request .= 'null, '; // service_low_flap_threshold = null
     $request .= 'null, '; // service_high_flap_threshold = null
     $request .= "'2', ";  // service_flap_detection_enabled = '2' (default)
@@ -1812,7 +1872,10 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     isset($submittedValues["geo_coords"]) && $submittedValues["geo_coords"] != null
         ? $request .= "'" . CentreonDB::escape($submittedValues["geo_coords"]) . "', "
         : $request .= "NULL, ";
-    $request .= "null, "; // command_command_id_arg = null
+    $submittedValues['command_command_id_arg'] = getCommandArgs($_POST, $submittedValues);
+    isset($submittedValues["command_command_id_arg"]) && $submittedValues["command_command_id_arg"] != null
+        ? $request .= "'" . CentreonDB::escape($submittedValues["command_command_id_arg"]) . "', "
+        : $request .= "NULL, ";
     $request .= 'null, '; // command_command_id_arg2 = null
     isset($submittedValues["service_register"]) && $submittedValues["service_register"] != null
         ? $request .= "'" . $submittedValues["service_register"] . "', "
@@ -1901,11 +1964,11 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($submittedValues);
     $centreon->CentreonLogAction->insertLog(
-        "service",
-        $service_id["MAX(service_id)"],
-        CentreonDB::escape($submittedValues["service_description"]),
-        "a",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_SERVICE,
+        object_id: $service_id["MAX(service_id)"],
+        object_name: $submittedValues["service_description"],
+        action_type: ActionLog::ACTION_TYPE_ADD,
+        fields: $fields
     );
 
     return (["service_id" => $service_id["MAX(service_id)"], "fields" => $fields]);
@@ -2147,11 +2210,11 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($submittedValues);
     $centreon->CentreonLogAction->insertLog(
-        "service",
-        $service_id["MAX(service_id)"],
-        CentreonDB::escape($submittedValues["service_description"]),
-        "a",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_SERVICE,
+        object_id: $service_id["MAX(service_id)"],
+        object_name: $submittedValues["service_description"],
+        action_type: ActionLog::ACTION_TYPE_ADD,
+        fields: $fields
     );
 
     return (["service_id" => $service_id["MAX(service_id)"], "fields" => $fields]);
@@ -2462,11 +2525,11 @@ function updateService($service_id = null, $from_MC = false, $params = [])
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
-        "service",
-        $service_id,
-        CentreonDB::escape($ret["service_description"]),
-        "c",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_SERVICE,
+        object_id: $service_id,
+        object_name: $ret["service_description"],
+        action_type: ActionLog::ACTION_TYPE_CHANGE,
+        fields: $fields
     );
 }
 
@@ -2703,11 +2766,11 @@ function updateService_MC($service_id = null, $params = [])
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
-        "service",
-        $service_id,
-        CentreonDB::escape($ret["service_description"] ?? ""),
-        "mc",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_SERVICE,
+        object_id: $service_id,
+        object_name: $ret["service_description"] ?? "",
+        action_type: ActionLog::ACTION_TYPE_MASS_CHANGE,
+        fields: $fields
     );
 }
 

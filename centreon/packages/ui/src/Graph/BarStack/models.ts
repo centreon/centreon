@@ -12,7 +12,6 @@ export type BarStackProps = {
   displayValues?: boolean;
   legendDirection?: 'row' | 'column';
   onSingleBarClick?: (barData) => void;
-  size?: number;
   title?: string;
   tooltipProps?: object;
   unit?: 'percentage' | 'number';

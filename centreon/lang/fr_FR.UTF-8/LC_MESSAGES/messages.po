@@ -15374,8 +15374,8 @@ msgstr "Filtre créé"
 msgid "Filter saved"
 msgstr "Filtre sauvegardé"
 
-msgid "Edit filters"
-msgstr "Éditer les filtres"
+msgid "Manage filters"
+msgstr "Gérer les filtres"
 
 msgid "Rename"
 msgstr "Renommer"
@@ -19493,7 +19493,7 @@ msgid "Agent type"
 msgstr "Type d'agent"
 
 msgid "Expand"
-msgstr "Étendre"
+msgstr "Agrandir"
 
 msgid "Collapse"
 msgstr "Réduire"
@@ -19596,8 +19596,54 @@ msgstr "L'ID de collecteur #%d est le seul lié à l'ID de configuration collect
 
 msgid "Error while retrieving multiple poller/agent configurations"
 msgstr "Erreur durant la récupération de multiples configurations collecteur/agent"
+
 msgid "Sticky for any non-OK status"
 msgstr "Sticky pour tout statut non-OK"
 
+msgid "Select a Business Activity to display the preview."
+msgstr "Sélectionnez une activité métier pour afficher l'aperçu."
+
+msgid "year"
+msgstr "année"
+
+msgid "month"
+msgstr "mois"
+
+msgid "hour"
+msgstr "heure"
+
+msgid "minute"
+msgstr "minute"
+
 msgid "There are errors in the form."
 msgstr "Il y a des erreurs dans le formulaire."
+
+msgid "Show only dashboards added to favorites"
+msgstr "Afficher uniquement les tableaux de bord ajoutés aux favoris"
+
+msgid "The dashboard has been added to your favorites."
+msgstr "Le tableau de bord a été ajouté aux favoris."
+
+msgid "The dashboard has been removed from your favorites."
+msgstr "Le tableau de bord a été retiré des favoris."
+
+msgid "Remove from favorites"
+msgstr "Retirer des favoris"
+
+msgid "Add to favorites"
+msgstr "Ajouter aux favoris"
+
+msgid "PNG (as displayed)"
+msgstr "PNG (tel qu'affiché)"
+
+msgid "PNG (medium size)"
+msgstr "PNG (taille moyenne)"
+
+msgid "PNG (small size)"
+msgstr "PNG (petite taille)"
+
+msgid "Export as"
+msgstr "Exporter en tant que"
+
+msgid "If you click on Discard, your changes will not be saved."
+msgstr "Si vous cliquez sur Annuler, vos changements ne seront pas sauvegardés."

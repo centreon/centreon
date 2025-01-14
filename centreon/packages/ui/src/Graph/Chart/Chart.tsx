@@ -59,17 +59,20 @@ interface Props extends LineChartProps {
   transformMatrix?: {
     fx?: (pointX: number) => number;
     fy?: (pointY: number) => number;
-  }
+  };
 }
 
-const filterLines = (lines: Array<Line>, displayThreshold: boolean): Array<Line> => {
+const filterLines = (
+  lines: Array<Line>,
+  displayThreshold: boolean
+): Array<Line> => {
   if (!displayThreshold) {
     return lines;
   }
   const lineOriginMetric = findLineOfOriginMetricThreshold(lines);
 
   if (isEmpty(lineOriginMetric)) {
-      return lines;
+    return lines;
   }
 
   const findLinesUpperLower = lines.map((line) =>

@@ -62,6 +62,7 @@ final class FindDashboardsPresenter extends DefaultPresenter implements FindDash
                     'own_role' => DashboardSharingRoleConverter::toString($dashboard->ownRole),
                     'shares' => $this->formatShares($dashboard->shares),
                     'thumbnail' => $this->formatThumbnail($dashboard->thumbnail),
+                    'is_favorite' => $dashboard->isFavorite,
                 ];
             }
 

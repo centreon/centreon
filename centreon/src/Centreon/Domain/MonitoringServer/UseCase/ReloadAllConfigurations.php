@@ -27,8 +27,8 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Exception\TimeoutException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\MonitoringServer\Exception\ConfigurationMonitoringServerException;
-use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
+use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -63,7 +63,7 @@ class ReloadAllConfigurations
     {
         try {
             if ($this->contact->isAdmin()) {
-                $monitoringServers = $this->monitoringServerRepository->findServersWithRequestParameters();
+                $monitoringServers = $this->monitoringServerRepository->findServersWithoutRequestParameters();
             } else {
                 if (
                     ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ)
@@ -77,7 +77,7 @@ class ReloadAllConfigurations
 
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->contact);
 
-                $monitoringServers = $this->monitoringServerRepository->findServersWithRequestParametersAndAccessGroups(
+                $monitoringServers = $this->monitoringServerRepository->findAllServersWithAccessGroups(
                     $accessGroups
                 );
             }

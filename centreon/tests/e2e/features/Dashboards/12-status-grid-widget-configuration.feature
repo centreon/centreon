@@ -66,3 +66,12 @@ Feature: Configuring status grid widget
     And selects the widget type "Status Grid"
     And searches for a specific resource type
     Then only the resource that matches the search input is displayed in the results
+
+  @TEST_MON-153189
+  Scenario: Verifying the Proper Functionality of the Resource Filter
+    Given a dashboard in the dashboard administrator user's dashboard library
+    When the dashboard administrator user selects the option to add a new widget
+    And selects the widget type "Status Grid"
+    Then configuration properties for the Status Grid widget are displayed
+    When the dashboard administrator selects a service by typing a single character
+    Then only the services containing the typed character should be displayed in the list

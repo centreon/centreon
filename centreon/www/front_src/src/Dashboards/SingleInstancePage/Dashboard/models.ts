@@ -8,6 +8,8 @@ export interface PanelConfiguration {
   isAddWidgetPanel?: boolean;
   panelMinHeight?: number;
   panelMinWidth?: number;
+  panelDefaultWidth?: number;
+  panelDefaultHeight?: number;
   path: string;
 }
 
@@ -31,12 +33,12 @@ export interface Panel extends ReactGridLayout.Layout {
 export interface Thumbnail {
   id: number;
   name: string;
-  directory: string
+  directory: string;
 }
 
 export interface Dashboard {
   layout: Array<Panel>;
-  thumbnail?: Thumbnail| null;
+  thumbnail?: Thumbnail | null;
 }
 
 export interface PanelDetailsToAPI extends NamedEntity {

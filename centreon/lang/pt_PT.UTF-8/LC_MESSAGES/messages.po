@@ -14963,7 +14963,7 @@ msgstr "Erro ao remover tokens de um contato"
 #  msgid "Filter saved"
 #  msgid ""
 
-#  msgid "Edit filters"
+#  msgid "Manage filters"
 #  msgstr ""
 
 #  msgid "Rename"
@@ -18151,6 +18151,18 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "If ticket management is enabled, only the “by service” view is available."
 #  msgstr ""
 
+#  msgid "year"
+#  msgstr ""
+
+#  msgid "month"
+#  msgstr ""
+
+#  msgid "hour"
+#  msgstr ""
+
+#  msgid "minute"
+#  msgstr ""
+
 #  msgid "Ticket management"
 #  msgstr ""
 
@@ -18158,6 +18170,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 # msgid "Clock / Timer"
+# msgstr ""
+
+# msgid "Select a Business Activity to display the preview."
 # msgstr ""
 
 # msgid "Breadcrumb copied"
@@ -18287,4 +18302,34 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 # msgid "There are errors in the form."
+# msgstr ""
+
+# msgid "Show only dashboards marked as favorites"
+# msgstr ""
+
+# msgid "The dashboard has been added to your favorites."
+# msgstr ""
+
+# msgid "The dashboard has been removed from your favorites."
+# msgstr ""
+
+# msgid "Remove from favorites"
+# msgstr ""
+
+# msgid "Add to favorites"
+# msgstr ""
+
+# msgid "PNG (as displayed)"
+# msgstr ""
+
+# msgid "PNG (medium size)"
+# msgstr ""
+
+# msgid "PNG (small size)"
+# msgstr ""
+
+# msgid "Export as"
+# msgstr ""
+
+# msgid "If you click on Discard, your changes will not be saved."
 # msgstr ""
