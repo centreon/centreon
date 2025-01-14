@@ -264,9 +264,9 @@ paths:
     $ref: "./latest/onPremise/Configuration/AgentConfiguration/DeleteAndUpdateAndFindDetailAc.yaml"
   /configuration/agent-configurations/{ac_id}/pollers/{poller_id}:
     $ref: "./latest/onPremise/Configuration/AgentConfiguration/DeleteAcPollerLink.yaml"
-  /configuration/broker/{brokerId}/{tag}:
+  /configuration/broker/{broker_id}/{tag}:
     $ref: "./latest/onPremise/Configuration/Broker/AddBrokerInputOutput.yaml"
-  /configuration/broker/{brokerId}/outputs/{outputId}/file:
+  /configuration/broker/{broker_id}/outputs/{output_id}/file:
     $ref: "./latest/onPremise/Configuration/Broker/UpdateStreamConnectorFile.yaml"
   /configuration/commands:
     $ref: "./latest/onPremise/Configuration/Command/AddAndFindCommands.yaml"
@@ -637,6 +637,8 @@ paths:
       summary: "Get a host severity"
       description: |
         Get a host severity configuration
+      parameters:
+        - $ref: '#/components/parameters/HostSeverityId'
       responses:
         "200":
           description: "OK"
@@ -5886,7 +5888,7 @@ components:
         snmp_version:
           type: string
           nullable: true
-          enum: [1, 2c, 3]
+          enum: ["1", "2c", "3"]
           description: |
             Version of the SNMP agent.
 
@@ -6641,6 +6643,7 @@ components:
              * `3` - UNKNOWN
           example: 1
     Acknowledgement.Service:
+      type: object
       nullable: true
       allOf:
         - $ref: '#/components/schemas/Acknowledgement.Host'
@@ -6930,7 +6933,7 @@ components:
       properties:
         status:
           type: string
-          enum: [0, 1, 2, 3]
+          enum: ["0", "1", "2", "3"]
           description: |
             Service status code that can be submitted
             * `0` - OK
