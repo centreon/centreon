@@ -564,7 +564,6 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                     WHERE parent.topology_name = 'Dashboards'
                         AND topology.topology_name IN ('Viewer','Administrator','Creator')
                         AND acltr.access_right IS NOT NULL
-                        AND c.contact_oreon = '1'
                         AND c.contact_id IN ({$bindTokenAsString})
                         GROUP BY c.contact_id
             SQL;

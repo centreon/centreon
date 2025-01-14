@@ -1,0 +1,670 @@
+{
+  "result": [
+      {
+          "id": 1,
+          "hosts": [
+              {
+                  "id": 42,
+                  "name": "central",
+                  "alias": "central",
+                  "display_name": "central",
+                  "services": [
+                      {
+                          "id": 284,
+                          "description": "proc-sshd",
+                          "display_name": "proc-sshd",
+                          "state": 0
+                      },
+                      {
+                          "id": 285,
+                          "description": "proc-ntpd",
+                          "display_name": "proc-ntpd",
+                          "state": 0
+                      },
+                      {
+                          "id": 286,
+                          "description": "proc-httpd",
+                          "display_name": "proc-httpd",
+                          "state": 0
+                      },
+                      {
+                          "id": 287,
+                          "description": "proc-gorgoned",
+                          "display_name": "proc-gorgoned",
+                          "state": 0
+                      },
+                      {
+                          "id": 288,
+                          "description": "proc-crond",
+                          "display_name": "proc-crond",
+                          "state": 0
+                      },
+                      {
+                          "id": 289,
+                          "description": "proc-centengine",
+                          "display_name": "proc-centengine",
+                          "state": 0
+                      },
+                      {
+                          "id": 290,
+                          "description": "proc-broker-sql",
+                          "display_name": "proc-broker-sql",
+                          "state": 0
+                      },
+                      {
+                          "id": 291,
+                          "description": "proc-broker-rrd",
+                          "display_name": "proc-broker-rrd",
+                          "state": 0
+                      },
+                      {
+                          "id": 292,
+                          "description": "Broker-Stats",
+                          "display_name": "Broker-Stats",
+                          "state": 3
+                      },
+                      {
+                          "id": 293,
+                          "description": "Ping",
+                          "display_name": "Ping",
+                          "state": 4
+                      },
+                      {
+                          "id": 294,
+                          "description": "Swap",
+                          "display_name": "Swap",
+                          "state": 1
+                      },
+                      {
+                          "id": 295,
+                          "description": "Memory",
+                          "display_name": "Memory",
+                          "state": 0
+                      },
+                      {
+                          "id": 297,
+                          "description": "Cpu",
+                          "display_name": "Cpu",
+                          "state": 0
+                      },
+                      {
+                          "id": 298,
+                          "description": "Load",
+                          "display_name": "Load",
+                          "state": 0
+                      },
+                      {
+                          "id": 410,
+                          "description": "ad",
+                          "display_name": "ad",
+                          "state": 0
+                      }
+                  ],
+                  "state": 0
+              },
+              {
+                  "id": 50,
+                  "name": "central_Change_status",
+                  "alias": "central_Change_status",
+                  "display_name": "central_Change_status",
+                  "services": [
+                      {
+                          "id": 350,
+                          "description": "proc-sshd",
+                          "display_name": "proc-sshd",
+                          "state": 0
+                      },
+                      {
+                          "id": 351,
+                          "description": "proc-ntpd",
+                          "display_name": "proc-ntpd",
+                          "state": 0
+                      },
+                      {
+                          "id": 352,
+                          "description": "proc-httpd",
+                          "display_name": "proc-httpd",
+                          "state": 0
+                      },
+                      {
+                          "id": 353,
+                          "description": "proc-gorgoned",
+                          "display_name": "proc-gorgoned",
+                          "state": 0
+                      },
+                      {
+                          "id": 354,
+                          "description": "proc-crond",
+                          "display_name": "proc-crond",
+                          "state": 0
+                      },
+                      {
+                          "id": 355,
+                          "description": "proc-centengine",
+                          "display_name": "proc-centengine",
+                          "state": 0
+                      },
+                      {
+                          "id": 356,
+                          "description": "proc-broker-sql",
+                          "display_name": "proc-broker-sql",
+                          "state": 0
+                      },
+                      {
+                          "id": 357,
+                          "description": "proc-broker-rrd",
+                          "display_name": "proc-broker-rrd",
+                          "state": 0
+                      },
+                      {
+                          "id": 358,
+                          "description": "Broker-Stats",
+                          "display_name": "Broker-Stats",
+                          "state": 3
+                      },
+                      {
+                          "id": 359,
+                          "description": "Ping",
+                          "display_name": "Ping",
+                          "state": 0
+                      },
+                      {
+                          "id": 360,
+                          "description": "Swap",
+                          "display_name": "Swap",
+                          "state": 1
+                      },
+                      {
+                          "id": 361,
+                          "description": "Memory",
+                          "display_name": "Memory",
+                          "state": 0
+                      },
+                      {
+                          "id": 362,
+                          "description": "Cpu",
+                          "display_name": "Cpu",
+                          "state": 0
+                      },
+                      {
+                          "id": 363,
+                          "description": "Load",
+                          "display_name": "Load",
+                          "state": 0
+                      }
+                  ],
+                  "state": 0
+              },
+              {
+                  "id": 22,
+                  "name": "i-0ed42615100398296",
+                  "alias": "i-0ed42615100398296",
+                  "display_name": "i-0ed42615100398296",
+                  "services": [
+                      {
+                          "id": 104,
+                          "description": "Ec2-Status",
+                          "display_name": "Ec2-Status",
+                          "state": 3
+                      },
+                      {
+                          "id": 105,
+                          "description": "Ec2-Network",
+                          "display_name": "Ec2-Network",
+                          "state": 3
+                      },
+                      {
+                          "id": 106,
+                          "description": "Ec2-Diskio",
+                          "display_name": "Ec2-Diskio",
+                          "state": 3
+                      },
+                      {
+                          "id": 107,
+                          "description": "Ec2-Cpu-Usage",
+                          "display_name": "Ec2-Cpu-Usage",
+                          "state": 3
+                      },
+                      {
+                          "id": 108,
+                          "description": "Ec2-Cpu-Credit",
+                          "display_name": "Ec2-Cpu-Credit",
+                          "state": 3
+                      }
+                  ],
+                  "state": 1
+              },
+              {
+                  "id": 40,
+                  "name": "pendo.centreon.io",
+                  "alias": "pendo.centreon.io",
+                  "display_name": "pendo.centreon.io",
+                  "services": [
+                      {
+                          "id": 274,
+                          "description": "Ec2-Status",
+                          "display_name": "Ec2-Status",
+                          "state": 3
+                      },
+                      {
+                          "id": 275,
+                          "description": "Ec2-Network",
+                          "display_name": "Ec2-Network",
+                          "state": 3
+                      },
+                      {
+                          "id": 276,
+                          "description": "Ec2-Diskio",
+                          "display_name": "Ec2-Diskio",
+                          "state": 3
+                      },
+                      {
+                          "id": 277,
+                          "description": "Ec2-Cpu-Usage",
+                          "display_name": "Ec2-Cpu-Usage",
+                          "state": 3
+                      },
+                      {
+                          "id": 278,
+                          "description": "Ec2-Cpu-Credit",
+                          "display_name": "Ec2-Cpu-Credit",
+                          "state": 3
+                      }
+                  ],
+                  "state": 1
+              },
+              {
+                  "id": 48,
+                  "name": "sfarouq",
+                  "alias": "sfarouq",
+                  "display_name": "sfarouq",
+                  "services": [
+                      {
+                          "id": 324,
+                          "description": "proc-sshd",
+                          "display_name": "proc-sshd",
+                          "state": 0
+                      },
+                      {
+                          "id": 325,
+                          "description": "proc-ntpd",
+                          "display_name": "proc-ntpd",
+                          "state": 0
+                      },
+                      {
+                          "id": 326,
+                          "description": "proc-httpd",
+                          "display_name": "proc-httpd",
+                          "state": 0
+                      },
+                      {
+                          "id": 327,
+                          "description": "proc-gorgoned",
+                          "display_name": "proc-gorgoned",
+                          "state": 0
+                      },
+                      {
+                          "id": 328,
+                          "description": "proc-crond",
+                          "display_name": "proc-crond",
+                          "state": 0
+                      },
+                      {
+                          "id": 329,
+                          "description": "proc-centengine",
+                          "display_name": "proc-centengine",
+                          "state": 0
+                      },
+                      {
+                          "id": 330,
+                          "description": "proc-broker-sql",
+                          "display_name": "proc-broker-sql",
+                          "state": 0
+                      },
+                      {
+                          "id": 331,
+                          "description": "proc-broker-rrd",
+                          "display_name": "proc-broker-rrd",
+                          "state": 0
+                      },
+                      {
+                          "id": 332,
+                          "description": "Broker-Stats",
+                          "display_name": "Broker-Stats",
+                          "state": 3
+                      },
+                      {
+                          "id": 333,
+                          "description": "Ping",
+                          "display_name": "Ping",
+                          "state": 0
+                      },
+                      {
+                          "id": 334,
+                          "description": "Swap",
+                          "display_name": "Swap",
+                          "state": 1
+                      },
+                      {
+                          "id": 335,
+                          "description": "Memory",
+                          "display_name": "Memory",
+                          "state": 0
+                      },
+                      {
+                          "id": 336,
+                          "description": "Load",
+                          "display_name": "Load",
+                          "state": 0
+                      },
+                      {
+                          "id": 337,
+                          "description": "Cpu",
+                          "display_name": "Cpu",
+                          "state": 0
+                      },
+                      {
+                          "id": 338,
+                          "description": "ping-sfarouq",
+                          "display_name": "ping-sfarouq",
+                          "state": 0
+                      }
+                  ],
+                  "state": 0
+              },
+              {
+                  "id": 41,
+                  "name": "stack-dbo-central",
+                  "alias": "stack-dbo-central",
+                  "display_name": "stack-dbo-central",
+                  "services": [
+                      {
+                          "id": 279,
+                          "description": "Ec2-Status",
+                          "display_name": "Ec2-Status",
+                          "state": 3
+                      },
+                      {
+                          "id": 280,
+                          "description": "Ec2-Network",
+                          "display_name": "Ec2-Network",
+                          "state": 3
+                      },
+                      {
+                          "id": 281,
+                          "description": "Ec2-Diskio",
+                          "display_name": "Ec2-Diskio",
+                          "state": 3
+                      },
+                      {
+                          "id": 282,
+                          "description": "Ec2-Cpu-Usage",
+                          "display_name": "Ec2-Cpu-Usage",
+                          "state": 3
+                      },
+                      {
+                          "id": 283,
+                          "description": "Ec2-Cpu-Credit",
+                          "display_name": "Ec2-Cpu-Credit",
+                          "state": 3
+                      }
+                  ],
+                  "state": 1
+              },
+              {
+                  "id": 43,
+                  "name": "test-host",
+                  "alias": "test-api",
+                  "display_name": "test-host",
+                  "services": [
+                      {
+                          "id": 299,
+                          "description": "generic-service",
+                          "display_name": "generic-service",
+                          "state": 0
+                      }
+                  ],
+                  "state": 4
+              },
+              {
+                  "id": 45,
+                  "name": "test-host2",
+                  "alias": "test-api",
+                  "display_name": "test-host2",
+                  "services": [
+                      {
+                          "id": 300,
+                          "description": "proc-sshd",
+                          "display_name": "proc-sshd",
+                          "state": 0
+                      },
+                      {
+                          "id": 301,
+                          "description": "proc-ntpd",
+                          "display_name": "proc-ntpd",
+                          "state": 0
+                      },
+                      {
+                          "id": 302,
+                          "description": "proc-httpd",
+                          "display_name": "proc-httpd",
+                          "state": 0
+                      },
+                      {
+                          "id": 303,
+                          "description": "proc-gorgoned",
+                          "display_name": "proc-gorgoned",
+                          "state": 0
+                      },
+                      {
+                          "id": 304,
+                          "description": "proc-crond",
+                          "display_name": "proc-crond",
+                          "state": 0
+                      },
+                      {
+                          "id": 305,
+                          "description": "proc-centengine",
+                          "display_name": "proc-centengine",
+                          "state": 0
+                      },
+                      {
+                          "id": 306,
+                          "description": "proc-broker-sql",
+                          "display_name": "proc-broker-sql",
+                          "state": 0
+                      },
+                      {
+                          "id": 307,
+                          "description": "proc-broker-rrd",
+                          "display_name": "proc-broker-rrd",
+                          "state": 0
+                      },
+                      {
+                          "id": 308,
+                          "description": "Broker-Stats",
+                          "display_name": "Broker-Stats",
+                          "state": 3
+                      },
+                      {
+                          "id": 309,
+                          "description": "Ping",
+                          "display_name": "Ping",
+                          "state": 0
+                      },
+                      {
+                          "id": 310,
+                          "description": "Swap",
+                          "display_name": "Swap",
+                          "state": 1
+                      },
+                      {
+                          "id": 311,
+                          "description": "Memory",
+                          "display_name": "Memory",
+                          "state": 0
+                      },
+                      {
+                          "id": 312,
+                          "description": "Load",
+                          "display_name": "Load",
+                          "state": 0
+                      },
+                      {
+                          "id": 313,
+                          "description": "Cpu",
+                          "display_name": "Cpu",
+                          "state": 0
+                      }
+                  ],
+                  "state": 0
+              }
+          ],
+          "name": "Hostgroup_Linux"
+      },
+      {
+          "id": 4,
+          "hosts": [
+              {
+                  "id": 40,
+                  "name": "pendo.centreon.io",
+                  "alias": "pendo.centreon.io",
+                  "display_name": "pendo.centreon.io",
+                  "services": [
+                      {
+                          "id": 274,
+                          "description": "Ec2-Status",
+                          "display_name": "Ec2-Status",
+                          "state": 3
+                      },
+                      {
+                          "id": 275,
+                          "description": "Ec2-Network",
+                          "display_name": "Ec2-Network",
+                          "state": 3
+                      },
+                      {
+                          "id": 276,
+                          "description": "Ec2-Diskio",
+                          "display_name": "Ec2-Diskio",
+                          "state": 3
+                      },
+                      {
+                          "id": 277,
+                          "description": "Ec2-Cpu-Usage",
+                          "display_name": "Ec2-Cpu-Usage",
+                          "state": 3
+                      },
+                      {
+                          "id": 278,
+                          "description": "Ec2-Cpu-Credit",
+                          "display_name": "Ec2-Cpu-Credit",
+                          "state": 3
+                      }
+                  ],
+                  "state": 1
+              }
+          ],
+          "name": "i-00cc82fa140f555d1"
+      },
+      {
+          "id": 2,
+          "hosts": [
+              {
+                  "id": 41,
+                  "name": "stack-dbo-central",
+                  "alias": "stack-dbo-central",
+                  "display_name": "stack-dbo-central",
+                  "services": [
+                      {
+                          "id": 279,
+                          "description": "Ec2-Status",
+                          "display_name": "Ec2-Status",
+                          "state": 3
+                      },
+                      {
+                          "id": 280,
+                          "description": "Ec2-Network",
+                          "display_name": "Ec2-Network",
+                          "state": 3
+                      },
+                      {
+                          "id": 281,
+                          "description": "Ec2-Diskio",
+                          "display_name": "Ec2-Diskio",
+                          "state": 3
+                      },
+                      {
+                          "id": 282,
+                          "description": "Ec2-Cpu-Usage",
+                          "display_name": "Ec2-Cpu-Usage",
+                          "state": 3
+                      },
+                      {
+                          "id": 283,
+                          "description": "Ec2-Cpu-Credit",
+                          "display_name": "Ec2-Cpu-Credit",
+                          "state": 3
+                      }
+                  ],
+                  "state": 1
+              }
+          ],
+          "name": "i-0374391373caa3ba7"
+      },
+      {
+          "id": 3,
+          "hosts": [
+              {
+                  "id": 22,
+                  "name": "i-0ed42615100398296",
+                  "alias": "i-0ed42615100398296",
+                  "display_name": "i-0ed42615100398296",
+                  "services": [
+                      {
+                          "id": 104,
+                          "description": "Ec2-Status",
+                          "display_name": "Ec2-Status",
+                          "state": 3
+                      },
+                      {
+                          "id": 105,
+                          "description": "Ec2-Network",
+                          "display_name": "Ec2-Network",
+                          "state": 3
+                      },
+                      {
+                          "id": 106,
+                          "description": "Ec2-Diskio",
+                          "display_name": "Ec2-Diskio",
+                          "state": 3
+                      },
+                      {
+                          "id": 107,
+                          "description": "Ec2-Cpu-Usage",
+                          "display_name": "Ec2-Cpu-Usage",
+                          "state": 3
+                      },
+                      {
+                          "id": 108,
+                          "description": "Ec2-Cpu-Credit",
+                          "display_name": "Ec2-Cpu-Credit",
+                          "state": 3
+                      }
+                  ],
+                  "state": 1
+              }
+          ],
+          "name": "i-0ed42615100398296"
+      }
+  ],
+  "meta": {
+      "page": 1,
+      "limit": 10,
+      "search": {},
+      "sort_by": {
+          "name": "ASC"
+      },
+      "total": 4
+  }
+}

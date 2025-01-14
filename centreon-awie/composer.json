@@ -1,21 +1,21 @@
 {
   "name": "centreon/centreon-awie",
-  "version": "24.10",
+  "version": "24.11",
   "type": "project",
   "license": "Apache-2.0",
   "require-dev": {
     "ext-json": "*",
-    "behat/behat": "^3.10",
-    "behat/mink-selenium2-driver": "^1.5",
+    "behat/behat": "3.15.*",
+    "behat/mink-selenium2-driver": "1.7.*",
     "centreon/centreon": "@dev",
     "centreon/centreon-test-lib": "dev-master",
-    "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
-    "friends-of-behat/mink": "^1.9",
-    "friends-of-behat/mink-extension": "^2.5",
+    "dealerdirect/phpcodesniffer-composer-installer": "1.0.*",
+    "friends-of-behat/mink": "1.11.*",
+    "friends-of-behat/mink-extension": "2.7.*",
     "friendsofphp/php-cs-fixer": "3.64.*",
     "phpcompatibility/php-compatibility": "9.3.*",
     "phpstan/phpstan": "1.12.*",
-    "psr/container": "1.1.1",
+    "psr/container": "1.1.*",
     "rector/rector": "1.2.*",
     "squizlabs/php_codesniffer": "3.10.*"
   },
@@ -49,5 +49,11 @@
     "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
     "rector:check": "rector --dry-run --debug",
     "rector:exec": "rector --debug"
+  },
+  "extra": {
+    "symfony": {
+      "allow-contrib": true,
+      "require": "6.4.*"
+    }
   }
 }

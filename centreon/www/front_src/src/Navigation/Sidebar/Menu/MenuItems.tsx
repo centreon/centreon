@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 import {
   Link as RouterLink,
   LinkProps as RouterLinkProps
-} from 'react-router-dom';
+} from 'react-router';
 import { makeStyles } from 'tss-react/mui';
 
 import { Chip, Theme } from '@mui/material';

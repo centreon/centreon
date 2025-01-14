@@ -11,7 +11,7 @@ get:
       content:
         application/json:
           schema:
-            - $ref: 'Schema/Dashboard.MetricsTop.yaml'
+            $ref: 'Schema/Dashboard.MetricsTop.yaml'
     '403': { $ref: '../../Common/Response/Forbidden.yaml' }
     '404': { $ref: '../../Common/Response/NotFound.yaml' }
     '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
