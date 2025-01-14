@@ -35,6 +35,7 @@ services:
     Core\:
         resource: '../../src/Core/*'
         exclude:
+            - '../../src/Core/HostTemplate/*'
             - '../../src/Core/TimePeriod/*'
             - '../../src/Core/HostSeverity/*'
             - '../../src/Core/ServiceSeverity/*'
