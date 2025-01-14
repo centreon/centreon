@@ -384,7 +384,7 @@ function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
 
 	case $version in
-	"24.0"[4-9]|"24.1"[0-2])
+	"24.0"[4-9] | "24.1"[0-2] | "25.0"[1-9])
 		detected_mariadb_version="10.11"
 	;;
 	*)
@@ -498,7 +498,7 @@ function set_required_prerequisite() {
 						$PKG_MGR module install php:remi-8.1 -y -q
 						$PKG_MGR module enable php:remi-8.1 -y -q
 						;;
-					"24.1"[0-2])
+					"24.1"[0-2] | "25.0"[1-9])
 						install_remi_repo
 						log "INFO" "Installing PHP 8.2 and enable it"
 						$PKG_MGR module reset php -y -q
@@ -513,7 +513,7 @@ function set_required_prerequisite() {
 			;;
 
 		9*)
-			if ! [[ "$version" == "23.04" || "$version" == "23.10" || "$version" =~ "24.0"[4-9] || "$version" =~ "24.1"[0-2] ]]; then
+			if ! [[ "$version" == "23.04" || "$version" == "23.10" || "$version" =~ "24.0"[4-9] || "$version" =~ "24.1"[0-2] | "$version" =~ "25.0"[1-9] ]]; then
 				error_and_exit "Only Centreon version >=23.04 is compatible with EL9, you chose $version"
 			fi
 
@@ -552,7 +552,7 @@ function set_required_prerequisite() {
 						$PKG_MGR module install php:8.1 -y -q
 						$PKG_MGR module enable php:8.1 -y -q
 						;;
-					"24.1"[0-2])
+					"24.1"[0-2] | "25.0"[1-9])
 						#install_remi_repo
 						log "INFO" "Installing PHP 8.2 and enable it"
 						$PKG_MGR module reset php -y -q
@@ -603,7 +603,7 @@ function set_required_prerequisite() {
 				PHP_SERVICE_UNIT="php8.1-fpm"
 				;;
 			12)
-				if ! [[ "$version" == "24.04" || "$version" =~ "24.1"[0-2] ]]; then
+				if ! [[ "$version" == "24.04" || "$version" =~ "24.1"[0-2] || "$version" =~ "25.0"[1-9] ]]; then
 					error_and_exit "For Debian $detected_os_version, only Centreon versions >= 24.04 are compatible. You chose $version"
 				elif [[ "$version" == "24.04" ]];then
 					PHP_SERVICE_UNIT="php8.1-fpm"
@@ -623,7 +623,7 @@ function set_required_prerequisite() {
 			ARCH=""
 			if [[ "$VENDORID" == "ARM" ]]; then
 				ARCH="[ arch=all,arm64 ]"
-				if ! [[ "$version" == "23.10" || "$version" =~ "24.0"[4-9] || "$version" =~ "24.1"[0-2] || "$topology" == "poller" ]]; then
+				if ! [[ "$version" == "23.10" || "$version" =~ "24.0"[4-9] || "$version" =~ "24.1"[0-2] || "$version" =~ "25.0"[1-9] || "$topology" == "poller" ]]; then
 					error_and_exit "For Debian on Raspberry, only Centreon versions (poller mode) >=23.10 are compatible. You chose $version to install $topology server"
 				fi
 			fi
@@ -657,7 +657,7 @@ function set_required_prerequisite() {
 					echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
 					wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
 					;;
-				"24.1"[0-2])
+				"24.1"[0-2] | "25.0"[1-9])
 					echo "Installing php from official os repositories."
 					;;
 			esac
@@ -951,7 +951,7 @@ function play_install_wizard() {
 	install_wizard_post ${sessionID} "partitionTables.php"
 	install_wizard_post ${sessionID} "generationCache.php"
 	INSTALLED_EXTENSIONS='modules%5B%5D=centreon-license-manager&modules%5B%5D=centreon-pp-manager&modules%5B%5D=centreon-autodiscovery-server&widgets%5B%5D=engine-status&widgets%5B%5D=global-health&widgets%5B%5D=graph-monitoring&widgets%5B%5D=grid-map&widgets%5B%5D=host-monitoring&widgets%5B%5D=hostgroup-monitoring&widgets%5B%5D=httploader&widgets%5B%5D=live-top10-cpu-usage&widgets%5B%5D=live-top10-memory-usage&widgets%5B%5D=service-monitoring&widgets%5B%5D=servicegroup-monitoring&widgets%5B%5D=tactical-overview&widgets%5B%5D=single-metric'
-	if [[ "$version" =~ "24.0"[4-9] || "$version" =~ "24.1"[0-2] ]]; then
+	if [[ "$version" =~ "24.0"[4-9] || "$version" =~ "24.1"[0-2] || "$version" =~ "25.0"[1-9] ]]; then
 		INSTALLED_EXTENSIONS+='&modules%5B%5D=centreon-it-edition-extensions'
 	fi
 	install_wizard_post ${sessionID} "process_step8.php" "$INSTALLED_EXTENSIONS"
