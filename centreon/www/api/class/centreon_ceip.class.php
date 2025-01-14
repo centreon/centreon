@@ -19,6 +19,8 @@
  *
  */
 
+use CentreonLicense\ServiceProvider;
+
 require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonDB.class.php';
 require_once __DIR__ . '/../../class/centreonUUID.class.php';
@@ -176,11 +178,12 @@ class CentreonCeip extends CentreonWebService
         // Get Instance information
         $instanceInformation = $this->getServerType();
 
-        return [
+        $accountInformation = [
             'id' => $this->uuid,
             'name' => $licenseInfo['companyName'],
             'serverType' => $instanceInformation['type'],
             'platformType' => $instanceInformation['platform'],
+            'platformEnvironment' => $licenseInfo['platformEnvironment'],
             'licenseType' => $licenseInfo['licenseType'],
             'versionMajor' => $centreonVersion['major'],
             'versionMinor' => $centreonVersion['minor'],
@@ -188,6 +191,15 @@ class CentreonCeip extends CentreonWebService
             'nb_services' => (int) $configUsage['nb_services'],
             'nb_servers' => $configUsage['nb_central'] + $configUsage['nb_remotes'] + $configUsage['nb_pollers']
         ];
+
+        if (isset($licenseInfo['hosts_limitation'])) {
+            $accountInformation['hosts_limitation'] = $licenseInfo['hosts_limitation'];
+        }
+        if (isset($licenseInfo['fingerprint'])) {
+            $accountInformation['fingerprint'] = $licenseInfo['fingerprint'];
+        }
+
+        return $accountInformation;
     }
 
     /**
@@ -201,6 +213,8 @@ class CentreonCeip extends CentreonWebService
          * Getting License informations.
          */
         $dependencyInjector = \Centreon\LegacyContainer::getInstance();
+        $fingerprintService = $dependencyInjector[ServiceProvider::LM_FINGERPRINT];
+
         $productLicense = 'Open Source';
         $licenseClientName = '';
         try {
@@ -213,26 +227,55 @@ class CentreonCeip extends CentreonWebService
                 if ($isLicenseValid && !empty($licenseObject->getData())) {
                     $licenseInformation[$module] = $licenseObject->getData();
                     $licenseClientName = $licenseInformation[$module]['client']['name'];
+                    $hostsLimitation = $licenseInformation[$module]['licensing']['hosts'];
+                    $licenseStart = DateTime::createFromFormat(
+                        'Y-m-d',
+                        $licenseInformation[$module]['licensing']['start']
+                    ) ?: throw new Exception('Invalid date format');
+                    $licenseEnd = DateTime::createFromFormat(
+                        'Y-m-d',
+                        $licenseInformation[$module]['licensing']['end']
+                    ) ?: throw new Exception('Invalid date format');
+                    $licenseDurationInMonths = $licenseEnd->diff($licenseStart)->m;
                     if ($module === 'epp') {
                         $productLicense = 'IT Edition';
                         if ($licenseInformation[$module]['licensing']['type'] === 'IT100') {
                             $productLicense = 'IT-100 Edition';
+                        } else if ($hostsLimitation === -1 && $licenseDurationInMonths > 3) {
+                            $productLicense = 'MSP Edition';
+                            $fingerprint = $fingerprintService->calculateFingerprint();
                         }
                     }
                     if (in_array($module, ['mbi', 'bam', 'map'])) {
                         $productLicense = 'Business Edition';
+                        $fingerprint = $fingerprintService->calculateFingerprint();
+                        if ($hostsLimitation === -1 && $licenseDurationInMonths > 3) {
+                            $productLicense = 'MSP Edition';
+                        }
                         break;
                     }
+                    $environment = $licenseInformation[$module]['platform']['environment'];
                 }
             }
         } catch (\Exception $exception) {
             $this->logger->error($exception->getMessage(), ['context' => $exception]);
         }
 
-        return [
+        $licenseInformation = [
             'companyName' => $licenseClientName,
-            'licenseType' => $productLicense
+            'licenseType' => $productLicense,
+            'platformEnvironment' => $environment ?? 'demo',
         ];
+
+        if (isset($hostsLimitation)) {
+            $licenseInformation['hosts_limitation'] = $hostsLimitation;
+        }
+
+        if (isset($fingerprint)) {
+            $licenseInformation['fingerprint'] = $fingerprint;
+        }
+
+        return $licenseInformation;
     }
 
     /**
