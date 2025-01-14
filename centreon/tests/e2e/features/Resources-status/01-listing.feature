@@ -37,3 +37,100 @@ Feature: List Resources
     Given a saved up host filter
     When I select the up host filter
     Then only the up hosts are displayed in the result
+
+  Scenario: Selecting HG, HC, SG and SC filters
+    Given resources are monitored
+    When the user selects HG_1 in the host group filter
+    And the user selects HC_1 in the host category filter
+    And the user selects SG_1 in the service group filter
+    And the user selects SC_1 in the service category filter
+    Then only HOST_A_SVC_1 is displayed
+
+  Scenario: Selecting HG, HC and SG filters
+    Given resources are monitored
+    When the user selects HG_1 in the host group filter
+    And the user selects HC_1 in the host category filter
+    And the user selects SG_1 in the service group filter
+    Then only HOST_A_SVC_1 and HOST_A_SVC_2 are displayed
+
+  Scenario: Selecting HG, HC and SC filters
+    Given resources are monitored
+    When the user selects HG_1 in the host group filter
+    And the user selects HC_1 in the host category filter
+    And the user selects SC_1 in the service category filter
+    Then only HOST_A_SVC_1 is displayed
+
+  Scenario: Selecting HG and HC filters
+    Given resources are monitored
+    When the user selects HG_1 in the host group filter
+    And the user selects HC_1 in the host category filter
+    Then only HOST_A, HOST_A_SVC_1 and HOST_A_SVC_2 are displayed
+
+  Scenario: Selecting HG, SG and SC filters
+    Given resources are monitored
+    When the user selects HG_1 in the host group filter
+    And the user selects SG_1 in the service group filter
+    And the user selects SC_1 in the service category filter
+    Then only HOST_A_SVC_1 is displayed
+
+  Scenario: Selecting HG and SG filters
+    Given resources are monitored
+    When the user selects HG_1 in the host group filter
+    And the user selects SG_1 in the service group filter
+    Then only HOST_A_SVC_1 and HOST_A_SVC_2 are displayed
+
+  Scenario: Selecting HG and SC filters
+    Given resources are monitored
+    When the user selects HG_1 in the host group filter
+    And the user selects SC_1 in the service category filter
+    Then only HOST_A_SVC_1 is displayed
+
+  Scenario: Selecting HG filter
+    Given resources are monitored
+    When the user selects HG_1 in the host group filter
+    Then only HOST_A, HOST_A_SVC_1 and HOST_A_SVC_2 are displayed
+
+  Scenario: Selecting HC, SG and SC filters
+    Given resources are monitored
+    When the user selects HC_1 in the host category filter
+    And the user selects SG_1 in the service group filter
+    And the user selects SC_1 in the service category filter
+    Then only HOST_A_SVC_1 is displayed
+
+  Scenario: Selecting HC and SG filters
+    Given resources are monitored
+    When the user selects HC_1 in the host category filter
+    And the user selects SG_1 in the service group filter
+    Then only HOST_A_SVC_1 and HOST_A_SVC_2 are displayed
+
+  Scenario: Selecting HC and SC filters
+    Given resources are monitored
+    When the user selects HC_1 in the host category filter
+    And the user selects SC_1 in the service category filter
+    Then only HOST_A_SVC_1 is displayed
+
+  Scenario: Selecting HC filter
+    Given resources are monitored
+    When the user selects HC_1 in the host category filter
+    Then only HOST_A, HOST_A_SVC_1 and HOST_A_SVC_2 are displayed
+
+  Scenario: Selecting SG and SC filters
+    Given resources are monitored
+    When the user selects SG_1 in the service group filter
+    And the user selects SC_1 in the service category filter
+    Then only HOST_A_SVC_1 is displayed
+
+  Scenario: Selecting SG filter
+    Given resources are monitored
+    When the user selects SG_1 in the service group filter
+    Then only HOST_A_SVC_1 and HOST_A_SVC_2 are displayed
+
+  Scenario: Selecting SC filter
+    Given resources are monitored
+    When the user selects SC_1 in the service category filter
+    Then only HOST_A_SVC_1 and HOST_B_SVC_1 are displayed
+
+  Scenario: Selecting no filter
+    Given resources are monitored
+    When has no filter selected
+    Then all resources are displayed
