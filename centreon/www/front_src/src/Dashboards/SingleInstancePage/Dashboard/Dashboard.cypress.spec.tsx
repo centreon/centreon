@@ -30,14 +30,21 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
+import { equals } from 'ramda';
 import { federatedWidgetsPropertiesAtom } from '../../../federatedModules/atoms';
 import {
   dashboardSharesEndpoint,
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
+  dashboardsFavoriteEndpoint,
   getDashboardEndpoint
 } from '../../api/endpoints';
 import { DashboardRole } from '../../api/models';
+import { FavoriteAction } from '../../models';
+import {
+  interceptDashboardsFavoriteDelete,
+  manageAFavorite
+} from '../../testsUtils';
 import {
   labelAddAContact,
   labelDashboardUpdated,
@@ -130,6 +137,7 @@ interface InitializeAndMountProps {
   globalRole?: DashboardGlobalRole;
   isBlocked?: boolean;
   ownRole?: DashboardRole;
+  customDetailsPath?: string;
 }
 
 const editorRoles = {
@@ -164,6 +172,20 @@ const viewerAdministratorRoles = {
   ownRole: DashboardRole.viewer
 };
 
+const interceptDetailsDashboard = ({
+  path,
+  own_role = DashboardRole.editor
+}) => {
+  cy.fixture(path).then((dashboardDetails) => {
+    cy.interceptAPIRequest({
+      alias: 'getDashboardDetails',
+      method: Method.GET,
+      path: getDashboardEndpoint('1'),
+      response: { ...dashboardDetails, own_role }
+    });
+  });
+};
+
 const initializeAndMount = ({
   ownRole = DashboardRole.editor,
   globalRole = DashboardGlobalRole.administrator,
@@ -171,7 +193,8 @@ const initializeAndMount = ({
   canViewDashboard = true,
   canAdministrateDashboard = true,
   isBlocked = false,
-  detailsWithData = false
+  detailsWithData = false,
+  customDetailsPath
 }: InitializeAndMountProps): {
   blockNavigation;
   proceedNavigation;
@@ -210,18 +233,11 @@ const initializeAndMount = ({
 
   cy.viewport('macbook-13');
 
-  cy.fixture(
-    `Dashboards/Dashboard/${detailsWithData ? 'detailsWithData' : 'details'}.json`
-  ).then((dashboardDetails) => {
-    cy.interceptAPIRequest({
-      alias: 'getDashboardDetails',
-      method: Method.GET,
-      path: getDashboardEndpoint('1'),
-      response: {
-        ...dashboardDetails,
-        own_role: ownRole
-      }
-    });
+  interceptDetailsDashboard({
+    path:
+      customDetailsPath ??
+      `Dashboards/Dashboard/${detailsWithData ? 'detailsWithData' : 'details'}.json`,
+    own_role: ownRole
   });
 
   cy.interceptAPIRequest({
@@ -257,6 +273,12 @@ const initializeAndMount = ({
     method: Method.PUT,
     path: `./api/latest${dashboardSharesEndpoint(1)}`,
     statusCode: 204
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'addFavorite',
+    method: Method.POST,
+    path: `./api/latest${dashboardsFavoriteEndpoint}`
   });
 
   const proceedNavigation = cy.stub();
@@ -384,6 +406,29 @@ const initializeDashboardWithWebpageWidgets = ({
         </BrowserRouter>
       </TestQueryProvider>
     )
+  });
+};
+
+const runFavoriteManagementFromDetails = ({ action, customDetailsPath }) => {
+  initializeAndMount({ customDetailsPath });
+
+  cy.waitForRequest('@getDashboardDetails');
+
+  const path = equals(action, FavoriteAction.delete)
+    ? 'Dashboards/Dashboard/details.json'
+    : 'Dashboards/favorites/details.json';
+
+  const aliasRequestAction = equals(FavoriteAction.add, action)
+    ? '@addFavorite'
+    : '@removeFavorite';
+
+  interceptDetailsDashboard({ path });
+
+  cy.findByRole('button', { name: 'FavoriteIconButton' }).as('favoriteIcon');
+  manageAFavorite({
+    action,
+    buttonAlias: '@favoriteIcon',
+    requestsToWait: [aliasRequestAction, '@getDashboardDetails']
   });
 };
 
@@ -850,6 +895,25 @@ describe('Dashboard', () => {
       cy.findAllByTestId('Webpage Display').should('have.length', 2);
 
       cy.findAllByTestId('UpdateIcon').should('have.length', 2);
+    });
+  });
+
+  describe('Managment favorite dashboards', () => {
+    it('add a dashboard to favorites when clicking on the corresponding icon in the details view', () => {
+      runFavoriteManagementFromDetails({
+        action: FavoriteAction.add,
+        customDetailsPath: 'Dashboards/Dashboard/details.json'
+      });
+      cy.makeSnapshot();
+    });
+
+    it('remove a dashboard from favorites when clicking on the corresponding icon in the details view', () => {
+      interceptDashboardsFavoriteDelete(1);
+      runFavoriteManagementFromDetails({
+        action: FavoriteAction.delete,
+        customDetailsPath: 'Dashboards/favorites/details.json'
+      });
+      cy.makeSnapshot();
     });
   });
 });
