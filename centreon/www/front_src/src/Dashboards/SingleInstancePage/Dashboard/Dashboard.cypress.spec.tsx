@@ -630,7 +630,7 @@ describe('Dashboard', () => {
         const widgetName = widget.moduleName;
 
         cy.findByLabelText(widgetName)
-          .parentsUntil('[data-canmove="false"]')
+          .parentsUntil('[data-can-move="false"]')
           .last()
           .as('header')
           .scrollIntoView();
