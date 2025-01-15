@@ -25,7 +25,7 @@ interface Props {
   svgRef: MutableRefObject<SVGSVGElement | null>;
   timeSeries: Array<TimeValue>;
   xScale;
-  maxAxisCharacters: number;
+  maxAxisCharacters?: number;
   hasSecondUnit?: boolean;
 }
 
@@ -45,7 +45,7 @@ const ChartSvgWrapper = ({
   children,
   orientation = 'horizontal',
   allUnits,
-  maxAxisCharacters,
+  maxAxisCharacters = 0,
   hasSecondUnit
 }: Props): JSX.Element => {
   const isHorizontal = equals(orientation, 'horizontal');
@@ -59,8 +59,8 @@ const ChartSvgWrapper = ({
     >
       <Group.Group
         left={
-          maxAxisCharacters * (5 + maxAxisCharacters / 10) +
-          (hasSecondUnit ? margin.top : margin.top * 0.5)
+          maxAxisCharacters * 5 +
+          (hasSecondUnit ? margin.top * 0.8 : margin.top * 0.6)
         }
         top={margin.top}
       >

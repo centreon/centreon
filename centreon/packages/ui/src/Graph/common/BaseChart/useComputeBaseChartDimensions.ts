@@ -51,8 +51,7 @@ export const useComputeBaseChartDimensions = ({
   const graphWidth =
     width > 0
       ? width -
-        (hasSecondUnit ? maxAxisCharacters * 2 : maxAxisCharacters) *
-          (5 + maxAxisCharacters / 10) -
+        (hasSecondUnit ? maxAxisCharacters * 2 : maxAxisCharacters) * 6 -
         (hasSecondUnit ? margins.left * 0.8 : margin.left) -
         legendBoundingWidth
       : 0;

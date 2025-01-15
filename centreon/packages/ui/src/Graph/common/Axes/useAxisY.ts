@@ -72,8 +72,7 @@ const useAxisY = ({
       return formatMetricValueWithUnit({
         base: data.baseAxis,
         unit,
-        value,
-        isRaw: false
+        value
       }) as string;
     };
 

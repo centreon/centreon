@@ -16,17 +16,16 @@ import BarGroup from '../BarChart/BarGroup';
 import BaseChart from '../common/BaseChart/BaseChart';
 import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
 import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
+import { useComputeYAxisMaxCharacters } from '../common/BaseChart/useComputeYAxisMaxCharacters';
 import Thresholds from '../common/Thresholds/Thresholds';
 import type { Thresholds as ThresholdsModel } from '../common/models';
 import {
-  formatMetricValueWithUnit,
   getUnits,
   getXScale,
   getXScaleBand,
   getYScalePerUnit
 } from '../common/timeSeries';
 import type { Line } from '../common/timeSeries/models';
-
 import Lines from './BasicComponents/Lines';
 import {
   canDisplayThreshold,
@@ -141,67 +140,15 @@ const Chart = ({
     [displayedLines]
   );
 
-  // TODO: refactor this shit
-  const maxLeftValue = [
-    ...graphData.timeSeries.map((data) =>
-      formatMetricValueWithUnit({
-        value:
-          data[
-            graphData.lines.find(
-              ({ unit }) => unit === (axis?.axisYLeft?.unit ?? firstUnit)
-            )?.metric_id
-          ],
-        unit: axis?.axisYLeft?.unit ?? firstUnit,
-        base: graphData?.baseAxis,
-        isRaw: false
-      })
-    ),
-    ...(thresholdUnit === (axis?.axisYLeft?.unit ?? firstUnit)
-      ? thresholds?.critical.map(({ value }) =>
-          formatMetricValueWithUnit({
-            value,
-            unit: axis?.axisYLeft?.unit ?? firstUnit,
-            base: graphData?.baseAxis,
-            isRaw: false
-          })
-        ) || []
-      : [])
-  ];
-
-  const maxRightValue = [
-    ...graphData.timeSeries.map(
-      (data) =>
-        formatMetricValueWithUnit({
-          value:
-            data[
-              graphData.lines.find(
-                ({ unit }) => unit === (axis?.axisYRight?.unit ?? secondUnit)
-              )?.metric_id
-            ],
-          unit: axis?.axisYRight?.unit ?? secondUnit,
-          base: graphData?.baseAxis,
-          isRaw: false
-        }),
-      ...(thresholdUnit === (axis?.axisYRight?.unit ?? secondUnit)
-        ? thresholds?.critical.map(({ value }) =>
-            formatMetricValueWithUnit({
-              value,
-              unit: axis?.axisYRight?.unit ?? secondUnit,
-              base: graphData?.baseAxis,
-              isRaw: false
-            })
-          ) || []
-        : [])
-    )
-  ];
-
-  const maxLeftAxisCharacters = Math.max(
-    ...maxLeftValue.filter((v) => v).map((value) => value.length)
-  );
-
-  const maxRightAxisCharacters = isEmpty(maxRightValue.filter((v) => v))
-    ? 0
-    : Math.max(...maxRightValue.filter((v) => v).map((value) => value.length));
+  const { maxLeftAxisCharacters, maxRightAxisCharacters } =
+    useComputeYAxisMaxCharacters({
+      graphData,
+      thresholds,
+      thresholdUnit,
+      axis,
+      firstUnit,
+      secondUnit
+    });
 
   const { legendRef, graphWidth, graphHeight } = useComputeBaseChartDimensions({
     hasSecondUnit: Boolean(secondUnit),
