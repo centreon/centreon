@@ -422,7 +422,7 @@ class SmartyBC extends Smarty
      * @param string $compile_id
      *
      * @return bool
-     *@throws SmartyException
+     * @throws SmartyException
      *
      * @throws \Exception
      */
