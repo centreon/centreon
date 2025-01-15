@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useFetchQuery } from '@centreon/ui';
 
 import {
-  refreshIntervalAtom,
+  statisticsRefreshIntervalAtom,
   userAtom,
   userPermissionsAtom
 } from '@centreon/ui-context';
@@ -31,7 +31,7 @@ export const usePollerData = (): UsePollerDataResult => {
 
   const userPermissions = useAtomValue(userPermissionsAtom);
   const { isExportButtonEnabled } = useAtomValue(userAtom);
-  const refetchInterval = useAtomValue(refreshIntervalAtom);
+  const refetchInterval = useAtomValue(statisticsRefreshIntervalAtom);
 
   const isAllowed = useMemo(
     () => userPermissions?.poller_statistics || false,
